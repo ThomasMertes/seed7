@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zstd.s7i      Zstandard compression support library             *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -62,6 +62,7 @@ const proc: readFrameHeader (inout file: compressed, inout zstdFrameHeader: head
     var integer: dictionaryIdFlag is 0;
     var integer: dictionaryIdFieldSize is 0;
     var integer: windowDescriptor is 0;
+    var string: stri is "";
   begin
     descriptor := ord(getc(compressed));
     # writeln("descriptor: " <& descriptor);
@@ -88,15 +89,25 @@ const proc: readFrameHeader (inout file: compressed, inout zstdFrameHeader: head
       # writeln("windowSize: " <& header.windowSize);
     end if;
     if dictionaryIdFieldSize <> 0 then
-      header.dictionaryId := bytes2Int(gets(compressed, dictionaryIdFieldSize), UNSIGNED, LE);
+      stri := gets(compressed, dictionaryIdFieldSize);
+      if length(stri) <> dictionaryIdFieldSize then
+        raise RANGE_ERROR;
+      end if;
+      header.dictionaryId := bytes2Int(stri, UNSIGNED, LE);
     end if;
     # writeln("dictionaryId: " <& header.dictionaryId);
+    if fcsFieldSize <> 0 then
+      stri := gets(compressed, fcsFieldSize);
+      if length(stri) <> fcsFieldSize then
+        raise RANGE_ERROR;
+      end if;
+    end if;
     case fcsFieldSize of
       when {0}: header.frameContentSize := -1;
-      when {1}: header.frameContentSize := ord(getc(compressed));
-      when {2}: header.frameContentSize := 256 + bytes2Int(gets(compressed, 2), UNSIGNED, LE);
-      when {4}: header.frameContentSize := bytes2Int(gets(compressed, 4), UNSIGNED, LE);
-      when {8}: header.frameContentSize := bytes2Int(gets(compressed, 8), UNSIGNED, LE);
+      when {1}: header.frameContentSize :=       bytes2Int(stri, UNSIGNED, LE);
+      when {2}: header.frameContentSize := 256 + bytes2Int(stri, UNSIGNED, LE);
+      when {4}: header.frameContentSize :=       bytes2Int(stri, UNSIGNED, LE);
+      when {8}: header.frameContentSize :=       bytes2Int(stri, UNSIGNED, LE);
     end case;
     # writeln("frameContentSize: " <& header.frameContentSize);
   end func;
@@ -536,6 +547,8 @@ const func zstdLiteralSectionHeader: readZstdLiteralsSectionHeader (inout file: 
   local
     var integer: aByte is 0;
     var integer: sizeFormat is 0;
+    var integer: bytesToRead is 0;
+    var string: stri is "";
     var integer: number is 0;
   begin
     aByte := ord(getc(compressed));
@@ -548,34 +561,40 @@ const func zstdLiteralSectionHeader: readZstdLiteralsSectionHeader (inout file: 
           # Only one bit of sizeFormat is used.
           header.regeneratedSize := aByte >> 3;
         when {1}:
-          header.regeneratedSize := (aByte >> 4) + (ord(getc(compressed)) << 4);
+          header.regeneratedSize := (aByte >> 4) + (bytes2Int(gets(compressed, 1), UNSIGNED, LE) << 4);
         when {3}:
           header.regeneratedSize := (aByte >> 4) + (bytes2Int(gets(compressed, 2), UNSIGNED, LE) << 4);
       end case;
     else
       # Decode compressedSize and regeneratedSize.
-      case sizeFormat of
-        when {0}:
-           header.numStreams := 1;
-           number := (aByte >> 4) + (bytes2Int(gets(compressed, 2), UNSIGNED, LE) << 4);
-           header.regeneratedSize := number mod 1024;
-           header.compressedSize := number >> 10;
-        when {1}:
-           header.numStreams := 4;
-           number := (aByte >> 4) + (bytes2Int(gets(compressed, 2), UNSIGNED, LE) << 4);
-           header.regeneratedSize := number mod 1024;
-           header.compressedSize := number >> 10;
-        when {2}:
-           header.numStreams := 4;
-           number := (aByte >> 4) + (bytes2Int(gets(compressed, 3), UNSIGNED, LE) << 4);
-           header.regeneratedSize := number mod 16384;
-           header.compressedSize := number >> 14;
-        when {3}:
-           header.numStreams := 4;
-           number := (aByte >> 4) + (bytes2Int(gets(compressed, 4), UNSIGNED, LE) << 4);
-           header.regeneratedSize := number mod 262144;
-           header.compressedSize := number >> 18;
-      end case;
+      bytesToRead := max(2, succ(sizeFormat));
+      stri := gets(compressed, bytesToRead);
+      if length(stri) = bytesToRead then
+        case sizeFormat of
+          when {0}:
+             header.numStreams := 1;
+             number := (aByte >> 4) + (bytes2Int(stri, UNSIGNED, LE) << 4);
+             header.regeneratedSize := number mod 1024;
+             header.compressedSize := number >> 10;
+          when {1}:
+             header.numStreams := 4;
+             number := (aByte >> 4) + (bytes2Int(stri, UNSIGNED, LE) << 4);
+             header.regeneratedSize := number mod 1024;
+             header.compressedSize := number >> 10;
+          when {2}:
+             header.numStreams := 4;
+             number := (aByte >> 4) + (bytes2Int(stri, UNSIGNED, LE) << 4);
+             header.regeneratedSize := number mod 16384;
+             header.compressedSize := number >> 14;
+          when {3}:
+             header.numStreams := 4;
+             number := (aByte >> 4) + (bytes2Int(stri, UNSIGNED, LE) << 4);
+             header.regeneratedSize := number mod 262144;
+             header.compressedSize := number >> 18;
+        end case;
+      else
+        raise RANGE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -604,6 +623,7 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
     var array integer: weights is [0 .. -1] times 0;
     var array integer: streamSize is 4 times 0;
     var array reverseBitStream: compressedStream is 4 times reverseBitStream.value;
+    var string: stri is "";
   begin
     compressedSize := header.compressedSize;
     if header.literalsBlockType = ZSTD_COMPRESSED_LITERALS_BLOCK then
@@ -616,19 +636,24 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
       compressedStream[1] := reverseBitStream(compressed, compressedSize);
       literals := decodeStream(blockState.table, compressedStream[1]);
     elsif header.numStreams = 4 then
-      streamSize[1] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
-      streamSize[2] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
-      streamSize[3] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
-      compressedSize -:= 6;
-      streamSize[4] := compressedSize - streamSize[1] - streamSize[2] - streamSize[3];
-      compressedStream[1] := reverseBitStream(compressed, streamSize[1]);
-      compressedStream[2] := reverseBitStream(compressed, streamSize[2]);
-      compressedStream[3] := reverseBitStream(compressed, streamSize[3]);
-      compressedStream[4] := reverseBitStream(compressed, streamSize[4]);
-      literals := decodeStream(blockState.table, compressedStream[1]) &
-                  decodeStream(blockState.table, compressedStream[2]) &
-                  decodeStream(blockState.table, compressedStream[3]) &
-                  decodeStream(blockState.table, compressedStream[4]);
+      stri := gets(compressed, 6);
+      if length(stri) = 6 then
+        streamSize[1] := bytes2Int(stri[1 fixLen 2], UNSIGNED, LE);
+        streamSize[2] := bytes2Int(stri[3 fixLen 2], UNSIGNED, LE);
+        streamSize[3] := bytes2Int(stri[5 fixLen 2], UNSIGNED, LE);
+        compressedSize -:= 6;
+        streamSize[4] := compressedSize - streamSize[1] - streamSize[2] - streamSize[3];
+        compressedStream[1] := reverseBitStream(compressed, streamSize[1]);
+        compressedStream[2] := reverseBitStream(compressed, streamSize[2]);
+        compressedStream[3] := reverseBitStream(compressed, streamSize[3]);
+        compressedStream[4] := reverseBitStream(compressed, streamSize[4]);
+        literals := decodeStream(blockState.table, compressedStream[1]) &
+                    decodeStream(blockState.table, compressedStream[2]) &
+                    decodeStream(blockState.table, compressedStream[3]) &
+                    decodeStream(blockState.table, compressedStream[4]);
+      else
+        raise RANGE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -915,7 +940,7 @@ const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
       for index range 1 to sequencesSection.numberOfSequences do
         sequence := decodeSequence(sequencesSection, compressedStream, state);
         if sequence.literalLength > 0 then
-          uncompressed &:= literals[literalPos len sequence.literalLength];
+          uncompressed &:= literals[literalPos fixLen sequence.literalLength];
           literalPos +:= sequence.literalLength;
         end if;
 
@@ -1011,22 +1036,28 @@ const func boolean: zstdBlock (inout file: compressed, inout zstdBlockStateType:
   result
     var boolean: lastBlock is FALSE;
   local
+    var string: stri is "";
     var integer: blockSize is 0;
     var integer: blockType is 0;
   begin
-    blockSize := bytes2Int(gets(compressed, 3), UNSIGNED, LE);
-    lastBlock := odd(blockSize);
-    # writeln("lastBlock: " <& lastBlock);
-    blockSize >>:= 1;
-    blockType := blockSize mod 4;
-    # writeln("blockType: " <& blockType);
-    blockSize >>:= 2;
-    # writeln("blockSize: " <& blockSize);
-    case blockType of
-      when {0}: uncompressed &:= gets(compressed, blockSize);
-      when {1}: uncompressed &:= str(getc(compressed)) mult blockSize;
-      when {2}: readCompressedBlock(compressed, blockSize, blockState, uncompressed);
-    end case;
+    stri := gets(compressed, 3);
+    if length(stri) = 3 then
+      blockSize := bytes2Int(stri, UNSIGNED, LE);
+      lastBlock := odd(blockSize);
+      # writeln("lastBlock: " <& lastBlock);
+      blockSize >>:= 1;
+      blockType := blockSize mod 4;
+      # writeln("blockType: " <& blockType);
+      blockSize >>:= 2;
+      # writeln("blockSize: " <& blockSize);
+      case blockType of
+        when {0}: uncompressed &:= gets(compressed, blockSize);
+        when {1}: uncompressed &:= str(getc(compressed)) mult blockSize;
+        when {2}: readCompressedBlock(compressed, blockSize, blockState, uncompressed);
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 

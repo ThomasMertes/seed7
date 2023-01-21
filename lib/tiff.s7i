@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tiff.s7i      Support for the TIFF image file format.           *)
-(*  Copyright (C) 2022  Thomas Mertes                               *)
+(*  Copyright (C) 2022, 2023  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -309,11 +309,11 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
         rationalStri := gets(tiffFile, 8);
         if length(rationalStri) = 8 then
           if header.littleEndian then
-            numerator   := bytes2Int(rationalStri[1 len 4], UNSIGNED, LE);
-            denominator := bytes2Int(rationalStri[1 len 4], UNSIGNED, LE);
+            numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
+            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
           else
-            numerator   := bytes2Int(rationalStri[1 len 4], UNSIGNED, BE);
-            denominator := bytes2Int(rationalStri[1 len 4], UNSIGNED, BE);
+            numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
+            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
           end if;
           stri := numerator <& "/" <& denominator;
         else
@@ -381,7 +381,7 @@ const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: 
           stri := gets(tiffFile, count);
           if length(stri) = count then
             for index range 1 to count do
-              tagValues[index] := bytes2Int(stri[index len 1], UNSIGNED, LE);
+              tagValues[index] := bytes2Int(stri[index fixLen 1], UNSIGNED, LE);
             end for;
           else
             raise RANGE_ERROR;
@@ -417,11 +417,11 @@ const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: 
           if length(stri) = 2 * count then
             if header.littleEndian then
               for index range 1 to count do
-                tagValues[index] := bytes2Int(stri[pred(2 * index) len 2], UNSIGNED, LE);
+                tagValues[index] := bytes2Int(stri[pred(2 * index) fixLen 2], UNSIGNED, LE);
               end for;
             else
               for index range 1 to count do
-                tagValues[index] := bytes2Int(stri[pred(2 * index) len 2], UNSIGNED, BE);
+                tagValues[index] := bytes2Int(stri[pred(2 * index) fixLen 2], UNSIGNED, BE);
               end for;
             end if;
           else
@@ -440,11 +440,11 @@ const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: 
           if length(stri) = 4 * count then
             if header.littleEndian then
               for index range 1 to count do
-                tagValues[index] := bytes2Int(stri[4 * index - 3 len 4], UNSIGNED, LE);
+                tagValues[index] := bytes2Int(stri[4 * index - 3 fixLen 4], UNSIGNED, LE);
               end for;
             else
               for index range 1 to count do
-                tagValues[index] := bytes2Int(stri[4 * index - 3 len 4], UNSIGNED, BE);
+                tagValues[index] := bytes2Int(stri[4 * index - 3 fixLen 4], UNSIGNED, BE);
               end for;
             end if;
           else
@@ -470,15 +470,15 @@ const proc: readIDFEntry (inout file: tiffFile, inout tiffHeader: header) is fun
     stri := gets(tiffFile, 12);
     if length(stri) = 12 then
       if header.littleEndian then
-        tag           := bytes2Int(stri[1 len 2], UNSIGNED, LE);
-        fieldType     := bytes2Int(stri[3 len 2], UNSIGNED, LE);
-        count         := bytes2Int(stri[5 len 4], UNSIGNED, LE);
-        valueOrOffset := bytes2Int(stri[9 len 4], UNSIGNED, LE);
+        tag           := bytes2Int(stri[1 fixLen 2], UNSIGNED, LE);
+        fieldType     := bytes2Int(stri[3 fixLen 2], UNSIGNED, LE);
+        count         := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+        valueOrOffset := bytes2Int(stri[9 fixLen 4], UNSIGNED, LE);
       else
-        tag           := bytes2Int(stri[1 len 2], UNSIGNED, BE);
-        fieldType     := bytes2Int(stri[3 len 2], UNSIGNED, BE);
-        count         := bytes2Int(stri[5 len 4], UNSIGNED, BE);
-        valueOrOffset := bytes2Int(stri[9 len 4], UNSIGNED, BE);
+        tag           := bytes2Int(stri[1 fixLen 2], UNSIGNED, BE);
+        fieldType     := bytes2Int(stri[3 fixLen 2], UNSIGNED, BE);
+        count         := bytes2Int(stri[5 fixLen 4], UNSIGNED, BE);
+        valueOrOffset := bytes2Int(stri[9 fixLen 4], UNSIGNED, BE);
       end if;
       # write(tagName(tag) <& ":");
       if fieldType in {TIFF_FIELD_BYTE, TIFF_FIELD_SHORT, TIFF_FIELD_LONG} then
@@ -696,7 +696,7 @@ const func string: unpackBits (in string: compressed) is func
     while index <= length(compressed) do
       ch := compressed[index];
       if ch <= chr(127) then
-        uncompressed &:= compressed[succ(index) len succ(ord(ch))];
+        uncompressed &:= compressed[succ(index) fixLen succ(ord(ch))];
         index +:= ord(ch) + 2;
       else
         uncompressed &:= str(compressed[succ(index)]) mult (257 - ord(ch));
@@ -885,12 +885,12 @@ const proc: processRowWithColorMap (in tiffHeader: header,
       when {16}:
         if header.littleEndian then
           for column range 1 to header.width do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition len 2], UNSIGNED, LE)];
+            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, LE)];
             currPosition +:= 2;
           end for;
         else
           for column range 1 to header.width do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition len 2], UNSIGNED, BE)];
+            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE)];
             currPosition +:= 2;
           end for;
         end if;
@@ -921,13 +921,13 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
           for column range 1 to header.width do
-            grayIntensity := bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range 1 to header.width do
-            grayIntensity := bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
@@ -959,13 +959,13 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
           for column range 1 to header.width do
-            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range 1 to header.width do
-            grayIntensity := 65535 - bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
@@ -997,13 +997,13 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
         positionDelta := header.bitsPerSample[1] div 8 - 2;
         if header.littleEndian then
           for column range 1 to header.width do
-            grayIntensity := bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range 1 to header.width do
-            grayIntensity := bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
@@ -1035,13 +1035,13 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
         positionDelta := header.bitsPerSample[1] div 8 - 2;
         if header.littleEndian then
           for column range 1 to header.width do
-            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range 1 to header.width do
-            grayIntensity := 65535 - bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
             image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
@@ -1077,18 +1077,18 @@ const proc: processRowWithRGB (in tiffHeader: header,
           deltaGreen := deltaRed + header.bitsPerSample[1] div 8;
           deltaBlue := deltaGreen + header.bitsPerSample[1] div 8;
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   len 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaGreen len 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  len 2], UNSIGNED, LE));
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
             currPosition +:= positionIncrement;
           end for;
         else
           deltaGreen := header.bitsPerSample[1] div 8;
           deltaBlue := 2 * deltaGreen;
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              len 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaGreen len 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  len 2], UNSIGNED, BE));
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1115,16 +1115,16 @@ const proc: processRowWithRGBA (in tiffHeader: header,
       when {16}:
         if header.littleEndian then
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition len 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 2 len 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 4 len 2], UNSIGNED, LE));
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
             currPosition +:= 8;
           end for;
         else
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition len 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 2 len 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 4 len 2], UNSIGNED, BE));
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
             currPosition +:= 8;
           end for;
         end if;
@@ -1321,16 +1321,16 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
           positionDelta := positionIncrement - 2;
           if header.littleEndian then
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta len 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[2][currPosition + positionDelta len 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[3][currPosition + positionDelta len 2], UNSIGNED, LE));
+              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                              bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                              bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
               currPosition +:= positionIncrement;
             end for;
           else
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition len 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[2][currPosition len 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[3][currPosition len 2], UNSIGNED, BE));
+              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
+                                              bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
+                                              bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
               currPosition +:= positionIncrement;
             end for;
           end if;

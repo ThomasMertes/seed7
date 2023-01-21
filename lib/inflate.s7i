@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  inflate.s7i   Inflate uncompression algorithm                   *)
-(*  Copyright (C) 2008, 2013, 2015, 2017, 2022  Thomas Mertes       *)
+(*  Copyright (C) 2008, 2013, 2015, 2017, 2022, 2023  Thomas Mertes *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -290,6 +290,7 @@ const func string: inflate (inout file: compressed) is func
     repeat
       processCompressedBlock(compressedStream, uncompressed, bfinal);
     until bfinal;
+    close(compressedStream);
   end func;
 
 

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ppm.s7i       Support for the PPM image file format.            *)
-(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -98,9 +98,9 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
           byteIndex := 1;
           for column range 1 to width do
             image[line][column] :=
-                rgbPixel(bytes2Int(pixelData[byteIndex len 2], UNSIGNED, BE),
-                         bytes2Int(pixelData[byteIndex + 2 len 2], UNSIGNED, BE),
-                         bytes2Int(pixelData[byteIndex + 4 len 2], UNSIGNED, BE));
+                rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE),
+                         bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE),
+                         bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE));
             byteIndex +:= 6;
           end for;
         end for;

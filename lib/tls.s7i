@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tls.s7i       Support for Transport Layer Security (TLS/SSL).   *)
-(*  Copyright (C) 2013 - 2019, 2021  Thomas Mertes                  *)
+(*  Copyright (C) 2013 - 2019, 2021 - 2023  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -402,17 +402,17 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
     end if;
     # writeln("key_block: " <& hex(key_block));
     # writeln("length(key_block): " <& length(key_block));
-    client_write_MAC_secret := key_block[key_block_pos len parameters.hash_size];
+    client_write_MAC_secret := key_block[key_block_pos fixLen parameters.hash_size];
     key_block_pos +:= parameters.hash_size;
-    server_write_MAC_secret := key_block[key_block_pos len parameters.hash_size];
+    server_write_MAC_secret := key_block[key_block_pos fixLen parameters.hash_size];
     key_block_pos +:= parameters.hash_size;
-    client_write_key := key_block[key_block_pos len parameters.key_material_length];
+    client_write_key := key_block[key_block_pos fixLen parameters.key_material_length];
     key_block_pos +:= parameters.key_material_length;
-    server_write_key := key_block[key_block_pos len parameters.key_material_length];
+    server_write_key := key_block[key_block_pos fixLen parameters.key_material_length];
     key_block_pos +:= parameters.key_material_length;
-    client_initialization_vector := key_block[key_block_pos len parameters.block_size];
+    client_initialization_vector := key_block[key_block_pos fixLen parameters.block_size];
     key_block_pos +:= parameters.block_size;
-    server_initialization_vector := key_block[key_block_pos len parameters.block_size];
+    server_initialization_vector := key_block[key_block_pos fixLen parameters.block_size];
     # writeln("client_write_MAC_secret: " <& hex(client_write_MAC_secret));
     # writeln("server_write_MAC_secret: " <& hex(server_write_MAC_secret));
     # writeln("client_write_key: " <& hex(client_write_key));
@@ -581,10 +581,10 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     # writeln("certificate");
     startPos := state.pos;
     state.pos +:= 4;
-    sequenceLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    sequenceLen := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     while state.pos <= 3 + sequenceLen do
-      certLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+      certLen := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
       state.pos +:= 3;
       parameters.serverCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
@@ -613,10 +613,10 @@ const proc: processClientCertificate (inout tlsParameters: parameters, inout tls
     # writeln("client_certificate");
     startPos := state.pos;
     state.pos +:= 4;
-    sequenceLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    sequenceLen := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     while state.pos <= 3 + sequenceLen do
-      certLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+      certLen := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
       state.pos +:= 3;
       parameters.clientCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
@@ -642,7 +642,7 @@ const proc: processCertificateVerify (inout tlsParameters: parameters, inout tls
     # writeln("certificate_verify");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     state.pos +:= length;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
@@ -656,10 +656,10 @@ const proc: processEllipticCurvesExtension (inout tlsParameters: parameters,
     var integer: length is 0;
     var integer: curveNumber is 0;
   begin
-    length := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+    length := bytes2Int(extensionData[pos fixLen 2], UNSIGNED, BE);
     pos +:= 2;
     while pos < length(extensionData) and parameters.curve.bits = 0 do
-      curveNumber := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+      curveNumber := bytes2Int(extensionData[pos fixLen 2], UNSIGNED, BE);
       # writeln("curveNumber: " <& curveNumber);
       pos +:= 2;
       if curveNumber >= minIdx(curveByNumber) and curveNumber <= maxIdx(curveByNumber) then
@@ -678,10 +678,10 @@ const proc: processSignatureAlgorithmsExtension (inout tlsParameters: parameters
     var integer: signatureScheme is 0;
     var integer: schemeFromList is 0;
   begin
-    length := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+    length := bytes2Int(extensionData[pos fixLen 2], UNSIGNED, BE);
     pos +:= 2;
     while pos < length(extensionData) and parameters.signatureScheme = 0 do
-      signatureScheme := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+      signatureScheme := bytes2Int(extensionData[pos fixLen 2], UNSIGNED, BE);
       # writeln("signatureScheme: " <& signatureScheme radix 16 lpad0 4);
       pos +:= 2;
       for schemeFromList range serverSignatureSchemes until parameters.signatureScheme <> 0 do
@@ -702,9 +702,9 @@ const proc: processClientExtensions (inout tlsParameters: parameters, in string:
     var string: data is "";
   begin
     while pos < length(extensions) do
-      extensionType := bytes2Int(extensions[pos len 2], UNSIGNED, BE);
+      extensionType := bytes2Int(extensions[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
-      dataSize := bytes2Int(extensions[pos len 2], UNSIGNED, BE);
+      dataSize := bytes2Int(extensions[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
       data := extensions[pos len dataSize];
       pos +:= dataSize;
@@ -735,7 +735,7 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
     # writeln("client_hello");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
@@ -750,10 +750,10 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
       incr(state.pos);
       # writeln("SessionId: " <& hex(state.message[state.pos len sessionIdLen]));
       state.pos +:= sessionIdLen;
-      numCipherSuites := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE) div 2;
+      numCipherSuites := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE) div 2;
       state.pos +:= 2;
       for index range 1 to numCipherSuites do
-        cipher_suite_number := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        cipher_suite_number := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
         for key searchIndex range supportedCiphers do
           if ord(supportedCiphers[searchIndex]) = cipher_suite_number and
               searchIndex < minIndex then
@@ -772,7 +772,7 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
       numCompressionMethods := ord(state.message[state.pos]);
       state.pos +:= 1 + numCompressionMethods;
       if state.pos <= beyond - 2 then
-        extensionBytes := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        extensionBytes := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
         state.pos +:= 2;
         processClientExtensions(parameters, state.message[state.pos len extensionBytes]);
         state.pos +:= extensionBytes;
@@ -795,7 +795,7 @@ const proc: processServerHello (inout tlsParameters: parameters, inout tlsParseS
     # writeln("server_hello");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
@@ -808,14 +808,14 @@ const proc: processServerHello (inout tlsParameters: parameters, inout tlsParseS
       incr(state.pos);
       parameters.session_id := state.message[state.pos len sessionIdLen];
       state.pos +:= sessionIdLen;
-      parameters.cipher_suite := cipherSuite conv bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+      parameters.cipher_suite := cipherSuite conv bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
       # writeln("Cipher: " <& ord(parameters.cipher_suite));
       storeCipherSuite(parameters);
       state.pos +:= 2;
       parameters.compression_algorithm := ord(state.message[state.pos]);
       incr(state.pos);
       if state.pos <= beyond - 2 then
-        extensionBytes := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        extensionBytes := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
         state.pos +:= 2 + extensionBytes;
       end if;
     else
@@ -843,14 +843,14 @@ const proc: processServerKeyExchange (inout tlsParameters: parameters, inout tls
     # writeln("server_key_exchange");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     beyond := state.pos + length;
     if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
       if state.message[state.pos] = NAMED_CURVE then
         paramsStartPos := state.pos;
         incr(state.pos);
-        curveNumber := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        curveNumber := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
         state.pos +:= 2;
         if curveNumber < minIdx(curveByNumber) or curveNumber > maxIdx(curveByNumber) then
           state.alert := ILLEGAL_PARAMETER;
@@ -862,10 +862,10 @@ const proc: processServerKeyExchange (inout tlsParameters: parameters, inout tls
           parameters.publicEccKeyOfSever := ecPointDecode(parameters.curve, pointData);
           state.pos +:= pointLength;
           serverParams := state.message[paramsStartPos .. pred(state.pos)];
-          signatureScheme := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+          signatureScheme := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
           state.pos +:= 2;
           if parameters.tls_version >= TLS_1_2 then
-            signatureLength := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+            signatureLength := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
             state.pos +:= 2;
           else
             signatureLength := beyond - state.pos;
@@ -895,7 +895,7 @@ const proc: processCertificateRequest (inout tlsParameters: parameters, inout tl
     # writeln("certificate_request");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     state.pos +:= length;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
@@ -910,7 +910,7 @@ const proc: processServerHelloDone (inout tlsParameters: parameters, inout tlsPa
     # writeln("server_hello_done");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -931,13 +931,13 @@ const proc: processClientKeyExchange (inout tlsParameters: parameters, inout tls
     # writeln("client_key_exchange");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     if parameters.key_exchange_algorithm = RSA then
       if parameters.tls_version = SSL_3_0 then
         encryptedSecretLength := length;
       else
-        encryptedSecretLength := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        encryptedSecretLength := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
         state.pos +:= 2;
       end if;
       encryptedPreMasterSecret := state.message[state.pos len encryptedSecretLength];
@@ -986,7 +986,7 @@ const proc: processFinished (inout tlsParameters: parameters, inout tlsParseStat
     # writeln("finished");
     startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    length := bytes2Int(state.message[state.pos fixLen 3], UNSIGNED, BE);
     state.pos +:= 3;
     verify_data := state.message[state.pos len length];
     state.pos +:= length;
@@ -1046,7 +1046,7 @@ const proc: getTlsMsgRecord (inout file: sock, inout tlsParseState: state) is fu
       if length(state.message) = 5 and
           state.message[1] >= CHANGE_CIPHER_SPEC and state.message[1] <= APPLICATION_DATA then
         state.contentType := state.message[1];
-        state.length := bytes2Int(state.message[4 len 2], UNSIGNED, BE);
+        state.length := bytes2Int(state.message[4 fixLen 2], UNSIGNED, BE);
         missing := state.length;
         repeat
           msg2 := gets(sock, missing);
@@ -1086,7 +1086,7 @@ const proc: loadCompleteHandshakeMsg (inout file: sock, inout tlsParseState: sta
   begin
     if length(state.message) >= state.pos + 3 then
       # Determine the length of the handshake message.
-      lengthOfHandshakeMsg := bytes2Int(state.message[state.pos + 1 len 3], UNSIGNED, BE);
+      lengthOfHandshakeMsg := bytes2Int(state.message[state.pos + 1 fixLen 3], UNSIGNED, BE);
       remainingBytesInMsgRecord := length(state.message) - state.pos - 3;
       if lengthOfHandshakeMsg > remainingBytesInMsgRecord then
         # In the current TLS message record are not enough characters.
@@ -1097,7 +1097,7 @@ const proc: loadCompleteHandshakeMsg (inout file: sock, inout tlsParseState: sta
           stri := gets(sock, 5);
           if length(stri) = 5 and stri[1] = HANDSHAKE then
             # We are reading additional data for a handshake message.
-            recordLength := bytes2Int(stri[4 len 2], UNSIGNED, BE);
+            recordLength := bytes2Int(stri[4 fixLen 2], UNSIGNED, BE);
             missing := recordLength;
             repeat
               msg2 := gets(sock, missing);

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lzma.s7i      LZMA compression support library                  *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020, 2021, 2023  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -408,7 +408,7 @@ const func boolean: decodeProperties (inout lzmaDecoder: decoder, in string: pro
       aByte := aByte div 9;
       decoder.pb := aByte div 5;
       decoder.lp := aByte rem 5;
-      dictSizeInProperties := bytes2Int(properties[2 len 4], UNSIGNED, LE);
+      dictSizeInProperties := bytes2Int(properties[2 fixLen 4], UNSIGNED, LE);
       # writeln("dictSizeInProperties: " <& dictSizeInProperties);
       decoder.dictSize := dictSizeInProperties;
       if decoder.dictSize < LZMA_DIC_MIN then
@@ -680,7 +680,7 @@ const func file: openLzmaFile (inout file: compressed) is func
     if decodeProperties(new_lzmaFile.lzmaDec, header) then
       if header[6 len 8] <> "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" then
         new_lzmaFile.unpackSizeDefined := TRUE;
-        new_lzmaFile.unpackSize := bytes2Int(header[6 len 8], UNSIGNED, LE);
+        new_lzmaFile.unpackSize := bytes2Int(header[6 fixLen 8], UNSIGNED, LE);
       end if;
       new_lzmaFile.lzmaDec.rangeDec.compressed := compressed;
       resetDictionary(new_lzmaFile.lzmaDec);

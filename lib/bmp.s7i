@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bmp.s7i       Support for the BMP image file format.            *)
-(*  Copyright (C) 2001, 2005, 2007, 2013, 2021  Thomas Mertes       *)
+(*  Copyright (C) 2001, 2005, 2007, 2013  Thomas Mertes             *)
+(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -124,11 +125,11 @@ const proc: readBitMasks (inout file: bmpFile, inout bmpHeader: header) is func
       stri := gets(bmpFile, numOfBitMaskBytes);
       if length(stri) = numOfBitMaskBytes then
         header.calculatedOffset +:= numOfBitMaskBytes;
-        header.redBitfield   := bmpColorBitfield(bytes2Int(stri[1 len 4], UNSIGNED, LE));
-        header.greenBitfield := bmpColorBitfield(bytes2Int(stri[5 len 4], UNSIGNED, LE));
-        header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[9 len 4], UNSIGNED, LE));
+        header.redBitfield   := bmpColorBitfield(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
+        header.greenBitfield := bmpColorBitfield(bytes2Int(stri[5 fixLen 4], UNSIGNED, LE));
+        header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[9 fixLen 4], UNSIGNED, LE));
         if header.compressionMethod = BMP_BI_ALPHABITFIELDS then
-          header.alphaBitfield  := bmpColorBitfield(bytes2Int(stri[13 len 4], UNSIGNED, LE));
+          header.alphaBitfield  := bmpColorBitfield(bytes2Int(stri[13 fixLen 4], UNSIGNED, LE));
         end if;
       else
         raise RANGE_ERROR;
@@ -174,26 +175,26 @@ const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
         length(stri) = header.dibHeaderSize - 4 then
       header.calculatedOffset +:= header.dibHeaderSize;
       if header.dibHeaderSize = BMP_COREHEADER then
-        header.width        := bytes2Int(stri[1 len 2], UNSIGNED, LE);
-        header.height       := bytes2Int(stri[3 len 2], UNSIGNED, LE);
-        header.planes       := bytes2Int(stri[5 len 2], UNSIGNED, LE);
-        header.bitsPerPixel := bytes2Int(stri[7 len 2], UNSIGNED, LE);
+        header.width        := bytes2Int(stri[1 fixLen 2], UNSIGNED, LE);
+        header.height       := bytes2Int(stri[3 fixLen 2], UNSIGNED, LE);
+        header.planes       := bytes2Int(stri[5 fixLen 2], UNSIGNED, LE);
+        header.bitsPerPixel := bytes2Int(stri[7 fixLen 2], UNSIGNED, LE);
       elsif header.dibHeaderSize = BMP_INFOHEADER_OS22X_SHORT then
-        header.width        := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
-        header.height       := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
-        header.planes       := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
-        header.bitsPerPixel := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+        header.width        := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+        header.height       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+        header.planes       := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
+        header.bitsPerPixel := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
       else  # header.dibHeaderSize >= BMP_INFOHEADER
-        header.width                := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
-        header.height               := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
-        header.planes               := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
-        header.bitsPerPixel         := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-        header.compressionMethod    := bytes2Int(stri[13 len 4], UNSIGNED, LE);
-        header.rawDataSize          := bytes2Int(stri[17 len 4], UNSIGNED, LE);
-        header.horizontalResolution := bytes2Int(stri[21 len 4], UNSIGNED, LE);
-        header.verticalResolution   := bytes2Int(stri[25 len 4], UNSIGNED, LE);
-        header.paletteColors        := bytes2Int(stri[29 len 4], UNSIGNED, LE);
-        header.importantColors      := bytes2Int(stri[33 len 4], UNSIGNED, LE);
+        header.width                := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+        header.height               := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+        header.planes               := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
+        header.bitsPerPixel         := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+        header.compressionMethod    := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+        header.rawDataSize          := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
+        header.horizontalResolution := bytes2Int(stri[21 fixLen 4], UNSIGNED, LE);
+        header.verticalResolution   := bytes2Int(stri[25 fixLen 4], UNSIGNED, LE);
+        header.paletteColors        := bytes2Int(stri[29 fixLen 4], UNSIGNED, LE);
+        header.importantColors      := bytes2Int(stri[33 fixLen 4], UNSIGNED, LE);
         if header.dibHeaderSize = BMP_INFOHEADER then
           # The bit masks are optional and outside of the DIB header.
           readBitMasks(bmpFile, header);
@@ -203,19 +204,19 @@ const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
           # The bit masks are part of the DIB header.
           if header.compressionMethod = BMP_BI_BITFIELDS or
               header.compressionMethod = BMP_BI_ALPHABITFIELDS then
-            header.redBitfield   := bmpColorBitfield(bytes2Int(stri[37 len 4], UNSIGNED, LE));
-            header.greenBitfield := bmpColorBitfield(bytes2Int(stri[41 len 4], UNSIGNED, LE));
-            header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[45 len 4], UNSIGNED, LE));
+            header.redBitfield   := bmpColorBitfield(bytes2Int(stri[37 fixLen 4], UNSIGNED, LE));
+            header.greenBitfield := bmpColorBitfield(bytes2Int(stri[41 fixLen 4], UNSIGNED, LE));
+            header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[45 fixLen 4], UNSIGNED, LE));
             if header.compressionMethod = BMP_BI_ALPHABITFIELDS then
-              header.alphaBitfield := bmpColorBitfield(bytes2Int(stri[49 len 4], UNSIGNED, LE));
+              header.alphaBitfield := bmpColorBitfield(bytes2Int(stri[49 fixLen 4], UNSIGNED, LE));
             end if;
           end if;
           if header.dibHeaderSize >= BMP_INFOHEADER_V4 then
-            header.colorSpace := bytes2Int(stri[ 53 len 4], UNSIGNED, LE);
-            # writeln("Color Space endpoints: " <&hex(stri[57 len 36]));
-            header.redGamma   := bytes2Int(stri[ 93 len 4], UNSIGNED, LE);
-            header.greenGamma := bytes2Int(stri[ 97 len 4], UNSIGNED, LE);
-            header.blueGamma  := bytes2Int(stri[101 len 4], UNSIGNED, LE);
+            header.colorSpace := bytes2Int(stri[ 53 fixLen 4], UNSIGNED, LE);
+            # writeln("Color Space endpoints: " <&hex(stri[57 fixLen 36]));
+            header.redGamma   := bytes2Int(stri[ 93 fixLen 4], UNSIGNED, LE);
+            header.greenGamma := bytes2Int(stri[ 97 fixLen 4], UNSIGNED, LE);
+            header.blueGamma  := bytes2Int(stri[101 fixLen 4], UNSIGNED, LE);
           end if;
         end if;
       end if;
@@ -233,10 +234,10 @@ const proc: readHeader (inout file: bmpFile, inout bmpHeader: header) is func
     stri := gets(bmpFile, STRI_SIZE);
     if length(stri) = STRI_SIZE then
       header.calculatedOffset := BMP_FILE_HEADER_SIZE;
-      header.bmpFileSize   := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
+      header.bmpFileSize   := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
       # Ignore 4 reserved bytes.
-      header.offset        := bytes2Int(stri[ 9 len 4], UNSIGNED, LE);
-      header.dibHeaderSize := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+      header.offset        := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+      header.dibHeaderSize := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
       readDibHeader(bmpFile, header);
     else
       raise RANGE_ERROR;
@@ -440,7 +441,7 @@ const proc: readBmpImage16Bit (inout file: bmpFile, inout bmpHeader: header,
         stri := gets(bmpFile, 2 * header.width + padding);
         byteIndex := 1;
         for column range 1 to header.width do
-          pixelColor := bytes2Int(stri[byteIndex len 2], UNSIGNED, LE);
+          pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
           image[line][column] := rgbPixel(toColor(header.redBitfield, pixelColor),
                                           toColor(header.greenBitfield, pixelColor),
                                           toColor(header.blueBitfield, pixelColor));
@@ -452,7 +453,7 @@ const proc: readBmpImage16Bit (inout file: bmpFile, inout bmpHeader: header,
         stri := gets(bmpFile, 2 * header.width + padding);
         byteIndex := 1;
         for column range 1 to header.width do
-          pixelColor := bytes2Int(stri[byteIndex len 2], UNSIGNED, LE);
+          pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
           image[line][column] := rgbPixel(((pixelColor >> 10) mod 32) * 2114,
                                           ((pixelColor >>  5) mod 32) * 2114,
                                           ( pixelColor        mod 32) * 2114);
@@ -504,7 +505,7 @@ const proc: readBmpImage32Bit (inout file: bmpFile, inout bmpHeader: header,
         stri := gets(bmpFile, 4 * header.width + padding);
         byteIndex := 1;
         for column range 1 to header.width do
-          pixelColor := bytes2Int(stri[byteIndex len 4], UNSIGNED, LE);
+          pixelColor := bytes2Int(stri[byteIndex fixLen 4], UNSIGNED, LE);
           image[line][column] := rgbPixel(toColor(header.redBitfield, pixelColor),
                                           toColor(header.greenBitfield, pixelColor),
                                           toColor(header.blueBitfield, pixelColor));

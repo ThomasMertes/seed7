@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  msgdigest.s7i  Message digest and secure hash algorithms.       *)
-(*  Copyright (C) 2013, 2014, 2017 - 2021  Thomas Mertes            *)
+(*  Copyright (C) 2013, 2014, 2017 - 2021, 2023  Thomas Mertes      *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -79,7 +79,7 @@ const func string: md4 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit little-endian words.
       for index range 1 to 16 do
-        m[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, LE));
+        m[index] := bin32(bytes2Int(message[wordIndex fixLen 4], UNSIGNED, LE));
         wordIndex +:= 4;
       end for;
 
@@ -181,7 +181,7 @@ const func string: md5 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit little-endian words.
       for index range 1 to 16 do
-        m[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, LE));
+        m[index] := bin32(bytes2Int(message[wordIndex fixLen 4], UNSIGNED, LE));
         wordIndex +:= 4;
       end for;
 
@@ -298,7 +298,7 @@ const func string: ripemd160 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit little-endian words.
       for index range 1 to 16 do
-        x[index] := bytes2Int(message[wordIndex len 4], UNSIGNED, LE);
+        x[index] := bytes2Int(message[wordIndex fixLen 4], UNSIGNED, LE);
         wordIndex +:= 4;
       end for;
 
@@ -404,7 +404,7 @@ const func string: sha1 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex fixLen 4], UNSIGNED, BE));
         wordIndex +:= 4;
       end for;
 
@@ -522,7 +522,7 @@ const func string: sha224 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex fixLen 4], UNSIGNED, BE));
         wordIndex +:= 4;
       end for;
 
@@ -647,7 +647,7 @@ const func string: sha256 (in var string: message) is func
     while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex fixLen 4], UNSIGNED, BE));
         wordIndex +:= 4;
       end for;
 
@@ -793,7 +793,7 @@ const func string: sha384 (in var string: message) is func
 
       # Break chunk into sixteen 64-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin64(message[chunkIndex + 8 * pred(index) len 8], BE);
+        w[index] := bin64(message[chunkIndex + 8 * pred(index) fixLen 8], BE);
       end for;
 
       # Extend the first 16 words into the remaining 64 words of message schedule array:
@@ -939,7 +939,7 @@ const func string: sha512 (in var string: message) is func
 
       # Break chunk into sixteen 64-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin64(message[chunkIndex + 8 * pred(index) len 8], BE);
+        w[index] := bin64(message[chunkIndex + 8 * pred(index) fixLen 8], BE);
       end for;
 
       # Extend the first 16 words into the remaining 64 words of message schedule array:

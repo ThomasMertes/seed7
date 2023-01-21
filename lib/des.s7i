@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  des.s7i       DES (Data Encryption Standard) cipher support.    *)
-(*  Copyright (C) 2013 - 2015, 2021  Thomas Mertes                  *)
+(*  Copyright (C) 2013 - 2015, 2021, 2023  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -358,8 +358,8 @@ const func string: processDesBlock (in array bin32: subKey, in string: inData) i
     var integer: work is 0;
     var integer: idx is 0;
   begin
-    left  := bin32(bytes2Int(inData[.. 4],    UNSIGNED, BE));
-    right := bin32(bytes2Int(inData[5 len 4], UNSIGNED, BE));
+    left  := bin32(bytes2Int(inData[1 fixLen 4], UNSIGNED, BE));
+    right := bin32(bytes2Int(inData[5 fixLen 4], UNSIGNED, BE));
     initialPermutation(left, right);
 
     for idx range 1 to 8 do
@@ -432,7 +432,7 @@ const func string: decode (inout desState: state, in string: encoded) is func
     var string: plainBlock is "";
   begin
     for index range 1 to length(encoded) step blockSize(DES) do
-      cipherBlock := encoded[index len blockSize(DES)];
+      cipherBlock := encoded[index fixLen blockSize(DES)];
       dataBlock := processDesBlock(state.decryptionSubKey, cipherBlock);
       for subIndex range 1 to blockSize(DES) do
         plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><

@@ -3,6 +3,7 @@
 (*                                                                  *)
 (*  x509cert.s7i  Support for X.509 public key certificates.        *)
 (*  Copyright (C) 2013 - 2016, 2018, 2019  Thomas Mertes            *)
+(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -494,11 +495,11 @@ const func time: getTime_yymmddhhmmssZ (in string: stri) is func
       year := possibleYear2;
     end if;
     aTime := time(year,
-                  integer(stri[ 3 len 2]),  # month
-                  integer(stri[ 5 len 2]),  # day
-                  integer(stri[ 7 len 2]),  # hour
-                  integer(stri[ 9 len 2]),  # minute
-                  integer(stri[11 len 2])); # second
+                  integer(stri[ 3 fixLen 2]),  # month
+                  integer(stri[ 5 fixLen 2]),  # day
+                  integer(stri[ 7 fixLen 2]),  # hour
+                  integer(stri[ 9 fixLen 2]),  # minute
+                  integer(stri[11 fixLen 2])); # second
     # writeln("getTime_yymmddhhmmssZ(" <& literal(stri) <& ") --> " <& aTime);
   end func;
 
@@ -507,12 +508,12 @@ const func time: getTime_yyyymmddhhmmssfffZ (in string: stri) is func
   result
     var time: aTime is time.value;
   begin
-    aTime := time(integer(stri[.. 4]),      # year
-                  integer(stri[ 3 len 2]),  # month
-                  integer(stri[ 5 len 2]),  # day
-                  integer(stri[ 7 len 2]),  # hour
-                  integer(stri[ 9 len 2]),  # minute
-                  integer(stri[11 len 2])); # second
+    aTime := time(integer(stri[ 1 fixLen 4]),  # year
+                  integer(stri[ 3 fixLen 2]),  # month
+                  integer(stri[ 5 fixLen 2]),  # day
+                  integer(stri[ 7 fixLen 2]),  # hour
+                  integer(stri[ 9 fixLen 2]),  # minute
+                  integer(stri[11 fixLen 2])); # second
     # writeln("getTime_yyyymmddhhmmssfffZ(" <& literal(stri) <& ") --> " <& aTime);
   end func;
 

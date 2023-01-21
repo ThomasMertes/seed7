@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  rpm.s7i       Rpm archive library                               *)
-(*  Copyright (C) 2020, 2021  Thomas Mertes                         *)
+(*  Copyright (C) 2020 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -42,6 +42,10 @@ include "cpio.s7i";
 
 const string: RPM_LEAD_MAGIC is "\16#ed;\16#ab;\16#ee;\16#db;";
 const string: RPM_HEADER_MAGIC is "\16#8e;\16#ad;\16#e8;";
+
+const integer: RPM_LEAD_SIZE is 96;
+const integer: RPM_HEADER_SIZE is 16;
+const integer: RPM_INDEX_ENTRY_SIZE is 16;
 
 
 const type: rpmLead is new struct
@@ -770,20 +774,20 @@ const func string: getStriValue (in string: store,
       when {RPM_NULL_TYPE}:
         data := "";
       when {RPM_CHAR_TYPE}:
-        data := store[succ(indexEntry.offset) len indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen indexEntry.count];
       when {RPM_INT8_TYPE}:
-        data := store[succ(indexEntry.offset) len indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen indexEntry.count];
       when {RPM_INT16_TYPE}:
-        data := store[succ(indexEntry.offset) len 2 * indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen 2 * indexEntry.count];
       when {RPM_INT32_TYPE}:
-        data := store[succ(indexEntry.offset) len 4 * indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen 4 * indexEntry.count];
       when {RPM_INT64_TYPE}:
-        data := store[succ(indexEntry.offset) len 8 * indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen 8 * indexEntry.count];
       when {RPM_STRING_TYPE}:
         currPos := succ(indexEntry.offset);
         data := getAsciiz(store, currPos);
       when {RPM_BIN_TYPE}:
-        data := store[succ(indexEntry.offset) len indexEntry.count];
+        data := store[succ(indexEntry.offset) fixLen indexEntry.count];
       when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
         currPos := succ(indexEntry.offset);
         for index range 1 to indexEntry.count do
@@ -818,32 +822,31 @@ const func integer: getIntValue (in string: store,
   begin
     case indexEntry.dataType of
       when {RPM_INT8_TYPE}:
-        number := bytes2Int(store[succ(indexEntry.offset) len 1], UNSIGNED, BE);
+        number := bytes2Int(store[succ(indexEntry.offset) fixLen 1], UNSIGNED, BE);
       when {RPM_INT16_TYPE}:
-        number := bytes2Int(store[succ(indexEntry.offset) len 2], UNSIGNED, BE);
+        number := bytes2Int(store[succ(indexEntry.offset) fixLen 2], UNSIGNED, BE);
       when {RPM_INT32_TYPE}:
-        number := bytes2Int(store[succ(indexEntry.offset) len 4], UNSIGNED, BE);
+        number := bytes2Int(store[succ(indexEntry.offset) fixLen 4], UNSIGNED, BE);
       when {RPM_INT64_TYPE}:
-        number := bytes2Int(store[succ(indexEntry.offset) len 8], UNSIGNED, BE);
+        number := bytes2Int(store[succ(indexEntry.offset) fixLen 8], UNSIGNED, BE);
     end case;
   end func;
 
 
-const proc: read (inout file: rpmFile, inout rpmLead: lead) is func
+const proc: readLead (inout file: rpmFile, inout rpmLead: lead) is func
   local
     var string: leadStri is "";
   begin
-    lead.magic := gets(rpmFile, 4);
-    # writeln("Magic: " <& hex(lead.magic));
-    if lead.magic = RPM_LEAD_MAGIC then
-      leadStri := gets(rpmFile, 92);
-      lead.majorVersion := bytes2Int(leadStri[ 1 len  1], UNSIGNED, BE);
-      lead.minorVersion := bytes2Int(leadStri[ 2 len  1], UNSIGNED, BE);
-      lead.fileType     := bytes2Int(leadStri[ 3 len  2], UNSIGNED, BE);
-      lead.arch         := bytes2Int(leadStri[ 5 len  2], UNSIGNED, BE);
-      lead.name         :=           leadStri[ 7 len 66];
-      lead.os           := bytes2Int(leadStri[73 len  2], UNSIGNED, BE);
-      lead.sig          := bytes2Int(leadStri[75 len  2], UNSIGNED, BE);
+    leadStri := gets(rpmFile, RPM_LEAD_SIZE);
+    if length(leadStri) = RPM_LEAD_SIZE then
+      lead.magic        :=           leadStri[ 1 fixLen  4];
+      lead.majorVersion := bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
+      lead.minorVersion := bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
+      lead.fileType     := bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
+      lead.arch         := bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
+      lead.name         :=           leadStri[11 fixLen 66];
+      lead.os           := bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
+      lead.sig          := bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
       # 16 reserved bytes are currently unused.
     end if;
   end func;
@@ -875,18 +878,17 @@ const proc: writeLead (inout file: outFile, inout rpmLead: lead) is func
   end func;
 
 
-const proc: read (inout file: rpmFile, inout rpmHeader: header) is func
+const proc: readHeader (inout file: rpmFile, inout rpmHeader: header) is func
   local
     var string: headerStri is "";
   begin
-    header.magic := gets(rpmFile, 3);
-    # writeln("Magic: " <& hex(header.magic));
-    if header.magic = RPM_HEADER_MAGIC then
-      headerStri := gets(rpmFile, 13);
-      header.version    := bytes2Int(headerStri[ 1 len 1], UNSIGNED, BE);
+    headerStri := gets(rpmFile, RPM_HEADER_SIZE);
+    if length(headerStri) = RPM_HEADER_SIZE then
+      header.magic      :=           headerStri[ 1 fixLen 3];
+      header.version    := bytes2Int(headerStri[ 4 fixLen 1], UNSIGNED, BE);
       # 4 reserved bytes are currently unused.
-      header.indexCount := bytes2Int(headerStri[ 6 len 4], UNSIGNED, BE);
-      header.storeSize  := bytes2Int(headerStri[10 len 4], UNSIGNED, BE);
+      header.indexCount := bytes2Int(headerStri[ 9 fixLen 4], UNSIGNED, BE);
+      header.storeSize  := bytes2Int(headerStri[13 fixLen 4], UNSIGNED, BE);
     end if;
   end func;
 
@@ -899,15 +901,19 @@ const func string: str (in rpmHeader: header) is
          bytes(header.storeSize,  UNSIGNED, BE, 4);
 
 
-const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
+const proc: readIndexEntry (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
   local
     var string: entryStri is "";
   begin
-    entryStri := gets(rpmFile, 16);
-    indexEntry.tag      := bytes2Int(entryStri[ 1 len 4], UNSIGNED, BE);
-    indexEntry.dataType := bytes2Int(entryStri[ 5 len 4], UNSIGNED, BE);
-    indexEntry.offset   := bytes2Int(entryStri[ 9 len 4], SIGNED,   BE);
-    indexEntry.count    := bytes2Int(entryStri[13 len 4], UNSIGNED, BE);
+    entryStri := gets(rpmFile, RPM_INDEX_ENTRY_SIZE);
+    if length(entryStri) = RPM_INDEX_ENTRY_SIZE then
+      indexEntry.tag      := bytes2Int(entryStri[ 1 fixLen 4], UNSIGNED, BE);
+      indexEntry.dataType := bytes2Int(entryStri[ 5 fixLen 4], UNSIGNED, BE);
+      indexEntry.offset   := bytes2Int(entryStri[ 9 fixLen 4], SIGNED,   BE);
+      indexEntry.count    := bytes2Int(entryStri[13 fixLen 4], UNSIGNED, BE);
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 
@@ -1070,7 +1076,8 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       if oldFileNamePos <> 0 then
         filePath8 := getAsciiz(rpm.header.store, oldFileNamePos);
       else
-        catalogEntry.dirIndex := succ(bytes2Int(rpm.header.store[dirIndexPos len 4], SIGNED, BE));
+        catalogEntry.dirIndex := succ(bytes2Int(
+            rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE));
         dirIndexPos +:= 4;
         catalogEntry.baseName := getAsciiz(rpm.header.store, baseNamePos);
         filePath8 := rpm.dirNameList[catalogEntry.dirIndex];
@@ -1119,16 +1126,16 @@ const func integer: getInt (in rpmArchive: rpm, in integer: tag, in integer: ind
         case indexEntry.dataType of
           when {RPM_INT8_TYPE}:
             pos := offset + pred(index);
-            number := bytes2Int(rpm.header.store[pos len 1], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos fixLen 1], UNSIGNED, BE);
           when {RPM_INT16_TYPE}:
             pos := offset + pred(index) * 2;
-            number := bytes2Int(rpm.header.store[pos len 2], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos fixLen 2], UNSIGNED, BE);
           when {RPM_INT32_TYPE}:
             pos := offset + pred(index) * 4;
-            number := bytes2Int(rpm.header.store[pos len 4], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos fixLen 4], UNSIGNED, BE);
           when {RPM_INT64_TYPE}:
             pos := offset + pred(index) * 8;
-            number := bytes2Int(rpm.header.store[pos len 8], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos fixLen 8], UNSIGNED, BE);
           otherwise:
             raise RANGE_ERROR;
         end case;
@@ -1411,11 +1418,11 @@ const proc: readSection (inout file: rpmFile, inout rpmSection: section) is func
   local
     var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
   begin
-    read(rpmFile, section.head);
+    readHeader(rpmFile, section.head);
     if section.head.magic = RPM_HEADER_MAGIC then
       # show(section.head);
       for section.head.indexCount do
-        read(rpmFile, indexEntry);
+        readIndexEntry(rpmFile, indexEntry);
         section.tagMap @:= [indexEntry.tag] indexEntry;
       end for;
       # sectionStorePos := tell(rpmFile);
@@ -1530,8 +1537,8 @@ const proc: doSettings (inout rpmArchive: rpm) is func
     if rpm.fileDigestAlgo = RPM_DIGESTALGO_MD5 and
         RPMTAG_FILEDIGESTALGO in rpm.header.tagMap then
       fileDigestAlgo := rpm.header.tagMap[RPMTAG_FILEDIGESTALGO];
-      rpm.fileDigestAlgo := bytes2Int(rpm.header.store[
-          succ(fileDigestAlgo.offset) len 4], SIGNED, BE);
+      rpm.fileDigestAlgo := bytes2Int(
+          rpm.header.store[succ(fileDigestAlgo.offset) fixLen 4], SIGNED, BE);
       # writeln("fileDigestAlgo: " <& rpm.fileDigestAlgo);
     end if;
     rpm.classDict := getStringArray(rpm, RPMTAG_CLASSDICT);
@@ -1654,18 +1661,22 @@ const func fileSys: openRpm (inout file: rpmFile) is func
       newFileSys := toInterface(rpm);
     else
       seek(rpmFile, 1);
-      read(rpmFile, rpm.lead);
+      readLead(rpmFile, rpm.lead);
       if rpm.lead.magic = RPM_LEAD_MAGIC then
         rpm.rpmFile := rpmFile;
         readSection(rpmFile, rpm.signature);
-        ignore(gets(rpmFile, 7 - pred(rpm.signature.head.storeSize) mod 8));
-        readSection(rpmFile, rpm.header);
-        # ignore(gets(rpmFile, 7 - pred(rpm.header.head.storeSize) mod 8));
-        rpm.payloadPos := tell(rpmFile);
-        doSettings(rpm);
-        createMinimumOfCatalog(rpm);
-        createRegister(rpm);
-        newFileSys := toInterface(rpm);
+        if rpm.signature.head.magic = RPM_HEADER_MAGIC then
+          ignore(gets(rpmFile, 7 - pred(rpm.signature.head.storeSize) mod 8));
+          readSection(rpmFile, rpm.header);
+          if rpm.header.head.magic = RPM_HEADER_MAGIC then
+            # ignore(gets(rpmFile, 7 - pred(rpm.header.head.storeSize) mod 8));
+            rpm.payloadPos := tell(rpmFile);
+            doSettings(rpm);
+            createMinimumOfCatalog(rpm);
+            createRegister(rpm);
+            newFileSys := toInterface(rpm);
+          end if;
+        end if;
       end if;
     end if;
   end func;

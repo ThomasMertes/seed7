@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ico.s7i       Support for the ICO image file format.            *)
-(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*  Copyright (C) 2019 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -63,14 +63,14 @@ const proc: readDirEntry (inout file: icoFile, inout icoDirEntry: dirEntry) is f
   begin
     stri := gets(icoFile, ICO_DIR_ENTRY_SIZE);
     if length(stri) = ICO_DIR_ENTRY_SIZE then
-       dirEntry.width        := bytes2Int(stri[ 1 len 1], UNSIGNED, LE);
-       dirEntry.height       := bytes2Int(stri[ 2 len 1], UNSIGNED, LE);
-       dirEntry.numColors    := bytes2Int(stri[ 3 len 1], UNSIGNED, LE);
+       dirEntry.width        := bytes2Int(stri[ 1 fixLen 1], UNSIGNED, LE);
+       dirEntry.height       := bytes2Int(stri[ 2 fixLen 1], UNSIGNED, LE);
+       dirEntry.numColors    := bytes2Int(stri[ 3 fixLen 1], UNSIGNED, LE);
        # Ignore 1 reserved byte.
-       dirEntry.planes       := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
-       dirEntry.bitsPerPixel := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
-       dirEntry.imageSize    := bytes2Int(stri[ 9 len 4], UNSIGNED, LE);
-       dirEntry.offset       := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+       dirEntry.planes       := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+       dirEntry.bitsPerPixel := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+       dirEntry.imageSize    := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+       dirEntry.offset       := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
     else
       raise RANGE_ERROR;
     end if;

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zip.s7i       Zip compression support library                   *)
-(*  Copyright (C) 2009, 2016, 2017, 2020 - 2022  Thomas Mertes      *)
+(*  Copyright (C) 2009, 2016, 2017, 2020 - 2023  Thomas Mertes      *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -58,9 +58,6 @@ const integer: ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE     is 20;
 const bin32: ZIP_HAS_DATA_DESCRIPTOR is bin32(16#0008);
 const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
 
-const bin32: ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE is
-    bin32(bytes2Int(ZIP_DATA_DESCRIPTOR_SIGNATURE, UNSIGNED, LE));
-
 const integer: ZIP_HOST_SYSTEM_MS_DOS is 0;
 const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
@@ -100,9 +97,13 @@ const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
     var string: value is "";
   begin
     while pos <= length(field) - 3 do
-      id     := bytes2Int(field[pos     len 2], UNSIGNED, LE);
-      length := bytes2Int(field[pos + 2 len 2], UNSIGNED, LE);
-      value := field[pos + 4 len length];
+      id     := bytes2Int(field[pos     fixLen 2], UNSIGNED, LE);
+      length := bytes2Int(field[pos + 2 fixLen 2], UNSIGNED, LE);
+      if length <> 0 then
+        value := field[pos + 4 fixLen length];
+      else
+        value := "";
+      end if;
       extraFieldMap @:= [id] value;
       pos +:= 4 + length;
     end while;
@@ -131,9 +132,13 @@ const proc: writeExtraField (in string: field) is func
     var string: value is "";
   begin
     while pos <= length(field) - 3 do
-      id     := bytes2Int(field[pos     len 2], UNSIGNED, LE);
-      length := bytes2Int(field[pos + 2 len 2], UNSIGNED, LE);
-      value := field[pos + 4 len length];
+      id     := bytes2Int(field[pos     fixLen 2], UNSIGNED, LE);
+      length := bytes2Int(field[pos + 2 fixLen 2], UNSIGNED, LE);
+      if length <> 0 then
+        value := field[pos + 4 fixLen length];
+      else
+        value := "";
+      end if;
       writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
       pos +:= 4 + length;
     end while;
@@ -184,12 +189,12 @@ const proc: considerZip64ExtraField (inout local_file_header: header,
     var integer: pos is 1;
   begin
     if header.uncompressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
-      header.uncompressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      header.uncompressed_size := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("uncompressed_size: " <& header.uncompressed_size);
       pos +:= 8;
     end if;
     if header.compressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
-      header.compressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      header.compressed_size := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("compressed_size: " <& header.compressed_size);
       pos +:= 8;
     end if;
@@ -208,16 +213,16 @@ const func local_file_header: get_local_header (inout file: inFile) is func
     if length(stri) = ZIP_LOCAL_HEADER_FIXED_SIZE and
         stri[.. 4] = ZIP_LOCAL_HEADER_SIGNATURE then
       header.signature := ZIP_LOCAL_HEADER_SIGNATURE;
-      header.version_needed_to_extract       := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
-      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 7 len 2], UNSIGNED, LE));
-      header.compression_method              := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
-      header.last_mod_file_time              := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-      header.last_mod_file_date              := bytes2Int(stri[13 len 2], UNSIGNED, LE);
-      header.crc_32                    := bin32(bytes2Int(stri[15 len 4], UNSIGNED, LE));
-      header.compressed_size                 := bytes2Int(stri[19 len 4], UNSIGNED, LE);
-      header.uncompressed_size               := bytes2Int(stri[23 len 4], UNSIGNED, LE);
-      file_name_length                       := bytes2Int(stri[27 len 2], UNSIGNED, LE);
-      extra_field_length                     := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      header.version_needed_to_extract       := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE));
+      header.compression_method              := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
+      header.last_mod_file_time              := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+      header.last_mod_file_date              := bytes2Int(stri[13 fixLen 2], UNSIGNED, LE);
+      header.crc_32                    := bin32(bytes2Int(stri[15 fixLen 4], UNSIGNED, LE));
+      header.compressed_size                 := bytes2Int(stri[19 fixLen 4], UNSIGNED, LE);
+      header.uncompressed_size               := bytes2Int(stri[23 fixLen 4], UNSIGNED, LE);
+      file_name_length                       := bytes2Int(stri[27 fixLen 2], UNSIGNED, LE);
+      extra_field_length                     := bytes2Int(stri[29 fixLen 2], UNSIGNED, LE);
       header.file_name                       := gets(inFile, file_name_length);
       header.extra_field                     := gets(inFile, extra_field_length);
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
@@ -295,9 +300,9 @@ const func zip64_end_of_central_dir_locator: get_zip64_end_of_central_dir_locato
     if length(stri) = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE and
         stri[.. 4] = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE then
       endOfCentDirLocator.signature := ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE;
-      endOfCentDirLocator.disk_number_with_zip64_end_of_central_directory := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
-      endOfCentDirLocator.offset_of_zip64_end_of_central_directory        := bytes2Int(stri[ 9 len 8], UNSIGNED, LE);
-      endOfCentDirLocator.total_number_of_disks                           := bytes2Int(stri[17 len 4], UNSIGNED, LE);
+      endOfCentDirLocator.disk_number_with_zip64_end_of_central_directory := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+      endOfCentDirLocator.offset_of_zip64_end_of_central_directory        := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, LE);
+      endOfCentDirLocator.total_number_of_disks                           := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
       # write(endOfCentDirLocator);
     end if;
   end func;
@@ -345,15 +350,15 @@ const func zip64_end_of_central_directory: get_zip64_end_of_central_directory (i
     if length(stri) = ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
         stri[.. 4] = ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
       endOfCentDir.signature := ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE;
-      endOfCentDir.size_of_eocd64_minus_12                     := bytes2Int(stri[ 5 len 8], UNSIGNED, LE);
-      endOfCentDir.version_made_by                             := bytes2Int(stri[13 len 2], UNSIGNED, LE);
-      endOfCentDir.version_needed_to_extract                   := bytes2Int(stri[15 len 2], UNSIGNED, LE);
-      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[17 len 4], UNSIGNED, LE);
-      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[21 len 4], UNSIGNED, LE);
-      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[25 len 8], UNSIGNED, LE);
-      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[33 len 8], UNSIGNED, LE);
-      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[41 len 8], UNSIGNED, LE);
-      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[49 len 8], UNSIGNED, LE);
+      endOfCentDir.size_of_eocd64_minus_12                     := bytes2Int(stri[ 5 fixLen 8], UNSIGNED, LE);
+      endOfCentDir.version_made_by                             := bytes2Int(stri[13 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.version_needed_to_extract                   := bytes2Int(stri[15 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
+      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[21 fixLen 4], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[25 fixLen 8], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[33 fixLen 8], UNSIGNED, LE);
+      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[41 fixLen 8], UNSIGNED, LE);
+      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[49 fixLen 8], UNSIGNED, LE);
       commentLength := endOfCentDir.size_of_eocd64_minus_12 + 12 - ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE;
       endOfCentDir.comment                                     := gets(inFile, commentLength);
       # write(endOfCentDir);
@@ -399,13 +404,13 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
     if length(stri) = ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
         stri[.. 4] = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
       endOfCentDir.signature := ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE;
-      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
-      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
-      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
-      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[13 len 4], UNSIGNED, LE);
-      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[17 len 4], UNSIGNED, LE);
-      file_comment_length                                      := bytes2Int(stri[21 len 2], UNSIGNED, LE);
+      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
+      file_comment_length                                      := bytes2Int(stri[21 fixLen 2], UNSIGNED, LE);
       endOfCentDir.file_comment                                := gets(inFile, file_comment_length);
       # write(endOfCentDir);
     end if;
@@ -544,22 +549,22 @@ const proc: considerZip64ExtraField (inout central_file_header: header,
     var integer: pos is 1;
   begin
     if header.uncompressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
-      header.uncompressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      header.uncompressed_size := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("uncompressed_size: " <& header.uncompressed_size);
       pos +:= 8;
     end if;
     if header.compressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
-      header.compressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      header.compressed_size := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("compressed_size: " <& header.compressed_size);
       pos +:= 8;
     end if;
     if header.relative_offset_of_local_header = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
-      header.relative_offset_of_local_header := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      header.relative_offset_of_local_header := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("relative_offset_of_local_header: " <& header.relative_offset_of_local_header);
       pos +:= 8;
     end if;
     if header.disk_number_start = 16#ffff and length(zip64ExtraField) >= pos + 3 then
-      header.disk_number_start := bytes2Int(zip64ExtraField[pos len 4], UNSIGNED, LE);
+      header.disk_number_start := bytes2Int(zip64ExtraField[pos fixLen 4], UNSIGNED, LE);
       # writeln("disk_number_start: " <& header.disk_number_start);
       pos +:= 4;
     end if;
@@ -579,22 +584,22 @@ const func central_file_header: get_central_header (inout file: inFile) is func
     if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
         stri[.. 4] = ZIP_CENTRAL_HEADER_SIGNATURE then
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
-      header.version_made_by                 := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
-      header.version_needed_to_extract       := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
-      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 len 2], UNSIGNED, LE));
-      header.compression_method              := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-      header.last_mod_file_time              := bytes2Int(stri[13 len 2], UNSIGNED, LE);
-      header.last_mod_file_date              := bytes2Int(stri[15 len 2], UNSIGNED, LE);
-      header.crc_32                    := bin32(bytes2Int(stri[17 len 4], UNSIGNED, LE));
-      header.compressed_size                 := bytes2Int(stri[21 len 4], UNSIGNED, LE);
-      header.uncompressed_size               := bytes2Int(stri[25 len 4], UNSIGNED, LE);
-      file_name_length                       := bytes2Int(stri[29 len 2], UNSIGNED, LE);
-      extra_field_length                     := bytes2Int(stri[31 len 2], UNSIGNED, LE);
-      file_comment_length                    := bytes2Int(stri[33 len 2], UNSIGNED, LE);
-      header.disk_number_start               := bytes2Int(stri[35 len 2], UNSIGNED, LE);
-      header.internal_file_attributes        := bytes2Int(stri[37 len 2], UNSIGNED, LE);
-      header.external_file_attributes        := bytes2Int(stri[39 len 4], UNSIGNED, LE);
-      header.relative_offset_of_local_header := bytes2Int(stri[43 len 4], UNSIGNED, LE);
+      header.version_made_by                 := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+      header.version_needed_to_extract       := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE));
+      header.compression_method              := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+      header.last_mod_file_time              := bytes2Int(stri[13 fixLen 2], UNSIGNED, LE);
+      header.last_mod_file_date              := bytes2Int(stri[15 fixLen 2], UNSIGNED, LE);
+      header.crc_32                    := bin32(bytes2Int(stri[17 fixLen 4], UNSIGNED, LE));
+      header.compressed_size                 := bytes2Int(stri[21 fixLen 4], UNSIGNED, LE);
+      header.uncompressed_size               := bytes2Int(stri[25 fixLen 4], UNSIGNED, LE);
+      file_name_length                       := bytes2Int(stri[29 fixLen 2], UNSIGNED, LE);
+      extra_field_length                     := bytes2Int(stri[31 fixLen 2], UNSIGNED, LE);
+      file_comment_length                    := bytes2Int(stri[33 fixLen 2], UNSIGNED, LE);
+      header.disk_number_start               := bytes2Int(stri[35 fixLen 2], UNSIGNED, LE);
+      header.internal_file_attributes        := bytes2Int(stri[37 fixLen 2], UNSIGNED, LE);
+      header.external_file_attributes        := bytes2Int(stri[39 fixLen 4], UNSIGNED, LE);
+      header.relative_offset_of_local_header := bytes2Int(stri[43 fixLen 4], UNSIGNED, LE);
       header.file_name                       := gets(inFile, file_name_length);
       header.extra_field                     := gets(inFile, extra_field_length);
       header.file_comment                    := gets(inFile, file_comment_length);
@@ -667,10 +672,10 @@ const func string: getCentralHeaderFilePath (inout file: inFile) is func
     stri := gets(inFile, ZIP_CENTRAL_HEADER_FIXED_SIZE);
     if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
         stri[.. 4] = ZIP_CENTRAL_HEADER_SIGNATURE then
-      general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 len 2], UNSIGNED, LE));
-      file_name_length                := bytes2Int(stri[29 len 2], UNSIGNED, LE);
-      extra_field_length              := bytes2Int(stri[31 len 2], UNSIGNED, LE);
-      file_comment_length             := bytes2Int(stri[33 len 2], UNSIGNED, LE);
+      general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE));
+      file_name_length                := bytes2Int(stri[29 fixLen 2], UNSIGNED, LE);
+      extra_field_length              := bytes2Int(stri[31 fixLen 2], UNSIGNED, LE);
+      file_comment_length             := bytes2Int(stri[33 fixLen 2], UNSIGNED, LE);
       filePath := gets(inFile, file_name_length);
       # seek(inFile, tell(inFile) + extra_field_length + file_comment_length);
       ignore(gets(inFile, extra_field_length + file_comment_length));
@@ -1230,19 +1235,19 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
       end if;
       if 16#5455 in header.extraFieldMap then
         # Extended Timestamp Extra Field
-        timestamp := bytes2Int(header.extraFieldMap[16#5455][2 len 4], UNSIGNED, LE);
+        timestamp := bytes2Int(header.extraFieldMap[16#5455][2 fixLen 4], UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
       elsif 16#5855 in header.extraFieldMap then
         # Info-ZIP Unix Extra Field (type 1)
-        timestamp := bytes2Int(header.extraFieldMap[16#5855][5 len 4], UNSIGNED, LE);
+        timestamp := bytes2Int(header.extraFieldMap[16#5855][5 fixLen 4], UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
       elsif 16#000d in header.extraFieldMap then
         # UNIX Extra Field
-        timestamp := bytes2Int(header.extraFieldMap[16#000d][5 len 4], UNSIGNED, LE);
+        timestamp := bytes2Int(header.extraFieldMap[16#000d][5 fixLen 4], UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
       elsif 16#000a in header.extraFieldMap then
         # NTFS Extra Field:
-        timestamp := bytes2Int(header.extraFieldMap[16#000a][9 len 8], UNSIGNED, LE);
+        timestamp := bytes2Int(header.extraFieldMap[16#000a][9 fixLen 8], UNSIGNED, LE);
         modificationTime := timestamp1601ToTime(timestamp);
       else
         modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
@@ -1328,16 +1333,16 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath) is func
       end if;
       if 16#000d in header.extraFieldMap then
         # UNIX Extra Field
-        uid := bytes2Int(header.extraFieldMap[16#000d][9 len 2], UNSIGNED, LE);
+        uid := bytes2Int(header.extraFieldMap[16#000d][9 fixLen 2], UNSIGNED, LE);
         owner := str(uid);
       elsif 16#756e in header.extraFieldMap then
         # ASi Unix Extra Field:
-        uid := bytes2Int(header.extraFieldMap[16#756e][11 len 2], UNSIGNED, LE);
+        uid := bytes2Int(header.extraFieldMap[16#756e][11 fixLen 2], UNSIGNED, LE);
         owner := str(uid);
       elsif 16#7875 in header.extraFieldMap then
         # New Unix Extra Field:
         size := ord(header.extraFieldMap[16#7875][2]);
-        uid := bytes2Int(header.extraFieldMap[16#7875][3 len size], UNSIGNED, LE);
+        uid := bytes2Int(header.extraFieldMap[16#7875][3 fixLen size], UNSIGNED, LE);
         owner := str(uid);
       end if;
     end if;
@@ -1376,17 +1381,17 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath) is func
       end if;
       if 16#000d in header.extraFieldMap then
         # UNIX Extra Field
-        gid := bytes2Int(header.extraFieldMap[16#000d][11 len 2], UNSIGNED, LE);
+        gid := bytes2Int(header.extraFieldMap[16#000d][11 fixLen 2], UNSIGNED, LE);
         group := str(gid);
       elsif 16#756e in header.extraFieldMap then
         # ASi Unix Extra Field:
-        gid := bytes2Int(header.extraFieldMap[16#756e][13 len 2], UNSIGNED, LE);
+        gid := bytes2Int(header.extraFieldMap[16#756e][13 fixLen 2], UNSIGNED, LE);
         group := str(gid);
       elsif 16#7875 in header.extraFieldMap then
         # New Unix Extra Field:
         pos := 3 + ord(header.extraFieldMap[16#7875][2]);
         size := ord(header.extraFieldMap[16#7875][pos]);
-        gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) len size], UNSIGNED, LE);
+        gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) fixLen size], UNSIGNED, LE);
         group := str(gid);
       end if;
     end if;
@@ -1408,6 +1413,10 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
     var integer: localHeaderPos is 0;
+    var integer: dataDescriptorSize is 0;
+    var integer: signaturePos is 0;
+    var string: stri is "";
+    var bin32: crc_32 is bin32(0);
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
@@ -1432,13 +1441,33 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
           # The fields crc_32, compressed_size and uncompressed_size are 0.
           # Instead there is a data descriptor after the compressed data.
           content := inflate(zip.zipFile);
-          localHeader.crc_32            := bin32(getUInt32Le(zip.zipFile));
-          if localHeader.crc_32 = ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE then
-            # Optional signature value for the data descriptor record.
-            localHeader.crc_32          := bin32(getUInt32Le(zip.zipFile));
+          dataDescriptorSize := 16#0001 in header.extraFieldMap ? 20 : 12;
+          stri := gets(zip.zipFile, 4);
+          if stri = ZIP_DATA_DESCRIPTOR_SIGNATURE then
+            stri := gets(zip.zipFile, dataDescriptorSize);
+          else
+            stri &:= gets(zip.zipFile, dataDescriptorSize - 4);
+            if length(stri) = dataDescriptorSize then
+              signaturePos := pos(stri, ZIP_DATA_DESCRIPTOR_SIGNATURE);
+              if signaturePos <> 0 then
+                stri := stri[signaturePos + 4 .. ] &
+                        gets(zip.zipFile, signaturePos + 3);
+              end if;
+            end if;
           end if;
-          localHeader.compressed_size   := getUInt32Le(zip.zipFile);
-          localHeader.uncompressed_size := getUInt32Le(zip.zipFile);
+          if length(stri) = dataDescriptorSize then
+            if dataDescriptorSize = 12 then
+              localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
+              localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+              localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 4], UNSIGNED, LE);
+            else
+              localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
+              localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 8], UNSIGNED, LE);
+              localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 8], UNSIGNED, LE);
+            end if;
+          else
+            raise RANGE_ERROR;
+          end if;
         else
           content := gets(zip.zipFile, localHeader.compressed_size);
           content := inflate(content);
@@ -1447,14 +1476,23 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         # writeln("unsupported compression method: " <& localHeader.compression_method);
         raise FILE_ERROR;
       end if;
-      if localHeader.uncompressed_size <> length(content) or
-          localHeader.crc_32 <> crc32(content) then
-        # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
-        #         " actual size: " <& length(content) radix 16);
-        # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
-        #         " actual crc_32: " <& crc32(content) radix 16);
-        # write(localHeader);
-        raise FILE_ERROR;
+      crc_32 := crc32(content);
+      if localHeader.crc_32 <> crc_32 or
+          localHeader.uncompressed_size <> length(content) then
+        header := zip.catalog[filePath];
+        if header.crc_32 = crc_32 and
+            header.uncompressed_size = length(content) then
+          localHeader.crc_32            := crc_32;
+          localHeader.compressed_size   := header.compressed_size;
+          localHeader.uncompressed_size := header.uncompressed_size;
+        else
+          # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
+          #         " actual size: " <& length(content));
+          # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
+          #         " actual crc_32: " <& crc32(content) radix 16);
+          # write(localHeader);
+          raise FILE_ERROR;
+        end if;
       end if;
     end if;
   end func;

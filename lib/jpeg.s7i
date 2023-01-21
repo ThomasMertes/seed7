@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  jpeg.s7i      Support for the JPEG image file format.           *)
-(*  Copyright (C) 2021, 2022  Thomas Mertes                         *)
+(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -48,6 +48,8 @@ const char: JPEG_APP0   is '\16#e0;';  # Application Segment 0
 const char: JPEG_APP15  is '\16#ef;';  # Application Segment 15
 const char: JPEG_COM    is '\16#fe;';  # Comment
 const char: JPEG_FILLER is '\16#ff;';  # Fill byte (ignored)
+
+const integer: JPEG_SOF_HEADER_FIXED_SIZE is 8;
 
 const integer: JPEG_BLOCK_SIZE is 64;
 
@@ -108,41 +110,53 @@ const integer: CHROMA_RED  is 2;
 
 const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is func
   local
+    var string: stri is "";
     var integer: length is 0;
     var integer: numComponents is 0;
+    var string: componentData is "";
     var integer: componentId is 0;
     var integer: sampling is 0;
     var integer: index is 0;
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    header.precision := ord(getc(jpegFile));
-    header.height := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
-    header.width := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
-    numComponents := ord(getc(jpegFile));
-    header.framebytes := header.width * header.height * numComponents;
-    header.component := numComponents times jpegComponent.value;
-    for index range 1 to numComponents do
-      componentId := ord(getc(jpegFile));
-      header.componentType @:= [componentId] index;
-      sampling := ord(getc(jpegFile));
-      if index = JPEG_COMPTYPE_LUMA then
-        header.vertical := sampling mod 16;
-        header.horizontal := sampling >> 4;
-        if header.vertical > 2 or header.horizontal > 2 then
+    stri := gets(jpegFile, JPEG_SOF_HEADER_FIXED_SIZE);
+    if length(stri) = JPEG_SOF_HEADER_FIXED_SIZE then
+      length           := bytes2Int(stri[1 fixLen 2], UNSIGNED, BE);
+      header.precision := bytes2Int(stri[3 fixLen 1], UNSIGNED, BE);
+      header.height    := bytes2Int(stri[4 fixLen 2], UNSIGNED, BE);
+      header.width     := bytes2Int(stri[6 fixLen 2], UNSIGNED, BE);
+      numComponents    := bytes2Int(stri[8 fixLen 1], UNSIGNED, BE);
+      header.framebytes := header.width * header.height * numComponents;
+      header.component := numComponents times jpegComponent.value;
+      componentData := gets(jpegFile, numComponents * 3);
+      if length(componentData) = numComponents * 3 then
+        for index range 1 to numComponents do
+          componentId := ord(componentData[1 + pred(index) * 3]);
+          header.componentType @:= [componentId] index;
+          sampling := ord(componentData[2 + pred(index) * 3]);
+          if index = JPEG_COMPTYPE_LUMA then
+            header.vertical := sampling mod 16;
+            header.horizontal := sampling >> 4;
+            if header.vertical > 2 or header.horizontal > 2 then
+              raise RANGE_ERROR;
+            end if;
+          elsif sampling <> 16#11 or index > JPEG_COMPTYPE_CHROMA_RED then
+            raise RANGE_ERROR;
+          end if;
+          header.component[index].quantizationTableIndex :=
+              ord(componentData[3 + pred(index) * 3]) + 1;
+        end for;
+        header.numLuma := header.vertical * header.horizontal;
+        header.unitLines := succ(pred(header.height) mdiv (8 * header.vertical));
+        header.unitColumns := succ(pred(header.width) mdiv (8 * header.horizontal));
+        header.blockLines := succ(pred(header.height) mdiv 8);
+        header.blockColumns := succ(pred(header.width) mdiv 8);
+        if length <> JPEG_SOF_HEADER_FIXED_SIZE + numComponents * 3 then
           raise RANGE_ERROR;
         end if;
-      elsif sampling <> 16#11 or index > JPEG_COMPTYPE_CHROMA_RED then
+      else
         raise RANGE_ERROR;
       end if;
-      header.component[index].quantizationTableIndex := ord(getc(jpegFile)) + 1;
-    end for;
-    header.numLuma := header.vertical * header.horizontal;
-    header.unitLines := succ(pred(header.height) mdiv (8 * header.vertical));
-    header.unitColumns := succ(pred(header.width) mdiv (8 * header.horizontal));
-    header.blockLines := succ(pred(header.height) mdiv 8);
-    header.blockColumns := succ(pred(header.width) mdiv 8);
-    length -:= 6 + numComponents * 3;
-    if length <> 0 then
+    else
       raise RANGE_ERROR;
     end if;
   end func;
@@ -150,7 +164,9 @@ const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is
 
 const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: header) is func
   local
+    var string: stri is "";
     var integer: length is 0;
+    var integer: pos is 1;
     var array integer: numberOfCodesWithLength is 16 times 0;
     var integer: maximumCodeLength is 0;
     var string: huffmanValues is "";
@@ -160,33 +176,45 @@ const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: head
     var integer: numberOfCodes is 0;
     var integer: codeLength is 0;
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    while length > 0 do
-      aByte := ord(getc(jpegFile));
-      tableClass := aByte >> 4;
-      tableNumber := succ(aByte mod 16);
-      numberOfCodes := 0;
-      maximumCodeLength := 0;
-      for codeLength range 1 to 16 do
-        numberOfCodesWithLength[codeLength] := ord(getc(jpegFile));
-        if numberOfCodesWithLength[codeLength] <> 0 then
-          maximumCodeLength := codeLength;
+    stri := gets(jpegFile, 2);
+    if length(stri) = 2 then
+      length := bytes2Int(stri, UNSIGNED, BE) - 2;
+      stri := gets(jpegFile, length);
+      if length(stri) = length then
+        while pos < length do
+          aByte := ord(stri[pos]);
+          incr(pos);
+          tableClass := aByte >> 4;
+          tableNumber := succ(aByte mod 16);
+          numberOfCodes := 0;
+          maximumCodeLength := 0;
+          for codeLength range 1 to 16 do
+            numberOfCodesWithLength[codeLength] := ord(stri[pos]);
+            incr(pos);
+            if numberOfCodesWithLength[codeLength] <> 0 then
+              maximumCodeLength := codeLength;
+            end if;
+            numberOfCodes +:= numberOfCodesWithLength[codeLength];
+          end for;
+          huffmanValues := stri[pos fixLen numberOfCodes];
+          pos +:= numberOfCodes;
+          if tableClass = 0 then
+            header.dcTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+                numberOfCodesWithLength, huffmanValues);
+          elsif tableClass = 1 then
+            header.acTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+                numberOfCodesWithLength, huffmanValues);
+          else
+            raise RANGE_ERROR;
+          end if;
+        end while;
+        if pos <> succ(length) then
+          raise RANGE_ERROR;
         end if;
-        numberOfCodes +:= numberOfCodesWithLength[codeLength];
-      end for;
-      huffmanValues := gets(jpegFile, numberOfCodes);
-      if tableClass = 0 then
-        header.dcTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
-            numberOfCodesWithLength, huffmanValues);
-      elsif tableClass = 1 then
-        header.acTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
-            numberOfCodesWithLength, huffmanValues);
       else
         raise RANGE_ERROR;
       end if;
-      length -:= 17 + numberOfCodes;
-    end while;
-    if length <> 0 then
+    else
       raise RANGE_ERROR;
     end if;
   end func;
@@ -194,45 +222,62 @@ const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: head
 
 const proc: readStartOfScan (inout file: jpegFile, inout jpegHeader: header) is func
   local
+    var string: stri is "";
     var integer: length is 0;
+    var integer: pos is 1;
     var integer: index is 0;
     var integer: aByte is 0;
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    header.numberOfScans := ord(getc(jpegFile));
-    header.scan := header.numberOfScans times jpegScan.value;
-    for index range 1 to header.numberOfScans do
-      header.scan[index].componentId := ord(getc(jpegFile));
-      if header.scan[index].componentId not in header.componentType then
-        raise RANGE_ERROR;
+    stri := gets(jpegFile, 2);
+    if length(stri) = 2 then
+      length := bytes2Int(stri, UNSIGNED, BE) - 2;
+      stri := gets(jpegFile, length);
+      if length(stri) = length then
+        if pos < length then
+          header.numberOfScans := ord(stri[pos]);
+          incr(pos);
+          header.scan := header.numberOfScans times jpegScan.value;
+          for index range 1 to header.numberOfScans do
+            header.scan[index].componentId := ord(stri[pos]);
+            incr(pos);
+            if header.scan[index].componentId not in header.componentType then
+              raise RANGE_ERROR;
+            else
+              aByte := ord(stri[pos]);
+              incr(pos);
+              header.scan[index].dcHuffmanTableIndex := succ(aByte >> 4);
+              header.scan[index].acHuffmanTableIndex := succ(aByte mod 16);
+            end if;
+          end for;
+          header.startOfSpectral := succ(ord(stri[pos]));
+          header.endOfSpectral := succ(ord(stri[pos + 1]));
+          aByte := ord(stri[pos + 2]);
+          pos +:= 3;
+          header.approximationHigh := aByte >> 4;
+          header.approximationLow := aByte mod 16;
+          if header.progressive and header.startOfSpectral = 1 and
+              header.endOfSpectral <> 1 then
+            raise RANGE_ERROR;
+          end if;
+          if header.startOfSpectral > header.endOfSpectral or
+              header.endOfSpectral > JPEG_BLOCK_SIZE then
+            raise RANGE_ERROR;
+          end if;
+          if header.startOfSpectral <> 1 and header.numberOfScans <> 1 then
+            raise RANGE_ERROR;
+          end if;
+          if header.approximationHigh <> 0 and
+              header.approximationHigh <> succ(header.approximationLow) then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+        if pos <> succ(length) then
+          raise RANGE_ERROR;
+        end if;
       else
-        aByte := ord(getc(jpegFile));
-        header.scan[index].dcHuffmanTableIndex := succ(aByte >> 4);
-        header.scan[index].acHuffmanTableIndex := succ(aByte mod 16);
+        raise RANGE_ERROR;
       end if;
-    end for;
-    header.startOfSpectral := succ(ord(getc(jpegFile)));
-    header.endOfSpectral := succ(ord(getc(jpegFile)));
-    aByte := ord(getc(jpegFile));
-    header.approximationHigh := aByte >> 4;
-    header.approximationLow := aByte mod 16;
-    if header.progressive and header.startOfSpectral = 1 and
-        header.endOfSpectral <> 1 then
-      raise RANGE_ERROR;
-    end if;
-    if header.startOfSpectral > header.endOfSpectral or
-        header.endOfSpectral > JPEG_BLOCK_SIZE then
-      raise RANGE_ERROR;
-    end if;
-    if header.startOfSpectral <> 1 and header.numberOfScans <> 1 then
-      raise RANGE_ERROR;
-    end if;
-    if header.approximationHigh <> 0 and
-        header.approximationHigh <> succ(header.approximationLow) then
-      raise RANGE_ERROR;
-    end if;
-    length -:= 4 + header.numberOfScans * 2;
-    if length <> 0 then
+    else
       raise RANGE_ERROR;
     end if;
   end func;
@@ -240,33 +285,45 @@ const proc: readStartOfScan (inout file: jpegFile, inout jpegHeader: header) is 
 
 const proc: readDefineQuantizationTable (inout file: jpegFile, inout jpegHeader: header) is func
   local
+    var string: stri is "";
     var integer: length is 0;
+    var integer: pos is 1;
     var integer: aByte is 0;
     var integer: elementPrecision is 0;
     var integer: tableNumber is 0;
     var integer: index is 0;
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    while length > 0 do
-      aByte := ord(getc(jpegFile));
-      elementPrecision := aByte >> 4;
-      tableNumber := succ(aByte mod 16);
-      decr(length);
-      if elementPrecision = 0 then
-        for index range 1 to JPEG_BLOCK_SIZE do
-          header.quantizationTable[tableNumber][index] := ord(getc(jpegFile));
-        end for;
-        length -:= JPEG_BLOCK_SIZE;
-      elsif elementPrecision = 1 then
-        for index range 1 to JPEG_BLOCK_SIZE do
-          header.quantizationTable[tableNumber][index] := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE)
-        end for;
-        length -:= 2 * JPEG_BLOCK_SIZE;
+    stri := gets(jpegFile, 2);
+    if length(stri) = 2 then
+      length := bytes2Int(stri, UNSIGNED, BE) - 2;
+      stri := gets(jpegFile, length);
+      if length(stri) = length then
+        while pos < length do
+          aByte := ord(stri[pos]);
+          incr(pos);
+          elementPrecision := aByte >> 4;
+          tableNumber := succ(aByte mod 16);
+          if elementPrecision = 0 then
+            for index range 1 to JPEG_BLOCK_SIZE do
+              header.quantizationTable[tableNumber][index] := ord(stri[pos]);
+              incr(pos);
+            end for;
+          elsif elementPrecision = 1 then
+            for index range 1 to JPEG_BLOCK_SIZE do
+              header.quantizationTable[tableNumber][index] := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
+              pos +:= 2;
+            end for;
+          else
+            raise RANGE_ERROR;
+          end if;
+        end while;
+        if pos <> succ(length) then
+          raise RANGE_ERROR;
+        end if;
       else
         raise RANGE_ERROR;
       end if;
-    end while;
-    if length <> 0 then
+    else
       raise RANGE_ERROR;
     end if;
   end func;
@@ -274,37 +331,62 @@ const proc: readDefineQuantizationTable (inout file: jpegFile, inout jpegHeader:
 
 const proc: readDefineRestartInterval (inout file: jpegFile, inout jpegHeader: header) is func
   local
+    var string: stri is "";
     var integer: length is 0;
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    if length <> 2 then
-      raise RANGE_ERROR;
+    stri := gets(jpegFile, 4);
+    if length(stri) = 4 then
+      length := bytes2Int(stri[1 fixLen 2], UNSIGNED, BE) - 2;
+      if length = 2 then
+        header.restartInterval := bytes2Int(stri[3 fixLen 2], UNSIGNED, BE);
+      else
+        raise RANGE_ERROR;
+      end if;
     else
-      header.restartInterval := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
+      raise RANGE_ERROR;
     end if;
   end func;
 
 
 const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber) is func
   local
+    var string: stri is "";
     var integer: length is 0;
     var string: data is "";
     var integer: pos is 1;
     var string: identifier is "";
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    data := gets(jpegFile, length);
-    identifier := getAsciiz(data, pos);
+    stri := gets(jpegFile, 2);
+    if length(stri) = 2 then
+      length := bytes2Int(stri, UNSIGNED, BE) - 2;
+      data := gets(jpegFile, length);
+      if length(data) = length then
+        identifier := getAsciiz(data, pos);
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 
 const proc: readComment (inout file: jpegFile) is func
   local
+    var string: stri is "";
     var integer: length is 0;
     var string: data is "";
   begin
-    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
-    data := gets(jpegFile, length);
+    stri := gets(jpegFile, 2);
+    if length(stri) = 2 then
+      length := bytes2Int(stri, UNSIGNED, BE) - 2;
+      data := gets(jpegFile, length);
+      if length(data) <> length then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 

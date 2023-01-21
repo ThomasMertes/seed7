@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  asn1.s7i      Support for Abstract Syntax Notation One (ASN.1). *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013, 2022, 2023  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -229,7 +229,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
     else
       # Long form
       numOctets := length mod 128;
-      dataElement.length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+      dataElement.length := bytes2Int(stri[pos fixLen numOctets], UNSIGNED, BE);
       pos +:= numOctets;
     end if;
     dataElement.dataStart := pos;
@@ -400,7 +400,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
       # Long form
       numOctets := length mod 128;
       if numOctets <= 7 then
-        length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+        length := bytes2Int(stri[pos fixLen numOctets], UNSIGNED, BE);
         # writeln("Long form: numOctets=" <& numOctets <& ", length=" <& length);
       else
         writeln(" *** numOctets (" <& numOctets <& ") too big.");

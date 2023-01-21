@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  showtls.s7i   Show TLS messages. Use it to debug tls.s7i.       *)
-(*  Copyright (C) 2013 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2020, 2022  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -40,7 +40,7 @@ const proc: showAlert (in string: stri) is func
   begin
     writeln("alert");
     writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("Length: " <& bytes2Int(stri[4 fixLen 2], UNSIGNED, BE));
     writeln("level: " <& ord(stri[6]));
     write("description: " <& ord(stri[7]));
     case ord(stri[7]) of
@@ -90,16 +90,16 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
     var integer: dataPos is 0;
     var boolean: dataWritten is FALSE;
   begin
-    extensionBytes := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+    extensionBytes := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
     writeln("Extension bytes: " <& extensionBytes);
     pos +:= 2;
     beyond := pos + extensionBytes;
     index := 1;
     while pos < beyond do
       write("Extension-" <& index <& ": ");
-      extensionType := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      extensionType := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
-      dataSize := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      dataSize := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
       data := stri[pos len dataSize];
       pos +:= dataSize;
@@ -117,10 +117,10 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {CERT_TYPE}:                              writeln("cert_type");
         when {ELLIPTIC_CURVES}:                        writeln("elliptic_curves");
           dataPos := 1;
-          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) mdiv 2 <& " curve numbers:");
+          write(bytes2Int(data[dataPos fixLen 2], UNSIGNED, BE) mdiv 2 <& " curve numbers:");
           dataPos +:= 2;
           while dataPos < length(data) do
-            write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE));
+            write(" " <& bytes2Int(data[dataPos fixLen 2], UNSIGNED, BE));
             dataPos +:= 2;
           end while;
           writeln;
@@ -129,10 +129,10 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {SRP}:                                    writeln("srp");
         when {SIGNATURE_ALGORITHMS}:                   writeln("signature_algorithms");
           dataPos := 1;
-          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) mdiv 2 <& " signature algorithms:");
+          write(bytes2Int(data[dataPos fixLen 2], UNSIGNED, BE) mdiv 2 <& " signature algorithms:");
           dataPos +:= 2;
           while dataPos < length(data) do
-            write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+            write(" " <& bytes2Int(data[dataPos fixLen 2], UNSIGNED, BE) radix 16 lpad0 4);
             dataPos +:= 2;
           end while;
           writeln;
@@ -202,7 +202,7 @@ const proc: showClientHello (in string: stri, inout integer: pos) is func
     var integer: index is 0;
   begin
     writeln("client_hello");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     beyond := pos + length;
@@ -215,12 +215,12 @@ const proc: showClientHello (in string: stri, inout integer: pos) is func
     incr(pos);
     writeln("SessionId: " <& hex(stri[pos len vectorLen]));
     pos +:= vectorLen;
-    vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) mdiv 2;
+    vectorLen := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE) mdiv 2;
     writeln("Number of Ciphers: " <& vectorLen);
     pos +:= 2;
     for index range 1 to vectorLen do
       writeln("Cipher-" <& index <& ": " <&
-              bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+              bytes2Int(stri[pos fixLen 2], UNSIGNED, BE) radix 16 lpad0 4);
       pos +:= 2;
     end for;
     vectorLen := ord(stri[pos]);
@@ -245,7 +245,7 @@ const proc: showServerHello (in string: stri, inout integer: pos) is func
     var integer: sessionIdLen is 0;
   begin
     writeln("server_hello");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     beyond := pos + length;
@@ -259,7 +259,7 @@ const proc: showServerHello (in string: stri, inout integer: pos) is func
     writeln("SessionId: " <& hex(stri[pos len sessionIdLen]));
     pos +:= sessionIdLen;
     writeln("Cipher: " <&
-            bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+            bytes2Int(stri[pos fixLen 2], UNSIGNED, BE) radix 16 lpad0 4);
     pos +:= 2;
     writeln("CompressionMethod: " <& ord(stri[pos]));
     incr(pos);
@@ -339,16 +339,16 @@ const proc: showCertificate (in string: stri, inout integer: pos) is func
     var array x509cert: certList is 0 times x509cert.value;
   begin
     writeln("certificate: " <& literal(stri));
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
-    sequenceLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    sequenceLen := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Sequence length: " <& sequenceLen);
     writeln("Bytes there: " <& length(stri) - pos + 1);
     while pos <= 3 + sequenceLen do
-      certLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+      certLen := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
       pos +:= 3;
       writeln("ASN.1Cert-" <& index <& " length: " <& certLen);
       writeln("ASN.1Cert-" <& index <& ": " <& literal(stri[pos len certLen]));
@@ -389,7 +389,7 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
     var string: signatureStri is "";
   begin
     writeln("server_key_exchange");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     beyond := pos + length;
@@ -397,7 +397,7 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
     # if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
       if stri[pos] = NAMED_CURVE then
         incr(pos);
-        curveNumber := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+        curveNumber := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
         pos +:= 2;
         writeln("named curve: " <& curveNumber);
         if curveNumber >= minIdx(curveByNumber) and curveNumber <= maxIdx(curveByNumber) then
@@ -418,7 +418,7 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
         signatureAlgorithm := ord(stri[pos]);
         writeln("signatureAlgorithm: " <& signatureAlgorithm);
         incr(pos);
-        signatureLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+        signatureLength := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
         writeln("signatureLength: " <& signatureLength);
         pos +:= 2;
         signatureStri := stri[pos len signatureLength];
@@ -444,7 +444,7 @@ const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
     writeln("certificate_request");
     version := stri[pos - 5 len 2];
     writeln("Version: " <& ord(stri[pos - 5]) <& "." <& ord(stri[pos - 4]));
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
@@ -456,7 +456,7 @@ const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
       incr(pos);
     end for;
     if version >= TLS_1_2 then
-      supportedSignatureAlgorithmsLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      supportedSignatureAlgorithmsLength := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
       writeln("supportedSignatureAlgorithmsLength: " <& supportedSignatureAlgorithmsLength);
       for index range 1 to supportedSignatureAlgorithmsLength div 2 do
@@ -465,7 +465,7 @@ const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
         pos +:= 2;
       end for;
     end if;
-    certificateAuthoritiesLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+    certificateAuthoritiesLength := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
     pos +:= 2;
     writeln("certificateAuthoritiesLength: " <& certificateAuthoritiesLength);
     certificateAuthorities := stri[pos len certificateAuthoritiesLength];
@@ -481,7 +481,7 @@ const proc: showServerHelloDone (in string: stri, inout integer: pos) is func
     var integer: length is 0;
   begin
     writeln("server_hello_done");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
@@ -495,7 +495,7 @@ const proc: showCertificateVerify (in string: stri, inout integer: pos) is func
     var integer: length is 0;
   begin
     writeln("certificate_verify");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
@@ -511,7 +511,7 @@ const proc: showClientKeyExchange (in string: stri, inout integer: pos) is func
     var integer: length is 0;
   begin
     writeln("client_key_exchange");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
@@ -527,7 +527,7 @@ const proc: showFinished (in string: stri, inout integer: pos) is func
     var integer: length is 0;
   begin
     writeln("finished");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
@@ -577,15 +577,15 @@ const proc: showHandshake (in string: stri) is func
   begin
     writeln("handshake");
     writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("Length: " <& bytes2Int(stri[4 fixLen 2], UNSIGNED, BE));
     writeln("Bytes there: " <& length(stri) - 5);
-    if bytes2Int(stri[4 len 2], UNSIGNED, BE) <> length(stri) - 5 then
+    if bytes2Int(stri[4 fixLen 2], UNSIGNED, BE) <> length(stri) - 5 then
       writeln(" ***** TLS record length not ok");
     end if;
-    if bytes2Int(stri[7 len 3], UNSIGNED, BE) > length(stri) - 9 then
+    if bytes2Int(stri[7 fixLen 3], UNSIGNED, BE) > length(stri) - 9 then
       writeln(" ***** TLS handshake length not ok");
       writeln("handshake length field: " <& literal(stri[7 len 3]));
-      writeln("handshake length from field: " <& bytes2Int(stri[7 len 3], UNSIGNED, BE));
+      writeln("handshake length from field: " <& bytes2Int(stri[7 fixLen 3], UNSIGNED, BE));
       writeln("actual length: " <& length(stri) - 9);
       writeln("record length field: " <& literal(stri[4 len 2]));
       writeln("HandshakeType: " <& ord(stri[6]));
@@ -599,7 +599,7 @@ const proc: showApplicationData (in string: stri) is func
   begin
     writeln("application data");
     writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("Length: " <& bytes2Int(stri[4 fixLen 2], UNSIGNED, BE));
     writeln("Bytes there: " <& length(stri) - 5);
     writeln("Data: " <& literal(stri[6 ..]));
   end func;

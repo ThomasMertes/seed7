@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gzip.s7i      Gzip compression support library                  *)
-(*  Copyright (C) 2008 - 2013, 2015, 2019 - 2022  Thomas Mertes     *)
+(*  Copyright (C) 2008 - 2013, 2015, 2019 - 2023  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -73,13 +73,13 @@ const func gzipHeader: readGzipHeader (in string: stri, inout integer: bytePos) 
       header.flagFextra   := odd(flags >> 2);
       header.flagFname    := odd(flags >> 3);
       header.flagFcomment := odd(flags >> 4);
-      header.mtime := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+      header.mtime := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
       header.extraFlags := ord(stri[9]);
       header.operatingSystem := ord(stri[10]);
       bytePos := 11;
       if header.flagFextra then
         if length(stri) >= succ(bytePos) then
-          extraLength := bytes2Int(stri[bytePos len 2], UNSIGNED, LE);
+          extraLength := bytes2Int(stri[bytePos fixLen 2], UNSIGNED, LE);
           bytePos +:= 2;
           header.extraData := stri[bytePos len extraLength];
           bytePos +:= extraLength;
@@ -98,7 +98,7 @@ const func gzipHeader: readGzipHeader (in string: stri, inout integer: bytePos) 
       end if;
       if header.flagFhcrc then
         if length(stri) >= succ(bytePos) then
-          header.crc16 := bytes2Int(stri[bytePos len 2], UNSIGNED, LE);
+          header.crc16 := bytes2Int(stri[bytePos fixLen 2], UNSIGNED, LE);
           bytePos +:= 2;
         else
           header.magic := "";
@@ -127,7 +127,7 @@ const func gzipHeader: readGzipHeader (inout file: compressed) is func
       header.flagFextra   := odd(flags >> 2);
       header.flagFname    := odd(flags >> 3);
       header.flagFcomment := odd(flags >> 4);
-      header.mtime := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+      header.mtime := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
       header.extraFlags := ord(stri[9]);
       header.operatingSystem := ord(stri[10]);
       if header.flagFextra then

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  png.s7i       Support for the PNG image file format.            *)
-(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -34,6 +34,8 @@ include "gzip.s7i";
 
 
 const string: PNG_MAGIC is "\137;PNG\r\n\26;\n";
+
+const integer: PNG_HEADER_SIZE is 13;
 
 const type: pngImageType is array array pixel;
 
@@ -68,14 +70,14 @@ const func pngHeader: pngHeader (in string: stri) is func
   result
     var pngHeader: header is pngHeader.value;
   begin
-    if length(stri) = 13 then
-      header.width             := bytes2Int(stri[ 1 len 4], UNSIGNED, BE);
-      header.height            := bytes2Int(stri[ 5 len 4], UNSIGNED, BE);
-      header.bitDepth          := bytes2Int(stri[ 9 len 1], UNSIGNED, BE);
-      header.colorType         := bytes2Int(stri[10 len 1], UNSIGNED, BE);
-      header.compressionMethod := bytes2Int(stri[11 len 1], UNSIGNED, BE);
-      header.filterMethod      := bytes2Int(stri[12 len 1], UNSIGNED, BE);
-      header.interlaceMethod   := bytes2Int(stri[13 len 1], UNSIGNED, BE);
+    if length(stri) = PNG_HEADER_SIZE then
+      header.width             := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+      header.height            := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+      header.bitDepth          := bytes2Int(stri[ 9 fixLen 1], UNSIGNED, BE);
+      header.colorType         := bytes2Int(stri[10 fixLen 1], UNSIGNED, BE);
+      header.compressionMethod := bytes2Int(stri[11 fixLen 1], UNSIGNED, BE);
+      header.filterMethod      := bytes2Int(stri[12 fixLen 1], UNSIGNED, BE);
+      header.interlaceMethod   := bytes2Int(stri[13 fixLen 1], UNSIGNED, BE);
       # showHeader(header);
     else
       raise RANGE_ERROR;
@@ -426,9 +428,9 @@ const proc: fillPngImage48Bit (inout array array pixel: image, in string: pixelD
     for line range 1 to height do
       incr(byteIndex);
       for column range 1 to width do
-        image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256 + ord(pixelData[byteIndex + 1]),
-                                        ord(pixelData[byteIndex + 2]) * 256 + ord(pixelData[byteIndex + 3]),
-                                        ord(pixelData[byteIndex + 4]) * 256 + ord(pixelData[byteIndex + 5]));
+        image[line][column] := rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE),
+                                        bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE),
+                                        bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE));
         byteIndex +:= bytesPerPixel;
       end for;
     end for;

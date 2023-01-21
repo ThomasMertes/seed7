@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  xz.s7i        XZ compression support library                    *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020, 2021, 2023  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -35,6 +35,8 @@ include "lzma.s7i";
 
 const string: XZ_MAGIC is "\16#FD;7zXZ\0;";
 
+const integer: XZ_STREAM_HEADER_SIZE is 12;
+
 
 const type: xzFilterFlags is new struct
     var integer: filterId is 0;
@@ -52,7 +54,7 @@ const func xzFilterFlags: xzFilterFlags (in string: compressed, inout integer: p
     # writeln("filterId: " <& flags.filterId);
     sizeOfProperties := uLeb128ToInt(compressed, pos);
     # writeln("sizeOfProperties: " <& sizeOfProperties);
-    flags.filterProperties := compressed[pos len sizeOfProperties];
+    flags.filterProperties := compressed[pos fixLen sizeOfProperties];
     pos +:= sizeOfProperties;
     # writeln("filterProperties: " <& hex(flags.filterProperties));
   end func;
@@ -185,9 +187,9 @@ const func xzBlockHeader: readXzBlockHeader (in string: blockHeaderStri, inout i
     end for;
     # Skip header padding
     pos := startPos + blockHeaderSize - 4;
-    crc32 := bytes2Int(blockHeaderStri[pos len 4], UNSIGNED, LE);
+    crc32 := bytes2Int(blockHeaderStri[pos fixLen 4], UNSIGNED, LE);
     # writeln("crc32: " <& crc32);
-    if bin32(crc32) <> crc32(blockHeaderStri[startPos len blockHeaderSize - 4]) then
+    if bin32(crc32) <> crc32(blockHeaderStri[startPos fixLen blockHeaderSize - 4]) then
       raise RANGE_ERROR;
     end if;
   end func;
@@ -252,16 +254,16 @@ const func file: openXzFile (inout file: compressed) is func
   result
     var file: newFile is STD_NULL;
   local
-    var string: magic is "";
+    var string: streamHeader is "";
     var xzFile: new_xzFile is xzFile.value;
   begin
-    magic := gets(compressed, length(XZ_MAGIC));
-    # writeln("openXzFile: " <& literal(magic));
-    if magic = XZ_MAGIC then
-      ignore(getc(compressed));
-      new_xzFile.flags := ord(getc(compressed)) mod 16;
+    streamHeader := gets(compressed, XZ_STREAM_HEADER_SIZE);
+    if length(streamHeader) = XZ_STREAM_HEADER_SIZE and
+        startsWith(streamHeader, XZ_MAGIC) then
+      # Ignore first byte of stream flags.
+      new_xzFile.flags := ord(streamHeader[7]) mod 16;
       # writeln("flags: " <& new_xzFile.flags);
-      new_xzFile.crc32 := bytes2Int(gets(compressed, 4), UNSIGNED, LE);
+      new_xzFile.crc32 := bytes2Int(streamHeader[8 fixLen 4], UNSIGNED, LE);
       # writeln("crc32: " <& new_xzFile.crc32);
       new_xzFile.lzmaDec.rangeDec.compressed := compressed;
       readXzBlockHeader(new_xzFile.lzmaDec);

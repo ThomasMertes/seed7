@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ar.s7i        Ar archive library                                *)
-(*  Copyright (C) 2019, 2020  Thomas Mertes                         *)
+(*  Copyright (C) 2019, 2020, 2022, 2023  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -115,13 +115,13 @@ const func arHeader: arHeader (in string: stri) is func
   begin
     assignFilePath(header, stri);
     if stri[17 .. 48] <> " " mult 32 then
-      header.mtime :=   integer(rtrim(stri[17 len 12]));
-      header.ownerId := integer(rtrim(stri[29 len  6]));
-      header.groupId := integer(rtrim(stri[35 len  6]));
-      header.mode :=    integer(rtrim(stri[41 len  8]));
+      header.mtime :=   integer(rtrim(stri[17 fixLen 12]));
+      header.ownerId := integer(rtrim(stri[29 fixLen  6]));
+      header.groupId := integer(rtrim(stri[35 fixLen  6]));
+      header.mode :=    integer(rtrim(stri[41 fixLen  8]));
     end if;
-    header.fileSize :=           integer(rtrim(stri[49 len 10]));
-    header.okay :=                             stri[59 len  2] = "`\n";
+    header.fileSize :=           integer(rtrim(stri[49 fixLen 10]));
+    header.okay :=                             stri[59 fixLen  2] = "`\n";
   end func;
 
 
@@ -148,8 +148,8 @@ const proc: readMinimumOfHead (inout file: inFile, inout arHeader: header) is fu
     stri := gets(inFile, AR_HEADER_SIZE);
     if length(stri) = AR_HEADER_SIZE then
       assignFilePath(header, stri);
-      header.fileSize :=       integer(rtrim(stri[49 len 10]));
-      header.okay :=                         stri[59 len  2] = "`\n";
+      header.fileSize :=       integer(rtrim(stri[49 fixLen 10]));
+      header.okay :=                         stri[59 fixLen  2] = "`\n";
     else
       header := arHeader.value;
     end if;

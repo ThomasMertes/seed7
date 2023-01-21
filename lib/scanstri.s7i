@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  scanstri.s7i  String scanner functions                          *)
-(*  Copyright (C) 2007, 2008, 2009  Thomas Mertes                   *)
+(*  Copyright (C) 2007 - 2011, 2013, 2019, 2021  Thomas Mertes      *)
+(*  Copyright (C) 2023  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -665,13 +666,13 @@ const func string: getCStringLiteralText (inout string: stri) is func
               if pos <= leng and stri[pos] in octdigit_char then
                 incr(pos);
                 if pos <= leng and stri[pos] in octdigit_char then
-                  charValue := integer(stri[pos - 2 len 3], 8);
+                  charValue := integer(stri[pos - 2 fixLen 3], 8);
                   incr(pos);
                 else
-                  charValue := integer(stri[pos - 2 len 2], 8);
+                  charValue := integer(stri[pos - 2 fixLen 2], 8);
                 end if;
               else
-                charValue := integer(stri[pred(pos) len 1], 8);
+                charValue := integer(stri[pred(pos) fixLen 1], 8);
               end if;
               symbol &:= chr(charValue);
             when {'x'}:
@@ -679,10 +680,10 @@ const func string: getCStringLiteralText (inout string: stri) is func
               if pos <= leng and stri[pos] in hexdigit_char then
                 incr(pos);
                 if pos <= leng and stri[pos] in hexdigit_char then
-                  charValue := integer(stri[pred(pos) len 2], 16);
+                  charValue := integer(stri[pred(pos) fixLen 2], 16);
                   incr(pos);
                 else
-                  charValue := integer(stri[pred(pos) len 1], 16);
+                  charValue := integer(stri[pred(pos) fixLen 1], 16);
                 end if;
                 symbol &:= chr(charValue);
               else

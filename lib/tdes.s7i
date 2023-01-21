@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tdes.s7i      TDES (Triple DES) cipher support.                 *)
-(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*  Copyright (C) 2014, 2015, 2023  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -67,11 +67,11 @@ const func tdesState: setTdesKey (in string: desKey, in string: initializationVe
   result
     var tdesState: state is tdesState.value;
   begin
-    state.encryptionSubKey1 := setDesKey(desKey[1 len 8]);
+    state.encryptionSubKey1 := setDesKey(desKey[1 fixLen 8]);
     state.decryptionSubKey1 := reverseKeyScheduleOrder(state.encryptionSubKey1);
-    state.encryptionSubKey2 := setDesKey(desKey[9 len 8]);
+    state.encryptionSubKey2 := setDesKey(desKey[9 fixLen 8]);
     state.decryptionSubKey2 := reverseKeyScheduleOrder(state.encryptionSubKey2);
-    state.encryptionSubKey3 := setDesKey(desKey[17 len 8]);
+    state.encryptionSubKey3 := setDesKey(desKey[17 fixLen 8]);
     state.decryptionSubKey3 := reverseKeyScheduleOrder(state.encryptionSubKey3);
     state.cipherBlock := initializationVector;
   end func;
@@ -131,7 +131,7 @@ const func string: decode (inout tdesState: state, in string: encoded) is func
     var string: plainBlock is "";
   begin
     for index range 1 to length(encoded) step blockSize(TDES) do
-      cipherBlock := encoded[index len blockSize(TDES)];
+      cipherBlock := encoded[index fixLen blockSize(TDES)];
       dataBlock := processDesBlock(state.decryptionSubKey1,
                    processDesBlock(state.encryptionSubKey2,
                    processDesBlock(state.decryptionSubKey3, cipherBlock)));

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ftp.s7i       Support for FTP (file transfer protocol)          *)
-(*  Copyright (C) 2011, 2014, 2017  Thomas Mertes                   *)
+(*  Copyright (C) 2011, 2014, 2017, 2022, 2023  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -608,13 +608,13 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
   begin
     ftpCommand(ftp, "MDTM " <& toUtf8(fileName));
     ftpResponse(ftp);
-    if startsWith(ftp.response, "213") and isDigitString(ftp.response[5 len 14]) then
-      modificationTime.year   := integer(trim(ftp.response[ 5 len 4]));
-      modificationTime.month  := integer(trim(ftp.response[ 9 len 2]));
-      modificationTime.day    := integer(trim(ftp.response[11 len 2]));
-      modificationTime.hour   := integer(trim(ftp.response[13 len 2]));
-      modificationTime.minute := integer(trim(ftp.response[15 len 2]));
-      modificationTime.second := integer(trim(ftp.response[17 len 2]));
+    if startsWith(ftp.response, "213") and isDigitString(ftp.response[5 fixLen 14]) then
+      modificationTime.year   := integer(trim(ftp.response[ 5 fixLen 4]));
+      modificationTime.month  := integer(trim(ftp.response[ 9 fixLen 2]));
+      modificationTime.day    := integer(trim(ftp.response[11 fixLen 2]));
+      modificationTime.hour   := integer(trim(ftp.response[13 fixLen 2]));
+      modificationTime.minute := integer(trim(ftp.response[15 fixLen 2]));
+      modificationTime.second := integer(trim(ftp.response[17 fixLen 2]));
       modificationTime.micro_second := 0;
       if modificationTime.month < 1 or modificationTime.month > 12 or
           modificationTime.day < 1 or modificationTime.day >
