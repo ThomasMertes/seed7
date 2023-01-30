@@ -1592,7 +1592,7 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
     col = (intType) ((((((uintType) redLight)   >> 8) & 255) << 16) |
                      (((((uintType) greenLight) >> 8) & 255) <<  8) |
                       ((((uintType) blueLight)  >> 8) & 255)        | 0xff000000);
-    logFunction0(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ") --> " F_X(08) "\n",
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ") --> " F_X(08) "\n",
                        redLight, greenLight, blueLight, col););
     return col;
   } /* drwRgbColor */

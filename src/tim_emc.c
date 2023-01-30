@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_emc.c                                       */
-/*  Changes: 2022  Thomas Mertes                                    */
+/*  Changes: 2023  Thomas Mertes                                    */
 /*  Content: Time functions for Emscripten.                         */
 /*                                                                  */
 /********************************************************************/
@@ -47,7 +47,7 @@
 
 #undef EXTERN
 #define EXTERN
-#include "kbd_drv.h"
+#include "tim_drv.h"
 
 
 
