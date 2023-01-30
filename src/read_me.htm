@@ -246,8 +246,8 @@ pre.indent {
 </table></dd></dl><p>
   Detailed explanations how to compile the interpreter (s7) can
   be found in the <a class="link" href="#build_COMPILING_UNDER_LINUX">chapters below</a>. In the optimal case you just
-  copy one of these files to 'makefile' and do (with the make
-  program from the table above):
+  copy one makefile from above to 'makefile' and do (with the
+  corresponding make program):
 </p><pre class="indent">
 make depend
 make
@@ -630,9 +630,9 @@ node s7.js aS7Program
 exception thrown: RangeError: Maximum call stack size exceeded
 </pre><p>
   In this case you can raise the allowed stack size. Execute
-  node.js as follows (chose a sufficient stack_size):
+  node.js as follows (chose a sufficient stack-size):
 </p><pre class="indent">
-node --stack_size=8192 s7.js chkstr
+node --stack-size=8192 s7.js chkstr
 </pre><p>
   You can also raise the allowed stack size of node.js
   permanently. Under Windows this is done with the command
@@ -645,7 +645,7 @@ editbin /stack:33554432 node.exe
   .emscripten in your home directory must be also adjusted.
   Change the NODE_JS entry to:
 </p><pre class="indent">
-NODE_JS = ['node', '--stack_size=8192']
+NODE_JS = ['node', '--stack-size=8192']
 </pre><p>
   The remaining steps to build and install Seed7 are explained
   above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
@@ -1397,6 +1397,7 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>con_con.c <td>&nbsp;</td><td>Driver for conio console access.</td></tr>
 <tr><td>con_cur.c <td>&nbsp;</td><td>Driver for curses console access.</td></tr>
 <tr><td>con_dos.c <td>&nbsp;</td><td>Driver for dos console access.</td></tr>
+<tr><td>con_emc.c <td>&nbsp;</td><td>Driver for emcc (JavaScript) console access.</td></tr>
 <tr><td>con_inf.c <td>&nbsp;</td><td>Driver for terminfo console access.</td></tr>
 <tr><td>con_tcp.c <td>&nbsp;</td><td>Driver for termcap console access.</td></tr>
 <tr><td>con_wat.c <td>&nbsp;</td><td>Driver for watcom console access.</td></tr>
@@ -1408,11 +1409,15 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>dll_unx.c <td>&nbsp;</td><td>Dynamic link library (*.so) support.</td></tr>
 <tr><td>dll_win.c <td>&nbsp;</td><td>Dynamic link library (*.dll) support.</td></tr>
 <tr><td>drw_dos.c <td>&nbsp;</td><td>Graphic access using the dos capabilities.</td></tr>
+<tr><td>drw_emc.c <td>&nbsp;</td><td>Graphic access using the browser.</td></tr>
 <tr><td>drw_win.c <td>&nbsp;</td><td>Graphic access using the windows capabilities.</td></tr>
 <tr><td>drw_x11.c <td>&nbsp;</td><td>Graphic access using the X11 capabilities.</td></tr>
+<tr><td>emc_utl.c <td>&nbsp;</td><td>Emscripten utility functions.</td></tr>
 <tr><td>fil_dos.c <td>&nbsp;</td><td>File functions which call the Dos API.</td></tr>
+<tr><td>fil_emc.c <td>&nbsp;</td><td>File functions which use Emscripten.</td></tr>
 <tr><td>fil_unx.c <td>&nbsp;</td><td>File functions which call the Unix API.</td></tr>
 <tr><td>fil_win.c <td>&nbsp;</td><td>File functions which call the Windows API.</td></tr>
+<tr><td>gkb_emc.c <td>&nbsp;</td><td>Keyboard and mouse access using the browser.</td></tr>
 <tr><td>gkb_rtl.c <td>&nbsp;</td><td>Generic keyboard support for graphics keyboard.</td></tr>
 <tr><td>gkb_win.c <td>&nbsp;</td><td>Keyboard and mouse access for windows.</td></tr>
 <tr><td>gkb_x11.c <td>&nbsp;</td><td>Keyboard and mouse access with X11 capabilities.</td></tr>
@@ -1440,6 +1445,7 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>trm_cap.c <td>&nbsp;</td><td>Driver for termcap screen access.</td></tr>
 <tr><td>trm_inf.c <td>&nbsp;</td><td>Driver for terminfo screen access.</td></tr>
 <tr><td>tim_dos.c <td>&nbsp;</td><td>Time functions which call the Dos API.</td></tr>
+<tr><td>tim_emc.c <td>&nbsp;</td><td>Time functions for Emscripten.</td></tr>
 <tr><td>tim_unx.c <td>&nbsp;</td><td>Time functions which call the Unix API.</td></tr>
 <tr><td>tim_win.c <td>&nbsp;</td><td>Time functions which call the Windows API.</td></tr>
 </table><p>

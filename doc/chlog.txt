@@ -1,3 +1,103 @@
+20230130:
+- The drivers used in the browser (when Seed7 is compiled with
+  Emscripten) have been improved (in con_emc.c, drw_emc.c, fil_emc.c,
+  gkb_emc.c, tim_emc.c and emc_utl.c). Now graphic Seed7 programs can
+  be compiled to JavaScript and Webassembly to run them in the browser.
+- A new sub-string operation with a guaranteed length (fixLen) has been
+  introduced. E.g.: "abcde"[2 fixLen 3].
+- 30 libraries have been adjusted to use the fixLen sub-string. The
+  guaranteed sub-string length assures that conversions like
+  bytes2Int() do not get data that is too short.
+- The library zip.s7i has been fixed to work correct if a descriptor
+  signature follows the deflated data.
+- The library jpeg.s7i has been refactored to use the segment length
+  for reading a segment into a string.
+- A close() function for LSB and MSB bit streams has been addded to
+  bitdata.s7i. The close() sets the the position of the underlying
+  file directly after the bit stream. This is used by the function
+  inflate() (in the inflate.s7i library).
+- The function flush() has been added to the tee.s7i library.
+- Several characters in the fonts stdfont10.s7i, stdfont12.s7i,
+  stdfont14.s7i, stdfont16.s7i, stdfont18.s7i, stdfont20.s7i,
+  stdfont24.s7i, vecfont10.s7i and vecfont18.s7i have been improved.
+- Interpreter and compiler have been improved to support the action
+  STR_SUBSTR_FIXLEN.
+- The compiler (s7c.sd7) has been improved:
+  - Support for arcs with thickness has been added (action DRW_PFARC).
+  - Code that reports a GRAPHIC_ERROR is now generated.
+  - The optimizations for string sub-strings ("abcde"[2 len 3] and
+    "abcde"[2 fixLen 3]) have been improved.
+  - The optimizations for combinations of sub-string and conversion to
+    integer (e.g.: bytes2Int(stri[5 fixLen 4], UNSIGNED, LE) ) have
+    been improved.
+  - The size of the generated init_values function has been reduced.
+  - If requested by USE_DO_EXIT, the function doExit() is called at the
+    end of the program.
+  - Profiling data is stored in allocated memory instead of an array.
+    Some C compilers had problems with the array approach.
+- The documentation in doc/faq.htm, doc/faq.txt, src/read_me.htm and
+  src/read_me.txt has been updated.
+- More detailed error messages have been introduced in chkbig.sd7,
+  chkint.sd7 and chkset.sd7.
+- Tests in chkint.sd7, chkstr.sd7 and chkidx.sd7 have been improved to
+  check the new sub-string function (fixLen) with and without a
+  subsequent conversion to integer.
+- Tests in chkidx.sd7 have been refactored to use if-statements
+  instead of using an ok variable.
+- An optional event tracing has been added to con_win.c.
+- The event tracing in drw_win.c and gkb_win.c has been improved.
+- The program chkccomp.c has been improved to determine
+  SYSTEM_RESULT_FOR_RETURN_0 in a way that works also with Emscipten.
+- The test programs to determine LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION
+  and LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION in chkccomp.c have been
+  improved to define the large array outside of main (Emsripten
+  needs this).
+- In common.h the format strings for OS_OFF_T have been changed to
+  prefer the long format if sizeof(int) = 4 and sizeof(long) = 4.
+- An include of traceutl.h has been added to actlib.c, biglib.c,
+  blnlib.c, bstlib.c, chrlib.c, conlib.c, drwlib.c, fillib.c, fltlib.c,
+  intlib.c, pcslib.c, pollib.c, setlib.c and strlib.c. This allows
+  enabling LOG_FUNCTIONS with strict C compilers.
+- The function printSet() has been added to set_rtl.c. This function
+  is used in set_rtl.c as replacement for prot_set() when LOG_FUNCTIONS
+  is enabled. This allows logging in compiled programs.
+- Logging functions have been improved in arr_rtl.c, con_win.c,
+  drw_win.c, drw_x11.c, fil_rtl.c and gkb_win.c.
+- Occurrances of exit() and atexit() have been replaced by os_exit()
+  respectively os_atexit(). This way, the makefiles mk_emccl.mak and
+  mk_emccw.mak can define os_exit() and os_atexit() to use doExit()
+  and registerExitFunction() instead of the default functions.
+- JavaScript specific functions have been moved from fil_unx.c to
+  new file fil_emc.c.
+- Keyboard functions have been moved from drw_emc.c to the new file
+  gkb_emc.c.
+- The JavaScript keyboard drivers in con_emc.c and gkb_emc.c have
+  been improved to work with synchronous I/O although JavaScript works
+  asynchronous in the browser.
+- In the new file tim_emc.c the function timAwait() has been
+  introduced. This function saves keypresses that happen during the
+  wait (it works together with the keyboard drivers from con_emc.c or
+  gkb_emc.c).
+- The new file emc_utl.c has been introduced. This file contains
+  registerExitFunction() and doExit() which replace atexit() and exit()
+  under Emscripten. It also defines enqueue() and dequeue() which are
+  used during timAwait() to queue keypresses. And finally, it defines
+  mapKeyNameIdToKey() which is used by the keyboard drivers.
+- Functions to register and execute callbacks have been added to
+  pre_js.js.
+- The makefiles mk_emccl.mak and mk_emccw.mak have been improved to
+  use the linker options ASYNCIFY, ASYNCIFY_STACK_SIZE and
+  EXIT_RUNTIME. The new files emc_utl.c, fil_emc.c, tim_emc.c and
+  gkb_emc.c have also been added.
+- JavaScript strings in the .c files have been refactored to use "
+  instead of '.
+- The definition of USE_DO_EXIT has been added to cc_conf.s7i. The file
+  cmd_rtl.c and the program confval.sd7 have been adjusted accordingly.
+- The keyboard driver gkb_x11.c has been improved to work correctly
+  when the keyboard layout is switched.
+- Documentation comments have been improved in string.s7i, str_rtl.c
+  and strlib.c.
+
 20221218:
 - Examples for reading from the keyboard have been added to the manual.
 - In src/read_me.txt and src/read_me.htm the description "compiling

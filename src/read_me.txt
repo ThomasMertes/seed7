@@ -47,8 +47,8 @@ THE MAKEFILES
 
   Detailed explanations how to compile the interpreter (s7) can
   be found in the chapters below. In the optimal case you just
-  copy one of these files to 'makefile' and do (with the make
-  program from the table above):
+  copy one makefile from above to 'makefile' and do (with the
+  corresponding make program):
 
     make depend
     make
@@ -431,9 +431,9 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
     exception thrown: RangeError: Maximum call stack size exceeded
 
   In this case you can raise the allowed stack size. Execute
-  node.js as follows (chose a sufficient stack_size):
+  node.js as follows (chose a sufficient stack-size):
 
-    node --stack_size=8192 s7.js chkstr
+    node --stack-size=8192 s7.js chkstr
 
   You can also raise the allowed stack size of node.js
   permanently. Under Windows this is done with the command
@@ -446,7 +446,7 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
   .emscripten in your home directory must be also adjusted.
   Change the NODE_JS entry to:
 
-    NODE_JS = ['node', '--stack_size=8192']
+    NODE_JS = ['node', '--stack-size=8192']
 
   The remaining steps to build and install Seed7 are explained
   above in the chapter REMAINING BUILD STEPS.
@@ -1198,6 +1198,7 @@ DRIVERS
     con_con.c  Driver for conio console access.
     con_cur.c  Driver for curses console access.
     con_dos.c  Driver for dos console access.
+    con_emc.c  Driver for emcc (JavaScript) console access.
     con_inf.c  Driver for terminfo console access.
     con_tcp.c  Driver for termcap console access.
     con_wat.c  Driver for watcom console access.
@@ -1209,11 +1210,15 @@ DRIVERS
     dll_unx.c  Dynamic link library (*.so) support.
     dll_win.c  Dynamic link library (*.dll) support.
     drw_dos.c  Graphic access using the dos capabilities.
+    drw_emc.c  Graphic access using the browser.
     drw_win.c  Graphic access using the windows capabilities.
     drw_x11.c  Graphic access using the X11 capabilities.
+    emc_utl.c  Emscripten utility functions.
     fil_dos.c  File functions which call the Dos API.
+    fil_emc.c  File functions which use Emscripten.
     fil_unx.c  File functions which call the Unix API.
     fil_win.c  File functions which call the Windows API.
+    gkb_emc.c  Keyboard and mouse access using the browser.
     gkb_rtl.c  Generic keyboard support for graphics keyboard.
     gkb_win.c  Keyboard and mouse access for windows.
     gkb_x11.c  Keyboard and mouse access with X11 capabilities.
@@ -1241,6 +1246,7 @@ DRIVERS
     trm_cap.c  Driver for termcap screen access.
     trm_inf.c  Driver for terminfo screen access.
     tim_dos.c  Time functions which call the Dos API.
+    tim_emc.c  Time functions for Emscripten.
     tim_unx.c  Time functions which call the Unix API.
     tim_win.c  Time functions which call the Windows API.
 
