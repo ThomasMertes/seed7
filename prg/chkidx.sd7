@@ -12224,7 +12224,7 @@ const func boolean: check_string_substr_fixLen_empty_3 is func
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr(            1) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
-        not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then 
+        not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
       writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (4)");
       okay := FALSE;
     end if;
