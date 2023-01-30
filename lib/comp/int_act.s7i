@@ -1776,32 +1776,30 @@ const proc: optimize_int_bytes_2_uint_length_0 (in reference: stri,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
       raisesException := TRUE;
-    elsif fixedLengthSubstring then
-      if getConstant(stri, STRIOBJECT, evaluatedParam) then
-        stri_is_variable := FALSE;
-        stri_length := length(getValue(evaluatedParam, string));
-        stri_size := memSizeLiteral(stri_length);
-        if start_range.minValue > stri_length then
-          if fixedLengthSubstring then
-            warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-            c_expr.expr &:= intRaiseError("INDEX_ERROR");
-          else
-            warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-            c_expr.expr &:= intRaiseError("RANGE_ERROR");
-          end if;
-          raisesException := TRUE;
+    elsif getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_is_variable := FALSE;
+      stri_length := length(getValue(evaluatedParam, string));
+      stri_size := memSizeLiteral(stri_length);
+      if start_range.minValue > stri_length then
+        if fixedLengthSubstring then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        else
+          warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("RANGE_ERROR");
         end if;
-      else
-        stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
-        stri_size := stri_name & "->size";
+        raisesException := TRUE;
       end if;
-    end if;
-    if getConstant(start, INTOBJECT, evaluatedParam) then
-      start_name := integerLiteral(getValue(evaluatedParam, integer));
     else
-      start_name := getTempVariable("intType", "start_", start, c_expr);
+      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+      stri_size := stri_name & "->size";
     end if;
     if not raisesException then
+      if getConstant(start, INTOBJECT, evaluatedParam) then
+        start_name := integerLiteral(getValue(evaluatedParam, integer));
+      else
+        start_name := getTempVariable("intType", "start_", start, c_expr);
+      end if;
       if string_index_check then
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
@@ -1855,6 +1853,7 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
     incr(countInlinedFunctions);
     c_expr.expr &:= "(";
     if getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_is_variable := FALSE;
       stri_value := getValue(evaluatedParam, string);
       stri_name := "(" & stringLiteral(stri_value) & ")";
       stri_length := length(stri_value);
@@ -1863,30 +1862,28 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
       stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
       stri_size := stri_name & "->size";
     end if;
-    if getConstant(start, INTOBJECT, evaluatedParam) then
-      start_value := getValue(evaluatedParam, integer);
-      if start_value < 1 then
+    start_range := getIntRange(start);
+    if start_range.maxValue < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      raisesException := TRUE;
+    elsif not stri_is_variable and start_range.minValue > stri_length then
+      if fixedLengthSubstring then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("INDEX_ERROR");
-        raisesException := TRUE;
-      elsif not stri_is_variable and start_value > stri_length then
-        if fixedLengthSubstring then
-          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("INDEX_ERROR");
-        else
-          warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("RANGE_ERROR");
-        end if;
-        raisesException := TRUE;
       else
-        start_name := integerLiteral(start_value);
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
       end if;
+      raisesException := TRUE;
+    elsif getConstant(start, INTOBJECT, evaluatedParam) then
+      start_value := getValue(evaluatedParam, integer);
+      start_name := integerLiteral(start_value);
     else
       start_name := getTempVariable("intType", "start_", start, c_expr);
     end if;
     if not raisesException then
       if string_index_check then
-        start_range := getIntRange(start);
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
           incr(countIndexChecks);
