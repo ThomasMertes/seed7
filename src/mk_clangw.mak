@@ -146,7 +146,7 @@ all: depend
 
 clean:
 	del *.o
-	del ..\bin\*$(LIB_EXT)
+	del $(ALL_S7_LIBS)
 	del ..\bin\s7.exe
 	del ..\bin\$(CC_ENVIRONMENT_INI)
 	del ..\bin\s7c.exe

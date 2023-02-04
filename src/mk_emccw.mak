@@ -140,7 +140,7 @@ sql_srv.o: sql_srv.c
 
 clean:
 	del *.o
-	del ..\bin\*.a
+	del $(ALL_S7_LIBS)
 	del ..\bin\s7.js
 	del ..\bin\s7.wasm
 	del ..\bin\$(CC_ENVIRONMENT_INI)

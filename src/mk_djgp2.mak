@@ -124,7 +124,7 @@ sql_srv.o: sql_srv.c
 
 clean:
 	del *.o
-	del ..\bin\*.a
+	del $(ALL_S7_LIBS)
 	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7.exe

@@ -147,7 +147,7 @@ all: depend
 .PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe wrdepend.exe levelup.exe next_lvl
+	rm -f *.o $(ALL_S7_LIBS) ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe wrdepend.exe levelup.exe next_lvl
 	rm -f chkint chkovf chkflt chkbin chkchr chkstr chkidx chkbst chkarr chkprc chkbig chkbool chkbitdata chkset chkhsh chkfil chkexc
 	rm -f ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c
 	@echo

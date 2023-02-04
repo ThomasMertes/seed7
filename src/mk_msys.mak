@@ -147,7 +147,7 @@ all: depend
 .PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe setwpath.exe wrdepend.exe sudo.exe levelup.exe next_lvl
+	rm -f *.o $(ALL_S7_LIBS) ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe setwpath.exe wrdepend.exe sudo.exe levelup.exe next_lvl
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo

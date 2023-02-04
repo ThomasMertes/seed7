@@ -139,7 +139,7 @@ sql_srv.o: sql_srv.c
 .PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
+	rm -f *.o $(ALL_S7_LIBS) ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
 	rm -f ../prg/s7.js ../prg/s7.wasm ../prg/s7c.js ../prg/s7c.wasm
 	rm -f depend macros chkccomp.h base.h settings.h version.h chkccomp wrdepend levelup next_lvl
 	@echo
