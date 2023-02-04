@@ -28,6 +28,7 @@
 
 include "shell.s7i";
 include "osfiles.s7i";
+include "propertyfile.s7i";
 
 
 (**
@@ -843,8 +844,6 @@ const func string: configValue (in string: name)    is action "CMD_CONFIG_VALUE"
 const func ccConfigType: getBuiltInConfig is func
   result
     var ccConfigType: conf is ccConfigType.value;
-  local
-    var string: configValue is "";
   begin
     conf.WITH_STRI_CAPACITY            := boolean(configValue("WITH_STRI_CAPACITY"));
     conf.ALLOW_STRITYPE_SLICES         := boolean(configValue("ALLOW_STRITYPE_SLICES"));
@@ -992,7 +991,147 @@ const func ccConfigType: getBuiltInConfig is func
 (**
  *  Structure with configuration values for C compiler and runtime.
  *)
-const ccConfigType: ccConf is getBuiltInConfig;
+var ccConfigType: ccConf is getBuiltInConfig;
+
+
+const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in string: value) is func
+  begin
+    case name of
+      when {"WITH_STRI_CAPACITY"}:            conf.WITH_STRI_CAPACITY            := boolean(value);
+      when {"ALLOW_STRITYPE_SLICES"}:         conf.ALLOW_STRITYPE_SLICES         := boolean(value);
+      when {"ALLOW_BSTRITYPE_SLICES"}:        conf.ALLOW_BSTRITYPE_SLICES        := boolean(value);
+      when {"RSHIFT_DOES_SIGN_EXTEND"}:       conf.RSHIFT_DOES_SIGN_EXTEND       := boolean(value);
+      when {"TWOS_COMPLEMENT_INTTYPE"}:       conf.TWOS_COMPLEMENT_INTTYPE       := boolean(value);
+      when {"LITTLE_ENDIAN_INTTYPE"}:         conf.LITTLE_ENDIAN_INTTYPE         := boolean(value);
+      when {"FLOAT_COMPARISON_OKAY"}:         conf.FLOAT_COMPARISON_OKAY         := boolean(value);
+      when {"POW_FUNCTION_OKAY"}:             conf.POW_FUNCTION_OKAY             := boolean(value);
+      when {"FMOD_FUNCTION_OKAY"}:            conf.FMOD_FUNCTION_OKAY            := boolean(value);
+      when {"SQRT_FUNCTION_OKAY"}:            conf.SQRT_FUNCTION_OKAY            := boolean(value);
+      when {"EXP_FUNCTION_OKAY"}:             conf.EXP_FUNCTION_OKAY             := boolean(value);
+      when {"LOG_FUNCTION_OKAY"}:             conf.LOG_FUNCTION_OKAY             := boolean(value);
+      when {"LOG10_FUNCTION_OKAY"}:           conf.LOG10_FUNCTION_OKAY           := boolean(value);
+      when {"LOG1P_FUNCTION_OKAY"}:           conf.LOG1P_FUNCTION_OKAY           := boolean(value);
+      when {"LOG2_FUNCTION_OKAY"}:            conf.LOG2_FUNCTION_OKAY            := boolean(value);
+      when {"LDEXP_FUNCTION_OKAY"}:           conf.LDEXP_FUNCTION_OKAY           := boolean(value);
+      when {"FREXP_FUNCTION_OKAY"}:           conf.FREXP_FUNCTION_OKAY           := boolean(value);
+      when {"HAS_SIGSETJMP"}:                 conf.HAS_SIGSETJMP                 := boolean(value);
+      when {"CHECK_INT_DIV_BY_ZERO"}:         conf.CHECK_INT_DIV_BY_ZERO         := boolean(value);
+      when {"CHECK_INT_DIV_ZERO_BY_ZERO"}:    conf.CHECK_INT_DIV_ZERO_BY_ZERO    := boolean(value);
+      when {"CHECK_INT_REM_BY_ZERO"}:         conf.CHECK_INT_REM_BY_ZERO         := boolean(value);
+      when {"CHECK_INT_REM_ZERO_BY_ZERO"}:    conf.CHECK_INT_REM_ZERO_BY_ZERO    := boolean(value);
+      when {"FLOAT_ZERO_DIV_ERROR"}:          conf.FLOAT_ZERO_DIV_ERROR          := boolean(value);
+      when {"CHECK_FLOAT_DIV_BY_ZERO"}:       conf.CHECK_FLOAT_DIV_BY_ZERO       := boolean(value);
+      when {"HAS_EXP2"}:                      conf.HAS_EXP2                      := boolean(value);
+      when {"HAS_EXP10"}:                     conf.HAS_EXP10                     := boolean(value);
+      when {"HAS_EXPM1"}:                     conf.HAS_EXPM1                     := boolean(value);
+      when {"HAS_CBRT"}:                      conf.HAS_CBRT                      := boolean(value);
+      when {"LIMITED_CSTRI_LITERAL_LEN"}:     conf.LIMITED_CSTRI_LITERAL_LEN     := boolean(value);
+      when {"SWITCH_WORKS_FOR_INT64TYPE"}:    conf.SWITCH_WORKS_FOR_INT64TYPE    := boolean(value);
+      when {"STMT_BLOCK_IN_PARENTHESES_OK"}:  conf.STMT_BLOCK_IN_PARENTHESES_OK  := boolean(value);
+      when {"CC_SOURCE_UTF8"}:                conf.CC_SOURCE_UTF8                := boolean(value);
+      when {"USE_WMAIN"}:                     conf.USE_WMAIN                     := boolean(value);
+      when {"USE_WINMAIN"}:                   conf.USE_WINMAIN                   := boolean(value);
+      when {"USE_DO_EXIT"}:                   conf.USE_DO_EXIT                   := boolean(value);
+      when {"FLOATTYPE_DOUBLE"}:              conf.FLOATTYPE_DOUBLE              := boolean(value);
+      when {"INTTYPE_SIZE"}:                  conf.INTTYPE_SIZE                  := integer(value);
+      when {"FLOATTYPE_SIZE"}:                conf.FLOATTYPE_SIZE                := integer(value);
+      when {"POINTER_SIZE"}:                  conf.POINTER_SIZE                  := integer(value);
+      when {"GENERIC_SIZE"}:                  conf.GENERIC_SIZE                  := integer(value);
+      when {"INT_SIZE"}:                      conf.INT_SIZE                      := integer(value);
+      when {"LONG_SIZE"}:                     conf.LONG_SIZE                     := integer(value);
+      when {"FLOATTYPE_MANTISSA_BITS"}:       conf.FLOATTYPE_MANTISSA_BITS       := integer(value);
+      when {"FLOATTYPE_EXPONENT_OFFSET"}:     conf.FLOATTYPE_EXPONENT_OFFSET     := integer(value);
+      when {"INT_RANGE_IN_FLOATTYPE_MAX"}:    conf.INT_RANGE_IN_FLOATTYPE_MAX    := integer(value);
+      when {"MINIMUM_TRUNC_ARGUMENT"}:        conf.MINIMUM_TRUNC_ARGUMENT        := integer(value);
+      when {"MAXIMUM_TRUNC_ARGUMENT"}:        conf.MAXIMUM_TRUNC_ARGUMENT        := integer(value);
+      when {"PIXEL_RED_MASK"}:                conf.PIXEL_RED_MASK                := integer(value, 16);
+      when {"PIXEL_GREEN_MASK"}:              conf.PIXEL_GREEN_MASK              := integer(value, 16);
+      when {"PIXEL_BLUE_MASK"}:               conf.PIXEL_BLUE_MASK               := integer(value, 16);
+      when {"RGB_TO_PIXEL_FLAG_NAME"}:        conf.RGB_TO_PIXEL_FLAG_NAME        := value;
+      when {"RAND_MULTIPLIER"}:               conf.RAND_MULTIPLIER               := integer(value);
+      when {"RAND_INCREMENT"}:                conf.RAND_INCREMENT                := integer(value);
+      when {"BOOLTYPE"}:                      conf.BOOLTYPE                      := value;
+      when {"INT32TYPE"}:                     conf.INT32TYPE                     := value;
+      when {"UINT32TYPE"}:                    conf.UINT32TYPE                    := value;
+      when {"INT64TYPE"}:                     conf.INT64TYPE                     := value;
+      when {"UINT64TYPE"}:                    conf.UINT64TYPE                    := value;
+      when {"INT128TYPE"}:                    conf.INT128TYPE                    := value;
+      when {"UINT128TYPE"}:                   conf.UINT128TYPE                   := value;
+      when {"INT32TYPE_LITERAL_SUFFIX"}:      conf.INT32TYPE_LITERAL_SUFFIX      := value;
+      when {"INT64TYPE_LITERAL_SUFFIX"}:      conf.INT64TYPE_LITERAL_SUFFIX      := value;
+      when {"MACRO_DEFS"}:                    conf.MACRO_DEFS                    := value;
+      when {"OVERFLOW_SIGNAL"}:               conf.OVERFLOW_SIGNAL               := value;
+      when {"BUILTIN_ADD_OVERFLOW"}:          conf.BUILTIN_ADD_OVERFLOW          := value;
+      when {"BUILTIN_SUB_OVERFLOW"}:          conf.BUILTIN_SUB_OVERFLOW          := value;
+      when {"BUILTIN_MULT_OVERFLOW"}:         conf.BUILTIN_MULT_OVERFLOW         := value;
+      when {"INT_DIV_OVERFLOW"}:              conf.INT_DIV_OVERFLOW              := integer(value);
+      when {"INT_REM_OVERFLOW"}:              conf.INT_REM_OVERFLOW              := integer(value);
+      when {"OBJECT_FILE_EXTENSION"}:         conf.OBJECT_FILE_EXTENSION         := value;
+      when {"LIBRARY_FILE_EXTENSION"}:        conf.LIBRARY_FILE_EXTENSION        := value;
+      when {"EXECUTABLE_FILE_EXTENSION"}:     conf.EXECUTABLE_FILE_EXTENSION     := value;
+      when {"LINKED_PROGRAM_EXTENSION"}:      conf.LINKED_PROGRAM_EXTENSION      := value;
+      when {"CC_ENVIRONMENT_INI"}:            conf.CC_ENVIRONMENT_INI            := value;
+      when {"C_COMPILER"}:                    conf.C_COMPILER                    := value;
+      when {"CPLUSPLUS_COMPILER"}:            conf.CPLUSPLUS_COMPILER            := value;
+      when {"CALL_C_COMPILER_FROM_SHELL"}:    conf.CALL_C_COMPILER_FROM_SHELL    := boolean(value);
+      when {"C_COMPILER_VERSION"}:            conf.C_COMPILER_VERSION            := value;
+      when {"CC_OPT_DEBUG_INFO"}:             conf.CC_OPT_DEBUG_INFO             := noEmptyStrings(split(value, ' '));
+      when {"CC_OPT_LINK_TIME_OPTIMIZATION"}: conf.CC_OPT_LINK_TIME_OPTIMIZATION := value;
+      when {"CC_OPT_NO_WARNINGS"}:            conf.CC_OPT_NO_WARNINGS            := value;
+      when {"CC_OPT_OPTIMIZE_1"}:             conf.CC_OPT_OPTIMIZE_1             := noEmptyStrings(split(value, ' '));
+      when {"CC_OPT_OPTIMIZE_2"}:             conf.CC_OPT_OPTIMIZE_2             := noEmptyStrings(split(value, ' '));
+      when {"CC_OPT_OPTIMIZE_3"}:             conf.CC_OPT_OPTIMIZE_3             := noEmptyStrings(split(value, ' '));
+      when {"CC_OPT_TRAP_OVERFLOW"}:          conf.CC_OPT_TRAP_OVERFLOW          := value;
+      when {"CC_OPT_VERSION_INFO"}:           conf.CC_OPT_VERSION_INFO           := value;
+      when {"CC_FLAGS"}:                      conf.CC_FLAGS                      := noEmptyStrings(split(value, ' '));
+      when {"CC_ERROR_FILEDES"}:              conf.CC_ERROR_FILEDES              := integer(value);
+      when {"CC_VERSION_INFO_FILEDES"}:       conf.CC_VERSION_INFO_FILEDES       := integer(value);
+      when {"LINKER_OPT_DEBUG_INFO"}:         conf.LINKER_OPT_DEBUG_INFO         := value;
+      when {"LINKER_OPT_LTO_MANDATORY"}:      conf.LINKER_OPT_LTO_MANDATORY      := boolean(value);
+      when {"LINKER_OPT_NO_DEBUG_INFO"}:      conf.LINKER_OPT_NO_DEBUG_INFO      := value;
+      when {"LINKER_OPT_OUTPUT_FILE"}:        conf.LINKER_OPT_OUTPUT_FILE        := value;
+      when {"LINKER_OPT_SPECIAL_LIB"}:        conf.LINKER_OPT_SPECIAL_LIB        := value;
+      when {"LINKER_FLAGS"}:                  conf.LINKER_FLAGS                  := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_LIBS"}:                   conf.SYSTEM_LIBS                   := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_BIGINT_LIBS"}:            conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_CONSOLE_LIBS"}:           conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_DATABASE_LIBS"}:          conf.SYSTEM_DATABASE_LIBS          := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_DRAW_LIBS"}:              conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_MATH_LIBS"}:              conf.SYSTEM_MATH_LIBS              := noEmptyStrings(split(value, ' '));
+      when {"SEED7_LIB"}:                     conf.SEED7_LIB                     := value;
+      when {"DRAW_LIB"}:                      conf.DRAW_LIB                      := value;
+      when {"CONSOLE_LIB"}:                   conf.CONSOLE_LIB                   := value;
+      when {"DATABASE_LIB"}:                  conf.DATABASE_LIB                  := value;
+      when {"COMP_DATA_LIB"}:                 conf.COMP_DATA_LIB                 := value;
+      when {"COMPILER_LIB"}:                  conf.COMPILER_LIB                  := value;
+      when {"SPECIAL_LIB"}:                   conf.SPECIAL_LIB                   := value;
+      when {"S7_LIB_DIR"}:                    conf.S7_LIB_DIR                    := value;
+      when {"VERSION_REVISION_LEVEL"}:        conf.VERSION_REVISION_LEVEL        := integer(value);
+      when {"REDIRECT_FILEDES_1"}:            conf.REDIRECT_FILEDES_1            := value;
+      when {"REDIRECT_FILEDES_2"}:            conf.REDIRECT_FILEDES_2            := value;
+      when {"NULL_DEVICE"}:                   conf.NULL_DEVICE                   := value;
+      when {"INTTYPE_LITERAL_SUFFIX"}:        conf.INTTYPE_LITERAL_SUFFIX        := value;
+      when {"INT_MIN"}:                       conf.INT_MIN                       := integer(value);
+      when {"INT_MAX"}:                       conf.INT_MAX                       := integer(value);
+      otherwise:
+        raise RANGE_ERROR;
+    end case
+  end func;
+
+
+const func ccConfigType: readConfig (in string: configFileName) is func
+  result
+    var ccConfigType: conf is ccConfigType.value;
+  local
+    var propertyDataType: propertyData is propertyDataType.value;
+    var string: name is "";
+    var string: value is "";
+  begin
+    propertyData := readPropertyFile(configFileName);
+    for value key name range propertyData do
+      assignConfigValue(conf, name, value);
+    end for;
+  end func;
 
 
 const func string: determineCCVersion is func

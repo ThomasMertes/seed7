@@ -7214,6 +7214,7 @@ const proc: pass_1 (in string: source, inout program: prog,
 
   local
     var char: optionChar is ' ';
+    var string: configFileName is "";
   begin
     if source <> "" then
       writeln("Compiling the program ...");
@@ -7276,8 +7277,17 @@ const proc: pass_1 (in string: source, inout program: prog,
       setIntegerDivisionCheck(integer_division_check);
       setIntegerOverflowCheck(integer_overflow_check);
       if "-c" in compiler_option then
-        generate_c_plus_plus := compiler_option["-c"] = "++";
-        declare_with_extern_c := generate_c_plus_plus;
+        if compiler_option["-c"] = "++" then
+          generate_c_plus_plus := TRUE;
+          declare_with_extern_c := generate_c_plus_plus;
+        else
+          configFileName := ccConf.S7_LIB_DIR & "/cc_conf_" & compiler_option["-c"] & ".prop";
+          if fileType(configFileName) = FILE_REGULAR then
+            ccConf := readConfig(configFileName);
+          else
+            writeln("*** Cannot find config file " <& configFileName);
+          end if;
+        end if;
       end if;
       if "-f" in compiler_option then
         case compiler_option["-f"] of
@@ -7887,7 +7897,7 @@ const proc: main is func
       for index range 1 to length(argv(PROGRAM)) do
         curr_arg := argv(PROGRAM)[index];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg in {"-b"} and index < length(argv(PROGRAM)) then
+          if curr_arg in {"-b", "-c"} and index < length(argv(PROGRAM)) then
             incr(index);
             compiler_option @:= [curr_arg] argv(PROGRAM)[index];
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then

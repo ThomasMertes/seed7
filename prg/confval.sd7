@@ -102,7 +102,7 @@ const proc: main is func
     writeln("UINT128TYPE:                   " <& ccConf.UINT128TYPE);
     writeln("INT32TYPE_LITERAL_SUFFIX:      " <& ccConf.INT32TYPE_LITERAL_SUFFIX);
     writeln("INT64TYPE_LITERAL_SUFFIX:      " <& ccConf.INT64TYPE_LITERAL_SUFFIX);
-    writeln("MACRO_DEFS:                    " <& literal(ccConf.MACRO_DEFS));
+    writeln("MACRO_DEFS:                    " <& replace(ccConf.MACRO_DEFS, "\n", "\\n"));
     writeln("OVERFLOW_SIGNAL:               " <& ccConf.OVERFLOW_SIGNAL);
     writeln("BUILTIN_ADD_OVERFLOW:          " <& ccConf.BUILTIN_ADD_OVERFLOW);
     writeln("BUILTIN_SUB_OVERFLOW:          " <& ccConf.BUILTIN_SUB_OVERFLOW);

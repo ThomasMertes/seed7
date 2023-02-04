@@ -23,12 +23,12 @@ SYSTEM_LIBS = -lnodefs.js
 # SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SYSTEM_MATH_LIBS = -lm
 ALL_SYSTEM_LIBS = $(SYSTEM_LIBS) $(SYSTEM_BIGINT_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_MATH_LIBS)
-SEED7_LIB = seed7_05.a
-DRAW_LIB = s7_draw.a
-CONSOLE_LIB = s7_con.a
-DATABASE_LIB = s7_db.a
-COMP_DATA_LIB = s7_data.a
-COMPILER_LIB = s7_comp.a
+SEED7_LIB = seed7_05_emc.a
+DRAW_LIB = s7_draw_emc.a
+CONSOLE_LIB = s7_con_emc.a
+DATABASE_LIB = s7_db_emc.a
+COMP_DATA_LIB = s7_data_emc.a
+COMPILER_LIB = s7_comp_emc.a
 SPECIAL_LIB = pre_js.js
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(DATABASE_LIB) ../bin/$(SEED7_LIB)
 # CC = em++
@@ -90,6 +90,7 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7.js ../prg/s7.js
 	node ../bin/s7.js -l ../lib level
+	node ../bin/s7.js -l ../lib -q ../prg/confval > ../bin/cc_conf_emcc.prop
 	@echo
 	@echo "  Use 'make s7c' (with your make command) to create the compiler."
 	@echo
