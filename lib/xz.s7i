@@ -319,7 +319,7 @@ const func string: gets (inout xzFile: inFile, in integer: maxLength) is func
         inFile.finished := xzPacket(inFile.lzmaDec);
       end while;
       if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
-        striRead := inFile.lzmaDec.uncompressed[inFile.position len maxLength];
+        striRead := inFile.lzmaDec.uncompressed[inFile.position fixLen maxLength];
         inFile.position +:= maxLength;
       else
         striRead := inFile.lzmaDec.uncompressed[inFile.position ..];

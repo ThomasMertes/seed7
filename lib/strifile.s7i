@@ -139,10 +139,12 @@ const func string: gets (inout striFile: inStriFile, in integer: maxLength) is f
   result
     var string: striRead is "";
   begin
-    if maxLength < 0 then
-      raise RANGE_ERROR;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     elsif maxLength <= succ(length(inStriFile.content) - inStriFile.position) then
-      striRead := inStriFile.content[inStriFile.position len maxLength];
+      striRead := inStriFile.content[inStriFile.position fixLen maxLength];
       inStriFile.position +:= maxLength;
     else
       striRead := inStriFile.content[inStriFile.position ..];

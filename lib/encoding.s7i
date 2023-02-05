@@ -136,7 +136,7 @@ const func string: fromBase64 (in string: base64) is func
          pos(base64[.. length(base64) - 2], '=') <> 0) then
       raise RANGE_ERROR;
     end if;
-    if length(base64) >= 2 and base64[length(base64) - 1 len 2] = "==" then
+    if length(base64) >= 2 and base64[pred(length(base64)) fixLen 2] = "==" then
       decoded := decoded[.. length(decoded) - 2];
     elsif length(base64) >= 1 and base64[length(base64)] = '=' then
       decoded := decoded[.. pred(length(decoded))];
@@ -223,8 +223,9 @@ const func string: fromQuotedPrintable (in string: quoted) is func
           quoted[succ(equalSignPos)] = '\n' then
         startPos := equalSignPos + 2;
       elsif equalSignPos <= length(quoted) - 2 then
-        twoChars := quoted[succ(equalSignPos) len 2];
-        if twoChars[1] in hexdigit_char then
+        twoChars := quoted[succ(equalSignPos) fixLen 2];
+        if twoChars[1] in hexdigit_char and
+            twoChars[2] in hexdigit_char then
           decoded &:= chr(integer(twoChars, 16));
         elsif twoChars <> "\r\n" then
           raise RANGE_ERROR;
@@ -405,7 +406,7 @@ const func string: fromPercentEncoded (in string: percentEncoded) is func
           decoded[succ(pos)] in hexdigit_char and
           decoded[pos + 2] in hexdigit_char then
         decoded := decoded[.. pred(pos)] &
-            str(chr(integer(decoded[succ(pos) len 2], 16))) &
+            str(chr(integer(decoded[succ(pos) fixLen 2], 16))) &
             decoded[pos + 3 ..];
       end if;
       pos := pos(decoded, '%', succ(pos));
@@ -472,7 +473,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
           urlEncoded[succ(pos)] in hexdigit_char and
           urlEncoded[pos + 2] in hexdigit_char then
         decoded &:= urlEncoded[start .. pred(pos)];
-        decoded &:= chr(integer(urlEncoded[succ(pos) len 2], 16));
+        decoded &:= chr(integer(urlEncoded[succ(pos) fixLen 2], 16));
         pos +:= 2;
         start := succ(pos);
       elsif ch = '+' then

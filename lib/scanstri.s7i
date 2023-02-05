@@ -960,7 +960,7 @@ const func string: getSymbolOrComment (inout string: stri) is func
             symbol := "(";
           end if;
         when other_paren_char:
-          symbol := stri[pos len 1];
+          symbol := stri[pos fixLen 1];
           stri := stri[succ(pos) ..];
         when digit_char:
           stri := stri[pos ..];
@@ -1034,7 +1034,7 @@ const func string: getSymbol (inout string: stri) is func
             symbol := "(";
           end if;
         when other_paren_char:
-          symbol := stri[pos len 1];
+          symbol := stri[pos fixLen 1];
           stri := stri[succ(pos) ..];
         when digit_char:
           stri := stri[pos ..];
@@ -1336,7 +1336,7 @@ const func string: getSymbolInXmlTag (inout string: stri) is func
           symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when equals_or_end_tag:
-          symbol := stri[pos len 1];
+          symbol := stri[pos fixLen 1];
           stri := stri[succ(pos) ..];
         otherwise:
           repeat
@@ -1583,7 +1583,7 @@ const func string: getHttpSymbol (inout string: stri) is func
           incr(pos);
           while pos <= leng and stri[pos] <> '"' do
             if stri[pos] = '\\' and pos < leng then
-              symbol &:= stri[start .. pred(pos)] & stri[succ(pos) len 1];
+              symbol &:= stri[start .. pred(pos)] & stri[succ(pos) fixLen 1];
               pos +:= 2;
               start := pos;
             else
@@ -1593,7 +1593,7 @@ const func string: getHttpSymbol (inout string: stri) is func
           symbol &:= stri[start .. pred(pos)];
           stri := stri[succ(pos) ..];
         when http_separators:
-          symbol := stri[pos len 1];
+          symbol := stri[pos fixLen 1];
           stri := stri[succ(pos) ..];
         otherwise:
           repeat

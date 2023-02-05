@@ -1147,7 +1147,7 @@ const func string: gets (inout zstdFile: inFile, in integer: maxLength) is func
         inFile.finished:= zstdBlock(inFile.compressed, inFile.blockState, inFile.uncompressed);
       end while;
       if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
-        striRead := inFile.uncompressed[inFile.position len maxLength];
+        striRead := inFile.uncompressed[inFile.position fixLen maxLength];
         inFile.position +:= maxLength;
       else
         striRead := inFile.uncompressed[inFile.position ..];

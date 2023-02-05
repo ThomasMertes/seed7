@@ -70,7 +70,7 @@ const func string: gets (inout lzmaRangeDecoderState: decoderState, in integer: 
       decoderState.inBuffer := "";
       decoderState.inBufferPos := 1;
     else
-      stri := decoderState.inBuffer[decoderState.inBufferPos len maxLength];
+      stri := decoderState.inBuffer[decoderState.inBufferPos fixLen maxLength];
       decoderState.inBufferPos +:= length(stri);
     end if;
   end func;
@@ -756,7 +756,7 @@ const func string: gets (inout lzmaFile: inFile, in integer: maxLength) is func
         inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
       end if;
       if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
-        striRead := inFile.lzmaDec.uncompressed[inFile.position len maxLength];
+        striRead := inFile.lzmaDec.uncompressed[inFile.position fixLen maxLength];
         inFile.position +:= maxLength;
       else
         striRead := inFile.lzmaDec.uncompressed[inFile.position ..];

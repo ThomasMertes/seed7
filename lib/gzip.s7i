@@ -325,7 +325,7 @@ const func string: gets (inout gzipFile: inFile, in integer: maxLength) is func
             inFile.uncompressed, inFile.bfinal);
       end while;
       if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
-        striRead := inFile.uncompressed[inFile.position len maxLength];
+        striRead := inFile.uncompressed[inFile.position fixLen maxLength];
         inFile.position +:= maxLength;
       else
         striRead := inFile.uncompressed[inFile.position ..];
