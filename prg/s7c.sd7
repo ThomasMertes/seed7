@@ -4161,21 +4161,21 @@ const proc: process_arr_cpy_declaration (in reference: current_object) is func
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: base_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
-      object_type := getType(params[1]);
-      copyFunction @:= [object_type] current_object;
-      typeCategory @:= [object_type] ARRAYOBJECT;
-      base_type := base_type(object_type);
-      if base_type <> void then
-        if object_type not in array_element then
-          array_element @:= [object_type] base_type;
+      arrayType := getType(params[1]);
+      copyFunction @:= [arrayType] current_object;
+      typeCategory @:= [arrayType] ARRAYOBJECT;
+      elementType := base_type(arrayType);
+      if elementType <> void then
+        if arrayType not in array_element then
+          array_element @:= [arrayType] elementType;
         end if;
-        if base_type not in array_type then
-          array_type @:= [base_type] object_type;
+        if elementType not in array_type then
+          array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4186,21 +4186,21 @@ const proc: process_arr_create_declaration (in reference: current_object) is fun
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: base_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
-      object_type := getType(params[1]);
-      createFunction @:= [object_type] current_object;
-      typeCategory @:= [object_type] ARRAYOBJECT;
-      base_type := base_type(object_type);
-      if base_type <> void then
-        if object_type not in array_element then
-          array_element @:= [object_type] base_type;
+      arrayType := getType(params[1]);
+      createFunction @:= [arrayType] current_object;
+      typeCategory @:= [arrayType] ARRAYOBJECT;
+      elementType := base_type(arrayType);
+      if elementType <> void then
+        if arrayType not in array_element then
+          array_element @:= [arrayType] elementType;
         end if;
-        if base_type not in array_type then
-          array_type @:= [base_type] object_type;
+        if elementType not in array_type then
+          array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4211,21 +4211,21 @@ const proc: process_arr_destr_declaration (in reference: current_object) is func
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: base_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
-      object_type := getType(params[1]);
-      destrFunction @:= [object_type] current_object;
-      typeCategory @:= [object_type] ARRAYOBJECT;
-      base_type := base_type(object_type);
-      if base_type <> void then
-        if object_type not in array_element then
-          array_element @:= [object_type] base_type;
+      arrayType := getType(params[1]);
+      destrFunction @:= [arrayType] current_object;
+      typeCategory @:= [arrayType] ARRAYOBJECT;
+      elementType := base_type(arrayType);
+      if elementType <> void then
+        if arrayType not in array_element then
+          array_element @:= [arrayType] elementType;
         end if;
-        if base_type not in array_type then
-          array_type @:= [base_type] object_type;
+        if elementType not in array_type then
+          array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4237,23 +4237,23 @@ const proc: process_arr_gen_declaration (in reference: current_object,
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: result_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
-      object_type := getType(params[1]);
-      result_type := resultType(getType(current_object));
-      if object_type not in array_type then
-        array_type @:= [object_type] result_type;
+      arrayType := resultType(getType(current_object));
+      elementType := getType(params[1]);
+      if arrayType not in array_element then
+        array_element @:= [arrayType] elementType;
       end if;
-      if result_type not in array_element then
-        array_element @:= [result_type] object_type;
+      if elementType not in array_type then
+        array_type @:= [elementType] arrayType;
       end if;
       c_expr.expr &:= "/* ACTION ARR_GEN for type ";
-      c_expr.expr &:= type_name2(result_type);
+      c_expr.expr &:= type_name2(arrayType);
       c_expr.expr &:= " element is ";
-      c_expr.expr &:= type_name2(object_type);
+      c_expr.expr &:= type_name2(elementType);
       c_expr.expr &:= " */\n\n";
     end if;
   end func;
@@ -4264,23 +4264,23 @@ const proc: process_arr_idx_declaration (in reference: current_object,
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: result_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
-      object_type := getType(params[1]);
-      result_type := resultType(getType(current_object));
-      if object_type not in array_element then
-        array_element @:= [object_type] result_type;
+      arrayType := getType(params[1]);
+      elementType := resultType(getType(current_object));
+      if arrayType not in array_element then
+        array_element @:= [arrayType] elementType;
       end if;
-      if result_type not in array_type then
-        array_type @:= [result_type] object_type;
+      if elementType not in array_type then
+        array_type @:= [elementType] arrayType;
       end if;
       c_expr.expr &:= "/* ACTION ARR_IDX for type ";
-      c_expr.expr &:= type_name2(object_type);
+      c_expr.expr &:= type_name2(arrayType);
       c_expr.expr &:= " element is ";
-      c_expr.expr &:= type_name2(result_type);
+      c_expr.expr &:= type_name2(elementType);
       c_expr.expr &:= " */\n\n";
     end if;
   end func;
@@ -4292,30 +4292,30 @@ const proc: process_arr_times_declaration (in reference: current_object,
   local
     var string: diagnosticLine is "";
     var ref_list: params is ref_list.EMPTY;
-    var type: result_type is void;
-    var type: object_type is void;
+    var type: arrayType is void;
+    var type: elementType is void;
   begin
     diagnosticLine := diagnosticLine(current_object);
     params := formalParams(current_object);
     if length(params) >= 3 then
-      object_type := getType(params[3]);
-      result_type := resultType(getType(current_object));
-      if object_type in typeCategory and
-          typeCategory[object_type] in simpleValueType then
+      arrayType := resultType(getType(current_object));
+      elementType := getType(params[3]);
+      if elementType in typeCategory and
+          typeCategory[elementType] in simpleValueType then
         c_expr.expr &:= "/* times_";
-        c_expr.expr &:= str(typeNumber(result_type));
+        c_expr.expr &:= str(typeNumber(arrayType));
         c_expr.expr &:= " not defined because arrTimes() is used instead. */\n";
       else
-        process_create_declaration(object_type, c_expr);
+        process_create_declaration(elementType, c_expr);
         c_expr.expr &:= diagnosticLine;
-        # c_expr.expr &:= type_name(result_type);
+        # c_expr.expr &:= type_name(arrayType);
         c_expr.expr &:= "static arrayType times_";
-        c_expr.expr &:= str(typeNumber(result_type));
+        c_expr.expr &:= str(typeNumber(arrayType));
         c_expr.expr &:= " (intType n, const ";
-        if useConstPrefix(object_type) then
+        if useConstPrefix(elementType) then
           c_expr.expr &:= "const_";
         end if;
-        c_expr.expr &:= type_name(object_type);
+        c_expr.expr &:= type_name(elementType);
         c_expr.expr &:= " b)\n";
         c_expr.expr &:= diagnosticLine;
         prototype_declared @:= [current_object] TRUE;
@@ -4330,9 +4330,9 @@ const proc: process_arr_times_declaration (in reference: current_object,
         c_expr.expr &:= "for (i = 0; i < (memSizeType)(n); i++) {\n";
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "a->arr[i]";
-        c_expr.expr &:= select_value_from_rtlObjectStruct(object_type);
+        c_expr.expr &:= select_value_from_rtlObjectStruct(elementType);
         c_expr.expr &:= "=";
-        process_create_call(object_type, "b", c_expr.expr);
+        process_create_call(elementType, "b", c_expr.expr);
         c_expr.expr &:= ";\n";
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "}\n";
