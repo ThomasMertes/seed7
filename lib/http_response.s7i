@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  http_response.s7i  Support for HTTP responses.                  *)
-(*  Copyright (C) 2009 - 2017  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2017, 2021 - 2023  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -33,18 +33,20 @@ include "shell.s7i";
 
 const type: httpResposeData is new struct
     var string: htdocs is "";
-    var string: cgiBin is "";
+    var string: cgiDir is "";
+    var string: cgiName is "";
     var fileSys: backendSys is fileSys.value;
   end struct;
 
 
-const func httpResposeData: httpResposeData (in string: htdocs, in string: cgiBin,
-    inout fileSys: backendSys) is func
+const func httpResposeData: httpResposeData (in string: htdocs, in string: cgiDir,
+    in string: cgiName, inout fileSys: backendSys) is func
   result
     var httpResposeData: responseData is httpResposeData.value;
   begin
     responseData.htdocs := htdocs;
-    responseData.cgiBin := cgiBin;
+    responseData.cgiDir := cgiDir;
+    responseData.cgiName := cgiName;
     responseData.backendSys := backendSys;
   end func;
 
@@ -148,25 +150,45 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
   local
     var string: cgiPath is "";
     var string: tempName is "";
+    var string: redirectPostParams is "";
+    var file: script is STD_NULL;
+    var string: shebangLine is "";
+    var string: command is "";
     var file: cgiInput is STD_NULL;
     var file: cgiOutput is STD_NULL;
     var string: line is "";
   begin
-    # writeln("CGI " <& filePath <& " " <& queryParams);
+    # writeln("callCgi " <& filePath <& " " <& queryParams);
     # writeln(postParams);
-    cgiPath := toStdPath(responseData.cgiBin & filePath[9 ..]);
+    cgiPath := toStdPath(responseData.cgiDir & filePath);
     setenv("QUERY_STRING", queryParams);
     setenv("HTTP_COOKIE", cookies);
-    tempName := "cgiInput_" & str(rand(0, 99999));
-    cgiInput := open(tempName, "w");
-    writeln(cgiInput, postParams);
-    # writeln(cgiInput, "*");
-    # writeln(cgiInput, "*");
-    close(cgiInput);
+    setenv("DOCUMENT_ROOT", toOsPath(responseData.htdocs));
+    if postParams <> "" then
+      tempName := "cgiInput_" & str(rand(0, 99999));
+      cgiInput := open(tempName, "w");
+      writeln(cgiInput, postParams);
+      # writeln(cgiInput, "*");
+      close(cgiInput);
+      redirectPostParams := " < " & tempName;
+    end if;
     if endsWith(cgiPath, ".sd7") then
-      cgiOutput := popen("./s7 -q " <& cgiPath & " < " & tempName, "r");
+      cgiOutput := popen("./s7 -q " <& cgiPath & redirectPostParams, "r");
     else
-      cgiOutput := popen(cgiPath & " < " & tempName, "r");
+      script := open(cgiPath, "r");
+      if script <> STD_NULL then
+        shebangLine := getln(script);
+        if startsWith(shebangLine, "#!") then
+          command := shebangLine[3 ..];
+        end if;
+        close(script);
+      end if;
+      if command <> "" then
+        # writeln(command & " " & toShellPath(cgiPath) & " " & queryParams & redirectPostParams);
+        cgiOutput := popen(command & " " & toShellPath(cgiPath) & " " & queryParams & redirectPostParams, "r");
+      else
+        cgiOutput := popen(cgiPath & redirectPostParams, "r");
+      end if;
     end if;
     if cgiOutput <> STD_NULL then
       line := getln(cgiOutput);
@@ -180,7 +202,9 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
       # writeln(length(response));
       # writeln(literal(response));
       close(cgiOutput);
-      removeFile(tempName);
+      if postParams <> "" then
+        removeFile(tempName);
+      end if;
     end if;
     if response = "" then
       header &:= "Status: 404 Not Found";
@@ -209,12 +233,12 @@ const proc: processGet (inout httpResposeData: responseData,
     var string: buffer is "";
     var string: contentType is "";
   begin
-    # writeln("GET " <& request.path);
+    # writeln("processGet " <& request.path);
     if "Cookie" in request.properties then
       cookies := request.properties["Cookie"];
     end if;
-    if startsWith(request.path, "/cgi-bin/") then
-      buffer := callCgi(responseData, request.path, request.queryStri,
+    if startsWith(request.path, responseData.cgiName) then
+      buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
                         "", cookies, cgiHeader);
       if buffer <> "" then
         sendHttpResponse(request.sock, buffer, "", cgiHeader);
@@ -266,14 +290,14 @@ const proc: processPost (in httpResposeData: responseData,
     var array string: cgiHeader is 0 times "";
     var string: buffer is "";
   begin
-    # writeln("POST " <& request.path);
+    # writeln("processPost " <& request.path);
     # writeln("queryStri: " <& request.queryStri);
     # writeln("postParams: " <& request.body);
     if "Cookie" in request.properties then
       cookies := request.properties["Cookie"];
     end if;
-    if startsWith(request.path, "/cgi-bin/") then
-      buffer := callCgi(responseData, request.path, request.queryStri,
+    if startsWith(request.path, responseData.cgiName) then
+      buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
                         request.body, cookies, cgiHeader);
     end if;
     if buffer <> "" then

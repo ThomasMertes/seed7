@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comanche.sd7  Simple webserver for static and cgi pages.        *)
-(*  Copyright (C) 2009 - 2017  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2017, 2023  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -23,22 +23,35 @@
 
 
 $ include "seed7_05.s7i";
+  include "propertyfile.s7i";
   include "httpserv.s7i";
   include "x509cert.s7i";
   include "osfiles.s7i";
   include "http_response.s7i";
 
 
+const string: htdocsDefault is "../htdocs";
+const string: cgiDirDefault is "../prg";
+const string: cgiNameDefault is "/cgi-bin/";
+
+
 const proc: main is func
   local
-    const string: htdocsDefault is "../htdocs";
-    const string: cgiBinDefault is "../prg";
+    var string: htdocs is htdocsDefault;
+    var string: cgiDir is cgiDirDefault;
+    var string: cgiName is cgiNameDefault;
+    var string: envFileName is "";
     var array string: args is 0 times "";
     var integer: index is 0;
     var boolean: writeHelp is FALSE;
     var boolean: useTls is FALSE;
     var boolean: htdocsAssigned is FALSE;
-    var boolean: cgiBinAssigned is FALSE;
+    var boolean: cgiDirAssigned is FALSE;
+    var boolean: envFileNameAssigned is FALSE;
+    var integer: slashPos is 0;
+    var propertyDataType: cgiEnvironment is propertyDataType.value;
+    var string: envKey is "";
+    var string: envValue is "";
     var boolean: okay is TRUE;
     var integer: port is 1080;
     var httpServer: server is httpServer.value;
@@ -46,12 +59,11 @@ const proc: main is func
     var httpResposeData: responseData is httpResposeData.value;
   begin
     writeln("Comanche Version 2.0 - Simple webserver for static and cgi pages");
-    writeln("Copyright (C) 2009 - 2015 Thomas Mertes");
+    writeln("Copyright (C) 2009 - 2017, 2023 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
     writeln("Comanche is written in the Seed7 programming language");
     writeln("Homepage: http://seed7.sourceforge.net");
-    responseData := httpResposeData(htdocsDefault, cgiBinDefault, osFiles);
     args := argv(PROGRAM);
     for key index range argv(PROGRAM) do
       if args[index] in {"-h", "-?"} then
@@ -64,45 +76,78 @@ const proc: main is func
             writeln(" ***** Port not numeric. Port " <& port <& " used instead.");
         end block;
         incr(index);
+      elsif args[index] = "-c" and index < length(args) then
+        cgiName := args[succ(index)];
+        incr(index);
       elsif args[index] = "-tls" then
         useTls := TRUE;
       elsif not htdocsAssigned then
-        responseData.htdocs := convDosPath(args[index]);
+        htdocs := convDosPath(args[index]);
         htdocsAssigned := TRUE;
-      elsif not cgiBinAssigned then
-        responseData.cgiBin := convDosPath(args[index]);
-        cgiBinAssigned := TRUE;
+      elsif not cgiDirAssigned then
+        cgiDir := convDosPath(args[index]);
+        cgiDirAssigned := TRUE;
+      elsif not envFileNameAssigned then
+        envFileName := convDosPath(args[index]);
+        envFileNameAssigned := TRUE;
       else
         writeln(" ***** Unrecognized parameter " <& args[index] <& ".");
       end if;
     end for;
     if writeHelp then
       writeln;
-      writeln("usage: comanche [-h | -?] [-p port] [-tls] [html-directory [cgi-directory]]");
+      writeln("usage: comanche [-h | -?] [-p port] [-c cgi-name] [-tls] [html-dir [cgi-dir [env-file]]]");
       writeln;
-      writeln("The html-directory specifies the root directory for HTML files.");
-      writeln("The default html-directory is " <& literal(htdocsDefault) <& ".");
-      writeln("The cgi-directory specifies the root directory for CGI scripts.");
-      writeln("The default cgi-directory is " <& literal(cgiBinDefault) <& ".");
-      writeln("The default port is 1080.");
+      writeln("Options:");
+      writeln("  -p port      Specify the port (default: 1080).");
+      writeln("  -c cgi-name  Specify the cgi-name used in the HTTP(S) requests (default: " <&
+              literal(cgiNameDefault) <& ").");
+      writeln("               If cgi-name is \"\" the cgi-name is taken from cgi-dir.");
+      writeln("  -tls         Use HTTPS is used instead of HTTP.");
+      writeln("Parameters:");
+      writeln("  html-dir     The root directory for HTML files (default: " <&
+              literal(htdocsDefault) <& ").");
+      writeln("  cgi-dir      The root directory for CGI scripts (default: " <&
+              literal(cgiDirDefault) <& ").");
+      writeln("  env-file     Property file with environment variables to be defined.");
     else
+      if cgiName = "" then
+        slashPos := rpos(cgiDir, "/");
+        if slashPos = 0 then
+          cgiName := "/" & cgiDir & "/";
+        else
+          cgiName := cgiDir[slashPos ..] & "/";
+        end if;
+      end if;
+      responseData := httpResposeData(htdocs, cgiDir, cgiName, osFiles);
       if fileType(responseData.backendSys, responseData.htdocs) <> FILE_DIR then
         writeln(" *** Directory " <& literal(responseData.htdocs) <& " not found.");
         writeln("     You need to specify a directory which contains");
         writeln("     at least \"index.htm\" and possibly other HTML files.");
         okay := FALSE;
       end if;
-      if fileType(responseData.backendSys, responseData.cgiBin) <> FILE_DIR then
-        writeln(" *** Directory " <& literal(responseData.cgiBin) <& " not found.");
+      if fileType(responseData.backendSys, responseData.cgiDir) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(responseData.cgiDir) <& " not found.");
         writeln("     You need to specify a directory which contains");
         writeln("     executable CGI scripts.");
         okay := FALSE;
+      end if;
+      if envFileNameAssigned then
+        if fileType(envFileName) <> FILE_REGULAR then
+          writeln(" *** File " <& literal(envFileName) <& " not found.");
+        else
+          cgiEnvironment := readPropertyFile(envFileName);
+          for envValue key envKey range cgiEnvironment do
+            setenv(envKey, envValue);
+          end for;
+        end if;
       end if;
       if not okay then
         writeln("Use the option -? (or -h) to get more information.");
       else
         writeln("HTML directory: " <& responseData.htdocs);
-        writeln("CGI directory: " <& responseData.cgiBin);
+        writeln("CGI directory: " <& responseData.cgiDir);
+        writeln("CGI name: " <& responseData.cgiName);
         writeln("Port: " <& port);
         server := openHttpServer(port, stdCertificate, useTls);
         writeln("To test comanche make sure that " <&
