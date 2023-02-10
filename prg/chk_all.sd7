@@ -285,6 +285,7 @@ const string: chkbig_output is "\n\
   \The bigInteger << and <<:= works correct.\n\
   \The bigInteger >> and >>:= works correct.\n\
   \The bigInteger square root works correct.\n\
+  \The bigInteger sci operator does work correct.\n\
   \The bigInteger constants work correct.\n\
   \BigInteger assignment works correct.\n\
   \The ternary operator ? : works correct for bigInteger.\n";
