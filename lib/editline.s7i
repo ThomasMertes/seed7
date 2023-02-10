@@ -264,27 +264,29 @@ const func char: getc (inout editLineFile: inEditLine) is func
 (**
  *  Read a [[string]] with maximum length from ''inEditLine''.
  *  @return the string read.
- *  @exception RANGE_ERROR The length is negative.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout editLineFile: inEditLine, in integer: length) is func
+const func string: gets (inout editLineFile: inEditLine, in integer: maxLength) is func
   result
-    var string: stri is "";
+    var string: striRead is "";
   begin
-    if length < 0 then
-      raise RANGE_ERROR;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
       if inEditLine.lineFinished then
         inEditLine.line := getln(inEditLine);
       end if;
-      stri := inEditLine.line[.. length];
-      inEditLine.line := inEditLine.line[succ(length) ..];
-      while length(stri) < length do
-        stri &:= inEditLine.bufferChar;
+      striRead := inEditLine.line[.. maxLength];
+      inEditLine.line := inEditLine.line[succ(maxLength) ..];
+      while length(striRead) < maxLength do
+        striRead &:= inEditLine.bufferChar;
         inEditLine.lineFinished := TRUE;
-        if length(stri) < length then
+        if length(striRead) < maxLength then
           inEditLine.line := getln(inEditLine);
-          stri &:= inEditLine.line[.. length - length(stri)];
-          inEditLine.line := inEditLine.line[succ(length - length(stri)) ..];
+          striRead &:= inEditLine.line[.. maxLength - length(striRead)];
+          inEditLine.line := inEditLine.line[succ(maxLength - length(striRead)) ..];
         end if;
       end while;
     end if;

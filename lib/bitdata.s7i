@@ -404,8 +404,10 @@ const func string: gets (inout lsbBitStream: inBitStream, in integer: maxLength)
   result
     var string: striRead is "";
   begin
-    if maxLength < 0 then
-      raise RANGE_ERROR;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
       if inBitStream.bitPos <> 0 then
         incr(inBitStream.bytePos);
@@ -766,8 +768,10 @@ const func string: gets (inout msbBitStream: inBitStream, in integer: maxLength)
   result
     var string: striRead is "";
   begin
-    if maxLength < 0 then
-      raise RANGE_ERROR;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
       if inBitStream.bitPos <> 40 then
         incr(inBitStream.bytePos);
