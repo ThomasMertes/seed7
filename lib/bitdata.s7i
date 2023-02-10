@@ -404,15 +404,16 @@ const func string: gets (inout lsbBitStream: inBitStream, in integer: maxLength)
   result
     var string: striRead is "";
   begin
+    # Go to the next available byte boundary
+    if inBitStream.bitPos <> 0 then
+      incr(inBitStream.bytePos);
+      inBitStream.bitPos := 0;
+    end if;
     if maxLength <= 0 then
       if maxLength <> 0 then
         raise RANGE_ERROR;
       end if;
     else
-      if inBitStream.bitPos <> 0 then
-        incr(inBitStream.bytePos);
-        inBitStream.bitPos := 0;
-      end if;
       if maxLength <= succ(length(inBitStream.striBuffer) - inBitStream.bytePos) then
         striRead := inBitStream.striBuffer[inBitStream.bytePos fixLen maxLength];
         inBitStream.bytePos +:= maxLength;
@@ -768,15 +769,16 @@ const func string: gets (inout msbBitStream: inBitStream, in integer: maxLength)
   result
     var string: striRead is "";
   begin
+    # Go to the next available byte boundary
+    if inBitStream.bitPos <> 40 then
+      incr(inBitStream.bytePos);
+      inBitStream.bitPos := 40;
+    end if;
     if maxLength <= 0 then
       if maxLength <> 0 then
         raise RANGE_ERROR;
       end if;
     else
-      if inBitStream.bitPos <> 40 then
-        incr(inBitStream.bytePos);
-        inBitStream.bitPos := 40;
-      end if;
       if maxLength <= succ(length(inBitStream.striBuffer) - inBitStream.bytePos) then
         striRead := inBitStream.striBuffer[inBitStream.bytePos fixLen maxLength];
         inBitStream.bytePos +:= maxLength;
