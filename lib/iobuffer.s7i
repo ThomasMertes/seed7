@@ -185,7 +185,7 @@ const func string: gets (inout bufferFile: inBufferFile, in integer: maxLength) 
     else
       charsPresent := succ(length(inBufferFile.inBuffer) - inBufferFile.position);
       if maxLength <= charsPresent then
-        striRead := inBufferFile.inBuffer[inBufferFile.position len maxLength];
+        striRead := inBufferFile.inBuffer[inBufferFile.position fixLen maxLength];
         inBufferFile.position +:= maxLength;
       else
         if charsPresent >= 0 or

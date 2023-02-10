@@ -696,7 +696,7 @@ const func string: (in rational: number) sci (in integer: precision) is func
         stri := stri[.. succ(precision)];
       end if;
       if precision <> 0 then
-        stri := stri[1 len 1] & "." & stri[2 .. ];
+        stri := stri[1 fixLen 1] & "." & stri[2 .. ];
       end if;
       if exponent >= 0 then
         stri &:= "e+" <& exponent;

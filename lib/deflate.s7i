@@ -144,7 +144,7 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
     pos := deflateState.uPos;
     while pos <= limit do
       if pos < pred(length(uncompressed)) then
-        posFound := update(deflateState.dictionary, uncompressed[pos len 3], pos);
+        posFound := update(deflateState.dictionary, uncompressed[pos fixLen 3], pos);
         if posFound <> pos and posFound >= pos - 32768 then
           maxLength := 258;
           if length(uncompressed) - pos < maxLength then
@@ -176,7 +176,7 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
             incr(pos);
             while pos < nextPos do
               if pos < pred(length(uncompressed)) then
-                posFound := update(deflateState.dictionary, uncompressed[pos len 3], pos);
+                posFound := update(deflateState.dictionary, uncompressed[pos fixLen 3], pos);
                 if posFound <> pos then
                   deflateState.slidingWindow[pos mod 32768] := posFound;
                 end if;

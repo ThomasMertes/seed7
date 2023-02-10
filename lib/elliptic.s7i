@@ -224,7 +224,7 @@ const ellipticCurve: secp521r1 is ellipticCurve(
  *  coordinate of an ecPoint.
  *)
 const func integer: getSizeInBytes (in ellipticCurve: curve) is
-  return succ(pred(curve.bits) div 8);
+  return succ(pred(curve.bits) mdiv 8);
 
 
 (**
@@ -490,14 +490,16 @@ const func ecPoint: ecPointDecode (in ellipticCurve: curve, in string: encoded) 
   result
     var ecPoint: point is ecPoint.value;
   local
+    var integer: dataSize is 0;
     var boolean: signY is FALSE;
   begin
+    dataSize := getSizeInBytes(curve);
     if encoded[1] = '\4;' then
-      point.x := bytes2BigInt(encoded[2 len getSizeInBytes(curve)], UNSIGNED, BE);
-      point.y := bytes2BigInt(encoded[2 + getSizeInBytes(curve) ..], UNSIGNED, BE);
+      point.x := bytes2BigInt(encoded[2            fixLen dataSize], UNSIGNED, BE);
+      point.y := bytes2BigInt(encoded[2 + dataSize fixLen dataSize], UNSIGNED, BE);
     elsif encoded[1] in {'\2;', '\3;'} then
       signY := encoded[1] = '\3;';
-      point.x := bytes2BigInt(encoded[2 ..], UNSIGNED, BE);
+      point.x := bytes2BigInt(encoded[2 fixLen dataSize], UNSIGNED, BE);
       point.y := modPow((point.x ** 3 + curve.a * point.x + curve.b) mod curve.p,
                         succ(curve.p) div 4_, curve.p);
       if odd(point.y) <> signY then

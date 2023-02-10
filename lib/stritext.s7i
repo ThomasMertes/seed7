@@ -147,7 +147,11 @@ const func string: gets (inout striText: inStriText, in var integer: maxLength) 
   result
     var string: striRead is "";
   begin
-    if inStriText.line <= length(inStriText.content) then
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    elsif inStriText.line <= length(inStriText.content) then
       if maxLength > succ(length(inStriText.content[inStriText.line]) - inStriText.column) then
         striRead := inStriText.content[inStriText.line][inStriText.column ..];
         striRead &:= "\n";
@@ -167,7 +171,7 @@ const func string: gets (inout striText: inStriText, in var integer: maxLength) 
           inStriText.column := 1;
         end if;
       else
-        striRead := inStriText.content[inStriText.line][inStriText.column len maxLength];
+        striRead := inStriText.content[inStriText.line][inStriText.column fixLen maxLength];
         inStriText.column +:= maxLength;
       end if;
     end if;
