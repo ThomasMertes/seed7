@@ -139,14 +139,21 @@ const func string: readPngChunk (inout file: pngFile, inout string: chunkType) i
   result
     var string: chunkData is "";
   local
+    var string: stri is "";
     var integer: length is 0;
-    var integer: crc is 0;
+    var string: crc is "";
   begin
-    length := bytes2Int(gets(pngFile, 4), UNSIGNED, BE);
-    chunkType := gets(pngFile, 4);
-    chunkData := gets(pngFile, length);
-    crc := bytes2Int(gets(pngFile, 4), UNSIGNED, BE);
-    if bin32(crc) <> crc32(chunkType & chunkData) then
+    stri := gets(pngFile, 8);
+    if length(stri) = 8 then
+      length    := bytes2Int(stri[1 fixLen 4], UNSIGNED, BE);
+      chunkType :=           stri[5 fixLen 4];
+      chunkData := gets(pngFile, length);
+      crc := gets(pngFile, 4);
+      if length(chunkData) <> length or length(crc) <> 4 or
+          bin32(bytes2Int(crc, UNSIGNED, BE)) <> crc32(chunkType & chunkData) then
+        raise RANGE_ERROR;
+      end if;
+    else
       raise RANGE_ERROR;
     end if;
   end func;
