@@ -385,10 +385,13 @@ const proc: skipBits (inout lsbBitStream: inBitStream, in integer: bitWidth) is 
 
 
 (**
- *  Get ''maxLength'' bytes from ''inBitStream''.
- *  The function returns bytes from the original data. If the currend byte of
- *  ''inBitStream'' is partially used it is not considered and the bytes are
- *  read beginning with the next byte from the original data.
+ *  Get up to ''maxLength'' bytes from ''inBitStream''.
+ *  The function returns bytes from the original data. If the current byte of
+ *  ''inBitStream'' is partially used, it is not considered, and the bytes are
+ *  read beginning with the next byte from the original data. After the data is
+ *  read, the position of ''inBitStream'' is advanced to the beginning of the
+ *  next byte. A ''maxLength'' of 0 sets the position to the beginning of the
+ *  next byte and returns an empty string.
  *   aBitStream := openLsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
@@ -412,6 +415,8 @@ const func string: gets (inout lsbBitStream: inBitStream, in integer: maxLength)
     if maxLength <= 0 then
       if maxLength <> 0 then
         raise RANGE_ERROR;
+      else
+        fillBuffer(inBitStream);
       end if;
     else
       if maxLength <= succ(length(inBitStream.striBuffer) - inBitStream.bytePos) then
@@ -750,10 +755,13 @@ const proc: skipBits (inout msbBitStream: inBitStream, in integer: bitWidth) is 
 
 
 (**
- *  Get ''maxLength'' bytes from ''inBitStream''.
- *  The function returns bytes from the original data. If the currend byte of
- *  ''inBitStream'' is partially used it is not considered and the bytes are
- *  read beginning with the next byte from the original data.
+ *  Get up to ''maxLength'' bytes from ''inBitStream''.
+ *  The function returns bytes from the original data. If the current byte of
+ *  ''inBitStream'' is partially used, it is not considered, and the bytes are
+ *  read beginning with the next byte from the original data. After the data is
+ *  read, the position of ''inBitStream'' is advanced to the beginning of the
+ *  next byte. A ''maxLength'' of 0 sets the position to the beginning of the
+ *  next byte and returns an empty string.
  *   aBitStream := openMsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
@@ -777,6 +785,8 @@ const func string: gets (inout msbBitStream: inBitStream, in integer: maxLength)
     if maxLength <= 0 then
       if maxLength <> 0 then
         raise RANGE_ERROR;
+      else
+        fillBuffer(inBitStream);
       end if;
     else
       if maxLength <= succ(length(inBitStream.striBuffer) - inBitStream.bytePos) then
