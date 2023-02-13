@@ -260,14 +260,19 @@ const func boolean: seekable (in bufferFile: aBufferFile) is
  *  The first character in the file has the position 1.
  *  It is possible to switch between reading and writing a ''bufferFile''
  *  (and vice versa) as long as seek() is called in between.
+ *  @exception RANGE_ERROR The file position is negative or zero.
  *)
 const proc: seek (inout bufferFile: aBufferFile, in integer: position) is func
   begin
-    write(aBufferFile.baseFile, aBufferFile.outBuffer);
-    aBufferFile.outBuffer := "";
-    seek(aBufferFile.baseFile, position);
-    aBufferFile.inBuffer := "";
-    aBufferFile.position := 1;
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      write(aBufferFile.baseFile, aBufferFile.outBuffer);
+      aBufferFile.outBuffer := "";
+      seek(aBufferFile.baseFile, position);
+      aBufferFile.inBuffer := "";
+      aBufferFile.position := 1;
+    end if;
   end func;
 
 

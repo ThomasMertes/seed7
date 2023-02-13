@@ -1213,10 +1213,15 @@ const boolean: seekable (in zstdFile: aFile) is TRUE;
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
  *)
 const proc: seek (inout zstdFile: aFile, in integer: position) is func
   begin
-    aFile.position := position;
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      aFile.position := position;
+    end if;
   end func;
 
 
