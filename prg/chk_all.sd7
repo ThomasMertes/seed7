@@ -313,10 +313,12 @@ const string:chkbitdata_output is "\n\
   \getBits(lsbBitStream) works correct.\n\
   \peekBits(lsbBitStream) works correct.\n\
   \gets(lsbBitStream) works correct.\n\
+  \close(lsbBitStream) works correct.\n\
   \getBit(msbBitStream) works correct.\n\
   \getBits(msbBitStream) works correct.\n\
   \peekBits(msbBitStream) works correct.\n\
   \gets(msbBitStream) works correct.\n\
+  \close(msbBitStream) works correct.\n\
   \putBitLsb works correct.\n\
   \putBitsLsb works correct.\n\
   \putBitMsb works correct.\n\

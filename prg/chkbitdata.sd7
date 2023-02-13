@@ -1685,6 +1685,97 @@ const proc: chkGetsLsb is func
   end func;
 
 
+const func boolean: chkCloseLsb (in string: stri, in integer: bytePos,
+    in integer: bitPos, in integer: bytesNeeded, in string: bytesExpected) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: bytes is "";
+    var char: ch is ' ';
+    var file: testFile is STD_NULL;
+    var lsbBitStream: aBitStream is lsbBitStream.value;
+  begin
+    # Test lsbBitStream with file:
+    testFile := openStriFile(stri);
+    aBitStream := openLsbBitStream(testFile);
+    skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
+    close(aBitStream);
+    bytes := gets(testFile, bytesNeeded);
+    if bytes <> bytesExpected or getc(testFile) <> '\2#1101;' then
+      okay := FALSE;
+      write("\"");
+      for ch range stri do
+        write("\\2#" <& ord(ch) radix 2 <& ";");
+      end for;
+      writeln("\": gets(testFile, " <& bytesNeeded <& ")");
+      if bytes <> bytesExpected then
+        writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
+      else
+        writeln(" ***** Position afterwards not okay.");
+      end if;
+    end if;
+  end func;
+
+
+const proc: chkCloseLsb is func
+  begin
+    if  chkCloseLsb("\2#01101011;\2#1101;",                             1, 5,  0, "") and
+        chkCloseLsb("\2#01101011;O\2#1101;",                            1, 5,  1, "O") and
+        chkCloseLsb("\2#01101011;OK\2#1101;",                           1, 5,  2, "OK") and
+        chkCloseLsb("\2#01101011;OKA\2#1101;",                          1, 5,  3, "OKA") and
+        chkCloseLsb("\2#01101011;OKAY\2#1101;",                         1, 5,  4, "OKAY") and
+        chkCloseLsb("\2#01101011;OKAY \2#1101;",                        1, 5,  5, "OKAY ") and
+        chkCloseLsb("\2#01101011;OKAY T\2#1101;",                       1, 5,  6, "OKAY T") and
+        chkCloseLsb("\2#01101011;OKAY Th\2#1101;",                      1, 5,  7, "OKAY Th") and
+        chkCloseLsb("\2#01101011;OKAY Thi\2#1101;",                     1, 5,  8, "OKAY Thi") and
+        chkCloseLsb("\2#01101011;OKAY This\2#1101;",                    1, 5,  9, "OKAY This") and
+        chkCloseLsb("\2#01101011;OKAY This \2#1101;",                   1, 5, 10, "OKAY This ") and
+        chkCloseLsb("\2#01101011;OKAY This i\2#1101;",                  1, 5, 11, "OKAY This i") and
+        chkCloseLsb("\2#01101011;OKAY This is\2#1101;",                 1, 5, 12, "OKAY This is") and
+        chkCloseLsb("\2#01101011;OKAY This is \2#1101;",                1, 5, 13, "OKAY This is ") and
+        chkCloseLsb("\2#01101011;OKAY This is c\2#1101;",               1, 5, 14, "OKAY This is c") and
+        chkCloseLsb("\2#01101011;OKAY This is co\2#1101;",              1, 5, 15, "OKAY This is co") and
+        chkCloseLsb("\2#01101011;OKAY This is cor\2#1101;",             1, 5, 16, "OKAY This is cor") and
+        chkCloseLsb("\2#01101011;OKAY This is corr\2#1101;",            1, 5, 17, "OKAY This is corr") and
+        chkCloseLsb("\2#01101011;OKAY This is corre\2#1101;",           1, 5, 18, "OKAY This is corre") and
+        chkCloseLsb("\2#01101011;OKAY This is correc\2#1101;",          1, 5, 19, "OKAY This is correc") and
+        chkCloseLsb("\2#01101011;OKAY This is correct\2#1101;",         1, 5, 20, "OKAY This is correct") and
+        chkCloseLsb("Test\2#1101;",                                     1, 0,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 1,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 2,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 3,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 4,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 5,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 6,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         1, 7,  4, "Test") and
+        chkCloseLsb("\2#01101011;Test\2#1101;",                         2, 0,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 1,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 2,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 3,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 4,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 5,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 6,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             2, 7,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;Test\2#1101;",             3, 0,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 1,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 2,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 3,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 4,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 5,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 6,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 3, 7,  4, "Test") and
+        chkCloseLsb("\2#01101011;\2#10010100;\2#01011001;Test\2#1101;", 4, 0,  4, "Test") and
+        chkCloseLsb("\2#01101011;a" & "b" mult      10 & "c\2#1101;",   1, 5,      12, "a" & "b" mult      10 & "c") and
+        chkCloseLsb("\2#01101011;a" & "b" mult     100 & "c\2#1101;",   1, 5,     102, "a" & "b" mult     100 & "c") and
+        chkCloseLsb("\2#01101011;a" & "b" mult    1000 & "c\2#1101;",   1, 5,    1002, "a" & "b" mult    1000 & "c") and
+        chkCloseLsb("\2#01101011;a" & "b" mult   10000 & "c\2#1101;",   1, 5,   10002, "a" & "b" mult   10000 & "c") and
+        chkCloseLsb("\2#01101011;a" & "b" mult  100000 & "c\2#1101;",   1, 5,  100002, "a" & "b" mult  100000 & "c") and
+        chkCloseLsb("\2#01101011;a" & "b" mult 1000000 & "c\2#1101;",   1, 5, 1000002, "a" & "b" mult 1000000 & "c") then
+      writeln("close(lsbBitStream) works correct.");
+    end if;
+  end func;
+
+
 const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
     in integer: bitPos, in integer: bitsExpected,
     in integer: bytePosExpected, in integer: bitPosExpected) is func
@@ -3343,6 +3434,97 @@ const proc: chkGetsMsb is func
   end func;
 
 
+const func boolean: chkCloseMsb (in string: stri, in integer: bytePos,
+    in integer: bitPos, in integer: bytesNeeded, in string: bytesExpected) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: bytes is "";
+    var char: ch is ' ';
+    var file: testFile is STD_NULL;
+    var msbBitStream: aBitStream is msbBitStream.value;
+  begin
+    # Test msbBitStream with file:
+    testFile := openStriFile(stri);
+    aBitStream := openMsbBitStream(testFile);
+    skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
+    close(aBitStream);
+    bytes := gets(testFile, bytesNeeded);
+    if bytes <> bytesExpected or getc(testFile) <> '\2#11010000;' then
+      okay := FALSE;
+      write("\"");
+      for ch range stri do
+        write("\\2#" <& ord(ch) radix 2 <& ";");
+      end for;
+      writeln("\": gets(testFile, " <& bytesNeeded <& ")");
+      if bytes <> bytesExpected then
+        writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
+      else
+        writeln(" ***** Position afterwards not okay.");
+      end if;
+    end if;
+  end func;
+
+
+const proc: chkCloseMsb is func
+  begin
+    if  chkCloseMsb("\2#01101011;\2#11010000;",                             1, 5,  0, "") and
+        chkCloseMsb("\2#01101011;O\2#11010000;",                            1, 5,  1, "O") and
+        chkCloseMsb("\2#01101011;OK\2#11010000;",                           1, 5,  2, "OK") and
+        chkCloseMsb("\2#01101011;OKA\2#11010000;",                          1, 5,  3, "OKA") and
+        chkCloseMsb("\2#01101011;OKAY\2#11010000;",                         1, 5,  4, "OKAY") and
+        chkCloseMsb("\2#01101011;OKAY \2#11010000;",                        1, 5,  5, "OKAY ") and
+        chkCloseMsb("\2#01101011;OKAY T\2#11010000;",                       1, 5,  6, "OKAY T") and
+        chkCloseMsb("\2#01101011;OKAY Th\2#11010000;",                      1, 5,  7, "OKAY Th") and
+        chkCloseMsb("\2#01101011;OKAY Thi\2#11010000;",                     1, 5,  8, "OKAY Thi") and
+        chkCloseMsb("\2#01101011;OKAY This\2#11010000;",                    1, 5,  9, "OKAY This") and
+        chkCloseMsb("\2#01101011;OKAY This \2#11010000;",                   1, 5, 10, "OKAY This ") and
+        chkCloseMsb("\2#01101011;OKAY This i\2#11010000;",                  1, 5, 11, "OKAY This i") and
+        chkCloseMsb("\2#01101011;OKAY This is\2#11010000;",                 1, 5, 12, "OKAY This is") and
+        chkCloseMsb("\2#01101011;OKAY This is \2#11010000;",                1, 5, 13, "OKAY This is ") and
+        chkCloseMsb("\2#01101011;OKAY This is c\2#11010000;",               1, 5, 14, "OKAY This is c") and
+        chkCloseMsb("\2#01101011;OKAY This is co\2#11010000;",              1, 5, 15, "OKAY This is co") and
+        chkCloseMsb("\2#01101011;OKAY This is cor\2#11010000;",             1, 5, 16, "OKAY This is cor") and
+        chkCloseMsb("\2#01101011;OKAY This is corr\2#11010000;",            1, 5, 17, "OKAY This is corr") and
+        chkCloseMsb("\2#01101011;OKAY This is corre\2#11010000;",           1, 5, 18, "OKAY This is corre") and
+        chkCloseMsb("\2#01101011;OKAY This is correc\2#11010000;",          1, 5, 19, "OKAY This is correc") and
+        chkCloseMsb("\2#01101011;OKAY This is correct\2#11010000;",         1, 5, 20, "OKAY This is correct") and
+        chkCloseMsb("Test\2#11010000;",                                     1, 0,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 1,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 2,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 3,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 4,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 5,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 6,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         1, 7,  4, "Test") and
+        chkCloseMsb("\2#01101011;Test\2#11010000;",                         2, 0,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 1,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 2,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 3,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 4,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 5,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 6,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             2, 7,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;Test\2#11010000;",             3, 0,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 1,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 2,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 3,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 4,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 5,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 6,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 3, 7,  4, "Test") and
+        chkCloseMsb("\2#01101011;\2#10010100;\2#01011001;Test\2#11010000;", 4, 0,  4, "Test") and
+        chkCloseMsb("\2#01101011;a" & "b" mult      10 & "c\2#11010000;",   1, 5,      12, "a" & "b" mult      10 & "c") and
+        chkCloseMsb("\2#01101011;a" & "b" mult     100 & "c\2#11010000;",   1, 5,     102, "a" & "b" mult     100 & "c") and
+        chkCloseMsb("\2#01101011;a" & "b" mult    1000 & "c\2#11010000;",   1, 5,    1002, "a" & "b" mult    1000 & "c") and
+        chkCloseMsb("\2#01101011;a" & "b" mult   10000 & "c\2#11010000;",   1, 5,   10002, "a" & "b" mult   10000 & "c") and
+        chkCloseMsb("\2#01101011;a" & "b" mult  100000 & "c\2#11010000;",   1, 5,  100002, "a" & "b" mult  100000 & "c") and
+        chkCloseMsb("\2#01101011;a" & "b" mult 1000000 & "c\2#11010000;",   1, 5, 1000002, "a" & "b" mult 1000000 & "c") then
+      writeln("close(msbBitStream) works correct.");
+    end if;
+  end func;
+
+
 const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
     in integer: bit, in string: striExpected, in integer: bitPosExpected) is func
   result
@@ -4940,10 +5122,12 @@ const proc: main is func
     chkGetBitsLsb;
     chkPeekBitsLsb;
     chkGetsLsb;
+    chkCloseLsb;
     chkGetBitMsb;
     chkGetBitsMsb;
     chkPeekBitsMsb;
     chkGetsMsb;
+    chkCloseMsb;
     chkPutBitLsb;
     chkPutBitsLsb;
     chkPutBitMsb;

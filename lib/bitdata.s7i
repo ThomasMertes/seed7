@@ -144,6 +144,7 @@ const type: lsbBitStream is new struct
     var integer: bitPos is 0;
     var string: striBuffer is "";
     var integer: striBufferIncrease is 4096;
+    var integer: tailSize is 0;
     var integer: limit is 0;
     var integer: bytePos is 1;
   end struct;
@@ -159,6 +160,7 @@ const proc: fillStriBuffer (inout lsbBitStream: inBitStream) is func
       # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+      inBitStream.tailSize := 5;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
@@ -205,15 +207,18 @@ const func lsbBitStream: openLsbBitStream (in string: stri) is func
   end func;
 
 
+(**
+ *  Close an LSB bit stream and position the underlying file at the next byte.
+ *)
 const proc: close (inout lsbBitStream: inBitStream) is func
   begin
     if inBitStream.inFile <> STD_NULL then
       if inBitStream.bitPos <> 0 then
         incr(inBitStream.bytePos);
-        inBitStream.bitPos := 0;
       end if;
       seek(inBitStream.inFile, tell(inBitStream.inFile) -
-           succ(length(inBitStream.striBuffer) - inBitStream.bytePos));
+           succ(length(inBitStream.striBuffer) -
+                inBitStream.bytePos - inBitStream.tailSize));
     end if;
   end func;
 
@@ -516,6 +521,7 @@ const type: msbBitStream is new struct
     var integer: bitPos is 40;
     var string: striBuffer is "";
     var integer: striBufferIncrease is 4096;
+    var integer: tailSize is 0;
     var integer: limit is 0;
     var integer: bytePos is 1;
   end struct;
@@ -531,6 +537,7 @@ const proc: fillStriBuffer (inout msbBitStream: inBitStream) is func
       # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+      inBitStream.tailSize := 5;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
@@ -577,15 +584,18 @@ const func msbBitStream: openMsbBitStream (in string: stri) is func
   end func;
 
 
+(**
+ *  Close an MSB bit stream and position the underlying file at the next byte.
+ *)
 const proc: close (inout msbBitStream: inBitStream) is func
   begin
     if inBitStream.inFile <> STD_NULL then
-      if inBitStream.bitPos <> 0 then
+      if inBitStream.bitPos <> 40 then
         incr(inBitStream.bytePos);
-        inBitStream.bitPos := 0;
       end if;
       seek(inBitStream.inFile, tell(inBitStream.inFile) -
-           succ(length(inBitStream.striBuffer) - inBitStream.bytePos));
+           succ(length(inBitStream.striBuffer) -
+                inBitStream.bytePos - inBitStream.tailSize));
     end if;
   end func;
 
