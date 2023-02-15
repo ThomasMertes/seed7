@@ -545,7 +545,7 @@ const proc: copyMatch (inout string: uncompressed, in integer: distance, in var 
         uncompressed @:= [number] uncompressed[number - distance];
       end for;
     else # hopefully length(uncompressed) >= distance holds
-      uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
+      uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
     end if;
   end func;
 
@@ -678,7 +678,7 @@ const func file: openLzmaFile (inout file: compressed) is func
   begin
     header := gets(compressed, 13);
     if decodeProperties(new_lzmaFile.lzmaDec, header) then
-      if header[6 len 8] <> "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" then
+      if header[6 fixLen 8] <> "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" then
         new_lzmaFile.unpackSizeDefined := TRUE;
         new_lzmaFile.unpackSize := bytes2Int(header[6 fixLen 8], UNSIGNED, LE);
       end if;

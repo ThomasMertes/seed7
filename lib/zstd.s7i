@@ -984,7 +984,7 @@ const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
               uncompressed @:= [number] uncompressed[number - offset];
             end for;
           else # hopefully length(uncompressed) >= offset holds
-            uncompressed &:= uncompressed[succ(length(uncompressed)) - offset len sequence.matchLength];
+            uncompressed &:= uncompressed[succ(length(uncompressed)) - offset fixLen sequence.matchLength];
           end if;
         end if;
 

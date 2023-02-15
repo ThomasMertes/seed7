@@ -165,7 +165,7 @@ const proc: decodeFixedHuffmanCodes (inout lsbBitStream: compressedStream,
             uncompressed @:= [number] uncompressed[number - distance];
           end for;
         else # hopefully length(uncompressed) >= distance holds
-          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
+          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
         end if;
       end if;
       literalOrLength := getLiteralOrLength(compressedStream);
@@ -244,7 +244,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
             uncompressed @:= [number] uncompressed[number - distance];
           end for;
         else # hopefully length(uncompressed) >= distance holds
-          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
+          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
         end if;
       end if;
       literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthConversionTable);
