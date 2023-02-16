@@ -47,6 +47,31 @@ const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
 
 (**
  *  Determine if a given ''button'' is currently pressed.
+ *  This function can determine if the last key read by ''getc''
+ *  from the graphic keyboard is still pressed:
+ *   buttonPressed(KEYBOARD, KEY_MOUSE1)
+ *  The function can determine if num-lock, shift-lock or scroll-lock is
+ *  currently active:
+ *   buttonPressed(KEYBOARD, KEY_SHIFT_LOCK_ON)
+ *  If a button is pressed together with a modifier key (SHIFT, CTRL, ALT)
+ *  ''getc'' returns a character like KEY_CTL_MOUSE1. But no character
+ *  constants are defined for combinations with two modifier keys (there
+ *  is no KEY_SFT_CTL_MOUSE1). With ''buttonPressed'' it is possible to
+ *  recogize if two modifier key are combined with a key. E.g.:
+ *   aKey := getc(KEYBOARD);
+ *   if (aKey = KEY_CTL_MOUSE1 and buttonPressed(KEYBOARD, KEY_SHIFT)) or
+ *      (akey = KEY_SFT_MOUSE1 and buttonPressed(KEYBOARD, KEY_CONTROL)) then
+ *     ...
+ *  Note that ''buttonPressed'' does not actually read something so using
+ *  ''buttonPressed'' alone will not work. Instead ''buttonPressed'' must be
+ *  combined with ''getc'', which does the reading.
+ *   command := getc(KEYBOARD);
+ *   if command = KEY_MOUSE1 then
+ *     while buttonPressed(KEYBOARD, KEY_MOUSE1) do
+ *       ... do something as long as KEY_MOUSE1 is pressed ...
+ *     end while;
+ *     # KEY_MOUSE1 has been released.
+ *   end if;
  *  @return TRUE if ''button'' is currently pressed,
  *          FALSE otherwise.
  *)
@@ -106,6 +131,7 @@ const func char: getc (in console_keybd_file: keybd)                           i
 (**
  *  Read a string with maximum length from the console keyboard file.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (in console_keybd_file: keybd, in integer: maxLength)  is action "KBD_GETS";
 
@@ -213,6 +239,7 @@ const func char: getc (in graph_keybd_file: keybd)                             i
 (**
  *  Read a string with maximum length from the graphic keyboard file.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (in graph_keybd_file: keybd, in integer: maxLength)    is action "GKB_GETS";
 
@@ -237,6 +264,13 @@ const func string: gets (in graph_keybd_file: keybd, in integer: maxLength)    i
  *  Note that ''buttonPressed'' does not actually read something so using
  *  ''buttonPressed'' alone will not work. Instead ''buttonPressed'' must be
  *  combined with ''getc'', which does the reading.
+ *   command := getc(KEYBOARD);
+ *   if command = KEY_MOUSE1 then
+ *     while buttonPressed(KEYBOARD, KEY_MOUSE1) do
+ *       ... do something as long as KEY_MOUSE1 is pressed ...
+ *     end while;
+ *     # KEY_MOUSE1 has been released.
+ *   end if;
  *  @return TRUE if ''button'' is currently pressed,
  *          FALSE otherwise.
  *)

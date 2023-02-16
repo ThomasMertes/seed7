@@ -2093,7 +2093,7 @@ const proc: writeln (inout tlsFile: outFile, in string: stri) is func
 (**
  *  Read a [[string]] with a maximum length from a tlsFile.
  *  @return the string read.
- *  @exception RANGE_ERROR The length is negative.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
@@ -2117,7 +2117,7 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
         striRead := inFile.readBuffer;
         inFile.readBuffer := "";
       end if;
-      if maxLength > 0 and striRead = "" and eof(inFile.sock) then
+      if striRead = "" and eof(inFile.sock) then
         inFile.bufferChar := EOF;
       end if;
     end if;

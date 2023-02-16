@@ -143,14 +143,21 @@ const func char: getc (inout lineFile: inFile) is func
 (**
  *  Read a string with a maximum length from a lineFile.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (inout lineFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    while length(inFile.line) < maxLength and inFile.bufferChar <> EOF do
-      inFile.line &:= getln(inFile) & "\n";
-    end while;
-    striRead := inFile.line[ .. maxLength];
-    inFile.line := inFile.line[succ(maxLength) .. ];
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      while length(inFile.line) < maxLength and inFile.bufferChar <> EOF do
+        inFile.line &:= getln(inFile) & "\n";
+      end while;
+      striRead := inFile.line[ .. maxLength];
+      inFile.line := inFile.line[succ(maxLength) .. ];
+    end if;
   end func;

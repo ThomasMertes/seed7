@@ -73,6 +73,7 @@ objectType kbd_getc (listType arguments)
 /**
  *  Read a string with maximum length from the console keyboard file.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter maxLength/arg_2 is negative.
  */
 objectType kbd_gets (listType arguments)
 

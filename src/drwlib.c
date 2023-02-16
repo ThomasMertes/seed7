@@ -144,6 +144,7 @@ objectType gkb_getc (listType arguments)
 /**
  *  Read a string with maximum length from the graphic keyboard file.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter maxLength/arg_2 is negative.
  */
 objectType gkb_gets (listType arguments)
 

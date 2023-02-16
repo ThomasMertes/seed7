@@ -142,6 +142,7 @@ const func char: getc (inout striText: inStriText) is func
 (**
  *  Read a [[string]] with a maximum length from ''inStriText''.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (inout striText: inStriText, in var integer: maxLength) is func
   result

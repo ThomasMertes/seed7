@@ -108,6 +108,7 @@ const func char: getc (inout echoFile: inFile) is func
 (**
  *  Read a string with a maximum length from an echoFile.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (inout echoFile: inFile, in integer: maxLength) is func
   result
@@ -116,10 +117,15 @@ const func string: gets (inout echoFile: inFile, in integer: maxLength) is func
     var integer: number is 1;
     var char: ch is ' ';
   begin
-    while number <= maxLength and ch <> EOF do
-      ch := getc(inFile);
-      if ch <> EOF then
-        striRead &:= str(ch);
-      end if;
-    end while;
+    if maxLength < 0 then
+      raise RANGE_ERROR;
+    else
+      while number <= maxLength and ch <> EOF do
+        ch := getc(inFile);
+        if ch <> EOF then
+          striRead &:= str(ch);
+        end if;
+        incr(number);
+      end while;
+    end if;
   end func;
