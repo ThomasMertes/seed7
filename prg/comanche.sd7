@@ -145,6 +145,7 @@ const proc: main is func
       if not okay then
         writeln("Use the option -? (or -h) to get more information.");
       else
+        chdir(responseData.cgiDir);
         writeln("HTML directory: " <& responseData.htdocs);
         writeln("CGI directory: " <& responseData.cgiDir);
         writeln("CGI name: " <& responseData.cgiName);
