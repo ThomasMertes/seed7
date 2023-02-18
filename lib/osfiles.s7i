@@ -485,9 +485,9 @@ const func string: homeDir                                   is action "CMD_HOME
 
 (**
  *  Determine the absolute path for a given ''path''.
- *   toAbsolute(getcwd, "aFile")    -->  Returns e.g. "/home/myuser/aFile"
- *   toAbsolute(".", "aFile")       -->  Returns e.g. "/home/myuser/aFile"
- *   toAbsolute("/usr", "include")  -->  Returns "/usr/include"
+ *   toAbsPath(getcwd, "aFile")    -->  Returns e.g. "/home/myuser/aFile"
+ *   toAbsPath(".", "aFile")       -->  Returns e.g. "/home/myuser/aFile"
+ *   toAbsPath("/usr", "include")  -->  Returns "/usr/include"
  *  @param basePath Path of the base location. The relative ''path'' is
  *         relative to this location.
  *  @param path Absolute or relative path for which the absolute path should

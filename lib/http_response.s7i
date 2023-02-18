@@ -28,6 +28,7 @@
 
 include "httpserv.s7i";
 include "filesys.s7i";
+include "osfiles.s7i";
 include "shell.s7i";
 
 
@@ -44,8 +45,8 @@ const func httpResposeData: httpResposeData (in string: htdocs, in string: cgiDi
   result
     var httpResposeData: responseData is httpResposeData.value;
   begin
-    responseData.htdocs := htdocs;
-    responseData.cgiDir := cgiDir;
+    responseData.htdocs := toAbsPath(getcwd(backendSys), htdocs);
+    responseData.cgiDir := toAbsPath(getcwd(backendSys), cgiDir);
     responseData.cgiName := cgiName;
     responseData.backendSys := backendSys;
   end func;
