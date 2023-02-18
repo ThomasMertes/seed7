@@ -446,11 +446,6 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
   end func;
 
 
-# The function lzwEncodeMsb() is deprecated. Use lzwCompressMsbEarlyChange() instead.
-const func string: lzwEncodeMsb (in string: uncompressed) is
-    return lzwCompressMsbEarlyChange(uncompressed, 8);
-
-
 (**
  *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbBitStream|msbBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
@@ -668,8 +663,3 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
     compressedStream := openMsbBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize, requestedLength);
   end func;
-
-
-# The function lzwDecodeMsb() is deprecated. Use lzwDecompressMsbEarlyChange() instead.
-const func string: lzwDecodeMsb (in string: compressed) is
-    return lzwDecompressMsbEarlyChange(compressed, 8);
