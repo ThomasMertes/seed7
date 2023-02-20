@@ -1037,11 +1037,27 @@ const func string: getDependency (inout string: stri) is func
     if start <= leng then
       pos := start;
       repeat
-        if stri[pos] = '\\' and pos < leng and stri[succ(pos)] = ' ' then
+        if stri[pos] = '"' then
+          repeat
+            incr(pos);
+            while pos <= leng and stri[pos] <> '"' do
+              symbol &:= stri[pos];
+              incr(pos);
+            end while;
+            if pos <= leng then
+              incr(pos);
+              if pos <= leng and stri[pos] = '"' then
+                symbol &:= '"';
+              end if;
+            end if;
+          until pos > leng or stri[pos] <> '"';
+        else
+          if stri[pos] = '\\' and pos < leng and stri[succ(pos)] = ' ' then
+            incr(pos);
+          end if;
+          symbol &:= stri[pos];
           incr(pos);
         end if;
-        symbol &:= stri[pos];
-        incr(pos);
       until pos > leng or stri[pos] in white_space_char;
       stri := stri[pos ..];
     else
