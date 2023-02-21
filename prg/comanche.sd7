@@ -99,11 +99,12 @@ const proc: main is func
       writeln("usage: comanche [-h | -?] [-p port] [-c cgi-name] [-tls] [html-dir [cgi-dir [env-file]]]");
       writeln;
       writeln("Options:");
+      writeln("  -h  or  -?   Write usage information.");
       writeln("  -p port      Specify the port (default: 1080).");
       writeln("  -c cgi-name  Specify the cgi-name used in the HTTP(S) requests (default: " <&
               literal(cgiNameDefault) <& ").");
       writeln("               If cgi-name is \"\" the cgi-name is taken from cgi-dir.");
-      writeln("  -tls         Use HTTPS is used instead of HTTP.");
+      writeln("  -tls         Use HTTPS instead of HTTP.");
       writeln("Parameters:");
       writeln("  html-dir     The root directory for HTML files (default: " <&
               literal(htdocsDefault) <& ").");
