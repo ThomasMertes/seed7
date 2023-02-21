@@ -1036,29 +1036,33 @@ const func string: getDependency (inout string: stri) is func
     end while;
     if start <= leng then
       pos := start;
-      repeat
-        if stri[pos] = '"' then
-          repeat
+      if stri[pos] = '"' then
+        repeat
+          incr(pos);
+          while pos <= leng and stri[pos] <> '"' do
+            symbol &:= stri[pos];
             incr(pos);
-            while pos <= leng and stri[pos] <> '"' do
-              symbol &:= stri[pos];
-              incr(pos);
-            end while;
-            if pos <= leng then
-              incr(pos);
-              if pos <= leng and stri[pos] = '"' then
-                symbol &:= '"';
-              end if;
+          end while;
+          if pos <= leng then
+            incr(pos);
+            if pos <= leng and stri[pos] = '"' then
+              symbol &:= '"';
             end if;
-          until pos > leng or stri[pos] <> '"';
-        else
+          end if;
+        until pos > leng or stri[pos] <> '"';
+        if pos <= leng and stri[pos] not in white_space_char then
+          writeln(" *** White space expected after quoted dependency " <&
+                  literal(symbol) <& " found " <& literal(stri[pos]) <& ".");
+        end if;
+      else
+        repeat
           if stri[pos] = '\\' and pos < leng and stri[succ(pos)] = ' ' then
             incr(pos);
           end if;
           symbol &:= stri[pos];
           incr(pos);
-        end if;
-      until pos > leng or stri[pos] in white_space_char;
+        until pos > leng or stri[pos] in white_space_char;
+      end if;
       stri := stri[pos ..];
     else
       stri := "";
@@ -1081,7 +1085,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
     # write(name <& ":");
     while dependencies <> "" do
       dependency := getDependency(dependencies);
-      rule.dependencies &:= [] (dependency);
+      rule.dependencies &:= dependency;
       skipWhiteSpace(dependencies);
       # write(" " <& dependency);
     end while;
