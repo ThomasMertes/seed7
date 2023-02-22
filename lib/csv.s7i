@@ -119,7 +119,7 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
         until pos > length(csvLine) or csvLine[pos] = separator or
             csvLine[pos] = '\n';
       end if;
-      data &:= [] (field);
+      data &:= field;
     until pos > length(csvLine) or csvLine[pos] <> separator;
     if pos <= length(csvLine) and csvLine[pos] = '\r' then
       incr(pos);
@@ -189,7 +189,7 @@ const func array string: readCsvLine (inout file: inFile, in char: separator) is
           end if;
         until ch = separator or ch = '\n' or ch = EOF;
       end if;
-      data &:= [] (field);
+      data &:= field;
     until ch <> separator;
     if ch = '\r' then
       ch := getc(inFile);

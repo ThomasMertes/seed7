@@ -622,13 +622,13 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn +:= numBits1;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           currentPixel := blackOrWhite[succ(bIndex) mod 2];
           for column range currentColumn to currentColumn + pred(numBits2) do
             image[line][column] := currentPixel;
           end for;
           currentColumn +:= numBits2;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
             bIndex +:= 2;
           end while;
@@ -639,7 +639,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           incr(bIndex);
         when {CCITT_T4_VERTICAL_RIGHT_1}:
           # writeln("Vr(1)");
@@ -648,7 +648,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue + 1;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           incr(bIndex);
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
             bIndex +:= 2;
@@ -660,7 +660,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue + 2;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           incr(bIndex);
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
             bIndex +:= 2;
@@ -672,7 +672,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue + 3;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           incr(bIndex);
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
             bIndex +:= 2;
@@ -684,7 +684,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue - 1;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           incr(bIndex);
         when {CCITT_T4_VERTICAL_LEFT_2}:
           # writeln("Vl(2)");
@@ -693,7 +693,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue - 2;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           if bIndex > 1 and (pred(bIndex) > length(bValues) or
               bValues[pred(bIndex)] > currentColumn) then
             decr(bIndex);
@@ -707,7 +707,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             image[line][column] := currentPixel;
           end for;
           currentColumn := currentBValue - 3;
-          aValues &:= [] (currentColumn);
+          aValues &:= currentColumn;
           if bIndex > 1 and (pred(bIndex) > length(bValues) or
               bValues[pred(bIndex)] > currentColumn) then
             decr(bIndex);
@@ -873,7 +873,7 @@ const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
           image[line][column] := whitePixel;
         end for;
         currentColumn +:= numWhitePixels;
-        aValues &:= [] (currentColumn);
+        aValues &:= currentColumn;
         if currentColumn <= width then
           numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
           if numBlackPixels >= 0 then
@@ -881,7 +881,7 @@ const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
               image[line][column] := blackPixel;
             end for;
             currentColumn +:= numBlackPixels;
-            aValues &:= [] (currentColumn);
+            aValues &:= currentColumn;
           else
             for column range currentColumn to width do
               image[line][column] := blackPixel;

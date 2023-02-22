@@ -572,10 +572,10 @@ const proc: addToFileList (inout array string: fileList, in var string: paramete
     parameter := convDosPath(parameter);
     if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
       for fileName range findMatchingFiles(parameter, caseSensitive) do
-        fileList &:= [] (fileName);
+        fileList &:= fileName;
       end for;
     else
-      fileList &:= [] (parameter);
+      fileList &:= parameter;
     end if;
   end func;
 

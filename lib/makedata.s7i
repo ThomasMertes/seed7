@@ -1102,7 +1102,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
         skipLineComment(makefile);
       elsif makefile.bufferChar <> '\n' then
         command := getLine(makeData);
-        rule.commands &:= [] (command);
+        rule.commands &:= command;
         # writeln("\t" <& command);
       end if;
       makefile.bufferChar := getc(makefile);
