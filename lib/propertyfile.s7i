@@ -44,7 +44,8 @@ const func string: readPropertyNameOrValue (inout file: inFile, in set of char: 
   local
     var boolean: readNextChar is FALSE;
   begin
-    while inFile.bufferChar not in terminatorChars do
+    while inFile.bufferChar <> EOF and
+        inFile.bufferChar not in terminatorChars do
       if inFile.bufferChar = '\\' then
         inFile.bufferChar := getc(inFile);
         readNextChar := TRUE;
