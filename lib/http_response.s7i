@@ -150,7 +150,7 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
     var string: response is "";
   local
     var string: cgiPath is "";
-    var string: tempName is "";
+    var string: tempInputName is "";
     var string: redirectPostParams is "";
     var file: script is STD_NULL;
     var string: shebangLine is "";
@@ -163,15 +163,16 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
     # writeln(postParams);
     cgiPath := toStdPath(responseData.cgiDir & filePath);
     setenv("QUERY_STRING", queryParams);
+    setenv("CONTENT_LENGTH", str(length(postParams)));
     setenv("HTTP_COOKIE", cookies);
     setenv("DOCUMENT_ROOT", toOsPath(responseData.htdocs));
     if postParams <> "" then
-      tempName := "cgiInput_" & str(rand(0, 99999));
-      cgiInput := open(tempName, "w");
+      tempInputName := "cgiInput_" & str(rand(0, 99999));
+      cgiInput := open(tempInputName, "w");
       writeln(cgiInput, postParams);
       # writeln(cgiInput, "*");
       close(cgiInput);
-      redirectPostParams := " < " & tempName;
+      redirectPostParams := " < " & toShellPath(tempInputName);
     end if;
     if endsWith(cgiPath, ".sd7") then
       cgiOutput := popen("./s7 -q " <& cgiPath & redirectPostParams, "r");
@@ -204,7 +205,7 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
       # writeln(literal(response));
       close(cgiOutput);
       if postParams <> "" then
-        removeFile(tempName);
+        removeFile(tempInputName);
       end if;
     end if;
     if response = "" then
@@ -239,6 +240,7 @@ const proc: processGet (inout httpResposeData: responseData,
       cookies := request.properties["Cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
+      setenv("REQUEST_METHOD", "GET");
       buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
                         "", cookies, cgiHeader);
       if buffer <> "" then
@@ -298,6 +300,7 @@ const proc: processPost (in httpResposeData: responseData,
       cookies := request.properties["Cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
+      setenv("REQUEST_METHOD", "POST");
       buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
                         request.body, cookies, cgiHeader);
     end if;
