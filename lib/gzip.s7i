@@ -272,11 +272,6 @@ const func file: openGzipFile (inout file: compressed, READ) is func
   end func;
 
 
-# The function openGunzipFile(aFile) is deprecated. Use openGzipFile(aFile, READ) instead.
-const func file: openGunzipFile (inout file: compressed) is
-  return openGzipFile(compressed, READ);
-
-
 (**
  *  Close a ''gzipFile''.
  *)
@@ -475,11 +470,6 @@ const func file: openGzipFile (inout file: destFile, WRITE) is func
                                      "\3;";   # Operating system: Unix
     newFile := toInterface(new_gzipWriteFile);
   end func;
-
-
-# The function openGzipFile(aFile) is deprecated. Use openGzipFile(aFile, WRITE) instead.
-const func file: openGzipFile (inout file: destFile) is
-  return openGzipFile(destFile, WRITE);
 
 
 (**
