@@ -435,30 +435,6 @@ const func bin32: bin32 (in string: fourBytes, BE) is
          bin32(fourBytes[4]);
 
 
-# The function bin32AsFourBytesLe() is deprecated. Use bytes(n, LE, 4) instead.
-const func string: bin32AsFourBytesLe (in bin32: bits) is func
-  result
-    var string: fourBytes is "\0;" mult 4;
-  begin
-    fourBytes @:= [1] chr(ord( bits        & bin32(255)));
-    fourBytes @:= [2] chr(ord((bits >>  8) & bin32(255)));
-    fourBytes @:= [3] chr(ord((bits >> 16) & bin32(255)));
-    fourBytes @:= [4] chr(ord((bits >> 24) & bin32(255)));
-  end func;
-
-
-# The function bin32AsFourBytesBe() is deprecated. Use bytes(n, BE, 4) instead.
-const func string: bin32AsFourBytesBe (in bin32: bits) is func
-  result
-    var string: fourBytes is "\0;" mult 4;
-  begin
-    fourBytes @:= [1] chr(ord((bits >> 24) & bin32(255)));
-    fourBytes @:= [2] chr(ord((bits >> 16) & bin32(255)));
-    fourBytes @:= [3] chr(ord((bits >>  8) & bin32(255)));
-    fourBytes @:= [4] chr(ord( bits        & bin32(255)));
-  end func;
-
-
 # Allows 'array bin32' everywhere without extra type definition.
 const type: _bin32Array is array bin32;
 

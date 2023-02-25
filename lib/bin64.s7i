@@ -477,38 +477,6 @@ const func bin64: bin64 (in string: eightBytes, BE) is
          bin64(eightBytes[8]);
 
 
-# The function bin64AsEightBytesLe() is deprecated. Use bytes(n, LE, 8) instead.
-const func string: bin64AsEightBytesLe (in bin64: bits) is func
-  result
-    var string: eightBytes is "\0;" mult 8;
-  begin
-    eightBytes @:= [1] chr(ord( bits        & bin64(255)));
-    eightBytes @:= [2] chr(ord((bits >>  8) & bin64(255)));
-    eightBytes @:= [3] chr(ord((bits >> 16) & bin64(255)));
-    eightBytes @:= [4] chr(ord((bits >> 24) & bin64(255)));
-    eightBytes @:= [5] chr(ord((bits >> 32) & bin64(255)));
-    eightBytes @:= [6] chr(ord((bits >> 40) & bin64(255)));
-    eightBytes @:= [7] chr(ord((bits >> 48) & bin64(255)));
-    eightBytes @:= [8] chr(ord((bits >> 56) & bin64(255)));
-  end func;
-
-
-# The function bin64AsEightBytesBe() is deprecated. Use bytes(n, BE, 8) instead.
-const func string: bin64AsEightBytesBe (in bin64: bits) is func
-  result
-    var string: eightBytes is "\0;" mult 8;
-  begin
-    eightBytes @:= [1] chr(ord((bits >> 56) & bin64(255)));
-    eightBytes @:= [2] chr(ord((bits >> 48) & bin64(255)));
-    eightBytes @:= [3] chr(ord((bits >> 40) & bin64(255)));
-    eightBytes @:= [4] chr(ord((bits >> 32) & bin64(255)));
-    eightBytes @:= [5] chr(ord((bits >> 24) & bin64(255)));
-    eightBytes @:= [6] chr(ord((bits >> 16) & bin64(255)));
-    eightBytes @:= [7] chr(ord((bits >>  8) & bin64(255)));
-    eightBytes @:= [8] chr(ord( bits        & bin64(255)));
-  end func;
-
-
 # Allows 'array bin64' everywhere without extra type definition.
 const type: _bin64Array is array bin64;
 
