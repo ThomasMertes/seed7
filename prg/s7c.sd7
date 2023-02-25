@@ -7834,6 +7834,7 @@ const proc: writeHelp is func
     writeln("  -?   Write Seed7 compiler usage.");
     writeln("  -O and -O2  Tell the C compiler to optimize.");
     writeln("  -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).");
+    writeln("  -c   Specify configuration (C compiler, etc.) to be used (e.g.: -c emcc).");
     writeln("  -e   Generate code which sends a signal, if an uncaught exception occurs.");
     writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");
     writeln("  -flto Enable link time optimization.");
