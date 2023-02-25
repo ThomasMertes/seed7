@@ -196,7 +196,7 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
       line := getln(cgiOutput);
       while line <> "" do
         # writeln(line);
-        header &:= [] (line);
+        header &:= line;
         line := getln(cgiOutput);
       end while;
       # writeln;

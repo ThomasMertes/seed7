@@ -214,9 +214,9 @@ const func htmlDocument: readHtml (inout file: inFile) is func
       argument := getSymbolInXmlTag(inFile);
       while argument <> ">" do
         if startsWith(argument, "\"") then
-          document.doctypeArguments &:= [] (argument & "\"");
+          document.doctypeArguments &:= argument & "\"";
         else
-          document.doctypeArguments &:= [] argument;
+          document.doctypeArguments &:= argument;
         end if;
         argument := getSymbolInXmlTag(inFile);
       end while;

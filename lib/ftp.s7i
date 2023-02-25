@@ -378,7 +378,7 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
         line := allowUtf8(getln(ftp.data));
         while line <> "" do
           # writeln(line);
-          fileNames &:= [] (line);
+          fileNames &:= line;
           line := allowUtf8(getln(ftp.data));
         end while;
         closeFtpData(ftp);
@@ -395,7 +395,7 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
           line := allowUtf8(getln(ftp.data));
           while line <> "" do
             # writeln(line);
-            fileNames &:= [] (line);
+            fileNames &:= line;
             line := allowUtf8(getln(ftp.data));
           end while;
           closeFtpData(ftp);
@@ -440,7 +440,7 @@ const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) 
         line := allowUtf8(getln(ftp.data));
         while line <> "" do
           # writeln(line);
-          directoryListing &:= [] (line);
+          directoryListing &:= line;
           line := allowUtf8(getln(ftp.data));
         end while;
         closeFtpData(ftp);

@@ -66,11 +66,9 @@ const func file: openStritext (in array string: content) is
  *)
 const proc: write (inout striText: outStriText, in string: stri) is func
   begin
-    if outStriText.line > length(outStriText.content) then
-      while outStriText.line > length(outStriText.content) do
-        outStriText.content &:= [] ("");
-      end while;
-    end if;
+    while outStriText.line > length(outStriText.content) do
+      outStriText.content &:= "";
+    end while;
     if outStriText.column > succ(length(outStriText.content[outStriText.line])) then
       outStriText.content[outStriText.line] &:=
           "" lpad (outStriText.column - succ(length(outStriText.content[outStriText.line])));
@@ -92,9 +90,9 @@ const proc: writeln (inout striText: outStriText) is func
           outStriText.content[succ(outStriText.line) ..];
     else
       while outStriText.line > length(outStriText.content) do
-        outStriText.content &:= [] ("");
+        outStriText.content &:= "";
       end while;
-      outStriText.content &:= [] ("");
+      outStriText.content &:= "";
     end if;
     incr(outStriText.line);
     outStriText.column := 1;

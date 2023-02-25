@@ -72,7 +72,7 @@ const func array string: getHtmlLinks (in string: html) is func
         rawLink := html[startPos + 3 .. pred(endPos)];
         linkDest := getValueOfHtmlAttribute(rawLink, "href");
         if linkDest <> "" then
-          htmlLinks &:= [] (linkDest);
+          htmlLinks &:= linkDest;
         end if;
         startPos := pos(html, "<a ", succ(endPos));
       else

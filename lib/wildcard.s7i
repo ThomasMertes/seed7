@@ -109,14 +109,14 @@ const func array string: findMatchingFiles (in string: pattern,
     if caseSensitive then
       for fileName range dirContent do
         if wildcardMatch(fileName, filePattern) then
-          matchingFiles &:= [] (path & fileName);
+          matchingFiles &:= path & fileName;
         end if;
       end for;
     else
       filePattern := lower(filePattern);
       for fileName range dirContent do
         if wildcardMatch(lower(fileName), filePattern) then
-          matchingFiles &:= [] (path & fileName);
+          matchingFiles &:= path & fileName;
         end if;
       end for;
     end if;

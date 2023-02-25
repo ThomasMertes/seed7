@@ -151,8 +151,8 @@ const func array integer: decodeObjectIdentifier (in string: encodedOid) is func
     var integer: subId is 0;
     var boolean: highBitClear is FALSE;
   begin
-    oid &:= [] (ord(encodedOid[1]) mdiv 40);
-    oid &:= [] (ord(encodedOid[1]) mod 40);
+    oid &:= ord(encodedOid[1]) mdiv 40;
+    oid &:= ord(encodedOid[1]) mod 40;
     while pos <= length(encodedOid) do
       subId := 0;
       repeat
@@ -161,7 +161,7 @@ const func array integer: decodeObjectIdentifier (in string: encodedOid) is func
         highBitClear := ord(encodedOid[pos]) <= 127;
         incr(pos);
       until highBitClear;
-      oid &:= [] (subId);
+      oid &:= subId;
     end while;
   end func;
 
