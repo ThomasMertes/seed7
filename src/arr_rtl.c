@@ -1069,6 +1069,9 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
 
 /**
  *  Insert 'elements' at 'position' into 'arr1'.
+ *  ArrInsertArray is used by the compiler, if 'elements' is not temporary
+ *  and plain values are in the 'elements' array. The plain values from
+ *  the 'elements' array are copied and the 'elements' array is left as is.
  *  @exception INDEX_ERROR If 'position' is less than minIdx(arr1) or
  *                         greater than succ(maxIdx(arr1))
  */
@@ -1125,13 +1128,72 @@ void arrInsertArray (rtlArrayType *arr_to, intType position,
                      elements->arr, elements_size * sizeof(rtlObjectType));
             } /* if */
             resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
-            FREE_RTL_ARRAY(elements, elements_size);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("arrInsertArray -->\n"););
   } /* arrInsertArray */
+
+
+
+/**
+ *  Insert 'elements' at 'position' into 'arr1'.
+ *  ArrInsertArrayTemp is used by the compiler, if 'elements' is a temporary
+ *  value and pointers are in the 'elements' array. The pointers from the
+ *  'elements' array are moved and the 'elements' array is freed.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr1) or
+ *                         greater than succ(maxIdx(arr1))
+ */
+void arrInsertArrayTemp (rtlArrayType *arr_to, intType position,
+    rtlArrayType elements)
+
+  {
+    rtlArrayType arr1;
+    rtlArrayType resized_arr1;
+    rtlObjectType *array_pointer;
+    memSizeType new_size;
+    memSizeType arr1_size;
+    memSizeType elements_size;
+
+  /* arrInsertArrayTemp */
+    logFunction(printf("arrInsertArrayTemp\n"););
+    arr1 = *arr_to;
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position + 1)) {
+      logError(printf("arrInsert(arr1, " FMT_D ", *): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position + 1););
+      raise_error(INDEX_ERROR);
+    } else {
+      elements_size = arraySize(elements);
+      if (elements_size != 0) {
+        arr1_size = arraySize(arr1);
+        if (unlikely(arr1_size > MAX_RTL_ARR_LEN - elements_size ||
+                     arr1->max_position > (intType) (MAX_MEM_INDEX - elements_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_size = arr1_size + elements_size;
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, new_size);
+          if (unlikely(resized_arr1 == NULL)) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            COUNT3_RTL_ARRAY(arr1_size, new_size);
+            *arr_to = resized_arr1;
+            array_pointer = resized_arr1->arr;
+            memmove(&array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                    &array_pointer[arrayIndex(resized_arr1, position)],
+                    arraySize2(position, resized_arr1->max_position) * sizeof(rtlObjectType));
+            memcpy(&array_pointer[arrayIndex(resized_arr1, position)],
+                   elements->arr, elements_size * sizeof(rtlObjectType));
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
+            FREE_RTL_ARRAY(elements, elements_size);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("arrInsertArrayTemp -->\n"););
+  } /* arrInsertArrayTemp */
 
 
 

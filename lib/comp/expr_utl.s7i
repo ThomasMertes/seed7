@@ -650,6 +650,33 @@ const proc: getGenericTemporaryToResultExpr (in reference: aParam, inout expr_ty
   end func;
 
 
+const proc: getTemporaryToExpr (in type: param_type, in expr_type: c_param,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: temp_name is "";
+  begin
+    if c_param.result_expr <> "" then
+      c_expr.expr &:= c_param.result_expr;
+    else
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type, c_param.expr, c_expr.expr);
+    end if;
+  end func;
+
+
+const proc: getTemporaryToExpr (in reference: aParam, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+    var type: param_type is void;
+  begin
+    param_type := getExprResultType(aParam);
+    prepareAnyParamTemporarys(aParam, c_param, c_expr);
+    getTemporaryToExpr(param_type, c_param, c_expr);
+  end func;
+
+
 const proc: getTemporaryToResultExpr (in type: param_type, in expr_type: c_param,
     inout expr_type: c_expr) is func
 
