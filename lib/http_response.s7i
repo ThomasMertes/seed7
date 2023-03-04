@@ -195,14 +195,14 @@ const func string: callCgi (in httpResposeData: responseData, in string: filePat
     if cgiOutput <> STD_NULL then
       line := getln(cgiOutput);
       while line <> "" do
-        # writeln(line);
+        # writeln("-> " <& line);
         header &:= line;
         line := getln(cgiOutput);
       end while;
-      # writeln;
+      # writeln("->");
       response := gets(cgiOutput, 999999999);
       # writeln(length(response));
-      # writeln(literal(response));
+      # writeln("-> " <& literal(response));
       close(cgiOutput);
       if postParams <> "" then
         removeFile(tempInputName);
