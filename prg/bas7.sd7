@@ -6909,8 +6909,8 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
     var integer: colorNum is 0;
   begin
     if bytes <> "" then
-      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
-      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
+      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
@@ -6947,8 +6947,8 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
     const array color: palette1 is [] (black, light_green, light_red, brown);
   begin
     if bytes <> "" then
-      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
-      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
+      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       width := width div 2;
       image := newPixmap(width, height);
@@ -6983,8 +6983,8 @@ const func PRIMITIVE_WINDOW: getEgaImageFromBytes (in string: bytes) is func
     var integer: colorNum is 0;
   begin
     if bytes <> "" then
-      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
-      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
+      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
@@ -7018,8 +7018,8 @@ const func PRIMITIVE_WINDOW: getVgaImageFromBytes (in string: bytes) is func
     var integer: imageByte is 0;
   begin
     if bytes <> "" then
-      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE) div 8;
-      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
+      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE) div 8;
+      height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := width;
@@ -7737,7 +7737,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
             end if;
           end if;
         when {'\3;'}:
-          num1 := bytes2Int(cmdStri[1 len 2], UNSIGNED, LE);
+          num1 := bytes2Int(cmdStri[1 fixLen 2], UNSIGNED, LE);
           param1 := varname(num1);
           cmdStri := getStringVar(param1) & cmdStri[3 ..];
           writeln(log, "VARPTR$(" <& param1 <& ")");
@@ -7847,7 +7847,7 @@ const proc: exec_call_char (inout string: symbol, inout string: line) is func
       pattern := patternArgument[patternStartPos len 16];
       patternLine := 1;
       for pos range 1 to length(pattern) do
-        number := integer(pattern[pos len 1], 16);
+        number := integer(pattern[pos fixLen 1], 16);
         for bit range 1 to 4 do
           if odd(number) then
             charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
