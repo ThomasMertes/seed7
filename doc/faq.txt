@@ -340,12 +340,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2023-01-30 the number of lines is:
+than 300000 lines of Seed7. For version 2023-03-05 the number of lines is:
 
-  176601 172758  C source files (*.c)
-   13174  13015  C header files (*.h)
-  219883 211602  Seed7 source files (*.sd7)
-  175607 174834  Seed7 library/include files (*.s7i)
+  175995  C source files (*.c)
+   13102  C header files (*.h)
+  220940  Seed7 source files (*.sd7)
+  175731  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -782,6 +782,7 @@ Possible options are
   -?   Write Seed7 compiler usage.
   -O and -O2  Tell the C compiler to optimize.
   -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).
+  -c   Specify configuration (C compiler, etc.) to be used (e.g.: -c emcc).
   -e   Generate code which sends a signal, if an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.
   -flto Enable link time optimization.
@@ -2776,6 +2777,21 @@ for gcc and clang.
 
 The Seed7 compiler supports the option -flto, which triggers the necessary steps
 to do LTO. If LTO is not supported the option -flto has no effect.
+
+
+Can Seed7 compile to a dll/so?
+==============================
+
+Basically compiling to a dll/so would be possible. But there are obstacles.
+Regarding libraries, the approach used by Seed7 and other languages differs
+considerably. Seed7 libraries can be included directly, while the usual dll/so
+needs an additional header file which desribes the interfaces of the dll/so.
+The Seed7 overloading does not use name mangling and a possible name mangling
+of Seed7 would be incompatible to the ones used by other languages. Fundamental
+types like 'string', bigInteger, 'array', hash and 'file' could not be used
+directly from other languages. When a Seed7 dll/so is only used by Seed7, there
+would still be the name mangling and the header file issue. Compiling to a dll/so
+is not high on the priority list, but if someone implements it, it will be merged.
 
 
 Where does the interpreter look for include libraries?

@@ -463,6 +463,9 @@ How is Seed7 parsed?
 <li><a class="link" href="#faq_lto"><b>
 What is link time optimization?
 </b></a></li>
+<li><a class="link" href="#faq_compile_to_dll_or_so"><b>
+Can Seed7 compile to a dll/so?
+</b></a></li>
 <li><a class="link" href="#faq_lib_path"><b>
 Where does the interpreter look for include libraries?
 </b></a></li>
@@ -841,12 +844,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2023-01-30 the number of lines is:
+than 300000 lines of Seed7. For version 2023-03-05 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">176601 172758</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13174  13015</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">219883 211602</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">175607 174834</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">175995</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13102</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">220940</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">175731</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1283,6 +1286,7 @@ Possible options are
   <li><b>-?</b>   Write Seed7 compiler usage.</li>
   <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
   <li><a name="faq_compiler_option-b"><b>-b</b></a>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
+  <li><a name="faq_compiler_option-c"><b>-c</b></a>   Specify configuration (C compiler, etc.) to be used (e.g.: <b>-c</b><tt> <span class="lib">emcc</span></tt>).</li>
   <li><a name="faq_compiler_option-e"><b>-e</b></a>   Generate code which sends a signal, if an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.</li>
   <li><a name="faq_compiler_option-flto"><b>-flto</b></a> Enable <a class="link" href="#faq_lto">link time optimization</a>.</li>
@@ -3277,6 +3281,21 @@ for gcc and clang.
 </p><p>
 The <span class="link">Seed7 compiler</span> supports the option <a href="#faq_compiler_option-flto"><b>-flto</b></a>, which triggers the necessary steps
 to do LTO. If LTO is not supported the option <a href="#faq_compiler_option-flto"><b>-flto</b></a> has no effect.
+</p></div>
+
+<div><br /><a name="faq_compile_to_dll_or_so"><h3>Can Seed7 compile to a dll/so?
+</h3></a><hr />
+<p>
+Basically compiling to a dll/so would be possible. But there are obstacles.
+Regarding libraries, the approach used by Seed7 and other languages differs
+considerably. Seed7 libraries can be included directly, while the usual dll/so
+needs an additional header file which desribes the interfaces of the dll/so.
+The Seed7 overloading does not use name mangling and a possible name mangling
+of Seed7 would be incompatible to the ones used by other languages. Fundamental
+types like <tt><span class="type">string</span></tt>, <tt><span class="type">bigInteger</span></tt>, <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt> and <tt><span class="type">file</span></tt> could not be used
+directly from other languages. When a Seed7 dll/so is only used by Seed7, there
+would still be the name mangling and the header file issue. Compiling to a dll/so
+is not high on the priority list, but if someone implements it, it will be merged.
 </p></div>
 
 <div><br /><a name="faq_lib_path"><h3>Where does the interpreter look for include libraries?

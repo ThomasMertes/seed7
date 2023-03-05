@@ -612,12 +612,8 @@ node s7.js hello
 <li>In Emscripten stdout is always line buffered.</li>
 <li>Reading from stdin is not possible (EOF is reached
       immediately).</li>
-<li>JavaScript and Wasm currently do not support
-      synchronous I/O.</li>
 <li>Processes cannot be started.</li>
 <li>Sockets cannot be used.</li>
-<li>Graphics is supported from the browser, but
-      without synchronous I/O its usage is limited.</li>
 <li>Graphics from node.js would need libraries that
       access win32 or X11 via native calls.</li>
 </ul><p>

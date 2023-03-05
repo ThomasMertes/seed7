@@ -2166,7 +2166,7 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
     *greenLight = GetGValue(col) << 8;
     *blueLight  = GetBValue(col) << 8;
     logFunction(printf("drwPixelToRgb(" F_X(08) ", " FMT_D ", " FMT_D ", " FMT_D ") -->\n",
-	               col, *redLight, *greenLight, *blueLight););
+                       col, *redLight, *greenLight, *blueLight););
   } /* drwPixelToRgb */
 
 

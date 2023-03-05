@@ -168,8 +168,10 @@ install:
 	mkdir -p /usr/local/bin
 	cd ../bin; ln -fs `pwd`/s7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/s7c /usr/local/bin
-	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
-	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
+	gzip -c ../doc/s7.1 > ../doc/s7.1.gz
+	-mv ../doc/s7.1.gz /usr/share/man/man1
+	gzip -c ../doc/s7c.1 > ../doc/s7c.1.gz
+	-mv ../doc/s7c.1.gz /usr/share/man/man1
 	cd ../bin; ln -fs `pwd`/bas7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/calc7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/db7 /usr/local/bin

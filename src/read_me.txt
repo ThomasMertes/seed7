@@ -413,12 +413,8 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
     - In Emscripten stdout is always line buffered.
     - Reading from stdin is not possible (EOF is reached
       immediately).
-    - JavaScript and Wasm currently do not support
-      synchronous I/O.
     - Processes cannot be started.
     - Sockets cannot be used.
-    - Graphics is supported from the browser, but
-      without synchronous I/O its usage is limited.
     - Graphics from node.js would need libraries that
       access win32 or X11 via native calls.
 

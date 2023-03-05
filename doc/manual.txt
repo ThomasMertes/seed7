@@ -3821,9 +3821,21 @@ CONTENTS
                     "abcde"[2 len 3] => "bcd",
                     "abcde"[2 len 5] => "bcde",
                     "abcde"[3 len 0] => "",
+                    "abcde"[6 len 2] => "",
                     "abcde"[3 len -1] => EXCEPTION INDEX_ERROR,
                     "abcde"[1 len 2] => "ab",
                     "abcde"[0 len 2] => EXCEPTION INDEX_ERROR )
+      [ A fixLen B ] Access a substring from position A with guaranteed length B
+                  ( Type of arguments A and B: integer,
+                    S[A fixLen B] is okay for A >= 1 and A <= length(S) and
+                          B >= 0 and pred(A + B) <= length(S),
+                    "abcde"[2 fixLen 3] => "bcd",
+                    "abcde"[2 fixLen 5] => EXCEPTION INDEX_ERROR,
+                    "abcde"[3 fixLen 0] => "",
+                    "abcde"[6 fixLen 2] => EXCEPTION INDEX_ERROR,
+                    "abcde"[3 fixLen -1] => EXCEPTION INDEX_ERROR,
+                    "abcde"[1 fixLen 2] => "ab",
+                    "abcde"[0 fixLen 2] => EXCEPTION INDEX_ERROR )
       [ A .. ]  Access a substring beginning at position A
                   ( Type of argument A: integer,
                     S[A ..] is okay for A >= 1,
@@ -14738,7 +14750,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     It may be raised from the following 'array' operations:
         [index], [index ..], [.. index], [start .. stop], [index len length], insert, remove.
     It may be raised from the following 'string' operations:
-        [index], [index ..], [.. index], [start .. stop], [index len length], @:= [index] char, @:= [index] string.
+        [index], [index ..], [.. index], [start .. stop], [index len length], [index fixLen length], @:= [index] char, @:= [index] string.
     It may be raised from the following 'bstring' operation:
         [index].
     It may be raised from the following 'ref_list' operations:
@@ -14760,9 +14772,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     It may be raised from the following 'boolean' operations:
         conv, parse, boolean, succ, pred, boolean, rand.
     It may be raised from the following 'integer' operations:
-        parse, radix, RADIX, sci, rand, integer.
+        parse, radix, RADIX, sci, rand, integer, bytes, bytes2Int.
     It may be raised from the following 'bigInteger' operations:
-        parse, radix, RADIX, sci, rand, ord, integer, bigInteger, bitLength,
+        parse, radix, RADIX, sci, rand, integer, bytes, bytes2BigInt, ord, bigInteger, bitLength,
         modInverse, modPow.
     It may be raised from the following 'rational' operations:
         parse, digits, sci, rational.

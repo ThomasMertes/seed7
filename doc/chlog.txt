@@ -1,3 +1,102 @@
+20230305:
+- The make7 example program has been improved to support quoted
+  dependencies (changes have been made in makedata.s7i). A warning is
+  written if the quoted dependency does not end with ", or when it is
+  not followed by whitespace.
+- The comanche web-server example program has been improved:
+  - CGI scripts with shebang are supported now. Shebang means that the
+    first line of the script starts with #! and is followed by the
+    command (and possible options) to interpret the script.
+  - Now the root directories for HTML files (html-dir) and CGI files
+    (cgi-dir) are converted to an absolute path.
+  - On startup of comanche, the current working directory is changed
+    to the root directory for CGI files (some CGI scripts need this).
+  - The new option -c can be used to specify the cgi-name used in the
+    HTTP(S) requests. If cgi-name is "", the cgi-name is taken from
+    cgi-dir. Without -c, the default cgi-name of "/cgi-bin/" is used.
+  - The new parameter env-file can be used to specify a property file
+    with environment variables to be defined.
+  - The help text written with the option -? or -h has been improved.
+  - Definitions of the environment variables REQUEST_METHOD,
+    CONTENT_LENGTH and DOCUMENT_ROOT have been added (in
+    http_response.s7i). These environment variables are used by CGI
+    scripts.
+- An explanation about the compilation to a dll/so has been added to
+  the FAQ.
+- An explanation of the fixLen sub-string has been added to the manual.
+- The compiler s7c has been improved to read configuration values with
+  the option -c. This allows s7c to be able to switch between
+  generating machine code (default) or JavaScript/web-assembly
+  (with -cemcc).
+- The compiler has been improved to generate better code for insert()
+  (insert elements into an array). For arrays of plain values (e.g.
+  array integer) unnecessary copying of data will be avoided now.
+  Changes have been made in arr_act.s7i, expr_util.s7i, arr_rtl.c and
+  arr_rtl.h.
+- The library propertyfile.s7i has been improved so that EOF terminates
+  a property key or value.
+- The functions assignConfigValue() and readConfig() have been added
+  to the cc_conf.s7i library.
+- In bitdata.s7i the close() function for LSB/MSB bit streams has been
+  fixed to also work near the end of the file and for MSB bit streams.
+- In bitdata.s7i the function gets() has been improved so that a
+  maxLength of 0 sets the position to the beginning of the next byte
+  and returns an empty string. If bytePos is beyond the length of the
+  string, an INDEX_ERROR is avoided.
+- In echo.s7i, editline.s7i, line.s7i, strifile.s7i and stritext.s7i
+  the function gets() has been improved to always raise RANGE_ERROR
+  for a negative maxLength. A maxLength of 0 always returns an empty
+  string.
+- In png.s7i reading of PNG chunks has been refactored.
+- In gzip.s7i, iobuffer.s7i, lzma.s7i, strifile.s7i, xz.s7i and
+  zstd.s7i the function seek() has been improved to raise RANGE_ERROR
+  for positions <= 0.
+- In asn1.s7i, ccittfax.s7i, cli_cmds.s7i, csv.s7i, ftp.s7i, html.s7i,
+  htmldom.s7i, http_response.s7i, makedata.s7i, stritext.s7i and
+  wildcard.s7i, appending an element to an array has been improved. Now
+  it is done with "anArray &:= element" instead of
+  "anArray &:= [] (element)".
+- In chkstr.sd7 the tests for the functions lower() and upper() have
+  been improved to use expression arguments.
+- In chkbig.sd7 tests for the bigInteger sci operator have been added.
+- Tests for close() of LSB/MSB bit streams have been added to
+  chkbitdata.sd7.
+- The program chk_all.sd7 has been adjusted to the changes in
+  chkbig.sd7 and chkbitdata.sd7.
+- The libraries bigint.s7i, bigrat.s7i, deflate.s7i, elliptic.s7i,
+  encoding.s7i, gzip.s7i, inflate.s7i, iobuffer.s7i, lzma.s7i, png.s7i,
+  rational.s7i, scanstri.s7i, strifile.s7i, stritext.s7i, xz.s7i and
+  zstd.s7i have been improved to use fixLen sub-strings.
+- The program bas7.sd7 has been improved to use fixLen sub-strings.
+- In s7c.sd7 names of array and hash types have been refactored.
+- In bin32.s7i the deprecated functions bin32AsFourBytesBe and
+  bin32AsFourBytesLe have been removed.
+- In bin64.s7i the deprecated functions bin64AsEightBytesBe and
+  bin64AsEightBytesLe have been removed.
+- In bytedata.s7i the deprecated functions int16AsTwoBytesBe,
+  int32AsFourBytesBe, int64AsEightBytesBe, int16AsTwoBytesLe,
+  int32AsFourBytesLe, int64AsEightBytesLe, bigAsEightBytesBe and
+  bigAsEightBytesLe have been removed.
+- In lzw.s7i the deprecated functions lzwEncodeMsb() and lzwDecodeMsb()
+  have been removed.
+- In gzip.s7i the deprecated functions openGunzipFile(aFile) and
+  openGzipFile(aFile) have been removed.
+- In arr_rtl.c the function arrInsertArrayTemp() has been added, and
+  the function arrInsertArray() has been changed to leave the
+  'elements' array as is.
+- The "clean" target of the makefiles has been improved to only remove
+  the libraries created by the same makefile.
+- The library names in mk_emccl.mak and mk_emccw.mak have been changed
+  from *.a to *_emc.a. Additionally, the file ../bin/cc_conf_emcc.prop
+  is created, when running make. This allows the Emscripten
+  version of Seed7 to be installed parallely to the normal Seed7
+  installation.
+- The makefiles mk_mingw.mak and mk_nmake.mak have been improved to
+  avoid the "file too big"/"too many sections" error.
+- Documentation comments have been improved in bitdata.s7i, echo.s7i,
+  editline.s7i, keybd.s7i, line.s7i, osfiles.s7i, stritext.s7i,
+  tls.s7i, arr_rtl.c, drwlib.c and kbdlib.c.
+
 20230130:
 - The drivers used in the browser (when Seed7 is compiled with
   Emscripten) have been improved (in con_emc.c, drw_emc.c, fil_emc.c,

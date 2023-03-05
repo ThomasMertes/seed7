@@ -4020,9 +4020,21 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 3] <b>&rArr;</b> <span class="stri">"bcd"</span>,
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 5] <b>&rArr;</b> <span class="stri">"bcde"</span>,
                     <span class="stri">"abcde"</span>[3 <span class="keywd">len</span> 0] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[6 <span class="keywd">len</span> 2] <b>&rArr;</b> <span class="stri">""</span>,
                     <span class="stri">"abcde"</span>[3 <span class="keywd">len</span> -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     <span class="stri">"abcde"</span>[1 <span class="keywd">len</span> 2] <b>&rArr;</b> <span class="stri">"ab"</span>,
                     <span class="stri">"abcde"</span>[0 <span class="keywd">len</span> 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
+      <span class="op">[</span> A <span class="op">fixLen</span> B <span class="op">]</span> Access a substring from position A with guaranteed length B
+                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
+                    S<span class="op">[</span>A <span class="op">fixLen</span> B<span class="op">]</span> is okay for A >= 1 and A <= length(S) and
+                          B >= 0 and pred(A + B) <= length(S),
+                    <span class="stri">"abcde"</span>[2 <span class="keywd">fixLen</span> 3] <b>&rArr;</b> <span class="stri">"bcd"</span>,
+                    <span class="stri">"abcde"</span>[2 <span class="keywd">fixLen</span> 5] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[3 <span class="keywd">fixLen</span> 0] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[6 <span class="keywd">fixLen</span> 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[3 <span class="keywd">fixLen</span> -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[1 <span class="keywd">fixLen</span> 2] <b>&rArr;</b> <span class="stri">"ab"</span>,
+                    <span class="stri">"abcde"</span>[0 <span class="keywd">fixLen</span> 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A <span class="op">..</span> <span class="op">]</span>  Access a substring beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     S<span class="op">[</span>A <span class="op">..</span><span class="op">]</span> is okay for A >= 1,
@@ -14937,7 +14949,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
     It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
         <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="func">insert</span>, <span class="func">remove</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
-        <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
+        <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="op">[index fixLen length]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bstring</span></tt> operation:</dt><dd>
         <span class="op">[index]</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
@@ -14959,9 +14971,9 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
     It may be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
         <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">boolean</span>, <span class="func">succ</span>, <span class="func">pred</span>, <span class="func">boolean</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>, <span class="func">bytes</span>, <span class="func">bytes2Int</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">integer</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>,
+        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>, <span class="func">bytes</span>, <span class="func">bytes2BigInt</span>, <span class="func">ord</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>,
         <span class="func">modInverse</span>, <span class="func">modPow</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operations:</dt><dd>
         <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rational</span>.</dd><dt>
