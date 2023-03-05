@@ -1048,6 +1048,9 @@ const func string: getDependency (inout string: stri) is func
             if pos <= leng and stri[pos] = '"' then
               symbol &:= '"';
             end if;
+          else
+            writeln(" *** Quoted dependency " <& literal(symbol) <&
+                    " does not end with \".");
           end if;
         until pos > leng or stri[pos] <> '"';
         if pos <= leng and stri[pos] not in white_space_char then
