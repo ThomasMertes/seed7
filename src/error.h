@@ -101,6 +101,8 @@ void err_num_stri (errorType err, int num_found, int num_expected,
 void err_ident (errorType err, const_identType ident);
 void err_object (errorType err, const_objectType obj_found);
 void err_type (errorType err, const_typeType type_found);
+void err_expr_type (errorType err, const_objectType expr_object,
+                    const_typeType type_found);
 void err_expr_obj (errorType err, const_objectType expr_object,
                    objectType obj_found);
 void err_match (errorType err, objectType obj_found);

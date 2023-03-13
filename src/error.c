@@ -1260,6 +1260,50 @@ void err_type (errorType err, const_typeType type_found)
 
 
 
+void err_expr_type (errorType err, const_objectType expr_object,
+    const_typeType type_found)
+
+  {
+    boolType hasPosInfo;
+    fileNumType fileNumber;
+    lineNumType errorLine;
+
+  /* err_expr_type */
+    /* place_of_error(err); */
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
+    hasPosInfo = HAS_POSINFO(expr_object);
+    if (hasPosInfo){
+      fileNumber = GET_FILE_NUM(expr_object);
+      errorLine = GET_LINE_NUM(expr_object);
+      write_place(err, get_file_name(fileNumber), errorLine);
+    } else if (in_file.name != NULL) {
+      write_place(err, in_file.name, in_file.line);
+    } else {
+      prot_cstri("*** ");
+    } /* if */
+    switch (err) {
+      case KIND_OF_IN_PARAM_UNDEFINED:
+        prot_cstri("Kind of in-parameter (val or ref) unspecified for type \"");
+        write_type(type_found);
+        prot_cstri("\"");
+        prot_nl();
+        break;
+      default:
+        undef_err();
+        break;
+    } /* switch */
+    if (hasPosInfo){
+      print_line(fileNumber, errorLine);
+    } else {
+      print_error_line();
+    } /* if */
+    display_compilation_info();
+  } /* err_expr_type */
+
+
+
 void err_expr_obj (errorType err, const_objectType expr_object,
     objectType obj_found)
 

@@ -122,6 +122,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (ref func varfunc aType param) ::= (ref func varfunc aType param)  is action "PRC_CREATE";
     # const proc: destroy (ref func func aType param)                      is action "GEN_DESTR";
     # const proc: destroy (ref func varfunc aType param)                   is action "GEN_DESTR";
+    IN_PARAM_IS_REFERENCE(func aType);
 
     const func func aType: func
                            result

@@ -1283,7 +1283,13 @@ const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     var string: valueName is "";
   begin
     setDiagnosticLine(c_expr);
-    process_expr(params[1], c_expr);
+    if category(params[1]) = REFPARAMOBJECT and
+        params[1] in inlineParam and
+        inlineParam[params[1]][1].paramValue <> NIL then
+      process_expr(inlineParam[params[1]][1].paramValue, c_expr);
+    else
+      process_expr(params[1], c_expr);
+    end if;
     c_expr.expr &:= " = ";
     if isVar(params[3]) then
       c_expr.expr &:= "o_";
