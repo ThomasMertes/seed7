@@ -703,11 +703,26 @@ const type: ccConfigType is new struct
     var string: LINKER_OPT_SPECIAL_LIB        is "";
 
     (**
+     *  Linker option to specify the stack size of the executable.
+     *  If no such option exists the value of LINKER_OPT_STACK_SIZE
+     *  should be "".
+     *)
+    var string: LINKER_OPT_STACK_SIZE         is "";
+
+    (**
      *  Standard linker options to link a compiled program.
      *  This is intended for options that specify the stack size or
      *  similar things (e.g.: "-Wl,--gc-sections,--stack,4194304").
      *)
     var array string: LINKER_FLAGS            is 0 times "";
+
+    (**
+     *  Default stack size for a compiled executable.
+     *  If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
+     *  as argument for the stack size. Additionally
+     *  DEFAULT_STACK_SIZE as argument for setupStack().
+     *)
+    var integer: DEFAULT_STACK_SIZE           is 0;
 
     (**
      *  Options to link system libraries to a compiled program.
@@ -939,7 +954,9 @@ const func ccConfigType: getBuiltInConfig is func
     conf.LINKER_OPT_NO_DEBUG_INFO      := configValue("LINKER_OPT_NO_DEBUG_INFO");
     conf.LINKER_OPT_OUTPUT_FILE        := configValue("LINKER_OPT_OUTPUT_FILE");
     conf.LINKER_OPT_SPECIAL_LIB        := configValue("LINKER_OPT_SPECIAL_LIB");
+    conf.LINKER_OPT_STACK_SIZE         := configValue("LINKER_OPT_STACK_SIZE");
     conf.LINKER_FLAGS                  := noEmptyStrings(split(configValue("LINKER_FLAGS"), ' '));
+    conf.DEFAULT_STACK_SIZE            := integer(configValue("DEFAULT_STACK_SIZE"));
     conf.SYSTEM_LIBS                   := noEmptyStrings(split(configValue("SYSTEM_LIBS"), ' '));
     conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(configValue("SYSTEM_BIGINT_LIBS"), '\n'));
     conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(configValue("SYSTEM_CONSOLE_LIBS"), ' '));
@@ -1091,7 +1108,9 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"LINKER_OPT_NO_DEBUG_INFO"}:      conf.LINKER_OPT_NO_DEBUG_INFO      := value;
       when {"LINKER_OPT_OUTPUT_FILE"}:        conf.LINKER_OPT_OUTPUT_FILE        := value;
       when {"LINKER_OPT_SPECIAL_LIB"}:        conf.LINKER_OPT_SPECIAL_LIB        := value;
+      when {"LINKER_OPT_STACK_SIZE"}:         conf.LINKER_OPT_STACK_SIZE         := value;
       when {"LINKER_FLAGS"}:                  conf.LINKER_FLAGS                  := noEmptyStrings(split(value, ' '));
+      when {"DEFAULT_STACK_SIZE"}:            conf.DEFAULT_STACK_SIZE            := integer(value);
       when {"SYSTEM_LIBS"}:                   conf.SYSTEM_LIBS                   := noEmptyStrings(split(value, ' '));
       when {"SYSTEM_BIGINT_LIBS"}:            conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(value, ' '));
       when {"SYSTEM_CONSOLE_LIBS"}:           conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(value, ' '));

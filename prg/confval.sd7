@@ -134,7 +134,9 @@ const proc: main is func
     writeln("LINKER_OPT_NO_DEBUG_INFO:      " <& ccConf.LINKER_OPT_NO_DEBUG_INFO);
     writeln("LINKER_OPT_OUTPUT_FILE:        " <& ccConf.LINKER_OPT_OUTPUT_FILE);
     writeln("LINKER_OPT_SPECIAL_LIB:        " <& ccConf.LINKER_OPT_SPECIAL_LIB);
+    writeln("LINKER_OPT_STACK_SIZE:         " <& ccConf.LINKER_OPT_STACK_SIZE);
     writeln("LINKER_FLAGS:                  " <& join(noEmptyArray(ccConf.LINKER_FLAGS), " "));
+    writeln("DEFAULT_STACK_SIZE:            " <& ccConf.DEFAULT_STACK_SIZE);
     writeln("SYSTEM_LIBS:                   " <& join(noEmptyArray(ccConf.SYSTEM_LIBS),          " "));
     writeln("SYSTEM_BIGINT_LIBS:            " <& join(noEmptyArray(ccConf.SYSTEM_BIGINT_LIBS),   " "));
     writeln("SYSTEM_CONSOLE_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS),  " "));

@@ -139,8 +139,14 @@
 #ifndef LINKER_OPT_SPECIAL_LIB
 #define LINKER_OPT_SPECIAL_LIB ""
 #endif
+#ifndef LINKER_OPT_STACK_SIZE
+#define LINKER_OPT_STACK_SIZE ""
+#endif
 #ifndef LINKER_FLAGS
 #define LINKER_FLAGS ""
+#endif
+#ifndef DEFAULT_STACK_SIZE
+#define DEFAULT_STACK_SIZE 0
 #endif
 #ifndef LINKED_PROGRAM_EXTENSION
 #ifdef EXECUTABLE_FILE_EXTENSION
@@ -2117,8 +2123,12 @@ striType cmdConfigValue (const const_striType name)
       opt = LINKER_OPT_OUTPUT_FILE;
     } else if (strcmp(opt_name, "LINKER_OPT_SPECIAL_LIB") == 0) {
       opt = LINKER_OPT_SPECIAL_LIB;
+    } else if (strcmp(opt_name, "LINKER_OPT_STACK_SIZE") == 0) {
+      opt = LINKER_OPT_STACK_SIZE;
     } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
       opt = LINKER_FLAGS;
+    } else if (strcmp(opt_name, "DEFAULT_STACK_SIZE") == 0) {
+      opt = STRINGIFY(DEFAULT_STACK_SIZE);
     } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
       opt = SYSTEM_LIBS;
     } else if (strcmp(opt_name, "SYSTEM_BIGINT_LIBS") == 0) {

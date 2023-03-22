@@ -32,6 +32,7 @@ var boolean: trace_dynamic_calls     is FALSE;
 var boolean: trace_signal            is FALSE;
 
 var integer: warning_level           is 1;
+var integer: stack_size              is 0;
 
 var boolean: for_loop_variable_check is FALSE;
 var boolean: source_debug_info       is TRUE;

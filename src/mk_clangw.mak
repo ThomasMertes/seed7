@@ -233,6 +233,7 @@ base.h:
 	echo #define CC_ERROR_FILEDES 2 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define DEFAULT_STACK_SIZE 8388608 >> base.h
 	echo #define ARCHIVER "..\\bin\\call_lib" >> base.h
 	echo #define ARCHIVER_OPT_REPLACE "/out:" >> base.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
@@ -254,7 +255,8 @@ settings.h:
 	echo #define CC_OPT_NO_WARNINGS "-w" >> settings.h
 	echo #define LINKER_OPT_DEBUG_INFO "-g" >> settings.h
 	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> settings.h
-	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
+	echo #define LINKER_OPT_STACK_SIZE "-Wl,/STACK:" >> settings.h
+	echo #define LINKER_FLAGS "" >> settings.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h

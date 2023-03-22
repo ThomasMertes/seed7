@@ -9355,12 +9355,12 @@ int main (int argc, char **argv)
     determineStackDirection(versionFile);
     determineLanguageProperties(versionFile);
     determinePreprocessorProperties(versionFile);
-#ifndef STACK_SIZE
+#ifndef DEFAULT_STACK_SIZE
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
       /* Due to alignment some 64-bit machines have huge stack requirements. */
-      fputs("#define STACK_SIZE 0x1000000\n", versionFile); /* 16777216 bytes */
+      fputs("#define DEFAULT_STACK_SIZE 16777216\n", versionFile);
     } else {
-      fputs("#define STACK_SIZE 0x800000\n", versionFile); /* 8388608 bytes */
+      fputs("#define DEFAULT_STACK_SIZE 8388608\n", versionFile);
     } /* if */
 #endif
     localtimeProperties(versionFile);

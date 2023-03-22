@@ -2544,7 +2544,7 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    main_prolog &:= "setupStack();\n";
+    main_prolog &:= "setupStack(" <& stack_size <& ");\n";
     main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFiles();\n";
     if ccConf.USE_WINMAIN then
@@ -5561,7 +5561,7 @@ const proc: write_prototypes is func
       declareExtern("arrayType   getArgv (const int, char *const *const, striType *, striType *, striType *);");
     end if;
     declareExtern("intType     heapsize (void);");
-    declareExtern("void        setupStack (void);");
+    declareExtern("void        setupStack (memSizeType);");
     declareExtern("void        setupFiles (void);");
     declareExtern("void        setupRand (void);");
     declareExtern("void        setupFloat (void);");
@@ -7220,7 +7220,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       writeln("Compiling the program ...");
       if "-w" in compiler_option then
         if compiler_option["-w"] in {"0", "1", "2"} then
-          warning_level := integer(compiler_option["-w"][1 ..]);
+          warning_level := integer(compiler_option["-w"]);
         else
           writeln("*** Ignore unsupported option: -w" <& compiler_option["-w"]);
         end if;
@@ -7298,6 +7298,17 @@ const proc: pass_1 (in string: source, inout program: prog,
           otherwise:
             writeln("*** Ignore unsupported option: -f" <& compiler_option["-f"]);
         end case;
+      end if;
+      if "-S" in compiler_option then
+        block
+          stack_size := integer(compiler_option["-S"]);
+        exception
+          otherwise:
+            writeln("*** Ignore unsupported option: -S" <& compiler_option["-S"]);
+            stack_size := ccConf.DEFAULT_STACK_SIZE;
+        end block;
+      else
+        stack_size := ccConf.DEFAULT_STACK_SIZE;
       end if;
       block
         prog := parseFile(source, parseOptions.value, libraryDirs);
@@ -7743,6 +7754,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
                 linkParams &:= ccConf.LINKER_OPT_NO_DEBUG_INFO;
               end if;
             end if;
+            if ccConf.LINKER_OPT_STACK_SIZE <> "" then
+              linkParams &:= ccConf.LINKER_OPT_STACK_SIZE <& stack_size;
+            end if;
             linkParams &:= ccConf.LINKER_FLAGS;
             if ccConf.LINKER_OPT_OUTPUT_FILE <> "" then
               if endsWith(ccConf.LINKER_OPT_OUTPUT_FILE, " ") then
@@ -7832,7 +7846,9 @@ const proc: writeHelp is func
     writeln;
     writeln("Options:");
     writeln("  -?   Write Seed7 compiler usage.");
-    writeln("  -O and -O2  Tell the C compiler to optimize.");
+    writeln("  -On  Tell the C compiler to optimize with level n (n is between 1 and 3).");
+    writeln("  -O   Equivalent to -O1");
+    writeln("  -S   Specify the stack size of the executable (e.g.: -S 16777216).");
     writeln("  -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).");
     writeln("  -c   Specify configuration (C compiler, etc.) to be used (e.g.: -c emcc).");
     writeln("  -e   Generate code which sends a signal, if an uncaught exception occurs.");
@@ -7843,7 +7859,7 @@ const proc: writeHelp is func
     writeln("       To generate debug information which refers to the temporary C program");
     writeln("       the option -g-debug_c can be used.");
     writeln("  -l   Add a directory to the include library search path (e.g.: -l ../lib).");
-    writeln("  -ocn Optimize constants with level n. E.g.: -oc3");
+    writeln("  -ocn Optimize generated C code with level n. E.g.: -oc3");
     writeln("       The level n is a digit between 0 and 3:");
     writeln("         0 Do no optimizations with constants.");
     writeln("         1 Use literals and named constants to simplify expressions (default).");
@@ -7898,13 +7914,13 @@ const proc: main is func
       for index range 1 to length(argv(PROGRAM)) do
         curr_arg := argv(PROGRAM)[index];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg in {"-b", "-c"} and index < length(argv(PROGRAM)) then
+          if curr_arg in {"-b", "-c", "-S"} and index < length(argv(PROGRAM)) then
             incr(index);
             compiler_option @:= [curr_arg] argv(PROGRAM)[index];
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O"} then
+          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
             if curr_arg[.. 2] in compiler_option then
               writeln("*** Option " <& curr_arg[.. 2] <&
                       " specified twice. Ignore option: " <& curr_arg);

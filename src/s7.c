@@ -408,7 +408,7 @@ int main (int argc, char **argv)
 
   /* main */
     logFunction(printf("main\n"););
-    setupStack();
+    setupStack(DEFAULT_STACK_SIZE);
     setupRand();
     setupFiles();
     set_protfile_name(NULL);

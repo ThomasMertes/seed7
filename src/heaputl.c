@@ -36,7 +36,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#if HAS_GETRLIMIT && defined STACK_SIZE
+#if HAS_GETRLIMIT
 /* In FreeBSD it is necessary to include <sys/types.h> before <sys/resource.h> */
 #include "sys/types.h"
 #include "sys/resource.h"
@@ -74,10 +74,10 @@ extern boolType interpreter_exception;
  *  On some operating systems the default stack size is too small.
  *  On such systems 'setupStack' is used to request a bigger stack.
  */
-void setupStack (void)
+void setupStack (memSizeType stackSize)
 
   {
-#if HAS_GETRLIMIT && defined STACK_SIZE
+#if HAS_GETRLIMIT
     struct rlimit rlim;
 #endif
 #if CHECK_STACK
@@ -85,14 +85,13 @@ void setupStack (void)
 #endif
 
   /* setupStack */
-    logFunction(printf("setupStack\n"););
-#if HAS_GETRLIMIT && defined STACK_SIZE
-    /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
+    logFunction(printf("setupStack(" FMT_U_MEM ")\n", stackSize););
+#if HAS_GETRLIMIT
     if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
       /* printf("old stack limit: %ld/%ld\n", (long) rlim.rlim_cur, (long) rlim.rlim_max); */
-      if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) STACK_SIZE > rlim.rlim_cur) {
-        if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) STACK_SIZE <= rlim.rlim_max) {
-          rlim.rlim_cur = (rlim_t) STACK_SIZE;
+      if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) stackSize > rlim.rlim_cur) {
+        if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) stackSize <= rlim.rlim_max) {
+          rlim.rlim_cur = (rlim_t) stackSize;
         } else {
           rlim.rlim_cur = rlim.rlim_max;
         } /* if */

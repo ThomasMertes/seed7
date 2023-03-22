@@ -232,6 +232,7 @@ base.h:
 	echo "#define CC_ERROR_FILEDES 2" >> base.h
 	echo "#define CC_VERSION_INFO_FILEDES 1" >> base.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> base.h
+	echo "#define DEFAULT_STACK_SIZE 16777216" >> base.h
 	echo "#define ARCHIVER \"$(AR)\"" >> base.h
 	echo "#define ARCHIVER_OPT_REPLACE \"r \"" >> base.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
@@ -252,7 +253,8 @@ settings.h:
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> settings.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> settings.h
 	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> settings.h
-	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> settings.h
+	echo "#define LINKER_OPT_STACK_SIZE \"-Wl,--stack,\"" >> settings.h
+	echo "#define LINKER_FLAGS \"-Wl,--gc-sections\"" >> settings.h
 	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> settings.h
 	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> settings.h
 	echo "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> settings.h
