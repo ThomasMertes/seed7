@@ -512,7 +512,7 @@ const type: INT_REMAINDER_HASH_TYPE is hash [integer] integer;
 
 
 (**
- *  Convert a ''rational'' number to a string.
+ *  Convert a ''rational'' number to a [[string]].
  *  The number is converted to a string with a decimal representation
  *  (e.g.: "1.25"). The representation has a decimal point and at
  *  least one digit before and after the decimal point. Negative
@@ -561,6 +561,15 @@ const func string: str (in rational: number) is func
       end if;
     end if;
   end func;
+
+
+(**
+ *  Convert a ''rational'' to a [[string]] with a fraction.
+ *   fraction(rational("0.(3)"))  returns  "1/3"
+ *  @return the string with the corrresponding fraction.
+ *)
+const func string: fraction (in rational: number) is
+    return str(number.numerator) & "/" & str(number.denominator);
 
 
 (**

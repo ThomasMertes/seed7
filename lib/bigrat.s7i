@@ -557,6 +557,15 @@ const func string: literal (in bigRational: number) is
 
 
 (**
+ *  Convert a ''bigRational'' to a [[string]] with a fraction.
+ *   fraction(bigRational("0.(3)"))  returns  "1/3"
+ *  @return the string with the corrresponding fraction.
+ *)
+const func string: fraction (in bigRational: number) is
+    return str(number.numerator) & "/" & str(number.denominator);
+
+
+(**
  *  Convert a ''bigRational'' number to a [[string]] in decimal fixed point notation.
  *  The number is rounded to the specified number of digits (''precision'').
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
