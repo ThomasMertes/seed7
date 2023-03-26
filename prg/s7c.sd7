@@ -2496,10 +2496,12 @@ const proc: process_main_declaration (in reference: current_object,
       process_expr(body(current_object), c_func_body);
       c_expr.temp_num := c_func_body.temp_num;
     elsif category(current_object) = ACTOBJECT then
-      currentProfiledFunction := main_object;
-      c_func_body.temp_num := c_local_vars.temp_num;
-      process_expr(current_object, c_func_body);
-      c_expr.temp_num := c_func_body.temp_num;
+      if str(getValue(current_object, ACTION)) <> "PRC_NOOP" then
+        currentProfiledFunction := main_object;
+        c_func_body.temp_num := c_expr.temp_num;
+        process_expr(current_object, c_func_body);
+        c_expr.temp_num := c_func_body.temp_num;
+      end if;
     end if;
     c_expr.currentFile := file(current_object);
     c_expr.currentLine := line(current_object);

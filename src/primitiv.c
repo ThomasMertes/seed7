@@ -683,6 +683,7 @@ static const actEntryRecord actEntryTable[] = {
 
     { "PRC_ARGS",                   prc_args,                   },
     { "PRC_BEGIN",                  prc_begin,                  },
+    { "PRC_BEGIN_NOOP",             prc_begin_noop,             },
     { "PRC_BLOCK",                  prc_block,                  },
     { "PRC_BLOCK_CATCH_ALL",        prc_block_catch_all,        },
     { "PRC_BLOCK_OTHERWISE",        prc_block_otherwise,        },

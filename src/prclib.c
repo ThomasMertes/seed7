@@ -234,6 +234,14 @@ objectType prc_begin (listType arguments)
 
 
 
+objectType prc_begin_noop (listType arguments)
+
+  { /* prc_begin_noop */
+    return bld_action_temp(prc_noop);
+  } /* prc_begin_noop */
+
+
+
 objectType prc_block (listType arguments)
 
   {

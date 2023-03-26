@@ -27,6 +27,7 @@
 
 objectType prc_args             (listType arguments);
 objectType prc_begin            (listType arguments);
+objectType prc_begin_noop       (listType arguments);
 objectType prc_block            (listType arguments);
 objectType prc_block_catch_all  (listType arguments);
 objectType prc_block_otherwise  (listType arguments);

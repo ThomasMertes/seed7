@@ -78,6 +78,7 @@ const proc: (inout type: dest) := (ref type: source)         is action "TYP_CPY"
 const proc: (ref func proc param) ::= (ref ACTION param)     is action "ACT_CREATE";
 const proc: (ref varfunc proc param) ::= (ref ACTION param)  is action "ACT_CREATE";
 const func proc: func begin (ref expr: statements) end func  is action "PRC_BEGIN";
+const func proc: func begin end func                         is action "PRC_BEGIN_NOOP";
 const func proc: func local (ref proc: localDefinitions)
                  begin (ref expr: statements) end func       is action "PRC_LOCAL";
 const func proc: return (ref void: statement)                is action "PRC_RETURN";
