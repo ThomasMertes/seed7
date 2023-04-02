@@ -54,9 +54,10 @@ $ const func f_param: $ ref (ref type param) param              is action "DCL_R
 
 $ const proc: const (ref type param) : (ref expr param) is (ref expr param) is action "DCL_CONST";
 
-const proc: const (ref type param) : (ref expr param) is forward            is action "DCL_FWD";
-const proc: var   (ref type param) : (ref expr param) is (ref expr param)   is action "DCL_VAR";
-const proc: var   (ref type param) : (ref expr param) is forward            is action "DCL_FWDVAR";
+const proc: const  (ref type param) : (ref expr param) is forward           is action "DCL_FWD";
+const proc: var    (ref type param) : (ref expr param) is (ref expr param)  is action "DCL_VAR";
+const proc: var    (ref type param) : (ref expr param) is forward           is action "DCL_FWDVAR";
+const proc: syntax (ref type param) : (ref expr param) is (ref expr param)  is action "DCL_SYNTAX";
 
 const func f_param: ref (ref type param) : (ref expr param)     is action "DCL_REF2";
 const func f_param: val (ref type param) param                  is action "DCL_VAL1";

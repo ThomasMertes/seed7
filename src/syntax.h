@@ -25,4 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+typedef enum {XFX, XFY, YFX, YFY} assocType;
+
+
+tokenType def_statement_syntax (objectType syntax_expression,
+    priorityType statement_priority, assocType statement_associativity);
 void decl_syntax (void);

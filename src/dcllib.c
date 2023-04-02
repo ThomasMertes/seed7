@@ -46,6 +46,8 @@
 #include "blockutl.h"
 #include "executl.h"
 #include "objutl.h"
+#include "findid.h"
+#include "syntax.h"
 #include "exec.h"
 #include "runerr.h"
 #include "name.h"
@@ -776,6 +778,106 @@ objectType dcl_symb (listType arguments)
     printf(":\n"); */
     return bld_param_temp(symb_object);
   } /* dcl_symb */
+
+
+
+objectType dcl_syntax (listType arguments)
+
+  {
+    typeType object_type;
+    objectType name_expr;
+    objectType value_expr;
+    listType assocPriority;
+    objectType assocObject;
+    objectType priorityObject;
+    objectType unexpectedObject = NULL;
+    boolType okay = TRUE;
+    identType assocIdent;
+    priorityType priority;
+    assocType assoc;
+    tokenType token_list_end;
+
+  /* dcl_syntax */
+    logFunction(printf("dcl_syntax\n"););
+    isit_type(arg_2(arguments));
+    object_type = take_type(arg_2(arguments));
+    name_expr = arg_4(arguments);
+    value_expr = arg_6(arguments);
+    /* printf("decl syntax ");
+       trace1(object_type->match_obj);
+       printf(": ");
+       trace1(name_expr);
+       printf(" is ");
+       trace1(value_expr);
+       printf("\n"); */
+    if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT) {
+      assocPriority = take_reflist(value_expr);
+      if (assocPriority == NULL) {
+        assocObject = NULL;
+        priorityObject = NULL;
+      } else {
+        assocObject = assocPriority->obj;
+        if (assocPriority->next == NULL) {
+          priorityObject = NULL;
+        } else {
+          priorityObject = assocPriority->next->obj;
+          if (assocPriority->next->next != NULL) {
+            unexpectedObject = assocPriority->next->next->obj;
+          } /* if */
+        } /* if */
+      } /* if */
+    } else {
+      assocObject = value_expr;
+      priorityObject = NULL;
+    } /* if */
+    if (assocObject != NULL && HAS_ENTITY(assocObject)) {
+      assocIdent = assocObject->descriptor.property->entity->ident;
+      if (assocIdent == prog->id_for.r_arrow) {            /*  ->   */
+        assoc = YFX;
+      } else if (assocIdent == prog->id_for.l_arrow) {     /*  <-   */
+        assoc = XFY;
+      } else if (assocIdent == prog->id_for.out_arrow) {   /*  <->  */
+        assoc = XFX;
+      } else if (assocIdent == prog->id_for.in_arrow) {    /*  -><- */
+        assoc = YFY;
+      } else {
+        err_expr_obj(ILLEGAL_ASSOCIATIVITY, curr_exec_object, assocObject);
+        okay = FALSE;
+      } /* if */
+    } else {
+      err_expr_obj(ILLEGAL_ASSOCIATIVITY, curr_exec_object, assocObject);
+      okay = FALSE;
+    } /* if */
+    if (priorityObject == NULL ||
+        CATEGORY_OF_OBJ(priorityObject) != INTOBJECT) {
+      err_expr_obj(CARD_EXPECTED, curr_exec_object, priorityObject);
+      okay = FALSE;
+    } else if (priorityObject->value.intValue < STRONGEST_PRIORITY ||
+               priorityObject->value.intValue > WEAKEST_PRIORITY) {
+      err_integer(ILLEGAL_PRIORITY, priorityObject->value.intValue);
+      okay = FALSE;
+    } else {
+      priority = (priorityType) priorityObject->value.intValue;
+    } /* if */
+    if (unexpectedObject != NULL) {
+      err_expr_obj_stri(EXPECTED_SYMBOL, curr_exec_object,
+                        unexpectedObject, ";");
+      okay = FALSE;
+    } /* if */
+    if (okay) {
+      token_list_end = def_statement_syntax(name_expr,
+          (priorityType) priority, assoc);
+      if (token_list_end != NULL) {
+        if (token_list_end->token_category != UNDEF_SYNTAX) {
+          err_object(SYNTAX_DECLARED_TWICE, name_expr);
+        } else {
+          token_list_end->token_category = LIST_WITH_TYPEOF_SYNTAX;
+          token_list_end->token_value.type_of = object_type;
+        } /* if */
+      } /* if */
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* dcl_syntax */
 
 
 

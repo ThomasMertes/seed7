@@ -57,9 +57,6 @@
 #include "syntax.h"
 
 
-typedef enum {XFX, XFY, YFX, YFY} assocType;
-
-
 
 #ifdef WITH_PRINT_TOKENS
 static void print_tokens (tokenType tokens)
@@ -359,7 +356,7 @@ static inline tokenType def_prefix_syntax (const_listType statement_syntax,
 
 
 
-static inline tokenType def_statement_syntax (objectType syntax_expression,
+tokenType def_statement_syntax (objectType syntax_expression,
     priorityType statement_priority, assocType statement_associativity)
 
   {
@@ -396,7 +393,7 @@ static inline tokenType def_statement_syntax (objectType syntax_expression,
         token_list_end = NULL;
       } /* if */
     } else if (CATEGORY_OF_OBJ(syntax_expression) == EXPROBJECT) {
-      err_warning(DOT_EXPR_REQUESTED);
+      err_object(DOT_EXPR_EXPECTED, syntax_expression);
       token_list_end = NULL;
     } else {
       identifier = GET_ENTITY(syntax_expression)->ident;
@@ -469,7 +466,7 @@ void decl_syntax (void)
     } /* if */
     scan_symbol();
     if (symbol.sycategory != INTLITERAL) {
-      err_string(CARD_EXPECTED, symbol.name);
+      err_warning(CARD_EXPECTED);
       scan_symbol();
     } else {
       if (symbol.intValue > WEAKEST_PRIORITY) {
@@ -481,7 +478,7 @@ void decl_syntax (void)
         scan_symbol();
         if (token_list_end != NULL) {
           if (token_list_end->token_category != UNDEF_SYNTAX) {
-            err_warning(SYNTAX_DECLARED_TWICE);
+            err_object(SYNTAX_DECLARED_TWICE, expression);
           } else if (current_ident == prog->id_for.lbrack) {
             scan_symbol();
             if (symbol.sycategory != INTLITERAL) {

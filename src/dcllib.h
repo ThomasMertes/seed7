@@ -43,6 +43,7 @@ objectType dcl_param_attr (listType arguments);
 objectType dcl_ref1       (listType arguments);
 objectType dcl_ref2       (listType arguments);
 objectType dcl_symb       (listType arguments);
+objectType dcl_syntax     (listType arguments);
 objectType dcl_val1       (listType arguments);
 objectType dcl_val2       (listType arguments);
 objectType dcl_var        (listType arguments);

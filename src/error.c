@@ -667,7 +667,7 @@ static void write_symbol (void)
 #if WITH_FLOAT
     } else if (symbol.sycategory == FLOATLITERAL) {
       prot_cstri(" \"");
-      prot_float(symbol.floatValue);
+      prot_ustri(symbol.name);
       prot_cstri("\"");
       prot_nl();
 #endif
@@ -936,6 +936,10 @@ void err_warning (errorType err)
         prot_cstri("Name expected found");
         write_symbol();
         break;
+      case CARD_EXPECTED:
+        prot_cstri("Integer literal expected found");
+        write_symbol();
+        break;
       case STRI_EXPECTED:
         prot_cstri("String literal expected found");
         write_symbol();
@@ -954,14 +958,6 @@ void err_warning (errorType err)
         break;
       case EMPTY_SYNTAX:
         prot_cstri("Empty syntax declaration");
-        prot_nl();
-        break;
-      case SYNTAX_DECLARED_TWICE:
-        prot_cstri("Syntax declared twice");
-        prot_nl();
-        break;
-      case DOT_EXPR_REQUESTED:
-        prot_cstri("Dot expression requested as syntax description");
         prot_nl();
         break;
       case TYPE_EXPECTED:
@@ -1166,6 +1162,21 @@ void err_object (errorType err, const_objectType obj_found)
         } /* if */
         prot_nl();
         break;
+      case SYNTAX_DECLARED_TWICE:
+        prot_cstri("Syntax ");
+        if (CATEGORY_OF_OBJ(obj_found) == LISTOBJECT) {
+          prot_dot_expr(obj_found->value.listValue);
+        } else {
+          printobject(obj_found);
+        } /* if */
+        prot_cstri(" declared twice");
+        prot_nl();
+        break;
+      case DOT_EXPR_EXPECTED:
+        prot_cstri("Dot expression expected as syntax description, found ");
+        printobject(obj_found);
+        prot_nl();
+        break;
       case IDENT_EXPECTED:
         prot_cstri("Identifier expected found ");
         switch (CATEGORY_OF_OBJ(obj_found)) {
@@ -1210,7 +1221,6 @@ void err_object (errorType err, const_objectType obj_found)
       case TYPE_EXPECTED:
         prot_cstri("Type expected found ");
         printobject(obj_found);
-        prot_cstri(" ");
         prot_nl();
         break;
       case EVAL_TYPE_FAILED:
@@ -1242,12 +1252,6 @@ void err_type (errorType err, const_typeType type_found)
         prot_cstri("Procedure expected found ");
         printobject(type_found->match_obj);
         prot_cstri(" expression");
-        prot_nl();
-        break;
-      case KIND_OF_IN_PARAM_UNDEFINED:
-        prot_cstri("Kind of in-parameter (val or ref) unspecified for type \"");
-        write_type(type_found);
-        prot_cstri("\"");
         prot_nl();
         break;
       default:
@@ -1347,6 +1351,21 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         } /* if */
         prot_nl();
         break;
+      case CARD_EXPECTED:
+        if (obj_found == NULL) {
+          prot_cstri("Integer literal expected");
+        } else {
+          prot_cstri("Integer literal expected found ");
+          if (CATEGORY_OF_OBJ(obj_found) == STRIOBJECT) {
+            printobject(obj_found);
+          } else {
+            prot_cstri("\"");
+            printobject(obj_found);
+            prot_cstri("\"");
+          } /* if */
+        } /* if */
+        prot_nl();
+        break;
       case EXCEPTION_RAISED:
         if (obj_found != NULL && HAS_ENTITY(obj_found)) {
           prot_cstri("Exception \"");
@@ -1354,6 +1373,21 @@ void err_expr_obj (errorType err, const_objectType expr_object,
           prot_cstri("\" raised");
         } else {
           prot_cstri("Exception raised");
+        } /* if */
+        prot_nl();
+        break;
+      case ILLEGAL_ASSOCIATIVITY:
+        if (obj_found == NULL) {
+          prot_cstri("Associativity expected");
+        } else {
+          prot_cstri("Associativity expected found ");
+          if (CATEGORY_OF_OBJ(obj_found) == STRIOBJECT) {
+            printobject(obj_found);
+          } else {
+            prot_cstri("\"");
+            printobject(obj_found);
+            prot_cstri("\"");
+          } /* if */
         } /* if */
         prot_nl();
         break;
@@ -1368,6 +1402,57 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     } /* if */
     display_compilation_info();
   } /* err_expr_obj */
+
+
+
+void err_expr_obj_stri (errorType err, const_objectType expr_object,
+    objectType obj_found, const_ustriType stri)
+
+  {
+    boolType hasPosInfo;
+    fileNumType fileNumber;
+    lineNumType errorLine;
+
+  /* err_expr_obj_stri */
+    /* place_of_error(err); */
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
+    hasPosInfo = HAS_POSINFO(expr_object);
+    if (hasPosInfo){
+      fileNumber = GET_FILE_NUM(expr_object);
+      errorLine = GET_LINE_NUM(expr_object);
+      write_place(err, get_file_name(fileNumber), errorLine);
+    } else if (in_file.name != NULL) {
+      write_place(err, in_file.name, in_file.line);
+    } else {
+      prot_cstri("*** ");
+    } /* if */
+    switch (err) {
+      case EXPECTED_SYMBOL:
+        prot_cstri("\"");
+        prot_ustri(stri);
+        prot_cstri("\" expected found ");
+        if (CATEGORY_OF_OBJ(obj_found) == STRIOBJECT) {
+          printobject(obj_found);
+        } else {
+          prot_cstri("\"");
+          printobject(obj_found);
+          prot_cstri("\"");
+        } /* if */
+        prot_nl();
+        break;
+      default:
+        undef_err();
+        break;
+    } /* switch */
+    if (hasPosInfo){
+      print_line(fileNumber, errorLine);
+    } else {
+      print_error_line();
+    } /* if */
+    display_compilation_info();
+  } /* err_expr_obj_stri */
 
 
 
@@ -1524,7 +1609,11 @@ void err_integer (errorType err, intType number)
       case ILLEGAL_PRIORITY:
         prot_cstri("Statement priority \"");
         prot_int(number);
-        prot_cstri("\" too big");
+        if (number < 0) {
+          prot_cstri("\" too small");
+        } else {
+          prot_cstri("\" too big");
+        } /* if */
         prot_nl();
         break;
       case NUMERICAL_ESCAPE_TOO_BIG:

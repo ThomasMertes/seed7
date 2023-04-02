@@ -66,7 +66,7 @@ typedef enum {
     TWO_PARAMETER_SYNTAX,
     EMPTY_SYNTAX,
     SYNTAX_DECLARED_TWICE,
-    DOT_EXPR_REQUESTED,
+    DOT_EXPR_EXPECTED,
     FALSE_INFIX_PRIORITY,
     FALSE_PREFIX_PRIORITY,
     WRONG_EXPR_PARAM_PRIORITY,
@@ -105,6 +105,8 @@ void err_expr_type (errorType err, const_objectType expr_object,
                     const_typeType type_found);
 void err_expr_obj (errorType err, const_objectType expr_object,
                    objectType obj_found);
+void err_expr_obj_stri (errorType err, const_objectType expr_object,
+                        objectType obj_found, const_ustriType stri);
 void err_match (errorType err, objectType obj_found);
 void err_string (errorType err, const_ustriType stri);
 void err_stri (errorType err, const_striType stri);

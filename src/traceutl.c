@@ -34,6 +34,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "ctype.h"
 
 #include "common.h"
 #include "data.h"
@@ -1029,6 +1030,60 @@ void prot_list (const_listType list)
   { /* prot_list */
     prot_list_limited(list, -1);
   } /* prot_list */
+
+
+
+void prot_dot_expr (const_listType list)
+
+  {
+    int number;
+    const_cstriType idString;
+    
+  /* prot_dot_expr */
+    logFunction(printf("prot_dot_expr\n"););
+    number = 0;
+    while (list != NULL && number <= 50) {
+      if (list->obj == NULL) {
+        prot_cstri("*NULL_OBJECT*");
+      } else if (!LEGAL_CATEGORY_FIELD(list->obj)) {
+        prot_cstri("*CORRUPT_CATEGORY_FIELD*");
+      } else {
+        prot_cstri(".");
+        /* printcategory(CATEGORY_OF_OBJ(list->obj)); fflush(stdout); */
+        switch (CATEGORY_OF_OBJ(list->obj)) {
+          case EXPROBJECT:
+            prot_cstri("(");
+            prot_dot_expr(list->obj->value.listValue);
+            prot_cstri(")");
+            break;
+          case SYMBOLOBJECT:
+            if (HAS_ENTITY(list->obj) &&
+                GET_ENTITY(list->obj)->ident != NULL) {
+              idString = id_string(GET_ENTITY(list->obj)->ident);
+              if (isalpha(idString[0])) {
+                prot_cstri8(idString);
+              } else {
+                prot_cstri(" ");
+                prot_cstri8(idString);
+                prot_cstri(" ");
+              } /* if */
+            } else {
+              prot_cstri(" ? ");
+            } /* if */
+            break;
+          default:
+            prot_cstri(" ? ");
+            break;
+        } /* switch */
+      } /* if */
+      list = list->next;
+      number++;
+    } /* while */
+    if (list != NULL) {
+      prot_cstri("*AND_SO_ON*");
+    } /* if */
+    logFunction(printf("prot_dot_expr -->\n"););
+  } /* prot_dot_expr */
 
 
 

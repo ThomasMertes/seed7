@@ -320,6 +320,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DCL_REF1",                   dcl_ref1,                   },
     { "DCL_REF2",                   dcl_ref2,                   },
     { "DCL_SYMB",                   dcl_symb,                   },
+    { "DCL_SYNTAX",                 dcl_syntax,                 },
     { "DCL_VAL1",                   dcl_val1,                   },
     { "DCL_VAL2",                   dcl_val2,                   },
     { "DCL_VAR",                    dcl_var,                    },

@@ -173,12 +173,11 @@ $ syntax expr: .(). @:= . [ .(). ] .()       is <-> 20;
 $ syntax expr: .(). ::= .()                  is <-> 20;
 $ syntax expr: .(). :- .()                   is <-> 20;
 
-(* ASSOCIATIVITY
-$ syntax: . -> .()     is  -> 25;
-$ syntax: . <- .()     is  -> 25;
-$ syntax: . <-> .()    is  -> 25;
-$ syntax: . -><- .()   is  -> 25;
-*)
+(* ASSOCIATIVITY *)
+$ syntax expr: . -> .()     is  -> 25;
+$ syntax expr: . <- .()     is  -> 25;
+$ syntax expr: . <-> .()    is  -> 25;
+$ syntax expr: . -><- .()   is  -> 25;
 
 (* STATEMENTS *)
 $ syntax expr: .while.().do.().end.while                         is  -> 25;
@@ -252,8 +251,7 @@ $ syntax expr: .symb.()                        is  -> 40;
 $ syntax expr: .attr.()                        is <-  40;
 
 (* DECLARATORS *)
-$ syntax expr: .syntax. : .().is.()            is  -> 40;
-$ syntax expr: .syntax.(). : .().is.()         is  -> 40;
+$ syntax expr: .syntax.(). : .().is.(expr)     is  -> 40;
 $ syntax expr: .const.(). : .(expr).is.(expr)  is  -> 40;
 $ syntax expr: .const.(). : .(expr).is.forward is  -> 40;
 $ syntax expr: .var.(). : .(expr).is.(expr)    is  -> 40;
