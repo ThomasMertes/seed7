@@ -1406,7 +1406,7 @@ void err_expr_obj (errorType err, const_objectType expr_object,
 
 
 void err_expr_obj_stri (errorType err, const_objectType expr_object,
-    objectType obj_found, const_ustriType stri)
+    objectType obj_found, const_cstriType stri)
 
   {
     boolType hasPosInfo;
@@ -1431,7 +1431,7 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
     switch (err) {
       case EXPECTED_SYMBOL:
         prot_cstri("\"");
-        prot_ustri(stri);
+        prot_cstri(stri);
         prot_cstri("\" expected found ");
         if (CATEGORY_OF_OBJ(obj_found) == STRIOBJECT) {
           printobject(obj_found);
