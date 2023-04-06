@@ -1292,21 +1292,22 @@ floatType fltParse (const const_striType stri)
         result = 0.0;
       } else {
         result = (floatType) strtod(buffer_ptr, &next_ch);
-#if !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
         if (next_ch == buffer_ptr) {
+#if !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
           if (strcmp(buffer_ptr, "NaN") == 0) {
             result = NOT_A_NUMBER;
           } else if (strcmp(buffer_ptr, "Infinity") == 0) {
             result = POSITIVE_INFINITY;
           } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
             result = NEGATIVE_INFINITY;
-          } else {
+          } else
+#endif
+          {
             logError(printf("fltParse(\"%s\"): No digit or sign found.\n",
                             striAsUnquotedCStri(stri)););
             err_info = RANGE_ERROR;
           } /* if */
         } else
-#endif
         if (next_ch != &buffer_ptr[stri->size]) {
           logError(printf("fltParse(\"%s\"): Superfluous characters after float literal.\n",
                           striAsUnquotedCStri(stri)););
@@ -1323,6 +1324,14 @@ floatType fltParse (const const_striType stri)
 #if !STRTOD_ACCEPTS_DENORMAL_NUMBERS && ATOF_ACCEPTS_DENORMAL_NUMBERS
         } else if (result == 0.0 && errno == ERANGE) {
           result = (floatType) atof(buffer_ptr);
+#endif
+#if STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS
+        } else if (result == 0.0 &&
+                   (buffer_ptr[0] == '+' || buffer_ptr[0] == '-') &&
+                   buffer_ptr[1] == '\0') {
+          logError(printf("fltParse(\"%s\"): No digit found after sign.\n",
+                          striAsUnquotedCStri(stri)););
+          err_info = RANGE_ERROR;
 #endif
         } /* if */
       } /* if */

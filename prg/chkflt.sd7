@@ -2768,21 +2768,51 @@ const proc: check_parse is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(float parse           " 0.0" ) or
+    if  not raisesRangeError(float parse               "" ) or
+        not raisesRangeError(float parse              "+" ) or
+        not raisesRangeError(float parse             "++" ) or
+        not raisesRangeError(float parse             "+-" ) or
+        not raisesRangeError(float parse            "++1" ) or
+        not raisesRangeError(float parse            "+-1" ) or
+        not raisesRangeError(float parse              "-" ) or
+        not raisesRangeError(float parse             "--" ) or
+        not raisesRangeError(float parse             "-+" ) or
+        not raisesRangeError(float parse            "--1" ) or
+        not raisesRangeError(float parse            "-+1" ) or
+        not raisesRangeError(float parse           " 0.0" ) or
         not raisesRangeError(float parse           "asdf" ) or
         not raisesRangeError(float parse           "0.0a" ) or
         not raisesRangeError(float parse            "1,2" ) or
         not raisesRangeError(float parse            "0x1" ) or
         not raisesRangeError(float parse            "0X1" ) or
+        not raisesRangeError(float parse           "+0x1" ) or
+        not raisesRangeError(float parse           "+0X1" ) or
+        not raisesRangeError(float parse           "-0x1" ) or
+        not raisesRangeError(float parse           "-0X1" ) or
         not raisesRangeError(float parse          "0x1.2" ) or
         not raisesRangeError(float parse          "0X1.3" ) or
         not raisesRangeError(float parse              "€" ) or
+        not raisesRangeError(float parse striExpr(     "")) or
+        not raisesRangeError(float parse striExpr(    "+")) or
+        not raisesRangeError(float parse striExpr(   "++")) or
+        not raisesRangeError(float parse striExpr(   "+-")) or
+        not raisesRangeError(float parse striExpr(  "++1")) or
+        not raisesRangeError(float parse striExpr(  "+-1")) or
+        not raisesRangeError(float parse striExpr(    "-")) or
+        not raisesRangeError(float parse striExpr(   "--")) or
+        not raisesRangeError(float parse striExpr(   "-+")) or
+        not raisesRangeError(float parse striExpr(  "--1")) or
+        not raisesRangeError(float parse striExpr(  "-+1")) or
         not raisesRangeError(float parse striExpr( " 0.0")) or
         not raisesRangeError(float parse striExpr( "asdf")) or
         not raisesRangeError(float parse striExpr( "0.0a")) or
         not raisesRangeError(float parse striExpr(  "1,2")) or
         not raisesRangeError(float parse striExpr(  "0x1")) or
         not raisesRangeError(float parse striExpr(  "0X1")) or
+        not raisesRangeError(float parse striExpr( "+0x1")) or
+        not raisesRangeError(float parse striExpr( "+0X1")) or
+        not raisesRangeError(float parse striExpr( "-0x1")) or
+        not raisesRangeError(float parse striExpr( "-0X1")) or
         not raisesRangeError(float parse striExpr("0x1.2")) or
         not raisesRangeError(float parse striExpr("0X1.3")) or
         not raisesRangeError(float parse striExpr(    "€")) then
@@ -3253,21 +3283,51 @@ const proc: check_parse is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(float(          " 0.0" )) or
+    if  not raisesRangeError(float(              "" )) or
+        not raisesRangeError(float(             "+" )) or
+        not raisesRangeError(float(            "++" )) or
+        not raisesRangeError(float(            "+-" )) or
+        not raisesRangeError(float(           "++1" )) or
+        not raisesRangeError(float(           "+-1" )) or
+        not raisesRangeError(float(             "-" )) or
+        not raisesRangeError(float(            "--" )) or
+        not raisesRangeError(float(            "-+" )) or
+        not raisesRangeError(float(           "--1" )) or
+        not raisesRangeError(float(           "-+1" )) or
+        not raisesRangeError(float(          " 0.0" )) or
         not raisesRangeError(float(          "asdf" )) or
         not raisesRangeError(float(          "0.0a" )) or
         not raisesRangeError(float(           "1,2" )) or
         not raisesRangeError(float(           "0x1" )) or
         not raisesRangeError(float(           "0X1" )) or
+        not raisesRangeError(float(          "+0x1" )) or
+        not raisesRangeError(float(          "+0X1" )) or
+        not raisesRangeError(float(          "-0x1" )) or
+        not raisesRangeError(float(          "-0X1" )) or
         not raisesRangeError(float(         "0x1.2" )) or
         not raisesRangeError(float(         "0X1.3" )) or
         not raisesRangeError(float(             "€" )) or
+        not raisesRangeError(float(striExpr(     ""))) or
+        not raisesRangeError(float(striExpr(    "+"))) or
+        not raisesRangeError(float(striExpr(   "++"))) or
+        not raisesRangeError(float(striExpr(   "+-"))) or
+        not raisesRangeError(float(striExpr(  "++1"))) or
+        not raisesRangeError(float(striExpr(  "+-1"))) or
+        not raisesRangeError(float(striExpr(    "-"))) or
+        not raisesRangeError(float(striExpr(   "--"))) or
+        not raisesRangeError(float(striExpr(   "-+"))) or
+        not raisesRangeError(float(striExpr(  "--1"))) or
+        not raisesRangeError(float(striExpr(  "-+1"))) or
         not raisesRangeError(float(striExpr( " 0.0"))) or
         not raisesRangeError(float(striExpr( "asdf"))) or
         not raisesRangeError(float(striExpr( "0.0a"))) or
         not raisesRangeError(float(striExpr(  "1,2"))) or
         not raisesRangeError(float(striExpr(  "0x1"))) or
         not raisesRangeError(float(striExpr(  "0X1"))) or
+        not raisesRangeError(float(striExpr( "+0x1"))) or
+        not raisesRangeError(float(striExpr( "+0X1"))) or
+        not raisesRangeError(float(striExpr( "-0x1"))) or
+        not raisesRangeError(float(striExpr( "-0X1"))) or
         not raisesRangeError(float(striExpr("0x1.2"))) or
         not raisesRangeError(float(striExpr("0X1.3"))) or
         not raisesRangeError(float(striExpr(    "€"))) then

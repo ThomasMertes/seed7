@@ -3631,6 +3631,21 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define ATOF_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
     } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "char buffer[1024];\n"
+                         "char *next_ch;\n"
+                         "int accepts_plus, accepts_minus;\n"
+                         "strcpy(buffer, \"+\");\n"
+                         "accepts_plus = strtod(buffer, &next_ch) == 0.0 &&\n"
+                         "               next_ch == &buffer[1];\n"
+                         "strcpy(buffer, \"-\");\n"
+                         "accepts_minus = strtod(buffer, &next_ch) == 0.0 &&\n"
+                         "                next_ch == &buffer[1];\n"
+                         "printf(\"%d\\n\", accepts_plus || accepts_minus);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS %d\n", doTest());
+    } /* if */
     sprintf(buffer,
             "#include<stdio.h>\n#include<stdlib.h>\n#include<float.h>\n#include<math.h>\n"
             "int main(int argc,char *argv[]){\n"
