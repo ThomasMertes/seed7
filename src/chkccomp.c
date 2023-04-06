@@ -3631,6 +3631,33 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define ATOF_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
     } /* if */
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<stdlib.h>\n#include<float.h>\n#include<math.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\", strtod(\"Infinity\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"+Infinity\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"-Infinity\", NULL) == doubleMinusInf &&\n"
+            "               strtod(\"INFINITY\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"iNfInItY\", NULL) == doublePlusInf);\n"
+            "return 0;}\n", computeValues);
+    if (assertCompAndLnk(buffer)) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_INFINITY %d\n", doTest());
+    } /* if */
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<stdlib.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\", os_isnan(strtod(\"NaN\", NULL)) &&\n"
+            "               os_isnan(strtod(\"+NaN\", NULL)) &&\n"
+            "               os_isnan(strtod(\"-NaN\", NULL)) &&\n"
+            "               os_isnan(strtod(\"NAN\", NULL)) &&\n"
+            "               os_isnan(strtod(\"nAn\", NULL)));\n"
+            "return 0;}\n", os_isnan_definition, computeValues);
+    if (assertCompAndLnk(buffer)) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_NAN %d\n", doTest());
+    } /* if */
     fprintf(logFile, " determined\n");
   } /* numericProperties */
 

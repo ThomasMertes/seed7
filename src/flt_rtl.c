@@ -55,7 +55,6 @@
 #include "flt_rtl.h"
 
 
-#define USE_STRTOD 1
 #define MAX_CSTRI_BUFFER_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING 1
 #define PRECISION_BUFFER_LEN 1000
@@ -1263,21 +1262,15 @@ floatType fltMod (floatType dividend, floatType divisor)
 floatType fltParse (const const_striType stri)
 
   {
-#if USE_STRTOD
     char buffer[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     const_cstriType buffer_ptr;
     const_cstriType cstri;
     char *next_ch;
-#else
-    memSizeType position;
-    floatType digitval;
-#endif
     errInfoType err_info = OKAY_NO_ERROR;
     floatType result;
 
   /* fltParse */
     logFunction(printf("fltParse(\"%s\")\n", striAsUnquotedCStri(stri)););
-#if USE_STRTOD
     if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
       cstri = NULL;
       buffer_ptr = conv_to_cstri(buffer, stri);
@@ -1299,6 +1292,7 @@ floatType fltParse (const const_striType stri)
         result = 0.0;
       } else {
         result = (floatType) strtod(buffer_ptr, &next_ch);
+#if !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
         if (next_ch == buffer_ptr) {
           if (strcmp(buffer_ptr, "NaN") == 0) {
             result = NOT_A_NUMBER;
@@ -1311,7 +1305,9 @@ floatType fltParse (const const_striType stri)
                             striAsUnquotedCStri(stri)););
             err_info = RANGE_ERROR;
           } /* if */
-        } else if (next_ch != &buffer_ptr[stri->size]) {
+        } else
+#endif
+        if (next_ch != &buffer_ptr[stri->size]) {
           logError(printf("fltParse(\"%s\"): Superfluous characters after float literal.\n",
                           striAsUnquotedCStri(stri)););
           err_info = RANGE_ERROR;
@@ -1334,26 +1330,6 @@ floatType fltParse (const const_striType stri)
         free_cstri(cstri, stri);
       } /* if */
     } /* if */
-#else
-    position = 0;
-    result = 0.0;
-    while (position < stri->size &&
-        stri->mem[position] >= ((strElemType) '0') &&
-        stri->mem[position] <= ((strElemType) '9')) {
-      digitval = ((intType) stri->mem[position]) - ((intType) '0');
-      if (result < MAX_DIV_10 ||
-          (result == MAX_DIV_10 &&
-          digitval <= MAX_REM_10)) {
-        result = ((floatType) 10.0) * result + digitval;
-      } else {
-        err_info = RANGE_ERROR;
-      } /* if */
-      position++;
-    } /* while */
-    if (position == 0 || position < stri->size) {
-      err_info = RANGE_ERROR;
-    } /* if */
-#endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
       result = 0.0;

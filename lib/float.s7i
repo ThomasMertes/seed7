@@ -365,6 +365,17 @@ const func string: string (in float: number)                   is action "FLT_ST
 
 (**
  *  Convert a [[string]] to a float number.
+ *   float("1.2345")     returns  1.2345
+ *   float("1.2345e6")   returns  1234500.0
+ *   float("-1.0e-308")  returns -1.0e-308
+ *   float("1")          returns  1.0
+ *   float("2.")         returns  2.0
+ *   float(".5")         returns  0.5
+ *   float("-.25")       returns  -0.25
+ *   float("Infinity")   returns  Infinity
+ *   float("-Infinity")  returns -Infinity
+ *   float("NaN")        returns  NaN
+ *   float("3.14PI"      raises RANGE_ERROR
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR If the string contains not a float literal.
  *)
@@ -373,6 +384,17 @@ const func float: float (in string: stri)                      is action "FLT_PA
 
 (**
  *  Convert a [[string]] to a float number.
+ *   float parse "1.2345"     returns  1.2345
+ *   float parse "1.2345e6"   returns  1234500.0
+ *   float parse "-1.0e-308"  returns -1.0e-308
+ *   float parse "1"          returns  1.0
+ *   float parse "2."         returns  2.0
+ *   float parse ".5"         returns  0.5
+ *   float parse "-.25"       returns  -0.25
+ *   float parse "Infinity"   returns  Infinity
+ *   float parse "-Infinity"  returns -Infinity
+ *   float parse "NaN"        returns  NaN
+ *   float parse "2.14PI"     raises RANGE_ERROR
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR If the string contains not a float literal.
  *)
