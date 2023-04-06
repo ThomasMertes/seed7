@@ -122,6 +122,14 @@ extern intType drwWidth (const_winType actual_window);
 #define VK_XBUTTON2 6
 #endif
 
+#ifndef XBUTTON1
+#define XBUTTON1 0x0001
+#endif
+
+#ifndef XBUTTON2
+#define XBUTTON2 0x0002
+#endif
+
 #ifndef WM_XBUTTONDOWN
 #define WM_XBUTTONDOWN 0x020B
 #endif
