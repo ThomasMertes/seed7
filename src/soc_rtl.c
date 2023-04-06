@@ -1213,6 +1213,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
             free_cstri8(name, hostName);
             freeaddrinfo(addrinfo_list);
             raise_error(MEMORY_ERROR);
+            result = NULL;
           } else {
             result->size = (memSizeType) result_addrinfo->ai_addrlen;
             memcpy(result->mem, result_addrinfo->ai_addr,
@@ -1353,6 +1354,7 @@ bstriType socInetLocalAddr (intType port)
                          (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
           raise_error(MEMORY_ERROR);
+          result = NULL;
         } else {
           result->size = (memSizeType) result_addrinfo->ai_addrlen;
           memcpy(result->mem, result_addrinfo->ai_addr,
@@ -1440,6 +1442,7 @@ bstriType socInetServAddr (intType port)
                          (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
           raise_error(MEMORY_ERROR);
+          result = NULL;
         } else {
           result->size = (memSizeType) result_addrinfo->ai_addrlen;
           memcpy(result->mem, result_addrinfo->ai_addr,

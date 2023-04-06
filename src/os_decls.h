@@ -152,9 +152,9 @@
 #endif
 
 #if FILENO_WORKS_FOR_NULL
-#define safe_fileno(stream) fileno(stream)
+#define safe_fileno(stream) os_fileno(stream)
 #else
-#define safe_fileno(stream) ((stream) == NULL ? -1 : fileno(stream))
+#define safe_fileno(stream) ((stream) == NULL ? -1 : os_fileno(stream))
 #endif
 
 #ifndef CC_OPT_OPTIMIZE_1
