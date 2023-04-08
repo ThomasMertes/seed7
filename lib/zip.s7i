@@ -1128,9 +1128,11 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
           if bin32(header.external_file_attributes) & FAT_DIRECTORY <> bin32(0) then
             mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
           end if;
-          extension := lower(header.file_name[length(header.file_name) - 3 ..]);
-          if extension in {".bat", ".cmd", ".com", ".exe"} then
-            mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
+          if length(header.file_name) >= 5 then
+            extension := lower(header.file_name[length(header.file_name) - 3 ..]);
+            if extension in {".bat", ".cmd", ".com", ".exe"} then
+              mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
+            end if;
           end if;
         when {ZIP_HOST_SYSTEM_UNIX}:
           # The unix mode is in the high 16 bits of the attributes.
