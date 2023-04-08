@@ -397,7 +397,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
   /* pcsPipe2 */
     logFunction(printf("pcsPipe2(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(")\n"););
+                printf(", %s%d, %s%d)\n",
+                       *childStdin == NULL ? "NULL " : "",
+                       *childStdin != NULL ? safe_fileno((*childStdin)->cFile) : 0,
+                       *childStdout == NULL ? "NULL " : "",
+                       *childStdout != NULL ? safe_fileno((*childStdout)->cFile) : 0););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(argv == NULL)) {
       raise_error(err_info);
@@ -456,18 +460,32 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       } else {
         close(childStdinPipes[0]); /* These are being used by the child */
         close(childStdoutPipes[1]);
-        filDestr(*childStdin);
         initFileType(childStdinFile, 1);
         childStdinFile->cFile = os_fdopen(childStdinPipes[1], "w");
-        *childStdin  = childStdinFile;
-        filDestr(*childStdout);
+        if (childStdinFile->cFile == NULL) {
+          FREE_RECORD(childStdinFile, fileRecord, count.files);
+        } else {
+          filDestr(*childStdin);
+          *childStdin  = childStdinFile;
+        } /* if */
         initFileType(childStdoutFile, 1);
         childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
-        *childStdout = childStdoutFile;
+        if (childStdoutFile->cFile == NULL) {
+          FREE_RECORD(childStdoutFile, fileRecord, count.files);
+        } else {
+          filDestr(*childStdout);
+          *childStdout = childStdoutFile;
+        } /* if */
         freeArgVector(argv);
       } /* if */
     } /* if */
-    logFunction(printf("pcsPipe2 ->\n"););
+    logFunction(printf("pcsPipe2(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(", %s%d, %s%d) -->\n",
+                       *childStdin == NULL ? "NULL " : "",
+                       *childStdin != NULL ? safe_fileno((*childStdin)->cFile) : 0,
+                       *childStdout == NULL ? "NULL " : "",
+                       *childStdout != NULL ? safe_fileno((*childStdout)->cFile) : 0););
   } /* pcsPipe2 */
 
 
@@ -569,20 +587,28 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             dup2(savedStdin, 0);
             dup2(savedStdout, 1);
             close(slavefd); /* This is being used by the child */
-            filDestr(*childStdin);
             initFileType(childStdinFile, 1);
             childStdinFile->cFile = os_fdopen(masterfd, "w");
-            *childStdin = childStdinFile;
-            filDestr(*childStdout);
+            if (childStdinFile->cFile == NULL) {
+              FREE_RECORD(childStdinFile, fileRecord, count.files);
+            } else {
+              filDestr(*childStdin);
+              *childStdin = childStdinFile;
+            } /* if */
             initFileType(childStdoutFile, 1);
             childStdoutFile->cFile = os_fdopen(masterfd, "r");
-            *childStdout = childStdoutFile;
+            if (childStdoutFile->cFile == NULL) {
+              FREE_RECORD(childStdoutFile, fileRecord, count.files);
+            } else {
+              *childStdout = childStdoutFile;
+              filDestr(*childStdout);
+            } /* if */
             freeArgVector(argv);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("pcsPty ->\n"););
+    logFunction(printf("pcsPty -->\n"););
   } /* pcsPty */
 #endif
 
@@ -697,7 +723,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
+    logFunction(printf("pcsStart --> " FMT_U_MEM "\n",
                        process != NULL ? (memSizeType) process->pid : (memSizeType) 0););
     return (processType) process;
   } /* pcsStart */
@@ -843,7 +869,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->stdErr = childStderrFile;
       } /* if */
     } /* if */
-    logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",
+    logFunction(printf("pcsStartPipe --> " FMT_U_MEM "\n",
                        process != NULL ? (memSizeType) process->pid : (memSizeType) 0););
     return (processType) process;
   } /* pcsStartPipe */
