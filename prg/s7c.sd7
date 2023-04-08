@@ -791,7 +791,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_decls &:= typeLiteral(getValue(object_value, type));
     elsif valueCategory = INTOBJECT then
       c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= str(getValue(object_value, integer));
+      c_declaration.temp_decls &:= integerLiteral(getValue(object_value, integer));
     elsif valueCategory = BIGINTOBJECT then
       c_declaration.temp_assigns &:= diagnosticLine(current_object);
       c_declaration.temp_assigns &:= "o_";

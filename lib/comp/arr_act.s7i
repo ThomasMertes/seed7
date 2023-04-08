@@ -557,7 +557,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.result_expr &:= ".value.genericValue=arrIdxTemp(&(";
         c_expr.result_expr &:= c_param.result_name;
         c_expr.result_expr &:= "), ";
-        c_expr.result_expr &:= str(index);
+        c_expr.result_expr &:= integerLiteral(index);
         c_expr.result_expr &:= "), ";
         c_expr.result_expr &:= result_name;
         c_expr.result_expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
@@ -572,7 +572,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= ".value.genericValue=arrIdxTemp(&(";
         c_expr.expr &:= c_param.result_name;
         c_expr.expr &:= "), ";
-        c_expr.expr &:= str(index);
+        c_expr.expr &:= integerLiteral(index);
         c_expr.expr &:= "), ";
         c_expr.expr &:= result_name;
         c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
@@ -602,23 +602,23 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       if array_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "(idxChk(";
-        c_expr.expr &:= str(index);
+        c_expr.expr &:= integerLiteral(index);
         c_expr.expr &:= "<";
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->min_position || ";
-        c_expr.expr &:= str(index);
+        c_expr.expr &:= integerLiteral(index);
         c_expr.expr &:= ">";
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->max_position) ? ";
         c_expr.expr &:= intRaiseError("INDEX_ERROR");
         c_expr.expr &:= " : ";
-        c_expr.expr &:= str(index);
+        c_expr.expr &:= integerLiteral(index);
         c_expr.expr &:= "-";
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->min_position)";
       else
         incr(countSuppressedIndexChecks);
-        c_expr.expr &:= str(index);
+        c_expr.expr &:= integerLiteral(index);
         c_expr.expr &:= "-";
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->min_position";
