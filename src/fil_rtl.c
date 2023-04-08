@@ -1014,31 +1014,37 @@ bigIntType filBigTell (fileType aFile)
  */
 void filClose (fileType aFile)
 
-  { /* filClose */
+  {
+    int file_no;
+	
+  /* filClose */
     logFunction(printf("filClose(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
                        (memSizeType) aFile,
                        aFile == NULL ? "NULL " : "",
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        aFile != NULL ? aFile->usage_count : (uintType) 0););
+    file_no = safe_fileno(aFile->cFile);
     if (unlikely(aFile->cFile == NULL)) {
       logError(printf("filClose: fclose(NULL)\n"););
       raise_error(FILE_ERROR);
-    } else if (unlikely(fclose(aFile->cFile) != 0)) {
-      logError(printf("filClose: fclose(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile->cFile), errno, strerror(errno)););
-      /* After the call to fclose(), any use of */
-      /* cFile results in undefined behavior.   */
-      aFile->cFile = NULL;
-      raise_error(FILE_ERROR);
     } else {
-      aFile->cFile = NULL;
+#if FCLOSE_FAILS_AFTER_PREVIOUS_ERROR
+      clearerr(aFile->cFile);
+#endif
+      if (unlikely(fclose(aFile->cFile) != 0)) {
+        logError(printf("filClose: fclose(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        file_no, errno, strerror(errno)););
+        /* After the call to fclose(), any use of */
+        /* cFile results in undefined behavior.   */
+        aFile->cFile = NULL;
+        raise_error(FILE_ERROR);
+      } else {
+        aFile->cFile = NULL;
+      } /* if */
     } /* if */
-    logFunction(printf("filClose(" FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
-                       (memSizeType) aFile,
-                       aFile == NULL ? "NULL " : "",
-                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
-                       aFile != NULL ? aFile->usage_count : (uintType) 0););
+    logFunction(printf("filClose(" FMT_U_MEM " %d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) aFile, file_no, aFile->usage_count););
   } /* filClose */
 
 

@@ -1459,7 +1459,7 @@ static int checkIfNullDevice (const char *nullDeviceName, const char *eofName)
             "  }\n"
             "}\n"
             "printf(\"%%d\\n\", fileIsNullDevice);\n"
-            "return 0;}",
+            "return 0;}\n",
             nullDeviceName, eofName);
     /* printf("%s\n", buffer); */
     if (assertCompAndLnk(buffer)) {
@@ -2891,6 +2891,8 @@ static void numericProperties (FILE *versionFile)
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
+            "float floatFunc (const float number) { return number; }\n"
+            "double doubleFunc (const double number) { return number; }\n"
             "int main(int argc,char *argv[]){\n"
             "%s\n"
             "printf(\"%%d\\n\",\n"
@@ -2909,6 +2911,16 @@ static void numericProperties (FILE *versionFile)
             "      0.0 >  floatNanValue2 ||\n"
             "      0.0 <= floatNanValue2 ||\n"
             "      0.0 >= floatNanValue2 ||\n"
+            "      floatFunc(floatNanValue1) == 0.0 ||\n"
+            "      floatFunc(floatNanValue1) <  0.0 ||\n"
+            "      floatFunc(floatNanValue1) >  0.0 ||\n"
+            "      floatFunc(floatNanValue1) <= 0.0 ||\n"
+            "      floatFunc(floatNanValue1) >= 0.0 ||\n"
+            "      0.0 == floatFunc(floatNanValue2) ||\n"
+            "      0.0 <  floatFunc(floatNanValue2) ||\n"
+            "      0.0 >  floatFunc(floatNanValue2) ||\n"
+            "      0.0 <= floatFunc(floatNanValue2) ||\n"
+            "      0.0 >= floatFunc(floatNanValue2) ||\n"
             "      doubleNanValue1 == doubleNanValue2 ||\n"
             "      doubleNanValue1 <  doubleNanValue2 ||\n"
             "      doubleNanValue1 >  doubleNanValue2 ||\n"
@@ -2923,7 +2935,17 @@ static void numericProperties (FILE *versionFile)
             "      0.0 <  doubleNanValue2 ||\n"
             "      0.0 >  doubleNanValue2 ||\n"
             "      0.0 <= doubleNanValue2 ||\n"
-            "      0.0 >= doubleNanValue2));\n"
+            "      0.0 >= doubleNanValue2 ||\n"
+            "      doubleFunc(doubleNanValue1) == 0.0 ||\n"
+            "      doubleFunc(doubleNanValue1) <  0.0 ||\n"
+            "      doubleFunc(doubleNanValue1) >  0.0 ||\n"
+            "      doubleFunc(doubleNanValue1) >= 0.0 ||\n"
+            "      doubleFunc(doubleNanValue1) >= 0.0 ||\n"
+            "      0.0 == doubleFunc(doubleNanValue2) ||\n"
+            "      0.0 <  doubleFunc(doubleNanValue2) ||\n"
+            "      0.0 >  doubleFunc(doubleNanValue2) ||\n"
+            "      0.0 <= doubleFunc(doubleNanValue2) ||\n"
+            "      0.0 >= doubleFunc(doubleNanValue2)));\n"
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FLOAT_NAN_COMPARISON_OKAY %d\n",
@@ -3631,7 +3653,8 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define ATOF_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
     } /* if */
-    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n"
+                         "#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[1024];\n"
                          "char *next_ch;\n"
@@ -3650,7 +3673,26 @@ static void numericProperties (FILE *versionFile)
             "#include<stdio.h>\n#include<stdlib.h>\n#include<float.h>\n#include<math.h>\n"
             "int main(int argc,char *argv[]){\n"
             "%s\n"
-            "printf(\"%%d\\n\", strtod(\"Infinity\", NULL) == doublePlusInf &&\n"
+            "printf(\"%%d\\n\", strtod(\"Inf\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"+Inf\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"-Inf\", NULL) == doubleMinusInf &&\n"
+            "               strtod(\"INF\", NULL) == doublePlusInf &&\n"
+            "               strtod(\"iNf\", NULL) == doublePlusInf);\n"
+            "return 0;}\n", computeValues);
+    if (assertCompAndLnk(buffer)) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_INF %d\n", doTest());
+    } /* if */
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<stdlib.h>\n#include<string.h>\n"
+            "#include<float.h>\n#include<math.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "char buffer[1024];\n"
+            "char *next_ch;\n"
+            "%s\n"
+            "strcpy(buffer, \"Infinity\");\n"
+            "printf(\"%%d\\n\", strtod(buffer, &next_ch) == doublePlusInf &&\n"
+            "               next_ch == &buffer[8] &&\n"
+            "               strtod(\"Infinity\", NULL) == doublePlusInf &&\n"
             "               strtod(\"+Infinity\", NULL) == doublePlusInf &&\n"
             "               strtod(\"-Infinity\", NULL) == doubleMinusInf &&\n"
             "               strtod(\"INFINITY\", NULL) == doublePlusInf &&\n"
@@ -5899,7 +5941,7 @@ static void determineIsattyFunction (FILE *versionFile)
                            "return 0;}\n")) {
         fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
       } else {
-        fprintf(logFile, "\n *** Cannot determine isatty().\n");
+        fprintf(logFile, "\n *** Cannot determine os_isatty.\n");
       } /* if */
     } /* if */
   } /* determineIsattyFunction */
@@ -5920,7 +5962,7 @@ static void determineFdopenFunction (FILE *versionFile)
                                   "FILE *fp = fdopen(0, \"r\");\n"
                                   "printf(\"%d\\n\", fp!=NULL);\n"
                                   "return 0;}\n")) {
-      fprintf(logFile, "\n *** Cannot determine fileno().\n");
+      fprintf(logFile, "\n *** Cannot determine os_fdopen.\n");
     } /* if */
   } /* determineFdopenFunction */
 
@@ -5943,7 +5985,7 @@ static const char *determineFilenoFunction (FILE *versionFile)
                                  "int main(int argc,char *argv[]){\n"
                                  "printf(\"%d\\n\", fileno(stdin)==0);\n"
                                  "return 0;}\n")) {
-      fprintf(logFile, "\n *** Cannot determine fileno().\n");
+      fprintf(logFile, "\n *** Cannot determine os_fileno.\n");
     } /* if */
 #ifndef FILENO_WORKS_FOR_NULL
     sprintf(buffer, "#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
@@ -9076,7 +9118,6 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
               "(*((int **)&((char *)(fp))[%d]) >= *((int **)&((char *)(fp))[%d]))",
               FILE_STRUCT_READ_PTR_OFFSET, FILE_STRUCT_READ_END_OFFSET);
       define_read_buffer_empty = macro_buffer;
-      printf("%s\n", define_read_buffer_empty);
 #else
     } else if (compileAndLinkOk("#include<stdio.h>\n"
                                 "typedef struct {unsigned flags; unsigned char *rpos, *rend;} MY_FILE;\n"
@@ -9280,6 +9321,14 @@ int main (int argc, char **argv)
                          " remove(\"tmp_test_file\");}\n"
                          "printf(\"%d\\n\",canRead);return 0;}\n")) {
       fprintf(versionFile, "#define FREAD_WRONG_FOR_WRITE_ONLY_FILES %d\n", doTest() == 1);
+    } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[]){\n"
+                         "int closeFails=0;FILE *aFile;char buffer[5];\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
+                         " fread(buffer,1,4,aFile);closeFails=fclose(aFile)!=0;\n"
+                         " remove(\"tmp_test_file\");}\n"
+                         "printf(\"%d\\n\", closeFails);return 0;}\n")) {
+      fprintf(versionFile, "#define FCLOSE_FAILS_AFTER_PREVIOUS_ERROR %d\n", doTest() == 1);
     } /* if */
     checkRemoveDir(makeDirDefinition, versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <ctype.h>\n"

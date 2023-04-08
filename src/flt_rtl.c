@@ -1263,9 +1263,9 @@ floatType fltParse (const const_striType stri)
 
   {
     char buffer[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    const_cstriType buffer_ptr;
-    const_cstriType cstri;
-    char *next_ch;
+    cstriType buffer_ptr;
+    cstriType cstri;
+    cstriType next_ch;
     errInfoType err_info = OKAY_NO_ERROR;
     floatType result;
 
@@ -1285,30 +1285,45 @@ floatType fltParse (const const_striType stri)
       buffer_ptr = cstri;
     } /* if */
     if (likely(buffer_ptr != NULL)) {
+#if !STRTOD_ACCEPTS_INF || !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
+      next_ch = buffer_ptr;
+      while (*next_ch != '\0' && !isdigit(*next_ch)) {
+        *next_ch = tolower(*next_ch);
+        next_ch++;
+      } /* while */
+#endif
       if (isspace(buffer_ptr[0])) {
         logError(printf("fltParse(\"%s\"): String starts with whitespace.\n",
                         striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;
         result = 0.0;
+#if !STRTOD_ACCEPTS_INF
+      } else if (strcmp(buffer_ptr, "inf") == 0 ||
+                 strcmp(buffer_ptr, "+inf") == 0) {
+        result = POSITIVE_INFINITY;
+      } else if (strcmp(buffer_ptr, "-inf") == 0) {
+        result = NEGATIVE_INFINITY;
+#endif
+#if !STRTOD_ACCEPTS_INFINITY
+      } else if (strcmp(buffer_ptr, "infinity") == 0 ||
+                 strcmp(buffer_ptr, "+infinity") == 0) {
+        result = POSITIVE_INFINITY;
+      } else if (strcmp(buffer_ptr, "-infinity") == 0) {
+        result = NEGATIVE_INFINITY;
+#endif
+#if !STRTOD_ACCEPTS_NAN
+      } else if (strcmp(buffer_ptr, "nan") == 0 ||
+                 ((buffer_ptr[0] == '+' || buffer_ptr[0] == '-') &&
+                  strcmp(&buffer_ptr[1], "nan") == 0)) {
+        result = NOT_A_NUMBER;
+#endif
       } else {
         result = (floatType) strtod(buffer_ptr, &next_ch);
         if (next_ch == buffer_ptr) {
-#if !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
-          if (strcmp(buffer_ptr, "NaN") == 0) {
-            result = NOT_A_NUMBER;
-          } else if (strcmp(buffer_ptr, "Infinity") == 0) {
-            result = POSITIVE_INFINITY;
-          } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
-            result = NEGATIVE_INFINITY;
-          } else
-#endif
-          {
-            logError(printf("fltParse(\"%s\"): No digit or sign found.\n",
-                            striAsUnquotedCStri(stri)););
-            err_info = RANGE_ERROR;
-          } /* if */
-        } else
-        if (next_ch != &buffer_ptr[stri->size]) {
+          logError(printf("fltParse(\"%s\"): No digit or sign found.\n",
+                          striAsUnquotedCStri(stri)););
+          err_info = RANGE_ERROR;
+        } else if (next_ch != &buffer_ptr[stri->size]) {
           logError(printf("fltParse(\"%s\"): Superfluous characters after float literal.\n",
                           striAsUnquotedCStri(stri)););
           err_info = RANGE_ERROR;
