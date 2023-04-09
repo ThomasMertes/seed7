@@ -110,10 +110,6 @@ extern intType drwWidth (const_winType actual_window);
 #define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
 #endif
 
-#ifdef DMC_GKB_WIN_DEFINES
-#define WM_MOUSEWHEEL                   0x020A
-#endif
-
 #ifndef VK_XBUTTON1
 #define VK_XBUTTON1 5
 #endif
@@ -134,10 +130,30 @@ extern intType drwWidth (const_winType actual_window);
 #define WM_XBUTTONDOWN 0x020B
 #endif
 
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL  0x020A
+#endif
+
+#ifndef GET_WHEEL_DELTA_WPARAM
+#define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD (wparam))
+#endif
+
 #ifndef MAPVK_VK_TO_VSC
 #define MAPVK_VK_TO_VSC 0
 #endif
 
+#ifndef VK_OEM_1
+#define VK_OEM_1     0xBA
+#define VK_OEM_2     0xBF
+#define VK_OEM_3     0xC0
+#define VK_OEM_4     0xDB
+#define VK_OEM_5     0xDC
+#define VK_OEM_6     0xDD
+#define VK_OEM_7     0xDE
+#define VK_OEM_8     0xDF
+#define VK_OEM_PLUS  0xBB
+#define VK_OEM_MINUS 0xBD
+#endif
 
 
 winType find_window (HWND sys_window)
