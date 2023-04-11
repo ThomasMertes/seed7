@@ -37,6 +37,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#ifdef OS_STRI_WCHAR
+#include "wchar.h"
+#endif
 #include "sys/types.h"
 #include "sys/stat.h"
 
