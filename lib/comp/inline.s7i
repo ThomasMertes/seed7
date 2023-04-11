@@ -280,6 +280,7 @@ const proc: process_inline_func (in reference: function,
     end if;
     c_expr.temp_num := inline_decls.temp_num;
     c_expr.temp_decls &:= inline_decls.temp_decls;
+    c_expr.temp_assigns &:= inline_decls.temp_assigns;
     c_expr.temp_frees &:= inline_decls.temp_frees;
     c_expr.temp_to_null &:= inline_decls.temp_to_null;
     prepareAnyParamTemporarys(body(function), inline_body, c_expr);
@@ -302,7 +303,6 @@ const proc: process_inline_func (in reference: function,
         c_expr.result_expr &:= " *";
       end if;
       c_expr.result_expr &:= ")(\n";
-      c_expr.result_expr &:= inline_decls.temp_assigns;
       c_expr.result_expr &:= inline_decls.expr;
       # c_expr.result_decl &:= inline_body.result_decl;
       # c_expr.result_free &:= inline_body.result_free;
@@ -344,7 +344,6 @@ const proc: process_inline_func (in reference: function,
         c_expr.expr &:= " *";
       end if;
       c_expr.expr &:= ")(\n";
-      c_expr.expr &:= inline_decls.temp_assigns;
       c_expr.expr &:= inline_decls.expr;
       c_expr.expr &:= diagnosticLine;
       if isVarfunc(function_type) then
