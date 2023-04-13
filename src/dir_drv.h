@@ -56,6 +56,8 @@
 #elif DIR_LIB == DIRWIN_DIRECTORY
 #include "sys/types.h"
 #include "sys/stat.h"
+#ifdef OS_OPENDIR_INCLUDE_DIRECT_H
 #include "direct.h"
+#endif
 #include "dir_win.h"
 #endif

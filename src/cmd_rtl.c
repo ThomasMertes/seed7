@@ -49,6 +49,9 @@
 #endif
 #ifdef OS_STRI_WCHAR
 #include "wchar.h"
+#ifdef OS_GETCWD_INCLUDE_DIRECT_H
+#include "direct.h"
+#endif
 #ifdef OS_WIDE_DIR_INCLUDE_DIR_H
 #include "dir.h"
 #endif

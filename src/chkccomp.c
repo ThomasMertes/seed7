@@ -4304,6 +4304,18 @@ static void determineOsDirAccess (FILE *versionFile)
       fputs("#define os_opendir wopendir\n", versionFile);
       fputs("#define os_readdir wreaddir\n", versionFile);
       fputs("#define os_closedir wclosedir\n", versionFile);
+      if (!compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                            "int main (int argc, char *argv[]) {\n"
+                            "HANDLE dirHandle;\n"
+                            "WIN32_FIND_DATAW findData;\n"
+                            "dirHandle = FindFirstFileW(L\"./*\", &findData);\n"
+                            "if (dirHandle != INVALID_HANDLE_VALUE) {\n"
+                            "  FindNextFileW(dirHandle, &findData);\n"
+                            "  FindClose(dirHandle);\n"
+                            "} printf(\"%d\\n\", dirHandle != INVALID_HANDLE_VALUE);\n"
+                            "return 0;}\n")) {
+        fputs("define OS_OPENDIR_INCLUDE_DIRECT_H\n", versionFile);
+      } /* if */
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{DIR *directory; struct dirent *dirEntry;\n"
@@ -5777,6 +5789,14 @@ static void determineOsWCharFunctions (FILE *versionFile)
                                     "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define OS_GETCWD_MAX_BUFFER_SIZE INT_MAX\n", versionFile);
       fputs("#define os_getcwd(buf,size) _wgetcwd((buf),(int)(size))\n", versionFile);
+      if (!compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <wchar.h>\n"
+                                       "int main(int argc,char *argv[])\n"
+                                       "{wchar_t buffer[1024];\n"
+                                       "printf(\"%d\\n\",\n"
+                                       "    _wgetcwd(buffer, 1024) != NULL);\n"
+                                       "return 0;}\n", "", SYSTEM_LIBS)) {
+        fputs("#define OS_GETCWD_INCLUDE_DIRECT_H\n", versionFile);
+      } /* if */
     } else {
       fprintf(logFile, "\n *** Cannot define os_getcwd.\n");
       showErrors();
