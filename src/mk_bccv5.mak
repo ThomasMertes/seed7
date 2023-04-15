@@ -14,7 +14,7 @@ CFLAGS = -O2 -y -v -w-8072 $(INCLUDE_OPTIONS)
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -lS:0x800000
+LDFLAGS = -lS:8388608
 # LDFLAGS = -pg
 SYSTEM_LIBS = user32.lib ws2_32.lib
 # SYSTEM_LIBS = user32.lib ws2_32.lib gmp.lib
@@ -214,6 +214,7 @@ base.h:
 	echo ^#define CC_FLAGS "" >> base.h
 	echo ^#define CC_ERROR_FILEDES 1 >> base.h
 	echo ^#define CC_VERSION_INFO_FILEDES 1 >> base.h
+	echo ^#define DEFAULT_STACK_SIZE 8388608 >> base.h
 	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> base.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> base.h
 	echo ^#define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> base.h
@@ -235,7 +236,8 @@ settings.h:
 	echo ^#define CC_OPT_NO_WARNINGS "-w-" >> settings.h
 	echo ^#define CC_OPT_OPTIMIZE_3 "-O2" >> settings.h
 	echo ^#define LINKER_OPT_DEBUG_INFO "-v" >> settings.h
-	echo ^#define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
+	echo ^#define LINKER_OPT_STACK_SIZE "-lS:" >> settings.h
+	echo ^#define LINKER_FLAGS "" >> settings.h
 	echo ^#define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
 	echo ^#define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo ^#define SEED7_LIB "$(SEED7_LIB)" >> settings.h
