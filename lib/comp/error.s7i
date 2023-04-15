@@ -89,7 +89,7 @@ const func string: raiseError (in string: exceptionName) is func
   begin
     expr &:= "raiseError(";
     expr &:= exceptionName;
-    expr &:= ");";
+    expr &:= ");\n";
   end func;
 
 

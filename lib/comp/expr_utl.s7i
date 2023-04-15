@@ -893,7 +893,7 @@ const func string: getReference (in string: typeName, in string: namePrefix,
     c_expr.expr &:= variableName;
     c_expr.expr &:= "=&(";
     getAnyParamToExpr(param1, c_expr);
-    c_expr.expr &:= "),";
+    c_expr.expr &:= ");\n";
     variableName := "(*" & variableName & ")";
   end func;
 

@@ -803,10 +803,9 @@ const proc: process (ARR_INSERT, in reference: function,
           process_expr(params[2], statement);
           statement.expr &:= ";\n";
         end if;
-        statement.expr &:= "if (";
         array_name := getParameterAsReference(type_name(array_type),
                                               "arr_", params[1], statement);
-        statement.expr &:= "idxChk(";
+        statement.expr &:= "if (idxChk(";
         statement.expr &:= position_name;
         statement.expr &:= " < ";
         statement.expr &:= array_name;
@@ -816,7 +815,6 @@ const proc: process (ARR_INSERT, in reference: function,
         statement.expr &:= array_name;
         statement.expr &:= "->max_position + 1)) {\n";
         statement.expr &:= raiseError("INDEX_ERROR");
-        statement.expr &:= "\n";
         statement.expr &:= "} else {\n";
         statement.expr &:= "arrInsert(&(";
         statement.expr &:= array_name;

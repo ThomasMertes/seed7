@@ -1518,7 +1518,7 @@ const proc: process_const_int_add_assign (in reference: variable, in integer: de
       incr(countOptimizations);
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
-      statement.expr &:= "ovfChk(";
+      statement.expr &:= "if (ovfChk(";
       statement.expr &:= variable_name;
       if delta = -1 then
         statement.expr &:= "==";
@@ -1533,13 +1533,14 @@ const proc: process_const_int_add_assign (in reference: variable, in integer: de
         statement.expr &:= ">";
         statement.expr &:= integerLiteral(integer.last - delta);
       end if;
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
+      statement.expr &:= ")) {\n";
+      statement.expr &:= raiseError("OVERFLOW_ERROR");
+      statement.expr &:= "} else {\n";
       statement.expr &:= variable_name;
       statement.expr &:= "+=";
       statement.expr &:= integerLiteral(delta);
-      statement.expr &:= ");\n";
+      statement.expr &:= ";\n";
+      statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       process_expr(variable, statement);
@@ -2268,9 +2269,9 @@ const proc: process (INT_DECR, in reference: function,
         statement.expr &:= c_param1.expr;
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.first);
-        statement.expr &:= ")) ";
+        statement.expr &:= ")) {";
         statement.expr &:= raiseError("OVERFLOW_ERROR");
-        statement.expr &:= " else --(";
+        statement.expr &:= "} else --(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
       else
@@ -2287,9 +2288,9 @@ const proc: process (INT_DECR, in reference: function,
         statement.expr &:= variable_name;
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.first);
-        statement.expr &:= ")) ";
+        statement.expr &:= ")) {";
         statement.expr &:= raiseError("OVERFLOW_ERROR");
-        statement.expr &:= " else --(*";
+        statement.expr &:= "} else --(*";
         statement.expr &:= variable_name;
         statement.expr &:= ");\n";
       end if;
@@ -2679,9 +2680,9 @@ const proc: process (INT_INCR, in reference: function,
         statement.expr &:= c_param1.expr;
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.last);
-        statement.expr &:= ")) ";
+        statement.expr &:= ")) {";
         statement.expr &:= raiseError("OVERFLOW_ERROR");
-        statement.expr &:= " else ++(";
+        statement.expr &:= "} else ++(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
       else
@@ -2698,9 +2699,9 @@ const proc: process (INT_INCR, in reference: function,
         statement.expr &:= variable_name;
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.last);
-        statement.expr &:= ")) ";
+        statement.expr &:= ")) {";
         statement.expr &:= raiseError("OVERFLOW_ERROR");
-        statement.expr &:= " else ++(*";
+        statement.expr &:= "} else ++(*";
         statement.expr &:= variable_name;
         statement.expr &:= ");\n";
       end if;
@@ -3028,7 +3029,6 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= raiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= "\n";
     elsif lshift = 0 then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore integer <<:= 0; */\n";
@@ -3036,16 +3036,17 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
       incr(countOptimizations);
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
-      statement.expr &:= "ovfChk(";
+      statement.expr &:= "if (ovfChk(";
       checkIfOutsideRange(variable_name, integer.first >> lshift,
                           integer.last >> lshift, statement);
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
+      statement.expr &:= ")) {\n";
+      statement.expr &:= raiseError("OVERFLOW_ERROR");
+      statement.expr &:= "} else {\n";
       statement.expr &:= variable_name;
       statement.expr &:= "<<=";
       statement.expr &:= integerLiteral(lshift);
-      statement.expr &:= ");\n";
+      statement.expr &:= ";\n";
+      statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       process_expr(variable, statement);
@@ -4530,15 +4531,16 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
       if check_int_arithmetic_overflow and ccConf.TWOS_COMPLEMENT_INTTYPE then
         incr(countOverflowChecks);
         variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
-        statement.expr &:= "ovfChk(";
+        statement.expr &:= "if (ovfChk(";
         statement.expr &:= variable_name;
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.first);
-        statement.expr &:= ")?";
-        statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-        statement.expr &:= ":(";
+        statement.expr &:= ")) {\n";
+        statement.expr &:= raiseError("OVERFLOW_ERROR");
+        statement.expr &:= "} else {\n";
         statement.expr &:= variable_name;
-        statement.expr &:= "*= -1);\n";
+        statement.expr &:= "*= -1;\n";
+        statement.expr &:= "}\n";
       else
         process_expr(variable, statement);
         statement.expr &:= "*= -1;\n";
@@ -4548,7 +4550,7 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
       incr(countOptimizations);
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
-      statement.expr &:= "ovfChk(";
+      statement.expr &:= "if (ovfChk(";
       if factor < 0 then
         checkIfOutsideRange(variable_name, integer.last div factor,
                             integer.first div factor, statement);
@@ -4556,13 +4558,14 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
         checkIfOutsideRange(variable_name, integer.first div factor,
                             integer.last div factor, statement);
       end if;
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
+      statement.expr &:= ")) {\n";
+      statement.expr &:= raiseError("OVERFLOW_ERROR");
+      statement.expr &:= "} else {\n";
       statement.expr &:= variable_name;
       statement.expr &:= " *= ";
       statement.expr &:= integerLiteral(factor);
-      statement.expr &:= ");\n";
+      statement.expr &:= ";\n";
+      statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       process_expr(variable, statement);
@@ -5930,7 +5933,6 @@ const proc: process_const_int_rshift_assign (in reference: variable, in integer:
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= raiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= "\n";
     elsif rshift = 0 then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore integer >>:= 0; */\n";
@@ -6054,7 +6056,7 @@ const proc: process_const_int_sbtr_assign (in reference: variable, in integer: d
       incr(countOptimizations);
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
-      statement.expr &:= "ovfChk(";
+      statement.expr &:= "if (ovfChk(";
       statement.expr &:= variable_name;
       if delta = -1 then
         statement.expr &:= "==";
@@ -6069,13 +6071,14 @@ const proc: process_const_int_sbtr_assign (in reference: variable, in integer: d
         statement.expr &:= "<";
         statement.expr &:= integerLiteral(integer.first + delta);
       end if;
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
+      statement.expr &:= ")) {\n";
+      statement.expr &:= raiseError("OVERFLOW_ERROR");
+      statement.expr &:= "} else {\n";
       statement.expr &:= variable_name;
       statement.expr &:= "-=";
       statement.expr &:= integerLiteral(delta);
-      statement.expr &:= ");\n";
+      statement.expr &:= ";\n";
+      statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       process_expr(variable, statement);

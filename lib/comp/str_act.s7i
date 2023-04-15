@@ -780,7 +780,6 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
-      c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
       if c_destStri.temp_num <> 0 or string_index_check then
@@ -800,7 +799,6 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  destStri->mem[";
@@ -842,7 +840,6 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
-      c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
       c_aChar.temp_num := c_destStri.temp_num;
@@ -866,7 +863,6 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  destStri->mem[";
@@ -942,7 +938,6 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         end if;
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -1026,7 +1021,6 @@ const proc: process (STR_ELEMCPY, in reference: function,
         end if;
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -2479,7 +2473,6 @@ const proc: process_const_str_poscpy (in reference: destStri,
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
-      c_expr.expr &:= "\n";
     else
       incr(countOptimizations);
       process_expr(destStri, c_destStri);
@@ -2503,7 +2496,6 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memcpy(&destStri->mem[";
@@ -2547,7 +2539,6 @@ const proc: process_const_str_poscpy (in reference: destStri,
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
-      c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
       c_aStri.temp_num := c_destStri.temp_num;
@@ -2572,7 +2563,6 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= ">destStri->size-aStri->size)) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memmove(&destStri->mem[";
@@ -2639,7 +2629,6 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memcpy(&destStri->mem[position-1], (";
@@ -2720,7 +2709,6 @@ const proc: process (STR_POSCPY, in reference: function,
         c_expr.expr &:= "destStri->size<aStri->size || (uintType)(position-1)>destStri->size-aStri->size)) {\n";
         c_expr.expr &:= "  ";
         c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memmove(&destStri->mem[position-1], aStri->mem, aStri->size*sizeof(strElemType));\n";
