@@ -2596,17 +2596,35 @@ const proc: process (INT_FACT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
+    var integer: number is 0;
+    var integer: limit is 0;
     var string: number_name is "";
   begin
-    c_expr.expr &:= "(";
-    number_name := getParameterAsVariable("intType", "number_", params[2], c_expr);
-    c_expr.expr &:= "numChk(";
-    checkRangeFromZero(number_name, "sizeof(fact)/sizeof(intType)", c_expr);
-    c_expr.expr &:= ")?";
-    c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-    c_expr.expr &:= ":fact[";
-    c_expr.expr &:= number_name;
-    c_expr.expr &:= "])";
+    if getConstant(params[2], INTOBJECT, evaluatedParam) then
+      number := getValue(evaluatedParam, integer);
+      if ccConf.INTTYPE_SIZE = 64 then
+        limit := 20;
+      else
+        limit := 12;
+      end if;
+      if number < 0 or number > limit then
+        warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(!number);
+      end if;
+    else
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "number_", params[2], c_expr);
+      c_expr.expr &:= "numChk(";
+      checkRangeFromZero(number_name, "sizeof(fact)/sizeof(intType)", c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":fact[";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "])";
+    end if;
   end func;
 
 
