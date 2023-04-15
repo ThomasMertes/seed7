@@ -7526,8 +7526,12 @@ const proc: check_power is func
         (-0.0) **                (-4.0) <>  Infinity or
         (-0.0) **                (-3.0) <> -Infinity or
         (-0.0) **                (-2.0) <>  Infinity or
-        (-0.0) **                (-1.0) <> -Infinity or
-        floatExpr(-0.0) **           (-Infinity) <>  Infinity or
+        (-0.0) **                (-1.0) <> -Infinity then
+      writeln(" ***** (-0.0) ** B with negative B does not return Infinity respectively -Infinity. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-0.0) **           (-Infinity) <>  Infinity or
         floatExpr(-0.0) ** (-9007199254740994.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** (-9007199254740993.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** (-9007199254740992.0) <>  Infinity or
@@ -7567,8 +7571,12 @@ const proc: check_power is func
         floatExpr(-0.0) **                (-4.0) <>  Infinity or
         floatExpr(-0.0) **                (-3.0) <> -Infinity or
         floatExpr(-0.0) **                (-2.0) <>  Infinity or
-        floatExpr(-0.0) **                (-1.0) <> -Infinity or
-        (-0.0) ** floatExpr(          -Infinity) <>  Infinity or
+        floatExpr(-0.0) **                (-1.0) <> -Infinity then
+      writeln(" ***** (-0.0) ** B with negative B does not return Infinity respectively -Infinity. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (-0.0) ** floatExpr(          -Infinity) <>  Infinity or
         (-0.0) ** floatExpr(-9007199254740994.0) <>  Infinity or # Not exactly represented
         (-0.0) ** floatExpr(-9007199254740993.0) <>  Infinity or # Not exactly represented
         (-0.0) ** floatExpr(-9007199254740992.0) <>  Infinity or
@@ -7608,8 +7616,12 @@ const proc: check_power is func
         (-0.0) ** floatExpr(               -4.0) <>  Infinity or
         (-0.0) ** floatExpr(               -3.0) <> -Infinity or
         (-0.0) ** floatExpr(               -2.0) <>  Infinity or
-        (-0.0) ** floatExpr(               -1.0) <> -Infinity or
-        floatExpr(-0.0) ** floatExpr(          -Infinity) <>  Infinity or
+        (-0.0) ** floatExpr(               -1.0) <> -Infinity then
+      writeln(" ***** (-0.0) ** B with negative B does not return Infinity respectively -Infinity. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-0.0) ** floatExpr(          -Infinity) <>  Infinity or
         floatExpr(-0.0) ** floatExpr(-9007199254740994.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** floatExpr(-9007199254740993.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** floatExpr(-9007199254740992.0) <>  Infinity or
@@ -7650,7 +7662,7 @@ const proc: check_power is func
         floatExpr(-0.0) ** floatExpr(               -3.0) <> -Infinity or
         floatExpr(-0.0) ** floatExpr(               -2.0) <>  Infinity or
         floatExpr(-0.0) ** floatExpr(               -1.0) <> -Infinity then
-      writeln(" ***** (-0.0) ** B with negative B does not return Infinity respectively -Infinity.");
+      writeln(" ***** (-0.0) ** B with negative B does not return Infinity respectively -Infinity. (4)");
       okay := FALSE;
     end if;
 
@@ -7695,8 +7707,12 @@ const proc: check_power is func
         not isPositiveZero((-0.0) ** 9007199254740992.0) or
         not isPositiveZero((-0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero((-0.0) ** 9007199254740994.0) or # Not exactly represented
-        not isPositiveZero((-0.0) **           Infinity) or
-                           floatExpr(-0.0) **                0.0 <> 1.0 or
+        not isPositiveZero((-0.0) **           Infinity) then
+      writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0. (1)");
+      okay := FALSE;
+    end if;
+
+    if                     floatExpr(-0.0) **                0.0 <> 1.0 or
         not isNegativeZero(floatExpr(-0.0) **                1.0) or
         not isPositiveZero(floatExpr(-0.0) **                2.0) or
         not isNegativeZero(floatExpr(-0.0) **                3.0) or
@@ -7737,8 +7753,12 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740992.0) or
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740994.0) or # Not exactly represented
-        not isPositiveZero(floatExpr(-0.0) **           Infinity) or
-                           (-0.0) ** floatExpr(               0.0) <> 1.0 or
+        not isPositiveZero(floatExpr(-0.0) **           Infinity) then
+      writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0. (2)");
+      okay := FALSE;
+    end if;
+
+    if                     (-0.0) ** floatExpr(               0.0) <> 1.0 or
         not isNegativeZero((-0.0) ** floatExpr(               1.0)) or
         not isPositiveZero((-0.0) ** floatExpr(               2.0)) or
         not isNegativeZero((-0.0) ** floatExpr(               3.0)) or
@@ -7779,8 +7799,12 @@ const proc: check_power is func
         not isPositiveZero((-0.0) ** floatExpr(9007199254740992.0)) or
         not isPositiveZero((-0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero((-0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
-        not isPositiveZero((-0.0) ** floatExpr(          Infinity)) or
-                           floatExpr(-0.0) ** floatExpr(               0.0) <> 1.0 or
+        not isPositiveZero((-0.0) ** floatExpr(          Infinity)) then
+      writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0. (3)");
+      okay := FALSE;
+    end if;
+
+    if                     floatExpr(-0.0) ** floatExpr(               0.0) <> 1.0 or
         not isNegativeZero(floatExpr(-0.0) ** floatExpr(               1.0)) or
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(               2.0)) or
         not isNegativeZero(floatExpr(-0.0) ** floatExpr(               3.0)) or
@@ -7822,7 +7846,7 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(          Infinity)) then
-      writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0.");
+      writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0. (4)");
       okay := FALSE;
     end if;
 
@@ -7866,8 +7890,12 @@ const proc: check_power is func
         0.0 **                (-4.0) <> Infinity or
         0.0 **                (-3.0) <> Infinity or
         0.0 **                (-2.0) <> Infinity or
-        0.0 **                (-1.0) <> Infinity or
-        floatExpr(0.0) **           (-Infinity) <> Infinity or
+        0.0 **                (-1.0) <> Infinity then
+      writeln(" ***** 0.0 ** B with negative B does not return Infinity. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(0.0) **           (-Infinity) <> Infinity or
         floatExpr(0.0) ** (-9007199254740994.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** (-9007199254740993.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** (-9007199254740992.0) <> Infinity or
@@ -7907,8 +7935,12 @@ const proc: check_power is func
         floatExpr(0.0) **                (-4.0) <> Infinity or
         floatExpr(0.0) **                (-3.0) <> Infinity or
         floatExpr(0.0) **                (-2.0) <> Infinity or
-        floatExpr(0.0) **                (-1.0) <> Infinity or
-        0.0 ** floatExpr(          -Infinity) <> Infinity or
+        floatExpr(0.0) **                (-1.0) <> Infinity then
+      writeln(" ***** 0.0 ** B with negative B does not return Infinity. (2)");
+      okay := FALSE;
+    end if;
+
+    if  0.0 ** floatExpr(          -Infinity) <> Infinity or
         0.0 ** floatExpr(-9007199254740994.0) <> Infinity or # Not exactly represented
         0.0 ** floatExpr(-9007199254740993.0) <> Infinity or # Not exactly represented
         0.0 ** floatExpr(-9007199254740992.0) <> Infinity or
@@ -7948,8 +7980,12 @@ const proc: check_power is func
         0.0 ** floatExpr(               -4.0) <> Infinity or
         0.0 ** floatExpr(               -3.0) <> Infinity or
         0.0 ** floatExpr(               -2.0) <> Infinity or
-        0.0 ** floatExpr(               -1.0) <> Infinity or
-        floatExpr(0.0) ** floatExpr(          -Infinity) <> Infinity or
+        0.0 ** floatExpr(               -1.0) <> Infinity then
+      writeln(" ***** 0.0 ** B with negative B does not return Infinity. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(0.0) ** floatExpr(          -Infinity) <> Infinity or
         floatExpr(0.0) ** floatExpr(-9007199254740994.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** floatExpr(-9007199254740993.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** floatExpr(-9007199254740992.0) <> Infinity or
@@ -7990,11 +8026,11 @@ const proc: check_power is func
         floatExpr(0.0) ** floatExpr(               -3.0) <> Infinity or
         floatExpr(0.0) ** floatExpr(               -2.0) <> Infinity or
         floatExpr(0.0) ** floatExpr(               -1.0) <> Infinity then
-      writeln(" ***** 0.0 ** B with negative B does not return Infinity.");
+      writeln(" ***** 0.0 ** B with negative B does not return Infinity. (4)");
       okay := FALSE;
     end if;
 
-   if                      0.0 **                0.0 <> 1.0 or
+    if                     0.0 **                0.0 <> 1.0 or
         not isPositiveZero(0.0 **                1.0) or
         not isPositiveZero(0.0 **                2.0) or
         not isPositiveZero(0.0 **                3.0) or
@@ -8035,8 +8071,12 @@ const proc: check_power is func
         not isPositiveZero(0.0 ** 9007199254740992.0) or
         not isPositiveZero(0.0 ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(0.0 ** 9007199254740994.0) or # Not exactly represented
-        not isPositiveZero(0.0 **           Infinity) or
-                           floatExpr(0.0) **                0.0 <> 1.0 or
+        not isPositiveZero(0.0 **           Infinity) then
+      writeln(" ***** 0.0 ** B with positive B does not return 0.0. (1)");
+      okay := FALSE;
+    end if;
+
+    if                     floatExpr(0.0) **                0.0 <> 1.0 or
         not isPositiveZero(floatExpr(0.0) **                1.0) or
         not isPositiveZero(floatExpr(0.0) **                2.0) or
         not isPositiveZero(floatExpr(0.0) **                3.0) or
@@ -8077,8 +8117,12 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(0.0) ** 9007199254740992.0) or
         not isPositiveZero(floatExpr(0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(floatExpr(0.0) ** 9007199254740994.0) or # Not exactly represented
-        not isPositiveZero(floatExpr(0.0) **           Infinity) or
-                           0.0 ** floatExpr(               0.0) <> 1.0 or
+        not isPositiveZero(floatExpr(0.0) **           Infinity) then
+      writeln(" ***** 0.0 ** B with positive B does not return 0.0. (2)");
+      okay := FALSE;
+    end if;
+
+    if                     0.0 ** floatExpr(               0.0) <> 1.0 or
         not isPositiveZero(0.0 ** floatExpr(               1.0)) or
         not isPositiveZero(0.0 ** floatExpr(               2.0)) or
         not isPositiveZero(0.0 ** floatExpr(               3.0)) or
@@ -8119,8 +8163,12 @@ const proc: check_power is func
         not isPositiveZero(0.0 ** floatExpr(9007199254740992.0)) or
         not isPositiveZero(0.0 ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero(0.0 ** floatExpr(9007199254740994.0)) or # Not exactly represented
-        not isPositiveZero(0.0 ** floatExpr(          Infinity)) or
-                           floatExpr(0.0) ** floatExpr(               0.0) <> 1.0 or
+        not isPositiveZero(0.0 ** floatExpr(          Infinity)) then
+      writeln(" ***** 0.0 ** B with positive B does not return 0.0. (3)");
+      okay := FALSE;
+    end if;
+
+    if                     floatExpr(0.0) ** floatExpr(               0.0) <> 1.0 or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(               1.0)) or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(               2.0)) or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(               3.0)) or
@@ -8162,7 +8210,7 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
         not isPositiveZero(floatExpr(0.0) ** floatExpr(          Infinity)) then
-      writeln(" ***** 0.0 ** B with positive B does not return 0.0.");
+      writeln(" ***** 0.0 ** B with positive B does not return 0.0. (4)");
       okay := FALSE;
     end if;
 
@@ -8192,8 +8240,12 @@ const proc: check_power is func
                         0.0  **                (-1.5) <>  Infinity or
                         0.0  **                (-1.0) <>  Infinity or
                         0.0  **             minusOne  <>  Infinity or
-                        0.0  **                (-0.5) <>  Infinity or
-        floatExpr(     -0.0) **                (-3.0) <> -Infinity or
+                        0.0  **                (-0.5) <>  Infinity then
+      writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(     -0.0) **                (-3.0) <> -Infinity or
         floatExpr(     -0.0) **           minusThree  <> -Infinity or
         floatExpr(     -0.0) **                (-2.5) <>  Infinity or
         floatExpr(     -0.0) **                (-2.0) <>  Infinity or
@@ -8219,9 +8271,13 @@ const proc: check_power is func
         floatExpr(      0.0) **                (-1.5) <>  Infinity or
         floatExpr(      0.0) **                (-1.0) <>  Infinity or
         floatExpr(      0.0) **             minusOne  <>  Infinity or
-        floatExpr(      0.0) **                (-0.5) <>  Infinity or
-                      (-0.0) ** floatExpr(      -3.0) <> -Infinity or
-                      (-0.0) ** floatExpr(minusThree)  <> -Infinity or
+        floatExpr(      0.0) **                (-0.5) <>  Infinity then
+      writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity. (2)");
+      okay := FALSE;
+    end if;
+
+    if                (-0.0) ** floatExpr(      -3.0) <> -Infinity or
+                      (-0.0) ** floatExpr(minusThree) <> -Infinity or
                       (-0.0) ** floatExpr(      -2.5) <>  Infinity or
                       (-0.0) ** floatExpr(      -2.0) <>  Infinity or
                       (-0.0) ** floatExpr(  minusTwo) <>  Infinity or
@@ -8246,8 +8302,12 @@ const proc: check_power is func
                         0.0  ** floatExpr(      -1.5) <>  Infinity or
                         0.0  ** floatExpr(      -1.0) <>  Infinity or
                         0.0  ** floatExpr(  minusOne) <>  Infinity or
-                        0.0  ** floatExpr(      -0.5) <>  Infinity or
-        floatExpr(     -0.0) ** floatExpr(      -3.0) <> -Infinity or
+                        0.0  ** floatExpr(      -0.5) <>  Infinity then
+      writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(     -0.0) ** floatExpr(      -3.0) <> -Infinity or
         floatExpr(     -0.0) ** floatExpr(minusThree) <> -Infinity or
         floatExpr(     -0.0) ** floatExpr(      -2.5) <>  Infinity or
         floatExpr(     -0.0) ** floatExpr(      -2.0) <>  Infinity or
@@ -8274,7 +8334,7 @@ const proc: check_power is func
         floatExpr(      0.0) ** floatExpr(      -1.0) <>  Infinity or
         floatExpr(      0.0) ** floatExpr(  minusOne) <>  Infinity or
         floatExpr(      0.0) ** floatExpr(      -0.5) <>  Infinity then
-      writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity.");
+      writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity. (4)");
       okay := FALSE;
     end if;
 
