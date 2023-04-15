@@ -90,6 +90,9 @@ typedef int (*tp_XChangeProperty) (Display *display, Window window, Atom propert
 typedef int (*tp_XChangeWindowAttributes) (Display *display, Window window,
                                            unsigned long valuemask,
                                            XSetWindowAttributes *attributes);
+typedef int (*tp_XCloseDisplay) (Display *display);
+typedef int (*tp_XConvertSelection) (Display *display, Atom selection, Atom target,
+                                     Atom property, Window requestor, Time time);
 typedef int (*tp_XCopyArea) (Display *display, Drawable src, Drawable dest, GC gc,
                              int src_x, int src_y, unsigned int width, unsigned height,
                              int dest_x, int dest_y);
@@ -163,6 +166,13 @@ typedef int (*tp_XGetKeyboardControl) (Display *display,
 typedef unsigned long (*tp_XGetPixel) (XImage *ximage, int x, int y);
 typedef Status (*tp_XGetWindowAttributes) (Display *display, Window window,
                                            XWindowAttributes *window_attributes_return);
+typedef int (*tp_XGetWindowProperty) (Display  *display, Window window, Atom property,
+                                      long long_offset, long long_length, Bool delete,
+                                      Atom req_type, Atom *actual_type_return,
+                                      int *actual_format_return,
+                                      unsigned long *nitems_return,
+                                      unsigned long *bytes_after_return,
+                                      unsigned char **prop_return);
 typedef Atom (*tp_XInternAtom) (Display *display, const char *atom_name, Bool only_if_exists);
 typedef KeyCode (*tp_XKeysymToKeycode) (Display *display, KeySym keysym);
 typedef int (*tp_XLookupString) (XKeyEvent *event_struct, char *buffer_return,
@@ -248,6 +258,8 @@ static tp_XAllocColorCells        ptr_XAllocColorCells;
 static tp_XBlackPixel             ptr_XBlackPixel;
 static tp_XChangeProperty         ptr_XChangeProperty;
 static tp_XChangeWindowAttributes ptr_XChangeWindowAttributes;
+static tp_XCloseDisplay           ptr_XCloseDisplay;
+static tp_XConvertSelection       ptr_XConvertSelection;
 static tp_XCopyArea               ptr_XCopyArea;
 static tp_XCopyPlane              ptr_XCopyPlane;
 static tp_XCreateBitmapFromData   ptr_XCreateBitmapFromData;
@@ -283,6 +295,7 @@ static tp_XGetImage               ptr_XGetImage;
 static tp_XGetKeyboardControl     ptr_XGetKeyboardControl;
 static tp_XGetPixel               ptr_XGetPixel;
 static tp_XGetWindowAttributes    ptr_XGetWindowAttributes;
+static tp_XGetWindowProperty      ptr_XGetWindowProperty;
 static tp_XInternAtom             ptr_XInternAtom;
 static tp_XKeysymToKeycode        ptr_XKeysymToKeycode;
 static tp_XLookupString           ptr_XLookupString;
@@ -343,6 +356,8 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XBlackPixel             = (tp_XBlackPixel)             dllFunc(x11Dll, "XBlackPixel"))             == NULL ||
             (ptr_XChangeProperty         = (tp_XChangeProperty)         dllFunc(x11Dll, "XChangeProperty"))         == NULL ||
             (ptr_XChangeWindowAttributes = (tp_XChangeWindowAttributes) dllFunc(x11Dll, "XChangeWindowAttributes")) == NULL ||
+            (ptr_XCloseDisplay           = (tp_XCloseDisplay)           dllFunc(x11Dll, "XCloseDisplay"))           == NULL ||
+            (ptr_XConvertSelection       = (tp_XConvertSelection)       dllFunc(x11Dll, "XConvertSelection"))       == NULL ||
             (ptr_XCopyArea               = (tp_XCopyArea)               dllFunc(x11Dll, "XCopyArea"))               == NULL ||
             (ptr_XCopyPlane              = (tp_XCopyPlane)              dllFunc(x11Dll, "XCopyPlane"))              == NULL ||
             (ptr_XCreateBitmapFromData   = (tp_XCreateBitmapFromData)   dllFunc(x11Dll, "XCreateBitmapFromData"))   == NULL ||
@@ -378,6 +393,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XGetKeyboardControl     = (tp_XGetKeyboardControl)     dllFunc(x11Dll, "XGetKeyboardControl"))     == NULL ||
             (ptr_XGetPixel               = (tp_XGetPixel)               dllFunc(x11Dll, "XGetPixel"))               == NULL ||
             (ptr_XGetWindowAttributes    = (tp_XGetWindowAttributes)    dllFunc(x11Dll, "XGetWindowAttributes"))    == NULL ||
+            (ptr_XGetWindowProperty      = (tp_XGetWindowProperty)      dllFunc(x11Dll, "XGetWindowProperty"))      == NULL ||
             (ptr_XInternAtom             = (tp_XInternAtom)             dllFunc(x11Dll, "XInternAtom"))             == NULL ||
             (ptr_XKeysymToKeycode        = (tp_XKeysymToKeycode)        dllFunc(x11Dll, "XKeysymToKeycode"))        == NULL ||
             (ptr_XLookupString           = (tp_XLookupString )          dllFunc(x11Dll, "XLookupString"))           == NULL ||
@@ -544,7 +560,8 @@ int XChangeProperty (Display *display, Window window, Atom property,
 
   /* XChangeProperty */
     logFunction(printf("XChangeProperty(" FMT_U_MEM ", " FMT_U_XID
-                       ", %ld, %ld, %d, %d " FMT_U_MEM ", %d)\n",
+                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", %d, %d " FMT_U_MEM
+                       ", %d)\n",
                        (memSizeType) display, window, property,
                        type, format, mode, (memSizeType) data, nelements););
     funcResult = ptr_XChangeProperty(display, window, property, type,
@@ -572,6 +589,40 @@ int XChangeWindowAttributes (Display *display, Window window,
     logFunction(printf("XChangeWindowAttributes --> %d\n", funcResult););
     return funcResult;
   } /* XChangeWindowAttributes */
+
+
+
+int XCloseDisplay (Display *display)
+
+  {
+    int funcResult;
+
+  /* XCloseDisplay */
+    logFunction(printf("XCloseDisplay(" FMT_U_MEM ")\n",
+                       (memSizeType) display););
+    funcResult = ptr_XCloseDisplay(display);
+    logFunction(printf("XCloseDisplay --> %d\n", funcResult););
+    return funcResult;
+  } /* XCloseDisplay */
+
+
+
+int XConvertSelection (Display *display, Atom selection, Atom target,
+                       Atom property, Window requestor, Time time)
+
+  {
+    int funcResult;
+
+  /* XConvertSelection */
+    logFunction(printf("XConvertSelection(" FMT_U_MEM ", " FMT_U_ATOM
+                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", " FMT_U_XID " %ul)\n",
+                       (memSizeType) display, selection, target,
+                       property, requestor, time););
+    funcResult = ptr_XConvertSelection(display, selection, target,
+                                       property, requestor, time);
+    logFunction(printf("XConvertSelection --> %d\n", funcResult););
+    return funcResult;
+  } /* XConvertSelection */
 
 
 
@@ -1199,6 +1250,40 @@ Status XGetWindowAttributes (Display *display, Window window,
 
 
 
+int XGetWindowProperty (Display  *display, Window window, Atom property,
+                        long long_offset, long long_length, Bool delete,
+                        Atom req_type, Atom *actual_type_return,
+                        int *actual_format_return,
+                        unsigned long *nitems_return,
+                        unsigned long *bytes_after_return,
+                        unsigned char **prop_return)
+
+  {
+    int funcResult;
+
+  /* XGetWindowProperty */
+    logFunction(printf("XGetWindowProperty(" FMT_U_MEM ", " FMT_U_XID
+                       ", " FMT_U_ATOM ", %ld, %ld, %d, " FMT_U_ATOM
+                       ", " FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM
+                       ", " FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, window, property,
+                       long_offset, long_length, (int) delete,
+                       req_type, (memSizeType) actual_type_return,
+                       (memSizeType) actual_format_return,
+                       (memSizeType) nitems_return,
+                       (memSizeType) bytes_after_return,
+                       (memSizeType) prop_return););
+    funcResult = ptr_XGetWindowProperty(display, window, property,
+                                        long_offset, long_length, delete,
+                                        req_type, actual_type_return,
+                                        actual_format_return,nitems_return,
+                                        bytes_after_return, prop_return);
+    logFunction(printf("XGetWindowProperty --> %d\n", funcResult););
+    return funcResult;
+  } /* XGetWindowProperty */
+
+
+
 Atom XInternAtom (Display *display, const char *atom_name,
                   Bool only_if_exists)
 
@@ -1671,8 +1756,8 @@ Status XSetWMProtocols (Display *display, Window window, Atom *protocols,
 
   /* XSetWMProtocols */
     logFunction(printf("XSetWMProtocols(" FMT_U_MEM ", " FMT_U_XID
-                       ", " FMT_U_MEM ", %d)\n",
-                       (memSizeType) display, window, (memSizeType) protocols,
+                       ", " FMT_U_ATOM ", %d)\n",
+                       (memSizeType) display, window, protocols,
                        count););
     status = ptr_XSetWMProtocols(display, window, protocols, count);
     logFunction(printf("XSetWMProtocols --> %d\n", status););

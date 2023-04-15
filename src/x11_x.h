@@ -33,7 +33,9 @@
 #define True   1
 #define False  0
 
-#define None  0L
+#define None             0L
+#define AnyPropertyType  0L
+#define CurrentTime      0L
 
 #define ArcChord     0
 #define ArcPieSlice  1
@@ -140,6 +142,8 @@
 #define WindowGroupHint   64L
 #define AllHints (InputHint|StateHint|IconPixmapHint|IconWindowHint|IconPositionHint|IconMaskHint|WindowGroupHint)
 
+#define PropertyNewValue  0
+
 #define QueuedAlready       0
 #define QueuedAfterReading  1
 #define QueuedAfterFlush    2
@@ -223,6 +227,7 @@
 #define XK_ISO_Prev_Group    0xfe0a
 #define XK_ISO_Left_Tab      0xfe20
 
+#define XK_dead_grave        0xfe50
 #define XK_dead_acute        0xfe51
 #define XK_dead_circumflex   0xfe52
 #define XK_dead_tilde        0xfe53
@@ -335,6 +340,8 @@
 #define XK_Meta_R            0xffe8
 #define XK_Alt_L             0xffe9
 #define XK_Alt_R             0xffea
+#define XK_Super_L           0xffeb
+#define XK_Super_R           0xffec
 
 #define XK_0                 0x0030
 #define XK_1                 0x0031
@@ -538,6 +545,52 @@ typedef struct {
     Bool send_event;
     Display *display;
     Window window;
+    Atom atom;
+    Time time;
+    int state;
+} XPropertyEvent;
+
+typedef struct {
+    int type;
+    unsigned long serial;
+    Bool send_event;
+    Display *display;
+    Window window;
+    Atom selection;
+    Time time;
+} XSelectionClearEvent;
+
+typedef struct {
+    int type;
+    unsigned long serial;
+    Bool send_event;
+    Display *display;
+    Window owner;
+    Window requestor;
+    Atom selection;
+    Atom target;
+    Atom property;
+    Time time;
+} XSelectionRequestEvent;
+
+typedef struct {
+    int type;
+    unsigned long serial;
+    Bool send_event;
+    Display *display;
+    Window requestor;
+    Atom selection;
+    Atom target;
+    Atom property;
+    Time time;
+} XSelectionEvent;
+
+typedef struct {
+    int type;
+    unsigned long serial;
+    Bool send_event;
+    Display *display;
+    Window window;
     Atom message_type;
     int format;
     union {
@@ -554,6 +607,10 @@ typedef union _XEvent {
     XExposeEvent xexpose;
     XClientMessageEvent xclient;
     XConfigureEvent xconfigure;
+    XPropertyEvent xproperty;
+    XSelectionClearEvent xselectionclear;
+    XSelectionRequestEvent xselectionrequest;
+    XSelectionEvent xselection;
     XMappingEvent xmapping;
     long pad[24];
   } XEvent;
@@ -604,6 +661,13 @@ extern int XChangeWindowAttributes (Display *display,
                                     Window window,
                                     unsigned long valuemask,
                                     XSetWindowAttributes *attributes);
+extern int XCloseDisplay (Display *display);
+extern int XConvertSelection (Display *display,
+                              Atom selection,
+                              Atom target,
+                              Atom property,
+                              Window requestor,
+                              Time time);
 extern int XCopyArea (Display *display,
                       Drawable src,
                       Drawable dest,
@@ -769,6 +833,18 @@ extern unsigned long XGetPixel (XImage *ximage,
 extern Status XGetWindowAttributes (Display *display,
                                     Window window,
                                     XWindowAttributes *window_attributes_return);
+extern int XGetWindowProperty (Display  *display,
+                               Window window,
+                               Atom property,
+                               long long_offset,
+                               long long_length,
+                               Bool delete,
+                               Atom req_type,
+                               Atom *actual_type_return,
+                               int *actual_format_return,
+                               unsigned long *nitems_return,
+                               unsigned long *bytes_after_return,
+                               unsigned char **prop_return);
 extern Atom XInternAtom (Display *display,
                          const char *atom_name,
                          Bool only_if_exists);
