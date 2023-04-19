@@ -36,9 +36,11 @@
 #include "common.h"
 #include "data.h"
 #include "syvarutl.h"
+#include "striutl.h"
 #include "traceutl.h"
 #include "objutl.h"
 #include "runerr.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -126,6 +128,9 @@ objectType enu_genlit (listType arguments)
 
   /* enu_genlit */
     enum_to = arg_1(arguments);
+    logFunction(printf("enu_genlit(");
+                trace1(enum_to);
+                printf(")\n"););
     SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
     enum_to->value.objValue = NULL;
     return SYS_EMPTY_OBJECT;
@@ -167,6 +172,43 @@ objectType enu_iconv2 (listType arguments)
     } /* if */
     return result;
   } /* enu_iconv2 */
+
+
+
+objectType enu_lit (listType arguments)
+
+  {
+    objectType enum_value;
+    const_cstriType name8;
+    striType name;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType literalName;
+
+  /* enu_lit */
+    logFunction(printf("enu_lit(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
+    isit_enum(arg_1(arguments));
+    enum_value = take_enum(arg_1(arguments));
+    if (HAS_ENTITY(enum_value) &&
+        GET_ENTITY(enum_value)->ident != NULL) {
+      name8 = (const_cstriType) GET_ENTITY(enum_value)->ident->name;
+      if (name8 == NULL) {
+        literalName = raise_exception(SYS_RNG_EXCEPTION);
+      } else {
+        name = cstri8_to_stri(name8, &err_info);
+        if (unlikely(name == NULL)) {
+          raise_error(err_info);
+          literalName = NULL;
+        } else {
+          literalName = bld_stri_temp(name);
+        } /* if */
+      } /* if */
+    } else {
+      literalName = raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return literalName;
+  } /* enu_lit */
 
 
 

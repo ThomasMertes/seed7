@@ -556,7 +556,6 @@ typedef int errInfoType;
 #define DESTROY_ERROR   9
 #define COPY_ERROR      9
 #define IN_ERROR        9
-#define VALUE_ERROR     9
 
 
 #if HAS_SIGSETJMP

@@ -1071,6 +1071,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
     const func boolean: (in enumType: enum1) = (in enumType: enum2)  is action "ENU_EQ";
     const func boolean: (in enumType: enum1) <> (in enumType: enum2) is action "ENU_NE";
+    const func string: literal (in enumType: enumValue)              is action "ENU_LIT";
     const func enumType: getValue(in reference: aReference,
                                   attr enumType)                     is action "ENU_VALUE";
     const func enumType: ICONV2(in integer: number,

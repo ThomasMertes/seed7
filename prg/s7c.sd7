@@ -2477,6 +2477,32 @@ const proc: process_library_initialisation (in reference: current_object,
   end func;
 
 
+const proc: declare_exception_name (inout expr_type: c_expr) is func
+
+  local
+    var reference: exceptionRef is NIL;
+    var type: enumType is void;
+    var number_element_hash: enumsByIntValue is number_element_hash.value;
+    var integer: intValueOfEnum is 0;
+    var reference: enumLiteral is NIL;
+  begin
+    exceptionRef := sysVar(prog, "memory_error");
+    enumType := getType(exceptionRef);
+    c_expr.expr &:=  "static const char *exception_name[] = {\n";
+    c_expr.expr &:=  "    \"OKAY_NO_ERROR\",\n";
+    enumsByIntValue := flip(enum_literal[enumType]);
+    # Sort by integer values to always produce the same C code
+    for intValueOfEnum range sort(keys(enumsByIntValue)) do
+      # If the enums are correct there will only be one per integer value
+      enumLiteral := enumsByIntValue[intValueOfEnum][1];
+      c_expr.expr &:= "    ";
+      c_expr.expr &:= c_literal(str(enumLiteral));
+      c_expr.expr &:= ",\n";
+    end for;
+    c_expr.expr &:=  "  };\n\n";
+  end func;
+
+
 const proc: process_main_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -2503,6 +2529,7 @@ const proc: process_main_declaration (in reference: current_object,
         c_expr.temp_num := c_func_body.temp_num;
       end if;
     end if;
+    declare_exception_name(c_expr);
     c_expr.currentFile := file(current_object);
     c_expr.currentLine := line(current_object);
     if ccConf.USE_WMAIN then
@@ -4084,6 +4111,57 @@ const proc: process_dynamic_declaration (in reference: current_object,
   end func;
 
 
+const proc: declare_literal_function_of_enum (in type: enumType,
+    inout expr_type: c_expr) is func
+
+  local
+    var number_element_hash: enumsByIntValue is number_element_hash.value;
+    var integer: intValueOfEnum is 0;
+    var reference: enumLiteral is NIL;
+  begin
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "static striType lit_";
+    c_expr.expr &:= str(typeNumber(enumType));
+    c_expr.expr &:= " (";
+    c_expr.expr &:= type_name(enumType);
+    c_expr.expr &:= " enumValue)\n";
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "switch (enumValue) {\n";
+    enumsByIntValue := flip(enum_literal[enumType]);
+    # Sort by integer values to always produce the same C code
+    for intValueOfEnum range sort(keys(enumsByIntValue)) do
+      # If the enums are correct there will only be one per integer value
+      enumLiteral := enumsByIntValue[intValueOfEnum][1];
+      c_expr.expr &:= diagnosticLine(enumLiteral);
+      c_expr.expr &:= "case ";
+      c_expr.expr &:= str(intValueOfEnum);
+      c_expr.expr &:= ": return ";
+      c_expr.expr &:= stringLiteral(str(enumLiteral));
+      c_expr.expr &:= "; break;\n";
+    end for;
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "default: ";
+    c_expr.expr &:= raiseError("RANGE_ERROR");
+    c_expr.expr &:= " return NULL; break;\n";
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "\n";
+  end func;
+
+
+const proc: declare_literal_function_of_enums (inout expr_type: c_expr) is func
+  local
+    var type: enumType is void;
+  begin
+    for key enumType range enum_literal do
+      if enumType in literal_function_of_enum_used then
+        declare_literal_function_of_enum(enumType, c_expr);
+      end if;
+    end for;
+  end func;
+
+
 const proc: process_hashcode (in reference: current_object, inout expr_type: c_expr) is func
 
   local
@@ -5417,24 +5495,6 @@ const proc: write_file_head is func
     writeln(c_prog, "#define DESTROY_ERROR  11");
     writeln(c_prog, "#define COPY_ERROR     12");
     writeln(c_prog, "#define IN_ERROR       13");
-    writeln(c_prog, "#define VALUE_ERROR    14");
-    writeln(c_prog, "static const char *exception_name[] = {");
-    writeln(c_prog, "    \"OKAY_NO_ERROR\",");
-    writeln(c_prog, "    \"MEMORY_ERROR\",");
-    writeln(c_prog, "    \"NUMERIC_ERROR\",");
-    writeln(c_prog, "    \"OVERFLOW_ERROR\",");
-    writeln(c_prog, "    \"RANGE_ERROR\",");
-    writeln(c_prog, "    \"INDEX_ERROR\",");
-    writeln(c_prog, "    \"FILE_ERROR\",");
-    writeln(c_prog, "    \"DATABASE_ERROR\",");
-    writeln(c_prog, "    \"GRAPHIC_ERROR\",");
-    writeln(c_prog, "    \"ACTION_ERROR\",");
-    writeln(c_prog, "    \"CREATE_ERROR\",");
-    writeln(c_prog, "    \"DESTROY_ERROR\",");
-    writeln(c_prog, "    \"COPY_ERROR\",");
-    writeln(c_prog, "    \"IN_ERROR\",");
-    writeln(c_prog, "    \"VALUE_ERROR\",");
-    writeln(c_prog, "  };");
     writeln(c_prog, ccConf.MACRO_DEFS);
     writeln(c_prog, "#define ovfChk(x) unlikely(x)");
     writeln(c_prog, "#define divChk(x) unlikely(x)");
@@ -6983,7 +7043,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
       c_expr.expr &:= "    printf(\"\\n*** Uncaught exception \");\n";
       c_expr.expr &:= "  } else {\n";
-      c_expr.expr &:= "    printf(\"\\n*** Caught exception \");\n";
+      c_expr.expr &:= "    printf(\"\\n*** Exception \");\n";
       c_expr.expr &:= "  }\n";
       c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
       c_expr.expr &:= "    printf(\"%s\", exception_name[fail_value]);\n";
@@ -7103,6 +7163,7 @@ const proc: process_global_declarations (in program: prog) is func
     declare_rtlRaiseError(c_expr);
     declare_raise_error2(c_expr);
     process_dynamic_decisions(c_expr);
+    declare_literal_function_of_enums(c_expr);
     declare_missing_create_declarations(c_expr);
     declare_missing_destr_declarations(c_expr);
     initCaseLabels(c_expr);
