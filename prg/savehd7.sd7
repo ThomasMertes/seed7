@@ -40,11 +40,8 @@ const type: phaseType is new enum
     NONE, COPY, REREAD, IMPROVE, EXAMINE, FIX, DONE
   end enum;
 
-const array string: phaseTypeStr is []
-    ("none", "copy", "reread", "improve", "examine", "fix", "done");
-
 const func string: str (in phaseType: phase) is
-  return phaseTypeStr[succ(ord(phase))];
+  return lower(literal(phase));
 
 const func phaseType: (attr phaseType) parse (in string: stri) is func
   result

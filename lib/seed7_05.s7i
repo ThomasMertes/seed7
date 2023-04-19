@@ -492,12 +492,6 @@ const func boolean: (attr boolean) parse (in string: stri) is func
 
 const string: str (in void: aVoid) is "empty";
 
-const func string: str (in boolean: aBool) is
-    return aBool ? "TRUE" : "FALSE";
-
-const func string: literal (in boolean: aBool) is
-    return str(aBool);
-
 (* Procedure literal from char *)
 
 const func string: literal (in char: ch) is func

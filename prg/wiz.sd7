@@ -45,7 +45,7 @@ const type: speciesType is new enum
   end enum;
 
 const func string: str (in speciesType: species) is
-  return [] ("hobbit", "elf", "human", "dwarf")[succ(ord(species))];
+  return lower(literal(species));
 
 enable_output(speciesType);
 
@@ -55,7 +55,7 @@ const type: directType is new enum
   end enum;
 
 const func string: str (in directType: direct) is
-  return [] ("north", "south", "east", "west", "up", "down")[succ(ord(direct))];
+  return lower(literal(direct));
 
 enable_output(directType);
 
@@ -86,9 +86,7 @@ const type: animateType is new enum
   end enum;
 
 const func string: str (in animateType: anAnimate) is
-  return [] ("nobody", "kobold", "orc", "wolf", "goblin", "ogre", "troll",
-             "bear", "minotaur", "gargoyle", "chimera", "balrog", "dragon",
-             "vendor")[succ(ord(anAnimate))];
+  return lower(literal(anAnimate));
 
 enable_output(animateType);
 

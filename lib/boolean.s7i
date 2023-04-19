@@ -255,7 +255,7 @@ const proc: decr (inout boolean: boolValue) is func
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: str (in boolean: aBool) is forward;
+const func string: str (in boolean: aBool)                               is action "ENU_LIT";
 
 
 (**
@@ -265,7 +265,7 @@ const func string: str (in boolean: aBool) is forward;
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: literal (in boolean: aBool) is forward;
+const func string: literal (in boolean: aBool)                           is action "ENU_LIT";
 
 
 (**

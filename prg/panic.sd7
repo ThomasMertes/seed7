@@ -61,11 +61,7 @@ const type: holeType is new enum
   end enum;
 
 const func string: str (in holeType: aHole) is
-  return [](
-    "no_hole", "hole_depth1", "hole_depth2", "hole_depth3", "hole_depth4", "hole_finished",
-    "hole_part", "hole_unfinished", "hole_bottom", "hole_entering", "hole_leaving",
-    "hole_filled", "hole_pound1", "hole_pound2", "hole_pound3", "hole_pound4", "hole_pounded"
-  )[succ(ord(aHole))];
+  return literal(aHole);
 
 enable_output(holeType);
 
