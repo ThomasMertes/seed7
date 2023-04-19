@@ -139,7 +139,7 @@ const proc: process (ENU_LIT, in reference: function,
   local
     var type: enumType is void;
   begin
-    enumType := getType(params[1]);
+    enumType := getType(formalParams(function)[1]);
     if enumType not in literal_function_of_enum_used then
       global_c_expr.expr &:= "static striType lit_";
       global_c_expr.expr &:= str(typeNumber(enumType));
