@@ -288,40 +288,24 @@ const proc: process_inline_func (in reference: function,
       c_expr.result_expr &:= "\n";
       c_expr.result_expr &:= diagnosticLine;
       c_expr.result_expr &:= "/* ";
-      if isVarfunc(function_type) then
-        c_expr.result_expr &:= "var";
-      end if;
       c_expr.result_expr &:= "inline func o_";
       create_name2(function, c_expr.result_expr);
       c_expr.result_expr &:= " */ ";
-      if isVarfunc(function_type) then
-        c_expr.result_expr &:= "*";
-      end if;
       c_expr.result_expr &:= "((";
       c_expr.result_expr &:= type_name(result_type);
-      if isVarfunc(function_type) then
-        c_expr.result_expr &:= " *";
-      end if;
       c_expr.result_expr &:= ")(\n";
       c_expr.result_expr &:= inline_decls.expr;
-      # c_expr.result_decl &:= inline_body.result_decl;
-      # c_expr.result_free &:= inline_body.result_free;
-      # c_expr.result_to_null &:= inline_body.result_to_null;
+      c_expr.result_decl := inline_body.result_decl;
+      c_expr.result_free := inline_body.result_free;
+      c_expr.result_to_null := inline_body.result_to_null;
+      c_expr.result_intro := inline_body.result_intro;
+      c_expr.result_finish := inline_body.result_finish;
       c_expr.result_expr &:= diagnosticLine;
-      if isVarfunc(function_type) then
-        c_expr.result_expr &:= "&(";
-        c_expr.result_expr &:= inline_body.expr;
-        c_expr.result_expr &:= ")";
-      else
-        c_expr.result_expr &:= inline_body.result_expr;
-      end if;
+      c_expr.result_expr &:= inline_body.result_expr;
       c_expr.result_expr &:= "\n";
       pop_inline_func_params(formal_params, c_expr.result_expr);
       c_expr.result_expr &:= diagnosticLine;
       c_expr.result_expr &:= ")) /* ";
-      if isVarfunc(function_type) then
-        c_expr.result_expr &:= "var";
-      end if;
       c_expr.result_expr &:= "inline func o_";
       create_name2(function, c_expr.result_expr);
       c_expr.result_expr &:= " */\n";
