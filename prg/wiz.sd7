@@ -96,7 +96,7 @@ const type: armorType is new enum
   end enum;
 
 const func string: str (in armorType: anArmor) is
-  return [] ("no", "leather", "chainmail", "plate") [succ(ord(anArmor))];
+  return anArmor = NOARMOR ? "no" : lower(literal(anArmor));
 
 enable_output(armorType);
 
@@ -106,7 +106,7 @@ const type: weaponType is new enum
   end enum;
 
 const func string: str (in weaponType: aWeapon) is
-  return [] ("no", "dagger", "mace", "sword") [succ(ord(aWeapon))];
+  return aWeapon = NOWEAPON ? "no" : lower(literal(aWeapon));
 
 enable_output(weaponType);
 
