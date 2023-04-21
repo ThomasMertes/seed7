@@ -362,6 +362,8 @@ const func boolean: isDerived (in type: aType)                    is action "TYP
 const func type: meta (in type: aType)                            is action "TYP_META";
 const proc: addInterface (in type: aType, in type: interfaceType) is action "TYP_ADDINTERFACE";
 
+DECLARE_TERNARY(type);
+
 
 (* IF *)
 
@@ -1138,6 +1140,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
 
     FOR_DECLS(enumType);  (* Necessary for this is <= < >= > *)
     FOR_ENUM_DECLS(enumType);
+    DECLARE_TERNARY(enumType);
     CASE_DECLS(enumType);
     SUBRANGE_TYPES(enumType);
     end global;

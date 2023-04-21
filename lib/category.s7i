@@ -179,4 +179,5 @@ const proc: for (inout category: forVar) range (in category: startValue) downto 
             end for                                                     is action "PRC_FOR_DOWNTO";
 
 
+DECLARE_TERNARY(category);
 CASE_DECLS(category);
