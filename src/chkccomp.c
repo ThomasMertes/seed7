@@ -7720,7 +7720,7 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
   {
-    const char *dbVersion[] = {"13", "12", "11", "10",
+    const char *dbVersion[] = {"15", "14", "13", "12", "11", "10",
                                "9.6", "9.5", "9.4", "9.3",
                                "9.2", "9.1", "9.0", "8.4", "8.3"};
 #ifdef POSTGRESQL_LIBS
