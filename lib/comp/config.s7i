@@ -44,6 +44,7 @@ var boolean: inlineFunctions         is FALSE;
 var boolean: structFreelist          is FALSE;
 var boolean: modDividendOptimization is FALSE;
 var boolean: reduceOverflowChecks    is FALSE;
+var boolean: optimizeComparisons     is FALSE;
 var boolean: declare_with_extern_c   is FALSE;
 var boolean: generate_c_plus_plus    is FALSE;
 
@@ -88,6 +89,7 @@ const proc: setOptimizationSettings (in integer: evaluate_const_expr) is func
     structFreelist          := evaluate_const_expr >= 3;
     modDividendOptimization := evaluate_const_expr >= 3;
     reduceOverflowChecks    := evaluate_const_expr >= 3;
+    optimizeComparisons     := evaluate_const_expr >= 3;
   end func;
 
 

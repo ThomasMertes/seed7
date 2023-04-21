@@ -2583,12 +2583,38 @@ const proc: process (INT_DIV, in reference: function,
 const proc: process (INT_EQ, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") == (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.minValue = number1Range.maxValue and
+            number2Range.minValue = number2Range.maxValue and
+            number1Range.minValue = number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, "=", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.maxValue < number2Range.minValue or
+            number1Range.minValue > number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, "=", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") == (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -2631,24 +2657,70 @@ const proc: process (INT_FACT, in reference: function,
 const proc: process (INT_GE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") >= (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.minValue >= number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, ">=", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.maxValue < number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, ">=", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") >= (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
 const proc: process (INT_GT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") > (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.minValue > number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, ">", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.maxValue <= number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, ">", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") > (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -2735,12 +2807,35 @@ const proc: process (INT_INCR, in reference: function,
 const proc: process (INT_LE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") <= (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.maxValue <= number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<=", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.minValue > number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<=", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") <= (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -3134,12 +3229,35 @@ const proc: process (INT_LSHIFT_ASSIGN, in reference: function,
 const proc: process (INT_LT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") < (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.maxValue < number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.minValue >= number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") < (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -4698,12 +4816,38 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
 const proc: process (INT_NE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var intRange: number1Range is intRange.value;
+    var intRange: number2Range is intRange.value;
+    var boolean: doCompare is TRUE;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") != (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if optimizeComparisons then
+      number1Range := getIntRange(params[1]);
+      number2Range := getIntRange(params[3]);
+      if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
+        if number1Range.maxValue < number2Range.minValue or
+            number1Range.minValue > number2Range.maxValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<>", TRUE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "1";
+          doCompare := FALSE;
+        elsif number1Range.minValue = number1Range.maxValue and
+            number2Range.minValue = number2Range.maxValue and
+            number1Range.minValue = number2Range.minValue then
+          warning(COMPARISON_RESULT_CONSTANT, "<>", FALSE, c_expr);
+          incr(countOptimizations);
+          c_expr.expr &:= "0";
+          doCompare := FALSE;
+        end if;
+      end if;
+    end if;
+    if doCompare then
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") != (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
