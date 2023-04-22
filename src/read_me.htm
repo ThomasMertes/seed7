@@ -87,6 +87,16 @@ a.op_no_ul:link    { color: blue; text-decoration: none }
 a.op_no_ul:hover   { color: orange; text-decoration: underline }
 a.op_no_ul:active  { color: green; text-decoration: underline }
 
+a.comment:visited { color: green; text-decoration: none }
+a.comment:link    { color: green; text-decoration: none }
+a.comment:hover   { color: darkgreen; text-decoration: underline }
+a.comment:active  { color: blue; text-decoration: underline }
+
+a.stri:visited { color: maroon; text-decoration: none }
+a.stri:link    { color: maroon; text-decoration: none }
+a.stri:hover   { color: brown; text-decoration: underline }
+a.stri:active  { color: blue; text-decoration: underline }
+
 a.lib:visited { color: maroon; text-decoration: underline }
 a.lib:link    { color: maroon; text-decoration: underline }
 a.lib:hover   { color: blue }
@@ -1509,6 +1519,9 @@ freeUtf16Argv (both defined in "cmd_win.c").</td></tr>
 
 <tr><td valign="top">USE_WINMAIN: </td><td>Defined if the main function is named WinMain.</td></tr>
 
+<tr><td valign="top">USE_DO_EXIT: </td><td>TRUE if the main function must be terminated
+with doExit().</td></tr>
+
 <tr><td valign="top">SEARCH_PATH_DELIMITER: </td><td>The paths in the PATH environment
 variable are separated with this
 character. Linux/Unix/BSD use ':' and
@@ -1714,27 +1727,58 @@ writes its version info.</td></tr>
 C compiler. In that case LINKER contains the command to
 call the stand-alone linker.</td></tr>
 
-<tr><td valign="top">LINKER_FLAGS: </td><td>Contains options for the stand-alone linker to link
-a compiled Seed7 program.</td></tr>
+<tr><td valign="top">LINKER_FLAGS:</td><td>
+Standard linker options to link a compiled program.
+This contains options, that the linker always uses, and which
+are not covered by other LINKER_OPT_... settings.</td></tr>
 
-<tr><td valign="top">LINKER_OPT_DEBUG_INFO: </td><td>Contains the linker option to add source
-level debugging information to the
-executable file. Many compiler/linker
-combinations don't need this option
+<tr><td valign="top">LINKER_OPT_DEBUG_INFO:</td><td>
+Linker option to add source level debugging information.
+With this option source level debugging information is
+added to the executable file. (e.g.: "-Z7" or "-v").
+Many compiler/linker combinations don't need this option
 to do source level debugging.</td></tr>
 
-<tr><td valign="top">LINKER_OPT_NO_DEBUG_INFO: </td><td>Linker option to be used without
-source level debugging. This option
-can strip debug information (e.g.:
-"-Wl,--strip-debug").</td></tr>
+<tr><td valign="top">LINKER_OPT_LTO_MANDATORY:</td><td>
+TRUE if linking always requires the option
+CC_OPT_LINK_TIME_OPTIMIZATION.</td></tr>
 
-<tr><td valign="top">LINKER_OPT_OUTPUT_FILE: </td><td>Contains the linker option to provide the
-output filename (e.g.: "-o "). If no
-such option exists the definition of
-LINKER_OPT_OUTPUT_FILE should be omitted.</td></tr>
+<tr><td valign="top">LINKER_OPT_NO_DEBUG_INFO:</td><td>
+Linker option to be used without source level debugging.
+This option can strip debug information (e.g.: "-Wl,--strip-debug").</td></tr>
 
-<tr><td valign="top">LINKER_OPT_STATIC_LINKING: </td><td>Contains the linker option to force
+<tr><td valign="top">LINKER_OPT_OUTPUT_FILE:</td><td>
+Linker option to provide the output filename (e.g.: "-o ").
+If no such option exists the definition of
+LINKER_OPT_OUTPUT_FILE is omitted. In this
+case it is assumed that the linker replaces the
+OBJECT_FILE_EXTENSION of the file with the
+LINKED_PROGRAM_EXTENSION.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_SPECIAL_LIB:</td><td>
+Linker option that needs to precede the special library.
+If no special library exists the definition of
+LINKER_OPT_SPECIAL_LIB is omitted.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_STACK_SIZE:</td><td>
+Linker option to specify the stack size of the executable.
+The argument for LINKER_OPT_STACK_SIZE is the stack size in
+bytes as decimal number. It must follow LINKER_OPT_STACK_SIZE
+immediately. The Seed7 compiler uses an argument of either
+DEFAULT_STACK_SIZE or the value specified with the -S Seed7
+compiler option. If no linker option for the stack size exists
+the definition of LINKER_OPT_STACK_SIZE is omitted.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_STATIC_LINKING:</td><td>
+Contains the linker option to force
 static linking (e.g.: "-static").</td></tr>
+
+<tr><td valign="top">DEFAULT_STACK_SIZE:</td><td>
+Default stack size for a compiled executable.
+This value is used, if the Seed7 compiler is invoked without -S.
+If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
+as argument for the stack size. Additionally DEFAULT_STACK_SIZE
+is used as argument for setupStack().</td></tr>
 
 <tr><td valign="top">POTENTIAL_PARTIAL_LINKING_OPTIONS:</td><td>
 A comma separated list of potential partial/incremental linking options.
@@ -1850,13 +1894,13 @@ empty expression.</td></tr>
 <tr><td valign="top">MACRO_DEFS: </td><td>String with macro definitions for likely, unlikely
 and NORETURN.</td></tr>
 
-<tr><td valign="top">NO_SOCKETS Defined as -1. The meaning is: </td><td>There is no socket
+<tr><td valign="top">NO_SOCKETS: </td><td>Defined as -1. The meaning is: There is no socket
 library.</td></tr>
 
-<tr><td valign="top">UNIX_SOCKETS Defined as 1. The meaning is: </td><td>The operating system
+<tr><td valign="top">UNIX_SOCKETS: </td><td>Defined as 1. The meaning is: The operating system
 uses Unix sockets.</td></tr>
 
-<tr><td valign="top">WINSOCK_SOCKETS Defined as 2. The meaning is: </td><td>The operating system
+<tr><td valign="top">WINSOCK_SOCKETS: </td><td>Defined as 2. The meaning is: The operating system
 uses Windows sockets.</td></tr>
 
 <tr><td valign="top">SOCKET_LIB: </td><td>Defines the socket library used. The value is one of
@@ -2368,6 +2412,18 @@ not 1.0 (pow(1.0, NaN) should return 1.0).</td></tr>
 <tr><td valign="top">POW_EXP_MINUS_INFINITY_OKAY: </td><td>TRUE if the pow() function works
 correct for an exponent of minus
 infinity.</td></tr>
+
+<tr><td valign="top">STRTOD_ACCEPTS_INF: </td><td>TRUE if strtod() accepts "INF"
+disregarding case and returns Infinity.</td></tr>
+
+<tr><td valign="top">STRTOD_ACCEPTS_INFINITY: </td><td>TRUE if strtod() accepts "INFINITY"
+disregarding case and returns Infinity.</td></tr>
+
+<tr><td valign="top">STRTOD_ACCEPTS_NAN: </td><td>TRUE if strtod() accepts "NAN"
+disregarding case  and returns NaN.</td></tr>
+
+<tr><td valign="top">STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS: </td><td>TRUE if strtod() accepts "+"
+or "-" as numeric literal.</td></tr>
 
 <tr><td valign="top">LOG_OF_NAN_OKAY: </td><td>TRUE if log(NaN) returns NaN.</td></tr>
 

@@ -76,7 +76,7 @@ void rflAppend (listType *const dest, const listType extension)
  *  Concatenate two ref_lists ('list1' and 'list2').
  *  The parameters 'list1' and 'list2' must be a temporaries
  *  (that would be deleted afterwards). If they are not temporaries
- *  a copy of the parameter must be provided to rflAppend.
+ *  a copy of the parameter must be provided to rflCat.
  *  @return the result of the concatenation.
  */
 listType rflCat (listType list1, const listType list2)

@@ -21,7 +21,7 @@ programming languages:
  - Seed7 has abstract data types. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
    abstract data types written in Seed7. User defined abstract data
-   types are also possible.
+   types are possible as well .
  - The object orientation of Seed7 allows multiple dispatch. That
    means that a function or method is connected to more than one type.
  - Seed7 is a syntactically and semantically extensible language:
@@ -68,6 +68,12 @@ The design principles are:
    Seed7 has a well defined behavior in all situations.
    Undefined behavior like in C does not exist.
 
+ - Overloading:
+   Functions, operators and statements are not only identified
+   by identifiers but also via the types of their parameters.
+   This allows overloading the same identifier for different
+   purposes.
+
  - Extensibility:
    Every programmer can define new statements and operators. This
    includes new operator symbols. Even the syntax and semantics
@@ -80,11 +86,11 @@ The design principles are:
  - Multiple dispatch:
    A method is not attached to one object (this). Instead it can
    be connected to several objects. This works analog to the
-   overloading of operators.
+   overloading of functions.
 
  - Performance:
    Seed7 is designed to allow compilation to efficient machine
-   code. Several high level optimizations are done also.
+   code. Several high level optimizations are also done.
 
  - No virtual machine:
    Seed7 is based on the executables of the operating system.
@@ -106,11 +112,11 @@ The design principles are:
    IDEs are great, but some programming languages have been
    designed in a way that makes it hard to use them without
    IDE. Programming language features should be designed in a way
-   that makes it possible to work also with a simple text editor.
+   that makes it possible to work with a simple text editor.
 
  - Minimal dependency on external tools:
    To compile Seed7 you just need a C compiler and a make utility.
-   The Seed7 libraries avoid calling external tools also.
+   The Seed7 libraries avoid calling external tools as well.
 
  - Comprehensive libraries:
    The libraries of Seed7 cover many areas.
@@ -216,7 +222,7 @@ should be no need to call foreign C functions, or to execute shell
  - A database library provides a database independent API to connect
    to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
    Db2, Informix and SQL Server databases. The ODBC interface can be
-   used also.
+   used as well.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory access and modification times also
@@ -228,10 +234,10 @@ Which license does Seed7 use?
 
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
 The s7 interpreter and the example programs (extension .sd7) are under the
-GPL (General Public License, see also the file COPYING).
+GPL (General Public License, seen in the file COPYING).
 
 The Seed7 runtime library is under the LGPL (Lesser General Public License,
-see also the file LGPL). The Seed7 include files (extension .s7i) are a part
+seen in the file LGPL). The Seed7 include files (extension .s7i) are a part
 of the Seed7 runtime library.
 
 Seed7 allows the interpretation and compilation of programs with any license.
@@ -340,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2023-03-05 the number of lines is:
+than 300000 lines of Seed7. For version 2023-04-22 the number of lines is:
 
-  175995  C source files (*.c)
-   13102  C header files (*.h)
-  220940  Seed7 source files (*.sd7)
-  175731  Seed7 library/include files (*.s7i)
+  176625  C source files (*.c)
+   13192  C header files (*.h)
+  221470  Seed7 source files (*.sd7)
+  175972  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -370,7 +376,7 @@ Seed7 runs on the following operating systems:
     - clang
     - icc
     - tcc
- - Unix (I used Seed7 also under various Unix variants, so it is probably
+ - Unix (I also used Seed7 under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)
  - BSD (there is a FreeBSD port and an OpenBSD port)
  - Windows is supported with the following compilers:
@@ -448,7 +454,7 @@ It is strongly recommended to use the latest version.
 An installer for Windows can be found in the directory bin.
 Other executables are also in the bin directory.
 
-Seed7 is now also available at GitHub. You can use the command:
+Seed7 is now available at GitHub as well. You can use the command:
 
   git clone https://github.com/ThomasMertes/seed7.git
 
@@ -471,8 +477,8 @@ you need to uncompress the file first with 'gunzip':
   $ tar -xvf seed7_05_yyyymmdd.tar
 
 Sometimes the browser downloads a *.gz file instead of a *.tgz file.
-In that case you could also use 'gunzip' as shown above. As
-an alternative you can also use 'zcat':
+In that case, you could also use 'gunzip' as shown above. As
+an alternative, you can also use 'zcat':
 
   $ zcat seed7_05_yyyymmdd.gz > seed7.tar
   $ tar -xvf seed7.tar
@@ -575,7 +581,7 @@ I don't know the name of this package in your distribution
 (under Ubuntu it has the name libncurses5-dev), but you
 can search in your package manager for a curses/ncurses
 package which mentions that it contains the header files.
-To execute programs you need also to install the non-developer
+To execute programs you also need to install the non-developer
 package of curses/ncurses (in most cases it will already
 be installed because it is needed by other packages).
 
@@ -647,7 +653,7 @@ type:
 The program 'chk_all' uses several check programs to do its
 work. First a check program is interpreted and the output
 is compared to a reference. Then the program is compiled and
-executed and this output is also checked. Finally the C code
+executed, and this output is also checked. Finally, the C code
 generated by the compiled compiler is checked against the C
 code generated by the interpreted compiler. The checks of
 the compiler are repeated with several compiler options. If
@@ -780,7 +786,9 @@ is not intended for human readers. The Seed7 compiler can be called with:
 Possible options are
 
   -?   Write Seed7 compiler usage.
-  -O and -O2  Tell the C compiler to optimize.
+  -On  Tell the C compiler to optimize with level n (n is between 1 and 3).
+  -O   Equivalent to -O1
+  -S   Specify the stack size of the executable (e.g.: -S 16777216).
   -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).
   -c   Specify configuration (C compiler, etc.) to be used (e.g.: -c emcc).
   -e   Generate code which sends a signal, if an uncaught exception occurs.
@@ -791,7 +799,7 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option -g-debug_c can be used.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
-  -ocn Optimize constants with level n. E.g.: -oc3
+  -ocn Optimize generated C code with level n. E.g.: -oc3
        The level n is a digit between 0 and 3:
          0 Do no optimizations with constants.
          1 Use literals and named constants to simplify expressions (default).
@@ -830,6 +838,14 @@ Syntax highlighting is available for several editors:
      cp seed7.vim ~/.vim/syntax
      cp sd7.vim ~/.vim/ftdetect
 
+   On some computers syntax highlighting is turned off by default.
+   In this case it is necessary to create a '.vimrc' file in the home
+   directory and enter this line:
+
+     syntax on
+
+   For the Mac platform this is described at:
+     https://www.vaughnemiller.com/2014/01/03/enabling-syntax-highlighting-for-vim-in-mac-os-x
  - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
    this file to '/usr/share/nano' (you might need superuser privileges to do that).
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
@@ -905,8 +921,8 @@ languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
 them altogether.
 
-In a classic compiler (e.g. a Pascal compiler) there is a distinction between
-reserved words and identifiers. Pascal compilers and probably also Ada, C/C++,
+In a classic compiler (e.g. a Pascal compiler), there is a distinction between
+reserved words and identifiers. Pascal compilers and possibly Ada, C/C++,
 Java and C# compilers use an enumeration type to represent the reserved words.
 Since Seed7 allows user defined statements (which may introduce new keywords)
 it is not possible to hard code reserved words in the compiler as it is done in
@@ -926,12 +942,12 @@ S7SSD syntax rules are introduced with:
   $ syntax
 
 S7SSD syntax rules define a pattern of terminal and non-terminal symbols separated
-by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
+by dots. A S7SSD syntax rule also defines a priority and associativity. The syntax
 of the + operator is:
 
   $ syntax expr: .(). + .()   is -> 7;
 
-The syntax of statements and other constructs is defined as if they were also
+The syntax of statements and other constructs is defined as if they were
 operators:
 
   $ syntax expr: .while.().do.().end.while   is -> 25;
@@ -1026,7 +1042,7 @@ declaration that is easy to recognize and uses the same syntax:
 
       const type: stack is array integer;
 
-It is also easy to recognize function declarations, they use the same
+It is also easy to recognize function declarations. They use the same
 syntax:
 
       const func integer: computeSomething is ...
@@ -1060,7 +1076,7 @@ considerable time to gather this information. E.g.:
    the data structures used, since they are not specified. Seed7 variables
    and types must be declared explicitly. This improves readability.
  - Compilers that do type inference spend most of their time for type
-   checking. This means that a human reader needs also to spend most of the
+   checking. This means that a human reader also needs to spend most of the
    time to understand the types in use. That way type inference makes
    writing easier and reading harder. The omission of type inference in
    Seed7 simplifies reading code.
@@ -1097,7 +1113,7 @@ Statements to access a database or operators for vector arithmetic would be such
 an example. Another example is a construct which can be used in the definition of
 text adventure games.
 
-The possibility to define statements allows also a more precise language
+The possibility to define statements also allows a more precise language
 definition. The for/while/if statements of C++ are described in the C++ manuals
 with BNF and an English description. Seed7 statements can be defined in Seed7.
 For example:
@@ -1173,12 +1189,12 @@ generation of garbage values is avoided, it can be guaranteed that only legal
 values of the correct type are used as object values. This way runtime type
 checks are unnecessary and the program execution can be more efficient.
 
-Type declarations can also serve as a form of documentation, because they can
+Type declarations can also serve as a form of documentation because they can
 illustrate the intent of the programmer. Although static type checking is very
 helpful in finding type errors, it cannot replace a careful program design.
-Some operations, allowed by the static type system, can still be wrong because
-of different measurement units or other reasons. In the end there are also
-other possible sources of errors, such as range violations.
+Some operations allowed by the static type system can still be wrong because
+of different measurement units or other reasons. In the end, there are also
+other possible sources of errors such as range violations.
 
 Interface types can be used if an object can have several types at runtime.
 In this case the interface type of the object can be determined at compile time
@@ -1205,9 +1221,9 @@ it is wrong if type considerations take place during the program development.
 Every good programmer has some concepts about what values will be hold by
 variables or parameters and what values will be returned by functions. A good
 type system helps to formalize the type concepts which are already in the mind of
-the programmer. That way the ideas of the programmer are also documented.
+the programmer. That way, the ideas of the programmer are documented as well.
 This type documentation helps when reading the code. The maintenance costs are
-also reduced since code is more often read that written.
+also reduced, since code is more often read that written.
 
 When comparing compile time and runtime type checking it can be concluded that
 dynamic typed languages save some programming time by omitting type
@@ -1261,7 +1277,7 @@ To explain this principle consider the expression:
 
   a + b
 
-If the types of a and b are known and the definition of + applies then the
+If the types of a and b are known and the definition of + applies, then the
 type of the expression a + b is also known. In this example a and b may be
 constants, variables or even sub-expressions. If one of the types of a or b
 is not known then the type of a + b cannot be determined. Now assume that a + b
@@ -1278,7 +1294,7 @@ expressions. Within the syntax tree it moves from the bottom to the top. This
 rule simplifies type checking a lot. This is one of the reasons why the
 interpreter is able to process several hundred thousand lines per second.
 
-For type inference it would be necessary that type information moves also into
+For type inference, it would be necessary that type information also moves into
 the other direction. You can see: This would violate the basic principle
 mentioned above. As long as this principle holds you need to know the global
 and local declarations to find out the result type of an expression. With type
@@ -1347,15 +1363,15 @@ Are there automatic casts to the right type?
 ============================================
 
 Seed7 cannot read the mind of the programmer. It is hard to find out what the
-programmer considers as "right type". A conversion can lose information. Apart
-from truncating integers also seemingly safe conversions may lose information.
-E.g. Not all 64-bit integer values can be represented as 64-bit float values.
-It can also lead to unplanned behavior if the programmer is not aware of an
-automatic conversion. It improves readability if conversions are done explicit.
-Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
-'integer' to 'float' is done with the function 'flt'. Conversions from 'float'
-to 'integer' are done with 'round' or 'trunc'. Explicit conversions have more
-advantages than disadvantages:
+programmer considers as "right type". A conversion can lose information.
+Seemingly safe conversions may also lose information. E.g. Not all 64-bit
+integer values can be represented as 64-bit float values. It can also lead to
+unplanned behavior if the programmer is not aware of an automatic conversion.
+Readability is improved if conversions are done explicitly. Seed7 is strong
+typed and uses explicit conversions. E.g.: The conversion from 'integer'
+to 'float' is done with the functions 'flt' and 'float'. Conversions from
+'float' to 'integer' are done with 'round' or 'trunc'. Explicit conversions
+have more advantages than disadvantages:
 
  1. The overloading rules are much simpler.
  2. An expression can be understood without its calling context.
@@ -1382,8 +1398,8 @@ contains a bug which you are not aware of.
 Not all human programmers have the same background. What one programmer sees
 as correct reinterpretation of his intentions another programmer might consider
 as totally stupid. The second programmer would certainly prefer to get an error
-message instead of a silent reinterpretation of his program. Of cause this
-silent reinterpretation means also that there is a hidden bug in the program.
+message instead of a silent reinterpretation of his program. Of course, this
+silent reinterpretation also means that there is a hidden bug in the program.
 
 There is a reason natural languages are not used for programming. They are just
 too ambiguous. Established programming languages try to be unambiguous. Usually
@@ -1402,14 +1418,82 @@ compile time checks of the parameters on the other side would make the job of
 analyzing expressions with undeclared functions very complex.
 
 Forward declarations help, if something needs to be used before it can be declared
-fully.
+fully:
+
+  const func string: concatenate (inout file: inFile) is forward;
+
+  const func string: getString (inout file: inFile) is func
+    result
+      var string: stri is "";
+    begin
+      if inFile.bufferChar = '(' then
+        ignore(getc(inFile));
+        stri := concatenate(inFile);    # Call of forward declared function
+        ignore(getc(inFile));
+      elsif inFile.bufferChar = '"' then
+        stri := getQuotedText(inFile);
+      end if;
+    end func;
+
+  const func string: concatenate (inout file: inFile) is func
+    result
+      var string: stri is "";
+    begin
+      stri := getString(inFile);
+      while inFile.bufferChar = '&' do
+        ignore(getc(inFile));
+        stri &:= getString(inFile);
+      end while;
+    end func;
 
 
 Can functions be overloaded?
 ============================
 
-Yes, functions, operators and statements can be overloaded. Additionally it is
-possible to define new operators and statements.
+Yes, functions, operators and statements can be overloaded. E.g.:
+
+  const func float:       tenPercent (in float: amount)      is return amount / 10.0;
+  const func float:       tenPercent (in integer: amount)    is return float(amount) / 10.0;
+  const func bigRational: tenPercent (in bigInteger: amount) is return amount / 10_;
+
+These functions can be used with:
+
+  writeln(tenPercent(123));
+  writeln(tenPercent(123.0));
+  writeln(tenPercent(123_));
+
+Existing operators like + can be overloaded with:
+
+  const func float: (in integer: summand1) + (in float: summand2) is
+      return float(summand1) + summand2;
+
+Note that the declaration above identifies the + operator with:
+
+  (in integer: summand1) + (in float: summand2)
+
+This is the same syntactic pattern as the one used, when the + operator is invoked:
+
+  8 + 3.9
+
+This syntactic pattern is defined in the file "syntax.s7i" with the syntax declaraton:
+
+  $ syntax expr: .() . + .()  is ->  7;
+
+The actual syntax is described with:
+
+  . () . + . ()
+
+The dots are used to create a list of elements. If we leave out
+the dots we get the actual syntactic pattern:
+
+  () + ()
+
+The place of parameters is specified with (). In
+declarations () is the place of a parameter declaration
+and in calls () is the place of an actual parameter.
+
+To introduce new operator symbols like inProduct it is
+necessary to define the syntax before defining the semantic.
 
 
 Can I overload two functions which just differ in the result type?
@@ -1429,7 +1513,7 @@ type overloading simplifies type checking a lot. This way the following holds:
 
    The type of every expression (and sub expression) is independent of the context.
 
-Consider this expression with operators (applying also to functions):
+Consider this expression with operators (also applying to functions):
 
   a = b + c * d
 
@@ -1458,8 +1542,8 @@ This bottom up approach simplifies type checking a lot for both the compiler
 and the human reader. With return type overloading there would be ambiguous
 sub expressions. For the whole expression these ambiguities might be
 resolved or they might stay unresolved. It is obvious that return type
-overloading would complicate type checking considerable (also for the
-human reader).
+overloading would complicate type checking considerable (for the
+human reader too).
 
 
 Can functions have variable parameter lists?
@@ -1545,7 +1629,7 @@ as it assumes that the file format uses the same endianness (little- or
 big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library bytedata.s7i
 defines several functions to convert integers into and from signed and
-unsigned representations of various sizes. These functions allow also that
+unsigned representations of various sizes. These functions also allow that
 the endianness is specified explicit.
 
 Message digest and compression algorithms do bitwise operations on 32- or
@@ -1576,13 +1660,13 @@ The usage of UTF-32 for strings in a program has several advantages:
    string from its byte-length. In an UTF-8 or UTF-16 string the number
    of code points must be computed by processing the whole string.
    Computing the length of an UTF-32 string does not need such an effort.
- - Accessing a code point with an index in an UTF-32 string is also simple.
+ - Accessing a code point with an index in an UTF-32 string is simple as well.
    With UTF-8 and UTF-16 it is necessary to process all code points up
    to the index. It has been argued, that most strings are processed
    sequentially. UTF-32 strings can be processed sequentially, but if
    the processing is not sequentially UTF-32 has a big advantage.
- - UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
-   are also invalid. A string library, that is based on UTF-8 or UTF-16
+ - UTF-8 has invalid byte sequences. In UTF-16, single surrogate characters
+   are invalid. A string library, that is based on UTF-8 or UTF-16
    must check for valid byte sequences. UTF-32 does not have invalid byte
    sequences. UTF-32 can hold non-Unicode characters, but this can be
    used as advantage.
@@ -1628,7 +1712,7 @@ Seed7 source code allows Unicode in char literals, string literals, block commen
 and line comments. Interpreter and compiler assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 
-There is also support for Unicode names. The support for Unicode names
+Unicode names are supported as well. The support for Unicode names
 is switched off by default and must be activated with the pragma:
 
   $ names unicode;
@@ -1642,13 +1726,13 @@ Why are strings in Seed7 mutable?
 =================================
 
 Java, C# and several other languages use immutable strings which allow
-for simple and quick assignments (just a pointer is assigned). But they
-have also disadvantages. Almost everything else besides assignments becomes
+for simple and quick assignments (just a pointer is assigned). But they also
+have disadvantages. Almost everything else besides assignments becomes
 more expensive. Every time immutable strings are changed, the whole string
 content must be copied. If you want to change a string often, this becomes
 very costly. For that reason Java introduced the mutable string class
 StringBuffer (and later StringBuilder). Maintaining the string data of
-immutable strings is also an overhead that costs time, as it requires
+immutable strings is also an overhead that costs time as it requires
 bookkeeping and garbage collection.
 
 The string handling of mutable strings can be optimized, such that copying
@@ -1656,8 +1740,8 @@ the string content can be avoided in many cases. This is done by the Seed7
 interpreter and compiler. You get cheap string parameter passing, string
 slicing and assignment without being bothered with immutable and mutable
 string types (which is essentially an implementation detail). Mutable
-strings give us also consistent language semantics (strings are not handled
-different than other objects).
+strings also give us consistent language semantics (strings are not handled
+differently than other objects).
 
 
 Why are strings indexed from one?
@@ -1686,7 +1770,7 @@ How are comparisons done in Seed7?
 ==================================
 
 In Seed7 the operators = (equal) and <> (not equal) are defined for all types.
-Additionally many types define also the operators < (less than), <= (less than or
+Additionally many types also define the operators < (less than), <= (less than or
 equal to), > (greater than) and >= (greater than or equal to). These operators do
 exactly what the corresponding type considers as the correct comparison.
 
@@ -1698,7 +1782,7 @@ this regard, because the '=' operator is generally used to check for equality.
 It is just not necessary to tell every newcomer that '==' is used to compare
 integers, but that it should never be used to compare strings.
 
-Most types of Seed7 also define the function compare(A, B), which returns -1 (if A is
+Most types of Seed7 define the function compare(A, B), which returns -1 (if A is
 less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
 defines a total order over the values of a type even if < has not been defined
 or if < does not define a total order. E.g.:
@@ -1762,11 +1846,11 @@ In the manual there is a chapter about the database abstraction API.
 Are there regular expressions?
 ==============================
 
-Regular expressions are a powerful feature. Unfortunately they lead also
+Regular expressions are a powerful feature. Unfortunately they also lead
 to code that is hard to maintain. The regular expression language is
 usually embedded in a surrounding programming language. As with other
-language-in-language features this leads to maintenance problems. There
-are also other difficulties. Regular expressions work typeless but Seed7
+language-in-language features, this leads to maintenance problems. There
+are other difficulties too. Regular expressions work typeless but Seed7
 does not. For this reasons regular expressions are currently not supported,
 but there is an alternative (see below).
 
@@ -1843,7 +1927,7 @@ The operators & and <& both concatenate strings, but they have different purpose
    the other parameter to a string (with the function str) and does the
    concatenation afterwards.
 
-   The priority of <& is defined to allow also the output of boolean expressions.
+   The priority of <& is defined to also allow the output of boolean expressions.
    E.g.:
 
      name <& extension = check
@@ -1862,7 +1946,7 @@ The operators & and <& both concatenate strings, but they have different purpose
      asdf: FALSE
 
 The <& operator can be defined for new types with enable_io respectively
-enable_output. The description of the Seed7 file API contains also a chapter
+enable_output. The description of the Seed7 file API also contains a chapter
 about the conversion to strings and back.
 
 
@@ -1899,11 +1983,11 @@ the function. Inside the function an 'in' parameter cannot be changed.
 An 'in' parameter is either a 'val' (call-by-value) parameter or a 'ref'
 (call-by-reference) parameter. Every type defines an 'in' parameter:
 
- - For types with little memory requirements 'in' is a val (call-by-value) parameter:
+ - For types with little memory requirements 'in' is a 'val' (call-by-value) parameter:
      boolean, integer, float, char, category, reference, enumeration,
      clib_file, pixel, PRIMITIVE_SOCKET
 
- - For types with bigger memory requirements 'in' is a ref (call-by-reference) parameter:
+ - For types with bigger memory requirements 'in' is a 'ref' (call-by-reference) parameter:
      bigInteger, rational, bigRational, complex, string, array, hash,
      set, bitset, struct, interface, ref_list, program, color, time,
      duration, file, text, proc, type, object
@@ -1950,7 +2034,7 @@ aGlobal:
  - The 'ref' parameter (refParam) changes when aGlobal is changed.
 
 The effect happens for any type, not just for 'integer' parameters. The same
-effect happens also, when an additional 'inout' parameter is used instead of
+effect also happens, when an additional 'inout' parameter is used instead of
 a global variable and when the function is called with the same variable as
 actual parameter for all three parameters.
 
@@ -2003,6 +2087,53 @@ Depending on the condition 'a >= 0' only one of the expressions 'sqrt(a)' and
 is assigned to 'result'.
 
 
+Why are functions declared with const?
+======================================
+
+A function declaration like
+
+  const func boolean: isZero (in integer: number) is
+    return number = 0;
+
+uses 'const', because the body of the function
+
+  return number = 0;
+
+will not change at run-time. So 'isZero' will not suddenly
+compute something else. For the same reason, procedures are also
+defined with 'const':
+
+  const proc: procedureName ...
+
+
+Are there functions declared without const?
+===========================================
+
+There are function declarations that are not introduced with 'const'.
+Below is a call-by-name parameter declared with 'in':
+
+  const proc: whileTrueDo (in func boolean: callByNameParam) is func
+    begin
+      while callByNameParam do
+        noop;
+      end while;
+    end func;
+
+The call-by-name parameter 'callByNameParam' refers to the function
+provided as an actual parameter when 'whileTrueDo' is called:
+
+  whileTrueDo(getc(IN) <> '\n');
+
+Inside 'whileTrueDo', the call-by-name parameter cannot be changed,
+but depending on the actual parameter, it can refer to different
+functions in different invocations.
+
+For functions without parameters, there is support to declare
+functions with 'var'. Except for test programs, this feature is not used,
+since object orientation provides a much better mechanism to execute
+different functions at run-time.
+
+
 What is an integer overflow?
 ============================
 
@@ -2033,8 +2164,8 @@ not follow this approach because it costs significant performance.
 
 The approach that promotes integers requires a new encoding for integers.
 A new combined integer type that can encode a fixed size integer and a big
-integer in one memory location. The information, which representation
-contains the actual integer value, must also be encoded in this combined
+integer in one memory location. Information about the representation that
+is used must also be encoded in the memory location of the combined
 integer.
 
 An encoding for a combined integer that is actually used by integer
@@ -2082,7 +2213,7 @@ combined integer) and no overflow occurs.
       means, it must be checked if the actual value is a big integer,
       and if this is the case, the memory of the big integer must be
       freed.
-    - Arrays and structs containing combined integers must do this also
+    - Arrays and structs containing combined integers must also do this
       for all their values.
     - Every time a normal integer is needed (e.g. as parameter of an
       external function) the combined integer must be converted to a
@@ -2333,8 +2464,8 @@ Are there primitive types?
 
 As in C++, Java, C# and other hybrid object oriented languages there are
 predefined primitive types in Seed7. These are 'integer', 'char', 'boolean',
-'string', 'float', 'rational', 'time', 'duration' and others. Additionally to the
-predefined primitive types there is also the possibility to declare new primitive
+'string', 'float', 'rational', 'time', 'duration' and others. In addition to the
+predefined primitive types, there is also the possibility to declare new primitive
 types.
 
 
@@ -2405,7 +2536,7 @@ the classic object oriented principles. In Seed7 every type has its own logic fo
 the assignment where sometimes a value copy and sometimes a reference copy is the
 right thing to do. Exactly speaking there are many forms of assignment since every
 type can define its own assignment. If a value copy works like a deep or a shallow
-copy can also be defined depending on the type.
+copy, it can also be defined depending on the type.
 
 For example: For 'integer', 'char' and 'string' variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with an
@@ -2632,16 +2763,87 @@ integer overflow.
 How to define break and continue?
 =================================
 
-The context of 'break' and 'continue' determines what they do. In this regard
-they are not statements on their own, but part of a surrounding statement.
-Just as 'goto' statements they violate the concept of structured programming.
-Seed7 can define the syntax and semantic of all structured statements easily.
-E.g.: You can define a structured loop statement with an exit in the middle.
-Since 'break' and 'continue' are not structured statements there is no
-straightforward way to implement them. But they could be implemented with
-exceptions. Often 'break' and 'continue' are seen as a trick to get more
-performance. Exceptions would not deliver that. For that reason and to promote
-structured programming 'break', 'continue' and 'goto' are not supported.
+Just like 'goto' statements, 'break' and 'continue' violate the
+concept of structured programming. As a programmer, you should
+imagine your loops as:
+
+  while primaryCondition and
+        loopCount <= 1000 and
+        seconds <= 3600 do
+    if  data <> "undefined" and
+        not doSkip then
+      do_something_useful;
+    end if;
+  end while;
+
+instead of:
+
+  while primaryCondition do
+    if loopCount > 1000 then break;
+    if seconds > 3600 then break;
+    if someData = "undefined" then continue;
+    if doSkip then continue;
+    do_something_useful;
+  end while;
+
+A 'goto' or anything like it compromises readability.
+Non-structured statements are frequently used as shortcuts to
+avoid restructuring the program's flow. You should overcome
+the temptation to introduce 'break' or 'continue'. Usually,
+this is a sign that the code is too complex and should be
+refactored. Seed7 provides many loops that help in this
+regard.
+
+The context of 'break' and 'continue' determines what they do.
+In this regard, they are not statements on their own but part
+of a surrounding statement. The surrounding statement defines
+what 'break' and 'continue' do. Every time a programmer
+defines a new statement, it would be necessary to specify the
+behavior of 'break' and 'continue'. This could be done by
+specifying labels (which do not exist in Seed7):
+
+  const proc: loop
+                (in proc: statements)
+              end loop is func
+    begin
+      repeat
+        continueLabel:
+        statements;
+      until FALSE;
+      breakLabel:
+    end func;
+
+So labels and 'goto' would be needed to introduce 'break' and
+'continue'. Beyond that, all user defined loops would need to
+consider them.
+
+Seed7 can define the syntax and semantic of all structured
+statements easily. E.g.: You can define a structured
+loop statement with an exit in the middle and use it with:
+
+  loop
+    ch := getc(inFile);
+  until ch = '\n' do
+    stri &:= ch;
+  end loop;
+
+Instead of insisting on 'break' and 'continue', it would make
+sense to propose structured statements that can replace them.
+
+The 'break' and 'continue' statements are often seen as a
+trick to get more performance at the expense of readability.
+These performance wins are questionable. Given todays
+optimization techniques, the compiler might generate the
+same machine code from clean source code without 'break'
+and 'continue'.
+
+Since 'break' and 'continue' are not structured statements,
+there is no straightforward way to implement them. However,
+they could be implemented with exceptions. If an exception
+is thrown there is some overhead. So an implementation with
+exceptions will not deliver maximum performance. For that
+reason, and to promote structured programming, 'break',
+'continue' and 'goto' are not supported.
 
 
 Are there exceptions?
@@ -2649,7 +2851,7 @@ Are there exceptions?
 
 Yes, Seed7 has exceptions which are similar to Ada exceptions. In chapter 16.3
 (Exceptions) of the manual you will find a detailed description of the Seed7
-exceptions. The use of exceptions improves also readability. E.g.:
+exceptions. The use of exceptions also improves readability. E.g.:
 
   doA();
   doB();
@@ -2765,8 +2967,8 @@ What is link time optimization?
 
 Traditionally C source files are compiled separately into object files. These
 object files are later linked together into one executable file. Optimizations
-regarding two object files cannot be done. Link time optimization (LTO) allows
-also these optimizations. Gcc and clang support LTO, by writing their intermediate
+regarding two object files cannot be done. Link time optimization (LTO) also allows
+these optimizations. Gcc and clang support LTO, by writing their intermediate
 representations to the object files. This way interprocedural optimizations can
 be done when the object files are linked. C compiler, linker and archiver need
 to support LTO.
@@ -2928,8 +3130,8 @@ The Seed7 compiler uses the runtime libraries SEED7_LIB, CONSOLE_LIB, DRAW_LIB,
 COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR when it links object
 files to an executable. Config values like RSHIFT_DOES_SIGN_EXTEND,
 TWOS_COMPLEMENT_INTTYPE and LITTLE_ENDIAN_INTTYPE are used to control the kind
-of C code produced by the Seed7 compiler. The library cc_conf.s7i provides
-also access to config values that do not come from "version.h", but are
+of C code produced by the Seed7 compiler. The library cc_conf.s7i also
+provides access to config values that do not come from "version.h", but are
 defined in 'seed7/src/config.h'. E.g.:
 
   #define WITH_STRI_CAPACITY 1
@@ -2995,7 +3197,7 @@ databases. During the compilation of the Seed7 interpreter the program
 "chkccomp.c" searches for the availability of database connector libraries
 and the corresponding database include files (*.h header files). The
 connector libraries are provided by the database and can be static or
-dynamic. Often a connector library provides also a database include file
+dynamic. Often a connector library also provides a database include file
 (column 'DB include' below). If the database include file is missing Seed7
 uses its own database include file (the one from the column 'Other *.h'
 below). The names of the connector libraries can be specified in the
@@ -3118,7 +3320,7 @@ environment as parameter.
 When a function with call-by-name parameters is called the following things are
 done: For every actual call-by-name parameter a closure structure with the
 function pointer and the closure environment structure is generated. An actual
-function representing the closure code is also generated. Before a function with a
+function representing the closure code is generated as well. Before a function with a
 call-by-name parameter is called a closure structure variable is initialized. This
 includes initializing the function pointer and the environment data of the closure
 structure variable. Finally a pointer to the closure structure variable is used as

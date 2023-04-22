@@ -87,6 +87,16 @@ a.op_no_ul:link    { color: blue; text-decoration: none }
 a.op_no_ul:hover   { color: orange; text-decoration: underline }
 a.op_no_ul:active  { color: green; text-decoration: underline }
 
+a.comment:visited { color: green; text-decoration: none }
+a.comment:link    { color: green; text-decoration: none }
+a.comment:hover   { color: darkgreen; text-decoration: underline }
+a.comment:active  { color: blue; text-decoration: underline }
+
+a.stri:visited { color: maroon; text-decoration: none }
+a.stri:link    { color: maroon; text-decoration: none }
+a.stri:hover   { color: brown; text-decoration: underline }
+a.stri:active  { color: blue; text-decoration: underline }
+
 a.lib:visited { color: maroon; text-decoration: underline }
 a.lib:link    { color: maroon; text-decoration: underline }
 a.lib:hover   { color: blue }
@@ -379,6 +389,12 @@ Is there an example where val and ref parameters have different behavior?
 <li><a class="link" href="#faq_call_by_name"><b>
 What is call-by-name?
 </b></a></li>
+<li><a class="link" href="#faq_functions_declared_with_const"><b>
+Why are functions declared with const?
+</b></a></li>
+<li><a class="link" href="#faq_functions_declared_without_const"><b>
+Are there functions declared without const?
+</b></a></li>
 <li><a class="link" href="#faq_integer_overflow"><b>
 What is an integer overflow?
 </b></a></li>
@@ -525,7 +541,7 @@ programming languages:
 <li>Seed7 has <a class="link" href="#faq_abstract_data_type">abstract data types</a>. For example the types <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt>,
    <tt><span class="type">struct</span></tt> and <tt><span class="type">set</span></tt>. They are not hard coded in the compiler, but are
    abstract data types written in Seed7. User defined abstract data
-   types are also possible.</li>
+   types are possible as well .</li>
 <li>The <a class="link" href="#faq_object_oriented">object orientation</a> of Seed7 allows <a class="link" href="#faq_multiple_dispatch">multiple dispatch</a>. That
    means that a function or method is connected to more than one type.</li>
 <li>Seed7 is a syntactically and semantically extensible language:
@@ -572,6 +588,12 @@ The design principles are:
    Seed7 has a well defined behavior in all situations.
    <a class="link" href="#faq_undefined_behavior">Undefined behavior</a> like in C does not exist.</dd>
 
+<dt>Overloading:</dt><dd>
+   Functions, operators and statements are not only identified
+   by identifiers but also via the types of their parameters.
+   This allows <a class="link" href="#faq_overloading">overloading</a> the same identifier for different
+   purposes.</dd>
+
 <dt>Extensibility:</dt><dd>
    Every programmer can <a class="link" href="#faq_extensible_programming">define new statements and operators</a>. This
    includes new operator symbols. Even the syntax and semantics
@@ -584,11 +606,11 @@ The design principles are:
 <dt>Multiple dispatch:</dt><dd>
    A method is not attached to one object (this). Instead it can
    be connected to several objects. This works analog to the
-   overloading of operators.</dd>
+   overloading of functions.</dd>
 
 <dt>Performance:</dt><dd>
    Seed7 is designed to allow <a class="link" href="#faq_compile">compilation</a> to efficient machine
-   code. Several high level <span class="link">optimizations</span> are done also.</dd>
+   code. Several high level <span class="link">optimizations</span> are also done.</dd>
 
 <dt>No virtual machine:</dt><dd>
    Seed7 is based on the executables of the operating system.
@@ -610,11 +632,11 @@ The design principles are:
    IDEs are great, but some programming languages have been
    designed in a way that makes it hard to use them without
    IDE. Programming language features should be designed in a way
-   that makes it possible to work also with a simple text editor.</dd>
+   that makes it possible to work with a simple text editor.</dd>
 
 <dt>Minimal dependency on external tools:</dt><dd>
    To <a class="link" href="#faq_compile_interpreter">compile Seed7</a> you just need a C compiler and a make utility.
-   The Seed7 libraries avoid calling external tools also.</dd>
+   The Seed7 libraries avoid calling external tools as well.</dd>
 
 <dt>Comprehensive libraries:</dt><dd>
    The <span class="link">libraries</span> of Seed7 cover many areas.</dd>
@@ -720,7 +742,7 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
 <li>A <span class="link">database library</span> provides a <span class="link">database independent API</span> to connect
    to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
    Db2, Informix and SQL Server databases. The ODBC interface can be
-   used also.</li>
+   used as well.</li>
 <li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
@@ -732,10 +754,10 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
 <p>
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
 The s7 interpreter and the example programs (extension .sd7) are under the
-GPL (General Public License, see also the file COPYING).
+GPL (General Public License, seen in the file COPYING).
 </p><p>
 The Seed7 runtime library is under the LGPL (Lesser General Public License,
-see also the file LGPL). The Seed7 include files (extension .s7i) are a part
+seen in the file LGPL). The Seed7 include files (extension .s7i) are a part
 of the Seed7 runtime library.
 </p><p>
 Seed7 allows the interpretation and compilation of programs with any license.
@@ -844,12 +866,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2023-03-05 the number of lines is:
+than 300000 lines of Seed7. For version 2023-04-22 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">175995</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13102</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">220940</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">175731</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">176625</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13192</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">221470</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">175972</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -874,7 +896,7 @@ Seed7 runs on the following operating systems:
 <li>clang</li>
 <li>icc</li>
 <li>tcc</li></ul></li>
-<li>Unix (I used Seed7 also under various Unix variants, so it is probably
+<li>Unix (I also used Seed7 under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)</li>
 <li>BSD (there is a <span class="link">FreeBSD port</span> and an <span class="link">OpenBSD port</span>)</li>
 <li>Windows is supported with the following compilers:<ul>
@@ -952,7 +974,7 @@ It is strongly recommended to use the latest version.
 An <a class="link" href="#faq_installer">installer for Windows</a> can be found in the directory <tt>bin</tt>.
 Other executables are also in the <tt>bin</tt> directory.
 </p><p>
-Seed7 is now also <span class="link">available at GitHub</span>. You can use the command:
+Seed7 is now <span class="link">available at GitHub</span> as well. You can use the command:
 </p><pre class="indent">
 git clone https://github.com/ThomasMertes/seed7.git
 </pre><p>
@@ -975,8 +997,8 @@ $ gunzip seed7_05_yyyymmdd.tgz
 $ tar -xvf seed7_05_yyyymmdd.tar
 </pre><p>
 Sometimes the browser downloads a *.gz file instead of a *.tgz file.
-In that case you could also use <tt>'gunzip'</tt> as shown above. As
-an alternative you can also use <tt>'zcat'</tt>:
+In that case, you could also use <tt>'gunzip'</tt> as shown above. As
+an alternative, you can also use <tt>'zcat'</tt>:
 </p><pre class="indent">
 $ zcat seed7_05_yyyymmdd.gz > seed7.tar
 $ tar -xvf seed7.tar
@@ -1079,7 +1101,7 @@ I don't know the name of this package in your distribution
 (under Ubuntu it has the name libncurses5-dev), but you
 can search in your package manager for a curses/ncurses
 package which mentions that it contains the header files.
-To execute programs you need also to install the non-developer
+To execute programs you also need to install the non-developer
 package of curses/ncurses (in most cases it will already
 be installed because it is needed by other packages).
 </p><p>
@@ -1151,7 +1173,7 @@ type:
 The program <tt><span class="prog">chk_all</span></tt> uses several check programs to do its
 work. First a check program is interpreted and the output
 is compared to a reference. Then the program is compiled and
-executed and this output is also checked. Finally the C code
+executed, and this output is also checked. Finally, the C code
 generated by the compiled compiler is checked against the C
 code generated by the interpreted compiler. The checks of
 the compiler are repeated with several compiler options. If
@@ -1284,7 +1306,9 @@ is not intended for human readers. The Seed7 compiler can be called with:
 Possible options are
 </p><ul>
   <li><b>-?</b>   Write Seed7 compiler usage.</li>
-  <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
+  <li><a name="faq_compiler_option-O"><b>-O</b></a><span class="keywd">n</span></a>  Tell the C compiler to optimize with level <span class="keywd">n</span> (<span class="keywd">n</span> is between 1 and 3).</li>
+  <li><b>-O</b>   Equivalent to <b>-O1</b></li>
+  <li><a name="faq_compiler_option-S"><b>-S</b></a>   Specify the stack size of the executable (e.g.: -S 16777216).</li>
   <li><a name="faq_compiler_option-b"><b>-b</b></a>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
   <li><a name="faq_compiler_option-c"><b>-c</b></a>   Specify configuration (C compiler, etc.) to be used (e.g.: <b>-c</b><tt> <span class="lib">emcc</span></tt>).</li>
   <li><a name="faq_compiler_option-e"><b>-e</b></a>   Generate code which sends a signal, if an uncaught exception occurs.
@@ -1295,7 +1319,7 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option <b>-g-debug_c</b> can be used.</li>
   <li><a name="faq_compiler_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
-  <li><a name="faq_compiler_option-oc"><b>-oc</b><span class="keywd">n</span></a> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
+  <li><a name="faq_compiler_option-oc"><b>-oc</b><span class="keywd">n</span></a> Optimize generated C code with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
        The level <span class="keywd">n</span> is a digit between 0 and 3:<ul>
          <li><b>0</b> Do no optimizations with constants.</li>
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
@@ -1328,12 +1352,19 @@ Syntax highlighting is available for several editors:
 <li>For vim there are <span class="link">seed7/doc/seed7.vim</span> and <span class="link">seed7/doc/sd7.vim</span>.
    To install syntax highlighting for vim under Linux go to the <nobr><span class="lib">seed7/doc</span></nobr>
    directory and do:
-</p><pre class="indent">
+<pre class="indent">
 mkdir -p ~/.vim/syntax
 mkdir -p ~/.vim/ftdetect
 cp seed7.vim ~/.vim/syntax
 cp sd7.vim ~/.vim/ftdetect
-</pre></li></li>
+</pre>
+   On some computers syntax highlighting is turned off by default.
+   In this case it is necessary to create a <span class="lib">.vimrc</span> file in the home
+   directory and enter this line:
+<pre class="indent">
+syntax on
+</pre>
+   For the Mac platform this is described <!--(*--><span class="link">here</span>.<!--*)--></li>
 <li>For the Nano editor there is <span class="link">seed7/doc/seed7.nanorc</span>. You can copy
    this file to <nobr><span class="lib">/usr/share/nano</span></nobr> (you might need superuser privileges to do that).</li>
 <li>For Notepad++ there is <span class="link">seed7/doc/seed7udl.xml</span>. Start Notepad++ and
@@ -1393,7 +1424,7 @@ and function name.
 <p>
 In Seed7 there are no reserved words. Instead there are keywords which are
 used at various places. Some keywords introduce statements or other constructs
-(such as declarations). E.g.: The keywords <tt><span class="keywd">if</span></tt>, <tt><span class="keywd">while</span></tt>, <tt><span class="keywd">repeat</span></tt>, <tt><span class="keywd">for</span></tt>,
+(such as declarations). E.g.: The keywords <tt><span class="keywd_no_ul">if</span></tt>, <tt><span class="keywd">while</span></tt>, <tt><span class="keywd">repeat</span></tt>, <tt><span class="keywd">for</span></tt>,
 and some others introduce statements. Other keywords like <tt><span class="keywd">do</span></tt>, <tt><span class="keywd">then</span></tt>, <tt><span class="keywd">range</span></tt>,
 <tt><span class="keywd">result</span></tt>, etc. are used in the middle of statements (or other constructs).
 Finally there are also keywords like <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">lpad</span></tt>, <tt><span class="keywd">times</span></tt>, etc. which
@@ -1402,15 +1433,15 @@ are used as operator symbols.
 Seed7 uses <span class="link">syntax declarations</span> to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilities to use a keyword out of context. E.g.: After the keyword
-<tt><span class="keywd">if</span></tt> the parser expects always an expression. This makes <tt><span class="keywd">if</span></tt> unusable as
-variable name. This way you get error messages when you try to use <tt><span class="keywd">if</span></tt> or
+<tt><span class="keywd_no_ul">if</span></tt> the parser expects always an expression. This makes <tt><span class="keywd_no_ul">if</span></tt> unusable as
+variable name. This way you get error messages when you try to use <tt><span class="keywd_no_ul">if</span></tt> or
 other keywords as variable name. That behavior is just the same as in other
 languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
 them altogether.
 </p><p>
-In a classic compiler (e.g. a Pascal compiler) there is a distinction between
-reserved words and identifiers. Pascal compilers and probably also Ada, C/C++,
+In a classic compiler (e.g. a Pascal compiler), there is a distinction between
+reserved words and identifiers. Pascal compilers and possibly Ada, C/C++,
 Java and C# compilers use an enumeration type to represent the reserved words.
 Since Seed7 allows user defined statements (which may introduce new keywords)
 it is not possible to hard code reserved words in the compiler as it is done in
@@ -1430,12 +1461,12 @@ S7SSD syntax rules are introduced with:
 $ <span class="keywd">syntax</span>
 </pre><p>
 S7SSD syntax rules define a pattern of terminal and non-terminal symbols separated
-by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
+by dots. A S7SSD syntax rule also defines a priority and associativity. The syntax
 of the + operator is:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .(). + .()   is -> 7;
 </pre><p>
-The syntax of statements and other constructs is defined as if they were also
+The syntax of statements and other constructs is defined as if they were
 operators:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while   is -> 25;
@@ -1472,9 +1503,9 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     Since both forms are legal and adding a statement to the first form can lead to
     errors Seed7 closes this possible source of errors with its <span class="link">if-statement</span>:
 </p><pre class="indent">
-<span class="keywd">if</span> condition <span class="keywd">then</span>
+<span class="keywd_no_ul">if</span> condition <span class="keywd">then</span>
   statement
-<span class="keywd">end if</span>;
+<span class="keywd_no_ul">end if</span>;
 </pre></li>
 <li><p>The following switch statement is formally correct but probably wrong
 </p><pre class="indent">
@@ -1530,7 +1561,7 @@ declaration that is easy to recognize and uses the same syntax:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type_no_ul">type</span>: stack <span class="keywd">is</span> <span class="type_no_ul">array</span> <span class="type_no_ul">integer</span>;
 </pre><p>
-It is also easy to recognize function declarations, they use the same
+It is also easy to recognize function declarations. They use the same
 syntax:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">integer</span>: computeSomething <span class="keywd">is</span> ...
@@ -1564,7 +1595,7 @@ considerable time to gather this information. E.g.:
    the data structures used, since they are not specified. Seed7 variables
    and types must be declared explicitly. This improves readability.</li>
 <li>Compilers that do type inference spend most of their time for type
-   checking. This means that a human reader needs also to spend most of the
+   checking. This means that a human reader also needs to spend most of the
    time to understand the types in use. That way type inference makes
    writing easier and reading harder. The omission of type inference in
    Seed7 simplifies reading code.</li>
@@ -1601,23 +1632,23 @@ Statements to access a database or operators for vector arithmetic would be such
 an example. Another example is a construct which can be used in the definition of
 text adventure games.
 </p><p>
-The possibility to define statements allows also a more precise language
+The possibility to define statements also allows a more precise language
 definition. The for/while/if statements of C++ are described in the C++ manuals
 with BNF and an English description. Seed7 statements can be defined in Seed7.
 For example:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
-              (<span class="keywd">ref</span> <span class="type">proc</span>: statement)
+<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
+              (<span class="keywd_no_ul">ref</span> <span class="type">proc</span>: statement)
             end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> condition <span class="keywd">then</span>
+    <span class="keywd_no_ul">if</span> condition <span class="keywd_no_ul">then</span>
       statement;
       <span class="keywd">while</span> condition <span class="keywd">do</span>
         statement;
       <span class="keywd">end while</span>;
-    <span class="keywd">end if</span>;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
 The syntax and semantic of a <span class="link">while-statement</span> is described using an <span class="link">if-statement</span>
@@ -1677,12 +1708,12 @@ generation of garbage values is avoided, it can be guaranteed that only legal
 values of the correct type are used as object values. This way runtime type
 checks are unnecessary and the program execution can be more efficient.
 </p><p>
-Type declarations can also serve as a form of documentation, because they can
+Type declarations can also serve as a form of documentation because they can
 illustrate the intent of the programmer. Although static type checking is very
 helpful in finding type errors, it cannot replace a careful program design.
-Some operations, allowed by the static type system, can still be wrong because
-of different measurement units or other reasons. In the end there are also
-other possible sources of errors, such as range violations.
+Some operations allowed by the static type system can still be wrong because
+of different measurement units or other reasons. In the end, there are also
+other possible sources of errors such as range violations.
 </p><p>
 Interface types can be used if an object can have several types at runtime.
 In this case the interface type of the object can be determined at compile time
@@ -1709,9 +1740,9 @@ it is wrong if type considerations take place during the program development.
 Every good programmer has some concepts about what values will be hold by
 variables or parameters and what values will be returned by functions. A good
 type system helps to formalize the type concepts which are already in the mind of
-the programmer. That way the ideas of the programmer are also documented.
+the programmer. That way, the ideas of the programmer are documented as well.
 This type documentation helps when reading the code. The maintenance costs are
-also reduced since code is more often read that written.
+also reduced, since code is more often read that written.
 </p><p>
 When comparing compile time and runtime type checking it can be concluded that
 dynamic typed languages save some programming time by omitting type
@@ -1765,7 +1796,7 @@ To explain this principle consider the expression:
 </p><pre class="indent">
 <span class="var">a</span> + <span class="var">b</span>
 </pre><p>
-If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> applies then the
+If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> applies, then the
 type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> may be
 constants, variables or even sub-expressions. If one of the types of <tt><span class="var">a</span></tt> or <tt><span class="var">b</span></tt>
 is not known then the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
@@ -1782,7 +1813,7 @@ expressions. Within the syntax tree it moves from the bottom to the top. This
 rule simplifies type checking a lot. This is one of the reasons why the
 interpreter is able to process several hundred thousand lines per second.
 </p><p>
-For type inference it would be necessary that type information moves also into
+For type inference, it would be necessary that type information also moves into
 the other direction. You can see: This would violate the basic principle
 mentioned above. As long as this principle holds you need to know the global
 and local declarations to find out the result type of an expression. With type
@@ -1825,7 +1856,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <p>
   A function declaration like:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: test (<span class="keywd">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
   ...
@@ -1841,7 +1872,7 @@ const func array array string: test (in string: value) is func
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: stringArray2D <span class="keywd">is</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">stringArray2D</span>: test (<span class="keywd">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">stringArray2D</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">stringArray2D</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
   ...
@@ -1851,15 +1882,15 @@ const func array array string: test (in string: value) is func
 </h3></a><hr />
 <p>
 Seed7 cannot read the mind of the programmer. It is hard to find out what the
-programmer considers as "right type". A conversion can lose information. Apart
-from truncating integers also seemingly safe conversions may lose information.
-E.g. Not all 64-bit integer values can be represented as 64-bit float values.
-It can also lead to unplanned behavior if the programmer is not aware of an
-automatic conversion. It improves readability if conversions are done explicit.
-Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
-<tt><span class="type">integer</span></tt> to <tt><span class="type">float</span></tt> is done with the function <tt><span class="func">flt</span></tt>. Conversions from <tt><span class="type">float</span></tt>
-to <tt><span class="type">integer</span></tt> are done with <tt><span class="func">round</span></tt> or <tt><span class="func">trunc</span></tt>. Explicit conversions have more
-advantages than disadvantages:
+programmer considers as "right type". A conversion can lose information.
+Seemingly safe conversions may also lose information. E.g. Not all 64-bit
+integer values can be represented as 64-bit float values. It can also lead to
+unplanned behavior if the programmer is not aware of an automatic conversion.
+Readability is improved if conversions are done explicitly. Seed7 is strong
+typed and uses explicit conversions. E.g.: The conversion from <tt><span class="type">integer</span></tt>
+to <tt><span class="type">float</span></tt> is done with the functions <tt><span class="func">flt</span></tt> and <tt><span class="func">float</span></tt>. Conversions from
+<tt><span class="type">float</span></tt> to <tt><span class="type">integer</span></tt> are done with <tt><span class="func">round</span></tt> or <tt><span class="func">trunc</span></tt>. Explicit conversions
+have more advantages than disadvantages:
 </p><ol>
 <li>The overloading rules are much simpler.</li>
 <li>An expression can be understood without its calling context.</li>
@@ -1886,8 +1917,8 @@ contains a bug which you are not aware of.
 Not all human programmers have the same background. What one programmer sees
 as correct reinterpretation of his intentions another programmer might consider
 as totally stupid. The second programmer would certainly prefer to get an error
-message instead of a silent reinterpretation of his program. Of cause this
-silent reinterpretation means also that there is a hidden bug in the program.
+message instead of a silent reinterpretation of his program. Of course, this
+silent reinterpretation also means that there is a hidden bug in the program.
 </p><p>
 There is a reason natural languages are not used for programming. They are just
 too ambiguous. Established programming languages try to be unambiguous. Usually
@@ -1906,14 +1937,82 @@ compile time checks of the parameters on the other side would make the job of
 analyzing expressions with undeclared functions very complex.
 </p><p>
 Forward declarations help, if something needs to be used before it can be declared
-fully.
-</p></div>
+fully:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is forward</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: getString (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'('</span> <span class="keywd">then</span>
+      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
+      stri <span class="op_no_ul">:=</span> concatenate(inFile);    <span class="comment"># Call of forward declared function</span>
+      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
+    <span class="keywd">elsif</span> inFile.bufferChar = <span class="stri">'"'</span> <span class="keywd">then</span>
+      stri <span class="op_no_ul">:=</span> <span class="func">getQuotedText</span>(inFile);
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    stri <span class="op_no_ul">:=</span> getString(inFile);
+    <span class="keywd">while</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'&'</span> <span class="keywd">do</span>
+      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
+      stri <span class="op_no_ul">&amp;:=</span> getString(inFile);
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func</span>;
+</pre></div>
 
 <div><br /><a name="faq_overloading"><h3>Can functions be overloaded?
 </h3></a><hr />
 <p>
-Yes, functions, operators and statements can be overloaded. Additionally it is
-possible to define new operators and statements.
+Yes, functions, operators and statements can be overloaded. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">float</span>: amount)      <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10.0;
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: amount)    <span class="keywd">is</span> <span class="keywd">return</span> <span class="func">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">bigRational</span>: tenPercent (<span class="keywd_no_ul">in</span> <span class="type">bigInteger</span>: amount) <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10_;
+</pre><p>
+These functions can be used with:
+</p><pre class="indent">
+<span class="func">writeln</span>(tenPercent(123));
+<span class="func">writeln</span>(tenPercent(123.0));
+<span class="func">writeln</span>(tenPercent(123_));
+</pre><p>
+Existing operators like <tt><span class="op">+</span></tt> can be overloaded with:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>: (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: summand1) + (<span class="keywd_no_ul">in</span> <span class="type">float</span>: summand2) <span class="keywd">is</span>
+    <span class="keywd">return</span> <span class="func">float</span>(summand1) <span class="op_no_ul">+</span> summand2;
+</pre><p>
+Note that the declaration above identifies the <tt><span class="op">+</span></tt> operator with:
+</p><pre class="indent">
+(<span class="keywd_no_ul">in</span> <span class="type">integer</span>: summand1) + (<span class="keywd_no_ul">in</span> <span class="type">float</span>: summand2)
+</pre><p>
+This is the same syntactic pattern as the one used, when the <tt><span class="op">+</span></tt> operator is invoked:
+</p><pre class="indent">
+8 <span class="op_no_ul">+</span> 3.9
+</pre><p>
+This syntactic pattern is defined in the file "<span class="lib">syntax.s7i</span>" with the <span class="link">syntax declaraton</span>:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .() . + .()  <span class="keywd">is</span> <span class="op_no_ul">-></span>  7;
+</pre><p>
+The actual syntax is described with:
+</p><pre class="indent">
+. () . + . ()
+</pre><p>
+The dots are used to create a list of elements. If we leave out
+the dots we get the actual syntactic pattern:
+</p><pre class="indent">
+() + ()
+</pre><p>
+The place of parameters is specified with <tt>()</tt>. In
+declarations <tt>()</tt> is the place of a parameter declaration
+and in calls <tt>()</tt> is the place of an actual parameter.
+</p><p>
+To introduce new operator symbols like <tt><span class="op">inProduct</span></tt> it is
+necessary to define the syntax before defining the semantic.
 </p></div>
 
 <div><br /><a name="faq_overload_result"><h3>Can I overload two functions which just differ in the result type?
@@ -1933,7 +2032,7 @@ type overloading simplifies type checking a lot. This way the following holds:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
   &nbsp;The type of every expression (and sub expression) is independent of the context.
 </td></tr></table></dd></dl><p>
-Consider this expression with operators (applying also to functions):
+Consider this expression with operators (also applying to functions):
 </p><pre class="indent">
 <span class="var">a</span> <span class="op">=</span> <span class="var">b</span> <span class="op">+</span> <span class="var">c</span> <span class="op">*</span> <span class="var">d</span>
 </pre><p>
@@ -1962,8 +2061,8 @@ This bottom up approach simplifies type checking a lot for both the compiler
 and the human reader. With return type overloading there would be ambiguous
 sub expressions. For the whole expression these ambiguities might be
 resolved or they might stay unresolved. It is obvious that return type
-overloading would complicate type checking considerable (also for the
-human reader).
+overloading would complicate type checking considerable (for the
+human reader too).
 </p></div>
 
 <div><br /><a name="faq_variable_parameter_list"><h3>Can functions have variable parameter lists?
@@ -1978,7 +2077,7 @@ some problems:
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd_no_ul">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
@@ -2004,7 +2103,7 @@ initializations of constants and variables:
 
 <span class="keywd">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd_no_ul">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
     <span class="keywd">return</span> split(<span class="func">lower</span>(<span class="func">getf</span>(fileName)), <span class="stri">"\n"</span>);
 
 <span class="keywd">var</span> <span class="type">array</span> <span class="type">string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
@@ -2049,7 +2148,7 @@ as it assumes that the file format uses the same endianness (little- or
 big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library <span class="link">bytedata.s7i</span>
 defines several functions to convert integers into and from signed and
-unsigned representations of various sizes. These functions allow also that
+unsigned representations of various sizes. These functions also allow that
 the endianness is specified explicit.
 </p><p>
 Message digest and compression algorithms do bitwise operations on 32- or
@@ -2080,13 +2179,13 @@ The usage of UTF-32 for strings in a program has several advantages:
    string from its byte-length. In an UTF-8 or UTF-16 string the number
    of code points must be computed by processing the whole string.
    Computing the length of an UTF-32 string does not need such an effort.</li>
-<li>Accessing a code point with an index in an UTF-32 string is also simple.
+<li>Accessing a code point with an index in an UTF-32 string is simple as well.
    With UTF-8 and UTF-16 it is necessary to process all code points up
    to the index. It has been argued, that most strings are processed
    sequentially. UTF-32 strings can be processed sequentially, but if
    the processing is not sequentially UTF-32 has a big advantage.</li>
-<li>UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
-   are also invalid. A string library, that is based on UTF-8 or UTF-16
+<li>UTF-8 has invalid byte sequences. In UTF-16, single surrogate characters
+   are invalid. A string library, that is based on UTF-8 or UTF-16
    must check for valid byte sequences. UTF-32 does not have invalid byte
    sequences. UTF-32 can hold non-Unicode characters, but this can be
    used as advantage.</li>
@@ -2132,7 +2231,7 @@ Seed7 source code allows Unicode in <span class="link">char literals</span>, <sp
 and <span class="link">line comments</span>. Interpreter and <span class="link">compiler</span> assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 </p><p>
-There is also support for Unicode names. The support for Unicode names
+Unicode names are supported as well. The support for Unicode names
 is switched off by default and must be activated with the pragma:
 </p><pre class="indent">
 $ <span class="keywd">names</span> unicode;
@@ -2146,13 +2245,13 @@ language.
 </h3></a><hr />
 <p>
 Java, C# and several other languages use immutable strings which allow
-for simple and quick assignments (just a pointer is assigned). But they
-have also disadvantages. Almost everything else besides assignments becomes
+for simple and quick assignments (just a pointer is assigned). But they also
+have disadvantages. Almost everything else besides assignments becomes
 more expensive. Every time immutable strings are changed, the whole string
 content must be copied. If you want to change a string often, this becomes
 very costly. For that reason Java introduced the mutable string class
 StringBuffer (and later StringBuilder). Maintaining the string data of
-immutable strings is also an overhead that costs time, as it requires
+immutable strings is also an overhead that costs time as it requires
 bookkeeping and garbage collection.
 </p><p>
 The string handling of mutable strings can be optimized, such that copying
@@ -2160,8 +2259,8 @@ the string content can be avoided in many cases. This is done by the Seed7
 interpreter and compiler. You get cheap string parameter passing, string
 slicing and assignment without being bothered with immutable and mutable
 string types (which is essentially an implementation detail). Mutable
-strings give us also consistent language semantics (strings are not handled
-different than other objects).
+strings also give us consistent language semantics (strings are not handled
+differently than other objects).
 </p></div>
 
 <div><br /><a name="faq_indexed_from_one"><h3>Why are strings indexed from one?
@@ -2190,7 +2289,7 @@ zero has been introduced.
 </h3></a><hr />
 <p>
 In Seed7 the operators <tt><span class="op">=</span></tt> (equal) and <tt><span class="op">&lt;&gt;</span></tt> (not equal) are defined for all types.
-Additionally many types define also the operators <tt><span class="op">&lt;</span></tt> (less than), <tt><span class="op">&lt;=</span></tt> (less than or
+Additionally many types also define the operators <tt><span class="op">&lt;</span></tt> (less than), <tt><span class="op">&lt;=</span></tt> (less than or
 equal to), <tt><span class="op">&gt;</span></tt> (greater than) and <tt><span class="op">&gt;=</span></tt> (greater than or equal to). These operators do
 exactly what the corresponding type considers as the correct comparison.
 </p><p>
@@ -2202,7 +2301,7 @@ this regard, because the <tt><span class="op">=</span></tt> operator is generall
 It is just not necessary to tell every newcomer that <tt><span class="op">==</span></tt> is used to compare
 integers, but that it should never be used to compare strings.
 </p><p>
-Most types of Seed7 also define the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
+Most types of Seed7 define the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
 less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
 defines a total order over the values of a type even if <tt><span class="op">&lt;</span></tt> has not been defined
 or if <tt><span class="op">&lt;</span></tt> does not define a total order. E.g.:
@@ -2246,9 +2345,9 @@ example:
     <span class="keywd">var</span> <span class="type">sqlStatement</span>: statement <span class="keywd">is</span> <span class="type">sqlStatement</span>.value;
     <span class="keywd">var</span> <span class="type">integer</span>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-    <span class="keywd">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd">then</span>
-      statement := <span class="func">prepare</span>(currDb, <span class="stri">"select * from testTable"</span>);
+    currDb <span class="op_no_ul">:=</span> <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+    <span class="keywd_no_ul">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd_no_ul">then</span>
+      statement <span class="op_no_ul">:=</span> <span class="func">prepare</span>(currDb, <span class="stri">"select * from testTable"</span>);
       <span class="func">execute</span>(statement);
       <span class="keywd">while</span> <span class="func">fetch</span>(statement) <span class="keywd">do</span>
         <span class="keywd">for</span> index <span class="keywd">range</span> 1 <span class="keywd">to</span> <span class="func">columnCount</span>(statement) <span class="keywd">do</span>
@@ -2257,7 +2356,7 @@ example:
         writeln;
       <span class="keywd">end</span> <span class="keywd">while</span>;
       <span class="func">close</span>(currDb);
-    <span class="keywd">end</span> <span class="keywd">if</span>;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
 In the manual there is a chapter about the <span class="link">database abstraction API</span>.
@@ -2266,11 +2365,11 @@ In the manual there is a chapter about the <span class="link">database abstracti
 <div><br /><a name="faq_regular_expressions"><h3>Are there regular expressions?
 </h3></a><hr />
 <p>
-Regular expressions are a powerful feature. Unfortunately they lead also
+Regular expressions are a powerful feature. Unfortunately they also lead
 to code that is hard to maintain. The regular expression language is
 usually embedded in a surrounding programming language. As with other
-language-in-language features this leads to maintenance problems. There
-are also other difficulties. Regular expressions work typeless but Seed7
+language-in-language features, this leads to maintenance problems. There
+are other difficulties too. Regular expressions work typeless but Seed7
 does not. For this reasons regular expressions are currently not supported,
 but there is an alternative (see below).
 </p><p>
@@ -2279,19 +2378,19 @@ LL(1) approach, which is used in compilers. Practically no compiler uses
 regular expressions to parse a program. The example below uses scanner
 functions to read a key-value pair from a file:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd">inout</span> <span class="type">file</span>: inFile,
-    <span class="keywd">inout</span> <span class="type">string</span>: propertyName, <span class="keywd">inout</span> <span class="type">string</span>: propertyValue) <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd_no_ul">inout</span> <span class="type">file</span>: inFile,
+    <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyName, <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyValue) <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">begin</span>
     <span class="func">skipWhiteSpace</span>(inFile);
-    propertyName := <span class="func">getName</span>(inFile);
+    propertyName <span class="op_no_ul">:=</span> <span class="func">getName</span>(inFile);
     <span class="func">skipWhiteSpace</span>(inFile);
-    <span class="keywd">if</span> inFile.bufferChar = '=' <span class="keywd">then</span>
-      inFile.bufferChar := getc(inFile);
-      propertyValue := <span class="func">getLine</span>(inFile);
-    <span class="keywd">else</span>
-      propertyValue := "";
+    <span class="keywd_no_ul">if</span> inFile.bufferChar = <span class="stri">'='</span> <span class="keywd_no_ul">then</span>
+      inFile.bufferChar <span class="op_no_ul">:=</span> <span class="func">getc</span>(inFile);
+      propertyValue <span class="op_no_ul">:=</span> <span class="func">getLine</span>(inFile);
+    <span class="keywd_no_ul">else</span>
+      propertyValue <span class="op_no_ul">:=</span> <span class="stri">""</span>;
       <span class="func">skipLine</span>(inFile);
-    <span class="keywd">end</span> <span class="keywd">if</span>;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
 Scanner functions work strictly from left to right. They examine one
@@ -2347,7 +2446,7 @@ name <span class="op">&amp;</span> extension <span class="op">=</span> check
    the other parameter to a <tt><span class="type">string</span></tt> (with the function <tt><span class="func">str</span></tt>) and does the
    concatenation afterwards.
 </p><p>
-   The priority of <tt><span class="op">&lt;&amp;</span></tt> is defined to allow also the output of <tt><span class="type">boolean</span></tt> expressions.
+   The priority of <tt><span class="op">&lt;&amp;</span></tt> is defined to also allow the output of <tt><span class="type">boolean</span></tt> expressions.
    E.g.:
 </p><pre class="indent">
 name <span class="op">&lt;&amp;</span> extension <span class="op">=</span> check
@@ -2366,7 +2465,7 @@ name <span class="op">&lt;&amp;</span> (extension <span class="op">=</span> chec
 asdf: FALSE
 </pre></li></ul><p>
 The <tt><span class="op">&lt;&amp;</span></tt> operator can be defined for new types with <tt><span class="func">enable_io</span></tt> respectively
-<tt><span class="func">enable_output</span></tt>. The description of the <span class="link">Seed7 file API</span> contains also a chapter
+<tt><span class="func">enable_output</span></tt>. The description of the <span class="link">Seed7 file API</span> also contains a chapter
 about the <span class="link">conversion to strings and back</span>.
 </p></div>
 
@@ -2380,10 +2479,10 @@ of parameters:
   
   <tr><th> parameter </th><th> evaluation strategy </th><th> access right </th></tr>
   
-  <tr><td> val       </td><td align="center">    call-by-value    </td><td> const        </td></tr>
-  <tr><td> ref       </td><td align="center">  call-by-reference  </td><td> const        </td></tr>
-  <tr><td> in var    </td><td align="center">    call-by-value    </td><td> var          </td></tr>
-  <tr><td> inout     </td><td align="center">  call-by-reference  </td><td> var          </td></tr>
+  <tr><td> <tt><span class="keywd">val</span></tt>       </td><td align="center">    call-by-value    </td><td> const        </td></tr>
+  <tr><td> <tt><span class="keywd">ref</span></tt>       </td><td align="center">  call-by-reference  </td><td> const        </td></tr>
+  <tr><td> <tt><span class="keywd">in var</span></tt>    </td><td align="center">    call-by-value    </td><td> var          </td></tr>
+  <tr><td> <tt><span class="keywd">inout</span></tt>     </td><td align="center">  call-by-reference  </td><td> var          </td></tr>
   
 </table></dd></dl><p>
 For call-by-value parameters (<tt><span class="keywd">val</span></tt> and <tt><span class="keywd">in var</span></tt>) the actual parameter value
@@ -2429,10 +2528,10 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">var</span> <span class="type">integer</span>: aGlobal <span class="keywd">is</span> 1;
 
-<span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd">val</span> <span class="type">integer</span>: valParam, <span class="keywd">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd_no_ul">val</span> <span class="type">integer</span>: valParam, <span class="keywd_no_ul">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
-    aGlobal := 2;
+    aGlobal <span class="op_no_ul">:=</span> 2;
     writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
   <span class="keywd">end func</span>;
 
@@ -2454,7 +2553,7 @@ The different behavior is triggered when <tt>2</tt> is assigned to the global va
 <li>The <tt><span class="keywd">ref</span></tt> parameter (<tt>refParam</tt>) changes when <tt>aGlobal</tt> is changed.</li>
 </ul><p>
 The effect happens for any type, not just for <tt><span class="type">integer</span></tt> parameters. The same
-effect happens also, when an additional <tt><span class="keywd">inout</span></tt> parameter is used instead of
+effect also happens, when an additional <tt><span class="keywd">inout</span></tt> parameter is used instead of
 a global variable and when the function is called with the same variable as
 actual parameter for all three parameters.
 </p><p>
@@ -2485,16 +2584,16 @@ the call-by-name expression is evaluated every time the formal call-by-name
 parameter is used. A <tt>'conditional'</tt> function (similar to the <span class="op">?:</span> ternary operator)
 is defined with:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
-    <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: trueValue, <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: falseValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd_no_ul">in</span> <span class="type">boolean</span>: condition,
+    <span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">integer</span>: trueValue, <span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">integer</span>: falseValue) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> condition <span class="keywd">then</span>
-      conditionalResult := trueValue;
-    <span class="keywd">else</span>
-      conditionalResult := falseValue;
-    <span class="keywd">end if</span>;
+    <span class="keywd_no_ul">if</span> condition <span class="keywd_no_ul">then</span>
+      conditionalResult <span class="op_no_ul">:=</span> trueValue;
+    <span class="keywd_no_ul">else</span>
+      conditionalResult <span class="op_no_ul">:=</span> falseValue;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
 Seed7 does not require a special notation (like brackets) for actual call-by-name
@@ -2505,6 +2604,53 @@ conditional(a <span class="op">&gt;=</span> 0, <span class="func">sqrt</span>(a)
 Depending on the condition <tt>'a <span class="op">&gt;=</span> 0'</tt> only one of the expressions <tt>'<span class="func">sqrt</span>(a)'</tt> and
 <tt>'a <span class="op">**</span> 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
 is assigned to <tt>'result'</tt>.
+</p></div>
+
+<div><br /><a name="faq_functions_declared_with_const"><h3>Why are functions declared with const?
+</h3></a><hr />
+<p>
+A function declaration like
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">boolean</span>: isZero (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0;
+</pre><p>
+uses <tt><span class="keywd">const</span></tt>, because the body of the function
+</p><pre class="indent">
+<span class="keywd">return</span> number <span class="op_no_ul">=</span> 0;
+</pre><p>
+will not change at run-time. So <tt><span class="func">isZero</span></tt> will not suddenly
+compute something else. For the same reason, procedures are also
+defined with <tt><span class="keywd">const</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: procedureName ...
+</pre></div>
+
+<div><br /><a name="faq_functions_declared_without_const"><h3>Are there functions declared without const?
+</h3></a><hr />
+<p>
+There are function declarations that are not introduced with <tt><span class="keywd">const</span></tt>.
+Below is a <a class="link" href="#faq_call_by_name">call-by-name parameter</a> declared with <tt><span class="keywd">in</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: whileTrueDo (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: callByNameParam) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">while</span> callByNameParam <span class="keywd">do</span>
+      noop;
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+The call-by-name parameter <tt><span class="var">callByNameParam</span></tt> refers to the function
+provided as an actual parameter when <tt>whileTrueDo</tt> is called:
+</p><pre class="indent">
+whileTrueDo(<span class="func">getc</span>(<span class="var">IN</span>) <span class="op_no_ul">&lt;></span> '\n');
+</pre><p>
+Inside <tt>whileTrueDo</tt>, the call-by-name parameter cannot be changed,
+but depending on the actual parameter, it can refer to different
+functions in different invocations.
+</p><p>
+For functions without parameters, there is support to declare
+functions with <tt><span class="keywd">var</span></tt>. Except for test programs, this feature is not used,
+since <a class="link" href="#faq_object_oriented">object orientation</a> provides a much better mechanism to execute
+different functions at run-time.
 </p></div>
 
 <div><br /><a name="faq_integer_overflow"><h3>What is an integer overflow?
@@ -2537,8 +2683,8 @@ not follow this approach because it costs significant performance.
 </p><p>
 The approach that promotes integers requires a new encoding for integers.
 A new combined integer type that can encode a fixed size integer and a big
-integer in one memory location. The information, which representation
-contains the actual integer value, must also be encoded in this combined
+integer in one memory location. Information about the representation that
+is used must also be encoded in the memory location of the combined
 integer.
 </p><p>
 An encoding for a combined integer that is actually used by integer
@@ -2586,7 +2732,7 @@ if (!slow && !overflow_ocurred) {
       means, it must be checked if the actual value is a big integer,
       and if this is the case, the memory of the big integer must be
       freed.</li>
-   <li>Arrays and structs containing combined integers must do this also
+   <li>Arrays and structs containing combined integers must also do this
       for all their values.</li>
    <li>Every time a normal integer is needed (e.g. as parameter of an
       external function) the combined integer must be converted to a
@@ -2744,7 +2890,7 @@ In the following example the interface type <tt><span class="type">Number</span>
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
 The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
 The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:
@@ -2763,34 +2909,34 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
 </pre><p>
 The declarations of the converting <tt>'+'</tt> operators are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data := <span class="func">flt</span>(a.data) + b.data;
+    sum.data <span class="op_no_ul">:=</span> <span class="func">flt</span>(a.data) + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data := a.data + <span class="func">flt</span>(b.data);
+    sum.data <span class="op_no_ul">:=</span> a.data + <span class="func">flt</span>(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
   <span class="keywd">begin</span>
-    sum.data := a.data + b.data;
+    sum.data <span class="op_no_ul">:=</span> a.data + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data := a.data + b.data;
+    sum.data <span class="op_no_ul">:=</span> a.data + b.data;
   <span class="keywd">end func</span>;
 </pre><p>
 The decision which <tt>'+'</tt> operator should be called at runtime is based on the
@@ -2837,8 +2983,8 @@ Usage examples of abstract data types are:
 <p>
 As in C++, Java, C# and other hybrid object oriented languages there are
 predefined primitive types in Seed7. These are <tt><span class="type">integer</span></tt>, <tt><span class="type">char</span></tt>, <tt><span class="type">boolean</span></tt>,
-<tt><span class="type">string</span></tt>, <tt><span class="type">float</span></tt>, <tt><span class="type">rational</span></tt>, <tt><span class="type">time</span></tt>, <tt><span class="type">duration</span></tt> and others. Additionally to the
-predefined primitive types there is also the possibility to declare new primitive
+<tt><span class="type">string</span></tt>, <tt><span class="type">float</span></tt>, <tt><span class="type">rational</span></tt>, <tt><span class="type">time</span></tt>, <tt><span class="type">duration</span></tt> and others. In addition to the
+predefined primitive types, there is also the possibility to declare new primitive
 types.
 </p></div>
 
@@ -2848,7 +2994,7 @@ types.
 Variables with object types contain references to object values. This means
 that after
 </p><pre class="indent">
-a := b
+a <span class="op_no_ul">:=</span> b
 </pre><p>
 the variable 'a' refers to the same object as variable 'b'. Therefore changes
 of the object value that 'a' refers to, will effect variable 'b' as well (and
@@ -2857,7 +3003,7 @@ vice versa) because both variables refer to the same object.
 For primitive types a different logic is used. Variables with primitive types
 contain the value itself. This means that after
 </p><pre class="indent">
-a := b
+a <span class="op_no_ul">:=</span> b
 </pre><p>
 both variables are still distinct and changing one variable has no effect on
 the other.
@@ -2865,9 +3011,9 @@ the other.
 If 'a' and 'b' are declared to have type <tt>'<span class="type">aType</span>'</tt> which contains the integer
 field 'property' you can do the following:
 </p><pre class="indent">
-b.property := 1;
-a := b;
-b.property := 2;
+b.property <span class="op_no_ul">:=</span> 1;
+a <span class="op_no_ul">:=</span> b;
+b.property <span class="op_no_ul">:=</span> 2;
 </pre><p>
 Everything boils down to the question: What value does <tt>'a.property'</tt> have now.
 </p><ul>
@@ -2909,7 +3055,7 @@ the classic object oriented principles. In Seed7 every type has its own logic fo
 the assignment where sometimes a value copy and sometimes a reference copy is the
 right thing to do. Exactly speaking there are many forms of assignment since every
 type can define its own assignment. If a value copy works like a deep or a shallow
-copy can also be defined depending on the type.
+copy, it can also be defined depending on the type.
 </p><p>
 For example: For <tt><span class="type">integer</span></tt>, <tt><span class="type">char</span></tt> and <tt><span class="type">string</span></tt> variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with an
@@ -2944,7 +3090,7 @@ The create statements copies the right expression to the left expression taking
    into account that the left expression is undefined.
 </li><li>
 If the object is variable other values can be assigned using the assign
-   statement ( := ). The assignment can assume that the left expression contains a
+   statement ( <span class="op_no_ul">:=</span> ). The assignment can assume that the left expression contains a
    legal value. This allows that for strings (and some other types which are just
    references to a memory area) the memory containing the old string value (and not
    the memory of the object itself) can be freed if necessary.
@@ -2968,25 +3114,25 @@ class. If this is not desired Seed7 uses a special parameter, the <tt>'attr'</tt
 named class methods) in a more general way. How a static method is declared is
 shown in the following example:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd_no_ul">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    converted := <span class="func">ord</span>(ch);
+    converted <span class="op_no_ul">:=</span> <span class="func">ord</span>(ch);
   <span class="keywd">end func</span>;
 </pre><p>
 The function <tt>'convert_to'</tt> can be called as
 </p><pre class="indent">
-number := convert_to(<span class="type">integer</span>, 'a');
+number <span class="op_no_ul">:=</span> convert_to(<span class="type">integer</span>, 'a');
 </pre><p>
 Since the result of a function is not used to determine an overloaded function,
 this is sometimes the only way to use the same function name for different purposes
 as in:
 </p><pre class="indent">
-ch   := convert_to(<span class="type">char</span>,    1);
-stri := convert_to(<span class="type">string</span>,  1);
-ok   := convert_to(<span class="type">boolean</span>, 1);
-num  := convert_to(typeof(num), 1);
+ch   <span class="op_no_ul">:=</span> convert_to(<span class="type">char</span>,    1);
+stri <span class="op_no_ul">:=</span> convert_to(<span class="type">string</span>,  1);
+ok   <span class="op_no_ul">:=</span> convert_to(<span class="type">boolean</span>, 1);
+num  <span class="op_no_ul">:=</span> convert_to(typeof(num), 1);
 </pre><p>
 Attribute parameters allow a function to be attached to a certain type. But this
 concept is much more flexible than static methods (or class methods). A function
@@ -3036,12 +3182,12 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">&gt;=</span> 1 <span class="keywd">then</span>
-      aProg := <span class="func">parseFile</span>(<span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[1]</span>);
-      <span class="keywd">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+    <span class="keywd_no_ul">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">&gt;=</span> 1 <span class="keywd_no_ul">then</span>
+      aProg <span class="op_no_ul">:=</span> <span class="func">parseFile</span>(<span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[1]</span>);
+      <span class="keywd_no_ul">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd_no_ul">then</span>
         <span class="func">execute</span>(aProg, <span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[2 ..]</span>);
-      <span class="keywd">end if</span>;
-    <span class="keywd">end if</span>;
+      <span class="keywd_no_ul">end if</span>;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end func</span>;
 </pre></div>
 
@@ -3064,12 +3210,12 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
     <span class="keywd">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
   <span class="keywd">begin</span>
-    aProg := <span class="func">parseFile</span>(<span class="stri">"panic.sd7"</span>);
-    <span class="keywd">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+    aProg <span class="op_no_ul">:=</span> <span class="func">parseFile</span>(<span class="stri">"panic.sd7"</span>);
+    <span class="keywd_no_ul">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd_no_ul">then</span>
       <span class="keywd">for</span> aRef <span class="keywd">range</span> <span class="func">globalObjects</span>(aProg) <span class="keywd">do</span>
         <span class="func">writeln</span>(<span class="func">str</span>(aRef));
       <span class="keywd">end for</span>;
-    <span class="keywd">end if</span>;
+    <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end func</span>;
 </pre></div>
 
@@ -3136,16 +3282,87 @@ areas. All computations of memory sizes are protected against
 <div><br /><a name="faq_break_and_continue"><h3>How to define break and continue?
 </h3></a><hr />
 <p>
-The context of <tt>break</tt> and <tt>continue</tt> determines what they do. In this regard
-they are not statements on their own, but part of a surrounding statement.
-Just as <tt>goto</tt> statements they violate the concept of structured programming.
-Seed7 can define the syntax and semantic of all structured statements easily.
-E.g.: You can define a structured <span class="link">loop statement with an exit in the middle</span>.
-Since <tt>break</tt> and <tt>continue</tt> are not structured statements there is no
-straightforward way to implement them. But they could be implemented with
-<a class="link" href="#faq_exceptions">exceptions</a>. Often <tt>break</tt> and <tt>continue</tt> are seen as a trick to get more
-performance. <a class="link" href="#faq_exceptions">Exceptions</a> would not deliver that. For that reason and to promote
-structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are not supported.
+Just like <tt>goto</tt> statements, <tt>break</tt> and <tt>continue</tt> violate the
+concept of structured programming. As a programmer, you should
+imagine your loops as:
+</p><pre class="indent">
+<span class="keywd_no_ul">while</span> primaryCondition <span class="op_no_ul">and</span> 
+      loopCount <span class="op_no_ul">&lt;=</span> 1000 <span class="op_no_ul">and</span>
+      seconds <span class="op_no_ul">&lt;=</span> 3600 <span class="keywd_no_ul">do</span>
+  <span class="keywd_no_ul">if</span>  data <span class="op_no_ul">&lt;></span> <span class="stri">"undefined"</span> <span class="op_no_ul">and</span>
+      <span class="op_no_ul">not</span> doSkip <span class="keywd_no_ul">then</span>
+    do_something_useful;
+  <span class="keywd_no_ul">end if</span>;
+<span class="keywd_no_ul">end while</span>;
+</pre><p>
+instead of:
+</p><pre class="indent">
+<span class="keywd">while</span> primaryCondition <span class="keywd">do</span>
+  <span class="keywd">if</span> loopCount <span class="op_no_ul">&gt;</span> 1000 <span class="keywd">then</span> <b><span class="type">break</span></b>;
+  <span class="keywd">if</span> seconds <span class="op_no_ul">&gt;</span> 3600 <span class="keywd">then</span> <b><span class="type">break</span></b>;
+  <span class="keywd">if</span> someData <span class="op_no_ul">=</span> <span class="stri">"undefined"</span> <span class="keywd">then</span> <b><span class="type">continue</span></b>;
+  <span class="keywd">if</span> doSkip <span class="keywd">then</span> <b><span class="type">continue</span></b>;
+  do_something_useful;
+<span class="keywd">end while</span>;
+</pre><p>
+A <tt>goto</tt> or anything like it compromises <a class="link" href="#faq_readability">readability</a>.
+Non-structured statements are frequently used as shortcuts to
+avoid restructuring the program's flow. You should overcome
+the temptation to introduce <tt>break</tt> or <tt>continue</tt>. Usually,
+this is a sign that the code is too complex and should be
+refactored. Seed7 provides many loops that help in this
+regard.
+</p><p>
+The context of <tt>break</tt> and <tt>continue</tt> determines what they do.
+In this regard, they are not statements on their own but part
+of a surrounding statement. The surrounding statement defines
+what <tt>break</tt> and <tt>continue</tt> do. Every time a programmer
+defines a new statement, it would be necessary to specify the
+behavior of <tt>break</tt> and <tt>continue</tt>. This could be done by
+specifying labels (which do not exist in Seed7):
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: loop
+              (<span class="keywd_no_ul">in</span> <a class="type_no_ul" href="#types_proc">proc</a>: statements)
+            end loop <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">repeat</span>
+      <b><span class="type">continueLabel</span></b>:
+      statements;
+    <span class="keywd">until</span> <span class="var">FALSE</span>;
+    <b><span class="type">breakLabel</span></b>:
+  <span class="keywd">end func</span>;
+</pre><p>
+So labels and <tt>goto</tt> would be needed to introduce <tt>break</tt> and
+<tt>continue</tt>. Beyond that, all user defined loops would need to
+consider them.
+</p><p>
+Seed7 can define the syntax and semantic of all structured
+statements easily. E.g.: You can define a structured
+<span class="link">loop statement with an exit in the middle</span> and use it with:
+</p><pre class="indent">
+<span class="keywd">loop</span>
+  ch <span class="op_no_ul">:=</span> <span class="func_no_ul">getc</span>(inFile);
+<span class="keywd">until</span> ch <span class="op_no_ul">=</span> <span class="stri">'\n'</span> <span class="keywd">do</span>
+  stri <span class="op_no_ul">&amp;:=</span> ch;
+<span class="keywd">end loop</span>;
+</pre><p>
+Instead of insisting on <tt>break</tt> and <tt>continue</tt>, it would make
+sense to propose structured statements that can replace them.
+</p><p>
+The <tt>break</tt> and <tt>continue</tt> statements are often seen as a
+trick to get more performance at the expense of <a class="link" href="#faq_readability">readability</a>.
+These performance wins are questionable. Given todays
+optimization techniques, the compiler might generate the
+same machine code from clean source code without <tt>break</tt>
+and <tt>continue</tt>.
+</p><p>
+Since <tt>break</tt> and <tt>continue</tt> are not structured statements,
+there is no straightforward way to implement them. However,
+they could be implemented with <a class="link" href="#faq_exceptions">exceptions</a>. If an exception
+is thrown there is some overhead. So an implementation with
+exceptions will not deliver maximum performance. For that
+reason, and to promote structured programming, <tt>break</tt>,
+<tt>continue</tt> and <tt>goto</tt> are not supported.
 </p></div>
 
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?
@@ -3153,7 +3370,7 @@ structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are n
 <p>
 Yes, Seed7 has exceptions which are similar to Ada exceptions. In <span class="link">chapter 16.3
 (Exceptions)</span> of the manual you will find a detailed description of the Seed7
-exceptions. The use of exceptions improves also readability. E.g.:
+exceptions. The use of exceptions also improves readability. E.g.:
 </p><pre class="indent">
 doA();
 doB();
@@ -3269,8 +3486,8 @@ Alternatively the <a class="link" href="#faq_compile">compiler</a> can generate 
 <p>
 Traditionally C source files are compiled separately into object files. These
 object files are later linked together into one executable file. Optimizations
-regarding two object files cannot be done. Link time optimization (LTO) allows
-also these optimizations. Gcc and clang support LTO, by writing their intermediate
+regarding two object files cannot be done. Link time optimization (LTO) also allows
+these optimizations. Gcc and clang support LTO, by writing their intermediate
 representations to the object files. This way interprocedural optimizations can
 be done when the object files are linked. C compiler, linker and archiver need
 to support LTO.
@@ -3432,8 +3649,8 @@ The <span class="link">Seed7 compiler</span> uses the runtime libraries <tt><spa
 <tt><span class="link">COMP_DATA_LIB</span></tt> and <tt><span class="link">COMPILER_LIB</span></tt> in the directory <tt><span class="link">S7_LIB_DIR</span></tt> when it links object
 files to an executable. Config values like <tt><span class="link">RSHIFT_DOES_SIGN_EXTEND</span></tt>,
 <tt><span class="link">TWOS_COMPLEMENT_INTTYPE</span></tt> and <tt><span class="link">LITTLE_ENDIAN_INTTYPE</span></tt> are used to control the kind
-of C code produced by the <span class="link">Seed7 compiler</span>. The library <span class="lib">cc_conf.s7i</span> provides
-also access to config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are
+of C code produced by the <span class="link">Seed7 compiler</span>. The library <span class="lib">cc_conf.s7i</span> also
+provides access to config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are
 defined in <nobr><span class="lib">seed7/src/config.h</span></nobr>. E.g.:
 </p><pre class="indent">
 #define WITH_STRI_CAPACITY 1
@@ -3499,7 +3716,7 @@ databases. During the compilation of the Seed7 interpreter the program
 <tt><span class="stri">"chkccomp.c"</span></tt> searches for the availability of database connector libraries
 and the corresponding database include files (*.h header files). The
 connector libraries are provided by the database and can be static or
-dynamic. Often a connector library provides also a database include file
+dynamic. Often a connector library also provides a database include file
 (column <b>DB include</b> below). If the database include file is missing Seed7
 uses its own database include file (the one from the column <b>Other *.h</b>
 below). The names of the connector libraries can be specified in the
@@ -3622,7 +3839,7 @@ environment as parameter.
 When a function with call-by-name parameters is called the following things are
 done: For every actual call-by-name parameter a closure structure with the
 function pointer and the closure environment structure is generated. An actual
-function representing the closure code is also generated. Before a function with a
+function representing the closure code is generated as well. Before a function with a
 call-by-name parameter is called a closure structure variable is initialized. This
 includes initializing the function pointer and the environment data of the closure
 structure variable. Finally a pointer to the closure structure variable is used as

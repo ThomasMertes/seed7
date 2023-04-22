@@ -704,23 +704,28 @@ const type: ccConfigType is new struct
 
     (**
      *  Linker option to specify the stack size of the executable.
-     *  If no such option exists the value of LINKER_OPT_STACK_SIZE
-     *  should be "".
+     *  The argument for LINKER_OPT_STACK_SIZE is the stack size in
+     *  bytes as decimal number. It must follow LINKER_OPT_STACK_SIZE
+     *  immediately. The Seed7 compiler uses an argument of either
+     *  DEFAULT_STACK_SIZE or the value specified with the -S Seed7
+     *  compiler option. If no linker option for the stack size exists
+     *  LINKER_OPT_STACK_SIZE is "".
      *)
     var string: LINKER_OPT_STACK_SIZE         is "";
 
     (**
      *  Standard linker options to link a compiled program.
-     *  This is intended for options that specify the stack size or
-     *  similar things (e.g.: "-Wl,--gc-sections,--stack,4194304").
+     *  This contains options, that the linker always uses, and which
+     *  are not covered by other LINKER_OPT_... settings.
      *)
     var array string: LINKER_FLAGS            is 0 times "";
 
     (**
      *  Default stack size for a compiled executable.
+     *  This value is used, if the Seed7 compiler is invoked without -S.
      *  If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
-     *  as argument for the stack size. Additionally
-     *  DEFAULT_STACK_SIZE as argument for setupStack().
+     *  as argument for the stack size. Additionally DEFAULT_STACK_SIZE
+     *  is used as argument for setupStack().
      *)
     var integer: DEFAULT_STACK_SIZE           is 0;
 

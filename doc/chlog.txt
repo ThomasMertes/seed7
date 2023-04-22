@@ -1,3 +1,112 @@
+20230422:
+- The compiler option -S to specify the stack size has been added.
+  Many thanks to Bruce Axtens for pointing out problems with the
+  Ackermann function at RosettaCode. This triggered the -S improvement.
+- Many thanks to Bruce Axtens for adding Seed7 to the Exercism project.
+  Discussions about that resulted in several improvements:
+  - Now call-by-name parameters can be specified with 'in' and 'ref'.
+  - Support for syntax statements without $ (dollar) has been added.
+  - The error message for an unspecified kind of in-parameter has been
+    improved.
+- Many thanks to Gary Chike for pointing out problems:
+  - The RosettaCode example "Convert decimal number to rational" did
+    not work correct. To fix that, the function fraction(), which gets
+    a fraction as string (e.g. "1/3"), has been added to bigrat.s7i and
+    rational.s7i.
+  - Mac OS 13.2.1 had permission problems when installing Seed7. The
+    copying of manual pages failed. In mk_osx.mak and mk_osxcl.mak, the
+    copying of the s7 and s7c manual pages to /usr/share/man/man1 has
+    been changed to allow a failure.
+  - On some computers, vim syntax highlighting is turned off by
+    default. The FAQ has been improved to describe the steps for
+    enabling vim syntax highlighting.
+- Explanations about design principles, compiler options, syntax
+  highlighting, forward declarations, function overloading, function
+  declarations and declaring break/continue statements have been
+  added or improved in the FAQ.
+- Chapters about function declarations and overloading have been
+  added to the tutorial (part of the manual).
+- In the manual the chapters about types, parameters and expressions
+  have been improved.
+- In seed7_05.s7i the function literal() has been defined for
+  enumeration types.
+- The files panic.sd7, wiz.sd7, savehd7.sd7, cards.s7i, sql_base.s7i
+  and boolean.s7i have been changed to use the new function literal().
+- Support for the ternary operator ?: has been added for enumerations
+  and for the types 'type' and 'category'.
+- The compiler (s7c.sd7) has been improved:
+  - At several places the function integerLiteral() is used instead of
+    str() to create integer literals.
+  - Assignments to temp variables in inline functions have been fixed.
+    This allows: float parse ("0." & "0" mult 307 & "1")
+  - If-statements are used in overflow checks for the operators +:=,
+    -:=, *:=, <<:= and >>:=.
+  - Generated temporary variables have been renamed in int_act.s7i.
+  - The code of the factorial function has been optimized.
+  - Support for the action ENU_LIT has been added.
+  - The action ENU_LIT has been added to the list of special actions.
+  - Allocated result data of inlined special actions is now freed.
+  - Now integer comparisons are checked with -oc3 if they can be
+    computed at compile time. With -w2, a warning is written if this
+    is the case.
+  - The compiler option -S to specify the stack size has been added.
+- In zip.s7i the function fileMode() has been fixed to work for short
+  file names.
+- The test program chkflt.sd7 has been improved to have detailed error
+  messages. Tests for converting between floats to strings in both
+  directions have been added as well.
+- Definitions of LINKER_OPT_STACK_SIZE and DEFAULT_STACK_SIZE have been
+  added to cc_conf.s7i. The file cmd_rtl.c and the program confval.sd7
+  have been adjusted accordingly.
+- The interpreter has been improved to support the actions DCL_SYNTAX,
+  ENU_LIT and PRC_BEGIN_NOOP.
+- Support for empty func ... end func constructs has been added.
+- The error messages "Syntax declared twice", "Associativity expected",
+  "Dot expression expected" and "Integer literal expected" have been
+  improved in error.c.
+- The functions err_expr_type() and err_expr_obj_stri() have been added
+  to error.c.
+- In fil_rtl.c the function filClose() has been improved to work
+  correctly if fclose() fails after a previous error.
+- In flt_rtl.c the function fltParse() has been improved to consider
+  STRTOD_ACCEPTS_INF, STRTOD_ACCEPTS_INFINITY, STRTOD_ACCEPTS_NAN and
+  STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS.
+- In gkb_win.c definitions of XBUTTON1, XBUTTON2, WM_MOUSEWHEEL,
+  GET_WHEEL_DELTA_WPARAM, VK_OEM_PLUS, VK_OEM_MINUS and VK_OEM_1 to
+  VK_OEM_8 are added if they are not present in the include files.
+- In heaputl.c the function setupStack() has been improved to have the
+  requested stack size as a parameter.
+- In os_decls.h the definition of safe_fileno() has been improved to
+  use os_fileno() instead of fileno().
+- Functions for X11 selection (cut and paste) have been added to
+  fwd_x11.c and x11_x.h.
+- In pcs_unx.c and pcs_win.c the function pcsPipe2() has been improved
+  to leave *childStdin and *childStdout unchanged if the corresponding
+  call of os_fdopen() fails.
+- The function prc_begin_noop() has been added to prclib.c.
+- In soc_rtl.c the functions socInetAddr(), socInetLocalAddr() and
+  socInetServAddr() have been improved to set 'result' to NULL if
+  ai_addrlen is negative.
+- The function prot_dot_expr() has been added to traceutl.c. This
+  function is used to write the error message SYNTAX_DECLARED_TWICE.
+- The program chkccomp.c has been improved to determine
+  STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS, STRTOD_ACCEPTS_INF,
+  STRTOD_ACCEPTS_INFINITY, STRTOD_ACCEPTS_NAN,
+  OS_GETCWD_INCLUDE_DIRECT_H, OS_OPENDIR_INCLUDE_DIRECT_H and
+  FCLOSE_FAILS_AFTER_PREVIOUS_ERROR. The computation of
+  FLOAT_NAN_COMPARISON_OKAY has been improved.
+- In chkccomp.c recent PostgreSQL versions are considered now.
+- In cmd_rtl.c and dir_drv.h the file direct.h is now conditionally
+  included depending on OS_GETCWD_INCLUDE_DIRECT_H respectivily
+  OS_OPENDIR_INCLUDE_DIRECT_H.
+- Includes of stdlib.h have been added to literal.c, sql_rtl.c,
+  syvarutl.c and tim_rtl.c.
+- The makefiles mk_bcc32.mak, mk_bccv5.mak, mk_clangw.mak, mk_cygw.mak,
+  mk_mingc.mak, mk_mingw.mak, mk_msvc.mak, mk_msys.mak, mk_nmake.mak
+  and mk_tcc_w.mak have been improved to define DEFAULT_STACK_SIZE and
+  LINKER_OPT_STACK_SIZE.
+- Documentation comments have been added to float.s7i and rational.s7i.
+
 20230305:
 - The make7 example program has been improved to support quoted
   dependencies (changes have been made in makedata.s7i). A warning is

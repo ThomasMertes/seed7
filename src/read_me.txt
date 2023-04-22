@@ -1310,6 +1310,9 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
 
   USE_WINMAIN: Defined if the main function is named WinMain.
 
+  USE_DO_EXIT: TRUE if the main function must be terminated
+               with doExit().
+
   SEARCH_PATH_DELIMITER: The paths in the PATH environment
                          variable are separated with this
                          character. Linux/Unix/BSD use ':' and
@@ -1515,27 +1518,58 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
           C compiler. In that case LINKER contains the command to
           call the stand-alone linker.
 
-  LINKER_FLAGS: Contains options for the stand-alone linker to link
-                a compiled Seed7 program.
+  LINKER_FLAGS:
+      Standard linker options to link a compiled program.
+      This contains options, that the linker always uses, and which
+      are not covered by other LINKER_OPT_... settings.
 
-  LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
-                         level debugging information to the
-                         executable file. Many compiler/linker
-                         combinations don't need this option
-                         to do source level debugging.
+  LINKER_OPT_DEBUG_INFO:
+      Linker option to add source level debugging information.
+      With this option source level debugging information is
+      added to the executable file. (e.g.: "-Z7" or "-v").
+      Many compiler/linker combinations don't need this option
+      to do source level debugging.
 
-  LINKER_OPT_NO_DEBUG_INFO: Linker option to be used without
-                            source level debugging. This option
-                            can strip debug information (e.g.:
-                            "-Wl,--strip-debug").
+  LINKER_OPT_LTO_MANDATORY:
+      TRUE if linking always requires the option
+      CC_OPT_LINK_TIME_OPTIMIZATION.
 
-  LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
-                          output filename (e.g.: "-o "). If no
-                          such option exists the definition of
-                          LINKER_OPT_OUTPUT_FILE should be omitted.
+  LINKER_OPT_NO_DEBUG_INFO:
+      Linker option to be used without source level debugging.
+      This option can strip debug information (e.g.: "-Wl,--strip-debug").
 
-  LINKER_OPT_STATIC_LINKING: Contains the linker option to force
-                             static linking (e.g.: "-static").
+  LINKER_OPT_OUTPUT_FILE:
+      Linker option to provide the output filename (e.g.: "-o ").
+      If no such option exists the definition of
+      LINKER_OPT_OUTPUT_FILE is omitted. In this
+      case it is assumed that the linker replaces the
+      OBJECT_FILE_EXTENSION of the file with the
+      LINKED_PROGRAM_EXTENSION.
+
+  LINKER_OPT_SPECIAL_LIB:
+      Linker option that needs to precede the special library.
+      If no special library exists the definition of
+      LINKER_OPT_SPECIAL_LIB is omitted.
+
+  LINKER_OPT_STACK_SIZE:
+      Linker option to specify the stack size of the executable.
+      The argument for LINKER_OPT_STACK_SIZE is the stack size in
+      bytes as decimal number. It must follow LINKER_OPT_STACK_SIZE
+      immediately. The Seed7 compiler uses an argument of either
+      DEFAULT_STACK_SIZE or the value specified with the -S Seed7
+      compiler option. If no linker option for the stack size exists
+      the definition of LINKER_OPT_STACK_SIZE is omitted.
+
+  LINKER_OPT_STATIC_LINKING:
+      Contains the linker option to force
+      static linking (e.g.: "-static").
+
+  DEFAULT_STACK_SIZE:
+      Default stack size for a compiled executable.
+      This value is used, if the Seed7 compiler is invoked without -S.
+      If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
+      as argument for the stack size. Additionally DEFAULT_STACK_SIZE
+      is used as argument for setupStack().
 
   POTENTIAL_PARTIAL_LINKING_OPTIONS:
       A comma separated list of potential partial/incremental linking options.
@@ -1651,14 +1685,14 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   MACRO_DEFS: String with macro definitions for likely, unlikely
               and NORETURN.
 
-  NO_SOCKETS Defined as -1. The meaning is: There is no socket
-             library.
+  NO_SOCKETS: Defined as -1. The meaning is: There is no socket
+              library.
 
-  UNIX_SOCKETS Defined as 1. The meaning is: The operating system
-               uses Unix sockets.
+  UNIX_SOCKETS: Defined as 1. The meaning is: The operating system
+                uses Unix sockets.
 
-  WINSOCK_SOCKETS Defined as 2. The meaning is: The operating system
-               uses Windows sockets.
+  WINSOCK_SOCKETS: Defined as 2. The meaning is: The operating system
+                   uses Windows sockets.
 
   SOCKET_LIB: Defines the socket library used. The value is one of
               NO_SOCKETS, UNIX_SOCKETS and WINSOCK_SOCKETS.
@@ -2169,6 +2203,18 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   POW_EXP_MINUS_INFINITY_OKAY: TRUE if the pow() function works
                                correct for an exponent of minus
                                infinity.
+
+  STRTOD_ACCEPTS_INF: TRUE if strtod() accepts "INF"
+                      disregarding case and returns Infinity.
+
+  STRTOD_ACCEPTS_INFINITY: TRUE if strtod() accepts "INFINITY"
+                           disregarding case and returns Infinity.
+
+  STRTOD_ACCEPTS_NAN: TRUE if strtod() accepts "NAN"
+                      disregarding case  and returns NaN.
+
+  STRTOD_ACCEPTS_SIGN_WITHOUT_DIGITS: TRUE if strtod() accepts "+"
+                                      or "-" as numeric literal.
 
   LOG_OF_NAN_OKAY: TRUE if log(NaN) returns NaN.
 

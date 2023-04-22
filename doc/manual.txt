@@ -30,9 +30,11 @@ CONTENTS
   2.3     Local declarations and expressions
   2.4     For loop and float expressions
   2.5     For loop and containers
-  2.6     Parameters
-  2.7     Declare a statement
-  2.8     Template declaring a statement
+  2.6     Functions
+  2.7     Parameters
+  2.8     Overloading
+  2.9     Declare a statement
+  2.10    Template declaring a statement
   3.    DECLARATIONS
   3.1     Normal declarations
   3.2     Syntax declarations
@@ -339,7 +341,7 @@ CONTENTS
 
     - There are checks for array indices and integer overflow.
 
-    - overloading of procedures/functions/operators/statements
+    - Overloading of procedures/functions/operators/statements
 
     - Various predefined types like resizable arrays, hashes,
       bitsets, structs, etc.
@@ -492,10 +494,6 @@ CONTENTS
 2. TUTORIAL
 ===========
 
-    At the beginning we show how the basic features, that every programming
-  language has, look like in Seed7.
-
-
 2.1 Hello world
 
     Below is the hello world program of Seed7:
@@ -578,12 +576,13 @@ CONTENTS
   Variables must be defined. The place to to define and initialize
   all variables of a function is after the keyword local.
 
-        var string: name is "";
+    var string: name is "";
 
   This defines the 'string' variable 'name'. This definition assigns
-  also the initial value "" to 'name'. In Seed7 variables must be
-  defined and always get an initial value. This seems unnecessary in
-  small programs, but if programs grow bigger it helps readability a lot.
+  also the initial value "" to 'name'. The value "" is the empty string
+  (it contains no characters). In Seed7 variables must be defined and
+  always get an initial value. This seems unnecessary in small
+  programs, but if programs grow bigger it helps readability a lot.
 
   The 'write' statement is similar to 'writeln', but it does not write
   a newline character. The 'readln' statement reads a line from the
@@ -617,9 +616,39 @@ CONTENTS
         end if;
       end func;
 
-  There can be zero or more 'elsif' parts, and the 'else' part
-  is optional. As you can see the equality of strings is checked with '='.
-  An if-statement is one way to improve the greeting program.
+  There can be zero or more 'elsif' parts, and the 'else' part is
+  optional. As you can see the equality of strings is checked with '='.
+  The conditions of an if-statement decide what to do. By chance both
+  conditions in the example above use the variable 'name'. This special
+  case opens the oportunity to use a case-statement instead:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: name is "";
+      begin
+        write("What's your name? ");
+        readln(name);
+        case name of
+          when {""}:
+            writeln("Greetings to the person who pressed enter!");
+          when {"name"}:
+            writeln("Interesting, your name is name.");
+          when {"Linus", "Torvalds"}:
+            writeln("Are you the inventor of Linux?");
+          otherwise:
+            writeln("Hi " <& name <& "!");
+        end case;
+      end func;
+
+  As it can be seen, the keyword 'when' is followed
+  by a comma-separated list of values surrounded by braces.
+  This is the set of values covered by this when-part.
+  Depending on the value of 'name' one when-part is executed.
+  If no when-part fits the otherwise-part is executed.
+
+  This is not the only way to improve the greeting program.
   Alternatively we can use a loop to insist on entering a name:
 
     $ include "seed7_05.s7i";
@@ -720,8 +749,10 @@ CONTENTS
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
 
-    $ include "seed7_05.s7i";
-      include "float.s7i";
+    # Print a Fahrenheit-Celsius table with foating point numbers.
+
+    $ include "seed7_05.s7i";  # This must be included first.
+      include "float.s7i";     # Subsequent includes do not need a $.
 
     const proc: main is func
       local
@@ -737,11 +768,13 @@ CONTENTS
         end for;
       end func;
 
-  To use the type 'float' it is necessary to include "float.s7i".
-  The 'float' variable 'celsius' must be initialized with 0.0
-  (instead of 0). The for-loop executes the loop body with
-  different values of 'fahr' (0, 20, 40 .. 280, 300). Omitting
-  the 'step' part corresponds to a step of 1:
+  Everything between # the end of the line is a line comment,
+  which is ignored. To use the type 'float' it is necessary
+  to include "float.s7i". The 'float' variable 'celsius'
+  must be initialized with 0.0 (instead of 0). The for-loop
+  executes the loop body with different values of 'fahr'
+  (0, 20, 40 .. 280, 300). Omitting the 'step' part corresponds
+  to a step of 1:
 
     for fahr range lower to upper do
       celsius := flt(5 * (fahr - 32)) / 9.0;
@@ -788,8 +821,13 @@ CONTENTS
       end func;
 
   In the example above '[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)'
-  is an array literal. For-loops can also iterate over the elements
-  of a 'set':
+  is an array literal. This array literal has the type
+  'array integer' and it is indexed from one. A corresponding
+  array literal indexed from 0 would be:
+
+    [0] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
+
+  For-loops can also iterate over the elements of a 'set':
 
     $ include "seed7_05.s7i";
 
@@ -804,7 +842,12 @@ CONTENTS
       end func;
 
   In the example above '{"Mercury", "Venus", "Earth", "Mars"}' is a set
-  literal. For-loops can iterate over the characters of a 'string':
+  literal. The type of this literal is 'set of string'. Other set literals are:
+
+    {1, 2}
+    {'a', 'e', 'i', 'o', 'u'}
+
+  For-loops can iterate over the characters of a 'string':
 
     $ include "seed7_05.s7i";
 
@@ -893,7 +936,100 @@ CONTENTS
       end func;
 
 
-2.6 Parameters
+2.6 Functions
+
+    The program below uses the function 'flipCoin' to flip
+  a coin until the result is heads:
+
+    $ include "seed7_05.s7i";
+
+    const func boolean: flipCoin is
+      return rand(FALSE, TRUE);
+
+    const proc: main is func
+      local
+        var boolean: heads is FALSE;
+      begin
+        repeat
+          write("Press enter to flip the coin. ");
+          readln;
+          heads := flipCoin;
+          writeln(heads ? "heads" : "tails");
+        until heads;
+      end func;
+
+  In the example above, the function 'flipCoin' is declared as
+  constant. As 'const' the code of 'flipCoin' will not change
+  during run-time. The type 'func boolean' determines that the
+  function returns a 'boolean' value. The task of the function
+  'flipCoin' is to return a random 'boolean' value. This is
+  done with:
+
+    return rand(FALSE, TRUE);
+
+  The actual random value is computed with the expression
+
+    rand(FALSE, TRUE);
+
+  The statement
+
+    heads := flipCoin;
+
+  assigns the result of 'flipCoin' to 'heads'. Afterwards
+  'heads' is written with the ternary operator (?:). If 'heads'
+  is TRUE, it writes "heads" otherwise "tails".
+
+  The program below reads a multi-line paragraph:
+
+    $ include "seed7_05.s7i";
+
+    const func string: readMultiLineParagraph is func
+      result
+        var string: multiLineParagraph is "";
+      local
+        var string: line is "";
+      begin
+        repeat
+          write("line: ");
+          line := getln(IN);
+          multiLineParagraph &:= line & "\n";
+        until line = "";
+      end func;
+
+    const proc: main is func
+      begin
+        writeln("Enter a multi line paragraph. An empty line ends the paragraph.");
+        writeln("\nThe paragraph is:\n" <& readMultiLineParagraph);
+      end func;
+
+  The declaration of 'readMultiLineParagraph' above contains the construct:
+
+    func
+    ...
+    end func
+
+  The function 'readMultiLineParagraph' gets the
+  'func ... end func' construct as value. This construct can be used to initialize
+  functions and procedures. Note that 'proc' is just a shortcut
+  for 'func void' and that 'void' describes the empty type.
+  Inside of the 'func ... end func' construct are the keywords
+  'result', 'local' and 'begin':
+
+  - The keyword 'result' introduces the declaration of the
+    result variable. When the function is finished, it will
+    return the current value of the result variable.
+  - The keyword 'local' introduces constant and variable
+    declarations that are local to the function.
+  - The keyword 'begin' introduces a sequence of statements
+    that is executed when the function is called.
+
+  As can be seen from the function 'main' above, the 'result' and
+  'local' parts are optional. If the function type is 'proc',
+  the 'result' part must be omitted. For all other functions
+  the 'result' part is mandatory.
+
+
+2.7 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -1021,7 +1157,85 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.7 Declare a statement
+2.8 Overloading
+
+    Functions are not only identified by identifiers but also
+  via the types of their parameters. So several versions of a
+  function can be defined:
+
+    $ include "seed7_05.s7i";
+      include "float.s7i";
+      include "bigint.s7i";
+      include "bigrat.s7i";
+
+    const func float:       tenPercent (in float: amount)      is return amount / 10.0;
+    const func float:       tenPercent (in integer: amount)    is return float(amount) / 10.0;
+    const func bigRational: tenPercent (in bigInteger: amount) is return amount / 10_;
+
+    const proc: main is func
+      begin
+        writeln(tenPercent(123));
+        writeln(tenPercent(123.0));
+        writeln(tenPercent(123_));
+      end func;
+
+  The example above defines the function 'tenPercent' for the
+  types 'float', 'integer' and 'bigInteger'. Two of these
+  functions return a 'float' and one returns a 'bigRational'.
+  This reuse of the same function name is called overloading.
+  The literals '123', '123.0' and '123_' have the types
+  'float', 'integer' and 'bigInteger' respectively. This
+  allows an easy identification of the 'tenPercent' function
+  used. Note that 'writeln' is also overloaded. Otherwise
+  'writeln' would not be able to accept 'float' and
+  'bigRational' arguments.
+
+  Overloading does not consider the result of a function.
+  The following example attempts to overload 'addOne'
+  with the same parameter type and a different result type:
+
+    const func integer: addOne (in integer: num) is return num + 1;
+    const func float:   addOne (in integer: num) is return float(num) + 1.0;
+
+  Return type overloading is not supported. Therefore
+  the attempt above results in the compile-time error:
+
+    *** tst344.sd7(5):34:  addOne (val integer param)  declared twice
+    const func float:   addOne (in integer: num) is return float(num) + 1.0;
+    ------------------------------------------------------------------------^
+
+  The absence of return type overloading improves readability,
+  since:
+
+     The type of every expression (and sub expression) is independent of the context.
+
+  You don't need to look where an expression is used. The
+  expression alone gives you enough information to determine
+  the type of the expression.
+
+  Operators like + can be overloaded with:
+
+    $ include "seed7_05.s7i";
+      include "float.s7i";
+
+    const func float: (in integer: summand1) + (in float: summand2) is
+        return float(summand1) + summand2;
+
+    const func float: (in float: summand1) + (in integer: summand2) is
+        return summand1 + float(summand2);
+
+    const proc: main is func
+      begin
+        writeln(123 + 123.456);
+        writeln(123.456 + 123);
+      end func;
+
+  The definitions of the + operator above allow mixing of
+  'integer' and 'float' arguments. The overloaded + operators
+  above are taken from the "mixarith.s7i" library.
+
+
+2.9 Declare a statement
 
     This example program writes its arguments
 
@@ -1064,7 +1278,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.8 Template declaring a statement
+2.10 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:
@@ -1303,6 +1517,7 @@ CONTENTS
     $ system "index_error" is INDEX_ERROR;
     $ system "file_error" is FILE_ERROR;
     $ system "database_error" is DATABASE_ERROR;
+    $ system "graphic_error" is GRAPHIC_ERROR;
     $ system "illegal_action" is ILLEGAL_ACTION;
 
     $ system "assign" is := ;
@@ -2217,6 +2432,10 @@ CONTENTS
                   ( Type of result: string,
                     str(FALSE) => "FALSE",
                     str(TRUE) => "TRUE" )
+      literal(A) Convert a boolean value to a boolean literal.
+                  ( Type of result: string,
+                    literal(FALSE) => "FALSE",
+                    literal(TRUE) => "TRUE" )
       rand(A, B) Random value in the range [A, B]
                  The random values are uniform distributed.
                   ( rand(A, B) returns a random value such that
@@ -2789,6 +3008,9 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(9876543210_) => "9876543210" )
+      literal(A) Convert a bigInteger number to a bigInteger literal.
+                  ( Type of result: string,
+                    literal(9876543210_) => "9876543210_" )
       bigInteger(A) Convert an integer to a bigInteger
                   ( Type of argument A: integer,
                     bigInteger(1) => 1_ )
@@ -3405,7 +3627,18 @@ CONTENTS
                     NaN sci 7 exp 2 => "NaN",
                     -0.004 sci 2 exp 2 => "-4.00e-03" )
       float parse A   Conversion of string to float
-                  ( Type of argument A: string )
+                  ( Type of argument A: string,
+                    float parse "1.2345"    =>  1.2345,
+                    float parse "1.2345e6"  =>  1234500.0,
+                    float parse "-1.0e-308" => -1.0e-308,
+                    float parse "1"         =>  1.0,
+                    float parse "2."        =>  2.0,
+                    float parse ".5"        =>  0.5,
+                    float parse "-.25"      => -0.25,
+                    float parse "Infinity"  =>  Infinity,
+                    float parse "-Infinity" => -Infinity,
+                    float parse "NaN"       =>  NaN,
+                    float parse "3.14PI"    =>  EXCEPTION RANGE_ERROR )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
@@ -3417,7 +3650,18 @@ CONTENTS
                   ( Type of argument A: integer,
                     float(1) => 1.0 )
       float(A)  Conversion of string to float
-                  ( Type of argument A: string )
+                  ( Type of argument A: string,
+                    float("1.2345")    =>  1.2345,
+                    float("1.2345e6")  =>  1234500.0,
+                    float("-1.0e-308") => -1.0e-308,
+                    float("1")         =>  1.0,
+                    float("2.")        =>  2.0,
+                    float(".5")        =>  0.5,
+                    float("-.25")      => -0.25,
+                    float("Infinity")  =>  Infinity,
+                    float("-Infinity") => -Infinity,
+                    float("NaN")       =>  NaN,
+                    float("3.14PI")    =>  EXCEPTION RANGE_ERROR )
       floor(A)  Truncation towards negative infinity
                   ( floor( 1.8) =>  1.0, floor( 1.0) =>  1.0,
                     floor(-1.0) => -1.0, floor(-1.2) => -2.0,
@@ -4045,8 +4289,8 @@ CONTENTS
     var striArrayType: striArr2 is 0 times "";          # Empty array with starting index 1.
     var striArrayType: striArr4 is [0 .. -1] times "";  # Empty array with starting index 0.
     var striArrayType: striArr3 is [0 len 0] times "";  # Empty array with starting index 0.
-    var striArrayType: striArr5 is [] ("one", "two");
-    var striArrayType: striArr6 is [0] ("zero", "one");
+    var striArrayType: striArr5 is [] ("one", "two");   # Array with two string elements and starting index 1.
+    var striArrayType: striArr6 is [0] ("zero", "one"); # Array with two string elements and starting index 0.
     var structArrayType: structArr1 is structArrayType.value;
     var structArrayType: structArr2 is 10 times aStructType.value;
     var structArrayType: structArr3 is [42 .. 365] times aStructType.value;
@@ -4331,6 +4575,9 @@ CONTENTS
     Constants:
       {}                 Empty set of the type bitset
       EMPTY_SET          Empty set of the type bitset
+      {1, 2}             Set with 1 and 2 (type: bitset)
+      {'a', 'b', 'c'}    Set with three characters.
+      {"black", "white"} Set with two strings.
       bitset.value       Default value of bitset ({})
       setType.EMPTY_SET  Empty set of the type setType
       setType.value      Default value of setType (setType.EMPTY_SET)
@@ -4496,7 +4743,7 @@ CONTENTS
       var aType: name is value
                 Declare structure element 'name' with 'value'
 
-    Infixoperators:
+    Infix operators:
       .         Access Element of STRUCT
                   ( example.element )
       ->        Access Element of ptr STRUCT
@@ -4522,33 +4769,65 @@ CONTENTS
   For an enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the functions 'str' and 'parse' in order to
-  do I/O for a new enumeration type.
+  do I/O for a new enumeration type. E.g.:
+
+    const func string: str (in enumType: enumValue) is
+        return literal(enumValue);
+
+    enable_output(enumType);
+
+  The need to define 'str' opens the oportunity to convert to
+  strings, that differ from the original literals.
 
     Constants:
       enumType.value  Default value of enumType (enum_literal1)
       enumType.first  Minimum value of enumType (enum_literal1)
       enumType.last   Maximum value of enumType (enum_literal2)
     Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       enumType conv A  Conversion from integer A to enumType
                   ( Type of argument A: integer,
                     enumType conv 0 => enum_literal1,
+                    enumType conv 1 => enum_literal2,
+                    enumType conv 2 => EXCEPTION RANGE_ERROR,
                     enumType conv (-1) => EXCEPTION RANGE_ERROR )
       integer conv A   Conversion from enumType A to integer
                   ( Type of result: integer,
-                    integer conv enum_literal1 => 0 )
+                    integer conv enum_literal1 => 0,
+                    integer conv enum_literal2 => 1 )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
       ord(A)    Ordinal number
-                  ( Type of result: integer )
+                  ( Type of result: integer,
+                    ord(enum_literal1) => 0,
+                    ord(enum_literal2) => 1 )
       succ(A)   Successor
                   ( succ(A) => enumType conv(succ(ord(A))),
+                    succ(enum_literal1) => enum_literal2,
                     succ(enumType.last) => EXCEPTION RANGE_ERROR )
       pred(A)   Predecessor
                   ( pred(A) => enumType conv(pred(ord(A))),
+                    pred(enum_literal2) => enum_literal1,
                     pred(enumType.first) => EXCEPTION RANGE_ERROR )
+      literal(A) Conversion to a literal
+                  ( Type of result: string,
+                    literal(enum_literal1) => "enum_literal1",
+                    literal(enum_literal2) => "enum_literal2" )
+      rand(A, B) Random value in the range [A, B]
+                 The random values are uniform distributed.
+                  ( rand(A, B) returns a random enumeration value such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand(enum_literal2, enum_literal1) => EXCEPTION RANGE_ERROR )
       compare(A, B) Compare function
-                  ( Type of result: integer )
+                  ( Type of result: integer,
+                    compare(enum_literal1, enum_literal2) => -1,
+                    compare(enum_literal1, enum_literal1) => 0,
+                    compare(enum_literal2, enum_literal1) => 1 )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
@@ -5592,6 +5871,9 @@ CONTENTS
     Constants:
       category.value  Default value of category (SYMBOLOBJECT)
     Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       category conv A   Conversion of integer to category
                   ( Type of argument A: integer,
                     category conv ord(INTOBJECT) => INTOBJECT )
@@ -5628,9 +5910,11 @@ CONTENTS
 
 5.26 reference
 
-    The type 'reference' describes a reference to any
-  object. The 'reference' functions are defined in
-  the library "reference.s7i".
+    The type 'reference' describes a reference to an object in the
+  abstract syntax tree (AST) of a program. You cannot access the AST
+  of the program that currently runs. Instead you can parse a program
+  and access its AST. The 'reference' functions are defined in the
+  library "reference.s7i".
 
 
     Constants:
@@ -5712,6 +5996,10 @@ CONTENTS
                     getValue(NIL, ref_list) => EXCEPTION RANGE_ERROR,
                     getValue(A, ref_list) => EXCEPTION RANGE_ERROR for
                         category(A) not in {MATCHOBJECT, CALLOBJECT, REFLISTOBJECT} )
+      getValue(A, boolean) Dereference as boolean
+                  ( Type of result: boolean,
+                    getValue(NIL, boolean) => EXCEPTION RANGE_ERROR,
+                    getValue(A, boolean) => EXCEPTION RANGE_ERROR if A does not refer to FALSE or TRUE )
       getValue(A, integer) Dereference as integer
                   ( Type of result: integer,
                     getValue(NIL, integer) => EXCEPTION RANGE_ERROR,
@@ -5732,6 +6020,10 @@ CONTENTS
                   ( Type of result: string,
                     getValue(NIL, string) => EXCEPTION RANGE_ERROR,
                     getValue(A, string) => EXCEPTION RANGE_ERROR for category(A) <> STRIOBJECT )
+      getValue(A, bstring) Dereference as bstring
+                  ( Type of result: bstring,
+                    getValue(NIL, bstring) => EXCEPTION RANGE_ERROR,
+                    getValue(A, bstring) => EXCEPTION RANGE_ERROR for category(A) <> BSTRIOBJECT )
       getValue(A, bitset) Dereference as bitset
                   ( Type of result: bitset,
                     getValue(NIL, bitset) => EXCEPTION RANGE_ERROR,
@@ -5776,9 +6068,8 @@ CONTENTS
 
 5.27 ref_list
 
-    The type 'ref_list' describes a list of 'reference' objects.
-  The 'ref_list' functions are defined in
-  the library "ref_list.s7i".
+    The type 'ref_list' describes a list of 'reference' objects. The
+  'ref_list' functions are defined in the library "ref_list.s7i".
 
     Constants:
       ref_list.EMPTY  Empty reference list.
@@ -5852,8 +6143,10 @@ CONTENTS
 
 5.28 program
 
-    The type 'program' describes a Seed7 program.
-  The 'program' functions are defined in the library "progs.s7i".
+    The type 'program' describes a Seed7 program. You cannot access
+  the program that currently runs. Instead you can parse a program
+  and access its data. The 'program' functions are defined in the
+  library "progs.s7i".
 
     Constants:
       program.EMPTY  Empty program.
@@ -6136,6 +6429,10 @@ CONTENTS
                   ( set of integer => Set of integer )
       subtype   Create subtype of existing type
                   ( subtype char => Subtype of char )
+    Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( TRUE ? a : b => a,
+                    FALSE ? a : b => b )
     Relations:
       =, <>
     Functions:
@@ -6226,6 +6523,7 @@ CONTENTS
 
   Value parameters are marked with the keyword 'val'.
   A value parameter copies the value of the actual parameter.
+  The formal 'val' parameter cannot be changed inside the function.
   Value parameters are used, when copying is cheap or
   when copying  is necessary for the correct behavior.
   The function below appends a comma and a string to the
@@ -6265,7 +6563,7 @@ CONTENTS
   Semantics:
     When calling a function a formal 'val' parameter gets its
     value from the corresponding actual parameter. This is done
-    with a create procedure ( ::= ). In the function it is only
+    with a create procedure ( ::= ). Inside the function it is only
     possible to read a formal 'val' parameter. Changing a formal
     'val' parameter is not possible. When a function is left a
     'destr' procedure is called for every 'val' parameter. Formal
@@ -6292,6 +6590,7 @@ CONTENTS
 
   Reference parameters are marked with the keyword 'ref'.
   A reference parameter refers to the value of the actual parameter.
+  The formal 'ref' parameter cannot be changed inside the function.
   Reference parameters are used, when copying is expensive and
   referring to the value does not change the correct behavior.
   The function below defines the primitive action for the
@@ -6326,7 +6625,7 @@ CONTENTS
 
   Semantics:
     When calling a function a formal 'ref' parameter is set to
-    refer to the corresponding actual parameter. In the function
+    refer to the corresponding actual parameter. Inside the function
     it is only possible to read a formal 'ref' parameter.
     Changing a formal 'ref' parameter is not possible. Formal
     'ref' parameters have the access right 'const'.
@@ -6352,7 +6651,8 @@ CONTENTS
 
   Input parameters are marked with the keyword 'in'.
   Depending on the type an input parameter is either a
-  value or a reference parameter. The function below
+  value or a reference parameter. The formal 'in' parameter
+  cannot be changed inside the function. The function below
   checks if a given number is a prime number:
 
     const func boolean: is_prime (in integer: number) is func
@@ -6424,7 +6724,11 @@ CONTENTS
 
 6.4 'in var' parameter
 
-  This function computes the greatest common divisor:
+  Value parameters that can be changed inside the function are marked
+  with the keywords 'in var'.
+  The value of the actual parameter is copied. Changes to the
+  formal 'in var' parameter have no effect outside the function.
+  The function below computes the greatest common divisor:
 
     const func integer: gcd (in var integer: a, in var integer: b) is func
       result
@@ -6443,7 +6747,7 @@ CONTENTS
   Semantics:
     When calling a function a formal 'in var' parameter gets its
     value from the corresponding actual parameter. This is done
-    with a create procedure ( ::= ). In the function it is
+    with a create procedure ( ::= ). Inside the function it is
     possible to read and change a formal 'in var' parameter.
     Changing a formal 'in var' parameter has no effect on the
     actual parameter. When a function is left a 'destr' procedure
@@ -6468,7 +6772,11 @@ CONTENTS
 
 6.5 'inout' parameter
 
-  This procedure doubles the given parameter 'number':
+  Reference parameters, that can be changed inside the function, are marked
+  with the keyword 'inout'. A reference parameter
+  refers to the value of the actual parameter. Changes to
+  the formal 'inout' parameter effect also the actual parameter.
+  The procedure below doubles the given parameter 'number':
 
     const proc: double (inout integer: number) is func
       begin
@@ -6477,7 +6785,7 @@ CONTENTS
 
   Semantics:
     When calling a function a formal 'inout' parameter is set to
-    refer to the corresponding actual parameter. In the function
+    refer to the corresponding actual parameter. Inside the function
     it is possible to read and change a formal 'inout' parameter.
     Changing a formal 'inout' parameter changes the actual
     parameter as well. Formal 'inout' parameters have the
@@ -9102,7 +9410,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     loop
       ch := getc(inFile);
     until ch = '\n' do
-      stri &:= str(ch);
+      stri &:= ch;
     end loop;
 
   The 'loop' example above reads characters from a file and
@@ -9114,7 +9422,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     repeat
       ch := getc(inFile);
       if ch <> '\n' then
-        stri &:= str(ch);
+        stri &:= ch;
       end if;
     until ch = '\n';
 
@@ -9892,9 +10200,15 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     (* This is a comment *)
 
-  Comment nesting is allowed so it is possible to comment out
-  larger sections of the program which can also include comments.
-  Comments cannot occur within string or character literals.
+  Comments can span over multiple lines and comment nesting is
+  allowed:
+
+    (* This is a comment that continues
+       in the next line (* and has a nesting comment inside *) *)
+
+  This allows commenting out a larger section of the program,
+  which itself contains comments. Comments cannot occur within
+  string and character literals.
 
   Syntax:
 
@@ -9927,7 +10241,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     # This is a comment
 
-  Comments cannot occur within string, character or numerical
+  Comments cannot occur within string, character and numerical
   literals.
 
   Syntax:
@@ -10151,6 +10465,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   characters surrounded by double quotes. For example:
 
     ""   " "   "\""   "'"   "\'"   "String"   "ch=\" "   "\n\n"
+    "Euro: \8364;"   "\16#ff;"
 
   In order to represent non-printable characters and certain
   printable characters the following escape sequences may be
@@ -10329,7 +10644,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       expression identifier { identifier | expression } .
 
     simple_expression ::=
-      dot_expression .
+      dot_expression | call_expression .
 
   The chapters below describe the predefined syntax rules
   of simple expressions.
@@ -10363,8 +10678,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     "hello world"
     writeln
 
-  The meta object of this list is specified with the system
-  declaration "system expr" which is defined in the include
+  The type of this list is specified with the system-declaration
+  "system expr", which is defined in the include
   file "syntax.s7i" included from "seed7_05.s7i" as
 
     $ system "expr" is expr;
@@ -10413,19 +10728,25 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     and
     GO_ON
 
-  The meta object of this list is specified with the system
-  declaration "system expr" which is defined in the include
+  The type of this list is specified with the system-declaration
+  "system expr", which is defined in the include
   file "syntax.s7i" included from "seed7_05.s7i" as
 
     $ system "expr" is expr;
 
   Dot expressions override the priority of the elements.
-  Dot expressions are used in 'syntax' declarations.
+  Dot expressions are used in syntax-declarations.
 
   Syntax:
 
     dot_expression ::=
-      [ '.' ] call_expression { '.' call_expression } .
+      '.' dot_subexpression { '.' dot_subexpression } .
+
+    dot_subexpression ::=
+      empty_parentheses | parentheses_expression | call_expression .
+
+    empty_parentheses ::=
+      '(' ')' .
 
 
 
@@ -12397,6 +12718,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DCL_REF1            dcl_ref1
     DCL_REF2            dcl_ref2
     DCL_SYMB            dcl_symb
+    DCL_SYNTAX          dcl_syntax
     DCL_VAL1            dcl_val1
     DCL_VAL2            dcl_val2
     DCL_VAR             dcl_var
@@ -12802,6 +13124,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Action name         prclib.c function
     PRC_ARGS            prc_args            arg_v
     PRC_BEGIN           prc_begin
+    PRC_BEGIN_NOOP      prc_begin_noop
     PRC_BLOCK           prc_block
     PRC_BLOCK_CATCH_ALL prc_block_catch_all
     PRC_BLOCK_OTHERWISE prc_block_otherwise
@@ -13165,6 +13488,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_SPLIT           str_split           strSplit
     STR_STR             str_str             (noop)
     STR_SUBSTR          str_substr          strSubstr
+    STR_SUBSTR_FIXLEN   str_substr_fixlen   strSubstrFixLen
     STR_TAIL            str_tail            strTail
     STR_TOUTF8          str_toutf8          strToUtf8
     STR_TRIM            str_trim            strTrim
@@ -14556,8 +14880,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     37: Statement priority "%s" too big
     38: Syntax with two parameters before operator is illegal
     39: Empty syntax declaration
-    40: Syntax declared twice
-    41: Dot expression requested as syntax description
+    40: Syntax %s declared twice
+    41: Dot expression expected as syntax description, found %s
     42: "%s" redeclared with infix priority %d not %d
     43: "%s" redeclared with prefix priority %d not %d
     44: Priority %d required for parameter after "%s" not %d

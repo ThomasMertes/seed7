@@ -87,6 +87,16 @@ a.op_no_ul:link    { color: blue; text-decoration: none }
 a.op_no_ul:hover   { color: orange; text-decoration: underline }
 a.op_no_ul:active  { color: green; text-decoration: underline }
 
+a.comment:visited { color: green; text-decoration: none }
+a.comment:link    { color: green; text-decoration: none }
+a.comment:hover   { color: darkgreen; text-decoration: underline }
+a.comment:active  { color: blue; text-decoration: underline }
+
+a.stri:visited { color: maroon; text-decoration: none }
+a.stri:link    { color: maroon; text-decoration: none }
+a.stri:hover   { color: brown; text-decoration: underline }
+a.stri:active  { color: blue; text-decoration: underline }
+
 a.lib:visited { color: maroon; text-decoration: underline }
 a.lib:link    { color: maroon; text-decoration: underline }
 a.lib:hover   { color: blue }
@@ -229,7 +239,9 @@ pre.indent {
 <li><a class="link" href="#tutorial_Local_declarations_and_expressions"><b>Local declarations and expressions</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_containers"><b>For loop and containers</b></a></li>
+<li><a class="link" href="#tutorial_Functions"><b>Functions</b></a></li>
 <li><a class="link" href="#tutorial_Parameters"><b>Parameters</b></a></li>
+<li><a class="link" href="#tutorial_Overloading"><b>Overloading</b></a></li>
 <li><a class="link" href="#tutorial_Declare_a_statement"><b>Declare a statement</b></a></li>
 <li><a class="link" href="#tutorial_Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol></li>
 <li><a class="link" href="#decls_file_start"><big><b>DECLARATIONS</b></big></a><ol>
@@ -538,7 +550,7 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 
     <li>There are checks for <a class="link" href="#errors_INDEX_ERROR">array indices</a> and <span class="link">integer overflow</span>.</li>
 
-    <li>overloading of procedures/functions/operators/statements</li>
+    <li><a class="link" href="#tutorial_Overloading">Overloading</a> of procedures/functions/operators/statements</li>
 
     <li>Various predefined types like resizable <a class="type" href="#types_array">arrays</a>, <a class="type" href="#types_hash">hashes</a>,
       <a class="type" href="#types_set">bitsets</a>, <a class="type" href="#types_struct">structs</a>, etc.</li>
@@ -552,7 +564,7 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
     <li>There is no Null.</li>
 
     <li>There is no goto statement.
-      Hidden gotos like break- and continue-statements are
+      Hidden gotos like <span class="link">break- and continue-statements</span> are
       also omitted.</li>
 
     <li>There is no return statement. Instead a result variable
@@ -605,9 +617,9 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </ul><p>
   There are several concepts which are also used by other languages:
 </p><ul>
-    <li><a class="link" href="#tokens_Comments">Block comments</a> start with <span class="comment">(* and end with *)</span> and may be nested.</li>
+    <li><a class="link" href="#tokens_Comments">Block comments</a> start with <a class="comment" href="#tokens_Comments">(* and end with *)</a> and may be nested.</li>
 
-    <li><a class="link" href="#tokens_Line_comments">Line comments</a> start with <span class="comment"># and are terminated with the end of the line.</span></li>
+    <li><a class="link" href="#tokens_Line_comments">Line comments</a> start with <a class="comment" href="#tokens_Line_comments"># and are terminated with the end of the line.</a></li>
 </ul><p>
   There are several concepts which are new
 </p><ul>
@@ -690,10 +702,6 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 <a name="tutorial_file_start"></a><p></p>
 <a name="tutorial_TUTORIAL"><h2>2. TUTORIAL</h2></a>
 
-<p>
-    At the beginning we show how the basic features, that every programming
-  language has, look like in Seed7.
-</p>
 
 <a name="tutorial_Hello_world"><h3>2.1 Hello world</h3></a>
 <p>
@@ -703,7 +711,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="func_no_ul">writeln</span>(<span class="stri">"hello world"</span>);
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"hello world"</a>);
   <span class="keywd">end func</span>;
 </pre><p>
   Save this program to the file hello.sd7 and start it in a console with:
@@ -732,18 +740,18 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   includes all definitions of the standard library. In contrast to
   other libraries the seed7_05.s7i library contains not only function
   declarations but also declarations of statements and operators.
-  Additionally the seed7_05.s7i library defines the '<tt>main</tt>' function
+  Additionally the seed7_05.s7i library defines the <tt><span class="func">main</span></tt> function
   as entry point for a Seed7 program.
 </p><p>
-  In the example above <tt>'main'</tt> is declared as constant and <tt><a class="type" href="#types_proc">proc</a></tt>
-  is the type of <tt>'main'</tt>. Declaring <tt>'main'</tt> with the type
-  <tt><a class="type" href="#types_proc">proc</a></tt> makes a procedure out of it. The object <tt>'main'</tt> gets a
+  In the example above <tt><span class="func">main</span></tt> is declared as constant and <tt><a class="type" href="#types_proc">proc</a></tt>
+  is the type of <tt><span class="func">main</span></tt>. Declaring <tt><span class="func">main</span></tt> with the type
+  <tt><a class="type" href="#types_proc">proc</a></tt> makes a procedure out of it. The object <tt><span class="func">main</span></tt> gets a
 </p><pre class="indent">
 <span class="keywd">func</span> ... <span class="keywd">end func</span>
 </pre><p>
   construct as value. The <tt>'<span class="keywd">func</span>'</tt> construct is similar to
   <tt><span class="keywd">begin</span> ... <span class="keywd">end</span></tt> in PASCAL and <tt>{ ... }</tt> in C. Inside the <tt>'<span class="keywd">func</span>'</tt> is a
-  <tt><span class="func">writeln</span></tt> statement with the <tt><span class="stri">"hello world"</span></tt> string. The
+  <tt><span class="func">writeln</span></tt> statement with the <tt><a class="stri" href="#tokens_String_literals">"hello world"</a></tt> string. The
   <tt><span class="func">writeln</span></tt> statement is used to write a <tt><a class="type" href="#types_string">string</a></tt> followed by a
   newline character.
 </p>
@@ -756,11 +764,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
-    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
   <span class="keywd">end func</span>;
 </pre><p>
   Save this program to the file greeting.sd7 and start it in a console
@@ -777,12 +785,13 @@ What's your name?
   Variables must be defined. The place to to define and initialize
   all variables of a function is after the keyword <span class="keywd">local</span>.
 </p><pre class="indent">
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+<span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
 </pre><p>
   This defines the <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'name'</tt>. This definition assigns
-  also the initial value <span class="stri">""</span> to <tt>'name'</tt>. In Seed7 variables must be
-  defined and always get an initial value. This seems unnecessary in
-  small programs, but if programs grow bigger it helps readability a lot.
+  also the initial value <a class="stri" href="#tokens_String_literals">""</a> to <tt>'name'</tt>. The value <a class="stri" href="#tokens_String_literals">""</a> is the empty string
+  (it contains no characters). In Seed7 variables must be defined and
+  always get an initial value. This seems unnecessary in small
+  programs, but if programs grow bigger it helps readability a lot.
 </p><p>
   The <tt><span class="func">write</span></tt> statement is similar to <tt><span class="func">writeln</span></tt>, but it does not write
   a newline character. The <tt><span class="func">readln</span></tt> statement reads a line from the
@@ -803,39 +812,69 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
-    <a class="keywd_no_ul" href="#stats_if-statement">if</a> name <span class="op_no_ul">=</span> <span class="stri">""</span> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      <span class="func_no_ul">writeln</span>(<span class="stri">"Greetings to the person who pressed enter!"</span>);
-    <a class="keywd_no_ul" href="#stats_if-statement">elsif</a> name <span class="op_no_ul">=</span> <span class="stri">"name"</span> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      <span class="func_no_ul">writeln</span>(<span class="stri">"Interesting, your name is name."</span>);
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> name <span class="op_no_ul">=</span> <a class="stri" href="#tokens_String_literals">""</a> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Greetings to the person who pressed enter!"</a>);
+    <a class="keywd_no_ul" href="#stats_if-statement">elsif</a> name <span class="op_no_ul">=</span> <a class="stri" href="#tokens_String_literals">"name"</a> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Interesting, your name is name."</a>);
     <a class="keywd_no_ul" href="#stats_if-statement">else</a>
-      <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
   <span class="keywd">end func</span>;
 </pre><p>
-  There can be zero or more <tt><span class="keywd">elsif</span></tt> parts, and the <tt><span class="keywd">else</span></tt> part
-  is optional. As you can see the equality of strings is checked with <tt><span class="op_no_ul">=</span></tt>.
-  An if-statement is one way to improve the greeting program.
+  There can be zero or more <tt><span class="keywd">elsif</span></tt> parts, and the <tt><span class="keywd">else</span></tt> part is
+  optional. As you can see the equality of strings is checked with <tt><span class="op_no_ul">=</span></tt>.
+  The conditions of an <a class="link" href="#stats_if-statement">if-statement</a> decide what to do. By chance both
+  conditions in the example above use the variable <tt>name</tt>. This special
+  case opens the oportunity to use a <a class="link" href="#stats_case-statement">case-statement</a> instead:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
+    <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_case-statement">case</a> name <a class="keywd_no_ul" href="#stats_case-statement">of</a>
+      <a class="keywd_no_ul" href="#stats_case-statement">when</a> {<a class="stri" href="#tokens_String_literals">""</a>}:
+        <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Greetings to the person who pressed enter!"</a>);
+      <a class="keywd_no_ul" href="#stats_case-statement">when</a> {<a class="stri" href="#tokens_String_literals">"name"</a>}:
+        <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Interesting, your name is name."</a>);
+      <a class="keywd_no_ul" href="#stats_case-statement">when</a> {<a class="stri" href="#tokens_String_literals">"Linus"</a>, <a class="stri" href="#tokens_String_literals">"Torvalds"</a>}:
+        <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Are you the inventor of Linux?"</a>);
+      <a class="keywd_no_ul" href="#stats_case-statement">otherwise</a>:
+        <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
+    <a class="keywd_no_ul" href="#stats_if-statement">end case</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  As it can be seen, the keyword <tt><a class="keywd_no_ul" href="#stats_case-statement">when</a></tt> is followed
+  by a comma-separated list of values surrounded by braces.
+  This is the set of values covered by this when-part.
+  Depending on the value of 'name' one when-part is executed.
+  If no when-part fits the otherwise-part is executed.
+</p><p>
+  This is not the only way to improve the greeting program.
   Alternatively we can use a loop to insist on entering a name:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
-      <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+      <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
       <span class="func_no_ul">readln</span>(name);
-    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> name <span class="op_no_ul">&lt;&gt;</span> <span class="stri">""</span>;
-    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> name <span class="op_no_ul">&lt;&gt;</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
   <span class="keywd">end func</span>;
 </pre><p>
   The <tt><span class="keywd">repeat</span> ... <span class="keywd">until</span></tt> loop repeats the statements
-  between the two keywords until the condition <tt>name <span class="op">&lt;&gt;</span> <span class="stri">""</span></tt> is <tt><span class="var">TRUE</span></tt>.
+  between the two keywords until the condition <tt>name <span class="op">&lt;&gt;</span> <a class="stri" href="#tokens_String_literals">""</a></tt> is <tt><span class="var">TRUE</span></tt>.
   Note that the statements in the <tt><a class="keywd" href="#stats_repeat-statement">repeat</a></tt> loop are executed
   at least once. A solution with a <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop is:
 </p><pre class="indent">
@@ -843,19 +882,19 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
-    <a class="keywd_no_ul" href="#stats_while-statement">while</a> name <span class="op_no_ul">=</span> <span class="stri">""</span> <a class="keywd_no_ul" href="#stats_while-statement">do</a>
-      <span class="func_no_ul">write</span>(<span class="stri">"Just pressing enter is not okay. What's your name? "</span>);
+    <a class="keywd_no_ul" href="#stats_while-statement">while</a> name <span class="op_no_ul">=</span> <a class="stri" href="#tokens_String_literals">""</a> <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+      <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Just pressing enter is not okay. What's your name? "</a>);
       <span class="func_no_ul">readln</span>(name);
     <a class="keywd_no_ul" href="#stats_while-statement">end while</a>;
-    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
   <span class="keywd">end func</span>;
 </pre><p>
   The <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop repeats the statements between the keywords
-  <tt><span class="keywd">do</span></tt> and <tt><span class="keywd">end</span></tt> as long as the condition <tt>name <span class="op">=</span> <span class="stri">""</span></tt> is <tt><span class="var">TRUE</span></tt>.
+  <tt><span class="keywd">do</span></tt> and <tt><span class="keywd">end</span></tt> as long as the condition <tt>name <span class="op">=</span> <a class="stri" href="#tokens_String_literals">""</a></tt> is <tt><span class="var">TRUE</span></tt>.
   Note that the statements in a <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop might not be executed at all.
   In the example above this happens if a non-empty name is entered
   after the question: What's your name?
@@ -866,8 +905,8 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
 </p><pre class="indent">
-<span class="comment">(* Print a Fahrenheit-Celsius table
-   for Fahrenheit values between 0 and 300 *)</span>
+<a class="comment" href="#tokens_Comments">(* Print a Fahrenheit-Celsius table
+   for Fahrenheit values between 0 and 300 *)</a>
 
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
@@ -879,15 +918,15 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: celsius <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    fahr := lower;
+    fahr <a class="op_no_ul" href="#stats_Assignment">:=</a> lower;
     <a class="keywd_no_ul" href="#stats_while-statement">while</a> fahr <span class="op_no_ul">&lt;=</span> upper <a class="keywd_no_ul" href="#stats_while-statement">do</a>
-      celsius := 5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32) <span class="op_no_ul">div</span> 9;
-      <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> celsius);
+      celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> 5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32) <span class="op_no_ul">div</span> 9;
+      <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius);
       fahr <span class="op_no_ul">+:=</span> increment;
     <a class="keywd_no_ul" href="#stats_while-statement">end while</a>;
   <span class="keywd">end func</span>;
 </pre><p>
-  Everything between <span class="comment">(* and *)</span> is a <a class="link" href="#tokens_Comments">comment</a>, which is ignored. This
+  Everything between <a class="comment" href="#tokens_Comments">(* and *)</a> is a <a class="link" href="#tokens_Comments">comment</a>, which is ignored. This
   program contains local constants and variables of the type <tt><a class="type" href="#types_integer">integer</a></tt>.
   The constants and variables must be initialized when they are declared.
   This program contains also an <a class="link" href="#stats_Assignment">assignment</a> (<span class="op">:=</span>), a <a class="link" href="#stats_while-statement">while-statement</a> and
@@ -919,8 +958,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
 </p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
-  <span class="keywd">include</span> <span class="lib">"<span class="lib">float.s7i</span>"</span>;
+<a class="comment" href="#tokens_Line_comments"># Print a Fahrenheit-Celsius table with foating point numbers.</a>
+
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <a class="comment" href="#tokens_Line_comments"># This must be included first.</a>
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">float.s7i</span>"</span>;     <a class="comment" href="#tokens_Line_comments"># Subsequent includes do not need a $.</a>
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
@@ -930,28 +971,30 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_float">float</a>: celsius <span class="keywd">is</span> 0.0;
   <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> fahr <span class="keywd_no_ul">range</span> lower <span class="keywd_no_ul">to</span> upper <span class="keywd_no_ul">step</span> increment <span class="keywd_no_ul">do</span>
-      celsius := <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
-      <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
-    <span class="keywd_no_ul">end for</span>;
+    <a class="keywd_no_ul" href="#stats_for-step-statement">for</a> fahr <a class="keywd_no_ul" href="#stats_for-step-statement">range</a> lower <a class="keywd_no_ul" href="#stats_for-step-statement">to</a> upper <a class="keywd_no_ul" href="#stats_for-step-statement">step</a> increment <a class="keywd_no_ul" href="#stats_for-step-statement">do</a>
+      celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+      <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
+    <a class="keywd_no_ul" href="#stats_for-step-statement">end for</a>;
   <span class="keywd">end func</span>;
 </pre><p>
-  To use the type <tt><a class="type" href="#types_float">float</a></tt> it is necessary to include <tt><span class="lib">float.s7i</span></tt>.
-  The <tt><a class="type" href="#types_float">float</a></tt> variable <tt>'celsius'</tt> must be initialized with 0.0
-  (instead of 0). The <tt><a class="link" href="#stats_for-statement">for-loop</a></tt> executes the loop body with
-  different values of <tt>fahr</tt> (0, 20, 40 .. 280, 300). Omitting
-  the <tt><span class="keywd">step</span></tt> part corresponds to a step of 1:
+  Everything between <tt><a class="comment" href="#tokens_Line_comments">#</a></tt> the end of the line is a <a class="link" href="#tokens_Line_comments">line comment</a>,
+  which is ignored. To use the type <tt><a class="type" href="#types_float">float</a></tt> it is necessary
+  to include <tt><span class="lib">float.s7i</span></tt>. The <tt><a class="type" href="#types_float">float</a></tt> variable <tt>'celsius'</tt>
+  must be initialized with 0.0 (instead of 0). The <tt><a class="link" href="#stats_for-statement">for-loop</a></tt>
+  executes the loop body with different values of <tt>fahr</tt>
+  (0, 20, 40 .. 280, 300). Omitting the <tt><span class="keywd">step</span></tt> part corresponds
+  to a step of 1:
 </p><pre class="indent">
 <span class="keywd">for</span> fahr <span class="keywd">range</span> lower <span class="keywd">to</span> upper <span class="keywd">do</span>
-  celsius := <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
-  <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
+  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+  <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
 <span class="keywd">end for</span>;
 </pre><p>
   The keyword <tt><span class="keywd">downto</span></tt> can be used to run the <tt><a class="link" href="#stats_for-statement">for-loop</a></tt> backward:
 </p><pre class="indent">
 <span class="keywd">for</span> fahr <span class="keywd">range</span> upper <span class="keywd">downto</span> lower <span class="keywd">do</span>
-  celsius := <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
-  <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
+  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+  <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
 <span class="keywd">end for</span>;
 </pre><p>
   Since Seed7 is strong typed <tt><a class="type" href="#types_integer">integer</a></tt> and <tt><a class="type" href="#types_float">float</a></tt> values
@@ -981,38 +1024,48 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> number <span class="keywd_no_ul">range</span> [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100) <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span>);
+      <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
     <span class="keywd_no_ul">end for</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   In the example above <tt>[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)</tt>
-  is an array literal. <tt><span class="link">For-loops</span></tt> can also iterate over the elements
-  of a <tt><a class="type" href="#types_set">set</a></tt>:
+  is an array literal. This array literal has the type
+  <tt><a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a></tt> and it is indexed from one. A corresponding
+  array literal indexed from 0 would be:
+</p><pre class="indent">
+[0] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
+</pre><p>
+  <tt><span class="link">For-loops</span></tt> can also iterate over the elements of a <tt><a class="type" href="#types_set">set</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: innerPlanet <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: innerPlanet <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> innerPlanet <span class="keywd_no_ul">range</span> {<span class="stri">"Mercury"</span>, <span class="stri">"Venus"</span>, <span class="stri">"Earth"</span>, <span class="stri">"Mars"</span>} <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">write</span>(innerPlanet <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span>);
+    <span class="keywd_no_ul">for</span> innerPlanet <span class="keywd_no_ul">range</span> {<a class="stri" href="#tokens_String_literals">"Mercury"</a>, <a class="stri" href="#tokens_String_literals">"Venus"</a>, <a class="stri" href="#tokens_String_literals">"Earth"</a>, <a class="stri" href="#tokens_String_literals">"Mars"</a>} <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">write</span>(innerPlanet <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
     <span class="keywd_no_ul">end for</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  In the example above <tt>{<span class="stri">"Mercury"</span>, <span class="stri">"Venus"</span>, <span class="stri">"Earth"</span>, <span class="stri">"Mars"</span>}</tt> is a set
-  literal. <tt><a class="link" href="#stats_for-each-statement">For-loops</a></tt> can iterate over the characters of a <tt><a class="type" href="#types_string">string</a></tt>:
+  In the example above <tt>{<a class="stri" href="#tokens_String_literals">"Mercury"</a>, <a class="stri" href="#tokens_String_literals">"Venus"</a>, <a class="stri" href="#tokens_String_literals">"Earth"</a>, <a class="stri" href="#tokens_String_literals">"Mars"</a>}</tt> is a set
+  literal. The type of this literal is <tt><a class="type" href="#types_set">set</a> <a class="type" href="#types_set">of</a> <a class="type" href="#types_string">string</a></tt>. Other set literals are:
+</p><pre class="indent">
+{1, 2}
+{<a class="stri" href="#tokens_Character_literals">'a'</a>, <a class="stri" href="#tokens_Character_literals">'e'</a>, <a class="stri" href="#tokens_Character_literals">'i'</a>, <a class="stri" href="#tokens_Character_literals">'o'</a>, <a class="stri" href="#tokens_Character_literals">'u'</a>}
+</pre><p>
+  <tt><a class="link" href="#stats_for-each-statement">For-loops</a></tt> can iterate over the characters of a <tt><a class="type" href="#types_string">string</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_set">set of</a> <a class="type_no_ul" href="#types_char">char</a>: vowels <span class="keywd">is</span> {<span class="stri">'a'</span>, <span class="stri">'e'</span>, <span class="stri">'i'</span>, <span class="stri">'o'</span>, <span class="stri">'u'</span>};
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: letter <span class="keywd">is</span> <span class="stri">' '</span>;
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_set">set of</a> <a class="type_no_ul" href="#types_char">char</a>: vowels <span class="keywd">is</span> {<a class="stri" href="#tokens_Character_literals">'a'</a>, <a class="stri" href="#tokens_Character_literals">'e'</a>, <a class="stri" href="#tokens_Character_literals">'i'</a>, <a class="stri" href="#tokens_Character_literals">'o'</a>, <a class="stri" href="#tokens_Character_literals">'u'</a>};
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: letter <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
   <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> letter <span class="keywd_no_ul">range</span> <span class="stri">"the quick brown fox jumps over the lazy dog"</span> <span class="keywd_no_ul">do</span>
+    <span class="keywd_no_ul">for</span> letter <span class="keywd_no_ul">range</span> <a class="stri" href="#tokens_String_literals">"the quick brown fox jumps over the lazy dog"</a> <span class="keywd_no_ul">do</span>
       <a class="keywd_no_ul" href="#stats_if-statement">if</a> letter <span class="op_no_ul">not in</span> vowels <a class="keywd_no_ul" href="#stats_if-statement">then</a>
         <span class="func_no_ul">write</span>(letter);
       <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
@@ -1033,10 +1086,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span>);
+      <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
     <span class="keywd_no_ul">end for</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
@@ -1048,11 +1101,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <span class="stri">' '</span>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">key</span> aChar <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">writeln</span>(<span class="stri">"const char: "</span> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" is "</span> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"const char: "</a> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" is "</a> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
     <span class="keywd_no_ul">end for</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -1063,11 +1116,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> name <span class="keywd_no_ul">key</span> number <span class="keywd_no_ul">range</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>, <span class="stri">"two"</span>, <span class="stri">"three"</span>, <span class="stri">"four"</span>,
-                                   <span class="stri">"five"</span>, <span class="stri">"six"</span>, <span class="stri">"seven"</span>, <span class="stri">"eight"</span>, <span class="stri">"nine"</span>) <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">writeln</span>(number <span class="op_no_ul">&lt;&amp;</span> <span class="stri">": "</span> <span class="op_no_ul">&lt;&amp;</span> name);
+    <span class="keywd_no_ul">for</span> name <span class="keywd_no_ul">key</span> number <span class="keywd_no_ul">range</span> [0] (<a class="stri" href="#tokens_String_literals">"zero"</a>, <a class="stri" href="#tokens_String_literals">"one"</a>, <a class="stri" href="#tokens_String_literals">"two"</a>, <a class="stri" href="#tokens_String_literals">"three"</a>, <a class="stri" href="#tokens_String_literals">"four"</a>,
+                                   <a class="stri" href="#tokens_String_literals">"five"</a>, <a class="stri" href="#tokens_String_literals">"six"</a>, <a class="stri" href="#tokens_String_literals">"seven"</a>, <a class="stri" href="#tokens_String_literals">"eight"</a>, <a class="stri" href="#tokens_String_literals">"nine"</a>) <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">writeln</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a> <span class="op_no_ul">&lt;&amp;</span> name);
     <span class="keywd_no_ul">end for</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -1077,46 +1130,139 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: testText <span class="keywd">is</span> <span class="stri">""</span>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: testText <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: controlCharFound <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
-    <span class="func_no_ul">write</span>(<span class="stri">"Enter text: "</span>);
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Enter text: "</a>);
     <span class="func_no_ul">readln</span>(testText);
     <span class="keywd">for</span> ch <span class="keywd">range</span> testText <span class="keywd">until</span> controlCharFound <span class="keywd">do</span>
-      controlCharFound := <span class="func_no_ul">ord</span>(ch) &lt; 32;
+      controlCharFound <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">ord</span>(ch) <span class="op_no_ul">&lt;</span> 32;
     <span class="keywd">end for</span>;
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> controlCharFound <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      <span class="func_no_ul">writeln</span>(<span class="stri">"The text contains control chars."</span>);
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"The text contains control chars."</a>);
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
   <span class="keywd">end func</span>;
 </pre>
 
-<a name="tutorial_Parameters"><h3>2.6 Parameters</h3></a>
+<a name="tutorial_Functions"><h3>2.6 Functions</h3></a>
+<p>
+    The program below uses the function <tt><span class="func">flipCoin</span></tt> to flip
+  a coin until the result is heads:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
+  <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: heads <span class="keywd">is</span> <span class="var">FALSE</span>;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Press enter to flip the coin. "</a>);
+      <span class="func_no_ul">readln</span>;
+      heads <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">flipCoin</span>;
+      <span class="func_no_ul">writeln</span>(heads <span class="op_no_ul">?</span> <a class="stri" href="#tokens_String_literals">"heads"</a> <span class="op_no_ul">:</span> <a class="stri" href="#tokens_String_literals">"tails"</a>);
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> heads;
+  <span class="keywd">end func</span>;
+</pre><p>
+  In the example above, the function <tt><span class="func">flipCoin</span></tt> is declared as
+  constant. As <tt><span class="keywd">const</span></tt> the code of <tt><span class="func">flipCoin</span></tt> will not change
+  during run-time. The type <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a></tt> determines that the
+  function returns a <tt><a class="type" href="#types_boolean">boolean</a></tt> value. The task of the function
+  <tt><span class="func">flipCoin</span></tt> is to return a random <tt><a class="type_no_ul" href="#types_boolean">boolean</a></tt> value. This is
+  done with:
+</p><pre class="indent">
+<span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+</pre><p>
+  The actual random value is computed with the expression
+</p><pre class="indent">
+<span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+</pre><p>
+  The statement
+</p><pre class="indent">
+heads <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">flipCoin</span>;
+</pre><p>
+  assigns the result of <tt><span class="func">flipCoin</span></tt> to <tt>heads</tt>. Afterwards
+  <tt>heads</tt> is written with the <span class="link">ternary operator</span> (<tt><span class="op_no_ul">?:</span></tt>). If <tt>heads</tt>
+  is <tt><span class="var">TRUE</span></tt>, it writes <tt><a class="stri" href="#tokens_String_literals">"heads"</a></tt> otherwise <tt><a class="stri" href="#tokens_String_literals">"tails"</a></tt>.
+</p><p>
+  The program below reads a multi-line paragraph:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: readMultiLineParagraph <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: multiLineParagraph <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: line <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"line: "</a>);
+      line <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">getln</span>(<span class="var">IN</span>);
+      multiLineParagraph <span class="op_no_ul">&amp;:=</span> line <span class="op_no_ul">&amp;</span> <a class="stri" href="#tokens_String_literals">"\n"</a>;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> line <span class="op_no_ul">=</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Enter a multi line paragraph. An empty line ends the paragraph."</a>);
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"\nThe paragraph is:\n"</a> <span class="op_no_ul">&lt;&amp;</span> readMultiLineParagraph);
+  <span class="keywd">end func</span>;
+</pre><p>
+  The declaration of <tt><span class="func">readMultiLineParagraph</span></tt> above contains the construct:
+</p><pre class="indent">
+<span class="keywd">func</span>
+...
+<span class="keywd">end func</span>
+</pre><p>
+  The function <tt><span class="func">readMultiLineParagraph</span></tt> gets the
+  <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt> construct as value. This construct can be used to initialize
+  functions and procedures. Note that <tt><a class="type" href="#types_proc">proc</a></tt> is just a shortcut
+  for <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt> and that <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
+  Inside of the <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt> construct are the keywords
+  <tt><span class="keywd">result</span></tt>, <tt><span class="keywd">local</span></tt> and <tt><span class="keywd">begin</span></tt>:
+</p><ul>
+<li>The keyword <tt><span class="keywd">result</span></tt> introduces the declaration of the
+    result variable. When the function is finished, it will
+    return the current value of the result variable.</li>
+<li>The keyword <tt><span class="keywd">local</span></tt> introduces constant and variable
+    declarations that are local to the function.</li>
+<li>The keyword <tt><span class="keywd">begin</span></tt> introduces a sequence of statements
+    that is executed when the function is called.</li>
+</ul><p>
+  As can be seen from the function <tt><span class="func">main</span></tt> above, the <tt><span class="keywd">result</span></tt> and
+  <tt><span class="keywd">local</span></tt> parts are optional. If the function type is <tt><a class="type" href="#types_proc">proc</a></tt>,
+  the <tt><span class="keywd">result</span></tt> part must be omitted. For all other functions
+  the <tt><span class="keywd">result</span></tt> part is mandatory.
+</p>
+
+<a name="tutorial_Parameters"><h3>2.7 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
-  uses <tt>'<span class="keywd">in</span>'</tt> parameters to describe this situation:
+  uses <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters to describe this situation:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: negate (<span class="keywd">in</span> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: negate (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is</span>
   <span class="keywd">return</span> <span class="op_no_ul">-</span>num1;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib (<span class="keywd">in</span> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fib <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> num1 <span class="op_no_ul">&lt;></span> 1 <span class="op_no_ul">and</span> num1 <span class="op_no_ul">&lt;></span> 2 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      fib := fib(pred(num1)) <span class="op_no_ul">+</span> fib(num1 <span class="op_no_ul">-</span> 2);
+      fib <a class="op_no_ul" href="#stats_Assignment">:=</a> fib(<span class="func_no_ul">pred</span>(num1)) <span class="op_no_ul">+</span> fib(num1 <span class="op_no_ul">-</span> 2);
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
   <span class="keywd">end func</span>;
 </pre><p>
-  The functions above use <tt>'<span class="keywd">in</span>'</tt> parameters named <tt>'num1'</tt>.
-  An assignment to <tt>'num1'</tt> is not allowed. A formal <tt>'<span class="keywd">in</span>'</tt>
+  The functions above use <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters named <tt>'num1'</tt>.
+  An assignment to <tt>'num1'</tt> is not allowed. A formal <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt>
   parameter like <tt>'num1'</tt> behaves like a constant.
-  Trying to change a formal <tt>'<span class="keywd">in</span>'</tt> parameter:
+  Trying to change a formal <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: wrong (<span class="keywd">in</span> <span class="type">integer</span>: num2) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: wrong (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    num2 := 0;
+    num2 <a class="op_no_ul" href="#stats_Assignment">:=</a> 0;
   <span class="keywd">end func</span>;
 </pre><p>
   results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
@@ -1125,11 +1271,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     num2 := 0;
 </pre><p>
   When a function wants to change the value of the actual
-  parameter it can use an <tt>'<span class="keywd">inout</span>'</tt> parameter:
+  parameter it can use an <tt>'<a class="keywd_no_ul" href="#params_inout_parameter">inout</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: reset (<span class="keywd">inout</span> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: reset (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    num2 := 0;
+    num2 <a class="op_no_ul" href="#stats_Assignment">:=</a> 0;
   <span class="keywd">end func</span>;
 </pre><p>
   If you call this function with
@@ -1146,111 +1292,189 @@ reset(8);
 *** tst77.sd7(12):53: <a class="link" href="#errors_WRONGACCESSRIGHT">Variable expected in {8 reset } found constant integer: 8</a>
     reset(8);
 </pre><p>
-  Sometimes an <tt>'<span class="keywd">in</span>'</tt> parameter is needed, but you need to change
+  Sometimes an <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter is needed, but you need to change
   the formal parameter in the function without affecting the
-  actual parameter. In this case we use the <tt>'<span class="keywd">in var</span>'</tt> parameter:
+  actual parameter. In this case we use the <tt>'<a class="keywd_no_ul" href="#params_in_var_parameter">in var</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: oct_str (<span class="keywd">in var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: oct_str (<a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
-    <a class="keywd_no_ul" href="#stats_if-statement">if</a> number >= 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      <span class="keywd">repeat</span>
-        stri := str(number <span class="op">mod</span> 8) &amp; stri;
-        number := number <span class="op">mdiv</span> 8;
-      <span class="keywd">until</span> number = 0;
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> number <span class="op_no_ul">&gt;=</span> 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+        stri <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">str</span>(number <span class="op_no_ul">mod</span> 8) <span class="op_no_ul">&amp;</span> stri;
+        number <a class="op_no_ul" href="#stats_Assignment">:=</a> number <span class="op_no_ul">mdiv</span> 8;
+      <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> number <span class="op_no_ul">=</span> 0;
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
   <span class="keywd">end func</span>;
 </pre><p>
-  As you can see this works like a combination of an <tt>'<span class="keywd">in</span>'</tt>
+  As you can see this works like a combination of an <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt>
   parameter with a local <tt>'<span class="keywd">var</span>'</tt>.
 </p><p>
   Conventionally there are two kinds of parameters:
   <tt>'call by value'</tt> and <tt>'call by reference'</tt>. When taking the
   access right (constant or variable) into account we get
   the following table:
-</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+</p><table border="1" cellspacing="0" cellpadding="5">
     
     <tr><th> parameter </th><th>  call by  </th><th> access right </th></tr>
     
-    <tr><td> val       </td><td align="center">   value   </td><td> const        </td></tr>
-    <tr><td> ref       </td><td align="center"> reference </td><td> const        </td></tr>
-    <tr><td> in        </td><td align="center"> val / ref </td><td> const        </td></tr>
-    <tr><td> in var    </td><td align="center">   value   </td><td> var          </td></tr>
-    <tr><td> inout     </td><td align="center"> reference </td><td> var          </td></tr>
+    <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a></tt>       </td><td align="center">   value   </td><td> const        </td></tr>
+    <tr><td> <tt><a class="keywd_no_ul" href="#params_ref_parameter">ref</a></tt>       </td><td align="center"> reference </td><td> const        </td></tr>
+    <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a></tt>        </td><td align="center"> val / ref </td><td> const        </td></tr>
+    <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a></tt>    </td><td align="center">   value   </td><td> var          </td></tr>
+    <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a></tt>     </td><td align="center"> reference </td><td> var          </td></tr>
     
-</table></dd></dl><p>
+</table><p>
   Additionally to the parameters we already know this table
-  describes also <tt>'<span class="keywd">val</span>'</tt> and <tt>'<span class="keywd">ref</span>'</tt> parameters which use
+  describes also <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameters which use
   'call by value' and 'call by reference' and have a constant
-  formal parameter. The <tt>'<span class="keywd">in</span>'</tt> parameter is called by
+  formal parameter. The <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter is called by
   <tt>'val / ref'</tt> in this table which is easily explained:
 </p><dl><dd>
-    An <tt>'<span class="keywd">in</span>'</tt> parameter is either a <tt>'<span class="keywd">val</span>'</tt> or a <tt>'<span class="keywd">ref</span>'</tt> parameter
+    An <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter is either a <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> or a <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter
     depending on the type of the parameter.
 </dd></dl><p>
   The parameter
 </p><pre class="indent">
-<span class="keywd">in</span> <a class="type_no_ul" href="#types_integer">integer</a>: number
+<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number
 </pre><p>
   is a 'val' parameter which could also be declared as
 </p><pre class="indent">
-<span class="keywd">val</span> <a class="type_no_ul" href="#types_integer">integer</a>: number
+<a class="keywd_no_ul" href="#params_val_parameter">val</a> <a class="type_no_ul" href="#types_integer">integer</a>: number
 </pre><p>
   while the parameter
 </p><pre class="indent">
-<span class="keywd">in</span> <a class="type_no_ul" href="#types_string">string</a>: stri
+<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: stri
 </pre><p>
   is a 'ref' parameter which could also be declared as
 </p><pre class="indent">
-<span class="keywd">ref</span> <a class="type_no_ul" href="#types_string">string</a>: stri
+<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_string">string</a>: stri
 </pre><p>
-  The meaning of the <tt>'<span class="keywd">in</span>'</tt> parameter is predefined for most
-  types. Usually types with small amounts of data use <tt>'<span class="keywd">val</span>'</tt>
-  as <tt>'<span class="keywd">in</span>'</tt> parameter while types with bigger data amounts use
-  <tt>'<span class="keywd">ref</span>'</tt>. Most of the time it is not necessary to care if an
-  <tt>'<span class="keywd">in</span>'</tt> parameter is really a <tt>'<span class="keywd">val</span>'</tt> or <tt>'<span class="keywd">ref</span>'</tt> parameter.
+  The meaning of the <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter is predefined for most
+  types. Usually types with small amounts of data use <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt>
+  as <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter while types with bigger data amounts use
+  <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt>. Most of the time it is not necessary to care if an
+  <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter is really a <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> or <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter.
 </p><p>
-  In rare cases a <tt>'<span class="keywd">ref</span>'</tt> parameter would have undesired side
-  effects with global variables or other <tt>'<span class="keywd">ref</span>'</tt> parameters.
-  In these cases an explicit <tt>'<span class="keywd">val</span>'</tt> parameter instead of an
-  <tt>'<span class="keywd">in</span>'</tt> parameter makes sense.
+  In rare cases a <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter would have undesired side
+  effects with global variables or other <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameters.
+  In these cases an explicit <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> parameter instead of an
+  <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter makes sense.
 </p><p>
-  In all normal cases an <tt>'<span class="keywd">in</span>'</tt> parameter should be preferred
-  over an explicit <tt>'<span class="keywd">val</span>'</tt> and <tt>'<span class="keywd">ref</span>'</tt> parameter.
+  In all normal cases an <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter should be preferred
+  over an explicit <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter.
 </p>
 
-<a name="tutorial_Declare_a_statement"><h3>2.7 Declare a statement</h3></a>
+<a name="tutorial_Overloading"><h3>2.8 Overloading</h3></a>
+<p>
+    Functions are not only identified by identifiers but also
+  via the types of their parameters. So several versions of a
+  function can be defined:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">float.s7i</span><span class="lib">"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">bigint.s7i</span><span class="lib">"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">bigrat.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: amount)      <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10.0;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: amount)    <span class="keywd">is</span> <span class="keywd">return</span> <span class="func_no_ul">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_bigRational">bigRational</a>: tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: amount) <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10_;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(tenPercent(123));
+    <span class="func_no_ul">writeln</span>(tenPercent(123.0));
+    <span class="func_no_ul">writeln</span>(tenPercent(123_));
+  <span class="keywd">end func</span>;
+</pre><p>
+  The example above defines the function <tt>tenPercent</tt> for the
+  types <tt><a class="type" href="#types_float">float</a></tt>, <tt><a class="type" href="#types_integer">integer</a></tt> and <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt>. Two of these
+  functions return a <tt><a class="type" href="#types_float">float</a></tt> and one returns a <tt><a class="type" href="#types_bigRational">bigRational</a></tt>.
+  This reuse of the same function name is called overloading.
+  The literals <tt>123</tt>, <tt>123.0</tt> and <tt>123_</tt> have the types
+  <tt><a class="type" href="#types_float">float</a></tt>, <tt><a class="type" href="#types_integer">integer</a></tt> and <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> respectively. This
+  allows an easy identification of the <tt>tenPercent</tt> function
+  used. Note that <tt><span class="func">writeln</span></tt> is also overloaded. Otherwise
+  <tt><span class="func">writeln</span></tt> would not be able to accept <tt><a class="type" href="#types_float">float</a></tt> and
+  <tt><a class="type" href="#types_bigRational">bigRational</a></tt> arguments.
+</p><p>
+  Overloading does not consider the result of a function.
+  The following example attempts to overload <tt>addOne</tt>
+  with the same parameter type and a different result type:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd">return</span> num <span class="op">+</span> 1;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:   addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func_no_ul">float</span>(num) <span class="op">+</span> 1.0;
+</pre><p>
+  Return type overloading is not supported. Therefore
+  the attempt above results in the <a class="link" href="#errors_Parsing_errors">compile-time error</a>:
+</p><pre class="indent">
+*** tst344.sd7(5):34: <a class="link" href="#errors_OBJTWICEDECLARED"> addOne (val integer param)  declared twice</a>
+const func float:   addOne (in integer: num) is return float(num) + 1.0;
+------------------------------------------------------------------------^
+</pre><p>
+  The absence of return type overloading improves readability,
+  since:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+    &nbsp;The type of every expression (and sub expression) is independent of the context.
+</td></tr></table></dd></dl><p>
+  You don't need to look where an expression is used. The
+  expression alone gives you enough information to determine
+  the type of the expression.
+</p><p>
+  Operators like <tt><span class="op">+</span></tt> can be overloaded with:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">float.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand2) <span class="keywd">is</span>
+    <span class="keywd">return</span> <span class="func_no_ul">float</span>(summand1) <span class="op_no_ul">+</span> summand2;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span>
+    <span class="keywd">return</span> summand1 <span class="op_no_ul">+</span> <span class="func_no_ul">float</span>(summand2);
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(123 <span class="op_no_ul">+</span> 123.456);
+    <span class="func_no_ul">writeln</span>(123.456 <span class="op_no_ul">+</span> 123);
+  <span class="keywd">end func</span>;
+</pre><p>
+  The definitions of the <tt><span class="op">+</span></tt> operator above allow mixing of
+  <tt><a class="type_no_ul" href="#types_integer">integer</a></tt> and <tt><a class="type_no_ul" href="#types_float">float</a></tt> arguments. The overloaded <tt><span class="op">+</span></tt> operators
+  above are taken from the <tt><span class="lib">mixarith.s7i</span></tt> library.
+</p>
+
+<a name="tutorial_Declare_a_statement"><h3>2.9 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;       <span class="comment"># Standard Seed7 library</span>
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;       <a class="comment" href="#tokens_Line_comments"># Standard Seed7 library</a>
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> stri <span class="keywd">range</span> argv(PROGRAM) <span class="keywd">do</span>
-      write(stri &lt;& <span class="stri">" "</span>);
+      write(stri &lt;& <a class="stri" href="#tokens_String_literals">" "</a>);
     <span class="keywd">end for</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  The <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> iterates over <tt><span class="func">argv</span>(PROGRAM)</tt>.
-  The function <tt><span class="func">argv</span>(PROGRAM)</tt> returns an <tt><a class="type" href="#types_array">array string</a></tt>
+  The <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> iterates over <tt><a class="func" href="#os_argv_PROGRAM">argv</a>(PROGRAM)</tt>.
+  The function <tt><a class="func" href="#os_argv_PROGRAM">argv</a>(PROGRAM)</tt> returns an <tt><a class="type" href="#types_array">array string</a></tt>
   (=<tt><a class="type" href="#types_array">array</a></tt> of <tt><a class="type" href="#types_string">string</a></tt> elements). The <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> is overloaded
   for various collection types. In the standard Seed7 library
   <tt><span class="lib">seed7_05.s7i</span></tt> the <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> for <a class="type" href="#types_array">array</a>s is declared as
   follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">baseType</span>: variable) range (<span class="keywd">in</span> <span class="type">arrayType</span>: arr_obj) do
-              (<span class="keywd">in</span> <a class="type_no_ul" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">arrayType</span>: arr_obj) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements)
             end for <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> number <span class="keywd">range</span> 1 <span class="keywd">to</span> length(arr_obj) <span class="keywd">do</span>
-      variable := arr_obj[number];
+      variable <a class="op_no_ul" href="#stats_Assignment">:=</a> arr_obj[number];
       statements;
     <span class="keywd">end for</span>;
   <span class="keywd">end func</span>;
@@ -1263,18 +1487,18 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Because of these powerful features Seed7 does not need iterators.
 </p>
 
-<a name="tutorial_Template_declaring_a_statement"><h3>2.8 Template declaring a statement</h3></a>
+<a name="tutorial_Template_declaring_a_statement"><h3>2.10 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <span class="type">type</span>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">type</span>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: low) to (<span class="keywd">in</span> <span class="type">aType</span>: high) do
-        (<span class="keywd">in</span> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: low) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: high) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
-        variable := low;
+        variable <a class="op_no_ul" href="#stats_Assignment">:=</a> low;
         <a class="keywd_no_ul" href="#stats_if-statement">if</a> variable &lt;= high <a class="keywd_no_ul" href="#stats_if-statement">then</a>
           statements;
           <a class="keywd_no_ul" href="#stats_while-statement">while</a> variable &lt; high <a class="keywd_no_ul" href="#stats_while-statement">do</a>
@@ -1320,30 +1544,30 @@ FOR_DECLS(<span class="type">boolean</span>);
   uses uniform looking declaration constructs to declare variables,
   constants, types, functions and parameters. For example:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">integer</span>: ONE <span class="keywd">is</span> 1;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: ONE <span class="keywd">is</span> 1;
 </pre><p>
   declares the <tt><a class="type" href="#types_integer">integer</a></tt> constant <tt>'ONE'</tt> which is initialized with the
   value 1. Variable declarations are also possible. For example:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
+<span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
 </pre><p>
   declares the <tt><a class="type" href="#types_integer">integer</a></tt> variable <tt>'number'</tt> which is initialized with
   the value 0. Type declarations are done as constant declarations
   where the type of the declared constant is <tt><a class="type" href="#types_type">type</a></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: myChar <span class="keywd">is</span> <span class="type">char</span>;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: myChar <span class="keywd">is</span> <a class="type_no_ul" href="#types_char">char</a>;
 </pre><p>
   Function declarations are also a form of constant declaration:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func boolean</span>: flipCoin <span class="keywd">is</span>
-  <span class="keywd">return</span> rand(FALSE, TRUE);
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
+  <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 </pre><p>
   Each object declared with a <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declaration obtains
   an initial value. It is not possible to use <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt>
   declarations without initial value. Declarations with
   initialization expressions are also possible. For example
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">string</span>: fileName <span class="keywd">is</span> NAME & <span class="stri">".txt"</span>;
+<span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: fileName <span class="keywd">is</span> NAME <span class="op_no_ul">&amp;</span> <span class="stri">".txt"</span>;
 </pre><p>
   The expression is evaluated and the result is assigned to
   the new object. This is done in the analyze phase of the
@@ -1352,19 +1576,19 @@ FOR_DECLS(<span class="type">boolean</span>);
   function (or operator) call. That way user defined functions
   can also be used to initialize a constant or variable:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">boolean</span>: maybe <span class="keywd">is</span> flipCoin;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: maybe <span class="keywd">is</span> flipCoin;
 </pre><p>
   Constant and variable declarations can be global or local.
   The mechanism to define a parameter like <tt>'x'</tt> is similar to the
   <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declarations:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func float</span>: inverse (<span class="keywd">in</span> <span class="type">float</span>: x) <span class="keywd">is</span>
-  <span class="keywd">return</span> 1/x;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: inverse (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: x) <span class="keywd">is</span>
+  <span class="keywd">return</span> 1<span class="op_no_ul">/</span>x;
 </pre><p>
   Function parameters, such as the parameter <tt>'statement'</tt> in
   the example below, act as call-by-name parameters:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: possiblyDo (<span class="keywd">in</span> <span class="type">proc</span>: statement) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: possiblyDo (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statement) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">if</span> flipCoin <span class="keywd">then</span>
       statement;
@@ -1376,7 +1600,7 @@ FOR_DECLS(<span class="type">boolean</span>);
   functions which return a type. E.g.: The type <tt><a class="type" href="#types_array">array</a></tt> is defined in the
   <tt><span class="lib">seed7_05.s7i</span></tt> library with the following header:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func type</span>: array (<span class="keywd">in</span> <span class="type">type</span>: baseType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: array (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: baseType) <span class="keywd">is func</span>
 </pre><p>
   User defined abstract data types are also possible.
 </p><p>
@@ -1458,7 +1682,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   are informed about which objects should be used for various system
   internal purposes. An example of a system declaration is
 </p><pre class="indent">
-$ <span class="keywd">system</span> <span class="stri">"integer"</span> <span class="keywd">is</span> <span class="type">integer</span>;
+$ <span class="keywd">system</span> <span class="stri">"integer"</span> <span class="keywd">is</span> <a class="type_no_ul" href="#types_integer">integer</a>;
 </pre><p>
   This defines that the type of all integer literals is <tt><a class="type" href="#types_integer">integer</a></tt>.
   Additionally <tt><a class="type" href="#types_integer">integer</a></tt> is used as type for all integers generated
@@ -1502,6 +1726,7 @@ $ <span class="keywd">system</span> <span class="stri">"range_error"</span> <spa
 $ <span class="keywd">system</span> <span class="stri">"index_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"file_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"database_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a>;
+$ <span class="keywd">system</span> <span class="stri">"graphic_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_GRAPHIC_ERROR">GRAPHIC_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"illegal_action"</span> <span class="keywd">is</span> <a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>;
 
 $ <span class="keywd">system</span> <span class="stri">"assign"</span> <span class="keywd">is</span> := ;
@@ -2416,6 +2641,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     <span class="func">str</span>(<span class="var">FALSE</span>) <b>&rArr;</b> <span class="stri">"FALSE"</span>,
                     <span class="func">str</span>(<span class="var">TRUE</span>) <b>&rArr;</b> <span class="stri">"TRUE"</span> )
+      <span class="func">literal</span>(A) Convert a boolean value to a boolean literal.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    <span class="func">literal</span>(<span class="var">FALSE</span>) <b>&rArr;</b> <span class="stri">"FALSE"</span>,
+                    <span class="func">literal</span>(<span class="var">TRUE</span>) <b>&rArr;</b> <span class="stri">"TRUE"</span> )
       <span class="func">rand</span>(A, B) Random value in the range [A, B]
                  The random values are uniform distributed.
                   ( <span class="func">rand</span>(A, B) returns a random value such that
@@ -2988,6 +3217,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(9876543210_) <b>&rArr;</b> <span class="stri">"9876543210"</span> )
+      <span class="func">literal</span>(A) Convert a bigInteger number to a bigInteger literal.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    literal(9876543210_) <b>&rArr;</b> <span class="stri">"9876543210_"</span> )
       <span class="func">bigInteger</span>(A) Convert an <a class="type" href="#types_integer">integer</a> to a bigInteger
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     bigInteger(1) <b>&rArr;</b> 1_ )
@@ -3604,7 +3836,18 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     NaN <span class="op">sci</span> 7 <span class="op">exp</span> 2 <b>&rArr;</b> <span class="stri">"NaN"</span>,
                     -0.004 <span class="op">sci</span> 2 <span class="op">exp</span> 2 <b>&rArr;</b> <span class="stri">"-4.00e-03"</span> )
       <span class="type">float</span> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <span class="type">float</span>
-                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"1.2345"</span>    <b>&rArr;</b>  1.2345,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"1.2345e6"</span>  <b>&rArr;</b>  1234500.0,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"-1.0e-308"</span> <b>&rArr;</b> -1.0e-308,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"1"</span>         <b>&rArr;</b>  1.0,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"2."</span>        <b>&rArr;</b>  2.0,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">".5"</span>        <b>&rArr;</b>  0.5,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"-.25"</span>      <b>&rArr;</b> -0.25,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"Infinity"</span>  <b>&rArr;</b>  Infinity,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"-Infinity"</span> <b>&rArr;</b> -Infinity,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"NaN"</span>       <b>&rArr;</b>  NaN,
+                    <span class="type">float</span> <span class="op">parse</span> <span class="stri">"3.14PI"</span>    <b>&rArr;</b>  EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
@@ -3616,7 +3859,18 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     float(1) <b>&rArr;</b> 1.0 )
       <span class="func">float</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <span class="type">float</span>
-                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    float(<span class="stri">"1.2345"</span>)    <b>&rArr;</b>  1.2345,
+                    float(<span class="stri">"1.2345e6"</span>)  <b>&rArr;</b>  1234500.0,
+                    float(<span class="stri">"-1.0e-308"</span>) <b>&rArr;</b> -1.0e-308,
+                    float(<span class="stri">"1"</span>)         <b>&rArr;</b>  1.0,
+                    float(<span class="stri">"2."</span>)        <b>&rArr;</b>  2.0,
+                    float(<span class="stri">".5"</span>)        <b>&rArr;</b>  0.5,
+                    float(<span class="stri">"-.25"</span>)      <b>&rArr;</b> -0.25,
+                    float(<span class="stri">"Infinity"</span>)  <b>&rArr;</b>  Infinity,
+                    float(<span class="stri">"-Infinity"</span>) <b>&rArr;</b> -Infinity,
+                    float(<span class="stri">"NaN"</span>)       <b>&rArr;</b>  NaN,
+                    float(<span class="stri">"3.14PI"</span>)    <b>&rArr;</b>  EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( floor( 1.8) <b>&rArr;</b>  1.0, floor( 1.0) <b>&rArr;</b>  1.0,
                     floor(-1.0) <b>&rArr;</b> -1.0, floor(-1.2) <b>&rArr;</b> -2.0,
@@ -4244,8 +4498,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 <span class="keywd">var</span> <span class="type">striArrayType</span>: striArr2 <span class="keywd">is</span> 0 <span class="op">times</span> <span class="stri">""</span>;          <span class="comment"># Empty array with starting index 1.</span>
 <span class="keywd">var</span> <span class="type">striArrayType</span>: striArr4 <span class="keywd">is</span> [0 .. -1] <span class="op">times</span> <span class="stri">""</span>;  <span class="comment"># Empty array with starting index 0.</span>
 <span class="keywd">var</span> <span class="type">striArrayType</span>: striArr3 <span class="keywd">is</span> [0 len 0] <span class="op">times</span> <span class="stri">""</span>;  <span class="comment"># Empty array with starting index 0.</span>
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr5 <span class="keywd">is</span> [] (<span class="stri">"one"</span>, <span class="stri">"two"</span>);
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr6 <span class="keywd">is</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>);
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr5 <span class="keywd">is</span> [] (<span class="stri">"one"</span>, <span class="stri">"two"</span>);   <span class="comment"># Array with two string elements and starting index 1.</span>
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr6 <span class="keywd">is</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>); <span class="comment"># Array with two string elements and starting index 0.</span>
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr1 <span class="keywd">is</span> <span class="type">structArrayType</span>.value;
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr2 <span class="keywd">is</span> 10 <span class="op">times</span> <span class="type">aStructType</span>.value;
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr3 <span class="keywd">is</span> [42 .. 365] <span class="op">times</span> <span class="type">aStructType</span>.value;
@@ -4530,6 +4784,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Constants:
       {}                 Empty set of the type <span class="type">bitset</span>
       <span class="var">EMPTY_SET</span>          Empty set of the type <span class="type">bitset</span>
+      {1, 2}             Set with 1 and 2 (type: <span class="type">bitset</span>)
+      {<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}    Set with three characters.
+      {<span class="stri">"black"</span>, <span class="stri">"white"</span>} Set with two strings.
       <span class="type">bitset</span>.<span class="var">value</span>       Default value of <span class="type">bitset</span> ({})
       <span class="type">setType</span>.<span class="var">EMPTY_SET</span>  Empty set of the type <span class="type">setType</span>
       <span class="type">setType</span>.<span class="var">value</span>      Default value of <span class="type">setType</span> (<span class="type">setType</span>.<span class="var">EMPTY_SET</span>)
@@ -4695,7 +4952,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value
                 Declare structure element 'name' with 'value'
 
-    Infixoperators:
+    Infix operators:
       .         Access Element of STRUCT
                   ( example.element )
       ->        Access Element of ptr STRUCT
@@ -4721,33 +4978,65 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   For an enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the functions <tt><span class="func">str</span></tt> and <tt><font color=blue>parse</font></tt> in order to
-  do I/O for a new enumeration type.
+  do I/O for a new enumeration type. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: str (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">enumType</span>: enumValue) <span class="keywd">is</span>
+    <span class="keywd">return</span> literal(enumValue);
+
+enable_output(<span class="type">enumType</span>);
+</pre><p>
+  The need to define <tt><span class="func">str</span></tt> opens the oportunity to convert to
+  strings, that differ from the original literals.
 </p><pre class="tt">
     Constants:
       <span class="type">enumType</span>.<span class="var">value</span>  Default value of <span class="type">enumType</span> (enum_literal1)
       <span class="type">enumType</span>.<span class="var">first</span>  Minimum value of <span class="type">enumType</span> (enum_literal1)
       <span class="type">enumType</span>.<span class="var">last</span>   Maximum value of <span class="type">enumType</span> (enum_literal2)
     Infix operators:
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
+                    <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
       <span class="type">enumType</span> <span class="op">conv</span> A  Conversion from <a class="type" href="#types_integer">integer</a> A to <span class="type">enumType</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <span class="type">enumType</span> <span class="op">conv</span> 0 <b>&rArr;</b> enum_literal1,
+                    <span class="type">enumType</span> <span class="op">conv</span> 1 <b>&rArr;</b> enum_literal2,
+                    <span class="type">enumType</span> <span class="op">conv</span> 2 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     <span class="type">enumType</span> <span class="op">conv</span> (-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A   Conversion from <span class="type">enumType</span> A to <a class="type" href="#types_integer">integer</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal1 <b>&rArr;</b> 0 )
+                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal1 <b>&rArr;</b> 0,
+                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal2 <b>&rArr;</b> 1 )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
       ord(A)    Ordinal number
-                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    ord(enum_literal1) <b>&rArr;</b> 0,
+                    ord(enum_literal2) <b>&rArr;</b> 1 )
       succ(A)   Successor
                   ( succ(A) <b>&rArr;</b> enumType <span class="op">conv</span>(succ(ord(A))),
+                    succ(enum_literal1) <b>&rArr;</b> enum_literal2,
                     succ(<span class="type">enumType</span>.last) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       pred(A)   Predecessor
                   ( pred(A) <b>&rArr;</b> enumType <span class="op">conv</span>(pred(ord(A))),
+                    pred(enum_literal2) <b>&rArr;</b> enum_literal1,
                     pred(<span class="type">enumType</span>.first) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      literal(A) Conversion to a literal
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    literal(enum_literal1) <b>&rArr;</b> "enum_literal1",
+                    literal(enum_literal2) <b>&rArr;</b> "enum_literal2" )
+      rand(A, B) Random value in the range [A, B]
+                 The random values are uniform distributed.
+                  ( rand(A, B) returns a random enumeration value such that
+                    A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
+                    rand(A, A) <b>&rArr;</b> A,
+                    rand(enum_literal2, enum_literal1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       compare(A, B) Compare function
-                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    compare(enum_literal1, enum_literal2) <b>&rArr;</b> -1,
+                    compare(enum_literal1, enum_literal1) <b>&rArr;</b> 0,
+                    compare(enum_literal2, enum_literal1) <b>&rArr;</b> 1 )
       hashCode(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
@@ -5791,6 +6080,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Constants:
       <span class="type">category</span>.<span class="var">value</span>  Default value of <span class="type">category</span> (SYMBOLOBJECT)
     Infix operators:
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
       <span class="type">category</span> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <span class="type">category</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <span class="type">category</span> <span class="op">conv</span> ord(INTOBJECT) <b>&rArr;</b> INTOBJECT )
@@ -5827,9 +6119,11 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
 <a name="types_reference"><h3>5.26 reference</h3></a>
 <p>
-    The type <tt><span class="type">reference</span></tt> describes a reference to any
-  object. The <tt><span class="type">reference</span></tt> functions are defined in
-  the library <span class="stri">"<span class="lib">reference.s7i</span>"</span>.
+    The type <tt><span class="type">reference</span></tt> describes a reference to an object in the
+  abstract syntax tree (AST) of a program. You cannot access the AST
+  of the program that currently runs. Instead you can parse a program
+  and access its AST. The <tt><span class="type">reference</span></tt> functions are defined in the
+  library <span class="stri">"<span class="lib">reference.s7i</span>"</span>.
 
 </p><pre class="tt">
     Constants:
@@ -5911,6 +6205,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     getValue(NIL, <a class="type" href="#types_ref_list">ref_list</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     getValue(A, <a class="type" href="#types_ref_list">ref_list</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for
                         category(A) not in {MATCHOBJECT, CALLOBJECT, REFLISTOBJECT} )
+      getValue(A, <a class="type" href="#types_boolean">boolean</a>) Dereference as <a class="type" href="#types_boolean">boolean</a>
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    getValue(NIL, <a class="type" href="#types_boolean">boolean</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    getValue(A, <a class="type" href="#types_boolean">boolean</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if A does not refer to <span class="var">FALSE</span> or <span class="var">TRUE</span> )
       getValue(A, <a class="type" href="#types_integer">integer</a>) Dereference as <a class="type" href="#types_integer">integer</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     getValue(NIL, <a class="type" href="#types_integer">integer</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
@@ -5931,6 +6229,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     getValue(NIL, <a class="type" href="#types_string">string</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     getValue(A, <a class="type" href="#types_string">string</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> STRIOBJECT )
+      getValue(A, <a class="type" href="#types_bstring">bstring</a>) Dereference as <a class="type" href="#types_bstring">bstring</a>
+                  ( Type of result: <a class="type" href="#types_bstring">bstring</a>,
+                    getValue(NIL, <a class="type" href="#types_bstring">bstring</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    getValue(A, <a class="type" href="#types_bstring">bstring</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> BSTRIOBJECT )
       getValue(A, <a class="type" href="#types_set">bitset</a>) Dereference as <a class="type" href="#types_set">bitset</a>
                   ( Type of result: <a class="type" href="#types_set">bitset</a>,
                     getValue(NIL, <a class="type" href="#types_set">bitset</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
@@ -5975,9 +6277,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
 <a name="types_ref_list"><h3>5.27 ref_list</h3></a>
 <p>
-    The type <tt><span class="type">ref_list</span></tt> describes a list of <tt><a class="type" href="#types_reference">reference</a></tt> objects.
-  The <tt><span class="type">ref_list</span></tt> functions are defined in
-  the library <span class="stri">"<span class="lib">ref_list.s7i</span>"</span>.
+    The type <tt><span class="type">ref_list</span></tt> describes a list of <tt><a class="type" href="#types_reference">reference</a></tt> objects. The
+  <tt><span class="type">ref_list</span></tt> functions are defined in the library <span class="stri">"<span class="lib">ref_list.s7i</span>"</span>.
 </p><pre class="tt">
     Constants:
       <span class="type">ref_list</span>.<span class="var">EMPTY</span>  Empty reference list.
@@ -6051,8 +6352,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
 <a name="types_program"><h3>5.28 program</h3></a>
 <p>
-    The type <tt><span class="type">program</span></tt> describes a Seed7 program.
-  The <tt><span class="type">program</span></tt> functions are defined in the library <span class="stri">"<span class="lib">progs.s7i</span>"</span>.
+    The type <tt><span class="type">program</span></tt> describes a Seed7 program. You cannot access
+  the program that currently runs. Instead you can parse a program
+  and access its data. The <tt><span class="type">program</span></tt> functions are defined in the
+  library <span class="stri">"<span class="lib">progs.s7i</span>"</span>.
 </p><pre class="tt">
     Constants:
       <span class="type">program</span>.<span class="var">EMPTY</span>  Empty program.
@@ -6335,6 +6638,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
                   ( <a class="type" href="#types_set">set</a> <span class="type">of</span> <a class="type" href="#types_integer">integer</a> <b>&rArr;</b> Set of <a class="type" href="#types_integer">integer</a> )
       subtype   Create subtype of existing type
                   ( <font color=red>subtype</font> <a class="type" href="#types_char">char</a> <b>&rArr;</b> Subtype of <a class="type" href="#types_char">char</a> )
+    Infix operators:
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
     Relations:
       =, &lt;>
     Functions:
@@ -6425,6 +6732,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <p>
   Value parameters are marked with the keyword <tt>'<span class="keywd">val</span>'</tt>.
   A value parameter copies the value of the actual parameter.
+  The formal <tt>'<span class="keywd">val</span>'</tt> parameter cannot be changed inside the function.
   Value parameters are used, when copying is cheap or
   when copying  is necessary for the correct behavior.
   The function below appends a comma and a string to the
@@ -6464,7 +6772,7 @@ appendStri(globalStri);
   Semantics:</dt><dd>
     When calling a function a formal <tt>'<span class="keywd">val</span>'</tt> parameter gets its
     value from the corresponding actual parameter. This is done
-    with a create procedure ( ::= ). In the function it is only
+    with a create procedure ( ::= ). Inside the function it is only
     possible to read a formal <tt>'<span class="keywd">val</span>'</tt> parameter. Changing a formal
     <tt>'<span class="keywd">val</span>'</tt> parameter is not possible. When a function is left a
     <tt>'destr'</tt> procedure is called for every <tt>'<span class="keywd">val</span>'</tt> parameter. Formal
@@ -6491,6 +6799,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <p>
   Reference parameters are marked with the keyword <tt>'<span class="keywd">ref</span>'</tt>.
   A reference parameter refers to the value of the actual parameter.
+  The formal <tt>'<span class="keywd">ref</span>'</tt> parameter cannot be changed inside the function.
   Reference parameters are used, when copying is expensive and
   referring to the value does not change the correct behavior.
   The function below defines the primitive action for the
@@ -6525,7 +6834,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><dl><dt>
   Semantics:</dt><dd>
     When calling a function a formal <tt>'<span class="keywd">ref</span>'</tt> parameter is set to
-    refer to the corresponding actual parameter. In the function
+    refer to the corresponding actual parameter. Inside the function
     it is only possible to read a formal <tt>'<span class="keywd">ref</span>'</tt> parameter.
     Changing a formal <tt>'<span class="keywd">ref</span>'</tt> parameter is not possible. Formal
     <tt>'<span class="keywd">ref</span>'</tt> parameters have the access right <tt>'<span class="keywd">const</span>'</tt>.
@@ -6551,7 +6860,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <p>
   Input parameters are marked with the keyword <tt>'<span class="keywd">in</span>'</tt>.
   Depending on the type an input parameter is either a
-  value or a reference parameter. The function below
+  value or a reference parameter. The formal <tt>'<span class="keywd">in</span>'</tt> parameter
+  cannot be changed inside the function. The function below
   checks if a given number is a prime number:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: is_prime (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
@@ -6623,7 +6933,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_in_var_parameter"><h3>6.4 'in var' parameter</h3></a>
 <p>
-  This function computes the greatest common divisor:
+  Value parameters that can be changed inside the function are marked
+  with the keywords <tt>'<span class="keywd">in var</span>'</tt>.
+  The value of the actual parameter is copied. Changes to the
+  formal <tt>'<span class="keywd">in var</span>'</tt> parameter have no effect outside the function.
+  The function below computes the greatest common divisor:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: gcd (<span class="keywd">in var</span> <a class="type" href="#types_integer">integer</a>: a, <span class="keywd">in var</span> <a class="type" href="#types_integer">integer</a>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
@@ -6642,7 +6956,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   Semantics:</dt><dd>
     When calling a function a formal <tt><span class="keywd">in var</span></tt> parameter gets its
     value from the corresponding actual parameter. This is done
-    with a create procedure ( ::= ). In the function it is
+    with a create procedure ( ::= ). Inside the function it is
     possible to read and change a formal <tt><span class="keywd">in var</span></tt> parameter.
     Changing a formal <tt><span class="keywd">in var</span></tt> parameter has no effect on the
     actual parameter. When a function is left a <tt>'destr'</tt> procedure
@@ -6667,7 +6981,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_inout_parameter"><h3>6.5 'inout' parameter</h3></a>
 <p>
-  This procedure doubles the given parameter 'number':
+  Reference parameters, that can be changed inside the function, are marked
+  with the keyword <tt>'<span class="keywd">inout</span>'</tt>. A reference parameter
+  refers to the value of the actual parameter. Changes to
+  the formal <tt>'<span class="keywd">inout</span>'</tt> parameter effect also the actual parameter.
+  The procedure below doubles the given parameter 'number':
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: double (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -6676,7 +6994,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     When calling a function a formal <tt>'<span class="keywd">inout</span>'</tt> parameter is set to
-    refer to the corresponding actual parameter. In the function
+    refer to the corresponding actual parameter. Inside the function
     it is possible to read and change a formal <tt>'<span class="keywd">inout</span>'</tt> parameter.
     Changing a formal <tt>'<span class="keywd">inout</span>'</tt> parameter changes the actual
     parameter as well. Formal <tt>'<span class="keywd">inout</span>'</tt> parameters have the
@@ -9262,9 +9580,9 @@ currSymbol := getSymbol(inFile);
   adjacent or they can have parameters in between. The S7SSD of
   an infix <tt>+</tt> is:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). + .()   <span class="keywd">is</span> -> 7;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). + .()   <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 7;
 </pre><p>
-  This defines the <tt>+</tt> as left associative infix operator with
+  This defines the <tt>+</tt> as <a class="link" href="#syntax_left_associative">left associative</a> infix operator with
   priority 7. The actual syntax is described with:
 </p><pre class="indent">
 . () . + . ()
@@ -9299,9 +9617,9 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   is:
 <p><pre class="indent">
 <span class="keywd">loop</span>
-  ch := getc(inFile);
-<span class="keywd">until</span> ch = <span class="stri">'\n'</span> <span class="keywd">do</span>
-  stri &amp;:= str(ch);
+  ch <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">getc</span>(inFile);
+<span class="keywd">until</span> ch <span class="op_no_ul">=</span> <span class="stri">'\n'</span> <span class="keywd">do</span>
+  stri <span class="op_no_ul">&amp;:=</span> ch;
 <span class="keywd">end loop</span>;
 </pre><p>
   The <tt>'<span class="keywd">loop</span>'</tt> example above reads characters from a file and
@@ -9311,15 +9629,15 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   would be:
 <p><pre class="indent">
 <span class="keywd">repeat</span>
-  ch := getc(inFile);
-  <span class="keywd">if</span> ch &lt;> <span class="stri">'\n'</span> <span class="keywd">then</span>
-    stri &amp;:= str(ch);
+  ch <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">getc</span>(inFile);
+  <span class="keywd">if</span> ch <span class="op_no_ul">&lt;></span> <span class="stri">'\n'</span> <span class="keywd">then</span>
+    stri <span class="op_no_ul">&amp;:=</span> ch;
   <span class="keywd">end if</span>;
-<span class="keywd">until</span> ch = <span class="stri">'\n'</span>;
+<span class="keywd">until</span> ch <span class="op_no_ul">=</span> <span class="stri">'\n'</span>;
 </pre><p>
   The S7SSD of the <a class="link" href="#syntax_The_syntax_of_a_statement">loop-statement</a> is:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .loop.().until.().do.().end.loop   <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .loop.().until.().do.().end.loop   <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
 </pre><p>
   The details of the S7SSD <tt>'<span class="keywd">syntax</span>'</tt> definition will be explained
   later. For now we concentrate at the heart of the S7SSD, the
@@ -9463,15 +9781,15 @@ A - B - C
 (A - B) - C    or   A - (B - C)
 </pre><p>
   The first interpretation is usually preferred by mathematicians
-  and is described with the associativity <tt><span class="op">-></span></tt> . Generally four
+  and is described with the associativity <tt><a class="op_no_ul" href="#syntax_left_associative">-></a></tt> . Generally four
   associativities are possible:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     
     <tr><th align="left"> Associativity                             </th><th> Symbol </th></tr>
     
-    <tr><td> Binding from left to right                </td><td align="center">   <tt><span class="op">-></span></tt>   </td></tr>
+    <tr><td> <a name="syntax_left_associative">Binding from left to right</a>                </td><td align="center">   <tt><span class="op">-></span></tt>   </td></tr>
     
-    <tr><td> Binding from right to left                </td><td align="center">   <tt><span class="op">&lt;-</span></tt>   </td></tr>
+    <tr><td> <a name="syntax_right_associative">Binding from right to left</a>                </td><td align="center">   <tt><span class="op">&lt;-</span></tt>   </td></tr>
     
     <tr><td> Neither the left nor the right parameter          
      are allowed to have the same priority     </td><td align="center">   <tt><span class="op">&lt;-></span></tt>  </td></tr>
@@ -9497,7 +9815,7 @@ A = B = C
                              -                     7
     A - B - C              /   \                 /   \
                           /     \           &lt;=7 /     \ &lt;7
-    - priority 7 ->      /       \             /       \
+    - priority 7 <a class="op_no_ul" href="#syntax_left_associative">-></a>      /       \             /       \
                         -         C           7         0
                       /   \                 /   \
                      /     \           &lt;=7 /     \ &lt;7
@@ -9518,8 +9836,8 @@ A = B = C
     
     <tr><th align="center"> left operand must be </th><th align="center"> right operand must be </th></tr>
     
-    <tr><td align="center">      <tt><span class="op">-></span></tt>       </td><td align="center">          <tt><span class="op">&lt;=</span></tt>          </td><td align="center">          <tt><span class="op">&lt;</span></tt>            </td></tr>
-    <tr><td align="center">      <tt><span class="op">&lt;-</span></tt>       </td><td align="center">          <tt><span class="op">&lt;</span></tt>           </td><td align="center">          <tt><span class="op">&lt;=</span></tt>           </td></tr>
+    <tr><td align="center">      <tt><a class="op_no_ul" href="#syntax_left_associative">-></a></tt>       </td><td align="center">          <tt><span class="op">&lt;=</span></tt>          </td><td align="center">          <tt><span class="op">&lt;</span></tt>            </td></tr>
+    <tr><td align="center">      <tt><a class="op_no_ul" href="#syntax_right_associative">&lt;-</a></tt>       </td><td align="center">          <tt><span class="op">&lt;</span></tt>           </td><td align="center">          <tt><span class="op">&lt;=</span></tt>           </td></tr>
     <tr><td align="center">      <tt><span class="op">&lt;-></span></tt>      </td><td align="center">          <tt><span class="op">&lt;</span></tt>           </td><td align="center">          <tt><span class="op">&lt;</span></tt>            </td></tr>
     <tr><td align="center">     <tt><span class="op">->&lt;-</span></tt>      </td><td align="center">          <tt><span class="op">&lt;=</span></tt>          </td><td align="center">          <tt><span class="op">&lt;=</span></tt>           </td></tr>
     
@@ -9545,13 +9863,13 @@ A = B = C
 </pre><p>
   To describe the syntax of the <tt><span class="keywd">not</span></tt> operator we write:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .not.() <span class="keywd">is</span> &lt;- 13;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .not.() <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a> 13;
 </pre><p>
   This means that a <tt><span class="keywd">not</span></tt> expression is constructed with the
   symbol <tt><span class="keywd">not</span></tt> followed by a parameter. The place of the
   parameter is marked with the () sign. The syntax description
   contains no information about the types of the parameters. At
-  the syntax level a parameter may be anything. With <tt><span class="op">&lt;-</span></tt> the
+  the syntax level a parameter may be anything. With <tt><a class="op_no_ul" href="#syntax_right_associative">&lt;-</a></tt> the
   associativity of the <tt><span class="keywd">not</span></tt> operator is specified as right
   associative. This means that the right operand is allowed to
   have the same priority as the operator symbol. So the
@@ -9564,7 +9882,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="op">not</span> (<span class="op">not</span> okay)
 </pre><p>
   If the associativity of the <tt><span class="keywd">not</span></tt> operator is specified with
-  <tt><span class="op">-></span></tt> instead of <tt><span class="op">&lt;-</span></tt> the <tt>'<span class="op">not</span> <span class="op">not</span>'</tt> expression above is not legal.
+  <tt><a class="op_no_ul" href="#syntax_left_associative">-></a></tt> instead of <tt><a class="op_no_ul" href="#syntax_right_associative">&lt;-</a></tt> the <tt>'<span class="op">not</span> <span class="op">not</span>'</tt> expression above is not legal.
   With 13 the priority of the whole <tt><span class="keywd">not</span></tt> operator is determined.
   As convention priorities from 1 to 20 are used by operators
   and priority 25 is used by statements. Arithmetic operators
@@ -9664,12 +9982,12 @@ okay <span class="op">and</span> <span class="op">not</span> error
 </ul><p>
   All this things can also be described with S7SSD:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: . + .()      is &lt;-  5;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: . - .()      is &lt;-  5;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). * .()   is  -> 6;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). / .()   is  -> 6;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). + .()   is  -> 7;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). - .()   is  -> 7;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: . + .()      is <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a>  5;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: . - .()      is <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a>  5;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). * .()   is  <a class="op_no_ul" href="#syntax_left_associative">-></a> 6;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). / .()   is  <a class="op_no_ul" href="#syntax_left_associative">-></a> 6;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). + .()   is  <a class="op_no_ul" href="#syntax_left_associative">-></a> 7;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). - .()   is  <a class="op_no_ul" href="#syntax_left_associative">-></a> 7;
 </pre><p>
   As we can see S7SSD is shorter as the description with EBNF.
   A syntax statement is explained as follows:
@@ -9720,7 +10038,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p>
   To describe the syntax of the <a class="link" href="#stats_while-statement">while-statement</a> we write:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .while.().do.().end.while <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
 </pre><p>
   This means that the <a class="link" href="#stats_while-statement">while-statement</a> is an expression with the
   symbols <tt>'<span class="keywd">while</span>'</tt>, <tt>'<span class="keywd">do</span>'</tt>, <tt>'<span class="keywd">end</span>'</tt> and <tt>'<span class="keywd">while</span>'</tt>. With <tt><span class="op">-></span></tt> the
@@ -9757,7 +10075,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p>
   which has the following syntax description:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .repeat.().until.() <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .repeat.().until.() <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
 </pre><p>
   This means that the <a class="link" href="#stats_repeat-statement">repeat-statement</a> is an expression with
   the symbols <tt>'<span class="keywd">repeat</span>'</tt> and <tt>'<span class="keywd">until</span>'</tt> and a parameter between
@@ -9780,8 +10098,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p>
   As syntax description we use
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().end.if <span class="keywd">is</span>            -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().else.().end.if <span class="keywd">is</span>    -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().end.if <span class="keywd">is</span>            <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().else.().end.if <span class="keywd">is</span>    <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
 </pre><p>
   Note that this description allows <a class="link" href="#stats_if-statement">if-statements</a> with and
   without <tt>'<span class="keywd">else</span>'</tt> parts. As semantic description we use
@@ -9847,12 +10165,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </dl></tt></dd></dl><p>
   The S7SSD of this <a class="link" href="#stats_if-statement">if-statement</a> is:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .if.().then.().end.if           <span class="keywd">is</span> -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .if.().then.().().end.if        <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .if.().then.().end.if           <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .if.().then.().().end.if        <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_left_associative">-></a> 25;
 
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .elsif.().then.()               <span class="keywd">is</span> <- 60;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .elsif.().then.().()            <span class="keywd">is</span> <- 60;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .else.()                        <span class="keywd">is</span> <- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .elsif.().then.()               <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a> 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .elsif.().then.().()            <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a> 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> : .else.()                        <span class="keywd">is</span> <a class="op_no_ul" href="#syntax_right_associative">&lt;-</a> 60;
 </pre><p>
   Instead of one rule (as EBNF does) the rule is broken into several
   S7SSD rules. This is necessary because S7SSD does not support the
@@ -10091,9 +10409,15 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="comment">(* This is a comment *)</span>
 </pre><p>
-  Comment nesting is allowed so it is possible to comment out
-  larger sections of the program which can also include comments.
-  Comments cannot occur within <a class="link" href="#tokens_String_literals">string</a> or <a class="link" href="#tokens_Character_literals">character literals</a>.
+  Comments can span over multiple lines and comment nesting is
+  allowed:
+</p><pre class="indent">
+<span class="comment">(* This is a comment that continues
+   in the next line (* and has a nesting comment inside *) *)</span>
+</pre><p>
+  This allows commenting out a larger section of the program,
+  which itself contains comments. Comments cannot occur within
+  <a class="link" href="#tokens_String_literals">string</a> and <a class="link" href="#tokens_Character_literals">character literals</a>.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
@@ -10126,7 +10450,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="comment"># This is a comment</span>
 </pre><p>
-  Comments cannot occur within string, character or numerical
+  Comments cannot occur within <a class="link" href="#tokens_String_literals">string</a>, <a class="link" href="#tokens_Character_literals">character</a> and numerical
   literals.
 </p><dl><dt>
   Syntax:
@@ -10350,6 +10674,7 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
   characters surrounded by double quotes. For example:
 </p><pre class="indent">
 <span class="stri">""</span>   <span class="stri">" "</span>   <span class="stri">"\""</span>   <span class="stri">"'"</span>   <span class="stri">"\'"</span>   <span class="stri">"String"</span>   <span class="stri">"ch=\" "</span>   <span class="stri">"\n\n"</span>
+<span class="stri">"Euro: \8364;"</span>   <span class="stri">"\16#ff;"</span>
 </pre><p>
   In order to represent non-printable characters and certain
   printable characters the following escape sequences may be
@@ -10528,7 +10853,7 @@ ignore("íA");
       <a class="ebnf" href="#expr_ebnf_expression">expression</a> <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> { <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> | <a class="ebnf" href="#expr_ebnf_expression">expression</a> } .</dd>
 <dt><br /></dt>
     <dt><a name="expr_ebnf_simple_expression">simple_expression</a> ::=</dt><dd>
-      <a class="ebnf" href="#expr_ebnf_dot_expression">dot_expression</a> .</dd>
+      <a class="ebnf" href="#expr_ebnf_dot_expression">dot_expression</a> | <a class="ebnf" href="#expr_ebnf_call_expression">call_expression</a> .</dd>
 </dl></tt></dd></dl><p>
   The chapters below describe the predefined syntax rules
   of simple expressions.
@@ -10562,8 +10887,8 @@ writeln(<span class="stri">"hello world"</span>)
     <dd><tt><span class="stri">"hello world"</span></tt></dd>
     <dd><tt>writeln</tt></dd>
 </dl><p>
-  The meta object of this list is specified with the system
-  declaration <span class="stri">"system expr"</span> which is defined in the include
+  The type of this list is specified with the <a class="link" href="#decls_System_declarations">system-declaration</a>
+  <span class="stri">"system expr"</span>, which is defined in the include
   file <span class="stri">"syntax.s7i"</span> included from <span class="stri">"seed7_05.s7i"</span> as
 </p><pre class="indent">
 $ <span class="keywd">system</span> <span class="stri">"expr"</span> is expr;
@@ -10612,19 +10937,25 @@ pos(<span class="stri">"Scotty! Beam me up."</span>, <span class="stri">"am"</sp
     <dd><tt><span class="op">and</span></tt></dd>
     <dd><tt>GO_ON</tt></dd>
 </dl><p>
-  The meta object of this list is specified with the system
-  declaration <span class="stri">"system expr"</span> which is defined in the include
+  The type of this list is specified with the <a class="link" href="#decls_System_declarations">system-declaration</a>
+  <span class="stri">"system expr"</span>, which is defined in the include
   file <span class="stri">"syntax.s7i"</span> included from <span class="stri">"seed7_05.s7i"</span> as
 </p><pre class="indent">
 $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class="keywd">is</span> <a class="type" href="#types_expr">expr</a>;
 </pre><p>
   Dot expressions override the priority of the elements.
-  Dot expressions are used in <tt>'<span class="keywd">syntax</span>'</tt> declarations.
+  Dot expressions are used in <a class="link" href="#syntax_The_Seed7_Structured_Syntax_Description">syntax-declarations</a>.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="expr_ebnf_dot_expression">dot_expression</a> ::=</dt><dd>
-      [ '.' ] <a class="ebnf" href="#expr_ebnf_call_expression">call_expression</a> { '.' <a class="ebnf" href="#expr_ebnf_call_expression">call_expression</a> } .</dd>
+      '.' <a class="ebnf" href="#expr_ebnf_dot_subexpression">dot_subexpression</a> { '.' <a class="ebnf" href="#expr_ebnf_dot_subexpression">dot_subexpression</a> } .</dd>
+<dt><br /></dt>
+    <dt><a name="expr_ebnf_dot_subexpression">dot_subexpression</a> ::=</dt><dd>
+      <a class="ebnf" href="#expr_ebnf_empty_parentheses">empty_parentheses</a> | <a class="ebnf" href="#expr_ebnf_parentheses_expression">parentheses_expression</a> | <a class="ebnf" href="#expr_ebnf_call_expression">call_expression</a> .</dd>
+<dt><br /></dt>
+    <dt><a name="expr_ebnf_empty_parentheses">empty_parentheses</a> ::=</dt><dd>
+      '(' ')' .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="os_file_start"></a><p></p>
@@ -12596,6 +12927,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DCL_REF1</td>            <td>dcl_ref1</td></tr>
     <tr><td>DCL_REF2</td>            <td>dcl_ref2</td></tr>
     <tr><td>DCL_SYMB</td>            <td>dcl_symb</td></tr>
+    <tr><td>DCL_SYNTAX</td>          <td>dcl_syntax</td></tr>
     <tr><td>DCL_VAL1</td>            <td>dcl_val1</td></tr>
     <tr><td>DCL_VAL2</td>            <td>dcl_val2</td></tr>
     <tr><td>DCL_VAR</td>             <td>dcl_var</td></tr>
@@ -13001,6 +13333,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>arg_v</td></tr>
     <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_BEGIN_NOOP</td>      <td>prc_begin_noop</td>      <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK_CATCH_ALL</td> <td>prc_block_catch_all</td> <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK_OTHERWISE</td> <td>prc_block_otherwise</td> <td>&nbsp;</td></tr>
@@ -13364,6 +13697,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_SPLIT</td>           <td>str_split</td>           <td>strSplit</td></tr>
     <tr><td>STR_STR</td>             <td>str_str</td>             <td>(noop)</td></tr>
     <tr><td>STR_SUBSTR</td>          <td>str_substr</td>          <td>strSubstr</td></tr>
+    <tr><td>STR_SUBSTR_FIXLEN</td>   <td>str_substr_fixlen</td>   <td>strSubstrFixLen</td></tr>
     <tr><td>STR_TAIL</td>            <td>str_tail</td>            <td>strTail</td></tr>
     <tr><td>STR_TOUTF8</td>          <td>str_toutf8</td>          <td>strToUtf8</td></tr>
     <tr><td>STR_TRIM</td>            <td>str_trim</td>            <td>strTrim</td></tr>
@@ -14755,8 +15089,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">37:</td> <td width="10"></td><td><a name="errors_ILLEGAL_PRIORITY"                 >Statement priority "%s" too big</a></td></tr>
     <tr><td align="right">38:</td> <td width="10"></td><td><a name="errors_TWO_PARAMETER_SYNTAX"             >Syntax with two parameters before operator is illegal</a></td></tr>
     <tr><td align="right">39:</td> <td width="10"></td><td><a name="errors_EMPTY_SYNTAX"                     >Empty syntax declaration</a></td></tr>
-    <tr><td align="right">40:</td> <td width="10"></td><td><a name="errors_SYNTAX_DECLARED_TWICE"            >Syntax declared twice</a></td></tr>
-    <tr><td align="right">41:</td> <td width="10"></td><td><a name="errors_DOT_EXPR_REQUESTED"               >Dot expression requested as syntax description</a></td></tr>
+    <tr><td align="right">40:</td> <td width="10"></td><td><a name="errors_SYNTAX_DECLARED_TWICE"            >Syntax %s declared twice</a></td></tr>
+    <tr><td align="right">41:</td> <td width="10"></td><td><a name="errors_DOT_EXPR_EXPECTED"                >Dot expression expected as syntax description, found %s</a></td></tr>
     <tr><td align="right">42:</td> <td width="10"></td><td><a name="errors_FALSE_INFIX_PRIORITY"             >"%s" redeclared with infix priority %d not %d</a></td></tr>
     <tr><td align="right">43:</td> <td width="10"></td><td><a name="errors_FALSE_PREFIX_PRIORITY"            >"%s" redeclared with prefix priority %d not %d</a></td></tr>
     <tr><td align="right">44:</td> <td width="10"></td><td><a name="errors_WRONG_EXPR_PARAM_PRIORITY"        >Priority %d required for parameter after "%s" not %d</a></td></tr>
