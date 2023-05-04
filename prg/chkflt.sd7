@@ -16899,6 +16899,87 @@ const proc: check_rshift is func
   end func;
 
 
+const proc: check_functions is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  ceil(-2.999999999999999)  <> -2.0 or
+        ceil(-2.0)                <> -2.0 or
+        ceil(-1.999999999999999)  <> -1.0 or
+        ceil(-1.0)                <> -1.0 or
+        ceil(-0.9999999999999999) <>  0.0 or
+        ceil(-1.0e-323)           <>  0.0 or
+        ceil( 0.0)                <>  0.0 or
+        ceil( 1.0e-323)           <>  1.0 or
+        ceil( 1.0)                <>  1.0 or
+        ceil( 1.000000000000001)  <>  2.0 or
+        ceil( 2.0)                <>  2.0 then
+      writeln(" ***** ceil() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  floor(-2.0)                <> -2.0 or
+        floor(-1.000000000000001)  <> -2.0 or
+        floor(-1.0)                <> -1.0 or
+        floor(-1.0e-323)           <> -1.0 or
+        floor( 0.0)                <>  0.0 or
+        floor( 1.0e-323)           <>  0.0 or
+        floor( 0.9999999999999999) <>  0.0 or
+        floor( 1.0)                <>  1.0 or
+        floor( 1.999999999999999)  <>  1.0 or
+        floor( 2.0)                <>  2.0 or
+        floor( 2.999999999999999)  <>  2.0 then
+      writeln(" ***** floor() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  sin(0.0) <> 0.0 then
+      writeln(" ***** sin() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  cos(0.0) <> 1.0 then
+      writeln(" ***** cos() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  tan(0.0) <> 0.0 then
+      writeln(" ***** tan() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  atan(0.0) <> 0.0 then
+      writeln(" ***** atan() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  sinh(0.0) <> 0.0 then
+      writeln(" ***** sinh() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  cosh(0.0) <> 1.0 then
+      writeln(" ***** cosh() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  tanh(0.0) <> 0.0 then
+      writeln(" ***** tanh() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  exp(0.0) <> 1.0 then
+      writeln(" ***** exp() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  expm1(0.0) <> 0.0 then
+      writeln(" ***** expm1() does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_negative_zero is func
   local
     const float: neg_zero1 is -0.0;
@@ -17939,6 +18020,11 @@ const proc: check_nan is func
         not isNaN(acos(Infinity))    or
         not isNaN(acos(NaN))         then
       writeln(" ***** NaN is not returned as error value for acos().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(atan(NaN))         then
+      writeln(" ***** NaN is not returned as error value for atan().");
       okay := FALSE;
     end if;
 
@@ -19275,6 +19361,7 @@ const proc: main is func
     check_ipower;
     check_lshift;
     check_rshift;
+    check_functions;
     check_negative_zero;
     check_inf;
     check_nan;
