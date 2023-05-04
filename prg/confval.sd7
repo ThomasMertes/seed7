@@ -71,6 +71,7 @@ const proc: main is func
     writeln("HAS_CBRT:                      " <& ccConf.HAS_CBRT);
     writeln("LIMITED_CSTRI_LITERAL_LEN:     " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
     writeln("SWITCH_WORKS_FOR_INT64TYPE:    " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
+    writeln("STMT_BLOCK_IN_PARENTHESES_OK:  " <& ccConf.STMT_BLOCK_IN_PARENTHESES_OK);
     writeln("CC_SOURCE_UTF8:                " <& ccConf.CC_SOURCE_UTF8);
     writeln("USE_WMAIN:                     " <& ccConf.USE_WMAIN);
     writeln("USE_WINMAIN:                   " <& ccConf.USE_WINMAIN);
