@@ -3338,8 +3338,12 @@ CONTENTS
                   ( Type of B: integer,
                     round10(1/4, 1) => 3/10, round10(-1/4, 1) => -3/10,
                     round10(2/5, 0) => 0/1, round(-2/5, 0) => 0/1 )
-      str(A)    Conversion to string
-                  ( Type of result: string )
+      str(A)    Convert to a string with a decimal representation
+                  ( Type of result: string,
+                    str(1/3) => "0.(3)" )
+      fraction(A)  Convert to a string with a fraction
+                  ( Type of result: string,
+                    fraction(rational("0.(3)")) => "1/3" )
       min(A, B) Minimum of two numbers.
                   ( min(2/5, 1/2) => 2/5 )
       max(A, B) Maximum of two numbers.
@@ -3483,8 +3487,12 @@ CONTENTS
                   ( Type of B: integer,
                     round10(1_/4_, 1) => 3_/10_, round10(-1_/4_, 1) => -3_/10_,
                     round10(2_/5_, 0) => 0_/1_, round(-2_/5_, 0) => 0_/1_ )
-      str(A)    Conversion to string
-                  ( Type of result: string )
+      str(A)    Convert to a string with a decimal representation
+                  ( Type of result: string,
+                    str(1_/3_) => "0.(3)" )
+      fraction(A)  Convert to a string with a fraction
+                  ( Type of result: string,
+                    fraction(bigRational("0.(3)")) => "1/3" )
       min(A, B) Minimum of two numbers.
                   ( min(2_/5_, 1_/2_) => 2_/5_ )
       max(A, B) Maximum of two numbers.
@@ -14917,6 +14925,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Level | Warning
     ------+--------------------------------------------------------------
+    2     | Comparison with %s always evaluates to %s.
     2     | Expression raises "%s".
     1     | Catch of "%s" although the checks are suppressed.
     1     | Catch of otherwise although the checks for %s are suppressed.

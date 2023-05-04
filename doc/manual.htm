@@ -3547,8 +3547,12 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of B: <a class="type" href="#types_integer">integer</a>,
                     round10(1/4, 1) <b>&rArr;</b> 3/10, round10(-1/4, 1) <b>&rArr;</b> -3/10,
                     round10(2/5, 0) <b>&rArr;</b> 0/1, round(-2/5, 0) <b>&rArr;</b> 0/1 )
-      <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
-                  ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">str</span>(A)    Convert to a <a class="type" href="#types_string">string</a> with a decimal representation
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    str(1/3) <b>&rArr;</b> "0.(3)" )
+      <span class="func">fraction</span>(A)  Convert to a <a class="type" href="#types_string">string</a> with a fraction
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    fraction(rational("0.(3)")) <b>&rArr;</b> "1/3" )
       <span class="func">min</span>(A, B) Minimum of two numbers.
                   ( min(2/5, 1/2) <b>&rArr;</b> 2/5 )
       <span class="func">max</span>(A, B) Maximum of two numbers.
@@ -3692,8 +3696,12 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of B: <a class="type" href="#types_integer">integer</a>,
                     round10(1_/4_, 1) <b>&rArr;</b> 3_/10_, round10(-1_/4_, 1) <b>&rArr;</b> -3_/10_,
                     round10(2_/5_, 0) <b>&rArr;</b> 0_/1_, round(-2_/5_, 0) <b>&rArr;</b> 0_/1_ )
-      <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
-                  ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">str</span>(A)    Convert to a <a class="type" href="#types_string">string</a> with a decimal representation
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    str(1_/3_) <b>&rArr;</b> "0.(3)" )
+      <span class="func">fraction</span>(A)  Convert to a <a class="type" href="#types_string">string</a> with a fraction
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    fraction(bigRational("0.(3)")) <b>&rArr;</b> "1/3" )
       <span class="func">min</span>(A, B) Minimum of two numbers.
                   ( min(2_/5_, 1_/2_) <b>&rArr;</b> 2_/5_ )
       <span class="func">max</span>(A, B) Maximum of two numbers.
@@ -15126,6 +15134,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Level </th><th> Warning</th></tr>
     
+    <tr><td>2     </td><td> Comparison with %s always evaluates to %s.</td></tr>
     <tr><td>2     </td><td> Expression raises "%s".</td></tr>
     <tr><td>1     </td><td> Catch of "%s" although the checks are suppressed.</td></tr>
     <tr><td>1     </td><td> Catch of otherwise although the checks for %s are suppressed.</td></tr>
