@@ -19163,12 +19163,14 @@ const proc: check_decompose is func
     elems := decompose(0.0); ok := ok and elems.fraction = 0.0 and elems.exponent = 0;
     elems := decompose(0.5); ok := ok and elems.fraction = 0.5 and elems.exponent = 0;
     elems := decompose(1.0); ok := ok and elems.fraction = 0.5 and elems.exponent = 1;
-    elems := decompose( 5.0e-324);                ok := ok and elems.fraction = 0.5 and
-                                                               elems.exponent = -1073;  # Min subnormal positive double.
-    elems := decompose( 2.2250738585072009e-308); ok := ok and elems.fraction = 0.9999999999999998 and
-                                                               elems.exponent = -1022;  # Max subnormal positive double
-    elems := decompose( 2.2250738585072014e-308); ok := ok and elems.fraction = 0.5 and
-                                                               elems.exponent = -1021;  # Min normalized positive double
+    elems := decompose( 5.0e-324);                  ok := ok and elems.fraction = 0.5 and
+                                                                 elems.exponent = -1073;  # Min subnormal positive double.
+    elems := decompose( 2.225073858507200889e-308); ok := ok and elems.fraction = 0.9999999999999998 and
+                                                                 elems.exponent = -1022;  # Max subnormal positive double
+    elems := decompose( 2.225073858507201383e-308); ok := ok and elems.fraction = 0.5 and
+                                                                 elems.exponent = -1021;  # Min normalized positive double
+    elems := decompose( 1.797693134862315708e+308); ok := ok and elems.fraction = 0.9999999999999999 and
+                                                                 elems.exponent = 1024;   # Max finite positive double
     elems := decompose( 1.4012984643248171e-45);  ok := ok and elems.fraction = 0.5 and
                                                                elems.exponent = -148;   # Min subnormal positive single.
     elems := decompose( 1.1754942106924411e-38);  ok := ok and elems.fraction = 0.9999998807907105 and
@@ -19177,8 +19179,6 @@ const proc: check_decompose is func
                                                                elems.exponent = -125;   # Min normalized positive single.
     elems := decompose( 3.4028234663852886e+38);  ok := ok and elems.fraction = 0.9999999403953552 and
                                                                elems.exponent = 128;    # Max finite positive single.
-    elems := decompose( 1.7976931348623157e+308); ok := ok and elems.fraction = 0.9999999999999999 and
-                                                               elems.exponent = 1024;   # Max finite positive double
     if not ok then
       writeln(" ***** Decompose for normal values does not work correct.");
       okay := FALSE;
