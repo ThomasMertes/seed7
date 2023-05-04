@@ -10462,6 +10462,1036 @@ const proc: check_ipower is func
   end func;
 
 
+const func boolean: check_lshift_minus_infinity is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  -Infinity <<     integer.first <> -Infinity or
+        -Infinity << -9007199254740993 <> -Infinity or
+        -Infinity << -9007199254740992 <> -Infinity or
+        -Infinity <<       -2147483649 <> -Infinity or
+        -Infinity <<       -2147483648 <> -Infinity or
+        -Infinity <<                -2 <> -Infinity or
+        -Infinity <<                -1 <> -Infinity or
+        -Infinity <<                 0 <> -Infinity or
+        -Infinity <<                 1 <> -Infinity or
+        -Infinity <<                 2 <> -Infinity or
+        -Infinity <<        2147483647 <> -Infinity or
+        -Infinity <<        2147483648 <> -Infinity or
+        -Infinity <<  9007199254740992 <> -Infinity or
+        -Infinity <<  9007199254740993 <> -Infinity or
+        -Infinity <<      integer.last <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) <<     integer.first <> -Infinity or
+        floatExpr(-Infinity) << -9007199254740993 <> -Infinity or
+        floatExpr(-Infinity) << -9007199254740992 <> -Infinity or
+        floatExpr(-Infinity) <<       -2147483649 <> -Infinity or
+        floatExpr(-Infinity) <<       -2147483648 <> -Infinity or
+        floatExpr(-Infinity) <<                -2 <> -Infinity or
+        floatExpr(-Infinity) <<                -1 <> -Infinity or
+        floatExpr(-Infinity) <<                 0 <> -Infinity or
+        floatExpr(-Infinity) <<                 1 <> -Infinity or
+        floatExpr(-Infinity) <<                 2 <> -Infinity or
+        floatExpr(-Infinity) <<        2147483647 <> -Infinity or
+        floatExpr(-Infinity) <<        2147483648 <> -Infinity or
+        floatExpr(-Infinity) <<  9007199254740992 <> -Infinity or
+        floatExpr(-Infinity) <<  9007199254740993 <> -Infinity or
+        floatExpr(-Infinity) <<      integer.last <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -Infinity << intExpr(    integer.first) <> -Infinity or
+        -Infinity << intExpr(-9007199254740993) <> -Infinity or
+        -Infinity << intExpr(-9007199254740992) <> -Infinity or
+        -Infinity << intExpr(      -2147483649) <> -Infinity or
+        -Infinity << intExpr(      -2147483648) <> -Infinity or
+        -Infinity << intExpr(               -2) <> -Infinity or
+        -Infinity << intExpr(               -1) <> -Infinity or
+        -Infinity << intExpr(                0) <> -Infinity or
+        -Infinity << intExpr(                1) <> -Infinity or
+        -Infinity << intExpr(                2) <> -Infinity or
+        -Infinity << intExpr(       2147483647) <> -Infinity or
+        -Infinity << intExpr(       2147483648) <> -Infinity or
+        -Infinity << intExpr( 9007199254740992) <> -Infinity or
+        -Infinity << intExpr( 9007199254740993) <> -Infinity or
+        -Infinity << intExpr(     integer.last) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) << intExpr(    integer.first) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(-9007199254740993) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(-9007199254740992) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(      -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(      -2147483648) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(               -2) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(               -1) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(                0) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(                1) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(                2) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(       2147483647) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(       2147483648) <> -Infinity or
+        floatExpr(-Infinity) << intExpr( 9007199254740992) <> -Infinity or
+        floatExpr(-Infinity) << intExpr( 9007199254740993) <> -Infinity or
+        floatExpr(-Infinity) << intExpr(     integer.last) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  -Infinity << (intExpr(-2147483648) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(        -20) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(        -10) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(         -9) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(         -2) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(         -1) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(          0) mod -2147483649) <> -Infinity or
+        -Infinity << (intExpr(          0) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr(          1) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr(          2) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr(          9) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr(         10) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr(         20) mod  2147483648) <> -Infinity or
+        -Infinity << (intExpr( 2147483647) mod  2147483648) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  -Infinity << (intExpr(-2147483648) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(        -20) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(        -10) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(         -9) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(         -2) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(         -1) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(          0) mod -2147483650) <> -Infinity or
+        -Infinity << (intExpr(          0) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr(          1) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr(          2) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr(          9) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr(         10) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr(         20) mod  2147483649) <> -Infinity or
+        -Infinity << (intExpr( 2147483647) mod  2147483649) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  -Infinity << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648) <> -Infinity or
+        -Infinity << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  -Infinity << (-abs(intExpr(0)) - 2147483650) <> -Infinity or
+        -Infinity << (-abs(intExpr(0)) - 2147483649) <> -Infinity or
+        -Infinity << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+        -Infinity << ( abs(intExpr(0)) + 2147483649) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) << (intExpr(-2147483648) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(        -20) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(        -10) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -9) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -2) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -1) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          0) mod -2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          0) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          1) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          2) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          9) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         10) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         20) mod  2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr( 2147483647) mod  2147483648) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) << (intExpr(-2147483648) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(        -20) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(        -10) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -9) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -2) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         -1) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          0) mod -2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          0) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          1) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          2) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(          9) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         10) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(         20) mod  2147483649) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr( 2147483647) mod  2147483649) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-Infinity) << (-abs(intExpr(0)) - 2147483650) <> -Infinity or
+        floatExpr(-Infinity) << (-abs(intExpr(0)) - 2147483649) <> -Infinity or
+        floatExpr(-Infinity) << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+        floatExpr(-Infinity) << ( abs(intExpr(0)) + 2147483649) <> -Infinity then
+      writeln(" ***** -Infinity << B optimization does not work correct. (12)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lshift_minus_0 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not isNegativeZero(-0.0 <<     integer.first) or
+        not isNegativeZero(-0.0 << -9007199254740993) or
+        not isNegativeZero(-0.0 << -9007199254740992) or
+        not isNegativeZero(-0.0 <<       -2147483649) or
+        not isNegativeZero(-0.0 <<       -2147483648) or
+        not isNegativeZero(-0.0 <<                -2) or
+        not isNegativeZero(-0.0 <<                -1) or
+        not isNegativeZero(-0.0 <<                 0) or
+        not isNegativeZero(-0.0 <<                 1) or
+        not isNegativeZero(-0.0 <<                 2) or
+        not isNegativeZero(-0.0 <<        2147483647) or
+        not isNegativeZero(-0.0 <<        2147483648) or
+        not isNegativeZero(-0.0 <<  9007199254740992) or
+        not isNegativeZero(-0.0 <<  9007199254740993) or
+        not isNegativeZero(-0.0 <<      integer.last) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) <<     integer.first) or
+        not isNegativeZero(floatExpr(-0.0) << -9007199254740993) or
+        not isNegativeZero(floatExpr(-0.0) << -9007199254740992) or
+        not isNegativeZero(floatExpr(-0.0) <<       -2147483649) or
+        not isNegativeZero(floatExpr(-0.0) <<       -2147483648) or
+        not isNegativeZero(floatExpr(-0.0) <<                -2) or
+        not isNegativeZero(floatExpr(-0.0) <<                -1) or
+        not isNegativeZero(floatExpr(-0.0) <<                 0) or
+        not isNegativeZero(floatExpr(-0.0) <<                 1) or
+        not isNegativeZero(floatExpr(-0.0) <<                 2) or
+        not isNegativeZero(floatExpr(-0.0) <<        2147483647) or
+        not isNegativeZero(floatExpr(-0.0) <<        2147483648) or
+        not isNegativeZero(floatExpr(-0.0) <<  9007199254740992) or
+        not isNegativeZero(floatExpr(-0.0) <<  9007199254740993) or
+        not isNegativeZero(floatExpr(-0.0) <<      integer.last) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-0.0 << intExpr(    integer.first)) or
+        not isNegativeZero(-0.0 << intExpr(-9007199254740993)) or
+        not isNegativeZero(-0.0 << intExpr(-9007199254740992)) or
+        not isNegativeZero(-0.0 << intExpr(      -2147483649)) or
+        not isNegativeZero(-0.0 << intExpr(      -2147483648)) or
+        not isNegativeZero(-0.0 << intExpr(               -2)) or
+        not isNegativeZero(-0.0 << intExpr(               -1)) or
+        not isNegativeZero(-0.0 << intExpr(                0)) or
+        not isNegativeZero(-0.0 << intExpr(                1)) or
+        not isNegativeZero(-0.0 << intExpr(                2)) or
+        not isNegativeZero(-0.0 << intExpr(       2147483647)) or
+        not isNegativeZero(-0.0 << intExpr(       2147483648)) or
+        not isNegativeZero(-0.0 << intExpr( 9007199254740992)) or
+        not isNegativeZero(-0.0 << intExpr( 9007199254740993)) or
+        not isNegativeZero(-0.0 << intExpr(     integer.last)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) << intExpr(    integer.first)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(-9007199254740993)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(-9007199254740992)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(      -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(      -2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(               -2)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(               -1)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(                0)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(                1)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(                2)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(       2147483647)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(       2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr( 9007199254740992)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr( 9007199254740993)) or
+        not isNegativeZero(floatExpr(-0.0) << intExpr(     integer.last)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-0.0 << (intExpr(-2147483648) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(        -20) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(        -10) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(         -9) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(         -2) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(         -1) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(          0) mod -2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(          0) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(          1) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(          2) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(          9) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(         10) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(         20) mod  2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-0.0 << (intExpr(-2147483648) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(        -20) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(        -10) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(         -9) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(         -2) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(         -1) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(          0) mod -2147483650)) or
+        not isNegativeZero(-0.0 << (intExpr(          0) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(          1) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(          2) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(          9) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(         10) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr(         20) mod  2147483649)) or
+        not isNegativeZero(-0.0 << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-0.0 << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(-0.0 << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-0.0 << (-abs(intExpr(0)) - 2147483650)) or
+        not isNegativeZero(-0.0 << (-abs(intExpr(0)) - 2147483649)) or
+        not isNegativeZero(-0.0 << ( abs(intExpr(0)) + 2147483648)) or
+        not isNegativeZero(-0.0 << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) << (intExpr(-2147483648) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(        -20) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(        -10) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -9) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -2) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -1) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          0) mod -2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          0) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          1) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          2) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          9) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         10) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         20) mod  2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) << (intExpr(-2147483648) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(        -20) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(        -10) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -9) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -2) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         -1) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          0) mod -2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          0) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          1) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          2) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(          9) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         10) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(         20) mod  2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-0.0) << (-abs(intExpr(0)) - 2147483650)) or
+        not isNegativeZero(floatExpr(-0.0) << (-abs(intExpr(0)) - 2147483649)) or
+        not isNegativeZero(floatExpr(-0.0) << ( abs(intExpr(0)) + 2147483648)) or
+        not isNegativeZero(floatExpr(-0.0) << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** -0.0 << B optimization does not work correct. (12)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lshift_0 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not isPositiveZero(0.0 <<     integer.first) or
+        not isPositiveZero(0.0 << -9007199254740993) or
+        not isPositiveZero(0.0 << -9007199254740992) or
+        not isPositiveZero(0.0 <<       -2147483649) or
+        not isPositiveZero(0.0 <<       -2147483648) or
+        not isPositiveZero(0.0 <<                -2) or
+        not isPositiveZero(0.0 <<                -1) or
+        not isPositiveZero(0.0 <<                 0) or
+        not isPositiveZero(0.0 <<                 1) or
+        not isPositiveZero(0.0 <<                 2) or
+        not isPositiveZero(0.0 <<        2147483647) or
+        not isPositiveZero(0.0 <<        2147483648) or
+        not isPositiveZero(0.0 <<  9007199254740992) or
+        not isPositiveZero(0.0 <<  9007199254740993) or
+        not isPositiveZero(0.0 <<      integer.last) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) <<     integer.first) or
+        not isPositiveZero(floatExpr(0.0) << -9007199254740993) or
+        not isPositiveZero(floatExpr(0.0) << -9007199254740992) or
+        not isPositiveZero(floatExpr(0.0) <<       -2147483649) or
+        not isPositiveZero(floatExpr(0.0) <<       -2147483648) or
+        not isPositiveZero(floatExpr(0.0) <<                -2) or
+        not isPositiveZero(floatExpr(0.0) <<                -1) or
+        not isPositiveZero(floatExpr(0.0) <<                 0) or
+        not isPositiveZero(floatExpr(0.0) <<                 1) or
+        not isPositiveZero(floatExpr(0.0) <<                 2) or
+        not isPositiveZero(floatExpr(0.0) <<        2147483647) or
+        not isPositiveZero(floatExpr(0.0) <<        2147483648) or
+        not isPositiveZero(floatExpr(0.0) <<  9007199254740992) or
+        not isPositiveZero(floatExpr(0.0) <<  9007199254740993) or
+        not isPositiveZero(floatExpr(0.0) <<      integer.last) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(0.0 << intExpr(    integer.first)) or
+        not isPositiveZero(0.0 << intExpr(-9007199254740993)) or
+        not isPositiveZero(0.0 << intExpr(-9007199254740992)) or
+        not isPositiveZero(0.0 << intExpr(      -2147483649)) or
+        not isPositiveZero(0.0 << intExpr(      -2147483648)) or
+        not isPositiveZero(0.0 << intExpr(               -2)) or
+        not isPositiveZero(0.0 << intExpr(               -1)) or
+        not isPositiveZero(0.0 << intExpr(                0)) or
+        not isPositiveZero(0.0 << intExpr(                1)) or
+        not isPositiveZero(0.0 << intExpr(                2)) or
+        not isPositiveZero(0.0 << intExpr(       2147483647)) or
+        not isPositiveZero(0.0 << intExpr(       2147483648)) or
+        not isPositiveZero(0.0 << intExpr( 9007199254740992)) or
+        not isPositiveZero(0.0 << intExpr( 9007199254740993)) or
+        not isPositiveZero(0.0 << intExpr(     integer.last)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) << intExpr(    integer.first)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(-9007199254740993)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(-9007199254740992)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(      -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(      -2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(               -2)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(               -1)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(                0)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(                1)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(                2)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(       2147483647)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(       2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr( 9007199254740992)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr( 9007199254740993)) or
+        not isPositiveZero(floatExpr(0.0) << intExpr(     integer.last)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(0.0 << (intExpr(-2147483648) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(        -20) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(        -10) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(         -9) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(         -2) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(         -1) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(          0) mod -2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(          0) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(          1) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(          2) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(          9) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(         10) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(         20) mod  2147483648)) or
+        not isPositiveZero(0.0 << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(0.0 << (intExpr(-2147483648) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(        -20) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(        -10) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(         -9) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(         -2) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(         -1) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(          0) mod -2147483650)) or
+        not isPositiveZero(0.0 << (intExpr(          0) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(          1) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(          2) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(          9) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(         10) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr(         20) mod  2147483649)) or
+        not isPositiveZero(0.0 << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(0.0 << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(0.0 << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(0.0 << (-abs(intExpr(0)) - 2147483650)) or
+        not isPositiveZero(0.0 << (-abs(intExpr(0)) - 2147483649)) or
+        not isPositiveZero(0.0 << ( abs(intExpr(0)) + 2147483648)) or
+        not isPositiveZero(0.0 << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) << (intExpr(-2147483648) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(        -20) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(        -10) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -9) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -2) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -1) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          0) mod -2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          0) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          1) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          2) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          9) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         10) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         20) mod  2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) << (intExpr(-2147483648) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(        -20) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(        -10) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -9) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -2) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         -1) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          0) mod -2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          0) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          1) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          2) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(          9) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         10) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(         20) mod  2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  not isPositiveZero(floatExpr(0.0) << (-abs(intExpr(0)) - 2147483650)) or
+        not isPositiveZero(floatExpr(0.0) << (-abs(intExpr(0)) - 2147483649)) or
+        not isPositiveZero(floatExpr(0.0) << ( abs(intExpr(0)) + 2147483648)) or
+        not isPositiveZero(floatExpr(0.0) << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** 0.0 << B optimization does not work correct. (12)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lshift_infinity is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  Infinity <<     integer.first <> Infinity or
+        Infinity << -9007199254740993 <> Infinity or
+        Infinity << -9007199254740992 <> Infinity or
+        Infinity <<       -2147483649 <> Infinity or
+        Infinity <<       -2147483648 <> Infinity or
+        Infinity <<                -2 <> Infinity or
+        Infinity <<                -1 <> Infinity or
+        Infinity <<                 0 <> Infinity or
+        Infinity <<                 1 <> Infinity or
+        Infinity <<                 2 <> Infinity or
+        Infinity <<        2147483647 <> Infinity or
+        Infinity <<        2147483648 <> Infinity or
+        Infinity <<  9007199254740992 <> Infinity or
+        Infinity <<  9007199254740993 <> Infinity or
+        Infinity <<      integer.last <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) <<     integer.first <> Infinity or
+        floatExpr(Infinity) << -9007199254740993 <> Infinity or
+        floatExpr(Infinity) << -9007199254740992 <> Infinity or
+        floatExpr(Infinity) <<       -2147483649 <> Infinity or
+        floatExpr(Infinity) <<       -2147483648 <> Infinity or
+        floatExpr(Infinity) <<                -2 <> Infinity or
+        floatExpr(Infinity) <<                -1 <> Infinity or
+        floatExpr(Infinity) <<                 0 <> Infinity or
+        floatExpr(Infinity) <<                 1 <> Infinity or
+        floatExpr(Infinity) <<                 2 <> Infinity or
+        floatExpr(Infinity) <<        2147483647 <> Infinity or
+        floatExpr(Infinity) <<        2147483648 <> Infinity or
+        floatExpr(Infinity) <<  9007199254740992 <> Infinity or
+        floatExpr(Infinity) <<  9007199254740993 <> Infinity or
+        floatExpr(Infinity) <<      integer.last <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  Infinity << intExpr(    integer.first) <> Infinity or
+        Infinity << intExpr(-9007199254740993) <> Infinity or
+        Infinity << intExpr(-9007199254740992) <> Infinity or
+        Infinity << intExpr(      -2147483649) <> Infinity or
+        Infinity << intExpr(      -2147483648) <> Infinity or
+        Infinity << intExpr(               -2) <> Infinity or
+        Infinity << intExpr(               -1) <> Infinity or
+        Infinity << intExpr(                0) <> Infinity or
+        Infinity << intExpr(                1) <> Infinity or
+        Infinity << intExpr(                2) <> Infinity or
+        Infinity << intExpr(       2147483647) <> Infinity or
+        Infinity << intExpr(       2147483648) <> Infinity or
+        Infinity << intExpr( 9007199254740992) <> Infinity or
+        Infinity << intExpr( 9007199254740993) <> Infinity or
+        Infinity << intExpr(     integer.last) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) << intExpr(    integer.first) <> Infinity or
+        floatExpr(Infinity) << intExpr(-9007199254740993) <> Infinity or
+        floatExpr(Infinity) << intExpr(-9007199254740992) <> Infinity or
+        floatExpr(Infinity) << intExpr(      -2147483649) <> Infinity or
+        floatExpr(Infinity) << intExpr(      -2147483648) <> Infinity or
+        floatExpr(Infinity) << intExpr(               -2) <> Infinity or
+        floatExpr(Infinity) << intExpr(               -1) <> Infinity or
+        floatExpr(Infinity) << intExpr(                0) <> Infinity or
+        floatExpr(Infinity) << intExpr(                1) <> Infinity or
+        floatExpr(Infinity) << intExpr(                2) <> Infinity or
+        floatExpr(Infinity) << intExpr(       2147483647) <> Infinity or
+        floatExpr(Infinity) << intExpr(       2147483648) <> Infinity or
+        floatExpr(Infinity) << intExpr( 9007199254740992) <> Infinity or
+        floatExpr(Infinity) << intExpr( 9007199254740993) <> Infinity or
+        floatExpr(Infinity) << intExpr(     integer.last) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  Infinity << (intExpr(-2147483648) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(        -20) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(        -10) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(         -9) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(         -2) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(         -1) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(          0) mod -2147483649) <> Infinity or
+        Infinity << (intExpr(          0) mod  2147483648) <> Infinity or
+        Infinity << (intExpr(          1) mod  2147483648) <> Infinity or
+        Infinity << (intExpr(          2) mod  2147483648) <> Infinity or
+        Infinity << (intExpr(          9) mod  2147483648) <> Infinity or
+        Infinity << (intExpr(         10) mod  2147483648) <> Infinity or
+        Infinity << (intExpr(         20) mod  2147483648) <> Infinity or
+        Infinity << (intExpr( 2147483647) mod  2147483648) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  Infinity << (intExpr(-2147483648) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(        -20) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(        -10) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(         -9) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(         -2) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(         -1) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(          0) mod -2147483650) <> Infinity or
+        Infinity << (intExpr(          0) mod  2147483649) <> Infinity or
+        Infinity << (intExpr(          1) mod  2147483649) <> Infinity or
+        Infinity << (intExpr(          2) mod  2147483649) <> Infinity or
+        Infinity << (intExpr(          9) mod  2147483649) <> Infinity or
+        Infinity << (intExpr(         10) mod  2147483649) <> Infinity or
+        Infinity << (intExpr(         20) mod  2147483649) <> Infinity or
+        Infinity << (intExpr( 2147483647) mod  2147483649) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  Infinity << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648) <> Infinity or
+        Infinity << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  Infinity << (-abs(intExpr(0)) - 2147483650) <> Infinity or
+        Infinity << (-abs(intExpr(0)) - 2147483649) <> Infinity or
+        Infinity << ( abs(intExpr(0)) + 2147483648) <> Infinity or
+        Infinity << ( abs(intExpr(0)) + 2147483649) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) << (intExpr(-2147483648) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(        -20) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(        -10) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -9) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -2) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -1) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          0) mod -2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          0) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          1) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          2) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          9) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         10) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         20) mod  2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr( 2147483647) mod  2147483648) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) << (intExpr(-2147483648) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(        -20) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(        -10) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -9) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -2) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         -1) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          0) mod -2147483650) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          0) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          1) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          2) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(          9) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         10) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr(         20) mod  2147483649) <> Infinity or
+        floatExpr(Infinity) << (intExpr( 2147483647) mod  2147483649) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648) <> Infinity or
+        floatExpr(Infinity) << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(Infinity) << (-abs(intExpr(0)) - 2147483650) <> Infinity or
+        floatExpr(Infinity) << (-abs(intExpr(0)) - 2147483649) <> Infinity or
+        floatExpr(Infinity) << ( abs(intExpr(0)) + 2147483648) <> Infinity or
+        floatExpr(Infinity) << ( abs(intExpr(0)) + 2147483649) <> Infinity then
+      writeln(" ***** Infinity << B optimization does not work correct. (12)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lshift_nan is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not isNaN(NaN <<     integer.first) or
+        not isNaN(NaN << -9007199254740993) or
+        not isNaN(NaN << -9007199254740992) or
+        not isNaN(NaN <<       -2147483649) or
+        not isNaN(NaN <<       -2147483648) or
+        not isNaN(NaN <<                -2) or
+        not isNaN(NaN <<                -1) or
+        not isNaN(NaN <<                 0) or
+        not isNaN(NaN <<                 1) or
+        not isNaN(NaN <<                 2) or
+        not isNaN(NaN <<        2147483647) or
+        not isNaN(NaN <<        2147483648) or
+        not isNaN(NaN <<  9007199254740992) or
+        not isNaN(NaN <<  9007199254740993) or
+        not isNaN(NaN <<      integer.last) then
+      writeln(" ***** NaN << B optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) <<     integer.first) or
+        not isNaN(floatExpr(NaN) << -9007199254740993) or
+        not isNaN(floatExpr(NaN) << -9007199254740992) or
+        not isNaN(floatExpr(NaN) <<       -2147483649) or
+        not isNaN(floatExpr(NaN) <<       -2147483648) or
+        not isNaN(floatExpr(NaN) <<                -2) or
+        not isNaN(floatExpr(NaN) <<                -1) or
+        not isNaN(floatExpr(NaN) <<                 0) or
+        not isNaN(floatExpr(NaN) <<                 1) or
+        not isNaN(floatExpr(NaN) <<                 2) or
+        not isNaN(floatExpr(NaN) <<        2147483647) or
+        not isNaN(floatExpr(NaN) <<        2147483648) or
+        not isNaN(floatExpr(NaN) <<  9007199254740992) or
+        not isNaN(floatExpr(NaN) <<  9007199254740993) or
+        not isNaN(floatExpr(NaN) <<      integer.last) then
+      writeln(" ***** NaN << B optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN << intExpr(    integer.first)) or
+        not isNaN(NaN << intExpr(-9007199254740993)) or
+        not isNaN(NaN << intExpr(-9007199254740992)) or
+        not isNaN(NaN << intExpr(      -2147483649)) or
+        not isNaN(NaN << intExpr(      -2147483648)) or
+        not isNaN(NaN << intExpr(               -2)) or
+        not isNaN(NaN << intExpr(               -1)) or
+        not isNaN(NaN << intExpr(                0)) or
+        not isNaN(NaN << intExpr(                1)) or
+        not isNaN(NaN << intExpr(                2)) or
+        not isNaN(NaN << intExpr(       2147483647)) or
+        not isNaN(NaN << intExpr(       2147483648)) or
+        not isNaN(NaN << intExpr( 9007199254740992)) or
+        not isNaN(NaN << intExpr( 9007199254740993)) or
+        not isNaN(NaN << intExpr(     integer.last)) then
+      writeln(" ***** NaN << B optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) << intExpr(    integer.first)) or
+        not isNaN(floatExpr(NaN) << intExpr(-9007199254740993)) or
+        not isNaN(floatExpr(NaN) << intExpr(-9007199254740992)) or
+        not isNaN(floatExpr(NaN) << intExpr(      -2147483649)) or
+        not isNaN(floatExpr(NaN) << intExpr(      -2147483648)) or
+        not isNaN(floatExpr(NaN) << intExpr(               -2)) or
+        not isNaN(floatExpr(NaN) << intExpr(               -1)) or
+        not isNaN(floatExpr(NaN) << intExpr(                0)) or
+        not isNaN(floatExpr(NaN) << intExpr(                1)) or
+        not isNaN(floatExpr(NaN) << intExpr(                2)) or
+        not isNaN(floatExpr(NaN) << intExpr(       2147483647)) or
+        not isNaN(floatExpr(NaN) << intExpr(       2147483648)) or
+        not isNaN(floatExpr(NaN) << intExpr( 9007199254740992)) or
+        not isNaN(floatExpr(NaN) << intExpr( 9007199254740993)) or
+        not isNaN(floatExpr(NaN) << intExpr(     integer.last)) then
+      writeln(" ***** NaN << B optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN << (intExpr(-2147483648) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(        -20) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(        -10) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(         -9) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(         -2) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(         -1) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(          0) mod -2147483649)) or
+        not isNaN(NaN << (intExpr(          0) mod  2147483648)) or
+        not isNaN(NaN << (intExpr(          1) mod  2147483648)) or
+        not isNaN(NaN << (intExpr(          2) mod  2147483648)) or
+        not isNaN(NaN << (intExpr(          9) mod  2147483648)) or
+        not isNaN(NaN << (intExpr(         10) mod  2147483648)) or
+        not isNaN(NaN << (intExpr(         20) mod  2147483648)) or
+        not isNaN(NaN << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** NaN << B optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN << (intExpr(-2147483648) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(        -20) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(        -10) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(         -9) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(         -2) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(         -1) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(          0) mod -2147483650)) or
+        not isNaN(NaN << (intExpr(          0) mod  2147483649)) or
+        not isNaN(NaN << (intExpr(          1) mod  2147483649)) or
+        not isNaN(NaN << (intExpr(          2) mod  2147483649)) or
+        not isNaN(NaN << (intExpr(          9) mod  2147483649)) or
+        not isNaN(NaN << (intExpr(         10) mod  2147483649)) or
+        not isNaN(NaN << (intExpr(         20) mod  2147483649)) or
+        not isNaN(NaN << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** NaN << B optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isNaN(NaN << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** NaN << B optimization does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN << (-abs(intExpr(0)) - 2147483650)) or
+        not isNaN(NaN << (-abs(intExpr(0)) - 2147483649)) or
+        not isNaN(NaN << ( abs(intExpr(0)) + 2147483648)) or
+        not isNaN(NaN << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** NaN << B optimization does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) << (intExpr(-2147483648) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(        -20) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(        -10) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -9) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -2) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -1) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          0) mod -2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          0) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          1) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          2) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          9) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         10) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         20) mod  2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr( 2147483647) mod  2147483648)) then
+      writeln(" ***** NaN << B optimization does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) << (intExpr(-2147483648) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(        -20) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(        -10) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -9) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -2) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         -1) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          0) mod -2147483650)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          0) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          1) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          2) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(          9) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         10) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr(         20) mod  2147483649)) or
+        not isNaN(floatExpr(NaN) << (intExpr( 2147483647) mod  2147483649)) then
+      writeln(" ***** NaN << B optimization does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) << (intExpr(2147483648 - 2147483648) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648         - 20) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648         - 10) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          - 9) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          - 2) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          - 1) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          + 0) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          + 1) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          + 2) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648          + 9) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648         + 10) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648         + 20) mod 4294967296 - 2147483648)) or
+        not isNaN(floatExpr(NaN) << (intExpr(2147483648 + 2147483647) mod 4294967296 - 2147483648)) then
+      writeln(" ***** NaN << B optimization does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(NaN) << (-abs(intExpr(0)) - 2147483650)) or
+        not isNaN(floatExpr(NaN) << (-abs(intExpr(0)) - 2147483649)) or
+        not isNaN(floatExpr(NaN) << ( abs(intExpr(0)) + 2147483648)) or
+        not isNaN(floatExpr(NaN) << ( abs(intExpr(0)) + 2147483649)) then
+      writeln(" ***** NaN << B optimization does not work correct. (12)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_lshift is func
   local
     var boolean: okay is TRUE;
@@ -10747,6 +11777,90 @@ const proc: check_lshift is func
         floatExpr(-2.225073858507201383e-308) << intExpr(integer.last ) <> -Infinity or
         floatExpr(-1.797693134862315708e+308) << intExpr(integer.last ) <> -Infinity then
       writeln(" ***** Shift left of float values does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  -1.797693134862315708e+308 << (intExpr(-2045) mod -2147483649) <> -4.450147717014402272e-308 or
+        -8.988465674311579539e+307 << (intExpr(-2097) mod -2147483649) <> -4.940656458412465442e-324 or
+        -2.225073858507201383e-308 << (intExpr( 2045) mod  2147483648) <> -8.988465674311579539e+307 or
+        -4.940656458412465442e-324 << (intExpr( 2097) mod  2147483648) <> -8.988465674311579539e+307 or
+         4.940656458412465442e-324 << (intExpr( 2097) mod  2147483648) <>  8.988465674311579539e+307 or
+         2.225073858507201383e-308 << (intExpr( 2045) mod  2147483648) <>  8.988465674311579539e+307 or
+         8.988465674311579539e+307 << (intExpr(-2097) mod -2147483649) <>  4.940656458412465442e-324 or
+         1.797693134862315708e+308 << (intExpr(-2045) mod -2147483649) <>  4.450147717014402272e-308 then
+      writeln(" ***** Shift left float optimization does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-1.797693134862315708e+308) << (intExpr(-2045) mod -2147483649) <> -4.450147717014402272e-308 or
+        floatExpr(-8.988465674311579539e+307) << (intExpr(-2097) mod -2147483649) <> -4.940656458412465442e-324 or
+        floatExpr(-2.225073858507201383e-308) << (intExpr( 2045) mod  2147483648) <> -8.988465674311579539e+307 or
+        floatExpr(-4.940656458412465442e-324) << (intExpr( 2097) mod  2147483648) <> -8.988465674311579539e+307 or
+        floatExpr( 4.940656458412465442e-324) << (intExpr( 2097) mod  2147483648) <>  8.988465674311579539e+307 or
+        floatExpr( 2.225073858507201383e-308) << (intExpr( 2045) mod  2147483648) <>  8.988465674311579539e+307 or
+        floatExpr( 8.988465674311579539e+307) << (intExpr(-2097) mod -2147483649) <>  4.940656458412465442e-324 or
+        floatExpr( 1.797693134862315708e+308) << (intExpr(-2045) mod -2147483649) <>  4.450147717014402272e-308 then
+      writeln(" ***** Shift left float optimization does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -1.797693134862315708e+308 << (intExpr(-2045) mod -2147483650) <> -4.450147717014402272e-308 or
+        -8.988465674311579539e+307 << (intExpr(-2097) mod -2147483650) <> -4.940656458412465442e-324 or
+        -2.225073858507201383e-308 << (intExpr( 2045) mod  2147483649) <> -8.988465674311579539e+307 or
+        -4.940656458412465442e-324 << (intExpr( 2097) mod  2147483649) <> -8.988465674311579539e+307 or
+         4.940656458412465442e-324 << (intExpr( 2097) mod  2147483649) <>  8.988465674311579539e+307 or
+         2.225073858507201383e-308 << (intExpr( 2045) mod  2147483649) <>  8.988465674311579539e+307 or
+         8.988465674311579539e+307 << (intExpr(-2097) mod -2147483650) <>  4.940656458412465442e-324 or
+         1.797693134862315708e+308 << (intExpr(-2045) mod -2147483650) <>  4.450147717014402272e-308 then
+      writeln(" ***** Shift left float optimization does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(-1.797693134862315708e+308) << (intExpr(-2045) mod -2147483650) <> -4.450147717014402272e-308 or
+        floatExpr(-8.988465674311579539e+307) << (intExpr(-2097) mod -2147483650) <> -4.940656458412465442e-324 or
+        floatExpr(-2.225073858507201383e-308) << (intExpr( 2045) mod  2147483649) <> -8.988465674311579539e+307 or
+        floatExpr(-4.940656458412465442e-324) << (intExpr( 2097) mod  2147483649) <> -8.988465674311579539e+307 or
+        floatExpr( 4.940656458412465442e-324) << (intExpr( 2097) mod  2147483649) <>  8.988465674311579539e+307 or
+        floatExpr( 2.225073858507201383e-308) << (intExpr( 2045) mod  2147483649) <>  8.988465674311579539e+307 or
+        floatExpr( 8.988465674311579539e+307) << (intExpr(-2097) mod -2147483650) <>  4.940656458412465442e-324 or
+        floatExpr( 1.797693134862315708e+308) << (intExpr(-2045) mod -2147483650) <>  4.450147717014402272e-308 then
+      writeln(" ***** Shift left float optimization does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(-1.797693134862315708e+308 << (-abs(intExpr(0)) - 2147483649)) or
+                           -2.225073858507201383e-308 << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+                           -4.940656458412465442e-324 << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+                            4.940656458412465442e-324 << ( abs(intExpr(0)) + 2147483648) <>  Infinity or
+                            2.225073858507201383e-308 << ( abs(intExpr(0)) + 2147483648) <>  Infinity or
+        not isPositiveZero( 1.797693134862315708e+308 << (-abs(intExpr(0)) - 2147483649)) then
+      writeln(" ***** Shift left float optimization does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not isNegativeZero(floatExpr(-1.797693134862315708e+308) << (-abs(intExpr(0)) - 2147483649)) or
+                           floatExpr(-2.225073858507201383e-308) << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+                           floatExpr(-4.940656458412465442e-324) << ( abs(intExpr(0)) + 2147483648) <> -Infinity or
+                           floatExpr( 4.940656458412465442e-324) << ( abs(intExpr(0)) + 2147483648) <>  Infinity or
+                           floatExpr( 2.225073858507201383e-308) << ( abs(intExpr(0)) + 2147483648) <>  Infinity or
+        not isPositiveZero(floatExpr( 1.797693134862315708e+308) << (-abs(intExpr(0)) - 2147483649)) then
+      writeln(" ***** Shift left float optimization does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if not check_lshift_minus_infinity then
+      okay := FALSE;
+    end if;
+    if not check_lshift_minus_0 then
+      okay := FALSE;
+    end if;
+    if not check_lshift_0 then
+      okay := FALSE;
+    end if;
+    if not check_lshift_infinity then
+      okay := FALSE;
+    end if;
+    if not check_lshift_nan then
       okay := FALSE;
     end if;
 
