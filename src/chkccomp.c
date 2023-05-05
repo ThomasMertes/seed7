@@ -3154,6 +3154,21 @@ static void numericProperties (FILE *versionFile)
         compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       ldexp(doubleMinusInf, -1000) ==  doubleMinusInf &&\n"
+            "       ldexp(doubleMinusInf,     0) ==  doubleMinusInf &&\n"
+            "       ldexp(doubleMinusInf,  1000) ==  doubleMinusInf &&\n"
+            "       ldexp(doublePlusInf,  -1000) ==  doublePlusInf &&\n"
+            "       ldexp(doublePlusInf,      0) ==  doublePlusInf &&\n"
+            "       ldexp(doublePlusInf,   1000) ==  doublePlusInf);\n"
+            "return 0;}\n",
+            computeValues);
+    fprintf(versionFile, "#define LDEXP_OF_INFINITY_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
             "int main(int argc,char *argv[]){\n"
             "%s\n"

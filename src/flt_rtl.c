@@ -907,7 +907,13 @@ floatType fltLdexp (floatType number, int exponent)
     logFunction(printf("fltLdexp(" FMT_E ", %d)\n", number, exponent););
 #if !LDEXP_OF_NAN_OKAY
     if (unlikely(os_isnan(number))) {
-      product = NOT_A_NUMBER;
+      product = number;
+    } else
+#endif
+#if !LDEXP_OF_INFINITY_OKAY
+    if (unlikely(number == POSITIVE_INFINITY ||
+                 number == NEGATIVE_INFINITY)) {
+      product = number;
     } else
 #endif
     {
