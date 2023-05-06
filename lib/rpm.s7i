@@ -1868,12 +1868,10 @@ const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is 
     elsif dirPath = "" or dirPath = "." then
       for fileName range rpm.register do
         slashPos := pos(fileName, '/');
-        if slashPos <> 0 then
-          if slashPos = 1 then
-            fileName := "/";
-          else
-            fileName := fileName[.. pred(slashPos)];
-          end if;
+        if slashPos = 1 then
+          fileName := "/";
+        elsif slashPos <> 0 then
+          fileName := fileName[.. pred(slashPos)];
         end if;
         if fileName not in fileNameSet then
           incl(fileNameSet, fileName);

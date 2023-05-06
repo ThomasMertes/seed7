@@ -963,12 +963,21 @@ const func array string: readDir (inout zipArchive: zip, in var string: dirPath)
     var string: fileName is "";
     var integer: slashPos is 0;
   begin
-    if endsWith(dirPath, "/") then
+    if dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif zip.zipFile <> STD_NULL then
-      if dirPath = "." then
-        dirPath := "";
-      end if;
+    elsif dirPath = "" or dirPath = "." then
+      for key fileName range zip.register do
+        slashPos := pos(fileName, '/');
+        if slashPos = 1 then
+          fileName := "/";
+        elsif slashPos <> 0 then
+          fileName := fileName[.. pred(slashPos)];
+        end if;
+        if fileName not in fileNameSet then
+          incl(fileNameSet, fileName);
+        end if;
+      end for;
+    else
       for key filePath range zip.register do
         if startsWith(filePath, dirPath) then
           fileName := filePath[succ(length(dirPath)) ..];
@@ -976,7 +985,7 @@ const func array string: readDir (inout zipArchive: zip, in var string: dirPath)
             dirExists := TRUE;
           elsif startsWith(fileName, "/") then
             fileName := fileName[2 ..];
-          elsif dirPath <> "" then
+          elsif dirPath <> "/" then
             fileName := "";  # A file name <> dirPath starts with dirPath.
           end if;
           slashPos := pos(fileName, '/');
@@ -989,11 +998,11 @@ const func array string: readDir (inout zipArchive: zip, in var string: dirPath)
           end if;
         end if;
       end for;
-      if dirPath <> "" and not dirExists then
+      if not dirExists then
         raise FILE_ERROR;
       end if;
-      fileNames := sort(toArray(fileNameSet));
     end if;
+    fileNames := sort(toArray(fileNameSet));
   end func;
 
 
