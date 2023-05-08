@@ -62,6 +62,8 @@ const type: rpmLead is new struct
 const type: rpmHeader is new struct
     var string: magic is "";
     var integer: version is 0;
+    # 4 reserved bytes are currently unused.
+    var string: reservedBytes is "\0;" mult 4;
     var integer: indexCount is 0;
     var integer: storeSize is 0;
   end struct;
@@ -383,11 +385,8 @@ const integer: RPMSIGTAG_MD5              is 1004;  # BIN    Required  MD5 check
 const integer: RPMSIGTAG_GPG              is 1005;  # BIN    Optional
 const integer: RPMSIGTAG_PAYLOADSIZE      is 1007;  # INT32  Optional  Byte count for the uncompressed payload.
 const integer: RPMSIGTAG_RESERVEDSPACE    is 1008;  # BIN
-const integer: RPMSIGTAG_SHA1HEADER       is 1010;  # STRING Optional
-const integer: RPMSIGTAG_DSAHEADER        is 1011;  # BIN    Optional
-const integer: RPMSIGTAG_RSAHEADER        is 1012;  # BIN    Optional
 const integer: RPMSIGTAG_SHA1             is  269;  # STRING
-const integer: RPMSIGTAG_SHA256HEADER     is  273;  # STRING
+const integer: RPMSIGTAG_SHA256           is  273;  # STRING Optional
 
 const integer: RPM_DIGESTALGO_MD5         is  1;
 const integer: RPM_DIGESTALGO_SHA1        is  2;
@@ -430,7 +429,7 @@ const func string: sigtagName (in integer: tag) is func
       when { 269}: name := "SHA1";
       when { 270}: name := "LONGSIZE";
       when { 271}: name := "LONGARCHIVESIZE";
-      when { 273}: name := "SHA256HEADER";
+      when { 273}: name := "SHA256";
       otherwise: name := "tag " <& tag;
     end case;
   end func;
@@ -739,7 +738,7 @@ const proc: show (in rpmLead: lead) is func
       writeln("Version " <& lead.majorVersion <& "." <& lead.minorVersion);
       writeln("Type: " <& lead.fileType);
       writeln("Arch: " <& lead.arch);
-      writeln("Name: " <& lead.name);
+      writeln("Name: " <& literal(lead.name));
       writeln("Os: " <& lead.os);
       writeln("Signature version: " <& lead.sig);
     else
@@ -884,37 +883,21 @@ const proc: readHeader (inout file: rpmFile, inout rpmHeader: header) is func
   begin
     headerStri := gets(rpmFile, RPM_HEADER_SIZE);
     if length(headerStri) = RPM_HEADER_SIZE then
-      header.magic      :=           headerStri[ 1 fixLen 3];
-      header.version    := bytes2Int(headerStri[ 4 fixLen 1], UNSIGNED, BE);
-      # 4 reserved bytes are currently unused.
-      header.indexCount := bytes2Int(headerStri[ 9 fixLen 4], UNSIGNED, BE);
-      header.storeSize  := bytes2Int(headerStri[13 fixLen 4], UNSIGNED, BE);
+      header.magic         :=           headerStri[ 1 fixLen 3];
+      header.version       := bytes2Int(headerStri[ 4 fixLen 1], UNSIGNED, BE);
+      header.reservedBytes :=           headerStri[ 5 fixLen 4];
+      header.indexCount    := bytes2Int(headerStri[ 9 fixLen 4], UNSIGNED, BE);
+      header.storeSize     := bytes2Int(headerStri[13 fixLen 4], UNSIGNED, BE);
     end if;
   end func;
 
 
 const func string: str (in rpmHeader: header) is
-  return header.magic <&
+  return       header.magic <&
          bytes(header.version,    UNSIGNED, BE, 1) <&
-         "\0;" mult 4 <&   # 4 reserved bytes
+               header.reservedBytes <&
          bytes(header.indexCount, UNSIGNED, BE, 4) <&
          bytes(header.storeSize,  UNSIGNED, BE, 4);
-
-
-const proc: readIndexEntry (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
-  local
-    var string: entryStri is "";
-  begin
-    entryStri := gets(rpmFile, RPM_INDEX_ENTRY_SIZE);
-    if length(entryStri) = RPM_INDEX_ENTRY_SIZE then
-      indexEntry.tag      := bytes2Int(entryStri[ 1 fixLen 4], UNSIGNED, BE);
-      indexEntry.dataType := bytes2Int(entryStri[ 5 fixLen 4], UNSIGNED, BE);
-      indexEntry.offset   := bytes2Int(entryStri[ 9 fixLen 4], SIGNED,   BE);
-      indexEntry.count    := bytes2Int(entryStri[13 fixLen 4], UNSIGNED, BE);
-    else
-      raise RANGE_ERROR;
-    end if;
-  end func;
 
 
 const func string: str (in rpmIndexEntry: indexEntry) is
@@ -989,6 +972,7 @@ const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 const type: rpmSection is new struct
     var rpmHeader: head is rpmHeader.value;
     var rpmTagMap: tagMap is rpmTagMap.value;
+    var string: indexData is "";
     var string: store is "";
   end struct;
 
@@ -1414,17 +1398,28 @@ const func boolean: isDirty (in rpmArchive: rpm) is func
   end func;
 
 
-const proc: readSection (inout file: rpmFile, inout rpmSection: section) is func
+const proc: fillTagMap (in string: indexData, inout rpmTagMap: tagMap) is func
   local
+    var integer: pos is 1;
     var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    for pos range 1 to length(indexData) step 16 do
+      indexEntry.tag      := bytes2Int(indexData[pos      fixLen 4], UNSIGNED, BE);
+      indexEntry.dataType := bytes2Int(indexData[pos +  4 fixLen 4], UNSIGNED, BE);
+      indexEntry.offset   := bytes2Int(indexData[pos +  8 fixLen 4], SIGNED,   BE);
+      indexEntry.count    := bytes2Int(indexData[pos + 12 fixLen 4], UNSIGNED, BE);
+      tagMap @:= [indexEntry.tag] indexEntry;
+    end for;
+  end func;
+
+
+const proc: readSection (inout file: rpmFile, inout rpmSection: section) is func
   begin
     readHeader(rpmFile, section.head);
     if section.head.magic = RPM_HEADER_MAGIC then
       # show(section.head);
-      for section.head.indexCount do
-        readIndexEntry(rpmFile, indexEntry);
-        section.tagMap @:= [indexEntry.tag] indexEntry;
-      end for;
+      section.indexData := gets(rpmFile, section.head.indexCount * RPM_INDEX_ENTRY_SIZE);
+      fillTagMap(section.indexData, section.tagMap);
       # sectionStorePos := tell(rpmFile);
       section.store := gets(rpmFile, section.head.storeSize);
       # writeln("length(section.store): " <& length(section.store));
@@ -1527,6 +1522,47 @@ const proc: updateStore (inout rpmSection: section) is func
       section.tagMap @:= [indexEntry.tag] indexEntry;
     end for;
     section.store := store;
+  end func;
+
+
+const func boolean: checkHeaderDigest (inout rpmArchive: rpm) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: payload is "";
+    var string: referenceDigest is "";
+    var string: computedDigest is "";
+  begin
+    if RPMSIGTAG_SHA1 in rpm.signature.tagMap then
+      referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_SHA1]);
+      computedDigest := hex(sha1(str(rpm.header.head) & rpm.header.indexData & rpm.header.store));
+      if referenceDigest <> computedDigest then
+        okay := FALSE;
+        # writeln("reference sha1 digest: " <& literal(referenceDigest));
+        # writeln("computed sha1 digest:  " <& literal(computedDigest));
+      end if;
+    end if;
+    if RPMSIGTAG_SHA256 in rpm.signature.tagMap then
+      referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_SHA256]);
+      computedDigest := hex(sha256(str(rpm.header.head) & rpm.header.indexData & rpm.header.store));
+      if referenceDigest <> computedDigest then
+        okay := FALSE;
+        # writeln("reference sha256 digest: " <& literal(referenceDigest));
+        # writeln("computed sha256 digest:  " <& literal(computedDigest));
+      end if;
+    end if;
+    if RPMSIGTAG_MD5 in rpm.signature.tagMap then
+      seek(rpm.rpmFile, rpm.payloadPos);
+      payload := gets(rpm.rpmFile, integer.last);
+      writeln("d " <& length(payload));
+      referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_MD5]);
+      computedDigest := md5(str(rpm.header.head) & rpm.header.indexData & rpm.header.store & payload);
+      if referenceDigest <> computedDigest then
+        okay := FALSE;
+        # writeln("reference md5 digest: " <& literal(referenceDigest));
+        # writeln("computed md5 digest:  " <& literal(computedDigest));
+      end if;
+    end if;
   end func;
 
 
@@ -1671,10 +1707,12 @@ const func fileSys: openRpm (inout file: rpmFile) is func
           if rpm.header.head.magic = RPM_HEADER_MAGIC then
             # ignore(gets(rpmFile, 7 - pred(rpm.header.head.storeSize) mod 8));
             rpm.payloadPos := tell(rpmFile);
-            doSettings(rpm);
-            createMinimumOfCatalog(rpm);
-            createRegister(rpm);
-            newFileSys := toInterface(rpm);
+            if checkHeaderDigest(rpm) then
+              doSettings(rpm);
+              createMinimumOfCatalog(rpm);
+              createRegister(rpm);
+              newFileSys := toInterface(rpm);
+            end if;
           end if;
         end if;
       end if;
