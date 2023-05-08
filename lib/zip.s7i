@@ -37,6 +37,7 @@ include "crc32.s7i";
 include "filesys.s7i";
 include "filebits.s7i";
 include "fileutil.s7i";
+include "archive_base.s7i";
 
 
 const string: ZIP_CENTRAL_HEADER_SIGNATURE               is "PK\1;\2;";
@@ -785,7 +786,6 @@ const proc: assignLastModFileTime (inout central_file_header: header,
   end func;
 
 
-const type: zipRegisterType is hash [string] integer;
 const type: zipCatalogType is hash [string] central_file_header;
 
 
@@ -797,7 +797,7 @@ const type: zipCatalogType is hash [string] central_file_header;
  *)
 const type: zipArchive is sub emptyFileSys struct
     var file: zipFile is STD_NULL;
-    var zipRegisterType: register is zipRegisterType.value;
+    var archiveRegisterType: register is archiveRegisterType.value;
     var zipCatalogType: catalog is zipCatalogType.value;
     var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
     var integer: endOfCentralDirPos is 1;
@@ -953,57 +953,8 @@ const proc: fixRegisterAndCatalog (inout zipArchive: zip, in integer: insertPos,
  *             representation.
  *  @exception FILE_ERROR ''dirPath'' is not present in the ZIP archive.
  *)
-const func array string: readDir (inout zipArchive: zip, in var string: dirPath) is func
-  result
-    var array string: fileNames is 0 times "";
-  local
-    var string: filePath is "";
-    var boolean: dirExists is FALSE;
-    var set of string: fileNameSet is (set of string).value;
-    var string: fileName is "";
-    var integer: slashPos is 0;
-  begin
-    if dirPath <> "/" and endsWith(dirPath, "/") then
-      raise RANGE_ERROR;
-    elsif dirPath = "" or dirPath = "." then
-      for key fileName range zip.register do
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          fileName := "/";
-        elsif slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
-        end if;
-      end for;
-    else
-      for key filePath range zip.register do
-        if startsWith(filePath, dirPath) then
-          fileName := filePath[succ(length(dirPath)) ..];
-          if fileName = "" then
-            dirExists := TRUE;
-          elsif startsWith(fileName, "/") then
-            fileName := fileName[2 ..];
-          elsif dirPath <> "/" then
-            fileName := "";  # A file name <> dirPath starts with dirPath.
-          end if;
-          slashPos := pos(fileName, '/');
-          if slashPos <> 0 then
-            fileName := fileName[.. pred(slashPos)];
-          end if;
-          if fileName <> "" and fileName not in fileNameSet then
-            incl(fileNameSet, fileName);
-            dirExists := TRUE;
-          end if;
-        end if;
-      end for;
-      if not dirExists then
-        raise FILE_ERROR;
-      end if;
-    end if;
-    fileNames := sort(toArray(fileNameSet));
-  end func;
+const func array string: readDir (inout zipArchive: zip, in var string: dirPath) is
+  return readDir(zip.register, dirPath);
 
 
 (**

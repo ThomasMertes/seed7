@@ -38,6 +38,7 @@ include "lzma.s7i";
 include "xz.s7i";
 include "zstd.s7i";
 include "cpio.s7i";
+include "archive_base.s7i";
 
 
 const string: RPM_LEAD_MAGIC is "\16#ed;\16#ab;\16#ee;\16#db;";
@@ -966,7 +967,6 @@ const proc: write (in rpmCatalogEntry: catalogEntry) is func
   end func;
 
 
-const type: rpmRegisterType is set of string;
 const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 
 const type: rpmSection is new struct
@@ -998,7 +998,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var rpmSection: signature is rpmSection.value;
     var rpmSection: header is rpmSection.value;
     var integer: payloadPos is 0;
-    var rpmRegisterType: register is rpmRegisterType.value;
+    var archiveRegisterType: register is archiveRegisterType.value;
     var rpmCatalogType: catalog is rpmCatalogType.value;
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
     var array string: dirNameList is 0 times "";
@@ -1081,16 +1081,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       catalogEntry.lang := getAsciiz(rpm.header.store, langPos);
       catalogEntry.fileNumber := index;
       rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
-    end for;
-  end func;
-
-
-const proc: createRegister (inout rpmArchive: rpm) is func
-  local
-    var string: filePath is "";
-  begin
-    for key filePath range rpm.catalog do
-      incl(rpm.register, filePath);
+      rpm.register @:= [catalogEntry.filePath] index;
     end for;
   end func;
 
@@ -1554,7 +1545,6 @@ const func boolean: checkHeaderDigest (inout rpmArchive: rpm) is func
     if RPMSIGTAG_MD5 in rpm.signature.tagMap then
       seek(rpm.rpmFile, rpm.payloadPos);
       payload := gets(rpm.rpmFile, integer.last);
-      writeln("d " <& length(payload));
       referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_MD5]);
       computedDigest := md5(str(rpm.header.head) & rpm.header.indexData & rpm.header.store & payload);
       if referenceDigest <> computedDigest then
@@ -1710,7 +1700,6 @@ const func fileSys: openRpm (inout file: rpmFile) is func
             if checkHeaderDigest(rpm) then
               doSettings(rpm);
               createMinimumOfCatalog(rpm);
-              createRegister(rpm);
               newFileSys := toInterface(rpm);
             end if;
           end if;
@@ -1803,7 +1792,7 @@ const func boolean: implicitDir (inout rpmArchive: rpm, in string: dirPath) is f
     var string: filePath is "";
   begin
     if dirPath <> "" then
-      for filePath range rpm.register do
+      for key filePath range rpm.register do
         if startsWith(filePath, dirPath) and
             length(filePath) > length(dirPath) and
             (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
@@ -1891,57 +1880,8 @@ const func rpmCatalogEntry: followSymlink (inout rpmArchive: rpm, in string: fil
  *             representation.
  *  @exception FILE_ERROR ''dirPath'' is not present in the RPM archive.
  *)
-const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is func
-  result
-    var array string: fileNames is 0 times "";
-  local
-    var string: filePath is "";
-    var boolean: dirExists is FALSE;
-    var set of string: fileNameSet is (set of string).value;
-    var string: fileName is "";
-    var integer: slashPos is 0;
-  begin
-    if dirPath <> "/" and endsWith(dirPath, "/") then
-      raise RANGE_ERROR;
-    elsif dirPath = "" or dirPath = "." then
-      for fileName range rpm.register do
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          fileName := "/";
-        elsif slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
-        end if;
-      end for;
-    else
-      for filePath range rpm.register do
-        if startsWith(filePath, dirPath) then
-          fileName := filePath[succ(length(dirPath)) ..];
-          if fileName = "" then
-            dirExists := TRUE;
-          elsif startsWith(fileName, "/") then
-            fileName := fileName[2 ..];
-          elsif dirPath <> "/" then
-            fileName := "";  # A file name <> dirPath starts with dirPath.
-          end if;
-          slashPos := pos(fileName, '/');
-          if slashPos <> 0 then
-            fileName := fileName[.. pred(slashPos)];
-          end if;
-          if fileName <> "" and fileName not in fileNameSet then
-            incl(fileNameSet, fileName);
-            dirExists := TRUE;
-          end if;
-        end if;
-      end for;
-      if not dirExists then
-        raise FILE_ERROR;
-      end if;
-    end if;
-    fileNames := sort(toArray(fileNameSet));
-  end func;
+const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is
+  return readDir(rpm.register, dirPath);
 
 
 (**
@@ -1952,7 +1892,7 @@ const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is 
  *  @return an array with the file paths.
  *)
 const func array string: readDir (inout rpmArchive: rpm, RECURSIVE) is
-  return sort(toArray(rpm.register));
+  return sort(keys(rpm.register));
 
 
 (**
@@ -2435,7 +2375,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.groupName := "";
         catalogEntry.verifyFlags := 0;
         catalogEntry.device := 0;
-        catalogEntry.inode := succ(card(rpm.register));
+        catalogEntry.inode := succ(length(rpm.register));
         catalogEntry.lang := "";
         catalogEntry.dirIndex := 0;
         catalogEntry.baseName := "";
@@ -2445,10 +2385,10 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.dependN := 0;
         catalogEntry.allDataPresent := TRUE;
         catalogEntry.filePath := missingPath;
-        catalogEntry.fileNumber := succ(card(rpm.register));
+        catalogEntry.fileNumber := succ(length(rpm.register));
         catalogEntry.dirty := TRUE;
         rpm.catalog @:= [missingPath] catalogEntry;
-        incl(rpm.register, missingPath);
+        rpm.register @:= [missingPath] catalogEntry.fileNumber;
         putFile(rpm.archive, missingPath, data);
       end if;
     end if;
@@ -2499,7 +2439,7 @@ const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
       catalogEntry.groupName := "";
       catalogEntry.verifyFlags := 0;
       catalogEntry.device := 0;
-      catalogEntry.inode := succ(card(rpm.register));
+      catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
       catalogEntry.dirIndex := 0;
       catalogEntry.baseName := "";
@@ -2509,10 +2449,10 @@ const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
       catalogEntry.dependN := 0;
       catalogEntry.allDataPresent := TRUE;
       catalogEntry.filePath := filePath;
-      catalogEntry.fileNumber := succ(card(rpm.register));
+      catalogEntry.fileNumber := succ(length(rpm.register));
       catalogEntry.dirty := TRUE;
       rpm.catalog @:= [filePath] catalogEntry;
-      incl(rpm.register, filePath);
+      rpm.register @:= [filePath] catalogEntry.fileNumber;
       mkdir(rpm.archive, filePath);
     end if;
   end func;
@@ -2525,7 +2465,7 @@ const proc: for (inout string: filePath) range (inout rpmArchive: rpm) do
               (in proc: statements)
             end for is func
   begin
-    for filePath range rpm.register do
+    for key filePath range rpm.register do
       statements;
     end for;
   end func;

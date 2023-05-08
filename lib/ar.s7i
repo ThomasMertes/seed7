@@ -34,6 +34,7 @@ include "unicode.s7i";
 include "fileutil.s7i";
 include "subfile.s7i";
 include "iobuffer.s7i";
+include "archive_base.s7i";
 
 
 const string: AR_MAGIC is "!<arch>\n";
@@ -252,7 +253,6 @@ const func integer: addLongName (inout string: longNames, in string: longName) i
   end func;
 
 
-const type: arRegisterType is hash [string] integer;
 const type: arCatalogType is hash [string] arHeader;
 
 
@@ -275,7 +275,7 @@ const type: arArchive is sub emptyFileSys struct
     var file: arFile is STD_NULL;
     var integer: longNamesHeaderPos is 0;
     var string: longNames is "";
-    var arRegisterType: register is arRegisterType.value;
+    var archiveRegisterType: register is archiveRegisterType.value;
     var arCatalogType: catalog is arCatalogType.value;
   end struct;
 
@@ -484,57 +484,8 @@ const proc: setHeaderFileName (inout arArchive: ar, inout arHeader: header) is f
  *             representation.
  *  @exception FILE_ERROR ''dirPath'' is not present in the AR archive.
  *)
-const func array string: readDir (inout arArchive: ar, in string: dirPath) is func
-  result
-    var array string: fileNames is 0 times "";
-  local
-    var string: filePath is "";
-    var boolean: dirExists is FALSE;
-    var set of string: fileNameSet is (set of string).value;
-    var string: fileName is "";
-    var integer: slashPos is 0;
-  begin
-    if dirPath <> "/" and endsWith(dirPath, "/") then
-      raise RANGE_ERROR;
-    elsif dirPath = "" or dirPath = "." then
-      for key fileName range ar.register do
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          fileName := "/";
-        elsif slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
-        end if;
-      end for;
-    else
-      for key filePath range ar.register do
-        if startsWith(filePath, dirPath) then
-          fileName := filePath[succ(length(dirPath)) ..];
-          if fileName = "" then
-            dirExists := TRUE;
-          elsif startsWith(fileName, "/") then
-            fileName := fileName[2 ..];
-          elsif dirPath <> "/" then
-            fileName := "";  # A file name <> dirPath starts with dirPath.
-          end if;
-          slashPos := pos(fileName, '/');
-          if slashPos <> 0 then
-            fileName := fileName[.. pred(slashPos)];
-          end if;
-          if fileName <> "" and fileName not in fileNameSet then
-            incl(fileNameSet, fileName);
-            dirExists := TRUE;
-          end if;
-        end if;
-      end for;
-      if not dirExists then
-        raise FILE_ERROR;
-      end if;
-    end if;
-    fileNames := sort(toArray(fileNameSet));
-  end func;
+const func array string: readDir (inout arArchive: ar, in string: dirPath) is
+  return readDir(ar.register, dirPath);
 
 
 (**

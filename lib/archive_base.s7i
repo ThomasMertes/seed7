@@ -1,0 +1,82 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  archive_base.s7i  Common functions for file archives.           *)
+(*  Copyright (C) 2023  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: archiveRegisterType is hash [string] integer;
+
+
+const func array string: readDir (in archiveRegisterType: register, in string: dirPath) is func
+  result
+    var array string: fileNames is 0 times "";
+  local
+    var string: filePath is "";
+    var boolean: dirExists is FALSE;
+    var set of string: fileNameSet is (set of string).value;
+    var string: fileName is "";
+    var integer: slashPos is 0;
+  begin
+    if dirPath <> "/" and endsWith(dirPath, "/") then
+      raise RANGE_ERROR;
+    elsif dirPath = "" or dirPath = "." then
+      for key fileName range register do
+        slashPos := pos(fileName, '/');
+        if slashPos = 1 then
+          fileName := "/";
+        elsif slashPos <> 0 then
+          fileName := fileName[.. pred(slashPos)];
+        end if;
+        if fileName not in fileNameSet then
+          incl(fileNameSet, fileName);
+        end if;
+      end for;
+    else
+      for key filePath range register do
+        if startsWith(filePath, dirPath) then
+          fileName := filePath[succ(length(dirPath)) ..];
+          if fileName = "" then
+            dirExists := TRUE;
+          elsif startsWith(fileName, "/") then
+            fileName := fileName[2 ..];
+          elsif dirPath <> "/" then
+            fileName := "";  # A file name <> dirPath starts with dirPath.
+          end if;
+          slashPos := pos(fileName, '/');
+          if slashPos <> 0 then
+            fileName := fileName[.. pred(slashPos)];
+          end if;
+          if fileName <> "" and fileName not in fileNameSet then
+            incl(fileNameSet, fileName);
+            dirExists := TRUE;
+          end if;
+        end if;
+      end for;
+      if not dirExists then
+        raise FILE_ERROR;
+      end if;
+    end if;
+    fileNames := sort(toArray(fileNameSet));
+  end func;

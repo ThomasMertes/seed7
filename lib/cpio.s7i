@@ -35,6 +35,7 @@ include "bytedata.s7i";
 include "bin32.s7i";
 include "subfile.s7i";
 include "iobuffer.s7i";
+include "archive_base.s7i";
 
 
 const string: CPIO_BINARY_MAGIC          is "\16#71;\16#c7;";  # = 8#70707
@@ -404,7 +405,6 @@ const proc: writeTrailer (inout file: outFile, in cpioHeader: header) is func
   end func;
 
 
-const type: cpioRegisterType is hash [string] integer;
 const type: cpioCatalogType is hash [string] cpioHeader;
 
 
@@ -425,7 +425,7 @@ const type: cpioCatalogType is hash [string] cpioHeader;
  *)
 const type: cpioArchive is sub emptyFileSys struct
     var file: cpioFile is STD_NULL;
-    var cpioRegisterType: register is cpioRegisterType.value;
+    var archiveRegisterType: register is archiveRegisterType.value;
     var cpioCatalogType: catalog is cpioCatalogType.value;
     var string: magic is "";
     var integer: headerSize is 0;
@@ -621,57 +621,8 @@ const func cpioHeader: followSymlink (inout cpioArchive: cpio, in var string: fi
  *             representation.
  *  @exception FILE_ERROR ''dirPath'' is not present in the CPIO archive.
  *)
-const func array string: readDir (inout cpioArchive: cpio, in string: dirPath) is func
-  result
-    var array string: fileNames is 0 times "";
-  local
-    var string: filePath is "";
-    var boolean: dirExists is FALSE;
-    var set of string: fileNameSet is (set of string).value;
-    var string: fileName is "";
-    var integer: slashPos is 0;
-  begin
-    if dirPath <> "/" and endsWith(dirPath, "/") then
-      raise RANGE_ERROR;
-    elsif dirPath = "" or dirPath = "." then
-      for key fileName range cpio.register do
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          fileName := "/";
-        elsif slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
-        end if;
-      end for;
-    else
-      for key filePath range cpio.register do
-        if startsWith(filePath, dirPath) then
-          fileName := filePath[succ(length(dirPath)) ..];
-          if fileName = "" then
-            dirExists := TRUE;
-          elsif startsWith(fileName, "/") then
-            fileName := fileName[2 ..];
-          elsif dirPath <> "/" then
-            fileName := "";  # A file name <> dirPath starts with dirPath.
-          end if;
-          slashPos := pos(fileName, '/');
-          if slashPos <> 0 then
-            fileName := fileName[.. pred(slashPos)];
-          end if;
-          if fileName <> "" and fileName not in fileNameSet then
-            incl(fileNameSet, fileName);
-            dirExists := TRUE;
-          end if;
-        end if;
-      end for;
-      if not dirExists then
-        raise FILE_ERROR;
-      end if;
-    end if;
-    fileNames := sort(toArray(fileNameSet));
-  end func;
+const func array string: readDir (inout cpioArchive: cpio, in string: dirPath) is
+  return readDir(cpio.register, dirPath);
 
 
 (**
