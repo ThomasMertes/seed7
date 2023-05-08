@@ -1520,7 +1520,6 @@ const func boolean: checkHeaderDigest (inout rpmArchive: rpm) is func
   result
     var boolean: okay is TRUE;
   local
-    var string: payload is "";
     var string: referenceDigest is "";
     var string: computedDigest is "";
   begin
@@ -1540,17 +1539,6 @@ const func boolean: checkHeaderDigest (inout rpmArchive: rpm) is func
         okay := FALSE;
         # writeln("reference sha256 digest: " <& literal(referenceDigest));
         # writeln("computed sha256 digest:  " <& literal(computedDigest));
-      end if;
-    end if;
-    if RPMSIGTAG_MD5 in rpm.signature.tagMap then
-      seek(rpm.rpmFile, rpm.payloadPos);
-      payload := gets(rpm.rpmFile, integer.last);
-      referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_MD5]);
-      computedDigest := md5(str(rpm.header.head) & rpm.header.indexData & rpm.header.store & payload);
-      if referenceDigest <> computedDigest then
-        okay := FALSE;
-        # writeln("reference md5 digest: " <& literal(referenceDigest));
-        # writeln("computed md5 digest:  " <& literal(computedDigest));
       end if;
     end if;
   end func;
@@ -1598,18 +1586,34 @@ const proc: checkPayloadDigest (inout rpmArchive: rpm) is func
     var string: computedDigest is "";
     var integer: digestAlgo is 0;
   begin
-    seek(rpm.rpmFile, rpm.payloadPos);
-    payloadContent := gets(rpm.rpmFile, integer.last);
-    digestPos := succ(rpm.header.tagMap[RPMTAG_PAYLOADDIGEST].offset);
-    referenceDigest := getAsciiz(rpm.header.store, digestPos);
-    digestAlgo := getIntValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADDIGESTALGO]);
-    # writeln("length(payloadContent): " <& length(payloadContent));
-    computedDigest := hex(getDigest(payloadContent, digestAlgo));
-    if referenceDigest <> computedDigest then
-      # writeln("digestAlgo: " <& digestAlgo);
-      # writeln("reference digest: " <& literal(referenceDigest));
-      # writeln("computed digest:  " <& literal(computedDigest));
-      raise FILE_ERROR;
+    if RPMTAG_PAYLOADDIGEST in rpm.header.tagMap and
+        RPMTAG_PAYLOADDIGESTALGO in rpm.header.tagMap then
+      seek(rpm.rpmFile, rpm.payloadPos);
+      payloadContent := gets(rpm.rpmFile, integer.last);
+      digestPos := succ(rpm.header.tagMap[RPMTAG_PAYLOADDIGEST].offset);
+      referenceDigest := getAsciiz(rpm.header.store, digestPos);
+      digestAlgo := getIntValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADDIGESTALGO]);
+      # writeln("length(payloadContent): " <& length(payloadContent));
+      computedDigest := hex(getDigest(payloadContent, digestAlgo));
+      if referenceDigest <> computedDigest then
+        # writeln("digestAlgo: " <& digestAlgo);
+        # writeln("reference digest: " <& literal(referenceDigest));
+        # writeln("computed digest:  " <& literal(computedDigest));
+        raise FILE_ERROR;
+      end if;
+    end if;
+    if RPMSIGTAG_MD5 in rpm.signature.tagMap then
+      if payloadContent = "" then
+        seek(rpm.rpmFile, rpm.payloadPos);
+        payloadContent := gets(rpm.rpmFile, integer.last);
+      end if;
+      referenceDigest := getStriValue(rpm.signature.store, rpm.signature.tagMap[RPMSIGTAG_MD5]);
+      computedDigest := md5(str(rpm.header.head) & rpm.header.indexData & rpm.header.store & payloadContent);
+      if referenceDigest <> computedDigest then
+        # writeln("reference md5 digest: " <& literal(referenceDigest));
+        # writeln("computed md5 digest:  " <& literal(computedDigest));
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -1620,12 +1624,10 @@ const proc: getArchive (inout rpmArchive: rpm) is func
     var string: format is "";
     var file: payload is STD_NULL;
   begin
-    if RPMTAG_PAYLOADDIGEST in rpm.header.tagMap and RPMTAG_PAYLOADDIGESTALGO in rpm.header.tagMap then
-      checkPayloadDigest(rpm);
-    end if;
     if rpm.payloadPos = 0 then
       rpm.payloadFile := openStriFile();
     else
+      checkPayloadDigest(rpm);
       seek(rpm.rpmFile, rpm.payloadPos);
       if RPMTAG_PAYLOADCOMPRESSOR in rpm.header.tagMap then
         compressor := getStriValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADCOMPRESSOR]);
