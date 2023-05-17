@@ -2857,6 +2857,20 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
+    if  "1234567890" [succ(intExpr(pred( 1)) mod 10)] <> '1' or
+        "1234567890" [succ(intExpr(pred( 2)) mod 10)] <> '2' or
+        "1234567890" [succ(intExpr(pred( 3)) mod 10)] <> '3' or
+        "1234567890" [succ(intExpr(pred( 4)) mod 10)] <> '4' or
+        "1234567890" [succ(intExpr(pred( 5)) mod 10)] <> '5' or
+        "1234567890" [succ(intExpr(pred( 6)) mod 10)] <> '6' or
+        "1234567890" [succ(intExpr(pred( 7)) mod 10)] <> '7' or
+        "1234567890" [succ(intExpr(pred( 8)) mod 10)] <> '8' or
+        "1234567890" [succ(intExpr(pred( 9)) mod 10)] <> '9' or
+        "1234567890" [succ(intExpr(pred(10)) mod 10)] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String indices work correct.");
     end if;

@@ -1732,6 +1732,7 @@ const proc: process_const_str_idx (in string: stri,
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: index_range is intRange.value;
     var integer: index_value is 0;
     var string: index_name is "";
   begin
@@ -1749,42 +1750,51 @@ const proc: process_const_str_idx (in string: stri,
       c_expr.expr &:= stringLiteral(stri);
       c_expr.expr &:= ")->mem[";
       if string_index_check then
-        incr(countIndexChecks);
-        incr(c_expr.temp_num);
-        index_name := "idx_" & str(c_expr.temp_num);
-        if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.temp_decls &:= "uintType ";
+        index_range := getIntRange(index);
+        if index_range.minValue < 1 or
+            index_range.maxValue > length(stri) then
+          incr(countIndexChecks);
+          incr(c_expr.temp_num);
+          index_name := "idx_" & str(c_expr.temp_num);
+          if ccConf.TWOS_COMPLEMENT_INTTYPE then
+            c_expr.temp_decls &:= "uintType ";
+          else
+            c_expr.temp_decls &:= "intType ";
+          end if;
+          c_expr.temp_decls &:= index_name;
+          c_expr.temp_decls &:= ";\n";
+          c_expr.expr &:= "(";
+          c_expr.expr &:= index_name;
+          c_expr.expr &:= "=";
+          if ccConf.TWOS_COMPLEMENT_INTTYPE then
+            c_expr.expr &:= "(uintType)(";
+            process_expr(index, c_expr);
+            c_expr.expr &:= ")-1, idxChk(";
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= ">=";
+          else
+            process_expr(index, c_expr);
+            c_expr.expr &:= ", idxChk(";
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= "<=0 || ";
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= ">";
+          end if;
+          c_expr.expr &:= str(length(stri));
+          c_expr.expr &:= ") ? ";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= " : ";
+          c_expr.expr &:= index_name;
+          if ccConf.TWOS_COMPLEMENT_INTTYPE then
+            c_expr.expr &:= ")";
+          else
+            c_expr.expr &:= "-1)";
+          end if;
         else
-          c_expr.temp_decls &:= "intType ";
-        end if;
-        c_expr.temp_decls &:= index_name;
-        c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(";
-        c_expr.expr &:= index_name;
-        c_expr.expr &:= "=";
-        if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "(uintType)(";
+          countIndexOptimizations(c_expr);
+          c_expr.expr &:= "(";
           process_expr(index, c_expr);
-          c_expr.expr &:= ")-1, idxChk(";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= ">=";
-        else
-          process_expr(index, c_expr);
-          c_expr.expr &:= ", idxChk(";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= "<=0 || ";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= ">";
-        end if;
-        c_expr.expr &:= str(length(stri));
-        c_expr.expr &:= ") ? ";
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
-        c_expr.expr &:= " : ";
-        c_expr.expr &:= index_name;
-        if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= ")";
-        else
-          c_expr.expr &:= "-1)";
+          c_expr.expr &:= ")-1";
         end if;
       else
         incr(countSuppressedIndexChecks);
