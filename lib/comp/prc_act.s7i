@@ -285,7 +285,14 @@ const proc: process_const_prc_if_noop (in boolean: condition, in reference: stat
       c_expr.expr &:= "/* Optimized: elsif TRUE */\n";
     else
       c_expr.expr &:= "/* Optimized: elsif FALSE */ {\n";
-      process_call_by_name_expr(statement, c_statement);
+      if category(statement) = MATCHOBJECT and
+          length(getValue(statement, ref_list)) = 3 and
+          category(getValue(statement, ref_list)[1]) = CONSTENUMOBJECT and
+          category(getValue(statement, ref_list)[3]) = CALLOBJECT then
+        process_expr(getValue(statement, ref_list)[3], c_statement);
+      else
+        process_call_by_name_expr(statement, c_statement);
+      end if;
       process_statements(c_statement, c_expr);
       c_expr.expr &:= "}\n";
     end if;

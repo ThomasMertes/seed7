@@ -779,7 +779,127 @@ const proc: check_if is func
       incr(number);
     end if;
 
-    if okay and number = 68 then
+    if TRUE then
+    end if;
+
+    if FALSE then
+    end if;
+
+    if boolExpr(TRUE) then
+    end if;
+
+    if boolExpr(FALSE) then
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    end if;
+
+    if TRUE then
+    else
+      okay := FALSE;
+    end if;
+
+    if FALSE then
+    else
+      incr(number);
+    end if;
+
+    if boolExpr(TRUE) then
+    else
+      okay := FALSE;
+    end if;
+
+    if boolExpr(FALSE) then
+    else
+      incr(number);
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    else
+      okay := FALSE;
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    else
+      incr(number);
+    end if;
+
+    if TRUE then
+    elsif TRUE then
+    else
+      okay := FALSE;
+    end if;
+
+    if TRUE then
+    elsif FALSE then
+    else
+      okay := FALSE;
+    end if;
+
+    if FALSE then
+    elsif TRUE then
+    else
+      okay := FALSE;
+    end if;
+
+    if FALSE then
+    elsif FALSE then
+    else
+      incr(number);
+    end if;
+
+    if boolExpr(TRUE) then
+    elsif boolExpr(TRUE) then
+    else
+      okay := FALSE;
+    end if;
+
+    if boolExpr(TRUE) then
+    elsif boolExpr(FALSE) then
+    else
+      okay := FALSE;
+    end if;
+
+    if boolExpr(FALSE) then
+    elsif boolExpr(TRUE) then
+    else
+      okay := FALSE;
+    end if;
+
+    if boolExpr(FALSE) then
+    elsif boolExpr(FALSE) then
+    else
+      incr(number);
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    elsif "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    else
+      okay := FALSE;
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    elsif "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    else
+      okay := FALSE;
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    elsif "abcdefgh"[intExpr(1) fixLen 1] = "a" then
+    else
+      okay := FALSE;
+    end if;
+
+    if "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    elsif "abcdefgh"[intExpr(1) fixLen 1] <> "a" then
+    else
+      incr(number);
+    end if;
+
+    if okay and number = 74 then
       writeln("If statements work correct.");
     else
       writeln(" ***** If statements do not work correct.");
@@ -968,6 +1088,15 @@ const proc: check_while is func
       okay := FALSE;
     end if;
 
+    while FALSE do
+    end while;
+
+    while rand(FALSE, TRUE) do
+    end while;
+
+    while "abcdefgh"[rand(1, 8) fixLen 1] = "a" do
+    end while;
+
     if okay then
       writeln("While statements work correct.");
     else
@@ -1114,6 +1243,15 @@ const proc: check_repeat is func
       writeln(" ***** repeat ... until EXPRESSION  with three loop trips does not work correct.");
       okay := FALSE;
     end if;
+
+    repeat
+    until TRUE;
+
+    repeat
+    until rand(FALSE, TRUE);
+
+    repeat
+    until "abcdefgh"[rand(1, 8) fixLen 1] <> "a";
 
     if okay then
       writeln("Repeat statements work correct.");
