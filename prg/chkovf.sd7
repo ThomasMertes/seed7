@@ -6045,6 +6045,38 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
+    if  not raisesOverflowError((-15) ** (abs(intExpr(0)) + 17)) or
+        not raisesOverflowError((-14) ** (abs(intExpr(0)) + 17)) or
+        not raisesOverflowError((-13) ** (abs(intExpr(0)) + 18)) or
+        not raisesOverflowError((-12) ** (abs(intExpr(0)) + 18)) or
+        not raisesOverflowError((-11) ** (abs(intExpr(0)) + 19)) or
+        not raisesOverflowError((-10) ** (abs(intExpr(0)) + 19)) or
+        not raisesOverflowError( (-9) ** (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError( (-8) ** (abs(intExpr(0)) + 22)) or
+        not raisesOverflowError( (-7) ** (abs(intExpr(0)) + 23)) or
+        not raisesOverflowError( (-6) ** (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError( (-5) ** (abs(intExpr(0)) + 28)) or
+        not raisesOverflowError( (-4) ** (abs(intExpr(0)) + 32)) or
+        not raisesOverflowError( (-3) ** (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError( (-2) ** (abs(intExpr(0)) + 64)) or
+        not raisesOverflowError(   2  ** (abs(intExpr(0)) + 63)) or
+        not raisesOverflowError(   3  ** (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError(   4  ** (abs(intExpr(0)) + 32)) or
+        not raisesOverflowError(   5  ** (abs(intExpr(0)) + 28)) or
+        not raisesOverflowError(   6  ** (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError(   7  ** (abs(intExpr(0)) + 23)) or
+        not raisesOverflowError(   8  ** (abs(intExpr(0)) + 21)) or
+        not raisesOverflowError(   9  ** (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError(  10  ** (abs(intExpr(0)) + 19)) or
+        not raisesOverflowError(  11  ** (abs(intExpr(0)) + 19)) or
+        not raisesOverflowError(  12  ** (abs(intExpr(0)) + 18)) or
+        not raisesOverflowError(  13  ** (abs(intExpr(0)) + 18)) or
+        not raisesOverflowError(  14  ** (abs(intExpr(0)) + 17)) or
+        not raisesOverflowError(  15  ** (abs(intExpr(0)) + 17)) then
+      writeln(" ***** Computing A ** B with B too large does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Overflow checking of power works correct.");
     else
