@@ -10272,7 +10272,6 @@ const func boolean: check_string_concat_2 is func
       okay := FALSE;
     end if;
 
-
     if           "ab"  & (         "cd"  & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
         striExpr("ab") & (         "cd"  & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
                  "ab"  & (striExpr("cd") & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
@@ -10363,6 +10362,26 @@ const proc: check_string_concat is func
     end if;
 
     if not check_string_concat_2 then
+      okay := FALSE;
+    end if;
+
+    if           "ab"  & (         "cd"  &          "ef" ) &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  &          "ef" ) &          "gh"  <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") &          "ef" ) &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") &          "ef" ) &          "gh"  <> "abcdefgh" or
+                 "ab"  & (         "cd"  & striExpr("ef")) &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & striExpr("ef")) &          "gh"  <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & striExpr("ef")) &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & striExpr("ef")) &          "gh"  <> "abcdefgh" or
+                 "ab"  & (         "cd"  &          "ef" ) & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  &          "ef" ) & striExpr("gh") <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") &          "ef" ) & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") &          "ef" ) & striExpr("gh") <> "abcdefgh" or
+                 "ab"  & (         "cd"  & striExpr("ef")) & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & striExpr("ef")) & striExpr("gh") <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & striExpr("ef")) & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & striExpr("ef")) & striExpr("gh") <> "abcdefgh" then
+      writeln(" ***** STRING & (STRING & STRING) & STRING does not work correct.");
       okay := FALSE;
     end if;
 
@@ -20407,6 +20426,7 @@ const proc: check_string_append is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
     var string: stri is "";
+    var array string: arr is []("");
   begin
     stri := "";  stri &:=          "";   ok := ok and stri = "";
     stri := "";  stri &:= striExpr("");  ok := ok and stri = "";
@@ -20778,6 +20798,18 @@ const proc: check_string_append is func
     stri := "12345"; stri &:= "456"         & str(chr(48)); ok := ok and stri = "123454560";
     stri := "12345"; stri &:= str(chr(48))  & "456";        ok := ok and stri = "123450456";
     stri := "12345"; stri &:= str(chr(48))  & str(chr(48)); ok := ok and stri = "1234500";
+
+    arr[1] := "12345"; arr[1] &:= '6';          ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= chr(48);      ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:= str('6');     ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(chr(48)); ok := ok and arr[1] = "123450";
+
+    arr[1] := "12345"; arr[1] &:= "456"         & str('6');     ok := ok and arr[1] = "123454566";
+    arr[1] := "12345"; arr[1] &:= str('6')      & "456";        ok := ok and arr[1] = "123456456";
+    arr[1] := "12345"; arr[1] &:= str('6')      & str('6');     ok := ok and arr[1] = "1234566";
+    arr[1] := "12345"; arr[1] &:= "456"         & str(chr(48)); ok := ok and arr[1] = "123454560";
+    arr[1] := "12345"; arr[1] &:= str(chr(48))  & "456";        ok := ok and arr[1] = "123450456";
+    arr[1] := "12345"; arr[1] &:= str(chr(48))  & str(chr(48)); ok := ok and arr[1] = "1234500";
 
     stri := "1";  stri &:= returnStringWithCapacity("234", 4); ok := ok and stri = "1234";
     stri := "12"; stri &:= returnStringWithCapacity("345", 4); ok := ok and stri = "12345";
