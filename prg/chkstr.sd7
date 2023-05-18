@@ -2414,9 +2414,12 @@ const proc: check_string_length is func
         length(striExpr("abcdefghijklghijklmnopqxyz"))  <> 26 or
         length(striExpr("\0;"))                         <>  1 or
         length(striExpr("\0;\0;"))                      <>  2 or
-        length(striExpr("\0;\0;\0;\0;\0;\0;\0;\0;\0;")) <>  9 or
+        length(striExpr("\0;\0;\0;\0;\0;\0;\0;\0;\0;")) <>  9 then
+      writeln(" ***** length(STRING) does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-        length(         ""  &          "" ) <> 0 or
+    if  length(         ""  &          "" ) <> 0 or
         length(striExpr("") &          "" ) <> 0 or
         length(         ""  & striExpr("")) <> 0 or
         length(striExpr("") & striExpr("")) <> 0 or
@@ -2431,9 +2434,12 @@ const proc: check_string_length is func
         length(         "ab"  &          "c" ) <> 3 or
         length(striExpr("ab") &          "c" ) <> 3 or
         length(         "ab"  & striExpr("c")) <> 3 or
-        length(striExpr("ab") & striExpr("c")) <> 3 or
+        length(striExpr("ab") & striExpr("c")) <> 3 then
+      writeln(" ***** length(STRING) does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-        length(         ""  &          ""  &          "" ) <> 0 or
+    if  length(         ""  &          ""  &          "" ) <> 0 or
         length(striExpr("") &          ""  &          "" ) <> 0 or
         length(         ""  & striExpr("") &          "" ) <> 0 or
         length(striExpr("") & striExpr("") &          "" ) <> 0 or
@@ -2496,9 +2502,12 @@ const proc: check_string_length is func
         length(         "abcd"  &          "ef"  & striExpr("g")) <> 7 or
         length(striExpr("abcd") &          "ef"  & striExpr("g")) <> 7 or
         length(         "abcd"  & striExpr("ef") & striExpr("g")) <> 7 or
-        length(striExpr("abcd") & striExpr("ef") & striExpr("g")) <> 7 or
+        length(striExpr("abcd") & striExpr("ef") & striExpr("g")) <> 7 then
+      writeln(" ***** length(STRING) does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-        length(         ""  &          ""  &          ""  &          "" ) <> 0 or
+    if  length(         ""  &          ""  &          ""  &          "" ) <> 0 or
         length(striExpr("") &          ""  &          ""  &          "" ) <> 0 or
         length(         ""  & striExpr("") &          ""  &          "" ) <> 0 or
         length(striExpr("") & striExpr("") &          ""  &          "" ) <> 0 or
@@ -2753,9 +2762,12 @@ const proc: check_string_length is func
         length(         "abcdefgh"  &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 15 or
         length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 15 or
         length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 or
-        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 then
+      writeln(" ***** length(STRING) does not work correct. (4)");
+      okay := FALSE;
+    end if;
 
-        length(         "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij" ) <> 10 or
+    if  length(         "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij" ) <> 10 or
         length(striExpr("ab") &          "cd"  &          "ef"  &          "gh"  &          "ij" ) <> 10 or
         length(         "ab"  & striExpr("cd") &          "ef"  &          "gh"  &          "ij" ) <> 10 or
         length(striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  &          "ij" ) <> 10 or
@@ -2787,9 +2799,26 @@ const proc: check_string_length is func
         length(striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
         length(         "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
         length(striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 then
-      writeln(" ***** length(STRING) does not work correct.");
+      writeln(" ***** length(STRING) does not work correct. (5)");
       okay := FALSE;
     end if;
+
+    if  length(         "abcde" [        1  fixLen 3]) <> 3 or
+        length(         "abcde" [        2  fixLen 3]) <> 3 or
+        length(         "abcde" [        3  fixLen 3]) <> 3 or
+        length(         "abcde" [intExpr(1) fixLen 3]) <> 3 or
+        length(         "abcde" [intExpr(2) fixLen 3]) <> 3 or
+        length(         "abcde" [intExpr(3) fixLen 3]) <> 3 or
+        length(striExpr("abcde")[        1  fixLen 3]) <> 3 or
+        length(striExpr("abcde")[        2  fixLen 3]) <> 3 or
+        length(striExpr("abcde")[        3  fixLen 3]) <> 3 or
+        length(striExpr("abcde")[intExpr(1) fixLen 3]) <> 3 or
+        length(striExpr("abcde")[intExpr(2) fixLen 3]) <> 3 or
+        length(striExpr("abcde")[intExpr(3) fixLen 3]) <> 3 then
+      writeln(" ***** length(STRING) does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String length works correct.");
     end if;
