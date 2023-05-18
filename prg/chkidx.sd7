@@ -208,6 +208,7 @@ const proc: check_string_head is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
     var string: stri is "";
+    var string: stri2 is "";
   begin
     if  not raisesIndexError("" [ .. integer.first ]) or
         not raisesIndexError("" [ ..            -5 ]) or
@@ -317,6 +318,16 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -1) ]) and ok;
     if not ok then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";
+    ok := raisesIndexError(stri2 := stri [ .. integer.first ]) and ok;
+    ok := raisesIndexError(stri2 := stri [ ..            -2 ]) and ok;
+    ok := raisesIndexError(stri2 := stri [ ..            -1 ]) and ok;
+    if not ok then
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (5)");
       okay := FALSE;
     end if;
 

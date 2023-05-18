@@ -20192,6 +20192,8 @@ const proc: check_string_assign is func
     stri := stri[.. 7];           ok := ok and stri = "sdfghjk";
     stri := stri[2 .. 6];         ok := ok and stri = "dfghj";
     stri := stri[2 len 3];        ok := ok and stri = "fgh";
+    stri2 := stri[.. 0];          ok := ok and stri2 = "";
+    stri := stri[.. 0];           ok := ok and stri = "";
     stri := "asdfghjkl";          ok := ok and stri = "asdfghjkl";
     stri := stri[2 ..][.. 7];     ok := ok and stri = "sdfghjk";
     stri := stri & "SDFGHJK";     ok := ok and stri = "sdfghjkSDFGHJK";
