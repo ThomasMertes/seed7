@@ -2031,7 +2031,7 @@ const proc: optimize_str_lng (STR_CAT, in ref_list: params,
       optimize_str_lng(striObj, c_expr);
       c_expr.expr &:= " + ";
     end for;
-    c_expr.expr &:= str(lengthOfConstants);
+    c_expr.expr &:= integerLiteral(lengthOfConstants);
   end func;
 
 
@@ -2059,9 +2059,9 @@ const proc: optimize_str_lng (in reference: lengthParam,
       c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer));
       c_expr.expr &:= " /* length of fixlLen substring */";
     else
-      c_expr.expr &:= "(";
+      c_expr.expr &:= "(intType)((";
       getAnyParamToExpr(lengthParam, c_expr);
-      c_expr.expr &:= ")->size";
+      c_expr.expr &:= ")->size)";
     end if;
   end func;
 
@@ -2071,9 +2071,7 @@ const proc: process (STR_LNG, in reference: function,
 
   begin
     if evaluate_const_expr >= 1 then
-      c_expr.expr &:= "(intType)(";
       optimize_str_lng(params[1], c_expr);
-      c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(intType)((";
       getAnyParamToExpr(params[1], c_expr);
