@@ -1588,14 +1588,8 @@ const proc: process_inline_str_head (in reference: stri, in reference: length,
     var intRange: length_range is intRange.value;
     var boolean: raisesIndexError is FALSE;
   begin
-    if getConstant(stri, STRIOBJECT, evaluatedParam) then
-      stri_value := getValue(evaluatedParam, string);
-      stri_name := "(" & stringLiteral(stri_value) & ")";
-      stri_size := memSizeLiteral(length(stri_value));
-    else
-      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
-      stri_size := stri_name & "->size";
-    end if;
+    stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+    stri_size := stri_name & "->size";
     if getConstant(length, INTOBJECT, evaluatedParam) then
       length_is_variable := FALSE;
       length_value := getValue(evaluatedParam, integer);

@@ -3409,6 +3409,37 @@ const proc: check_string_head is func
       okay := FALSE;
     end if;
 
+    if  "" [ .. abs(intExpr(            0)) ] <> "" or
+        "" [ .. abs(intExpr(            1)) ] <> "" or
+        "" [ .. abs(intExpr(            2)) ] <> "" or
+        "" [ .. abs(intExpr(            5)) ] <> "" or
+        "" [ .. abs(intExpr(            9)) ] <> "" or
+        "" [ .. abs(intExpr(           10)) ] <> "" or
+        "" [ .. abs(intExpr(           11)) ] <> "" or
+        "" [ .. abs(intExpr(           15)) ] <> "" or
+        "" [ .. abs(intExpr( integer.last)) ] <> "" or
+        "1" [ .. abs(intExpr(            0)) ] <> "" or
+        "1" [ .. abs(intExpr(            1)) ] <> "1" or
+        "1" [ .. abs(intExpr(            2)) ] <> "1" or
+        "1" [ .. abs(intExpr(            5)) ] <> "1" or
+        "1" [ .. abs(intExpr(            9)) ] <> "1" or
+        "1" [ .. abs(intExpr(           10)) ] <> "1" or
+        "1" [ .. abs(intExpr(           11)) ] <> "1" or
+        "1" [ .. abs(intExpr(           15)) ] <> "1" or
+        "1" [ .. abs(intExpr( integer.last)) ] <> "1" or
+        "1234567890" [ .. abs(intExpr(            0)) ] <> "" or
+        "1234567890" [ .. abs(intExpr(            1)) ] <> "1" or
+        "1234567890" [ .. abs(intExpr(            2)) ] <> "12" or
+        "1234567890" [ .. abs(intExpr(            5)) ] <> "12345" or
+        "1234567890" [ .. abs(intExpr(            9)) ] <> "123456789" or
+        "1234567890" [ .. abs(intExpr(           10)) ] <> "1234567890" or
+        "1234567890" [ .. abs(intExpr(           11)) ] <> "1234567890" or
+        "1234567890" [ .. abs(intExpr(           15)) ] <> "1234567890" or
+        "1234567890" [ .. abs(intExpr( integer.last)) ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
     if not check_string_head_assign_1 then
       okay := FALSE;
     end if;
