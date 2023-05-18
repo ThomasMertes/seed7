@@ -943,6 +943,16 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 number := length(getValue(evaluatedParam, string));
                 valueRange.minValue := number;
                 valueRange.maxValue := number;
+                valueRange.mayRaiseException := FALSE;
+              elsif isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
+                  getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+                number := getValue(evaluatedParam, integer);
+                valueRange.minValue := number;
+                valueRange.maxValue := number;
+              elsif isActionExpression(params[1], "STR_SUBSTR") and
+                  getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+                valueRange.minValue := 0;
+                valueRange.maxValue := getValue(evaluatedParam, integer);
               elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
                 valueRange.minValue := 0;
                 valueRange.maxValue := integer.last;
