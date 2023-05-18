@@ -375,6 +375,14 @@ const proc: check_card is func
       okay := FALSE;
     end if;
 
+    if  card(bitset(intExpr(0) mod 1))     <> 0 or
+        card(bitset(intExpr(0) mod 1 + 1)) <> 1 or
+        card(bitset(intExpr(0) mod 1 + 2)) <> 1 or
+        card(bitset(intExpr(0) mod 1 + 3)) <> 2 then
+      writeln("card(bitset(n)) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(bitset(-1)) or
         not raisesRangeError(bitset(number)) or
         not raisesRangeError(bitset conv (-1)) or
@@ -461,6 +469,29 @@ const proc: check_rand is func
         okay := FALSE;
       end if;
     end for;
+
+    if  rand({-1234567890}) <> -1234567890 or
+        rand({         -1}) <>          -1 or
+        rand({          0}) <>           0 or
+        rand({          1}) <>           1 or
+        rand({ 1234567890}) <>  1234567890 then
+      writeln(" ***** rand() of a set with one element does not return this element.");
+      okay := FALSE;
+    end if;
+
+    if  rand({1, 2})       not in {1, 2} or
+        rand({1, 2, 3})    not in {1, 2, 3} or
+        rand({1, 2, 3, 4}) not in {1, 2, 3, 4} then
+      writeln(" ***** rand() of a set with consecutive elements does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  rand({2, 3, 5})        not in {2, 3, 5} or
+        rand({2, 3, 5, 7})     not in {2, 3, 5, 7} or
+        rand({2, 3, 5, 7, 11}) not in {2, 3, 5, 7, 11} then
+      writeln(" ***** rand() of a constant set does not work correct.");
+      okay := FALSE;
+    end if;
 
     test_set := EMPTY_SET;
     if  not raisesRangeError(rand(EMPTY_SET)) or
@@ -10698,9 +10729,31 @@ const proc: check_assign is func
   local
     var boolean: okay is TRUE;
     var bitset: set_1 is {2, 3, 5, 7, 11, 13};
+    var array bitset: arr_1 is [] ({0});
   begin
     set_1 := set_1;
     if set_1 <> {2, 3, 5, 7, 11, 13} then
+      okay := FALSE;
+    end if;
+
+    set_1 := set_1 | {4, 6, 8, 9, 10, 12};
+    if set_1 <> {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13} then
+      okay := FALSE;
+    end if;
+
+    set_1 := {2, 3, 5, 7, 11, 13};
+    arr_1[1] := set_1;
+    if arr_1[1] <> {2, 3, 5, 7, 11, 13} then
+      okay := FALSE;
+    end if;
+
+    arr_1[1] := arr_1[1];
+    if arr_1[1] <> {2, 3, 5, 7, 11, 13} then
+      okay := FALSE;
+    end if;
+
+    arr_1[1] := set_1 | {4, 6, 8, 9, 10, 12};
+    if arr_1[1] <> {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13} then
       okay := FALSE;
     end if;
 
