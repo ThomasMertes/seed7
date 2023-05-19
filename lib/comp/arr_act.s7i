@@ -459,50 +459,65 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
       end if;
     else
       indexRange := getIntRange(index);
-      c_expr.expr &:= "arr[";
-      c_expr.expr &:= str(const_table[anArray]);
-      c_expr.expr &:= "]->arr[";
-      if array_index_check then
-        if indexRange.minValue < arrayMinIdx(anArray) or
-            indexRange.maxValue > arrayMaxIdx(anArray) then
-          incr(countIndexChecks);
-          incr(c_expr.temp_num);
-          index_name := "idx_" & str(c_expr.temp_num);
-          if ccConf.TWOS_COMPLEMENT_INTTYPE then
-            c_expr.temp_decls &:= "uintType ";
-          else
-            c_expr.temp_decls &:= "intType ";
-          end if;
-          c_expr.temp_decls &:= index_name;
-          c_expr.temp_decls &:= ";\n";
-          c_expr.expr &:= "(";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= "=(";
-          process_expr(index, c_expr);
-          c_expr.expr &:= ")";
-          if arrayMinIdx(anArray) <> 0 then
+      if indexRange.maxValue < arrayMinIdx(anArray) or
+          indexRange.minValue > arrayMaxIdx(anArray) then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      else
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(const_table[anArray]);
+        c_expr.expr &:= "]->arr[";
+        if array_index_check then
+          if indexRange.minValue < arrayMinIdx(anArray) or
+              indexRange.maxValue > arrayMaxIdx(anArray) then
+            incr(countIndexChecks);
+            incr(c_expr.temp_num);
+            index_name := "idx_" & str(c_expr.temp_num);
             if ccConf.TWOS_COMPLEMENT_INTTYPE then
-              c_expr.expr &:= "- (uintType) ";
+              c_expr.temp_decls &:= "uintType ";
             else
-              c_expr.expr &:= "- ";
+              c_expr.temp_decls &:= "intType ";
             end if;
-            c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
-          end if;
-          c_expr.expr &:= ", idxChk(";
-          if not ccConf.TWOS_COMPLEMENT_INTTYPE then
+            c_expr.temp_decls &:= index_name;
+            c_expr.temp_decls &:= ";\n";
+            c_expr.expr &:= "(";
             c_expr.expr &:= index_name;
-            c_expr.expr &:= "<0 || ";
+            c_expr.expr &:= "=(";
+            process_expr(index, c_expr);
+            c_expr.expr &:= ")";
+            if arrayMinIdx(anArray) <> 0 then
+              if ccConf.TWOS_COMPLEMENT_INTTYPE then
+                c_expr.expr &:= "- (uintType) ";
+              else
+                c_expr.expr &:= "- ";
+              end if;
+              c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
+            end if;
+            c_expr.expr &:= ", idxChk(";
+            if not ccConf.TWOS_COMPLEMENT_INTTYPE then
+              c_expr.expr &:= index_name;
+              c_expr.expr &:= "<0 || ";
+            end if;
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= ">=";
+            c_expr.expr &:= str(succ(arrayMaxIdx(anArray) - arrayMinIdx(anArray)));
+            c_expr.expr &:= ") ? ";
+            c_expr.expr &:= intRaiseError("INDEX_ERROR");
+            c_expr.expr &:= " : ";
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= ")";
+          else
+            countIndexOptimizations(c_expr);
+            c_expr.expr &:= "(";
+            process_expr(index, c_expr);
+            c_expr.expr &:= ")";
+            if arrayMinIdx(anArray) <> 0 then
+              c_expr.expr &:= "- ";
+              c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
+            end if;
           end if;
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= ">=";
-          c_expr.expr &:= str(succ(arrayMaxIdx(anArray) - arrayMinIdx(anArray)));
-          c_expr.expr &:= ") ? ";
-          c_expr.expr &:= intRaiseError("INDEX_ERROR");
-          c_expr.expr &:= " : ";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= ")";
         else
-          countIndexOptimizations(c_expr);
+          incr(countSuppressedIndexChecks);
           c_expr.expr &:= "(";
           process_expr(index, c_expr);
           c_expr.expr &:= ")";
@@ -511,18 +526,9 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
             c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
           end if;
         end if;
-      else
-        incr(countSuppressedIndexChecks);
-        c_expr.expr &:= "(";
-        process_expr(index, c_expr);
-        c_expr.expr &:= ")";
-        if arrayMinIdx(anArray) <> 0 then
-          c_expr.expr &:= "- ";
-          c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
-        end if;
+        c_expr.expr &:= "]";
+        c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       end if;
-      c_expr.expr &:= "]";
-      c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
     end if;
   end func;
 
