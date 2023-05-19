@@ -1141,48 +1141,96 @@ const proc: testAssign is func
     var array char: chrArr2 is 0 times ' ';
     var array string: strArr2 is 0 times "";
     var array bitset: setArr2 is 0 times {};
+    var array array boolean: blnArrArr is 1 times 0 times FALSE;
+    var array array integer: intArrArr is 1 times 0 times 0;
+    var array array bigInteger: bigArrArr is 1 times 0 times 0_;
+    var array array float: fltArrArr is 1 times 0 times 0.0;
+    var array array complex: cpxArrArr is 1 times 0 times complex.value;
+    var array array char: chrArrArr is 1 times 0 times ' ';
+    var array array string: strArrArr is 1 times 0 times "";
+    var array array bitset: setArrArr is 1 times 0 times {};
   begin
     blnArr := blnArr;
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct");
+      writeln(" ***** array assignment for 'array boolean' does not work correct. (1)");
       okay := FALSE;
     end if;
     blnArr2 := blnArr;
     if blnArr2 <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct");
+      writeln(" ***** array assignment for 'array boolean' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    blnArr2 := blnArr & [] (FALSE);
+    if blnArr2 <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    blnArrArr[1] := blnArr & [] (FALSE);
+    if blnArrArr[1] <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     intArr := intArr;
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7) then
-      writeln(" ***** array assignment for 'array integer' does not work correct");
+      writeln(" ***** array assignment for 'array integer' does not work correct. (1)");
       okay := FALSE;
     end if;
     intArr2 := intArr;
     if intArr2 <> [] (1, 2, 3, 4, 5, 6, 7) then
-      writeln(" ***** array assignment for 'array integer' does not work correct");
+      writeln(" ***** array assignment for 'array integer' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    intArr2 := intArr & [] (8);
+    if intArr2 <> [] (1, 2, 3, 4, 5, 6, 7, 8) then
+      writeln(" ***** array assignment for 'array integer' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    intArrArr[1] := intArr & [] (8);
+    if intArrArr[1] <> [] (1, 2, 3, 4, 5, 6, 7, 8) then
+      writeln(" ***** array assignment for 'array integer' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     bigArr := bigArr;
     if bigArr <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (1)");
       okay := FALSE;
     end if;
     bigArr2 := bigArr;
     if bigArr2 <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    bigArr2 := bigArr & [] (8_);
+    if bigArr2 <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    bigArrArr[1] := bigArr & [] (8_);
+    if bigArrArr[1] <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     fltArr := fltArr;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct");
+      writeln(" ***** array assignment for 'array float' does not work correct. (1)");
       okay := FALSE;
     end if;
     fltArr2 := fltArr;
     if fltArr2 <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct");
+      writeln(" ***** array assignment for 'array float' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    fltArr2 := fltArr & [] (8.0);
+    if fltArr2 <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0) then
+      writeln(" ***** array assignment for 'array float' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    fltArrArr[1] := fltArr & [] (8.0);
+    if fltArrArr[1] <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0) then
+      writeln(" ***** array assignment for 'array float' does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -1190,47 +1238,91 @@ const proc: testAssign is func
     if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                      complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                      complex(7.0, 7.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct");
+      writeln(" ***** array assignment for 'array complex' does not work correct. (1)");
       okay := FALSE;
     end if;
     cpxArr2 := cpxArr;
     if cpxArr2 <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                       complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                       complex(7.0, 7.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct");
+      writeln(" ***** array assignment for 'array complex' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    cpxArr2 := cpxArr & [] (complex(8.0, 8.0));
+    if cpxArr2 <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+                      complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
+                      complex(7.0, 7.0), complex(8.0, 8.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    cpxArrArr[1] := cpxArr & [] (complex(8.0, 8.0));
+    if cpxArrArr[1] <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+                      complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
+                      complex(7.0, 7.0), complex(8.0, 8.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     chrArr := chrArr;
     if chrArr <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g') then
-      writeln(" ***** array assignment for 'array char' does not work correct");
+      writeln(" ***** array assignment for 'array char' does not work correct. (1)");
       okay := FALSE;
     end if;
     chrArr2 := chrArr;
     if chrArr2 <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g') then
-      writeln(" ***** array assignment for 'array char' does not work correct");
+      writeln(" ***** array assignment for 'array char' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    chrArr2 := chrArr & [] ('h');
+    if chrArr2 <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h') then
+      writeln(" ***** array assignment for 'array char' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    chrArrArr[1] := chrArr & [] ('h');
+    if chrArrArr[1] <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h') then
+      writeln(" ***** array assignment for 'array char' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     strArr := strArr;
     if strArr <> [] ("one", "two", "three", "four", "five", "six", "seven") then
-      writeln(" ***** array assignment for 'array string' does not work correct");
+      writeln(" ***** array assignment for 'array string' does not work correct. (1)");
       okay := FALSE;
     end if;
     strArr2 := strArr;
     if strArr2 <> [] ("one", "two", "three", "four", "five", "six", "seven") then
-      writeln(" ***** array assignment for 'array string' does not work correct");
+      writeln(" ***** array assignment for 'array string' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    strArr2 := strArr & [] ("eight");
+    if strArr2 <> [] ("one", "two", "three", "four", "five", "six", "seven", "eight") then
+      writeln(" ***** array assignment for 'array string' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    strArrArr[1] := strArr & [] ("eight");
+    if strArrArr[1] <> [] ("one", "two", "three", "four", "five", "six", "seven", "eight") then
+      writeln(" ***** array assignment for 'array string' does not work correct. (4)");
       okay := FALSE;
     end if;
 
     setArr := setArr;
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct");
+      writeln(" ***** array assignment for 'array bitset' does not work correct. (1)");
       okay := FALSE;
     end if;
     setArr2 := setArr;
     if setArr2 <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct");
+      writeln(" ***** array assignment for 'array bitset' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    setArr2 := setArr & []({8});
+    if setArr2 <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    setArrArr[1] := setArr & []({8});
+    if setArrArr[1] <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -1480,6 +1572,24 @@ const proc: testPush is func
 const proc: testIndex is func
   local
     var boolean: okay is TRUE;
+    const array boolean: blnArrConst is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
+    const array integer: intArrConst is [] (1, 2, 3, 4, 5, 6, 7);
+    const array bigInteger: bigArrConst is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
+    const array float: fltArrConst is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    const array complex: cpxArrConst is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    const array char: chrArrConst is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    const array string: strArrConst is [] ("one", "two", "three", "four", "five", "six", "seven");
+    const array bitset: setArrConst is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    const array boolean: blnArrConst0 is [0] (FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE);
+    const array integer: intArrConst0 is [0] (0, 1, 2, 3, 4, 5, 6);
+    const array bigInteger: bigArrConst0 is [0] (0_, 1_, 2_, 3_, 4_, 5_, 6_);
+    const array float: fltArrConst0 is [0] (0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    const array complex: cpxArrConst0 is [0] (complex(0.0, 0.0), complex(1.0, 1.0), complex(2.0, 2.0),
+        complex(3.0, 3.0), complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0));
+    const array char: chrArrConst0 is [0] ('@', 'a', 'b', 'c', 'd', 'e', 'f');
+    const array string: strArrConst0 is [0] ("zero", "one", "two", "three", "four", "five", "six");
+    const array bitset: setArrConst0 is [0] ({0}, {1}, {2}, {3}, {4}, {5}, {6});
     var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
@@ -1511,9 +1621,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (1)");
       okay := FALSE;
     end if;
-    blnElem := (blnArr & blnArr)[8];
+    blnElem := blnArrConst[1];
     if blnElem <> TRUE then
       writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (2)");
+      okay := FALSE;
+    end if;
+    blnElem := blnArrConst[intExpr(1)];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (3)");
+      okay := FALSE;
+    end if;
+    blnElem := blnArrConst[succ(intExpr(0) mod 7)];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (4)");
+      okay := FALSE;
+    end if;
+    blnElem := blnArrConst0[1];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (5)");
+      okay := FALSE;
+    end if;
+    blnElem := blnArrConst0[intExpr(1)];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (6)");
+      okay := FALSE;
+    end if;
+    blnElem := blnArrConst0[intExpr(1) mod 7];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (7)");
+      okay := FALSE;
+    end if;
+    blnElem := (blnArr & blnArr)[8];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1522,9 +1662,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for integer array failed. (1)");
       okay := FALSE;
     end if;
-    intElem := (intArr & intArr)[8];
+    intElem := intArrConst[1];
     if intElem <> 1 then
       writeln(" ***** ARRAY [ INDEX ] for integer array failed. (2)");
+      okay := FALSE;
+    end if;
+    intElem := intArrConst[intExpr(1)];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (3)");
+      okay := FALSE;
+    end if;
+    intElem := intArrConst[succ(intExpr(0) mod 7)];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (4)");
+      okay := FALSE;
+    end if;
+    intElem := intArrConst0[1];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (5)");
+      okay := FALSE;
+    end if;
+    intElem := intArrConst0[intExpr(1)];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (6)");
+      okay := FALSE;
+    end if;
+    intElem := intArrConst0[intExpr(1) mod 7];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (7)");
+      okay := FALSE;
+    end if;
+    intElem := (intArr & intArr)[8];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1533,9 +1703,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (1)");
       okay := FALSE;
     end if;
-    bigElem := (bigArr & bigArr)[8];
+    bigElem := bigArrConst[1];
     if bigElem <> 1_ then
       writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (2)");
+      okay := FALSE;
+    end if;
+    bigElem := bigArrConst[intExpr(1)];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (3)");
+      okay := FALSE;
+    end if;
+    bigElem := bigArrConst[succ(intExpr(0) mod 7)];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (4)");
+      okay := FALSE;
+    end if;
+    bigElem := bigArrConst0[1];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (5)");
+      okay := FALSE;
+    end if;
+    bigElem := bigArrConst0[intExpr(1)];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (6)");
+      okay := FALSE;
+    end if;
+    bigElem := bigArrConst0[intExpr(1) mod 7];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (7)");
+      okay := FALSE;
+    end if;
+    bigElem := (bigArr & bigArr)[8];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1544,9 +1744,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for float array failed. (1)");
       okay := FALSE;
     end if;
-    fltElem := (fltArr & fltArr)[8];
+    fltElem := fltArrConst[1];
     if fltElem <> 1.0 then
       writeln(" ***** ARRAY [ INDEX ] for float array failed. (2)");
+      okay := FALSE;
+    end if;
+    fltElem := fltArrConst[intExpr(1)];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (3)");
+      okay := FALSE;
+    end if;
+    fltElem := fltArrConst[succ(intExpr(0) mod 7)];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (4)");
+      okay := FALSE;
+    end if;
+    fltElem := fltArrConst0[1];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (5)");
+      okay := FALSE;
+    end if;
+    fltElem := fltArrConst0[intExpr(1)];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (6)");
+      okay := FALSE;
+    end if;
+    fltElem := fltArrConst0[intExpr(1) mod 7];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (7)");
+      okay := FALSE;
+    end if;
+    fltElem := (fltArr & fltArr)[8];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1557,9 +1787,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for complex array failed. (1)");
       okay := FALSE;
     end if;
-    cpxElem := (cpxArr & cpxArr)[8];
+    cpxElem := cpxArrConst[1];
     if cpxElem <> complex(1.0, 1.0) then
       writeln(" ***** ARRAY [ INDEX ] for complex array failed. (2)");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArrConst[intExpr(1)];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (3)");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArrConst[succ(intExpr(0) mod 7)];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (4)");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArrConst0[1];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (5)");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArrConst0[intExpr(1)];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (6)");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArrConst0[intExpr(1) mod 7];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (7)");
+      okay := FALSE;
+    end if;
+    cpxElem := (cpxArr & cpxArr)[8];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1568,9 +1828,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for char array failed. (1)");
       okay := FALSE;
     end if;
-    chrElem := (chrArr & chrArr)[8];
+    chrElem := chrArrConst[1];
     if chrElem <> 'a' then
       writeln(" ***** ARRAY [ INDEX ] for char array failed. (2)");
+      okay := FALSE;
+    end if;
+    chrElem := chrArrConst[intExpr(1)];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (3)");
+      okay := FALSE;
+    end if;
+    chrElem := chrArrConst[succ(intExpr(0) mod 7)];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (4)");
+      okay := FALSE;
+    end if;
+    chrElem := chrArrConst0[1];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (5)");
+      okay := FALSE;
+    end if;
+    chrElem := chrArrConst0[intExpr(1)];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (6)");
+      okay := FALSE;
+    end if;
+    chrElem := chrArrConst0[intExpr(1) mod 7];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (7)");
+      okay := FALSE;
+    end if;
+    chrElem := (chrArr & chrArr)[8];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1580,9 +1870,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for string array failed. (1)");
       okay := FALSE;
     end if;
-    strElem := (strArr & strArr)[8];
+    strElem := strArrConst[1];
     if strElem <> "one" then
       writeln(" ***** ARRAY [ INDEX ] for string array failed. (2)");
+      okay := FALSE;
+    end if;
+    strElem := strArrConst[intExpr(1)];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (3)");
+      okay := FALSE;
+    end if;
+    strElem := strArrConst[succ(intExpr(0) mod 7)];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (4)");
+      okay := FALSE;
+    end if;
+    strElem := strArrConst0[1];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (5)");
+      okay := FALSE;
+    end if;
+    strElem := strArrConst0[intExpr(1)];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (6)");
+      okay := FALSE;
+    end if;
+    strElem := strArrConst0[intExpr(1) mod 7];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (7)");
+      okay := FALSE;
+    end if;
+    strElem := (strArr & strArr)[8];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -1592,9 +1912,39 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (1)");
       okay := FALSE;
     end if;
-    setElem := (setArr & setArr)[8];
+    setElem := setArrConst[1];
     if setElem <> {1} then
       writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+    setElem := setArrConst[intExpr(1)];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (3)");
+      okay := FALSE;
+    end if;
+    setElem := setArrConst[succ(intExpr(0) mod 7)];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (4)");
+      okay := FALSE;
+    end if;
+    setElem := setArrConst0[1];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (5)");
+      okay := FALSE;
+    end if;
+    setElem := setArrConst0[intExpr(1)];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (6)");
+      okay := FALSE;
+    end if;
+    setElem := setArrConst0[intExpr(1) mod 7];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (7)");
+      okay := FALSE;
+    end if;
+    setElem := (setArr & setArr)[8];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (8)");
       okay := FALSE;
     end if;
 
