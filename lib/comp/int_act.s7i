@@ -2990,11 +2990,17 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
   local
     var string: lshift_name is "";
     var intRange: lshift_range is intRange.value;
+    var boolean: raisesException is FALSE;
     var boolean: doOverflowCheck is FALSE;
   begin
     if check_int_shift_overflow then
       lshift_range := getIntRange(lshift);
-      if lshift_range.minValue >= 0 and
+      if lshift_range.maxValue < 0 or
+          lshift_range.minValue >= ccConf.INTTYPE_SIZE - bitLength(number) then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        raisesException := TRUE;
+      elsif lshift_range.minValue >= 0 and
           lshift_range.maxValue < ccConf.INTTYPE_SIZE - bitLength(number) then
         # This lshift cannot overflow
         countOverflowOptimizations(c_expr);
@@ -3004,31 +3010,33 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
         doOverflowCheck := TRUE;
       end if;
     end if;
-    if doOverflowCheck then
-      c_expr.expr &:= "(";
-      lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(lshift_name,
-          integerLiteral(ccConf.INTTYPE_SIZE - bitLength(number)), c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      if number = 0 then
-        c_expr.expr &:= integerLiteral(0);
-      else
-        c_expr.expr &:= integerLiteral(number);
-        c_expr.expr &:= " << ";
-        c_expr.expr &:= lshift_name;
-      end if;
-      c_expr.expr &:= ")";
-    else
-      if number = 0 then
-        c_expr.expr &:= integerLiteral(0);
-      else
-        c_expr.expr &:= integerLiteral(number);
-        c_expr.expr &:= " << (";
-        process_expr(lshift, c_expr);
+    if not raisesException then
+      if doOverflowCheck then
+        c_expr.expr &:= "(";
+        lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(lshift_name,
+            integerLiteral(ccConf.INTTYPE_SIZE - bitLength(number)), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        if number = 0 then
+          c_expr.expr &:= integerLiteral(0);
+        else
+          c_expr.expr &:= integerLiteral(number);
+          c_expr.expr &:= " << ";
+          c_expr.expr &:= lshift_name;
+        end if;
         c_expr.expr &:= ")";
+      else
+        if number = 0 then
+          c_expr.expr &:= integerLiteral(0);
+        else
+          c_expr.expr &:= integerLiteral(number);
+          c_expr.expr &:= " << (";
+          process_expr(lshift, c_expr);
+          c_expr.expr &:= ")";
+        end if;
       end if;
     end if;
   end func;
@@ -3052,7 +3060,15 @@ const proc: process (INT_LSHIFT, in reference: function,
     elsif check_int_shift_overflow then
       number_range := getIntRange(params[1]);
       lshift_range := getIntRange(params[3]);
-      if lshift_range.maxValue >= 0 and
+      if lshift_range.maxValue < 0 or
+          lshift_range.minValue >= ccConf.INTTYPE_SIZE or
+          (lshift_range.minValue >= 0 and
+	   lshift_range.minValue < ccConf.INTTYPE_SIZE and
+           (integer.first >> lshift_range.minValue > number_range.maxValue or
+            integer.last >> lshift_range.minValue < number_range.minValue)) then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      elsif lshift_range.maxValue >= 0 and
           lshift_range.maxValue < ccConf.INTTYPE_SIZE and
           integer.first >> lshift_range.maxValue <= number_range.minValue and
           integer.last >> lshift_range.maxValue >= number_range.maxValue then
