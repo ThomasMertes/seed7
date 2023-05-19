@@ -4517,119 +4517,431 @@ const proc: check_lShift is func
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(-16111 << integer.first) or
-        not raisesOverflowError(-16111 <<          -999) or
-        not raisesOverflowError(-16111 <<           -63) or
-        not raisesOverflowError(-16111 <<            -1) or
-        not raisesOverflowError(-16111 <<            64) or
-        not raisesOverflowError(-16111 <<           999) or
-        not raisesOverflowError(-16111 <<  integer.last) or
-        not raisesOverflowError(    -1 << integer.first) or
-        not raisesOverflowError(    -1 <<          -999) or
-        not raisesOverflowError(    -1 <<           -63) or
-        not raisesOverflowError(    -1 <<            -1) or
-        not raisesOverflowError(    -1 <<            64) or
-        not raisesOverflowError(    -1 <<           999) or
-        not raisesOverflowError(    -1 <<  integer.last) or
-        not raisesOverflowError(     0 << integer.first) or
-        not raisesOverflowError(     0 <<          -999) or
-        not raisesOverflowError(     0 <<           -63) or
-        not raisesOverflowError(     0 <<            -1) or
-        not raisesOverflowError(     0 <<            64) or
-        not raisesOverflowError(     0 <<           999) or
-        not raisesOverflowError(     0 <<  integer.last) or
-        not raisesOverflowError( 16111 << integer.first) or
-        not raisesOverflowError( 16111 <<          -999) or
-        not raisesOverflowError( 16111 <<           -63) or
-        not raisesOverflowError( 16111 <<            -1) or
-        not raisesOverflowError( 16111 <<            64) or
-        not raisesOverflowError( 16111 <<           999) or
-        not raisesOverflowError( 16111 <<  integer.last) or
-        not raisesOverflowError(intExpr(-16111) << integer.first) or
-        not raisesOverflowError(intExpr(-16111) <<          -999) or
-        not raisesOverflowError(intExpr(-16111) <<           -63) or
-        not raisesOverflowError(intExpr(-16111) <<            -1) or
-        not raisesOverflowError(intExpr(-16111) <<            64) or
-        not raisesOverflowError(intExpr(-16111) <<           999) or
-        not raisesOverflowError(intExpr(-16111) <<  integer.last) or
-        not raisesOverflowError(intExpr(    -1) << integer.first) or
-        not raisesOverflowError(intExpr(    -1) <<          -999) or
-        not raisesOverflowError(intExpr(    -1) <<           -63) or
-        not raisesOverflowError(intExpr(    -1) <<            -1) or
-        not raisesOverflowError(intExpr(    -1) <<            64) or
-        not raisesOverflowError(intExpr(    -1) <<           999) or
-        not raisesOverflowError(intExpr(    -1) <<  integer.last) or
-        not raisesOverflowError(intExpr(     0) << integer.first) or
-        not raisesOverflowError(intExpr(     0) <<          -999) or
-        not raisesOverflowError(intExpr(     0) <<           -63) or
-        not raisesOverflowError(intExpr(     0) <<            -1) or
-        not raisesOverflowError(intExpr(     0) <<            64) or
-        not raisesOverflowError(intExpr(     0) <<           999) or
-        not raisesOverflowError(intExpr(     0) <<  integer.last) or
-        not raisesOverflowError(intExpr( 16111) << integer.first) or
-        not raisesOverflowError(intExpr( 16111) <<          -999) or
-        not raisesOverflowError(intExpr( 16111) <<           -63) or
-        not raisesOverflowError(intExpr( 16111) <<            -1) or
-        not raisesOverflowError(intExpr( 16111) <<            64) or
-        not raisesOverflowError(intExpr( 16111) <<           999) or
-        not raisesOverflowError(intExpr( 16111) <<  integer.last) or
-        not raisesOverflowError(-16111 << intExpr(integer.first)) or
-        not raisesOverflowError(-16111 << intExpr(         -999)) or
-        not raisesOverflowError(-16111 << intExpr(          -63)) or
-        not raisesOverflowError(-16111 << intExpr(           -1)) or
-        not raisesOverflowError(-16111 << intExpr(           64)) or
-        not raisesOverflowError(-16111 << intExpr(          999)) or
-        not raisesOverflowError(-16111 << intExpr( integer.last)) or
-        not raisesOverflowError(    -1 << intExpr(integer.first)) or
-        not raisesOverflowError(    -1 << intExpr(         -999)) or
-        not raisesOverflowError(    -1 << intExpr(          -63)) or
-        not raisesOverflowError(    -1 << intExpr(           -1)) or
-        not raisesOverflowError(    -1 << intExpr(           64)) or
-        not raisesOverflowError(    -1 << intExpr(          999)) or
-        not raisesOverflowError(    -1 << intExpr( integer.last)) or
-        not raisesOverflowError(     0 << intExpr(integer.first)) or
-        not raisesOverflowError(     0 << intExpr(         -999)) or
-        not raisesOverflowError(     0 << intExpr(          -63)) or
-        not raisesOverflowError(     0 << intExpr(           -1)) or
-        not raisesOverflowError(     0 << intExpr(           64)) or
-        not raisesOverflowError(     0 << intExpr(          999)) or
-        not raisesOverflowError(     0 << intExpr( integer.last)) or
-        not raisesOverflowError( 16111 << intExpr(integer.first)) or
-        not raisesOverflowError( 16111 << intExpr(         -999)) or
-        not raisesOverflowError( 16111 << intExpr(          -63)) or
-        not raisesOverflowError( 16111 << intExpr(           -1)) or
-        not raisesOverflowError( 16111 << intExpr(           64)) or
-        not raisesOverflowError( 16111 << intExpr(          999)) or
-        not raisesOverflowError( 16111 << intExpr( integer.last)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(integer.first)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(         -999)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(          -63)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(           -1)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(           64)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(          999)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr( integer.last)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(integer.first)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(         -999)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(          -63)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(           -1)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(           64)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(          999)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr( integer.last)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(integer.first)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(         -999)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(          -63)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(           -1)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(           64)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(          999)) or
-        not raisesOverflowError(intExpr(     0) << intExpr( integer.last)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(integer.first)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(         -999)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(          -63)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(           -1)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(           64)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(          999)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr( integer.last)) then
-      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR.");
+    if  not raisesOverflowError(           INT64_MIN << (abs(intExpr(0)) +  1)) or
+        not raisesOverflowError(-4611686018427387905 << (abs(intExpr(0)) +  1)) or
+        not raisesOverflowError(-4611686018427387904 << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError(-2305843009213693953 << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError(-2305843009213693952 << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError(-1152921504606846977 << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError( -576460752303423489 << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError( -576460752303423488 << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError( -288230376151711745 << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError( -288230376151711744 << (abs(intExpr(0)) +  6)) or
+        not raisesOverflowError(   -9007199254740993 << (abs(intExpr(0)) + 10)) or
+        not raisesOverflowError(   -9007199254740992 << (abs(intExpr(0)) + 11)) or
+        not raisesOverflowError(    -281474976710657 << (abs(intExpr(0)) + 15)) or
+        not raisesOverflowError(    -281474976710656 << (abs(intExpr(0)) + 16)) or
+        not raisesOverflowError(      -8796093022209 << (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError(      -8796093022208 << (abs(intExpr(0)) + 21)) or
+        not raisesOverflowError(       -274877906945 << (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError(       -274877906944 << (abs(intExpr(0)) + 26)) or
+        not raisesOverflowError(         -8589934593 << (abs(intExpr(0)) + 30)) or
+        not raisesOverflowError(         -8589934592 << (abs(intExpr(0)) + 31)) or
+        not raisesOverflowError(          -268435457 << (abs(intExpr(0)) + 35)) or
+        not raisesOverflowError(          -268435456 << (abs(intExpr(0)) + 36)) or
+        not raisesOverflowError(            -8388609 << (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError(            -8388608 << (abs(intExpr(0)) + 41)) or
+        not raisesOverflowError(             -262145 << (abs(intExpr(0)) + 45)) or
+        not raisesOverflowError(             -262144 << (abs(intExpr(0)) + 46)) or
+        not raisesOverflowError(               -8193 << (abs(intExpr(0)) + 50)) or
+        not raisesOverflowError(               -8192 << (abs(intExpr(0)) + 51)) or
+        not raisesOverflowError(                -257 << (abs(intExpr(0)) + 55)) or
+        not raisesOverflowError(                -256 << (abs(intExpr(0)) + 56)) or
+        not raisesOverflowError(                  -9 << (abs(intExpr(0)) + 60)) or
+        not raisesOverflowError(                  -8 << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(                  -5 << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(                  -4 << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(                  -3 << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(                  -2 << (abs(intExpr(0)) + 63)) or
+        not raisesOverflowError(                   1 << (abs(intExpr(0)) + 63)) or
+        not raisesOverflowError(                   2 << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(                   3 << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(                   4 << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(                   7 << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(                   8 << (abs(intExpr(0)) + 60)) or
+        not raisesOverflowError(                 255 << (abs(intExpr(0)) + 56)) or
+        not raisesOverflowError(                 256 << (abs(intExpr(0)) + 55)) or
+        not raisesOverflowError(                8191 << (abs(intExpr(0)) + 51)) or
+        not raisesOverflowError(                8192 << (abs(intExpr(0)) + 50)) or
+        not raisesOverflowError(              262143 << (abs(intExpr(0)) + 46)) or
+        not raisesOverflowError(              262144 << (abs(intExpr(0)) + 45)) or
+        not raisesOverflowError(             8388607 << (abs(intExpr(0)) + 41)) or
+        not raisesOverflowError(             8388608 << (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError(           268435455 << (abs(intExpr(0)) + 36)) or
+        not raisesOverflowError(           268435456 << (abs(intExpr(0)) + 35)) or
+        not raisesOverflowError(          8589934591 << (abs(intExpr(0)) + 31)) or
+        not raisesOverflowError(          8589934592 << (abs(intExpr(0)) + 30)) or
+        not raisesOverflowError(        274877906943 << (abs(intExpr(0)) + 26)) or
+        not raisesOverflowError(        274877906944 << (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError(       8796093022207 << (abs(intExpr(0)) + 21)) or
+        not raisesOverflowError(       8796093022208 << (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError(     281474976710655 << (abs(intExpr(0)) + 16)) or
+        not raisesOverflowError(     281474976710656 << (abs(intExpr(0)) + 15)) or
+        not raisesOverflowError(    9007199254740991 << (abs(intExpr(0)) + 11)) or
+        not raisesOverflowError(    9007199254740992 << (abs(intExpr(0)) + 10)) or
+        not raisesOverflowError(  288230376151711743 << (abs(intExpr(0)) +  6)) or
+        not raisesOverflowError(  288230376151711744 << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError(  576460752303423487 << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError(  576460752303423488 << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError( 1152921504606846975 << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError( 1152921504606846976 << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError( 2305843009213693951 << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError( 2305843009213693952 << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError( 4611686018427387903 << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError( 4611686018427387904 << (abs(intExpr(0)) +  1)) then
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((-abs(intExpr(0)) +           INT64_MIN) << (abs(intExpr(0)) +  1)) or
+        not raisesOverflowError((-abs(intExpr(0)) - 4611686018427387905) << (abs(intExpr(0)) +  1)) or
+        not raisesOverflowError((-abs(intExpr(0)) - 4611686018427387904) << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError((-abs(intExpr(0)) - 2305843009213693953) << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError((-abs(intExpr(0)) - 2305843009213693952) << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError((-abs(intExpr(0)) - 1152921504606846977) << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError((-abs(intExpr(0)) -  576460752303423489) << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError((-abs(intExpr(0)) -  576460752303423488) << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError((-abs(intExpr(0)) -  288230376151711745) << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError((-abs(intExpr(0)) -  288230376151711744) << (abs(intExpr(0)) +  6)) or
+        not raisesOverflowError((-abs(intExpr(0)) -    9007199254740993) << (abs(intExpr(0)) + 10)) or
+        not raisesOverflowError((-abs(intExpr(0)) -    9007199254740992) << (abs(intExpr(0)) + 11)) or
+        not raisesOverflowError((-abs(intExpr(0)) -     281474976710657) << (abs(intExpr(0)) + 15)) or
+        not raisesOverflowError((-abs(intExpr(0)) -     281474976710656) << (abs(intExpr(0)) + 16)) or
+        not raisesOverflowError((-abs(intExpr(0)) -       8796093022209) << (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError((-abs(intExpr(0)) -       8796093022208) << (abs(intExpr(0)) + 21)) or
+        not raisesOverflowError((-abs(intExpr(0)) -        274877906945) << (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError((-abs(intExpr(0)) -        274877906944) << (abs(intExpr(0)) + 26)) or
+        not raisesOverflowError((-abs(intExpr(0)) -          8589934593) << (abs(intExpr(0)) + 30)) or
+        not raisesOverflowError((-abs(intExpr(0)) -          8589934592) << (abs(intExpr(0)) + 31)) or
+        not raisesOverflowError((-abs(intExpr(0)) -           268435457) << (abs(intExpr(0)) + 35)) or
+        not raisesOverflowError((-abs(intExpr(0)) -           268435456) << (abs(intExpr(0)) + 36)) or
+        not raisesOverflowError((-abs(intExpr(0)) -             8388609) << (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError((-abs(intExpr(0)) -             8388608) << (abs(intExpr(0)) + 41)) or
+        not raisesOverflowError((-abs(intExpr(0)) -              262145) << (abs(intExpr(0)) + 45)) or
+        not raisesOverflowError((-abs(intExpr(0)) -              262144) << (abs(intExpr(0)) + 46)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                8193) << (abs(intExpr(0)) + 50)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                8192) << (abs(intExpr(0)) + 51)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                 257) << (abs(intExpr(0)) + 55)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                 256) << (abs(intExpr(0)) + 56)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   9) << (abs(intExpr(0)) + 60)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   8) << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   5) << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   4) << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   3) << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError((-abs(intExpr(0)) -                   2) << (abs(intExpr(0)) + 63)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   1) << (abs(intExpr(0)) + 63)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   2) << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   3) << (abs(intExpr(0)) + 62)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   4) << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   7) << (abs(intExpr(0)) + 61)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                   8) << (abs(intExpr(0)) + 60)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                 255) << (abs(intExpr(0)) + 56)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                 256) << (abs(intExpr(0)) + 55)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                8191) << (abs(intExpr(0)) + 51)) or
+        not raisesOverflowError(( abs(intExpr(0)) +                8192) << (abs(intExpr(0)) + 50)) or
+        not raisesOverflowError(( abs(intExpr(0)) +              262143) << (abs(intExpr(0)) + 46)) or
+        not raisesOverflowError(( abs(intExpr(0)) +              262144) << (abs(intExpr(0)) + 45)) or
+        not raisesOverflowError(( abs(intExpr(0)) +             8388607) << (abs(intExpr(0)) + 41)) or
+        not raisesOverflowError(( abs(intExpr(0)) +             8388608) << (abs(intExpr(0)) + 40)) or
+        not raisesOverflowError(( abs(intExpr(0)) +           268435455) << (abs(intExpr(0)) + 36)) or
+        not raisesOverflowError(( abs(intExpr(0)) +           268435456) << (abs(intExpr(0)) + 35)) or
+        not raisesOverflowError(( abs(intExpr(0)) +          8589934591) << (abs(intExpr(0)) + 31)) or
+        not raisesOverflowError(( abs(intExpr(0)) +          8589934592) << (abs(intExpr(0)) + 30)) or
+        not raisesOverflowError(( abs(intExpr(0)) +        274877906943) << (abs(intExpr(0)) + 26)) or
+        not raisesOverflowError(( abs(intExpr(0)) +        274877906944) << (abs(intExpr(0)) + 25)) or
+        not raisesOverflowError(( abs(intExpr(0)) +       8796093022207) << (abs(intExpr(0)) + 21)) or
+        not raisesOverflowError(( abs(intExpr(0)) +       8796093022208) << (abs(intExpr(0)) + 20)) or
+        not raisesOverflowError(( abs(intExpr(0)) +     281474976710655) << (abs(intExpr(0)) + 16)) or
+        not raisesOverflowError(( abs(intExpr(0)) +     281474976710656) << (abs(intExpr(0)) + 15)) or
+        not raisesOverflowError(( abs(intExpr(0)) +    9007199254740991) << (abs(intExpr(0)) + 11)) or
+        not raisesOverflowError(( abs(intExpr(0)) +    9007199254740992) << (abs(intExpr(0)) + 10)) or
+        not raisesOverflowError(( abs(intExpr(0)) +  288230376151711743) << (abs(intExpr(0)) +  6)) or
+        not raisesOverflowError(( abs(intExpr(0)) +  288230376151711744) << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError(( abs(intExpr(0)) +  576460752303423487) << (abs(intExpr(0)) +  5)) or
+        not raisesOverflowError(( abs(intExpr(0)) +  576460752303423488) << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 1152921504606846975) << (abs(intExpr(0)) +  4)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 1152921504606846976) << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 2305843009213693951) << (abs(intExpr(0)) +  3)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 2305843009213693952) << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 4611686018427387903) << (abs(intExpr(0)) +  2)) or
+        not raisesOverflowError(( abs(intExpr(0)) + 4611686018427387904) << (abs(intExpr(0)) +  1)) then
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(integer.first << integer.first) or
+        not raisesOverflowError(integer.first <<          -999) or
+        not raisesOverflowError(integer.first <<           -63) or
+        not raisesOverflowError(integer.first <<            -1) or
+        not raisesOverflowError(integer.first <<            64) or
+        not raisesOverflowError(integer.first <<           999) or
+        not raisesOverflowError(integer.first <<  integer.last) or
+        not raisesOverflowError(       -16111 << integer.first) or
+        not raisesOverflowError(       -16111 <<          -999) or
+        not raisesOverflowError(       -16111 <<           -63) or
+        not raisesOverflowError(       -16111 <<            -1) or
+        not raisesOverflowError(       -16111 <<            64) or
+        not raisesOverflowError(       -16111 <<           999) or
+        not raisesOverflowError(       -16111 <<  integer.last) or
+        not raisesOverflowError(           -1 << integer.first) or
+        not raisesOverflowError(           -1 <<          -999) or
+        not raisesOverflowError(           -1 <<           -63) or
+        not raisesOverflowError(           -1 <<            -1) or
+        not raisesOverflowError(           -1 <<            64) or
+        not raisesOverflowError(           -1 <<           999) or
+        not raisesOverflowError(           -1 <<  integer.last) or
+        not raisesOverflowError(            0 << integer.first) or
+        not raisesOverflowError(            0 <<          -999) or
+        not raisesOverflowError(            0 <<           -63) or
+        not raisesOverflowError(            0 <<            -1) or
+        not raisesOverflowError(            0 <<            64) or
+        not raisesOverflowError(            0 <<           999) or
+        not raisesOverflowError(            0 <<  integer.last) or
+        not raisesOverflowError(        16111 << integer.first) or
+        not raisesOverflowError(        16111 <<          -999) or
+        not raisesOverflowError(        16111 <<           -63) or
+        not raisesOverflowError(        16111 <<            -1) or
+        not raisesOverflowError(        16111 <<            64) or
+        not raisesOverflowError(        16111 <<           999) or
+        not raisesOverflowError(        16111 <<  integer.last) or
+        not raisesOverflowError( integer.last << integer.first) or
+        not raisesOverflowError( integer.last <<          -999) or
+        not raisesOverflowError( integer.last <<           -63) or
+        not raisesOverflowError( integer.last <<            -1) or
+        not raisesOverflowError( integer.last <<            64) or
+        not raisesOverflowError( integer.last <<           999) or
+        not raisesOverflowError( integer.last <<  integer.last) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(integer.first) << integer.first) or
+        not raisesOverflowError(intExpr(integer.first) <<          -999) or
+        not raisesOverflowError(intExpr(integer.first) <<           -63) or
+        not raisesOverflowError(intExpr(integer.first) <<            -1) or
+        not raisesOverflowError(intExpr(integer.first) <<            64) or
+        not raisesOverflowError(intExpr(integer.first) <<           999) or
+        not raisesOverflowError(intExpr(integer.first) <<  integer.last) or
+        not raisesOverflowError(intExpr(       -16111) << integer.first) or
+        not raisesOverflowError(intExpr(       -16111) <<          -999) or
+        not raisesOverflowError(intExpr(       -16111) <<           -63) or
+        not raisesOverflowError(intExpr(       -16111) <<            -1) or
+        not raisesOverflowError(intExpr(       -16111) <<            64) or
+        not raisesOverflowError(intExpr(       -16111) <<           999) or
+        not raisesOverflowError(intExpr(       -16111) <<  integer.last) or
+        not raisesOverflowError(intExpr(           -1) << integer.first) or
+        not raisesOverflowError(intExpr(           -1) <<          -999) or
+        not raisesOverflowError(intExpr(           -1) <<           -63) or
+        not raisesOverflowError(intExpr(           -1) <<            -1) or
+        not raisesOverflowError(intExpr(           -1) <<            64) or
+        not raisesOverflowError(intExpr(           -1) <<           999) or
+        not raisesOverflowError(intExpr(           -1) <<  integer.last) or
+        not raisesOverflowError(intExpr(            0) << integer.first) or
+        not raisesOverflowError(intExpr(            0) <<          -999) or
+        not raisesOverflowError(intExpr(            0) <<           -63) or
+        not raisesOverflowError(intExpr(            0) <<            -1) or
+        not raisesOverflowError(intExpr(            0) <<            64) or
+        not raisesOverflowError(intExpr(            0) <<           999) or
+        not raisesOverflowError(intExpr(            0) <<  integer.last) or
+        not raisesOverflowError(intExpr(        16111) << integer.first) or
+        not raisesOverflowError(intExpr(        16111) <<          -999) or
+        not raisesOverflowError(intExpr(        16111) <<           -63) or
+        not raisesOverflowError(intExpr(        16111) <<            -1) or
+        not raisesOverflowError(intExpr(        16111) <<            64) or
+        not raisesOverflowError(intExpr(        16111) <<           999) or
+        not raisesOverflowError(intExpr(        16111) <<  integer.last) or
+        not raisesOverflowError(intExpr( integer.last) << integer.first) or
+        not raisesOverflowError(intExpr( integer.last) <<          -999) or
+        not raisesOverflowError(intExpr( integer.last) <<           -63) or
+        not raisesOverflowError(intExpr( integer.last) <<            -1) or
+        not raisesOverflowError(intExpr( integer.last) <<            64) or
+        not raisesOverflowError(intExpr( integer.last) <<           999) or
+        not raisesOverflowError(intExpr( integer.last) <<  integer.last) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(integer.first << intExpr(integer.first)) or
+        not raisesOverflowError(integer.first << intExpr(         -999)) or
+        not raisesOverflowError(integer.first << intExpr(          -63)) or
+        not raisesOverflowError(integer.first << intExpr(           -1)) or
+        not raisesOverflowError(integer.first << intExpr(           64)) or
+        not raisesOverflowError(integer.first << intExpr(          999)) or
+        not raisesOverflowError(integer.first << intExpr( integer.last)) or
+        not raisesOverflowError(       -16111 << intExpr(integer.first)) or
+        not raisesOverflowError(       -16111 << intExpr(         -999)) or
+        not raisesOverflowError(       -16111 << intExpr(          -63)) or
+        not raisesOverflowError(       -16111 << intExpr(           -1)) or
+        not raisesOverflowError(       -16111 << intExpr(           64)) or
+        not raisesOverflowError(       -16111 << intExpr(          999)) or
+        not raisesOverflowError(       -16111 << intExpr( integer.last)) or
+        not raisesOverflowError(           -1 << intExpr(integer.first)) or
+        not raisesOverflowError(           -1 << intExpr(         -999)) or
+        not raisesOverflowError(           -1 << intExpr(          -63)) or
+        not raisesOverflowError(           -1 << intExpr(           -1)) or
+        not raisesOverflowError(           -1 << intExpr(           64)) or
+        not raisesOverflowError(           -1 << intExpr(          999)) or
+        not raisesOverflowError(           -1 << intExpr( integer.last)) or
+        not raisesOverflowError(            0 << intExpr(integer.first)) or
+        not raisesOverflowError(            0 << intExpr(         -999)) or
+        not raisesOverflowError(            0 << intExpr(          -63)) or
+        not raisesOverflowError(            0 << intExpr(           -1)) or
+        not raisesOverflowError(            0 << intExpr(           64)) or
+        not raisesOverflowError(            0 << intExpr(          999)) or
+        not raisesOverflowError(            0 << intExpr( integer.last)) or
+        not raisesOverflowError(        16111 << intExpr(integer.first)) or
+        not raisesOverflowError(        16111 << intExpr(         -999)) or
+        not raisesOverflowError(        16111 << intExpr(          -63)) or
+        not raisesOverflowError(        16111 << intExpr(           -1)) or
+        not raisesOverflowError(        16111 << intExpr(           64)) or
+        not raisesOverflowError(        16111 << intExpr(          999)) or
+        not raisesOverflowError(        16111 << intExpr( integer.last)) or
+        not raisesOverflowError( integer.last << intExpr(integer.first)) or
+        not raisesOverflowError( integer.last << intExpr(         -999)) or
+        not raisesOverflowError( integer.last << intExpr(          -63)) or
+        not raisesOverflowError( integer.last << intExpr(           -1)) or
+        not raisesOverflowError( integer.last << intExpr(           64)) or
+        not raisesOverflowError( integer.last << intExpr(          999)) or
+        not raisesOverflowError( integer.last << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(integer.first) << integer.first) or
+        not raisesOverflowError(intExpr(integer.first) <<          -999) or
+        not raisesOverflowError(intExpr(integer.first) <<           -63) or
+        not raisesOverflowError(intExpr(integer.first) <<            -1) or
+        not raisesOverflowError(intExpr(integer.first) <<            64) or
+        not raisesOverflowError(intExpr(integer.first) <<           999) or
+        not raisesOverflowError(intExpr(integer.first) <<  integer.last) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(       -16111) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(       -16111) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(           -1) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(            0) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(            0) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(        16111) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(           64)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr(          999)) or
+        not raisesOverflowError(intExpr( integer.last) << intExpr( integer.last)) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(integer.first << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(integer.first << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(integer.first << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(integer.first << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(integer.first << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(integer.first << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(integer.first << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(       -16111 << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(       -16111 << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(       -16111 << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(       -16111 << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(       -16111 << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(       -16111 << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(       -16111 << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(           -1 << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(           -1 << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(           -1 << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(           -1 << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(           -1 << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(           -1 << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(           -1 << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(            0 << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(            0 << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(            0 << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(            0 << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(            0 << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(            0 << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(            0 << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(        16111 << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(        16111 << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(        16111 << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(        16111 << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(        16111 << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(        16111 << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(        16111 << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError( integer.last << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError( integer.last << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError( integer.last << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError( integer.last << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError( integer.last << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError( integer.last << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError( integer.last << ( abs(intExpr(0)) +  integer.last)) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(integer.first) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr(integer.first) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr(integer.first) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr(integer.first) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr(integer.first) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr(integer.first) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr(integer.first) << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(intExpr(       -16111) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr(       -16111) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr(       -16111) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr(       -16111) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr(       -16111) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr(       -16111) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr(       -16111) << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(intExpr(           -1) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr(           -1) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr(           -1) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr(           -1) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr(           -1) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr(           -1) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr(           -1) << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(intExpr(            0) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr(            0) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr(            0) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr(            0) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr(            0) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr(            0) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr(            0) << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(intExpr(        16111) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr(        16111) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr(        16111) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr(        16111) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr(        16111) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr(        16111) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr(        16111) << ( abs(intExpr(0)) +  integer.last)) or
+        not raisesOverflowError(intExpr( integer.last) << (-abs(intExpr(0)) + integer.first)) or
+        not raisesOverflowError(intExpr( integer.last) << (-abs(intExpr(0)) -           999)) or
+        not raisesOverflowError(intExpr( integer.last) << (-abs(intExpr(0)) -            63)) or
+        not raisesOverflowError(intExpr( integer.last) << (-abs(intExpr(0)) -             1)) or
+        not raisesOverflowError(intExpr( integer.last) << ( abs(intExpr(0)) +            64)) or
+        not raisesOverflowError(intExpr( integer.last) << ( abs(intExpr(0)) +           999)) or
+        not raisesOverflowError(intExpr( integer.last) << ( abs(intExpr(0)) +  integer.last)) then
+      writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR. (6)");
       okay := FALSE;
     end if;
 
