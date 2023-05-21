@@ -2819,6 +2819,42 @@ const proc: chkBigOrdWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  ord((succ(           aBig1 ) +            aBig2 ) mod powTwo63) <> 8627571869159844640 or
+        ord((succ(           aBig1 ) + bigintExpr(aBig2)) mod powTwo63) <> 8627571869159844640 or
+        ord((succ(bigintExpr(aBig1)) +            aBig2 ) mod powTwo63) <> 8627571869159844640 or
+        ord((succ(bigintExpr(aBig1)) + bigintExpr(aBig2)) mod powTwo63) <> 8627571869159844640 or
+        ord((succ(           aBig3 ) +            aBig4 ) mod powTwo63) <> 5952930094622677334 or
+        ord((succ(           aBig3 ) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677334 or
+        ord((succ(bigintExpr(aBig3)) +            aBig4 ) mod powTwo63) <> 5952930094622677334 or
+        ord((succ(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677334 then
+      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ord((pred(           aBig1 ) +            aBig2 ) mod powTwo63) <> 8627571869159844638 or
+        ord((pred(           aBig1 ) + bigintExpr(aBig2)) mod powTwo63) <> 8627571869159844638 or
+        ord((pred(bigintExpr(aBig1)) +            aBig2 ) mod powTwo63) <> 8627571869159844638 or
+        ord((pred(bigintExpr(aBig1)) + bigintExpr(aBig2)) mod powTwo63) <> 8627571869159844638 or
+        ord((pred(           aBig3 ) +            aBig4 ) mod powTwo63) <> 5952930094622677332 or
+        ord((pred(           aBig3 ) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677332 or
+        ord((pred(bigintExpr(aBig3)) +            aBig4 ) mod powTwo63) <> 5952930094622677332 or
+        ord((pred(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677332 then
+      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ord((           aBig1  -            aBig3 ) mod powTwo63) <> 9030514144754764245 or
+        ord((           aBig1  - bigintExpr(aBig3)) mod powTwo63) <> 9030514144754764245 or
+        ord((bigintExpr(aBig1) -            aBig3 ) mod powTwo63) <> 9030514144754764245 or
+        ord((bigintExpr(aBig1) - bigintExpr(aBig3)) mod powTwo63) <> 9030514144754764245 or
+        ord((           aBig2  -            aBig4 ) mod powTwo63) <> 2867499666637178869 or
+        ord((           aBig2  - bigintExpr(aBig4)) mod powTwo63) <> 2867499666637178869 or
+        ord((bigintExpr(aBig2) -            aBig4 ) mod powTwo63) <> 2867499666637178869 or
+        ord((bigintExpr(aBig2) - bigintExpr(aBig4)) mod powTwo63) <> 2867499666637178869 then
+      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  ord((bigInteger(        aPositive1 ) + bigInteger(        aPositive2 )) mod powTwo63) <> 8627571869159844639 or
         ord((bigInteger(        aPositive1 ) + bigInteger(intExpr(aPositive2))) mod powTwo63) <> 8627571869159844639 or
         ord((bigInteger(intExpr(aPositive1)) + bigInteger(        aPositive2 )) mod powTwo63) <> 8627571869159844639 or
@@ -2888,6 +2924,42 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigintExpr(aBig3) +            aBig4 ) mod powTwo60) <> 188322571588442453 or
         ord((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442453 then
       writeln(" ***** ord((aBigInt1 + aBigInt2) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ord((succ(           aBig1 ) +            aBig2 ) mod powTwo60) <> 557121336911915808 or
+        ord((succ(           aBig1 ) + bigintExpr(aBig2)) mod powTwo60) <> 557121336911915808 or
+        ord((succ(bigintExpr(aBig1)) +            aBig2 ) mod powTwo60) <> 557121336911915808 or
+        ord((succ(bigintExpr(aBig1)) + bigintExpr(aBig2)) mod powTwo60) <> 557121336911915808 or
+        ord((succ(           aBig3 ) +            aBig4 ) mod powTwo60) <> 188322571588442454 or
+        ord((succ(           aBig3 ) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442454 or
+        ord((succ(bigintExpr(aBig3)) +            aBig4 ) mod powTwo60) <> 188322571588442454 or
+        ord((succ(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442454 then
+      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ord((pred(           aBig1 ) +            aBig2 ) mod powTwo60) <> 557121336911915806 or
+        ord((pred(           aBig1 ) + bigintExpr(aBig2)) mod powTwo60) <> 557121336911915806 or
+        ord((pred(bigintExpr(aBig1)) +            aBig2 ) mod powTwo60) <> 557121336911915806 or
+        ord((pred(bigintExpr(aBig1)) + bigintExpr(aBig2)) mod powTwo60) <> 557121336911915806 or
+        ord((pred(           aBig3 ) +            aBig4 ) mod powTwo60) <> 188322571588442452 or
+        ord((pred(           aBig3 ) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442452 or
+        ord((pred(bigintExpr(aBig3)) +            aBig4 ) mod powTwo60) <> 188322571588442452 or
+        ord((pred(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442452 then
+      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ord((           aBig1  -            aBig3 ) mod powTwo60) <> 960063612506835413 or
+        ord((           aBig1  - bigintExpr(aBig3)) mod powTwo60) <> 960063612506835413 or
+        ord((bigintExpr(aBig1) -            aBig3 ) mod powTwo60) <> 960063612506835413 or
+        ord((bigintExpr(aBig1) - bigintExpr(aBig3)) mod powTwo60) <> 960063612506835413 or
+        ord((           aBig2  -            aBig4 ) mod powTwo60) <> 561656657423484917 or
+        ord((           aBig2  - bigintExpr(aBig4)) mod powTwo60) <> 561656657423484917 or
+        ord((bigintExpr(aBig2) -            aBig4 ) mod powTwo60) <> 561656657423484917 or
+        ord((bigintExpr(aBig2) - bigintExpr(aBig4)) mod powTwo60) <> 561656657423484917 then
+      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correct.");
       okay := FALSE;
     end if;
 
