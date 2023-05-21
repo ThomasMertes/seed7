@@ -1569,6 +1569,149 @@ const proc: testPush is func
   end func;
 
 
+const proc: testLength is func
+  local
+    var boolean: okay is TRUE;
+    const array boolean: blnArrConst is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
+    const array integer: intArrConst is [] (1, 2, 3, 4, 5, 6, 7);
+    const array bigInteger: bigArrConst is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
+    const array float: fltArrConst is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    const array complex: cpxArrConst is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    const array char: chrArrConst is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    const array string: strArrConst is [] ("one", "two", "three", "four", "five", "six", "seven");
+    const array bitset: setArrConst is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    const array boolean: blnArrConst0 is [0] (FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE);
+    const array integer: intArrConst0 is [0] (0, 1, 2, 3, 4, 5, 6);
+    const array bigInteger: bigArrConst0 is [0] (0_, 1_, 2_, 3_, 4_, 5_, 6_);
+    const array float: fltArrConst0 is [0] (0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    const array complex: cpxArrConst0 is [0] (complex(0.0, 0.0), complex(1.0, 1.0), complex(2.0, 2.0),
+        complex(3.0, 3.0), complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0));
+    const array char: chrArrConst0 is [0] ('@', 'a', 'b', 'c', 'd', 'e', 'f');
+    const array string: strArrConst0 is [0] ("zero", "one", "two", "three", "four", "five", "six");
+    const array bitset: setArrConst0 is [0] ({0}, {1}, {2}, {3}, {4}, {5}, {6});
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
+    var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array boolean: blnArr0 is [0] (FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE);
+    var array integer: intArr0 is [0] (0, 1, 2, 3, 4, 5, 6);
+    var array bigInteger: bigArr0 is [0] (0_, 1_, 2_, 3_, 4_, 5_, 6_);
+    var array float: fltArr0 is [0] (0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    var array complex: cpxArr0 is [0] (complex(0.0, 0.0), complex(1.0, 1.0), complex(2.0, 2.0),
+        complex(3.0, 3.0), complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0));
+    var array char: chrArr0 is [0] ('@', 'a', 'b', 'c', 'd', 'e', 'f');
+    var array string: strArr0 is [0] ("zero", "one", "two", "three", "four", "five", "six");
+    var array bitset: setArr0 is [0] ({0}, {1}, {2}, {3}, {4}, {5}, {6});
+  begin
+    if length(blnArrConst) <> 7 or length(blnArrConst0) <> 7 or
+        length(blnArr) <> 7 or length(blnArr0) <> 7 then
+      writeln(" ***** Length of boolean array failed.");
+      okay := FALSE;
+    end if;
+    if length(intArrConst) <> 7 or length(intArrConst0) <> 7 or
+        length(intArr) <> 7 or length(intArr0) <> 7 then
+      writeln(" ***** Length of integer array failed.");
+      okay := FALSE;
+    end if;
+    if length(bigArrConst) <> 7 or length(bigArrConst0) <> 7 or
+        length(bigArr) <> 7 or length(bigArr0) <> 7 then
+      writeln(" ***** Length of bigInteger array failed.");
+      okay := FALSE;
+    end if;
+    if length(fltArrConst) <> 7 or length(fltArrConst0) <> 7 or
+        length(fltArr) <> 7 or length(fltArr0) <> 7 then
+      writeln(" ***** Length of float array failed.");
+      okay := FALSE;
+    end if;
+    if length(cpxArrConst) <> 7 or length(cpxArrConst0) <> 7 or
+        length(cpxArr) <> 7 or length(cpxArr0) <> 7 then
+      writeln(" ***** Length of complex array failed.");
+      okay := FALSE;
+    end if;
+    if length(chrArrConst) <> 7 or length(chrArrConst0) <> 7 or
+        length(chrArr) <> 7 or length(chrArr0) <> 7 then
+      writeln(" ***** Length of char array failed.");
+      okay := FALSE;
+    end if;
+    if length(strArrConst) <> 7 or length(strArrConst0) <> 7 or
+        length(strArr) <> 7 or length(strArr0) <> 7 then
+      writeln(" ***** Length of string array failed.");
+      okay := FALSE;
+    end if;
+    if length(setArrConst) <> 7 or length(setArrConst0) <> 7 or
+        length(setArr) <> 7 or length(setArr0) <> 7 then
+      writeln(" ***** Length of bitset array failed.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: testIndex (in array array boolean: blnArr,
+    in array array integer: intArr, in array array bigInteger: bigArr,
+    in array array float: fltArr, in array array complex: cpxArr,
+    in array array char: chrArr, in array array string: strArr,
+    in array array bitset: setArr) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: blnElem is FALSE;
+    var integer: intElem is 0;
+    var bigInteger: bigElem is 0_;
+    var float: fltElem is 0.0;
+    var complex: cpxElem is complex(0.0, 0.0);
+    var char: chrElem is ' ';
+    var string: strElem is "";
+    var bitset: setElem is {};
+  begin
+    blnElem := blnArr[1][1];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter boolean array failed.");
+      okay := FALSE;
+    end if;
+    intElem := intArr[1][1];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter integer array failed.");
+      okay := FALSE;
+    end if;
+    bigElem := bigArr[1][1];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter bigInteger array failed.");
+      okay := FALSE;
+    end if;
+    fltElem := fltArr[1][1];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter float array failed.");
+      okay := FALSE;
+    end if;
+    cpxElem := cpxArr[1][1];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter complex array failed.");
+      okay := FALSE;
+    end if;
+    chrElem := chrArr[1][1];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter char array failed.");
+      okay := FALSE;
+    end if;
+    strElem := strArr[1][1];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter string array failed.");
+      okay := FALSE;
+    end if;
+    setElem := setArr[1][1];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for in-parameter bitset array failed.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: testIndex is func
   local
     var boolean: okay is TRUE;
@@ -1945,6 +2088,11 @@ const proc: testIndex is func
     setElem := (setArr & setArr)[8];
     if setElem <> {1} then
       writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+
+    if not testIndex([] (blnArr), [] (intArr), [] (bigArr), [] (fltArr),
+                     [] (cpxArr), [] (chrArr), [] (strArr), [] (setArr)) then
       okay := FALSE;
     end if;
 
@@ -6488,6 +6636,7 @@ const proc: main is func
     testAssign;
     testAppend;
     testPush;
+    testLength;
     testIndex;
     testTimes;
     testHeadAndTail;
