@@ -653,6 +653,18 @@ const func intRange: getSetRandRange (in reference: aSet) is func
   end func;
 
 
+const func intRange: getBigOrdOfBigModRange (in bigInteger: divisor) is func
+  result
+    var intRange: valueRange is intRange.value;
+  begin
+    if divisor > 0_ and log2(divisor) <= 63_ and
+        2_ ** ord(log2(divisor)) = divisor then
+      valueRange.minValue := 0;
+      valueRange.maxValue := ord(pred(divisor));
+    end if;
+  end func;
+
+
 const func intRange: getIntRange (in reference: intExpression) is func
   result
     var intRange: valueRange is intRange.value;
@@ -697,6 +709,13 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"BIG_LOWEST_SET_BIT"}:
               valueRange.minValue := -1;
               valueRange.maxValue := integer.last;
+            when {"BIG_ORD"}:
+              if isActionExpression(params[1], "BIG_MOD") and
+                  getConstant(getActionParameter(params[1], 3),
+                              BIGINTOBJECT, evaluatedParam) then
+                valueRange := getBigOrdOfBigModRange(
+                    getValue(evaluatedParam, bigInteger));
+              end if;
             when {"BIN_CARD"}:
               valueRange.minValue := 0;
               valueRange.maxValue := ccConf.INTTYPE_SIZE;
