@@ -112,6 +112,7 @@ objectType dcl_const (listType arguments)
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listValue != NULL &&
           value_expr->value.listValue->next == NULL) {
+        substitute_params(value_expr);
         value_expr = value_expr->value.listValue->obj;
       } /* if */
 #if TRACE_DCL_CONST
@@ -979,6 +980,7 @@ objectType dcl_var (listType arguments)
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listValue != NULL &&
           value_expr->value.listValue->next == NULL) {
+        substitute_params(value_expr);
         value_expr = value_expr->value.listValue->obj;
       } /* if */
 #if TRACE_DCL_VAR
