@@ -112,8 +112,11 @@ objectType dcl_const (listType arguments)
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listValue != NULL &&
           value_expr->value.listValue->next == NULL) {
-        substitute_params(value_expr);
         value_expr = value_expr->value.listValue->obj;
+        if (HAS_ENTITY(value_expr) &&
+            GET_ENTITY(value_expr)->data.owner != NULL) {
+          value_expr = GET_ENTITY(value_expr)->data.owner->obj;
+        } /* if */
       } /* if */
 #if TRACE_DCL_CONST
       printf("decl const value_expr = ");
@@ -980,8 +983,11 @@ objectType dcl_var (listType arguments)
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listValue != NULL &&
           value_expr->value.listValue->next == NULL) {
-        substitute_params(value_expr);
         value_expr = value_expr->value.listValue->obj;
+        if (HAS_ENTITY(value_expr) &&
+            GET_ENTITY(value_expr)->data.owner != NULL) {
+          value_expr = GET_ENTITY(value_expr)->data.owner->obj;
+        } /* if */
       } /* if */
 #if TRACE_DCL_VAR
       printf("decl var value_expr = ");
