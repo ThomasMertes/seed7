@@ -115,7 +115,7 @@ const proc: chkLiteral is func
         27#0_ <> 28#0_ or 28#0_ <> 29#0_ or 29#0_ <> 30#0_ or 30#0_ <> 31#0_ or
         31#0_ <> 32#0_ or 32#0_ <> 33#0_ or 33#0_ <> 34#0_ or 34#0_ <> 35#0_ or
         35#0_ <> 36#0_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if     1_ <>  2#1_ or  2#1_ <>  3#1_ or
@@ -128,7 +128,7 @@ const proc: chkLiteral is func
         27#1_ <> 28#1_ or 28#1_ <> 29#1_ or 29#1_ <> 30#1_ or 30#1_ <> 31#1_ or
         31#1_ <> 32#1_ or 32#1_ <> 33#1_ or 33#1_ <> 34#1_ or 34#1_ <> 35#1_ or
         35#1_ <> 36#1_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if     2_ <> 2#10_ or 2#10_ <>  3#2_ or
@@ -141,7 +141,7 @@ const proc: chkLiteral is func
         27#2_ <> 28#2_ or 28#2_ <> 29#2_ or 29#2_ <> 30#2_ or 30#2_ <> 31#2_ or
         31#2_ <> 32#2_ or 32#2_ <> 33#2_ or 33#2_ <> 34#2_ or 34#2_ <> 35#2_ or
         35#2_ <> 36#2_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if    16_ <> 2#10000_ or 2#10000_ <> 3#121_ or
@@ -154,7 +154,7 @@ const proc: chkLiteral is func
         27#G_ <> 28#G_ or 28#G_ <> 29#G_ or 29#G_ <> 30#G_ or 30#G_ <> 31#G_ or
         31#G_ <> 32#G_ or 32#G_ <> 33#G_ or 33#G_ <> 34#G_ or 34#G_ <> 35#G_ or
         35#G_ <> 36#G_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if    32_ <> 2#100000_ or 2#100000_ <> 3#1012_ or
@@ -167,7 +167,7 @@ const proc: chkLiteral is func
         27#15_ <> 28#14_ or 28#14_ <> 29#13_ or 29#13_ <> 30#12_ or 30#12_ <> 31#11_ or
         31#11_ <> 32#10_ or 32#10_ <> 33#W_ or 33#W_ <> 34#W_ or 34#W_ <> 35#W_ or
         35#W_ <> 36#W_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if  100000000000000000000_ <>  2#1010110101111000111010111100010110101100011000100000000000000000000_ or
@@ -205,7 +205,7 @@ const proc: chkLiteral is func
         100000000000000000000_ <> 34#17uopd8lcnm544_ or
         100000000000000000000_ <> 35#tkpxpiyscferu_ or
         100000000000000000000_ <> 36#l3r41ifs0q5ts_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if                                  16#7_ <>                                        7_ or
@@ -268,7 +268,7 @@ const proc: chkLiteral is func
         -16#7fffffffffffffffffffffffffffffff_ <> -170141183460469231731687303715884105727_ or
         -16#80000000000000000000000000000000_ <> -170141183460469231731687303715884105728_ or
         -16#ffffffffffffffffffffffffffffffff_ <> -340282366920938463463374607431768211455_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
     if                                             8#3_ <>                                        3_ or
@@ -341,14 +341,14 @@ const proc: chkLiteral is func
         -8#2000000000000000000000000000000000000000000_ <> -170141183460469231731687303715884105728_ or
         -8#3777777777777777777777777777777777777777777_ <> -340282366920938463463374607431768211455_ or
         -8#4000000000000000000000000000000000000000000_ <> -340282366920938463463374607431768211456_ then
-      writeln("Based bigInteger literals do not work correct.");
+      writeln("Based bigInteger literals do not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Based bigInteger literals work correct.");
+      writeln("Based bigInteger literals work correctly.");
     else
-      writeln(" ***** Based bigInteger literals do not work correct.");
+      writeln(" ***** Based bigInteger literals do not work correctly.");
       writeln;
     end if;
   end func;
@@ -522,7 +522,7 @@ const func boolean: chkParse is func
         str(bigInteger parse "1208925819614629174706176") <> "1208925819614629174706176" or
         str(bigInteger parse "1208925819614629174706177") <> "1208925819614629174706177" or
         str(bigInteger parse "1208925819614629174706178") <> "1208925819614629174706178" then
-      writeln(" ***** Decimal conversion of a positive bigInteger does not work correct.");
+      writeln(" ***** Decimal conversion of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -690,7 +690,7 @@ const func boolean: chkParse is func
         str(bigInteger parse "+1208925819614629174706176") <> "1208925819614629174706176" or
         str(bigInteger parse "+1208925819614629174706177") <> "1208925819614629174706177" or
         str(bigInteger parse "+1208925819614629174706178") <> "1208925819614629174706178" then
-      writeln(" ***** Decimal conversion of a positive bigInteger with sign does not work correct.");
+      writeln(" ***** Decimal conversion of a positive bigInteger with sign does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -857,12 +857,12 @@ const func boolean: chkParse is func
         str(bigInteger parse "-1208925819614629174706176") <> "-1208925819614629174706176" or
         str(bigInteger parse "-1208925819614629174706177") <> "-1208925819614629174706177" or
         str(bigInteger parse "-1208925819614629174706178") <> "-1208925819614629174706178" then
-      writeln(" ***** Decimal conversion of a negative bigInteger does not work correct.");
+      writeln(" ***** Decimal conversion of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if  bigInteger parse str(123456789_ ** 1234) <> 123456789_ ** 1234 then
-      writeln(" ***** Decimal conversion of large bigInteger does not work correct.");
+      writeln(" ***** Decimal conversion of large bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -954,7 +954,7 @@ const proc: chkStringConv is func
           bigInteger("10",                       base) <>  bigInteger conv base or
           bigInteger("+10",                      base) <>  bigInteger conv base or
           bigInteger("-10",                      base) <> -bigInteger conv base then
-        writeln(" ***** Conversion of numeric string with specified radix " <& base <& " does not work correct.");
+        writeln(" ***** Conversion of numeric string with specified radix " <& base <& " does not work correctly.");
         okay := FALSE;
       end if;
     end for;
@@ -1055,7 +1055,7 @@ const proc: chkStringConv is func
          2386420683693101056_ <> bigInteger("1000000000000", 34) or
          3379220508056640625_ <> bigInteger("1000000000000", 35) or
          4738381338321616896_ <> bigInteger("1000000000000", 36) then
-      writeln(" ***** Conversion of numeric string with specified radix does not work correct for positive values.");
+      writeln(" ***** Conversion of numeric string with specified radix does not work correctly for positive values.");
       okay := FALSE;
     end if;
 
@@ -1155,7 +1155,7 @@ const proc: chkStringConv is func
          -2386420683693101056_ <> bigInteger("-1000000000000", 34) or
          -3379220508056640625_ <> bigInteger("-1000000000000", 35) or
          -4738381338321616896_ <> bigInteger("-1000000000000", 36) then
-      writeln(" ***** Conversion of numeric string with specified radix does not work correct for negative values.");
+      writeln(" ***** Conversion of numeric string with specified radix does not work correctly for negative values.");
       okay := FALSE;
     end if;
 
@@ -1264,7 +1264,7 @@ const proc: chkStringConv is func
         -100000000000000000000_ <> bigInteger("-17uopd8lcnm544", 34) or
         -100000000000000000000_ <> bigInteger("-tkpxpiyscferu", 35) or
         -100000000000000000000_ <> bigInteger("-l3r41ifs0q5ts", 36) then
-      writeln(" ***** Conversion of numeric string with specified radix does not work correct.");
+      writeln(" ***** Conversion of numeric string with specified radix does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1273,7 +1273,7 @@ const proc: chkStringConv is func
         -18446744069414584320_ <> bigInteger("-1777777777740000000000", 8) or
         -18446744069414584320_ <> bigInteger("-ffffffff00000000", 16) or
         -18446744069414584320_ <> bigInteger("-fvvvvvs000000", 32) then
-      writeln(" ***** Conversion of numeric string with specified radix does not work correct.");
+      writeln(" ***** Conversion of numeric string with specified radix does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1282,7 +1282,7 @@ const proc: chkStringConv is func
         bigInteger("LlMmNnOoPpQqRrSsTtUuVv", 32)     <>         879381528937361939672604161833983_ or
         bigInteger("AaBbCcDdEeFfGgHhIiJjKkLlMm", 36) <>  8314392270933518733105677545691200337086_ or
         bigInteger("NnOoPpQqRrSsTtUuVvWwXxYyZz", 36) <> 19122267638176649601133944203224314202799_ then
-      writeln(" ***** Conversion of numeric string with specified radix does not work correct for upper case chars.");
+      writeln(" ***** Conversion of numeric string with specified radix does not work correctly for upper case chars.");
       okay := FALSE;
     end if;
 
@@ -1600,9 +1600,9 @@ const proc: chkStringConv is func
     end if;
 
     if okay then
-      writeln("String conversion of bigInteger works correct.");
+      writeln("String conversion of bigInteger works correctly.");
     else
-      writeln(" ***** String conversion of bigInteger does not work correct.");
+      writeln(" ***** String conversion of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1622,7 +1622,7 @@ const proc: chkRadix is func
           (-1_                         radix base) <> "-1" or
           (-bigInteger conv pred(base) radix base) <> (-pred(base) radix base) or
           (-bigInteger conv base       radix base) <> "-10" then
-        writeln(" ***** The radix operator for bigInteger for base " <& base <& " does not work correct.");
+        writeln(" ***** The radix operator for bigInteger for base " <& base <& " does not work correctly.");
         okay := FALSE;
       end if;
     end for;
@@ -1977,7 +1977,7 @@ const proc: chkRadix is func
         (100000000000000000000000000319_ radix 34) <> "r496vggek1grfuv3wo7" or
         (100000000000000000000000000319_ radix 35) <> "g3f6xlpcxahu7f49rl9" or
         (100000000000000000000000000319_ radix 36) <> "9p0xe2cuwj7x1co1a2n" then
-      writeln(" ***** The radix operator for bigInteger does not work correct for positive values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values.");
       okay := FALSE;
     end if;
 
@@ -2331,7 +2331,7 @@ const proc: chkRadix is func
         (-100000000000000000000000000319_ radix 34) <> "-r496vggek1grfuv3wo7" or
         (-100000000000000000000000000319_ radix 35) <> "-g3f6xlpcxahu7f49rl9" or
         (-100000000000000000000000000319_ radix 36) <> "-9p0xe2cuwj7x1co1a2n" then
-      writeln(" ***** The radix operator for bigInteger does not work correct for negative values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values.");
       okay := FALSE;
     end if;
 
@@ -2340,7 +2340,7 @@ const proc: chkRadix is func
         (-18446744069414584320_ radix  8) <> "-1777777777740000000000" or
         (-18446744069414584320_ radix 16) <> "-ffffffff00000000" or
         (-18446744069414584320_ radix 32) <> "-fvvvvvs000000" then
-      writeln(" ***** The radix operator for bigInteger does not work correct for negative values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values.");
       okay := FALSE;
     end if;
 
@@ -2379,7 +2379,7 @@ const proc: chkRadix is func
         (    11745843093701610854378775891116314824081102660800418_ RADIX 34) <>   "XWVUTSRQPONMLKJIHGFEDCBA9876543210" or
         (  1101553773143634726491620528194292510495517905608180485_ RADIX 35) <>  "YXWVUTSRQPONMLKJIHGFEDCBA9876543210" or
         (106300512100105327644605138221229898724869759421181854980_ RADIX 36) <> "ZYXWVUTSRQPONMLKJIHGFEDCBA9876543210" then
-      writeln(" ***** The RADIX operator for bigInteger does not work correct.");
+      writeln(" ***** The RADIX operator for bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2394,7 +2394,7 @@ const proc: chkRadix is func
         bigInteger(bigNum RADIX 16, 16) <> bigNum or
         bigInteger(bigNum radix 32, 32) <> bigNum or
         bigInteger(bigNum RADIX 32, 32) <> bigNum then
-      writeln(" ***** The radix operator for bigInteger does not work correct for big values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for big values.");
       okay := FALSE;
     end if;
 
@@ -2402,7 +2402,7 @@ const proc: chkRadix is func
     for base range 2 to 36 do
       if  bigInteger(bigNum radix base, base) <> bigNum or
           bigInteger(bigNum RADIX base, base) <> bigNum then
-        writeln(" ***** The radix operator for large bigInteger does not work correct.");
+        writeln(" ***** The radix operator for large bigInteger does not work correctly.");
         okay := FALSE;
       end if;
     end for;
@@ -2502,9 +2502,9 @@ const proc: chkRadix is func
     end if;
 
     if okay then
-      writeln("The radix operator for bigInteger works correct.");
+      writeln("The radix operator for bigInteger works correctly.");
     else
-      writeln(" ***** The radix operator for bigInteger does not work correct.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -2595,7 +2595,7 @@ const proc: chkOrd is func
         ord(2147483646_) <> 2147483646 or
         ord(2147483647_) <> 2147483647 or
         ord(1234567890123456_) <> 1234567890123456 then
-      writeln("Conversion of a positive bigInteger to integer does not work correct.");
+      writeln("Conversion of a positive bigInteger to integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2680,14 +2680,14 @@ const proc: chkOrd is func
         ord(-2147483647_) <> -2147483647 or
         ord(-2147483648_) <> pred(-2147483647) or
         ord(-1234567890123456_) <> -1234567890123456 then
-      writeln("Conversion of a negative bigInteger to integer does not work correct.");
+      writeln("Conversion of a negative bigInteger to integer does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Conversion of bigInteger to integer works correct.");
+      writeln("Conversion of bigInteger to integer works correctly.");
     else
-      writeln(" ***** Conversion of bigInteger to integer does not work correct.");
+      writeln(" ***** Conversion of bigInteger to integer does not work correctly.");
       writeln;
     end if;
   end func;
@@ -2719,7 +2719,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigintExpr(aBig2) mod powTwo63) <> 5074619335926251242 or
         ord(bigintExpr(aBig3) mod powTwo63) <> 3745810425333604960 or
         ord(bigintExpr(aBig4) mod powTwo63) <> 2207119669289072373 then
-      writeln(" ***** ord(aBigInt mod 2_**63) does not work correct.");
+      writeln(" ***** ord(aBigInt mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2731,7 +2731,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger(intExpr(aPositive2)) mod powTwo63) <> 5074619335926251242 or
         ord(bigInteger(intExpr(aPositive3)) mod powTwo63) <> 3745810425333604960 or
         ord(bigInteger(intExpr(aPositive4)) mod powTwo63) <> 2207119669289072373 then
-      writeln(" ***** ord(bigInteger(aPositive1) mod 2_**63) does not work correct.");
+      writeln(" ***** ord(bigInteger(aPositive1) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2743,7 +2743,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger(intExpr(aNegative2)) mod powTwo63) <> 5074619335926251242 or
         ord(bigInteger(intExpr(aNegative3)) mod powTwo63) <> 3745810425333604960 or
         ord(bigInteger(intExpr(aNegative4)) mod powTwo63) <> 2207119669289072373 then
-      writeln(" ***** ord(bigInteger(number) mod 2_**63) does not work correct.");
+      writeln(" ***** ord(bigInteger(number) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2755,7 +2755,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger conv intExpr(aNegative2) mod powTwo63) <> 5074619335926251242 or
         ord(bigInteger conv intExpr(aNegative3) mod powTwo63) <> 3745810425333604960 or
         ord(bigInteger conv intExpr(aNegative4) mod powTwo63) <> 2207119669289072373 then
-      writeln(" ***** ord(bigInteger conv number mod 2_**63) does not work correct.");
+      writeln(" ***** ord(bigInteger conv number mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2767,7 +2767,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigintExpr(aBig2) mod powTwo60) <>  462933317498863338 or
         ord(bigintExpr(aBig3) mod powTwo60) <>  287045911513064032 or
         ord(bigintExpr(aBig4) mod powTwo60) <> 1054198164682225397 then
-      writeln(" ***** ord(aBigInt mod 2_**60) does not work correct.");
+      writeln(" ***** ord(aBigInt mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2779,7 +2779,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger(intExpr(aPositive2)) mod powTwo60) <>  462933317498863338 or
         ord(bigInteger(intExpr(aPositive3)) mod powTwo60) <>  287045911513064032 or
         ord(bigInteger(intExpr(aPositive4)) mod powTwo60) <> 1054198164682225397 then
-      writeln(" ***** ord(bigInteger(aPositive1) mod 2_**60) does not work correct.");
+      writeln(" ***** ord(bigInteger(aPositive1) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2791,7 +2791,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger(intExpr(aNegative2)) mod powTwo60) <>  462933317498863338 or
         ord(bigInteger(intExpr(aNegative3)) mod powTwo60) <>  287045911513064032 or
         ord(bigInteger(intExpr(aNegative4)) mod powTwo60) <> 1054198164682225397 then
-      writeln(" ***** ord(bigInteger(number) mod 2_**60) does not work correct.");
+      writeln(" ***** ord(bigInteger(number) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2803,7 +2803,7 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger conv intExpr(aNegative2) mod powTwo60) <>  462933317498863338 or
         ord(bigInteger conv intExpr(aNegative3) mod powTwo60) <>  287045911513064032 or
         ord(bigInteger conv intExpr(aNegative4) mod powTwo60) <> 1054198164682225397 then
-      writeln(" ***** ord(bigInteger conv number mod 2_**60) does not work correct.");
+      writeln(" ***** ord(bigInteger conv number mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2815,7 +2815,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((           aBig3  + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677333 or
         ord((bigintExpr(aBig3) +            aBig4 ) mod powTwo63) <> 5952930094622677333 or
         ord((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((aBigInt1 + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((aBigInt1 + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2827,7 +2827,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((succ(           aBig3 ) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677334 or
         ord((succ(bigintExpr(aBig3)) +            aBig4 ) mod powTwo63) <> 5952930094622677334 or
         ord((succ(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677334 then
-      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2839,7 +2839,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((pred(           aBig3 ) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677332 or
         ord((pred(bigintExpr(aBig3)) +            aBig4 ) mod powTwo63) <> 5952930094622677332 or
         ord((pred(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo63) <> 5952930094622677332 then
-      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2851,7 +2851,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((           aBig2  - bigintExpr(aBig4)) mod powTwo63) <> 2867499666637178869 or
         ord((bigintExpr(aBig2) -            aBig4 ) mod powTwo63) <> 2867499666637178869 or
         ord((bigintExpr(aBig2) - bigintExpr(aBig4)) mod powTwo63) <> 2867499666637178869 then
-      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2863,7 +2863,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aPositive3 ) + bigInteger(intExpr(aPositive4))) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aPositive3)) + bigInteger(        aPositive4 )) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aPositive3)) + bigInteger(intExpr(aPositive4))) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((bigInteger(aPositive1) + bigInteger(aPositive2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((bigInteger(aPositive1) + bigInteger(aPositive2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2875,7 +2875,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aNegative3 ) + bigInteger(intExpr(aNegative4))) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger(        aNegative4 )) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger(intExpr(aNegative4))) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger(aNegative2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger(aNegative2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2887,7 +2887,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aNegative3 ) + bigInteger conv intExpr(aNegative4)) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger conv         aNegative4 ) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger conv intExpr(aNegative4)) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger conv aNegative2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger conv aNegative2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2899,7 +2899,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger conv         aNegative3  + bigInteger(intExpr(aNegative4))) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger(        aNegative4 )) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger(intExpr(aNegative4))) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger(aNegative2)) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger(aNegative2)) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2911,7 +2911,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger conv         aNegative3  + bigInteger conv intExpr(aNegative4)) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger conv         aNegative4 ) mod powTwo63) <> 5952930094622677333 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger conv intExpr(aNegative4)) mod powTwo63) <> 5952930094622677333 then
-      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger conv aNegative2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger conv aNegative2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2923,7 +2923,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((           aBig3  + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442453 or
         ord((bigintExpr(aBig3) +            aBig4 ) mod powTwo60) <> 188322571588442453 or
         ord((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((aBigInt1 + aBigInt2) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((aBigInt1 + aBigInt2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2935,7 +2935,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((succ(           aBig3 ) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442454 or
         ord((succ(bigintExpr(aBig3)) +            aBig4 ) mod powTwo60) <> 188322571588442454 or
         ord((succ(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442454 then
-      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((succ(aBigInt1) + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2947,7 +2947,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((pred(           aBig3 ) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442452 or
         ord((pred(bigintExpr(aBig3)) +            aBig4 ) mod powTwo60) <> 188322571588442452 or
         ord((pred(bigintExpr(aBig3)) + bigintExpr(aBig4)) mod powTwo60) <> 188322571588442452 then
-      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((pred(aBigInt1) + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2959,7 +2959,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((           aBig2  - bigintExpr(aBig4)) mod powTwo60) <> 561656657423484917 or
         ord((bigintExpr(aBig2) -            aBig4 ) mod powTwo60) <> 561656657423484917 or
         ord((bigintExpr(aBig2) - bigintExpr(aBig4)) mod powTwo60) <> 561656657423484917 then
-      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correct.");
+      writeln(" ***** ord((aBigInt1 - aBigInt3) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2971,7 +2971,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aPositive3 ) + bigInteger(intExpr(aPositive4))) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aPositive3)) + bigInteger(        aPositive4 )) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aPositive3)) + bigInteger(intExpr(aPositive4))) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((bigInteger(aPositive1) + bigInteger(aPositive2) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((bigInteger(aPositive1) + bigInteger(aPositive2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2983,7 +2983,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aNegative3 ) + bigInteger(intExpr(aNegative4))) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger(        aNegative4 )) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger(intExpr(aNegative4))) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger(aNegative2)) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger(aNegative2)) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2995,7 +2995,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger(        aNegative3 ) + bigInteger conv intExpr(aNegative4)) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger conv         aNegative4 ) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger(intExpr(aNegative3)) + bigInteger conv intExpr(aNegative4)) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger conv aNegative2) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((bigInteger(aNegative1) + bigInteger conv aNegative2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3007,7 +3007,7 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger conv         aNegative3  + bigInteger(intExpr(aNegative4))) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger(        aNegative4 )) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger(intExpr(aNegative4))) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger(aNegative2)) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger(aNegative2)) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3019,12 +3019,12 @@ const proc: chkBigOrdWithBigMod is func
         ord((bigInteger conv         aNegative3  + bigInteger conv intExpr(aNegative4)) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger conv         aNegative4 ) mod powTwo60) <> 188322571588442453 or
         ord((bigInteger conv intExpr(aNegative3) + bigInteger conv intExpr(aNegative4)) mod powTwo60) <> 188322571588442453 then
-      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger conv aNegative2) mod 2_**60) does not work correct.");
+      writeln(" ***** ord((bigInteger conv aNegative1 + bigInteger conv aNegative2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("ord(aBigInteger mod 2_**y) works correct.");
+      writeln("ord(aBigInteger mod 2_**y) works correctly.");
     end if;
   end func;
 
@@ -3116,7 +3116,7 @@ const proc: chkConv is func
         bigInteger(1234567890123456) <> 1234567890123456_ or
         bigInteger(9223372036854775806) <> 9223372036854775806_ or
         bigInteger(9223372036854775807) <> 9223372036854775807_ then
-      writeln("Conversion of a positive integer to bigInteger does not work correct.");
+      writeln("Conversion of a positive integer to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3203,7 +3203,7 @@ const proc: chkConv is func
         bigInteger(-1234567890123456) <> -1234567890123456_ or
         bigInteger(-9223372036854775807) <> -9223372036854775807_ or
         bigInteger(pred(-9223372036854775807)) <> -9223372036854775808_ then
-      writeln("Conversion of a negative integer to bigInteger does not work correct.");
+      writeln("Conversion of a negative integer to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3290,7 +3290,7 @@ const proc: chkConv is func
         bigInteger conv 1234567890123456 <> 1234567890123456_ or
         bigInteger conv 9223372036854775806 <> 9223372036854775806_ or
         bigInteger conv 9223372036854775807 <> 9223372036854775807_ then
-      writeln("Conversion of a positive integer to bigInteger does not work correct.");
+      writeln("Conversion of a positive integer to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3377,14 +3377,14 @@ const proc: chkConv is func
         bigInteger conv (-1234567890123456) <> -1234567890123456_ or
         bigInteger conv (-9223372036854775807) <> -9223372036854775807_ or
         bigInteger conv pred(-9223372036854775807) <> -9223372036854775808_ then
-      writeln("Conversion of a negative integer to bigInteger does not work correct.");
+      writeln("Conversion of a negative integer to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Conversion of integer to bigInteger works correct.");
+      writeln("Conversion of integer to bigInteger works correctly.");
     else
-      writeln(" ***** Conversion of integer to bigInteger does not work correct.");
+      writeln(" ***** Conversion of integer to bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -3523,7 +3523,7 @@ const proc: chkBytesBe is func
         bytes(  604462909807314587353088_, SIGNED, BE) <> "\000;\128;\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes( 1208925819614629174706175_, SIGNED, BE) <> "\000;\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;" or
         bytes( 1208925819614629174706176_, SIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;" then
-      writeln("Conversion of bigInteger to big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3559,7 +3559,7 @@ const proc: chkBytesBe is func
         bytes(     78169440305751915386146223737209345_, SIGNED, BE) <>         "\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(  21345817372864405881847059188222722561_, SIGNED, BE) <>     "\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(5806146055028818284759215385528282317313_, SIGNED, BE) <> "\17;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of bigInteger to big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3595,7 +3595,7 @@ const proc: chkBytesBe is func
         bytes(     -4907309430805326670341717530312191_, SIGNED, BE) <>         "\255;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(  -1251058555479163957517660836543135231_, SIGNED, BE) <>     "\255;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(-318936549548074057581527548243545488895_, SIGNED, BE) <> "\255;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of bigInteger to big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3664,7 +3664,7 @@ const proc: chkBytesBe is func
         bytes( 604462909807314587353088_, UNSIGNED, BE) <>      "\128;\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(1208925819614629174706175_, UNSIGNED, BE) <>      "\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(1208925819614629174706176_, UNSIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;" then
-      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3700,7 +3700,7 @@ const proc: chkBytesBe is func
         bytes(     78169440305751915386146223737209345_, UNSIGNED, BE) <>         "\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(  21345817372864405881847059188222722561_, UNSIGNED, BE) <>     "\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(5806146055028818284759215385528282317313_, UNSIGNED, BE) <> "\17;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3736,7 +3736,7 @@ const proc: chkBytesBe is func
         bytes(    1324320686354110546233465342750032385_, UNSIGNED, BE) <>         "\255;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(  339031308365459299505856946595225076225_, UNSIGNED, BE) <>     "\255;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" or
         bytes(86793349382212172589042371954289116643841_, UNSIGNED, BE) <> "\255;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to unsigned big endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3746,7 +3746,7 @@ const proc: chkBytesBe is func
         bytes( 54818063270363344731475178867_, SIGNED,   BE) <> "\0;± plus-minus" or
         bytes( 54818063270363344731475178867_, UNSIGNED, BE) <> "± plus-minus"    or
         bytes( 5292891159410142067_,           UNSIGNED, BE) <> "It works"        then
-      writeln("Conversion of bigInteger to byte string does not work correct.");
+      writeln("Conversion of bigInteger to byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3756,9 +3756,9 @@ const proc: chkBytesBe is func
     end if;
 
     if okay then
-      writeln("Conversion of bigInteger to big endian byte string works correct.");
+      writeln("Conversion of bigInteger to big endian byte string works correctly.");
     else
-      writeln(" ***** Conversion of bigInteger to big endian byte string does not work correct.");
+      writeln(" ***** Conversion of bigInteger to big endian byte string does not work correctly.");
       writeln;
     end if;
   end func;
@@ -3897,7 +3897,7 @@ const proc: chkBytesLe is func
         bytes(  604462909807314587353088_, SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;\128;\000;" or
         bytes( 1208925819614629174706175_, SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;\000;" or
         bytes( 1208925819614629174706176_, SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;\001;" then
-      writeln("Conversion of bigInteger to little endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3933,7 +3933,7 @@ const proc: chkBytesLe is func
         bytes(     78169440305751915386146223737209345_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;"         or
         bytes(  21345817372864405881847059188222722561_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;"     or
         bytes(5806146055028818284759215385528282317313_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\17;" then
-      writeln("Conversion of bigInteger to little endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -3969,7 +3969,7 @@ const proc: chkBytesLe is func
         bytes(     -4907309430805326670341717530312191_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\255;"         or
         bytes(  -1251058555479163957517660836543135231_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\255;"     or
         bytes(-318936549548074057581527548243545488895_, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\255;" then
-      writeln("Conversion of bigInteger to little endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4038,7 +4038,7 @@ const proc: chkBytesLe is func
         bytes( 604462909807314587353088_, UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;\128;"      or
         bytes(1208925819614629174706175_, UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;"      or
         bytes(1208925819614629174706176_, UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;\001;" then
-      writeln("Conversion of bigInteger to unsigned little endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to unsigned little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4074,7 +4074,7 @@ const proc: chkBytesLe is func
         bytes(     78169440305751915386146223737209345_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;"         or
         bytes(  21345817372864405881847059188222722561_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;"     or
         bytes(5806146055028818284759215385528282317313_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\17;" then
-      writeln("Conversion of bigInteger to unsigned little endian byte string does not work correct.");
+      writeln("Conversion of bigInteger to unsigned little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4110,7 +4110,7 @@ const proc: chkBytesLe is func
         bytes(    1324320686354110546233465342750032385_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\255;"         or
         bytes(  339031308365459299505856946595225076225_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\255;"     or
         bytes(86793349382212172589042371954289116643841_, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\255;" then
-      writeln("2 Conversion of bigInteger to unsigned little endian byte string does not work correct.");
+      writeln("2 Conversion of bigInteger to unsigned little endian byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4120,7 +4120,7 @@ const proc: chkBytesLe is func
         bytes( 54818077602976342189798681712_, SIGNED,   LE) <> "plus-minus ±\0;" or
         bytes( 54818077602976342189798681712_, UNSIGNED, LE) <> "plus-minus ±"    or
         bytes( 8316866959935304777_,           UNSIGNED, LE) <> "It works"        then
-      writeln("Conversion of bigInteger to byte string does not work correct.");
+      writeln("Conversion of bigInteger to byte string does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4130,9 +4130,9 @@ const proc: chkBytesLe is func
     end if;
 
     if okay then
-      writeln("Conversion of bigInteger to little endian byte string works correct.");
+      writeln("Conversion of bigInteger to little endian byte string works correctly.");
     else
-      writeln(" ***** Conversion of bigInteger to little endian byte string does not work correct.");
+      writeln(" ***** Conversion of bigInteger to little endian byte string does not work correctly.");
       writeln;
     end if;
   end func;
@@ -4271,7 +4271,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt("\000;\128;\000;\000;\000;\000;\000;\000;\000;\000;\000;", SIGNED, BE) <>   604462909807314587353088_ or
         bytes2BigInt("\000;\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>  1208925819614629174706175_ or
         bytes2BigInt("\001;\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;", SIGNED, BE) <>  1208925819614629174706176_ then
-      writeln("Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4307,7 +4307,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt(        "\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>      78169440305751915386146223737209345_ or
         bytes2BigInt(    "\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>   21345817372864405881847059188222722561_ or
         bytes2BigInt("\17;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <> 5806146055028818284759215385528282317313_ then
-      writeln("Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4343,7 +4343,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt(        "\255;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>      -4907309430805326670341717530312191_ or
         bytes2BigInt(    "\255;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>   -1251058555479163957517660836543135231_ or
         bytes2BigInt("\255;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <> -318936549548074057581527548243545488895_ then
-      writeln("Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4394,7 +4394,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt("\000;\000;\127;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>     9223372036854775807_ or
         bytes2BigInt("\000;\000;\128;\000;\000;\000;\000;\000;\000;\000;", SIGNED, BE) <>     9223372036854775808_ or
         bytes2BigInt("\000;\127;\255;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>  2361183241434822606847_ then
-      writeln("Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4463,7 +4463,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt("\000;\128;\000;\000;\000;\000;\000;\000;\000;\000;\000;", UNSIGNED, BE) <>  604462909807314587353088_ or
         bytes2BigInt("\000;\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;", UNSIGNED, BE) <> 1208925819614629174706175_ or
         bytes2BigInt("\001;\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;", UNSIGNED, BE) <> 1208925819614629174706176_ then
-      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4499,7 +4499,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt(        "\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <>      78169440305751915386146223737209345_ or
         bytes2BigInt(    "\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <>   21345817372864405881847059188222722561_ or
         bytes2BigInt("\17;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <> 5806146055028818284759215385528282317313_ then
-      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4535,7 +4535,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt(        "\255;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <>     1324320686354110546233465342750032385_ or
         bytes2BigInt(    "\255;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <>   339031308365459299505856946595225076225_ or
         bytes2BigInt("\255;\16;\15;\14;\13;\12;\11;\10;\9;\8;\7;\6;\5;\4;\3;\2;\1;", UNSIGNED, BE) <> 86793349382212172589042371954289116643841_ then
-     writeln("Conversion of unsigned big endian byte string to bigInteger does not work correct.");
+     writeln("Conversion of unsigned big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4562,7 +4562,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt("\000;\000;\127;\255;\255;\255;\255;\255;\255;\255;", UNSIGNED, BE) <>    9223372036854775807_ or
         bytes2BigInt("\000;\000;\128;\000;\000;\000;\000;\000;\000;\000;", UNSIGNED, BE) <>    9223372036854775808_ or
         bytes2BigInt("\000;\127;\255;\255;\255;\255;\255;\255;\255;\255;", UNSIGNED, BE) <> 2361183241434822606847_ then
-      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4576,7 +4576,7 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt("\139;\208;\3;\152;", UNSIGNED, BE) <>  2345665432_ or
         bytes2BigInt("\152;\3;\208;\139;", SIGNED,   BE) <> -1744580469_ or
         bytes2BigInt("\152;\3;\208;\139;", UNSIGNED, BE) <>  2550386827_ then
-      writeln("Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of big endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4587,9 +4587,9 @@ const proc: chkBytesBe2BigInt is func
     end if;
 
     if okay then
-      writeln("Conversion of big endian byte string to bigInteger works correct.");
+      writeln("Conversion of big endian byte string to bigInteger works correctly.");
     else
-      writeln(" ***** Conversion of big endian byte string to bigInteger does not work correct.");
+      writeln(" ***** Conversion of big endian byte string to bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -4728,7 +4728,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\000;\000;\128;\000;", SIGNED, LE) <>   604462909807314587353088_ or
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;\000;", SIGNED, LE) <>  1208925819614629174706175_ or
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;\001;", SIGNED, LE) <>  1208925819614629174706176_ then
-      writeln("Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4764,7 +4764,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;",         SIGNED, LE) <>      78169440305751915386146223737209345_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;",     SIGNED, LE) <>   21345817372864405881847059188222722561_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\17;", SIGNED, LE) <> 5806146055028818284759215385528282317313_ then
-      writeln("Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4800,7 +4800,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\255;",         SIGNED, LE) <>      -4907309430805326670341717530312191_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\255;",     SIGNED, LE) <>   -1251058555479163957517660836543135231_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\255;", SIGNED, LE) <> -318936549548074057581527548243545488895_ then
-      writeln("Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4851,7 +4851,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\127;\000;\000;", SIGNED, LE) <>     9223372036854775807_ or
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\128;\000;\000;", SIGNED, LE) <>     9223372036854775808_ or
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\255;\127;\000;", SIGNED, LE) <>  2361183241434822606847_ then
-      writeln("Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4920,7 +4920,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\000;\000;\128;\000;", UNSIGNED, LE) <>  604462909807314587353088_ or
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\255;\255;\255;\000;", UNSIGNED, LE) <> 1208925819614629174706175_ or
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\000;\000;\000;\001;", UNSIGNED, LE) <> 1208925819614629174706176_ then
-      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4956,7 +4956,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;",         UNSIGNED, LE) <>      78169440305751915386146223737209345_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;",     UNSIGNED, LE) <>   21345817372864405881847059188222722561_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\17;", UNSIGNED, LE) <> 5806146055028818284759215385528282317313_ then
-      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -4992,7 +4992,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\255;",         UNSIGNED, LE) <>     1324320686354110546233465342750032385_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\255;",     UNSIGNED, LE) <>   339031308365459299505856946595225076225_ or
         bytes2BigInt("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\255;", UNSIGNED, LE) <> 86793349382212172589042371954289116643841_ then
-      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5019,7 +5019,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\127;\000;\000;", UNSIGNED, LE) <>     9223372036854775807_ or
         bytes2BigInt("\000;\000;\000;\000;\000;\000;\000;\128;\000;\000;", UNSIGNED, LE) <>     9223372036854775808_ or
         bytes2BigInt("\255;\255;\255;\255;\255;\255;\255;\255;\127;\000;", UNSIGNED, LE) <>  2361183241434822606847_ then
-      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5033,7 +5033,7 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\139;\208;\3;\152;", UNSIGNED, LE) <>  2550386827_ or
         bytes2BigInt("\152;\3;\208;\139;", SIGNED,   LE) <> -1949301864_ or
         bytes2BigInt("\152;\3;\208;\139;", UNSIGNED, LE) <>  2345665432_ then
-      writeln("Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln("Conversion of little endian byte string to bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5044,9 +5044,9 @@ const proc: chkBytesLe2BigInt is func
     end if;
 
     if okay then
-      writeln("Conversion of little endian byte string to bigInteger works correct.");
+      writeln("Conversion of little endian byte string to bigInteger works correctly.");
     else
-      writeln(" ***** Conversion of little endian byte string to bigInteger does not work correct.");
+      writeln(" ***** Conversion of little endian byte string to bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -5230,7 +5230,7 @@ const proc: chkNegate is func
         chkNegate(1208925819614629174706176_, bigInteger parse "-1208925819614629174706176") or
         chkNegate(1208925819614629174706177_, bigInteger parse "-1208925819614629174706177") or
         chkNegate(1208925819614629174706178_, bigInteger parse "-1208925819614629174706178") then
-      writeln("Negation of a positive bigInteger does not work correct.");
+      writeln("Negation of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5397,7 +5397,7 @@ const proc: chkNegate is func
         chkNegate(bigInteger parse "-1208925819614629174706176", 1208925819614629174706176_) or
         chkNegate(bigInteger parse "-1208925819614629174706177", 1208925819614629174706177_) or
         chkNegate(bigInteger parse "-1208925819614629174706178", 1208925819614629174706178_) then
-      writeln("Negation of a negative bigInteger does not work correct.");
+      writeln("Negation of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5564,7 +5564,7 @@ const proc: chkNegate is func
         -1208925819614629174706176_ <> bigInteger parse "-1208925819614629174706176" or
         -1208925819614629174706177_ <> bigInteger parse "-1208925819614629174706177" or
         -1208925819614629174706178_ <> bigInteger parse "-1208925819614629174706178" then
-      writeln("Negation of a positive bigInteger does not work correct.");
+      writeln("Negation of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -5731,14 +5731,14 @@ const proc: chkNegate is func
         - -1208925819614629174706176_ <> 1208925819614629174706176_ or
         - -1208925819614629174706177_ <> 1208925819614629174706177_ or
         - -1208925819614629174706178_ <> 1208925819614629174706178_ then
-      writeln("Negation of a negative bigInteger does not work correct.");
+      writeln("Negation of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger negation works correct.");
+      writeln("The bigInteger negation works correctly.");
     else
-      writeln(" ***** The bigInteger negation does not work correct.");
+      writeln(" ***** The bigInteger negation does not work correctly.");
       writeln;
     end if;
   end func;
@@ -5911,7 +5911,7 @@ const proc: chkPlus is func
         +1208925819614629174706176_ <> 1208925819614629174706176_ or
         +1208925819614629174706177_ <> 1208925819614629174706177_ or
         +1208925819614629174706178_ <> 1208925819614629174706178_ then
-      writeln("The plus sign for bigInteger does not work correct.");
+      writeln("The plus sign for bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -6078,14 +6078,14 @@ const proc: chkPlus is func
         + -1208925819614629174706176_ <> -1208925819614629174706176_ or
         + -1208925819614629174706177_ <> -1208925819614629174706177_ or
         + -1208925819614629174706178_ <> -1208925819614629174706178_ then
-      writeln("The plus sign for bigInteger does not work correct.");
+      writeln("The plus sign for bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The plus sign for bigInteger works correct.");
+      writeln("The plus sign for bigInteger works correctly.");
     else
-      writeln(" ***** The plus sign for bigInteger does not work correct.");
+      writeln(" ***** The plus sign for bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -6258,7 +6258,7 @@ const proc: chkSucc is func
         succ(1208925819614629174706176_) <> 1208925819614629174706177_ or
         succ(1208925819614629174706177_) <> 1208925819614629174706178_ or
         succ(1208925819614629174706178_) <> 1208925819614629174706179_ then
-      writeln("Successor of a positive bigInteger does not work correct.");
+      writeln("Successor of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -6425,14 +6425,14 @@ const proc: chkSucc is func
         succ(-1208925819614629174706176_) <> -1208925819614629174706175_ or
         succ(-1208925819614629174706177_) <> -1208925819614629174706176_ or
         succ(-1208925819614629174706178_) <> -1208925819614629174706177_ then
-      writeln("Successor of a negative bigInteger does not work correct.");
+      writeln("Successor of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Successor of bigInteger works correct.");
+      writeln("Successor of bigInteger works correctly.");
     else
-      writeln(" ***** Successor of bigInteger does not work correct.");
+      writeln(" ***** Successor of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -6605,7 +6605,7 @@ const proc: chkPred is func
         pred(1208925819614629174706176_) <> 1208925819614629174706175_ or
         pred(1208925819614629174706177_) <> 1208925819614629174706176_ or
         pred(1208925819614629174706178_) <> 1208925819614629174706177_ then
-      writeln("Predecessor of a positive bigInteger does not work correct.");
+      writeln("Predecessor of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -6772,14 +6772,14 @@ const proc: chkPred is func
         pred(-1208925819614629174706176_) <> -1208925819614629174706177_ or
         pred(-1208925819614629174706177_) <> -1208925819614629174706178_ or
         pred(-1208925819614629174706178_) <> -1208925819614629174706179_ then
-      writeln("Predecessor of a negative bigInteger does not work correct.");
+      writeln("Predecessor of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Predecessor of bigInteger works correct.");
+      writeln("Predecessor of bigInteger works correctly.");
     else
-      writeln(" ***** Predecessor of bigInteger does not work correct.");
+      writeln(" ***** Predecessor of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -6961,7 +6961,7 @@ const proc: chkIncr is func
         testIncr(1208925819614629174706176_) <> 1208925819614629174706177_ or
         testIncr(1208925819614629174706177_) <> 1208925819614629174706178_ or
         testIncr(1208925819614629174706178_) <> 1208925819614629174706179_ then
-      writeln("Increment of a positive bigInteger does not work correct.");
+      writeln("Increment of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -7128,14 +7128,14 @@ const proc: chkIncr is func
         testIncr(-1208925819614629174706176_) <> -1208925819614629174706175_ or
         testIncr(-1208925819614629174706177_) <> -1208925819614629174706176_ or
         testIncr(-1208925819614629174706178_) <> -1208925819614629174706177_ then
-      writeln("Increment of a negative bigInteger does not work correct.");
+      writeln("Increment of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Increment of bigInteger works correct.");
+      writeln("Increment of bigInteger works correctly.");
     else
-      writeln(" ***** Increment of bigInteger does not work correct.");
+      writeln(" ***** Increment of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -7317,7 +7317,7 @@ const proc: chkDecr is func
         testDecr(1208925819614629174706176_) <> 1208925819614629174706175_ or
         testDecr(1208925819614629174706177_) <> 1208925819614629174706176_ or
         testDecr(1208925819614629174706178_) <> 1208925819614629174706177_ then
-      writeln("Decrement of a positive bigInteger does not work correct.");
+      writeln("Decrement of a positive bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -7484,14 +7484,14 @@ const proc: chkDecr is func
         testDecr(-1208925819614629174706176_) <> -1208925819614629174706177_ or
         testDecr(-1208925819614629174706177_) <> -1208925819614629174706178_ or
         testDecr(-1208925819614629174706178_) <> -1208925819614629174706179_ then
-      writeln("Decrement of a negative bigInteger does not work correct.");
+      writeln("Decrement of a negative bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Decrement of bigInteger works correct.");
+      writeln("Decrement of bigInteger works correctly.");
     else
-      writeln(" ***** Decrement of bigInteger does not work correct.");
+      writeln(" ***** Decrement of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -7902,25 +7902,25 @@ const proc: chkAddition is func
          2147483649_ +  2147483647_ <>  4294967296_ or
          2147483649_ +  2147483648_ <>  4294967297_ or
          2147483649_ +  2147483649_ <>  4294967298_ then
-      writeln("Addition of bigInteger does not work correct.");
+      writeln("Addition of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     number := 1000000_;
     if number + number <> 2000000_ then
-      writeln("Addition of bigInteger with itself does not work correct.");
+      writeln("Addition of bigInteger with itself does not work correctly.");
       okay := FALSE;
     end if;
 
     if number + -number <> 0_ then
-      writeln("Addition of bigInteger with its negated value does not work correct.");
+      writeln("Addition of bigInteger with its negated value does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Addition of bigInteger works correct.");
+      writeln("Addition of bigInteger works correctly.");
     else
-      writeln(" ***** Addition of bigInteger does not work correct.");
+      writeln(" ***** Addition of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -8142,7 +8142,7 @@ const func boolean: chkAddAssignLiteral1 is func
     big1 :=          -1_; big1 +:=  2147483648_; ok := ok and big1 =  2147483647_;
     big1 :=          -1_; big1 +:=  2147483649_; ok := ok and big1 =  2147483648_;
     if not ok then
-      writeln("Addition assignment of bigInteger with literal does not work correct. (1)");
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (1)");
     end if;
   end func;
 
@@ -8385,7 +8385,7 @@ const func boolean: chkAddAssignLiteral2 is func
     big1 :=  2147483649_; big1 +:=  2147483648_; ok := ok and big1 =  4294967297_;
     big1 :=  2147483649_; big1 +:=  2147483649_; ok := ok and big1 =  4294967298_;
     if not ok then
-      writeln("Addition assignment of bigInteger with literal does not work correct. (2)");
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (2)");
     end if;
   end func;
 
@@ -8606,7 +8606,7 @@ const func boolean: chkAddAssignExpression1 is func
     big1 :=          -1_; big1 +:= bigintExpr( 2147483648_); ok := ok and big1 =  2147483647_;
     big1 :=          -1_; big1 +:= bigintExpr( 2147483649_); ok := ok and big1 =  2147483648_;
     if not ok then
-      writeln("Addition assignment of bigInteger with expression does not work correct. (1)");
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (1)");
     end if;
   end func;
 
@@ -8849,7 +8849,7 @@ const func boolean: chkAddAssignExpression2 is func
     big1 :=  2147483649_; big1 +:= bigintExpr( 2147483648_); ok := ok and big1 =  4294967297_;
     big1 :=  2147483649_; big1 +:= bigintExpr( 2147483649_); ok := ok and big1 =  4294967298_;
     if not ok then
-      writeln("Addition assignment of bigInteger with expression does not work correct. (2)");
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (2)");
     end if;
   end func;
 
@@ -8904,7 +8904,7 @@ const func boolean: chkAddAssignWithItself is func
     big1 :=  9223372036854775807_; big1 +:= big1; ok := ok and big1 =  18446744073709551614_;
     big1 :=  9223372036854775808_; big1 +:= big1; ok := ok and big1 =  18446744073709551616_;
     if not ok then
-      writeln("Addition assignment of bigInteger with itself does not work correct.");
+      writeln("Addition assignment of bigInteger with itself does not work correctly.");
     end if;
   end func;
 
@@ -8916,9 +8916,9 @@ const proc: chkAddAssign is func
         chkAddAssignExpression1 and
         chkAddAssignExpression2 and
         chkAddAssignWithItself then
-      writeln("Addition assignment of bigInteger works correct.");
+      writeln("Addition assignment of bigInteger works correctly.");
     else
-      writeln(" ***** Addition assignment of bigInteger does not work correct.");
+      writeln(" ***** Addition assignment of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -9329,19 +9329,19 @@ const proc: chkSubtraction is func
          2147483649_ -  2147483647_ <>           2_ or
          2147483649_ -  2147483648_ <>           1_ or
          2147483649_ -  2147483649_ <>           0_ then
-      writeln("Subtraction of bigInteger does not work correct.");
+      writeln("Subtraction of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     if number - number <> 0_ then
-      writeln("Subtraction of bigInteger by itself does not work correct.");
+      writeln("Subtraction of bigInteger by itself does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Subtraction of bigInteger works correct.");
+      writeln("Subtraction of bigInteger works correctly.");
     else
-      writeln(" ***** Subtraction of bigInteger does not work correct.");
+      writeln(" ***** Subtraction of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -9564,7 +9564,7 @@ const func boolean: chkSubtractAssignLiteral1 is func
     big1 :=          -1_; big1 -:=  2147483648_; ok := ok and big1 = -2147483649_;
     big1 :=          -1_; big1 -:=  2147483649_; ok := ok and big1 = -2147483650_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with literal does not work correct. (1)");
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (1)");
     end if;
   end func;
 
@@ -9807,7 +9807,7 @@ const func boolean: chkSubtractAssignLiteral2 is func
     big1 :=  2147483649_; big1 -:=  2147483648_; ok := ok and big1 =           1_;
     big1 :=  2147483649_; big1 -:=  2147483649_; ok := ok and big1 =           0_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with literal does not work correct. (2)");
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (2)");
     end if;
   end func;
 
@@ -10029,7 +10029,7 @@ const func boolean: chkSubtractAssignExpression1 is func
     big1 :=          -1_; big1 -:= bigintExpr( 2147483648_); ok := ok and big1 = -2147483649_;
     big1 :=          -1_; big1 -:= bigintExpr( 2147483649_); ok := ok and big1 = -2147483650_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with expression does not work correct. (1)");
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (1)");
     end if;
   end func;
 
@@ -10272,7 +10272,7 @@ const func boolean: chkSubtractAssignExpression2 is func
     big1 :=  2147483649_; big1 -:= bigintExpr( 2147483648_); ok := ok and big1 =           1_;
     big1 :=  2147483649_; big1 -:= bigintExpr( 2147483649_); ok := ok and big1 =           0_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with expression does not work correct. (2)");
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (2)");
     end if;
   end func;
 
@@ -10327,7 +10327,7 @@ const func boolean: chkSubtractAssignWithItself is func
     big1 :=  9223372036854775807_; big1 -:= big1; ok := ok and big1 = 0_;
     big1 :=  9223372036854775808_; big1 -:= big1; ok := ok and big1 = 0_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with itself does not work correct.");
+      writeln("Subtraction assignment of bigInteger with itself does not work correctly.");
     end if;
   end func;
 
@@ -10339,9 +10339,9 @@ const proc: chkSubtractAssign is func
         chkSubtractAssignExpression1 and
         chkSubtractAssignExpression2 and
         chkSubtractAssignWithItself then
-      writeln("Subtraction assignment of bigInteger works correct.");
+      writeln("Subtraction assignment of bigInteger works correctly.");
     else
-      writeln(" ***** Subtraction assignment of bigInteger does not work correct.");
+      writeln(" ***** Subtraction assignment of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -10801,20 +10801,20 @@ const proc: chkMultiplication is func
               65538_ *       65536_ <>  4295098368_ or
               65538_ *       65537_ <>  4295163906_ or
               65538_ *       65538_ <>  4295229444_ then
-      writeln("Multiplication of bigInteger does not work correct.");
+      writeln("Multiplication of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
     number := 1024_;
     if number * number <> 1048576_ then
-      writeln("Multiplication of bigInteger with itself does not work correct.");
+      writeln("Multiplication of bigInteger with itself does not work correctly.");
       okay := FALSE;
     end if;
 
     number := 123456789_;
     if number  *     -1_ <> -123456789_ or
            -1_ * number  <> -123456789_  then
-      writeln("Multiplication of bigInteger with -1 does not work correct.");
+      writeln("Multiplication of bigInteger with -1 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -10823,7 +10823,7 @@ const proc: chkMultiplication is func
                1078203909375_ * 17878103347812890625_ <>        19276240921822134027894287109375_ or
         17878103347812890625_ *        1078203909375_ <>        19276240921822134027894287109375_ or
         17878103347812890625_ * 17878103347812890625_ <> 319626579315078487616775634918212890625_ then
-      writeln("Multiplication of bigger bigInteger values does not work correct.");
+      writeln("Multiplication of bigger bigInteger values does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -10888,7 +10888,7 @@ const proc: chkMultiplication is func
         -3_ * bigintExpr( 10000000000000000000_) <> -30000000000000000000_ or
         -3_ * bigintExpr( 18446744073709551615_) <> -55340232221128654845_ or
         -3_ * bigintExpr( 18446744073709551616_) <> -55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (1)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -10953,7 +10953,7 @@ const proc: chkMultiplication is func
         -2_ * bigintExpr( 10000000000000000000_) <> -20000000000000000000_ or
         -2_ * bigintExpr( 18446744073709551615_) <> -36893488147419103230_ or
         -2_ * bigintExpr( 18446744073709551616_) <> -36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (2)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -11018,7 +11018,7 @@ const proc: chkMultiplication is func
         -1_ * bigintExpr( 10000000000000000000_) <> -10000000000000000000_ or
         -1_ * bigintExpr( 18446744073709551615_) <> -18446744073709551615_ or
         -1_ * bigintExpr( 18446744073709551616_) <> -18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (3)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -11083,7 +11083,7 @@ const proc: chkMultiplication is func
          0_ * bigintExpr( 10000000000000000000_) <> 0_ or
          0_ * bigintExpr( 18446744073709551615_) <> 0_ or
          0_ * bigintExpr( 18446744073709551616_) <> 0_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (4)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -11148,7 +11148,7 @@ const proc: chkMultiplication is func
          1_ * bigintExpr( 10000000000000000000_) <>  10000000000000000000_ or
          1_ * bigintExpr( 18446744073709551615_) <>  18446744073709551615_ or
          1_ * bigintExpr( 18446744073709551616_) <>  18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (5)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -11213,7 +11213,7 @@ const proc: chkMultiplication is func
          2_ * bigintExpr( 10000000000000000000_) <>  20000000000000000000_ or
          2_ * bigintExpr( 18446744073709551615_) <>  36893488147419103230_ or
          2_ * bigintExpr( 18446744073709551616_) <>  36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (6)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -11278,7 +11278,7 @@ const proc: chkMultiplication is func
          3_ * bigintExpr( 10000000000000000000_) <>  30000000000000000000_ or
          3_ * bigintExpr( 18446744073709551615_) <>  55340232221128654845_ or
          3_ * bigintExpr( 18446744073709551616_) <>  55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (7)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -11343,7 +11343,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) * -3_ <> -30000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -3_ <> -55340232221128654845_ or
         bigintExpr( 18446744073709551616_) * -3_ <> -55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (8)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -11408,7 +11408,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) * -2_ <> -20000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -2_ <> -36893488147419103230_ or
         bigintExpr( 18446744073709551616_) * -2_ <> -36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (9)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (9)");
       okay := FALSE;
     end if;
 
@@ -11473,7 +11473,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) * -1_ <> -10000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -1_ <> -18446744073709551615_ or
         bigintExpr( 18446744073709551616_) * -1_ <> -18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (10)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (10)");
       okay := FALSE;
     end if;
 
@@ -11538,7 +11538,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) *  0_ <> 0_ or
         bigintExpr( 18446744073709551615_) *  0_ <> 0_ or
         bigintExpr( 18446744073709551616_) *  0_ <> 0_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (11)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (11)");
       okay := FALSE;
     end if;
 
@@ -11603,7 +11603,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) *  1_ <>  10000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  1_ <>  18446744073709551615_ or
         bigintExpr( 18446744073709551616_) *  1_ <>  18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (12)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -11668,7 +11668,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) *  2_ <>  20000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  2_ <>  36893488147419103230_ or
         bigintExpr( 18446744073709551616_) *  2_ <>  36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (13)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (13)");
       okay := FALSE;
     end if;
 
@@ -11733,7 +11733,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) *  3_ <>  30000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  3_ <>  55340232221128654845_ or
         bigintExpr( 18446744073709551616_) *  3_ <>  55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct. (14)");
+      writeln("Multiplication of digit with bigInteger values does not work correctly. (14)");
       okay := FALSE;
     end if;
 
@@ -11752,14 +11752,14 @@ const proc: chkMultiplication is func
         bigintExpr(16#ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_) *
         bigintExpr(16#ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_) <>
         16#fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001_ then
-      writeln("Karatsuba multiplication does not work correct.");
+      writeln("Karatsuba multiplication does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Multiplication of bigInteger works correct.");
+      writeln("Multiplication of bigInteger works correctly.");
     else
-      writeln(" ***** Multiplication of bigInteger does not work correct.");
+      writeln(" ***** Multiplication of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -11992,7 +11992,7 @@ const func boolean: chkMultAssignLiteral1 is func
     big1 :=        -1_; big1 *:=           1_; ok := ok and big1 =          -1_;
     big1 :=        -1_; big1 *:=           2_; ok := ok and big1 =          -2_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with literals does not work correct. (1)");
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (1)");
     end if;
   end func;
 
@@ -12232,7 +12232,7 @@ const func boolean: chkMultAssignLiteral2 is func
     big1 :=     65538_; big1 *:=       65537_; ok := ok and big1 =  4295163906_;
     big1 :=     65538_; big1 *:=       65538_; ok := ok and big1 =  4295229444_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with literals does not work correct. (2)");
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (2)");
     end if;
   end func;
 
@@ -12464,7 +12464,7 @@ const func boolean: chkMultAssignExpression1 is func
     big1 :=        -1_; big1 *:= bigintExpr(          1_); ok := ok and big1 =          -1_;
     big1 :=        -1_; big1 *:= bigintExpr(          2_); ok := ok and big1 =          -2_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with expressions does not work correct. (1)");
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (1)");
     end if;
   end func;
 
@@ -12704,7 +12704,7 @@ const func boolean: chkMultAssignExpression2 is func
     big1 :=     65538_; big1 *:= bigintExpr(      65537_); ok := ok and big1 =  4295163906_;
     big1 :=     65538_; big1 *:= bigintExpr(      65538_); ok := ok and big1 =  4295229444_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with expressions does not work correct. (2)");
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (2)");
     end if;
   end func;
 
@@ -12889,7 +12889,7 @@ const func boolean: chkMultAssign1 is func
     big1 := 123456789_; big1 *:=  10000000000000000000_; ok := ok and big1 =  1234567890000000000000000000_;
     big1 := 123456789_; big1 *:=  18446744073709551616_; ok := ok and big1 =  2277375790844960561141121024_;
     if not ok then
-      writeln(" ***** Multiplication assignment of bigInteger does not work correct.");
+      writeln(" ***** Multiplication assignment of bigInteger does not work correctly.");
     end if;
   end func;
 
@@ -12912,7 +12912,7 @@ const proc: chkMultAssign is func
     big1 := 17878103347812890625_; big1 *:=        1078203909375_; ok := ok and big1 =        19276240921822134027894287109375_;
     big1 := 17878103347812890625_; big1 *:= 17878103347812890625_; ok := ok and big1 = 319626579315078487616775634918212890625_;
     if not ok then
-      writeln("Multiplication assignment of bigger bigInteger values does not work correct.");
+      writeln("Multiplication assignment of bigger bigInteger values does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12933,14 +12933,14 @@ const proc: chkMultAssign is func
     big1 *:= bigintExpr(16#ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_);
     ok := ok and big1 = 16#fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001_;
     if not ok then
-      writeln("Karatsuba multiplication assignment does not work correct.");
+      writeln("Karatsuba multiplication assignment does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Multiplication assignment of bigInteger works correct.");
+      writeln("Multiplication assignment of bigInteger works correctly.");
     else
-      writeln(" ***** Multiplication assignment of bigInteger does not work correct.");
+      writeln(" ***** Multiplication assignment of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -13035,7 +13035,7 @@ const proc: chkDivision is func
                   1152921504606846976_ div        17596481011711_ <>            65520_ or
                   9223231303661387776_ div       140739636002821_ <>            65533_ or
         39614081257132168796771975168_ div   9223372036854775809_ <>       4294967295_ then
-      writeln("Division of bigInteger does not work correct. (1)");
+      writeln("Division of bigInteger does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -13123,7 +13123,7 @@ const proc: chkDivision is func
                   1152921504606846976_ div       -17596481011711_ <>           -65520_ or
                   9223231303661387776_ div      -140739636002821_ <>           -65533_ or
         39614081257132168796771975168_ div  -9223372036854775809_ <>      -4294967295_ then
-      writeln("Division of bigInteger does not work correct. (2)");
+      writeln("Division of bigInteger does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -13211,7 +13211,7 @@ const proc: chkDivision is func
                  -1152921504606846976_ div        17596481011711_ <>           -65520_ or
                  -9223231303661387776_ div       140739636002821_ <>           -65533_ or
        -39614081257132168796771975168_ div   9223372036854775809_ <>      -4294967295_ then
-      writeln("Division of bigInteger does not work correct. (3)");
+      writeln("Division of bigInteger does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -13299,7 +13299,7 @@ const proc: chkDivision is func
                  -1152921504606846976_ div       -17596481011711_ <>            65520_ or
                  -9223231303661387776_ div      -140739636002821_ <>            65533_ or
        -39614081257132168796771975168_ div  -9223372036854775809_ <>       4294967295_ then
-      writeln("Division of bigInteger does not work correct. (4)");
+      writeln("Division of bigInteger does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -13339,7 +13339,7 @@ const proc: chkDivision is func
        bigintExpr(-170141183460469231731687303715884105728_) div bigintExpr(170141183460469231731687303715884105728_) <> -1_ or
        bigintExpr(-170141183460469231731687303715884105728_) div bigintExpr(170141183460469231731687303715884105729_) <>  0_ or
        bigintExpr(-170141183460469231731687303715884105727_) div bigintExpr(170141183460469231731687303715884105728_) <>  0_ then
-      writeln("Division of bigInteger does not work correct. (5)");
+      writeln("Division of bigInteger does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -13431,7 +13431,7 @@ const proc: chkDivision is func
         bigintExpr(0_) div bigintExpr(                     9223372036854775808_) <> 0_ or
         bigintExpr(0_) div bigintExpr( 170141183460469231731687303715884105727_) <> 0_ or
         bigintExpr(0_) div bigintExpr( 170141183460469231731687303715884105728_) <> 0_ then
-      writeln("Division of bigInteger does not work correct. (6)");
+      writeln("Division of bigInteger does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -13598,7 +13598,7 @@ const proc: chkDivision is func
         bigintExpr(-280223983525050_) div bigintExpr(   -2147483648_) <>           130489_ or
         bigintExpr(-280223983525050_) div bigintExpr(   -4294967296_) <>            65244_ or
         bigintExpr(-280223983525050_) div bigintExpr(-1099511627776_) <>              254_ then
-      writeln("Division of bigInteger by power of two does not work correct.");
+      writeln("Division of bigInteger by power of two does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13617,7 +13617,7 @@ const proc: chkDivision is func
         number div          -1152921504606846976_ <>                   -107081695084_ or
         number div    -1208925819614629174706176_ <>                         -102121_ or
         number div -1237940039285380274899124224_ <>                             -99_ then
-      writeln("Division of bigInteger by negative number does not work correct.");
+      writeln("Division of bigInteger by negative number does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13678,9 +13678,9 @@ const proc: chkDivision is func
     end if;
 
     if okay then
-      writeln("Division of bigInteger works correct.");
+      writeln("Division of bigInteger works correctly.");
     else
-      writeln(" ***** Division of bigInteger does not work correct.");
+      writeln(" ***** Division of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -13774,7 +13774,7 @@ const proc: chkRemainder is func
                   1152921504606846976_ rem        17596481011711_ <>           68719542256_ or
                   9223231303661387776_ rem       140739636002821_ <>       140737488519183_ or
         39614081257132168796771975168_ rem   9223372036854775809_ <>   9223372032559808513_ then
-      writeln("Remainder of bigInteger division does not work correct. (1)");
+      writeln("Remainder of bigInteger division does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -13862,7 +13862,7 @@ const proc: chkRemainder is func
                   1152921504606846976_ rem       -17596481011711_ <>           68719542256_ or
                   9223231303661387776_ rem      -140739636002821_ <>       140737488519183_ or
         39614081257132168796771975168_ rem  -9223372036854775809_ <>   9223372032559808513_ then
-      writeln("Remainder of bigInteger division does not work correct. (2)");
+      writeln("Remainder of bigInteger division does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -13950,7 +13950,7 @@ const proc: chkRemainder is func
                  -1152921504606846976_ rem        17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ rem       140739636002821_ <>      -140737488519183_ or
        -39614081257132168796771975168_ rem   9223372036854775809_ <>  -9223372032559808513_ then
-      writeln("Remainder of bigInteger division does not work correct. (3)");
+      writeln("Remainder of bigInteger division does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14038,7 +14038,7 @@ const proc: chkRemainder is func
                  -1152921504606846976_ rem       -17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ rem      -140739636002821_ <>      -140737488519183_ or
        -39614081257132168796771975168_ rem  -9223372036854775809_ <>  -9223372032559808513_ then
-      writeln("Remainder of bigInteger division does not work correct. (4)");
+      writeln("Remainder of bigInteger division does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -14086,7 +14086,7 @@ const proc: chkRemainder is func
                       -170141183460469231731687303715884105728_ or
        bigintExpr(-170141183460469231731687303715884105727_) rem bigintExpr(170141183460469231731687303715884105728_) <>
                       -170141183460469231731687303715884105727_ then
-      writeln("Remainder of bigInteger division does not work correct. (5)");
+      writeln("Remainder of bigInteger division does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -14178,7 +14178,7 @@ const proc: chkRemainder is func
         bigintExpr(0_) rem bigintExpr(                     9223372036854775808_) <> 0_ or
         bigintExpr(0_) rem bigintExpr( 170141183460469231731687303715884105727_) <> 0_ or
         bigintExpr(0_) rem bigintExpr( 170141183460469231731687303715884105728_) <> 0_ then
-      writeln("Remainder of bigInteger division does not work correct. (6)");
+      writeln("Remainder of bigInteger division does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -14345,7 +14345,7 @@ const proc: chkRemainder is func
         bigintExpr(-280223983525050_) rem bigintExpr(   -2147483648_) <>       -989781178_ or
         bigintExpr(-280223983525050_) rem bigintExpr(   -4294967296_) <>      -3137264826_ or
         bigintExpr(-280223983525050_) rem bigintExpr(-1099511627776_) <>    -948030069946_ then
-      writeln("Remainder of bigInteger division by power of two does not work correct.");
+      writeln("Remainder of bigInteger division by power of two does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -14406,9 +14406,9 @@ const proc: chkRemainder is func
     end if;
 
     if okay then
-      writeln("Remainder of bigInteger division works correct.");
+      writeln("Remainder of bigInteger division works correctly.");
     else
-      writeln(" ***** Remainder of bigInteger division does not work correct.");
+      writeln(" ***** Remainder of bigInteger division does not work correctly.");
       writeln;
     end if;
   end func;
@@ -14502,7 +14502,7 @@ const proc: chkDivRem is func
                   1152921504606846976_ divRem        17596481011711_ <> quotRem(           65520_,           68719542256_) or
                   9223231303661387776_ divRem       140739636002821_ <> quotRem(           65533_,       140737488519183_) or
         39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(      4294967295_,   9223372032559808513_) then
-      writeln("Division of bigInteger with divRem does not work correct. (1)");
+      writeln("Division of bigInteger with divRem does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14590,7 +14590,7 @@ const proc: chkDivRem is func
                   1152921504606846976_ divRem       -17596481011711_ <> quotRem(          -65520_,           68719542256_) or
                   9223231303661387776_ divRem      -140739636002821_ <> quotRem(          -65533_,       140737488519183_) or
         39614081257132168796771975168_ divRem  -9223372036854775809_ <> quotRem(     -4294967295_,   9223372032559808513_) then
-      writeln("Division of bigInteger with divRem does not work correct. (2)");
+      writeln("Division of bigInteger with divRem does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -14678,7 +14678,7 @@ const proc: chkDivRem is func
                  -1152921504606846976_ divRem        17596481011711_ <> quotRem(          -65520_,          -68719542256_) or
                  -9223231303661387776_ divRem       140739636002821_ <> quotRem(          -65533_,      -140737488519183_) or
        -39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(     -4294967295_,  -9223372032559808513_) then
-      writeln("Division of bigInteger with divRem does not work correct. (3)");
+      writeln("Division of bigInteger with divRem does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14766,14 +14766,14 @@ const proc: chkDivRem is func
                  -1152921504606846976_ divRem       -17596481011711_ <> quotRem(           65520_,          -68719542256_) or
                  -9223231303661387776_ divRem      -140739636002821_ <> quotRem(           65533_,      -140737488519183_) or
        -39614081257132168796771975168_ divRem  -9223372036854775809_ <> quotRem(      4294967295_,  -9223372032559808513_) then
-      writeln("Division of bigInteger with divRem does not work correct. (4)");
+      writeln("Division of bigInteger with divRem does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Division of bigInteger with divRem works correct.");
+      writeln("Division of bigInteger with divRem works correctly.");
     else
-      writeln(" ***** Division of bigInteger with divRem does not work correct.");
+      writeln(" ***** Division of bigInteger with divRem does not work correctly.");
       writeln;
     end if;
   end func;
@@ -14868,7 +14868,7 @@ const proc: chkModDivision is func
                   1152921504606846976_ mdiv        17596481011711_ <>            65520_ or
                   9223231303661387776_ mdiv       140739636002821_ <>            65533_ or
         39614081257132168796771975168_ mdiv   9223372036854775809_ <>       4294967295_ then
-      writeln("Modulo division of bigInteger does not work correct. (1)");
+      writeln("Modulo division of bigInteger does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14956,7 +14956,7 @@ const proc: chkModDivision is func
                   1152921504606846976_ mdiv       -17596481011711_ <>           -65521_ or
                   9223231303661387776_ mdiv      -140739636002821_ <>           -65534_ or
         39614081257132168796771975168_ mdiv  -9223372036854775809_ <>      -4294967296_ then
-      writeln("Modulo division of bigInteger does not work correct. (2)");
+      writeln("Modulo division of bigInteger does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -15044,7 +15044,7 @@ const proc: chkModDivision is func
                  -1152921504606846976_ mdiv        17596481011711_ <>           -65521_ or
                  -9223231303661387776_ mdiv       140739636002821_ <>           -65534_ or
        -39614081257132168796771975168_ mdiv   9223372036854775809_ <>      -4294967296_ then
-      writeln("Modulo division of bigInteger does not work correct. (3)");
+      writeln("Modulo division of bigInteger does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -15132,7 +15132,7 @@ const proc: chkModDivision is func
                  -1152921504606846976_ mdiv       -17596481011711_ <>            65520_ or
                  -9223231303661387776_ mdiv      -140739636002821_ <>            65533_ or
        -39614081257132168796771975168_ mdiv  -9223372036854775809_ <>       4294967295_ then
-      writeln("Modulo division of bigInteger does not work correct. (4)");
+      writeln("Modulo division of bigInteger does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -15172,7 +15172,7 @@ const proc: chkModDivision is func
        bigintExpr(-170141183460469231731687303715884105728_) mdiv bigintExpr(170141183460469231731687303715884105728_) <> -1_ or
        bigintExpr(-170141183460469231731687303715884105728_) mdiv bigintExpr(170141183460469231731687303715884105729_) <> -1_ or
        bigintExpr(-170141183460469231731687303715884105727_) mdiv bigintExpr(170141183460469231731687303715884105728_) <> -1_ then
-      writeln("Modulo division of bigInteger does not work correct. (5)");
+      writeln("Modulo division of bigInteger does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -15208,7 +15208,7 @@ const proc: chkModDivision is func
         bigintExpr(-9223372036854775808_) mdiv bigintExpr( 99999999999999999999999999999999999999999999999999_) <> -1_ or
         bigintExpr(-9223372036854775808_) mdiv bigintExpr(                               -9223372036854775809_) <>  0_ or
         bigintExpr(-9223372036854775808_) mdiv bigintExpr(-99999999999999999999999999999999999999999999999999_) <>  0_ then
-      writeln("Modulo division of bigInteger does not work correct. (6)");
+      writeln("Modulo division of bigInteger does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -15300,7 +15300,7 @@ const proc: chkModDivision is func
         bigintExpr(0_) mdiv bigintExpr(                     9223372036854775808_) <> 0_ or
         bigintExpr(0_) mdiv bigintExpr( 170141183460469231731687303715884105727_) <> 0_ or
         bigintExpr(0_) mdiv bigintExpr( 170141183460469231731687303715884105728_) <> 0_ then
-      writeln("Modulo division of bigInteger does not work correct. (7)");
+      writeln("Modulo division of bigInteger does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -15467,7 +15467,7 @@ const proc: chkModDivision is func
         bigintExpr(-280223983525050_) mdiv bigintExpr(   -2147483648_) <>           130489_ or
         bigintExpr(-280223983525050_) mdiv bigintExpr(   -4294967296_) <>            65244_ or
         bigintExpr(-280223983525050_) mdiv bigintExpr(-1099511627776_) <>              254_ then
-      writeln("Modulo division of bigInteger by power of two does not work correct.");
+      writeln("Modulo division of bigInteger by power of two does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -15486,7 +15486,7 @@ const proc: chkModDivision is func
         number mdiv          -1152921504606846976_ <>                   -107081695085_ or
         number mdiv    -1208925819614629174706176_ <>                         -102122_ or
         number mdiv -1237940039285380274899124224_ <>                            -100_ then
-      writeln("Modulo division of bigInteger by negative number does not work correct.");
+      writeln("Modulo division of bigInteger by negative number does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -15547,9 +15547,9 @@ const proc: chkModDivision is func
     end if;
 
     if okay then
-      writeln("Modulo division of bigInteger works correct.");
+      writeln("Modulo division of bigInteger works correctly.");
     else
-      writeln(" ***** Modulo division of bigInteger does not work correct.");
+      writeln(" ***** Modulo division of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -15643,7 +15643,7 @@ const proc: chkModulo is func
                   1152921504606846976_ mod        17596481011711_ <>           68719542256_ or
                   9223231303661387776_ mod       140739636002821_ <>       140737488519183_ or
         39614081257132168796771975168_ mod   9223372036854775809_ <>   9223372032559808513_ then
-      writeln("Modulo of bigInteger division does not work correct. (1)");
+      writeln("Modulo of bigInteger division does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -15731,7 +15731,7 @@ const proc: chkModulo is func
                   1152921504606846976_ mod       -17596481011711_ <>       -17527761469455_ or
                   9223231303661387776_ mod      -140739636002821_ <>           -2147483638_ or
         39614081257132168796771975168_ mod  -9223372036854775809_ <>           -4294967296_ then
-      writeln("Modulo of bigInteger division does not work correct. (2)");
+      writeln("Modulo of bigInteger division does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -15819,7 +15819,7 @@ const proc: chkModulo is func
                  -1152921504606846976_ mod        17596481011711_ <>        17527761469455_ or
                  -9223231303661387776_ mod       140739636002821_ <>            2147483638_ or
        -39614081257132168796771975168_ mod   9223372036854775809_ <>            4294967296_ then
-      writeln("Modulo of bigInteger division does not work correct. (3)");
+      writeln("Modulo of bigInteger division does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -15907,7 +15907,7 @@ const proc: chkModulo is func
                  -1152921504606846976_ mod       -17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ mod      -140739636002821_ <>      -140737488519183_ or
        -39614081257132168796771975168_ mod  -9223372036854775809_ <>  -9223372032559808513_ then
-      writeln("Modulo of bigInteger division does not work correct. (4)");
+      writeln("Modulo of bigInteger division does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -15947,7 +15947,7 @@ const proc: chkModulo is func
        bigintExpr(-170141183460469231731687303715884105728_) mod bigintExpr(170141183460469231731687303715884105728_) <> 0_ or
        bigintExpr(-170141183460469231731687303715884105728_) mod bigintExpr(170141183460469231731687303715884105729_) <> 1_ or
        bigintExpr(-170141183460469231731687303715884105727_) mod bigintExpr(170141183460469231731687303715884105728_) <> 1_ then
-      writeln("Modulo division of bigInteger does not work correct. (5)");
+      writeln("Modulo division of bigInteger does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -15983,7 +15983,7 @@ const proc: chkModulo is func
         bigintExpr(-9223372036854775808_) mod bigintExpr( 999999999999999999999999999999_) <>  999999999990776627963145224191_ or
         bigintExpr(-9223372036854775808_) mod bigintExpr(           -9223372036854775809_) <>            -9223372036854775808_ or
         bigintExpr(-9223372036854775808_) mod bigintExpr(-999999999999999999999999999999_) <>            -9223372036854775808_ then
-      writeln("Modulo of bigInteger division does not work correct. (6)");
+      writeln("Modulo of bigInteger division does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -16075,7 +16075,7 @@ const proc: chkModulo is func
         bigintExpr(0_) mod bigintExpr(                     9223372036854775808_) <> 0_ or
         bigintExpr(0_) mod bigintExpr( 170141183460469231731687303715884105727_) <> 0_ or
         bigintExpr(0_) mod bigintExpr( 170141183460469231731687303715884105728_) <> 0_ then
-      writeln("Modulo of bigInteger division does not work correct. (7)");
+      writeln("Modulo of bigInteger division does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -16470,7 +16470,7 @@ const proc: chkModulo is func
         bigintExpr(-11259375_) mod bigintExpr(  -79228162514264337593543950336_) <>                        -11259375_ or
         bigintExpr(-11259375_) mod bigintExpr( -158456325028528675187087900672_) <>                        -11259375_ or
         bigintExpr(-11259375_) mod bigintExpr(-1267650600228229401496703205376_) <>                        -11259375_ then
-      writeln("Modulo of bigInteger division by power of two does not work correct.");
+      writeln("Modulo of bigInteger division by power of two does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -16531,9 +16531,9 @@ const proc: chkModulo is func
     end if;
 
     if okay then
-      writeln("Modulo of bigInteger division works correct.");
+      writeln("Modulo of bigInteger division works correctly.");
     else
-      writeln(" ***** Modulo of bigInteger division does not work correct.");
+      writeln(" ***** Modulo of bigInteger division does not work correctly.");
       writeln;
     end if;
   end func;
@@ -16833,7 +16833,7 @@ const proc: chkPower is func
         (-18446744073709551615_) ** 1 <>                                       -18446744073709551615_ or
         (-18446744073709551615_) ** 2 <>                     340282366920938463426481119284349108225_ or
         (-18446744073709551615_) ** 3 <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correct.");
+      writeln("Power of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17064,7 +17064,7 @@ const proc: chkPower is func
         bigintExpr(-18446744073709551615_) ** 1 <>                                       -18446744073709551615_ or
         bigintExpr(-18446744073709551615_) ** 2 <>                     340282366920938463426481119284349108225_ or
         bigintExpr(-18446744073709551615_) ** 3 <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correct.");
+      writeln("Power of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17295,7 +17295,7 @@ const proc: chkPower is func
         (-18446744073709551615_) ** intExpr(1) <>                                       -18446744073709551615_ or
         (-18446744073709551615_) ** intExpr(2) <>                     340282366920938463426481119284349108225_ or
         (-18446744073709551615_) ** intExpr(3) <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correct.");
+      writeln("Power of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17526,7 +17526,7 @@ const proc: chkPower is func
         bigintExpr(-18446744073709551615_) ** intExpr(1) <>                                       -18446744073709551615_ or
         bigintExpr(-18446744073709551615_) ** intExpr(2) <>                     340282366920938463426481119284349108225_ or
         bigintExpr(-18446744073709551615_) ** intExpr(3) <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correct.");
+      writeln("Power of bigInteger does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17535,7 +17535,7 @@ const proc: chkPower is func
         120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ ** intExpr(2) <> 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ * 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ or
         bigintExpr(120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_) ** 2 <> 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ * 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ or
         bigintExpr(514098279667722339163434240809284975998719911581783309272748977622873939837259049281278668404377060306863730028955625693731387726908953290576519553694744870036982879590108441151612687361910510948218614663933732069622345439645878398993692284635629537786660832496307083053744379271206603371774229507936_) ** 2 <> 514098279667722339163434240809284975998719911581783309272748977622873939837259049281278668404377060306863730028955625693731387726908953290576519553694744870036982879590108441151612687361910510948218614663933732069622345439645878398993692284635629537786660832496307083053744379271206603371774229507936_ * 514098279667722339163434240809284975998719911581783309272748977622873939837259049281278668404377060306863730028955625693731387726908953290576519553694744870036982879590108441151612687361910510948218614663933732069622345439645878398993692284635629537786660832496307083053744379271206603371774229507936_ then
-      writeln("Karatsuba square does not work correct.");
+      writeln("Karatsuba square does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17724,9 +17724,9 @@ const proc: chkPower is func
     end if;
 
     if okay then
-      writeln("Power of bigInteger works correct.");
+      writeln("Power of bigInteger works correctly.");
     else
-      writeln(" ***** Power of bigInteger does not work correct.");
+      writeln(" ***** Power of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -17748,7 +17748,7 @@ const proc: chkFactorial is func
         if !number <> fact then
           write(" ***** !");
           write(number);
-          writeln(" is not correct computed.");
+          writeln(" is not correctly computed.");
           okay := FALSE;
         end if;
       end for;
@@ -17771,7 +17771,7 @@ const proc: chkFactorial is func
     end if;
 
     if okay then
-      writeln("Factorial of bigInteger works correct.");
+      writeln("Factorial of bigInteger works correctly.");
     end if;
   end func;
 
@@ -17790,7 +17790,7 @@ const proc: chkBinom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed.");
+          writeln(" is not correctly computed.");
           okay := FALSE;
         end if;
       end for;
@@ -17800,16 +17800,16 @@ const proc: chkBinom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed.");
+          writeln(" is not correctly computed.");
           okay := FALSE;
         end if;
       end for;
     end for;
 
     if okay then
-      writeln("Binomial coefficient of bigInteger works correct.");
+      writeln("Binomial coefficient of bigInteger works correctly.");
     else
-      writeln(" ***** Binomial coefficient of bigInteger does not work correct.");
+      writeln(" ***** Binomial coefficient of bigInteger does not work correctly.");
       writeln;
     end if;
   end func;
@@ -18044,7 +18044,7 @@ const proc: chkCompare is func
         compare( 4294967298_,  4294967296_) <>  1 or
         compare( 4294967298_,  4294967297_) <>  1 or
         compare( 4294967298_,  4294967298_) <>  0 then
-      writeln("The bigInteger compare does not work correct.");
+      writeln("The bigInteger compare does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18273,7 +18273,7 @@ const proc: chkCompare is func
         compare(bigintExpr( 4294967298_),  4294967296_) <>  1 or
         compare(bigintExpr( 4294967298_),  4294967297_) <>  1 or
         compare(bigintExpr( 4294967298_),  4294967298_) <>  0 then
-      writeln("The bigInteger compare does not work correct.");
+      writeln("The bigInteger compare does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18502,7 +18502,7 @@ const proc: chkCompare is func
         compare( 4294967298_, bigintExpr( 4294967296_)) <>  1 or
         compare( 4294967298_, bigintExpr( 4294967297_)) <>  1 or
         compare( 4294967298_, bigintExpr( 4294967298_)) <>  0 then
-      writeln("The bigInteger compare does not work correct.");
+      writeln("The bigInteger compare does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18731,14 +18731,14 @@ const proc: chkCompare is func
         compare(bigintExpr( 4294967298_), bigintExpr( 4294967296_)) <>  1 or
         compare(bigintExpr( 4294967298_), bigintExpr( 4294967297_)) <>  1 or
         compare(bigintExpr( 4294967298_), bigintExpr( 4294967298_)) <>  0 then
-      writeln("The bigInteger compare does not work correct.");
+      writeln("The bigInteger compare does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger compare works correct.");
+      writeln("The bigInteger compare works correctly.");
     else
-      writeln(" ***** The bigInteger compare does not work correct.");
+      writeln(" ***** The bigInteger compare does not work correctly.");
       writeln;
     end if;
   end func;
@@ -18911,7 +18911,7 @@ const proc: chkAbs is func
         abs(-1208925819614629174706176_) <> 1208925819614629174706176_ or
         abs(-1208925819614629174706177_) <> 1208925819614629174706177_ or
         abs(-1208925819614629174706178_) <> 1208925819614629174706178_ then
-      writeln("The bigInteger abs function does not work correct. (1)");
+      writeln("The bigInteger abs function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -19078,7 +19078,7 @@ const proc: chkAbs is func
         abs(1208925819614629174706176_) <> 1208925819614629174706176_ or
         abs(1208925819614629174706177_) <> 1208925819614629174706177_ or
         abs(1208925819614629174706178_) <> 1208925819614629174706178_ then
-      writeln("The bigInteger abs function does not work correct. (2)");
+      writeln("The bigInteger abs function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -19245,7 +19245,7 @@ const proc: chkAbs is func
         abs(bigintExpr(-1208925819614629174706176_)) <> 1208925819614629174706176_ or
         abs(bigintExpr(-1208925819614629174706177_)) <> 1208925819614629174706177_ or
         abs(bigintExpr(-1208925819614629174706178_)) <> 1208925819614629174706178_ then
-      writeln("The bigInteger abs function does not work correct. (3)");
+      writeln("The bigInteger abs function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -19412,14 +19412,14 @@ const proc: chkAbs is func
         abs(bigintExpr(1208925819614629174706176_)) <> 1208925819614629174706176_ or
         abs(bigintExpr(1208925819614629174706177_)) <> 1208925819614629174706177_ or
         abs(bigintExpr(1208925819614629174706178_)) <> 1208925819614629174706178_ then
-      writeln("The bigInteger abs function does not work correct. (4)");
+      writeln("The bigInteger abs function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger abs function works correct.");
+      writeln("The bigInteger abs function works correctly.");
     else
-      writeln(" ***** The bigInteger abs function does not work correct.");
+      writeln(" ***** The bigInteger abs function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -19437,9 +19437,9 @@ const proc: chkOdd is func
       end if;
     end for;
     if okay then
-      writeln("The bigInteger odd function works correct.");
+      writeln("The bigInteger odd function works correctly.");
     else
-      writeln(" ***** The bigInteger odd function does not work correct.");
+      writeln(" ***** The bigInteger odd function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -19602,7 +19602,7 @@ const proc: chkLog2 is func
         log2(                                             1125899906842624_) <>  50_ or
         log2(                                             1511254381298056_) <>  50_ or
         log2(                                             2251799813685247_) <>  50_ then
-      writeln("The bigInteger log2 function does not work correct. (1)");
+      writeln("The bigInteger log2 function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -19756,7 +19756,7 @@ const proc: chkLog2 is func
         log2(                              1267650600228229401496703205376_) <> 100_ or
         log2(                              1500917277282758485643664600050_) <> 100_ or
         log2(                              2535301200456458802993406410751_) <> 100_ then
-      writeln("The bigInteger log2 function does not work correct. (2)");
+      writeln("The bigInteger log2 function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -19910,7 +19910,7 @@ const proc: chkLog2 is func
         log2(               1427247692705959881058285969449495136382746624_) <> 150_ or
         log2(               2845858584540191812585998330593170538298418806_) <> 150_ or
         log2(               2854495385411919762116571938898990272765493247_) <> 150_ then
-      writeln("The bigInteger log2 function does not work correct. (3)");
+      writeln("The bigInteger log2 function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -20063,7 +20063,7 @@ const proc: chkLog2 is func
         log2(1606938044258990275541962092341162602522202993782792835301375_) <> 199_ or
         log2(1606938044258990275541962092341162602522202993782792835301376_) <> 200_ or
         log2(1828236661167998479746547920301995556315017882407621673118692_) <> 200_ then
-      writeln("The bigInteger log2 function does not work correct. (4)");
+      writeln("The bigInteger log2 function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -20220,7 +20220,7 @@ const proc: chkLog2 is func
         log2(pred(1_ <<   16777217)) <>   16777216_ or
         log2(     1_ <<   16777217)  <>   16777217_ or
         log2(succ(1_ <<   16777217)) <>   16777217_ then
-      writeln("The bigInteger log2 function does not work correct for big numbers.");
+      writeln("The bigInteger log2 function does not work correctly for big numbers.");
       okay := FALSE;
     end if;
 
@@ -20263,9 +20263,9 @@ const proc: chkLog2 is func
     end if;
 
     if okay then
-      writeln("The bigInteger log2 function works correct.");
+      writeln("The bigInteger log2 function works correctly.");
     else
-      writeln(" ***** The bigInteger log2 function does not work correct.");
+      writeln(" ***** The bigInteger log2 function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -20398,7 +20398,7 @@ const proc: chkLog10 is func
         log10( 999999999999999999999999999999999999999999999999999999999999_) <> 59_ or
         log10(1000000000000000000000000000000000000000000000000000000000000_) <> 60_ or
         log10(9999999999999999999999999999999999999999999999999999999999999_) <> 60_ then
-      writeln("The bigInteger log10 function does not work correct.");
+      writeln("The bigInteger log10 function does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -20456,7 +20456,7 @@ const proc: chkLog10 is func
         log10(pred(10_ **  80000)) <>  79999_ or
         log10(     10_ **  80000)  <>  80000_ or
         log10(succ(10_ **  80000)) <>  80000_ then
-      writeln("The bigInteger log10 function does not work correct for big numbers.");
+      writeln("The bigInteger log10 function does not work correctly for big numbers.");
       okay := FALSE;
     end if;
 
@@ -20499,9 +20499,9 @@ const proc: chkLog10 is func
     end if;
 
     if okay then
-      writeln("The bigInteger log10 function works correct.");
+      writeln("The bigInteger log10 function works correctly.");
     else
-      writeln(" ***** The bigInteger log10 function does not work correct.");
+      writeln(" ***** The bigInteger log10 function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -20597,14 +20597,14 @@ const proc: chkBitLength is func
         bitLength(           79228162514264337593543950336_) <>  97 or
         bitLength( 340282366920938463463374607431768211455_) <> 128 or
         bitLength( 340282366920938463463374607431768211456_) <> 129 then
-      writeln("The bigInteger bitLength function does not work correct.");
+      writeln("The bigInteger bitLength function does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger bitLength function works correct.");
+      writeln("The bigInteger bitLength function works correctly.");
     else
-      writeln(" ***** The bigInteger bitLength function does not work correct.");
+      writeln(" ***** The bigInteger bitLength function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -20624,7 +20624,7 @@ const proc: chkLowestSetBit is func
         lowestSetBit(bigintExpr( 0_)) <> -1 or
         lowestSetBit(bigintExpr( 1_)) <>  0 or
         lowestSetBit(bigintExpr( 2_)) <>  1 then
-      writeln("The bigInteger lowestSetBit function does not work correct.");
+      writeln("The bigInteger lowestSetBit function does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -20829,14 +20829,14 @@ const proc: chkLowestSetBit is func
         lowestSetBit(1807805299791364059984707353883807927837478368005641939714048_) <> 197 or
         lowestSetBit(2008672555323737844427452615426453253152753742228491044126720_) <> 198 or
         lowestSetBit(2410407066388485413312943138511743903783304490674189252952064_) <> 199 then
-      writeln("The bigInteger lowestSetBit function does not work correct.");
+      writeln("The bigInteger lowestSetBit function does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger lowestSetBit function works correct.");
+      writeln("The bigInteger lowestSetBit function works correctly.");
     else
-      writeln(" ***** The bigInteger lowestSetBit function does not work correct.");
+      writeln(" ***** The bigInteger lowestSetBit function does not work correctly.");
       writeln;
     end if;
   end func;
@@ -20950,7 +20950,7 @@ const proc: chkLShift (in integer: lshift, inout boolean: okay) is func
         chkLShift(-10000000000000000000_, lshift) or
         chkLShift(-18446744073709551616_, lshift) or
         chkLShift(-18446744073709551617_, lshift) then
-      writeln("The bigInteger << or <<:= with " <& lshift <& " does not work correct.");
+      writeln("The bigInteger << or <<:= with " <& lshift <& " does not work correctly.");
       okay := FALSE;
     end if;
   end func;
@@ -21070,7 +21070,7 @@ const proc: chkLShift is func
         chkLShift(                               1_, 100,  1267650600228229401496703205376_) or
         chkLShift(                               0_, 101,                                0_) or
         chkLShift(                               0_, 102,                                0_) then
-      writeln("The bigInteger << or <<:= does not work correct.");
+      writeln("The bigInteger << or <<:= does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21177,7 +21177,7 @@ const proc: chkLShift is func
         chkLShift(                              -1_, 100, -1267650600228229401496703205376_) or
         chkLShift(                               0_, 101,                                0_) or
         chkLShift(                               0_, 102,                                0_) then
-      writeln("The bigInteger << or <<:= does not work correct.");
+      writeln("The bigInteger << or <<:= does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21241,20 +21241,20 @@ const proc: chkLShift is func
                    123456789_  << intExpr(            0) <> 123456789_ or
         bigintExpr(123456789_) <<                     0  <> 123456789_ or
         bigintExpr(123456789_) << intExpr(            0) <> 123456789_ then
-      writeln("The bigInteger << does not work correct.");
+      writeln("The bigInteger << does not work correctly.");
       okay := FALSE;
     end if;
 
     num := 123456789_; num <<:= 0; ok := ok and num = 123456789_;
     if not ok then
-      writeln("The bigInteger <<:= does not work correct.");
+      writeln("The bigInteger <<:= does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger << and <<:= works correct.");
+      writeln("The bigInteger << and <<:= works correctly.");
     else
-      writeln(" ***** The bigInteger << or <<:= does not work correct.");
+      writeln(" ***** The bigInteger << or <<:= does not work correctly.");
       writeln;
     end if;
   end func;
@@ -21368,7 +21368,7 @@ const proc: chkRShift (in integer: rshift, inout boolean: okay) is func
         chkRShift(-10000000000000000000_, rshift) or
         chkRShift(-18446744073709551616_, rshift) or
         chkRShift(-18446744073709551617_, rshift) then
-      writeln("The bigInteger >> or >>:= with " <& rshift <& " does not work correct.");
+      writeln("The bigInteger >> or >>:= with " <& rshift <& " does not work correctly.");
       okay := FALSE;
     end if;
   end func;
@@ -21488,7 +21488,7 @@ const proc: chkRShift is func
         chkRShift( 1690200800304305868662270940501_, 100,                                1_) or
         chkRShift( 1690200800304305868662270940501_, 101,                                0_) or
         chkRShift( 1690200800304305868662270940501_, 102,                                0_) then
-      writeln("The bigInteger >> or >>:= does not work correct.");
+      writeln("The bigInteger >> or >>:= does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21595,7 +21595,7 @@ const proc: chkRShift is func
         chkRShift(-1690200800304305868662270940502_, 100,                               -2_) or
         chkRShift(-1690200800304305868662270940502_, 101,                               -1_) or
         chkRShift(-1690200800304305868662270940502_, 102,                               -1_) then
-      writeln("The bigInteger >> or >>:= does not work correct.");
+      writeln("The bigInteger >> or >>:= does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21659,20 +21659,20 @@ const proc: chkRShift is func
                    123456789_  >> intExpr( integer.last) <>         0_ or
         bigintExpr(123456789_) >>          integer.last  <>         0_ or
         bigintExpr(123456789_) >> intExpr( integer.last) <>         0_ then
-      writeln("The bigInteger >> does not work correct.");
+      writeln("The bigInteger >> does not work correctly.");
       okay := FALSE;
     end if;
 
     num := 123456789_; num >>:= 0; ok := ok and num = 123456789_;
     if not ok then
-      writeln("The bigInteger >>:= does not work correct.");
+      writeln("The bigInteger >>:= does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The bigInteger >> and >>:= works correct.");
+      writeln("The bigInteger >> and >>:= works correctly.");
     else
-      writeln(" ***** The bigInteger >> or >>:= does not work correct.");
+      writeln(" ***** The bigInteger >> or >>:= does not work correctly.");
       writeln;
     end if;
   end func;
@@ -21744,7 +21744,7 @@ const proc: chkSqrt is func
         sqrt(18446744073709551615_) <> 4294967295_ or
         sqrt(18446744073709551616_) <> 4294967296_ or
         sqrt(18446744073709551617_) <> 4294967296_ then
-      writeln("The bigInteger square root does not work correct.");
+      writeln("The bigInteger square root does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21813,9 +21813,9 @@ const proc: chkSqrt is func
     end if;
 
     if okay then
-      writeln("The bigInteger square root works correct.");
+      writeln("The bigInteger square root works correctly.");
     else
-      writeln(" ***** The bigInteger square root does not work correct.");
+      writeln(" ***** The bigInteger square root does not work correctly.");
       writeln;
     end if;
   end func;
@@ -22095,7 +22095,7 @@ const proc: checkSci is func
         (                  -1_ sci 18) <> "-1.000000000000000000e+0" or
         (                  -1_ sci 19) <> "-1.0000000000000000000e+0" or
         (                  -1_ sci 30) <> "-1.000000000000000000000000000000e+0" then
-      writeln(" ***** The sci operator does not work correct. (1)");
+      writeln(" ***** The sci operator does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -22378,7 +22378,7 @@ const proc: checkSci is func
         ( 9223372036854775807_ sci 18) <> "9.223372036854775807e+18" or
         ( 9223372036854775807_ sci 19) <> "9.2233720368547758070e+18" or
         ( 9223372036854775807_ sci 30) <> "9.223372036854775807000000000000e+18" then
-      writeln(" ***** The sci operator does not work correct. (2)");
+      writeln(" ***** The sci operator does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -22395,7 +22395,7 @@ const proc: checkSci is func
     end if;
 
     if okay then
-      writeln("The bigInteger sci operator does work correct.");
+      writeln("The bigInteger sci operator does work correctly.");
     end if;
   end func;
 
@@ -22450,7 +22450,7 @@ const proc: chkConstants is func
         big65535m <> -65535_ or
         big65536m <> -65536_ or
         big65537m <> -65537_ then
-      writeln("The bigInteger constants do not work correct.");
+      writeln("The bigInteger constants do not work correctly.");
       okay := FALSE;
     end if;
 
@@ -22479,15 +22479,15 @@ const proc: chkConstants is func
         compare(bigintExpr( 0_), big2)  <> -1 or
         compare(bigintExpr( 1_), big2)  <> -1 or
         compare(bigintExpr( 2_), big2)  <>  0 then
-      writeln("The bigInteger constant comparisons do not work correct.");
+      writeln("The bigInteger constant comparisons do not work correctly.");
       okay := FALSE;
     end if;
 
 
     if okay then
-      writeln("The bigInteger constants work correct.");
+      writeln("The bigInteger constants work correctly.");
     else
-      writeln(" ***** The bigInteger constants do not work correct.");
+      writeln(" ***** The bigInteger constants do not work correctly.");
       writeln;
     end if;
   end func;
@@ -22511,21 +22511,21 @@ const proc: chkAssign is func
     okay := TRUE;
     number := 2_;
     if number <> 2_ then
-      writeln(" ***** 'number := 2_' does not work correct.");
+      writeln(" ***** 'number := 2_' does not work correctly.");
       okay := FALSE;
     end if;
     number := number;
     if number <> 2_ then
-      writeln(" ***** bigInteger 'number := number' does not work correct.");
+      writeln(" ***** bigInteger 'number := number' does not work correctly.");
       okay := FALSE;
     end if;
     do_assign(number, number);
     if number <> 2_ then
-      writeln(" ***** bigInteger 'number := number' does not work correct.");
+      writeln(" ***** bigInteger 'number := number' does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("BigInteger assignment works correct.");
+      writeln("BigInteger assignment works correctly.");
     end if;
   end func;
 
@@ -22552,7 +22552,7 @@ const proc: checkTernary is func
         (boolExpr(FALSE) ?  bigintExpr(1_) : 2_) <> 2_ or
         (boolExpr( TRUE) ?  bigintExpr(1_) : bigintExpr(2_)) <> 1_ or
         (boolExpr(FALSE) ?  bigintExpr(1_) : bigintExpr(2_)) <> 2_ then
-      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -22573,14 +22573,14 @@ const proc: checkTernary is func
     big1 := boolExpr( TRUE) ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 1_;
     big1 := boolExpr(FALSE) ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 2_;
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The ternary operator ? : works correct for bigInteger.");
+      writeln("The ternary operator ? : works correctly for bigInteger.");
     else
-      writeln(" ***** The ternary operator ? : does not work correct.");
+      writeln(" ***** The ternary operator ? : does not work correctly.");
     end if;
   end func;
 

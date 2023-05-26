@@ -182,7 +182,7 @@ const proc: check_string_index is func
     end if;
 
     if okay then
-      writeln("Index checking for string indexing works correct.");
+      writeln("Index checking for string indexing works correctly.");
     end if;
   end func;
 
@@ -219,7 +219,7 @@ const proc: check_string_head is func
         not raisesIndexError("1234567890" [ .. integer.first ]) or
         not raisesIndexError("1234567890" [ ..            -5 ]) or
         not raisesIndexError("1234567890" [ ..            -1 ]) then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (1)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -232,7 +232,7 @@ const proc: check_string_head is func
         not raisesIndexError("1234567890" [ .. intExpr(integer.first) ]) or
         not raisesIndexError("1234567890" [ .. intExpr(           -5) ]) or
         not raisesIndexError("1234567890" [ .. intExpr(           -1) ]) then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (2)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -245,7 +245,7 @@ const proc: check_string_head is func
         not raisesIndexError(striExpr("1234567890") [ .. integer.first ]) or
         not raisesIndexError(striExpr("1234567890") [ ..            -5 ]) or
         not raisesIndexError(striExpr("1234567890") [ ..            -1 ]) then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (3)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -258,7 +258,7 @@ const proc: check_string_head is func
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -5) ]) or
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -1) ]) then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (4)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -272,7 +272,7 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri := "1234567890" [ ..            -5 ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [ ..            -1 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -287,7 +287,7 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri := "1234567890" [ .. intExpr(           -5) ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [ .. intExpr(           -1) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -302,7 +302,7 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ ..            -5 ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [ ..            -1 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -317,7 +317,7 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -5) ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -1) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -327,7 +327,7 @@ const proc: check_string_head is func
     ok := raisesIndexError(stri2 := stri [ ..            -2 ]) and ok;
     ok := raisesIndexError(stri2 := stri [ ..            -1 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (5)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -337,7 +337,7 @@ const proc: check_string_head is func
         not raisesIndexError(headOfEmptyString(intExpr(integer.first))) or
         not raisesIndexError(headOfEmptyString(intExpr(           -5))) or
         not raisesIndexError(headOfEmptyString(intExpr(           -1))) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -347,7 +347,7 @@ const proc: check_string_head is func
         not raisesIndexError(headOfString1(intExpr(integer.first))) or
         not raisesIndexError(headOfString1(intExpr(           -5))) or
         not raisesIndexError(headOfString1(intExpr(           -1))) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -357,7 +357,7 @@ const proc: check_string_head is func
         not raisesIndexError(headFunction(intExpr(integer.first))) or
         not raisesIndexError(headFunction(intExpr(           -5))) or
         not raisesIndexError(headFunction(intExpr(           -1))) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -370,7 +370,7 @@ const proc: check_string_head is func
         not raisesIndexError(headFunction("1234567890", integer.first)) or
         not raisesIndexError(headFunction("1234567890",            -5)) or
         not raisesIndexError(headFunction("1234567890",            -1)) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -383,7 +383,7 @@ const proc: check_string_head is func
         not raisesIndexError(headFunction("1234567890", intExpr(integer.first))) or
         not raisesIndexError(headFunction("1234567890", intExpr(           -5))) or
         not raisesIndexError(headFunction("1234567890", intExpr(           -1))) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -396,7 +396,7 @@ const proc: check_string_head is func
         not raisesIndexError(headFunction(striExpr("1234567890"), integer.first)) or
         not raisesIndexError(headFunction(striExpr("1234567890"),            -5)) or
         not raisesIndexError(headFunction(striExpr("1234567890"),            -1)) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -409,12 +409,12 @@ const proc: check_string_head is func
         not raisesIndexError(headFunction(striExpr("1234567890"), intExpr(integer.first))) or
         not raisesIndexError(headFunction(striExpr("1234567890"), intExpr(           -5))) or
         not raisesIndexError(headFunction(striExpr("1234567890"), intExpr(           -1))) then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Index checking for string head works correct.");
+      writeln("Index checking for string head works correctly.");
     end if;
   end func;
 
@@ -453,7 +453,7 @@ const proc: check_string_tail is func
         not raisesIndexError("1234567890" [            -5 .. ]) or
         not raisesIndexError("1234567890" [            -1 .. ]) or
         not raisesIndexError("1234567890" [             0 .. ]) then
-      writeln(" ***** STRING [ START .. ] does not work correct. (1)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -469,7 +469,7 @@ const proc: check_string_tail is func
         not raisesIndexError("1234567890" [ intExpr(           -5) .. ]) or
         not raisesIndexError("1234567890" [ intExpr(           -1) .. ]) or
         not raisesIndexError("1234567890" [ intExpr(            0) .. ]) then
-      writeln(" ***** STRING [ START .. ] does not work correct. (2)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -485,7 +485,7 @@ const proc: check_string_tail is func
         not raisesIndexError(striExpr("1234567890") [            -5 .. ]) or
         not raisesIndexError(striExpr("1234567890") [            -1 .. ]) or
         not raisesIndexError(striExpr("1234567890") [             0 .. ]) then
-      writeln(" ***** STRING [ START .. ] does not work correct. (3)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -501,7 +501,7 @@ const proc: check_string_tail is func
         not raisesIndexError(striExpr("1234567890") [ intExpr(           -5) .. ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr(           -1) .. ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr(            0) .. ]) then
-      writeln(" ***** STRING [ START .. ] does not work correct. (4)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -518,7 +518,7 @@ const proc: check_string_tail is func
     ok := raisesIndexError(stri := "1234567890" [            -1 .. ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [             0 .. ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -536,7 +536,7 @@ const proc: check_string_tail is func
     ok := raisesIndexError(stri := "1234567890" [ intExpr(           -1) .. ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [ intExpr(            0) .. ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -554,7 +554,7 @@ const proc: check_string_tail is func
     ok := raisesIndexError(stri := striExpr("1234567890") [            -1 .. ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [             0 .. ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -572,7 +572,7 @@ const proc: check_string_tail is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(           -1) .. ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(            0) .. ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -584,7 +584,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailOfEmptyString(intExpr(           -5))) or
         not raisesIndexError(tailOfEmptyString(intExpr(           -1))) or
         not raisesIndexError(tailOfEmptyString(intExpr(            0))) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -596,7 +596,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailOfString1(intExpr(           -5))) or
         not raisesIndexError(tailOfString1(intExpr(           -1))) or
         not raisesIndexError(tailOfString1(intExpr(            0))) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -608,7 +608,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailFunction(intExpr(           -5))) or
         not raisesIndexError(tailFunction(intExpr(           -1))) or
         not raisesIndexError(tailFunction(intExpr(            0))) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -624,7 +624,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailFunction("1234567890",            -5)) or
         not raisesIndexError(tailFunction("1234567890",            -1)) or
         not raisesIndexError(tailFunction("1234567890",             0)) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -640,7 +640,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailFunction("1234567890", intExpr(           -5))) or
         not raisesIndexError(tailFunction("1234567890", intExpr(           -1))) or
         not raisesIndexError(tailFunction("1234567890", intExpr(            0))) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -656,7 +656,7 @@ const proc: check_string_tail is func
         not raisesIndexError(tailFunction(striExpr("1234567890"),            -5)) or
         not raisesIndexError(tailFunction(striExpr("1234567890"),            -1)) or
         not raisesIndexError(tailFunction(striExpr("1234567890"),             0)) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -672,12 +672,12 @@ const proc: check_string_tail is func
         not raisesIndexError(tailFunction(striExpr("1234567890"), intExpr(           -5))) or
         not raisesIndexError(tailFunction(striExpr("1234567890"), intExpr(           -1))) or
         not raisesIndexError(tailFunction(striExpr("1234567890"), intExpr(            0))) then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Index checking for string tail works correct.");
+      writeln("Index checking for string tail works correctly.");
     end if;
   end func;
 
@@ -898,7 +898,7 @@ const func boolean: check_string_range_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last ..            11 ]) or
         not raisesIndexError("1234567890" [  integer.last ..            15 ]) or
         not raisesIndexError("1234567890" [  integer.last ..            20 ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (1)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1114,7 +1114,7 @@ const func boolean: check_string_range_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last .. intExpr(           11) ]) or
         not raisesIndexError("1234567890" [  integer.last .. intExpr(           15) ]) or
         not raisesIndexError("1234567890" [  integer.last .. intExpr(           20) ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (2)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1330,7 +1330,7 @@ const func boolean: check_string_range_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) ..            11 ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) ..            15 ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) ..            20 ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (3)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -1546,7 +1546,7 @@ const func boolean: check_string_range_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) .. intExpr(           11) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) .. intExpr(           15) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) .. intExpr(           20) ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (4)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -1768,7 +1768,7 @@ const func boolean: check_string_range_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last ..            11 ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last ..            15 ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last ..            20 ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (5)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -1984,7 +1984,7 @@ const func boolean: check_string_range_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last .. intExpr(           11) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last .. intExpr(           15) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last .. intExpr(           20) ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (6)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -2200,7 +2200,7 @@ const func boolean: check_string_range_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) ..            11 ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) ..            15 ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) ..            20 ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (7)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -2416,7 +2416,7 @@ const func boolean: check_string_range_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           11) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           15) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           20) ]) then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (8)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -2642,7 +2642,7 @@ const func boolean: check_string_range_assign_1 is func
     ok := raisesIndexError(stri := "1234567890" [  integer.last ..            15 ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [  integer.last ..            20 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2860,7 +2860,7 @@ const func boolean: check_string_range_assign_1 is func
     ok := raisesIndexError(stri := "1234567890" [  integer.last .. intExpr(           15) ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [  integer.last .. intExpr(           20) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3078,7 +3078,7 @@ const func boolean: check_string_range_assign_1 is func
     ok := raisesIndexError(stri := "1234567890" [ intExpr( integer.last) ..            15 ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [ intExpr( integer.last) ..            20 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3296,7 +3296,7 @@ const func boolean: check_string_range_assign_1 is func
     ok := raisesIndexError(stri := "1234567890" [ intExpr( integer.last) .. intExpr(           15) ]) and ok;
     ok := raisesIndexError(stri := "1234567890" [ intExpr( integer.last) .. intExpr(           20) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -3522,7 +3522,7 @@ const func boolean: check_string_range_assign_2 is func
     ok := raisesIndexError(stri := striExpr("1234567890") [  integer.last ..            15 ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [  integer.last ..            20 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (5)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -3740,7 +3740,7 @@ const func boolean: check_string_range_assign_2 is func
     ok := raisesIndexError(stri := striExpr("1234567890") [  integer.last .. intExpr(           15) ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [  integer.last .. intExpr(           20) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (6)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -3958,7 +3958,7 @@ const func boolean: check_string_range_assign_2 is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) ..            15 ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) ..            20 ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (7)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -4176,7 +4176,7 @@ const func boolean: check_string_range_assign_2 is func
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           15) ]) and ok;
     ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           20) ]) and ok;
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (8)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -4402,7 +4402,7 @@ const func boolean: check_string_range_func_1 is func
         not raisesIndexError(rangeFunction("1234567890",  integer.last,            11)) or
         not raisesIndexError(rangeFunction("1234567890",  integer.last,            15)) or
         not raisesIndexError(rangeFunction("1234567890",  integer.last,            20)) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -4618,7 +4618,7 @@ const func boolean: check_string_range_func_1 is func
         not raisesIndexError(rangeFunction("1234567890",  integer.last, intExpr(           11))) or
         not raisesIndexError(rangeFunction("1234567890",  integer.last, intExpr(           15))) or
         not raisesIndexError(rangeFunction("1234567890",  integer.last, intExpr(           20))) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -4834,7 +4834,7 @@ const func boolean: check_string_range_func_1 is func
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last),            11)) or
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last),            15)) or
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last),            20)) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -5050,7 +5050,7 @@ const func boolean: check_string_range_func_1 is func
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last), intExpr(           11))) or
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last), intExpr(           15))) or
         not raisesIndexError(rangeFunction("1234567890", intExpr( integer.last), intExpr(           20))) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -5272,7 +5272,7 @@ const func boolean: check_string_range_func_2 is func
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last,            11)) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last,            15)) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last,            20)) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -5488,7 +5488,7 @@ const func boolean: check_string_range_func_2 is func
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last, intExpr(           11))) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last, intExpr(           15))) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"),  integer.last, intExpr(           20))) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -5704,7 +5704,7 @@ const func boolean: check_string_range_func_2 is func
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last),            11)) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last),            15)) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last),            20)) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -5920,7 +5920,7 @@ const func boolean: check_string_range_func_2 is func
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           11))) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           15))) or
         not raisesIndexError(rangeFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           20))) then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -6080,7 +6080,7 @@ const proc: check_string_range is func
         not raisesIndexError("12" [-2147483646 .. 2147483647]) or
         not raisesIndexError("12" [-2147483647 .. 2147483647]) or
         not raisesIndexError("12" [pred(-2147483647) .. 2147483647]) then
-      writeln(" ***** STRING [ START .. STOP ] with 32-bit maximums does not work correct.");
+      writeln(" ***** STRING [ START .. STOP ] with 32-bit maximums does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -6210,12 +6210,12 @@ const proc: check_string_range is func
         not raisesIndexError("12" [-9223372036854775806 ..         integer.last]) or
         not raisesIndexError("12" [-9223372036854775807 ..         integer.last]) or
         not raisesIndexError("12" [       integer.first ..         integer.last]) then
-      writeln(" ***** STRING [ START .. STOP ] with 64-bit maximums does not work correct.");
+      writeln(" ***** STRING [ START .. STOP ] with 64-bit maximums does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Index checking for string range works correct.");
+      writeln("Index checking for string range works correctly.");
     end if;
   end func;
 
@@ -6428,7 +6428,7 @@ const func boolean: check_string_substr_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last len integer.first ]) or
         not raisesIndexError("1234567890" [  integer.last len            -5 ]) or
         not raisesIndexError("1234567890" [  integer.last len            -1 ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -6636,7 +6636,7 @@ const func boolean: check_string_substr_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError("1234567890" [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError("1234567890" [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -6844,7 +6844,7 @@ const func boolean: check_string_substr_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -7052,7 +7052,7 @@ const func boolean: check_string_substr_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -7266,7 +7266,7 @@ const func boolean: check_string_substr_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last len integer.first ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last len            -5 ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last len            -1 ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -7474,7 +7474,7 @@ const func boolean: check_string_substr_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -7682,7 +7682,7 @@ const func boolean: check_string_substr_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -7890,7 +7890,7 @@ const func boolean: check_string_substr_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -7955,7 +7955,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "" [  integer.last len integer.first ]) or
         not raisesIndexError(stri := "" [  integer.last len            -5 ]) or
         not raisesIndexError(stri := "" [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -8013,7 +8013,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1" [  integer.last len integer.first ]) or
         not raisesIndexError(stri := "1" [  integer.last len            -5 ]) or
         not raisesIndexError(stri := "1" [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -8099,7 +8099,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1234567890" [  integer.last len integer.first ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last len            -5 ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -8156,7 +8156,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "" [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "" [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := "" [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -8214,7 +8214,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1" [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "1" [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := "1" [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -8300,7 +8300,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1234567890" [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -8357,7 +8357,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "" [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -8415,7 +8415,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -8501,7 +8501,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -8558,7 +8558,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "" [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -8616,7 +8616,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -8702,7 +8702,7 @@ const func boolean: check_string_substr_assign_1 is func
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -8767,7 +8767,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("") [  integer.last len integer.first ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last len            -5 ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -8825,7 +8825,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [  integer.last len integer.first ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last len            -5 ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -8911,7 +8911,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len integer.first ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len            -5 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len            -1 ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -8968,7 +8968,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("") [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -9026,7 +9026,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -9112,7 +9112,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -9169,7 +9169,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -9227,7 +9227,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -9313,7 +9313,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len integer.first ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len            -5 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len            -1 ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -9370,7 +9370,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"\" [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -9428,7 +9428,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"1\" [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -9514,7 +9514,7 @@ const func boolean: check_string_substr_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr(integer.first) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr(           -5) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr(           -1) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"1234567890\" [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -9544,7 +9544,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890",            -5)) or
         not raisesIndexError(substrFunction("1234567890",            -1)) or
         not raisesIndexError(substrFunction("1234567890",             0)) then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9560,7 +9560,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890", intExpr(           -5))) or
         not raisesIndexError(substrFunction("1234567890", intExpr(           -1))) or
         not raisesIndexError(substrFunction("1234567890", intExpr(            0))) then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9576,7 +9576,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"),            -5)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),            -1)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),             0)) then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -9592,7 +9592,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr(           -1))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr(            0))) then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -9649,7 +9649,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("",  integer.last, integer.first)) or
         not raisesIndexError(substrFunction("",  integer.last,            -5)) or
         not raisesIndexError(substrFunction("",  integer.last,            -1)) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9706,7 +9706,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1",  integer.last, integer.first)) or
         not raisesIndexError(substrFunction("1",  integer.last,            -5)) or
         not raisesIndexError(substrFunction("1",  integer.last,            -1)) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9792,7 +9792,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890",  integer.last, integer.first)) or
         not raisesIndexError(substrFunction("1234567890",  integer.last,            -5)) or
         not raisesIndexError(substrFunction("1234567890",  integer.last,            -1)) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9849,7 +9849,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("",  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction("",  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction("",  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9907,7 +9907,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1",  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction("1",  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction("1",  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9993,7 +9993,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890",  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction("1234567890",  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction("1234567890",  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -10050,7 +10050,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("", intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction("", intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction("", intExpr( integer.last),            -1)) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -10107,7 +10107,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1", intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction("1", intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction("1", intExpr( integer.last),            -1)) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -10193,7 +10193,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last),            -1)) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -10250,7 +10250,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("", intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction("", intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction("", intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -10308,7 +10308,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1", intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction("1", intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction("1", intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -10394,7 +10394,7 @@ const func boolean: check_string_substr_func_1 is func
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction("1234567890", intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -10457,7 +10457,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr(""),  integer.last, integer.first)) or
         not raisesIndexError(substrFunction(striExpr(""),  integer.last,            -5)) or
         not raisesIndexError(substrFunction(striExpr(""),  integer.last,            -1)) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -10514,7 +10514,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last, integer.first)) or
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last,            -5)) or
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last,            -1)) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -10600,7 +10600,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last, integer.first)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last,            -5)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last,            -1)) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -10657,7 +10657,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr(""),  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr(""),  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr(""),  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -10715,7 +10715,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr("1"),  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -10801,7 +10801,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last, intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last, intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"),  integer.last, intExpr(           -1))) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -10858,7 +10858,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last),            -1)) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -10915,7 +10915,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last),            -1)) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -11001,7 +11001,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last), integer.first)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last),            -5)) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last),            -1)) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -11058,7 +11058,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"\" [ START len LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -11116,7 +11116,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr("1"), intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"1\" [ START len LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -11202,7 +11202,7 @@ const func boolean: check_string_substr_func_2 is func
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(integer.first))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           -5))) or
         not raisesIndexError(substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           -1))) then
-      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -11266,7 +11266,7 @@ const proc: check_string_substr is func
         not raisesIndexError("1234" [-2147483646 len 2147483647]) or
         not raisesIndexError("1234" [-2147483647 len 2147483647]) or
         not raisesIndexError("1234" [pred(-2147483647) len 2147483647]) then
-      writeln(" ***** STRING [ START len LENGTH ] with 32-bit maximums does not work correct.");
+      writeln(" ***** STRING [ START len LENGTH ] with 32-bit maximums does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -11300,12 +11300,12 @@ const proc: check_string_substr is func
         not raisesIndexError("1234" [-9223372036854775806 len integer.last]) or
         not raisesIndexError("1234" [-9223372036854775807 len integer.last]) or
         not raisesIndexError("1234" [       integer.first len integer.last]) then
-      writeln(" ***** STRING [ START len LENGTH ] with 64-bit maximums does not work correct.");
+      writeln(" ***** STRING [ START len LENGTH ] with 64-bit maximums does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Index checking for string substr works correct.");
+      writeln("Index checking for string substr works correctly.");
     end if;
   end func;
 
@@ -11386,7 +11386,7 @@ const func boolean: check_string_substr_fixLen_empty_1 is func
         not raisesIndexError("" [  integer.last fixLen             2 ]) or
         not raisesIndexError("" [  integer.last fixLen            20 ]) or
         not raisesIndexError("" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -11462,7 +11462,7 @@ const func boolean: check_string_substr_fixLen_empty_1 is func
         not raisesIndexError("" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError("" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError("" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -11538,7 +11538,7 @@ const func boolean: check_string_substr_fixLen_empty_1 is func
         not raisesIndexError("" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError("" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError("" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -11614,7 +11614,7 @@ const func boolean: check_string_substr_fixLen_empty_1 is func
         not raisesIndexError("" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError("" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError("" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -11696,7 +11696,7 @@ const func boolean: check_string_substr_fixLen_empty_2 is func
         not raisesIndexError(striExpr("") [  integer.last fixLen             2 ]) or
         not raisesIndexError(striExpr("") [  integer.last fixLen            20 ]) or
         not raisesIndexError(striExpr("") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -11772,7 +11772,7 @@ const func boolean: check_string_substr_fixLen_empty_2 is func
         not raisesIndexError(striExpr("") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -11848,7 +11848,7 @@ const func boolean: check_string_substr_fixLen_empty_2 is func
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -11924,7 +11924,7 @@ const func boolean: check_string_substr_fixLen_empty_2 is func
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -12008,7 +12008,7 @@ const func boolean: check_string_substr_fixLen_empty_3 is func
         not raisesIndexError(stri := "" [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := "" [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := "" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -12084,7 +12084,7 @@ const func boolean: check_string_substr_fixLen_empty_3 is func
         not raisesIndexError(stri := "" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -12160,7 +12160,7 @@ const func boolean: check_string_substr_fixLen_empty_3 is func
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -12236,7 +12236,7 @@ const func boolean: check_string_substr_fixLen_empty_3 is func
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -12320,7 +12320,7 @@ const func boolean: check_string_substr_fixLen_empty_4 is func
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -12396,7 +12396,7 @@ const func boolean: check_string_substr_fixLen_empty_4 is func
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -12472,7 +12472,7 @@ const func boolean: check_string_substr_fixLen_empty_4 is func
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -12548,7 +12548,7 @@ const func boolean: check_string_substr_fixLen_empty_4 is func
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -12630,7 +12630,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1" [  integer.last fixLen             2 ]) or
         not raisesIndexError("1" [  integer.last fixLen            20 ]) or
         not raisesIndexError("1" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -12746,7 +12746,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last fixLen             2 ]) or
         not raisesIndexError("1234567890" [  integer.last fixLen            20 ]) or
         not raisesIndexError("1234567890" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -12822,7 +12822,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError("1" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError("1" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -12938,7 +12938,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1234567890" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError("1234567890" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError("1234567890" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -13014,7 +13014,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError("1" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError("1" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -13130,7 +13130,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -13206,7 +13206,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError("1" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError("1" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -13322,7 +13322,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError("1234567890" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -13404,7 +13404,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1") [  integer.last fixLen             2 ]) or
         not raisesIndexError(striExpr("1") [  integer.last fixLen            20 ]) or
         not raisesIndexError(striExpr("1") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -13520,7 +13520,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen             2 ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen            20 ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -13596,7 +13596,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("1") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("1") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -13712,7 +13712,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("1234567890") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -13788,7 +13788,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -13904,7 +13904,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -13980,7 +13980,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("1") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -14096,7 +14096,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -14180,7 +14180,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1" [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := "1" [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := "1" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14296,7 +14296,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14372,7 +14372,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "1" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "1" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -14488,7 +14488,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "1234567890" [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -14564,7 +14564,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14680,7 +14680,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14756,7 +14756,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "1" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -14872,7 +14872,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := "1234567890" [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -14956,7 +14956,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -15072,7 +15072,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -15148,7 +15148,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("1") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -15264,7 +15264,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [  integer.last fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -15340,7 +15340,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -15456,7 +15456,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen             2 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen            20 ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen  integer.last ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -15532,7 +15532,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("1") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"1\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -15648,7 +15648,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr(            2) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr(           20) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) fixLen intExpr( integer.last) ]) then
-      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := \"1234567890\" [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -15688,7 +15688,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890",            11)) or
         not raisesIndexError(substrFixLen("1234567890",            15)) or
         not raisesIndexError(substrFixLen("1234567890",  integer.last)) then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -15714,7 +15714,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890", intExpr(           11))) or
         not raisesIndexError(substrFixLen("1234567890", intExpr(           15))) or
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last))) then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -15740,7 +15740,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"),            11)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),            15)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last)) then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -15766,7 +15766,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr(           11))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr(           15))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last))) then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -15842,7 +15842,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("",  integer.last,             2)) or
         not raisesIndexError(substrFixLen("",  integer.last,            20)) or
         not raisesIndexError(substrFixLen("",  integer.last,  integer.last)) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -15917,7 +15917,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1",  integer.last,             2)) or
         not raisesIndexError(substrFixLen("1",  integer.last,            20)) or
         not raisesIndexError(substrFixLen("1",  integer.last,  integer.last)) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -16033,7 +16033,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890",  integer.last,             2)) or
         not raisesIndexError(substrFixLen("1234567890",  integer.last,            20)) or
         not raisesIndexError(substrFixLen("1234567890",  integer.last,  integer.last)) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -16109,7 +16109,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("",  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen("",  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen("",  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -16185,7 +16185,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1",  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen("1",  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen("1",  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -16301,7 +16301,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890",  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen("1234567890",  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen("1234567890",  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -16377,7 +16377,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("", intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen("", intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen("", intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -16452,7 +16452,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1", intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen("1", intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen("1", intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -16568,7 +16568,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -16644,7 +16644,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("", intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen("", intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen("", intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -16720,7 +16720,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1", intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen("1", intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen("1", intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -16836,7 +16836,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen("1234567890", intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -16918,7 +16918,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last,             2)) or
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last,            20)) or
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last,  integer.last)) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -16993,7 +16993,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last,             2)) or
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last,            20)) or
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last,  integer.last)) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -17109,7 +17109,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last,             2)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last,            20)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last,  integer.last)) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -17185,7 +17185,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr(""),  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -17261,7 +17261,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr("1"),  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -17377,7 +17377,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last, intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last, intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"),  integer.last, intExpr( integer.last))) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -17453,7 +17453,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -17528,7 +17528,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -17644,7 +17644,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last),             2)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last),            20)) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last),  integer.last)) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -17720,7 +17720,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr(""), intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"\" [ START fixLen LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -17796,7 +17796,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr("1"), intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"1\" [ START fixLen LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -17912,7 +17912,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last), intExpr(            2))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last), intExpr(           20))) or
         not raisesIndexError(substrFixLen(striExpr("1234567890"), intExpr( integer.last), intExpr( integer.last))) then
-      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** \"1234567890\" [ START fixLen LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -17966,7 +17966,7 @@ const proc: check_string_substr_fixLen is func
         not raisesIndexError(striExpr("1")[rand(integer.first, 0) fixLen 0]) or
         not raisesIndexError(         "1" [rand(integer.first, 0) fixLen 1]) or
         not raisesIndexError(striExpr("1")[rand(integer.first, 0) fixLen 1]) then
-      writeln(" ***** STRING [ START fixLen 0 ] with START < 1 does not work correct.");
+      writeln(" ***** STRING [ START fixLen 0 ] with START < 1 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17974,12 +17974,12 @@ const proc: check_string_substr_fixLen is func
         not raisesIndexError(striExpr("1")[rand(2, integer.last) fixLen 0]) or
         not raisesIndexError(         "1" [rand(2, integer.last) fixLen 1]) or
         not raisesIndexError(striExpr("1")[rand(2, integer.last) fixLen 1]) then
-      writeln(" ***** STRING [ START fixLen 0 ] with START < 1 does not work correct.");
+      writeln(" ***** STRING [ START fixLen 0 ] with START < 1 does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Index checking for string substr with fixed length works correct.");
+      writeln("Index checking for string substr with fixed length works correctly.");
     end if;
   end func;
 
@@ -18204,7 +18204,7 @@ const proc: check_string_assign_at is func
     end if;
 
     if okay then
-      writeln("Index checking for string @:= works correct.");
+      writeln("Index checking for string @:= works correctly.");
     end if;
   end func;
 

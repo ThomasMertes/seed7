@@ -103,7 +103,7 @@ const proc: check_string_literal is func
         ord("\r"[1]) <> 13 or
         ord("\t"[1]) <>  9 or
         ord("\v"[1]) <> 11 then
-      writeln("Basic escape sequences do not work correct.");
+      writeln("Basic escape sequences do not work correctly.");
       okay := FALSE;
     end if;
     if "\ \"   <> ""   or "\
@@ -118,7 +118,7 @@ const proc: check_string_literal is func
        "a\ \b" <> "ab" or "a\
 \b"            <> "ab" or "a\
           \b"  <> "ab" then
-      writeln("Escape sequences to skip white space do not work correct.");
+      writeln("Escape sequences to skip white space do not work correctly.");
       okay := FALSE;
     end if;
     if  ord("\A"[1]) <>  1 or
@@ -147,13 +147,13 @@ const proc: check_string_literal is func
         ord("\X"[1]) <> 24 or
         ord("\Y"[1]) <> 25 or
         ord("\Z"[1]) <> 26 then
-      writeln("Escape sequences for control characters do not work correct.");
+      writeln("Escape sequences for control characters do not work correctly.");
       okay := FALSE;
     end if;
     if "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\
         \\14;\15;\16;\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;" <>
         "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
-      writeln("Decimal numeric escape sequences do not work correct.");
+      writeln("Decimal numeric escape sequences do not work correctly.");
       okay := FALSE;
     end if;
     if "\2#1;\2#10;\2#11;\2#100;\2#101;\2#110;\2#111;\2#1000;\
@@ -161,21 +161,21 @@ const proc: check_string_literal is func
         \\2#1111;\2#10000;\2#10001;\2#10010;\2#10011;\2#10100;\
         \\2#10101;\2#10110;\2#10111;\2#11000;\2#11001;\2#11010;" <>
         "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
-      writeln("Binary numeric escape sequences do not work correct.");
+      writeln("Binary numeric escape sequences do not work correctly.");
       okay := FALSE;
     end if;
     if "\8#1;\8#2;\8#3;\8#4;\8#5;\8#6;\8#7;\8#10;\8#11;\8#12;\
         \\8#13;\8#14;\8#15;\8#16;\8#17;\8#20;\8#21;\8#22;\8#23;\
         \\8#24;\8#25;\8#26;\8#27;\8#30;\8#31;\8#32;" <>
         "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
-      writeln("Octal numeric escape sequences do not work correct.");
+      writeln("Octal numeric escape sequences do not work correctly.");
       okay := FALSE;
     end if;
     if "\16#1;\16#2;\16#3;\16#4;\16#5;\16#6;\16#7;\16#8;\16#9;\16#a;\
         \\16#b;\16#c;\16#d;\16#e;\16#f;\16#10;\16#11;\16#12;\16#13;\
         \\16#14;\16#15;\16#16;\16#17;\16#18;\16#19;\16#1a;" <>
         "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
-      writeln("Hexadecimal numeric escape sequences do not work correct.");
+      writeln("Hexadecimal numeric escape sequences do not work correctly.");
       okay := FALSE;
     end if;
     if  ord("\16#7;"[1])       <>        7 or
@@ -224,7 +224,7 @@ const proc: check_string_literal is func
         ord("\16#1000000;"[1]) <> 16777216 or
         ord("\16#1ffffff;"[1]) <> 33554431 or
         ord("\16#2000000;"[1]) <> 33554432 then
-      writeln("String escape sequences do not work correct.");
+      writeln("String escape sequences do not work correctly.");
       okay := FALSE;
     end if;
 
@@ -262,14 +262,14 @@ const proc: check_string_literal is func
         \\\11000;\\12000;\\13000;\\14000;\\15000;\\16000;\\17000;\\18000;\\19000;\\20000;\
         \\\22000;\\24000;\\26000;\\28000;\\30000;\\32000;\\34000;\\36000;\\38000;\\40000;\
         \\\43333;\\46666;\\50000;\\55000;\\60000;\\65000;\\70000;\\80000;\\90000;\\100000;\"" then
-      writeln("The literal function does not work correct.");
+      writeln("The literal function does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String literals work correct.");
+      writeln("String literals work correctly.");
     else
-      writeln(" ***** String literals do not work correct.");
+      writeln(" ***** String literals do not work correctly.");
       writeln;
     end if;
   end func;
@@ -322,7 +322,7 @@ const proc: check_string_comparisons is func
         "123456789" = "abcdefghijklmnopqrstuvwxyz" or
         "1234567890" = "123456789" or
         "abcdefghijklmnopqrstuvwxyz" = "123456789" then
-      writeln(" ***** STRING = STRING does not work correct.");
+      writeln(" ***** STRING = STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -364,7 +364,7 @@ const proc: check_string_comparisons is func
         striExpr("123456789") = "abcdefghijklmnopqrstuvwxyz" or
         striExpr("1234567890") = "123456789" or
         striExpr("abcdefghijklmnopqrstuvwxyz") = "123456789" then
-      writeln(" ***** STRING = STRING does not work correct.");
+      writeln(" ***** STRING = STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -406,7 +406,7 @@ const proc: check_string_comparisons is func
         "123456789" = striExpr("abcdefghijklmnopqrstuvwxyz") or
         "1234567890" = striExpr("123456789") or
         "abcdefghijklmnopqrstuvwxyz" = striExpr("123456789") then
-      writeln(" ***** STRING = STRING does not work correct.");
+      writeln(" ***** STRING = STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -448,7 +448,7 @@ const proc: check_string_comparisons is func
         striExpr("123456789") = striExpr("abcdefghijklmnopqrstuvwxyz") or
         striExpr("1234567890") = striExpr("123456789") or
         striExpr("abcdefghijklmnopqrstuvwxyz") = striExpr("123456789") then
-      writeln(" ***** STRING = STRING does not work correct.");
+      writeln(" ***** STRING = STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -490,7 +490,7 @@ const proc: check_string_comparisons is func
         not ("123456789" <> "abcdefghijklmnopqrstuvwxyz") or
         not ("1234567890" <> "123456789") or
         not ("abcdefghijklmnopqrstuvwxyz" <> "123456789") then
-      writeln(" ***** STRING <> STRING does not work correct.");
+      writeln(" ***** STRING <> STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -532,7 +532,7 @@ const proc: check_string_comparisons is func
         not (striExpr("123456789") <> "abcdefghijklmnopqrstuvwxyz") or
         not (striExpr("1234567890") <> "123456789") or
         not (striExpr("abcdefghijklmnopqrstuvwxyz") <> "123456789") then
-      writeln(" ***** STRING <> STRING does not work correct.");
+      writeln(" ***** STRING <> STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -574,7 +574,7 @@ const proc: check_string_comparisons is func
         not ("123456789" <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
         not ("1234567890" <> striExpr("123456789")) or
         not ("abcdefghijklmnopqrstuvwxyz" <> striExpr("123456789")) then
-      writeln(" ***** STRING <> STRING does not work correct.");
+      writeln(" ***** STRING <> STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -616,7 +616,7 @@ const proc: check_string_comparisons is func
         not (striExpr("123456789") <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
         not (striExpr("1234567890") <> striExpr("123456789")) or
         not (striExpr("abcdefghijklmnopqrstuvwxyz") <> striExpr("123456789")) then
-      writeln(" ***** STRING <> STRING does not work correct.");
+      writeln(" ***** STRING <> STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -718,7 +718,7 @@ const proc: check_string_comparisons is func
              "222"   > "123"     and
              "2222"  > "123"
              ) then
-      writeln(" ***** STRING > STRING does not work correct.");
+      writeln(" ***** STRING > STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -820,7 +820,7 @@ const proc: check_string_comparisons is func
              striExpr("222")   > "123"     and
              striExpr("2222")  > "123"
              ) then
-      writeln(" ***** STRING > STRING does not work correct.");
+      writeln(" ***** STRING > STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -922,7 +922,7 @@ const proc: check_string_comparisons is func
              "222"   > striExpr("123")    and
              "2222"  > striExpr("123")
              ) then
-      writeln(" ***** STRING > STRING does not work correct.");
+      writeln(" ***** STRING > STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1024,7 +1024,7 @@ const proc: check_string_comparisons is func
              striExpr("222")   > striExpr("123")     and
              striExpr("2222")  > striExpr("123")
              ) then
-      writeln(" ***** STRING > STRING does not work correct.");
+      writeln(" ***** STRING > STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1126,7 +1126,7 @@ const proc: check_string_comparisons is func
              "222"   >= "123"     and
              "2222"  >= "123"
              ) then
-      writeln(" ***** STRING >= STRING does not work correct.");
+      writeln(" ***** STRING >= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1228,7 +1228,7 @@ const proc: check_string_comparisons is func
              striExpr("222")   >= "123"     and
              striExpr("2222")  >= "123"
              ) then
-      writeln(" ***** STRING >= STRING does not work correct.");
+      writeln(" ***** STRING >= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1330,7 +1330,7 @@ const proc: check_string_comparisons is func
              "222"   >= striExpr("123")     and
              "2222"  >= striExpr("123")
              ) then
-      writeln(" ***** STRING >= STRING does not work correct.");
+      writeln(" ***** STRING >= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1432,7 +1432,7 @@ const proc: check_string_comparisons is func
              striExpr("222")   >= striExpr("123")     and
              striExpr("2222")  >= striExpr("123")
              ) then
-      writeln(" ***** STRING >= STRING does not work correct.");
+      writeln(" ***** STRING >= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1534,7 +1534,7 @@ const proc: check_string_comparisons is func
              "123"   < "222"     and
              "123"   < "2222"
              ) then
-      writeln(" ***** STRING < STRING does not work correct.");
+      writeln(" ***** STRING < STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1636,7 +1636,7 @@ const proc: check_string_comparisons is func
              striExpr("123")   < "222"     and
              striExpr("123")   < "2222"
              ) then
-      writeln(" ***** STRING < STRING does not work correct.");
+      writeln(" ***** STRING < STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1738,7 +1738,7 @@ const proc: check_string_comparisons is func
              "123"   < striExpr("222")     and
              "123"   < striExpr("2222")
              ) then
-      writeln(" ***** STRING < STRING does not work correct.");
+      writeln(" ***** STRING < STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1840,7 +1840,7 @@ const proc: check_string_comparisons is func
              striExpr("123")   < striExpr("222")     and
              striExpr("123")   < striExpr("2222")
              ) then
-      writeln(" ***** STRING < STRING does not work correct.");
+      writeln(" ***** STRING < STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1942,7 +1942,7 @@ const proc: check_string_comparisons is func
              "123"   <= "222"     and
              "123"   <= "2222"
              ) then
-      writeln(" ***** STRING <= STRING does not work correct.");
+      writeln(" ***** STRING <= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2044,7 +2044,7 @@ const proc: check_string_comparisons is func
              striExpr("123")   <= "222"     and
              striExpr("123")   <= "2222"
              ) then
-      writeln(" ***** STRING <= STRING does not work correct.");
+      writeln(" ***** STRING <= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2146,7 +2146,7 @@ const proc: check_string_comparisons is func
              "123"   <= striExpr("222")     and
              "123"   <= striExpr("2222")
              ) then
-      writeln(" ***** STRING <= STRING does not work correct.");
+      writeln(" ***** STRING <= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2248,28 +2248,28 @@ const proc: check_string_comparisons is func
              striExpr("123")   <= striExpr("222")     and
              striExpr("123")   <= striExpr("2222")
              ) then
-      writeln(" ***** STRING <= STRING does not work correct.");
+      writeln(" ***** STRING <= STRING does not work correctly.");
       okay := FALSE;
     end if;
 
     if  "\2050;" < "\1152;" or
         "\1152;" > "\2050;" then
-      writeln(" ***** \"\\4096;\" < \"\\1152;\" does not work correct.");
+      writeln(" ***** \"\\4096;\" < \"\\1152;\" does not work correctly.");
       okay := FALSE;
     end if;
     if  "\16#0201;" < "\16#0102;" or
         "\16#0102;" > "\16#0201;" then
-      writeln(" ***** \"\\16#0201;\" < \"\\16#0102;\" does not work correct.");
+      writeln(" ***** \"\\16#0201;\" < \"\\16#0102;\" does not work correctly.");
       okay := FALSE;
     end if;
     if  "\16#030201;" < "\16#010203;" or
         "\16#010203;" > "\16#030201;" then
-      writeln(" ***** \"\\16#030201;\" < \"\\16#010203;\" does not work correct.");
+      writeln(" ***** \"\\16#030201;\" < \"\\16#010203;\" does not work correctly.");
       okay := FALSE;
     end if;
     if  "\16#04030201;" < "\16#01020304;" or
         "\16#01020304;" > "\16#04030201;" then
-      writeln(" ***** \"\\16#04030201;\" < \"\\16#01020304;\" does not work correct.");
+      writeln(" ***** \"\\16#04030201;\" < \"\\16#01020304;\" does not work correctly.");
       okay := FALSE;
     end if;
     if  compare("",       "")       <>  0 or
@@ -2378,7 +2378,7 @@ const proc: check_string_comparisons is func
         compare("22",     "123")    <>  1 or
         compare("222",    "123")    <>  1 or
         compare("2222",   "123")    <>  1 then
-      writeln(" ***** compare(STRING, STRING) does not work correct.");
+      writeln(" ***** compare(STRING, STRING) does not work correctly.");
       okay := FALSE;
     end if;
     arr2 := sort(arr1);
@@ -2386,11 +2386,11 @@ const proc: check_string_comparisons is func
       ok := ok and name = arr1[index]
     end for;
     if not ok then
-      writeln(" ***** Sorting with compare(STRING, STRING) does not work correct.");
+      writeln(" ***** Sorting with compare(STRING, STRING) does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String comparisons work correct.");
+      writeln("String comparisons work correctly.");
     end if;
   end func;
 
@@ -2415,7 +2415,7 @@ const proc: check_string_length is func
         length(striExpr("\0;"))                         <>  1 or
         length(striExpr("\0;\0;"))                      <>  2 or
         length(striExpr("\0;\0;\0;\0;\0;\0;\0;\0;\0;")) <>  9 then
-      writeln(" ***** length(STRING) does not work correct. (1)");
+      writeln(" ***** length(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2435,7 +2435,7 @@ const proc: check_string_length is func
         length(striExpr("ab") &          "c" ) <> 3 or
         length(         "ab"  & striExpr("c")) <> 3 or
         length(striExpr("ab") & striExpr("c")) <> 3 then
-      writeln(" ***** length(STRING) does not work correct. (2)");
+      writeln(" ***** length(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -2503,7 +2503,7 @@ const proc: check_string_length is func
         length(striExpr("abcd") &          "ef"  & striExpr("g")) <> 7 or
         length(         "abcd"  & striExpr("ef") & striExpr("g")) <> 7 or
         length(striExpr("abcd") & striExpr("ef") & striExpr("g")) <> 7 then
-      writeln(" ***** length(STRING) does not work correct. (3)");
+      writeln(" ***** length(STRING) does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -2763,7 +2763,7 @@ const proc: check_string_length is func
         length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 15 or
         length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 or
         length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 then
-      writeln(" ***** length(STRING) does not work correct. (4)");
+      writeln(" ***** length(STRING) does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -2799,7 +2799,7 @@ const proc: check_string_length is func
         length(striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
         length(         "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
         length(striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 then
-      writeln(" ***** length(STRING) does not work correct. (5)");
+      writeln(" ***** length(STRING) does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -2815,12 +2815,12 @@ const proc: check_string_length is func
         length(striExpr("abcde")[intExpr(1) fixLen 3]) <> 3 or
         length(striExpr("abcde")[intExpr(2) fixLen 3]) <> 3 or
         length(striExpr("abcde")[intExpr(3) fixLen 3]) <> 3 then
-      writeln(" ***** length(STRING) does not work correct. (6)");
+      writeln(" ***** length(STRING) does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String length works correct.");
+      writeln("String length works correctly.");
     end if;
   end func;
 
@@ -2840,7 +2840,7 @@ const proc: check_string_index is func
         "1234567890" [  8 ] <> '8' or
         "1234567890" [  9 ] <> '9' or
         "1234567890" [ 10 ] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct. (1)");
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  striExpr("1") [ 1 ] <> '1' or
@@ -2854,7 +2854,7 @@ const proc: check_string_index is func
         striExpr("1234567890") [  8 ] <> '8' or
         striExpr("1234567890") [  9 ] <> '9' or
         striExpr("1234567890") [ 10 ] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct. (2)");
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  "1" [intExpr( 1 )] <> '1' or
@@ -2868,7 +2868,7 @@ const proc: check_string_index is func
         "1234567890" [intExpr(  8 )] <> '8' or
         "1234567890" [intExpr(  9 )] <> '9' or
         "1234567890" [intExpr( 10 )] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct. (3)");
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  striExpr("1") [intExpr( 1 )] <> '1' or
@@ -2882,7 +2882,7 @@ const proc: check_string_index is func
         striExpr("1234567890") [intExpr(  8 )] <> '8' or
         striExpr("1234567890") [intExpr(  9 )] <> '9' or
         striExpr("1234567890") [intExpr( 10 )] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct. (4)");
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -2896,12 +2896,12 @@ const proc: check_string_index is func
         "1234567890" [succ(intExpr(pred( 8)) mod 10)] <> '8' or
         "1234567890" [succ(intExpr(pred( 9)) mod 10)] <> '9' or
         "1234567890" [succ(intExpr(pred(10)) mod 10)] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct. (5)");
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String indices work correct.");
+      writeln("String indices work correctly.");
     end if;
   end func;
 
@@ -2941,7 +2941,7 @@ const func boolean: check_string_head_assign_1 is func
     stri := "1234567890" [ ..            15 ]; ok := ok and stri = "1234567890";
     stri := "1234567890" [ ..  integer.last ]; ok := ok and stri = "1234567890";
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2974,7 +2974,7 @@ const func boolean: check_string_head_assign_1 is func
     stri := "1234567890" [ .. intExpr(           15) ]; ok := ok and stri = "1234567890";
     stri := "1234567890" [ .. intExpr( integer.last) ]; ok := ok and stri = "1234567890";
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;
@@ -3016,7 +3016,7 @@ const func boolean: check_string_head_assign_2 is func
     stri := striExpr("1234567890") [ ..            15 ]; ok := ok and stri = "1234567890";
     stri := striExpr("1234567890") [ ..  integer.last ]; ok := ok and stri = "1234567890";
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3049,7 +3049,7 @@ const func boolean: check_string_head_assign_2 is func
     stri := striExpr("1234567890") [ .. intExpr(           15) ]; ok := ok and stri = "1234567890";
     stri := striExpr("1234567890") [ .. intExpr( integer.last) ]; ok := ok and stri = "1234567890";
     if not ok then
-      writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -3097,7 +3097,7 @@ const func boolean: check_string_head_func is func
         headOfEmptyString(intExpr(           11)) <> "" or
         headOfEmptyString(intExpr(           15)) <> "" or
         headOfEmptyString(intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -3119,7 +3119,7 @@ const func boolean: check_string_head_func is func
         headOfString1(intExpr(           11)) <> "1" or
         headOfString1(intExpr(           15)) <> "1" or
         headOfString1(intExpr( integer.last)) <> "1" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3141,7 +3141,7 @@ const func boolean: check_string_head_func is func
         headFunction(intExpr(           11)) <> "1234567890" or
         headFunction(intExpr(           15)) <> "1234567890" or
         headFunction(intExpr( integer.last)) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3151,7 +3151,7 @@ const func boolean: check_string_head_func is func
         headFunction(striExpr(          "")) <> "" or
         headFunction(striExpr(         "1")) <> "1" or
         headFunction(striExpr("1234567890")) <> "1" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -3182,7 +3182,7 @@ const func boolean: check_string_head_func is func
         headFunction("1234567890",            11) <> "1234567890" or
         headFunction("1234567890",            15) <> "1234567890" or
         headFunction("1234567890",  integer.last) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -3213,7 +3213,7 @@ const func boolean: check_string_head_func is func
         headFunction("1234567890", intExpr(           11)) <> "1234567890" or
         headFunction("1234567890", intExpr(           15)) <> "1234567890" or
         headFunction("1234567890", intExpr( integer.last)) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -3244,7 +3244,7 @@ const func boolean: check_string_head_func is func
         headFunction(striExpr("1234567890"),            11) <> "1234567890" or
         headFunction(striExpr("1234567890"),            15) <> "1234567890" or
         headFunction(striExpr("1234567890"),  integer.last) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -3275,7 +3275,7 @@ const func boolean: check_string_head_func is func
         headFunction(striExpr("1234567890"), intExpr(           11)) <> "1234567890" or
         headFunction(striExpr("1234567890"), intExpr(           15)) <> "1234567890" or
         headFunction(striExpr("1234567890"), intExpr( integer.last)) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -3312,7 +3312,7 @@ const proc: check_string_head is func
         "1234567890" [ ..            11 ] <> "1234567890" or
         "1234567890" [ ..            15 ] <> "1234567890" or
         "1234567890" [ ..  integer.last ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (1)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -3343,7 +3343,7 @@ const proc: check_string_head is func
         "1234567890" [ .. intExpr(           11) ] <> "1234567890" or
         "1234567890" [ .. intExpr(           15) ] <> "1234567890" or
         "1234567890" [ .. intExpr( integer.last) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (2)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3374,7 +3374,7 @@ const proc: check_string_head is func
         striExpr("1234567890") [ ..            11 ] <> "1234567890" or
         striExpr("1234567890") [ ..            15 ] <> "1234567890" or
         striExpr("1234567890") [ ..  integer.last ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (3)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3405,7 +3405,7 @@ const proc: check_string_head is func
         striExpr("1234567890") [ .. intExpr(           11) ] <> "1234567890" or
         striExpr("1234567890") [ .. intExpr(           15) ] <> "1234567890" or
         striExpr("1234567890") [ .. intExpr( integer.last) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (4)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -3436,7 +3436,7 @@ const proc: check_string_head is func
         "1234567890" [ .. abs(intExpr(           11)) ] <> "1234567890" or
         "1234567890" [ .. abs(intExpr(           15)) ] <> "1234567890" or
         "1234567890" [ .. abs(intExpr( integer.last)) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (5)");
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -3453,7 +3453,7 @@ const proc: check_string_head is func
     end if;
 
     if okay then
-      writeln("String head works correct.");
+      writeln("String head works correctly.");
     end if;
   end func;
 
@@ -3490,7 +3490,7 @@ const func boolean: check_string_tail_assign_1 is func
     stri := "1234567890" [            15 .. ]; ok := ok and stri = "";
     stri := "1234567890" [  integer.last .. ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -3520,7 +3520,7 @@ const func boolean: check_string_tail_assign_1 is func
     stri := "1234567890" [ intExpr(           15) .. ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr( integer.last) .. ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;
@@ -3559,7 +3559,7 @@ const func boolean: check_string_tail_assign_2 is func
     stri := striExpr("1234567890") [            15 .. ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [  integer.last .. ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3589,7 +3589,7 @@ const func boolean: check_string_tail_assign_2 is func
     stri := striExpr("1234567890") [ intExpr(           15) .. ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [ intExpr( integer.last) .. ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -3635,7 +3635,7 @@ const func boolean: check_string_tail_func is func
         tailOfEmptyString(intExpr(           11)) <> "" or
         tailOfEmptyString(intExpr(           15)) <> "" or
         tailOfEmptyString(intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -3655,7 +3655,7 @@ const func boolean: check_string_tail_func is func
         tailOfString1(intExpr(           11)) <> "" or
         tailOfString1(intExpr(           15)) <> "" or
         tailOfString1(intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3675,7 +3675,7 @@ const func boolean: check_string_tail_func is func
         tailFunction(intExpr(           11)) <> "" or
         tailFunction(intExpr(           15)) <> "" or
         tailFunction(intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3685,7 +3685,7 @@ const func boolean: check_string_tail_func is func
         tailFunction(striExpr("")) <> "" or
         tailFunction(striExpr("1")) <> "1" or
         tailFunction(striExpr("1234567890")) <> "1234567890" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -3713,7 +3713,7 @@ const func boolean: check_string_tail_func is func
         tailFunction("1234567890",            11) <> "" or
         tailFunction("1234567890",            15) <> "" or
         tailFunction("1234567890",  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -3741,7 +3741,7 @@ const func boolean: check_string_tail_func is func
         tailFunction("1234567890", intExpr(           11)) <> "" or
         tailFunction("1234567890", intExpr(           15)) <> "" or
         tailFunction("1234567890", intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -3769,7 +3769,7 @@ const func boolean: check_string_tail_func is func
         tailFunction(striExpr("1234567890"),            11) <> "" or
         tailFunction(striExpr("1234567890"),            15) <> "" or
         tailFunction(striExpr("1234567890"),  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -3797,7 +3797,7 @@ const func boolean: check_string_tail_func is func
         tailFunction(striExpr("1234567890"), intExpr(           11)) <> "" or
         tailFunction(striExpr("1234567890"), intExpr(           15)) <> "" or
         tailFunction(striExpr("1234567890"), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START .. ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -3833,7 +3833,7 @@ const proc: check_string_tail is func
         "1234567890" [            11 .. ] <> "" or
         "1234567890" [            15 .. ] <> "" or
         "1234567890" [  integer.last .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (1)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -3861,7 +3861,7 @@ const proc: check_string_tail is func
         "1234567890" [ intExpr(           11) .. ] <> "" or
         "1234567890" [ intExpr(           15) .. ] <> "" or
         "1234567890" [ intExpr( integer.last) .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (2)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3889,7 +3889,7 @@ const proc: check_string_tail is func
         striExpr("1234567890") [            11 .. ] <> "" or
         striExpr("1234567890") [            15 .. ] <> "" or
         striExpr("1234567890") [  integer.last .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (3)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3917,7 +3917,7 @@ const proc: check_string_tail is func
         striExpr("1234567890") [ intExpr(           11) .. ] <> "" or
         striExpr("1234567890") [ intExpr(           15) .. ] <> "" or
         striExpr("1234567890") [ intExpr( integer.last) .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (4)");
+      writeln(" ***** STRING [ START .. ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -3934,7 +3934,7 @@ const proc: check_string_tail is func
     end if;
 
     if okay then
-      writeln("String tail works correct.");
+      writeln("String tail works correctly.");
     end if;
   end func;
 
@@ -4013,7 +4013,7 @@ const func boolean: check_string_range_expr_1 is func
         "1234567890" [            15 ..  integer.last ] <> "" or
 
         "1234567890" [  integer.last ..  integer.last ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (1)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -4087,7 +4087,7 @@ const func boolean: check_string_range_expr_1 is func
         "1234567890" [            15 .. intExpr( integer.last) ] <> "" or
 
         "1234567890" [  integer.last .. intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (2)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -4161,7 +4161,7 @@ const func boolean: check_string_range_expr_1 is func
         "1234567890" [ intExpr(           15) ..  integer.last ] <> "" or
 
         "1234567890" [ intExpr( integer.last) ..  integer.last ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (3)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -4235,7 +4235,7 @@ const func boolean: check_string_range_expr_1 is func
         "1234567890" [ intExpr(           15) .. intExpr( integer.last) ] <> "" or
 
         "1234567890" [ intExpr( integer.last) .. intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (4)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -4315,7 +4315,7 @@ const func boolean: check_string_range_expr_2 is func
         striExpr("1234567890") [            15 ..  integer.last ] <> "" or
 
         striExpr("1234567890") [  integer.last ..  integer.last ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (5)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -4389,7 +4389,7 @@ const func boolean: check_string_range_expr_2 is func
         striExpr("1234567890") [            15 .. intExpr( integer.last) ] <> "" or
 
         striExpr("1234567890") [  integer.last .. intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (6)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -4463,7 +4463,7 @@ const func boolean: check_string_range_expr_2 is func
         striExpr("1234567890") [ intExpr(           15) ..  integer.last ] <> "" or
 
         striExpr("1234567890") [ intExpr( integer.last) ..  integer.last ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (7)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -4537,7 +4537,7 @@ const func boolean: check_string_range_expr_2 is func
         striExpr("1234567890") [ intExpr(           15) .. intExpr( integer.last) ] <> "" or
 
         striExpr("1234567890") [ intExpr( integer.last) .. intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct. (8)");
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -4621,7 +4621,7 @@ const func boolean: check_string_range_assign_1 is func
 
     stri := "1234567890" [  integer.last ..  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -4697,7 +4697,7 @@ const func boolean: check_string_range_assign_1 is func
 
     stri := "1234567890" [  integer.last .. intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -4773,7 +4773,7 @@ const func boolean: check_string_range_assign_1 is func
 
     stri := "1234567890" [ intExpr( integer.last) ..  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -4849,7 +4849,7 @@ const func boolean: check_string_range_assign_1 is func
 
     stri := "1234567890" [ intExpr( integer.last) .. intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -4933,7 +4933,7 @@ const func boolean: check_string_range_assign_2 is func
 
     stri := striExpr("1234567890") [  integer.last ..  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (5)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -5009,7 +5009,7 @@ const func boolean: check_string_range_assign_2 is func
 
     stri := striExpr("1234567890") [  integer.last .. intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (6)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -5085,7 +5085,7 @@ const func boolean: check_string_range_assign_2 is func
 
     stri := striExpr("1234567890") [ intExpr( integer.last) ..  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (7)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -5161,7 +5161,7 @@ const func boolean: check_string_range_assign_2 is func
 
     stri := striExpr("1234567890") [ intExpr( integer.last) .. intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (8)");
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -5245,7 +5245,7 @@ const func boolean: check_string_range_func_1 is func
         rangeFunction("1234567890",            15,  integer.last) <> "" or
 
         rangeFunction("1234567890",  integer.last,  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -5319,7 +5319,7 @@ const func boolean: check_string_range_func_1 is func
         rangeFunction("1234567890",            15, intExpr( integer.last)) <> "" or
 
         rangeFunction("1234567890",  integer.last, intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -5393,7 +5393,7 @@ const func boolean: check_string_range_func_1 is func
         rangeFunction("1234567890", intExpr(           15),  integer.last) <> "" or
 
         rangeFunction("1234567890", intExpr( integer.last),  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -5467,7 +5467,7 @@ const func boolean: check_string_range_func_1 is func
         rangeFunction("1234567890", intExpr(           15), intExpr( integer.last)) <> "" or
 
         rangeFunction("1234567890", intExpr( integer.last), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -5547,7 +5547,7 @@ const func boolean: check_string_range_func_2 is func
         rangeFunction(striExpr("1234567890"),            15,  integer.last) <> "" or
 
         rangeFunction(striExpr("1234567890"),  integer.last,  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -5621,7 +5621,7 @@ const func boolean: check_string_range_func_2 is func
         rangeFunction(striExpr("1234567890"),            15, intExpr( integer.last)) <> "" or
 
         rangeFunction(striExpr("1234567890"),  integer.last, intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -5695,7 +5695,7 @@ const func boolean: check_string_range_func_2 is func
         rangeFunction(striExpr("1234567890"), intExpr(           15),  integer.last) <> "" or
 
         rangeFunction(striExpr("1234567890"), intExpr( integer.last),  integer.last) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -5769,7 +5769,7 @@ const func boolean: check_string_range_func_2 is func
         rangeFunction(striExpr("1234567890"), intExpr(           15), intExpr( integer.last)) <> "" or
 
         rangeFunction(striExpr("1234567890"), intExpr( integer.last), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START .. STOP ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -5804,7 +5804,7 @@ const proc: check_string_range is func
     end if;
 
     if okay then
-      writeln("String range works correct.");
+      writeln("String range works correctly.");
     end if;
   end func;
 
@@ -5919,7 +5919,7 @@ const func boolean: check_string_substr_expr_1 is func
         "1234567890" [  integer.last len             2 ] <> "" or
         "1234567890" [  integer.last len            20 ] <> "" or
         "1234567890" [  integer.last len  integer.last ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -6029,7 +6029,7 @@ const func boolean: check_string_substr_expr_1 is func
         "1234567890" [  integer.last len intExpr(            2) ] <> "" or
         "1234567890" [  integer.last len intExpr(           20) ] <> "" or
         "1234567890" [  integer.last len intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -6139,7 +6139,7 @@ const func boolean: check_string_substr_expr_1 is func
         "1234567890" [ intExpr( integer.last) len             2 ] <> "" or
         "1234567890" [ intExpr( integer.last) len            20 ] <> "" or
         "1234567890" [ intExpr( integer.last) len  integer.last ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -6249,7 +6249,7 @@ const func boolean: check_string_substr_expr_1 is func
         "1234567890" [ intExpr( integer.last) len intExpr(            2) ] <> "" or
         "1234567890" [ intExpr( integer.last) len intExpr(           20) ] <> "" or
         "1234567890" [ intExpr( integer.last) len intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -6365,7 +6365,7 @@ const func boolean: check_string_substr_expr_2 is func
         striExpr("1234567890") [  integer.last len             2 ] <> "" or
         striExpr("1234567890") [  integer.last len            20 ] <> "" or
         striExpr("1234567890") [  integer.last len  integer.last ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -6475,7 +6475,7 @@ const func boolean: check_string_substr_expr_2 is func
         striExpr("1234567890") [  integer.last len intExpr(            2) ] <> "" or
         striExpr("1234567890") [  integer.last len intExpr(           20) ] <> "" or
         striExpr("1234567890") [  integer.last len intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -6585,7 +6585,7 @@ const func boolean: check_string_substr_expr_2 is func
         striExpr("1234567890") [ intExpr( integer.last) len             2 ] <> "" or
         striExpr("1234567890") [ intExpr( integer.last) len            20 ] <> "" or
         striExpr("1234567890") [ intExpr( integer.last) len  integer.last ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -6695,7 +6695,7 @@ const func boolean: check_string_substr_expr_2 is func
         striExpr("1234567890") [ intExpr( integer.last) len intExpr(            2) ] <> "" or
         striExpr("1234567890") [ intExpr( integer.last) len intExpr(           20) ] <> "" or
         striExpr("1234567890") [ intExpr( integer.last) len intExpr( integer.last) ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -6815,7 +6815,7 @@ const func boolean: check_string_substr_assign_1 is func
     stri := "1234567890" [  integer.last len            20 ]; ok := ok and stri = "";
     stri := "1234567890" [  integer.last len  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -6927,7 +6927,7 @@ const func boolean: check_string_substr_assign_1 is func
     stri := "1234567890" [  integer.last len intExpr(           20) ]; ok := ok and stri = "";
     stri := "1234567890" [  integer.last len intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -7039,7 +7039,7 @@ const func boolean: check_string_substr_assign_1 is func
     stri := "1234567890" [ intExpr( integer.last) len            20 ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr( integer.last) len  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -7151,7 +7151,7 @@ const func boolean: check_string_substr_assign_1 is func
     stri := "1234567890" [ intExpr( integer.last) len intExpr(           20) ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr( integer.last) len intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -7271,7 +7271,7 @@ const func boolean: check_string_substr_assign_2 is func
     stri := striExpr("1234567890") [  integer.last len            20 ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [  integer.last len  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -7383,7 +7383,7 @@ const func boolean: check_string_substr_assign_2 is func
     stri := striExpr("1234567890") [  integer.last len intExpr(           20) ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [  integer.last len intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -7495,7 +7495,7 @@ const func boolean: check_string_substr_assign_2 is func
     stri := striExpr("1234567890") [ intExpr( integer.last) len            20 ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [ intExpr( integer.last) len  integer.last ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -7607,7 +7607,7 @@ const func boolean: check_string_substr_assign_2 is func
     stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr(           20) ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
-      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -7641,7 +7641,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890",            11) <> "" or
         substrFunction("1234567890",            15) <> "" or
         substrFunction("1234567890",  integer.last) <> "" then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -7661,7 +7661,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890", intExpr(           11)) <> "" or
         substrFunction("1234567890", intExpr(           15)) <> "" or
         substrFunction("1234567890", intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -7681,7 +7681,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction(striExpr("1234567890"),            11) <> "" or
         substrFunction(striExpr("1234567890"),            15) <> "" or
         substrFunction(striExpr("1234567890"),  integer.last) <> "" then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -7701,7 +7701,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction(striExpr("1234567890"), intExpr(           11)) <> "" or
         substrFunction(striExpr("1234567890"), intExpr(           15)) <> "" or
         substrFunction(striExpr("1234567890"), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len 1 ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -7811,7 +7811,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890",  integer.last,             2) <> "" or
         substrFunction("1234567890",  integer.last,            20) <> "" or
         substrFunction("1234567890",  integer.last,  integer.last) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -7921,7 +7921,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890",  integer.last, intExpr(            2)) <> "" or
         substrFunction("1234567890",  integer.last, intExpr(           20)) <> "" or
         substrFunction("1234567890",  integer.last, intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -8031,7 +8031,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890", intExpr( integer.last),             2) <> "" or
         substrFunction("1234567890", intExpr( integer.last),            20) <> "" or
         substrFunction("1234567890", intExpr( integer.last),  integer.last) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -8141,7 +8141,7 @@ const func boolean: check_string_substr_func_1 is func
         substrFunction("1234567890", intExpr( integer.last), intExpr(            2)) <> "" or
         substrFunction("1234567890", intExpr( integer.last), intExpr(           20)) <> "" or
         substrFunction("1234567890", intExpr( integer.last), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -8257,7 +8257,7 @@ const func boolean: check_string_substr_func_2 is func
         substrFunction(striExpr("1234567890"),  integer.last,             2) <> "" or
         substrFunction(striExpr("1234567890"),  integer.last,            20) <> "" or
         substrFunction(striExpr("1234567890"),  integer.last,  integer.last) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -8367,7 +8367,7 @@ const func boolean: check_string_substr_func_2 is func
         substrFunction(striExpr("1234567890"),  integer.last, intExpr(            2)) <> "" or
         substrFunction(striExpr("1234567890"),  integer.last, intExpr(           20)) <> "" or
         substrFunction(striExpr("1234567890"),  integer.last, intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -8477,7 +8477,7 @@ const func boolean: check_string_substr_func_2 is func
         substrFunction(striExpr("1234567890"), intExpr( integer.last),             2) <> "" or
         substrFunction(striExpr("1234567890"), intExpr( integer.last),            20) <> "" or
         substrFunction(striExpr("1234567890"), intExpr( integer.last),  integer.last) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -8587,7 +8587,7 @@ const func boolean: check_string_substr_func_2 is func
         substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(            2)) <> "" or
         substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr(           20)) <> "" or
         substrFunction(striExpr("1234567890"), intExpr( integer.last), intExpr( integer.last)) <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -8622,7 +8622,7 @@ const proc: check_string_substr is func
     end if;
 
     if okay then
-      writeln("String substr works correct.");
+      writeln("String substr works correctly.");
     end if;
   end func;
 
@@ -8660,7 +8660,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
 
         "1234567890" [            10 fixLen             0 ] <> "" or
         "1234567890" [            10 fixLen             1 ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -8693,7 +8693,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
 
         "1234567890" [            10 fixLen intExpr(            0) ] <> "" or
         "1234567890" [            10 fixLen intExpr(            1) ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -8726,7 +8726,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
 
         "1234567890" [ intExpr(           10) fixLen             0 ] <> "" or
         "1234567890" [ intExpr(           10) fixLen             1 ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -8759,7 +8759,7 @@ const func boolean: check_string_substr_fixLen_expr_1 is func
 
         "1234567890" [ intExpr(           10) fixLen intExpr(            0) ] <> "" or
         "1234567890" [ intExpr(           10) fixLen intExpr(            1) ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -8798,7 +8798,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
 
         striExpr("1234567890") [            10 fixLen             0 ] <> "" or
         striExpr("1234567890") [            10 fixLen             1 ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -8831,7 +8831,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
 
         striExpr("1234567890") [            10 fixLen intExpr(            0) ] <> "" or
         striExpr("1234567890") [            10 fixLen intExpr(            1) ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -8864,7 +8864,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
 
         striExpr("1234567890") [ intExpr(           10) fixLen             0 ] <> "" or
         striExpr("1234567890") [ intExpr(           10) fixLen             1 ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -8897,7 +8897,7 @@ const func boolean: check_string_substr_fixLen_expr_2 is func
 
         striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            0) ] <> "" or
         striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            1) ] <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -8940,7 +8940,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
     stri := "1234567890" [            10 fixLen             0 ]; ok := ok and stri = "";
     stri := "1234567890" [            10 fixLen             1 ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (1)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -8975,7 +8975,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
     stri := "1234567890" [            10 fixLen intExpr(            0) ]; ok := ok and stri = "";
     stri := "1234567890" [            10 fixLen intExpr(            1) ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (2)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9010,7 +9010,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
     stri := "1234567890" [ intExpr(           10) fixLen             0 ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr(           10) fixLen             1 ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (3)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -9045,7 +9045,7 @@ const func boolean: check_string_substr_fixLen_assign_1 is func
     stri := "1234567890" [ intExpr(           10) fixLen intExpr(            0) ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr(           10) fixLen intExpr(            1) ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (4)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -9088,7 +9088,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
     stri := striExpr("1234567890") [            10 fixLen             0 ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [            10 fixLen             1 ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (5)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -9123,7 +9123,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
     stri := striExpr("1234567890") [            10 fixLen intExpr(            0) ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [            10 fixLen intExpr(            1) ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (6)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -9158,7 +9158,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
     stri := striExpr("1234567890") [ intExpr(           10) fixLen             0 ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [ intExpr(           10) fixLen             1 ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (7)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -9193,7 +9193,7 @@ const func boolean: check_string_substr_fixLen_assign_2 is func
     stri := striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            0) ]; ok := ok and stri = "";
     stri := striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            1) ]; ok := ok and stri = "0";
     if not ok then
-      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (8)");
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -9217,7 +9217,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         substrFixLen("1234567890",             5) <> "5" or
         substrFixLen("1234567890",             9) <> "9" or
         substrFixLen("1234567890",            10) <> "0" then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9227,7 +9227,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         substrFixLen("1234567890", intExpr(            5)) <> "5" or
         substrFixLen("1234567890", intExpr(            9)) <> "9" or
         substrFixLen("1234567890", intExpr(           10)) <> "0" then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9237,7 +9237,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         substrFixLen(striExpr("1234567890"),             5) <> "5" or
         substrFixLen(striExpr("1234567890"),             9) <> "9" or
         substrFixLen(striExpr("1234567890"),            10) <> "0" then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -9247,7 +9247,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
         substrFixLen(striExpr("1234567890"), intExpr(            5)) <> "5" or
         substrFixLen(striExpr("1234567890"), intExpr(            9)) <> "9" or
         substrFixLen(striExpr("1234567890"), intExpr(           10)) <> "0" then
-      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -9280,7 +9280,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
 
         substrFixLen("1234567890",            10,             0) <> "" or
         substrFixLen("1234567890",            10,             1) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (1)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9313,7 +9313,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
 
         substrFixLen("1234567890",            10, intExpr(            0)) <> "" or
         substrFixLen("1234567890",            10, intExpr(            1)) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (2)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9346,7 +9346,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
 
         substrFixLen("1234567890", intExpr(           10),             0) <> "" or
         substrFixLen("1234567890", intExpr(           10),             1) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (3)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -9379,7 +9379,7 @@ const func boolean: check_string_substr_fixLen_func_1 is func
 
         substrFixLen("1234567890", intExpr(           10), intExpr(            0)) <> "" or
         substrFixLen("1234567890", intExpr(           10), intExpr(            1)) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (4)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -9418,7 +9418,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
 
         substrFixLen(striExpr("1234567890"),            10,             0) <> "" or
         substrFixLen(striExpr("1234567890"),            10,             1) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (5)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -9451,7 +9451,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
 
         substrFixLen(striExpr("1234567890"),            10, intExpr(            0)) <> "" or
         substrFixLen(striExpr("1234567890"),            10, intExpr(            1)) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (6)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -9484,7 +9484,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
 
         substrFixLen(striExpr("1234567890"), intExpr(           10),             0) <> "" or
         substrFixLen(striExpr("1234567890"), intExpr(           10),             1) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (7)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -9517,7 +9517,7 @@ const func boolean: check_string_substr_fixLen_func_2 is func
 
         substrFixLen(striExpr("1234567890"), intExpr(           10), intExpr(            0)) <> "" or
         substrFixLen(striExpr("1234567890"), intExpr(           10), intExpr(            1)) <> "0" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (8)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -9555,7 +9555,7 @@ const proc: check_string_substr_fixLen is func
        striExpr("aaaaa")[rand(1, 5) fixLen 0] <> "" or
                 "aaaaa" [rand(1, 5) fixLen 1] <> "a" or
        striExpr("aaaaa")[rand(1, 5) fixLen 1] <> "a" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (1)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -9563,7 +9563,7 @@ const proc: check_string_substr_fixLen is func
        striExpr("12345")[succ(abs(intExpr(2))) fixLen 0] <> "" or
                 "12345" [succ(abs(intExpr(2))) fixLen 1] <> "3" or
        striExpr("12345")[succ(abs(intExpr(2))) fixLen 1] <> "3" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (2)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9571,12 +9571,12 @@ const proc: check_string_substr_fixLen is func
        striExpr("12345")[5 - abs(intExpr(2)) fixLen 0] <> "" or
                 "12345" [5 - abs(intExpr(2)) fixLen 1] <> "3" or
        striExpr("12345")[5 - abs(intExpr(2)) fixLen 1] <> "3" then
-      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (3)");
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correctly. (3)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String substr with fixed length works correct.");
+      writeln("String substr with fixed length works correctly.");
     end if;
   end func;
 
@@ -9601,7 +9601,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  <> "abcd" or
                  "ab"  & striExpr("cd") <> "abcd" or
         striExpr("ab") & striExpr("cd") <> "abcd" then
-      writeln(" ***** STRING & STRING does not work correct. (2)");
+      writeln(" ***** STRING & STRING does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -9669,7 +9669,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  & striExpr("ef") <> "abcdef" or
                  "ab"  & striExpr("cd") & striExpr("ef") <> "abcdef" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") <> "abcdef" then
-      writeln(" ***** STRING & STRING does not work correct. (3)");
+      writeln(" ***** STRING & STRING does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -9929,7 +9929,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" then
-      writeln(" ***** STRING & STRING does not work correct. (4)");
+      writeln(" ***** STRING & STRING does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -9965,7 +9965,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" then
-      writeln(" ***** STRING & STRING does not work correct. (5)");
+      writeln(" ***** STRING & STRING does not work correctly. (5)");
       okay := FALSE;
     end if;
   end func;
@@ -10039,7 +10039,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & striExpr("ef")) <> "abcdef" or
                  "ab"  & (striExpr("cd") & striExpr("ef")) <> "abcdef" or
         striExpr("ab") & (striExpr("cd") & striExpr("ef")) <> "abcdef" then
-      writeln(" ***** STRING & STRING does not work correct. (6)");
+      writeln(" ***** STRING & STRING does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -10299,7 +10299,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
                  "ab"  & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
         striExpr("ab") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" then
-      writeln(" ***** STRING & STRING does not work correct. (7)");
+      writeln(" ***** STRING & STRING does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -10335,7 +10335,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
                  "ab"  & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
         striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" then
-      writeln(" ***** STRING & STRING does not work correct. (8)");
+      writeln(" ***** STRING & STRING does not work correctly. (8)");
       okay := FALSE;
     end if;
   end func;
@@ -10384,7 +10384,7 @@ const proc: check_string_concat is func
         "abcdefgh" & "ij" <> "abcdefghij" or
         "abcdefghi" & "j" <> "abcdefghij" or
         "abcdefghij" & "" <> "abcdefghij" then
-      writeln(" ***** STRING & STRING does not work correct. (1)");
+      writeln(" ***** STRING & STRING does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -10412,7 +10412,7 @@ const proc: check_string_concat is func
         striExpr("ab") & (         "cd"  & striExpr("ef")) & striExpr("gh") <> "abcdefgh" or
                  "ab"  & (striExpr("cd") & striExpr("ef")) & striExpr("gh") <> "abcdefgh" or
         striExpr("ab") & (striExpr("cd") & striExpr("ef")) & striExpr("gh") <> "abcdefgh" then
-      writeln(" ***** STRING & (STRING & STRING) & STRING does not work correct.");
+      writeln(" ***** STRING & (STRING & STRING) & STRING does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -10461,12 +10461,12 @@ const proc: check_string_concat is func
         striExpr("ab") &          "cd"  & str(charExpr('e')) <> "abcde" or
                  "ab"  & striExpr("cd") & str(charExpr('e')) <> "abcde" or
         striExpr("ab") & striExpr("cd") & str(charExpr('e')) <> "abcde" then
-      writeln(" ***** STRING & str(CHAR) does not work correct.");
+      writeln(" ***** STRING & str(CHAR) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String concatenation works correct.");
+      writeln("String concatenation works correctly.");
     end if;
   end func;
 
@@ -10946,7 +10946,7 @@ const proc: check_string_mult is func
         "abcdefghij" mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 10 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correct.");
+      writeln(" ***** STRING mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -11421,7 +11421,7 @@ const proc: check_string_mult is func
         striExpr("abcdefghij") mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult 10 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correct.");
+      writeln(" ***** STRING mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -11896,7 +11896,7 @@ const proc: check_string_mult is func
         "abcdefghij" mult intExpr(5) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult intExpr(6) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult intExpr(10) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correct.");
+      writeln(" ***** STRING mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12371,7 +12371,7 @@ const proc: check_string_mult is func
         striExpr("abcdefghij") mult intExpr(5) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult intExpr(6) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult intExpr(10) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correct.");
+      writeln(" ***** STRING mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12415,7 +12415,7 @@ const proc: check_string_mult is func
                                              \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
                                              \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
                                              \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;" then
-      writeln(" ***** STRING mult integer with zero byte does not work correct.");
+      writeln(" ***** STRING mult integer with zero byte does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12463,7 +12463,7 @@ const proc: check_string_mult is func
         str('a') mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                              \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                              \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correct.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12511,7 +12511,7 @@ const proc: check_string_mult is func
         striExpr(str('a')) mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correct.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12559,7 +12559,7 @@ const proc: check_string_mult is func
         str('a') mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                       \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                       \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correct.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12607,7 +12607,7 @@ const proc: check_string_mult is func
         striExpr(str('a')) mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correct.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12633,7 +12633,7 @@ const proc: check_string_mult is func
         "\16#FECB;\16#1234;" mult 1 <> "\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 2 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 3 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;\16#FECB;\16#1234;" then
-      writeln(" ***** STRING mult integer does not work correct.");
+      writeln(" ***** STRING mult integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -12678,7 +12678,7 @@ const proc: check_string_mult is func
     end if;
 
     if okay then
-      writeln("String multiplication works correct.");
+      writeln("String multiplication works correctly.");
     end if;
   end func;
 
@@ -12849,7 +12849,7 @@ const proc: check_string_ops is func
         (striExpr("abcdefghijk") lpad 2) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad 5) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad 10) <> "abcdefghijk" then
-      writeln(" ***** string lpad integer does not work correct.");
+      writeln(" ***** string lpad integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13015,7 +13015,7 @@ const proc: check_string_ops is func
         (striExpr("abcdefghijk") lpad0 2) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad0 5) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad0 10) <> "abcdefghijk" then
-      writeln(" ***** string lpad0 integer does not work correct.");
+      writeln(" ***** string lpad0 integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13199,7 +13199,7 @@ const proc: check_string_ops is func
         (striExpr("-10") lpad0             3) <> "-10" or
         (striExpr("-10") lpad0             4) <> "-010" or
         (striExpr("-10") lpad0            10) <> "-000000010" then
-      writeln(" ***** string lpad0 integer with sign does not work correct.");
+      writeln(" ***** string lpad0 integer with sign does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13365,12 +13365,12 @@ const proc: check_string_ops is func
         (striExpr("abcdefghijk") rpad 2) <> "abcdefghijk" or
         (striExpr("abcdefghijk") rpad 5) <> "abcdefghijk" or
         (striExpr("abcdefghijk") rpad 10) <> "abcdefghijk" then
-      writeln(" ***** string rpad integer does not work correct.");
+      writeln(" ***** string rpad integer does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String operations work correct.");
+      writeln("String operations work correctly.");
     end if;
   end func;
 
@@ -13386,7 +13386,7 @@ const proc: check_string_pos is func
         pos("abcde",  "") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "\0;") <> 0 or
@@ -13396,13 +13396,13 @@ const proc: check_string_pos is func
         pos("abcde",  "\0;") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", "\4096;") <> 1 or
         pos("\0;\4096;\0;", "\4096;") <> 2 or
         pos("\0;\0;\4096;", "\4096;") <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "a") <> 0 or
@@ -13433,7 +13433,7 @@ const proc: check_string_pos is func
         pos("xyzaa",  "a") <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"a\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "ab") <> 0 or
@@ -13476,7 +13476,7 @@ const proc: check_string_pos is func
         pos("cbazb",  "ab") <> 0 or
         pos("aaaaa",  "ab") <> 0 or
         pos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"ab\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "aa") <> 0 or
@@ -13517,7 +13517,7 @@ const proc: check_string_pos is func
         pos("aaaab",  "aa") <> 1 or
         pos("zaaaa",  "aa") <> 2 or
         pos("aaaaa",  "aa") <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"aa\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "abc") <> 0 or
@@ -13575,7 +13575,7 @@ const proc: check_string_pos is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc",  "abc") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb",  "abc") <> 31 or
         pos("ababababababcbababababcbababababcbababababcbabababa",  "abc") <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"abc\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "aba") <> 0 or
@@ -13654,7 +13654,7 @@ const proc: check_string_pos is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  "aba") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  "aba") <> 31 or
         pos("cbabcbabcbababababababababababababababababababababa",  "aba") <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct. (1)");
+      writeln(" ***** pos(STRING, \"aba\") does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -13665,7 +13665,7 @@ const proc: check_string_pos is func
         pos(striExpr("abcde"),  "") <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "") <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "\0;") <> 0 or
@@ -13675,13 +13675,13 @@ const proc: check_string_pos is func
         pos(striExpr("abcde"),  "\0;") <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\0;") <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr("\4096;\0;\0;"), "\4096;") <> 1 or
         pos(striExpr("\0;\4096;\0;"), "\4096;") <> 2 or
         pos(striExpr("\0;\0;\4096;"), "\4096;") <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "a") <> 0 or
@@ -13712,7 +13712,7 @@ const proc: check_string_pos is func
         pos(striExpr("xyzaa"),  "a") <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "a") <> 1 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"a\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "ab") <> 0 or
@@ -13755,7 +13755,7 @@ const proc: check_string_pos is func
         pos(striExpr("cbazb"),  "ab") <> 0 or
         pos(striExpr("aaaaa"),  "ab") <> 0 or
         pos(striExpr("bbbbb"),  "ab") <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"ab\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "aa") <> 0 or
@@ -13796,7 +13796,7 @@ const proc: check_string_pos is func
         pos(striExpr("aaaab"),  "aa") <> 1 or
         pos(striExpr("zaaaa"),  "aa") <> 2 or
         pos(striExpr("aaaaa"),  "aa") <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"aa\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "abc") <> 0 or
@@ -13854,7 +13854,7 @@ const proc: check_string_pos is func
         pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"),  "abc") <> 31 or
         pos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"),  "abc") <> 31 or
         pos(striExpr("ababababababcbababababcbababababcbababababcbabababa"),  "abc") <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"abc\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       "aba") <> 0 or
@@ -13933,7 +13933,7 @@ const proc: check_string_pos is func
         pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc"),  "aba") <> 31 or
         pos(striExpr("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb"),  "aba") <> 31 or
         pos(striExpr("cbabcbabcbababababababababababababababababababababa"),  "aba") <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct. (2)");
+      writeln(" ***** pos(STRING, \"aba\") does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -13944,7 +13944,7 @@ const proc: check_string_pos is func
         pos("abcde",  striExpr("")) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("")) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("\0;")) <> 0 or
@@ -13954,13 +13954,13 @@ const proc: check_string_pos is func
         pos("abcde",  striExpr("\0;")) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\0;")) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct (3).");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correctly (3).");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", striExpr("\4096;")) <> 1 or
         pos("\0;\4096;\0;", striExpr("\4096;")) <> 2 or
         pos("\0;\0;\4096;", striExpr("\4096;")) <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("a")) <> 0 or
@@ -13991,7 +13991,7 @@ const proc: check_string_pos is func
         pos("xyzaa",  striExpr("a")) <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("a")) <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"a\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("ab")) <> 0 or
@@ -14034,7 +14034,7 @@ const proc: check_string_pos is func
         pos("cbazb",  striExpr("ab")) <> 0 or
         pos("aaaaa",  striExpr("ab")) <> 0 or
         pos("bbbbb",  striExpr("ab")) <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"ab\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("aa")) <> 0 or
@@ -14075,7 +14075,7 @@ const proc: check_string_pos is func
         pos("aaaab",  striExpr("aa")) <> 1 or
         pos("zaaaa",  striExpr("aa")) <> 2 or
         pos("aaaaa",  striExpr("aa")) <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"aa\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("abc")) <> 0 or
@@ -14133,7 +14133,7 @@ const proc: check_string_pos is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc",  striExpr("abc")) <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb",  striExpr("abc")) <> 31 or
         pos("ababababababcbababababcbababababcbababababcbabababa",  striExpr("abc")) <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"abc\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       striExpr("aba")) <> 0 or
@@ -14212,7 +14212,7 @@ const proc: check_string_pos is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  striExpr("aba")) <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  striExpr("aba")) <> 31 or
         pos("cbabcbabcbababababababababababababababababababababa",  striExpr("aba")) <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct. (3)");
+      writeln(" ***** pos(STRING, \"aba\") does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14223,7 +14223,7 @@ const proc: check_string_pos is func
         pos(striExpr("abcde"),  striExpr("")) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("")) <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("\0;")) <> 0 or
@@ -14233,13 +14233,13 @@ const proc: check_string_pos is func
         pos(striExpr("abcde"),  striExpr("\0;")) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\0;")) <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr("\4096;\0;\0;"), striExpr("\4096;")) <> 1 or
         pos(striExpr("\0;\4096;\0;"), striExpr("\4096;")) <> 2 or
         pos(striExpr("\0;\0;\4096;"), striExpr("\4096;")) <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("a")) <> 0 or
@@ -14270,7 +14270,7 @@ const proc: check_string_pos is func
         pos(striExpr("xyzaa"),  striExpr("a")) <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("a")) <> 1 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"a\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("ab")) <> 0 or
@@ -14313,7 +14313,7 @@ const proc: check_string_pos is func
         pos(striExpr("cbazb"),  striExpr("ab")) <> 0 or
         pos(striExpr("aaaaa"),  striExpr("ab")) <> 0 or
         pos(striExpr("bbbbb"),  striExpr("ab")) <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"ab\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("aa")) <> 0 or
@@ -14354,7 +14354,7 @@ const proc: check_string_pos is func
         pos(striExpr("aaaab"),  striExpr("aa")) <> 1 or
         pos(striExpr("zaaaa"),  striExpr("aa")) <> 2 or
         pos(striExpr("aaaaa"),  striExpr("aa")) <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"aa\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("abc")) <> 0 or
@@ -14412,7 +14412,7 @@ const proc: check_string_pos is func
         pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"),  striExpr("abc")) <> 31 or
         pos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"),  striExpr("abc")) <> 31 or
         pos(striExpr("ababababababcbababababcbababababcbababababcbabababa"),  striExpr("abc")) <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"abc\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       striExpr("aba")) <> 0 or
@@ -14491,12 +14491,12 @@ const proc: check_string_pos is func
         pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc"),  striExpr("aba")) <> 31 or
         pos(striExpr("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb"),  striExpr("aba")) <> 31 or
         pos(striExpr("cbabcbabcbababababababababababababababababababababa"),  striExpr("aba")) <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct. (4)");
+      writeln(" ***** pos(STRING, \"aba\") does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("pos(string) works correct.");
+      writeln("pos(string) works correctly.");
     end if;
   end func;
 
@@ -14512,13 +14512,13 @@ const proc: check_string_char_pos is func
         pos("abcde",  '\0;') <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** pos(STRING, '\\0;') does not work correct. (1)");
+      writeln(" ***** pos(STRING, '\\0;') does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", '\4096;') <> 1 or
         pos("\0;\4096;\0;", '\4096;') <> 2 or
         pos("\0;\0;\4096;", '\4096;') <> 3 then
-      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (1)");
+      writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  pos("",       'a') <> 0 or
@@ -14549,7 +14549,7 @@ const proc: check_string_char_pos is func
         pos("xyzaa",  'a') <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** pos(STRING, 'a') does not work correct. (1)");
+      writeln(" ***** pos(STRING, 'a') does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14560,13 +14560,13 @@ const proc: check_string_char_pos is func
         pos(striExpr("abcde"),  '\0;') <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\0;') <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 then
-      writeln(" ***** pos(STRING, '\\0;') does not work correct. (2)");
+      writeln(" ***** pos(STRING, '\\0;') does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr("\4096;\0;\0;"), '\4096;') <> 1 or
         pos(striExpr("\0;\4096;\0;"), '\4096;') <> 2 or
         pos(striExpr("\0;\0;\4096;"), '\4096;') <> 3 then
-      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (2)");
+      writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       'a') <> 0 or
@@ -14597,7 +14597,7 @@ const proc: check_string_char_pos is func
         pos(striExpr("xyzaa"),  'a') <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), 'a') <> 1 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 then
-      writeln(" ***** pos(STRING, 'a') does not work correct. (2)");
+      writeln(" ***** pos(STRING, 'a') does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -14608,13 +14608,13 @@ const proc: check_string_char_pos is func
         pos("abcde",  charExpr('\0;')) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\0;')) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 then
-      writeln(" ***** pos(STRING, '\\0;') does not work correct. (3)");
+      writeln(" ***** pos(STRING, '\\0;') does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", charExpr('\4096;')) <> 1 or
         pos("\0;\4096;\0;", charExpr('\4096;')) <> 2 or
         pos("\0;\0;\4096;", charExpr('\4096;')) <> 3 then
-      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (3)");
+      writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  pos("",       charExpr('a')) <> 0 or
@@ -14645,7 +14645,7 @@ const proc: check_string_char_pos is func
         pos("xyzaa",  charExpr('a')) <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('a')) <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 then
-      writeln(" ***** pos(STRING, 'a') does not work correct. (3)");
+      writeln(" ***** pos(STRING, 'a') does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14656,13 +14656,13 @@ const proc: check_string_char_pos is func
         pos(striExpr("abcde"),  charExpr('\0;')) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\0;')) <> 0 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 then
-      writeln(" ***** pos(STRING, '\\0;') does not work correct. (4)");
+      writeln(" ***** pos(STRING, '\\0;') does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr("\4096;\0;\0;"), charExpr('\4096;')) <> 1 or
         pos(striExpr("\0;\4096;\0;"), charExpr('\4096;')) <> 2 or
         pos(striExpr("\0;\0;\4096;"), charExpr('\4096;')) <> 3 then
-      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (4)");
+      writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  pos(striExpr(""),       charExpr('a')) <> 0 or
@@ -14693,7 +14693,7 @@ const proc: check_string_char_pos is func
         pos(striExpr("xyzaa"),  charExpr('a')) <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('a')) <> 1 or
         pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 then
-      writeln(" ***** pos(STRING, 'a') does not work correct. (4)");
+      writeln(" ***** pos(STRING, 'a') does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -14852,12 +14852,12 @@ const proc: check_string_char_pos is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
-      writeln(" ***** pos(STRING, 'a', start) does not work correct.");
+      writeln(" ***** pos(STRING, 'a', start) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("pos(string, char) works correct.");
+      writeln("pos(string, char) works correctly.");
     end if;
   end func;
 
@@ -14896,7 +14896,7 @@ const proc: check_string_pos_idx is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  2) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  9) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "", 99) <> 0 then
-      writeln(" ***** pos(STRING, \"\", start) does not work correct.");
+      writeln(" ***** pos(STRING, \"\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  pos("",       "a", 1) <> 0 or
@@ -15054,7 +15054,7 @@ const proc: check_string_pos_idx is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 26) <> 26 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 27) <>  0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 99) <>  0 then
-      writeln(" ***** pos(STRING, \"a\", start) does not work correct.");
+      writeln(" ***** pos(STRING, \"a\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  pos("",       "ab", 1) <> 0 or
@@ -15281,7 +15281,7 @@ const proc: check_string_pos_idx is func
         pos("bbbbb",  "ab", 5) <> 0 or
         pos("bbbbb",  "ab", 6) <> 0 or
         pos("bbbbb",  "ab", 9) <> 0 then
-      writeln(" ***** pos(STRING, \"ab\", start) does not work correct.");
+      writeln(" ***** pos(STRING, \"ab\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  pos("",       "aa", 1) <> 0 or
@@ -15512,7 +15512,7 @@ const proc: check_string_pos_idx is func
         pos("aaaaa",  "aa", 5) <> 0 or
         pos("aaaaa",  "aa", 6) <> 0 or
         pos("aaaaa",  "aa", 9) <> 0 then
-      writeln(" ***** pos(STRING, \"aa\", start) does not work correct.");
+      writeln(" ***** pos(STRING, \"aa\", start) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -15693,7 +15693,7 @@ const proc: check_string_pos_idx is func
     end if;
 
     if okay then
-      writeln("pos(string) with start index works correct.");
+      writeln("pos(string) with start index works correctly.");
     end if;
   end func;
 
@@ -15709,7 +15709,7 @@ const proc: check_string_rpos is func
         rpos("abcde",  "") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "\0;") <> 0 or
@@ -15719,11 +15719,11 @@ const proc: check_string_rpos is func
         rpos("abcde",  "\0;") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  "\4096;") <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "a") <> 0 or
@@ -15754,7 +15754,7 @@ const proc: check_string_rpos is func
         rpos("xyzaa",  "a") <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"a\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "ab") <> 0 or
@@ -15797,7 +15797,7 @@ const proc: check_string_rpos is func
         rpos("cbazb",  "ab") <> 0 or
         rpos("aaaaa",  "ab") <> 0 or
         rpos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "abc") <> 0 or
@@ -15855,7 +15855,7 @@ const proc: check_string_rpos is func
         rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc", "abc") <> 31 or
         rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb", "abc") <> 31 or
         rpos("ababababababcbababababcbababababcbababababcbabababa", "abc") <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (1)");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -15866,7 +15866,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("abcde"),  "") <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "") <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       "\0;") <> 0 or
@@ -15876,11 +15876,11 @@ const proc: check_string_rpos is func
         rpos(striExpr("abcde"),  "\0;") <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\0;") <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr("\0;\4096;\0;"),  "\4096;") <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       "a") <> 0 or
@@ -15911,7 +15911,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("xyzaa"),  "a") <> 5 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "a") <> 51 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"a\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       "ab") <> 0 or
@@ -15954,7 +15954,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("cbazb"),  "ab") <> 0 or
         rpos(striExpr("aaaaa"),  "ab") <> 0 or
         rpos(striExpr("bbbbb"),  "ab") <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       "abc") <> 0 or
@@ -16012,7 +16012,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"), "abc") <> 31 or
         rpos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"), "abc") <> 31 or
         rpos(striExpr("ababababababcbababababcbababababcbababababcbabababa"), "abc") <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (2)");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -16023,7 +16023,7 @@ const proc: check_string_rpos is func
         rpos("abcde",  striExpr("")) <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("")) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("",       striExpr("\0;")) <> 0 or
@@ -16033,11 +16033,11 @@ const proc: check_string_rpos is func
         rpos("abcde",  striExpr("\0;")) <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\0;")) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  striExpr("\4096;")) <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("",       striExpr("a")) <> 0 or
@@ -16068,7 +16068,7 @@ const proc: check_string_rpos is func
         rpos("xyzaa",  striExpr("a")) <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("a")) <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"a\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("",       striExpr("ab")) <> 0 or
@@ -16111,7 +16111,7 @@ const proc: check_string_rpos is func
         rpos("cbazb",  striExpr("ab")) <> 0 or
         rpos("aaaaa",  striExpr("ab")) <> 0 or
         rpos("bbbbb",  striExpr("ab")) <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("",       striExpr("abc")) <> 0 or
@@ -16169,7 +16169,7 @@ const proc: check_string_rpos is func
         rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc", striExpr("abc")) <> 31 or
         rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb", striExpr("abc")) <> 31 or
         rpos("ababababababcbababababcbababababcbababababcbabababa", striExpr("abc")) <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (3)");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -16180,7 +16180,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("abcde"),  striExpr("")) <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("")) <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       striExpr("\0;")) <> 0 or
@@ -16190,11 +16190,11 @@ const proc: check_string_rpos is func
         rpos(striExpr("abcde"),  striExpr("\0;")) <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\0;")) <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr("\0;\4096;\0;"),  striExpr("\4096;")) <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       striExpr("a")) <> 0 or
@@ -16225,7 +16225,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("xyzaa"),  striExpr("a")) <> 5 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("a")) <> 51 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"a\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       striExpr("ab")) <> 0 or
@@ -16268,7 +16268,7 @@ const proc: check_string_rpos is func
         rpos(striExpr("cbazb"),  striExpr("ab")) <> 0 or
         rpos(striExpr("aaaaa"),  striExpr("ab")) <> 0 or
         rpos(striExpr("bbbbb"),  striExpr("ab")) <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       striExpr("abc")) <> 0 or
@@ -16326,12 +16326,12 @@ const proc: check_string_rpos is func
         rpos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"), striExpr("abc")) <> 31 or
         rpos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"), striExpr("abc")) <> 31 or
         rpos(striExpr("ababababababcbababababcbababababcbababababcbabababa"), striExpr("abc")) <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (4)");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("rpos(string) works correct.");
+      writeln("rpos(string) works correctly.");
     end if;
   end func;
 
@@ -16347,11 +16347,11 @@ const proc: check_string_char_rpos is func
         rpos("abcde",  '\0;') <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (1)");
+      writeln(" ***** rpos(STRING, '\\0;') does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  '\4096;') <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (1)");
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       'a') <> 0 or
@@ -16382,7 +16382,7 @@ const proc: check_string_char_rpos is func
         rpos("xyzaa",  'a') <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct. (1)");
+      writeln(" ***** rpos(STRING, 'a') does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -16393,11 +16393,11 @@ const proc: check_string_char_rpos is func
         rpos(striExpr("abcde"),  '\0;') <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\0;') <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (2)");
+      writeln(" ***** rpos(STRING, '\\0;') does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr("\0;\4096;\0;"),  '\4096;') <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (2)");
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       'a') <> 0 or
@@ -16428,7 +16428,7 @@ const proc: check_string_char_rpos is func
         rpos(striExpr("xyzaa"),  'a') <> 5 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), 'a') <> 51 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct. (2)");
+      writeln(" ***** rpos(STRING, 'a') does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -16439,11 +16439,11 @@ const proc: check_string_char_rpos is func
         rpos("abcde",  charExpr('\0;')) <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\0;')) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (3)");
+      writeln(" ***** rpos(STRING, '\\0;') does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  charExpr('\4096;')) <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (3)");
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correctly. (3)");
       okay := FALSE;
     end if;
     if  rpos("",       charExpr('a')) <> 0 or
@@ -16474,7 +16474,7 @@ const proc: check_string_char_rpos is func
         rpos("xyzaa",  charExpr('a')) <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('a')) <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct. (3)");
+      writeln(" ***** rpos(STRING, 'a') does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -16485,11 +16485,11 @@ const proc: check_string_char_rpos is func
         rpos(striExpr("abcde"),  charExpr('\0;')) <> 0 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\0;')) <> 0 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (4)");
+      writeln(" ***** rpos(STRING, '\\0;') does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr("\0;\4096;\0;"),  charExpr('\4096;')) <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (4)");
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correctly. (4)");
       okay := FALSE;
     end if;
     if  rpos(striExpr(""),       charExpr('a')) <> 0 or
@@ -16520,7 +16520,7 @@ const proc: check_string_char_rpos is func
         rpos(striExpr("xyzaa"),  charExpr('a')) <> 5 or
         rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('a')) <> 51 or
         rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct. (4)");
+      writeln(" ***** rpos(STRING, 'a') does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -16709,12 +16709,12 @@ const proc: check_string_char_rpos is func
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 50) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 51) <> 26 then
-      writeln(" ***** rpos(STRING, 'a', start) does not work correct.");
+      writeln(" ***** rpos(STRING, 'a', start) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("rpos(string, char) works correct.");
+      writeln("rpos(string, char) works correctly.");
     end if;
   end func;
 
@@ -16762,7 +16762,7 @@ const proc: check_string_rpos_idx is func
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  2) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  9) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "", 51) <> 0 then
-      writeln(" ***** rpos(STRING, \"\", start) does not work correct.");
+      writeln(" ***** rpos(STRING, \"\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  rpos("",       "a", -5) <> 0 or
@@ -16950,7 +16950,7 @@ const proc: check_string_rpos_idx is func
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 27) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 50) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 51) <> 26 then
-      writeln(" ***** rpos(STRING, \"a\", start) does not work correct.");
+      writeln(" ***** rpos(STRING, \"a\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  rpos("",       "ab", -5) <> 0 or
@@ -17216,7 +17216,7 @@ const proc: check_string_rpos_idx is func
         rpos("bbbbb",  "ab",  3) <> 0 or
         rpos("bbbbb",  "ab",  4) <> 0 or
         rpos("bbbbb",  "ab",  5) <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\", start) does not work correct.");
+      writeln(" ***** rpos(STRING, \"ab\", start) does not work correctly.");
       okay := FALSE;
     end if;
     if  rpos("",       "aa", -5) <> 0 or
@@ -17484,7 +17484,7 @@ const proc: check_string_rpos_idx is func
         rpos("aaaaa",  "aa",  3) <> 3 or
         rpos("aaaaa",  "aa",  4) <> 4 or
         rpos("aaaaa",  "aa",  5) <> 4 then
-      writeln(" ***** rpos(STRING, \"aa\", start) does not work correct.");
+      writeln(" ***** rpos(STRING, \"aa\", start) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17665,7 +17665,7 @@ const proc: check_string_rpos_idx is func
     end if;
 
     if okay then
-      writeln("rpos(string) with start index works correct.");
+      writeln("rpos(string) with start index works correctly.");
     end if;
   end func;
 
@@ -17850,11 +17850,11 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(str(         'd')))  <> "adcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(str(charExpr('b')))) <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(str(charExpr('d')))) <> "adcd" then
-      writeln(" ***** replace(STRING, STRING, STRING) does not work correct.");
+      writeln(" ***** replace(STRING, STRING, STRING) does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("replace(string, searched, replacement) works correct.");
+      writeln("replace(string, searched, replacement) works correctly.");
     end if;
   end func;
 
@@ -18042,7 +18042,7 @@ const proc: check_string_unicode_conversons is func
                \â´\144;â´\145;â´\146;â´\147;â´\148;â´\149;â´\150;â´\151;\
                \â´\152;â´\153;â´\154;â´\155;â´\156;â´\157;â´\158;â´\159;\
                \â´\160;â´¡â´¢â´£â´¤â´¥â´§â´­" then
-      writeln(" ***** toUtf8(STRING) does not work correct.");
+      writeln(" ***** toUtf8(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18066,7 +18066,7 @@ const proc: check_string_unicode_conversons is func
         fromUtf16Le("\16#34;\16#d8;\16#1e;\16#dd;")            <> "𝄞" or
         replaceUtf16SurrogatePairs("\16#d834;\16#dd1e;")       <> "𝄞" or
         replaceUtf16SurrogatePairs("abc\16#d834;\16#dd1e;def") <> "abc𝄞def" then
-      writeln(" ***** UTF-16 Unicode conversions do not work correct.");
+      writeln(" ***** UTF-16 Unicode conversions do not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18074,7 +18074,7 @@ const proc: check_string_unicode_conversons is func
         fromNullTerminatedUtf16Be(utf16BeTest,  9) <> "def" or
         fromNullTerminatedUtf16Be(utf16BeTest, 17) <> "€" or
         fromNullTerminatedUtf16Be(utf16BeTest, 21) <> "𝄞" then
-      writeln(" ***** fromNullTerminatedUtf16Be(string, pos) does not work correct.");
+      writeln(" ***** fromNullTerminatedUtf16Be(string, pos) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18082,7 +18082,7 @@ const proc: check_string_unicode_conversons is func
         fromNullTerminatedUtf16Le(utf16LeTest,  9) <> "def" or
         fromNullTerminatedUtf16Le(utf16LeTest, 17) <> "€" or
         fromNullTerminatedUtf16Le(utf16LeTest, 21) <> "𝄞" then
-      writeln(" ***** fromNullTerminatedUtf16Le(string, pos) does not work correct.");
+      writeln(" ***** fromNullTerminatedUtf16Le(string, pos) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18090,7 +18090,7 @@ const proc: check_string_unicode_conversons is func
         getNullTerminatedUtf16Be(utf16BeTest, pos) <> "def" or
         getNullTerminatedUtf16Be(utf16BeTest, pos) <> "€" or
         getNullTerminatedUtf16Be(utf16BeTest, pos) <> "𝄞" then
-      writeln(" ***** getNullTerminatedUtf16Be(string, pos) does not work correct.");
+      writeln(" ***** getNullTerminatedUtf16Be(string, pos) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18099,7 +18099,7 @@ const proc: check_string_unicode_conversons is func
         getNullTerminatedUtf16Le(utf16LeTest, pos) <> "def" or
         getNullTerminatedUtf16Le(utf16LeTest, pos) <> "€" or
         getNullTerminatedUtf16Le(utf16LeTest, pos) <> "𝄞" then
-      writeln(" ***** getNullTerminatedUtf16Le(string, pos) does not work correct.");
+      writeln(" ***** getNullTerminatedUtf16Le(string, pos) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18108,7 +18108,7 @@ const proc: check_string_unicode_conversons is func
         getNullTerminatedUtf16Be(testFile) <> "def" or
         getNullTerminatedUtf16Be(testFile) <> "€" or
         getNullTerminatedUtf16Be(testFile) <> "𝄞" then
-      writeln(" ***** getNullTerminatedUtf16Be(file) does not work correct.");
+      writeln(" ***** getNullTerminatedUtf16Be(file) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18117,7 +18117,7 @@ const proc: check_string_unicode_conversons is func
         getNullTerminatedUtf16Le(testFile) <> "def" or
         getNullTerminatedUtf16Le(testFile) <> "€" or
         getNullTerminatedUtf16Le(testFile) <> "𝄞" then
-      writeln(" ***** getNullTerminatedUtf16Le(file) does not work correct.");
+      writeln(" ***** getNullTerminatedUtf16Le(file) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -18153,7 +18153,7 @@ const proc: check_string_unicode_conversons is func
     end if;
 
     if okay then
-      writeln("Unicode conversons work correct.");
+      writeln("Unicode conversons work correctly.");
     end if;
   end func;
 
@@ -18274,7 +18274,7 @@ const proc: check_string_case_conversions is func
               "ⱡⱡɫᵽɽⱥⱦⱨⱨⱪⱪⱬⱬɑɱɐɒⱱⱳⱳⱴⱶⱶⱷⱸⱹⱺⱻⱼⱽȿɀ" or
         lower("ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ") <>
               "ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ" then
-      writeln(" ***** lower(STRING) does not work correct. (1)");
+      writeln(" ***** lower(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -18390,7 +18390,7 @@ const proc: check_string_case_conversions is func
               "ⱡⱡɫᵽɽⱥⱦⱨⱨⱪⱪⱬⱬɑɱɐɒⱱⱳⱳⱴⱶⱶⱷⱸⱹⱺⱻⱼⱽȿɀ" or
         lower(striExpr("ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ")) <>
               "ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ" then
-      writeln(" ***** lower(STRING) does not work correct. (2)");
+      writeln(" ***** lower(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -18506,7 +18506,7 @@ const proc: check_string_case_conversions is func
               "ⱠⱠⱢⱣⱤȺȾⱧⱧⱩⱩⱫⱫⱭⱮⱯⱰⱱⱲⱲⱴⱵⱵⱷⱸⱹⱺⱻⱼⱽⱾⱿ" or
         upper("ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ") <>
               "ႠႡႢႣႤႥႦႧႨႩႪႫႬႭႮႯႰႱႲႳႴႵႶႷႸႹႺႻႼႽႾႿჀჁჂჃჄჅჇჍ" then
-      writeln(" ***** upper(STRING) does not work correct. (1)");
+      writeln(" ***** upper(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -18622,12 +18622,12 @@ const proc: check_string_case_conversions is func
               "ⱠⱠⱢⱣⱤȺȾⱧⱧⱩⱩⱫⱫⱭⱮⱯⱰⱱⱲⱲⱴⱵⱵⱷⱸⱹⱺⱻⱼⱽⱾⱿ" or
         upper(striExpr("ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥⴧⴭ")) <>
               "ႠႡႢႣႤႥႦႧႨႩႪႫႬႭႮႯႰႱႲႳႴႵႶႷႸႹႺႻႼႽႾႿჀჁჂჃჄჅჇჍ" then
-      writeln(" ***** upper(STRING) does not work correct. (2)");
+      writeln(" ***** upper(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("lower(string) and upper(string) work correct.");
+      writeln("lower(string) and upper(string) work correctly.");
     end if;
   end func;
 
@@ -18706,7 +18706,7 @@ const proc: check_string_funcs is func
         trim(striExpr(" \n \n"    )) <> "" or
         trim(striExpr(" \n \n "   )) <> "" or
         trim(striExpr("  \n \n  " )) <> "" then
-      writeln(" ***** trim(STRING) does not work correct. (1)");
+      writeln(" ***** trim(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -18838,7 +18838,7 @@ const proc: check_string_funcs is func
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "x" or
         trim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
-      writeln(" ***** trim(STRING) does not work correct. (2)");
+      writeln(" ***** trim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -18912,7 +18912,7 @@ const proc: check_string_funcs is func
         ltrim(striExpr(" \n \n"    )) <> "" or
         ltrim(striExpr(" \n \n "   )) <> "" or
         ltrim(striExpr("  \n \n  " )) <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct. (1)");
+      writeln(" ***** ltrim(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -19046,7 +19046,7 @@ const proc: check_string_funcs is func
               "x\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;" or
         ltrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct. (2)");
+      writeln(" ***** ltrim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -19120,7 +19120,7 @@ const proc: check_string_funcs is func
         rtrim(striExpr(" \n \n"    )) <> "" or
         rtrim(striExpr(" \n \n "   )) <> "" or
         rtrim(striExpr("  \n \n  " )) <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct. (1)");
+      writeln(" ***** rtrim(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -19254,18 +19254,18 @@ const proc: check_string_funcs is func
               "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x" or
         rtrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct. (2)");
+      writeln(" ***** rtrim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if  str("") <> "" or
         str(striExpr("")) <> "" then
-      writeln(" ***** str(STRING) does not work correct.");
+      writeln(" ***** str(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String functions work correct.");
+      writeln("String functions work correctly.");
     end if;
   end func;
 
@@ -19529,7 +19529,7 @@ const proc: check_string_split is func
         split("A+BCDEF", '+') <> [] ("A", "BCDEF") or
         split("+ABCDEF", '+') <> [] ("", "ABCDEF") or
         split("ABCDEFG", '+') <> [] ("ABCDEFG") then
-      writeln(" ***** split(string, char) does not work correct.");
+      writeln(" ***** split(string, char) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -19796,7 +19796,7 @@ const proc: check_string_split is func
         split("A+BCDEF", "+") <> [] ("A", "BCDEF") or
         split("+ABCDEF", "+") <> [] ("", "ABCDEF") or
         split("ABCDEFG", "+") <> [] ("ABCDEFG") then
-      writeln(" ***** split(string, string) does not work correct.");
+      writeln(" ***** split(string, string) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -19841,7 +19841,7 @@ const proc: check_string_split is func
         split("+AB", "+-") <> [] ("+AB") or
         split("+-AB", "+-") <> [] ("", "AB") or
         split("ABC", "+-") <> [] ("ABC") then
-      writeln(" ***** split(string, string) does not work correct.");
+      writeln(" ***** split(string, string) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -19879,12 +19879,12 @@ const proc: check_string_split is func
         \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
         \àáâãäåæçèéêëìíîï\
         \ðñòóôõö÷øùúûüýþÿ" then
-      writeln(" ***** split(string, string) with longer result does not work correct.");
+      writeln(" ***** split(string, string) with longer result does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("split(string) works correct.");
+      writeln("split(string) works correctly.");
     end if;
   end func;
 
@@ -20148,11 +20148,11 @@ const proc: check_string_join is func
         join([] ("A", "BCDEF"), '+')                   <> "A+BCDEF" or
         join([] ("", "ABCDEF"), '+')                   <> "+ABCDEF" or
         join([] ("ABCDEFG"), '+')                      <> "ABCDEFG" then
-      writeln(" ***** join(string) does not work correct.");
+      writeln(" ***** join(string) does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("join(string) works correct.");
+      writeln("join(string) works correctly.");
     end if;
   end func;
 
@@ -20238,11 +20238,11 @@ const proc: check_string_assign is func
     striArr[intExpr(1)] := striArr[intExpr(1)][2 .. 6];        ok := ok and striArr[1] = "dfghj";
     striArr[intExpr(1)] := striArr[intExpr(1)][2 len 3];       ok := ok and striArr[1] = "fgh";
     if not ok then
-      writeln(" ***** String assignment does not work correct.");
+      writeln(" ***** String assignment does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String assignment works correct.");
+      writeln("String assignment works correctly.");
     end if;
   end func;
 
@@ -20281,7 +20281,7 @@ const func boolean: check_string_append_self_ref1 is func
     stri8 &:= str(stri8[3]);     ok := ok and stri8 = "12345678903";
     do_append(stri9, stri9);     ok := ok and stri9 = "12345678901234567890";
     if not ok then
-      writeln(" ***** String append with one self reference does not work correct.");
+      writeln(" ***** String append with one self reference does not work correctly.");
     end if;
   end func;
 
@@ -20344,7 +20344,7 @@ const func boolean: check_string_append_self_ref2_short is func
     do_append(stri20, stri20, "789");  ok := ok and stri20 = "123456123456789";
     do_append(stri21, stri21, stri21); ok := ok and stri21 = "123456123456123456";
     if not ok then
-      writeln(" ***** String append with two self references does not work correct.");
+      writeln(" ***** String append with two self references does not work correctly.");
     end if;
   end func;
 
@@ -20397,7 +20397,7 @@ const func boolean: check_string_append_self_ref2_long is func
     do_append(stri20, stri20, "456");  ok := ok and stri20 = "1234567890abcdef1234567890abcdef456";
     do_append(stri21, stri21, stri21); ok := ok and stri21 = "1234567890abcdef1234567890abcdef1234567890abcdef";
     if not ok then
-      writeln(" ***** String append with two self references does not work correct.");
+      writeln(" ***** String append with two self references does not work correctly.");
     end if;
   end func;
 
@@ -20440,7 +20440,7 @@ const func boolean: check_string_append_to_empty is func
     stri15 &:=          "b"  & striExpr("c"); ok := ok and stri15 = "bc";
     stri16 &:= striExpr("b") & striExpr("c"); ok := ok and stri16 = "bc";
     if not ok then
-      writeln(" ***** String append to an empty string does not work correct.");
+      writeln(" ***** String append to an empty string does not work correctly.");
     end if;
   end func;
 
@@ -20853,11 +20853,11 @@ const proc: check_string_append is func
     ok := ok and check_string_append_to_empty;
 
     if not ok then
-      writeln(" ***** String append does not work correct.");
+      writeln(" ***** String append does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String append works correct.");
+      writeln("String append works correctly.");
     end if;
   end func;
 
@@ -21239,12 +21239,12 @@ const proc: check_string_assign_at is func
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [ 7] stri [13 len 11]; ok := ok and stri = "abcdefmnopqrstuvwrstuvwxyz";
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [13] stri [ 7 len 11]; ok := ok and stri = "abcdefghijklghijklmnopqxyz";
     if not ok then
-      writeln(" ***** @:= for strings does not work correct.");
+      writeln(" ***** @:= for strings does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("@:= for strings works correct.");
+      writeln("@:= for strings works correctly.");
     end if;
   end func;
 
@@ -21311,7 +21311,7 @@ const proc: check_string_for is func
       ok := FALSE;
     end if;
     if not ok then
-      writeln(" ***** for loops for strings do not work correct.");
+      writeln(" ***** for loops for strings do not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21370,7 +21370,7 @@ const proc: check_string_for is func
       ok := FALSE;
     end if;
     if not ok then
-      writeln(" ***** for key loops for strings do not work correct.");
+      writeln(" ***** for key loops for strings do not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21429,12 +21429,12 @@ const proc: check_string_for is func
       ok := FALSE;
     end if;
     if not ok then
-      writeln(" ***** for var key loops for strings do not work correct.");
+      writeln(" ***** for var key loops for strings do not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("String for loops work correct.");
+      writeln("String for loops work correctly.");
     end if;
   end func;
 
@@ -21461,7 +21461,7 @@ const proc: check_string_ternary is func
         (boolExpr(FALSE) ?  striExpr("thenValue") : "elseValue") <> "elseValue" or
         (boolExpr( TRUE) ?  striExpr("thenValue") : striExpr("elseValue")) <> "thenValue" or
         (boolExpr(FALSE) ?  striExpr("thenValue") : striExpr("elseValue")) <> "elseValue" then
-      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -21482,7 +21482,7 @@ const proc: check_string_ternary is func
     stri := boolExpr( TRUE) ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "thenValue";
     stri := boolExpr(FALSE) ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "elseValue";
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -21503,14 +21503,14 @@ const proc: check_string_ternary is func
     stri := boolExpr( TRUE) ?  striExpr("1") : striExpr("2"); ok := ok and stri = "1";
     stri := boolExpr(FALSE) ?  striExpr("1") : striExpr("2"); ok := ok and stri = "2";
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (3)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The ternary operator ? : works correct for string.");
+      writeln("The ternary operator ? : works correctly for string.");
     else
-      writeln(" ***** The ternary operator ? : does not work correct.");
+      writeln(" ***** The ternary operator ? : does not work correctly.");
     end if;
   end func;
 

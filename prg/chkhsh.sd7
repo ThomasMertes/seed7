@@ -264,9 +264,9 @@ const proc: chkBooleanHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with boolean keys work correct.");
+      writeln("Hash tables with boolean keys work correctly.");
     else
-      writeln(" ***** Hash tables with boolean keys do not work correct");
+      writeln(" ***** Hash tables with boolean keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -394,9 +394,9 @@ const proc: chkIntegerHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with integer keys work correct.");
+      writeln("Hash tables with integer keys work correctly.");
     else
-      writeln(" ***** Hash tables with integer keys do not work correct");
+      writeln(" ***** Hash tables with integer keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -525,9 +525,9 @@ const proc: chkBigIntegerHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with bigInteger keys work correct.");
+      writeln("Hash tables with bigInteger keys work correctly.");
     else
-      writeln(" ***** Hash tables with bigInteger keys do not work correct");
+      writeln(" ***** Hash tables with bigInteger keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -656,9 +656,9 @@ const proc: chkRationalHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with rational keys work correct.");
+      writeln("Hash tables with rational keys work correctly.");
     else
-      writeln(" ***** Hash tables with rational keys do not work correct");
+      writeln(" ***** Hash tables with rational keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -787,9 +787,9 @@ const proc: chkBigRationalHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with bigRational keys work correct.");
+      writeln("Hash tables with bigRational keys work correctly.");
     else
-      writeln(" ***** Hash tables with bigRational keys do not work correct");
+      writeln(" ***** Hash tables with bigRational keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -918,9 +918,9 @@ const proc: chkFloatHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with float keys work correct.");
+      writeln("Hash tables with float keys work correctly.");
     else
-      writeln(" ***** Hash tables with float keys do not work correct");
+      writeln(" ***** Hash tables with float keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -1049,9 +1049,9 @@ const proc: chkComplexHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with complex keys work correct.");
+      writeln("Hash tables with complex keys work correctly.");
     else
-      writeln(" ***** Hash tables with complex keys do not work correct");
+      writeln(" ***** Hash tables with complex keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -1180,9 +1180,9 @@ const proc: chkCharHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with char keys work correct.");
+      writeln("Hash tables with char keys work correctly.");
     else
-      writeln(" ***** Hash tables with char keys do not work correct");
+      writeln(" ***** Hash tables with char keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -1311,9 +1311,9 @@ const proc: chkStringHash is func
       okay := FALSE;
     end if;
     if okay then
-      writeln("Hash tables with string keys work correct.");
+      writeln("Hash tables with string keys work correctly.");
     else
-      writeln(" ***** Hash tables with string keys do not work correct");
+      writeln(" ***** Hash tables with string keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -1341,9 +1341,9 @@ const proc: chkKeysFunction is func
       end for;
     end if;
     if okay then
-      writeln("The keys function for hash tables works correct.");
+      writeln("The keys function for hash tables works correctly.");
     else
-      writeln(" ***** The keys function for hash tables does not work correct.");
+      writeln(" ***** The keys function for hash tables does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1371,9 +1371,9 @@ const proc: chkValuesFunction is func
       end for;
     end if;
     if okay then
-      writeln("The values function for hash tables works correct.");
+      writeln("The values function for hash tables works correctly.");
     else
-      writeln(" ***** The values function for hash tables does not work correct.");
+      writeln(" ***** The values function for hash tables does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1395,7 +1395,7 @@ const proc: chkForLoop is func
       excl(checkValueSet, number);
     end for;
     if checkValueSet <> bitset.value then
-      writeln(" ***** for loop over the values does not work correkt.");
+      writeln(" ***** for loop over the values does not work correctly.");
       okay := FALSE;
     end if;
     checkKeySet := {1 .. 1000};
@@ -1403,7 +1403,7 @@ const proc: chkForLoop is func
       excl(checkKeySet, number);
     end for;
     if checkKeySet <> bitset.value then
-      writeln(" ***** for loop over the keys does not work correkt.");
+      writeln(" ***** for loop over the keys does not work correctly.");
       okay := FALSE;
     end if;
     checkKeySet := {1 .. 1000};
@@ -1413,13 +1413,13 @@ const proc: chkForLoop is func
       excl(checkValueSet, number);
     end for;
     if checkKeySet <> bitset.value or checkValueSet <> bitset.value then
-      writeln(" ***** for loop over keys and values does not work correkt.");
+      writeln(" ***** for loop over keys and values does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("The for loop for hash tables works correct.");
+      writeln("The for loop for hash tables works correctly.");
     else
-      writeln(" ***** The for loop for hash tables does not work correct.");
+      writeln(" ***** The for loop for hash tables does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1435,9 +1435,9 @@ const proc: chkAssignmentToItself is func
     aHash := aHash;
     okay := okay and aHash["asdf"] = "qwer";
     if okay then
-      writeln("The assignment of a hash variable to itself works correct.");
+      writeln("The assignment of a hash variable to itself works correctly.");
     else
-      writeln(" ***** The assignment of a hash variable to itself does not work correct.");
+      writeln(" ***** The assignment of a hash variable to itself does not work correctly.");
       writeln;
     end if;
   end func;

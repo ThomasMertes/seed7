@@ -134,9 +134,9 @@ const proc: checkShift is func
     end if;
 
     if okay then
-      writeln("Bin64 shift works correct.");
+      writeln("Bin64 shift works correctly.");
     else
-      writeln(" ***** Bin64 shift does not work correct.");
+      writeln(" ***** Bin64 shift does not work correctly.");
       writeln;
     end if;
   end func;
@@ -491,7 +491,7 @@ const proc: checkBytesBeWithLength is func
         bytes(bin64( 9223372036854775807 ), BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(bin64(10000000000000000000_), BE, 9) <> "\000;\138;\199;\035;\004;\137;\232;\000;\000;" or
         bytes(bin64(18446744073709551615_), BE, 9) <> "\000;\255;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correct. (1)");
+      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -840,7 +840,7 @@ const proc: checkBytesBeWithLength is func
         bytes(bin64Expr(bin64( 9223372036854775807 )), BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(bin64Expr(bin64(10000000000000000000_)), BE, 9) <> "\000;\138;\199;\035;\004;\137;\232;\000;\000;" or
         bytes(bin64Expr(bin64(18446744073709551615_)), BE, 9) <> "\000;\255;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correct. (2)");
+      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -869,9 +869,9 @@ const proc: checkBytesBeWithLength is func
     end if;
 
     if okay then
-      writeln("Conversion of bin64 to big endian byte string with length works correct.");
+      writeln("Conversion of bin64 to big endian byte string with length works correctly.");
     else
-      writeln(" ***** Conversion of bin64 to big endian byte string with length does not work correct.");
+      writeln(" ***** Conversion of bin64 to big endian byte string with length does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1226,7 +1226,7 @@ const proc: checkBytesLeWithLength is func
         bytes(bin64( 9223372036854775807 ), LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" or
         bytes(bin64(10000000000000000000_), LE, 9) <> "\000;\000;\232;\137;\004;\035;\199;\138;\000;" or
         bytes(bin64(18446744073709551615_), LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\255;\000;" then
-      writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correct. (1)");
+      writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1575,7 +1575,7 @@ const proc: checkBytesLeWithLength is func
         bytes(bin64Expr(bin64( 9223372036854775807 )), LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" or
         bytes(bin64Expr(bin64(10000000000000000000_)), LE, 9) <> "\000;\000;\232;\137;\004;\035;\199;\138;\000;" or
         bytes(bin64Expr(bin64(18446744073709551615_)), LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\255;\000;" then
-      writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correct. (2)");
+      writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1604,9 +1604,9 @@ const proc: checkBytesLeWithLength is func
     end if;
 
     if okay then
-      writeln("Conversion of bin64 to little endian byte string with length works correct.");
+      writeln("Conversion of bin64 to little endian byte string with length works correctly.");
     else
-      writeln(" ***** Conversion of bin64 to little endian byte string with length does not work correct.");
+      writeln(" ***** Conversion of bin64 to little endian byte string with length does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1650,7 +1650,7 @@ const proc: checkFloat2Bits is func
         bin32(-0.0)                     <> bin32(16#80000000) or
         bin32( NaN)                     <> bin32(16#7fc00000) and
         bin32( NaN)                     <> bin32(16#ffc00000) then
-      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct. (1)");
+      writeln(" ***** Converting IEEE single precision float to bin32 does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1688,7 +1688,7 @@ const proc: checkFloat2Bits is func
         bin32(floatExpr(-0.0))                     <> bin32(16#80000000) or
         bin32(floatExpr( NaN))                     <> bin32(16#7fc00000) and
         bin32(floatExpr( NaN))                     <> bin32(16#ffc00000) then
-      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct. (2)");
+      writeln(" ***** Converting IEEE single precision float to bin32 does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1726,7 +1726,7 @@ const proc: checkFloat2Bits is func
         bin64(-0.0)                     <> bin64(16#8000000000000000_) or
         bin64( NaN)                     <> bin64(16#7ff8000000000000_) and
         bin64( NaN)                     <> bin64(16#fff8000000000000_) then
-      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct. (1)");
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1764,12 +1764,12 @@ const proc: checkFloat2Bits is func
         bin64(floatExpr(-0.0))                     <> bin64(16#8000000000000000_) or
         bin64(floatExpr( NaN))                     <> bin64(16#7ff8000000000000_) and
         bin64(floatExpr( NaN))                     <> bin64(16#fff8000000000000_) then
-      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct. (2)");
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Converting float to bin32 and bin64 values works correct.");
+      writeln("Converting float to bin32 and bin64 values works correctly.");
     end if;
   end func;
 
@@ -1808,7 +1808,7 @@ const proc: checkBits2Float is func
         not isNaN(         float(bin32(16#7fffffff))) or
         not isNaN(         float(bin32(16#ffc00000))) or
         not isNaN(         float(bin32(16#ffffffff))) then
-      writeln(" ***** Converting bin32 to IEEE single precision float does not work correct.");
+      writeln(" ***** Converting bin32 to IEEE single precision float does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1848,12 +1848,12 @@ const proc: checkBits2Float is func
         not isNaN(         float(bin64(16#7fffffffffffffff_))) or
         not isNaN(         float(bin64(16#fff8000000000000_))) or
         not isNaN(         float(bin64(16#ffffffffffffffff_))) then
-      writeln(" ***** Converting bin64 to IEEE double precision float does not work correct.");
+      writeln(" ***** Converting bin64 to IEEE double precision float does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Converting bin32 and bin64 values to float works correct.");
+      writeln("Converting bin32 and bin64 values to float works correctly.");
     end if;
   end func;
 
@@ -1893,7 +1893,7 @@ const proc: checkFloat2MbfBits is func
         not raisesRangeError(float2MbfBits( Infinity,                SINGLE)) or
         not raisesRangeError(float2MbfBits(-Infinity,                SINGLE)) or
         not raisesRangeError(float2MbfBits( NaN,                     SINGLE)) then
-      writeln(" ***** float2MbfBits for MBF single precision does not work correct.");
+      writeln(" ***** float2MbfBits for MBF single precision does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1927,12 +1927,12 @@ const proc: checkFloat2MbfBits is func
         not raisesRangeError(float2MbfBits( Infinity,                DOUBLE)) or
         not raisesRangeError(float2MbfBits(-Infinity,                DOUBLE)) or
         not raisesRangeError(float2MbfBits( NaN,                     DOUBLE)) then
-      writeln(" ***** float2MbfBits for MBF double precision does not work correct.");
+      writeln(" ***** float2MbfBits for MBF double precision does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("float2MbfBits works correct for bin32 and bin64 values.");
+      writeln("float2MbfBits works correctly for bin32 and bin64 values.");
     end if;
   end func;
 
@@ -1963,7 +1963,7 @@ const proc: checkMbfBits2Float is func
         mbfBits2Float(bin32(16#81490fdb)) <>  1.5707963705062866 or      # PI / 2.0
         mbfBits2Float(bin32(16#82490fdb)) <>  3.1415927410125732 or      # PI
         mbfBits2Float(bin32(16#83490fdb)) <>  6.2831854820251465 then    # 2.0 * PI
-      writeln(" ***** mbfBits2Float for bin32 values does not work correct.");
+      writeln(" ***** mbfBits2Float for bin32 values does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -1993,12 +1993,12 @@ const proc: checkMbfBits2Float is func
         mbfBits2Float(bin64(16#81490fdaa22168c0_)) <>  1.5707963267948966 or      # PI / 2.0
         mbfBits2Float(bin64(16#82490fdaa22168c0_)) <>  3.1415926535897931 or      # PI
         mbfBits2Float(bin64(16#83490fdaa22168c0_)) <>  6.2831853071795862 then    # 2.0 * PI
-      writeln(" ***** mbfBits2Float for bin64 values does not work correct.");
+      writeln(" ***** mbfBits2Float for bin64 values does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("mbfBits2Float works correct for bin32 and bin64 values.");
+      writeln("mbfBits2Float works correctly for bin32 and bin64 values.");
     end if;
   end func;
 
@@ -2030,7 +2030,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigintExpr(aBig2) mod powTwo64) <> aBin2 or
         bin64(bigintExpr(aBig3) mod powTwo64) <> aBin3 or
         bin64(bigintExpr(aBig4) mod powTwo64) <> aBin4 then
-      writeln(" ***** bin64(aBigInt mod 2_**64) does not work correct.");
+      writeln(" ***** bin64(aBigInt mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2042,7 +2042,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(big(bin64Expr(aBin2)) mod powTwo64) <> aBin2 or
         bin64(big(bin64Expr(aBin3)) mod powTwo64) <> aBin3 or
         bin64(big(bin64Expr(aBin4)) mod powTwo64) <> aBin4 then
-      writeln(" ***** bin64(big(aBin1) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64(big(aBin1) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2054,7 +2054,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger(intExpr(anInt2)) mod powTwo64) <> aBin2 or
         bin64(bigInteger(intExpr(anInt3)) mod powTwo64) <> aBin3 or
         bin64(bigInteger(intExpr(anInt4)) mod powTwo64) <> aBin4 then
-      writeln(" ***** bin64(bigInteger(number) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64(bigInteger(number) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2066,7 +2066,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger conv intExpr(anInt2) mod powTwo64) <> aBin2 or
         bin64(bigInteger conv intExpr(anInt3) mod powTwo64) <> aBin3 or
         bin64(bigInteger conv intExpr(anInt4) mod powTwo64) <> aBin4 then
-      writeln(" ***** bin64(bigInteger conv number mod 2_**64) does not work correct.");
+      writeln(" ***** bin64(bigInteger conv number mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2078,7 +2078,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigintExpr(aBig2) mod powTwo63) <> bin64(5074619335926251242_) or
         bin64(bigintExpr(aBig3) mod powTwo63) <> bin64(3745810425333604960_) or
         bin64(bigintExpr(aBig4) mod powTwo63) <> bin64(2207119669289072373_) then
-      writeln(" ***** bin64(aBigInt mod 2_**63) does not work correct.");
+      writeln(" ***** bin64(aBigInt mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2090,7 +2090,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(big(bin64Expr(aBin2)) mod powTwo63) <> bin64(5074619335926251242_) or
         bin64(big(bin64Expr(aBin3)) mod powTwo63) <> bin64(3745810425333604960_) or
         bin64(big(bin64Expr(aBin4)) mod powTwo63) <> bin64(2207119669289072373_) then
-      writeln(" ***** bin64(big(aBin1) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64(big(aBin1) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2102,7 +2102,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger(intExpr(anInt2)) mod powTwo63) <> bin64(5074619335926251242_) or
         bin64(bigInteger(intExpr(anInt3)) mod powTwo63) <> bin64(3745810425333604960_) or
         bin64(bigInteger(intExpr(anInt4)) mod powTwo63) <> bin64(2207119669289072373_) then
-      writeln(" ***** bin64(bigInteger(number) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64(bigInteger(number) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2114,7 +2114,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger conv intExpr(anInt2) mod powTwo63) <> bin64(5074619335926251242_) or
         bin64(bigInteger conv intExpr(anInt3) mod powTwo63) <> bin64(3745810425333604960_) or
         bin64(bigInteger conv intExpr(anInt4) mod powTwo63) <> bin64(2207119669289072373_) then
-      writeln(" ***** bin64(bigInteger conv number mod 2_**63) does not work correct.");
+      writeln(" ***** bin64(bigInteger conv number mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2126,7 +2126,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigintExpr(aBig2) mod powTwo60) <> bin64( 462933317498863338_) or
         bin64(bigintExpr(aBig3) mod powTwo60) <> bin64( 287045911513064032_) or
         bin64(bigintExpr(aBig4) mod powTwo60) <> bin64(1054198164682225397_) then
-      writeln(" ***** bin64(aBigInt mod 2_**60) does not work correct.");
+      writeln(" ***** bin64(aBigInt mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2138,7 +2138,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(big(bin64Expr(aBin2)) mod powTwo60) <> bin64( 462933317498863338_) or
         bin64(big(bin64Expr(aBin3)) mod powTwo60) <> bin64( 287045911513064032_) or
         bin64(big(bin64Expr(aBin4)) mod powTwo60) <> bin64(1054198164682225397_) then
-      writeln(" ***** bin64(big(aBin1) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64(big(aBin1) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2150,7 +2150,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger(intExpr(anInt2)) mod powTwo60) <> bin64( 462933317498863338_) or
         bin64(bigInteger(intExpr(anInt3)) mod powTwo60) <> bin64( 287045911513064032_) or
         bin64(bigInteger(intExpr(anInt4)) mod powTwo60) <> bin64(1054198164682225397_) then
-      writeln(" ***** bin64(bigInteger(number) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64(bigInteger(number) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2162,7 +2162,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger conv intExpr(anInt2) mod powTwo60) <> bin64( 462933317498863338_) or
         bin64(bigInteger conv intExpr(anInt3) mod powTwo60) <> bin64( 287045911513064032_) or
         bin64(bigInteger conv intExpr(anInt4) mod powTwo60) <> bin64(1054198164682225397_) then
-      writeln(" ***** bin64(bigInteger conv number mod 2_**60) does not work correct.");
+      writeln(" ***** bin64(bigInteger conv number mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2174,7 +2174,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2186,7 +2186,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2198,7 +2198,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2210,7 +2210,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2222,7 +2222,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2234,7 +2234,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**64) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2246,7 +2246,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2258,7 +2258,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2270,7 +2270,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2282,7 +2282,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2294,7 +2294,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2306,7 +2306,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**63) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2318,7 +2318,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2330,7 +2330,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2342,7 +2342,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2354,7 +2354,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2366,7 +2366,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2378,12 +2378,12 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**60) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("bin64(aBigInteger mod 2_**y) works correct.");
+      writeln("bin64(aBigInteger mod 2_**y) works correctly.");
     end if;
   end func;
 
@@ -2436,7 +2436,7 @@ const proc: checkStr is func
         str(bin32(2147483648)) <> "2147483648" or
         str(bin32(4294967294)) <> "4294967294" or
         str(bin32(4294967295)) <> "4294967295" then
-      writeln(" ***** Bin32 str does not work correct.");
+      writeln(" ***** Bin32 str does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -2600,12 +2600,12 @@ const proc: checkStr is func
         str(bin64Expr(bin64(10000000000000000000_))) <> "10000000000000000000" or
         str(bin64Expr(bin64(18446744073709551614_))) <> "18446744073709551614" or
         str(bin64Expr(bin64(18446744073709551615_))) <> "18446744073709551615" then
-      writeln(" ***** Bin64 str does not work correct.");
+      writeln(" ***** Bin64 str does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Bin32 and bin64 str works correct.");
+      writeln("Bin32 and bin64 str works correctly.");
     end if;
   end func;
 
@@ -2649,7 +2649,7 @@ const proc: checkRadix is func
         (bin32(1000000) radix 34) <> "pf1q" or
         (bin32(1000000) radix 35) <> "nbbf" or
         (bin32(1000000) radix 36) <> "lfls" then
-      writeln(" ***** The radix operator for bin32 does not work correct. (1)");
+      writeln(" ***** The radix operator for bin32 does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  (bin32(1000000) radix intExpr( 2)) <> "11110100001001000000" or
@@ -2687,7 +2687,7 @@ const proc: checkRadix is func
         (bin32(1000000) radix intExpr(34)) <> "pf1q" or
         (bin32(1000000) radix intExpr(35)) <> "nbbf" or
         (bin32(1000000) radix intExpr(36)) <> "lfls" then
-      writeln(" ***** The radix operator for bin32 does not work correct. (2)");
+      writeln(" ***** The radix operator for bin32 does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  (bin32(1000000) RADIX  2) <> "11110100001001000000" or
@@ -2725,7 +2725,7 @@ const proc: checkRadix is func
         (bin32(1000000) RADIX 34) <> "PF1Q" or
         (bin32(1000000) RADIX 35) <> "NBBF" or
         (bin32(1000000) RADIX 36) <> "LFLS" then
-      writeln(" ***** The RADIX operator for bin32 does not work correct. (1)");
+      writeln(" ***** The RADIX operator for bin32 does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  (bin32(1000000) RADIX intExpr( 2)) <> "11110100001001000000" or
@@ -2763,7 +2763,7 @@ const proc: checkRadix is func
         (bin32(1000000) RADIX intExpr(34)) <> "PF1Q" or
         (bin32(1000000) RADIX intExpr(35)) <> "NBBF" or
         (bin32(1000000) RADIX intExpr(36)) <> "LFLS" then
-      writeln(" ***** The RADIX operator for bin32 does not work correct. (2)");
+      writeln(" ***** The RADIX operator for bin32 does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -2802,7 +2802,7 @@ const proc: checkRadix is func
         (bin64(10000000000) radix 34) <> "6g35112" or
         (bin64(10000000000) radix 35) <> "5fdv5ap" or
         (bin64(10000000000) radix 36) <> "4ldqpds" then
-      writeln(" ***** The radix operator for bin64 does not work correct. (1)");
+      writeln(" ***** The radix operator for bin64 does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  (bin64(10000000000) radix intExpr( 2)) <> "1001010100000010111110010000000000" or
@@ -2840,7 +2840,7 @@ const proc: checkRadix is func
         (bin64(10000000000) radix intExpr(34)) <> "6g35112" or
         (bin64(10000000000) radix intExpr(35)) <> "5fdv5ap" or
         (bin64(10000000000) radix intExpr(36)) <> "4ldqpds" then
-      writeln(" ***** The radix operator for bin64 does not work correct. (2)");
+      writeln(" ***** The radix operator for bin64 does not work correctly. (2)");
       okay := FALSE;
     end if;
     if  (bin64(10000000000) RADIX  2) <> "1001010100000010111110010000000000" or
@@ -2878,7 +2878,7 @@ const proc: checkRadix is func
         (bin64(10000000000) RADIX 34) <> "6G35112" or
         (bin64(10000000000) RADIX 35) <> "5FDV5AP" or
         (bin64(10000000000) RADIX 36) <> "4LDQPDS" then
-      writeln(" ***** The RADIX operator for bin64 does not work correct. (1)");
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (1)");
       okay := FALSE;
     end if;
     if  (bin64(10000000000) RADIX intExpr( 2)) <> "1001010100000010111110010000000000" or
@@ -2916,7 +2916,7 @@ const proc: checkRadix is func
         (bin64(10000000000) RADIX intExpr(34)) <> "6G35112" or
         (bin64(10000000000) RADIX intExpr(35)) <> "5FDV5AP" or
         (bin64(10000000000) RADIX intExpr(36)) <> "4LDQPDS" then
-      writeln(" ***** The RADIX operator for bin64 does not work correct. (2)");
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -2941,7 +2941,7 @@ const proc: checkRadix is func
     end if;
 
     if okay then
-      writeln("Bin32 and bin64 radix does work correct.");
+      writeln("Bin32 and bin64 radix does work correctly.");
     end if;
   end func;
 
@@ -2973,7 +2973,7 @@ const proc: checkTernary is func
         (boolExpr(FALSE) ?  bin32Expr(thenValue32) : elseValue32) <> elseValue32 or
         (boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> thenValue32 or
         (boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> elseValue32 then
-      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2994,7 +2994,7 @@ const proc: checkTernary is func
     aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
     aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -3014,7 +3014,7 @@ const proc: checkTernary is func
         (boolExpr(FALSE) ?  bin64Expr(thenValue64) : elseValue64) <> elseValue64 or
         (boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> thenValue64 or
         (boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> elseValue64 then
-      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -3035,14 +3035,14 @@ const proc: checkTernary is func
     aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
     aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (4)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The ternary operator ? : works correct for bin32 and bin64.");
+      writeln("The ternary operator ? : works correctly for bin32 and bin64.");
     else
-      writeln(" ***** The ternary operator ? : does not work correct.");
+      writeln(" ***** The ternary operator ? : does not work correctly.");
     end if;
   end func;
 

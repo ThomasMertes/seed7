@@ -379,7 +379,7 @@ const proc: check_integer_exponentiation (inout boolean: okay) is func
     end block;
 
     if okay and number <> 32 then
-      writeln(" ***** Integer exceptions for exponentiation do not work correct");
+      writeln(" ***** Integer exceptions for exponentiation do not work correctly");
       writeln;
       okay := FALSE;
     end if;
@@ -779,9 +779,9 @@ const proc: check_integer is func
     check_integer_exponentiation(okay);
 
     if okay and number = 41 then
-      writeln("Integer exceptions work correct.");
+      writeln("Integer exceptions work correctly.");
     else
-      writeln(" ***** Integer exceptions do not work correct");
+      writeln(" ***** Integer exceptions do not work correctly");
       writeln;
     end if;
   end func;
@@ -1105,7 +1105,7 @@ const proc: check_bigInteger_exponentiation (inout boolean: okay) is func
     end block;
 
     if okay and number <> 32 then
-      writeln(" ***** BigInteger exceptions for exponentiation do not work correct");
+      writeln(" ***** BigInteger exceptions for exponentiation do not work correctly");
       writeln;
       okay := FALSE;
     end if;
@@ -1248,9 +1248,9 @@ const proc: check_bigInteger is func
     check_bigInteger_exponentiation(okay);
 
     if okay and number = 12 then
-      writeln("BigInteger exceptions work correct.");
+      writeln("BigInteger exceptions work correctly.");
     else
-      writeln(" ***** BigInteger exceptions do not work correct");
+      writeln(" ***** BigInteger exceptions do not work correctly");
       writeln;
     end if;
   end func;
@@ -1462,9 +1462,9 @@ const proc: check_float is func
     end block;
 
     if okay and number = 14 then
-      writeln("Floating point exceptions work correct.");
+      writeln("Floating point exceptions work correctly.");
     else
-      writeln(" ***** Floating point exceptions do not work correct");
+      writeln(" ***** Floating point exceptions do not work correctly");
       writeln;
     end if;
   end func;
@@ -1698,9 +1698,9 @@ const proc: check_string is func
     end block;
 
     if okay and number = 21 then
-      writeln("String exceptions work correct.");
+      writeln("String exceptions work correctly.");
     else
-      writeln(" ***** String exceptions do not work correct");
+      writeln(" ***** String exceptions do not work correctly");
       writeln;
     end if;
   end func;
@@ -2013,9 +2013,9 @@ const proc: check_array is func
     end block;
 
     if okay and number = 31 then
-      writeln("Array exceptions work correct.");
+      writeln("Array exceptions work correctly.");
     else
-      writeln(" ***** Array exceptions do not work correct");
+      writeln(" ***** Array exceptions do not work correctly");
       writeln;
     end if;
   end func;
@@ -2382,9 +2382,9 @@ const proc: check_file is func
     end block;
 
     if okay and number = 35 then
-      writeln("File exceptions work correct.");
+      writeln("File exceptions work correctly.");
     else
-      writeln(" ***** File exceptions do not work correct");
+      writeln(" ***** File exceptions do not work correctly");
       writeln;
     end if;
   end func;

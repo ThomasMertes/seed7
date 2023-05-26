@@ -803,7 +803,7 @@ const proc: testInitialization is func
     end if;
 
     if okay then
-      writeln("Array initialization works correct.");
+      writeln("Array initialization works correctly.");
     end if;
   end func;
 
@@ -1116,7 +1116,7 @@ const proc: testCompare is func
     end if;
 
     if okay then
-      writeln("Array comparison works correct.");
+      writeln("Array comparison works correctly.");
     end if;
   end func;
 
@@ -1152,85 +1152,85 @@ const proc: testAssign is func
   begin
     blnArr := blnArr;
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (1)");
       okay := FALSE;
     end if;
     blnArr2 := blnArr;
     if blnArr2 <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (2)");
       okay := FALSE;
     end if;
     blnArr2 := blnArr & [] (FALSE);
     if blnArr2 <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (3)");
       okay := FALSE;
     end if;
     blnArrArr[1] := blnArr & [] (FALSE);
     if blnArrArr[1] <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
-      writeln(" ***** array assignment for 'array boolean' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     intArr := intArr;
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7) then
-      writeln(" ***** array assignment for 'array integer' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (1)");
       okay := FALSE;
     end if;
     intArr2 := intArr;
     if intArr2 <> [] (1, 2, 3, 4, 5, 6, 7) then
-      writeln(" ***** array assignment for 'array integer' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (2)");
       okay := FALSE;
     end if;
     intArr2 := intArr & [] (8);
     if intArr2 <> [] (1, 2, 3, 4, 5, 6, 7, 8) then
-      writeln(" ***** array assignment for 'array integer' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (3)");
       okay := FALSE;
     end if;
     intArrArr[1] := intArr & [] (8);
     if intArrArr[1] <> [] (1, 2, 3, 4, 5, 6, 7, 8) then
-      writeln(" ***** array assignment for 'array integer' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     bigArr := bigArr;
     if bigArr <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (1)");
       okay := FALSE;
     end if;
     bigArr2 := bigArr;
     if bigArr2 <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (2)");
       okay := FALSE;
     end if;
     bigArr2 := bigArr & [] (8_);
     if bigArr2 <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (3)");
       okay := FALSE;
     end if;
     bigArrArr[1] := bigArr & [] (8_);
     if bigArrArr[1] <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_) then
-      writeln(" ***** array assignment for 'array bigInteger' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     fltArr := fltArr;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array float' does not work correctly. (1)");
       okay := FALSE;
     end if;
     fltArr2 := fltArr;
     if fltArr2 <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array float' does not work correctly. (2)");
       okay := FALSE;
     end if;
     fltArr2 := fltArr & [] (8.0);
     if fltArr2 <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array float' does not work correctly. (3)");
       okay := FALSE;
     end if;
     fltArrArr[1] := fltArr & [] (8.0);
     if fltArrArr[1] <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0) then
-      writeln(" ***** array assignment for 'array float' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array float' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -1238,96 +1238,96 @@ const proc: testAssign is func
     if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                      complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                      complex(7.0, 7.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (1)");
       okay := FALSE;
     end if;
     cpxArr2 := cpxArr;
     if cpxArr2 <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                       complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                       complex(7.0, 7.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (2)");
       okay := FALSE;
     end if;
     cpxArr2 := cpxArr & [] (complex(8.0, 8.0));
     if cpxArr2 <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                       complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                       complex(7.0, 7.0), complex(8.0, 8.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (3)");
       okay := FALSE;
     end if;
     cpxArrArr[1] := cpxArr & [] (complex(8.0, 8.0));
     if cpxArrArr[1] <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                       complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0),
                       complex(7.0, 7.0), complex(8.0, 8.0)) then
-      writeln(" ***** array assignment for 'array complex' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     chrArr := chrArr;
     if chrArr <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g') then
-      writeln(" ***** array assignment for 'array char' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array char' does not work correctly. (1)");
       okay := FALSE;
     end if;
     chrArr2 := chrArr;
     if chrArr2 <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g') then
-      writeln(" ***** array assignment for 'array char' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array char' does not work correctly. (2)");
       okay := FALSE;
     end if;
     chrArr2 := chrArr & [] ('h');
     if chrArr2 <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h') then
-      writeln(" ***** array assignment for 'array char' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array char' does not work correctly. (3)");
       okay := FALSE;
     end if;
     chrArrArr[1] := chrArr & [] ('h');
     if chrArrArr[1] <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h') then
-      writeln(" ***** array assignment for 'array char' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array char' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     strArr := strArr;
     if strArr <> [] ("one", "two", "three", "four", "five", "six", "seven") then
-      writeln(" ***** array assignment for 'array string' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array string' does not work correctly. (1)");
       okay := FALSE;
     end if;
     strArr2 := strArr;
     if strArr2 <> [] ("one", "two", "three", "four", "five", "six", "seven") then
-      writeln(" ***** array assignment for 'array string' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array string' does not work correctly. (2)");
       okay := FALSE;
     end if;
     strArr2 := strArr & [] ("eight");
     if strArr2 <> [] ("one", "two", "three", "four", "five", "six", "seven", "eight") then
-      writeln(" ***** array assignment for 'array string' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array string' does not work correctly. (3)");
       okay := FALSE;
     end if;
     strArrArr[1] := strArr & [] ("eight");
     if strArrArr[1] <> [] ("one", "two", "three", "four", "five", "six", "seven", "eight") then
-      writeln(" ***** array assignment for 'array string' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array string' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     setArr := setArr;
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct. (1)");
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (1)");
       okay := FALSE;
     end if;
     setArr2 := setArr;
     if setArr2 <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct. (2)");
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (2)");
       okay := FALSE;
     end if;
     setArr2 := setArr & []({8});
     if setArr2 <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct. (3)");
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (3)");
       okay := FALSE;
     end if;
     setArrArr[1] := setArr & []({8});
     if setArrArr[1] <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
-      writeln(" ***** array assignment for 'array bitset' does not work correct. (4)");
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (4)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Array assignment works correct.");
+      writeln("Array assignment works correctly.");
     end if;
   end func;
 
@@ -1347,25 +1347,25 @@ const proc: testAppend is func
   begin
     blnArr &:= blnArr;
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
-      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correctly");
       okay := FALSE;
     end if;
 
     intArr &:= intArr;
     if intArr <> [] (1, 2, 3, 4, 1, 2, 3, 4) then
-      writeln(" ***** array append ( &:= ) for 'array integer' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array integer' does not work correctly");
       okay := FALSE;
     end if;
 
     bigArr &:= bigArr;
     if bigArr <> [] (1_, 2_, 3_, 4_, 1_, 2_, 3_, 4_) then
-      writeln(" ***** array append ( &:= ) for 'array bigInteger' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array bigInteger' does not work correctly");
       okay := FALSE;
     end if;
 
     fltArr &:= fltArr;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0) then
-      writeln(" ***** array append ( &:= ) for 'array float' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array float' does not work correctly");
       okay := FALSE;
     end if;
 
@@ -1373,49 +1373,49 @@ const proc: testAppend is func
     if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                      complex(4.0, 4.0), complex(1.0, 1.0), complex(2.0, 2.0),
                      complex(3.0, 3.0), complex(4.0, 4.0)) then
-      writeln(" ***** array append ( &:= ) for 'array complex' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array complex' does not work correctly");
       okay := FALSE;
     end if;
 
     chrArr &:= chrArr;
     if chrArr <> [] ('a', 'b', 'c', 'd', 'a', 'b', 'c', 'd') then
-      writeln(" ***** array append ( &:= ) for 'array char' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array char' does not work correctly");
       okay := FALSE;
     end if;
 
     strArr &:= strArr;
     if strArr <> [] ("one", "two", "three", "four", "one", "two", "three", "four") then
-      writeln(" ***** array append ( &:= ) for 'array string' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array string' does not work correctly");
       okay := FALSE;
     end if;
 
     setArr &:= setArr;
     if setArr <> [] ({1}, {2}, {3}, {4}, {1}, {2}, {3}, {4}) then
-      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correctly");
       okay := FALSE;
     end if;
 
     blnArr &:= blnArr[.. 2];
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
-      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correctly");
       okay := FALSE;
     end if;
 
     intArr &:= intArr[.. 2];
     if intArr <> [] (1, 2, 3, 4, 1, 2, 3, 4, 1, 2) then
-      writeln(" ***** array append ( &:= ) for 'array integer' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array integer' does not work correctly");
       okay := FALSE;
     end if;
 
     bigArr &:= bigArr[.. 2];
     if bigArr <> [] (1_, 2_, 3_, 4_, 1_, 2_, 3_, 4_, 1_, 2_) then
-      writeln(" ***** array append ( &:= ) for 'array bigInteger' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array bigInteger' does not work correctly");
       okay := FALSE;
     end if;
 
     fltArr &:= fltArr[.. 2];
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0) then
-      writeln(" ***** array append ( &:= ) for 'array float' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array float' does not work correctly");
       okay := FALSE;
     end if;
 
@@ -1424,30 +1424,30 @@ const proc: testAppend is func
                      complex(4.0, 4.0), complex(1.0, 1.0), complex(2.0, 2.0),
                      complex(3.0, 3.0), complex(4.0, 4.0), complex(1.0, 1.0),
                      complex(2.0, 2.0)) then
-      writeln(" ***** array append ( &:= ) for 'array complex' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array complex' does not work correctly");
       okay := FALSE;
     end if;
 
     chrArr &:= chrArr[.. 2];
     if chrArr <> [] ('a', 'b', 'c', 'd', 'a', 'b', 'c', 'd', 'a', 'b') then
-      writeln(" ***** array append ( &:= ) for 'array char' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array char' does not work correctly");
       okay := FALSE;
     end if;
 
     strArr &:= strArr[.. 2];
     if strArr <> [] ("one", "two", "three", "four", "one", "two", "three", "four", "one", "two") then
-      writeln(" ***** array append ( &:= ) for 'array string' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array string' does not work correctly");
       okay := FALSE;
     end if;
 
     setArr &:= setArr[.. 2];
     if setArr <> [] ({1}, {2}, {3}, {4}, {1}, {2}, {3}, {4}, {1}, {2}) then
-      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correct");
+      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correctly");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Array append ( &:= ) works correct.");
+      writeln("Array append ( &:= ) works correctly.");
     end if;
   end func;
 
@@ -1467,104 +1467,104 @@ const proc: testPush is func
   begin
     blnArr &:= TRUE;
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE) then
-      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correct");
+      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correctly");
       okay := FALSE;
     end if;
 
     blnArr &:= boolExpr(FALSE);
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
-      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correct");
+      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correctly");
       okay := FALSE;
     end if;
 
     intArr &:= 5;
     if intArr <> [] (1, 2, 3, 4, 5) then
-      writeln(" ***** array push ( &:= ) for 'array integer' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array integer' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     intArr &:= intExpr(6);
     if intArr <> [] (1, 2, 3, 4, 5, 6) then
-      writeln(" ***** array push ( &:= ) for 'array integer' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array integer' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     bigArr &:= 5_;
     if bigArr <> [] (1_, 2_, 3_, 4_, 5_) then
-      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     bigArr &:= bigintExpr(6_);
     if bigArr <> [] (1_, 2_, 3_, 4_, 5_, 6_) then
-      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     fltArr &:= 5.0;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0) then
-      writeln(" ***** array push ( &:= ) for 'array float' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array float' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     fltArr &:= floatExpr(6.0);
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0) then
-      writeln(" ***** array push ( &:= ) for 'array float' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array float' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     cpxArr &:= complex(5.0, 5.0);
     if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                      complex(4.0, 4.0), complex(5.0, 5.0)) then
-      writeln(" ***** array push ( &:= ) for 'array complex' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array complex' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     cpxArr &:= complexExpr(complex(6.0, 6.0));
     if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
                      complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0)) then
-      writeln(" ***** array push ( &:= ) for 'array complex' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array complex' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     chrArr &:= 'e';
     if chrArr <> [] ('a', 'b', 'c', 'd', 'e') then
-      writeln(" ***** array push ( &:= ) for 'array char' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array char' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     chrArr &:= charExpr('f');
     if chrArr <> [] ('a', 'b', 'c', 'd', 'e', 'f') then
-      writeln(" ***** array push ( &:= ) for 'array char' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array char' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     strArr &:= "five";
     if strArr <> [] ("one", "two", "three", "four", "five") then
-      writeln(" ***** array push ( &:= ) for 'array string' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array string' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     strArr &:= striExpr("six");
     if strArr <> [] ("one", "two", "three", "four", "five", "six") then
-      writeln(" ***** array push ( &:= ) for 'array string' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array string' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     setArr &:= {5};
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}) then
-      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correct. (1)");
+      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     setArr &:= setExpr({6});
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}) then
-      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correct. (2)");
+      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Array push ( &:= ) works correct.");
+      writeln("Array push ( &:= ) works correctly.");
     end if;
   end func;
 
@@ -2325,7 +2325,7 @@ const proc: testIndex is func
     end if;
 
     if okay then
-      writeln("Index access of array element works correct.");
+      writeln("Index access of array element works correctly.");
     end if;
   end func;
 
@@ -2351,202 +2351,202 @@ const proc: testTimes is func
     var bitset: setElem is {};
   begin
     if 2 times blnElem <> [] (FALSE, FALSE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times odd(1) <> [] (TRUE, TRUE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times blnElem <> [0] (FALSE, FALSE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times odd(1) <> [0] (TRUE, TRUE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times blnElem <> [0] (FALSE, FALSE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times odd(1) <> [0] (TRUE, TRUE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array boolean' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times intElem <> [] (0, 0) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times 1 + 2 <> [] (3, 3) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times intElem <> [0] (0, 0) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times 1 + 2 <> [0] (3, 3) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times intElem <> [0] (0, 0) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times 1 + 2 <> [0] (3, 3) then
-      writeln(" ***** array times operator for 'array integer' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array integer' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times bigElem <> [] (0_, 0_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times 1_ + 2_ <> [] (3_, 3_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times bigElem <> [0] (0_, 0_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times 1_ + 2_ <> [0] (3_, 3_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times bigElem <> [0] (0_, 0_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times 1_ + 2_ <> [0] (3_, 3_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times fltElem <> [] (0.0, 0.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times 1.0 + 2.0 <> [] (3.0, 3.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times fltElem <> [0] (0.0, 0.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times 1.0 + 2.0 <> [0] (3.0, 3.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times fltElem <> [0] (0.0, 0.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times 1.0 + 2.0 <> [0] (3.0, 3.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array float' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times cpxElem <> [] (complex(0.0, 0.0), complex(0.0, 0.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times complex(1.0, 2.0) + complex(3.0, 4.0) <> [] (complex(4.0, 6.0), complex(4.0, 6.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times cpxElem <> [0] (complex(0.0, 0.0), complex(0.0, 0.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times complex(1.0, 2.0) + complex(3.0, 4.0) <> [0] (complex(4.0, 6.0), complex(4.0, 6.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times cpxElem <> [0] (complex(0.0, 0.0), complex(0.0, 0.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times complex(1.0, 2.0) + complex(3.0, 4.0) <> [0] (complex(4.0, 6.0), complex(4.0, 6.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array complex' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times chrElem <> [] (' ', ' ') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times char(65) <> [] ('A', 'A') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times chrElem <> [0] (' ', ' ') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times char(65) <> [0] ('A', 'A') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times chrElem <> [0] (' ', ' ') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times char(65) <> [0] ('A', 'A') then
-      writeln(" ***** array times operator for 'array char' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array char' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times strElem <> [] ("", "") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times ("a" & "b") <> [] ("ab", "ab") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times strElem <> [0] ("", "") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times ("a" & "b") <> [0] ("ab", "ab") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times strElem <> [0] ("", "") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times ("a" & "b") <> [0] ("ab", "ab") then
-      writeln(" ***** array times operator for 'array string' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array string' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
     if 2 times setElem <> [] ({}, {}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (1)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (1)");
       okay := FALSE;
     end if;
     if 2 times ({1} | {2}) <> [] ({1, 2}, {1, 2}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (2)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (2)");
       okay := FALSE;
     end if;
     if [0 .. 1] times setElem <> [0] ({}, {}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (3)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (3)");
       okay := FALSE;
     end if;
     if [0 .. 1] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (4)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (4)");
       okay := FALSE;
     end if;
     if [0 len 2] times setElem <> [0] ({}, {}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (5)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (5)");
       okay := FALSE;
     end if;
     if [0 len 2] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct. (6)");
+      writeln(" ***** array times operator for 'array bitset' does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -2587,7 +2587,7 @@ const proc: testTimes is func
     end if;
 
     if okay then
-      writeln("The array times operator works correct.");
+      writeln("The array times operator works correctly.");
     end if;
   end func;
 
@@ -2604,7 +2604,7 @@ const proc: testHeadAndTail is func
       numArr := numArr[.. pred(num1)] & [] (num1) & numArr[succ(num1) ..];
     end for;
     if numArr <> testNumArr then
-      writeln(" ***** array head and tail operations do not work correct");
+      writeln(" ***** array head and tail operations do not work correctly");
       okay := FALSE;
     end if;
     for num1 range 1 to 10 do
@@ -2627,7 +2627,7 @@ const proc: testHeadAndTail is func
       striArr := striArr[.. pred(num1)] & [] (str(num1)) & striArr[succ(num1) ..];
     end for;
     if striArr <> testStriArr then
-      writeln(" ***** array head and tail operations do not work correct");
+      writeln(" ***** array head and tail operations do not work correctly");
       okay := FALSE;
     end if;
     for num1 range 1 to 10 do
@@ -2647,7 +2647,7 @@ const proc: testHeadAndTail is func
       end for;
     end for;
     if okay then
-      writeln("Array head and tail operations work correct.");
+      writeln("Array head and tail operations work correctly.");
     end if;
   end func;
 
@@ -3222,7 +3222,7 @@ const proc: testHead is func
     end if;
 
     if okay then
-      writeln("Head of array works correct.");
+      writeln("Head of array works correctly.");
     end if;
   end func;
 
@@ -3655,7 +3655,7 @@ const proc: testTail is func
     end if;
 
     if okay then
-      writeln("Tail of array works correct.");
+      writeln("Tail of array works correctly.");
     end if;
   end func;
 
@@ -4643,7 +4643,7 @@ const proc: testRange is func
     end if;
 
     if okay then
-      writeln("Range of array works correct.");
+      writeln("Range of array works correctly.");
     end if;
   end func;
 
@@ -5631,7 +5631,7 @@ const proc: testSubarr is func
     end if;
 
     if okay then
-      writeln("Sub array of array works correct.");
+      writeln("Sub array of array works correctly.");
     end if;
   end func;
 
@@ -5814,7 +5814,7 @@ const proc: testInsertElement is func
     end if;
 
     if okay then
-      writeln("Insert element into array works correct.");
+      writeln("Insert element into array works correctly.");
     end if;
   end func;
 
@@ -6184,7 +6184,7 @@ const proc: testInsertArray is func
     end if;
 
     if okay then
-      writeln("Insert array into array works correct.");
+      writeln("Insert array into array works correctly.");
     end if;
   end func;
 
@@ -6377,7 +6377,7 @@ const proc: testRemoveElement is func
     end if;
 
     if okay then
-      writeln("Remove element from array works correct.");
+      writeln("Remove element from array works correctly.");
     end if;
   end func;
 
@@ -6622,7 +6622,7 @@ const proc: testRemoveArray is func
     end if;
 
     if okay then
-      writeln("Remove array from array works correct.");
+      writeln("Remove array from array works correctly.");
     end if;
   end func;
 

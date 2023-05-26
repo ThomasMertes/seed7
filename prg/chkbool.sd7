@@ -60,7 +60,7 @@ const proc: check_not is func
                           writeln(" ***** not TRUE with expressions evaluates to TRUE");
                         else
                           if not (1 <> 1) then
-                            writeln("Boolean not works correct.");
+                            writeln("Boolean not works correctly.");
                           else
                             writeln(" ***** not FALSE with expressions evaluates to FALSE");
                           end if;
@@ -120,7 +120,7 @@ const proc: check_and is func
                           if (1 <> 1) and (1 <> 1) then
                             writeln(" ***** FALSE and FALSE with expressions evaluates to TRUE");
                           else
-                            writeln("Boolean and works correct.");
+                            writeln("Boolean and works correctly.");
                           end if;
                         end if;
                       end if;
@@ -162,7 +162,7 @@ const proc: check_or is func
                           if (1 <> 1) or (1 <> 1) then
                             writeln(" ***** FALSE or FALSE with expressions evaluates to TRUE");
                           else
-                            writeln("Boolean or works correct.");
+                            writeln("Boolean or works correctly.");
                           end if;
                         else
                           writeln(" ***** FALSE or TRUE with expressions evaluates to FALSE");
@@ -364,9 +364,9 @@ const proc: check_eq is func
     check_eq_ref_param(TRUE, FALSE);
     check_eq_expr();
     if counter = 7 then
-      writeln("Boolean = works correct.");
+      writeln("Boolean = works correctly.");
     else
-      writeln(" ***** Boolean = does not work correct.");
+      writeln(" ***** Boolean = does not work correctly.");
     end if;
   end func;
 
@@ -539,9 +539,9 @@ const proc: check_ne is func
     check_ne_ref_param(TRUE, FALSE);
     check_ne_expr();
     if counter = 7 then
-      writeln("Boolean <> works correct.");
+      writeln("Boolean <> works correctly.");
     else
-      writeln(" ***** Boolean <> does not work correct.");
+      writeln(" ***** Boolean <> does not work correctly.");
     end if;
   end func;
 
@@ -714,9 +714,9 @@ const proc: check_gt is func
     check_gt_ref_param(TRUE, FALSE);
     check_gt_expr();
     if counter = 7 then
-      writeln("Boolean > works correct.");
+      writeln("Boolean > works correctly.");
     else
-      writeln(" ***** Boolean > does not work correct.");
+      writeln(" ***** Boolean > does not work correctly.");
     end if;
   end func;
 
@@ -889,9 +889,9 @@ const proc: check_ge is func
     check_ge_ref_param(TRUE, FALSE);
     check_ge_expr();
     if counter = 7 then
-      writeln("Boolean >= works correct.");
+      writeln("Boolean >= works correctly.");
     else
-      writeln(" ***** Boolean >= does not work correct.");
+      writeln(" ***** Boolean >= does not work correctly.");
     end if;
   end func;
 
@@ -1064,9 +1064,9 @@ const proc: check_lt is func
     check_lt_ref_param(TRUE, FALSE);
     check_lt_expr();
     if counter = 7 then
-      writeln("Boolean < works correct.");
+      writeln("Boolean < works correctly.");
     else
-      writeln(" ***** Boolean < does not work correct.");
+      writeln(" ***** Boolean < does not work correctly.");
     end if;
   end func;
 
@@ -1239,9 +1239,9 @@ const proc: check_le is func
     check_le_ref_param(TRUE, FALSE);
     check_le_expr();
     if counter = 7 then
-      writeln("Boolean <= works correct.");
+      writeln("Boolean <= works correctly.");
     else
-      writeln(" ***** Boolean <= does not work correct.");
+      writeln(" ***** Boolean <= does not work correctly.");
     end if;
   end func;
 
@@ -1271,7 +1271,7 @@ const proc: check_compare is func
           if compare(FALSE, TRUE) <> -1 then
             writeln(" ***** compare(FALSE, TRUE) does not return 0");
           else
-            writeln("Boolean compare works correct.");
+            writeln("Boolean compare works correctly.");
           end if;
         end if;
       end if;
@@ -1391,9 +1391,9 @@ const proc: check_ord is func
     check_ord_ref_param(TRUE, FALSE);
     check_ord_expr();
     if counter = 7 then
-      writeln("Boolean ord() works correct.");
+      writeln("Boolean ord() works correctly.");
     else
-      writeln(" ***** Boolean ord() does not work correct.");
+      writeln(" ***** Boolean ord() does not work correctly.");
     end if;
   end func;
 
@@ -1624,9 +1624,9 @@ const proc: check_conv is func
     end block;
 
     if counter = 17 then
-      writeln("Boolean conv works correct.");
+      writeln("Boolean conv works correctly.");
     else
-      writeln(" ***** Boolean conv does not work correct.");
+      writeln(" ***** Boolean conv does not work correctly.");
     end if;
   end func;
 
@@ -1657,9 +1657,9 @@ const proc: check_rand is func
     check_rand_ref_param(TRUE, FALSE);
     check_rand_expr();
     if counter = 7 then
-      writeln("Boolean rand() works correct.");
+      writeln("Boolean rand() works correctly.");
     else
-      writeln(" ***** Boolean rand() does not work correct.");
+      writeln(" ***** Boolean rand() does not work correctly.");
     end if;
   end func;
 *)
@@ -1776,9 +1776,9 @@ const proc: check_str is func
     check_str_ref_param(TRUE, FALSE);
     check_str_expr();
     if counter = 7 then
-      writeln("Boolean str() works correct.");
+      writeln("Boolean str() works correctly.");
     else
-      writeln(" ***** Boolean str() does not work correct.");
+      writeln(" ***** Boolean str() does not work correctly.");
     end if;
   end func;
 
@@ -1913,13 +1913,13 @@ const proc: check_succ is func
         succ(false_var)         <> TRUE or
         succ(local_false_const) <> TRUE or
         succ(local_false_var)   <> TRUE then
-      writeln(" ***** Boolean succ() does not work correct. (1)");
+      writeln(" ***** Boolean succ() does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     block
       resultVar := succ(TRUE);
-      writeln(" ***** Boolean succ() does not work correct. (2)");
+      writeln(" ***** Boolean succ() does not work correctly. (2)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -1928,7 +1928,7 @@ const proc: check_succ is func
 
     block
       resultVar := succ(true_const);
-      writeln(" ***** Boolean succ() does not work correct. (3)");
+      writeln(" ***** Boolean succ() does not work correctly. (3)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -1937,7 +1937,7 @@ const proc: check_succ is func
 
     block
       resultVar := succ(true_var);
-      writeln(" ***** Boolean succ() does not work correct. (4)");
+      writeln(" ***** Boolean succ() does not work correctly. (4)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -1946,7 +1946,7 @@ const proc: check_succ is func
 
     block
       resultVar := succ(local_true_const);
-      writeln(" ***** Boolean succ() does not work correct. (5)");
+      writeln(" ***** Boolean succ() does not work correctly. (5)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -1955,7 +1955,7 @@ const proc: check_succ is func
 
     block
       resultVar := succ(local_true_var);
-      writeln(" ***** Boolean succ() does not work correct. (6)");
+      writeln(" ***** Boolean succ() does not work correctly. (6)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -1963,7 +1963,7 @@ const proc: check_succ is func
     end block;
 
     if count <> 5 then
-      writeln(" ***** Boolean succ() does not work correct. (7)");
+      writeln(" ***** Boolean succ() does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -1991,9 +1991,9 @@ const proc: check_succ is func
     check_succ_inout_param(local_true_var, local_false_var);
 
     if okay then
-      writeln("Boolean succ() works correct.");
+      writeln("Boolean succ() works correctly.");
     else
-      writeln(" ***** Boolean succ() does not work correct.");
+      writeln(" ***** Boolean succ() does not work correctly.");
     end if;
   end func;
 
@@ -2128,13 +2128,13 @@ const proc: check_pred is func
         pred(true_var)         <> FALSE or
         pred(local_true_const) <> FALSE or
         pred(local_true_var)   <> FALSE then
-      writeln(" ***** Boolean pred() does not work correct. (1)");
+      writeln(" ***** Boolean pred() does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     block
       resultVar := pred(FALSE);
-      writeln(" ***** Boolean pred() does not work correct. (2)");
+      writeln(" ***** Boolean pred() does not work correctly. (2)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -2143,7 +2143,7 @@ const proc: check_pred is func
 
     block
       resultVar := pred(false_const);
-      writeln(" ***** Boolean pred() does not work correct. (3)");
+      writeln(" ***** Boolean pred() does not work correctly. (3)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -2152,7 +2152,7 @@ const proc: check_pred is func
 
     block
       resultVar := pred(false_var);
-      writeln(" ***** Boolean pred() does not work correct. (4)");
+      writeln(" ***** Boolean pred() does not work correctly. (4)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -2161,7 +2161,7 @@ const proc: check_pred is func
 
     block
       resultVar := pred(local_false_const);
-      writeln(" ***** Boolean pred() does not work correct. (5)");
+      writeln(" ***** Boolean pred() does not work correctly. (5)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -2170,7 +2170,7 @@ const proc: check_pred is func
 
     block
       resultVar := pred(local_false_var);
-      writeln(" ***** Boolean pred() does not work correct. (6)");
+      writeln(" ***** Boolean pred() does not work correctly. (6)");
       okay := FALSE;
     exception
       catch RANGE_ERROR:
@@ -2178,7 +2178,7 @@ const proc: check_pred is func
     end block;
 
     if count <> 5 then
-      writeln(" ***** Boolean pred() does not work correct. (7)");
+      writeln(" ***** Boolean pred() does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -2206,9 +2206,9 @@ const proc: check_pred is func
     check_pred_inout_param(local_true_var, local_false_var);
 
     if okay then
-      writeln("Boolean pred() works correct.");
+      writeln("Boolean pred() works correctly.");
     else
-      writeln(" ***** Boolean pred() does not work correct.");
+      writeln(" ***** Boolean pred() does not work correctly.");
     end if;
   end func;
 
@@ -2317,7 +2317,7 @@ const proc: check_ternary is func
             ( TRUE ? false_var or false_var :  true_var and true_var) or
             (FALSE ?  true_var and true_var : false_var or false_var) or
         not (FALSE ? false_var or false_var :  true_var and true_var) then
-      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2421,7 +2421,7 @@ const proc: check_ternary is func
             ( true_var ? false_var or false_var :  true_var and true_var) or
             (false_var ?  true_var and true_var : false_var or false_var) or
         not (false_var ? false_var or false_var :  true_var and true_var) then
-      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -2525,7 +2525,7 @@ const proc: check_ternary is func
             ( true_const ? false_var or false_var :  true_var and true_var) or
             (false_const ?  true_var and true_var : false_var or false_var) or
         not (false_const ? false_var or false_var :  true_var and true_var) then
-      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -2629,7 +2629,7 @@ const proc: check_ternary is func
             ( TRUE and TRUE ? false_var or false_var :  true_var and true_var) or
             (FALSE or FALSE ?  true_var and true_var : false_var or false_var) or
         not (FALSE or FALSE ? false_var or false_var :  true_var and true_var) then
-      writeln(" ***** The ternary operator ? : does not work correct. (4)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -2733,14 +2733,14 @@ const proc: check_ternary is func
             ( true_var and true_var ? false_var or false_var :  true_var and true_var) or
             (false_var or false_var ?  true_var and true_var : false_var or false_var) or
         not (false_var or false_var ? false_var or false_var :  true_var and true_var) then
-      writeln(" ***** The ternary operator ? : does not work correct. (5)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (5)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The ternary operator ? : works correct for boolean.");
+      writeln("The ternary operator ? : works correctly for boolean.");
     else
-      writeln(" ***** The ternary operator ? : does not work correct.");
+      writeln(" ***** The ternary operator ? : does not work correctly.");
     end if;
   end func;
 

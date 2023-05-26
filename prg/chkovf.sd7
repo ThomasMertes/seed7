@@ -133,9 +133,9 @@ const proc: check_negation is func
     end if;
 
     if okay then
-      writeln("Overflow checking of negation works correct.");
+      writeln("Overflow checking of negation works correctly.");
     else
-      writeln(" ***** Overflow checking of negation does not work correct.");
+      writeln(" ***** Overflow checking of negation does not work correctly.");
     end if;
   end func;
 
@@ -917,9 +917,9 @@ const proc: check_add is func
     end if;
 
     if okay then
-      writeln("Overflow checking of addition works correct.");
+      writeln("Overflow checking of addition works correctly.");
     else
-      writeln(" ***** Overflow checking of addition does not work correct.");
+      writeln(" ***** Overflow checking of addition does not work correctly.");
     end if;
   end func;
 
@@ -1359,9 +1359,9 @@ const proc: check_add_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of addition assignment works correct.");
+      writeln("Overflow checking of addition assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of addition assignment does not work correct.");
+      writeln(" ***** Overflow checking of addition assignment does not work correctly.");
     end if;
   end func;
 
@@ -1779,9 +1779,9 @@ const proc: check_subtract is func
     end if;
 
     if okay then
-      writeln("Overflow checking of subtraction works correct.");
+      writeln("Overflow checking of subtraction works correctly.");
     else
-      writeln(" ***** Overflow checking of subtraction does not work correct.");
+      writeln(" ***** Overflow checking of subtraction does not work correctly.");
     end if;
   end func;
 
@@ -2221,9 +2221,9 @@ const proc: check_subtract_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of subtraction assignment works correct.");
+      writeln("Overflow checking of subtraction assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of subtraction assignment does not work correct.");
+      writeln(" ***** Overflow checking of subtraction assignment does not work correctly.");
     end if;
   end func;
 
@@ -2239,9 +2239,9 @@ const proc: check_succ is func
     end if;
 
     if okay then
-      writeln("Overflow checking of succ works correct.");
+      writeln("Overflow checking of succ works correctly.");
     else
-      writeln(" ***** Overflow checking of succ does not work correct.");
+      writeln(" ***** Overflow checking of succ does not work correctly.");
     end if;
   end func;
 
@@ -2257,9 +2257,9 @@ const proc: check_pred is func
     end if;
 
     if okay then
-      writeln("Overflow checking of pred works correct.");
+      writeln("Overflow checking of pred works correctly.");
     else
-      writeln(" ***** Overflow checking of pred does not work correct.");
+      writeln(" ***** Overflow checking of pred does not work correctly.");
     end if;
   end func;
 
@@ -2274,9 +2274,9 @@ const proc: check_incr is func
     arr[1] := 9223372036854775807; okay := okay and raisesOverflowError(incr(arr[1]));
 
     if okay then
-      writeln("Overflow checking of incr works correct.");
+      writeln("Overflow checking of incr works correctly.");
     else
-      writeln(" ***** Overflow checking of incr does not work correct.");
+      writeln(" ***** Overflow checking of incr does not work correctly.");
     end if;
   end func;
 
@@ -2291,9 +2291,9 @@ const proc: check_decr is func
     arr[1] := INT64_MIN; okay := okay and raisesOverflowError(decr(arr[1]));
 
     if okay then
-      writeln("Overflow checking of decr works correct.");
+      writeln("Overflow checking of decr works correctly.");
     else
-      writeln(" ***** Overflow checking of decr does not work correct.");
+      writeln(" ***** Overflow checking of decr does not work correctly.");
     end if;
   end func;
 
@@ -3104,9 +3104,9 @@ const proc: check_mult is func
     end if;
 
     if okay then
-      writeln("Overflow checking of multiplication works correct.");
+      writeln("Overflow checking of multiplication works correctly.");
     else
-      writeln(" ***** Overflow checking of multiplication does not work correct.");
+      writeln(" ***** Overflow checking of multiplication does not work correctly.");
     end if;
   end func;
 
@@ -3857,9 +3857,9 @@ const proc: check_mult_assign is func
         check_mult_assign_2 and
         check_mult_assign_3 and
         check_mult_assign_4 then
-      writeln("Overflow checking of multiplication assignment works correct.");
+      writeln("Overflow checking of multiplication assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of multiplication assignment does not work correct.");
+      writeln(" ***** Overflow checking of multiplication assignment does not work correctly.");
     end if;
   end func;
 
@@ -3903,9 +3903,9 @@ const proc: check_div is func
     end if;
 
     if okay then
-      writeln("Overflow checking of div operator works correct.");
+      writeln("Overflow checking of div operator works correctly.");
     else
-      writeln(" ***** Overflow checking of div operator does not work correct.");
+      writeln(" ***** Overflow checking of div operator does not work correctly.");
     end if;
   end func;
 
@@ -3936,9 +3936,9 @@ const proc: check_rem is func
     end if;
 
     if okay then
-      writeln("Overflow checking of rem operator works correct.");
+      writeln("Overflow checking of rem operator works correctly.");
     else
-      writeln(" ***** Overflow checking of rem operator does not work correct.");
+      writeln(" ***** Overflow checking of rem operator does not work correctly.");
     end if;
   end func;
 
@@ -3982,9 +3982,9 @@ const proc: check_mdiv is func
     end if;
 
     if okay then
-      writeln("Overflow checking of mdiv operator works correct.");
+      writeln("Overflow checking of mdiv operator works correctly.");
     else
-      writeln(" ***** Overflow checking of mdiv operator does not work correct.");
+      writeln(" ***** Overflow checking of mdiv operator does not work correctly.");
     end if;
   end func;
 
@@ -4140,9 +4140,9 @@ const proc: check_mod is func
     end if;
 
     if okay then
-      writeln("Overflow checking of mod operator works correct.");
+      writeln("Overflow checking of mod operator works correctly.");
     else
-      writeln(" ***** Overflow checking of mod operator does not work correct.");
+      writeln(" ***** Overflow checking of mod operator does not work correctly.");
     end if;
   end func;
 
@@ -4950,9 +4950,9 @@ const proc: check_lShift is func
     end if;
 
     if okay then
-      writeln("Overflow checking of left shift works correct.");
+      writeln("Overflow checking of left shift works correctly.");
     else
-      writeln(" ***** Overflow checking of left shift does not work correct.");
+      writeln(" ***** Overflow checking of left shift does not work correctly.");
     end if;
   end func;
 
@@ -5362,9 +5362,9 @@ const proc: check_lShift_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of left shift assignment works correct.");
+      writeln("Overflow checking of left shift assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of left shift assignment does not work correct.");
+      writeln(" ***** Overflow checking of left shift assignment does not work correctly.");
     end if;
   end func;
 
@@ -5490,9 +5490,9 @@ const proc: check_rShift is func
     end if;
 
     if okay then
-      writeln("Overflow checking of right shift works correct.");
+      writeln("Overflow checking of right shift works correctly.");
     else
-      writeln(" ***** Overflow checking of right shift does not work correct.");
+      writeln(" ***** Overflow checking of right shift does not work correctly.");
     end if;
   end func;
 
@@ -5590,9 +5590,9 @@ const proc: check_rShift_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of right shift assignment works correct.");
+      writeln("Overflow checking of right shift assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of right shift assignment does not work correct.");
+      writeln(" ***** Overflow checking of right shift assignment does not work correctly.");
     end if;
   end func;
 
@@ -5718,9 +5718,9 @@ const proc: check_ulShift is func
     end if;
 
     if okay then
-      writeln("Overflow checking of unsigned left shift works correct.");
+      writeln("Overflow checking of unsigned left shift works correctly.");
     else
-      writeln(" ***** Overflow checking of unsigned left shift does not work correct.");
+      writeln(" ***** Overflow checking of unsigned left shift does not work correctly.");
     end if;
   end func;
 
@@ -5818,9 +5818,9 @@ const proc: check_ulShift_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of unsigned left shift assignment works correct.");
+      writeln("Overflow checking of unsigned left shift assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of unsigned left shift assignment does not work correct.");
+      writeln(" ***** Overflow checking of unsigned left shift assignment does not work correctly.");
     end if;
   end func;
 
@@ -5946,9 +5946,9 @@ const proc: check_urShift is func
     end if;
 
     if okay then
-      writeln("Overflow checking of unsigned right shift works correct.");
+      writeln("Overflow checking of unsigned right shift works correctly.");
     else
-      writeln(" ***** Overflow checking of unsigned right shift does not work correct.");
+      writeln(" ***** Overflow checking of unsigned right shift does not work correctly.");
     end if;
   end func;
 
@@ -6046,9 +6046,9 @@ const proc: check_urShift_assign is func
     end if;
 
     if okay then
-      writeln("Overflow checking of unsigned right shift assignment works correct.");
+      writeln("Overflow checking of unsigned right shift assignment works correctly.");
     else
-      writeln(" ***** Overflow checking of unsigned right shift assignment does not work correct.");
+      writeln(" ***** Overflow checking of unsigned right shift assignment does not work correctly.");
     end if;
   end func;
 
@@ -6390,9 +6390,9 @@ const proc: check_power is func
     end if;
 
     if okay then
-      writeln("Overflow checking of power works correct.");
+      writeln("Overflow checking of power works correctly.");
     else
-      writeln(" ***** Overflow checking of power does not work correct.");
+      writeln(" ***** Overflow checking of power does not work correctly.");
     end if;
   end func;
 
@@ -7214,9 +7214,9 @@ const proc: check_binom is func
     end if;
 
     if okay then
-      writeln("Overflow checking of binomial coefficient works correct.");
+      writeln("Overflow checking of binomial coefficient works correctly.");
     else
-      writeln(" ***** Overflow checking of binomial coefficient does not work correct.");
+      writeln(" ***** Overflow checking of binomial coefficient does not work correctly.");
     end if;
   end func;
 
@@ -7230,14 +7230,14 @@ const proc: check_abs is func
         not raisesOverflowError(     abs(rand(integer.first, integer.first))    ) or
         not raisesOverflowError(     abs(rand(integer.first, integer.first)) - 1) or
         not raisesOverflowError(pred(abs(rand(integer.first, integer.first))   )) then
-      writeln(" ***** Overflow when computing abs(integer.first) does not work correct.");
+      writeln(" ***** Overflow when computing abs(integer.first) does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Overflow checking of abs works correct.");
+      writeln("Overflow checking of abs works correctly.");
     else
-      writeln(" ***** Overflow checking of abs does not work correct.");
+      writeln(" ***** Overflow checking of abs does not work correctly.");
     end if;
   end func;
 

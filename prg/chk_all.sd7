@@ -38,352 +38,352 @@ var string: s7compiler        is "./s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
 var boolean: checkAllFailed is FALSE;
 
 const string: chkint_output is "\n\
-  \Integer literals with exponent work correct.\n\
-  \Based integer literals work correct.\n\
-  \The integer compare works correct.\n\
-  \Conversion of integer to big endian byte string works correct.\n\
-  \Conversion of integer to little endian byte string works correct.\n\
-  \Conversion of integer to big endian byte string with length works correct.\n\
-  \Conversion of integer to little endian byte string with length works correct.\n\
-  \Conversion of big endian byte string to integer works correct.\n\
-  \Conversion of little endian byte string to integer works correct.\n\
-  \Conversion to and from LEB128 encoding works correct.\n\
-  \-i is correct computed in the range -10 to 10.\n\
-  \Addition works correct for selected values.\n\
-  \Addition assignment works correct for selected values.\n\
-  \Subtraction works correct for selected values.\n\
-  \Subtraction assignment works correct for selected values.\n\
-  \Succ works correct for selected values.\n\
-  \Pred works correct for selected values.\n\
-  \Incr works correct for selected values.\n\
-  \Decr works correct for selected values.\n\
-  \Multiplication works correct for selected values.\n\
-  \Multiplication assignment works correct for selected values.\n\
+  \Integer literals with exponent work correctly.\n\
+  \Based integer literals work correctly.\n\
+  \The integer compare works correctly.\n\
+  \Conversion of integer to big endian byte string works correctly.\n\
+  \Conversion of integer to little endian byte string works correctly.\n\
+  \Conversion of integer to big endian byte string with length works correctly.\n\
+  \Conversion of integer to little endian byte string with length works correctly.\n\
+  \Conversion of big endian byte string to integer works correctly.\n\
+  \Conversion of little endian byte string to integer works correctly.\n\
+  \Conversion to and from LEB128 encoding works correctly.\n\
+  \-i is correctly computed in the range -10 to 10.\n\
+  \Addition works correctly for selected values.\n\
+  \Addition assignment works correctly for selected values.\n\
+  \Subtraction works correctly for selected values.\n\
+  \Subtraction assignment works correctly for selected values.\n\
+  \Succ works correctly for selected values.\n\
+  \Pred works correctly for selected values.\n\
+  \Incr works correctly for selected values.\n\
+  \Decr works correctly for selected values.\n\
+  \Multiplication works correctly for selected values.\n\
+  \Multiplication assignment works correctly for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\
   \for positive and negative a and b\n\
   \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
-  \Div and rem work correct for selected values.\n\
-  \Mdiv and mod work correct for selected values.\n\
-  \Div works correct for selected values.\n\
-  \Rem works correct for selected values.\n\
-  \Mdiv works correct for selected values.\n\
-  \Mod works correct for selected values.\n\
-  \odd(i) works correct in the range -20 to 20.\n\
-  \!i works correct for i in the range 0 to 12.\n\
-  \The binomial coefficient (n ! k) works correct for selected values.\n\
-  \Power works correct for selected values.\n\
-  \The integer abs function works correct.\n\
+  \Div and rem work correctly for selected values.\n\
+  \Mdiv and mod work correctly for selected values.\n\
+  \Div works correctly for selected values.\n\
+  \Rem works correctly for selected values.\n\
+  \Mdiv works correctly for selected values.\n\
+  \Mod works correctly for selected values.\n\
+  \odd(i) works correctly in the range -20 to 20.\n\
+  \!i works correctly for i in the range 0 to 12.\n\
+  \The binomial coefficient (n ! k) works correctly for selected values.\n\
+  \Power works correctly for selected values.\n\
+  \The integer abs function works correctly.\n\
   \Integer rand is correct for selected values.\n\
-  \The integer square root works correct.\n\
-  \The integer log2 function works correct.\n\
-  \The integer log10 function works correct.\n\
-  \The integer << and <<:= works correct.\n\
-  \The integer >> and >>:= works correct.\n\
-  \Integer str does work correct.\n\
-  \Integer sci operator does work correct.\n\
-  \Integer parse does work correct.\n\
-  \Integer lpad0 does work correct.\n\
-  \Integer bitLength does work correct.\n\
-  \Integer lowestSetBit does work correct.\n\
-  \The ternary operator ? : works correct for integer.\n";
+  \The integer square root works correctly.\n\
+  \The integer log2 function works correctly.\n\
+  \The integer log10 function works correctly.\n\
+  \The integer << and <<:= works correctly.\n\
+  \The integer >> and >>:= works correctly.\n\
+  \Integer str does work correctly.\n\
+  \Integer sci operator does work correctly.\n\
+  \Integer parse does work correctly.\n\
+  \Integer lpad0 does work correctly.\n\
+  \Integer bitLength does work correctly.\n\
+  \Integer lowestSetBit does work correctly.\n\
+  \The ternary operator ? : works correctly for integer.\n";
 
 const string: chkovf_output is "\n\
-  \Overflow checking of negation works correct.\n\
-  \Overflow checking of addition works correct.\n\
-  \Overflow checking of addition assignment works correct.\n\
-  \Overflow checking of subtraction works correct.\n\
-  \Overflow checking of subtraction assignment works correct.\n\
-  \Overflow checking of succ works correct.\n\
-  \Overflow checking of pred works correct.\n\
-  \Overflow checking of incr works correct.\n\
-  \Overflow checking of decr works correct.\n\
-  \Overflow checking of multiplication works correct.\n\
-  \Overflow checking of multiplication assignment works correct.\n\
-  \Overflow checking of div operator works correct.\n\
-  \Overflow checking of rem operator works correct.\n\
-  \Overflow checking of mdiv operator works correct.\n\
-  \Overflow checking of mod operator works correct.\n\
-  \Overflow checking of left shift works correct.\n\
-  \Overflow checking of left shift assignment works correct.\n\
-  \Overflow checking of right shift works correct.\n\
-  \Overflow checking of right shift assignment works correct.\n\
-  \Overflow checking of unsigned left shift works correct.\n\
-  \Overflow checking of unsigned left shift assignment works correct.\n\
-  \Overflow checking of unsigned right shift works correct.\n\
-  \Overflow checking of unsigned right shift assignment works correct.\n\
-  \Overflow checking of power works correct.\n\
-  \Overflow checking of binomial coefficient works correct.\n\
-  \Overflow checking of abs works correct.\n";
+  \Overflow checking of negation works correctly.\n\
+  \Overflow checking of addition works correctly.\n\
+  \Overflow checking of addition assignment works correctly.\n\
+  \Overflow checking of subtraction works correctly.\n\
+  \Overflow checking of subtraction assignment works correctly.\n\
+  \Overflow checking of succ works correctly.\n\
+  \Overflow checking of pred works correctly.\n\
+  \Overflow checking of incr works correctly.\n\
+  \Overflow checking of decr works correctly.\n\
+  \Overflow checking of multiplication works correctly.\n\
+  \Overflow checking of multiplication assignment works correctly.\n\
+  \Overflow checking of div operator works correctly.\n\
+  \Overflow checking of rem operator works correctly.\n\
+  \Overflow checking of mdiv operator works correctly.\n\
+  \Overflow checking of mod operator works correctly.\n\
+  \Overflow checking of left shift works correctly.\n\
+  \Overflow checking of left shift assignment works correctly.\n\
+  \Overflow checking of right shift works correctly.\n\
+  \Overflow checking of right shift assignment works correctly.\n\
+  \Overflow checking of unsigned left shift works correctly.\n\
+  \Overflow checking of unsigned left shift assignment works correctly.\n\
+  \Overflow checking of unsigned right shift works correctly.\n\
+  \Overflow checking of unsigned right shift assignment works correctly.\n\
+  \Overflow checking of power works correctly.\n\
+  \Overflow checking of binomial coefficient works correctly.\n\
+  \Overflow checking of abs works correctly.\n";
 
 const string: chkflt_output is "\n\
-  \Float literals work correct.\n\
-  \Comparison of float values works correct.\n\
-  \Compare of float values works correct.\n\
-  \Parsing of strings with float literals works correct.\n\
-  \Decimal conversion of float works correct.\n\
-  \Conversion from integer to float works correct.\n\
-  \Truncation of float works correct.\n\
-  \Rounding of float works correct.\n\
-  \Addition works correct for selected values.\n\
-  \Multiplication works correct for selected values.\n\
-  \Division works correct for selected values.\n\
-  \Remainder works correct for selected values.\n\
-  \Modulo works correct for selected values.\n\
-  \A ** B works correct for selected values.\n\
-  \A ** B with integer B works correct for selected values.\n\
-  \Shift left of float values works correct for selected values.\n\
-  \Shift right of float values works correct for selected values.\n\
-  \Negative zero does work correct.\n\
-  \Infinity works correct for selected values.\n\
-  \NaN works correct for selected values.\n\
-  \Rand works correct for selected values.\n\
-  \Decompose works correct for selected values.\n\
-  \The ternary operator ? : works correct for float.\n";
+  \Float literals work correctly.\n\
+  \Comparison of float values works correctly.\n\
+  \Compare of float values works correctly.\n\
+  \Parsing of strings with float literals works correctly.\n\
+  \Decimal conversion of float works correctly.\n\
+  \Conversion from integer to float works correctly.\n\
+  \Truncation of float works correctly.\n\
+  \Rounding of float works correctly.\n\
+  \Addition works correctly for selected values.\n\
+  \Multiplication works correctly for selected values.\n\
+  \Division works correctly for selected values.\n\
+  \Remainder works correctly for selected values.\n\
+  \Modulo works correctly for selected values.\n\
+  \A ** B works correctly for selected values.\n\
+  \A ** B with integer B works correctly for selected values.\n\
+  \Shift left of float values works correctly for selected values.\n\
+  \Shift right of float values works correctly for selected values.\n\
+  \Negative zero does work correctly.\n\
+  \Infinity works correctly for selected values.\n\
+  \NaN works correctly for selected values.\n\
+  \Rand works correctly for selected values.\n\
+  \Decompose works correctly for selected values.\n\
+  \The ternary operator ? : works correctly for float.\n";
 
 const string: chkbin_output is "\n\
-  \Bin64 shift works correct.\n\
-  \Conversion of bin64 to big endian byte string with length works correct.\n\
-  \Conversion of bin64 to little endian byte string with length works correct.\n\
-  \Converting float to bin32 and bin64 values works correct.\n\
-  \Converting bin32 and bin64 values to float works correct.\n\
-  \float2MbfBits works correct for bin32 and bin64 values.\n\
-  \mbfBits2Float works correct for bin32 and bin64 values.\n\
-  \bin64(aBigInteger mod 2_**y) works correct.\n\
-  \Bin32 and bin64 str works correct.\n\
-  \Bin32 and bin64 radix does work correct.\n\
-  \The ternary operator ? : works correct for bin32 and bin64.\n";
+  \Bin64 shift works correctly.\n\
+  \Conversion of bin64 to big endian byte string with length works correctly.\n\
+  \Conversion of bin64 to little endian byte string with length works correctly.\n\
+  \Converting float to bin32 and bin64 values works correctly.\n\
+  \Converting bin32 and bin64 values to float works correctly.\n\
+  \float2MbfBits works correctly for bin32 and bin64 values.\n\
+  \mbfBits2Float works correctly for bin32 and bin64 values.\n\
+  \bin64(aBigInteger mod 2_**y) works correctly.\n\
+  \Bin32 and bin64 str works correctly.\n\
+  \Bin32 and bin64 radix does work correctly.\n\
+  \The ternary operator ? : works correctly for bin32 and bin64.\n";
 
 const string: chkchr_output is "\n\
   \isLetter function works correctly.\n\
   \width function works correctly.\n\
-  \Char literal functions work correct.\n\
-  \The ternary operator ? : works correct for char.\n";
+  \Char literal functions work correctly.\n\
+  \The ternary operator ? : works correctly for char.\n";
 
 const string: chkstr_output is "\n\
-  \String literals work correct.\n\
-  \String comparisons work correct.\n\
-  \String length works correct.\n\
-  \String indices work correct.\n\
-  \String head works correct.\n\
-  \String tail works correct.\n\
-  \String range works correct.\n\
-  \String substr works correct.\n\
-  \String substr with fixed length works correct.\n\
-  \String concatenation works correct.\n\
-  \String multiplication works correct.\n\
-  \String operations work correct.\n\
-  \pos(string) works correct.\n\
-  \pos(string, char) works correct.\n\
-  \pos(string) with start index works correct.\n\
-  \rpos(string) works correct.\n\
-  \rpos(string, char) works correct.\n\
-  \rpos(string) with start index works correct.\n\
-  \replace(string, searched, replacement) works correct.\n\
-  \Unicode conversons work correct.\n\
-  \lower(string) and upper(string) work correct.\n\
-  \String functions work correct.\n\
-  \split(string) works correct.\n\
-  \join(string) works correct.\n\
-  \String assignment works correct.\n\
-  \String append works correct.\n\
-  \@:= for strings works correct.\n\
-  \String for loops work correct.\n\
-  \The ternary operator ? : works correct for string.\n";
+  \String literals work correctly.\n\
+  \String comparisons work correctly.\n\
+  \String length works correctly.\n\
+  \String indices work correctly.\n\
+  \String head works correctly.\n\
+  \String tail works correctly.\n\
+  \String range works correctly.\n\
+  \String substr works correctly.\n\
+  \String substr with fixed length works correctly.\n\
+  \String concatenation works correctly.\n\
+  \String multiplication works correctly.\n\
+  \String operations work correctly.\n\
+  \pos(string) works correctly.\n\
+  \pos(string, char) works correctly.\n\
+  \pos(string) with start index works correctly.\n\
+  \rpos(string) works correctly.\n\
+  \rpos(string, char) works correctly.\n\
+  \rpos(string) with start index works correctly.\n\
+  \replace(string, searched, replacement) works correctly.\n\
+  \Unicode conversons work correctly.\n\
+  \lower(string) and upper(string) work correctly.\n\
+  \String functions work correctly.\n\
+  \split(string) works correctly.\n\
+  \join(string) works correctly.\n\
+  \String assignment works correctly.\n\
+  \String append works correctly.\n\
+  \@:= for strings works correctly.\n\
+  \String for loops work correctly.\n\
+  \The ternary operator ? : works correctly for string.\n";
 
 const string: chkidx_output is "\n\
-  \Index checking for string indexing works correct.\n\
-  \Index checking for string head works correct.\n\
-  \Index checking for string tail works correct.\n\
-  \Index checking for string range works correct.\n\
-  \Index checking for string substr works correct.\n\
-  \Index checking for string substr with fixed length works correct.\n\
-  \Index checking for string @:= works correct.\n";
+  \Index checking for string indexing works correctly.\n\
+  \Index checking for string head works correctly.\n\
+  \Index checking for string tail works correctly.\n\
+  \Index checking for string range works correctly.\n\
+  \Index checking for string substr works correctly.\n\
+  \Index checking for string substr with fixed length works correctly.\n\
+  \Index checking for string @:= works correctly.\n";
 
 const string: chkbst_output is "\n\
-  \Bstring parse works correct.\n\
-  \Bstring assignment works correct.\n\
-  \Bstring append works correct.\n\
-  \Bstring comparisons work correct.\n\
-  \String indices work correct.\n\
-  \The ternary operator ? : works correct for bstring.\n";
+  \Bstring parse works correctly.\n\
+  \Bstring assignment works correctly.\n\
+  \Bstring append works correctly.\n\
+  \Bstring comparisons work correctly.\n\
+  \String indices work correctly.\n\
+  \The ternary operator ? : works correctly for bstring.\n";
 
 const string: chkarr_output is "\n\
-  \Array initialization works correct.\n\
-  \Array comparison works correct.\n\
-  \Array assignment works correct.\n\
-  \Array append ( &:= ) works correct.\n\
-  \Array push ( &:= ) works correct.\n\
-  \Index access of array element works correct.\n\
-  \The array times operator works correct.\n\
-  \Array head and tail operations work correct.\n\
-  \Head of array works correct.\n\
-  \Tail of array works correct.\n\
-  \Range of array works correct.\n\
-  \Sub array of array works correct.\n\
-  \Insert element into array works correct.\n\
-  \Insert array into array works correct.\n\
-  \Remove element from array works correct.\n\
-  \Remove array from array works correct.\n";
+  \Array initialization works correctly.\n\
+  \Array comparison works correctly.\n\
+  \Array assignment works correctly.\n\
+  \Array append ( &:= ) works correctly.\n\
+  \Array push ( &:= ) works correctly.\n\
+  \Index access of array element works correctly.\n\
+  \The array times operator works correctly.\n\
+  \Array head and tail operations work correctly.\n\
+  \Head of array works correctly.\n\
+  \Tail of array works correctly.\n\
+  \Range of array works correctly.\n\
+  \Sub array of array works correctly.\n\
+  \Insert element into array works correctly.\n\
+  \Insert array into array works correctly.\n\
+  \Remove element from array works correctly.\n\
+  \Remove array from array works correctly.\n";
 
 const string: chkprc_output is "\n\
-  \If statements work correct.\n\
-  \While statements work correct.\n\
-  \Repeat statements work correct.\n\
-  \For to statements work correct.\n\
-  \For downto statements work correct.\n\
-  \For to until statements work correct.\n\
-  \For downto until statements work correct.\n\
-  \For char to statements work correct.\n\
-  \For char downto statements work correct.\n\
-  \For boolean to statements work correct.\n\
-  \For boolean downto statements work correct.\n\
-  \For bigInteger statements work correct.\n\
-  \Case integer statements work correct.\n\
-  \Case char statements work correct.\n\
-  \Case string statements work correct.\n\
-  \Case bigInteger statements work correct.\n\
-  \Case float statements work correct.\n";
+  \If statements work correctly.\n\
+  \While statements work correctly.\n\
+  \Repeat statements work correctly.\n\
+  \For to statements work correctly.\n\
+  \For downto statements work correctly.\n\
+  \For to until statements work correctly.\n\
+  \For downto until statements work correctly.\n\
+  \For char to statements work correctly.\n\
+  \For char downto statements work correctly.\n\
+  \For boolean to statements work correctly.\n\
+  \For boolean downto statements work correctly.\n\
+  \For bigInteger statements work correctly.\n\
+  \Case integer statements work correctly.\n\
+  \Case char statements work correctly.\n\
+  \Case string statements work correctly.\n\
+  \Case bigInteger statements work correctly.\n\
+  \Case float statements work correctly.\n";
 
 const string: chkbig_output is "\n\
-  \Based bigInteger literals work correct.\n\
-  \String conversion of bigInteger works correct.\n\
-  \The radix operator for bigInteger works correct.\n\
-  \Conversion of bigInteger to integer works correct.\n\
-  \ord(aBigInteger mod 2_**y) works correct.\n\
-  \Conversion of integer to bigInteger works correct.\n\
-  \Conversion of bigInteger to big endian byte string works correct.\n\
-  \Conversion of bigInteger to little endian byte string works correct.\n\
-  \Conversion of big endian byte string to bigInteger works correct.\n\
-  \Conversion of little endian byte string to bigInteger works correct.\n\
-  \The bigInteger negation works correct.\n\
-  \The plus sign for bigInteger works correct.\n\
-  \Successor of bigInteger works correct.\n\
-  \Predecessor of bigInteger works correct.\n\
-  \Increment of bigInteger works correct.\n\
-  \Decrement of bigInteger works correct.\n\
-  \Addition of bigInteger works correct.\n\
-  \Addition assignment of bigInteger works correct.\n\
-  \Subtraction of bigInteger works correct.\n\
-  \Subtraction assignment of bigInteger works correct.\n\
-  \Multiplication of bigInteger works correct.\n\
-  \Multiplication assignment of bigInteger works correct.\n\
-  \Division of bigInteger works correct.\n\
-  \Remainder of bigInteger division works correct.\n\
-  \Division of bigInteger with divRem works correct.\n\
-  \Modulo division of bigInteger works correct.\n\
-  \Modulo of bigInteger division works correct.\n\
-  \Power of bigInteger works correct.\n\
-  \Factorial of bigInteger works correct.\n\
-  \Binomial coefficient of bigInteger works correct.\n\
-  \The bigInteger compare works correct.\n\
-  \The bigInteger abs function works correct.\n\
-  \The bigInteger odd function works correct.\n\
-  \The bigInteger log2 function works correct.\n\
-  \The bigInteger log10 function works correct.\n\
-  \The bigInteger bitLength function works correct.\n\
-  \The bigInteger lowestSetBit function works correct.\n\
-  \The bigInteger << and <<:= works correct.\n\
-  \The bigInteger >> and >>:= works correct.\n\
-  \The bigInteger square root works correct.\n\
-  \The bigInteger sci operator does work correct.\n\
-  \The bigInteger constants work correct.\n\
-  \BigInteger assignment works correct.\n\
-  \The ternary operator ? : works correct for bigInteger.\n";
+  \Based bigInteger literals work correctly.\n\
+  \String conversion of bigInteger works correctly.\n\
+  \The radix operator for bigInteger works correctly.\n\
+  \Conversion of bigInteger to integer works correctly.\n\
+  \ord(aBigInteger mod 2_**y) works correctly.\n\
+  \Conversion of integer to bigInteger works correctly.\n\
+  \Conversion of bigInteger to big endian byte string works correctly.\n\
+  \Conversion of bigInteger to little endian byte string works correctly.\n\
+  \Conversion of big endian byte string to bigInteger works correctly.\n\
+  \Conversion of little endian byte string to bigInteger works correctly.\n\
+  \The bigInteger negation works correctly.\n\
+  \The plus sign for bigInteger works correctly.\n\
+  \Successor of bigInteger works correctly.\n\
+  \Predecessor of bigInteger works correctly.\n\
+  \Increment of bigInteger works correctly.\n\
+  \Decrement of bigInteger works correctly.\n\
+  \Addition of bigInteger works correctly.\n\
+  \Addition assignment of bigInteger works correctly.\n\
+  \Subtraction of bigInteger works correctly.\n\
+  \Subtraction assignment of bigInteger works correctly.\n\
+  \Multiplication of bigInteger works correctly.\n\
+  \Multiplication assignment of bigInteger works correctly.\n\
+  \Division of bigInteger works correctly.\n\
+  \Remainder of bigInteger division works correctly.\n\
+  \Division of bigInteger with divRem works correctly.\n\
+  \Modulo division of bigInteger works correctly.\n\
+  \Modulo of bigInteger division works correctly.\n\
+  \Power of bigInteger works correctly.\n\
+  \Factorial of bigInteger works correctly.\n\
+  \Binomial coefficient of bigInteger works correctly.\n\
+  \The bigInteger compare works correctly.\n\
+  \The bigInteger abs function works correctly.\n\
+  \The bigInteger odd function works correctly.\n\
+  \The bigInteger log2 function works correctly.\n\
+  \The bigInteger log10 function works correctly.\n\
+  \The bigInteger bitLength function works correctly.\n\
+  \The bigInteger lowestSetBit function works correctly.\n\
+  \The bigInteger << and <<:= works correctly.\n\
+  \The bigInteger >> and >>:= works correctly.\n\
+  \The bigInteger square root works correctly.\n\
+  \The bigInteger sci operator does work correctly.\n\
+  \The bigInteger constants work correctly.\n\
+  \BigInteger assignment works correctly.\n\
+  \The ternary operator ? : works correctly for bigInteger.\n";
 
 const string: chkbool_output is "\n\
-  \Boolean not works correct.\n\
-  \Boolean and works correct.\n\
-  \Boolean or works correct.\n\
-  \Boolean = works correct.\n\
-  \Boolean <> works correct.\n\
-  \Boolean > works correct.\n\
-  \Boolean >= works correct.\n\
-  \Boolean < works correct.\n\
-  \Boolean <= works correct.\n\
-  \Boolean compare works correct.\n\
-  \Boolean ord() works correct.\n\
-  \Boolean conv works correct.\n\
-  \Boolean str() works correct.\n\
-  \Boolean succ() works correct.\n\
-  \Boolean pred() works correct.\n\
-  \The ternary operator ? : works correct for boolean.\n";
+  \Boolean not works correctly.\n\
+  \Boolean and works correctly.\n\
+  \Boolean or works correctly.\n\
+  \Boolean = works correctly.\n\
+  \Boolean <> works correctly.\n\
+  \Boolean > works correctly.\n\
+  \Boolean >= works correctly.\n\
+  \Boolean < works correctly.\n\
+  \Boolean <= works correctly.\n\
+  \Boolean compare works correctly.\n\
+  \Boolean ord() works correctly.\n\
+  \Boolean conv works correctly.\n\
+  \Boolean str() works correctly.\n\
+  \Boolean succ() works correctly.\n\
+  \Boolean pred() works correctly.\n\
+  \The ternary operator ? : works correctly for boolean.\n";
 
 const string:chkbitdata_output is "\n\
-  \getBit(lsbBitStream) works correct.\n\
-  \getBits(lsbBitStream) works correct.\n\
-  \peekBits(lsbBitStream) works correct.\n\
-  \gets(lsbBitStream) works correct.\n\
-  \close(lsbBitStream) works correct.\n\
-  \getBit(msbBitStream) works correct.\n\
-  \getBits(msbBitStream) works correct.\n\
-  \peekBits(msbBitStream) works correct.\n\
-  \gets(msbBitStream) works correct.\n\
-  \close(msbBitStream) works correct.\n\
-  \putBitLsb works correct.\n\
-  \putBitsLsb works correct.\n\
-  \putBitMsb works correct.\n\
-  \putBitsMsb works correct.\n";
+  \getBit(lsbBitStream) works correctly.\n\
+  \getBits(lsbBitStream) works correctly.\n\
+  \peekBits(lsbBitStream) works correctly.\n\
+  \gets(lsbBitStream) works correctly.\n\
+  \close(lsbBitStream) works correctly.\n\
+  \getBit(msbBitStream) works correctly.\n\
+  \getBits(msbBitStream) works correctly.\n\
+  \peekBits(msbBitStream) works correctly.\n\
+  \gets(msbBitStream) works correctly.\n\
+  \close(msbBitStream) works correctly.\n\
+  \putBitLsb works correctly.\n\
+  \putBitsLsb works correctly.\n\
+  \putBitMsb works correctly.\n\
+  \putBitsMsb works correctly.\n";
 
 const string: chkset_output is "\n\
-  \Bitset literals work correct.\n\
-  \Conversion of sets works correct.\n\
-  \card(set) works correct.\n\
-  \rand(set) works correct.\n\
-  \incl(bitset, integer) works correct.\n\
-  \set compare works correct.\n\
-  \set relations work correct.\n\
-  \set union works correct.\n\
-  \set union assignment works correct.\n\
-  \set symdiff works correct.\n\
-  \set intersection works correct.\n\
-  \set intersection assignment works correct.\n\
-  \set difference test works correct.\n\
-  \set difference assignment works correct.\n\
-  \set membership test works correct.\n\
-  \set membership test for char works correct.\n\
-  \set membership test for string works correct.\n\
-  \min(bitset) works correct.\n\
-  \max(bitset) works correct.\n\
-  \next(bitset) works correct.\n\
-  \str(bitset) works correct.\n\
-  \set assignment works correct.\n\
-  \character sets work correct.\n";
+  \Bitset literals work correctly.\n\
+  \Conversion of sets works correctly.\n\
+  \card(set) works correctly.\n\
+  \rand(set) works correctly.\n\
+  \incl(bitset, integer) works correctly.\n\
+  \set compare works correctly.\n\
+  \set relations work correctly.\n\
+  \set union works correctly.\n\
+  \set union assignment works correctly.\n\
+  \set symdiff works correctly.\n\
+  \set intersection works correctly.\n\
+  \set intersection assignment works correctly.\n\
+  \set difference test works correctly.\n\
+  \set difference assignment works correctly.\n\
+  \set membership test works correctly.\n\
+  \set membership test for char works correctly.\n\
+  \set membership test for string works correctly.\n\
+  \min(bitset) works correctly.\n\
+  \max(bitset) works correctly.\n\
+  \next(bitset) works correctly.\n\
+  \str(bitset) works correctly.\n\
+  \set assignment works correctly.\n\
+  \character sets work correctly.\n";
 
 const string: chkhsh_output is "\n\
-  \Hash tables with boolean keys work correct.\n\
-  \Hash tables with integer keys work correct.\n\
-  \Hash tables with bigInteger keys work correct.\n\
-  \Hash tables with rational keys work correct.\n\
-  \Hash tables with bigRational keys work correct.\n\
-  \Hash tables with float keys work correct.\n\
-  \Hash tables with complex keys work correct.\n\
-  \Hash tables with char keys work correct.\n\
-  \Hash tables with string keys work correct.\n\
-  \The keys function for hash tables works correct.\n\
-  \The values function for hash tables works correct.\n\
-  \The for loop for hash tables works correct.\n\
-  \The assignment of a hash variable to itself works correct.\n";
+  \Hash tables with boolean keys work correctly.\n\
+  \Hash tables with integer keys work correctly.\n\
+  \Hash tables with bigInteger keys work correctly.\n\
+  \Hash tables with rational keys work correctly.\n\
+  \Hash tables with bigRational keys work correctly.\n\
+  \Hash tables with float keys work correctly.\n\
+  \Hash tables with complex keys work correctly.\n\
+  \Hash tables with char keys work correctly.\n\
+  \Hash tables with string keys work correctly.\n\
+  \The keys function for hash tables works correctly.\n\
+  \The values function for hash tables works correctly.\n\
+  \The for loop for hash tables works correctly.\n\
+  \The assignment of a hash variable to itself works correctly.\n";
 
 const string: chkfil_output is "\n\
-  \Open a file does work correct.\n\
-  \File I/O does work correct.\n\
-  \File seek does work correct.\n\
+  \Open a file does work correctly.\n\
+  \File I/O does work correctly.\n\
+  \File seek does work correctly.\n\
   \Automatic closing of files works.\n\
   \File operations with a closed file fail as they should.\n\
-  \Open an UTF-8 file does work correct.\n\
-  \Utf-8 file I/O does work correct.\n\
-  \Utf-8 file seek does work correct.\n\
+  \Open an UTF-8 file does work correctly.\n\
+  \Utf-8 file I/O does work correctly.\n\
+  \Utf-8 file seek does work correctly.\n\
   \Automatic closing of UTF-8 files works.\n\
   \File operations with a closed UTF-8 file fail as they should.\n\
-  \STD_NULL does work correct.\n";
+  \STD_NULL does work correctly.\n";
 
 const string: chkexc_output is "\n\
-  \Integer exceptions work correct.\n\
-  \BigInteger exceptions work correct.\n\
-  \Floating point exceptions work correct.\n\
-  \String exceptions work correct.\n\
-  \Array exceptions work correct.\n\
-  \File exceptions work correct.\n\
+  \Integer exceptions work correctly.\n\
+  \BigInteger exceptions work correctly.\n\
+  \Floating point exceptions work correctly.\n\
+  \String exceptions work correctly.\n\
+  \Array exceptions work correctly.\n\
+  \File exceptions work correctly.\n\
   \seek(STD_IN, 0) raises RANGE_ERROR\n\
   \gets(STD_IN, -1) raises RANGE_ERROR\n\
   \test_func(1 div 0) raises NUMERIC_ERROR\n\

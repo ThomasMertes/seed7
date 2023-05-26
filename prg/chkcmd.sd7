@@ -65,9 +65,9 @@ const proc: check_removeFile is func
     end block;
 
     if okay then
-      writeln("Removing regular files and empty directories with removeFile works correct.");
+      writeln("Removing regular files and empty directories with removeFile works correctly.");
     else
-      writeln(" ***** Removing regular files and empty directories with removeFile does not work correct.");
+      writeln(" ***** Removing regular files and empty directories with removeFile does not work correctly.");
       writeln;
     end if;
   end func;
@@ -107,9 +107,9 @@ const proc: check_removeTree is func
     end block;
 
     if okay then
-      writeln("Removing regular files and directories with removeTree works correct.");
+      writeln("Removing regular files and directories with removeTree works correctly.");
     else
-      writeln(" ***** Removing regular files and empty directories with removeTree does not work correct.");
+      writeln(" ***** Removing regular files and empty directories with removeTree does not work correctly.");
       writeln;
     end if;
   end func;
@@ -345,9 +345,9 @@ const proc: check_copyFile is func
     removeTree(fileName2);
 
     if okay then
-      writeln("Copying files with copyFile works correct.");
+      writeln("Copying files with copyFile works correctly.");
     else
-      writeln(" ***** Copying files with copyFile does not work correct.");
+      writeln(" ***** Copying files with copyFile does not work correctly.");
       writeln;
     end if;
   end func;
@@ -578,9 +578,9 @@ const proc: check_moveFile is func
     removeTree(fileName2);
 
     if okay then
-      writeln("Moving files with moveFile works correct.");
+      writeln("Moving files with moveFile works correctly.");
     else
-      writeln(" ***** Moving files with moveFile does not work correct.");
+      writeln(" ***** Moving files with moveFile does not work correctly.");
       writeln;
     end if;
   end func;
@@ -652,7 +652,7 @@ const proc: check_environment is func
     randomValue := randomString(10);
     setenv(randomName, randomValue);
     if getenv(randomName) <> randomValue then
-      writeln(" ***** Setting an environment variable does not work correct.");
+      writeln(" ***** Setting an environment variable does not work correctly.");
       okay := FALSE;
     end if;
     found := FALSE;
@@ -669,14 +669,14 @@ const proc: check_environment is func
     randomValue := randomString(10);
     setenv(randomName, randomValue);
     if getenv(randomName) <> randomValue then
-      writeln(" ***** Changing an environment variable does not work correct.");
+      writeln(" ***** Changing an environment variable does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Getting and setting environment variables works correct.");
+      writeln("Getting and setting environment variables works correctly.");
     else
-      writeln(" ***** Getting and setting environment variables does not work correct.");
+      writeln(" ***** Getting and setting environment variables does not work correctly.");
       writeln;
     end if;
   end func;

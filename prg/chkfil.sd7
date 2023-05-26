@@ -134,9 +134,9 @@ const proc: check_file_open is func
     end if;
 
     if okay then
-      writeln("Open a file does work correct.");
+      writeln("Open a file does work correctly.");
     else
-      writeln(" ***** Open a file does not work correct");
+      writeln(" ***** Open a file does not work correctly");
       writeln;
     end if;
   end func;
@@ -171,21 +171,21 @@ const func boolean: check_file_io_1 is func
       else
         read(aFile, stri);
         if stri <> "qwertyuiop" then
-          writeln("read(file, string) does not work correct. (1)");
+          writeln("read(file, string) does not work correctly. (1)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getln(file) does not work correct. (1)");
+          writeln("getln(file) does not work correctly. (1)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getwd(file) does not work correct. (1)");
+          writeln("getwd(file) does not work correctly. (1)");
           okay := FALSE;
         end if;
         stri := "";
@@ -224,19 +224,19 @@ const func boolean: check_file_io_1 is func
           okay := FALSE;
         end if;
         if gets(aFile, 0) <> ""  then
-          writeln("gets(file, 0) does not work correct. (1)");
+          writeln("gets(file, 0) does not work correctly. (1)");
           okay := FALSE;
         end if;
         stri := gets(aFile, 10);
         if stri <> "qwertyuiop" then
-          writeln("gets(file, 10) does not work correct. (1)");
+          writeln("gets(file, 10) does not work correctly. (1)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> "qwertyuiop\n" then
-          writeln("gets(file, 999999999) does not work correct. (1)");
+          writeln("gets(file, 999999999) does not work correctly. (1)");
           okay := FALSE;
         end if;
         if length(aFile) <> 11 then
@@ -283,21 +283,21 @@ const func boolean: check_file_io_2 is func
       else
         read(aFile, stri);
         if stri <> "qwertyuiop" then
-          writeln("read(file, string) does not work correct. (2)");
+          writeln("read(file, string) does not work correctly. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getln(file) does not work correct. (2)");
+          writeln("getln(file) does not work correctly. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getwd(file) does not work correct. (2)");
+          writeln("getwd(file) does not work correctly. (2)");
           okay := FALSE;
         end if;
         stri := "";
@@ -336,19 +336,19 @@ const func boolean: check_file_io_2 is func
           okay := FALSE;
         end if;
         if gets(aFile, 0) <> ""  then
-          writeln("gets(file, 0) does not work correct. (2)");
+          writeln("gets(file, 0) does not work correctly. (2)");
           okay := FALSE;
         end if;
         stri := gets(aFile, 10);
         if stri <> "qwertyuiop" then
-          writeln("gets(file, 10) does not work correct. (2)");
+          writeln("gets(file, 10) does not work correctly. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> "qwertyuiop\r\n" then
-          writeln("gets(file, 999999999) does not work correct. (2)");
+          writeln("gets(file, 999999999) does not work correctly. (2)");
           okay := FALSE;
         end if;
         if length(aFile) <> 12 then
@@ -397,21 +397,21 @@ const func boolean: check_file_io_3 is func
       else
         read(aFile, stri);
         if stri <> testString then
-          writeln("read(file, string) does not work correct. (3)");
+          writeln("read(file, string) does not work correctly. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> testString then
-          writeln("getln(file) does not work correct. (3)");
+          writeln("getln(file) does not work correctly. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> testString then
-          writeln("getwd(file) does not work correct. (3)");
+          writeln("getwd(file) does not work correctly. (3)");
           okay := FALSE;
         end if;
         stri := "";
@@ -450,19 +450,19 @@ const func boolean: check_file_io_3 is func
           okay := FALSE;
         end if;
         if gets(aFile, 0) <> ""  then
-          writeln("gets(file, 0) does not work correct. (3)");
+          writeln("gets(file, 0) does not work correctly. (3)");
           okay := FALSE;
         end if;
         stri := gets(aFile, length(testString));
         if stri <> testString then
-          writeln("gets(file, 10) does not work correct. (3)");
+          writeln("gets(file, 10) does not work correctly. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> testString & "\n" then
-          writeln("gets(file, 999999999) does not work correct. (3)");
+          writeln("gets(file, 999999999) does not work correctly. (3)");
           okay := FALSE;
         end if;
         if length(aFile) <> succ(length(testString)) then
@@ -508,9 +508,9 @@ const proc: check_file_io is func
     end if;
 
     if okay then
-      writeln("File I/O does work correct.");
+      writeln("File I/O does work correctly.");
     else
-      writeln(" ***** File I/O does not work correct");
+      writeln(" ***** File I/O does not work correctly");
       writeln;
     end if;
   end func;
@@ -545,7 +545,7 @@ const proc: check_file_seek is func
           #   stri := gets(aFile, 10);
           # end for;
           if stri[.. 6] <> "qwerty" then
-            writeln("gets(file, 536870912) does not work correct.");
+            writeln("gets(file, 536870912) does not work correctly.");
             TRACE_OBJ(stri);
             writeln;
             okay := FALSE;
@@ -554,35 +554,35 @@ const proc: check_file_seek is func
           seek(aFile, END_MARKER_POS);
           read(aFile, stri);
           if stri <> "this" then
-            writeln("read(file, string) after seek does not work correct.");
+            writeln("read(file, string) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getln(aFile);
           if stri <> SEEK_TEST_END_MARKER then
-            writeln("getln(file) after seek does not work correct.");
+            writeln("getln(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getwd(aFile);
           if stri <> "this" then
-            writeln("getwd(file) after seek does not work correct.");
+            writeln("getwd(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 15);
           if stri <> SEEK_TEST_END_MARKER then
-            writeln("gets(file, 15) after seek does not work correct.");
+            writeln("gets(file, 15) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
-            writeln("gets(file, 999999999) does not work correct. (4)");
+            writeln("gets(file, 999999999) does not work correctly. (4)");
             okay := FALSE;
           end if;
           if length(aFile) <> SEEK_TEST_FILE_SIZE then
@@ -602,9 +602,9 @@ const proc: check_file_seek is func
         removeFile("qwerty");
 
         if okay then
-          writeln("File seek does work correct.");
+          writeln("File seek does work correctly.");
         else
-          writeln(" ***** File seek does not work correct");
+          writeln(" ***** File seek does not work correctly");
           writeln;
         end if;
 
@@ -933,9 +933,9 @@ const proc: check_utf8_file_open is func
     end if;
 
     if okay then
-      writeln("Open an UTF-8 file does work correct.");
+      writeln("Open an UTF-8 file does work correctly.");
     else
-      writeln(" ***** Open an UTF-8 file does not work correct");
+      writeln(" ***** Open an UTF-8 file does not work correctly");
       writeln;
     end if;
   end func;
@@ -958,35 +958,35 @@ const proc: check_utf8_io is func
         if aFile <> STD_NULL then
           read(aFile, stri);
           if stri <> "qwertyuiop" then
-            writeln("read(file, string) does not work correct. (4)");
+            writeln("read(file, string) does not work correctly. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := getln(aFile);
           if stri <> "qwertyuiop" then
-            writeln("getln(file) does not work correct. (4)");
+            writeln("getln(file) does not work correctly. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := getwd(aFile);
           if stri <> "qwertyuiop" then
-            writeln("getwd(file) does not work correct. (4)");
+            writeln("getwd(file) does not work correctly. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 10);
           if stri <> "qwertyuiop" then
-            writeln("gets(file, 10) does not work correct. (4)");
+            writeln("gets(file, 10) does not work correctly. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 999999999);
           if stri <> "qwertyuiop\n" then
-            writeln("gets(file, 999999999) does not work correct. (5)");
+            writeln("gets(file, 999999999) does not work correctly. (5)");
             okay := FALSE;
           end if;
           if length(aFile) <> 11 then
@@ -1004,9 +1004,9 @@ const proc: check_utf8_io is func
         removeFile("qwerty");
 
         if okay then
-          writeln("Utf-8 file I/O does work correct.");
+          writeln("Utf-8 file I/O does work correctly.");
         else
-          writeln(" ***** File I/O does not work correct");
+          writeln(" ***** File I/O does not work correctly");
           writeln;
         end if;
 
@@ -1048,7 +1048,7 @@ const proc: check_utf8_seek is func
           #   stri := gets(aFile, 10);
           # end for;
           if stri[.. 6] <> "qwerty" then
-            writeln("gets(file, 536870912) does not work correct.");
+            writeln("gets(file, 536870912) does not work correctly.");
             TRACE_OBJ(stri);
             writeln;
             okay := FALSE;
@@ -1057,35 +1057,35 @@ const proc: check_utf8_seek is func
           seek(aFile, END_MARKER_POS);
           read(aFile, stri);
           if stri <> "this" then
-            writeln("read(file, string) after seek does not work correct.");
+            writeln("read(file, string) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getln(aFile);
           if stri <> SEEK_TEST_END_MARKER then
-            writeln("getln(file) after seek does not work correct.");
+            writeln("getln(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getwd(aFile);
           if stri <> "this" then
-            writeln("getwd(file) after seek does not work correct.");
+            writeln("getwd(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 15);
           if stri <> SEEK_TEST_END_MARKER then
-            writeln("gets(file, 15) after seek does not work correct.");
+            writeln("gets(file, 15) after seek does not work correctly.");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
-            writeln("gets(file, 999999999) does not work correct. (6)");
+            writeln("gets(file, 999999999) does not work correctly. (6)");
             okay := FALSE;
           end if;
           if length(aFile) <> SEEK_TEST_FILE_SIZE then
@@ -1105,9 +1105,9 @@ const proc: check_utf8_seek is func
         removeFile("qwerty");
 
         if okay then
-          writeln("Utf-8 file seek does work correct.");
+          writeln("Utf-8 file seek does work correctly.");
         else
-          writeln(" ***** File seek does not work correct");
+          writeln(" ***** File seek does not work correctly");
           writeln;
         end if;
 
@@ -1405,19 +1405,19 @@ const proc: check_null_file is func
   begin
     writeln(aFile, "test");
     if getc(aFile) <> EOF then
-      writeln("getc(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("getc(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if getc(STD_NULL) <> EOF then
-      writeln("getc(STD_NULL) does not work correct.");
+      writeln("getc(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     if gets(aFile, 10) <> "" then
-      writeln("gets(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("gets(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if gets(STD_NULL, 10) <> "" then
-      writeln("gets(STD_NULL) does not work correct.");
+      writeln("gets(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     writeln(aFile, "hello");
@@ -1427,19 +1427,19 @@ const proc: check_null_file is func
 
     aFile := STD_NULL;
     if getc(aFile) <> EOF then
-      writeln("getc(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("getc(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if getc(STD_NULL) <> EOF then
-      writeln("getc(STD_NULL) does not work correct.");
+      writeln("getc(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     if gets(aFile, 10) <> "" then
-      writeln("gets(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("gets(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if gets(STD_NULL, 10) <> "" then
-      writeln("gets(STD_NULL) does not work correct.");
+      writeln("gets(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     writeln(aFile, "hello");
@@ -1449,28 +1449,28 @@ const proc: check_null_file is func
 
     aFile := STD_NULL;
     if getc(aFile) <> EOF then
-      writeln("getc(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("getc(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if getc(STD_NULL) <> EOF then
-      writeln("getc(STD_NULL) does not work correct.");
+      writeln("getc(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     if gets(aFile, 10) <> "" then
-      writeln("gets(aFile) does not work correct, if aFile = STD_NULL holds.");
+      writeln("gets(aFile) does not work correctly, if aFile = STD_NULL holds.");
       okay := FALSE;
     end if;
     if gets(STD_NULL, 10) <> "" then
-      writeln("gets(STD_NULL) does not work correct.");
+      writeln("gets(STD_NULL) does not work correctly.");
       okay := FALSE;
     end if;
     writeln(aFile, "hello");
     writeln(STD_NULL, "hello");
 
     if okay then
-      writeln("STD_NULL does work correct.");
+      writeln("STD_NULL does work correctly.");
     else
-      writeln(" ***** STD_NULL does not work correct");
+      writeln(" ***** STD_NULL does not work correctly");
       writeln;
     end if;
   end func;

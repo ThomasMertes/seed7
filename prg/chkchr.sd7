@@ -1323,7 +1323,7 @@ const func boolean: check_literal_func is func
         literalFunction('‰')     <> "'\\8240;'" or
         literalFunction('€')     <> "'\\8364;'" or
         literalFunction('™')     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) via a function does not work correct. (1)");
+      writeln(" ***** Function literal(ch) via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1419,7 +1419,7 @@ const func boolean: check_literal_func is func
         literalFunction(charExpr('‰'))     <> "'\\8240;'" or
         literalFunction(charExpr('€'))     <> "'\\8364;'" or
         literalFunction(charExpr('™'))     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) via a function does not work correct. (2)");
+      writeln(" ***** Function literal(ch) via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1515,7 +1515,7 @@ const func boolean: check_literal_func is func
         c_literal('‰')     <> "8240" or
         c_literal('€')     <> "8364" or
         c_literal('™')     <> "8482" then
-      writeln(" ***** Function c_literal(ch) does not work correct. (1)");
+      writeln(" ***** Function c_literal(ch) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1611,7 +1611,7 @@ const func boolean: check_literal_func is func
         c_literal(charExpr('‰'))     <> "8240" or
         c_literal(charExpr('€'))     <> "8364" or
         c_literal(charExpr('™'))     <> "8482" then
-      writeln(" ***** Function c_literal(ch) does not work correct. (2)");
+      writeln(" ***** Function c_literal(ch) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1709,7 +1709,7 @@ const func boolean: check_literal_func is func
     stri := c_literal('€');     ok := ok and stri = "8364";
     stri := c_literal('™');     ok := ok and stri = "8482";
     if not ok then
-      writeln(" ***** Function c_literal(ch) does not work correct. (3)");
+      writeln(" ***** Function c_literal(ch) does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -1807,7 +1807,7 @@ const func boolean: check_literal_func is func
     stri := c_literal(charExpr('€'));     ok := ok and stri = "8364";
     stri := c_literal(charExpr('™'));     ok := ok and stri = "8482";
     if not ok then
-      writeln(" ***** Function c_literal(ch) does not work correct. (4)");
+      writeln(" ***** Function c_literal(ch) does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -1903,7 +1903,7 @@ const func boolean: check_literal_func is func
         cLiteralFunction('‰')     <> "8240" or
         cLiteralFunction('€')     <> "8364" or
         cLiteralFunction('™')     <> "8482" then
-      writeln(" ***** Function c_literal(ch) via a function does not work correct. (1)");
+      writeln(" ***** Function c_literal(ch) via a function does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1999,7 +1999,7 @@ const func boolean: check_literal_func is func
         cLiteralFunction(charExpr('‰'))     <> "8240" or
         cLiteralFunction(charExpr('€'))     <> "8364" or
         cLiteralFunction(charExpr('™'))     <> "8482" then
-      writeln(" ***** Function c_literal(ch) via a function does not work correct. (2)");
+      writeln(" ***** Function c_literal(ch) via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;
@@ -2103,7 +2103,7 @@ const proc: check_literal is func
         literal('‰')     <> "'\\8240;'" or
         literal('€')     <> "'\\8364;'" or
         literal('™')     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) does not work correct. (1)");
+      writeln(" ***** Function literal(ch) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2199,7 +2199,7 @@ const proc: check_literal is func
         literal(charExpr('‰'))     <> "'\\8240;'" or
         literal(charExpr('€'))     <> "'\\8364;'" or
         literal(charExpr('™'))     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) does not work correct. (2)");
+      writeln(" ***** Function literal(ch) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -2296,7 +2296,7 @@ const proc: check_literal is func
     stri := literal('€');     ok := ok and stri = "'\\8364;'";
     stri := literal('™');     ok := ok and stri = "'\\8482;'";
     if not ok then
-      writeln(" ***** Function literal(ch) does not work correct. (3)");
+      writeln(" ***** Function literal(ch) does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -2394,7 +2394,7 @@ const proc: check_literal is func
     stri := literal(charExpr('€'));     ok := ok and stri = "'\\8364;'";
     stri := literal(charExpr('™'));     ok := ok and stri = "'\\8482;'";
     if not ok then
-      writeln(" ***** Function literal(ch) does not work correct. (4)");
+      writeln(" ***** Function literal(ch) does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -2403,7 +2403,7 @@ const proc: check_literal is func
     end if;
 
     if okay then
-      writeln("Char literal functions work correct.");
+      writeln("Char literal functions work correctly.");
     end if;
   end func;
 
@@ -2430,7 +2430,7 @@ const proc: check_ternary is func
         (boolExpr(FALSE) ?  charExpr('a') : 'b') <> 'b' or
         (boolExpr( TRUE) ?  charExpr('a') : charExpr('b')) <> 'a' or
         (boolExpr(FALSE) ?  charExpr('a') : charExpr('b')) <> 'b' then
-      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -2451,14 +2451,14 @@ const proc: check_ternary is func
     ch := boolExpr( TRUE) ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'a';
     ch := boolExpr(FALSE) ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'b';
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("The ternary operator ? : works correct for char.");
+      writeln("The ternary operator ? : works correctly for char.");
     else
-      writeln(" ***** The ternary operator ? : does not work correct.");
+      writeln(" ***** The ternary operator ? : does not work correctly.");
     end if;
   end func;
 
