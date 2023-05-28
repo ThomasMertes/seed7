@@ -389,6 +389,33 @@ const integer: RPMSIGTAG_RESERVEDSPACE    is 1008;  # BIN
 const integer: RPMSIGTAG_SHA1             is  269;  # STRING
 const integer: RPMSIGTAG_SHA256           is  273;  # STRING Optional
 
+const integer: RPMSENSE_ANY           is 0;
+const integer: RPMSENSE_LESS          is 1 <<  1;
+const integer: RPMSENSE_GREATER       is 1 <<  2;
+const integer: RPMSENSE_EQUAL         is 1 <<  3;
+# bit 4 unused
+const integer: RPMSENSE_POSTTRANS     is 1 <<  5;  # %posttrans dependency
+const integer: RPMSENSE_PREREQ        is 1 <<  6;  # legacy prereq dependency
+const integer: RPMSENSE_PRETRANS      is 1 <<  7;  # Pre-transaction dependency
+const integer: RPMSENSE_INTERP        is 1 <<  8;  # Interpreter used by scriptlet
+const integer: RPMSENSE_SCRIPT_PRE    is 1 <<  9;  # %pre dependency
+const integer: RPMSENSE_SCRIPT_POST   is 1 << 10;  # %post dependency
+const integer: RPMSENSE_SCRIPT_PREUN  is 1 << 11;  # %preun dependency
+const integer: RPMSENSE_SCRIPT_POSTUN is 1 << 12;  # %postun dependency
+const integer: RPMSENSE_SCRIPT_VERIFY is 1 << 13;  # %verify dependency
+const integer: RPMSENSE_FIND_REQUIRES is 1 << 14;  # find-requires generated dependency
+const integer: RPMSENSE_FIND_PROVIDES is 1 << 15;  # find-provides generated dependency
+const integer: RPMSENSE_TRIGGERIN     is 1 << 16;  # %triggerin dependency
+const integer: RPMSENSE_TRIGGERUN     is 1 << 17;  # %triggerun dependency
+const integer: RPMSENSE_TRIGGERPOSTUN is 1 << 18;  # %triggerpostun dependency
+const integer: RPMSENSE_MISSINGOK     is 1 << 19;  # suggests/enhances hint
+# bits 20-23 unused
+const integer: RPMSENSE_RPMLIB        is 1 << 24;  # rpmlib(feature) dependency
+const integer: RPMSENSE_TRIGGERPREIN  is 1 << 25;  # %triggerprein dependency
+const integer: RPMSENSE_KEYRING       is 1 << 26;
+# bit 27 unused
+const integer: RPMSENSE_CONFIG        is 1 << 28;
+
 const integer: RPM_DIGESTALGO_MD5         is  1;
 const integer: RPM_DIGESTALGO_SHA1        is  2;
 const integer: RPM_DIGESTALGO_RIPEMD160   is  3;
@@ -733,6 +760,55 @@ const func string: rpmtagName (in integer: tag) is func
   end func;
 
 
+const func string: rpmDependencyFlagsString (in integer: flags) is func
+  result
+    var string: flagsString is "";
+  local
+    var integer: bitNum is 0;
+  begin
+    for bitNum range 0 to 28 do
+      # writeln(bin32(flags) radix 16 <& " " <& bin32(1) << bitNum radix 16 <& " " <& bin32(flags) & (bin32(1) << bitNum) <& " " <& bin32(flags) & (bin32(1) << bitNum) <> bin32(0) <& " " <& bitNum);
+      if bin32(flags) & (bin32(1) << bitNum) <> bin32(0) then
+        if flagsString <> "" then
+          flagsString &:= ", ";
+        end if;
+        case integer(bin32(1) << bitNum) of
+          when {1 << 0}:                 flagsString &:= "UNUSED_0";
+          when {RPMSENSE_LESS}:          flagsString &:= "LESS";
+          when {RPMSENSE_GREATER}:       flagsString &:= "GREATER";
+          when {RPMSENSE_EQUAL}:         flagsString &:= "EQUAL";
+          when {1 << 4}:                 flagsString &:= "UNUSED_4";
+          when {RPMSENSE_POSTTRANS}:     flagsString &:= "POSTTRANS";
+          when {RPMSENSE_PREREQ}:        flagsString &:= "PREREQ";
+          when {RPMSENSE_PRETRANS}:      flagsString &:= "PRETRANS";
+          when {RPMSENSE_INTERP}:        flagsString &:= "INTERP";
+          when {RPMSENSE_SCRIPT_PRE}:    flagsString &:= "SCRIPT_PRE";
+          when {RPMSENSE_SCRIPT_POST}:   flagsString &:= "SCRIPT_POST";
+          when {RPMSENSE_SCRIPT_PREUN}:  flagsString &:= "SCRIPT_PREUN";
+          when {RPMSENSE_SCRIPT_POSTUN}: flagsString &:= "SCRIPT_POSTUN";
+          when {RPMSENSE_SCRIPT_VERIFY}: flagsString &:= "SCRIPT_VERIFY";
+          when {RPMSENSE_FIND_REQUIRES}: flagsString &:= "FIND_REQUIRES";
+          when {RPMSENSE_FIND_PROVIDES}: flagsString &:= "FIND_PROVIDES";
+          when {RPMSENSE_TRIGGERIN}:     flagsString &:= "TRIGGERIN";
+          when {RPMSENSE_TRIGGERUN}:     flagsString &:= "TRIGGERUN";
+          when {RPMSENSE_TRIGGERPOSTUN}: flagsString &:= "TRIGGERPOSTUN";
+          when {RPMSENSE_MISSINGOK}:     flagsString &:= "MISSINGOK";
+          when {1 << 20}:                flagsString &:= "UNUSED_20";
+          when {1 << 21}:                flagsString &:= "UNUSED_21";
+          when {1 << 22}:                flagsString &:= "UNUSED_22";
+          when {1 << 23}:                flagsString &:= "UNUSED_23";
+          when {RPMSENSE_RPMLIB}:        flagsString &:= "RPMLIB";
+          when {RPMSENSE_TRIGGERPREIN}:  flagsString &:= "TRIGGERPREIN";
+          when {RPMSENSE_KEYRING}:       flagsString &:= "KEYRING";
+          when {1 << 27}:                flagsString &:= "UNUSED_27";
+          when {RPMSENSE_CONFIG}:        flagsString &:= "CONFIG";
+        end case;
+      end if;
+    end for;
+    flagsString &:= " " <& flags radix 16;
+  end func;
+
+
 const proc: show (in rpmLead: lead) is func
   begin
     if lead.magic = RPM_LEAD_MAGIC then
@@ -967,6 +1043,12 @@ const proc: write (in rpmCatalogEntry: catalogEntry) is func
   end func;
 
 
+const type: rpmDependency is new struct
+    var integer: flags is 0;
+    var string: name is "";
+    var string: version is "";
+  end struct;
+
 const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 
 const type: rpmSection is new struct
@@ -1003,6 +1085,8 @@ const type: rpmArchive is sub emptyFileSys struct
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
     var array string: dirNameList is 0 times "";
     var array string: classDict is 0 times "";
+    var array rpmDependency: provided is 0 times rpmDependency.value;
+    var array rpmDependency: required is 0 times rpmDependency.value;
     var file: payloadFile is STD_NULL;
     var fileSys: archive is fileSys.value;
   end struct;
@@ -1559,6 +1643,53 @@ const proc: doSettings (inout rpmArchive: rpm) is func
   end func;
 
 
+const proc: readDependencies (inout rpmArchive: rpm) is func
+  local
+    var integer: flagsPos is 0;
+    var integer: namePos is 0;
+    var integer: versionPos is 0;
+    var integer: count is 0;
+    var integer: index is 0;
+  begin
+    if RPMTAG_PROVIDEFLAGS in rpm.header.tagMap and
+        RPMTAG_PROVIDENAME in rpm.header.tagMap and
+        RPMTAG_PROVIDEVERSION in rpm.header.tagMap then
+      flagsPos := succ(rpm.header.tagMap[RPMTAG_PROVIDEFLAGS].offset);
+      namePos := succ(rpm.header.tagMap[RPMTAG_PROVIDENAME].offset);
+      versionPos := succ(rpm.header.tagMap[RPMTAG_PROVIDEVERSION].offset);
+      count := rpm.header.tagMap[RPMTAG_PROVIDEFLAGS].count;
+      rpm.provided := count times rpmDependency.value;
+      for index range 1 to count do
+        rpm.provided[index].flags := bytes2Int(
+            rpm.header.store[flagsPos fixLen 4], UNSIGNED, BE);
+        flagsPos +:= 4;
+        rpm.provided[index].name := getAsciiz(rpm.header.store, namePos);
+        rpm.provided[index].version := getAsciiz(rpm.header.store, versionPos);
+        # writeln("provided: " <& rpmDependencyFlagsString(rpm.provided[index].flags) <&
+        #         " " <& rpm.provided[index].name <& " " <& rpm.provided[index].version);
+      end for;
+    end if;
+    if RPMTAG_REQUIREFLAGS in rpm.header.tagMap and
+        RPMTAG_REQUIRENAME in rpm.header.tagMap and
+        RPMTAG_REQUIREVERSION in rpm.header.tagMap then
+      flagsPos := succ(rpm.header.tagMap[RPMTAG_REQUIREFLAGS].offset);
+      namePos := succ(rpm.header.tagMap[RPMTAG_REQUIRENAME].offset);
+      versionPos := succ(rpm.header.tagMap[RPMTAG_REQUIREVERSION].offset);
+      count := rpm.header.tagMap[RPMTAG_REQUIREFLAGS].count;
+      rpm.required := count times rpmDependency.value;
+      for index range 1 to count do
+        rpm.required[index].flags := bytes2Int(
+            rpm.header.store[flagsPos fixLen 4], UNSIGNED, BE);
+        flagsPos +:= 4;
+        rpm.required[index].name := getAsciiz(rpm.header.store, namePos);
+        rpm.required[index].version := getAsciiz(rpm.header.store, versionPos);
+        # writeln("required: " <& rpmDependencyFlagsString(rpm.required[index].flags) <&
+        #         " " <& rpm.required[index].name <& " " <& rpm.required[index].version);
+      end for;
+    end if;
+  end func;
+
+
 const func string: getDigest (in string: content, in integer: digestAlgo) is func
   result
     var string: digest is "";
@@ -1702,6 +1833,7 @@ const func fileSys: openRpm (inout file: rpmFile) is func
             if checkHeaderDigest(rpm) then
               doSettings(rpm);
               createMinimumOfCatalog(rpm);
+              readDependencies(rpm);
               newFileSys := toInterface(rpm);
             end if;
           end if;
@@ -1743,13 +1875,15 @@ const proc: close (inout rpmArchive: rpm) is func
         writeLead(rpm.rpmFile, rpm.lead);
       end if;
 
-      writeln("prepare payload:");
+      # writeln("prepare payload:");
       if rpm.archive <> fileSys.value then
+        # writeln("size payloadFile: " <& length(rpm.payloadFile));
         seek(rpm.payloadFile, 1);
         payload := gzip(gets(rpm.payloadFile, integer.last));
+        # writeln("size payload: " <& length(payload));
       end if;
 
-      writeln("prepare header:");
+      # writeln("prepare header:");
       assignIndexValues(rpm.header);
       updateHeader(rpm);
       updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
@@ -1767,11 +1901,28 @@ const proc: close (inout rpmArchive: rpm) is func
                        length(rpm.payloadFile));
       updateIndexEntry(rpm.signature, RPMSIGTAG_SHA1, RPM_STRING_TYPE,
                        hex(sha1(headerSection)));
+      updateIndexEntry(rpm.signature, RPMSIGTAG_SHA256, RPM_STRING_TYPE,
+                       hex(sha256(headerSection)));
       updateIndexEntry(rpm.signature, RPMSIGTAG_MD5, RPM_BIN_TYPE,
                        md5(headerSection & payload));
+
       assignIndexValues(rpm.signature);
       updateStore(rpm.signature);
       signatureSection := sectionStri(rpm.signature, RPMSIGTAG_HEADERSIGNATURES);
+      writeln(length(signatureSection));
+
+      writeln(4505 - length(signatureSection) -
+          (7 - pred(length(signatureSection)) mod 8) -
+          RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
+      updateIndexEntry(rpm.signature, RPMSIGTAG_RESERVEDSPACE, RPM_BIN_TYPE,
+                       "\0;" mult 4505 - length(signatureSection) -
+                       (7 - pred(length(signatureSection)) mod 8) -
+                       RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
+
+      rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].offset := length(rpm.signature.store);
+      rpm.signature.store &:= rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].striValue;
+      signatureSection := sectionStri(rpm.signature, RPMSIGTAG_HEADERSIGNATURES);
+      writeln(length(signatureSection));
 
       write(rpm.rpmFile, signatureSection);
       write(rpm.rpmFile, "\0;" mult (7 - pred(length(signatureSection)) mod 8));
