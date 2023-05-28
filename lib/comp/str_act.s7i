@@ -2047,10 +2047,13 @@ const proc: optimize_str_lng (in reference: lengthParam,
     elsif isActionExpression(lengthParam, "STR_CAT") then
       params := getValue(lengthParam, ref_list)[2 ..];
       optimize_str_lng(STR_CAT, params, c_expr);
-    elsif isActionExpression(lengthParam, "STR_SUBSTR_FIXLEN") and
-        getConstant(getActionParameter(lengthParam, 5), INTOBJECT, evaluatedParam) then
+    elsif isActionExpression(lengthParam, "STR_SUBSTR_FIXLEN") then
       incr(countOptimizations);
-      c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer));
+      if getConstant(getActionParameter(lengthParam, 5), INTOBJECT, evaluatedParam) then
+        c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer));
+      else
+        process_expr(getActionParameter(lengthParam, 5), c_expr);
+      end if;
       c_expr.expr &:= " /* length of fixlLen substring */";
     else
       c_expr.expr &:= "(intType)((";
