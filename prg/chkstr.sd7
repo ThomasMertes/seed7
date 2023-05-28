@@ -2819,6 +2819,22 @@ const proc: check_string_length is func
       okay := FALSE;
     end if;
 
+    if  length(         "abcde" [        1  fixLen intExpr(3)]) <> 3 or
+        length(         "abcde" [        2  fixLen intExpr(3)]) <> 3 or
+        length(         "abcde" [        3  fixLen intExpr(3)]) <> 3 or
+        length(         "abcde" [intExpr(1) fixLen intExpr(3)]) <> 3 or
+        length(         "abcde" [intExpr(2) fixLen intExpr(3)]) <> 3 or
+        length(         "abcde" [intExpr(3) fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[        1  fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[        2  fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[        3  fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[intExpr(1) fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[intExpr(2) fixLen intExpr(3)]) <> 3 or
+        length(striExpr("abcde")[intExpr(3) fixLen intExpr(3)]) <> 3 then
+      writeln(" ***** length(STRING) does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String length works correctly.");
     end if;
@@ -20192,6 +20208,8 @@ const proc: check_string_assign is func
     stri := stri[.. 7];           ok := ok and stri = "sdfghjk";
     stri := stri[2 .. 6];         ok := ok and stri = "dfghj";
     stri := stri[2 len 3];        ok := ok and stri = "fgh";
+    stri2 := stri[.. 1];          ok := ok and stri2 = "f";
+    stri := stri[.. 1];           ok := ok and stri = "f";
     stri2 := stri[.. 0];          ok := ok and stri2 = "";
     stri := stri[.. 0];           ok := ok and stri = "";
     stri := "asdfghjkl";          ok := ok and stri = "asdfghjkl";
