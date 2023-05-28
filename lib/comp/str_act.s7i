@@ -2052,7 +2052,9 @@ const proc: optimize_str_lng (in reference: lengthParam,
       if getConstant(getActionParameter(lengthParam, 5), INTOBJECT, evaluatedParam) then
         c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer));
       else
+        c_expr.expr &:= "(";
         process_expr(getActionParameter(lengthParam, 5), c_expr);
+        c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= " /* length of fixlLen substring */";
     else
