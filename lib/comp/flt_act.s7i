@@ -955,18 +955,10 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
             c_expr.expr &:= ":";
           end if;
           if exponentRange.maxValue > 0 then
-            if exponentRange.minValue < 0 then
-              c_expr.expr &:= "(";
-            end if;
             c_expr.expr &:= exponentName;
             c_expr.expr &:= ">0?0.0:";
           end if;
-          c_expr.expr &:= "1.0";
-          if exponentRange.maxValue > 0 and
-              exponentRange.minValue < 0 then
-            c_expr.expr &:= ")";
-          end if;
-          c_expr.expr &:= ")";
+          c_expr.expr &:= "1.0)";
         end if;
       end if;
     elsif base = 1.0 then
