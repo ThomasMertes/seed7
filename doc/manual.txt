@@ -27,14 +27,15 @@ CONTENTS
   2.    TUTORIAL
   2.1     Hello world
   2.2     Greeting
-  2.3     Local declarations and expressions
-  2.4     For loop and float expressions
-  2.5     For loop and containers
-  2.6     Functions
-  2.7     Parameters
-  2.8     Overloading
-  2.9     Declare a statement
-  2.10    Template declaring a statement
+  2.3     Assignment
+  2.4     Constants
+  2.5     For loop and float expressions
+  2.6     For loop and containers
+  2.7     Functions
+  2.8     Parameters
+  2.9     Overloading
+  2.10    Declare a statement
+  2.11    Template declaring a statement
   3.    DECLARATIONS
   3.1     Normal declarations
   3.2     Syntax declarations
@@ -511,7 +512,7 @@ CONTENTS
 
   The Seed7 interpreter writes something like
 
-    SEED7 INTERPRETER Version 5.0.11428  Copyright (c) 1990-2020 Thomas Mertes
+    SEED7 INTERPRETER Version 5.1.790  Copyright (c) 1990-2023 Thomas Mertes
     hello world
 
   You get information about the Seed7 interpreter and
@@ -581,13 +582,12 @@ CONTENTS
   This defines the 'string' variable 'name'. This definition assigns
   also the initial value "" to 'name'. The value "" is the empty string
   (it contains no characters). In Seed7 variables must be defined and
-  always get an initial value. This seems unnecessary in small
-  programs, but if programs grow bigger it helps readability a lot.
+  always get an initial value.
 
   The 'write' statement is similar to 'writeln', but it does not write
   a newline character. The 'readln' statement reads a line from the
   standard input file and assigns this line to the given variable.
-  This function allows the usage of backspace the correct the input.
+  This function allows the usage of backspace to correct the input.
   By pressing enter the line is sent to the program. The final
   'writeln' statement contains the operator <& to concatenate strings.
   If necessary the <& operator converts values to 'string'.
@@ -691,7 +691,55 @@ CONTENTS
   after the question: What's your name?
 
 
-2.3 Local declarations and expressions
+2.3 Assignment
+
+    The following program writes the numbers from 1 to 10:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var integer: count is 1;
+      begin
+        while count <= 10 do do
+          writeln(count);
+          count := count + 1;
+        end while;
+      end func;
+
+  This program declares a local variable of the type 'integer':
+
+        var integer: count is 1;
+
+  The variable 'count' above is initialized with 1.
+  The value of a variable can be changed with an assignment (:=):
+
+        count := count + 1;
+
+  The expression at the right of the := symbol is evaluated and
+  assigned to the variable left of the := symbol. In the case
+  above the variable 'count' is incremented by one. For this special
+  case there is a shortcut that could be used instead of the assignment:
+
+        incr(count);
+
+  The output produced by this program is
+
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+
+  What changes are necessary to count down from 10 to 0 instead?
+
+
+2.4 Constants
 
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
@@ -703,13 +751,11 @@ CONTENTS
 
     const proc: main is func
       local
-        const integer: lower is 0;
         const integer: upper is 300;
         const integer: increment is 20;
         var integer: fahr is 0;
         var integer: celsius is 0;
       begin
-        fahr := lower;
         while fahr <= upper do
           celsius := 5 * (fahr - 32) div 9;
           writeln(fahr <& " " <& celsius);
@@ -719,12 +765,33 @@ CONTENTS
 
   Everything between (* and *) is a comment, which is ignored. This
   program contains local constants and variables of the type 'integer'.
-  The constants and variables must be initialized when they are declared.
-  This program contains also an assignment (:=), a while-statement and
-  the expression to compute the 'celsius' value. The variable 'fahr' is
-  incremented with the '+:=' operator. The expression to compute the
-  'celsius' value uses an integer division ('div'). The output produced
-  by this program is
+  Constant declarations are introduced with 'const':
+
+        const integer: upper is 300;
+        const integer: increment is 20;
+
+  Like variables constants must be initialized with a value that is
+  specified after the keyword 'is'. Constants like 'upper' cannot be
+  changed. All constants just keep the initialization value. An attempt
+  to change a constant results in a parsing error:
+
+    *** tst352.sd7(14):53: Variable expected in {lower := 10 } found constant integer: lower
+        lower := 10;
+
+  Note that the error is reported before the program execution starts.
+
+  The program contains a while-statement and the expression to compute
+  the 'celsius' value. The variable 'fahr' is incremented with the
+  '+:=' operator. The statement:
+
+          fahr +:= increment;
+
+  is a shortcut for the statement:
+
+          fahr := fahr + increment;
+
+  The expression to compute the 'celsius' value uses an integer
+  division ('div'). The output produced by this program is
 
     0 -17
     20 -6
@@ -744,7 +811,7 @@ CONTENTS
     300 148
 
 
-2.4 For loop and float expressions
+2.5 For loop and float expressions
 
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
@@ -803,7 +870,7 @@ CONTENTS
   of 6.
 
 
-2.5 For loop and containers
+2.6 For loop and containers
 
     A for-loop can be used to iterate over the elements of an 'array'
   (so it is actually a for-each-loop):
@@ -936,7 +1003,7 @@ CONTENTS
       end func;
 
 
-2.6 Functions
+2.7 Functions
 
     The program below uses the function 'flipCoin' to flip
   a coin until the result is heads:
@@ -1029,7 +1096,7 @@ CONTENTS
   the 'result' part is mandatory.
 
 
-2.7 Parameters
+2.8 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -1157,7 +1224,7 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.8 Overloading
+2.9 Overloading
 
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1235,7 +1302,7 @@ CONTENTS
   above are taken from the "mixarith.s7i" library.
 
 
-2.9 Declare a statement
+2.10 Declare a statement
 
     This example program writes its arguments
 
@@ -1278,7 +1345,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.10 Template declaring a statement
+2.11 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:

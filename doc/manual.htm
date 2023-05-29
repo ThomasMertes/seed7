@@ -236,7 +236,8 @@ pre.indent {
 <li><a class="link" href="#tutorial_file_start"><big><b>TUTORIAL</b></big></a><ol>
 <li><a class="link" href="#tutorial_Hello_world"><b>Hello world</b></a></li>
 <li><a class="link" href="#tutorial_Greeting"><b>Greeting</b></a></li>
-<li><a class="link" href="#tutorial_Local_declarations_and_expressions"><b>Local declarations and expressions</b></a></li>
+<li><a class="link" href="#tutorial_Assignment"><b>Assignment</b></a></li>
+<li><a class="link" href="#tutorial_Constants"><b>Constants</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_containers"><b>For loop and containers</b></a></li>
 <li><a class="link" href="#tutorial_Functions"><b>Functions</b></a></li>
@@ -720,7 +721,7 @@ s7 hello
 </pre><p>
   The Seed7 interpreter writes something like
 </p><pre class="indent">
-SEED7 INTERPRETER Version 5.0.11428  Copyright (c) 1990-2020 Thomas Mertes
+SEED7 INTERPRETER Version 5.1.790  Copyright (c) 1990-2023 Thomas Mertes
 hello world
 </pre><p>
   You get information about the Seed7 interpreter and
@@ -790,13 +791,12 @@ What's your name?
   This defines the <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'name'</tt>. This definition assigns
   also the initial value <a class="stri" href="#tokens_String_literals">""</a> to <tt>'name'</tt>. The value <a class="stri" href="#tokens_String_literals">""</a> is the empty string
   (it contains no characters). In Seed7 variables must be defined and
-  always get an initial value. This seems unnecessary in small
-  programs, but if programs grow bigger it helps readability a lot.
+  always get an initial value.
 </p><p>
   The <tt><span class="func">write</span></tt> statement is similar to <tt><span class="func">writeln</span></tt>, but it does not write
   a newline character. The <tt><span class="func">readln</span></tt> statement reads a line from the
   standard input file and assigns this line to the given variable.
-  This function allows the usage of backspace the correct the input.
+  This function allows the usage of backspace to correct the input.
   By pressing enter the line is sent to the program. The final
   <tt><span class="func">writeln</span></tt> statement contains the operator <tt><span class="op">&lt;&amp;</span></tt> to concatenate strings.
   If necessary the <tt><span class="op">&lt;&amp;</span></tt> operator converts values to <tt><a class="type" href="#types_string">string</a></tt>.
@@ -900,7 +900,55 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   after the question: What's your name?
 </p>
 
-<a name="tutorial_Local_declarations_and_expressions"><h3>2.3 Local declarations and expressions</h3></a>
+<a name="tutorial_Assignment"><h3>2.3 Assignment</h3></a>
+<p>
+    The following program writes the numbers from 1 to 10:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_while-statement">while</a> count <span class="op_no_ul">&lt;=</span> 10 do <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+      <span class="func_no_ul">writeln</span>(count);
+      count <a class="op_no_ul" href="#stats_Assignment">:=</a> count <span class="op_no_ul">+</span> 1;
+    <a class="keywd_no_ul" href="#stats_while-statement">end while</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  This program declares a local variable of the type <tt><a class="type" href="#types_integer">integer</a></tt>:
+</p><pre class="indent">
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
+</pre><p>
+  The variable <tt>count</tt> above is initialized with <tt>1</tt>.
+  The value of a variable can be changed with an <a class="link" href="#stats_Assignment">assignment</a> (<tt><span class="op">:=</span></tt>):
+</p><pre class="indent">
+    count <a class="op_no_ul" href="#stats_Assignment">:=</a> count <span class="op_no_ul">+</span> 1;
+</pre><p>
+  The expression at the right of the <tt><span class="op">:=</span></tt> symbol is evaluated and
+  assigned to the variable left of the <tt><span class="op">:=</span></tt> symbol. In the case
+  above the variable <tt>count</tt> is incremented by one. For this special
+  case there is a shortcut that could be used instead of the assignment:
+</p><pre class="indent">
+    <span class="func_no_ul">incr</span>(count);
+</pre><p>
+  The output produced by this program is
+</p><pre class="indent">
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><p>
+  What changes are necessary to count down from 10 to 0 instead?
+</p>
+
+<a name="tutorial_Constants"><h3>2.4 Constants</h3></a>
 <p>
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
@@ -912,13 +960,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: lower <span class="keywd">is</span> 0;
     <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
     <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: celsius <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    fahr <a class="op_no_ul" href="#stats_Assignment">:=</a> lower;
     <a class="keywd_no_ul" href="#stats_while-statement">while</a> fahr <span class="op_no_ul">&lt;=</span> upper <a class="keywd_no_ul" href="#stats_while-statement">do</a>
       celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> 5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32) <span class="op_no_ul">div</span> 9;
       <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius);
@@ -928,12 +974,33 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </pre><p>
   Everything between <a class="comment" href="#tokens_Comments">(* and *)</a> is a <a class="link" href="#tokens_Comments">comment</a>, which is ignored. This
   program contains local constants and variables of the type <tt><a class="type" href="#types_integer">integer</a></tt>.
-  The constants and variables must be initialized when they are declared.
-  This program contains also an <a class="link" href="#stats_Assignment">assignment</a> (<span class="op">:=</span>), a <a class="link" href="#stats_while-statement">while-statement</a> and
-  the expression to compute the <tt>'celsius'</tt> value. The variable <tt>'fahr'</tt> is
-  incremented with the <tt><span class="op">+:=</span></tt> operator. The expression to compute the
-  <tt>'celsius'</tt> value uses an integer division (<tt><span class="op">div</span></tt>). The output produced
-  by this program is
+  Constant declarations are introduced with <tt><span class="keywd">const</span></tt>:
+</p><pre class="indent">
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
+</pre><p>
+  Like variables constants must be initialized with a value that is
+  specified after the keyword <tt><span class="keywd">is</span></tt>. Constants like <tt>upper</tt> cannot be
+  changed. All constants just keep the initialization value. An attempt
+  to change a constant results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
+</p><pre class="indent">
+*** tst352.sd7(14):53: <a class="link" href="#errors_WRONGACCESSRIGHT">Variable expected in {lower := 10 } found constant integer: lower</a>
+    lower := 10;
+</pre><p>
+  Note that the error is reported before the program execution starts.
+</p><p>
+  The program contains a <a class="link" href="#stats_while-statement">while-statement</a> and the expression to compute
+  the <tt>'celsius'</tt> value. The variable <tt>'fahr'</tt> is incremented with the
+  <tt><span class="op">+:=</span></tt> operator. The statement:
+</p><pre class="indent">
+      fahr <span class="op_no_ul">+:=</span> increment;
+</pre><p>
+  is a shortcut for the statement:
+</p><pre class="indent">
+      fahr <a class="op_no_ul" href="#stats_Assignment">:=</a> fahr <span class="op_no_ul">+</span> increment;
+</pre><p>
+  The expression to compute the <tt>'celsius'</tt> value uses an integer
+  division (<tt><span class="op">div</span></tt>). The output produced by this program is
 </p><pre class="indent">
 0 -17
 20 -6
@@ -953,7 +1020,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 300 148
 </pre><p></p>
 
-<a name="tutorial_For_loop_and_float_expressions"><h3>2.4 For loop and float expressions</h3></a>
+<a name="tutorial_For_loop_and_float_expressions"><h3>2.5 For loop and float expressions</h3></a>
 <p>
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
@@ -1012,7 +1079,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <
   of 6.
 </p>
 
-<a name="tutorial_For_loop_and_containers"><h3>2.5 For loop and containers</h3></a>
+<a name="tutorial_For_loop_and_containers"><h3>2.6 For loop and containers</h3></a>
 <p>
     A <tt><a class="link" href="#stats_for-each-statement">for-loop</a></tt> can be used to iterate over the elements of an <tt><a class="type" href="#types_array">array</a></tt>
   (so it is actually a <tt><a class="link" href="#stats_for-each-statement">for-each-loop</a></tt>):
@@ -1145,7 +1212,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre>
 
-<a name="tutorial_Functions"><h3>2.6 Functions</h3></a>
+<a name="tutorial_Functions"><h3>2.7 Functions</h3></a>
 <p>
     The program below uses the function <tt><span class="func">flipCoin</span></tt> to flip
   a coin until the result is heads:
@@ -1238,7 +1305,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   the <tt><span class="keywd">result</span></tt> part is mandatory.
 </p>
 
-<a name="tutorial_Parameters"><h3>2.7 Parameters</h3></a>
+<a name="tutorial_Parameters"><h3>2.8 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters to describe this situation:
@@ -1366,7 +1433,7 @@ reset(8);
   over an explicit <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter.
 </p>
 
-<a name="tutorial_Overloading"><h3>2.8 Overloading</h3></a>
+<a name="tutorial_Overloading"><h3>2.9 Overloading</h3></a>
 <p>
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1444,7 +1511,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   above are taken from the <tt><span class="lib">mixarith.s7i</span></tt> library.
 </p>
 
-<a name="tutorial_Declare_a_statement"><h3>2.9 Declare a statement</h3></a>
+<a name="tutorial_Declare_a_statement"><h3>2.10 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre class="indent">
@@ -1487,7 +1554,7 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Because of these powerful features Seed7 does not need iterators.
 </p>
 
-<a name="tutorial_Template_declaring_a_statement"><h3>2.10 Template declaring a statement</h3></a>
+<a name="tutorial_Template_declaring_a_statement"><h3>2.11 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:

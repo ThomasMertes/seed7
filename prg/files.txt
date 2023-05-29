@@ -124,6 +124,7 @@ wumpus.sd7   Hunt the Wumpus game
 aes.s7i      AES (Advanced Encryption Standard) cipher support.
 ar.s7i       Ar archive library
 arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
+archive_base.s7i Common functions for file archives.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
 bigfile.s7i  bigInteger versions of seek, tell and length

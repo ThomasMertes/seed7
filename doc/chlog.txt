@@ -1,3 +1,99 @@
+20230529:
+- The FAQ concerning break and continue has been improved.
+- Chapters about assignment and constants have been added to the
+  tutorial, which is part of the manual. A description of the function
+  fraction() has been added to the chapter about predefined types.
+- The new library archive_base.s7i has been added. This library
+  defines common functions for file archives. It currently defines the
+  function readDir() which is used by the archive libraries ar.s7i,
+  cpio.s7i, rpm.s7i, tar.s7i and zip.s7i.
+- In the zip.s7i library the function readDir() has been improved to
+  work for absolute paths (by calling readDir() from archive_base.s7i).
+- Several improvements have been made in the rpm.s7i library:
+  - The signature section digests are checked when the RPM file is
+    opened.
+  - The payload digests are only checked if the payload is used.
+  - Provided and required dependencies are read when the RPM file is
+    opened.
+- The compiler (s7c.sd7) has been improved:
+  - It recognizes if an array index access would always raise
+    INDEX_ERROR. This is done for a constant array and with the range
+    of possible index values.
+  - The optimization of the floating point power operator with an
+    integer exponent has been improved. There are cases where the base
+    is constant, and the range of possible exponents allows a
+    simplification.
+  - The optimization of the floating point left and right shift
+    operators has been improved. It considers cases where the number
+    that needs to be shifted is constant and cases where nothing is
+    constant. In both situations the range of possible shift amounts
+    allows simplifications.
+  - The optimization of A * B ** C with A and B float and C integer,
+    has been improved. This considers cases where B is a power of two
+    and the range of possible exponents C allows a simplification.
+  - It is recognized if the integer left shift operator would always
+    raise OVERFLOW_ERROR. Depending on the range of possible values
+    for the shift amount and the value to be shifted, this optimization
+    is made.
+  - The number of checks for OVERFLOW_ERROR and NUMERIC_ERROR of the
+    integer power operator has been reduced. Depending on the range of
+    possible values for base and exponent, some checks can be omitted.
+  - Now the range of possible integer values is determined for the
+    expression ord(aBigInteger mod 2_ ** n).
+  - Now the range of possible integer values is determined for the
+    length of a sub-string.
+  - The generated code for 'elsif FALSE then end if' as been fixed.
+  - String index checks are optimized away if the range of possible
+    index values always remains inside a constant string.
+  - Computing the length of a fixLen substring has been optimized
+    (e.g.: length(aString[A fixLen B]) will always return B).
+  - The optimization of the string length function has been changed to
+    sum up the length of the components as integers.
+- The test suite has been improved to increase the code coverage of the
+  compiler.
+- Tests for array assignment, array length and array index access have
+  been added to chkarr.sd7.
+- Tests of the optimization of expressions like ord((A + B) mod C)
+  (the modulus of a bigInteger sum converted to an integer) have been
+  added.
+- Several tests have been added to chkflt.sd7:
+  - Tests for float left shift (<<).
+  - Tests for float right shift (>>).
+  - Tests for float ** integer.
+  - Tests for the A * B ** C optimization.
+  - Tests for float ** float.
+  - The tests for decompose() have been improved.
+  - Tests for ceil(), floor() and trigonometric functions have been
+    added.
+- Tests for the power operator (**) and for the integer >>:= operator
+  have been added to chkint.sd7.
+- Tests for the overflow of shift left (<<) and for the power operator
+  (**) have been added to chkovf.sd7.
+- Tests for string head have been added to chkidx.sd7.
+- Tests for empty if-, while- and repeat-statements have been added to
+  chkprc.sd7.
+- Tests for card(), rand() and assignment have been added to
+  chkset.sd7.
+- Several tests have been added to chkstr.sd7:
+  - Tests for string length.
+  - Tests for string index access.
+  - Tests for the string head function.
+  - Tests for string concatenation.
+  - Tests for string assignment.
+- The phrase "works correct" has been replaced with "works correctly"
+  in the files chk_all.sd7, chkarr.sd7, chkbig.sd7, chkbin.sd7,
+  chkbigdata.sd7, chkbool.sd7, chkbst.sd7, chkchr.sd7, chkcmd.sd7,
+  chkexc.sd7, chkfil.sd7, chkflt.sd7, chkhsh.sd7, chkidx.sd7,
+  chkint.sd7, chkovf.sd7, chkprc.sd7, chkset.sd7 and chkstr.sd7.
+- The value STMT_BLOCK_IN_PARENTHESES_OK has been added to confval.sd7.
+- The initialization of local variables and constants with a single
+  local value has been fixed (in dcllib.c).
+- In flt_rtl.c the function fltLdexp() has been improved to work
+  correctly for infinity, even if ldexp() does not.
+- The program chkccomp.c has been improved to determine
+  LDEXP_OF_INFINITY_OKAY (which defines if ldexp() works for infinity).
+- Documentation comments have been improved in null_file.s7i.
+
 20230422:
 - The compiler option -S to specify the stack size has been added.
   Many thanks to Bruce Axtens for pointing out problems with the
