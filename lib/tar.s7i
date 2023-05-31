@@ -1238,7 +1238,9 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
       end if;
       if appendFile then
         length := length(tar.tarFile);
-        seek(tar.tarFile, succ(length));
+        if seekable(tar.tarFile) then
+          seek(tar.tarFile, succ(length));
+        end if;
         # Add zero bytes such that the next header starts at a multiple of the block size:
         write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
               pred(length) mod TAR_BLOCK_SIZE);
