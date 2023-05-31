@@ -506,3 +506,22 @@ const proc: write (inout gzipWriteFile: outFile, in string: stri) is func
     end if;
     outFile.uncompressed &:= stri;
   end func;
+
+
+(**
+ *  Obtain the length of a file.
+ *  The number of uncompressed characters written to the file.
+ *  @return the length of a file.
+ *)
+const func integer: length (in gzipWriteFile: outFile) is
+  return outFile.uncompressedLength + length(outFile.uncompressed);
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in gzipWriteFile: outFile) is
+  return succ(outFile.uncompressedLength + length(outFile.uncompressed));
