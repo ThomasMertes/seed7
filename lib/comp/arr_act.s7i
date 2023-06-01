@@ -448,7 +448,9 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
       index_value := getValue(evaluatedParam, integer);
       if index_value < arrayMinIdx(anArray) or index_value > arrayMaxIdx(anArray) then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= "(";
+        c_expr.expr &:= type_name(resultType(getType(function)));
+        c_expr.expr &:= ")(raiseError(INDEX_ERROR), 0)";
       else
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(const_table[anArray]);
@@ -462,7 +464,9 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
       if indexRange.maxValue < arrayMinIdx(anArray) or
           indexRange.minValue > arrayMaxIdx(anArray) then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= "(";
+        c_expr.expr &:= type_name(resultType(getType(function)));
+        c_expr.expr &:= ")(raiseError(INDEX_ERROR), 0)";
       else
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(const_table[anArray]);
