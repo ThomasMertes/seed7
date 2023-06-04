@@ -20422,6 +20422,7 @@ const proc: chkModDivision is func
 
 const proc: chkModulo is func
   local
+    var bigInteger: number is 0_;
     var boolean: okay is TRUE;
   begin
     if                          32766_ mod                     1_ <>                     0_ or
@@ -20983,9 +20984,12 @@ const proc: chkModulo is func
         -280223983525050_ mod    -1073741824_ <>       -989781178_ or
         -280223983525050_ mod    -2147483648_ <>       -989781178_ or
         -280223983525050_ mod    -4294967296_ <>      -3137264826_ or
-        -280223983525050_ mod -1099511627776_ <>    -948030069946_ or
+        -280223983525050_ mod -1099511627776_ <>    -948030069946_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (1)");
+      okay := FALSE;
+    end if;
 
-         280223983525050_ mod bigintExpr(             1_) <>                0_ or
+    if   280223983525050_ mod bigintExpr(             1_) <>                0_ or
          280223983525050_ mod bigintExpr(             2_) <>                0_ or
          280223983525050_ mod bigintExpr(             4_) <>                2_ or
          280223983525050_ mod bigintExpr(             8_) <>                2_ or
@@ -21024,9 +21028,12 @@ const proc: chkModulo is func
         -280223983525050_ mod bigintExpr(   -1073741824_) <>       -989781178_ or
         -280223983525050_ mod bigintExpr(   -2147483648_) <>       -989781178_ or
         -280223983525050_ mod bigintExpr(   -4294967296_) <>      -3137264826_ or
-        -280223983525050_ mod bigintExpr(-1099511627776_) <>    -948030069946_ or
+        -280223983525050_ mod bigintExpr(-1099511627776_) <>    -948030069946_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (2)");
+      okay := FALSE;
+    end if;
 
-        bigintExpr( 280223983525050_) mod              1_ <>                0_ or
+    if  bigintExpr( 280223983525050_) mod              1_ <>                0_ or
         bigintExpr( 280223983525050_) mod              2_ <>                0_ or
         bigintExpr( 280223983525050_) mod              4_ <>                2_ or
         bigintExpr( 280223983525050_) mod              8_ <>                2_ or
@@ -21065,9 +21072,12 @@ const proc: chkModulo is func
         bigintExpr(-280223983525050_) mod    -1073741824_ <>       -989781178_ or
         bigintExpr(-280223983525050_) mod    -2147483648_ <>       -989781178_ or
         bigintExpr(-280223983525050_) mod    -4294967296_ <>      -3137264826_ or
-        bigintExpr(-280223983525050_) mod -1099511627776_ <>    -948030069946_ or
+        bigintExpr(-280223983525050_) mod -1099511627776_ <>    -948030069946_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (3)");
+      okay := FALSE;
+    end if;
 
-        bigintExpr( 280223983525050_) mod bigintExpr(             1_) <>                0_ or
+    if  bigintExpr( 280223983525050_) mod bigintExpr(             1_) <>                0_ or
         bigintExpr( 280223983525050_) mod bigintExpr(             2_) <>                0_ or
         bigintExpr( 280223983525050_) mod bigintExpr(             4_) <>                2_ or
         bigintExpr( 280223983525050_) mod bigintExpr(             8_) <>                2_ or
@@ -21106,9 +21116,12 @@ const proc: chkModulo is func
         bigintExpr(-280223983525050_) mod bigintExpr(   -1073741824_) <>       -989781178_ or
         bigintExpr(-280223983525050_) mod bigintExpr(   -2147483648_) <>       -989781178_ or
         bigintExpr(-280223983525050_) mod bigintExpr(   -4294967296_) <>      -3137264826_ or
-        bigintExpr(-280223983525050_) mod bigintExpr(-1099511627776_) <>    -948030069946_ or
+        bigintExpr(-280223983525050_) mod bigintExpr(-1099511627776_) <>    -948030069946_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (4)");
+      okay := FALSE;
+    end if;
 
-         11259375_ mod                       2147483648_ <>                         11259375_ or
+    if   11259375_ mod                       2147483648_ <>                         11259375_ or
          11259375_ mod                       4294967296_ <>                         11259375_ or
          11259375_ mod                       8589934592_ <>                         11259375_ or
          11259375_ mod                    1099511627776_ <>                         11259375_ or
@@ -21163,9 +21176,12 @@ const proc: chkModulo is func
         -11259375_ mod   -39614081257132168796771975168_ <>                        -11259375_ or
         -11259375_ mod   -79228162514264337593543950336_ <>                        -11259375_ or
         -11259375_ mod  -158456325028528675187087900672_ <>                        -11259375_ or
-        -11259375_ mod -1267650600228229401496703205376_ <>                        -11259375_ or
+        -11259375_ mod -1267650600228229401496703205376_ <>                        -11259375_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (5)");
+      okay := FALSE;
+    end if;
 
-         11259375_ mod bigintExpr(                      2147483648_) <>                         11259375_ or
+    if   11259375_ mod bigintExpr(                      2147483648_) <>                         11259375_ or
          11259375_ mod bigintExpr(                      4294967296_) <>                         11259375_ or
          11259375_ mod bigintExpr(                      8589934592_) <>                         11259375_ or
          11259375_ mod bigintExpr(                   1099511627776_) <>                         11259375_ or
@@ -21220,9 +21236,12 @@ const proc: chkModulo is func
         -11259375_ mod bigintExpr(  -39614081257132168796771975168_) <>                        -11259375_ or
         -11259375_ mod bigintExpr(  -79228162514264337593543950336_) <>                        -11259375_ or
         -11259375_ mod bigintExpr( -158456325028528675187087900672_) <>                        -11259375_ or
-        -11259375_ mod bigintExpr(-1267650600228229401496703205376_) <>                        -11259375_ or
+        -11259375_ mod bigintExpr(-1267650600228229401496703205376_) <>                        -11259375_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (6)");
+      okay := FALSE;
+    end if;
 
-        bigintExpr( 11259375_) mod                       2147483648_ <>                         11259375_ or
+    if  bigintExpr( 11259375_) mod                       2147483648_ <>                         11259375_ or
         bigintExpr( 11259375_) mod                       4294967296_ <>                         11259375_ or
         bigintExpr( 11259375_) mod                       8589934592_ <>                         11259375_ or
         bigintExpr( 11259375_) mod                    1099511627776_ <>                         11259375_ or
@@ -21277,9 +21296,12 @@ const proc: chkModulo is func
         bigintExpr(-11259375_) mod   -39614081257132168796771975168_ <>                        -11259375_ or
         bigintExpr(-11259375_) mod   -79228162514264337593543950336_ <>                        -11259375_ or
         bigintExpr(-11259375_) mod  -158456325028528675187087900672_ <>                        -11259375_ or
-        bigintExpr(-11259375_) mod -1267650600228229401496703205376_ <>                        -11259375_ or
+        bigintExpr(-11259375_) mod -1267650600228229401496703205376_ <>                        -11259375_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (7)");
+      okay := FALSE;
+    end if;
 
-        bigintExpr( 11259375_) mod bigintExpr(                      2147483648_) <>                         11259375_ or
+    if  bigintExpr( 11259375_) mod bigintExpr(                      2147483648_) <>                         11259375_ or
         bigintExpr( 11259375_) mod bigintExpr(                      4294967296_) <>                         11259375_ or
         bigintExpr( 11259375_) mod bigintExpr(                      8589934592_) <>                         11259375_ or
         bigintExpr( 11259375_) mod bigintExpr(                   1099511627776_) <>                         11259375_ or
@@ -21335,7 +21357,22 @@ const proc: chkModulo is func
         bigintExpr(-11259375_) mod bigintExpr(  -79228162514264337593543950336_) <>                        -11259375_ or
         bigintExpr(-11259375_) mod bigintExpr( -158456325028528675187087900672_) <>                        -11259375_ or
         bigintExpr(-11259375_) mod bigintExpr(-1267650600228229401496703205376_) <>                        -11259375_ then
-      writeln("Modulo of bigInteger division by power of two does not work correctly.");
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    number := 1000000000000000000000000000100000001000_;
+    if  number mod -170141183460469231731687303715884105728_ <> -20847100762815390390123822195304633368_ or
+        number mod         -1267650600228229401496703205376_ <>         -987484852440527046506015429656_ or
+        number mod               -1208925819614629174706176_ <>               -393056348726989119099928_ or
+        number mod                     -9223372036854775808_ <>                    -2349376422848042008_ or
+        number mod                              -4294967296_ <>                             -3079214104_ or
+        number mod                               4294967296_ <>                              1215753192_ or
+        number mod                      9223372036854775808_ <>                     6873995614006733800_ or
+        number mod                1208925819614629174706176_ <>                815869470887640055606248_ or
+        number mod          1267650600228229401496703205376_ <>          280165747787702354990687775720_ or
+        number mod  170141183460469231731687303715884105728_ <> 149294082697653841341563481520579472360_ then
+      writeln("Modulo of bigInteger division by power of two does not work correctly. (9)");
       okay := FALSE;
     end if;
 
