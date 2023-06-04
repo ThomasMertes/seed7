@@ -142,6 +142,56 @@ const proc: checkShift is func
   end func;
 
 
+const proc: checkAnd is func
+  local
+    var bin64: aBin64 is bin64(0);
+    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
+  begin
+    if  bin64( 3689348814741910323)  & bin64( 3074457345618258602)  <> bin64(2459565876494606882)  or
+        bin64(14757395258967641292_) & bin64(12297829382473034410_) <> bin64(9838263505978427528_) then
+      writeln(" ***** Bin64 & operator does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    aBin64 := bin64( 3689348814741910323);  aBin64 &:= bin64( 3074457345618258602);  ok := ok and aBin64 = bin64(2459565876494606882);
+    aBin64 := bin64(14757395258967641292_); aBin64 &:= bin64(12297829382473034410_); ok := ok and aBin64 = bin64(9838263505978427528_);
+    if not ok then
+      writeln(" ***** Bin64 &:= statement does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bin64 and operator works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkOr is func
+  local
+    var bin64: aBin64 is bin64(0);
+    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
+  begin
+    if  bin64( 3689348814741910323)  | bin64( 3074457345618258602)  <> bin64( 4304240283865562043)  or
+        bin64(14757395258967641292_) | bin64(12297829382473034410_) <> bin64(17216961135462248174_) then
+      writeln(" ***** Bin64 | operator does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    aBin64 := bin64( 3689348814741910323);  aBin64 |:= bin64( 3074457345618258602);  ok := ok and aBin64 = bin64( 4304240283865562043);
+    aBin64 := bin64(14757395258967641292_); aBin64 |:= bin64(12297829382473034410_); ok := ok and aBin64 = bin64(17216961135462248174_);
+    if not ok then
+      writeln(" ***** Bin64 |:= statement does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bin64 or operator works correctly.");
+    end if;
+  end func;
+
+
 const proc: checkBytesBeWithLength is func
   local
     var boolean: okay is TRUE;
@@ -3052,6 +3102,8 @@ const proc: main is func
   begin
     writeln;
     checkShift;
+    checkAnd;
+    checkOr;
     checkBytesBeWithLength;
     checkBytesLeWithLength;
     checkFloat2Bits;
