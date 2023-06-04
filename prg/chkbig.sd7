@@ -15212,6 +15212,1324 @@ const proc: chkSubtractAssign is func
   end func;
 
 
+const func boolean: chkMultiplicationWithConst1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  -3_ * bigintExpr(-18446744073709551617_) <>  55340232221128654851_ or
+        -3_ * bigintExpr(-18446744073709551616_) <>  55340232221128654848_ or
+        -3_ * bigintExpr(-10000000000000000000_) <>  30000000000000000000_ or
+        -3_ * bigintExpr( -1000000000000000000_) <>   3000000000000000000_ or
+        -3_ * bigintExpr(  -100000000000000000_) <>    300000000000000000_ or
+        -3_ * bigintExpr(   -10000000000000000_) <>     30000000000000000_ or
+        -3_ * bigintExpr(    -1000000000000000_) <>      3000000000000000_ or
+        -3_ * bigintExpr(     -100000000000000_) <>       300000000000000_ or
+        -3_ * bigintExpr(      -10000000000000_) <>        30000000000000_ or
+        -3_ * bigintExpr(       -1000000000000_) <>         3000000000000_ or
+        -3_ * bigintExpr(        -100000000000_) <>          300000000000_ or
+        -3_ * bigintExpr(         -10000000000_) <>           30000000000_ or
+        -3_ * bigintExpr(          -4294967297_) <>           12884901891_ or
+        -3_ * bigintExpr(          -4294967296_) <>           12884901888_ or
+        -3_ * bigintExpr(          -1000000000_) <>            3000000000_ or
+        -3_ * bigintExpr(           -100000000_) <>             300000000_ or
+        -3_ * bigintExpr(            -10000000_) <>              30000000_ or
+        -3_ * bigintExpr(             -1000000_) <>               3000000_ or
+        -3_ * bigintExpr(              -100000_) <>                300000_ or
+        -3_ * bigintExpr(               -65537_) <>                196611_ or
+        -3_ * bigintExpr(               -65536_) <>                196608_ or
+        -3_ * bigintExpr(               -10000_) <>                 30000_ or
+        -3_ * bigintExpr(                -1000_) <>                  3000_ or
+        -3_ * bigintExpr(                 -257_) <>                   771_ or
+        -3_ * bigintExpr(                 -256_) <>                   768_ or
+        -3_ * bigintExpr(                  -10_) <>                    30_ or
+        -3_ * bigintExpr(                   -4_) <>                    12_ or
+        -3_ * bigintExpr(                   -3_) <>                     9_ or
+        -3_ * bigintExpr(                   -2_) <>                     6_ or
+        -3_ * bigintExpr(                   -1_) <>                     3_ or
+        -3_ * bigintExpr(                    0_) <>                     0_ or
+        -3_ * bigintExpr(                    1_) <>                    -3_ or
+        -3_ * bigintExpr(                    2_) <>                    -6_ or
+        -3_ * bigintExpr(                    3_) <>                    -9_ or
+        -3_ * bigintExpr(                    4_) <>                   -12_ or
+        -3_ * bigintExpr(                   10_) <>                   -30_ or
+        -3_ * bigintExpr(                  255_) <>                  -765_ or
+        -3_ * bigintExpr(                  256_) <>                  -768_ or
+        -3_ * bigintExpr(                 1000_) <>                 -3000_ or
+        -3_ * bigintExpr(                10000_) <>                -30000_ or
+        -3_ * bigintExpr(                65535_) <>               -196605_ or
+        -3_ * bigintExpr(                65536_) <>               -196608_ or
+        -3_ * bigintExpr(               100000_) <>               -300000_ or
+        -3_ * bigintExpr(              1000000_) <>              -3000000_ or
+        -3_ * bigintExpr(             10000000_) <>             -30000000_ or
+        -3_ * bigintExpr(            100000000_) <>            -300000000_ or
+        -3_ * bigintExpr(           1000000000_) <>           -3000000000_ or
+        -3_ * bigintExpr(           4294967295_) <>          -12884901885_ or
+        -3_ * bigintExpr(           4294967296_) <>          -12884901888_ or
+        -3_ * bigintExpr(          10000000000_) <>          -30000000000_ or
+        -3_ * bigintExpr(         100000000000_) <>         -300000000000_ or
+        -3_ * bigintExpr(        1000000000000_) <>        -3000000000000_ or
+        -3_ * bigintExpr(       10000000000000_) <>       -30000000000000_ or
+        -3_ * bigintExpr(      100000000000000_) <>      -300000000000000_ or
+        -3_ * bigintExpr(     1000000000000000_) <>     -3000000000000000_ or
+        -3_ * bigintExpr(    10000000000000000_) <>    -30000000000000000_ or
+        -3_ * bigintExpr(   100000000000000000_) <>   -300000000000000000_ or
+        -3_ * bigintExpr(  1000000000000000000_) <>  -3000000000000000000_ or
+        -3_ * bigintExpr( 10000000000000000000_) <> -30000000000000000000_ or
+        -3_ * bigintExpr( 18446744073709551615_) <> -55340232221128654845_ or
+        -3_ * bigintExpr( 18446744073709551616_) <> -55340232221128654848_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  -2_ * bigintExpr(-18446744073709551617_) <>  36893488147419103234_ or
+        -2_ * bigintExpr(-18446744073709551616_) <>  36893488147419103232_ or
+        -2_ * bigintExpr(-10000000000000000000_) <>  20000000000000000000_ or
+        -2_ * bigintExpr( -1000000000000000000_) <>   2000000000000000000_ or
+        -2_ * bigintExpr(  -100000000000000000_) <>    200000000000000000_ or
+        -2_ * bigintExpr(   -10000000000000000_) <>     20000000000000000_ or
+        -2_ * bigintExpr(    -1000000000000000_) <>      2000000000000000_ or
+        -2_ * bigintExpr(     -100000000000000_) <>       200000000000000_ or
+        -2_ * bigintExpr(      -10000000000000_) <>        20000000000000_ or
+        -2_ * bigintExpr(       -1000000000000_) <>         2000000000000_ or
+        -2_ * bigintExpr(        -100000000000_) <>          200000000000_ or
+        -2_ * bigintExpr(         -10000000000_) <>           20000000000_ or
+        -2_ * bigintExpr(          -4294967297_) <>            8589934594_ or
+        -2_ * bigintExpr(          -4294967296_) <>            8589934592_ or
+        -2_ * bigintExpr(          -1000000000_) <>            2000000000_ or
+        -2_ * bigintExpr(           -100000000_) <>             200000000_ or
+        -2_ * bigintExpr(            -10000000_) <>              20000000_ or
+        -2_ * bigintExpr(             -1000000_) <>               2000000_ or
+        -2_ * bigintExpr(              -100000_) <>                200000_ or
+        -2_ * bigintExpr(               -65537_) <>                131074_ or
+        -2_ * bigintExpr(               -65536_) <>                131072_ or
+        -2_ * bigintExpr(               -10000_) <>                 20000_ or
+        -2_ * bigintExpr(                -1000_) <>                  2000_ or
+        -2_ * bigintExpr(                 -257_) <>                   514_ or
+        -2_ * bigintExpr(                 -256_) <>                   512_ or
+        -2_ * bigintExpr(                  -10_) <>                    20_ or
+        -2_ * bigintExpr(                   -4_) <>                     8_ or
+        -2_ * bigintExpr(                   -3_) <>                     6_ or
+        -2_ * bigintExpr(                   -2_) <>                     4_ or
+        -2_ * bigintExpr(                   -1_) <>                     2_ or
+        -2_ * bigintExpr(                    0_) <>                     0_ or
+        -2_ * bigintExpr(                    1_) <>                    -2_ or
+        -2_ * bigintExpr(                    2_) <>                    -4_ or
+        -2_ * bigintExpr(                    3_) <>                    -6_ or
+        -2_ * bigintExpr(                    4_) <>                    -8_ or
+        -2_ * bigintExpr(                   10_) <>                   -20_ or
+        -2_ * bigintExpr(                  255_) <>                  -510_ or
+        -2_ * bigintExpr(                  256_) <>                  -512_ or
+        -2_ * bigintExpr(                 1000_) <>                 -2000_ or
+        -2_ * bigintExpr(                10000_) <>                -20000_ or
+        -2_ * bigintExpr(                65535_) <>               -131070_ or
+        -2_ * bigintExpr(                65536_) <>               -131072_ or
+        -2_ * bigintExpr(               100000_) <>               -200000_ or
+        -2_ * bigintExpr(              1000000_) <>              -2000000_ or
+        -2_ * bigintExpr(             10000000_) <>             -20000000_ or
+        -2_ * bigintExpr(            100000000_) <>            -200000000_ or
+        -2_ * bigintExpr(           1000000000_) <>           -2000000000_ or
+        -2_ * bigintExpr(           4294967295_) <>           -8589934590_ or
+        -2_ * bigintExpr(           4294967296_) <>           -8589934592_ or
+        -2_ * bigintExpr(          10000000000_) <>          -20000000000_ or
+        -2_ * bigintExpr(         100000000000_) <>         -200000000000_ or
+        -2_ * bigintExpr(        1000000000000_) <>        -2000000000000_ or
+        -2_ * bigintExpr(       10000000000000_) <>       -20000000000000_ or
+        -2_ * bigintExpr(      100000000000000_) <>      -200000000000000_ or
+        -2_ * bigintExpr(     1000000000000000_) <>     -2000000000000000_ or
+        -2_ * bigintExpr(    10000000000000000_) <>    -20000000000000000_ or
+        -2_ * bigintExpr(   100000000000000000_) <>   -200000000000000000_ or
+        -2_ * bigintExpr(  1000000000000000000_) <>  -2000000000000000000_ or
+        -2_ * bigintExpr( 10000000000000000000_) <> -20000000000000000000_ or
+        -2_ * bigintExpr( 18446744073709551615_) <> -36893488147419103230_ or
+        -2_ * bigintExpr( 18446744073709551616_) <> -36893488147419103232_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -1_ * bigintExpr(-18446744073709551617_) <>  18446744073709551617_ or
+        -1_ * bigintExpr(-18446744073709551616_) <>  18446744073709551616_ or
+        -1_ * bigintExpr(-10000000000000000000_) <>  10000000000000000000_ or
+        -1_ * bigintExpr( -1000000000000000000_) <>   1000000000000000000_ or
+        -1_ * bigintExpr(  -100000000000000000_) <>    100000000000000000_ or
+        -1_ * bigintExpr(   -10000000000000000_) <>     10000000000000000_ or
+        -1_ * bigintExpr(    -1000000000000000_) <>      1000000000000000_ or
+        -1_ * bigintExpr(     -100000000000000_) <>       100000000000000_ or
+        -1_ * bigintExpr(      -10000000000000_) <>        10000000000000_ or
+        -1_ * bigintExpr(       -1000000000000_) <>         1000000000000_ or
+        -1_ * bigintExpr(        -100000000000_) <>          100000000000_ or
+        -1_ * bigintExpr(         -10000000000_) <>           10000000000_ or
+        -1_ * bigintExpr(          -4294967297_) <>            4294967297_ or
+        -1_ * bigintExpr(          -4294967296_) <>            4294967296_ or
+        -1_ * bigintExpr(          -1000000000_) <>            1000000000_ or
+        -1_ * bigintExpr(           -100000000_) <>             100000000_ or
+        -1_ * bigintExpr(            -10000000_) <>              10000000_ or
+        -1_ * bigintExpr(             -1000000_) <>               1000000_ or
+        -1_ * bigintExpr(              -100000_) <>                100000_ or
+        -1_ * bigintExpr(               -65537_) <>                 65537_ or
+        -1_ * bigintExpr(               -65536_) <>                 65536_ or
+        -1_ * bigintExpr(               -10000_) <>                 10000_ or
+        -1_ * bigintExpr(                -1000_) <>                  1000_ or
+        -1_ * bigintExpr(                 -257_) <>                   257_ or
+        -1_ * bigintExpr(                 -256_) <>                   256_ or
+        -1_ * bigintExpr(                  -10_) <>                    10_ or
+        -1_ * bigintExpr(                   -4_) <>                     4_ or
+        -1_ * bigintExpr(                   -3_) <>                     3_ or
+        -1_ * bigintExpr(                   -2_) <>                     2_ or
+        -1_ * bigintExpr(                   -1_) <>                     1_ or
+        -1_ * bigintExpr(                    0_) <>                     0_ or
+        -1_ * bigintExpr(                    1_) <>                    -1_ or
+        -1_ * bigintExpr(                    2_) <>                    -2_ or
+        -1_ * bigintExpr(                    3_) <>                    -3_ or
+        -1_ * bigintExpr(                    4_) <>                    -4_ or
+        -1_ * bigintExpr(                   10_) <>                   -10_ or
+        -1_ * bigintExpr(                  255_) <>                  -255_ or
+        -1_ * bigintExpr(                  256_) <>                  -256_ or
+        -1_ * bigintExpr(                 1000_) <>                 -1000_ or
+        -1_ * bigintExpr(                10000_) <>                -10000_ or
+        -1_ * bigintExpr(                65535_) <>                -65535_ or
+        -1_ * bigintExpr(                65536_) <>                -65536_ or
+        -1_ * bigintExpr(               100000_) <>               -100000_ or
+        -1_ * bigintExpr(              1000000_) <>              -1000000_ or
+        -1_ * bigintExpr(             10000000_) <>             -10000000_ or
+        -1_ * bigintExpr(            100000000_) <>            -100000000_ or
+        -1_ * bigintExpr(           1000000000_) <>           -1000000000_ or
+        -1_ * bigintExpr(           4294967295_) <>           -4294967295_ or
+        -1_ * bigintExpr(           4294967296_) <>           -4294967296_ or
+        -1_ * bigintExpr(          10000000000_) <>          -10000000000_ or
+        -1_ * bigintExpr(         100000000000_) <>         -100000000000_ or
+        -1_ * bigintExpr(        1000000000000_) <>        -1000000000000_ or
+        -1_ * bigintExpr(       10000000000000_) <>       -10000000000000_ or
+        -1_ * bigintExpr(      100000000000000_) <>      -100000000000000_ or
+        -1_ * bigintExpr(     1000000000000000_) <>     -1000000000000000_ or
+        -1_ * bigintExpr(    10000000000000000_) <>    -10000000000000000_ or
+        -1_ * bigintExpr(   100000000000000000_) <>   -100000000000000000_ or
+        -1_ * bigintExpr(  1000000000000000000_) <>  -1000000000000000000_ or
+        -1_ * bigintExpr( 10000000000000000000_) <> -10000000000000000000_ or
+        -1_ * bigintExpr( 18446744073709551615_) <> -18446744073709551615_ or
+        -1_ * bigintExpr( 18446744073709551616_) <> -18446744073709551616_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if   0_ * bigintExpr(-18446744073709551617_) <> 0_ or
+         0_ * bigintExpr(-18446744073709551616_) <> 0_ or
+         0_ * bigintExpr(-10000000000000000000_) <> 0_ or
+         0_ * bigintExpr( -1000000000000000000_) <> 0_ or
+         0_ * bigintExpr(  -100000000000000000_) <> 0_ or
+         0_ * bigintExpr(   -10000000000000000_) <> 0_ or
+         0_ * bigintExpr(    -1000000000000000_) <> 0_ or
+         0_ * bigintExpr(     -100000000000000_) <> 0_ or
+         0_ * bigintExpr(      -10000000000000_) <> 0_ or
+         0_ * bigintExpr(       -1000000000000_) <> 0_ or
+         0_ * bigintExpr(        -100000000000_) <> 0_ or
+         0_ * bigintExpr(         -10000000000_) <> 0_ or
+         0_ * bigintExpr(          -4294967297_) <> 0_ or
+         0_ * bigintExpr(          -4294967296_) <> 0_ or
+         0_ * bigintExpr(          -1000000000_) <> 0_ or
+         0_ * bigintExpr(           -100000000_) <> 0_ or
+         0_ * bigintExpr(            -10000000_) <> 0_ or
+         0_ * bigintExpr(             -1000000_) <> 0_ or
+         0_ * bigintExpr(              -100000_) <> 0_ or
+         0_ * bigintExpr(               -65536_) <> 0_ or
+         0_ * bigintExpr(               -65536_) <> 0_ or
+         0_ * bigintExpr(               -10000_) <> 0_ or
+         0_ * bigintExpr(                -1000_) <> 0_ or
+         0_ * bigintExpr(                 -257_) <> 0_ or
+         0_ * bigintExpr(                 -256_) <> 0_ or
+         0_ * bigintExpr(                  -10_) <> 0_ or
+         0_ * bigintExpr(                   -4_) <> 0_ or
+         0_ * bigintExpr(                   -3_) <> 0_ or
+         0_ * bigintExpr(                   -2_) <> 0_ or
+         0_ * bigintExpr(                   -1_) <> 0_ or
+         0_ * bigintExpr(                    0_) <> 0_ or
+         0_ * bigintExpr(                    1_) <> 0_ or
+         0_ * bigintExpr(                    2_) <> 0_ or
+         0_ * bigintExpr(                    3_) <> 0_ or
+         0_ * bigintExpr(                    4_) <> 0_ or
+         0_ * bigintExpr(                   10_) <> 0_ or
+         0_ * bigintExpr(                  255_) <> 0_ or
+         0_ * bigintExpr(                  256_) <> 0_ or
+         0_ * bigintExpr(                 1000_) <> 0_ or
+         0_ * bigintExpr(                10000_) <> 0_ or
+         0_ * bigintExpr(                65535_) <> 0_ or
+         0_ * bigintExpr(                65536_) <> 0_ or
+         0_ * bigintExpr(               100000_) <> 0_ or
+         0_ * bigintExpr(              1000000_) <> 0_ or
+         0_ * bigintExpr(             10000000_) <> 0_ or
+         0_ * bigintExpr(            100000000_) <> 0_ or
+         0_ * bigintExpr(           1000000000_) <> 0_ or
+         0_ * bigintExpr(           4294967295_) <> 0_ or
+         0_ * bigintExpr(           4294967296_) <> 0_ or
+         0_ * bigintExpr(          10000000000_) <> 0_ or
+         0_ * bigintExpr(         100000000000_) <> 0_ or
+         0_ * bigintExpr(        1000000000000_) <> 0_ or
+         0_ * bigintExpr(       10000000000000_) <> 0_ or
+         0_ * bigintExpr(      100000000000000_) <> 0_ or
+         0_ * bigintExpr(     1000000000000000_) <> 0_ or
+         0_ * bigintExpr(    10000000000000000_) <> 0_ or
+         0_ * bigintExpr(   100000000000000000_) <> 0_ or
+         0_ * bigintExpr(  1000000000000000000_) <> 0_ or
+         0_ * bigintExpr( 10000000000000000000_) <> 0_ or
+         0_ * bigintExpr( 18446744073709551615_) <> 0_ or
+         0_ * bigintExpr( 18446744073709551616_) <> 0_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if   1_ * bigintExpr(-18446744073709551617_) <> -18446744073709551617_ or
+         1_ * bigintExpr(-18446744073709551616_) <> -18446744073709551616_ or
+         1_ * bigintExpr(-10000000000000000000_) <> -10000000000000000000_ or
+         1_ * bigintExpr( -1000000000000000000_) <>  -1000000000000000000_ or
+         1_ * bigintExpr(  -100000000000000000_) <>   -100000000000000000_ or
+         1_ * bigintExpr(   -10000000000000000_) <>    -10000000000000000_ or
+         1_ * bigintExpr(    -1000000000000000_) <>     -1000000000000000_ or
+         1_ * bigintExpr(     -100000000000000_) <>      -100000000000000_ or
+         1_ * bigintExpr(      -10000000000000_) <>       -10000000000000_ or
+         1_ * bigintExpr(       -1000000000000_) <>        -1000000000000_ or
+         1_ * bigintExpr(        -100000000000_) <>         -100000000000_ or
+         1_ * bigintExpr(         -10000000000_) <>          -10000000000_ or
+         1_ * bigintExpr(          -4294967297_) <>           -4294967297_ or
+         1_ * bigintExpr(          -4294967296_) <>           -4294967296_ or
+         1_ * bigintExpr(          -1000000000_) <>           -1000000000_ or
+         1_ * bigintExpr(           -100000000_) <>            -100000000_ or
+         1_ * bigintExpr(            -10000000_) <>             -10000000_ or
+         1_ * bigintExpr(             -1000000_) <>              -1000000_ or
+         1_ * bigintExpr(              -100000_) <>               -100000_ or
+         1_ * bigintExpr(               -65537_) <>                -65537_ or
+         1_ * bigintExpr(               -65536_) <>                -65536_ or
+         1_ * bigintExpr(               -10000_) <>                -10000_ or
+         1_ * bigintExpr(                -1000_) <>                 -1000_ or
+         1_ * bigintExpr(                 -257_) <>                  -257_ or
+         1_ * bigintExpr(                 -256_) <>                  -256_ or
+         1_ * bigintExpr(                  -10_) <>                   -10_ or
+         1_ * bigintExpr(                   -4_) <>                    -4_ or
+         1_ * bigintExpr(                   -3_) <>                    -3_ or
+         1_ * bigintExpr(                   -2_) <>                    -2_ or
+         1_ * bigintExpr(                   -1_) <>                    -1_ or
+         1_ * bigintExpr(                    0_) <>                     0_ or
+         1_ * bigintExpr(                    1_) <>                     1_ or
+         1_ * bigintExpr(                    2_) <>                     2_ or
+         1_ * bigintExpr(                    3_) <>                     3_ or
+         1_ * bigintExpr(                    4_) <>                     4_ or
+         1_ * bigintExpr(                   10_) <>                    10_ or
+         1_ * bigintExpr(                  255_) <>                   255_ or
+         1_ * bigintExpr(                  256_) <>                   256_ or
+         1_ * bigintExpr(                 1000_) <>                  1000_ or
+         1_ * bigintExpr(                10000_) <>                 10000_ or
+         1_ * bigintExpr(                65535_) <>                 65535_ or
+         1_ * bigintExpr(                65536_) <>                 65536_ or
+         1_ * bigintExpr(               100000_) <>                100000_ or
+         1_ * bigintExpr(              1000000_) <>               1000000_ or
+         1_ * bigintExpr(             10000000_) <>              10000000_ or
+         1_ * bigintExpr(            100000000_) <>             100000000_ or
+         1_ * bigintExpr(           1000000000_) <>            1000000000_ or
+         1_ * bigintExpr(           4294967295_) <>            4294967295_ or
+         1_ * bigintExpr(           4294967296_) <>            4294967296_ or
+         1_ * bigintExpr(          10000000000_) <>           10000000000_ or
+         1_ * bigintExpr(         100000000000_) <>          100000000000_ or
+         1_ * bigintExpr(        1000000000000_) <>         1000000000000_ or
+         1_ * bigintExpr(       10000000000000_) <>        10000000000000_ or
+         1_ * bigintExpr(      100000000000000_) <>       100000000000000_ or
+         1_ * bigintExpr(     1000000000000000_) <>      1000000000000000_ or
+         1_ * bigintExpr(    10000000000000000_) <>     10000000000000000_ or
+         1_ * bigintExpr(   100000000000000000_) <>    100000000000000000_ or
+         1_ * bigintExpr(  1000000000000000000_) <>   1000000000000000000_ or
+         1_ * bigintExpr( 10000000000000000000_) <>  10000000000000000000_ or
+         1_ * bigintExpr( 18446744073709551615_) <>  18446744073709551615_ or
+         1_ * bigintExpr( 18446744073709551616_) <>  18446744073709551616_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if   2_ * bigintExpr(-18446744073709551617_) <> -36893488147419103234_ or
+         2_ * bigintExpr(-18446744073709551616_) <> -36893488147419103232_ or
+         2_ * bigintExpr(-10000000000000000000_) <> -20000000000000000000_ or
+         2_ * bigintExpr( -1000000000000000000_) <>  -2000000000000000000_ or
+         2_ * bigintExpr(  -100000000000000000_) <>   -200000000000000000_ or
+         2_ * bigintExpr(   -10000000000000000_) <>    -20000000000000000_ or
+         2_ * bigintExpr(    -1000000000000000_) <>     -2000000000000000_ or
+         2_ * bigintExpr(     -100000000000000_) <>      -200000000000000_ or
+         2_ * bigintExpr(      -10000000000000_) <>       -20000000000000_ or
+         2_ * bigintExpr(       -1000000000000_) <>        -2000000000000_ or
+         2_ * bigintExpr(        -100000000000_) <>         -200000000000_ or
+         2_ * bigintExpr(         -10000000000_) <>          -20000000000_ or
+         2_ * bigintExpr(          -4294967297_) <>           -8589934594_ or
+         2_ * bigintExpr(          -4294967296_) <>           -8589934592_ or
+         2_ * bigintExpr(          -1000000000_) <>           -2000000000_ or
+         2_ * bigintExpr(           -100000000_) <>            -200000000_ or
+         2_ * bigintExpr(            -10000000_) <>             -20000000_ or
+         2_ * bigintExpr(             -1000000_) <>              -2000000_ or
+         2_ * bigintExpr(              -100000_) <>               -200000_ or
+         2_ * bigintExpr(               -65537_) <>               -131074_ or
+         2_ * bigintExpr(               -65536_) <>               -131072_ or
+         2_ * bigintExpr(               -10000_) <>                -20000_ or
+         2_ * bigintExpr(                -1000_) <>                 -2000_ or
+         2_ * bigintExpr(                 -257_) <>                  -514_ or
+         2_ * bigintExpr(                 -256_) <>                  -512_ or
+         2_ * bigintExpr(                  -10_) <>                   -20_ or
+         2_ * bigintExpr(                   -4_) <>                    -8_ or
+         2_ * bigintExpr(                   -3_) <>                    -6_ or
+         2_ * bigintExpr(                   -2_) <>                    -4_ or
+         2_ * bigintExpr(                   -1_) <>                    -2_ or
+         2_ * bigintExpr(                    0_) <>                     0_ or
+         2_ * bigintExpr(                    1_) <>                     2_ or
+         2_ * bigintExpr(                    2_) <>                     4_ or
+         2_ * bigintExpr(                    3_) <>                     6_ or
+         2_ * bigintExpr(                    4_) <>                     8_ or
+         2_ * bigintExpr(                   10_) <>                    20_ or
+         2_ * bigintExpr(                  255_) <>                   510_ or
+         2_ * bigintExpr(                  256_) <>                   512_ or
+         2_ * bigintExpr(                 1000_) <>                  2000_ or
+         2_ * bigintExpr(                10000_) <>                 20000_ or
+         2_ * bigintExpr(                65535_) <>                131070_ or
+         2_ * bigintExpr(                65536_) <>                131072_ or
+         2_ * bigintExpr(               100000_) <>                200000_ or
+         2_ * bigintExpr(              1000000_) <>               2000000_ or
+         2_ * bigintExpr(             10000000_) <>              20000000_ or
+         2_ * bigintExpr(            100000000_) <>             200000000_ or
+         2_ * bigintExpr(           1000000000_) <>            2000000000_ or
+         2_ * bigintExpr(           4294967295_) <>            8589934590_ or
+         2_ * bigintExpr(           4294967296_) <>            8589934592_ or
+         2_ * bigintExpr(          10000000000_) <>           20000000000_ or
+         2_ * bigintExpr(         100000000000_) <>          200000000000_ or
+         2_ * bigintExpr(        1000000000000_) <>         2000000000000_ or
+         2_ * bigintExpr(       10000000000000_) <>        20000000000000_ or
+         2_ * bigintExpr(      100000000000000_) <>       200000000000000_ or
+         2_ * bigintExpr(     1000000000000000_) <>      2000000000000000_ or
+         2_ * bigintExpr(    10000000000000000_) <>     20000000000000000_ or
+         2_ * bigintExpr(   100000000000000000_) <>    200000000000000000_ or
+         2_ * bigintExpr(  1000000000000000000_) <>   2000000000000000000_ or
+         2_ * bigintExpr( 10000000000000000000_) <>  20000000000000000000_ or
+         2_ * bigintExpr( 18446744073709551615_) <>  36893488147419103230_ or
+         2_ * bigintExpr( 18446744073709551616_) <>  36893488147419103232_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if   3_ * bigintExpr(-18446744073709551617_) <> -55340232221128654851_ or
+         3_ * bigintExpr(-18446744073709551616_) <> -55340232221128654848_ or
+         3_ * bigintExpr(-10000000000000000000_) <> -30000000000000000000_ or
+         3_ * bigintExpr( -1000000000000000000_) <>  -3000000000000000000_ or
+         3_ * bigintExpr(  -100000000000000000_) <>   -300000000000000000_ or
+         3_ * bigintExpr(   -10000000000000000_) <>    -30000000000000000_ or
+         3_ * bigintExpr(    -1000000000000000_) <>     -3000000000000000_ or
+         3_ * bigintExpr(     -100000000000000_) <>      -300000000000000_ or
+         3_ * bigintExpr(      -10000000000000_) <>       -30000000000000_ or
+         3_ * bigintExpr(       -1000000000000_) <>        -3000000000000_ or
+         3_ * bigintExpr(        -100000000000_) <>         -300000000000_ or
+         3_ * bigintExpr(         -10000000000_) <>          -30000000000_ or
+         3_ * bigintExpr(          -4294967297_) <>          -12884901891_ or
+         3_ * bigintExpr(          -4294967296_) <>          -12884901888_ or
+         3_ * bigintExpr(          -1000000000_) <>           -3000000000_ or
+         3_ * bigintExpr(           -100000000_) <>            -300000000_ or
+         3_ * bigintExpr(            -10000000_) <>             -30000000_ or
+         3_ * bigintExpr(             -1000000_) <>              -3000000_ or
+         3_ * bigintExpr(              -100000_) <>               -300000_ or
+         3_ * bigintExpr(               -65537_) <>               -196611_ or
+         3_ * bigintExpr(               -65536_) <>               -196608_ or
+         3_ * bigintExpr(               -10000_) <>                -30000_ or
+         3_ * bigintExpr(                -1000_) <>                 -3000_ or
+         3_ * bigintExpr(                 -257_) <>                  -771_ or
+         3_ * bigintExpr(                 -256_) <>                  -768_ or
+         3_ * bigintExpr(                  -10_) <>                   -30_ or
+         3_ * bigintExpr(                   -4_) <>                   -12_ or
+         3_ * bigintExpr(                   -3_) <>                    -9_ or
+         3_ * bigintExpr(                   -2_) <>                    -6_ or
+         3_ * bigintExpr(                   -1_) <>                    -3_ or
+         3_ * bigintExpr(                    0_) <>                     0_ or
+         3_ * bigintExpr(                    1_) <>                     3_ or
+         3_ * bigintExpr(                    2_) <>                     6_ or
+         3_ * bigintExpr(                    3_) <>                     9_ or
+         3_ * bigintExpr(                    4_) <>                    12_ or
+         3_ * bigintExpr(                   10_) <>                    30_ or
+         3_ * bigintExpr(                  255_) <>                   765_ or
+         3_ * bigintExpr(                  256_) <>                   768_ or
+         3_ * bigintExpr(                 1000_) <>                  3000_ or
+         3_ * bigintExpr(                10000_) <>                 30000_ or
+         3_ * bigintExpr(                65535_) <>                196605_ or
+         3_ * bigintExpr(                65536_) <>                196608_ or
+         3_ * bigintExpr(               100000_) <>                300000_ or
+         3_ * bigintExpr(              1000000_) <>               3000000_ or
+         3_ * bigintExpr(             10000000_) <>              30000000_ or
+         3_ * bigintExpr(            100000000_) <>             300000000_ or
+         3_ * bigintExpr(           1000000000_) <>            3000000000_ or
+         3_ * bigintExpr(           4294967295_) <>           12884901885_ or
+         3_ * bigintExpr(           4294967296_) <>           12884901888_ or
+         3_ * bigintExpr(          10000000000_) <>           30000000000_ or
+         3_ * bigintExpr(         100000000000_) <>          300000000000_ or
+         3_ * bigintExpr(        1000000000000_) <>         3000000000000_ or
+         3_ * bigintExpr(       10000000000000_) <>        30000000000000_ or
+         3_ * bigintExpr(      100000000000000_) <>       300000000000000_ or
+         3_ * bigintExpr(     1000000000000000_) <>      3000000000000000_ or
+         3_ * bigintExpr(    10000000000000000_) <>     30000000000000000_ or
+         3_ * bigintExpr(   100000000000000000_) <>    300000000000000000_ or
+         3_ * bigintExpr(  1000000000000000000_) <>   3000000000000000000_ or
+         3_ * bigintExpr( 10000000000000000000_) <>  30000000000000000000_ or
+         3_ * bigintExpr( 18446744073709551615_) <>  55340232221128654845_ or
+         3_ * bigintExpr( 18446744073709551616_) <>  55340232221128654848_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: chkMultiplicationWithConst2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bigintExpr(-18446744073709551617_) * -3_ <>  55340232221128654851_ or
+        bigintExpr(-18446744073709551616_) * -3_ <>  55340232221128654848_ or
+        bigintExpr(-10000000000000000000_) * -3_ <>  30000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -3_ <>   3000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -3_ <>    300000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -3_ <>     30000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -3_ <>      3000000000000000_ or
+        bigintExpr(     -100000000000000_) * -3_ <>       300000000000000_ or
+        bigintExpr(      -10000000000000_) * -3_ <>        30000000000000_ or
+        bigintExpr(       -1000000000000_) * -3_ <>         3000000000000_ or
+        bigintExpr(        -100000000000_) * -3_ <>          300000000000_ or
+        bigintExpr(         -10000000000_) * -3_ <>           30000000000_ or
+        bigintExpr(          -4294967297_) * -3_ <>           12884901891_ or
+        bigintExpr(          -4294967296_) * -3_ <>           12884901888_ or
+        bigintExpr(          -1000000000_) * -3_ <>            3000000000_ or
+        bigintExpr(           -100000000_) * -3_ <>             300000000_ or
+        bigintExpr(            -10000000_) * -3_ <>              30000000_ or
+        bigintExpr(             -1000000_) * -3_ <>               3000000_ or
+        bigintExpr(              -100000_) * -3_ <>                300000_ or
+        bigintExpr(               -65537_) * -3_ <>                196611_ or
+        bigintExpr(               -65536_) * -3_ <>                196608_ or
+        bigintExpr(               -10000_) * -3_ <>                 30000_ or
+        bigintExpr(                -1000_) * -3_ <>                  3000_ or
+        bigintExpr(                 -257_) * -3_ <>                   771_ or
+        bigintExpr(                 -256_) * -3_ <>                   768_ or
+        bigintExpr(                  -10_) * -3_ <>                    30_ or
+        bigintExpr(                   -4_) * -3_ <>                    12_ or
+        bigintExpr(                   -3_) * -3_ <>                     9_ or
+        bigintExpr(                   -2_) * -3_ <>                     6_ or
+        bigintExpr(                   -1_) * -3_ <>                     3_ or
+        bigintExpr(                    0_) * -3_ <>                     0_ or
+        bigintExpr(                    1_) * -3_ <>                    -3_ or
+        bigintExpr(                    2_) * -3_ <>                    -6_ or
+        bigintExpr(                    3_) * -3_ <>                    -9_ or
+        bigintExpr(                    4_) * -3_ <>                   -12_ or
+        bigintExpr(                   10_) * -3_ <>                   -30_ or
+        bigintExpr(                  255_) * -3_ <>                  -765_ or
+        bigintExpr(                  256_) * -3_ <>                  -768_ or
+        bigintExpr(                 1000_) * -3_ <>                 -3000_ or
+        bigintExpr(                10000_) * -3_ <>                -30000_ or
+        bigintExpr(                65535_) * -3_ <>               -196605_ or
+        bigintExpr(                65536_) * -3_ <>               -196608_ or
+        bigintExpr(               100000_) * -3_ <>               -300000_ or
+        bigintExpr(              1000000_) * -3_ <>              -3000000_ or
+        bigintExpr(             10000000_) * -3_ <>             -30000000_ or
+        bigintExpr(            100000000_) * -3_ <>            -300000000_ or
+        bigintExpr(           1000000000_) * -3_ <>           -3000000000_ or
+        bigintExpr(           4294967295_) * -3_ <>          -12884901885_ or
+        bigintExpr(           4294967296_) * -3_ <>          -12884901888_ or
+        bigintExpr(          10000000000_) * -3_ <>          -30000000000_ or
+        bigintExpr(         100000000000_) * -3_ <>         -300000000000_ or
+        bigintExpr(        1000000000000_) * -3_ <>        -3000000000000_ or
+        bigintExpr(       10000000000000_) * -3_ <>       -30000000000000_ or
+        bigintExpr(      100000000000000_) * -3_ <>      -300000000000000_ or
+        bigintExpr(     1000000000000000_) * -3_ <>     -3000000000000000_ or
+        bigintExpr(    10000000000000000_) * -3_ <>    -30000000000000000_ or
+        bigintExpr(   100000000000000000_) * -3_ <>   -300000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -3_ <>  -3000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -3_ <> -30000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -3_ <> -55340232221128654845_ or
+        bigintExpr( 18446744073709551616_) * -3_ <> -55340232221128654848_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -2_ <>  36893488147419103234_ or
+        bigintExpr(-18446744073709551616_) * -2_ <>  36893488147419103232_ or
+        bigintExpr(-10000000000000000000_) * -2_ <>  20000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -2_ <>   2000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -2_ <>    200000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -2_ <>     20000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -2_ <>      2000000000000000_ or
+        bigintExpr(     -100000000000000_) * -2_ <>       200000000000000_ or
+        bigintExpr(      -10000000000000_) * -2_ <>        20000000000000_ or
+        bigintExpr(       -1000000000000_) * -2_ <>         2000000000000_ or
+        bigintExpr(        -100000000000_) * -2_ <>          200000000000_ or
+        bigintExpr(         -10000000000_) * -2_ <>           20000000000_ or
+        bigintExpr(          -4294967297_) * -2_ <>            8589934594_ or
+        bigintExpr(          -4294967296_) * -2_ <>            8589934592_ or
+        bigintExpr(          -1000000000_) * -2_ <>            2000000000_ or
+        bigintExpr(           -100000000_) * -2_ <>             200000000_ or
+        bigintExpr(            -10000000_) * -2_ <>              20000000_ or
+        bigintExpr(             -1000000_) * -2_ <>               2000000_ or
+        bigintExpr(              -100000_) * -2_ <>                200000_ or
+        bigintExpr(               -65537_) * -2_ <>                131074_ or
+        bigintExpr(               -65536_) * -2_ <>                131072_ or
+        bigintExpr(               -10000_) * -2_ <>                 20000_ or
+        bigintExpr(                -1000_) * -2_ <>                  2000_ or
+        bigintExpr(                 -257_) * -2_ <>                   514_ or
+        bigintExpr(                 -256_) * -2_ <>                   512_ or
+        bigintExpr(                  -10_) * -2_ <>                    20_ or
+        bigintExpr(                   -4_) * -2_ <>                     8_ or
+        bigintExpr(                   -3_) * -2_ <>                     6_ or
+        bigintExpr(                   -2_) * -2_ <>                     4_ or
+        bigintExpr(                   -1_) * -2_ <>                     2_ or
+        bigintExpr(                    0_) * -2_ <>                     0_ or
+        bigintExpr(                    1_) * -2_ <>                    -2_ or
+        bigintExpr(                    2_) * -2_ <>                    -4_ or
+        bigintExpr(                    3_) * -2_ <>                    -6_ or
+        bigintExpr(                    4_) * -2_ <>                    -8_ or
+        bigintExpr(                   10_) * -2_ <>                   -20_ or
+        bigintExpr(                  255_) * -2_ <>                  -510_ or
+        bigintExpr(                  256_) * -2_ <>                  -512_ or
+        bigintExpr(                 1000_) * -2_ <>                 -2000_ or
+        bigintExpr(                10000_) * -2_ <>                -20000_ or
+        bigintExpr(                65535_) * -2_ <>               -131070_ or
+        bigintExpr(                65536_) * -2_ <>               -131072_ or
+        bigintExpr(               100000_) * -2_ <>               -200000_ or
+        bigintExpr(              1000000_) * -2_ <>              -2000000_ or
+        bigintExpr(             10000000_) * -2_ <>             -20000000_ or
+        bigintExpr(            100000000_) * -2_ <>            -200000000_ or
+        bigintExpr(           1000000000_) * -2_ <>           -2000000000_ or
+        bigintExpr(           4294967295_) * -2_ <>           -8589934590_ or
+        bigintExpr(           4294967296_) * -2_ <>           -8589934592_ or
+        bigintExpr(          10000000000_) * -2_ <>          -20000000000_ or
+        bigintExpr(         100000000000_) * -2_ <>         -200000000000_ or
+        bigintExpr(        1000000000000_) * -2_ <>        -2000000000000_ or
+        bigintExpr(       10000000000000_) * -2_ <>       -20000000000000_ or
+        bigintExpr(      100000000000000_) * -2_ <>      -200000000000000_ or
+        bigintExpr(     1000000000000000_) * -2_ <>     -2000000000000000_ or
+        bigintExpr(    10000000000000000_) * -2_ <>    -20000000000000000_ or
+        bigintExpr(   100000000000000000_) * -2_ <>   -200000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -2_ <>  -2000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -2_ <> -20000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -2_ <> -36893488147419103230_ or
+        bigintExpr( 18446744073709551616_) * -2_ <> -36893488147419103232_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -1_ <>  18446744073709551617_ or
+        bigintExpr(-18446744073709551616_) * -1_ <>  18446744073709551616_ or
+        bigintExpr(-10000000000000000000_) * -1_ <>  10000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -1_ <>   1000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -1_ <>    100000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -1_ <>     10000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -1_ <>      1000000000000000_ or
+        bigintExpr(     -100000000000000_) * -1_ <>       100000000000000_ or
+        bigintExpr(      -10000000000000_) * -1_ <>        10000000000000_ or
+        bigintExpr(       -1000000000000_) * -1_ <>         1000000000000_ or
+        bigintExpr(        -100000000000_) * -1_ <>          100000000000_ or
+        bigintExpr(         -10000000000_) * -1_ <>           10000000000_ or
+        bigintExpr(          -4294967297_) * -1_ <>            4294967297_ or
+        bigintExpr(          -4294967296_) * -1_ <>            4294967296_ or
+        bigintExpr(          -1000000000_) * -1_ <>            1000000000_ or
+        bigintExpr(           -100000000_) * -1_ <>             100000000_ or
+        bigintExpr(            -10000000_) * -1_ <>              10000000_ or
+        bigintExpr(             -1000000_) * -1_ <>               1000000_ or
+        bigintExpr(              -100000_) * -1_ <>                100000_ or
+        bigintExpr(               -65537_) * -1_ <>                 65537_ or
+        bigintExpr(               -65536_) * -1_ <>                 65536_ or
+        bigintExpr(               -10000_) * -1_ <>                 10000_ or
+        bigintExpr(                -1000_) * -1_ <>                  1000_ or
+        bigintExpr(                 -257_) * -1_ <>                   257_ or
+        bigintExpr(                 -256_) * -1_ <>                   256_ or
+        bigintExpr(                  -10_) * -1_ <>                    10_ or
+        bigintExpr(                   -4_) * -1_ <>                     4_ or
+        bigintExpr(                   -3_) * -1_ <>                     3_ or
+        bigintExpr(                   -2_) * -1_ <>                     2_ or
+        bigintExpr(                   -1_) * -1_ <>                     1_ or
+        bigintExpr(                    0_) * -1_ <>                     0_ or
+        bigintExpr(                    1_) * -1_ <>                    -1_ or
+        bigintExpr(                    2_) * -1_ <>                    -2_ or
+        bigintExpr(                    3_) * -1_ <>                    -3_ or
+        bigintExpr(                    4_) * -1_ <>                    -4_ or
+        bigintExpr(                   10_) * -1_ <>                   -10_ or
+        bigintExpr(                  255_) * -1_ <>                  -255_ or
+        bigintExpr(                  256_) * -1_ <>                  -256_ or
+        bigintExpr(                 1000_) * -1_ <>                 -1000_ or
+        bigintExpr(                10000_) * -1_ <>                -10000_ or
+        bigintExpr(                65535_) * -1_ <>                -65535_ or
+        bigintExpr(                65536_) * -1_ <>                -65536_ or
+        bigintExpr(               100000_) * -1_ <>               -100000_ or
+        bigintExpr(              1000000_) * -1_ <>              -1000000_ or
+        bigintExpr(             10000000_) * -1_ <>             -10000000_ or
+        bigintExpr(            100000000_) * -1_ <>            -100000000_ or
+        bigintExpr(           1000000000_) * -1_ <>           -1000000000_ or
+        bigintExpr(           4294967295_) * -1_ <>           -4294967295_ or
+        bigintExpr(           4294967296_) * -1_ <>           -4294967296_ or
+        bigintExpr(          10000000000_) * -1_ <>          -10000000000_ or
+        bigintExpr(         100000000000_) * -1_ <>         -100000000000_ or
+        bigintExpr(        1000000000000_) * -1_ <>        -1000000000000_ or
+        bigintExpr(       10000000000000_) * -1_ <>       -10000000000000_ or
+        bigintExpr(      100000000000000_) * -1_ <>      -100000000000000_ or
+        bigintExpr(     1000000000000000_) * -1_ <>     -1000000000000000_ or
+        bigintExpr(    10000000000000000_) * -1_ <>    -10000000000000000_ or
+        bigintExpr(   100000000000000000_) * -1_ <>   -100000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -1_ <>  -1000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -1_ <> -10000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -1_ <> -18446744073709551615_ or
+        bigintExpr( 18446744073709551616_) * -1_ <> -18446744073709551616_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  0_ <> 0_ or
+        bigintExpr(-18446744073709551616_) *  0_ <> 0_ or
+        bigintExpr(-10000000000000000000_) *  0_ <> 0_ or
+        bigintExpr( -1000000000000000000_) *  0_ <> 0_ or
+        bigintExpr(  -100000000000000000_) *  0_ <> 0_ or
+        bigintExpr(   -10000000000000000_) *  0_ <> 0_ or
+        bigintExpr(    -1000000000000000_) *  0_ <> 0_ or
+        bigintExpr(     -100000000000000_) *  0_ <> 0_ or
+        bigintExpr(      -10000000000000_) *  0_ <> 0_ or
+        bigintExpr(       -1000000000000_) *  0_ <> 0_ or
+        bigintExpr(        -100000000000_) *  0_ <> 0_ or
+        bigintExpr(         -10000000000_) *  0_ <> 0_ or
+        bigintExpr(          -4294967297_) *  0_ <> 0_ or
+        bigintExpr(          -4294967296_) *  0_ <> 0_ or
+        bigintExpr(          -1000000000_) *  0_ <> 0_ or
+        bigintExpr(           -100000000_) *  0_ <> 0_ or
+        bigintExpr(            -10000000_) *  0_ <> 0_ or
+        bigintExpr(             -1000000_) *  0_ <> 0_ or
+        bigintExpr(              -100000_) *  0_ <> 0_ or
+        bigintExpr(               -65536_) *  0_ <> 0_ or
+        bigintExpr(               -65536_) *  0_ <> 0_ or
+        bigintExpr(               -10000_) *  0_ <> 0_ or
+        bigintExpr(                -1000_) *  0_ <> 0_ or
+        bigintExpr(                 -257_) *  0_ <> 0_ or
+        bigintExpr(                 -256_) *  0_ <> 0_ or
+        bigintExpr(                  -10_) *  0_ <> 0_ or
+        bigintExpr(                   -4_) *  0_ <> 0_ or
+        bigintExpr(                   -3_) *  0_ <> 0_ or
+        bigintExpr(                   -2_) *  0_ <> 0_ or
+        bigintExpr(                   -1_) *  0_ <> 0_ or
+        bigintExpr(                    0_) *  0_ <> 0_ or
+        bigintExpr(                    1_) *  0_ <> 0_ or
+        bigintExpr(                    2_) *  0_ <> 0_ or
+        bigintExpr(                    3_) *  0_ <> 0_ or
+        bigintExpr(                    4_) *  0_ <> 0_ or
+        bigintExpr(                   10_) *  0_ <> 0_ or
+        bigintExpr(                  255_) *  0_ <> 0_ or
+        bigintExpr(                  256_) *  0_ <> 0_ or
+        bigintExpr(                 1000_) *  0_ <> 0_ or
+        bigintExpr(                10000_) *  0_ <> 0_ or
+        bigintExpr(                65535_) *  0_ <> 0_ or
+        bigintExpr(                65536_) *  0_ <> 0_ or
+        bigintExpr(               100000_) *  0_ <> 0_ or
+        bigintExpr(              1000000_) *  0_ <> 0_ or
+        bigintExpr(             10000000_) *  0_ <> 0_ or
+        bigintExpr(            100000000_) *  0_ <> 0_ or
+        bigintExpr(           1000000000_) *  0_ <> 0_ or
+        bigintExpr(           4294967295_) *  0_ <> 0_ or
+        bigintExpr(           4294967296_) *  0_ <> 0_ or
+        bigintExpr(          10000000000_) *  0_ <> 0_ or
+        bigintExpr(         100000000000_) *  0_ <> 0_ or
+        bigintExpr(        1000000000000_) *  0_ <> 0_ or
+        bigintExpr(       10000000000000_) *  0_ <> 0_ or
+        bigintExpr(      100000000000000_) *  0_ <> 0_ or
+        bigintExpr(     1000000000000000_) *  0_ <> 0_ or
+        bigintExpr(    10000000000000000_) *  0_ <> 0_ or
+        bigintExpr(   100000000000000000_) *  0_ <> 0_ or
+        bigintExpr(  1000000000000000000_) *  0_ <> 0_ or
+        bigintExpr( 10000000000000000000_) *  0_ <> 0_ or
+        bigintExpr( 18446744073709551615_) *  0_ <> 0_ or
+        bigintExpr( 18446744073709551616_) *  0_ <> 0_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  1_ <> -18446744073709551617_ or
+        bigintExpr(-18446744073709551616_) *  1_ <> -18446744073709551616_ or
+        bigintExpr(-10000000000000000000_) *  1_ <> -10000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  1_ <>  -1000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  1_ <>   -100000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  1_ <>    -10000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  1_ <>     -1000000000000000_ or
+        bigintExpr(     -100000000000000_) *  1_ <>      -100000000000000_ or
+        bigintExpr(      -10000000000000_) *  1_ <>       -10000000000000_ or
+        bigintExpr(       -1000000000000_) *  1_ <>        -1000000000000_ or
+        bigintExpr(        -100000000000_) *  1_ <>         -100000000000_ or
+        bigintExpr(         -10000000000_) *  1_ <>          -10000000000_ or
+        bigintExpr(          -4294967297_) *  1_ <>           -4294967297_ or
+        bigintExpr(          -4294967296_) *  1_ <>           -4294967296_ or
+        bigintExpr(          -1000000000_) *  1_ <>           -1000000000_ or
+        bigintExpr(           -100000000_) *  1_ <>            -100000000_ or
+        bigintExpr(            -10000000_) *  1_ <>             -10000000_ or
+        bigintExpr(             -1000000_) *  1_ <>              -1000000_ or
+        bigintExpr(              -100000_) *  1_ <>               -100000_ or
+        bigintExpr(               -65537_) *  1_ <>                -65537_ or
+        bigintExpr(               -65536_) *  1_ <>                -65536_ or
+        bigintExpr(               -10000_) *  1_ <>                -10000_ or
+        bigintExpr(                -1000_) *  1_ <>                 -1000_ or
+        bigintExpr(                 -257_) *  1_ <>                  -257_ or
+        bigintExpr(                 -256_) *  1_ <>                  -256_ or
+        bigintExpr(                  -10_) *  1_ <>                   -10_ or
+        bigintExpr(                   -4_) *  1_ <>                    -4_ or
+        bigintExpr(                   -3_) *  1_ <>                    -3_ or
+        bigintExpr(                   -2_) *  1_ <>                    -2_ or
+        bigintExpr(                   -1_) *  1_ <>                    -1_ or
+        bigintExpr(                    0_) *  1_ <>                     0_ or
+        bigintExpr(                    1_) *  1_ <>                     1_ or
+        bigintExpr(                    2_) *  1_ <>                     2_ or
+        bigintExpr(                    3_) *  1_ <>                     3_ or
+        bigintExpr(                    4_) *  1_ <>                     4_ or
+        bigintExpr(                   10_) *  1_ <>                    10_ or
+        bigintExpr(                  255_) *  1_ <>                   255_ or
+        bigintExpr(                  256_) *  1_ <>                   256_ or
+        bigintExpr(                 1000_) *  1_ <>                  1000_ or
+        bigintExpr(                10000_) *  1_ <>                 10000_ or
+        bigintExpr(                65535_) *  1_ <>                 65535_ or
+        bigintExpr(                65536_) *  1_ <>                 65536_ or
+        bigintExpr(               100000_) *  1_ <>                100000_ or
+        bigintExpr(              1000000_) *  1_ <>               1000000_ or
+        bigintExpr(             10000000_) *  1_ <>              10000000_ or
+        bigintExpr(            100000000_) *  1_ <>             100000000_ or
+        bigintExpr(           1000000000_) *  1_ <>            1000000000_ or
+        bigintExpr(           4294967295_) *  1_ <>            4294967295_ or
+        bigintExpr(           4294967296_) *  1_ <>            4294967296_ or
+        bigintExpr(          10000000000_) *  1_ <>           10000000000_ or
+        bigintExpr(         100000000000_) *  1_ <>          100000000000_ or
+        bigintExpr(        1000000000000_) *  1_ <>         1000000000000_ or
+        bigintExpr(       10000000000000_) *  1_ <>        10000000000000_ or
+        bigintExpr(      100000000000000_) *  1_ <>       100000000000000_ or
+        bigintExpr(     1000000000000000_) *  1_ <>      1000000000000000_ or
+        bigintExpr(    10000000000000000_) *  1_ <>     10000000000000000_ or
+        bigintExpr(   100000000000000000_) *  1_ <>    100000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  1_ <>   1000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  1_ <>  10000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  1_ <>  18446744073709551615_ or
+        bigintExpr( 18446744073709551616_) *  1_ <>  18446744073709551616_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  2_ <> -36893488147419103234_ or
+        bigintExpr(-18446744073709551616_) *  2_ <> -36893488147419103232_ or
+        bigintExpr(-10000000000000000000_) *  2_ <> -20000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  2_ <>  -2000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  2_ <>   -200000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  2_ <>    -20000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  2_ <>     -2000000000000000_ or
+        bigintExpr(     -100000000000000_) *  2_ <>      -200000000000000_ or
+        bigintExpr(      -10000000000000_) *  2_ <>       -20000000000000_ or
+        bigintExpr(       -1000000000000_) *  2_ <>        -2000000000000_ or
+        bigintExpr(        -100000000000_) *  2_ <>         -200000000000_ or
+        bigintExpr(         -10000000000_) *  2_ <>          -20000000000_ or
+        bigintExpr(          -4294967297_) *  2_ <>           -8589934594_ or
+        bigintExpr(          -4294967296_) *  2_ <>           -8589934592_ or
+        bigintExpr(          -1000000000_) *  2_ <>           -2000000000_ or
+        bigintExpr(           -100000000_) *  2_ <>            -200000000_ or
+        bigintExpr(            -10000000_) *  2_ <>             -20000000_ or
+        bigintExpr(             -1000000_) *  2_ <>              -2000000_ or
+        bigintExpr(              -100000_) *  2_ <>               -200000_ or
+        bigintExpr(               -65537_) *  2_ <>               -131074_ or
+        bigintExpr(               -65536_) *  2_ <>               -131072_ or
+        bigintExpr(               -10000_) *  2_ <>                -20000_ or
+        bigintExpr(                -1000_) *  2_ <>                 -2000_ or
+        bigintExpr(                 -257_) *  2_ <>                  -514_ or
+        bigintExpr(                 -256_) *  2_ <>                  -512_ or
+        bigintExpr(                  -10_) *  2_ <>                   -20_ or
+        bigintExpr(                   -4_) *  2_ <>                    -8_ or
+        bigintExpr(                   -3_) *  2_ <>                    -6_ or
+        bigintExpr(                   -2_) *  2_ <>                    -4_ or
+        bigintExpr(                   -1_) *  2_ <>                    -2_ or
+        bigintExpr(                    0_) *  2_ <>                     0_ or
+        bigintExpr(                    1_) *  2_ <>                     2_ or
+        bigintExpr(                    2_) *  2_ <>                     4_ or
+        bigintExpr(                    3_) *  2_ <>                     6_ or
+        bigintExpr(                    4_) *  2_ <>                     8_ or
+        bigintExpr(                   10_) *  2_ <>                    20_ or
+        bigintExpr(                  255_) *  2_ <>                   510_ or
+        bigintExpr(                  256_) *  2_ <>                   512_ or
+        bigintExpr(                 1000_) *  2_ <>                  2000_ or
+        bigintExpr(                10000_) *  2_ <>                 20000_ or
+        bigintExpr(                65535_) *  2_ <>                131070_ or
+        bigintExpr(                65536_) *  2_ <>                131072_ or
+        bigintExpr(               100000_) *  2_ <>                200000_ or
+        bigintExpr(              1000000_) *  2_ <>               2000000_ or
+        bigintExpr(             10000000_) *  2_ <>              20000000_ or
+        bigintExpr(            100000000_) *  2_ <>             200000000_ or
+        bigintExpr(           1000000000_) *  2_ <>            2000000000_ or
+        bigintExpr(           4294967295_) *  2_ <>            8589934590_ or
+        bigintExpr(           4294967296_) *  2_ <>            8589934592_ or
+        bigintExpr(          10000000000_) *  2_ <>           20000000000_ or
+        bigintExpr(         100000000000_) *  2_ <>          200000000000_ or
+        bigintExpr(        1000000000000_) *  2_ <>         2000000000000_ or
+        bigintExpr(       10000000000000_) *  2_ <>        20000000000000_ or
+        bigintExpr(      100000000000000_) *  2_ <>       200000000000000_ or
+        bigintExpr(     1000000000000000_) *  2_ <>      2000000000000000_ or
+        bigintExpr(    10000000000000000_) *  2_ <>     20000000000000000_ or
+        bigintExpr(   100000000000000000_) *  2_ <>    200000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  2_ <>   2000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  2_ <>  20000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  2_ <>  36893488147419103230_ or
+        bigintExpr( 18446744073709551616_) *  2_ <>  36893488147419103232_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  3_ <> -55340232221128654851_ or
+        bigintExpr(-18446744073709551616_) *  3_ <> -55340232221128654848_ or
+        bigintExpr(-10000000000000000000_) *  3_ <> -30000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  3_ <>  -3000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  3_ <>   -300000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  3_ <>    -30000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  3_ <>     -3000000000000000_ or
+        bigintExpr(     -100000000000000_) *  3_ <>      -300000000000000_ or
+        bigintExpr(      -10000000000000_) *  3_ <>       -30000000000000_ or
+        bigintExpr(       -1000000000000_) *  3_ <>        -3000000000000_ or
+        bigintExpr(        -100000000000_) *  3_ <>         -300000000000_ or
+        bigintExpr(         -10000000000_) *  3_ <>          -30000000000_ or
+        bigintExpr(          -4294967297_) *  3_ <>          -12884901891_ or
+        bigintExpr(          -4294967296_) *  3_ <>          -12884901888_ or
+        bigintExpr(          -1000000000_) *  3_ <>           -3000000000_ or
+        bigintExpr(           -100000000_) *  3_ <>            -300000000_ or
+        bigintExpr(            -10000000_) *  3_ <>             -30000000_ or
+        bigintExpr(             -1000000_) *  3_ <>              -3000000_ or
+        bigintExpr(              -100000_) *  3_ <>               -300000_ or
+        bigintExpr(               -65537_) *  3_ <>               -196611_ or
+        bigintExpr(               -65536_) *  3_ <>               -196608_ or
+        bigintExpr(               -10000_) *  3_ <>                -30000_ or
+        bigintExpr(                -1000_) *  3_ <>                 -3000_ or
+        bigintExpr(                 -257_) *  3_ <>                  -771_ or
+        bigintExpr(                 -256_) *  3_ <>                  -768_ or
+        bigintExpr(                  -10_) *  3_ <>                   -30_ or
+        bigintExpr(                   -4_) *  3_ <>                   -12_ or
+        bigintExpr(                   -3_) *  3_ <>                    -9_ or
+        bigintExpr(                   -2_) *  3_ <>                    -6_ or
+        bigintExpr(                   -1_) *  3_ <>                    -3_ or
+        bigintExpr(                    0_) *  3_ <>                     0_ or
+        bigintExpr(                    1_) *  3_ <>                     3_ or
+        bigintExpr(                    2_) *  3_ <>                     6_ or
+        bigintExpr(                    3_) *  3_ <>                     9_ or
+        bigintExpr(                    4_) *  3_ <>                    12_ or
+        bigintExpr(                   10_) *  3_ <>                    30_ or
+        bigintExpr(                  255_) *  3_ <>                   765_ or
+        bigintExpr(                  256_) *  3_ <>                   768_ or
+        bigintExpr(                 1000_) *  3_ <>                  3000_ or
+        bigintExpr(                10000_) *  3_ <>                 30000_ or
+        bigintExpr(                65535_) *  3_ <>                196605_ or
+        bigintExpr(                65536_) *  3_ <>                196608_ or
+        bigintExpr(               100000_) *  3_ <>                300000_ or
+        bigintExpr(              1000000_) *  3_ <>               3000000_ or
+        bigintExpr(             10000000_) *  3_ <>              30000000_ or
+        bigintExpr(            100000000_) *  3_ <>             300000000_ or
+        bigintExpr(           1000000000_) *  3_ <>            3000000000_ or
+        bigintExpr(           4294967295_) *  3_ <>           12884901885_ or
+        bigintExpr(           4294967296_) *  3_ <>           12884901888_ or
+        bigintExpr(          10000000000_) *  3_ <>           30000000000_ or
+        bigintExpr(         100000000000_) *  3_ <>          300000000000_ or
+        bigintExpr(        1000000000000_) *  3_ <>         3000000000000_ or
+        bigintExpr(       10000000000000_) *  3_ <>        30000000000000_ or
+        bigintExpr(      100000000000000_) *  3_ <>       300000000000000_ or
+        bigintExpr(     1000000000000000_) *  3_ <>      3000000000000000_ or
+        bigintExpr(    10000000000000000_) *  3_ <>     30000000000000000_ or
+        bigintExpr(   100000000000000000_) *  3_ <>    300000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  3_ <>   3000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  3_ <>  30000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  3_ <>  55340232221128654845_ or
+        bigintExpr( 18446744073709551616_) *  3_ <>  55340232221128654848_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: chkMultiplicationWithConst3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bigintExpr(-18446744073709551617_) * -2147483649_ <>  39614081275578912872629010433_ or
+        bigintExpr(-18446744073709551616_) * -2147483649_ <>  39614081275578912870481526784_ or
+        bigintExpr(-10000000000000000000_) * -2147483649_ <>  21474836490000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -2147483649_ <>   2147483649000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -2147483649_ <>    214748364900000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -2147483649_ <>     21474836490000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -2147483649_ <>      2147483649000000000000000_ or
+        bigintExpr(     -100000000000000_) * -2147483649_ <>       214748364900000000000000_ or
+        bigintExpr(      -10000000000000_) * -2147483649_ <>        21474836490000000000000_ or
+        bigintExpr(       -1000000000000_) * -2147483649_ <>         2147483649000000000000_ or
+        bigintExpr(        -100000000000_) * -2147483649_ <>          214748364900000000000_ or
+        bigintExpr(         -10000000000_) * -2147483649_ <>           21474836490000000000_ or
+        bigintExpr(          -4294967297_) * -2147483649_ <>            9223372043297226753_ or
+        bigintExpr(          -4294967296_) * -2147483649_ <>            9223372041149743104_ or
+        bigintExpr(          -1000000000_) * -2147483649_ <>            2147483649000000000_ or
+        bigintExpr(           -100000000_) * -2147483649_ <>             214748364900000000_ or
+        bigintExpr(            -10000000_) * -2147483649_ <>              21474836490000000_ or
+        bigintExpr(             -1000000_) * -2147483649_ <>               2147483649000000_ or
+        bigintExpr(              -100000_) * -2147483649_ <>                214748364900000_ or
+        bigintExpr(               -65537_) * -2147483649_ <>                140739635904513_ or
+        bigintExpr(               -65536_) * -2147483649_ <>                140737488420864_ or
+        bigintExpr(               -10000_) * -2147483649_ <>                 21474836490000_ or
+        bigintExpr(                -1000_) * -2147483649_ <>                  2147483649000_ or
+        bigintExpr(                 -257_) * -2147483649_ <>                   551903297793_ or
+        bigintExpr(                 -256_) * -2147483649_ <>                   549755814144_ or
+        bigintExpr(                  -10_) * -2147483649_ <>                    21474836490_ or
+        bigintExpr(                   -4_) * -2147483649_ <>                     8589934596_ or
+        bigintExpr(                   -3_) * -2147483649_ <>                     6442450947_ or
+        bigintExpr(                   -2_) * -2147483649_ <>                     4294967298_ or
+        bigintExpr(                   -1_) * -2147483649_ <>                     2147483649_ or
+        bigintExpr(                    0_) * -2147483649_ <>                              0_ or
+        bigintExpr(                    1_) * -2147483649_ <>                    -2147483649_ or
+        bigintExpr(                    2_) * -2147483649_ <>                    -4294967298_ or
+        bigintExpr(                    3_) * -2147483649_ <>                    -6442450947_ or
+        bigintExpr(                    4_) * -2147483649_ <>                    -8589934596_ or
+        bigintExpr(                   10_) * -2147483649_ <>                   -21474836490_ or
+        bigintExpr(                  255_) * -2147483649_ <>                  -547608330495_ or
+        bigintExpr(                  256_) * -2147483649_ <>                  -549755814144_ or
+        bigintExpr(                 1000_) * -2147483649_ <>                 -2147483649000_ or
+        bigintExpr(                10000_) * -2147483649_ <>                -21474836490000_ or
+        bigintExpr(                65535_) * -2147483649_ <>               -140735340937215_ or
+        bigintExpr(                65536_) * -2147483649_ <>               -140737488420864_ or
+        bigintExpr(               100000_) * -2147483649_ <>               -214748364900000_ or
+        bigintExpr(              1000000_) * -2147483649_ <>              -2147483649000000_ or
+        bigintExpr(             10000000_) * -2147483649_ <>             -21474836490000000_ or
+        bigintExpr(            100000000_) * -2147483649_ <>            -214748364900000000_ or
+        bigintExpr(           1000000000_) * -2147483649_ <>           -2147483649000000000_ or
+        bigintExpr(           4294967295_) * -2147483649_ <>           -9223372039002259455_ or
+        bigintExpr(           4294967296_) * -2147483649_ <>           -9223372041149743104_ or
+        bigintExpr(          10000000000_) * -2147483649_ <>          -21474836490000000000_ or
+        bigintExpr(         100000000000_) * -2147483649_ <>         -214748364900000000000_ or
+        bigintExpr(        1000000000000_) * -2147483649_ <>        -2147483649000000000000_ or
+        bigintExpr(       10000000000000_) * -2147483649_ <>       -21474836490000000000000_ or
+        bigintExpr(      100000000000000_) * -2147483649_ <>      -214748364900000000000000_ or
+        bigintExpr(     1000000000000000_) * -2147483649_ <>     -2147483649000000000000000_ or
+        bigintExpr(    10000000000000000_) * -2147483649_ <>    -21474836490000000000000000_ or
+        bigintExpr(   100000000000000000_) * -2147483649_ <>   -214748364900000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -2147483649_ <>  -2147483649000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -2147483649_ <> -21474836490000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -2147483649_ <> -39614081275578912868334043135_ or
+        bigintExpr( 18446744073709551616_) * -2147483649_ <> -39614081275578912870481526784_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (15)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -2147483648_ <>  39614081257132168798919458816_ or
+        bigintExpr(-18446744073709551616_) * -2147483648_ <>  39614081257132168796771975168_ or
+        bigintExpr(-10000000000000000000_) * -2147483648_ <>  21474836480000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -2147483648_ <>   2147483648000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -2147483648_ <>    214748364800000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -2147483648_ <>     21474836480000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -2147483648_ <>      2147483648000000000000000_ or
+        bigintExpr(     -100000000000000_) * -2147483648_ <>       214748364800000000000000_ or
+        bigintExpr(      -10000000000000_) * -2147483648_ <>        21474836480000000000000_ or
+        bigintExpr(       -1000000000000_) * -2147483648_ <>         2147483648000000000000_ or
+        bigintExpr(        -100000000000_) * -2147483648_ <>          214748364800000000000_ or
+        bigintExpr(         -10000000000_) * -2147483648_ <>           21474836480000000000_ or
+        bigintExpr(          -4294967297_) * -2147483648_ <>            9223372039002259456_ or
+        bigintExpr(          -4294967296_) * -2147483648_ <>            9223372036854775808_ or
+        bigintExpr(          -1000000000_) * -2147483648_ <>            2147483648000000000_ or
+        bigintExpr(           -100000000_) * -2147483648_ <>             214748364800000000_ or
+        bigintExpr(            -10000000_) * -2147483648_ <>              21474836480000000_ or
+        bigintExpr(             -1000000_) * -2147483648_ <>               2147483648000000_ or
+        bigintExpr(              -100000_) * -2147483648_ <>                214748364800000_ or
+        bigintExpr(               -65537_) * -2147483648_ <>                140739635838976_ or
+        bigintExpr(               -65536_) * -2147483648_ <>                140737488355328_ or
+        bigintExpr(               -10000_) * -2147483648_ <>                 21474836480000_ or
+        bigintExpr(                -1000_) * -2147483648_ <>                  2147483648000_ or
+        bigintExpr(                 -257_) * -2147483648_ <>                   551903297536_ or
+        bigintExpr(                 -256_) * -2147483648_ <>                   549755813888_ or
+        bigintExpr(                  -10_) * -2147483648_ <>                    21474836480_ or
+        bigintExpr(                   -4_) * -2147483648_ <>                     8589934592_ or
+        bigintExpr(                   -3_) * -2147483648_ <>                     6442450944_ or
+        bigintExpr(                   -2_) * -2147483648_ <>                     4294967296_ or
+        bigintExpr(                   -1_) * -2147483648_ <>                     2147483648_ or
+        bigintExpr(                    0_) * -2147483648_ <>                              0_ or
+        bigintExpr(                    1_) * -2147483648_ <>                    -2147483648_ or
+        bigintExpr(                    2_) * -2147483648_ <>                    -4294967296_ or
+        bigintExpr(                    3_) * -2147483648_ <>                    -6442450944_ or
+        bigintExpr(                    4_) * -2147483648_ <>                    -8589934592_ or
+        bigintExpr(                   10_) * -2147483648_ <>                   -21474836480_ or
+        bigintExpr(                  255_) * -2147483648_ <>                  -547608330240_ or
+        bigintExpr(                  256_) * -2147483648_ <>                  -549755813888_ or
+        bigintExpr(                 1000_) * -2147483648_ <>                 -2147483648000_ or
+        bigintExpr(                10000_) * -2147483648_ <>                -21474836480000_ or
+        bigintExpr(                65535_) * -2147483648_ <>               -140735340871680_ or
+        bigintExpr(                65536_) * -2147483648_ <>               -140737488355328_ or
+        bigintExpr(               100000_) * -2147483648_ <>               -214748364800000_ or
+        bigintExpr(              1000000_) * -2147483648_ <>              -2147483648000000_ or
+        bigintExpr(             10000000_) * -2147483648_ <>             -21474836480000000_ or
+        bigintExpr(            100000000_) * -2147483648_ <>            -214748364800000000_ or
+        bigintExpr(           1000000000_) * -2147483648_ <>           -2147483648000000000_ or
+        bigintExpr(           4294967295_) * -2147483648_ <>           -9223372034707292160_ or
+        bigintExpr(           4294967296_) * -2147483648_ <>           -9223372036854775808_ or
+        bigintExpr(          10000000000_) * -2147483648_ <>          -21474836480000000000_ or
+        bigintExpr(         100000000000_) * -2147483648_ <>         -214748364800000000000_ or
+        bigintExpr(        1000000000000_) * -2147483648_ <>        -2147483648000000000000_ or
+        bigintExpr(       10000000000000_) * -2147483648_ <>       -21474836480000000000000_ or
+        bigintExpr(      100000000000000_) * -2147483648_ <>      -214748364800000000000000_ or
+        bigintExpr(     1000000000000000_) * -2147483648_ <>     -2147483648000000000000000_ or
+        bigintExpr(    10000000000000000_) * -2147483648_ <>    -21474836480000000000000000_ or
+        bigintExpr(   100000000000000000_) * -2147483648_ <>   -214748364800000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -2147483648_ <>  -2147483648000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -2147483648_ <> -21474836480000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -2147483648_ <> -39614081257132168794624491520_ or
+        bigintExpr( 18446744073709551616_) * -2147483648_ <> -39614081257132168796771975168_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (16)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -2147483647_ <>  39614081238685424725209907199_ or
+        bigintExpr(-18446744073709551616_) * -2147483647_ <>  39614081238685424723062423552_ or
+        bigintExpr(-10000000000000000000_) * -2147483647_ <>  21474836470000000000000000000_ or
+        bigintExpr( -1000000000000000000_) * -2147483647_ <>   2147483647000000000000000000_ or
+        bigintExpr(  -100000000000000000_) * -2147483647_ <>    214748364700000000000000000_ or
+        bigintExpr(   -10000000000000000_) * -2147483647_ <>     21474836470000000000000000_ or
+        bigintExpr(    -1000000000000000_) * -2147483647_ <>      2147483647000000000000000_ or
+        bigintExpr(     -100000000000000_) * -2147483647_ <>       214748364700000000000000_ or
+        bigintExpr(      -10000000000000_) * -2147483647_ <>        21474836470000000000000_ or
+        bigintExpr(       -1000000000000_) * -2147483647_ <>         2147483647000000000000_ or
+        bigintExpr(        -100000000000_) * -2147483647_ <>          214748364700000000000_ or
+        bigintExpr(         -10000000000_) * -2147483647_ <>           21474836470000000000_ or
+        bigintExpr(          -4294967297_) * -2147483647_ <>            9223372034707292159_ or
+        bigintExpr(          -4294967296_) * -2147483647_ <>            9223372032559808512_ or
+        bigintExpr(          -1000000000_) * -2147483647_ <>            2147483647000000000_ or
+        bigintExpr(           -100000000_) * -2147483647_ <>             214748364700000000_ or
+        bigintExpr(            -10000000_) * -2147483647_ <>              21474836470000000_ or
+        bigintExpr(             -1000000_) * -2147483647_ <>               2147483647000000_ or
+        bigintExpr(              -100000_) * -2147483647_ <>                214748364700000_ or
+        bigintExpr(               -65537_) * -2147483647_ <>                140739635773439_ or
+        bigintExpr(               -65536_) * -2147483647_ <>                140737488289792_ or
+        bigintExpr(               -10000_) * -2147483647_ <>                 21474836470000_ or
+        bigintExpr(                -1000_) * -2147483647_ <>                  2147483647000_ or
+        bigintExpr(                 -257_) * -2147483647_ <>                   551903297279_ or
+        bigintExpr(                 -256_) * -2147483647_ <>                   549755813632_ or
+        bigintExpr(                  -10_) * -2147483647_ <>                    21474836470_ or
+        bigintExpr(                   -4_) * -2147483647_ <>                     8589934588_ or
+        bigintExpr(                   -3_) * -2147483647_ <>                     6442450941_ or
+        bigintExpr(                   -2_) * -2147483647_ <>                     4294967294_ or
+        bigintExpr(                   -1_) * -2147483647_ <>                     2147483647_ or
+        bigintExpr(                    0_) * -2147483647_ <>                              0_ or
+        bigintExpr(                    1_) * -2147483647_ <>                    -2147483647_ or
+        bigintExpr(                    2_) * -2147483647_ <>                    -4294967294_ or
+        bigintExpr(                    3_) * -2147483647_ <>                    -6442450941_ or
+        bigintExpr(                    4_) * -2147483647_ <>                    -8589934588_ or
+        bigintExpr(                   10_) * -2147483647_ <>                   -21474836470_ or
+        bigintExpr(                  255_) * -2147483647_ <>                  -547608329985_ or
+        bigintExpr(                  256_) * -2147483647_ <>                  -549755813632_ or
+        bigintExpr(                 1000_) * -2147483647_ <>                 -2147483647000_ or
+        bigintExpr(                10000_) * -2147483647_ <>                -21474836470000_ or
+        bigintExpr(                65535_) * -2147483647_ <>               -140735340806145_ or
+        bigintExpr(                65536_) * -2147483647_ <>               -140737488289792_ or
+        bigintExpr(               100000_) * -2147483647_ <>               -214748364700000_ or
+        bigintExpr(              1000000_) * -2147483647_ <>              -2147483647000000_ or
+        bigintExpr(             10000000_) * -2147483647_ <>             -21474836470000000_ or
+        bigintExpr(            100000000_) * -2147483647_ <>            -214748364700000000_ or
+        bigintExpr(           1000000000_) * -2147483647_ <>           -2147483647000000000_ or
+        bigintExpr(           4294967295_) * -2147483647_ <>           -9223372030412324865_ or
+        bigintExpr(           4294967296_) * -2147483647_ <>           -9223372032559808512_ or
+        bigintExpr(          10000000000_) * -2147483647_ <>          -21474836470000000000_ or
+        bigintExpr(         100000000000_) * -2147483647_ <>         -214748364700000000000_ or
+        bigintExpr(        1000000000000_) * -2147483647_ <>        -2147483647000000000000_ or
+        bigintExpr(       10000000000000_) * -2147483647_ <>       -21474836470000000000000_ or
+        bigintExpr(      100000000000000_) * -2147483647_ <>      -214748364700000000000000_ or
+        bigintExpr(     1000000000000000_) * -2147483647_ <>     -2147483647000000000000000_ or
+        bigintExpr(    10000000000000000_) * -2147483647_ <>    -21474836470000000000000000_ or
+        bigintExpr(   100000000000000000_) * -2147483647_ <>   -214748364700000000000000000_ or
+        bigintExpr(  1000000000000000000_) * -2147483647_ <>  -2147483647000000000000000000_ or
+        bigintExpr( 10000000000000000000_) * -2147483647_ <> -21474836470000000000000000000_ or
+        bigintExpr( 18446744073709551615_) * -2147483647_ <> -39614081238685424720914939905_ or
+        bigintExpr( 18446744073709551616_) * -2147483647_ <> -39614081238685424723062423552_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (17)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  2147483647_ <> -39614081238685424725209907199_ or
+        bigintExpr(-18446744073709551616_) *  2147483647_ <> -39614081238685424723062423552_ or
+        bigintExpr(-10000000000000000000_) *  2147483647_ <> -21474836470000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  2147483647_ <>  -2147483647000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  2147483647_ <>   -214748364700000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  2147483647_ <>    -21474836470000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  2147483647_ <>     -2147483647000000000000000_ or
+        bigintExpr(     -100000000000000_) *  2147483647_ <>      -214748364700000000000000_ or
+        bigintExpr(      -10000000000000_) *  2147483647_ <>       -21474836470000000000000_ or
+        bigintExpr(       -1000000000000_) *  2147483647_ <>        -2147483647000000000000_ or
+        bigintExpr(        -100000000000_) *  2147483647_ <>         -214748364700000000000_ or
+        bigintExpr(         -10000000000_) *  2147483647_ <>          -21474836470000000000_ or
+        bigintExpr(          -4294967297_) *  2147483647_ <>           -9223372034707292159_ or
+        bigintExpr(          -4294967296_) *  2147483647_ <>           -9223372032559808512_ or
+        bigintExpr(          -1000000000_) *  2147483647_ <>           -2147483647000000000_ or
+        bigintExpr(           -100000000_) *  2147483647_ <>            -214748364700000000_ or
+        bigintExpr(            -10000000_) *  2147483647_ <>             -21474836470000000_ or
+        bigintExpr(             -1000000_) *  2147483647_ <>              -2147483647000000_ or
+        bigintExpr(              -100000_) *  2147483647_ <>               -214748364700000_ or
+        bigintExpr(               -65537_) *  2147483647_ <>               -140739635773439_ or
+        bigintExpr(               -65536_) *  2147483647_ <>               -140737488289792_ or
+        bigintExpr(               -10000_) *  2147483647_ <>                -21474836470000_ or
+        bigintExpr(                -1000_) *  2147483647_ <>                 -2147483647000_ or
+        bigintExpr(                 -257_) *  2147483647_ <>                  -551903297279_ or
+        bigintExpr(                 -256_) *  2147483647_ <>                  -549755813632_ or
+        bigintExpr(                  -10_) *  2147483647_ <>                   -21474836470_ or
+        bigintExpr(                   -4_) *  2147483647_ <>                    -8589934588_ or
+        bigintExpr(                   -3_) *  2147483647_ <>                    -6442450941_ or
+        bigintExpr(                   -2_) *  2147483647_ <>                    -4294967294_ or
+        bigintExpr(                   -1_) *  2147483647_ <>                    -2147483647_ or
+        bigintExpr(                    0_) *  2147483647_ <>                              0_ or
+        bigintExpr(                    1_) *  2147483647_ <>                     2147483647_ or
+        bigintExpr(                    2_) *  2147483647_ <>                     4294967294_ or
+        bigintExpr(                    3_) *  2147483647_ <>                     6442450941_ or
+        bigintExpr(                    4_) *  2147483647_ <>                     8589934588_ or
+        bigintExpr(                   10_) *  2147483647_ <>                    21474836470_ or
+        bigintExpr(                  255_) *  2147483647_ <>                   547608329985_ or
+        bigintExpr(                  256_) *  2147483647_ <>                   549755813632_ or
+        bigintExpr(                 1000_) *  2147483647_ <>                  2147483647000_ or
+        bigintExpr(                10000_) *  2147483647_ <>                 21474836470000_ or
+        bigintExpr(                65535_) *  2147483647_ <>                140735340806145_ or
+        bigintExpr(                65536_) *  2147483647_ <>                140737488289792_ or
+        bigintExpr(               100000_) *  2147483647_ <>                214748364700000_ or
+        bigintExpr(              1000000_) *  2147483647_ <>               2147483647000000_ or
+        bigintExpr(             10000000_) *  2147483647_ <>              21474836470000000_ or
+        bigintExpr(            100000000_) *  2147483647_ <>             214748364700000000_ or
+        bigintExpr(           1000000000_) *  2147483647_ <>            2147483647000000000_ or
+        bigintExpr(           4294967295_) *  2147483647_ <>            9223372030412324865_ or
+        bigintExpr(           4294967296_) *  2147483647_ <>            9223372032559808512_ or
+        bigintExpr(          10000000000_) *  2147483647_ <>           21474836470000000000_ or
+        bigintExpr(         100000000000_) *  2147483647_ <>          214748364700000000000_ or
+        bigintExpr(        1000000000000_) *  2147483647_ <>         2147483647000000000000_ or
+        bigintExpr(       10000000000000_) *  2147483647_ <>        21474836470000000000000_ or
+        bigintExpr(      100000000000000_) *  2147483647_ <>       214748364700000000000000_ or
+        bigintExpr(     1000000000000000_) *  2147483647_ <>      2147483647000000000000000_ or
+        bigintExpr(    10000000000000000_) *  2147483647_ <>     21474836470000000000000000_ or
+        bigintExpr(   100000000000000000_) *  2147483647_ <>    214748364700000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  2147483647_ <>   2147483647000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  2147483647_ <>  21474836470000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  2147483647_ <>  39614081238685424720914939905_ or
+        bigintExpr( 18446744073709551616_) *  2147483647_ <>  39614081238685424723062423552_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (18)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  2147483648_ <> -39614081257132168798919458816_ or
+        bigintExpr(-18446744073709551616_) *  2147483648_ <> -39614081257132168796771975168_ or
+        bigintExpr(-10000000000000000000_) *  2147483648_ <> -21474836480000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  2147483648_ <>  -2147483648000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  2147483648_ <>   -214748364800000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  2147483648_ <>    -21474836480000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  2147483648_ <>     -2147483648000000000000000_ or
+        bigintExpr(     -100000000000000_) *  2147483648_ <>      -214748364800000000000000_ or
+        bigintExpr(      -10000000000000_) *  2147483648_ <>       -21474836480000000000000_ or
+        bigintExpr(       -1000000000000_) *  2147483648_ <>        -2147483648000000000000_ or
+        bigintExpr(        -100000000000_) *  2147483648_ <>         -214748364800000000000_ or
+        bigintExpr(         -10000000000_) *  2147483648_ <>          -21474836480000000000_ or
+        bigintExpr(          -4294967297_) *  2147483648_ <>           -9223372039002259456_ or
+        bigintExpr(          -4294967296_) *  2147483648_ <>           -9223372036854775808_ or
+        bigintExpr(          -1000000000_) *  2147483648_ <>           -2147483648000000000_ or
+        bigintExpr(           -100000000_) *  2147483648_ <>            -214748364800000000_ or
+        bigintExpr(            -10000000_) *  2147483648_ <>             -21474836480000000_ or
+        bigintExpr(             -1000000_) *  2147483648_ <>              -2147483648000000_ or
+        bigintExpr(              -100000_) *  2147483648_ <>               -214748364800000_ or
+        bigintExpr(               -65537_) *  2147483648_ <>               -140739635838976_ or
+        bigintExpr(               -65536_) *  2147483648_ <>               -140737488355328_ or
+        bigintExpr(               -10000_) *  2147483648_ <>                -21474836480000_ or
+        bigintExpr(                -1000_) *  2147483648_ <>                 -2147483648000_ or
+        bigintExpr(                 -257_) *  2147483648_ <>                  -551903297536_ or
+        bigintExpr(                 -256_) *  2147483648_ <>                  -549755813888_ or
+        bigintExpr(                  -10_) *  2147483648_ <>                   -21474836480_ or
+        bigintExpr(                   -4_) *  2147483648_ <>                    -8589934592_ or
+        bigintExpr(                   -3_) *  2147483648_ <>                    -6442450944_ or
+        bigintExpr(                   -2_) *  2147483648_ <>                    -4294967296_ or
+        bigintExpr(                   -1_) *  2147483648_ <>                    -2147483648_ or
+        bigintExpr(                    0_) *  2147483648_ <>                              0_ or
+        bigintExpr(                    1_) *  2147483648_ <>                     2147483648_ or
+        bigintExpr(                    2_) *  2147483648_ <>                     4294967296_ or
+        bigintExpr(                    3_) *  2147483648_ <>                     6442450944_ or
+        bigintExpr(                    4_) *  2147483648_ <>                     8589934592_ or
+        bigintExpr(                   10_) *  2147483648_ <>                    21474836480_ or
+        bigintExpr(                  255_) *  2147483648_ <>                   547608330240_ or
+        bigintExpr(                  256_) *  2147483648_ <>                   549755813888_ or
+        bigintExpr(                 1000_) *  2147483648_ <>                  2147483648000_ or
+        bigintExpr(                10000_) *  2147483648_ <>                 21474836480000_ or
+        bigintExpr(                65535_) *  2147483648_ <>                140735340871680_ or
+        bigintExpr(                65536_) *  2147483648_ <>                140737488355328_ or
+        bigintExpr(               100000_) *  2147483648_ <>                214748364800000_ or
+        bigintExpr(              1000000_) *  2147483648_ <>               2147483648000000_ or
+        bigintExpr(             10000000_) *  2147483648_ <>              21474836480000000_ or
+        bigintExpr(            100000000_) *  2147483648_ <>             214748364800000000_ or
+        bigintExpr(           1000000000_) *  2147483648_ <>            2147483648000000000_ or
+        bigintExpr(           4294967295_) *  2147483648_ <>            9223372034707292160_ or
+        bigintExpr(           4294967296_) *  2147483648_ <>            9223372036854775808_ or
+        bigintExpr(          10000000000_) *  2147483648_ <>           21474836480000000000_ or
+        bigintExpr(         100000000000_) *  2147483648_ <>          214748364800000000000_ or
+        bigintExpr(        1000000000000_) *  2147483648_ <>         2147483648000000000000_ or
+        bigintExpr(       10000000000000_) *  2147483648_ <>        21474836480000000000000_ or
+        bigintExpr(      100000000000000_) *  2147483648_ <>       214748364800000000000000_ or
+        bigintExpr(     1000000000000000_) *  2147483648_ <>      2147483648000000000000000_ or
+        bigintExpr(    10000000000000000_) *  2147483648_ <>     21474836480000000000000000_ or
+        bigintExpr(   100000000000000000_) *  2147483648_ <>    214748364800000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  2147483648_ <>   2147483648000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  2147483648_ <>  21474836480000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  2147483648_ <>  39614081257132168794624491520_ or
+        bigintExpr( 18446744073709551616_) *  2147483648_ <>  39614081257132168796771975168_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (19)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  2147483649_ <> -39614081275578912872629010433_ or
+        bigintExpr(-18446744073709551616_) *  2147483649_ <> -39614081275578912870481526784_ or
+        bigintExpr(-10000000000000000000_) *  2147483649_ <> -21474836490000000000000000000_ or
+        bigintExpr( -1000000000000000000_) *  2147483649_ <>  -2147483649000000000000000000_ or
+        bigintExpr(  -100000000000000000_) *  2147483649_ <>   -214748364900000000000000000_ or
+        bigintExpr(   -10000000000000000_) *  2147483649_ <>    -21474836490000000000000000_ or
+        bigintExpr(    -1000000000000000_) *  2147483649_ <>     -2147483649000000000000000_ or
+        bigintExpr(     -100000000000000_) *  2147483649_ <>      -214748364900000000000000_ or
+        bigintExpr(      -10000000000000_) *  2147483649_ <>       -21474836490000000000000_ or
+        bigintExpr(       -1000000000000_) *  2147483649_ <>        -2147483649000000000000_ or
+        bigintExpr(        -100000000000_) *  2147483649_ <>         -214748364900000000000_ or
+        bigintExpr(         -10000000000_) *  2147483649_ <>          -21474836490000000000_ or
+        bigintExpr(          -4294967297_) *  2147483649_ <>           -9223372043297226753_ or
+        bigintExpr(          -4294967296_) *  2147483649_ <>           -9223372041149743104_ or
+        bigintExpr(          -1000000000_) *  2147483649_ <>           -2147483649000000000_ or
+        bigintExpr(           -100000000_) *  2147483649_ <>            -214748364900000000_ or
+        bigintExpr(            -10000000_) *  2147483649_ <>             -21474836490000000_ or
+        bigintExpr(             -1000000_) *  2147483649_ <>              -2147483649000000_ or
+        bigintExpr(              -100000_) *  2147483649_ <>               -214748364900000_ or
+        bigintExpr(               -65537_) *  2147483649_ <>               -140739635904513_ or
+        bigintExpr(               -65536_) *  2147483649_ <>               -140737488420864_ or
+        bigintExpr(               -10000_) *  2147483649_ <>                -21474836490000_ or
+        bigintExpr(                -1000_) *  2147483649_ <>                 -2147483649000_ or
+        bigintExpr(                 -257_) *  2147483649_ <>                  -551903297793_ or
+        bigintExpr(                 -256_) *  2147483649_ <>                  -549755814144_ or
+        bigintExpr(                  -10_) *  2147483649_ <>                   -21474836490_ or
+        bigintExpr(                   -4_) *  2147483649_ <>                    -8589934596_ or
+        bigintExpr(                   -3_) *  2147483649_ <>                    -6442450947_ or
+        bigintExpr(                   -2_) *  2147483649_ <>                    -4294967298_ or
+        bigintExpr(                   -1_) *  2147483649_ <>                    -2147483649_ or
+        bigintExpr(                    0_) *  2147483649_ <>                              0_ or
+        bigintExpr(                    1_) *  2147483649_ <>                     2147483649_ or
+        bigintExpr(                    2_) *  2147483649_ <>                     4294967298_ or
+        bigintExpr(                    3_) *  2147483649_ <>                     6442450947_ or
+        bigintExpr(                    4_) *  2147483649_ <>                     8589934596_ or
+        bigintExpr(                   10_) *  2147483649_ <>                    21474836490_ or
+        bigintExpr(                  255_) *  2147483649_ <>                   547608330495_ or
+        bigintExpr(                  256_) *  2147483649_ <>                   549755814144_ or
+        bigintExpr(                 1000_) *  2147483649_ <>                  2147483649000_ or
+        bigintExpr(                10000_) *  2147483649_ <>                 21474836490000_ or
+        bigintExpr(                65535_) *  2147483649_ <>                140735340937215_ or
+        bigintExpr(                65536_) *  2147483649_ <>                140737488420864_ or
+        bigintExpr(               100000_) *  2147483649_ <>                214748364900000_ or
+        bigintExpr(              1000000_) *  2147483649_ <>               2147483649000000_ or
+        bigintExpr(             10000000_) *  2147483649_ <>              21474836490000000_ or
+        bigintExpr(            100000000_) *  2147483649_ <>             214748364900000000_ or
+        bigintExpr(           1000000000_) *  2147483649_ <>            2147483649000000000_ or
+        bigintExpr(           4294967295_) *  2147483649_ <>            9223372039002259455_ or
+        bigintExpr(           4294967296_) *  2147483649_ <>            9223372041149743104_ or
+        bigintExpr(          10000000000_) *  2147483649_ <>           21474836490000000000_ or
+        bigintExpr(         100000000000_) *  2147483649_ <>          214748364900000000000_ or
+        bigintExpr(        1000000000000_) *  2147483649_ <>         2147483649000000000000_ or
+        bigintExpr(       10000000000000_) *  2147483649_ <>        21474836490000000000000_ or
+        bigintExpr(      100000000000000_) *  2147483649_ <>       214748364900000000000000_ or
+        bigintExpr(     1000000000000000_) *  2147483649_ <>      2147483649000000000000000_ or
+        bigintExpr(    10000000000000000_) *  2147483649_ <>     21474836490000000000000000_ or
+        bigintExpr(   100000000000000000_) *  2147483649_ <>    214748364900000000000000000_ or
+        bigintExpr(  1000000000000000000_) *  2147483649_ <>   2147483649000000000000000000_ or
+        bigintExpr( 10000000000000000000_) *  2147483649_ <>  21474836490000000000000000000_ or
+        bigintExpr( 18446744073709551615_) *  2147483649_ <>  39614081275578912868334043135_ or
+        bigintExpr( 18446744073709551616_) *  2147483649_ <>  39614081275578912870481526784_ then
+      writeln("Multiplication of constant with bigInteger does not work correctly. (20)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: chkMultiplication is func
   local
     var bigInteger: number is 0_;
@@ -15692,913 +17010,13 @@ const proc: chkMultiplication is func
       okay := FALSE;
     end if;
 
-    if  -3_ * bigintExpr(-18446744073709551617_) <>  55340232221128654851_ or
-        -3_ * bigintExpr(-18446744073709551616_) <>  55340232221128654848_ or
-        -3_ * bigintExpr(-10000000000000000000_) <>  30000000000000000000_ or
-        -3_ * bigintExpr( -1000000000000000000_) <>   3000000000000000000_ or
-        -3_ * bigintExpr(  -100000000000000000_) <>    300000000000000000_ or
-        -3_ * bigintExpr(   -10000000000000000_) <>     30000000000000000_ or
-        -3_ * bigintExpr(    -1000000000000000_) <>      3000000000000000_ or
-        -3_ * bigintExpr(     -100000000000000_) <>       300000000000000_ or
-        -3_ * bigintExpr(      -10000000000000_) <>        30000000000000_ or
-        -3_ * bigintExpr(       -1000000000000_) <>         3000000000000_ or
-        -3_ * bigintExpr(        -100000000000_) <>          300000000000_ or
-        -3_ * bigintExpr(         -10000000000_) <>           30000000000_ or
-        -3_ * bigintExpr(          -4294967297_) <>           12884901891_ or
-        -3_ * bigintExpr(          -4294967296_) <>           12884901888_ or
-        -3_ * bigintExpr(          -1000000000_) <>            3000000000_ or
-        -3_ * bigintExpr(           -100000000_) <>             300000000_ or
-        -3_ * bigintExpr(            -10000000_) <>              30000000_ or
-        -3_ * bigintExpr(             -1000000_) <>               3000000_ or
-        -3_ * bigintExpr(              -100000_) <>                300000_ or
-        -3_ * bigintExpr(               -65537_) <>                196611_ or
-        -3_ * bigintExpr(               -65536_) <>                196608_ or
-        -3_ * bigintExpr(               -10000_) <>                 30000_ or
-        -3_ * bigintExpr(                -1000_) <>                  3000_ or
-        -3_ * bigintExpr(                 -257_) <>                   771_ or
-        -3_ * bigintExpr(                 -256_) <>                   768_ or
-        -3_ * bigintExpr(                  -10_) <>                    30_ or
-        -3_ * bigintExpr(                   -4_) <>                    12_ or
-        -3_ * bigintExpr(                   -3_) <>                     9_ or
-        -3_ * bigintExpr(                   -2_) <>                     6_ or
-        -3_ * bigintExpr(                   -1_) <>                     3_ or
-        -3_ * bigintExpr(                    0_) <>                     0_ or
-        -3_ * bigintExpr(                    1_) <>                    -3_ or
-        -3_ * bigintExpr(                    2_) <>                    -6_ or
-        -3_ * bigintExpr(                    3_) <>                    -9_ or
-        -3_ * bigintExpr(                    4_) <>                   -12_ or
-        -3_ * bigintExpr(                   10_) <>                   -30_ or
-        -3_ * bigintExpr(                  255_) <>                  -765_ or
-        -3_ * bigintExpr(                  256_) <>                  -768_ or
-        -3_ * bigintExpr(                 1000_) <>                 -3000_ or
-        -3_ * bigintExpr(                10000_) <>                -30000_ or
-        -3_ * bigintExpr(                65535_) <>               -196605_ or
-        -3_ * bigintExpr(                65536_) <>               -196608_ or
-        -3_ * bigintExpr(               100000_) <>               -300000_ or
-        -3_ * bigintExpr(              1000000_) <>              -3000000_ or
-        -3_ * bigintExpr(             10000000_) <>             -30000000_ or
-        -3_ * bigintExpr(            100000000_) <>            -300000000_ or
-        -3_ * bigintExpr(           1000000000_) <>           -3000000000_ or
-        -3_ * bigintExpr(           4294967295_) <>          -12884901885_ or
-        -3_ * bigintExpr(           4294967296_) <>          -12884901888_ or
-        -3_ * bigintExpr(          10000000000_) <>          -30000000000_ or
-        -3_ * bigintExpr(         100000000000_) <>         -300000000000_ or
-        -3_ * bigintExpr(        1000000000000_) <>        -3000000000000_ or
-        -3_ * bigintExpr(       10000000000000_) <>       -30000000000000_ or
-        -3_ * bigintExpr(      100000000000000_) <>      -300000000000000_ or
-        -3_ * bigintExpr(     1000000000000000_) <>     -3000000000000000_ or
-        -3_ * bigintExpr(    10000000000000000_) <>    -30000000000000000_ or
-        -3_ * bigintExpr(   100000000000000000_) <>   -300000000000000000_ or
-        -3_ * bigintExpr(  1000000000000000000_) <>  -3000000000000000000_ or
-        -3_ * bigintExpr( 10000000000000000000_) <> -30000000000000000000_ or
-        -3_ * bigintExpr( 18446744073709551615_) <> -55340232221128654845_ or
-        -3_ * bigintExpr( 18446744073709551616_) <> -55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (1)");
+    if not chkMultiplicationWithConst1 then
       okay := FALSE;
     end if;
-
-    if  -2_ * bigintExpr(-18446744073709551617_) <>  36893488147419103234_ or
-        -2_ * bigintExpr(-18446744073709551616_) <>  36893488147419103232_ or
-        -2_ * bigintExpr(-10000000000000000000_) <>  20000000000000000000_ or
-        -2_ * bigintExpr( -1000000000000000000_) <>   2000000000000000000_ or
-        -2_ * bigintExpr(  -100000000000000000_) <>    200000000000000000_ or
-        -2_ * bigintExpr(   -10000000000000000_) <>     20000000000000000_ or
-        -2_ * bigintExpr(    -1000000000000000_) <>      2000000000000000_ or
-        -2_ * bigintExpr(     -100000000000000_) <>       200000000000000_ or
-        -2_ * bigintExpr(      -10000000000000_) <>        20000000000000_ or
-        -2_ * bigintExpr(       -1000000000000_) <>         2000000000000_ or
-        -2_ * bigintExpr(        -100000000000_) <>          200000000000_ or
-        -2_ * bigintExpr(         -10000000000_) <>           20000000000_ or
-        -2_ * bigintExpr(          -4294967297_) <>            8589934594_ or
-        -2_ * bigintExpr(          -4294967296_) <>            8589934592_ or
-        -2_ * bigintExpr(          -1000000000_) <>            2000000000_ or
-        -2_ * bigintExpr(           -100000000_) <>             200000000_ or
-        -2_ * bigintExpr(            -10000000_) <>              20000000_ or
-        -2_ * bigintExpr(             -1000000_) <>               2000000_ or
-        -2_ * bigintExpr(              -100000_) <>                200000_ or
-        -2_ * bigintExpr(               -65537_) <>                131074_ or
-        -2_ * bigintExpr(               -65536_) <>                131072_ or
-        -2_ * bigintExpr(               -10000_) <>                 20000_ or
-        -2_ * bigintExpr(                -1000_) <>                  2000_ or
-        -2_ * bigintExpr(                 -257_) <>                   514_ or
-        -2_ * bigintExpr(                 -256_) <>                   512_ or
-        -2_ * bigintExpr(                  -10_) <>                    20_ or
-        -2_ * bigintExpr(                   -4_) <>                     8_ or
-        -2_ * bigintExpr(                   -3_) <>                     6_ or
-        -2_ * bigintExpr(                   -2_) <>                     4_ or
-        -2_ * bigintExpr(                   -1_) <>                     2_ or
-        -2_ * bigintExpr(                    0_) <>                     0_ or
-        -2_ * bigintExpr(                    1_) <>                    -2_ or
-        -2_ * bigintExpr(                    2_) <>                    -4_ or
-        -2_ * bigintExpr(                    3_) <>                    -6_ or
-        -2_ * bigintExpr(                    4_) <>                    -8_ or
-        -2_ * bigintExpr(                   10_) <>                   -20_ or
-        -2_ * bigintExpr(                  255_) <>                  -510_ or
-        -2_ * bigintExpr(                  256_) <>                  -512_ or
-        -2_ * bigintExpr(                 1000_) <>                 -2000_ or
-        -2_ * bigintExpr(                10000_) <>                -20000_ or
-        -2_ * bigintExpr(                65535_) <>               -131070_ or
-        -2_ * bigintExpr(                65536_) <>               -131072_ or
-        -2_ * bigintExpr(               100000_) <>               -200000_ or
-        -2_ * bigintExpr(              1000000_) <>              -2000000_ or
-        -2_ * bigintExpr(             10000000_) <>             -20000000_ or
-        -2_ * bigintExpr(            100000000_) <>            -200000000_ or
-        -2_ * bigintExpr(           1000000000_) <>           -2000000000_ or
-        -2_ * bigintExpr(           4294967295_) <>           -8589934590_ or
-        -2_ * bigintExpr(           4294967296_) <>           -8589934592_ or
-        -2_ * bigintExpr(          10000000000_) <>          -20000000000_ or
-        -2_ * bigintExpr(         100000000000_) <>         -200000000000_ or
-        -2_ * bigintExpr(        1000000000000_) <>        -2000000000000_ or
-        -2_ * bigintExpr(       10000000000000_) <>       -20000000000000_ or
-        -2_ * bigintExpr(      100000000000000_) <>      -200000000000000_ or
-        -2_ * bigintExpr(     1000000000000000_) <>     -2000000000000000_ or
-        -2_ * bigintExpr(    10000000000000000_) <>    -20000000000000000_ or
-        -2_ * bigintExpr(   100000000000000000_) <>   -200000000000000000_ or
-        -2_ * bigintExpr(  1000000000000000000_) <>  -2000000000000000000_ or
-        -2_ * bigintExpr( 10000000000000000000_) <> -20000000000000000000_ or
-        -2_ * bigintExpr( 18446744073709551615_) <> -36893488147419103230_ or
-        -2_ * bigintExpr( 18446744073709551616_) <> -36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (2)");
+    if not chkMultiplicationWithConst2 then
       okay := FALSE;
     end if;
-
-    if  -1_ * bigintExpr(-18446744073709551617_) <>  18446744073709551617_ or
-        -1_ * bigintExpr(-18446744073709551616_) <>  18446744073709551616_ or
-        -1_ * bigintExpr(-10000000000000000000_) <>  10000000000000000000_ or
-        -1_ * bigintExpr( -1000000000000000000_) <>   1000000000000000000_ or
-        -1_ * bigintExpr(  -100000000000000000_) <>    100000000000000000_ or
-        -1_ * bigintExpr(   -10000000000000000_) <>     10000000000000000_ or
-        -1_ * bigintExpr(    -1000000000000000_) <>      1000000000000000_ or
-        -1_ * bigintExpr(     -100000000000000_) <>       100000000000000_ or
-        -1_ * bigintExpr(      -10000000000000_) <>        10000000000000_ or
-        -1_ * bigintExpr(       -1000000000000_) <>         1000000000000_ or
-        -1_ * bigintExpr(        -100000000000_) <>          100000000000_ or
-        -1_ * bigintExpr(         -10000000000_) <>           10000000000_ or
-        -1_ * bigintExpr(          -4294967297_) <>            4294967297_ or
-        -1_ * bigintExpr(          -4294967296_) <>            4294967296_ or
-        -1_ * bigintExpr(          -1000000000_) <>            1000000000_ or
-        -1_ * bigintExpr(           -100000000_) <>             100000000_ or
-        -1_ * bigintExpr(            -10000000_) <>              10000000_ or
-        -1_ * bigintExpr(             -1000000_) <>               1000000_ or
-        -1_ * bigintExpr(              -100000_) <>                100000_ or
-        -1_ * bigintExpr(               -65537_) <>                 65537_ or
-        -1_ * bigintExpr(               -65536_) <>                 65536_ or
-        -1_ * bigintExpr(               -10000_) <>                 10000_ or
-        -1_ * bigintExpr(                -1000_) <>                  1000_ or
-        -1_ * bigintExpr(                 -257_) <>                   257_ or
-        -1_ * bigintExpr(                 -256_) <>                   256_ or
-        -1_ * bigintExpr(                  -10_) <>                    10_ or
-        -1_ * bigintExpr(                   -4_) <>                     4_ or
-        -1_ * bigintExpr(                   -3_) <>                     3_ or
-        -1_ * bigintExpr(                   -2_) <>                     2_ or
-        -1_ * bigintExpr(                   -1_) <>                     1_ or
-        -1_ * bigintExpr(                    0_) <>                     0_ or
-        -1_ * bigintExpr(                    1_) <>                    -1_ or
-        -1_ * bigintExpr(                    2_) <>                    -2_ or
-        -1_ * bigintExpr(                    3_) <>                    -3_ or
-        -1_ * bigintExpr(                    4_) <>                    -4_ or
-        -1_ * bigintExpr(                   10_) <>                   -10_ or
-        -1_ * bigintExpr(                  255_) <>                  -255_ or
-        -1_ * bigintExpr(                  256_) <>                  -256_ or
-        -1_ * bigintExpr(                 1000_) <>                 -1000_ or
-        -1_ * bigintExpr(                10000_) <>                -10000_ or
-        -1_ * bigintExpr(                65535_) <>                -65535_ or
-        -1_ * bigintExpr(                65536_) <>                -65536_ or
-        -1_ * bigintExpr(               100000_) <>               -100000_ or
-        -1_ * bigintExpr(              1000000_) <>              -1000000_ or
-        -1_ * bigintExpr(             10000000_) <>             -10000000_ or
-        -1_ * bigintExpr(            100000000_) <>            -100000000_ or
-        -1_ * bigintExpr(           1000000000_) <>           -1000000000_ or
-        -1_ * bigintExpr(           4294967295_) <>           -4294967295_ or
-        -1_ * bigintExpr(           4294967296_) <>           -4294967296_ or
-        -1_ * bigintExpr(          10000000000_) <>          -10000000000_ or
-        -1_ * bigintExpr(         100000000000_) <>         -100000000000_ or
-        -1_ * bigintExpr(        1000000000000_) <>        -1000000000000_ or
-        -1_ * bigintExpr(       10000000000000_) <>       -10000000000000_ or
-        -1_ * bigintExpr(      100000000000000_) <>      -100000000000000_ or
-        -1_ * bigintExpr(     1000000000000000_) <>     -1000000000000000_ or
-        -1_ * bigintExpr(    10000000000000000_) <>    -10000000000000000_ or
-        -1_ * bigintExpr(   100000000000000000_) <>   -100000000000000000_ or
-        -1_ * bigintExpr(  1000000000000000000_) <>  -1000000000000000000_ or
-        -1_ * bigintExpr( 10000000000000000000_) <> -10000000000000000000_ or
-        -1_ * bigintExpr( 18446744073709551615_) <> -18446744073709551615_ or
-        -1_ * bigintExpr( 18446744073709551616_) <> -18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (3)");
-      okay := FALSE;
-    end if;
-
-    if   0_ * bigintExpr(-18446744073709551617_) <> 0_ or
-         0_ * bigintExpr(-18446744073709551616_) <> 0_ or
-         0_ * bigintExpr(-10000000000000000000_) <> 0_ or
-         0_ * bigintExpr( -1000000000000000000_) <> 0_ or
-         0_ * bigintExpr(  -100000000000000000_) <> 0_ or
-         0_ * bigintExpr(   -10000000000000000_) <> 0_ or
-         0_ * bigintExpr(    -1000000000000000_) <> 0_ or
-         0_ * bigintExpr(     -100000000000000_) <> 0_ or
-         0_ * bigintExpr(      -10000000000000_) <> 0_ or
-         0_ * bigintExpr(       -1000000000000_) <> 0_ or
-         0_ * bigintExpr(        -100000000000_) <> 0_ or
-         0_ * bigintExpr(         -10000000000_) <> 0_ or
-         0_ * bigintExpr(          -4294967297_) <> 0_ or
-         0_ * bigintExpr(          -4294967296_) <> 0_ or
-         0_ * bigintExpr(          -1000000000_) <> 0_ or
-         0_ * bigintExpr(           -100000000_) <> 0_ or
-         0_ * bigintExpr(            -10000000_) <> 0_ or
-         0_ * bigintExpr(             -1000000_) <> 0_ or
-         0_ * bigintExpr(              -100000_) <> 0_ or
-         0_ * bigintExpr(               -65536_) <> 0_ or
-         0_ * bigintExpr(               -65536_) <> 0_ or
-         0_ * bigintExpr(               -10000_) <> 0_ or
-         0_ * bigintExpr(                -1000_) <> 0_ or
-         0_ * bigintExpr(                 -257_) <> 0_ or
-         0_ * bigintExpr(                 -256_) <> 0_ or
-         0_ * bigintExpr(                  -10_) <> 0_ or
-         0_ * bigintExpr(                   -4_) <> 0_ or
-         0_ * bigintExpr(                   -3_) <> 0_ or
-         0_ * bigintExpr(                   -2_) <> 0_ or
-         0_ * bigintExpr(                   -1_) <> 0_ or
-         0_ * bigintExpr(                    0_) <> 0_ or
-         0_ * bigintExpr(                    1_) <> 0_ or
-         0_ * bigintExpr(                    2_) <> 0_ or
-         0_ * bigintExpr(                    3_) <> 0_ or
-         0_ * bigintExpr(                    4_) <> 0_ or
-         0_ * bigintExpr(                   10_) <> 0_ or
-         0_ * bigintExpr(                  255_) <> 0_ or
-         0_ * bigintExpr(                  256_) <> 0_ or
-         0_ * bigintExpr(                 1000_) <> 0_ or
-         0_ * bigintExpr(                10000_) <> 0_ or
-         0_ * bigintExpr(                65535_) <> 0_ or
-         0_ * bigintExpr(                65536_) <> 0_ or
-         0_ * bigintExpr(               100000_) <> 0_ or
-         0_ * bigintExpr(              1000000_) <> 0_ or
-         0_ * bigintExpr(             10000000_) <> 0_ or
-         0_ * bigintExpr(            100000000_) <> 0_ or
-         0_ * bigintExpr(           1000000000_) <> 0_ or
-         0_ * bigintExpr(           4294967295_) <> 0_ or
-         0_ * bigintExpr(           4294967296_) <> 0_ or
-         0_ * bigintExpr(          10000000000_) <> 0_ or
-         0_ * bigintExpr(         100000000000_) <> 0_ or
-         0_ * bigintExpr(        1000000000000_) <> 0_ or
-         0_ * bigintExpr(       10000000000000_) <> 0_ or
-         0_ * bigintExpr(      100000000000000_) <> 0_ or
-         0_ * bigintExpr(     1000000000000000_) <> 0_ or
-         0_ * bigintExpr(    10000000000000000_) <> 0_ or
-         0_ * bigintExpr(   100000000000000000_) <> 0_ or
-         0_ * bigintExpr(  1000000000000000000_) <> 0_ or
-         0_ * bigintExpr( 10000000000000000000_) <> 0_ or
-         0_ * bigintExpr( 18446744073709551615_) <> 0_ or
-         0_ * bigintExpr( 18446744073709551616_) <> 0_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (4)");
-      okay := FALSE;
-    end if;
-
-    if   1_ * bigintExpr(-18446744073709551617_) <> -18446744073709551617_ or
-         1_ * bigintExpr(-18446744073709551616_) <> -18446744073709551616_ or
-         1_ * bigintExpr(-10000000000000000000_) <> -10000000000000000000_ or
-         1_ * bigintExpr( -1000000000000000000_) <>  -1000000000000000000_ or
-         1_ * bigintExpr(  -100000000000000000_) <>   -100000000000000000_ or
-         1_ * bigintExpr(   -10000000000000000_) <>    -10000000000000000_ or
-         1_ * bigintExpr(    -1000000000000000_) <>     -1000000000000000_ or
-         1_ * bigintExpr(     -100000000000000_) <>      -100000000000000_ or
-         1_ * bigintExpr(      -10000000000000_) <>       -10000000000000_ or
-         1_ * bigintExpr(       -1000000000000_) <>        -1000000000000_ or
-         1_ * bigintExpr(        -100000000000_) <>         -100000000000_ or
-         1_ * bigintExpr(         -10000000000_) <>          -10000000000_ or
-         1_ * bigintExpr(          -4294967297_) <>           -4294967297_ or
-         1_ * bigintExpr(          -4294967296_) <>           -4294967296_ or
-         1_ * bigintExpr(          -1000000000_) <>           -1000000000_ or
-         1_ * bigintExpr(           -100000000_) <>            -100000000_ or
-         1_ * bigintExpr(            -10000000_) <>             -10000000_ or
-         1_ * bigintExpr(             -1000000_) <>              -1000000_ or
-         1_ * bigintExpr(              -100000_) <>               -100000_ or
-         1_ * bigintExpr(               -65537_) <>                -65537_ or
-         1_ * bigintExpr(               -65536_) <>                -65536_ or
-         1_ * bigintExpr(               -10000_) <>                -10000_ or
-         1_ * bigintExpr(                -1000_) <>                 -1000_ or
-         1_ * bigintExpr(                 -257_) <>                  -257_ or
-         1_ * bigintExpr(                 -256_) <>                  -256_ or
-         1_ * bigintExpr(                  -10_) <>                   -10_ or
-         1_ * bigintExpr(                   -4_) <>                    -4_ or
-         1_ * bigintExpr(                   -3_) <>                    -3_ or
-         1_ * bigintExpr(                   -2_) <>                    -2_ or
-         1_ * bigintExpr(                   -1_) <>                    -1_ or
-         1_ * bigintExpr(                    0_) <>                     0_ or
-         1_ * bigintExpr(                    1_) <>                     1_ or
-         1_ * bigintExpr(                    2_) <>                     2_ or
-         1_ * bigintExpr(                    3_) <>                     3_ or
-         1_ * bigintExpr(                    4_) <>                     4_ or
-         1_ * bigintExpr(                   10_) <>                    10_ or
-         1_ * bigintExpr(                  255_) <>                   255_ or
-         1_ * bigintExpr(                  256_) <>                   256_ or
-         1_ * bigintExpr(                 1000_) <>                  1000_ or
-         1_ * bigintExpr(                10000_) <>                 10000_ or
-         1_ * bigintExpr(                65535_) <>                 65535_ or
-         1_ * bigintExpr(                65536_) <>                 65536_ or
-         1_ * bigintExpr(               100000_) <>                100000_ or
-         1_ * bigintExpr(              1000000_) <>               1000000_ or
-         1_ * bigintExpr(             10000000_) <>              10000000_ or
-         1_ * bigintExpr(            100000000_) <>             100000000_ or
-         1_ * bigintExpr(           1000000000_) <>            1000000000_ or
-         1_ * bigintExpr(           4294967295_) <>            4294967295_ or
-         1_ * bigintExpr(           4294967296_) <>            4294967296_ or
-         1_ * bigintExpr(          10000000000_) <>           10000000000_ or
-         1_ * bigintExpr(         100000000000_) <>          100000000000_ or
-         1_ * bigintExpr(        1000000000000_) <>         1000000000000_ or
-         1_ * bigintExpr(       10000000000000_) <>        10000000000000_ or
-         1_ * bigintExpr(      100000000000000_) <>       100000000000000_ or
-         1_ * bigintExpr(     1000000000000000_) <>      1000000000000000_ or
-         1_ * bigintExpr(    10000000000000000_) <>     10000000000000000_ or
-         1_ * bigintExpr(   100000000000000000_) <>    100000000000000000_ or
-         1_ * bigintExpr(  1000000000000000000_) <>   1000000000000000000_ or
-         1_ * bigintExpr( 10000000000000000000_) <>  10000000000000000000_ or
-         1_ * bigintExpr( 18446744073709551615_) <>  18446744073709551615_ or
-         1_ * bigintExpr( 18446744073709551616_) <>  18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (5)");
-      okay := FALSE;
-    end if;
-
-    if   2_ * bigintExpr(-18446744073709551617_) <> -36893488147419103234_ or
-         2_ * bigintExpr(-18446744073709551616_) <> -36893488147419103232_ or
-         2_ * bigintExpr(-10000000000000000000_) <> -20000000000000000000_ or
-         2_ * bigintExpr( -1000000000000000000_) <>  -2000000000000000000_ or
-         2_ * bigintExpr(  -100000000000000000_) <>   -200000000000000000_ or
-         2_ * bigintExpr(   -10000000000000000_) <>    -20000000000000000_ or
-         2_ * bigintExpr(    -1000000000000000_) <>     -2000000000000000_ or
-         2_ * bigintExpr(     -100000000000000_) <>      -200000000000000_ or
-         2_ * bigintExpr(      -10000000000000_) <>       -20000000000000_ or
-         2_ * bigintExpr(       -1000000000000_) <>        -2000000000000_ or
-         2_ * bigintExpr(        -100000000000_) <>         -200000000000_ or
-         2_ * bigintExpr(         -10000000000_) <>          -20000000000_ or
-         2_ * bigintExpr(          -4294967297_) <>           -8589934594_ or
-         2_ * bigintExpr(          -4294967296_) <>           -8589934592_ or
-         2_ * bigintExpr(          -1000000000_) <>           -2000000000_ or
-         2_ * bigintExpr(           -100000000_) <>            -200000000_ or
-         2_ * bigintExpr(            -10000000_) <>             -20000000_ or
-         2_ * bigintExpr(             -1000000_) <>              -2000000_ or
-         2_ * bigintExpr(              -100000_) <>               -200000_ or
-         2_ * bigintExpr(               -65537_) <>               -131074_ or
-         2_ * bigintExpr(               -65536_) <>               -131072_ or
-         2_ * bigintExpr(               -10000_) <>                -20000_ or
-         2_ * bigintExpr(                -1000_) <>                 -2000_ or
-         2_ * bigintExpr(                 -257_) <>                  -514_ or
-         2_ * bigintExpr(                 -256_) <>                  -512_ or
-         2_ * bigintExpr(                  -10_) <>                   -20_ or
-         2_ * bigintExpr(                   -4_) <>                    -8_ or
-         2_ * bigintExpr(                   -3_) <>                    -6_ or
-         2_ * bigintExpr(                   -2_) <>                    -4_ or
-         2_ * bigintExpr(                   -1_) <>                    -2_ or
-         2_ * bigintExpr(                    0_) <>                     0_ or
-         2_ * bigintExpr(                    1_) <>                     2_ or
-         2_ * bigintExpr(                    2_) <>                     4_ or
-         2_ * bigintExpr(                    3_) <>                     6_ or
-         2_ * bigintExpr(                    4_) <>                     8_ or
-         2_ * bigintExpr(                   10_) <>                    20_ or
-         2_ * bigintExpr(                  255_) <>                   510_ or
-         2_ * bigintExpr(                  256_) <>                   512_ or
-         2_ * bigintExpr(                 1000_) <>                  2000_ or
-         2_ * bigintExpr(                10000_) <>                 20000_ or
-         2_ * bigintExpr(                65535_) <>                131070_ or
-         2_ * bigintExpr(                65536_) <>                131072_ or
-         2_ * bigintExpr(               100000_) <>                200000_ or
-         2_ * bigintExpr(              1000000_) <>               2000000_ or
-         2_ * bigintExpr(             10000000_) <>              20000000_ or
-         2_ * bigintExpr(            100000000_) <>             200000000_ or
-         2_ * bigintExpr(           1000000000_) <>            2000000000_ or
-         2_ * bigintExpr(           4294967295_) <>            8589934590_ or
-         2_ * bigintExpr(           4294967296_) <>            8589934592_ or
-         2_ * bigintExpr(          10000000000_) <>           20000000000_ or
-         2_ * bigintExpr(         100000000000_) <>          200000000000_ or
-         2_ * bigintExpr(        1000000000000_) <>         2000000000000_ or
-         2_ * bigintExpr(       10000000000000_) <>        20000000000000_ or
-         2_ * bigintExpr(      100000000000000_) <>       200000000000000_ or
-         2_ * bigintExpr(     1000000000000000_) <>      2000000000000000_ or
-         2_ * bigintExpr(    10000000000000000_) <>     20000000000000000_ or
-         2_ * bigintExpr(   100000000000000000_) <>    200000000000000000_ or
-         2_ * bigintExpr(  1000000000000000000_) <>   2000000000000000000_ or
-         2_ * bigintExpr( 10000000000000000000_) <>  20000000000000000000_ or
-         2_ * bigintExpr( 18446744073709551615_) <>  36893488147419103230_ or
-         2_ * bigintExpr( 18446744073709551616_) <>  36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (6)");
-      okay := FALSE;
-    end if;
-
-    if   3_ * bigintExpr(-18446744073709551617_) <> -55340232221128654851_ or
-         3_ * bigintExpr(-18446744073709551616_) <> -55340232221128654848_ or
-         3_ * bigintExpr(-10000000000000000000_) <> -30000000000000000000_ or
-         3_ * bigintExpr( -1000000000000000000_) <>  -3000000000000000000_ or
-         3_ * bigintExpr(  -100000000000000000_) <>   -300000000000000000_ or
-         3_ * bigintExpr(   -10000000000000000_) <>    -30000000000000000_ or
-         3_ * bigintExpr(    -1000000000000000_) <>     -3000000000000000_ or
-         3_ * bigintExpr(     -100000000000000_) <>      -300000000000000_ or
-         3_ * bigintExpr(      -10000000000000_) <>       -30000000000000_ or
-         3_ * bigintExpr(       -1000000000000_) <>        -3000000000000_ or
-         3_ * bigintExpr(        -100000000000_) <>         -300000000000_ or
-         3_ * bigintExpr(         -10000000000_) <>          -30000000000_ or
-         3_ * bigintExpr(          -4294967297_) <>          -12884901891_ or
-         3_ * bigintExpr(          -4294967296_) <>          -12884901888_ or
-         3_ * bigintExpr(          -1000000000_) <>           -3000000000_ or
-         3_ * bigintExpr(           -100000000_) <>            -300000000_ or
-         3_ * bigintExpr(            -10000000_) <>             -30000000_ or
-         3_ * bigintExpr(             -1000000_) <>              -3000000_ or
-         3_ * bigintExpr(              -100000_) <>               -300000_ or
-         3_ * bigintExpr(               -65537_) <>               -196611_ or
-         3_ * bigintExpr(               -65536_) <>               -196608_ or
-         3_ * bigintExpr(               -10000_) <>                -30000_ or
-         3_ * bigintExpr(                -1000_) <>                 -3000_ or
-         3_ * bigintExpr(                 -257_) <>                  -771_ or
-         3_ * bigintExpr(                 -256_) <>                  -768_ or
-         3_ * bigintExpr(                  -10_) <>                   -30_ or
-         3_ * bigintExpr(                   -4_) <>                   -12_ or
-         3_ * bigintExpr(                   -3_) <>                    -9_ or
-         3_ * bigintExpr(                   -2_) <>                    -6_ or
-         3_ * bigintExpr(                   -1_) <>                    -3_ or
-         3_ * bigintExpr(                    0_) <>                     0_ or
-         3_ * bigintExpr(                    1_) <>                     3_ or
-         3_ * bigintExpr(                    2_) <>                     6_ or
-         3_ * bigintExpr(                    3_) <>                     9_ or
-         3_ * bigintExpr(                    4_) <>                    12_ or
-         3_ * bigintExpr(                   10_) <>                    30_ or
-         3_ * bigintExpr(                  255_) <>                   765_ or
-         3_ * bigintExpr(                  256_) <>                   768_ or
-         3_ * bigintExpr(                 1000_) <>                  3000_ or
-         3_ * bigintExpr(                10000_) <>                 30000_ or
-         3_ * bigintExpr(                65535_) <>                196605_ or
-         3_ * bigintExpr(                65536_) <>                196608_ or
-         3_ * bigintExpr(               100000_) <>                300000_ or
-         3_ * bigintExpr(              1000000_) <>               3000000_ or
-         3_ * bigintExpr(             10000000_) <>              30000000_ or
-         3_ * bigintExpr(            100000000_) <>             300000000_ or
-         3_ * bigintExpr(           1000000000_) <>            3000000000_ or
-         3_ * bigintExpr(           4294967295_) <>           12884901885_ or
-         3_ * bigintExpr(           4294967296_) <>           12884901888_ or
-         3_ * bigintExpr(          10000000000_) <>           30000000000_ or
-         3_ * bigintExpr(         100000000000_) <>          300000000000_ or
-         3_ * bigintExpr(        1000000000000_) <>         3000000000000_ or
-         3_ * bigintExpr(       10000000000000_) <>        30000000000000_ or
-         3_ * bigintExpr(      100000000000000_) <>       300000000000000_ or
-         3_ * bigintExpr(     1000000000000000_) <>      3000000000000000_ or
-         3_ * bigintExpr(    10000000000000000_) <>     30000000000000000_ or
-         3_ * bigintExpr(   100000000000000000_) <>    300000000000000000_ or
-         3_ * bigintExpr(  1000000000000000000_) <>   3000000000000000000_ or
-         3_ * bigintExpr( 10000000000000000000_) <>  30000000000000000000_ or
-         3_ * bigintExpr( 18446744073709551615_) <>  55340232221128654845_ or
-         3_ * bigintExpr( 18446744073709551616_) <>  55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (7)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) * -3_ <>  55340232221128654851_ or
-        bigintExpr(-18446744073709551616_) * -3_ <>  55340232221128654848_ or
-        bigintExpr(-10000000000000000000_) * -3_ <>  30000000000000000000_ or
-        bigintExpr( -1000000000000000000_) * -3_ <>   3000000000000000000_ or
-        bigintExpr(  -100000000000000000_) * -3_ <>    300000000000000000_ or
-        bigintExpr(   -10000000000000000_) * -3_ <>     30000000000000000_ or
-        bigintExpr(    -1000000000000000_) * -3_ <>      3000000000000000_ or
-        bigintExpr(     -100000000000000_) * -3_ <>       300000000000000_ or
-        bigintExpr(      -10000000000000_) * -3_ <>        30000000000000_ or
-        bigintExpr(       -1000000000000_) * -3_ <>         3000000000000_ or
-        bigintExpr(        -100000000000_) * -3_ <>          300000000000_ or
-        bigintExpr(         -10000000000_) * -3_ <>           30000000000_ or
-        bigintExpr(          -4294967297_) * -3_ <>           12884901891_ or
-        bigintExpr(          -4294967296_) * -3_ <>           12884901888_ or
-        bigintExpr(          -1000000000_) * -3_ <>            3000000000_ or
-        bigintExpr(           -100000000_) * -3_ <>             300000000_ or
-        bigintExpr(            -10000000_) * -3_ <>              30000000_ or
-        bigintExpr(             -1000000_) * -3_ <>               3000000_ or
-        bigintExpr(              -100000_) * -3_ <>                300000_ or
-        bigintExpr(               -65537_) * -3_ <>                196611_ or
-        bigintExpr(               -65536_) * -3_ <>                196608_ or
-        bigintExpr(               -10000_) * -3_ <>                 30000_ or
-        bigintExpr(                -1000_) * -3_ <>                  3000_ or
-        bigintExpr(                 -257_) * -3_ <>                   771_ or
-        bigintExpr(                 -256_) * -3_ <>                   768_ or
-        bigintExpr(                  -10_) * -3_ <>                    30_ or
-        bigintExpr(                   -4_) * -3_ <>                    12_ or
-        bigintExpr(                   -3_) * -3_ <>                     9_ or
-        bigintExpr(                   -2_) * -3_ <>                     6_ or
-        bigintExpr(                   -1_) * -3_ <>                     3_ or
-        bigintExpr(                    0_) * -3_ <>                     0_ or
-        bigintExpr(                    1_) * -3_ <>                    -3_ or
-        bigintExpr(                    2_) * -3_ <>                    -6_ or
-        bigintExpr(                    3_) * -3_ <>                    -9_ or
-        bigintExpr(                    4_) * -3_ <>                   -12_ or
-        bigintExpr(                   10_) * -3_ <>                   -30_ or
-        bigintExpr(                  255_) * -3_ <>                  -765_ or
-        bigintExpr(                  256_) * -3_ <>                  -768_ or
-        bigintExpr(                 1000_) * -3_ <>                 -3000_ or
-        bigintExpr(                10000_) * -3_ <>                -30000_ or
-        bigintExpr(                65535_) * -3_ <>               -196605_ or
-        bigintExpr(                65536_) * -3_ <>               -196608_ or
-        bigintExpr(               100000_) * -3_ <>               -300000_ or
-        bigintExpr(              1000000_) * -3_ <>              -3000000_ or
-        bigintExpr(             10000000_) * -3_ <>             -30000000_ or
-        bigintExpr(            100000000_) * -3_ <>            -300000000_ or
-        bigintExpr(           1000000000_) * -3_ <>           -3000000000_ or
-        bigintExpr(           4294967295_) * -3_ <>          -12884901885_ or
-        bigintExpr(           4294967296_) * -3_ <>          -12884901888_ or
-        bigintExpr(          10000000000_) * -3_ <>          -30000000000_ or
-        bigintExpr(         100000000000_) * -3_ <>         -300000000000_ or
-        bigintExpr(        1000000000000_) * -3_ <>        -3000000000000_ or
-        bigintExpr(       10000000000000_) * -3_ <>       -30000000000000_ or
-        bigintExpr(      100000000000000_) * -3_ <>      -300000000000000_ or
-        bigintExpr(     1000000000000000_) * -3_ <>     -3000000000000000_ or
-        bigintExpr(    10000000000000000_) * -3_ <>    -30000000000000000_ or
-        bigintExpr(   100000000000000000_) * -3_ <>   -300000000000000000_ or
-        bigintExpr(  1000000000000000000_) * -3_ <>  -3000000000000000000_ or
-        bigintExpr( 10000000000000000000_) * -3_ <> -30000000000000000000_ or
-        bigintExpr( 18446744073709551615_) * -3_ <> -55340232221128654845_ or
-        bigintExpr( 18446744073709551616_) * -3_ <> -55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (8)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) * -2_ <>  36893488147419103234_ or
-        bigintExpr(-18446744073709551616_) * -2_ <>  36893488147419103232_ or
-        bigintExpr(-10000000000000000000_) * -2_ <>  20000000000000000000_ or
-        bigintExpr( -1000000000000000000_) * -2_ <>   2000000000000000000_ or
-        bigintExpr(  -100000000000000000_) * -2_ <>    200000000000000000_ or
-        bigintExpr(   -10000000000000000_) * -2_ <>     20000000000000000_ or
-        bigintExpr(    -1000000000000000_) * -2_ <>      2000000000000000_ or
-        bigintExpr(     -100000000000000_) * -2_ <>       200000000000000_ or
-        bigintExpr(      -10000000000000_) * -2_ <>        20000000000000_ or
-        bigintExpr(       -1000000000000_) * -2_ <>         2000000000000_ or
-        bigintExpr(        -100000000000_) * -2_ <>          200000000000_ or
-        bigintExpr(         -10000000000_) * -2_ <>           20000000000_ or
-        bigintExpr(          -4294967297_) * -2_ <>            8589934594_ or
-        bigintExpr(          -4294967296_) * -2_ <>            8589934592_ or
-        bigintExpr(          -1000000000_) * -2_ <>            2000000000_ or
-        bigintExpr(           -100000000_) * -2_ <>             200000000_ or
-        bigintExpr(            -10000000_) * -2_ <>              20000000_ or
-        bigintExpr(             -1000000_) * -2_ <>               2000000_ or
-        bigintExpr(              -100000_) * -2_ <>                200000_ or
-        bigintExpr(               -65537_) * -2_ <>                131074_ or
-        bigintExpr(               -65536_) * -2_ <>                131072_ or
-        bigintExpr(               -10000_) * -2_ <>                 20000_ or
-        bigintExpr(                -1000_) * -2_ <>                  2000_ or
-        bigintExpr(                 -257_) * -2_ <>                   514_ or
-        bigintExpr(                 -256_) * -2_ <>                   512_ or
-        bigintExpr(                  -10_) * -2_ <>                    20_ or
-        bigintExpr(                   -4_) * -2_ <>                     8_ or
-        bigintExpr(                   -3_) * -2_ <>                     6_ or
-        bigintExpr(                   -2_) * -2_ <>                     4_ or
-        bigintExpr(                   -1_) * -2_ <>                     2_ or
-        bigintExpr(                    0_) * -2_ <>                     0_ or
-        bigintExpr(                    1_) * -2_ <>                    -2_ or
-        bigintExpr(                    2_) * -2_ <>                    -4_ or
-        bigintExpr(                    3_) * -2_ <>                    -6_ or
-        bigintExpr(                    4_) * -2_ <>                    -8_ or
-        bigintExpr(                   10_) * -2_ <>                   -20_ or
-        bigintExpr(                  255_) * -2_ <>                  -510_ or
-        bigintExpr(                  256_) * -2_ <>                  -512_ or
-        bigintExpr(                 1000_) * -2_ <>                 -2000_ or
-        bigintExpr(                10000_) * -2_ <>                -20000_ or
-        bigintExpr(                65535_) * -2_ <>               -131070_ or
-        bigintExpr(                65536_) * -2_ <>               -131072_ or
-        bigintExpr(               100000_) * -2_ <>               -200000_ or
-        bigintExpr(              1000000_) * -2_ <>              -2000000_ or
-        bigintExpr(             10000000_) * -2_ <>             -20000000_ or
-        bigintExpr(            100000000_) * -2_ <>            -200000000_ or
-        bigintExpr(           1000000000_) * -2_ <>           -2000000000_ or
-        bigintExpr(           4294967295_) * -2_ <>           -8589934590_ or
-        bigintExpr(           4294967296_) * -2_ <>           -8589934592_ or
-        bigintExpr(          10000000000_) * -2_ <>          -20000000000_ or
-        bigintExpr(         100000000000_) * -2_ <>         -200000000000_ or
-        bigintExpr(        1000000000000_) * -2_ <>        -2000000000000_ or
-        bigintExpr(       10000000000000_) * -2_ <>       -20000000000000_ or
-        bigintExpr(      100000000000000_) * -2_ <>      -200000000000000_ or
-        bigintExpr(     1000000000000000_) * -2_ <>     -2000000000000000_ or
-        bigintExpr(    10000000000000000_) * -2_ <>    -20000000000000000_ or
-        bigintExpr(   100000000000000000_) * -2_ <>   -200000000000000000_ or
-        bigintExpr(  1000000000000000000_) * -2_ <>  -2000000000000000000_ or
-        bigintExpr( 10000000000000000000_) * -2_ <> -20000000000000000000_ or
-        bigintExpr( 18446744073709551615_) * -2_ <> -36893488147419103230_ or
-        bigintExpr( 18446744073709551616_) * -2_ <> -36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (9)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) * -1_ <>  18446744073709551617_ or
-        bigintExpr(-18446744073709551616_) * -1_ <>  18446744073709551616_ or
-        bigintExpr(-10000000000000000000_) * -1_ <>  10000000000000000000_ or
-        bigintExpr( -1000000000000000000_) * -1_ <>   1000000000000000000_ or
-        bigintExpr(  -100000000000000000_) * -1_ <>    100000000000000000_ or
-        bigintExpr(   -10000000000000000_) * -1_ <>     10000000000000000_ or
-        bigintExpr(    -1000000000000000_) * -1_ <>      1000000000000000_ or
-        bigintExpr(     -100000000000000_) * -1_ <>       100000000000000_ or
-        bigintExpr(      -10000000000000_) * -1_ <>        10000000000000_ or
-        bigintExpr(       -1000000000000_) * -1_ <>         1000000000000_ or
-        bigintExpr(        -100000000000_) * -1_ <>          100000000000_ or
-        bigintExpr(         -10000000000_) * -1_ <>           10000000000_ or
-        bigintExpr(          -4294967297_) * -1_ <>            4294967297_ or
-        bigintExpr(          -4294967296_) * -1_ <>            4294967296_ or
-        bigintExpr(          -1000000000_) * -1_ <>            1000000000_ or
-        bigintExpr(           -100000000_) * -1_ <>             100000000_ or
-        bigintExpr(            -10000000_) * -1_ <>              10000000_ or
-        bigintExpr(             -1000000_) * -1_ <>               1000000_ or
-        bigintExpr(              -100000_) * -1_ <>                100000_ or
-        bigintExpr(               -65537_) * -1_ <>                 65537_ or
-        bigintExpr(               -65536_) * -1_ <>                 65536_ or
-        bigintExpr(               -10000_) * -1_ <>                 10000_ or
-        bigintExpr(                -1000_) * -1_ <>                  1000_ or
-        bigintExpr(                 -257_) * -1_ <>                   257_ or
-        bigintExpr(                 -256_) * -1_ <>                   256_ or
-        bigintExpr(                  -10_) * -1_ <>                    10_ or
-        bigintExpr(                   -4_) * -1_ <>                     4_ or
-        bigintExpr(                   -3_) * -1_ <>                     3_ or
-        bigintExpr(                   -2_) * -1_ <>                     2_ or
-        bigintExpr(                   -1_) * -1_ <>                     1_ or
-        bigintExpr(                    0_) * -1_ <>                     0_ or
-        bigintExpr(                    1_) * -1_ <>                    -1_ or
-        bigintExpr(                    2_) * -1_ <>                    -2_ or
-        bigintExpr(                    3_) * -1_ <>                    -3_ or
-        bigintExpr(                    4_) * -1_ <>                    -4_ or
-        bigintExpr(                   10_) * -1_ <>                   -10_ or
-        bigintExpr(                  255_) * -1_ <>                  -255_ or
-        bigintExpr(                  256_) * -1_ <>                  -256_ or
-        bigintExpr(                 1000_) * -1_ <>                 -1000_ or
-        bigintExpr(                10000_) * -1_ <>                -10000_ or
-        bigintExpr(                65535_) * -1_ <>                -65535_ or
-        bigintExpr(                65536_) * -1_ <>                -65536_ or
-        bigintExpr(               100000_) * -1_ <>               -100000_ or
-        bigintExpr(              1000000_) * -1_ <>              -1000000_ or
-        bigintExpr(             10000000_) * -1_ <>             -10000000_ or
-        bigintExpr(            100000000_) * -1_ <>            -100000000_ or
-        bigintExpr(           1000000000_) * -1_ <>           -1000000000_ or
-        bigintExpr(           4294967295_) * -1_ <>           -4294967295_ or
-        bigintExpr(           4294967296_) * -1_ <>           -4294967296_ or
-        bigintExpr(          10000000000_) * -1_ <>          -10000000000_ or
-        bigintExpr(         100000000000_) * -1_ <>         -100000000000_ or
-        bigintExpr(        1000000000000_) * -1_ <>        -1000000000000_ or
-        bigintExpr(       10000000000000_) * -1_ <>       -10000000000000_ or
-        bigintExpr(      100000000000000_) * -1_ <>      -100000000000000_ or
-        bigintExpr(     1000000000000000_) * -1_ <>     -1000000000000000_ or
-        bigintExpr(    10000000000000000_) * -1_ <>    -10000000000000000_ or
-        bigintExpr(   100000000000000000_) * -1_ <>   -100000000000000000_ or
-        bigintExpr(  1000000000000000000_) * -1_ <>  -1000000000000000000_ or
-        bigintExpr( 10000000000000000000_) * -1_ <> -10000000000000000000_ or
-        bigintExpr( 18446744073709551615_) * -1_ <> -18446744073709551615_ or
-        bigintExpr( 18446744073709551616_) * -1_ <> -18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (10)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) *  0_ <> 0_ or
-        bigintExpr(-18446744073709551616_) *  0_ <> 0_ or
-        bigintExpr(-10000000000000000000_) *  0_ <> 0_ or
-        bigintExpr( -1000000000000000000_) *  0_ <> 0_ or
-        bigintExpr(  -100000000000000000_) *  0_ <> 0_ or
-        bigintExpr(   -10000000000000000_) *  0_ <> 0_ or
-        bigintExpr(    -1000000000000000_) *  0_ <> 0_ or
-        bigintExpr(     -100000000000000_) *  0_ <> 0_ or
-        bigintExpr(      -10000000000000_) *  0_ <> 0_ or
-        bigintExpr(       -1000000000000_) *  0_ <> 0_ or
-        bigintExpr(        -100000000000_) *  0_ <> 0_ or
-        bigintExpr(         -10000000000_) *  0_ <> 0_ or
-        bigintExpr(          -4294967297_) *  0_ <> 0_ or
-        bigintExpr(          -4294967296_) *  0_ <> 0_ or
-        bigintExpr(          -1000000000_) *  0_ <> 0_ or
-        bigintExpr(           -100000000_) *  0_ <> 0_ or
-        bigintExpr(            -10000000_) *  0_ <> 0_ or
-        bigintExpr(             -1000000_) *  0_ <> 0_ or
-        bigintExpr(              -100000_) *  0_ <> 0_ or
-        bigintExpr(               -65536_) *  0_ <> 0_ or
-        bigintExpr(               -65536_) *  0_ <> 0_ or
-        bigintExpr(               -10000_) *  0_ <> 0_ or
-        bigintExpr(                -1000_) *  0_ <> 0_ or
-        bigintExpr(                 -257_) *  0_ <> 0_ or
-        bigintExpr(                 -256_) *  0_ <> 0_ or
-        bigintExpr(                  -10_) *  0_ <> 0_ or
-        bigintExpr(                   -4_) *  0_ <> 0_ or
-        bigintExpr(                   -3_) *  0_ <> 0_ or
-        bigintExpr(                   -2_) *  0_ <> 0_ or
-        bigintExpr(                   -1_) *  0_ <> 0_ or
-        bigintExpr(                    0_) *  0_ <> 0_ or
-        bigintExpr(                    1_) *  0_ <> 0_ or
-        bigintExpr(                    2_) *  0_ <> 0_ or
-        bigintExpr(                    3_) *  0_ <> 0_ or
-        bigintExpr(                    4_) *  0_ <> 0_ or
-        bigintExpr(                   10_) *  0_ <> 0_ or
-        bigintExpr(                  255_) *  0_ <> 0_ or
-        bigintExpr(                  256_) *  0_ <> 0_ or
-        bigintExpr(                 1000_) *  0_ <> 0_ or
-        bigintExpr(                10000_) *  0_ <> 0_ or
-        bigintExpr(                65535_) *  0_ <> 0_ or
-        bigintExpr(                65536_) *  0_ <> 0_ or
-        bigintExpr(               100000_) *  0_ <> 0_ or
-        bigintExpr(              1000000_) *  0_ <> 0_ or
-        bigintExpr(             10000000_) *  0_ <> 0_ or
-        bigintExpr(            100000000_) *  0_ <> 0_ or
-        bigintExpr(           1000000000_) *  0_ <> 0_ or
-        bigintExpr(           4294967295_) *  0_ <> 0_ or
-        bigintExpr(           4294967296_) *  0_ <> 0_ or
-        bigintExpr(          10000000000_) *  0_ <> 0_ or
-        bigintExpr(         100000000000_) *  0_ <> 0_ or
-        bigintExpr(        1000000000000_) *  0_ <> 0_ or
-        bigintExpr(       10000000000000_) *  0_ <> 0_ or
-        bigintExpr(      100000000000000_) *  0_ <> 0_ or
-        bigintExpr(     1000000000000000_) *  0_ <> 0_ or
-        bigintExpr(    10000000000000000_) *  0_ <> 0_ or
-        bigintExpr(   100000000000000000_) *  0_ <> 0_ or
-        bigintExpr(  1000000000000000000_) *  0_ <> 0_ or
-        bigintExpr( 10000000000000000000_) *  0_ <> 0_ or
-        bigintExpr( 18446744073709551615_) *  0_ <> 0_ or
-        bigintExpr( 18446744073709551616_) *  0_ <> 0_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (11)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) *  1_ <> -18446744073709551617_ or
-        bigintExpr(-18446744073709551616_) *  1_ <> -18446744073709551616_ or
-        bigintExpr(-10000000000000000000_) *  1_ <> -10000000000000000000_ or
-        bigintExpr( -1000000000000000000_) *  1_ <>  -1000000000000000000_ or
-        bigintExpr(  -100000000000000000_) *  1_ <>   -100000000000000000_ or
-        bigintExpr(   -10000000000000000_) *  1_ <>    -10000000000000000_ or
-        bigintExpr(    -1000000000000000_) *  1_ <>     -1000000000000000_ or
-        bigintExpr(     -100000000000000_) *  1_ <>      -100000000000000_ or
-        bigintExpr(      -10000000000000_) *  1_ <>       -10000000000000_ or
-        bigintExpr(       -1000000000000_) *  1_ <>        -1000000000000_ or
-        bigintExpr(        -100000000000_) *  1_ <>         -100000000000_ or
-        bigintExpr(         -10000000000_) *  1_ <>          -10000000000_ or
-        bigintExpr(          -4294967297_) *  1_ <>           -4294967297_ or
-        bigintExpr(          -4294967296_) *  1_ <>           -4294967296_ or
-        bigintExpr(          -1000000000_) *  1_ <>           -1000000000_ or
-        bigintExpr(           -100000000_) *  1_ <>            -100000000_ or
-        bigintExpr(            -10000000_) *  1_ <>             -10000000_ or
-        bigintExpr(             -1000000_) *  1_ <>              -1000000_ or
-        bigintExpr(              -100000_) *  1_ <>               -100000_ or
-        bigintExpr(               -65537_) *  1_ <>                -65537_ or
-        bigintExpr(               -65536_) *  1_ <>                -65536_ or
-        bigintExpr(               -10000_) *  1_ <>                -10000_ or
-        bigintExpr(                -1000_) *  1_ <>                 -1000_ or
-        bigintExpr(                 -257_) *  1_ <>                  -257_ or
-        bigintExpr(                 -256_) *  1_ <>                  -256_ or
-        bigintExpr(                  -10_) *  1_ <>                   -10_ or
-        bigintExpr(                   -4_) *  1_ <>                    -4_ or
-        bigintExpr(                   -3_) *  1_ <>                    -3_ or
-        bigintExpr(                   -2_) *  1_ <>                    -2_ or
-        bigintExpr(                   -1_) *  1_ <>                    -1_ or
-        bigintExpr(                    0_) *  1_ <>                     0_ or
-        bigintExpr(                    1_) *  1_ <>                     1_ or
-        bigintExpr(                    2_) *  1_ <>                     2_ or
-        bigintExpr(                    3_) *  1_ <>                     3_ or
-        bigintExpr(                    4_) *  1_ <>                     4_ or
-        bigintExpr(                   10_) *  1_ <>                    10_ or
-        bigintExpr(                  255_) *  1_ <>                   255_ or
-        bigintExpr(                  256_) *  1_ <>                   256_ or
-        bigintExpr(                 1000_) *  1_ <>                  1000_ or
-        bigintExpr(                10000_) *  1_ <>                 10000_ or
-        bigintExpr(                65535_) *  1_ <>                 65535_ or
-        bigintExpr(                65536_) *  1_ <>                 65536_ or
-        bigintExpr(               100000_) *  1_ <>                100000_ or
-        bigintExpr(              1000000_) *  1_ <>               1000000_ or
-        bigintExpr(             10000000_) *  1_ <>              10000000_ or
-        bigintExpr(            100000000_) *  1_ <>             100000000_ or
-        bigintExpr(           1000000000_) *  1_ <>            1000000000_ or
-        bigintExpr(           4294967295_) *  1_ <>            4294967295_ or
-        bigintExpr(           4294967296_) *  1_ <>            4294967296_ or
-        bigintExpr(          10000000000_) *  1_ <>           10000000000_ or
-        bigintExpr(         100000000000_) *  1_ <>          100000000000_ or
-        bigintExpr(        1000000000000_) *  1_ <>         1000000000000_ or
-        bigintExpr(       10000000000000_) *  1_ <>        10000000000000_ or
-        bigintExpr(      100000000000000_) *  1_ <>       100000000000000_ or
-        bigintExpr(     1000000000000000_) *  1_ <>      1000000000000000_ or
-        bigintExpr(    10000000000000000_) *  1_ <>     10000000000000000_ or
-        bigintExpr(   100000000000000000_) *  1_ <>    100000000000000000_ or
-        bigintExpr(  1000000000000000000_) *  1_ <>   1000000000000000000_ or
-        bigintExpr( 10000000000000000000_) *  1_ <>  10000000000000000000_ or
-        bigintExpr( 18446744073709551615_) *  1_ <>  18446744073709551615_ or
-        bigintExpr( 18446744073709551616_) *  1_ <>  18446744073709551616_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (12)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) *  2_ <> -36893488147419103234_ or
-        bigintExpr(-18446744073709551616_) *  2_ <> -36893488147419103232_ or
-        bigintExpr(-10000000000000000000_) *  2_ <> -20000000000000000000_ or
-        bigintExpr( -1000000000000000000_) *  2_ <>  -2000000000000000000_ or
-        bigintExpr(  -100000000000000000_) *  2_ <>   -200000000000000000_ or
-        bigintExpr(   -10000000000000000_) *  2_ <>    -20000000000000000_ or
-        bigintExpr(    -1000000000000000_) *  2_ <>     -2000000000000000_ or
-        bigintExpr(     -100000000000000_) *  2_ <>      -200000000000000_ or
-        bigintExpr(      -10000000000000_) *  2_ <>       -20000000000000_ or
-        bigintExpr(       -1000000000000_) *  2_ <>        -2000000000000_ or
-        bigintExpr(        -100000000000_) *  2_ <>         -200000000000_ or
-        bigintExpr(         -10000000000_) *  2_ <>          -20000000000_ or
-        bigintExpr(          -4294967297_) *  2_ <>           -8589934594_ or
-        bigintExpr(          -4294967296_) *  2_ <>           -8589934592_ or
-        bigintExpr(          -1000000000_) *  2_ <>           -2000000000_ or
-        bigintExpr(           -100000000_) *  2_ <>            -200000000_ or
-        bigintExpr(            -10000000_) *  2_ <>             -20000000_ or
-        bigintExpr(             -1000000_) *  2_ <>              -2000000_ or
-        bigintExpr(              -100000_) *  2_ <>               -200000_ or
-        bigintExpr(               -65537_) *  2_ <>               -131074_ or
-        bigintExpr(               -65536_) *  2_ <>               -131072_ or
-        bigintExpr(               -10000_) *  2_ <>                -20000_ or
-        bigintExpr(                -1000_) *  2_ <>                 -2000_ or
-        bigintExpr(                 -257_) *  2_ <>                  -514_ or
-        bigintExpr(                 -256_) *  2_ <>                  -512_ or
-        bigintExpr(                  -10_) *  2_ <>                   -20_ or
-        bigintExpr(                   -4_) *  2_ <>                    -8_ or
-        bigintExpr(                   -3_) *  2_ <>                    -6_ or
-        bigintExpr(                   -2_) *  2_ <>                    -4_ or
-        bigintExpr(                   -1_) *  2_ <>                    -2_ or
-        bigintExpr(                    0_) *  2_ <>                     0_ or
-        bigintExpr(                    1_) *  2_ <>                     2_ or
-        bigintExpr(                    2_) *  2_ <>                     4_ or
-        bigintExpr(                    3_) *  2_ <>                     6_ or
-        bigintExpr(                    4_) *  2_ <>                     8_ or
-        bigintExpr(                   10_) *  2_ <>                    20_ or
-        bigintExpr(                  255_) *  2_ <>                   510_ or
-        bigintExpr(                  256_) *  2_ <>                   512_ or
-        bigintExpr(                 1000_) *  2_ <>                  2000_ or
-        bigintExpr(                10000_) *  2_ <>                 20000_ or
-        bigintExpr(                65535_) *  2_ <>                131070_ or
-        bigintExpr(                65536_) *  2_ <>                131072_ or
-        bigintExpr(               100000_) *  2_ <>                200000_ or
-        bigintExpr(              1000000_) *  2_ <>               2000000_ or
-        bigintExpr(             10000000_) *  2_ <>              20000000_ or
-        bigintExpr(            100000000_) *  2_ <>             200000000_ or
-        bigintExpr(           1000000000_) *  2_ <>            2000000000_ or
-        bigintExpr(           4294967295_) *  2_ <>            8589934590_ or
-        bigintExpr(           4294967296_) *  2_ <>            8589934592_ or
-        bigintExpr(          10000000000_) *  2_ <>           20000000000_ or
-        bigintExpr(         100000000000_) *  2_ <>          200000000000_ or
-        bigintExpr(        1000000000000_) *  2_ <>         2000000000000_ or
-        bigintExpr(       10000000000000_) *  2_ <>        20000000000000_ or
-        bigintExpr(      100000000000000_) *  2_ <>       200000000000000_ or
-        bigintExpr(     1000000000000000_) *  2_ <>      2000000000000000_ or
-        bigintExpr(    10000000000000000_) *  2_ <>     20000000000000000_ or
-        bigintExpr(   100000000000000000_) *  2_ <>    200000000000000000_ or
-        bigintExpr(  1000000000000000000_) *  2_ <>   2000000000000000000_ or
-        bigintExpr( 10000000000000000000_) *  2_ <>  20000000000000000000_ or
-        bigintExpr( 18446744073709551615_) *  2_ <>  36893488147419103230_ or
-        bigintExpr( 18446744073709551616_) *  2_ <>  36893488147419103232_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (13)");
-      okay := FALSE;
-    end if;
-
-    if  bigintExpr(-18446744073709551617_) *  3_ <> -55340232221128654851_ or
-        bigintExpr(-18446744073709551616_) *  3_ <> -55340232221128654848_ or
-        bigintExpr(-10000000000000000000_) *  3_ <> -30000000000000000000_ or
-        bigintExpr( -1000000000000000000_) *  3_ <>  -3000000000000000000_ or
-        bigintExpr(  -100000000000000000_) *  3_ <>   -300000000000000000_ or
-        bigintExpr(   -10000000000000000_) *  3_ <>    -30000000000000000_ or
-        bigintExpr(    -1000000000000000_) *  3_ <>     -3000000000000000_ or
-        bigintExpr(     -100000000000000_) *  3_ <>      -300000000000000_ or
-        bigintExpr(      -10000000000000_) *  3_ <>       -30000000000000_ or
-        bigintExpr(       -1000000000000_) *  3_ <>        -3000000000000_ or
-        bigintExpr(        -100000000000_) *  3_ <>         -300000000000_ or
-        bigintExpr(         -10000000000_) *  3_ <>          -30000000000_ or
-        bigintExpr(          -4294967297_) *  3_ <>          -12884901891_ or
-        bigintExpr(          -4294967296_) *  3_ <>          -12884901888_ or
-        bigintExpr(          -1000000000_) *  3_ <>           -3000000000_ or
-        bigintExpr(           -100000000_) *  3_ <>            -300000000_ or
-        bigintExpr(            -10000000_) *  3_ <>             -30000000_ or
-        bigintExpr(             -1000000_) *  3_ <>              -3000000_ or
-        bigintExpr(              -100000_) *  3_ <>               -300000_ or
-        bigintExpr(               -65537_) *  3_ <>               -196611_ or
-        bigintExpr(               -65536_) *  3_ <>               -196608_ or
-        bigintExpr(               -10000_) *  3_ <>                -30000_ or
-        bigintExpr(                -1000_) *  3_ <>                 -3000_ or
-        bigintExpr(                 -257_) *  3_ <>                  -771_ or
-        bigintExpr(                 -256_) *  3_ <>                  -768_ or
-        bigintExpr(                  -10_) *  3_ <>                   -30_ or
-        bigintExpr(                   -4_) *  3_ <>                   -12_ or
-        bigintExpr(                   -3_) *  3_ <>                    -9_ or
-        bigintExpr(                   -2_) *  3_ <>                    -6_ or
-        bigintExpr(                   -1_) *  3_ <>                    -3_ or
-        bigintExpr(                    0_) *  3_ <>                     0_ or
-        bigintExpr(                    1_) *  3_ <>                     3_ or
-        bigintExpr(                    2_) *  3_ <>                     6_ or
-        bigintExpr(                    3_) *  3_ <>                     9_ or
-        bigintExpr(                    4_) *  3_ <>                    12_ or
-        bigintExpr(                   10_) *  3_ <>                    30_ or
-        bigintExpr(                  255_) *  3_ <>                   765_ or
-        bigintExpr(                  256_) *  3_ <>                   768_ or
-        bigintExpr(                 1000_) *  3_ <>                  3000_ or
-        bigintExpr(                10000_) *  3_ <>                 30000_ or
-        bigintExpr(                65535_) *  3_ <>                196605_ or
-        bigintExpr(                65536_) *  3_ <>                196608_ or
-        bigintExpr(               100000_) *  3_ <>                300000_ or
-        bigintExpr(              1000000_) *  3_ <>               3000000_ or
-        bigintExpr(             10000000_) *  3_ <>              30000000_ or
-        bigintExpr(            100000000_) *  3_ <>             300000000_ or
-        bigintExpr(           1000000000_) *  3_ <>            3000000000_ or
-        bigintExpr(           4294967295_) *  3_ <>           12884901885_ or
-        bigintExpr(           4294967296_) *  3_ <>           12884901888_ or
-        bigintExpr(          10000000000_) *  3_ <>           30000000000_ or
-        bigintExpr(         100000000000_) *  3_ <>          300000000000_ or
-        bigintExpr(        1000000000000_) *  3_ <>         3000000000000_ or
-        bigintExpr(       10000000000000_) *  3_ <>        30000000000000_ or
-        bigintExpr(      100000000000000_) *  3_ <>       300000000000000_ or
-        bigintExpr(     1000000000000000_) *  3_ <>      3000000000000000_ or
-        bigintExpr(    10000000000000000_) *  3_ <>     30000000000000000_ or
-        bigintExpr(   100000000000000000_) *  3_ <>    300000000000000000_ or
-        bigintExpr(  1000000000000000000_) *  3_ <>   3000000000000000000_ or
-        bigintExpr( 10000000000000000000_) *  3_ <>  30000000000000000000_ or
-        bigintExpr( 18446744073709551615_) *  3_ <>  55340232221128654845_ or
-        bigintExpr( 18446744073709551616_) *  3_ <>  55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correctly. (14)");
+    if not chkMultiplicationWithConst3 then
       okay := FALSE;
     end if;
 
