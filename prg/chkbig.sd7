@@ -7574,6 +7574,7 @@ const proc: chkBigOrdWithBigMod is func
     const bigInteger: aBig4 is  48323979853562951413_;
     const bigInteger: powTwo63 is 2_**63;
     const bigInteger: powTwo60 is 2_**60;
+    const bigInteger: powTen18 is 10_**18;
     var boolean: okay is TRUE;
   begin
     if  ord(           aBig1  mod powTwo63) <> 3552952533233593397 or
@@ -7669,6 +7670,54 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger conv intExpr(aNegative3) mod powTwo60) <>  287045911513064032 or
         ord(bigInteger conv intExpr(aNegative4) mod powTwo60) <> 1054198164682225397 then
       writeln(" ***** ord(bigInteger conv number mod 2_**60) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ord(           aBig1  mod powTen18) <> 456789012345678901 or
+        ord(           aBig2  mod powTen18) <> 765432109876543210 or
+        ord(           aBig3  mod powTen18) <> 415926535897932384 or
+        ord(           aBig4  mod powTen18) <> 323979853562951413 or
+        ord(bigintExpr(aBig1) mod powTen18) <> 456789012345678901 or
+        ord(bigintExpr(aBig2) mod powTen18) <> 765432109876543210 or
+        ord(bigintExpr(aBig3) mod powTen18) <> 415926535897932384 or
+        ord(bigintExpr(aBig4) mod powTen18) <> 323979853562951413 then
+      writeln(" ***** ord(aBigInt mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ord(bigInteger(        aPositive1 ) mod powTen18) <> 552952533233593397 or
+        ord(bigInteger(        aPositive2 ) mod powTen18) <>  74619335926251242 or
+        ord(bigInteger(        aPositive3 ) mod powTen18) <> 745810425333604960 or
+        ord(bigInteger(        aPositive4 ) mod powTen18) <> 207119669289072373 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTen18) <> 552952533233593397 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTen18) <>  74619335926251242 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTen18) <> 745810425333604960 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTen18) <> 207119669289072373 then
+      writeln(" ***** ord(bigInteger(aPositive1) mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ord(bigInteger(        aNegative1 ) mod powTen18) <> 329580496378817589 or
+        ord(bigInteger(        aNegative2 ) mod powTen18) <> 851247299071475434 or
+        ord(bigInteger(        aNegative3 ) mod powTen18) <> 522438388478829152 or
+        ord(bigInteger(        aNegative4 ) mod powTen18) <> 983747632434296565 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTen18) <> 329580496378817589 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTen18) <> 851247299071475434 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTen18) <> 522438388478829152 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTen18) <> 983747632434296565 then
+      writeln(" ***** ord(bigInteger(number) mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ord(bigInteger conv         aNegative1  mod powTen18) <> 329580496378817589 or
+        ord(bigInteger conv         aNegative2  mod powTen18) <> 851247299071475434 or
+        ord(bigInteger conv         aNegative3  mod powTen18) <> 522438388478829152 or
+        ord(bigInteger conv         aNegative4  mod powTen18) <> 983747632434296565 or
+        ord(bigInteger conv intExpr(aNegative1) mod powTen18) <> 329580496378817589 or
+        ord(bigInteger conv intExpr(aNegative2) mod powTen18) <> 851247299071475434 or
+        ord(bigInteger conv intExpr(aNegative3) mod powTen18) <> 522438388478829152 or
+        ord(bigInteger conv intExpr(aNegative4) mod powTen18) <> 983747632434296565 then
+      writeln(" ***** ord(bigInteger conv number mod 10_**18) does not work correctly.");
       okay := FALSE;
     end if;
 
