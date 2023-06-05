@@ -2070,6 +2070,7 @@ const proc: checkBinBinaryWithBigMod is func
     const bigInteger: powTwo64 is 2_**64;
     const bigInteger: powTwo63 is 2_**63;
     const bigInteger: powTwo60 is 2_**60;
+    const bigInteger: powTen18 is 10_**18;
     var boolean: okay is TRUE;
   begin
     if  bin64(           aBig1  mod powTwo64) <> aBin1 or
@@ -2213,6 +2214,54 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(bigInteger conv intExpr(anInt3) mod powTwo60) <> bin64( 287045911513064032_) or
         bin64(bigInteger conv intExpr(anInt4) mod powTwo60) <> bin64(1054198164682225397_) then
       writeln(" ***** bin64(bigInteger conv number mod 2_**60) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(           aBig1  mod powTen18) <> bin64(456789012345678901) or
+        bin64(           aBig2  mod powTen18) <> bin64(765432109876543210) or
+        bin64(           aBig3  mod powTen18) <> bin64(415926535897932384) or
+        bin64(           aBig4  mod powTen18) <> bin64(323979853562951413) or
+        bin64(bigintExpr(aBig1) mod powTen18) <> bin64(456789012345678901) or
+        bin64(bigintExpr(aBig2) mod powTen18) <> bin64(765432109876543210) or
+        bin64(bigintExpr(aBig3) mod powTen18) <> bin64(415926535897932384) or
+        bin64(bigintExpr(aBig4) mod powTen18) <> bin64(323979853562951413) then
+      writeln(" ***** bin64(aBigInt mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(big(          aBin1 ) mod powTen18) <> bin64(776324570088369205) or
+        bin64(big(          aBin2 ) mod powTen18) <> bin64(297991372781027050) or
+        bin64(big(          aBin3 ) mod powTen18) <> bin64(969182462188380768) or
+        bin64(big(          aBin4 ) mod powTen18) <> bin64(430491706143848181) or
+        bin64(big(bin64Expr(aBin1)) mod powTen18) <> bin64(776324570088369205) or
+        bin64(big(bin64Expr(aBin2)) mod powTen18) <> bin64(297991372781027050) or
+        bin64(big(bin64Expr(aBin3)) mod powTen18) <> bin64(969182462188380768) or
+        bin64(big(bin64Expr(aBin4)) mod powTen18) <> bin64(430491706143848181) then
+      writeln(" ***** bin64(big(aBin1) mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger(        anInt1 ) mod powTen18) <> bin64(329580496378817589) or
+        bin64(bigInteger(        anInt2 ) mod powTen18) <> bin64(851247299071475434) or
+        bin64(bigInteger(        anInt3 ) mod powTen18) <> bin64(522438388478829152) or
+        bin64(bigInteger(        anInt4 ) mod powTen18) <> bin64(983747632434296565) or
+        bin64(bigInteger(intExpr(anInt1)) mod powTen18) <> bin64(329580496378817589) or
+        bin64(bigInteger(intExpr(anInt2)) mod powTen18) <> bin64(851247299071475434) or
+        bin64(bigInteger(intExpr(anInt3)) mod powTen18) <> bin64(522438388478829152) or
+        bin64(bigInteger(intExpr(anInt4)) mod powTen18) <> bin64(983747632434296565) then
+      writeln(" ***** bin64(bigInteger(number) mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger conv         anInt1  mod powTen18) <> bin64(329580496378817589) or
+        bin64(bigInteger conv         anInt2  mod powTen18) <> bin64(851247299071475434) or
+        bin64(bigInteger conv         anInt3  mod powTen18) <> bin64(522438388478829152) or
+        bin64(bigInteger conv         anInt4  mod powTen18) <> bin64(983747632434296565) or
+        bin64(bigInteger conv intExpr(anInt1) mod powTen18) <> bin64(329580496378817589) or
+        bin64(bigInteger conv intExpr(anInt2) mod powTen18) <> bin64(851247299071475434) or
+        bin64(bigInteger conv intExpr(anInt3) mod powTen18) <> bin64(522438388478829152) or
+        bin64(bigInteger conv intExpr(anInt4) mod powTen18) <> bin64(983747632434296565) then
+      writeln(" ***** bin64(bigInteger conv number mod 10_**18) does not work correctly.");
       okay := FALSE;
     end if;
 
