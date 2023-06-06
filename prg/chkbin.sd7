@@ -104,40 +104,88 @@ const func boolean: raisesRangeError (ref func string: expression) is func
 
 const proc: checkShift is func
   local
+    var bin64: aBin64 is bin64(0);
+    var boolean: ok is TRUE;
     var boolean: okay is TRUE;
   begin
-    if  bin64(1) << 61 <> bin64(2305843009213693952) or
-        bin64(1) << 62 <> bin64(4611686018427387904) or
+    if  bin64(1) << 61 <> bin64(2305843009213693952 ) or
+        bin64(1) << 62 <> bin64(4611686018427387904 ) or
         bin64(1) << 63 <> bin64(9223372036854775808_) then
+      writeln(" ***** Bin64 left shift does not work correctly. (1)");
       okay := FALSE;
     end if;
 
-    if  bin64( 2305843009213693951)  >> 60 <> bin64(1) or
-        bin64( 2305843009213693951)  >> 61 <> bin64(0) or
-        bin64( 2305843009213693952)  >> 61 <> bin64(1) or
-        bin64( 4611686018427387903)  >> 61 <> bin64(1) or
-        bin64( 4611686018427387903)  >> 62 <> bin64(0) or
-        bin64( 4611686018427387904)  >> 62 <> bin64(1) or
-        bin64( 9223372036854775807)  >> 62 <> bin64(1) or
-        bin64( 9223372036854775807)  >> 63 <> bin64(0) or
-        bin64( 9223372036854775808_) >> 63 <> bin64(1) or
-        bin64(18446744073709551615_) >> 63 <> bin64(1) then
+    if  bin64Expr(bin64(1)) << 61 <> bin64(2305843009213693952 ) or
+        bin64Expr(bin64(1)) << 62 <> bin64(4611686018427387904 ) or
+        bin64Expr(bin64(1)) << 63 <> bin64(9223372036854775808_) then
+      writeln(" ***** Bin64 left shift does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if  bin64(1) << rand(0, 62) = bin64(4611686018427387905) then
+      writeln(" ***** Bin64 left shift does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bin64( 2305843009213693951 ) >> 60 <> bin64(1) or
+        bin64( 2305843009213693951 ) >> 61 <> bin64(0) or
+        bin64( 2305843009213693952 ) >> 61 <> bin64(1) or
+        bin64( 4611686018427387903 ) >> 61 <> bin64(1) or
+        bin64( 4611686018427387903 ) >> 62 <> bin64(0) or
+        bin64( 4611686018427387904 ) >> 62 <> bin64(1) or
+        bin64( 9223372036854775807 ) >> 62 <> bin64(1) or
+        bin64( 9223372036854775807 ) >> 63 <> bin64(0) or
+        bin64( 9223372036854775808_) >> 63 <> bin64(1) or
+        bin64(18446744073709551615_) >> 63 <> bin64(1) then
+      writeln(" ***** Bin64 right shift does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin64Expr(bin64( 2305843009213693951 )) >> 60 <> bin64(1) or
+        bin64Expr(bin64( 2305843009213693951 )) >> 61 <> bin64(0) or
+        bin64Expr(bin64( 2305843009213693952 )) >> 61 <> bin64(1) or
+        bin64Expr(bin64( 4611686018427387903 )) >> 61 <> bin64(1) or
+        bin64Expr(bin64( 4611686018427387903 )) >> 62 <> bin64(0) or
+        bin64Expr(bin64( 4611686018427387904 )) >> 62 <> bin64(1) or
+        bin64Expr(bin64( 9223372036854775807 )) >> 62 <> bin64(1) or
+        bin64Expr(bin64( 9223372036854775807 )) >> 63 <> bin64(0) or
+        bin64Expr(bin64( 9223372036854775808_)) >> 63 <> bin64(1) or
+        bin64Expr(bin64(18446744073709551615_)) >> 63 <> bin64(1) then
+      writeln(" ***** Bin64 right shift does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     if  bin64(9223372036854775807) >> rand(0, 62) = bin64(0) then
+      writeln(" ***** Bin64 right shift does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    aBin64 := bin64(1);  aBin64 <<:= 61;  ok := ok and aBin64 = bin64(2305843009213693952 );
+    aBin64 := bin64(1);  aBin64 <<:= 62;  ok := ok and aBin64 = bin64(4611686018427387904 );
+    aBin64 := bin64(1);  aBin64 <<:= 63;  ok := ok and aBin64 = bin64(9223372036854775808_);
+    if not ok then
+      writeln(" ***** Bin64 left shift assignment does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 60;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(0);
+    aBin64 := bin64( 2305843009213693952 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(0);
+    aBin64 := bin64( 4611686018427387904 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(0);
+    aBin64 := bin64( 9223372036854775808_);  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64(18446744073709551615_);  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(1);
+    if not ok then
+      writeln(" ***** Bin64 right shift assignment does not work correctly.");
       okay := FALSE;
     end if;
 
     if okay then
       writeln("Bin64 shift works correctly.");
-    else
-      writeln(" ***** Bin64 shift does not work correctly.");
-      writeln;
     end if;
   end func;
 
