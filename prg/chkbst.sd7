@@ -141,6 +141,36 @@ const proc: check_bstring_parse is func
   end func;
 
 
+const proc: check_bstring_length is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  length(bstring(""))                            <>  0 or
+        length(bstring("a"))                           <>  1 or
+        length(bstring("ab"))                          <>  2 or
+        length(bstring("abc"))                         <>  3 or
+        length(bstring("abcdefghijklghijklmnopqxyz"))  <> 26 or
+        length(bstring("\0;"))                         <>  1 or
+        length(bstring("\0;\0;"))                      <>  2 or
+        length(bstring("\0;\0;\0;\0;\0;\0;\0;\0;\0;")) <>  9 or
+        length(bstriExpr(bstring("")))                            <>  0 or
+        length(bstriExpr(bstring("a")))                           <>  1 or
+        length(bstriExpr(bstring("ab")))                          <>  2 or
+        length(bstriExpr(bstring("abc")))                         <>  3 or
+        length(bstriExpr(bstring("abcdefghijklghijklmnopqxyz")))  <> 26 or
+        length(bstriExpr(bstring("\0;")))                         <>  1 or
+        length(bstriExpr(bstring("\0;\0;")))                      <>  2 or
+        length(bstriExpr(bstring("\0;\0;\0;\0;\0;\0;\0;\0;\0;"))) <>  9 then
+      writeln(" ***** length(BSTRING) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bstring length works correctly.");
+    end if;
+  end func;
+
+
 (**
  *  Test the case where source and destination of an assignment
  *  are identical.
@@ -574,6 +604,7 @@ const proc: main is func
   begin
     writeln;
     check_bstring_parse;
+    check_bstring_length;
     check_bstring_assign;
     check_bstring_append;
     check_bstring_comparisons;

@@ -204,6 +204,7 @@ const string: chkidx_output is "\n\
 
 const string: chkbst_output is "\n\
   \Bstring parse works correctly.\n\
+  \Bstring length works correctly.\n\
   \Bstring assignment works correctly.\n\
   \Bstring append works correctly.\n\
   \Bstring comparisons work correctly.\n\
