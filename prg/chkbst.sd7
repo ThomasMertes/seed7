@@ -154,22 +154,17 @@ const proc: do_assign (inout bstring: dest, ref bstring: source) is func
 const proc: check_bstring_assign is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
     var bstring: bstri is bstring.value;
+    var array bstring: bstriArr is 1 times bstring.value;
   begin
     okay := TRUE;
-    bstri := bstring parse "asdf";
-    if bstri <> bstring parse "asdf" then
-      writeln(" ***** 'bstri := bstring parse \"asdf\"' does not work correctly.");
-      okay := FALSE;
-    end if;
-    bstri := bstri;
-    if bstri <> bstring parse "asdf" then
-      writeln(" ***** 'bstri := bstri' does not work correctly.");
-      okay := FALSE;
-    end if;
-    do_assign(bstri, bstri);
-    if bstri <> bstring parse "asdf" then
-      writeln(" ***** 'bstri := bstri' does not work correctly.");
+    bstri := bstring parse "asdf";        ok := ok and bstri = bstring("asdf");
+    bstri := bstri;                       ok := ok and bstri = bstring("asdf");
+    do_assign(bstri, bstri);              ok := ok and bstri = bstring("asdf");
+    bstriArr[1] := bstring parse "asdf";  ok := ok and bstriArr[1] = bstring("asdf");
+    if not ok then
+      writeln(" ***** BString assignment does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
