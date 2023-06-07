@@ -363,6 +363,7 @@ const string: chkhsh_output is "\n\
   \Hash tables with complex keys work correctly.\n\
   \Hash tables with char keys work correctly.\n\
   \Hash tables with string keys work correctly.\n\
+  \Hash tables with bstring keys work correctly.\n\
   \Hash tables with bitset keys work correctly.\n\
   \The keys function for hash tables works correctly.\n\
   \The values function for hash tables works correctly.\n\

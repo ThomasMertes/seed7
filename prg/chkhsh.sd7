@@ -29,6 +29,7 @@ $ include "seed7_05.s7i";
   include "bigrat.s7i";
   include "float.s7i";
   include "complex.s7i";
+  include "bstring.s7i";
 
 enable_output(type);
 
@@ -40,6 +41,7 @@ const type: booleanFloatHash       is hash [boolean] float;
 const type: booleanComplexHash     is hash [boolean] complex;
 const type: booleanCharHash        is hash [boolean] char;
 const type: booleanStringHash      is hash [boolean] string;
+const type: booleanBstringHash     is hash [boolean] bstring;
 const type: booleanBitsetHash      is hash [boolean] bitset;
 const type: booleanTypeHash        is hash [boolean] type;
 const type: booleanReferenceHash   is hash [boolean] reference;
@@ -53,6 +55,7 @@ const type: integerFloatHash       is hash [integer] float;
 const type: integerComplexHash     is hash [integer] complex;
 const type: integerCharHash        is hash [integer] char;
 const type: integerStringHash      is hash [integer] string;
+const type: integerBstringHash     is hash [integer] bstring;
 const type: integerBitsetHash      is hash [integer] bitset;
 const type: integerTypeHash        is hash [integer] type;
 const type: integerReferenceHash   is hash [integer] reference;
@@ -66,6 +69,7 @@ const type: bigIntegerFloatHash       is hash [bigInteger] float;
 const type: bigIntegerComplexHash     is hash [bigInteger] complex;
 const type: bigIntegerCharHash        is hash [bigInteger] char;
 const type: bigIntegerStringHash      is hash [bigInteger] string;
+const type: bigIntegerBstringHash     is hash [bigInteger] bstring;
 const type: bigIntegerBitsetHash      is hash [bigInteger] bitset;
 const type: bigIntegerTypeHash        is hash [bigInteger] type;
 const type: bigIntegerReferenceHash   is hash [bigInteger] reference;
@@ -79,6 +83,7 @@ const type: rationalFloatHash       is hash [rational] float;
 const type: rationalComplexHash     is hash [rational] complex;
 const type: rationalCharHash        is hash [rational] char;
 const type: rationalStringHash      is hash [rational] string;
+const type: rationalBstringHash     is hash [rational] bstring;
 const type: rationalBitsetHash      is hash [rational] bitset;
 const type: rationalTypeHash        is hash [rational] type;
 const type: rationalReferenceHash   is hash [rational] reference;
@@ -92,6 +97,7 @@ const type: bigRationalFloatHash       is hash [bigRational] float;
 const type: bigRationalComplexHash     is hash [bigRational] complex;
 const type: bigRationalCharHash        is hash [bigRational] char;
 const type: bigRationalStringHash      is hash [bigRational] string;
+const type: bigRationalBstringHash     is hash [bigRational] bstring;
 const type: bigRationalBitsetHash      is hash [bigRational] bitset;
 const type: bigRationalTypeHash        is hash [bigRational] type;
 const type: bigRationalReferenceHash   is hash [bigRational] reference;
@@ -105,6 +111,7 @@ const type: floatFloatHash       is hash [float] float;
 const type: floatComplexHash     is hash [float] complex;
 const type: floatCharHash        is hash [float] char;
 const type: floatStringHash      is hash [float] string;
+const type: floatBstringHash     is hash [float] bstring;
 const type: floatBitsetHash      is hash [float] bitset;
 const type: floatTypeHash        is hash [float] type;
 const type: floatReferenceHash   is hash [float] reference;
@@ -118,6 +125,7 @@ const type: complexFloatHash       is hash [complex] float;
 const type: complexComplexHash     is hash [complex] complex;
 const type: complexCharHash        is hash [complex] char;
 const type: complexStringHash      is hash [complex] string;
+const type: complexBstringHash     is hash [complex] bstring;
 const type: complexBitsetHash      is hash [complex] bitset;
 const type: complexTypeHash        is hash [complex] type;
 const type: complexReferenceHash   is hash [complex] reference;
@@ -131,6 +139,7 @@ const type: charFloatHash       is hash [char] float;
 const type: charComplexHash     is hash [char] complex;
 const type: charCharHash        is hash [char] char;
 const type: charStringHash      is hash [char] string;
+const type: charBstringHash     is hash [char] bstring;
 const type: charBitsetHash      is hash [char] bitset;
 const type: charTypeHash        is hash [char] type;
 const type: charReferenceHash   is hash [char] reference;
@@ -144,10 +153,25 @@ const type: stringFloatHash       is hash [string] float;
 const type: stringComplexHash     is hash [string] complex;
 const type: stringCharHash        is hash [string] char;
 const type: stringStringHash      is hash [string] string;
+const type: stringBstringHash     is hash [string] bstring;
 const type: stringBitsetHash      is hash [string] bitset;
 const type: stringTypeHash        is hash [string] type;
 const type: stringReferenceHash   is hash [string] reference;
 const type: stringHashHash        is hash [string] stringBooleanHash;
+
+const type: bstringBooleanHash     is hash [bstring] boolean;
+const type: bstringIntegerHash     is hash [bstring] integer;
+const type: bstringBigIntegerHash  is hash [bstring] bigInteger;
+const type: bstringBigRationalHash is hash [bstring] bigRational;
+const type: bstringFloatHash       is hash [bstring] float;
+const type: bstringComplexHash     is hash [bstring] complex;
+const type: bstringCharHash        is hash [bstring] char;
+const type: bstringStringHash      is hash [bstring] string;
+const type: bstringBstringHash     is hash [bstring] bstring;
+const type: bstringBitsetHash      is hash [bstring] bitset;
+const type: bstringTypeHash        is hash [bstring] type;
+const type: bstringReferenceHash   is hash [bstring] reference;
+const type: bstringHashHash        is hash [bstring] bstringBooleanHash;
 
 const type: bitsetBooleanHash     is hash [bitset] boolean;
 const type: bitsetIntegerHash     is hash [bitset] integer;
@@ -157,6 +181,7 @@ const type: bitsetFloatHash       is hash [bitset] float;
 const type: bitsetComplexHash     is hash [bitset] complex;
 const type: bitsetCharHash        is hash [bitset] char;
 const type: bitsetStringHash      is hash [bitset] string;
+const type: bitsetBstringHash     is hash [bitset] bstring;
 const type: bitsetBitsetHash      is hash [bitset] bitset;
 const type: bitsetTypeHash        is hash [bitset] type;
 const type: bitsetReferenceHash   is hash [bitset] reference;
@@ -174,6 +199,7 @@ const proc: chkBooleanHash is func
     var booleanComplexHash:     booleanComplexHashVar     is booleanComplexHash    .EMPTY_HASH;
     var booleanCharHash:        booleanCharHashVar        is booleanCharHash       .EMPTY_HASH;
     var booleanStringHash:      booleanStringHashVar      is booleanStringHash     .EMPTY_HASH;
+    var booleanBstringHash:     booleanBstringHashVar     is booleanBstringHash    .EMPTY_HASH;
     var booleanBitsetHash:      booleanBitsetHashVar      is booleanBitsetHash     .EMPTY_HASH;
     var booleanTypeHash:        booleanTypeHashVar        is booleanTypeHash       .EMPTY_HASH;
     var booleanReferenceHash:   booleanReferenceHashVar   is booleanReferenceHash  .EMPTY_HASH;
@@ -187,6 +213,7 @@ const proc: chkBooleanHash is func
         length(booleanComplexHashVar)     <> 0 or
         length(booleanCharHashVar)        <> 0 or
         length(booleanStringHashVar)      <> 0 or
+        length(booleanBstringHashVar)     <> 0 or
         length(booleanBitsetHashVar)      <> 0 or
         length(booleanTypeHashVar)        <> 0 or
         length(booleanReferenceHashVar)   <> 0 or
@@ -202,6 +229,7 @@ const proc: chkBooleanHash is func
         TRUE in booleanComplexHashVar     or
         TRUE in booleanCharHashVar        or
         TRUE in booleanStringHashVar      or
+        TRUE in booleanBstringHashVar     or
         TRUE in booleanBitsetHashVar      or
         TRUE in booleanTypeHashVar        or
         TRUE in booleanReferenceHashVar   or
@@ -217,6 +245,7 @@ const proc: chkBooleanHash is func
     booleanComplexHashVar     @:= [TRUE] complex(1.2, 3.4);
     booleanCharHashVar        @:= [TRUE] 'Q';
     booleanStringHashVar      @:= [TRUE] "success";
+    booleanBstringHashVar     @:= [TRUE] bstring("okay");
     booleanBitsetHashVar      @:= [TRUE] {123};
     booleanTypeHashVar        @:= [TRUE] char;
     booleanReferenceHashVar   @:= [TRUE] NIL;
@@ -229,6 +258,7 @@ const proc: chkBooleanHash is func
         length(booleanComplexHashVar)     <> 1 or
         length(booleanCharHashVar)        <> 1 or
         length(booleanStringHashVar)      <> 1 or
+        length(booleanBstringHashVar)     <> 1 or
         length(booleanBitsetHashVar)      <> 1 or
         length(booleanTypeHashVar)        <> 1 or
         length(booleanReferenceHashVar)   <> 1 or
@@ -244,6 +274,7 @@ const proc: chkBooleanHash is func
         TRUE in booleanComplexHashVar     and
         TRUE in booleanCharHashVar        and
         TRUE in booleanStringHashVar      and
+        TRUE in booleanBstringHashVar     and
         TRUE in booleanBitsetHashVar      and
         TRUE in booleanTypeHashVar        and
         TRUE in booleanReferenceHashVar   and
@@ -261,6 +292,7 @@ const proc: chkBooleanHash is func
     booleanComplexHashVar     @:= [TRUE] complex(1.2, 3.4);
     booleanCharHashVar        @:= [TRUE] 'Q';
     booleanStringHashVar      @:= [TRUE] "success";
+    booleanBstringHashVar     @:= [TRUE] bstring("okay");
     booleanBitsetHashVar      @:= [TRUE] {123};
     booleanTypeHashVar        @:= [TRUE] char;
     booleanReferenceHashVar   @:= [TRUE] NIL;
@@ -273,6 +305,7 @@ const proc: chkBooleanHash is func
         TRUE not in booleanComplexHashVar     or
         TRUE not in booleanCharHashVar        or
         TRUE not in booleanStringHashVar      or
+        TRUE not in booleanBstringHashVar     or
         TRUE not in booleanBitsetHashVar      or
         TRUE not in booleanTypeHashVar        or
         TRUE not in booleanReferenceHashVar   or
@@ -288,6 +321,7 @@ const proc: chkBooleanHash is func
         booleanComplexHashVar     [TRUE] <> complex(1.2, 3.4)       or
         booleanCharHashVar        [TRUE] <> 'Q'                     or
         booleanStringHashVar      [TRUE] <> "success"               or
+        booleanBstringHashVar     [TRUE] <> bstring("okay")         or
         booleanBitsetHashVar      [TRUE] <> {123}                   or
         booleanTypeHashVar        [TRUE] <> char                    or
         booleanReferenceHashVar   [TRUE] <> NIL                     then
@@ -313,6 +347,7 @@ const proc: chkIntegerHash is func
     var integerComplexHash:     integerComplexHashVar     is integerComplexHash    .EMPTY_HASH;
     var integerCharHash:        integerCharHashVar        is integerCharHash       .EMPTY_HASH;
     var integerStringHash:      integerStringHashVar      is integerStringHash     .EMPTY_HASH;
+    var integerBstringHash:     integerBstringHashVar     is integerBstringHash    .EMPTY_HASH;
     var integerBitsetHash:      integerBitsetHashVar      is integerBitsetHash     .EMPTY_HASH;
     var integerTypeHash:        integerTypeHashVar        is integerTypeHash       .EMPTY_HASH;
     var integerReferenceHash:   integerReferenceHashVar   is integerReferenceHash  .EMPTY_HASH;
@@ -326,6 +361,7 @@ const proc: chkIntegerHash is func
         length(integerComplexHashVar)     <> 0 or
         length(integerCharHashVar)        <> 0 or
         length(integerStringHashVar)      <> 0 or
+        length(integerBstringHashVar)     <> 0 or
         length(integerBitsetHashVar)      <> 0 or
         length(integerTypeHashVar)        <> 0 or
         length(integerReferenceHashVar)   <> 0 or
@@ -341,6 +377,7 @@ const proc: chkIntegerHash is func
         87654321 in integerComplexHashVar     or
         87654321 in integerCharHashVar        or
         87654321 in integerStringHashVar      or
+        87654321 in integerBstringHashVar     or
         87654321 in integerBitsetHashVar      or
         87654321 in integerTypeHashVar        or
         87654321 in integerReferenceHashVar   or
@@ -356,6 +393,7 @@ const proc: chkIntegerHash is func
     integerComplexHashVar     @:= [87654321] complex(1.2, 3.4);
     integerCharHashVar        @:= [87654321] 'Q';
     integerStringHashVar      @:= [87654321] "success";
+    integerBstringHashVar     @:= [87654321] bstring("okay");
     integerBitsetHashVar      @:= [87654321] {123};
     integerTypeHashVar        @:= [87654321] char;
     integerReferenceHashVar   @:= [87654321] NIL;
@@ -368,6 +406,7 @@ const proc: chkIntegerHash is func
         length(integerComplexHashVar)     <> 1 or
         length(integerCharHashVar)        <> 1 or
         length(integerStringHashVar)      <> 1 or
+        length(integerBstringHashVar)     <> 1 or
         length(integerBitsetHashVar)      <> 1 or
         length(integerTypeHashVar)        <> 1 or
         length(integerReferenceHashVar)   <> 1 or
@@ -383,6 +422,7 @@ const proc: chkIntegerHash is func
         87654321 in integerComplexHashVar     and
         87654321 in integerCharHashVar        and
         87654321 in integerStringHashVar      and
+        87654321 in integerBstringHashVar     and
         87654321 in integerBitsetHashVar      and
         87654321 in integerTypeHashVar        and
         87654321 in integerReferenceHashVar   and
@@ -400,6 +440,7 @@ const proc: chkIntegerHash is func
     integerComplexHashVar     @:= [87654321] complex(1.2, 3.4);
     integerCharHashVar        @:= [87654321] 'Q';
     integerStringHashVar      @:= [87654321] "success";
+    integerBstringHashVar     @:= [87654321] bstring("okay");
     integerBitsetHashVar      @:= [87654321] {123};
     integerTypeHashVar        @:= [87654321] char;
     integerReferenceHashVar   @:= [87654321] NIL;
@@ -412,6 +453,7 @@ const proc: chkIntegerHash is func
         87654321 not in integerComplexHashVar     or
         87654321 not in integerCharHashVar        or
         87654321 not in integerStringHashVar      or
+        87654321 not in integerBstringHashVar     or
         87654321 not in integerBitsetHashVar      or
         87654321 not in integerTypeHashVar        or
         87654321 not in integerReferenceHashVar   or
@@ -427,6 +469,7 @@ const proc: chkIntegerHash is func
         integerComplexHashVar     [87654321] <> complex(1.2, 3.4)       or
         integerCharHashVar        [87654321] <> 'Q'                     or
         integerStringHashVar      [87654321] <> "success"               or
+        integerBstringHashVar     [87654321] <> bstring("okay")         or
         integerBitsetHashVar      [87654321] <> {123}                   or
         integerTypeHashVar        [87654321] <> char                    or
         integerReferenceHashVar   [87654321] <> NIL                     then
@@ -453,6 +496,7 @@ const proc: chkBigIntegerHash is func
     var bigIntegerComplexHash:     bigIntegerComplexHashVar     is bigIntegerComplexHash    .EMPTY_HASH;
     var bigIntegerCharHash:        bigIntegerCharHashVar        is bigIntegerCharHash       .EMPTY_HASH;
     var bigIntegerStringHash:      bigIntegerStringHashVar      is bigIntegerStringHash     .EMPTY_HASH;
+    var bigIntegerBstringHash:     bigIntegerBstringHashVar     is bigIntegerBstringHash    .EMPTY_HASH;
     var bigIntegerBitsetHash:      bigIntegerBitsetHashVar      is bigIntegerBitsetHash     .EMPTY_HASH;
     var bigIntegerTypeHash:        bigIntegerTypeHashVar        is bigIntegerTypeHash       .EMPTY_HASH;
     var bigIntegerReferenceHash:   bigIntegerReferenceHashVar   is bigIntegerReferenceHash  .EMPTY_HASH;
@@ -466,6 +510,7 @@ const proc: chkBigIntegerHash is func
         length(bigIntegerComplexHashVar)     <> 0 or
         length(bigIntegerCharHashVar)        <> 0 or
         length(bigIntegerStringHashVar)      <> 0 or
+        length(bigIntegerBstringHashVar)     <> 0 or
         length(bigIntegerBitsetHashVar)      <> 0 or
         length(bigIntegerTypeHashVar)        <> 0 or
         length(bigIntegerReferenceHashVar)   <> 0 or
@@ -481,6 +526,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ in bigIntegerComplexHashVar     or
         9223372036854775808_ in bigIntegerCharHashVar        or
         9223372036854775808_ in bigIntegerStringHashVar      or
+        9223372036854775808_ in bigIntegerBstringHashVar     or
         9223372036854775808_ in bigIntegerBitsetHashVar      or
         9223372036854775808_ in bigIntegerTypeHashVar        or
         9223372036854775808_ in bigIntegerReferenceHashVar   or
@@ -496,6 +542,7 @@ const proc: chkBigIntegerHash is func
     bigIntegerComplexHashVar     @:= [9223372036854775808_] complex(1.2, 3.4);
     bigIntegerCharHashVar        @:= [9223372036854775808_] 'Q';
     bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
+    bigIntegerBstringHashVar     @:= [9223372036854775808_] bstring("okay");
     bigIntegerBitsetHashVar      @:= [9223372036854775808_] {123};
     bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
     bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
@@ -508,6 +555,7 @@ const proc: chkBigIntegerHash is func
         length(bigIntegerComplexHashVar)     <> 1 or
         length(bigIntegerCharHashVar)        <> 1 or
         length(bigIntegerStringHashVar)      <> 1 or
+        length(bigIntegerBstringHashVar)     <> 1 or
         length(bigIntegerBitsetHashVar)      <> 1 or
         length(bigIntegerTypeHashVar)        <> 1 or
         length(bigIntegerReferenceHashVar)   <> 1 or
@@ -523,6 +571,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ in bigIntegerComplexHashVar     and
         9223372036854775808_ in bigIntegerCharHashVar        and
         9223372036854775808_ in bigIntegerStringHashVar      and
+        9223372036854775808_ in bigIntegerBstringHashVar     and
         9223372036854775808_ in bigIntegerBitsetHashVar      and
         9223372036854775808_ in bigIntegerTypeHashVar        and
         9223372036854775808_ in bigIntegerReferenceHashVar   and
@@ -540,6 +589,7 @@ const proc: chkBigIntegerHash is func
     bigIntegerComplexHashVar     @:= [9223372036854775808_] complex(1.2, 3.4);
     bigIntegerCharHashVar        @:= [9223372036854775808_] 'Q';
     bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
+    bigIntegerBstringHashVar     @:= [9223372036854775808_] bstring("okay");
     bigIntegerBitsetHashVar      @:= [9223372036854775808_] {123};
     bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
     bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
@@ -552,6 +602,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ not in bigIntegerComplexHashVar     or
         9223372036854775808_ not in bigIntegerCharHashVar        or
         9223372036854775808_ not in bigIntegerStringHashVar      or
+        9223372036854775808_ not in bigIntegerBstringHashVar     or
         9223372036854775808_ not in bigIntegerBitsetHashVar      or
         9223372036854775808_ not in bigIntegerTypeHashVar        or
         9223372036854775808_ not in bigIntegerReferenceHashVar   or
@@ -567,6 +618,7 @@ const proc: chkBigIntegerHash is func
         bigIntegerComplexHashVar     [9223372036854775808_] <> complex(1.2, 3.4)       or
         bigIntegerCharHashVar        [9223372036854775808_] <> 'Q'                     or
         bigIntegerStringHashVar      [9223372036854775808_] <> "success"               or
+        bigIntegerBstringHashVar     [9223372036854775808_] <> bstring("okay")         or
         bigIntegerBitsetHashVar      [9223372036854775808_] <> {123}                   or
         bigIntegerTypeHashVar        [9223372036854775808_] <> char                    or
         bigIntegerReferenceHashVar   [9223372036854775808_] <> NIL                     then
@@ -593,6 +645,7 @@ const proc: chkRationalHash is func
     var rationalComplexHash:     rationalComplexHashVar     is rationalComplexHash    .EMPTY_HASH;
     var rationalCharHash:        rationalCharHashVar        is rationalCharHash       .EMPTY_HASH;
     var rationalStringHash:      rationalStringHashVar      is rationalStringHash     .EMPTY_HASH;
+    var rationalBstringHash:     rationalBstringHashVar     is rationalBstringHash    .EMPTY_HASH;
     var rationalBitsetHash:      rationalBitsetHashVar      is rationalBitsetHash     .EMPTY_HASH;
     var rationalTypeHash:        rationalTypeHashVar        is rationalTypeHash       .EMPTY_HASH;
     var rationalReferenceHash:   rationalReferenceHashVar   is rationalReferenceHash  .EMPTY_HASH;
@@ -606,6 +659,7 @@ const proc: chkRationalHash is func
         length(rationalComplexHashVar)     <> 0 or
         length(rationalCharHashVar)        <> 0 or
         length(rationalStringHashVar)      <> 0 or
+        length(rationalBstringHashVar)     <> 0 or
         length(rationalBitsetHashVar)      <> 0 or
         length(rationalTypeHashVar)        <> 0 or
         length(rationalReferenceHashVar)   <> 0 or
@@ -621,6 +675,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 in rationalComplexHashVar     or
         9876543212 / 1234567890 in rationalCharHashVar        or
         9876543212 / 1234567890 in rationalStringHashVar      or
+        9876543212 / 1234567890 in rationalBstringHashVar     or
         9876543212 / 1234567890 in rationalBitsetHashVar      or
         9876543212 / 1234567890 in rationalTypeHashVar        or
         9876543212 / 1234567890 in rationalReferenceHashVar   or
@@ -636,6 +691,7 @@ const proc: chkRationalHash is func
     rationalComplexHashVar     @:= [9876543212 / 1234567890] complex(1.2, 3.4);
     rationalCharHashVar        @:= [9876543212 / 1234567890] 'Q';
     rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
+    rationalBstringHashVar     @:= [9876543212 / 1234567890] bstring("okay");
     rationalBitsetHashVar      @:= [9876543212 / 1234567890] {123};
     rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
     rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
@@ -648,6 +704,7 @@ const proc: chkRationalHash is func
         length(rationalComplexHashVar)     <> 1 or
         length(rationalCharHashVar)        <> 1 or
         length(rationalStringHashVar)      <> 1 or
+        length(rationalBstringHashVar)     <> 1 or
         length(rationalBitsetHashVar)      <> 1 or
         length(rationalTypeHashVar)        <> 1 or
         length(rationalReferenceHashVar)   <> 1 or
@@ -663,6 +720,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 in rationalComplexHashVar     and
         9876543212 / 1234567890 in rationalCharHashVar        and
         9876543212 / 1234567890 in rationalStringHashVar      and
+        9876543212 / 1234567890 in rationalBstringHashVar     and
         9876543212 / 1234567890 in rationalBitsetHashVar      and
         9876543212 / 1234567890 in rationalTypeHashVar        and
         9876543212 / 1234567890 in rationalReferenceHashVar   and
@@ -680,6 +738,7 @@ const proc: chkRationalHash is func
     rationalComplexHashVar     @:= [9876543212 / 1234567890] complex(1.2, 3.4);
     rationalCharHashVar        @:= [9876543212 / 1234567890] 'Q';
     rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
+    rationalBstringHashVar     @:= [9876543212 / 1234567890] bstring("okay");
     rationalBitsetHashVar      @:= [9876543212 / 1234567890] {123};
     rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
     rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
@@ -692,6 +751,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 not in rationalComplexHashVar     or
         9876543212 / 1234567890 not in rationalCharHashVar        or
         9876543212 / 1234567890 not in rationalStringHashVar      or
+        9876543212 / 1234567890 not in rationalBstringHashVar     or
         9876543212 / 1234567890 not in rationalBitsetHashVar      or
         9876543212 / 1234567890 not in rationalTypeHashVar        or
         9876543212 / 1234567890 not in rationalReferenceHashVar   or
@@ -707,6 +767,7 @@ const proc: chkRationalHash is func
         rationalComplexHashVar     [9876543212 / 1234567890] <> complex(1.2, 3.4)       or
         rationalCharHashVar        [9876543212 / 1234567890] <> 'Q'                     or
         rationalStringHashVar      [9876543212 / 1234567890] <> "success"               or
+        rationalBstringHashVar     [9876543212 / 1234567890] <> bstring("okay")         or
         rationalBitsetHashVar      [9876543212 / 1234567890] <> {123}                   or
         rationalTypeHashVar        [9876543212 / 1234567890] <> char                    or
         rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                     then
@@ -733,6 +794,7 @@ const proc: chkBigRationalHash is func
     var bigRationalComplexHash:     bigRationalComplexHashVar     is bigRationalComplexHash    .EMPTY_HASH;
     var bigRationalCharHash:        bigRationalCharHashVar        is bigRationalCharHash       .EMPTY_HASH;
     var bigRationalStringHash:      bigRationalStringHashVar      is bigRationalStringHash     .EMPTY_HASH;
+    var bigRationalBstringHash:     bigRationalBstringHashVar     is bigRationalBstringHash    .EMPTY_HASH;
     var bigRationalBitsetHash:      bigRationalBitsetHashVar      is bigRationalBitsetHash     .EMPTY_HASH;
     var bigRationalTypeHash:        bigRationalTypeHashVar        is bigRationalTypeHash       .EMPTY_HASH;
     var bigRationalReferenceHash:   bigRationalReferenceHashVar   is bigRationalReferenceHash  .EMPTY_HASH;
@@ -746,6 +808,7 @@ const proc: chkBigRationalHash is func
         length(bigRationalComplexHashVar)     <> 0 or
         length(bigRationalCharHashVar)        <> 0 or
         length(bigRationalStringHashVar)      <> 0 or
+        length(bigRationalBstringHashVar)     <> 0 or
         length(bigRationalBitsetHashVar)      <> 0 or
         length(bigRationalTypeHashVar)        <> 0 or
         length(bigRationalReferenceHashVar)   <> 0 or
@@ -761,6 +824,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ in bigRationalComplexHashVar     or
         9876543212_ / 1234567890_ in bigRationalCharHashVar        or
         9876543212_ / 1234567890_ in bigRationalStringHashVar      or
+        9876543212_ / 1234567890_ in bigRationalBstringHashVar     or
         9876543212_ / 1234567890_ in bigRationalBitsetHashVar      or
         9876543212_ / 1234567890_ in bigRationalTypeHashVar        or
         9876543212_ / 1234567890_ in bigRationalReferenceHashVar   or
@@ -776,6 +840,7 @@ const proc: chkBigRationalHash is func
     bigRationalComplexHashVar     @:= [9876543212_ / 1234567890_] complex(1.2, 3.4);
     bigRationalCharHashVar        @:= [9876543212_ / 1234567890_] 'Q';
     bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
+    bigRationalBstringHashVar     @:= [9876543212_ / 1234567890_] bstring("okay");
     bigRationalBitsetHashVar      @:= [9876543212_ / 1234567890_] {123};
     bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
     bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
@@ -788,6 +853,7 @@ const proc: chkBigRationalHash is func
         length(bigRationalComplexHashVar)     <> 1 or
         length(bigRationalCharHashVar)        <> 1 or
         length(bigRationalStringHashVar)      <> 1 or
+        length(bigRationalBstringHashVar)     <> 1 or
         length(bigRationalBitsetHashVar)      <> 1 or
         length(bigRationalTypeHashVar)        <> 1 or
         length(bigRationalReferenceHashVar)   <> 1 or
@@ -803,6 +869,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ in bigRationalComplexHashVar     and
         9876543212_ / 1234567890_ in bigRationalCharHashVar        and
         9876543212_ / 1234567890_ in bigRationalStringHashVar      and
+        9876543212_ / 1234567890_ in bigRationalBstringHashVar     and
         9876543212_ / 1234567890_ in bigRationalBitsetHashVar      and
         9876543212_ / 1234567890_ in bigRationalTypeHashVar        and
         9876543212_ / 1234567890_ in bigRationalReferenceHashVar   and
@@ -820,6 +887,7 @@ const proc: chkBigRationalHash is func
     bigRationalComplexHashVar     @:= [9876543212_ / 1234567890_] complex(1.2, 3.4);
     bigRationalCharHashVar        @:= [9876543212_ / 1234567890_] 'Q';
     bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
+    bigRationalBstringHashVar     @:= [9876543212_ / 1234567890_] bstring("okay");
     bigRationalBitsetHashVar      @:= [9876543212_ / 1234567890_] {123};
     bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
     bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
@@ -832,6 +900,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ not in bigRationalComplexHashVar     or
         9876543212_ / 1234567890_ not in bigRationalCharHashVar        or
         9876543212_ / 1234567890_ not in bigRationalStringHashVar      or
+        9876543212_ / 1234567890_ not in bigRationalBstringHashVar     or
         9876543212_ / 1234567890_ not in bigRationalBitsetHashVar      or
         9876543212_ / 1234567890_ not in bigRationalTypeHashVar        or
         9876543212_ / 1234567890_ not in bigRationalReferenceHashVar   or
@@ -847,6 +916,7 @@ const proc: chkBigRationalHash is func
         bigRationalComplexHashVar     [9876543212_ / 1234567890_] <> complex(1.2, 3.4)       or
         bigRationalCharHashVar        [9876543212_ / 1234567890_] <> 'Q'                     or
         bigRationalStringHashVar      [9876543212_ / 1234567890_] <> "success"               or
+        bigRationalBstringHashVar     [9876543212_ / 1234567890_] <> bstring("okay")         or
         bigRationalBitsetHashVar      [9876543212_ / 1234567890_] <> {123}                   or
         bigRationalTypeHashVar        [9876543212_ / 1234567890_] <> char                    or
         bigRationalReferenceHashVar   [9876543212_ / 1234567890_] <> NIL                     then
@@ -873,6 +943,7 @@ const proc: chkFloatHash is func
     var floatComplexHash:     floatComplexHashVar     is floatComplexHash    .EMPTY_HASH;
     var floatCharHash:        floatCharHashVar        is floatCharHash       .EMPTY_HASH;
     var floatStringHash:      floatStringHashVar      is floatStringHash     .EMPTY_HASH;
+    var floatBstringHash:     floatBstringHashVar     is floatBstringHash    .EMPTY_HASH;
     var floatBitsetHash:      floatBitsetHashVar      is floatBitsetHash     .EMPTY_HASH;
     var floatTypeHash:        floatTypeHashVar        is floatTypeHash       .EMPTY_HASH;
     var floatReferenceHash:   floatReferenceHashVar   is floatReferenceHash  .EMPTY_HASH;
@@ -886,6 +957,7 @@ const proc: chkFloatHash is func
         length(floatComplexHashVar)     <> 0 or
         length(floatCharHashVar)        <> 0 or
         length(floatStringHashVar)      <> 0 or
+        length(floatBstringHashVar)     <> 0 or
         length(floatBitsetHashVar)      <> 0 or
         length(floatTypeHashVar)        <> 0 or
         length(floatReferenceHashVar)   <> 0 or
@@ -901,6 +973,7 @@ const proc: chkFloatHash is func
         3.1415926535 in floatComplexHashVar     or
         3.1415926535 in floatCharHashVar        or
         3.1415926535 in floatStringHashVar      or
+        3.1415926535 in floatBstringHashVar     or
         3.1415926535 in floatBitsetHashVar      or
         3.1415926535 in floatTypeHashVar        or
         3.1415926535 in floatReferenceHashVar   or
@@ -916,6 +989,7 @@ const proc: chkFloatHash is func
     floatComplexHashVar     @:= [3.1415926535] complex(1.2, 3.4);
     floatCharHashVar        @:= [3.1415926535] 'Q';
     floatStringHashVar      @:= [3.1415926535] "success";
+    floatBstringHashVar     @:= [3.1415926535] bstring("okay");
     floatBitsetHashVar      @:= [3.1415926535] {123};
     floatTypeHashVar        @:= [3.1415926535] char;
     floatReferenceHashVar   @:= [3.1415926535] NIL;
@@ -928,6 +1002,7 @@ const proc: chkFloatHash is func
         length(floatComplexHashVar)     <> 1 or
         length(floatCharHashVar)        <> 1 or
         length(floatStringHashVar)      <> 1 or
+        length(floatBstringHashVar)     <> 1 or
         length(floatBitsetHashVar)      <> 1 or
         length(floatTypeHashVar)        <> 1 or
         length(floatReferenceHashVar)   <> 1 or
@@ -943,6 +1018,7 @@ const proc: chkFloatHash is func
         3.1415926535 in floatComplexHashVar     and
         3.1415926535 in floatCharHashVar        and
         3.1415926535 in floatStringHashVar      and
+        3.1415926535 in floatBstringHashVar     and
         3.1415926535 in floatBitsetHashVar      and
         3.1415926535 in floatTypeHashVar        and
         3.1415926535 in floatReferenceHashVar   and
@@ -960,6 +1036,7 @@ const proc: chkFloatHash is func
     floatComplexHashVar     @:= [3.1415926535] complex(1.2, 3.4);
     floatCharHashVar        @:= [3.1415926535] 'Q';
     floatStringHashVar      @:= [3.1415926535] "success";
+    floatBstringHashVar     @:= [3.1415926535] bstring("okay");
     floatBitsetHashVar      @:= [3.1415926535] {123};
     floatTypeHashVar        @:= [3.1415926535] char;
     floatReferenceHashVar   @:= [3.1415926535] NIL;
@@ -972,6 +1049,7 @@ const proc: chkFloatHash is func
         3.1415926535 not in floatComplexHashVar     or
         3.1415926535 not in floatCharHashVar        or
         3.1415926535 not in floatStringHashVar      or
+        3.1415926535 not in floatBstringHashVar     or
         3.1415926535 not in floatBitsetHashVar      or
         3.1415926535 not in floatTypeHashVar        or
         3.1415926535 not in floatReferenceHashVar   or
@@ -987,6 +1065,7 @@ const proc: chkFloatHash is func
         floatComplexHashVar     [3.1415926535] <> complex(1.2, 3.4)       or
         floatCharHashVar        [3.1415926535] <> 'Q'                     or
         floatStringHashVar      [3.1415926535] <> "success"               or
+        floatBstringHashVar     [3.1415926535] <> bstring("okay")         or
         floatBitsetHashVar      [3.1415926535] <> {123}                   or
         floatTypeHashVar        [3.1415926535] <> char                    or
         floatReferenceHashVar   [3.1415926535] <> NIL                     then
@@ -1013,6 +1092,7 @@ const proc: chkComplexHash is func
     var complexComplexHash:     complexComplexHashVar     is complexComplexHash    .EMPTY_HASH;
     var complexCharHash:        complexCharHashVar        is complexCharHash       .EMPTY_HASH;
     var complexStringHash:      complexStringHashVar      is complexStringHash     .EMPTY_HASH;
+    var complexBstringHash:     complexBstringHashVar     is complexBstringHash    .EMPTY_HASH;
     var complexBitsetHash:      complexBitsetHashVar      is complexBitsetHash     .EMPTY_HASH;
     var complexTypeHash:        complexTypeHashVar        is complexTypeHash       .EMPTY_HASH;
     var complexReferenceHash:   complexReferenceHashVar   is complexReferenceHash  .EMPTY_HASH;
@@ -1026,6 +1106,7 @@ const proc: chkComplexHash is func
         length(complexComplexHashVar)     <> 0 or
         length(complexCharHashVar)        <> 0 or
         length(complexStringHashVar)      <> 0 or
+        length(complexBstringHashVar)     <> 0 or
         length(complexBitsetHashVar)      <> 0 or
         length(complexTypeHashVar)        <> 0 or
         length(complexReferenceHashVar)   <> 0 or
@@ -1041,6 +1122,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) in complexComplexHashVar     or
         complex(5.6, 7.8) in complexCharHashVar        or
         complex(5.6, 7.8) in complexStringHashVar      or
+        complex(5.6, 7.8) in complexBstringHashVar     or
         complex(5.6, 7.8) in complexBitsetHashVar      or
         complex(5.6, 7.8) in complexTypeHashVar        or
         complex(5.6, 7.8) in complexReferenceHashVar   or
@@ -1056,6 +1138,7 @@ const proc: chkComplexHash is func
     complexComplexHashVar     @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
     complexCharHashVar        @:= [complex(5.6, 7.8)] 'Q';
     complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
+    complexBstringHashVar     @:= [complex(5.6, 7.8)] bstring("okay");
     complexBitsetHashVar      @:= [complex(5.6, 7.8)] {123};
     complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
     complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
@@ -1068,6 +1151,7 @@ const proc: chkComplexHash is func
         length(complexComplexHashVar)     <> 1 or
         length(complexCharHashVar)        <> 1 or
         length(complexStringHashVar)      <> 1 or
+        length(complexBstringHashVar)     <> 1 or
         length(complexBitsetHashVar)      <> 1 or
         length(complexTypeHashVar)        <> 1 or
         length(complexReferenceHashVar)   <> 1 or
@@ -1083,6 +1167,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) in complexComplexHashVar     and
         complex(5.6, 7.8) in complexCharHashVar        and
         complex(5.6, 7.8) in complexStringHashVar      and
+        complex(5.6, 7.8) in complexBstringHashVar     and
         complex(5.6, 7.8) in complexBitsetHashVar      and
         complex(5.6, 7.8) in complexTypeHashVar        and
         complex(5.6, 7.8) in complexReferenceHashVar   and
@@ -1100,6 +1185,7 @@ const proc: chkComplexHash is func
     complexComplexHashVar     @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
     complexCharHashVar        @:= [complex(5.6, 7.8)] 'Q';
     complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
+    complexBstringHashVar     @:= [complex(5.6, 7.8)] bstring("okay");
     complexBitsetHashVar      @:= [complex(5.6, 7.8)] {123};
     complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
     complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
@@ -1112,6 +1198,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) not in complexComplexHashVar     or
         complex(5.6, 7.8) not in complexCharHashVar        or
         complex(5.6, 7.8) not in complexStringHashVar      or
+        complex(5.6, 7.8) not in complexBstringHashVar     or
         complex(5.6, 7.8) not in complexBitsetHashVar      or
         complex(5.6, 7.8) not in complexTypeHashVar        or
         complex(5.6, 7.8) not in complexReferenceHashVar   or
@@ -1127,6 +1214,7 @@ const proc: chkComplexHash is func
         complexComplexHashVar     [complex(5.6, 7.8)] <> complex(1.2, 3.4)       or
         complexCharHashVar        [complex(5.6, 7.8)] <> 'Q'                     or
         complexStringHashVar      [complex(5.6, 7.8)] <> "success"               or
+        complexBstringHashVar     [complex(5.6, 7.8)] <> bstring("okay")         or
         complexBitsetHashVar      [complex(5.6, 7.8)] <> {123}                   or
         complexTypeHashVar        [complex(5.6, 7.8)] <> char                    or
         complexReferenceHashVar   [complex(5.6, 7.8)] <> NIL                     then
@@ -1153,6 +1241,7 @@ const proc: chkCharHash is func
     var charComplexHash:     charComplexHashVar     is charComplexHash    .EMPTY_HASH;
     var charCharHash:        charCharHashVar        is charCharHash       .EMPTY_HASH;
     var charStringHash:      charStringHashVar      is charStringHash     .EMPTY_HASH;
+    var charBstringHash:     charBstringHashVar     is charBstringHash    .EMPTY_HASH;
     var charBitsetHash:      charBitsetHashVar      is charBitsetHash     .EMPTY_HASH;
     var charTypeHash:        charTypeHashVar        is charTypeHash       .EMPTY_HASH;
     var charReferenceHash:   charReferenceHashVar   is charReferenceHash  .EMPTY_HASH;
@@ -1166,6 +1255,7 @@ const proc: chkCharHash is func
         length(charComplexHashVar)     <> 0 or
         length(charCharHashVar)        <> 0 or
         length(charStringHashVar)      <> 0 or
+        length(charBstringHashVar)     <> 0 or
         length(charBitsetHashVar)      <> 0 or
         length(charTypeHashVar)        <> 0 or
         length(charReferenceHashVar)   <> 0 or
@@ -1181,6 +1271,7 @@ const proc: chkCharHash is func
         'k' in charComplexHashVar     or
         'k' in charCharHashVar        or
         'k' in charStringHashVar      or
+        'k' in charBstringHashVar     or
         'k' in charBitsetHashVar      or
         'k' in charTypeHashVar        or
         'k' in charReferenceHashVar   or
@@ -1196,6 +1287,7 @@ const proc: chkCharHash is func
     charComplexHashVar     @:= ['k'] complex(1.2, 3.4);
     charCharHashVar        @:= ['k'] 'Q';
     charStringHashVar      @:= ['k'] "success";
+    charBstringHashVar     @:= ['k'] bstring("okay");
     charBitsetHashVar      @:= ['k'] {123};
     charTypeHashVar        @:= ['k'] char;
     charReferenceHashVar   @:= ['k'] NIL;
@@ -1208,6 +1300,7 @@ const proc: chkCharHash is func
         length(charComplexHashVar)     <> 1 or
         length(charCharHashVar)        <> 1 or
         length(charStringHashVar)      <> 1 or
+        length(charBstringHashVar)     <> 1 or
         length(charBitsetHashVar)      <> 1 or
         length(charTypeHashVar)        <> 1 or
         length(charReferenceHashVar)   <> 1 or
@@ -1223,6 +1316,7 @@ const proc: chkCharHash is func
         'k' in charComplexHashVar     and
         'k' in charCharHashVar        and
         'k' in charStringHashVar      and
+        'k' in charBstringHashVar     and
         'k' in charBitsetHashVar      and
         'k' in charTypeHashVar        and
         'k' in charReferenceHashVar   and
@@ -1240,6 +1334,7 @@ const proc: chkCharHash is func
     charComplexHashVar     @:= ['k'] complex(1.2, 3.4);
     charCharHashVar        @:= ['k'] 'Q';
     charStringHashVar      @:= ['k'] "success";
+    charBstringHashVar     @:= ['k'] bstring("okay");
     charBitsetHashVar      @:= ['k'] {123};
     charTypeHashVar        @:= ['k'] char;
     charReferenceHashVar   @:= ['k'] NIL;
@@ -1252,6 +1347,7 @@ const proc: chkCharHash is func
         'k' not in charComplexHashVar     or
         'k' not in charCharHashVar        or
         'k' not in charStringHashVar      or
+        'k' not in charBstringHashVar     or
         'k' not in charBitsetHashVar      or
         'k' not in charTypeHashVar        or
         'k' not in charReferenceHashVar   or
@@ -1267,6 +1363,7 @@ const proc: chkCharHash is func
         charComplexHashVar     ['k'] <> complex(1.2, 3.4)       or
         charCharHashVar        ['k'] <> 'Q'                     or
         charStringHashVar      ['k'] <> "success"               or
+        charBstringHashVar     ['k'] <> bstring("okay")         or
         charBitsetHashVar      ['k'] <> {123}                   or
         charTypeHashVar        ['k'] <> char                    or
         charReferenceHashVar   ['k'] <> NIL                     then
@@ -1293,6 +1390,7 @@ const proc: chkStringHash is func
     var stringComplexHash:     stringComplexHashVar     is stringComplexHash    .EMPTY_HASH;
     var stringCharHash:        stringCharHashVar        is stringCharHash       .EMPTY_HASH;
     var stringStringHash:      stringStringHashVar      is stringStringHash     .EMPTY_HASH;
+    var stringBstringHash:     stringBstringHashVar     is stringBstringHash    .EMPTY_HASH;
     var stringBitsetHash:      stringBitsetHashVar      is stringBitsetHash     .EMPTY_HASH;
     var stringTypeHash:        stringTypeHashVar        is stringTypeHash       .EMPTY_HASH;
     var stringReferenceHash:   stringReferenceHashVar   is stringReferenceHash  .EMPTY_HASH;
@@ -1306,6 +1404,7 @@ const proc: chkStringHash is func
         length(stringComplexHashVar)     <> 0 or
         length(stringCharHashVar)        <> 0 or
         length(stringStringHashVar)      <> 0 or
+        length(stringBstringHashVar)     <> 0 or
         length(stringBitsetHashVar)      <> 0 or
         length(stringTypeHashVar)        <> 0 or
         length(stringReferenceHashVar)   <> 0 or
@@ -1321,6 +1420,7 @@ const proc: chkStringHash is func
         "asdfghjkl" in stringComplexHashVar     or
         "asdfghjkl" in stringCharHashVar        or
         "asdfghjkl" in stringStringHashVar      or
+        "asdfghjkl" in stringBstringHashVar     or
         "asdfghjkl" in stringBitsetHashVar      or
         "asdfghjkl" in stringTypeHashVar        or
         "asdfghjkl" in stringReferenceHashVar   or
@@ -1336,6 +1436,7 @@ const proc: chkStringHash is func
     stringComplexHashVar     @:= ["asdfghjkl"] complex(1.2, 3.4);
     stringCharHashVar        @:= ["asdfghjkl"] 'Q';
     stringStringHashVar      @:= ["asdfghjkl"] "success";
+    stringBstringHashVar     @:= ["asdfghjkl"] bstring("okay");
     stringBitsetHashVar      @:= ["asdfghjkl"] {123};
     stringTypeHashVar        @:= ["asdfghjkl"] char;
     stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
@@ -1348,6 +1449,7 @@ const proc: chkStringHash is func
         length(stringComplexHashVar)     <> 1 or
         length(stringCharHashVar)        <> 1 or
         length(stringStringHashVar)      <> 1 or
+        length(stringBstringHashVar)     <> 1 or
         length(stringBitsetHashVar)      <> 1 or
         length(stringTypeHashVar)        <> 1 or
         length(stringReferenceHashVar)   <> 1 or
@@ -1363,6 +1465,7 @@ const proc: chkStringHash is func
         "asdfghjkl" in stringComplexHashVar     and
         "asdfghjkl" in stringCharHashVar        and
         "asdfghjkl" in stringStringHashVar      and
+        "asdfghjkl" in stringBstringHashVar     and
         "asdfghjkl" in stringBitsetHashVar      and
         "asdfghjkl" in stringTypeHashVar        and
         "asdfghjkl" in stringReferenceHashVar   and
@@ -1380,6 +1483,7 @@ const proc: chkStringHash is func
     stringComplexHashVar     @:= ["asdfghjkl"] complex(1.2, 3.4);
     stringCharHashVar        @:= ["asdfghjkl"] 'Q';
     stringStringHashVar      @:= ["asdfghjkl"] "success";
+    stringBstringHashVar     @:= ["asdfghjkl"] bstring("okay");
     stringBitsetHashVar      @:= ["asdfghjkl"] {123};
     stringTypeHashVar        @:= ["asdfghjkl"] char;
     stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
@@ -1392,6 +1496,7 @@ const proc: chkStringHash is func
         "asdfghjkl" not in stringComplexHashVar     or
         "asdfghjkl" not in stringCharHashVar        or
         "asdfghjkl" not in stringStringHashVar      or
+        "asdfghjkl" not in stringBstringHashVar     or
         "asdfghjkl" not in stringBitsetHashVar      or
         "asdfghjkl" not in stringTypeHashVar        or
         "asdfghjkl" not in stringReferenceHashVar   or
@@ -1407,6 +1512,7 @@ const proc: chkStringHash is func
         stringComplexHashVar     ["asdfghjkl"] <> complex(1.2, 3.4)       or
         stringCharHashVar        ["asdfghjkl"] <> 'Q'                     or
         stringStringHashVar      ["asdfghjkl"] <> "success"               or
+        stringBstringHashVar     ["asdfghjkl"] <> bstring("okay")         or
         stringBitsetHashVar      ["asdfghjkl"] <> {123}                   or
         stringTypeHashVar        ["asdfghjkl"] <> char                    or
         stringReferenceHashVar   ["asdfghjkl"] <> NIL                     then
@@ -1417,6 +1523,155 @@ const proc: chkStringHash is func
       writeln("Hash tables with string keys work correctly.");
     else
       writeln(" ***** Hash tables with string keys do not work correctly");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkBstringHash is func
+  local
+    var boolean: okay is TRUE;
+    var bstringBooleanHash:     bstringBooleanHashVar     is bstringBooleanHash    .EMPTY_HASH;
+    var bstringIntegerHash:     bstringIntegerHashVar     is bstringIntegerHash    .EMPTY_HASH;
+    var bstringBigIntegerHash:  bstringBigIntegerHashVar  is bstringBigIntegerHash .EMPTY_HASH;
+    var bstringBigRationalHash: bstringBigRationalHashVar is bstringBigRationalHash.EMPTY_HASH;
+    var bstringFloatHash:       bstringFloatHashVar       is bstringFloatHash      .EMPTY_HASH;
+    var bstringComplexHash:     bstringComplexHashVar     is bstringComplexHash    .EMPTY_HASH;
+    var bstringCharHash:        bstringCharHashVar        is bstringCharHash       .EMPTY_HASH;
+    var bstringStringHash:      bstringStringHashVar      is bstringStringHash     .EMPTY_HASH;
+    var bstringBstringHash:     bstringBstringHashVar     is bstringBstringHash    .EMPTY_HASH;
+    var bstringBitsetHash:      bstringBitsetHashVar      is bstringBitsetHash     .EMPTY_HASH;
+    var bstringTypeHash:        bstringTypeHashVar        is bstringTypeHash       .EMPTY_HASH;
+    var bstringReferenceHash:   bstringReferenceHashVar   is bstringReferenceHash  .EMPTY_HASH;
+    var bstringHashHash:        bstringHashHashVar        is bstringHashHash       .EMPTY_HASH;
+  begin
+    if  length(bstringBooleanHashVar)     <> 0 or
+        length(bstringIntegerHashVar)     <> 0 or
+        length(bstringBigIntegerHashVar)  <> 0 or
+        length(bstringBigRationalHashVar) <> 0 or
+        length(bstringFloatHashVar)       <> 0 or
+        length(bstringComplexHashVar)     <> 0 or
+        length(bstringCharHashVar)        <> 0 or
+        length(bstringStringHashVar)      <> 0 or
+        length(bstringBstringHashVar)     <> 0 or
+        length(bstringBitsetHashVar)      <> 0 or
+        length(bstringTypeHashVar)        <> 0 or
+        length(bstringReferenceHashVar)   <> 0 or
+        length(bstringHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[bstring] table not 0");
+      okay := FALSE;
+    end if;
+    if  bstring("qwert") in bstringBooleanHashVar     or
+        bstring("qwert") in bstringIntegerHashVar     or
+        bstring("qwert") in bstringBigIntegerHashVar  or
+        bstring("qwert") in bstringBigRationalHashVar or
+        bstring("qwert") in bstringFloatHashVar       or
+        bstring("qwert") in bstringComplexHashVar     or
+        bstring("qwert") in bstringCharHashVar        or
+        bstring("qwert") in bstringStringHashVar      or
+        bstring("qwert") in bstringBstringHashVar     or
+        bstring("qwert") in bstringBitsetHashVar      or
+        bstring("qwert") in bstringTypeHashVar        or
+        bstring("qwert") in bstringReferenceHashVar   or
+        bstring("qwert") in bstringHashHashVar        then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
+    bstringIntegerHashVar     @:= [bstring("qwert")] 1234;
+    bstringBigIntegerHashVar  @:= [bstring("qwert")] 9999999999_;
+    bstringBigRationalHashVar @:= [bstring("qwert")] 9999999999_ / 12345678_;
+    bstringFloatHashVar       @:= [bstring("qwert")] 3.1415926535;
+    bstringComplexHashVar     @:= [bstring("qwert")] complex(1.2, 3.4);
+    bstringCharHashVar        @:= [bstring("qwert")] 'Q';
+    bstringStringHashVar      @:= [bstring("qwert")] "success";
+    bstringBstringHashVar     @:= [bstring("qwert")] bstring("okay");
+    bstringBitsetHashVar      @:= [bstring("qwert")] {123};
+    bstringTypeHashVar        @:= [bstring("qwert")] char;
+    bstringReferenceHashVar   @:= [bstring("qwert")] NIL;
+    bstringHashHashVar        @:= [bstring("qwert")] bstringBooleanHashVar;
+    if  length(bstringBooleanHashVar)     <> 1 or
+        length(bstringIntegerHashVar)     <> 1 or
+        length(bstringBigIntegerHashVar)  <> 1 or
+        length(bstringBigRationalHashVar) <> 1 or
+        length(bstringFloatHashVar)       <> 1 or
+        length(bstringComplexHashVar)     <> 1 or
+        length(bstringCharHashVar)        <> 1 or
+        length(bstringStringHashVar)      <> 1 or
+        length(bstringBstringHashVar)     <> 1 or
+        length(bstringBitsetHashVar)      <> 1 or
+        length(bstringTypeHashVar)        <> 1 or
+        length(bstringReferenceHashVar)   <> 1 or
+        length(bstringHashHashVar)        <> 1 then
+      writeln(" ***** Number of elements in hash[bstring] table not 1");
+      okay := FALSE;
+    end if;
+    if  bstring("qwert") in bstringBooleanHashVar     and
+        bstring("qwert") in bstringIntegerHashVar     and
+        bstring("qwert") in bstringBigIntegerHashVar  and
+        bstring("qwert") in bstringBigRationalHashVar and
+        bstring("qwert") in bstringFloatHashVar       and
+        bstring("qwert") in bstringComplexHashVar     and
+        bstring("qwert") in bstringCharHashVar        and
+        bstring("qwert") in bstringStringHashVar      and
+        bstring("qwert") in bstringBstringHashVar     and
+        bstring("qwert") in bstringBitsetHashVar      and
+        bstring("qwert") in bstringTypeHashVar        and
+        bstring("qwert") in bstringReferenceHashVar   and
+        bstring("qwert") in bstringHashHashVar        then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[bstring] table");
+      okay := FALSE;
+    end if;
+    bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
+    bstringIntegerHashVar     @:= [bstring("qwert")] 1234;
+    bstringBigIntegerHashVar  @:= [bstring("qwert")] 9999999999_;
+    bstringBigRationalHashVar @:= [bstring("qwert")] 9999999999_ / 12345678_;
+    bstringFloatHashVar       @:= [bstring("qwert")] 3.1415926535;
+    bstringComplexHashVar     @:= [bstring("qwert")] complex(1.2, 3.4);
+    bstringCharHashVar        @:= [bstring("qwert")] 'Q';
+    bstringStringHashVar      @:= [bstring("qwert")] "success";
+    bstringBstringHashVar     @:= [bstring("qwert")] bstring("okay");
+    bstringBitsetHashVar      @:= [bstring("qwert")] {123};
+    bstringTypeHashVar        @:= [bstring("qwert")] char;
+    bstringReferenceHashVar   @:= [bstring("qwert")] NIL;
+    bstringHashHashVar        @:= [bstring("qwert")] bstringBooleanHashVar;
+    if  bstring("qwert") not in bstringBooleanHashVar     or
+        bstring("qwert") not in bstringIntegerHashVar     or
+        bstring("qwert") not in bstringBigIntegerHashVar  or
+        bstring("qwert") not in bstringBigRationalHashVar or
+        bstring("qwert") not in bstringFloatHashVar       or
+        bstring("qwert") not in bstringComplexHashVar     or
+        bstring("qwert") not in bstringCharHashVar        or
+        bstring("qwert") not in bstringStringHashVar      or
+        bstring("qwert") not in bstringBstringHashVar     or
+        bstring("qwert") not in bstringBitsetHashVar      or
+        bstring("qwert") not in bstringTypeHashVar        or
+        bstring("qwert") not in bstringReferenceHashVar   or
+        bstring("qwert") not in bstringHashHashVar        then
+      writeln(" ***** Elements missing in hash[bstring] table");
+      okay := FALSE;
+    end if;
+    if  bstringBooleanHashVar     [bstring("qwert")] <> TRUE                    or
+        bstringIntegerHashVar     [bstring("qwert")] <> 1234                    or
+        bstringBigIntegerHashVar  [bstring("qwert")] <> 9999999999_             or
+        bstringBigRationalHashVar [bstring("qwert")] <> 9999999999_ / 12345678_ or
+        bstringFloatHashVar       [bstring("qwert")] <> 3.1415926535            or
+        bstringComplexHashVar     [bstring("qwert")] <> complex(1.2, 3.4)       or
+        bstringCharHashVar        [bstring("qwert")] <> 'Q'                     or
+        bstringStringHashVar      [bstring("qwert")] <> "success"               or
+        bstringBstringHashVar     [bstring("qwert")] <> bstring("okay")         or
+        bstringBitsetHashVar      [bstring("qwert")] <> {123}                   or
+        bstringTypeHashVar        [bstring("qwert")] <> char                    or
+        bstringReferenceHashVar   [bstring("qwert")] <> NIL                     then
+      writeln(" ***** Elements with wrong value in hash[bstring] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with bstring keys work correctly.");
+    else
+      writeln(" ***** Hash tables with bstring keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -1433,6 +1688,7 @@ const proc: chkBitsetHash is func
     var bitsetComplexHash:     bitsetComplexHashVar     is bitsetComplexHash    .EMPTY_HASH;
     var bitsetCharHash:        bitsetCharHashVar        is bitsetCharHash       .EMPTY_HASH;
     var bitsetStringHash:      bitsetStringHashVar      is bitsetStringHash     .EMPTY_HASH;
+    var bitsetBstringHash:     bitsetBstringHashVar     is bitsetBstringHash    .EMPTY_HASH;
     var bitsetBitsetHash:      bitsetBitsetHashVar      is bitsetBitsetHash     .EMPTY_HASH;
     var bitsetTypeHash:        bitsetTypeHashVar        is bitsetTypeHash       .EMPTY_HASH;
     var bitsetReferenceHash:   bitsetReferenceHashVar   is bitsetReferenceHash  .EMPTY_HASH;
@@ -1446,6 +1702,7 @@ const proc: chkBitsetHash is func
         length(bitsetComplexHashVar)     <> 0 or
         length(bitsetCharHashVar)        <> 0 or
         length(bitsetStringHashVar)      <> 0 or
+        length(bitsetBstringHashVar)     <> 0 or
         length(bitsetBitsetHashVar)      <> 0 or
         length(bitsetTypeHashVar)        <> 0 or
         length(bitsetReferenceHashVar)   <> 0 or
@@ -1461,6 +1718,7 @@ const proc: chkBitsetHash is func
         {234} in bitsetComplexHashVar     or
         {234} in bitsetCharHashVar        or
         {234} in bitsetStringHashVar      or
+        {234} in bitsetBstringHashVar     or
         {234} in bitsetBitsetHashVar      or
         {234} in bitsetTypeHashVar        or
         {234} in bitsetReferenceHashVar   or
@@ -1476,6 +1734,7 @@ const proc: chkBitsetHash is func
     bitsetComplexHashVar     @:= [{234}] complex(1.2, 3.4);
     bitsetCharHashVar        @:= [{234}] 'Q';
     bitsetStringHashVar      @:= [{234}] "success";
+    bitsetBstringHashVar     @:= [{234}] bstring("okay");
     bitsetBitsetHashVar      @:= [{234}] {123};
     bitsetTypeHashVar        @:= [{234}] char;
     bitsetReferenceHashVar   @:= [{234}] NIL;
@@ -1488,6 +1747,7 @@ const proc: chkBitsetHash is func
         length(bitsetComplexHashVar)     <> 1 or
         length(bitsetCharHashVar)        <> 1 or
         length(bitsetStringHashVar)      <> 1 or
+        length(bitsetBstringHashVar)     <> 1 or
         length(bitsetBitsetHashVar)      <> 1 or
         length(bitsetTypeHashVar)        <> 1 or
         length(bitsetReferenceHashVar)   <> 1 or
@@ -1503,6 +1763,7 @@ const proc: chkBitsetHash is func
         {234} in bitsetComplexHashVar     and
         {234} in bitsetCharHashVar        and
         {234} in bitsetStringHashVar      and
+        {234} in bitsetBstringHashVar     and
         {234} in bitsetBitsetHashVar      and
         {234} in bitsetTypeHashVar        and
         {234} in bitsetReferenceHashVar   and
@@ -1520,6 +1781,7 @@ const proc: chkBitsetHash is func
     bitsetComplexHashVar     @:= [{234}] complex(1.2, 3.4);
     bitsetCharHashVar        @:= [{234}] 'Q';
     bitsetStringHashVar      @:= [{234}] "success";
+    bitsetBstringHashVar     @:= [{234}] bstring("okay");
     bitsetBitsetHashVar      @:= [{234}] {123};
     bitsetTypeHashVar        @:= [{234}] char;
     bitsetReferenceHashVar   @:= [{234}] NIL;
@@ -1532,6 +1794,7 @@ const proc: chkBitsetHash is func
         {234} not in bitsetComplexHashVar     or
         {234} not in bitsetCharHashVar        or
         {234} not in bitsetStringHashVar      or
+        {234} not in bitsetBstringHashVar     or
         {234} not in bitsetBitsetHashVar      or
         {234} not in bitsetTypeHashVar        or
         {234} not in bitsetReferenceHashVar   or
@@ -1547,6 +1810,7 @@ const proc: chkBitsetHash is func
         bitsetComplexHashVar     [{234}] <> complex(1.2, 3.4)       or
         bitsetCharHashVar        [{234}] <> 'Q'                     or
         bitsetStringHashVar      [{234}] <> "success"               or
+        bitsetBstringHashVar     [{234}] <> bstring("okay")         or
         bitsetBitsetHashVar      [{234}] <> {123}                   or
         bitsetTypeHashVar        [{234}] <> char                    or
         bitsetReferenceHashVar   [{234}] <> NIL                     then
@@ -1698,6 +1962,7 @@ const proc: main is func
     chkComplexHash;
     chkCharHash;
     chkStringHash;
+    chkBstringHash;
     chkBitsetHash;
     chkKeysFunction;
     chkValuesFunction;
