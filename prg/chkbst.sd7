@@ -188,7 +188,6 @@ const proc: check_bstring_assign is func
     var bstring: bstri is bstring.value;
     var array bstring: bstriArr is 1 times bstring.value;
   begin
-    okay := TRUE;
     bstri := bstring parse "asdf";        ok := ok and bstri = bstring("asdf");
     bstri := bstri;                       ok := ok and bstri = bstring("asdf");
     do_assign(bstri, bstri);              ok := ok and bstri = bstring("asdf");
@@ -220,7 +219,6 @@ const proc: check_bstring_append is func
     var bstring: bstri2 is bstring.value;
     var bstring: bstri3 is bstring.value;
   begin
-    okay := TRUE;
     bstri := bstring parse "123";
     bstri &:= bstring parse "456";
     if bstri <> bstring parse "123456" then
@@ -249,7 +247,6 @@ const proc: check_bstring_comparisons is func
   local
     var boolean: okay is TRUE;
   begin
-    okay := TRUE;
     if  not (bstring parse "" = bstring parse "") or
         not (bstring parse "a" = bstring parse "a") or
         not (bstring parse "b" = bstring parse "b") or

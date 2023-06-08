@@ -20183,6 +20183,10 @@ const proc: do_assign (inout string: dest, ref string: source) is func
   end func;
 
 
+const func string: stringFromChar (in char: ch) is
+  return str(charExpr(ch));
+
+
 const proc: check_string_assign is func
   local
     var boolean: okay is TRUE;
@@ -20219,6 +20223,9 @@ const proc: check_string_assign is func
     stri := lower(stri);          ok := ok and stri = "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz";
     stri := "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     stri := upper(stri);          ok := ok and stri = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
+    stri := str('X');             ok := ok and stri = "X";
+    stri := str(charExpr('Y'));   ok := ok and stri = "Y";
+    stri := stringFromChar('Z');  ok := ok and stri = "Z";
     striArr[1] := "asdfghjkl";               ok := ok and striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1];                ok := ok and striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1][1 ..];          ok := ok and striArr[1] = "asdfghjkl";
