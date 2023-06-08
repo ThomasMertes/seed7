@@ -35,6 +35,194 @@ const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
+const func boolean: raisesRangeError (ref func char: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var char: exprResult is ' ';
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const proc: check_literal is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  '\a' <> char(7) or
+        '\b' <> char(8) or
+        '\t' <> char(9) or
+        '\n' <> char(10) or
+        '\v' <> char(11) or
+        '\f' <> char(12) or
+        '\r' <> char(13) or
+        '\e' <> char(27) or
+        ' '  <> char(32) or
+        '!'  <> char(33) or
+        '"'  <> char(34) or
+        '\"' <> char(34) or
+        '''  <> char(39) or
+        '\'' <> char(39) or
+        '@'  <> char(64) or
+        '\\' <> char(92) or
+        '~'  <> char(126) then
+      writeln(" ***** Char literals not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  '¡'  <> char(161) or
+        '¤'  <> char(164) or
+        '§'  <> char(167) or
+        '¬'  <> char(172) or
+        '­'  <> char(173) or
+        'µ'  <> char(181) or
+        '¿'  <> char(191) or
+        'Ä'  <> char(196) or
+        '×'  <> char(215) or
+        'ß'  <> char(223) or
+        'ä'  <> char(228) or
+        '÷'  <> char(247) or
+        'ÿ'  <> char(255) or
+        'Œ'  <> char(338) or
+        'Š'  <> char(352) or
+        'ƒ'  <> char(402) or
+        '†'  <> char(8224) or
+        '•'  <> char(8226) or
+        '‰'  <> char(8240) or
+        '€'  <> char(8364) or
+        '™'  <> char(8482) then
+      writeln(" ***** Char literals not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  '\A' <> char(1) or
+        '\B' <> char(2) or
+        '\C' <> char(3) or
+        '\D' <> char(4) or
+        '\E' <> char(5) or
+        '\F' <> char(6) or
+        '\G' <> char(7) or
+        '\H' <> char(8) or
+        '\I' <> char(9) or
+        '\J' <> char(10) or
+        '\K' <> char(11) or
+        '\L' <> char(12) or
+        '\M' <> char(13) or
+        '\N' <> char(14) or
+        '\O' <> char(15) or
+        '\P' <> char(16) or
+        '\Q' <> char(17) or
+        '\R' <> char(18) or
+        '\S' <> char(19) or
+        '\T' <> char(20) or
+        '\U' <> char(21) or
+        '\V' <> char(22) or
+        '\W' <> char(23) or
+        '\X' <> char(24) or
+        '\Y' <> char(25) or
+        '\Z' <> char(26) then
+      writeln(" ***** Char literals not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  '\0;'          <> char(0) or
+        '\00;'         <> char(0) or
+        '\2#0;'        <> char(0) or
+        '\10#0;'       <> char(0) or
+        '\16#0;'       <> char(0) or
+        '\1;'          <> char(1) or
+        '\01;'         <> char(1) or
+        '\2#1;'        <> char(1) or
+        '\10#1;'       <> char(1) or
+        '\16#1;'       <> char(1) or
+        '\31;'         <> char(31) or
+        '\031;'        <> char(31) or
+        '\2#11111;'    <> char(31) or
+        '\10#31;'      <> char(31) or
+        '\16#1f;'      <> char(31) or
+        '\32;'         <> char(32) or
+        '\032;'        <> char(32) or
+        '\2#100000;'   <> char(32) or
+        '\10#32;'      <> char(32) or
+        '\16#20;'      <> char(32) or
+        '\2147483647;' <> char(2147483647) then
+      writeln(" ***** Char literals not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Char literals work correctly.");
+    end if;
+  end func;
+
+
+const proc: check_conversions is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  ord(    ' ') <> 32 or
+        integer(' ') <> 32 or
+        ord(    charExpr(' ')) <> 32 or
+        integer(charExpr(' ')) <> 32 then
+      writeln(" ***** Char conversion to integer does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  chr(      32) <> ' ' or
+        char(     32) <> ' ' or
+        char conv 32  <> ' ' or
+        chr(      intExpr(32)) <> ' ' or
+        char(     intExpr(32)) <> ' ' or
+        char conv intExpr(32)  <> ' ' then
+      writeln(" ***** Conversion of integer to char does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    # Compare with charExpr() to avoid the compile-time evaluation of the comparison.
+    if  char(7)   <> charExpr('\a') or
+        char(8)   <> charExpr('\b') or
+        char(9)   <> charExpr('\t') or
+        char(10)  <> charExpr('\n') or
+        char(11)  <> charExpr('\v') or
+        char(12)  <> charExpr('\f') or
+        char(13)  <> charExpr('\r') or
+        char(27)  <> charExpr('\e') or
+        char(32)  <> charExpr(' ')  or
+        char(33)  <> charExpr('!')  or
+        char(34)  <> charExpr('"')  or
+        char(34)  <> charExpr('\"') or
+        char(39)  <> charExpr(''')  or
+        char(39)  <> charExpr('\'') or
+        char(64)  <> charExpr('@')  or
+        char(92)  <> charExpr('\\') or
+        char(126) <> charExpr('~')  then
+      writeln(" ***** Conversion of integer to char does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(char(  2147483648)) or
+        not raisesRangeError(char(integer.last)) or
+        not raisesRangeError(char(intExpr(  2147483648))) or
+        not raisesRangeError(char(intExpr(integer.last))) then
+      writeln(" ***** Illegal conversion of integer to char do not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Char conversions work correctly.");
+    end if;
+  end func;
+
+
 const proc: check_isLetter is func
   local
     var boolean: success is TRUE;
@@ -2005,7 +2193,7 @@ const func boolean: check_literal_func is func
   end func;
 
 
-const proc: check_literal is func
+const proc: check_literal_function is func
   local
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
@@ -2467,8 +2655,10 @@ const proc: main is func
 
   begin
     writeln;
-    check_isLetter();
-    check_width();
-    check_literal();
-    check_ternary();
+    check_literal;
+    check_conversions;
+    check_isLetter;
+    check_width;
+    check_literal_function;
+    check_ternary;
   end func;

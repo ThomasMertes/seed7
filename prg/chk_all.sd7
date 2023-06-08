@@ -157,6 +157,8 @@ const string: chkbin_output is "\n\
   \The ternary operator ? : works correctly for bin32 and bin64.\n";
 
 const string: chkchr_output is "\n\
+  \Char literals work correctly.\n\
+  \Char conversions work correctly.\n\
   \isLetter function works correctly.\n\
   \width function works correctly.\n\
   \Char literal functions work correctly.\n\
