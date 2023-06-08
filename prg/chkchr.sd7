@@ -223,6 +223,52 @@ const proc: check_conversions is func
   end func;
 
 
+const proc: check_functions is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  succ('A') <> 'B' or
+        succ(charExpr('A')) <> 'B' then
+      writeln(" ***** succ(char) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred('B') <> 'A' or
+        pred(charExpr('B')) <> 'A' then
+      writeln(" ***** pred(char) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  lower('A') <> 'a' or
+        lower('a') <> 'a' or
+        lower('Γ') <> 'γ' or
+        lower('γ') <> 'γ' or
+        lower(charExpr('A')) <> 'a' or
+        lower(charExpr('a')) <> 'a' or
+        lower(charExpr('Γ')) <> 'γ' or
+        lower(charExpr('γ')) <> 'γ' then
+      writeln(" ***** lower(char) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  upper('a') <> 'A' or
+        upper('A') <> 'A' or
+        upper('γ') <> 'Γ' or
+        upper('Γ') <> 'Γ' or
+        upper(charExpr('a')) <> 'A' or
+        upper(charExpr('A')) <> 'A' or
+        upper(charExpr('γ')) <> 'Γ' or
+        upper(charExpr('Γ')) <> 'Γ' then
+      writeln(" ***** upper(char) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The char functions succ, pred, lower and upper work correctly.");
+    end if;
+  end func;
+
+
 const proc: check_isLetter is func
   local
     var boolean: success is TRUE;
@@ -2657,6 +2703,7 @@ const proc: main is func
     writeln;
     check_literal;
     check_conversions;
+    check_functions;
     check_isLetter;
     check_width;
     check_literal_function;

@@ -159,6 +159,7 @@ const string: chkbin_output is "\n\
 const string: chkchr_output is "\n\
   \Char literals work correctly.\n\
   \Char conversions work correctly.\n\
+  \The char functions succ, pred, lower and upper work correctly.\n\
   \isLetter function works correctly.\n\
   \width function works correctly.\n\
   \Char literal functions work correctly.\n\
