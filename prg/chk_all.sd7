@@ -316,6 +316,16 @@ const string: chkbool_output is "\n\
   \Boolean pred() works correctly.\n\
   \The ternary operator ? : works correctly for boolean.\n";
 
+const string: chkenum_output is "\n\
+  \Enumeration comparisons work correctly.\n\
+  \Enumeration compare function works correctly.\n\
+  \Enumeration ord function works correctly.\n\
+  \Enumeration conv operator works correctly.\n\
+  \Enumeration succ and pred functions work correctly.\n\
+  \Enumeration incr and decr work correctly.\n\
+  \Enumeration literal function works correctly.\n\
+  \The ternary operator ? : works correctly for enumerations.\n";
+
 const string:chkbitdata_output is "\n\
   \getBit(lsbBitStream) works correctly.\n\
   \getBits(lsbBitStream) works correctly.\n\
@@ -683,6 +693,7 @@ const proc: main is func
     check("chkprc",  chkprc_output);
     check("chkbig",  chkbig_output);
     check("chkbool", chkbool_output);
+    check("chkenum", chkenum_output);
     check("chkbitdata", chkbitdata_output);
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);

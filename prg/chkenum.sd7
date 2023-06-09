@@ -1,0 +1,1233 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkenum.sd7   Checks enumeration literals and operations        *)
+(*  Copyright (C) 2004, 2023  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+
+
+const type: directionType is new enum
+    STAY, UP, DOWN, LEFT, RIGHT
+  end enum;
+
+
+const func directionType: enumExpr (in directionType: enumValue) is
+  return directionType conv (ord(enumValue) + length(str(rand(1, 9))[2 ..]));
+
+
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
+const func boolean: raisesRangeError (ref proc: statement) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func directionType: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var directionType: exprResult is directionType.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: checkEq is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not STAY  = STAY  or
+            STAY  = UP    or
+            STAY  = DOWN  or
+            STAY  = LEFT  or
+            STAY  = RIGHT or
+            UP    = STAY  or
+        not UP    = UP    or
+            UP    = DOWN  or
+            UP    = LEFT  or
+            UP    = RIGHT or
+            DOWN  = STAY  or
+            DOWN  = UP    or
+        not DOWN  = DOWN  or
+            DOWN  = LEFT  or
+            DOWN  = RIGHT or
+            LEFT  = STAY  or
+            LEFT  = UP    or
+            LEFT  = DOWN  or
+        not LEFT  = LEFT  or
+            LEFT  = RIGHT or
+            RIGHT = STAY  or
+            RIGHT = UP    or
+            RIGHT = DOWN  or
+            RIGHT = LEFT  or
+        not RIGHT = RIGHT then
+      writeln(" ***** Enumeration = operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) = STAY  or
+            enumExpr(STAY ) = UP    or
+            enumExpr(STAY ) = DOWN  or
+            enumExpr(STAY ) = LEFT  or
+            enumExpr(STAY ) = RIGHT or
+            enumExpr(UP   ) = STAY  or
+        not enumExpr(UP   ) = UP    or
+            enumExpr(UP   ) = DOWN  or
+            enumExpr(UP   ) = LEFT  or
+            enumExpr(UP   ) = RIGHT or
+            enumExpr(DOWN ) = STAY  or
+            enumExpr(DOWN ) = UP    or
+        not enumExpr(DOWN ) = DOWN  or
+            enumExpr(DOWN ) = LEFT  or
+            enumExpr(DOWN ) = RIGHT or
+            enumExpr(LEFT ) = STAY  or
+            enumExpr(LEFT ) = UP    or
+            enumExpr(LEFT ) = DOWN  or
+        not enumExpr(LEFT ) = LEFT  or
+            enumExpr(LEFT ) = RIGHT or
+            enumExpr(RIGHT) = STAY  or
+            enumExpr(RIGHT) = UP    or
+            enumExpr(RIGHT) = DOWN  or
+            enumExpr(RIGHT) = LEFT  or
+        not enumExpr(RIGHT) = RIGHT then
+      writeln(" ***** Enumeration = operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not STAY  = enumExpr(STAY ) or
+            STAY  = enumExpr(UP   ) or
+            STAY  = enumExpr(DOWN ) or
+            STAY  = enumExpr(LEFT ) or
+            STAY  = enumExpr(RIGHT) or
+            UP    = enumExpr(STAY ) or
+        not UP    = enumExpr(UP   ) or
+            UP    = enumExpr(DOWN ) or
+            UP    = enumExpr(LEFT ) or
+            UP    = enumExpr(RIGHT) or
+            DOWN  = enumExpr(STAY ) or
+            DOWN  = enumExpr(UP   ) or
+        not DOWN  = enumExpr(DOWN ) or
+            DOWN  = enumExpr(LEFT ) or
+            DOWN  = enumExpr(RIGHT) or
+            LEFT  = enumExpr(STAY ) or
+            LEFT  = enumExpr(UP   ) or
+            LEFT  = enumExpr(DOWN ) or
+        not LEFT  = enumExpr(LEFT ) or
+            LEFT  = enumExpr(RIGHT) or
+            RIGHT = enumExpr(STAY ) or
+            RIGHT = enumExpr(UP   ) or
+            RIGHT = enumExpr(DOWN ) or
+            RIGHT = enumExpr(LEFT ) or
+        not RIGHT = enumExpr(RIGHT) then
+      writeln(" ***** Enumeration = operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) = enumExpr(STAY ) or
+            enumExpr(STAY ) = enumExpr(UP   ) or
+            enumExpr(STAY ) = enumExpr(DOWN ) or
+            enumExpr(STAY ) = enumExpr(LEFT ) or
+            enumExpr(STAY ) = enumExpr(RIGHT) or
+            enumExpr(UP   ) = enumExpr(STAY ) or
+        not enumExpr(UP   ) = enumExpr(UP   ) or
+            enumExpr(UP   ) = enumExpr(DOWN ) or
+            enumExpr(UP   ) = enumExpr(LEFT ) or
+            enumExpr(UP   ) = enumExpr(RIGHT) or
+            enumExpr(DOWN ) = enumExpr(STAY ) or
+            enumExpr(DOWN ) = enumExpr(UP   ) or
+        not enumExpr(DOWN ) = enumExpr(DOWN ) or
+            enumExpr(DOWN ) = enumExpr(LEFT ) or
+            enumExpr(DOWN ) = enumExpr(RIGHT) or
+            enumExpr(LEFT ) = enumExpr(STAY ) or
+            enumExpr(LEFT ) = enumExpr(UP   ) or
+            enumExpr(LEFT ) = enumExpr(DOWN ) or
+        not enumExpr(LEFT ) = enumExpr(LEFT ) or
+            enumExpr(LEFT ) = enumExpr(RIGHT) or
+            enumExpr(RIGHT) = enumExpr(STAY ) or
+            enumExpr(RIGHT) = enumExpr(UP   ) or
+            enumExpr(RIGHT) = enumExpr(DOWN ) or
+            enumExpr(RIGHT) = enumExpr(LEFT ) or
+        not enumExpr(RIGHT) = enumExpr(RIGHT) then
+      writeln(" ***** Enumeration = operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkNe is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if      STAY  <> STAY  or
+        not STAY  <> UP    or
+        not STAY  <> DOWN  or
+        not STAY  <> LEFT  or
+        not STAY  <> RIGHT or
+        not UP    <> STAY  or
+            UP    <> UP    or
+        not UP    <> DOWN  or
+        not UP    <> LEFT  or
+        not UP    <> RIGHT or
+        not DOWN  <> STAY  or
+        not DOWN  <> UP    or
+            DOWN  <> DOWN  or
+        not DOWN  <> LEFT  or
+        not DOWN  <> RIGHT or
+        not LEFT  <> STAY  or
+        not LEFT  <> UP    or
+        not LEFT  <> DOWN  or
+            LEFT  <> LEFT  or
+        not LEFT  <> RIGHT or
+        not RIGHT <> STAY  or
+        not RIGHT <> UP    or
+        not RIGHT <> DOWN  or
+        not RIGHT <> LEFT  or
+            RIGHT <> RIGHT then
+      writeln(" ***** Enumeration <> operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) <> STAY  or
+        not enumExpr(STAY ) <> UP    or
+        not enumExpr(STAY ) <> DOWN  or
+        not enumExpr(STAY ) <> LEFT  or
+        not enumExpr(STAY ) <> RIGHT or
+        not enumExpr(UP   ) <> STAY  or
+            enumExpr(UP   ) <> UP    or
+        not enumExpr(UP   ) <> DOWN  or
+        not enumExpr(UP   ) <> LEFT  or
+        not enumExpr(UP   ) <> RIGHT or
+        not enumExpr(DOWN ) <> STAY  or
+        not enumExpr(DOWN ) <> UP    or
+            enumExpr(DOWN ) <> DOWN  or
+        not enumExpr(DOWN ) <> LEFT  or
+        not enumExpr(DOWN ) <> RIGHT or
+        not enumExpr(LEFT ) <> STAY  or
+        not enumExpr(LEFT ) <> UP    or
+        not enumExpr(LEFT ) <> DOWN  or
+            enumExpr(LEFT ) <> LEFT  or
+        not enumExpr(LEFT ) <> RIGHT or
+        not enumExpr(RIGHT) <> STAY  or
+        not enumExpr(RIGHT) <> UP    or
+        not enumExpr(RIGHT) <> DOWN  or
+        not enumExpr(RIGHT) <> LEFT  or
+            enumExpr(RIGHT) <> RIGHT then
+      writeln(" ***** Enumeration <> operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if      STAY  <> enumExpr(STAY ) or
+        not STAY  <> enumExpr(UP   ) or
+        not STAY  <> enumExpr(DOWN ) or
+        not STAY  <> enumExpr(LEFT ) or
+        not STAY  <> enumExpr(RIGHT) or
+        not UP    <> enumExpr(STAY ) or
+            UP    <> enumExpr(UP   ) or
+        not UP    <> enumExpr(DOWN ) or
+        not UP    <> enumExpr(LEFT ) or
+        not UP    <> enumExpr(RIGHT) or
+        not DOWN  <> enumExpr(STAY ) or
+        not DOWN  <> enumExpr(UP   ) or
+            DOWN  <> enumExpr(DOWN ) or
+        not DOWN  <> enumExpr(LEFT ) or
+        not DOWN  <> enumExpr(RIGHT) or
+        not LEFT  <> enumExpr(STAY ) or
+        not LEFT  <> enumExpr(UP   ) or
+        not LEFT  <> enumExpr(DOWN ) or
+            LEFT  <> enumExpr(LEFT ) or
+        not LEFT  <> enumExpr(RIGHT) or
+        not RIGHT <> enumExpr(STAY ) or
+        not RIGHT <> enumExpr(UP   ) or
+        not RIGHT <> enumExpr(DOWN ) or
+        not RIGHT <> enumExpr(LEFT ) or
+            RIGHT <> enumExpr(RIGHT) then
+      writeln(" ***** Enumeration <> operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) <> enumExpr(STAY ) or
+        not enumExpr(STAY ) <> enumExpr(UP   ) or
+        not enumExpr(STAY ) <> enumExpr(DOWN ) or
+        not enumExpr(STAY ) <> enumExpr(LEFT ) or
+        not enumExpr(STAY ) <> enumExpr(RIGHT) or
+        not enumExpr(UP   ) <> enumExpr(STAY ) or
+            enumExpr(UP   ) <> enumExpr(UP   ) or
+        not enumExpr(UP   ) <> enumExpr(DOWN ) or
+        not enumExpr(UP   ) <> enumExpr(LEFT ) or
+        not enumExpr(UP   ) <> enumExpr(RIGHT) or
+        not enumExpr(DOWN ) <> enumExpr(STAY ) or
+        not enumExpr(DOWN ) <> enumExpr(UP   ) or
+            enumExpr(DOWN ) <> enumExpr(DOWN ) or
+        not enumExpr(DOWN ) <> enumExpr(LEFT ) or
+        not enumExpr(DOWN ) <> enumExpr(RIGHT) or
+        not enumExpr(LEFT ) <> enumExpr(STAY ) or
+        not enumExpr(LEFT ) <> enumExpr(UP   ) or
+        not enumExpr(LEFT ) <> enumExpr(DOWN ) or
+            enumExpr(LEFT ) <> enumExpr(LEFT ) or
+        not enumExpr(LEFT ) <> enumExpr(RIGHT) or
+        not enumExpr(RIGHT) <> enumExpr(STAY ) or
+        not enumExpr(RIGHT) <> enumExpr(UP   ) or
+        not enumExpr(RIGHT) <> enumExpr(DOWN ) or
+        not enumExpr(RIGHT) <> enumExpr(LEFT ) or
+            enumExpr(RIGHT) <> enumExpr(RIGHT) then
+      writeln(" ***** Enumeration <> operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkLt is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if      STAY  < STAY  or
+        not STAY  < UP    or
+        not STAY  < DOWN  or
+        not STAY  < LEFT  or
+        not STAY  < RIGHT or
+            UP    < STAY  or
+            UP    < UP    or
+        not UP    < DOWN  or
+        not UP    < LEFT  or
+        not UP    < RIGHT or
+            DOWN  < STAY  or
+            DOWN  < UP    or
+            DOWN  < DOWN  or
+        not DOWN  < LEFT  or
+        not DOWN  < RIGHT or
+            LEFT  < STAY  or
+            LEFT  < UP    or
+            LEFT  < DOWN  or
+            LEFT  < LEFT  or
+        not LEFT  < RIGHT or
+            RIGHT < STAY  or
+            RIGHT < UP    or
+            RIGHT < DOWN  or
+            RIGHT < LEFT  or
+            RIGHT < RIGHT then
+      writeln(" ***** Enumeration < operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) < STAY  or
+        not enumExpr(STAY ) < UP    or
+        not enumExpr(STAY ) < DOWN  or
+        not enumExpr(STAY ) < LEFT  or
+        not enumExpr(STAY ) < RIGHT or
+            enumExpr(UP   ) < STAY  or
+            enumExpr(UP   ) < UP    or
+        not enumExpr(UP   ) < DOWN  or
+        not enumExpr(UP   ) < LEFT  or
+        not enumExpr(UP   ) < RIGHT or
+            enumExpr(DOWN ) < STAY  or
+            enumExpr(DOWN ) < UP    or
+            enumExpr(DOWN ) < DOWN  or
+        not enumExpr(DOWN ) < LEFT  or
+        not enumExpr(DOWN ) < RIGHT or
+            enumExpr(LEFT ) < STAY  or
+            enumExpr(LEFT ) < UP    or
+            enumExpr(LEFT ) < DOWN  or
+            enumExpr(LEFT ) < LEFT  or
+        not enumExpr(LEFT ) < RIGHT or
+            enumExpr(RIGHT) < STAY  or
+            enumExpr(RIGHT) < UP    or
+            enumExpr(RIGHT) < DOWN  or
+            enumExpr(RIGHT) < LEFT  or
+            enumExpr(RIGHT) < RIGHT then
+      writeln(" ***** Enumeration < operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if      STAY  < enumExpr(STAY ) or
+        not STAY  < enumExpr(UP   ) or
+        not STAY  < enumExpr(DOWN ) or
+        not STAY  < enumExpr(LEFT ) or
+        not STAY  < enumExpr(RIGHT) or
+            UP    < enumExpr(STAY ) or
+            UP    < enumExpr(UP   ) or
+        not UP    < enumExpr(DOWN ) or
+        not UP    < enumExpr(LEFT ) or
+        not UP    < enumExpr(RIGHT) or
+            DOWN  < enumExpr(STAY ) or
+            DOWN  < enumExpr(UP   ) or
+            DOWN  < enumExpr(DOWN ) or
+        not DOWN  < enumExpr(LEFT ) or
+        not DOWN  < enumExpr(RIGHT) or
+            LEFT  < enumExpr(STAY ) or
+            LEFT  < enumExpr(UP   ) or
+            LEFT  < enumExpr(DOWN ) or
+            LEFT  < enumExpr(LEFT ) or
+        not LEFT  < enumExpr(RIGHT) or
+            RIGHT < enumExpr(STAY ) or
+            RIGHT < enumExpr(UP   ) or
+            RIGHT < enumExpr(DOWN ) or
+            RIGHT < enumExpr(LEFT ) or
+            RIGHT < enumExpr(RIGHT) then
+      writeln(" ***** Enumeration < operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) < enumExpr(STAY ) or
+        not enumExpr(STAY ) < enumExpr(UP   ) or
+        not enumExpr(STAY ) < enumExpr(DOWN ) or
+        not enumExpr(STAY ) < enumExpr(LEFT ) or
+        not enumExpr(STAY ) < enumExpr(RIGHT) or
+            enumExpr(UP   ) < enumExpr(STAY ) or
+            enumExpr(UP   ) < enumExpr(UP   ) or
+        not enumExpr(UP   ) < enumExpr(DOWN ) or
+        not enumExpr(UP   ) < enumExpr(LEFT ) or
+        not enumExpr(UP   ) < enumExpr(RIGHT) or
+            enumExpr(DOWN ) < enumExpr(STAY ) or
+            enumExpr(DOWN ) < enumExpr(UP   ) or
+            enumExpr(DOWN ) < enumExpr(DOWN ) or
+        not enumExpr(DOWN ) < enumExpr(LEFT ) or
+        not enumExpr(DOWN ) < enumExpr(RIGHT) or
+            enumExpr(LEFT ) < enumExpr(STAY ) or
+            enumExpr(LEFT ) < enumExpr(UP   ) or
+            enumExpr(LEFT ) < enumExpr(DOWN ) or
+            enumExpr(LEFT ) < enumExpr(LEFT ) or
+        not enumExpr(LEFT ) < enumExpr(RIGHT) or
+            enumExpr(RIGHT) < enumExpr(STAY ) or
+            enumExpr(RIGHT) < enumExpr(UP   ) or
+            enumExpr(RIGHT) < enumExpr(DOWN ) or
+            enumExpr(RIGHT) < enumExpr(LEFT ) or
+            enumExpr(RIGHT) < enumExpr(RIGHT) then
+      writeln(" ***** Enumeration < operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkLe is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not STAY  <= STAY  or
+        not STAY  <= UP    or
+        not STAY  <= DOWN  or
+        not STAY  <= LEFT  or
+        not STAY  <= RIGHT or
+            UP    <= STAY  or
+        not UP    <= UP    or
+        not UP    <= DOWN  or
+        not UP    <= LEFT  or
+        not UP    <= RIGHT or
+            DOWN  <= STAY  or
+            DOWN  <= UP    or
+        not DOWN  <= DOWN  or
+        not DOWN  <= LEFT  or
+        not DOWN  <= RIGHT or
+            LEFT  <= STAY  or
+            LEFT  <= UP    or
+            LEFT  <= DOWN  or
+        not LEFT  <= LEFT  or
+        not LEFT  <= RIGHT or
+            RIGHT <= STAY  or
+            RIGHT <= UP    or
+            RIGHT <= DOWN  or
+            RIGHT <= LEFT  or
+        not RIGHT <= RIGHT then
+      writeln(" ***** Enumeration <= operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) <= STAY  or
+        not enumExpr(STAY ) <= UP    or
+        not enumExpr(STAY ) <= DOWN  or
+        not enumExpr(STAY ) <= LEFT  or
+        not enumExpr(STAY ) <= RIGHT or
+            enumExpr(UP   ) <= STAY  or
+        not enumExpr(UP   ) <= UP    or
+        not enumExpr(UP   ) <= DOWN  or
+        not enumExpr(UP   ) <= LEFT  or
+        not enumExpr(UP   ) <= RIGHT or
+            enumExpr(DOWN ) <= STAY  or
+            enumExpr(DOWN ) <= UP    or
+        not enumExpr(DOWN ) <= DOWN  or
+        not enumExpr(DOWN ) <= LEFT  or
+        not enumExpr(DOWN ) <= RIGHT or
+            enumExpr(LEFT ) <= STAY  or
+            enumExpr(LEFT ) <= UP    or
+            enumExpr(LEFT ) <= DOWN  or
+        not enumExpr(LEFT ) <= LEFT  or
+        not enumExpr(LEFT ) <= RIGHT or
+            enumExpr(RIGHT) <= STAY  or
+            enumExpr(RIGHT) <= UP    or
+            enumExpr(RIGHT) <= DOWN  or
+            enumExpr(RIGHT) <= LEFT  or
+        not enumExpr(RIGHT) <= RIGHT then
+      writeln(" ***** Enumeration <= operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not STAY  <= enumExpr(STAY ) or
+        not STAY  <= enumExpr(UP   ) or
+        not STAY  <= enumExpr(DOWN ) or
+        not STAY  <= enumExpr(LEFT ) or
+        not STAY  <= enumExpr(RIGHT) or
+            UP    <= enumExpr(STAY ) or
+        not UP    <= enumExpr(UP   ) or
+        not UP    <= enumExpr(DOWN ) or
+        not UP    <= enumExpr(LEFT ) or
+        not UP    <= enumExpr(RIGHT) or
+            DOWN  <= enumExpr(STAY ) or
+            DOWN  <= enumExpr(UP   ) or
+        not DOWN  <= enumExpr(DOWN ) or
+        not DOWN  <= enumExpr(LEFT ) or
+        not DOWN  <= enumExpr(RIGHT) or
+            LEFT  <= enumExpr(STAY ) or
+            LEFT  <= enumExpr(UP   ) or
+            LEFT  <= enumExpr(DOWN ) or
+        not LEFT  <= enumExpr(LEFT ) or
+        not LEFT  <= enumExpr(RIGHT) or
+            RIGHT <= enumExpr(STAY ) or
+            RIGHT <= enumExpr(UP   ) or
+            RIGHT <= enumExpr(DOWN ) or
+            RIGHT <= enumExpr(LEFT ) or
+        not RIGHT <= enumExpr(RIGHT) then
+      writeln(" ***** Enumeration <= operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) <= enumExpr(STAY ) or
+        not enumExpr(STAY ) <= enumExpr(UP   ) or
+        not enumExpr(STAY ) <= enumExpr(DOWN ) or
+        not enumExpr(STAY ) <= enumExpr(LEFT ) or
+        not enumExpr(STAY ) <= enumExpr(RIGHT) or
+            enumExpr(UP   ) <= enumExpr(STAY ) or
+        not enumExpr(UP   ) <= enumExpr(UP   ) or
+        not enumExpr(UP   ) <= enumExpr(DOWN ) or
+        not enumExpr(UP   ) <= enumExpr(LEFT ) or
+        not enumExpr(UP   ) <= enumExpr(RIGHT) or
+            enumExpr(DOWN ) <= enumExpr(STAY ) or
+            enumExpr(DOWN ) <= enumExpr(UP   ) or
+        not enumExpr(DOWN ) <= enumExpr(DOWN ) or
+        not enumExpr(DOWN ) <= enumExpr(LEFT ) or
+        not enumExpr(DOWN ) <= enumExpr(RIGHT) or
+            enumExpr(LEFT ) <= enumExpr(STAY ) or
+            enumExpr(LEFT ) <= enumExpr(UP   ) or
+            enumExpr(LEFT ) <= enumExpr(DOWN ) or
+        not enumExpr(LEFT ) <= enumExpr(LEFT ) or
+        not enumExpr(LEFT ) <= enumExpr(RIGHT) or
+            enumExpr(RIGHT) <= enumExpr(STAY ) or
+            enumExpr(RIGHT) <= enumExpr(UP   ) or
+            enumExpr(RIGHT) <= enumExpr(DOWN ) or
+            enumExpr(RIGHT) <= enumExpr(LEFT ) or
+        not enumExpr(RIGHT) <= enumExpr(RIGHT) then
+      writeln(" ***** Enumeration <= operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkGe is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not STAY  >= STAY  or
+            STAY  >= UP    or
+            STAY  >= DOWN  or
+            STAY  >= LEFT  or
+            STAY  >= RIGHT or
+        not UP    >= STAY  or
+        not UP    >= UP    or
+            UP    >= DOWN  or
+            UP    >= LEFT  or
+            UP    >= RIGHT or
+        not DOWN  >= STAY  or
+        not DOWN  >= UP    or
+        not DOWN  >= DOWN  or
+            DOWN  >= LEFT  or
+            DOWN  >= RIGHT or
+        not LEFT  >= STAY  or
+        not LEFT  >= UP    or
+        not LEFT  >= DOWN  or
+        not LEFT  >= LEFT  or
+            LEFT  >= RIGHT or
+        not RIGHT >= STAY  or
+        not RIGHT >= UP    or
+        not RIGHT >= DOWN  or
+        not RIGHT >= LEFT  or
+        not RIGHT >= RIGHT then
+      writeln(" ***** Enumeration >= operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) >= STAY  or
+            enumExpr(STAY ) >= UP    or
+            enumExpr(STAY ) >= DOWN  or
+            enumExpr(STAY ) >= LEFT  or
+            enumExpr(STAY ) >= RIGHT or
+        not enumExpr(UP   ) >= STAY  or
+        not enumExpr(UP   ) >= UP    or
+            enumExpr(UP   ) >= DOWN  or
+            enumExpr(UP   ) >= LEFT  or
+            enumExpr(UP   ) >= RIGHT or
+        not enumExpr(DOWN ) >= STAY  or
+        not enumExpr(DOWN ) >= UP    or
+        not enumExpr(DOWN ) >= DOWN  or
+            enumExpr(DOWN ) >= LEFT  or
+            enumExpr(DOWN ) >= RIGHT or
+        not enumExpr(LEFT ) >= STAY  or
+        not enumExpr(LEFT ) >= UP    or
+        not enumExpr(LEFT ) >= DOWN  or
+        not enumExpr(LEFT ) >= LEFT  or
+            enumExpr(LEFT ) >= RIGHT or
+        not enumExpr(RIGHT) >= STAY  or
+        not enumExpr(RIGHT) >= UP    or
+        not enumExpr(RIGHT) >= DOWN  or
+        not enumExpr(RIGHT) >= LEFT  or
+        not enumExpr(RIGHT) >= RIGHT then
+      writeln(" ***** Enumeration >= operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not STAY  >= enumExpr(STAY ) or
+            STAY  >= enumExpr(UP   ) or
+            STAY  >= enumExpr(DOWN ) or
+            STAY  >= enumExpr(LEFT ) or
+            STAY  >= enumExpr(RIGHT) or
+        not UP    >= enumExpr(STAY ) or
+        not UP    >= enumExpr(UP   ) or
+            UP    >= enumExpr(DOWN ) or
+            UP    >= enumExpr(LEFT ) or
+            UP    >= enumExpr(RIGHT) or
+        not DOWN  >= enumExpr(STAY ) or
+        not DOWN  >= enumExpr(UP   ) or
+        not DOWN  >= enumExpr(DOWN ) or
+            DOWN  >= enumExpr(LEFT ) or
+            DOWN  >= enumExpr(RIGHT) or
+        not LEFT  >= enumExpr(STAY ) or
+        not LEFT  >= enumExpr(UP   ) or
+        not LEFT  >= enumExpr(DOWN ) or
+        not LEFT  >= enumExpr(LEFT ) or
+            LEFT  >= enumExpr(RIGHT) or
+        not RIGHT >= enumExpr(STAY ) or
+        not RIGHT >= enumExpr(UP   ) or
+        not RIGHT >= enumExpr(DOWN ) or
+        not RIGHT >= enumExpr(LEFT ) or
+        not RIGHT >= enumExpr(RIGHT) then
+      writeln(" ***** Enumeration >= operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not enumExpr(STAY ) >= enumExpr(STAY ) or
+            enumExpr(STAY ) >= enumExpr(UP   ) or
+            enumExpr(STAY ) >= enumExpr(DOWN ) or
+            enumExpr(STAY ) >= enumExpr(LEFT ) or
+            enumExpr(STAY ) >= enumExpr(RIGHT) or
+        not enumExpr(UP   ) >= enumExpr(STAY ) or
+        not enumExpr(UP   ) >= enumExpr(UP   ) or
+            enumExpr(UP   ) >= enumExpr(DOWN ) or
+            enumExpr(UP   ) >= enumExpr(LEFT ) or
+            enumExpr(UP   ) >= enumExpr(RIGHT) or
+        not enumExpr(DOWN ) >= enumExpr(STAY ) or
+        not enumExpr(DOWN ) >= enumExpr(UP   ) or
+        not enumExpr(DOWN ) >= enumExpr(DOWN ) or
+            enumExpr(DOWN ) >= enumExpr(LEFT ) or
+            enumExpr(DOWN ) >= enumExpr(RIGHT) or
+        not enumExpr(LEFT ) >= enumExpr(STAY ) or
+        not enumExpr(LEFT ) >= enumExpr(UP   ) or
+        not enumExpr(LEFT ) >= enumExpr(DOWN ) or
+        not enumExpr(LEFT ) >= enumExpr(LEFT ) or
+            enumExpr(LEFT ) >= enumExpr(RIGHT) or
+        not enumExpr(RIGHT) >= enumExpr(STAY ) or
+        not enumExpr(RIGHT) >= enumExpr(UP   ) or
+        not enumExpr(RIGHT) >= enumExpr(DOWN ) or
+        not enumExpr(RIGHT) >= enumExpr(LEFT ) or
+        not enumExpr(RIGHT) >= enumExpr(RIGHT) then
+      writeln(" ***** Enumeration >= operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkGt is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if      STAY  > STAY  or
+            STAY  > UP    or
+            STAY  > DOWN  or
+            STAY  > LEFT  or
+            STAY  > RIGHT or
+        not UP    > STAY  or
+            UP    > UP    or
+            UP    > DOWN  or
+            UP    > LEFT  or
+            UP    > RIGHT or
+        not DOWN  > STAY  or
+        not DOWN  > UP    or
+            DOWN  > DOWN  or
+            DOWN  > LEFT  or
+            DOWN  > RIGHT or
+        not LEFT  > STAY  or
+        not LEFT  > UP    or
+        not LEFT  > DOWN  or
+            LEFT  > LEFT  or
+            LEFT  > RIGHT or
+        not RIGHT > STAY  or
+        not RIGHT > UP    or
+        not RIGHT > DOWN  or
+        not RIGHT > LEFT  or
+            RIGHT > RIGHT then
+      writeln(" ***** Enumeration > operator does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) > STAY  or
+            enumExpr(STAY ) > UP    or
+            enumExpr(STAY ) > DOWN  or
+            enumExpr(STAY ) > LEFT  or
+            enumExpr(STAY ) > RIGHT or
+        not enumExpr(UP   ) > STAY  or
+            enumExpr(UP   ) > UP    or
+            enumExpr(UP   ) > DOWN  or
+            enumExpr(UP   ) > LEFT  or
+            enumExpr(UP   ) > RIGHT or
+        not enumExpr(DOWN ) > STAY  or
+        not enumExpr(DOWN ) > UP    or
+            enumExpr(DOWN ) > DOWN  or
+            enumExpr(DOWN ) > LEFT  or
+            enumExpr(DOWN ) > RIGHT or
+        not enumExpr(LEFT ) > STAY  or
+        not enumExpr(LEFT ) > UP    or
+        not enumExpr(LEFT ) > DOWN  or
+            enumExpr(LEFT ) > LEFT  or
+            enumExpr(LEFT ) > RIGHT or
+        not enumExpr(RIGHT) > STAY  or
+        not enumExpr(RIGHT) > UP    or
+        not enumExpr(RIGHT) > DOWN  or
+        not enumExpr(RIGHT) > LEFT  or
+            enumExpr(RIGHT) > RIGHT then
+      writeln(" ***** Enumeration > operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if      STAY  > enumExpr( STAY ) or
+            STAY  > enumExpr( UP   ) or
+            STAY  > enumExpr( DOWN ) or
+            STAY  > enumExpr( LEFT ) or
+            STAY  > enumExpr( RIGHT) or
+        not UP    > enumExpr( STAY ) or
+            UP    > enumExpr( UP   ) or
+            UP    > enumExpr( DOWN ) or
+            UP    > enumExpr( LEFT ) or
+            UP    > enumExpr( RIGHT) or
+        not DOWN  > enumExpr( STAY ) or
+        not DOWN  > enumExpr( UP   ) or
+            DOWN  > enumExpr( DOWN ) or
+            DOWN  > enumExpr( LEFT ) or
+            DOWN  > enumExpr( RIGHT) or
+        not LEFT  > enumExpr( STAY ) or
+        not LEFT  > enumExpr( UP   ) or
+        not LEFT  > enumExpr( DOWN ) or
+            LEFT  > enumExpr( LEFT ) or
+            LEFT  > enumExpr( RIGHT) or
+        not RIGHT > enumExpr( STAY ) or
+        not RIGHT > enumExpr( UP   ) or
+        not RIGHT > enumExpr( DOWN ) or
+        not RIGHT > enumExpr( LEFT ) or
+            RIGHT > enumExpr( RIGHT) then
+      writeln(" ***** Enumeration > operator does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if      enumExpr(STAY ) > enumExpr( STAY ) or
+            enumExpr(STAY ) > enumExpr( UP   ) or
+            enumExpr(STAY ) > enumExpr( DOWN ) or
+            enumExpr(STAY ) > enumExpr( LEFT ) or
+            enumExpr(STAY ) > enumExpr( RIGHT) or
+        not enumExpr(UP   ) > enumExpr( STAY ) or
+            enumExpr(UP   ) > enumExpr( UP   ) or
+            enumExpr(UP   ) > enumExpr( DOWN ) or
+            enumExpr(UP   ) > enumExpr( LEFT ) or
+            enumExpr(UP   ) > enumExpr( RIGHT) or
+        not enumExpr(DOWN ) > enumExpr( STAY ) or
+        not enumExpr(DOWN ) > enumExpr( UP   ) or
+            enumExpr(DOWN ) > enumExpr( DOWN ) or
+            enumExpr(DOWN ) > enumExpr( LEFT ) or
+            enumExpr(DOWN ) > enumExpr( RIGHT) or
+        not enumExpr(LEFT ) > enumExpr( STAY ) or
+        not enumExpr(LEFT ) > enumExpr( UP   ) or
+        not enumExpr(LEFT ) > enumExpr( DOWN ) or
+            enumExpr(LEFT ) > enumExpr( LEFT ) or
+            enumExpr(LEFT ) > enumExpr( RIGHT) or
+        not enumExpr(RIGHT) > enumExpr( STAY ) or
+        not enumExpr(RIGHT) > enumExpr( UP   ) or
+        not enumExpr(RIGHT) > enumExpr( DOWN ) or
+        not enumExpr(RIGHT) > enumExpr( LEFT ) or
+            enumExpr(RIGHT) > enumExpr( RIGHT) then
+      writeln(" ***** Enumeration > operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: checkComparisons is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not checkEq then
+      okay := FALSE;
+    end if;
+    if not checkNe then
+      okay := FALSE;
+    end if;
+    if not checkLt then
+      okay := FALSE;
+    end if;
+    if not checkLe then
+      okay := FALSE;
+    end if;
+    if not checkGe then
+      okay := FALSE;
+    end if;
+    if not checkGt then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration comparisons work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkCompare is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  compare(STAY,  STAY ) <>  0 or
+        compare(STAY,  UP   ) <> -1 or
+        compare(STAY,  DOWN ) <> -1 or
+        compare(STAY,  LEFT ) <> -1 or
+        compare(STAY,  RIGHT) <> -1 or
+        compare(UP,    STAY ) <>  1 or
+        compare(UP,    UP   ) <>  0 or
+        compare(UP,    DOWN ) <> -1 or
+        compare(UP,    LEFT ) <> -1 or
+        compare(UP,    RIGHT) <> -1 or
+        compare(DOWN,  STAY ) <>  1 or
+        compare(DOWN,  UP   ) <>  1 or
+        compare(DOWN,  DOWN ) <>  0 or
+        compare(DOWN,  LEFT ) <> -1 or
+        compare(DOWN,  RIGHT) <> -1 or
+        compare(LEFT,  STAY ) <>  1 or
+        compare(LEFT,  UP   ) <>  1 or
+        compare(LEFT,  DOWN ) <>  1 or
+        compare(LEFT,  LEFT ) <>  0 or
+        compare(LEFT,  RIGHT) <> -1 or
+        compare(RIGHT, STAY ) <>  1 or
+        compare(RIGHT, UP   ) <>  1 or
+        compare(RIGHT, DOWN ) <>  1 or
+        compare(RIGHT, LEFT ) <>  1 or
+        compare(RIGHT, RIGHT) <>  0 then
+      writeln(" ***** Enumeration compare function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  compare(enumExpr(STAY),  STAY ) <>  0 or
+        compare(enumExpr(STAY),  UP   ) <> -1 or
+        compare(enumExpr(STAY),  DOWN ) <> -1 or
+        compare(enumExpr(STAY),  LEFT ) <> -1 or
+        compare(enumExpr(STAY),  RIGHT) <> -1 or
+        compare(enumExpr(UP),    STAY ) <>  1 or
+        compare(enumExpr(UP),    UP   ) <>  0 or
+        compare(enumExpr(UP),    DOWN ) <> -1 or
+        compare(enumExpr(UP),    LEFT ) <> -1 or
+        compare(enumExpr(UP),    RIGHT) <> -1 or
+        compare(enumExpr(DOWN),  STAY ) <>  1 or
+        compare(enumExpr(DOWN),  UP   ) <>  1 or
+        compare(enumExpr(DOWN),  DOWN ) <>  0 or
+        compare(enumExpr(DOWN),  LEFT ) <> -1 or
+        compare(enumExpr(DOWN),  RIGHT) <> -1 or
+        compare(enumExpr(LEFT),  STAY ) <>  1 or
+        compare(enumExpr(LEFT),  UP   ) <>  1 or
+        compare(enumExpr(LEFT),  DOWN ) <>  1 or
+        compare(enumExpr(LEFT),  LEFT ) <>  0 or
+        compare(enumExpr(LEFT),  RIGHT) <> -1 or
+        compare(enumExpr(RIGHT), STAY ) <>  1 or
+        compare(enumExpr(RIGHT), UP   ) <>  1 or
+        compare(enumExpr(RIGHT), DOWN ) <>  1 or
+        compare(enumExpr(RIGHT), LEFT ) <>  1 or
+        compare(enumExpr(RIGHT), RIGHT) <>  0 then
+      writeln(" ***** Enumeration compare function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  compare(STAY,  enumExpr(STAY )) <>  0 or
+        compare(STAY,  enumExpr(UP   )) <> -1 or
+        compare(STAY,  enumExpr(DOWN )) <> -1 or
+        compare(STAY,  enumExpr(LEFT )) <> -1 or
+        compare(STAY,  enumExpr(RIGHT)) <> -1 or
+        compare(UP,    enumExpr(STAY )) <>  1 or
+        compare(UP,    enumExpr(UP   )) <>  0 or
+        compare(UP,    enumExpr(DOWN )) <> -1 or
+        compare(UP,    enumExpr(LEFT )) <> -1 or
+        compare(UP,    enumExpr(RIGHT)) <> -1 or
+        compare(DOWN,  enumExpr(STAY )) <>  1 or
+        compare(DOWN,  enumExpr(UP   )) <>  1 or
+        compare(DOWN,  enumExpr(DOWN )) <>  0 or
+        compare(DOWN,  enumExpr(LEFT )) <> -1 or
+        compare(DOWN,  enumExpr(RIGHT)) <> -1 or
+        compare(LEFT,  enumExpr(STAY )) <>  1 or
+        compare(LEFT,  enumExpr(UP   )) <>  1 or
+        compare(LEFT,  enumExpr(DOWN )) <>  1 or
+        compare(LEFT,  enumExpr(LEFT )) <>  0 or
+        compare(LEFT,  enumExpr(RIGHT)) <> -1 or
+        compare(RIGHT, enumExpr(STAY )) <>  1 or
+        compare(RIGHT, enumExpr(UP   )) <>  1 or
+        compare(RIGHT, enumExpr(DOWN )) <>  1 or
+        compare(RIGHT, enumExpr(LEFT )) <>  1 or
+        compare(RIGHT, enumExpr(RIGHT)) <>  0 then
+      writeln(" ***** Enumeration compare function does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  compare(enumExpr(STAY),  enumExpr(STAY )) <>  0 or
+        compare(enumExpr(STAY),  enumExpr(UP   )) <> -1 or
+        compare(enumExpr(STAY),  enumExpr(DOWN )) <> -1 or
+        compare(enumExpr(STAY),  enumExpr(LEFT )) <> -1 or
+        compare(enumExpr(STAY),  enumExpr(RIGHT)) <> -1 or
+        compare(enumExpr(UP),    enumExpr(STAY )) <>  1 or
+        compare(enumExpr(UP),    enumExpr(UP   )) <>  0 or
+        compare(enumExpr(UP),    enumExpr(DOWN )) <> -1 or
+        compare(enumExpr(UP),    enumExpr(LEFT )) <> -1 or
+        compare(enumExpr(UP),    enumExpr(RIGHT)) <> -1 or
+        compare(enumExpr(DOWN),  enumExpr(STAY )) <>  1 or
+        compare(enumExpr(DOWN),  enumExpr(UP   )) <>  1 or
+        compare(enumExpr(DOWN),  enumExpr(DOWN )) <>  0 or
+        compare(enumExpr(DOWN),  enumExpr(LEFT )) <> -1 or
+        compare(enumExpr(DOWN),  enumExpr(RIGHT)) <> -1 or
+        compare(enumExpr(LEFT),  enumExpr(STAY )) <>  1 or
+        compare(enumExpr(LEFT),  enumExpr(UP   )) <>  1 or
+        compare(enumExpr(LEFT),  enumExpr(DOWN )) <>  1 or
+        compare(enumExpr(LEFT),  enumExpr(LEFT )) <>  0 or
+        compare(enumExpr(LEFT),  enumExpr(RIGHT)) <> -1 or
+        compare(enumExpr(RIGHT), enumExpr(STAY )) <>  1 or
+        compare(enumExpr(RIGHT), enumExpr(UP   )) <>  1 or
+        compare(enumExpr(RIGHT), enumExpr(DOWN )) <>  1 or
+        compare(enumExpr(RIGHT), enumExpr(LEFT )) <>  1 or
+        compare(enumExpr(RIGHT), enumExpr(RIGHT)) <>  0 then
+      writeln(" ***** Enumeration compare function does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration compare function works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkOrd is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  ord( STAY) <> 0 or
+        ord(   UP) <> 1 or
+        ord( DOWN) <> 2 or
+        ord( LEFT) <> 3 or
+        ord(RIGHT) <> 4 then
+      writeln(" ***** Enumeration ord function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  ord(enumExpr( STAY)) <> 0 or
+        ord(enumExpr(   UP)) <> 1 or
+        ord(enumExpr( DOWN)) <> 2 or
+        ord(enumExpr( LEFT)) <> 3 or
+        ord(enumExpr(RIGHT)) <> 4 then
+      writeln(" ***** Enumeration ord function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration ord function works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkConv is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  directionType conv 0 <> STAY or
+        directionType conv 1 <> UP or
+        directionType conv 2 <> DOWN or
+        directionType conv 3 <> LEFT or
+        directionType conv 4 <> RIGHT then
+      writeln(" ***** Enumeration conv operator with does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  directionType conv intExpr(0) <> STAY or
+        directionType conv intExpr(1) <> UP or
+        directionType conv intExpr(2) <> DOWN or
+        directionType conv intExpr(3) <> LEFT or
+        directionType conv intExpr(4) <> RIGHT then
+      writeln(" ***** Enumeration conv operator with does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  directionType conv (intExpr(0) mod 5) <> STAY or
+        directionType conv (intExpr(1) mod 5) <> UP or
+        directionType conv (intExpr(2) mod 5) <> DOWN or
+        directionType conv (intExpr(3) mod 5) <> LEFT or
+        directionType conv (intExpr(4) mod 5) <> RIGHT then
+      writeln(" ***** Enumeration conv operator with does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(directionType conv (integer.first)) or
+        not raisesRangeError(directionType conv (   -123456789)) or
+        not raisesRangeError(directionType conv (           -1)) or
+        not raisesRangeError(directionType conv (            5)) or
+        not raisesRangeError(directionType conv (    123456789)) or
+        not raisesRangeError(directionType conv ( integer.last)) then
+      writeln(" ***** Enumeration conv operator with illegal ordinal number does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(directionType conv intExpr(integer.first)) or
+        not raisesRangeError(directionType conv intExpr(   -123456789)) or
+        not raisesRangeError(directionType conv intExpr(           -1)) or
+        not raisesRangeError(directionType conv intExpr(            5)) or
+        not raisesRangeError(directionType conv intExpr(    123456789)) or
+        not raisesRangeError(directionType conv intExpr( integer.last)) then
+      writeln(" ***** Enumeration conv operator with illegal ordinal number does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration conv operator works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkSuccAndPred is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  succ( STAY) <> UP or
+        succ(   UP) <> DOWN or
+        succ( DOWN) <> LEFT or
+        succ( LEFT) <> RIGHT then
+      writeln(" ***** Enumeration succ function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  succ(enumExpr( STAY)) <> UP or
+        succ(enumExpr(   UP)) <> DOWN or
+        succ(enumExpr( DOWN)) <> LEFT or
+        succ(enumExpr( LEFT)) <> RIGHT then
+      writeln(" ***** Enumeration succ function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pred(   UP) <> STAY or
+        pred( DOWN) <> UP or
+        pred( LEFT) <> DOWN or
+        pred(RIGHT) <> LEFT then
+      writeln(" ***** Enumeration pred function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pred(enumExpr(   UP)) <> STAY or
+        pred(enumExpr( DOWN)) <> UP or
+        pred(enumExpr( LEFT)) <> DOWN or
+        pred(enumExpr(RIGHT)) <> LEFT then
+      writeln(" ***** Enumeration pred function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(succ(RIGHT)) or
+        not raisesRangeError(succ(enumExpr(RIGHT))) then
+      writeln(" ***** Enumeration succ function of last value does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(pred( STAY)) or
+        not raisesRangeError(pred(enumExpr(STAY))) then
+      writeln(" ***** Enumeration pred function of first value does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration succ and pred functions work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkIncrAndDecr is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var directionType: direction is STAY;
+  begin
+    direction := STAY; incr(direction); ok := ok and direction = UP;
+    direction := UP;   incr(direction); ok := ok and direction = DOWN;
+    direction := DOWN; incr(direction); ok := ok and direction = LEFT;
+    direction := LEFT; incr(direction); ok := ok and direction = RIGHT;
+    if not ok then
+      writeln(" ***** Enumeration incr does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    direction := UP;    decr(direction); ok := ok and direction = STAY;
+    direction := DOWN;  decr(direction); ok := ok and direction = UP;
+    direction := LEFT;  decr(direction); ok := ok and direction = DOWN;
+    direction := RIGHT; decr(direction); ok := ok and direction = LEFT;
+    if not ok then
+      writeln(" ***** Enumeration decr does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    direction := RIGHT;
+    if not raisesRangeError(incr(direction)) then
+      writeln(" ***** Enumeration incr of last value does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    direction := STAY;
+    if not raisesRangeError(decr(direction)) then
+      writeln(" ***** Enumeration decr of last value does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration incr and decr work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkLiteralFunction is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  literal( STAY) <> "STAY" or
+        literal(   UP) <> "UP" or
+        literal( DOWN) <> "DOWN" or
+        literal( LEFT) <> "LEFT" or
+        literal(RIGHT) <> "RIGHT" then
+      writeln(" ***** Enumeration literal function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  literal(enumExpr( STAY)) <> "STAY" or
+        literal(enumExpr(   UP)) <> "UP" or
+        literal(enumExpr( DOWN)) <> "DOWN" or
+        literal(enumExpr( LEFT)) <> "LEFT" or
+        literal(enumExpr(RIGHT)) <> "RIGHT" then
+      writeln(" ***** Enumeration literal function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Enumeration literal function works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkTernary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var directionType: direction is STAY;
+  begin
+    if  ( TRUE ?  UP : DOWN) <> UP or
+        (FALSE ?  UP : DOWN) <> DOWN or
+        ( TRUE ?  UP : enumExpr(DOWN)) <> UP or
+        (FALSE ?  UP : enumExpr(DOWN)) <> DOWN or
+        ( TRUE ?  enumExpr(UP) : DOWN) <> UP or
+        (FALSE ?  enumExpr(UP) : DOWN) <> DOWN or
+        ( TRUE ?  enumExpr(UP) : enumExpr(DOWN)) <> UP or
+        (FALSE ?  enumExpr(UP) : enumExpr(DOWN)) <> DOWN or
+        (boolExpr( TRUE) ?  UP : DOWN) <> UP or
+        (boolExpr(FALSE) ?  UP : DOWN) <> DOWN or
+        (boolExpr( TRUE) ?  UP : enumExpr(DOWN)) <> UP or
+        (boolExpr(FALSE) ?  UP : enumExpr(DOWN)) <> DOWN or
+        (boolExpr( TRUE) ?  enumExpr(UP) : DOWN) <> UP or
+        (boolExpr(FALSE) ?  enumExpr(UP) : DOWN) <> DOWN or
+        (boolExpr( TRUE) ?  enumExpr(UP) : enumExpr(DOWN)) <> UP or
+        (boolExpr(FALSE) ?  enumExpr(UP) : enumExpr(DOWN)) <> DOWN then
+      writeln(" ***** The ternary operator ? : does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    direction :=  TRUE ?  UP : DOWN; ok := ok and direction = UP;
+    direction := FALSE ?  UP : DOWN; ok := ok and direction = DOWN;
+    direction :=  TRUE ?  UP : enumExpr(DOWN); ok := ok and direction = UP;
+    direction := FALSE ?  UP : enumExpr(DOWN); ok := ok and direction = DOWN;
+    direction :=  TRUE ?  enumExpr(UP) : DOWN; ok := ok and direction = UP;
+    direction := FALSE ?  enumExpr(UP) : DOWN; ok := ok and direction = DOWN;
+    direction :=  TRUE ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = UP;
+    direction := FALSE ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = DOWN;
+    direction := boolExpr( TRUE) ?  UP : DOWN; ok := ok and direction = UP;
+    direction := boolExpr(FALSE) ?  UP : DOWN; ok := ok and direction = DOWN;
+    direction := boolExpr( TRUE) ?  UP : enumExpr(DOWN); ok := ok and direction = UP;
+    direction := boolExpr(FALSE) ?  UP : enumExpr(DOWN); ok := ok and direction = DOWN;
+    direction := boolExpr( TRUE) ?  enumExpr(UP) : DOWN; ok := ok and direction = UP;
+    direction := boolExpr(FALSE) ?  enumExpr(UP) : DOWN; ok := ok and direction = DOWN;
+    direction := boolExpr( TRUE) ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = UP;
+    direction := boolExpr(FALSE) ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = DOWN;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correctly for enumerations.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    writeln;
+    checkComparisons;
+    checkCompare;
+    checkOrd;
+    checkConv;
+    checkSuccAndPred;
+    checkIncrAndDecr;
+    checkLiteralFunction;
+    checkTernary;
+  end func;
