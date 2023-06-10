@@ -1558,7 +1558,7 @@ striType strChChRepl (const const_striType mainStri,
       } /* for */
     } /* if */
     return result;
-  } /* strChRepl */
+  } /* strChChRepl */
 
 
 
@@ -1976,6 +1976,8 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
     intType signumValue;
 
   /* strCompare */
+    logFunction(printf("strCompare(\"%s\", ", striAsUnquotedCStri(stri1));
+                printf("\"%s\")\n", striAsUnquotedCStri(stri2)););
 #if !HAS_WMEMCMP || WCHAR_T_SIZE != 32 || WMEMCMP_RETURNS_SIGNUM
     if (stri1->size < stri2->size) {
       signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri1->size);
@@ -2008,6 +2010,7 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
       } /* if */
     } /* if */
 #endif
+    logFunction(printf("strCompare --> %d\n", signumValue););
     return signumValue;
   } /* strCompare */
 
@@ -2674,7 +2677,7 @@ striType strHeadTemp (const striType stri, const intType stop)
  *  Search string 'searched' in 'mainStri' at or after 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the right.
  *  The first character in a string has the position 1.
- *  This function uses a modified Boyer–Moore string search algorithm.
+ *  This function uses a modified Boyer-Moore string search algorithm.
  *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or after 'fromIndex'.
  */
@@ -3285,7 +3288,7 @@ striType strMult (const const_striType stri, const intType factor)
  *  Determine leftmost position of string 'searched' in 'mainStri'.
  *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  This function uses a modified Boyer–Moore string search algorithm.
+ *  This function uses a modified Boyer-Moore string search algorithm.
  *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
@@ -3631,7 +3634,7 @@ intType strRChPos (const const_striType mainStri, const charType searched)
 
 /**
  *  Replace all occurrences of 'searched' in 'mainStri' by 'replacement'.
- *  This function uses a modified Boyer–Moore string search algorithm.
+ *  This function uses a modified Boyer-Moore string search algorithm.
  *  @return the result of the replacement.
  */
 static memSizeType strRepl2 (const const_striType mainStri, const const_striType searched,
@@ -3807,7 +3810,7 @@ striType strRepl (const const_striType mainStri,
  *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the left.
  *  The first character in a string has the position 1.
- *  This function uses a modified Boyer–Moore string search algorithm.
+ *  This function uses a modified Boyer-Moore string search algorithm.
  *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or before 'fromIndex'.
  */
@@ -3988,7 +3991,7 @@ striType strRpad (const const_striType stri, const intType padSize)
  *  Determine rightmost position of string 'searched' in 'mainStri'.
  *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  This function uses a modified Boyer–Moore string search algorithm.
+ *  This function uses a modified Boyer-Moore string search algorithm.
  *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
