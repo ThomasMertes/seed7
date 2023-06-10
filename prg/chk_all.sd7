@@ -286,6 +286,8 @@ const string: chkbig_output is "\n\
   \The bigInteger compare works correctly.\n\
   \The bigInteger abs function works correctly.\n\
   \The bigInteger odd function works correctly.\n\
+  \The bigInteger rand function works correctly.\n\
+  \The bigInteger gcd function works correctly.\n\
   \The bigInteger log2 function works correctly.\n\
   \The bigInteger log10 function works correctly.\n\
   \The bigInteger bitLength function works correctly.\n\

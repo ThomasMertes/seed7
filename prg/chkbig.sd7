@@ -98,6 +98,21 @@ const func boolean: raisesNumericError (ref func bigInteger: bigIntExpr) is func
   end func;
 
 
+const func boolean: raisesNumericError (ref func quotRem: quotRemExpr) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var quotRem: exprResult is quotRem.value;
+  begin
+    block
+      exprResult := quotRemExpr;
+    exception
+      catch NUMERIC_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 var bigInteger: number is bigInteger parse "0";
 
 
@@ -20102,6 +20117,110 @@ const proc: chkDivRem is func
       okay := FALSE;
     end if;
 
+    if            -9223372036854775808_  divRem            9223372036854775808_  <> quotRem(-1_,                    0_) or
+                  -9223372036854775808_  divRem            9223372036854775809_  <> quotRem( 0_, -9223372036854775808_) or
+                  -9223372036854775807_  divRem            9223372036854775808_  <> quotRem( 0_, -9223372036854775807_) or
+                  -9223372036854775808_  divRem bigintExpr(9223372036854775808_) <> quotRem(-1_,                    0_) or
+                  -9223372036854775808_  divRem bigintExpr(9223372036854775809_) <> quotRem( 0_, -9223372036854775808_) or
+                  -9223372036854775807_  divRem bigintExpr(9223372036854775808_) <> quotRem( 0_, -9223372036854775807_) or
+       bigintExpr(-9223372036854775808_) divRem            9223372036854775808_  <> quotRem(-1_,                    0_) or
+       bigintExpr(-9223372036854775808_) divRem            9223372036854775809_  <> quotRem( 0_, -9223372036854775808_) or
+       bigintExpr(-9223372036854775807_) divRem            9223372036854775808_  <> quotRem( 0_, -9223372036854775807_) or
+       bigintExpr(-9223372036854775808_) divRem bigintExpr(9223372036854775808_) <> quotRem(-1_,                    0_) or
+       bigintExpr(-9223372036854775808_) divRem bigintExpr(9223372036854775809_) <> quotRem( 0_, -9223372036854775808_) or
+       bigintExpr(-9223372036854775807_) divRem bigintExpr(9223372036854775808_) <> quotRem( 0_, -9223372036854775807_) or
+                  -39614081257132168796771975168_  divRem            39614081257132168796771975168_  <> quotRem(-1_,                              0_) or
+                  -39614081257132168796771975168_  divRem            39614081257132168796771975169_  <> quotRem( 0_, -39614081257132168796771975168_) or
+                  -39614081257132168796771975167_  divRem            39614081257132168796771975168_  <> quotRem( 0_, -39614081257132168796771975167_) or
+                  -39614081257132168796771975168_  divRem bigintExpr(39614081257132168796771975168_) <> quotRem(-1_,                              0_) or
+                  -39614081257132168796771975168_  divRem bigintExpr(39614081257132168796771975169_) <> quotRem( 0_, -39614081257132168796771975168_) or
+                  -39614081257132168796771975167_  divRem bigintExpr(39614081257132168796771975168_) <> quotRem( 0_, -39614081257132168796771975167_) or
+       bigintExpr(-39614081257132168796771975168_) divRem            39614081257132168796771975168_  <> quotRem(-1_,                              0_) or
+       bigintExpr(-39614081257132168796771975168_) divRem            39614081257132168796771975169_  <> quotRem( 0_, -39614081257132168796771975168_) or
+       bigintExpr(-39614081257132168796771975167_) divRem            39614081257132168796771975168_  <> quotRem( 0_, -39614081257132168796771975167_) or
+       bigintExpr(-39614081257132168796771975168_) divRem bigintExpr(39614081257132168796771975168_) <> quotRem(-1_,                              0_) or
+       bigintExpr(-39614081257132168796771975168_) divRem bigintExpr(39614081257132168796771975169_) <> quotRem( 0_, -39614081257132168796771975168_) or
+       bigintExpr(-39614081257132168796771975167_) divRem bigintExpr(39614081257132168796771975168_) <> quotRem( 0_, -39614081257132168796771975167_) or
+                  -170141183460469231731687303715884105728_  divRem            170141183460469231731687303715884105728_  <> quotRem(-1_, 0_) or
+                  -170141183460469231731687303715884105728_  divRem            170141183460469231731687303715884105729_  <>
+                      quotRem( 0_, -170141183460469231731687303715884105728_) or
+                  -170141183460469231731687303715884105727_  divRem            170141183460469231731687303715884105728_  <>
+                      quotRem( 0_, -170141183460469231731687303715884105727_) or
+                  -170141183460469231731687303715884105728_  divRem bigintExpr(170141183460469231731687303715884105728_) <> quotRem(-1_, 0_) or
+                  -170141183460469231731687303715884105728_  divRem bigintExpr(170141183460469231731687303715884105729_) <>
+                      quotRem( 0_, -170141183460469231731687303715884105728_) or
+                  -170141183460469231731687303715884105727_  divRem bigintExpr(170141183460469231731687303715884105728_) <>
+                      quotRem( 0_, -170141183460469231731687303715884105727_) or
+       bigintExpr(-170141183460469231731687303715884105728_) divRem            170141183460469231731687303715884105728_  <> quotRem(-1_, 0_) or
+       bigintExpr(-170141183460469231731687303715884105728_) divRem            170141183460469231731687303715884105729_  <>
+                      quotRem( 0_, -170141183460469231731687303715884105728_) or
+       bigintExpr(-170141183460469231731687303715884105727_) divRem            170141183460469231731687303715884105728_  <>
+                      quotRem( 0_, -170141183460469231731687303715884105727_) or
+       bigintExpr(-170141183460469231731687303715884105728_) divRem bigintExpr(170141183460469231731687303715884105728_) <> quotRem(-1_, 0_) or
+       bigintExpr(-170141183460469231731687303715884105728_) divRem bigintExpr(170141183460469231731687303715884105729_) <>
+                      quotRem( 0_, -170141183460469231731687303715884105728_) or
+       bigintExpr(-170141183460469231731687303715884105727_) divRem bigintExpr(170141183460469231731687303715884105728_) <>
+                      quotRem( 0_, -170141183460469231731687303715884105727_) then
+      writeln("Division of bigInteger with divRem does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(           -9223372036854775808_  divRem            0_ ) or
+        not raisesNumericError(           -9223372036854775807_  divRem            0_ ) or
+        not raisesNumericError(                    -4294967296_  divRem            0_ ) or
+        not raisesNumericError(                    -4294967295_  divRem            0_ ) or
+        not raisesNumericError(                    -2147483648_  divRem            0_ ) or
+        not raisesNumericError(                    -2147483647_  divRem            0_ ) or
+        not raisesNumericError(                              0_  divRem            0_ ) or
+        not raisesNumericError(                     2147483647_  divRem            0_ ) or
+        not raisesNumericError(                     2147483648_  divRem            0_ ) or
+        not raisesNumericError(                     4294967295_  divRem            0_ ) or
+        not raisesNumericError(                     4294967296_  divRem            0_ ) or
+        not raisesNumericError(            9223372036854775807_  divRem            0_ ) or
+        not raisesNumericError(            9223372036854775808_  divRem            0_ ) or
+        not raisesNumericError(bigintExpr(-9223372036854775808_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(-9223372036854775807_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(         -4294967296_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(         -4294967295_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(         -2147483648_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(         -2147483647_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(                   0_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(          2147483647_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(          2147483648_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(          4294967295_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr(          4294967296_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr( 9223372036854775807_) divRem            0_ ) or
+        not raisesNumericError(bigintExpr( 9223372036854775808_) divRem            0_ ) or
+        not raisesNumericError(           -9223372036854775808_  divRem bigintExpr(0_)) or
+        not raisesNumericError(           -9223372036854775807_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                    -4294967296_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                    -4294967295_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                    -2147483648_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                    -2147483647_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                              0_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                     2147483647_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                     2147483648_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                     4294967295_  divRem bigintExpr(0_)) or
+        not raisesNumericError(                     4294967296_  divRem bigintExpr(0_)) or
+        not raisesNumericError(            9223372036854775807_  divRem bigintExpr(0_)) or
+        not raisesNumericError(            9223372036854775808_  divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(-9223372036854775808_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(-9223372036854775807_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(         -4294967296_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(         -4294967295_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(         -2147483648_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(         -2147483647_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(                   0_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(          2147483647_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(          2147483648_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(          4294967295_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr(          4294967296_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr( 9223372036854775807_) divRem bigintExpr(0_)) or
+        not raisesNumericError(bigintExpr( 9223372036854775808_) divRem bigintExpr(0_)) then
+      writeln(" ***** Division of bigInteger with divRem by zero does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Division of bigInteger with divRem works correctly.");
     else
@@ -24698,6 +24817,43 @@ const proc: chkOdd is func
   end func;
 
 
+const proc: chkRand is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  rand(12345678901234567890_, 12345678901234567890_) <> 12345678901234567890_ then
+      writeln(" ***** The bigInteger rand function does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(rand(12345678901234567891_, 12345678901234567890_)) then
+      writeln(" ***** BigInteger rand with empty range does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The bigInteger rand function works correctly.");
+    end if;
+  end func;
+
+
+const proc: chkGcd is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  gcd(                  0_, 9223372279960290511_) <> 9223372279960290511_ or
+        gcd(9223372170628272259_,                   0_) <> 9223372170628272259_ or
+        gcd(9223372170628272259_, 9223372279960290511_) <>          3037000507_ then
+      writeln(" ***** The bigInteger gcd function does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The bigInteger gcd function works correctly.");
+    end if;
+  end func;
+
+
 const proc: chkLog2 is func
   local
     var boolean: okay is TRUE;
@@ -27919,6 +28075,8 @@ const proc: main is func
     chkCompare;
     chkAbs;
     chkOdd;
+    chkRand;
+    chkGcd;
     chkLog2;
     chkLog10;
     chkBitLength;
