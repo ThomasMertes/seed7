@@ -1564,6 +1564,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = SETOBJECT or
           functionCategory = STRUCTOBJECT or
           functionCategory = INTERFACEOBJECT or
+          functionCategory = FILEOBJECT or
           functionCategory = WINOBJECT or
           functionCategory = PROCESSOBJECT or
           functionCategory = PROGOBJECT or

@@ -92,6 +92,39 @@ const func boolean: raisesRangeError (ref proc: expression) is func
   end func;
 
 
+const proc: check_clib_file is func
+  local
+    var boolean: okay is TRUE;
+    var clib_file: aFile is clib_file.value;
+    var array clib_file: fileArr is 1 times clib_file.value;
+  begin
+    if clib_file.value <> CLIB_NULL_FILE then
+      writeln(" ***** Default value of clib_file is not CLIB_NULL_FILE.");
+      okay := FALSE;
+    end if;
+    if raisesRangeError(aFile := openClibFile("asdf", "r+")) then
+      writeln("Cannot open clib_file with mode \"r+\". (1)");
+      okay := FALSE;
+    end if;
+    if aFile <> CLIB_NULL_FILE then
+      close(aFile);
+    end if;
+    if raisesRangeError(fileArr[1] := openClibFile("asdf", "r+")) then
+      writeln("Cannot open clib_file with mode \"r+\". (2)");
+      okay := FALSE;
+    end if;
+    if fileArr[1] <> CLIB_NULL_FILE then
+      close(fileArr[1]);
+    end if;
+    if  literal(CLIB_INPUT)  <> "stdin" or
+        literal(CLIB_OUTPUT) <> "stdout" or
+        literal(CLIB_ERROR)  <> "stderr" then
+      writeln("Literal of clib_file does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_file_open is func
   local
     var boolean: okay is TRUE;
@@ -1480,6 +1513,7 @@ const proc: main is func
 
   begin
     writeln;
+    check_clib_file;
     check_file_open;
     check_file_io;
     check_file_seek;
