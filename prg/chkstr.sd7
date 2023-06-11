@@ -14511,9 +14511,9 @@ const proc: check_string_pos is func
       okay := FALSE;
     end if;
 
-    if  pos(         "0"  mult 1500,                   "12" ) <>    0 or
-        pos(         "0"  mult 1500,          striExpr("12")) <>    0 or
-        pos(striExpr("0"  mult 1500),                  "12" ) <>    0 or
+    if  pos(         "0"  mult 1500,                   "12"  ) <>    0 or
+        pos(         "0"  mult 1500,          striExpr("12") ) <>    0 or
+        pos(striExpr("0"  mult 1500),                  "12"  ) <>    0 or
         pos(striExpr("0"  mult 1500),         striExpr("12") ) <>    0 or
         pos(         "0"  mult 1500 & "12",            "12"  ) <> 1501 or
         pos(         "0"  mult 1500 & "12",   striExpr("12") ) <> 1501 or
@@ -14522,7 +14522,7 @@ const proc: check_string_pos is func
         pos(         "¡"  mult 1500 & "12",            "12"  ) <> 1501 or
         pos(         "¡"  mult 1500 & "12",   striExpr("12") ) <> 1501 or
         pos(striExpr("¡"  mult 1500 & "12"),           "12"  ) <> 1501 or
-        pos(striExpr("0"  mult 1500 & "12"),  striExpr("12") ) <> 1501 or
+        pos(striExpr("¡"  mult 1500 & "12"),  striExpr("12") ) <> 1501 or
         pos(         "10" mult  750 & "12",            "12"  ) <> 1501 or
         pos(         "10" mult  750 & "12",   striExpr("12") ) <> 1501 or
         pos(striExpr("10" mult  750 & "12"),           "12"  ) <> 1501 or
@@ -14546,7 +14546,7 @@ const proc: check_string_pos is func
         pos(         "¡"  mult 1500 & "±µ",            "±µ"  ) <> 1501 or
         pos(         "¡"  mult 1500 & "±µ",   striExpr("±µ") ) <> 1501 or
         pos(striExpr("¡"  mult 1500 & "±µ"),           "±µ"  ) <> 1501 or
-        pos(striExpr("0"  mult 1500 & "±µ"),  striExpr("±µ") ) <> 1501 or
+        pos(striExpr("¡"  mult 1500 & "±µ"),  striExpr("±µ") ) <> 1501 or
         pos(         "±0" mult  750 & "±µ",            "±µ"  ) <> 1501 or
         pos(         "±0" mult  750 & "±µ",   striExpr("±µ") ) <> 1501 or
         pos(striExpr("±0" mult  750 & "±µ"),           "±µ"  ) <> 1501 or
@@ -14561,19 +14561,19 @@ const proc: check_string_pos is func
 
     if  pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")           <> 44001 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")) <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")           <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")) <> 44001 then
       writeln(" ***** pos(string) with Boyer-Moore string search does not work correctly. (2)");
       okay := FALSE;
@@ -15726,51 +15726,51 @@ const proc: check_string_pos_idx is func
 
     if  pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",            1234) <> 44001 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"),  1234) <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",            1234) <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"),  1234) <> 44001 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44001) <> 44001 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44001) <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44001) <> 44001 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44001) <> 44001 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44002) <>     0 or
         pos("the quick brown fox jumps over the lazy dog " mult 1000 &
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	    " the quick brown fox jumps over the lazy dog" mult 1000,
+            " the quick brown fox jumps over the lazy dog" mult 1000,
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44002) <>     0 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44002) <>     0 or
         pos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                      "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	             " the quick brown fox jumps over the lazy dog" mult 1000),
+                     " the quick brown fox jumps over the lazy dog" mult 1000),
             striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44002) <>     0 then
       writeln(" ***** pos(string, string, start) with Boyer-Moore string search does not work correctly. (2)");
       okay := FALSE;
@@ -16564,19 +16564,19 @@ const proc: check_string_rpos is func
 
     if  rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")           <> 44001 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")) <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")           <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba")) <> 44001 then
       writeln(" ***** rpos(string) with Boyer-Moore string search does not work correctly. (2)");
       okay := FALSE;
@@ -17890,51 +17890,51 @@ const proc: check_string_rpos_idx is func
 
     if  rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           87654) <> 44001 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 87654) <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           87654) <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 87654) <> 44001 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44001) <> 44001 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44001) <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44001) <> 44001 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44001) <> 44001 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44000) <>     0 or
         rpos("the quick brown fox jumps over the lazy dog " mult 1000 &
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	     " the quick brown fox jumps over the lazy dog" mult 1000,
+             " the quick brown fox jumps over the lazy dog" mult 1000,
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44000) <>     0 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba",           44000) <>     0 or
         rpos(striExpr("the quick brown fox jumps over the lazy dog " mult 1000 &
                       "abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba" &
-	              " the quick brown fox jumps over the lazy dog" mult 1000),
+                      " the quick brown fox jumps over the lazy dog" mult 1000),
              striExpr("abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba"), 44000) <>     0 then
       writeln(" ***** rpos(string, string, start) with Boyer-Moore string search does not work correctly. (2)");
       okay := FALSE;
@@ -18205,6 +18205,67 @@ const proc: check_string_replace is func
       writeln(" ***** replace(STRING, STRING, STRING) does not work correctly.");
       okay := FALSE;
     end if;
+
+    if  replace(         "0"  mult 1500,                    "123",           "456" ) <> "0"  mult 1500 or
+        replace(         "0"  mult 1500,                    "123",  striExpr("456")) <> "0"  mult 1500 or
+        replace(         "0"  mult 1500,           striExpr("123"),          "456" ) <> "0"  mult 1500 or
+        replace(         "0"  mult 1500,           striExpr("123"), striExpr("456")) <> "0"  mult 1500 or
+        replace(striExpr("0"  mult 1500),                   "123",           "456" ) <> "0"  mult 1500 or
+        replace(striExpr("0"  mult 1500),                   "123",  striExpr("456")) <> "0"  mult 1500 or
+        replace(striExpr("0"  mult 1500),          striExpr("123"),          "456" ) <> "0"  mult 1500 or
+        replace(striExpr("0"  mult 1500),          striExpr("123"), striExpr("456")) <> "0"  mult 1500 or
+        replace(         "0"  mult 1500 & "123",            "123",           "456" ) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "123",            "123",  striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "123",   striExpr("123"),          "456" ) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "123",   striExpr("123"), striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "123"),           "123",           "456" ) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "123"),           "123",  striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "123"),  striExpr("123"),          "456" ) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "123"),  striExpr("123"), striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "121",            "121",           "456" ) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "121",            "121",  striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "121",   striExpr("121"),          "456" ) <> "0"  mult 1500 & "456" or
+        replace(         "0"  mult 1500 & "121",   striExpr("121"), striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "121"),           "121",           "456" ) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "121"),           "121",  striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "121"),  striExpr("121"),          "456" ) <> "0"  mult 1500 & "456" or
+        replace(striExpr("0"  mult 1500 & "121"),  striExpr("121"), striExpr("456")) <> "0"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "123",            "123",           "456" ) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "123",            "123",  striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "123",   striExpr("123"),          "456" ) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "123",   striExpr("123"), striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "123"),           "123",           "456" ) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "123"),           "123",  striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "123"),  striExpr("123"),          "456" ) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "123"),  striExpr("123"), striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "±µ",             "±µ",            "456" ) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "±µ",             "±µ",   striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "±µ",    striExpr("±µ"),           "456" ) <> "¡"  mult 1500 & "456" or
+        replace(         "¡"  mult 1500 & "±µ",    striExpr("±µ"),  striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "±µ"),            "±µ",            "456" ) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "±µ"),            "±µ",   striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "±µ"),   striExpr("±µ"),           "456" ) <> "¡"  mult 1500 & "456" or
+        replace(striExpr("¡"  mult 1500 & "±µ"),   striExpr("±µ"),  striExpr("456")) <> "¡"  mult 1500 & "456" or
+        replace(         "±0" mult  750 & "±µ",             "±µ",            "456" ) <> "±0" mult  750 & "456" or
+        replace(         "±0" mult  750 & "±µ",             "±µ",   striExpr("456")) <> "±0" mult  750 & "456" or
+        replace(         "±0" mult  750 & "±µ",    striExpr("±µ"),           "456" ) <> "±0" mult  750 & "456" or
+        replace(         "±0" mult  750 & "±µ",    striExpr("±µ"),  striExpr("456")) <> "±0" mult  750 & "456" or
+        replace(striExpr("±0" mult  750 & "±µ"),            "±µ",            "456" ) <> "±0" mult  750 & "456" or
+        replace(striExpr("±0" mult  750 & "±µ"),            "±µ",   striExpr("456")) <> "±0" mult  750 & "456" or
+        replace(striExpr("±0" mult  750 & "±µ"),   striExpr("±µ"),           "456" ) <> "±0" mult  750 & "456" or
+        replace(striExpr("±0" mult  750 & "±µ"),   striExpr("±µ"),  striExpr("456")) <> "±0" mult  750 & "456" or
+        replace(         "0µ" mult  750 & "±µ",             "±µ",            "456" ) <> "0µ" mult  750 & "456" or
+        replace(         "0µ" mult  750 & "±µ",             "±µ",   striExpr("456")) <> "0µ" mult  750 & "456" or
+        replace(         "0µ" mult  750 & "±µ",    striExpr("±µ"),           "456" ) <> "0µ" mult  750 & "456" or
+        replace(         "0µ" mult  750 & "±µ",    striExpr("±µ"),  striExpr("456")) <> "0µ" mult  750 & "456" or
+        replace(striExpr("0µ" mult  750 & "±µ"),            "±µ",            "456" ) <> "0µ" mult  750 & "456" or
+        replace(striExpr("0µ" mult  750 & "±µ"),            "±µ",   striExpr("456")) <> "0µ" mult  750 & "456" or
+        replace(striExpr("0µ" mult  750 & "±µ"),   striExpr("±µ"),           "456" ) <> "0µ" mult  750 & "456" or
+        replace(striExpr("0µ" mult  750 & "±µ"),   striExpr("±µ"),  striExpr("456")) <> "0µ" mult  750 & "456" then
+      writeln(" ***** replace(STRING, STRING, STRING) with Boyer-Moore string search does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("replace(string, searched, replacement) works correctly.");
     end if;
