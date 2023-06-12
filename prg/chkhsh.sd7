@@ -270,6 +270,39 @@ const proc: chkBooleanHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(booleanBooleanHashVar)     <> 0 times FALSE or
+        keys(booleanIntegerHashVar)     <> 0 times FALSE or
+        keys(booleanBigIntegerHashVar)  <> 0 times FALSE or
+        keys(booleanBigRationalHashVar) <> 0 times FALSE or
+        keys(booleanFloatHashVar)       <> 0 times FALSE or
+        keys(booleanComplexHashVar)     <> 0 times FALSE or
+        keys(booleanCharHashVar)        <> 0 times FALSE or
+        keys(booleanStringHashVar)      <> 0 times FALSE or
+        keys(booleanBstringHashVar)     <> 0 times FALSE or
+        keys(booleanBitsetHashVar)      <> 0 times FALSE or
+        keys(booleanEnumTypeHashVar)    <> 0 times FALSE or
+        keys(booleanTypeHashVar)        <> 0 times FALSE or
+        keys(booleanReferenceHashVar)   <> 0 times FALSE or
+        keys(booleanHashHashVar)        <> 0 times FALSE then
+      writeln(" ***** Number of keys in empty hash[boolean] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(booleanBooleanHashVar)     <> 0 times FALSE or
+        values(booleanIntegerHashVar)     <> 0 times 0 or
+        values(booleanBigIntegerHashVar)  <> 0 times 0_ or
+        values(booleanBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(booleanFloatHashVar)       <> 0 times 0.0 or
+        values(booleanComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(booleanCharHashVar)        <> 0 times ' ' or
+        values(booleanStringHashVar)      <> 0 times "" or
+        values(booleanBstringHashVar)     <> 0 times bstring("") or
+        values(booleanBitsetHashVar)      <> 0 times {} or
+        values(booleanEnumTypeHashVar)    <> 0 times RED or
+        values(booleanTypeHashVar)        <> 0 times boolean or
+        values(booleanReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[boolean] table is not 0");
+      okay := FALSE;
+    end if;
     booleanBooleanHashVar     @:= [TRUE] TRUE;
     booleanIntegerHashVar     @:= [TRUE] 1234;
     booleanBigIntegerHashVar  @:= [TRUE] 9999999999_;
@@ -318,6 +351,39 @@ const proc: chkBooleanHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[boolean] table");
+      okay := FALSE;
+    end if;
+    if  keys(booleanBooleanHashVar)     <> [] (TRUE) or
+        keys(booleanIntegerHashVar)     <> [] (TRUE) or
+        keys(booleanBigIntegerHashVar)  <> [] (TRUE) or
+        keys(booleanBigRationalHashVar) <> [] (TRUE) or
+        keys(booleanFloatHashVar)       <> [] (TRUE) or
+        keys(booleanComplexHashVar)     <> [] (TRUE) or
+        keys(booleanCharHashVar)        <> [] (TRUE) or
+        keys(booleanStringHashVar)      <> [] (TRUE) or
+        keys(booleanBstringHashVar)     <> [] (TRUE) or
+        keys(booleanBitsetHashVar)      <> [] (TRUE) or
+        keys(booleanEnumTypeHashVar)    <> [] (TRUE) or
+        keys(booleanTypeHashVar)        <> [] (TRUE) or
+        keys(booleanReferenceHashVar)   <> [] (TRUE) or
+        keys(booleanHashHashVar)        <> [] (TRUE) then
+      writeln(" ***** keys(hash[boolean]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(booleanBooleanHashVar)     <> [] (TRUE) or
+        values(booleanIntegerHashVar)     <> [] (1234) or
+        values(booleanBigIntegerHashVar)  <> [] (9999999999_) or
+        values(booleanBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(booleanFloatHashVar)       <> [] (3.1415926535) or
+        values(booleanComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(booleanCharHashVar)        <> [] ('Q') or
+        values(booleanStringHashVar)      <> [] ("success") or
+        values(booleanBstringHashVar)     <> [] (bstring("okay")) or
+        values(booleanBitsetHashVar)      <> [] ({123}) or
+        values(booleanEnumTypeHashVar)    <> [] (GREEN) or
+        values(booleanTypeHashVar)        <> [] (char) or
+        values(booleanReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[boolean]) does not work correctly");
       okay := FALSE;
     end if;
     booleanBooleanHashVar     @:= [TRUE] TRUE;
@@ -427,6 +493,39 @@ const proc: chkIntegerHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(integerBooleanHashVar)     <> 0 times 0 or
+        keys(integerIntegerHashVar)     <> 0 times 0 or
+        keys(integerBigIntegerHashVar)  <> 0 times 0 or
+        keys(integerBigRationalHashVar) <> 0 times 0 or
+        keys(integerFloatHashVar)       <> 0 times 0 or
+        keys(integerComplexHashVar)     <> 0 times 0 or
+        keys(integerCharHashVar)        <> 0 times 0 or
+        keys(integerStringHashVar)      <> 0 times 0 or
+        keys(integerBstringHashVar)     <> 0 times 0 or
+        keys(integerBitsetHashVar)      <> 0 times 0 or
+        keys(integerEnumTypeHashVar)    <> 0 times 0 or
+        keys(integerTypeHashVar)        <> 0 times 0 or
+        keys(integerReferenceHashVar)   <> 0 times 0 or
+        keys(integerHashHashVar)        <> 0 times 0 then
+      writeln(" ***** Number of keys in empty hash[integer] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(integerBooleanHashVar)     <> 0 times FALSE or
+        values(integerIntegerHashVar)     <> 0 times 0 or
+        values(integerBigIntegerHashVar)  <> 0 times 0_ or
+        values(integerBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(integerFloatHashVar)       <> 0 times 0.0 or
+        values(integerComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(integerCharHashVar)        <> 0 times ' ' or
+        values(integerStringHashVar)      <> 0 times "" or
+        values(integerBstringHashVar)     <> 0 times bstring("") or
+        values(integerBitsetHashVar)      <> 0 times {} or
+        values(integerEnumTypeHashVar)    <> 0 times RED or
+        values(integerTypeHashVar)        <> 0 times boolean or
+        values(integerReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[integer] table is not 0");
+      okay := FALSE;
+    end if;
     integerBooleanHashVar     @:= [87654321] TRUE;
     integerIntegerHashVar     @:= [87654321] 1234;
     integerBigIntegerHashVar  @:= [87654321] 9999999999_;
@@ -475,6 +574,39 @@ const proc: chkIntegerHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[integer] table");
+      okay := FALSE;
+    end if;
+    if  keys(integerBooleanHashVar)     <> [] (87654321) or
+        keys(integerIntegerHashVar)     <> [] (87654321) or
+        keys(integerBigIntegerHashVar)  <> [] (87654321) or
+        keys(integerBigRationalHashVar) <> [] (87654321) or
+        keys(integerFloatHashVar)       <> [] (87654321) or
+        keys(integerComplexHashVar)     <> [] (87654321) or
+        keys(integerCharHashVar)        <> [] (87654321) or
+        keys(integerStringHashVar)      <> [] (87654321) or
+        keys(integerBstringHashVar)     <> [] (87654321) or
+        keys(integerBitsetHashVar)      <> [] (87654321) or
+        keys(integerEnumTypeHashVar)    <> [] (87654321) or
+        keys(integerTypeHashVar)        <> [] (87654321) or
+        keys(integerReferenceHashVar)   <> [] (87654321) or
+        keys(integerHashHashVar)        <> [] (87654321) then
+      writeln(" ***** keys(hash[integer]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(integerBooleanHashVar)     <> [] (TRUE) or
+        values(integerIntegerHashVar)     <> [] (1234) or
+        values(integerBigIntegerHashVar)  <> [] (9999999999_) or
+        values(integerBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(integerFloatHashVar)       <> [] (3.1415926535) or
+        values(integerComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(integerCharHashVar)        <> [] ('Q') or
+        values(integerStringHashVar)      <> [] ("success") or
+        values(integerBstringHashVar)     <> [] (bstring("okay")) or
+        values(integerBitsetHashVar)      <> [] ({123}) or
+        values(integerEnumTypeHashVar)    <> [] (GREEN) or
+        values(integerTypeHashVar)        <> [] (char) or
+        values(integerReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[integer]) does not work correctly");
       okay := FALSE;
     end if;
     integerBooleanHashVar     @:= [87654321] TRUE;
@@ -585,6 +717,39 @@ const proc: chkBigIntegerHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(bigIntegerBooleanHashVar)     <> 0 times 0_ or
+        keys(bigIntegerIntegerHashVar)     <> 0 times 0_ or
+        keys(bigIntegerBigIntegerHashVar)  <> 0 times 0_ or
+        keys(bigIntegerBigRationalHashVar) <> 0 times 0_ or
+        keys(bigIntegerFloatHashVar)       <> 0 times 0_ or
+        keys(bigIntegerComplexHashVar)     <> 0 times 0_ or
+        keys(bigIntegerCharHashVar)        <> 0 times 0_ or
+        keys(bigIntegerStringHashVar)      <> 0 times 0_ or
+        keys(bigIntegerBstringHashVar)     <> 0 times 0_ or
+        keys(bigIntegerBitsetHashVar)      <> 0 times 0_ or
+        keys(bigIntegerEnumTypeHashVar)    <> 0 times 0_ or
+        keys(bigIntegerTypeHashVar)        <> 0 times 0_ or
+        keys(bigIntegerReferenceHashVar)   <> 0 times 0_ or
+        keys(bigIntegerHashHashVar)        <> 0 times 0_ then
+      writeln(" ***** Number of keys in empty hash[bigInteger] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(bigIntegerBooleanHashVar)     <> 0 times FALSE or
+        values(bigIntegerIntegerHashVar)     <> 0 times 0 or
+        values(bigIntegerBigIntegerHashVar)  <> 0 times 0_ or
+        values(bigIntegerBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(bigIntegerFloatHashVar)       <> 0 times 0.0 or
+        values(bigIntegerComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(bigIntegerCharHashVar)        <> 0 times ' ' or
+        values(bigIntegerStringHashVar)      <> 0 times "" or
+        values(bigIntegerBstringHashVar)     <> 0 times bstring("") or
+        values(bigIntegerBitsetHashVar)      <> 0 times {} or
+        values(bigIntegerEnumTypeHashVar)    <> 0 times RED or
+        values(bigIntegerTypeHashVar)        <> 0 times boolean or
+        values(bigIntegerReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[bigInteger] table is not 0");
+      okay := FALSE;
+    end if;
     bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
     bigIntegerIntegerHashVar     @:= [9223372036854775808_] 1234;
     bigIntegerBigIntegerHashVar  @:= [9223372036854775808_] 9999999999_;
@@ -633,6 +798,39 @@ const proc: chkBigIntegerHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[bigInteger] table");
+      okay := FALSE;
+    end if;
+    if  keys(bigIntegerBooleanHashVar)     <> [] (9223372036854775808_) or
+        keys(bigIntegerIntegerHashVar)     <> [] (9223372036854775808_) or
+        keys(bigIntegerBigIntegerHashVar)  <> [] (9223372036854775808_) or
+        keys(bigIntegerBigRationalHashVar) <> [] (9223372036854775808_) or
+        keys(bigIntegerFloatHashVar)       <> [] (9223372036854775808_) or
+        keys(bigIntegerComplexHashVar)     <> [] (9223372036854775808_) or
+        keys(bigIntegerCharHashVar)        <> [] (9223372036854775808_) or
+        keys(bigIntegerStringHashVar)      <> [] (9223372036854775808_) or
+        keys(bigIntegerBstringHashVar)     <> [] (9223372036854775808_) or
+        keys(bigIntegerBitsetHashVar)      <> [] (9223372036854775808_) or
+        keys(bigIntegerEnumTypeHashVar)    <> [] (9223372036854775808_) or
+        keys(bigIntegerTypeHashVar)        <> [] (9223372036854775808_) or
+        keys(bigIntegerReferenceHashVar)   <> [] (9223372036854775808_) or
+        keys(bigIntegerHashHashVar)        <> [] (9223372036854775808_) then
+      writeln(" ***** keys(hash[bigInteger]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(bigIntegerBooleanHashVar)     <> [] (TRUE) or
+        values(bigIntegerIntegerHashVar)     <> [] (1234) or
+        values(bigIntegerBigIntegerHashVar)  <> [] (9999999999_) or
+        values(bigIntegerBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(bigIntegerFloatHashVar)       <> [] (3.1415926535) or
+        values(bigIntegerComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(bigIntegerCharHashVar)        <> [] ('Q') or
+        values(bigIntegerStringHashVar)      <> [] ("success") or
+        values(bigIntegerBstringHashVar)     <> [] (bstring("okay")) or
+        values(bigIntegerBitsetHashVar)      <> [] ({123}) or
+        values(bigIntegerEnumTypeHashVar)    <> [] (GREEN) or
+        values(bigIntegerTypeHashVar)        <> [] (char) or
+        values(bigIntegerReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[bigInteger]) does not work correctly");
       okay := FALSE;
     end if;
     bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
@@ -743,6 +941,39 @@ const proc: chkRationalHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(rationalBooleanHashVar)     <> 0 times 0 / 1 or
+        keys(rationalIntegerHashVar)     <> 0 times 0 / 1 or
+        keys(rationalBigIntegerHashVar)  <> 0 times 0 / 1 or
+        keys(rationalBigRationalHashVar) <> 0 times 0 / 1 or
+        keys(rationalFloatHashVar)       <> 0 times 0 / 1 or
+        keys(rationalComplexHashVar)     <> 0 times 0 / 1 or
+        keys(rationalCharHashVar)        <> 0 times 0 / 1 or
+        keys(rationalStringHashVar)      <> 0 times 0 / 1 or
+        keys(rationalBstringHashVar)     <> 0 times 0 / 1 or
+        keys(rationalBitsetHashVar)      <> 0 times 0 / 1 or
+        keys(rationalEnumTypeHashVar)    <> 0 times 0 / 1 or
+        keys(rationalTypeHashVar)        <> 0 times 0 / 1 or
+        keys(rationalReferenceHashVar)   <> 0 times 0 / 1 or
+        keys(rationalHashHashVar)        <> 0 times 0 / 1 then
+      writeln(" ***** Number of keys in empty hash[rational] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(rationalBooleanHashVar)     <> 0 times FALSE or
+        values(rationalIntegerHashVar)     <> 0 times 0 or
+        values(rationalBigIntegerHashVar)  <> 0 times 0_ or
+        values(rationalBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(rationalFloatHashVar)       <> 0 times 0.0 or
+        values(rationalComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(rationalCharHashVar)        <> 0 times ' ' or
+        values(rationalStringHashVar)      <> 0 times "" or
+        values(rationalBstringHashVar)     <> 0 times bstring("") or
+        values(rationalBitsetHashVar)      <> 0 times {} or
+        values(rationalEnumTypeHashVar)    <> 0 times RED or
+        values(rationalTypeHashVar)        <> 0 times boolean or
+        values(rationalReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[rational] table is not 0");
+      okay := FALSE;
+    end if;
     rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
     rationalIntegerHashVar     @:= [9876543212 / 1234567890] 1234;
     rationalBigIntegerHashVar  @:= [9876543212 / 1234567890] 9999999999_;
@@ -791,6 +1022,39 @@ const proc: chkRationalHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[rational] table");
+      okay := FALSE;
+    end if;
+    if  keys(rationalBooleanHashVar)     <> [] (9876543212 / 1234567890) or
+        keys(rationalIntegerHashVar)     <> [] (9876543212 / 1234567890) or
+        keys(rationalBigIntegerHashVar)  <> [] (9876543212 / 1234567890) or
+        keys(rationalBigRationalHashVar) <> [] (9876543212 / 1234567890) or
+        keys(rationalFloatHashVar)       <> [] (9876543212 / 1234567890) or
+        keys(rationalComplexHashVar)     <> [] (9876543212 / 1234567890) or
+        keys(rationalCharHashVar)        <> [] (9876543212 / 1234567890) or
+        keys(rationalStringHashVar)      <> [] (9876543212 / 1234567890) or
+        keys(rationalBstringHashVar)     <> [] (9876543212 / 1234567890) or
+        keys(rationalBitsetHashVar)      <> [] (9876543212 / 1234567890) or
+        keys(rationalEnumTypeHashVar)    <> [] (9876543212 / 1234567890) or
+        keys(rationalTypeHashVar)        <> [] (9876543212 / 1234567890) or
+        keys(rationalReferenceHashVar)   <> [] (9876543212 / 1234567890) or
+        keys(rationalHashHashVar)        <> [] (9876543212 / 1234567890) then
+      writeln(" ***** keys(hash[rational]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(rationalBooleanHashVar)     <> [] (TRUE) or
+        values(rationalIntegerHashVar)     <> [] (1234) or
+        values(rationalBigIntegerHashVar)  <> [] (9999999999_) or
+        values(rationalBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(rationalFloatHashVar)       <> [] (3.1415926535) or
+        values(rationalComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(rationalCharHashVar)        <> [] ('Q') or
+        values(rationalStringHashVar)      <> [] ("success") or
+        values(rationalBstringHashVar)     <> [] (bstring("okay")) or
+        values(rationalBitsetHashVar)      <> [] ({123}) or
+        values(rationalEnumTypeHashVar)    <> [] (GREEN) or
+        values(rationalTypeHashVar)        <> [] (char) or
+        values(rationalReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[rational]) does not work correctly");
       okay := FALSE;
     end if;
     rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
@@ -901,6 +1165,39 @@ const proc: chkBigRationalHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(bigRationalBooleanHashVar)     <> 0 times 0_ / 1_ or
+        keys(bigRationalIntegerHashVar)     <> 0 times 0_ / 1_ or
+        keys(bigRationalBigIntegerHashVar)  <> 0 times 0_ / 1_ or
+        keys(bigRationalBigRationalHashVar) <> 0 times 0_ / 1_ or
+        keys(bigRationalFloatHashVar)       <> 0 times 0_ / 1_ or
+        keys(bigRationalComplexHashVar)     <> 0 times 0_ / 1_ or
+        keys(bigRationalCharHashVar)        <> 0 times 0_ / 1_ or
+        keys(bigRationalStringHashVar)      <> 0 times 0_ / 1_ or
+        keys(bigRationalBstringHashVar)     <> 0 times 0_ / 1_ or
+        keys(bigRationalBitsetHashVar)      <> 0 times 0_ / 1_ or
+        keys(bigRationalEnumTypeHashVar)    <> 0 times 0_ / 1_ or
+        keys(bigRationalTypeHashVar)        <> 0 times 0_ / 1_ or
+        keys(bigRationalReferenceHashVar)   <> 0 times 0_ / 1_ or
+        keys(bigRationalHashHashVar)        <> 0 times 0_ / 1_ then
+      writeln(" ***** Number of keys in empty hash[bigRational] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(bigRationalBooleanHashVar)     <> 0 times FALSE or
+        values(bigRationalIntegerHashVar)     <> 0 times 0 or
+        values(bigRationalBigIntegerHashVar)  <> 0 times 0_ or
+        values(bigRationalBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(bigRationalFloatHashVar)       <> 0 times 0.0 or
+        values(bigRationalComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(bigRationalCharHashVar)        <> 0 times ' ' or
+        values(bigRationalStringHashVar)      <> 0 times "" or
+        values(bigRationalBstringHashVar)     <> 0 times bstring("") or
+        values(bigRationalBitsetHashVar)      <> 0 times {} or
+        values(bigRationalEnumTypeHashVar)    <> 0 times RED or
+        values(bigRationalTypeHashVar)        <> 0 times boolean or
+        values(bigRationalReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[bigRational] table is not 0");
+      okay := FALSE;
+    end if;
     bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
     bigRationalIntegerHashVar     @:= [9876543212_ / 1234567890_] 1234;
     bigRationalBigIntegerHashVar  @:= [9876543212_ / 1234567890_] 9999999999_;
@@ -949,6 +1246,39 @@ const proc: chkBigRationalHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[bigRational] table");
+      okay := FALSE;
+    end if;
+    if  keys(bigRationalBooleanHashVar)     <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalIntegerHashVar)     <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalBigIntegerHashVar)  <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalBigRationalHashVar) <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalFloatHashVar)       <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalComplexHashVar)     <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalCharHashVar)        <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalStringHashVar)      <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalBstringHashVar)     <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalBitsetHashVar)      <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalEnumTypeHashVar)    <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalTypeHashVar)        <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalReferenceHashVar)   <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalHashHashVar)        <> [] (9876543212_ / 1234567890_) then
+      writeln(" ***** keys(hash[bigRational]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(bigRationalBooleanHashVar)     <> [] (TRUE) or
+        values(bigRationalIntegerHashVar)     <> [] (1234) or
+        values(bigRationalBigIntegerHashVar)  <> [] (9999999999_) or
+        values(bigRationalBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(bigRationalFloatHashVar)       <> [] (3.1415926535) or
+        values(bigRationalComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(bigRationalCharHashVar)        <> [] ('Q') or
+        values(bigRationalStringHashVar)      <> [] ("success") or
+        values(bigRationalBstringHashVar)     <> [] (bstring("okay")) or
+        values(bigRationalBitsetHashVar)      <> [] ({123}) or
+        values(bigRationalEnumTypeHashVar)    <> [] (GREEN) or
+        values(bigRationalTypeHashVar)        <> [] (char) or
+        values(bigRationalReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[bigRational]) does not work correctly");
       okay := FALSE;
     end if;
     bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
@@ -1059,6 +1389,39 @@ const proc: chkFloatHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(floatBooleanHashVar)     <> 0 times 0.0 or
+        keys(floatIntegerHashVar)     <> 0 times 0.0 or
+        keys(floatBigIntegerHashVar)  <> 0 times 0.0 or
+        keys(floatBigRationalHashVar) <> 0 times 0.0 or
+        keys(floatFloatHashVar)       <> 0 times 0.0 or
+        keys(floatComplexHashVar)     <> 0 times 0.0 or
+        keys(floatCharHashVar)        <> 0 times 0.0 or
+        keys(floatStringHashVar)      <> 0 times 0.0 or
+        keys(floatBstringHashVar)     <> 0 times 0.0 or
+        keys(floatBitsetHashVar)      <> 0 times 0.0 or
+        keys(floatEnumTypeHashVar)    <> 0 times 0.0 or
+        keys(floatTypeHashVar)        <> 0 times 0.0 or
+        keys(floatReferenceHashVar)   <> 0 times 0.0 or
+        keys(floatHashHashVar)        <> 0 times 0.0 then
+      writeln(" ***** Number of keys in empty hash[float] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(floatBooleanHashVar)     <> 0 times FALSE or
+        values(floatIntegerHashVar)     <> 0 times 0 or
+        values(floatBigIntegerHashVar)  <> 0 times 0_ or
+        values(floatBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(floatFloatHashVar)       <> 0 times 0.0 or
+        values(floatComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(floatCharHashVar)        <> 0 times ' ' or
+        values(floatStringHashVar)      <> 0 times "" or
+        values(floatBstringHashVar)     <> 0 times bstring("") or
+        values(floatBitsetHashVar)      <> 0 times {} or
+        values(floatEnumTypeHashVar)    <> 0 times RED or
+        values(floatTypeHashVar)        <> 0 times boolean or
+        values(floatReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[float] table is not 0");
+      okay := FALSE;
+    end if;
     floatBooleanHashVar     @:= [3.1415926535] TRUE;
     floatIntegerHashVar     @:= [3.1415926535] 1234;
     floatBigIntegerHashVar  @:= [3.1415926535] 9999999999_;
@@ -1107,6 +1470,39 @@ const proc: chkFloatHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[float] table");
+      okay := FALSE;
+    end if;
+    if  keys(floatBooleanHashVar)     <> [] (3.1415926535) or
+        keys(floatIntegerHashVar)     <> [] (3.1415926535) or
+        keys(floatBigIntegerHashVar)  <> [] (3.1415926535) or
+        keys(floatBigRationalHashVar) <> [] (3.1415926535) or
+        keys(floatFloatHashVar)       <> [] (3.1415926535) or
+        keys(floatComplexHashVar)     <> [] (3.1415926535) or
+        keys(floatCharHashVar)        <> [] (3.1415926535) or
+        keys(floatStringHashVar)      <> [] (3.1415926535) or
+        keys(floatBstringHashVar)     <> [] (3.1415926535) or
+        keys(floatBitsetHashVar)      <> [] (3.1415926535) or
+        keys(floatEnumTypeHashVar)    <> [] (3.1415926535) or
+        keys(floatTypeHashVar)        <> [] (3.1415926535) or
+        keys(floatReferenceHashVar)   <> [] (3.1415926535) or
+        keys(floatHashHashVar)        <> [] (3.1415926535) then
+      writeln(" ***** keys(hash[float]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(floatBooleanHashVar)     <> [] (TRUE) or
+        values(floatIntegerHashVar)     <> [] (1234) or
+        values(floatBigIntegerHashVar)  <> [] (9999999999_) or
+        values(floatBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(floatFloatHashVar)       <> [] (3.1415926535) or
+        values(floatComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(floatCharHashVar)        <> [] ('Q') or
+        values(floatStringHashVar)      <> [] ("success") or
+        values(floatBstringHashVar)     <> [] (bstring("okay")) or
+        values(floatBitsetHashVar)      <> [] ({123}) or
+        values(floatEnumTypeHashVar)    <> [] (GREEN) or
+        values(floatTypeHashVar)        <> [] (char) or
+        values(floatReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[float]) does not work correctly");
       okay := FALSE;
     end if;
     floatBooleanHashVar     @:= [3.1415926535] TRUE;
@@ -1217,6 +1613,39 @@ const proc: chkComplexHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(complexBooleanHashVar)     <> 0 times complex(0.0, 0.0) or
+        keys(complexIntegerHashVar)     <> 0 times complex(0.0, 0.0) or
+        keys(complexBigIntegerHashVar)  <> 0 times complex(0.0, 0.0) or
+        keys(complexBigRationalHashVar) <> 0 times complex(0.0, 0.0) or
+        keys(complexFloatHashVar)       <> 0 times complex(0.0, 0.0) or
+        keys(complexComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        keys(complexCharHashVar)        <> 0 times complex(0.0, 0.0) or
+        keys(complexStringHashVar)      <> 0 times complex(0.0, 0.0) or
+        keys(complexBstringHashVar)     <> 0 times complex(0.0, 0.0) or
+        keys(complexBitsetHashVar)      <> 0 times complex(0.0, 0.0) or
+        keys(complexEnumTypeHashVar)    <> 0 times complex(0.0, 0.0) or
+        keys(complexTypeHashVar)        <> 0 times complex(0.0, 0.0) or
+        keys(complexReferenceHashVar)   <> 0 times complex(0.0, 0.0) or
+        keys(complexHashHashVar)        <> 0 times complex(0.0, 0.0) then
+      writeln(" ***** Number of keys in empty hash[complex] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(complexBooleanHashVar)     <> 0 times FALSE or
+        values(complexIntegerHashVar)     <> 0 times 0 or
+        values(complexBigIntegerHashVar)  <> 0 times 0_ or
+        values(complexBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(complexFloatHashVar)       <> 0 times 0.0 or
+        values(complexComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(complexCharHashVar)        <> 0 times ' ' or
+        values(complexStringHashVar)      <> 0 times "" or
+        values(complexBstringHashVar)     <> 0 times bstring("") or
+        values(complexBitsetHashVar)      <> 0 times {} or
+        values(complexEnumTypeHashVar)    <> 0 times RED or
+        values(complexTypeHashVar)        <> 0 times boolean or
+        values(complexReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[complex] table is not 0");
+      okay := FALSE;
+    end if;
     complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
     complexIntegerHashVar     @:= [complex(5.6, 7.8)] 1234;
     complexBigIntegerHashVar  @:= [complex(5.6, 7.8)] 9999999999_;
@@ -1265,6 +1694,39 @@ const proc: chkComplexHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[complex] table");
+      okay := FALSE;
+    end if;
+    if  keys(complexBooleanHashVar)     <> [] (complex(5.6, 7.8)) or
+        keys(complexIntegerHashVar)     <> [] (complex(5.6, 7.8)) or
+        keys(complexBigIntegerHashVar)  <> [] (complex(5.6, 7.8)) or
+        keys(complexBigRationalHashVar) <> [] (complex(5.6, 7.8)) or
+        keys(complexFloatHashVar)       <> [] (complex(5.6, 7.8)) or
+        keys(complexComplexHashVar)     <> [] (complex(5.6, 7.8)) or
+        keys(complexCharHashVar)        <> [] (complex(5.6, 7.8)) or
+        keys(complexStringHashVar)      <> [] (complex(5.6, 7.8)) or
+        keys(complexBstringHashVar)     <> [] (complex(5.6, 7.8)) or
+        keys(complexBitsetHashVar)      <> [] (complex(5.6, 7.8)) or
+        keys(complexEnumTypeHashVar)    <> [] (complex(5.6, 7.8)) or
+        keys(complexTypeHashVar)        <> [] (complex(5.6, 7.8)) or
+        keys(complexReferenceHashVar)   <> [] (complex(5.6, 7.8)) or
+        keys(complexHashHashVar)        <> [] (complex(5.6, 7.8)) then
+      writeln(" ***** keys(hash[complex]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(complexBooleanHashVar)     <> [] (TRUE) or
+        values(complexIntegerHashVar)     <> [] (1234) or
+        values(complexBigIntegerHashVar)  <> [] (9999999999_) or
+        values(complexBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(complexFloatHashVar)       <> [] (3.1415926535) or
+        values(complexComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(complexCharHashVar)        <> [] ('Q') or
+        values(complexStringHashVar)      <> [] ("success") or
+        values(complexBstringHashVar)     <> [] (bstring("okay")) or
+        values(complexBitsetHashVar)      <> [] ({123}) or
+        values(complexEnumTypeHashVar)    <> [] (GREEN) or
+        values(complexTypeHashVar)        <> [] (char) or
+        values(complexReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[complex]) does not work correctly");
       okay := FALSE;
     end if;
     complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
@@ -1375,6 +1837,39 @@ const proc: chkCharHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(charBooleanHashVar)     <> 0 times ' ' or
+        keys(charIntegerHashVar)     <> 0 times ' ' or
+        keys(charBigIntegerHashVar)  <> 0 times ' ' or
+        keys(charBigRationalHashVar) <> 0 times ' ' or
+        keys(charFloatHashVar)       <> 0 times ' ' or
+        keys(charComplexHashVar)     <> 0 times ' ' or
+        keys(charCharHashVar)        <> 0 times ' ' or
+        keys(charStringHashVar)      <> 0 times ' ' or
+        keys(charBstringHashVar)     <> 0 times ' ' or
+        keys(charBitsetHashVar)      <> 0 times ' ' or
+        keys(charEnumTypeHashVar)    <> 0 times ' ' or
+        keys(charTypeHashVar)        <> 0 times ' ' or
+        keys(charReferenceHashVar)   <> 0 times ' ' or
+        keys(charHashHashVar)        <> 0 times ' ' then
+      writeln(" ***** Number of keys in empty hash[char] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(charBooleanHashVar)     <> 0 times FALSE or
+        values(charIntegerHashVar)     <> 0 times 0 or
+        values(charBigIntegerHashVar)  <> 0 times 0_ or
+        values(charBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(charFloatHashVar)       <> 0 times 0.0 or
+        values(charComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(charCharHashVar)        <> 0 times ' ' or
+        values(charStringHashVar)      <> 0 times "" or
+        values(charBstringHashVar)     <> 0 times bstring("") or
+        values(charBitsetHashVar)      <> 0 times {} or
+        values(charEnumTypeHashVar)    <> 0 times RED or
+        values(charTypeHashVar)        <> 0 times boolean or
+        values(charReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[char] table is not 0");
+      okay := FALSE;
+    end if;
     charBooleanHashVar     @:= ['k'] TRUE;
     charIntegerHashVar     @:= ['k'] 1234;
     charBigIntegerHashVar  @:= ['k'] 9999999999_;
@@ -1423,6 +1918,39 @@ const proc: chkCharHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[char] table");
+      okay := FALSE;
+    end if;
+    if  keys(charBooleanHashVar)     <> [] ('k') or
+        keys(charIntegerHashVar)     <> [] ('k') or
+        keys(charBigIntegerHashVar)  <> [] ('k') or
+        keys(charBigRationalHashVar) <> [] ('k') or
+        keys(charFloatHashVar)       <> [] ('k') or
+        keys(charComplexHashVar)     <> [] ('k') or
+        keys(charCharHashVar)        <> [] ('k') or
+        keys(charStringHashVar)      <> [] ('k') or
+        keys(charBstringHashVar)     <> [] ('k') or
+        keys(charBitsetHashVar)      <> [] ('k') or
+        keys(charEnumTypeHashVar)    <> [] ('k') or
+        keys(charTypeHashVar)        <> [] ('k') or
+        keys(charReferenceHashVar)   <> [] ('k') or
+        keys(charHashHashVar)        <> [] ('k') then
+      writeln(" ***** keys(hash[char]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(charBooleanHashVar)     <> [] (TRUE) or
+        values(charIntegerHashVar)     <> [] (1234) or
+        values(charBigIntegerHashVar)  <> [] (9999999999_) or
+        values(charBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(charFloatHashVar)       <> [] (3.1415926535) or
+        values(charComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(charCharHashVar)        <> [] ('Q') or
+        values(charStringHashVar)      <> [] ("success") or
+        values(charBstringHashVar)     <> [] (bstring("okay")) or
+        values(charBitsetHashVar)      <> [] ({123}) or
+        values(charEnumTypeHashVar)    <> [] (GREEN) or
+        values(charTypeHashVar)        <> [] (char) or
+        values(charReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[char]) does not work correctly");
       okay := FALSE;
     end if;
     charBooleanHashVar     @:= ['k'] TRUE;
@@ -1533,6 +2061,39 @@ const proc: chkStringHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(stringBooleanHashVar)     <> 0 times "" or
+        keys(stringIntegerHashVar)     <> 0 times "" or
+        keys(stringBigIntegerHashVar)  <> 0 times "" or
+        keys(stringBigRationalHashVar) <> 0 times "" or
+        keys(stringFloatHashVar)       <> 0 times "" or
+        keys(stringComplexHashVar)     <> 0 times "" or
+        keys(stringCharHashVar)        <> 0 times "" or
+        keys(stringStringHashVar)      <> 0 times "" or
+        keys(stringBstringHashVar)     <> 0 times "" or
+        keys(stringBitsetHashVar)      <> 0 times "" or
+        keys(stringEnumTypeHashVar)    <> 0 times "" or
+        keys(stringTypeHashVar)        <> 0 times "" or
+        keys(stringReferenceHashVar)   <> 0 times "" or
+        keys(stringHashHashVar)        <> 0 times "" then
+      writeln(" ***** Number of keys in empty hash[string] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(stringBooleanHashVar)     <> 0 times FALSE or
+        values(stringIntegerHashVar)     <> 0 times 0 or
+        values(stringBigIntegerHashVar)  <> 0 times 0_ or
+        values(stringBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(stringFloatHashVar)       <> 0 times 0.0 or
+        values(stringComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(stringCharHashVar)        <> 0 times ' ' or
+        values(stringStringHashVar)      <> 0 times "" or
+        values(stringBstringHashVar)     <> 0 times bstring("") or
+        values(stringBitsetHashVar)      <> 0 times {} or
+        values(stringEnumTypeHashVar)    <> 0 times RED or
+        values(stringTypeHashVar)        <> 0 times boolean or
+        values(stringReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[string] table is not 0");
+      okay := FALSE;
+    end if;
     stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
     stringIntegerHashVar     @:= ["asdfghjkl"] 1234;
     stringBigIntegerHashVar  @:= ["asdfghjkl"] 9999999999_;
@@ -1581,6 +2142,39 @@ const proc: chkStringHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[string] table");
+      okay := FALSE;
+    end if;
+    if  keys(stringBooleanHashVar)     <> [] ("asdfghjkl") or
+        keys(stringIntegerHashVar)     <> [] ("asdfghjkl") or
+        keys(stringBigIntegerHashVar)  <> [] ("asdfghjkl") or
+        keys(stringBigRationalHashVar) <> [] ("asdfghjkl") or
+        keys(stringFloatHashVar)       <> [] ("asdfghjkl") or
+        keys(stringComplexHashVar)     <> [] ("asdfghjkl") or
+        keys(stringCharHashVar)        <> [] ("asdfghjkl") or
+        keys(stringStringHashVar)      <> [] ("asdfghjkl") or
+        keys(stringBstringHashVar)     <> [] ("asdfghjkl") or
+        keys(stringBitsetHashVar)      <> [] ("asdfghjkl") or
+        keys(stringEnumTypeHashVar)    <> [] ("asdfghjkl") or
+        keys(stringTypeHashVar)        <> [] ("asdfghjkl") or
+        keys(stringReferenceHashVar)   <> [] ("asdfghjkl") or
+        keys(stringHashHashVar)        <> [] ("asdfghjkl") then
+      writeln(" ***** keys(hash[string]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(stringBooleanHashVar)     <> [] (TRUE) or
+        values(stringIntegerHashVar)     <> [] (1234) or
+        values(stringBigIntegerHashVar)  <> [] (9999999999_) or
+        values(stringBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(stringFloatHashVar)       <> [] (3.1415926535) or
+        values(stringComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(stringCharHashVar)        <> [] ('Q') or
+        values(stringStringHashVar)      <> [] ("success") or
+        values(stringBstringHashVar)     <> [] (bstring("okay")) or
+        values(stringBitsetHashVar)      <> [] ({123}) or
+        values(stringEnumTypeHashVar)    <> [] (GREEN) or
+        values(stringTypeHashVar)        <> [] (char) or
+        values(stringReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[string]) does not work correctly");
       okay := FALSE;
     end if;
     stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
@@ -1691,6 +2285,39 @@ const proc: chkBstringHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(bstringBooleanHashVar)     <> 0 times bstring("") or
+        keys(bstringIntegerHashVar)     <> 0 times bstring("") or
+        keys(bstringBigIntegerHashVar)  <> 0 times bstring("") or
+        keys(bstringBigRationalHashVar) <> 0 times bstring("") or
+        keys(bstringFloatHashVar)       <> 0 times bstring("") or
+        keys(bstringComplexHashVar)     <> 0 times bstring("") or
+        keys(bstringCharHashVar)        <> 0 times bstring("") or
+        keys(bstringStringHashVar)      <> 0 times bstring("") or
+        keys(bstringBstringHashVar)     <> 0 times bstring("") or
+        keys(bstringBitsetHashVar)      <> 0 times bstring("") or
+        keys(bstringEnumTypeHashVar)    <> 0 times bstring("") or
+        keys(bstringTypeHashVar)        <> 0 times bstring("") or
+        keys(bstringReferenceHashVar)   <> 0 times bstring("") or
+        keys(bstringHashHashVar)        <> 0 times bstring("") then
+      writeln(" ***** Number of keys in empty hash[bstring] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(bstringBooleanHashVar)     <> 0 times FALSE or
+        values(bstringIntegerHashVar)     <> 0 times 0 or
+        values(bstringBigIntegerHashVar)  <> 0 times 0_ or
+        values(bstringBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(bstringFloatHashVar)       <> 0 times 0.0 or
+        values(bstringComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(bstringCharHashVar)        <> 0 times ' ' or
+        values(bstringStringHashVar)      <> 0 times "" or
+        values(bstringBstringHashVar)     <> 0 times bstring("") or
+        values(bstringBitsetHashVar)      <> 0 times {} or
+        values(bstringEnumTypeHashVar)    <> 0 times RED or
+        values(bstringTypeHashVar)        <> 0 times boolean or
+        values(bstringReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[bstring] table is not 0");
+      okay := FALSE;
+    end if;
     bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
     bstringIntegerHashVar     @:= [bstring("qwert")] 1234;
     bstringBigIntegerHashVar  @:= [bstring("qwert")] 9999999999_;
@@ -1739,6 +2366,39 @@ const proc: chkBstringHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[bstring] table");
+      okay := FALSE;
+    end if;
+    if  keys(bstringBooleanHashVar)     <> [] (bstring("qwert")) or
+        keys(bstringIntegerHashVar)     <> [] (bstring("qwert")) or
+        keys(bstringBigIntegerHashVar)  <> [] (bstring("qwert")) or
+        keys(bstringBigRationalHashVar) <> [] (bstring("qwert")) or
+        keys(bstringFloatHashVar)       <> [] (bstring("qwert")) or
+        keys(bstringComplexHashVar)     <> [] (bstring("qwert")) or
+        keys(bstringCharHashVar)        <> [] (bstring("qwert")) or
+        keys(bstringStringHashVar)      <> [] (bstring("qwert")) or
+        keys(bstringBstringHashVar)     <> [] (bstring("qwert")) or
+        keys(bstringBitsetHashVar)      <> [] (bstring("qwert")) or
+        keys(bstringEnumTypeHashVar)    <> [] (bstring("qwert")) or
+        keys(bstringTypeHashVar)        <> [] (bstring("qwert")) or
+        keys(bstringReferenceHashVar)   <> [] (bstring("qwert")) or
+        keys(bstringHashHashVar)        <> [] (bstring("qwert")) then
+      writeln(" ***** keys(hash[bstring]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(bstringBooleanHashVar)     <> [] (TRUE) or
+        values(bstringIntegerHashVar)     <> [] (1234) or
+        values(bstringBigIntegerHashVar)  <> [] (9999999999_) or
+        values(bstringBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(bstringFloatHashVar)       <> [] (3.1415926535) or
+        values(bstringComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(bstringCharHashVar)        <> [] ('Q') or
+        values(bstringStringHashVar)      <> [] ("success") or
+        values(bstringBstringHashVar)     <> [] (bstring("okay")) or
+        values(bstringBitsetHashVar)      <> [] ({123}) or
+        values(bstringEnumTypeHashVar)    <> [] (GREEN) or
+        values(bstringTypeHashVar)        <> [] (char) or
+        values(bstringReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[bstring]) does not work correctly");
       okay := FALSE;
     end if;
     bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
@@ -1849,6 +2509,39 @@ const proc: chkBitsetHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(bitsetBooleanHashVar)     <> 0 times bitset.value or
+        keys(bitsetIntegerHashVar)     <> 0 times bitset.value or
+        keys(bitsetBigIntegerHashVar)  <> 0 times bitset.value or
+        keys(bitsetBigRationalHashVar) <> 0 times bitset.value or
+        keys(bitsetFloatHashVar)       <> 0 times bitset.value or
+        keys(bitsetComplexHashVar)     <> 0 times bitset.value or
+        keys(bitsetCharHashVar)        <> 0 times bitset.value or
+        keys(bitsetStringHashVar)      <> 0 times bitset.value or
+        keys(bitsetBstringHashVar)     <> 0 times bitset.value or
+        keys(bitsetBitsetHashVar)      <> 0 times bitset.value or
+        keys(bitsetEnumTypeHashVar)    <> 0 times bitset.value or
+        keys(bitsetTypeHashVar)        <> 0 times bitset.value or
+        keys(bitsetReferenceHashVar)   <> 0 times bitset.value or
+        keys(bitsetHashHashVar)        <> 0 times bitset.value then
+      writeln(" ***** Number of keys in empty hash[bitset] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(bitsetBooleanHashVar)     <> 0 times FALSE or
+        values(bitsetIntegerHashVar)     <> 0 times 0 or
+        values(bitsetBigIntegerHashVar)  <> 0 times 0_ or
+        values(bitsetBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(bitsetFloatHashVar)       <> 0 times 0.0 or
+        values(bitsetComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(bitsetCharHashVar)        <> 0 times ' ' or
+        values(bitsetStringHashVar)      <> 0 times "" or
+        values(bitsetBstringHashVar)     <> 0 times bstring("") or
+        values(bitsetBitsetHashVar)      <> 0 times {} or
+        values(bitsetEnumTypeHashVar)    <> 0 times RED or
+        values(bitsetTypeHashVar)        <> 0 times boolean or
+        values(bitsetReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[bitset] table is not 0");
+      okay := FALSE;
+    end if;
     bitsetBooleanHashVar     @:= [{234}] TRUE;
     bitsetIntegerHashVar     @:= [{234}] 1234;
     bitsetBigIntegerHashVar  @:= [{234}] 9999999999_;
@@ -1897,6 +2590,39 @@ const proc: chkBitsetHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[bitset] table");
+      okay := FALSE;
+    end if;
+    if  keys(bitsetBooleanHashVar)     <> [] ({234}) or
+        keys(bitsetIntegerHashVar)     <> [] ({234}) or
+        keys(bitsetBigIntegerHashVar)  <> [] ({234}) or
+        keys(bitsetBigRationalHashVar) <> [] ({234}) or
+        keys(bitsetFloatHashVar)       <> [] ({234}) or
+        keys(bitsetComplexHashVar)     <> [] ({234}) or
+        keys(bitsetCharHashVar)        <> [] ({234}) or
+        keys(bitsetStringHashVar)      <> [] ({234}) or
+        keys(bitsetBstringHashVar)     <> [] ({234}) or
+        keys(bitsetBitsetHashVar)      <> [] ({234}) or
+        keys(bitsetEnumTypeHashVar)    <> [] ({234}) or
+        keys(bitsetTypeHashVar)        <> [] ({234}) or
+        keys(bitsetReferenceHashVar)   <> [] ({234}) or
+        keys(bitsetHashHashVar)        <> [] ({234}) then
+      writeln(" ***** keys(hash[bitset]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(bitsetBooleanHashVar)     <> [] (TRUE) or
+        values(bitsetIntegerHashVar)     <> [] (1234) or
+        values(bitsetBigIntegerHashVar)  <> [] (9999999999_) or
+        values(bitsetBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(bitsetFloatHashVar)       <> [] (3.1415926535) or
+        values(bitsetComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(bitsetCharHashVar)        <> [] ('Q') or
+        values(bitsetStringHashVar)      <> [] ("success") or
+        values(bitsetBstringHashVar)     <> [] (bstring("okay")) or
+        values(bitsetBitsetHashVar)      <> [] ({123}) or
+        values(bitsetEnumTypeHashVar)    <> [] (GREEN) or
+        values(bitsetTypeHashVar)        <> [] (char) or
+        values(bitsetReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[bitset]) does not work correctly");
       okay := FALSE;
     end if;
     bitsetBooleanHashVar     @:= [{234}] TRUE;
@@ -2007,6 +2733,39 @@ const proc: chkEnumerationTypeHash is func
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
+    if  keys(enumTypeBooleanHashVar)     <> 0 times RED or
+        keys(enumTypeIntegerHashVar)     <> 0 times RED or
+        keys(enumTypeBigIntegerHashVar)  <> 0 times RED or
+        keys(enumTypeBigRationalHashVar) <> 0 times RED or
+        keys(enumTypeFloatHashVar)       <> 0 times RED or
+        keys(enumTypeComplexHashVar)     <> 0 times RED or
+        keys(enumTypeCharHashVar)        <> 0 times RED or
+        keys(enumTypeStringHashVar)      <> 0 times RED or
+        keys(enumTypeBstringHashVar)     <> 0 times RED or
+        keys(enumTypeBitsetHashVar)      <> 0 times RED or
+        keys(enumTypeEnumTypeHashVar)    <> 0 times RED or
+        keys(enumTypeTypeHashVar)        <> 0 times RED or
+        keys(enumTypeReferenceHashVar)   <> 0 times RED or
+        keys(enumTypeHashHashVar)        <> 0 times RED then
+      writeln(" ***** Number of keys in empty hash[enumerationType] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(enumTypeBooleanHashVar)     <> 0 times FALSE or
+        values(enumTypeIntegerHashVar)     <> 0 times 0 or
+        values(enumTypeBigIntegerHashVar)  <> 0 times 0_ or
+        values(enumTypeBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(enumTypeFloatHashVar)       <> 0 times 0.0 or
+        values(enumTypeComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(enumTypeCharHashVar)        <> 0 times ' ' or
+        values(enumTypeStringHashVar)      <> 0 times "" or
+        values(enumTypeBstringHashVar)     <> 0 times bstring("") or
+        values(enumTypeBitsetHashVar)      <> 0 times {} or
+        values(enumTypeEnumTypeHashVar)    <> 0 times RED or
+        values(enumTypeTypeHashVar)        <> 0 times boolean or
+        values(enumTypeReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[enumerationType] table is not 0");
+      okay := FALSE;
+    end if;
     enumTypeBooleanHashVar     @:= [YELLOW] TRUE;
     enumTypeIntegerHashVar     @:= [YELLOW] 1234;
     enumTypeBigIntegerHashVar  @:= [YELLOW] 9999999999_;
@@ -2055,6 +2814,39 @@ const proc: chkEnumerationTypeHash is func
       noop;
     else
       writeln(" ***** Elements missing in hash[enumerationType] table");
+      okay := FALSE;
+    end if;
+    if  keys(enumTypeBooleanHashVar)     <> [] (YELLOW) or
+        keys(enumTypeIntegerHashVar)     <> [] (YELLOW) or
+        keys(enumTypeBigIntegerHashVar)  <> [] (YELLOW) or
+        keys(enumTypeBigRationalHashVar) <> [] (YELLOW) or
+        keys(enumTypeFloatHashVar)       <> [] (YELLOW) or
+        keys(enumTypeComplexHashVar)     <> [] (YELLOW) or
+        keys(enumTypeCharHashVar)        <> [] (YELLOW) or
+        keys(enumTypeStringHashVar)      <> [] (YELLOW) or
+        keys(enumTypeBstringHashVar)     <> [] (YELLOW) or
+        keys(enumTypeBitsetHashVar)      <> [] (YELLOW) or
+        keys(enumTypeEnumTypeHashVar)    <> [] (YELLOW) or
+        keys(enumTypeTypeHashVar)        <> [] (YELLOW) or
+        keys(enumTypeReferenceHashVar)   <> [] (YELLOW) or
+        keys(enumTypeHashHashVar)        <> [] (YELLOW) then
+      writeln(" ***** keys(hash[enumerationType]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(enumTypeBooleanHashVar)     <> [] (TRUE) or
+        values(enumTypeIntegerHashVar)     <> [] (1234) or
+        values(enumTypeBigIntegerHashVar)  <> [] (9999999999_) or
+        values(enumTypeBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(enumTypeFloatHashVar)       <> [] (3.1415926535) or
+        values(enumTypeComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(enumTypeCharHashVar)        <> [] ('Q') or
+        values(enumTypeStringHashVar)      <> [] ("success") or
+        values(enumTypeBstringHashVar)     <> [] (bstring("okay")) or
+        values(enumTypeBitsetHashVar)      <> [] ({123}) or
+        values(enumTypeEnumTypeHashVar)    <> [] (GREEN) or
+        values(enumTypeTypeHashVar)        <> [] (char) or
+        values(enumTypeReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[enumerationType]) does not work correctly");
       okay := FALSE;
     end if;
     enumTypeBooleanHashVar     @:= [YELLOW] TRUE;
