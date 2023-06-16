@@ -51,7 +51,7 @@ const func boolean: boolExpr (ref boolean: value) is
   return value and str(rand(1, 9))[2 ..] = "";
 
 
-const func boolean: raisesRangeError (ref func string: expression) is func
+const func boolean: raisesRangeError (in func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -66,7 +66,7 @@ const func boolean: raisesRangeError (ref func string: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func integer: expression) is func
+const func boolean: raisesRangeError (in func integer: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -81,7 +81,7 @@ const func boolean: raisesRangeError (ref func integer: expression) is func
   end func;
 
 
-const func boolean: raisesNumericError (ref func integer: expression) is func
+const func boolean: raisesNumericError (in func integer: expression) is func
   result
     var boolean: raisesNumericError is FALSE;
   local
@@ -96,7 +96,7 @@ const func boolean: raisesNumericError (ref func integer: expression) is func
   end func;
 
 
-const func boolean: raisesNumericError (ref func boolean: expression) is func
+const func boolean: raisesNumericError (in func boolean: expression) is func
   result
     var boolean: raisesNumericError is FALSE;
   local
@@ -111,7 +111,7 @@ const func boolean: raisesNumericError (ref func boolean: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func integer: expression) is func
+const func boolean: raisesIndexError (in func integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local

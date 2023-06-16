@@ -41,7 +41,7 @@ const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesIndexError (ref func char: expression) is func
+const func boolean: raisesIndexError (in func char: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -56,7 +56,7 @@ const func boolean: raisesIndexError (ref func char: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func bstring: expression) is func
+const func boolean: raisesRangeError (in func bstring: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

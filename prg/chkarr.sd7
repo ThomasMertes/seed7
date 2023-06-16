@@ -81,7 +81,7 @@ const func bitset: setExpr (in bitset: aSet) is
   return aSet;
 
 
-const func boolean: raisesIndexError (ref proc: statement) is func
+const func boolean: raisesIndexError (in proc: statement) is func
   result
     var boolean: raisesIndexError is FALSE;
   begin
@@ -94,7 +94,7 @@ const func boolean: raisesIndexError (ref proc: statement) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func boolean: expression) is func
+const func boolean: raisesIndexError (in func boolean: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -109,7 +109,7 @@ const func boolean: raisesIndexError (ref func boolean: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func integer: expression) is func
+const func boolean: raisesIndexError (in func integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -124,7 +124,7 @@ const func boolean: raisesIndexError (ref func integer: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func bigInteger: expression) is func
+const func boolean: raisesIndexError (in func bigInteger: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -139,7 +139,7 @@ const func boolean: raisesIndexError (ref func bigInteger: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func float: expression) is func
+const func boolean: raisesIndexError (in func float: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -154,7 +154,7 @@ const func boolean: raisesIndexError (ref func float: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func complex: expression) is func
+const func boolean: raisesIndexError (in func complex: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -169,7 +169,7 @@ const func boolean: raisesIndexError (ref func complex: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func char: expression) is func
+const func boolean: raisesIndexError (in func char: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -184,7 +184,7 @@ const func boolean: raisesIndexError (ref func char: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func string: expression) is func
+const func boolean: raisesIndexError (in func string: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -199,7 +199,7 @@ const func boolean: raisesIndexError (ref func string: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func bitset: expression) is func
+const func boolean: raisesIndexError (in func bitset: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -334,7 +334,7 @@ const func boolean: raisesIndexError (ref varfunc bitset: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func array integer: expression) is func
+const func boolean: raisesIndexError (in func array integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -349,7 +349,7 @@ const func boolean: raisesIndexError (ref func array integer: expression) is fun
   end func;
 
 
-const func boolean: raisesIndexError (ref func array bigInteger: expression) is func
+const func boolean: raisesIndexError (in func array bigInteger: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -364,7 +364,7 @@ const func boolean: raisesIndexError (ref func array bigInteger: expression) is 
   end func;
 
 
-const func boolean: raisesIndexError (ref func array float: expression) is func
+const func boolean: raisesIndexError (in func array float: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -379,7 +379,7 @@ const func boolean: raisesIndexError (ref func array float: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func array complex: expression) is func
+const func boolean: raisesIndexError (in func array complex: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -394,7 +394,7 @@ const func boolean: raisesIndexError (ref func array complex: expression) is fun
   end func;
 
 
-const func boolean: raisesIndexError (ref func array char: expression) is func
+const func boolean: raisesIndexError (in func array char: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -409,7 +409,7 @@ const func boolean: raisesIndexError (ref func array char: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func array string: expression) is func
+const func boolean: raisesIndexError (in func array string: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -424,7 +424,7 @@ const func boolean: raisesIndexError (ref func array string: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func array bitset: expression) is func
+const func boolean: raisesIndexError (in func array bitset: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -439,7 +439,7 @@ const func boolean: raisesIndexError (ref func array bitset: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func array boolean: expression) is func
+const func boolean: raisesRangeError (in func array boolean: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -454,7 +454,7 @@ const func boolean: raisesRangeError (ref func array boolean: expression) is fun
   end func;
 
 
-const func boolean: raisesRangeError (ref func array integer: expression) is func
+const func boolean: raisesRangeError (in func array integer: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -469,7 +469,7 @@ const func boolean: raisesRangeError (ref func array integer: expression) is fun
   end func;
 
 
-const func boolean: raisesRangeError (ref func array bigInteger: expression) is func
+const func boolean: raisesRangeError (in func array bigInteger: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -484,7 +484,7 @@ const func boolean: raisesRangeError (ref func array bigInteger: expression) is 
   end func;
 
 
-const func boolean: raisesRangeError (ref func array float: expression) is func
+const func boolean: raisesRangeError (in func array float: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -499,7 +499,7 @@ const func boolean: raisesRangeError (ref func array float: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func array complex: expression) is func
+const func boolean: raisesRangeError (in func array complex: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -514,7 +514,7 @@ const func boolean: raisesRangeError (ref func array complex: expression) is fun
   end func;
 
 
-const func boolean: raisesRangeError (ref func array char: expression) is func
+const func boolean: raisesRangeError (in func array char: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -529,7 +529,7 @@ const func boolean: raisesRangeError (ref func array char: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func array string: expression) is func
+const func boolean: raisesRangeError (in func array string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -544,7 +544,7 @@ const func boolean: raisesRangeError (ref func array string: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func array bitset: expression) is func
+const func boolean: raisesRangeError (in func array bitset: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

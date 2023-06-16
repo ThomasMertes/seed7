@@ -42,7 +42,7 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
-const func boolean: raisesRangeError (ref proc: statement) is func
+const func boolean: raisesRangeError (in proc: statement) is func
   result
     var boolean: raisesRangeError is FALSE;
   begin
@@ -55,7 +55,7 @@ const func boolean: raisesRangeError (ref proc: statement) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func directionType: expression) is func
+const func boolean: raisesRangeError (in func directionType: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

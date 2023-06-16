@@ -125,6 +125,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     # const proc: destroy (ref func func aType param)                      is action "GEN_DESTR";
     # const proc: destroy (ref func varfunc aType param)                   is action "GEN_DESTR";
     IN_PARAM_IS_REFERENCE(func aType);
+    IN_PARAM_IS_REFERENCE(varfunc aType);
 
     const func func aType: func
                            result
@@ -417,21 +418,21 @@ const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is EL
 
 (* WHILE + REPEAT *)
 
-const proc: while (ref func boolean: condition) do (in proc: statement) end while     is action "PRC_WHILE";
-const proc: while (ref varfunc boolean: condition) do (in proc: statement) end while  is action "PRC_WHILE";
-const proc: while (in boolean: condition) do (in proc: statement) end while           is action "PRC_WHILE";
+const proc: while (in func boolean: condition) do (in proc: statement) end while     is action "PRC_WHILE";
+const proc: while (in varfunc boolean: condition) do (in proc: statement) end while  is action "PRC_WHILE";
+const proc: while (in boolean: condition) do (in proc: statement) end while          is action "PRC_WHILE";
 
-const proc: while (ref func boolean: condition) do end while     is action "PRC_WHILE_NOOP";
-const proc: while (ref varfunc boolean: condition) do end while  is action "PRC_WHILE_NOOP";
-const proc: while (in boolean: condition) do end while           is action "PRC_WHILE_NOOP";
+const proc: while (in func boolean: condition) do end while     is action "PRC_WHILE_NOOP";
+const proc: while (in varfunc boolean: condition) do end while  is action "PRC_WHILE_NOOP";
+const proc: while (in boolean: condition) do end while          is action "PRC_WHILE_NOOP";
 
-const proc: repeat (in proc: statement) until (ref func boolean: condition)     is action "PRC_REPEAT";
-const proc: repeat (in proc: statement) until (ref varfunc boolean: condition)  is action "PRC_REPEAT";
-const proc: repeat (in proc: statement) until (in boolean: condition)           is action "PRC_REPEAT";
+const proc: repeat (in proc: statement) until (in func boolean: condition)     is action "PRC_REPEAT";
+const proc: repeat (in proc: statement) until (in varfunc boolean: condition)  is action "PRC_REPEAT";
+const proc: repeat (in proc: statement) until (in boolean: condition)          is action "PRC_REPEAT";
 
-const proc: repeat until (ref func boolean: condition)     is action "PRC_REPEAT_NOOP";
-const proc: repeat until (ref varfunc boolean: condition)  is action "PRC_REPEAT_NOOP";
-const proc: repeat until (in boolean: condition)           is action "PRC_REPEAT_NOOP";
+const proc: repeat until (in func boolean: condition)     is action "PRC_REPEAT_NOOP";
+const proc: repeat until (in varfunc boolean: condition)  is action "PRC_REPEAT_NOOP";
+const proc: repeat until (in boolean: condition)          is action "PRC_REPEAT_NOOP";
 
 
 (* integer *)

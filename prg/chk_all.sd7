@@ -425,7 +425,7 @@ const string: chkexc_output is "\n\
   \1 div 0 in repeat raises NUMERIC_ERROR\n";
 
 
-const proc: igrnoreFileError (ref proc: statement) is func
+const proc: ignoreFileError (in proc: statement) is func
   begin
     block
       statement;
@@ -506,7 +506,7 @@ const func boolean: checkInterpreter (in string: progName, in string: referenceO
       flush(OUT);
     end if;
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-      igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+      ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
     end if;
   end func;
 
@@ -574,7 +574,7 @@ const func boolean: checkCompiler (in string: progName, in string: option,
         moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
       end if;
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-        igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+        ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
       end if;
       compilerOutput := cmdOutput(executeCompiler & option & progName);
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
@@ -596,10 +596,10 @@ const func boolean: checkCompiler (in string: progName, in string: option,
             removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
             if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <> FILE_ABSENT then
-              igrnoreFileError(removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION));
+              ignoreFileError(removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION));
             end if;
             if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-              igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+              ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
             end if;
             write(".");
             flush(OUT);

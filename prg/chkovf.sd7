@@ -49,7 +49,7 @@ const func boolean: boolExpr (ref boolean: value) is
   return value and str(rand(1, 9))[2 ..] = "";
 
 
-const func boolean: raisesOverflowError (ref func integer: expression) is func
+const func boolean: raisesOverflowError (in func integer: expression) is func
   result
     var boolean: raisesOverflowError is FALSE;
   local
@@ -64,7 +64,7 @@ const func boolean: raisesOverflowError (ref func integer: expression) is func
   end func;
 
 
-const func boolean: raisesOverflowError (ref func bin32: expression) is func
+const func boolean: raisesOverflowError (in func bin32: expression) is func
   result
     var boolean: raisesOverflowError is FALSE;
   local
@@ -79,7 +79,7 @@ const func boolean: raisesOverflowError (ref func bin32: expression) is func
   end func;
 
 
-const func boolean: raisesOverflowError (ref proc: statement) is func
+const func boolean: raisesOverflowError (in proc: statement) is func
   result
     var boolean: raisesOverflowError is FALSE;
   begin
@@ -92,7 +92,7 @@ const func boolean: raisesOverflowError (ref proc: statement) is func
   end func;
 
 
-const func string: exceptionName (ref func integer: expression) is func
+const func string: exceptionName (in func integer: expression) is func
   result
     var string: exceptionName is "";
   local
@@ -107,7 +107,7 @@ const func string: exceptionName (ref func integer: expression) is func
   end func;
 
 
-const func string: exceptionName (ref proc: statement) is func
+const func string: exceptionName (in proc: statement) is func
   result
     var string: exceptionName is "";
   begin

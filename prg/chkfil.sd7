@@ -50,7 +50,7 @@ const string: testString is "\0;\A\B\C\D\E\F\G\H^I^J\K\L\M\N\O\
                             \àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\0;";
 
 
-const func boolean: raisesRangeError (ref func file: expression) is func
+const func boolean: raisesRangeError (in func file: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -65,7 +65,7 @@ const func boolean: raisesRangeError (ref func file: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func string: expression) is func
+const func boolean: raisesRangeError (in func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -80,7 +80,7 @@ const func boolean: raisesRangeError (ref func string: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref proc: expression) is func
+const func boolean: raisesRangeError (in proc: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   begin

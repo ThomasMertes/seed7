@@ -53,7 +53,7 @@ const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesRangeError (ref func string: expression) is func
+const func boolean: raisesRangeError (in func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -68,7 +68,7 @@ const func boolean: raisesRangeError (ref func string: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func bigInteger: bigIntExpr) is func
+const func boolean: raisesRangeError (in func bigInteger: bigIntExpr) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -83,7 +83,7 @@ const func boolean: raisesRangeError (ref func bigInteger: bigIntExpr) is func
   end func;
 
 
-const func boolean: raisesNumericError (ref func bigInteger: bigIntExpr) is func
+const func boolean: raisesNumericError (in func bigInteger: bigIntExpr) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -98,7 +98,7 @@ const func boolean: raisesNumericError (ref func bigInteger: bigIntExpr) is func
   end func;
 
 
-const func boolean: raisesNumericError (ref func quotRem: quotRemExpr) is func
+const func boolean: raisesNumericError (in func quotRem: quotRemExpr) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

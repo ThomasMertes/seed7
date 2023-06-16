@@ -38,7 +38,7 @@ const func char: charExpr (in char: ch) is
   return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesIndexError (ref proc: statement) is func
+const func boolean: raisesIndexError (in proc: statement) is func
   result
     var boolean: raisesIndexError is FALSE;
   begin
@@ -51,7 +51,7 @@ const func boolean: raisesIndexError (ref proc: statement) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func char: expression) is func
+const func boolean: raisesIndexError (in func char: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local
@@ -66,7 +66,7 @@ const func boolean: raisesIndexError (ref func char: expression) is func
   end func;
 
 
-const func boolean: raisesIndexError (ref func string: expression) is func
+const func boolean: raisesIndexError (in func string: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
   local

@@ -57,7 +57,7 @@ const func bigInteger: bigintExpr (in bigInteger: number) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func bin32: expression) is func
+const func boolean: raisesRangeError (in func bin32: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -72,7 +72,7 @@ const func boolean: raisesRangeError (ref func bin32: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func bin64: expression) is func
+const func boolean: raisesRangeError (in func bin64: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -87,7 +87,7 @@ const func boolean: raisesRangeError (ref func bin64: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func string: expression) is func
+const func boolean: raisesRangeError (in func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

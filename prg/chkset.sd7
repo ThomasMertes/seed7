@@ -53,7 +53,7 @@ const func boolean: boolExpr (ref boolean: value) is
   return value and str(rand(1, 9))[2 ..] = "";
 
 
-const func boolean: raisesRangeError (ref func bitset: expression) is func
+const func boolean: raisesRangeError (in func bitset: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
@@ -68,7 +68,7 @@ const func boolean: raisesRangeError (ref func bitset: expression) is func
   end func;
 
 
-const func boolean: raisesRangeError (ref func integer: expression) is func
+const func boolean: raisesRangeError (in func integer: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local

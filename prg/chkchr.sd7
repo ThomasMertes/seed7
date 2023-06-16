@@ -39,7 +39,7 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
-const func boolean: raisesRangeError (ref func char: expression) is func
+const func boolean: raisesRangeError (in func char: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
