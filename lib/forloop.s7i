@@ -138,7 +138,7 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
     const proc: for (inout aType: variable)
                 range (in aType: lowerLimit)
                 to (in aType: upperLimit)
-                until (ref func boolean: condition)
+                until (in func boolean: condition)
                 do (in proc: statements) end for is func
       local
         var boolean: continue is FALSE;
@@ -178,7 +178,7 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
     const proc: for (inout aType: variable)
                 range (in aType: upperLimit)
                 downto (in aType: lowerLimit)
-                until (ref func boolean: condition)
+                until (in func boolean: condition)
                 do (in proc: statements) end for is func
       local
         var boolean: continue is FALSE;
@@ -332,7 +332,7 @@ const proc: for (inout char: forVar) key (inout integer: keyVar) range (in strin
  *)
 const proc: for (inout char: forVar)
             range (in string: stri)
-            until (ref func boolean: condition) do
+            until (in func boolean: condition) do
               (in proc: statements)
             end for is func
   local
@@ -379,7 +379,7 @@ const proc: for (inout char: forVar)
  *)
 const proc: for key (inout integer: number)
             range (in string: stri)
-            until (ref func boolean: condition) do
+            until (in func boolean: condition) do
               (in proc: statements)
             end for is func
   begin
@@ -409,7 +409,7 @@ const proc: for key (inout integer: number)
 const proc: for (inout char: forVar)
             key (inout integer: number)
             range (in string: stri)
-            until (ref func boolean: condition) do
+            until (in func boolean: condition) do
               (in proc: statements)
             end for is func
   begin
