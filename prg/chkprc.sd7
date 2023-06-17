@@ -2529,6 +2529,508 @@ const proc: check_for_char_downto is func
   end func;
 
 
+const proc: check_for_char_to_until is func
+  local
+    var boolean: okay is TRUE;
+    var char: ch is ' ';
+    var integer: counter is 0;
+  begin
+    for ch range 'a' to '`' until FALSE do
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (1)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to '`' until boolExpr(FALSE) do
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (3)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to '`' until TRUE do
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to '`' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to '`' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'a' until FALSE do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'a' until boolExpr(FALSE) do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'a' until TRUE do
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'a' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'a' until ch = 'a' do
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (9)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'a' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'b' until FALSE do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or counter <> 2 then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'b' until boolExpr(FALSE) do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or counter <> 2 then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'b' until TRUE do
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'b' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'b' until ch = 'a' do
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (9)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'b' until ch = 'b' do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or counter <> 1 then
+      writeln(" ***** for char range 'a' to 'b' until ...  does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'c' until FALSE do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'c' or counter <> 3 then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'c' until boolExpr(FALSE) do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'c' or counter <> 3 then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'c' until TRUE do
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'c' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' to 'c' until ch = 'a' do
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (9)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'c' until ch = 'b' do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or counter <> 1 then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for ch range 'a' to 'c' until ch = 'c' do
+      incr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (13)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'c' or counter <> 2 then
+      writeln(" ***** for char range 'a' to 'c' until ...  does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For char to until statements work correctly.");
+    else
+      writeln(" ***** For char to until statements do not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_char_downto_until is func
+  local
+    var boolean: okay is TRUE;
+    var char: ch is ' ';
+    var integer: counter is 0;
+  begin
+    for ch range '`' downto 'a' until FALSE do
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (1)");
+      okay := FALSE;
+    end for;
+    if ch <> '`' then
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    for ch range '`' downto 'a' until boolExpr(FALSE) do
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (3)");
+      okay := FALSE;
+    end for;
+    if ch <> '`' then
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range '`' downto 'a' until TRUE do
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> '`' then
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range '`' downto 'a' until boolExpr(TRUE) do
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> '`' then
+      writeln(" ***** for char range '`' downto 'a' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 2;
+    for ch range 'a' downto 'a' until FALSE do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 2;
+    for ch range 'a' downto 'a' until boolExpr(FALSE) do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' downto 'a' until TRUE do
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' downto 'a' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'a' downto 'a' until ch = 'a' do
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (9)");
+      okay := FALSE;
+    end for;
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' downto 'a' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for ch range 'b' downto 'a' until FALSE do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for ch range 'b' downto 'a' until boolExpr(FALSE) do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'b' downto 'a' until TRUE do
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'b' then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'b' downto 'a' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'b' then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'b' downto 'a' until ch = 'b' do
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (9)");
+      okay := FALSE;
+    end for;
+    if ch <> 'b' then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for ch range 'b' downto 'a' until ch = 'a' do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 2 then
+      writeln(" ***** for char range 'b' downto 'a' until ...  does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for ch range 'c' downto 'a' until FALSE do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for ch range 'c' downto 'a' until boolExpr(FALSE) do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 1 then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'c' downto 'a' until TRUE do
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (5)");
+      okay := FALSE;
+    end for;
+    if ch <> 'c' then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    for ch range 'c' downto 'a' until boolExpr(TRUE) do
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (7)");
+      okay := FALSE;
+    end for;
+    if ch <> 'c' then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for ch range 'c' downto 'a' until ch = 'c' do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (9)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'c' or counter <> 4 then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for ch range 'c' downto 'a' until ch = 'b' do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or counter <> 3 then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for ch range 'c' downto 'a' until ch = 'a' do
+      decr(counter);
+      if ch <> char(ord('`') + counter) then
+        writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (13)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or counter <> 2 then
+      writeln(" ***** for char range 'c' downto 'a' until ...  does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For char downto until statements work correctly.");
+    else
+      writeln(" ***** For char downto until statements do not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_for_bool_to is func
   local
     var boolean: okay is TRUE;
@@ -5987,6 +6489,8 @@ const proc: main is func
     check_for_int_downto_until;
     check_for_char_to;
     check_for_char_downto;
+    check_for_char_to_until;
+    check_for_char_downto_until;
     check_for_bool_to;
     check_for_bool_downto;
     check_for_big_to;

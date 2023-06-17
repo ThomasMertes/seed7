@@ -242,6 +242,8 @@ const string: chkprc_output is "\n\
   \For downto until statements work correctly.\n\
   \For char to statements work correctly.\n\
   \For char downto statements work correctly.\n\
+  \For char to until statements work correctly.\n\
+  \For char downto until statements work correctly.\n\
   \For boolean to statements work correctly.\n\
   \For boolean downto statements work correctly.\n\
   \For bigInteger statements work correctly.\n\
