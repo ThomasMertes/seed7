@@ -2602,8 +2602,81 @@ striType strHead (const const_striType stri, const intType stop)
 /**
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
+ *  StrHeadAssign is used by the compiler for expressions like:
+ *    aString = strHeadAssign(aString, anIndex);
+ *  In case of an error 'stri' must be kept intact.
+ *  Freeing 'stri' would trigger a heap corruption.
+ *  @return the substring ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType strHeadAssign (const striType stri, const intType stop)
+
+  {
+    memSizeType striSize;
+    memSizeType headSize;
+    striType head;
+
+  /* strHeadAssign */
+    logFunction(printf("strHeadAssign(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start);
+                fflush(stdout););
+    if (unlikely(stop < 0)) {
+      logError(printf("strHeadAssign: Stop negative."););
+      /* We keep stri intact to avoid a heap corruption. */
+      raise_error(INDEX_ERROR);
+    } else {
+      striSize = stri->size;
+      if (stop >= 1 && striSize >= 1) {
+        if (striSize <= (uintType) stop) {
+          logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
+          return stri;
+        } else {
+          headSize = (memSizeType) stop;
+        } /* if */
+      } else {
+        headSize = 0;
+      } /* if */
+      stri->size = headSize;
+#if WITH_STRI_CAPACITY
+      if (!SHRINK_REASON(stri, headSize)) {
+        COUNT_GROW2_STRI(striSize, headSize);
+        head = stri;
+      } else {
+        head = shrinkStri(stri, headSize);
+        if (unlikely(head == NULL)) {
+          /* Theoretical shrinking a memory area should never fail.  */
+          /* For the strange case that it fails we keep stri intact  */
+          /* with the oversized capacity.                            */
+          head = stri;
+        } else {
+          COUNT_SHRINK_STRI(striSize, headSize);
+        } /* if */
+      } /* if */
+#else
+      SHRINK_STRI(head, stri, striSize, headSize);
+      if (unlikely(head == NULL)) {
+        /* Theoretical shrinking a memory area should never fail.  */
+        /* For the strange case that it fails we keep stri intact  */
+        /* with the oversized memory usage.                        */
+        tail = stri;
+      } else {
+        COUNT_SHRINK_STRI(striSize, headSize);
+      } /* if */
+#endif
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
+    return head;
+  } /* strHeadAssign */
+
+
+
+/**
+ *  Get a substring ending at a stop position.
+ *  The first character in a string has the position 1.
  *  StrHeadTemp is used by the compiler if 'stri' is temporary
- *  value that can be reused.
+ *  value that can be reused. In case of an error 'stri' can be
+ *  freed, because it is guaranteed to be a temorary value.
  *  @return the substring ending at the stop position.
  *  @exception INDEX_ERROR The stop position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -2616,58 +2689,54 @@ striType strHeadTemp (const striType stri, const intType stop)
     striType head;
 
   /* strHeadTemp */
-    striSize = stri->size;
-    if (stop >= 1 && striSize >= 1) {
-      if (striSize <= (uintType) stop) {
-        return stri;
-      } else {
-        headSize = (memSizeType) stop;
-      } /* if */
-    } else if (unlikely(stop < 0)) {
+    logFunction(printf("strHeadTemp(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start);
+                fflush(stdout););
+    if (unlikely(stop < 0)) {
       logError(printf("strHeadTemp: Stop negative."););
       FREE_STRI(stri, stri->size);
       raise_error(INDEX_ERROR);
-      return NULL;
     } else {
-      headSize = 0;
-    } /* if */
+      striSize = stri->size;
+      if (stop >= 1 && striSize >= 1) {
+        if (striSize <= (uintType) stop) {
+          logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
+          return stri;
+        } else {
+          headSize = (memSizeType) stop;
+        } /* if */
+      } else {
+	headSize = 0;
+      } /* if */
+      stri->size = headSize;
 #if WITH_STRI_CAPACITY
-    if (!SHRINK_REASON(stri, headSize)) {
-      COUNT_GROW2_STRI(striSize, headSize);
-      head = stri;
-      head->size = headSize;
-    } else {
-      head = shrinkStri(stri, headSize);
+      if (!SHRINK_REASON(stri, headSize)) {
+        COUNT_GROW2_STRI(striSize, headSize);
+        head = stri;
+      } else {
+        head = shrinkStri(stri, headSize);
+        if (unlikely(head == NULL)) {
+          /* Theoretical shrinking a memory area should never fail.  */
+          /* For the strange case that it fails we keep stri intact  */
+          /* with the oversized capacity.                            */
+          head = stri;
+        } else {
+          COUNT_SHRINK_STRI(striSize, headSize);
+        } /* if */
+      } /* if */
+#else
+      SHRINK_STRI(head, stri, striSize, headSize);
       if (unlikely(head == NULL)) {
         /* Theoretical shrinking a memory area should never fail.  */
         /* For the strange case that it fails we keep stri intact  */
-        /* to avoid a heap corruption. Consider this expression:   */
-        /* aString = strHeadTemp(aString, anIndex);                */
-        /* In compiled programs the assignment to aString would be */
-        /* skipped because raise_error triggers a longjmp().       */
-        /* Therefore stri would keep the old value.                */
-        /* If shrinking a memory area fails with the expression:   */
-        /* strHeadTemp(anExpression, anIndex)                      */
-        /* the result of anExpression is not freed (memory leak).  */
-        /* FREE_STRI(stri, stri->size); */
-        raise_error(MEMORY_ERROR);
+        /* with the oversized memory usage.                        */
+        tail = stri;
       } else {
         COUNT_SHRINK_STRI(striSize, headSize);
-        head->size = headSize;
       } /* if */
-    } /* if */
-#else
-    SHRINK_STRI(head, stri, striSize, headSize);
-    if (unlikely(head == NULL)) {
-      /* Theoretical shrinking a memory area should never fail.  */
-      /* See above for a description of this situation.          */
-      /* FREE_STRI(stri, stri->size); */
-      raise_error(MEMORY_ERROR);
-    } else {
-      COUNT_SHRINK_STRI(striSize, headSize);
-      head->size = headSize;
-    } /* if */
 #endif
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
     return head;
   } /* strHeadTemp */
 
@@ -2963,7 +3032,13 @@ striType strLow (const const_striType stri)
 /**
  *  Convert a string to lower case.
  *  StrLowTemp is used by the compiler if 'stri' is temporary
- *  value that can be reused.
+ *  value that can be reused. Additionally strLowTemp
+ *  is used by the compiler for expressions like:
+ *    aString = strLowTemp(aString);
+ *  Since the conversion to lower case does not raise an error
+ *  strLowTemp can be used as optimization for both cases.
+ *  If an error would occur 'stri' must be kept intact.
+ *  Freeing 'stri' would trigger a heap corruption.
  *  @return the string converted to lower case.
  */
 striType strLowTemp (const striType stri)
@@ -4474,29 +4549,32 @@ striType strTail (const const_striType stri, intType start)
 /**
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
- *  StrTailTemp is used by the compiler if 'stri' is temporary
- *  value that can be reused.
+ *  StrTailAssign is used by the compiler for expressions like:
+ *    aString = strTailAssign(aString, anIndex);
+ *  In case of an error 'stri' must be kept intact.
+ *  Freeing 'stri' would trigger a heap corruption.
  *  @return the substring beginning at the start position.
  *  @exception INDEX_ERROR The start position is negative or zero.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType strTailTemp (const striType stri, intType start)
+striType strTailAssign (const striType stri, intType start)
 
   {
     memSizeType striSize;
     memSizeType tailSize;
     striType tail;
 
-  /* strTailTemp */
+  /* strTailAssign */
+    logFunction(printf("strTailAssign(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start);
+                fflush(stdout););
     if (start <= 1) {
       if (unlikely(start < 1)) {
-        logError(printf("strTailTemp: Start negative or zero."););
-        FREE_STRI(stri, stri->size);
+        logError(printf("strTailAssign: Start negative or zero."););
+        /* We keep stri intact to avoid a heap corruption. */
         raise_error(INDEX_ERROR);
-        tail = NULL;
-      } else {
-        tail = stri;
       } /* if */
+      tail = stri;
     } else {
       striSize = stri->size;
       if ((uintType) start <= striSize && striSize >= 1) {
@@ -4534,8 +4612,9 @@ striType strTailTemp (const striType stri, intType start)
       } /* if */
 #endif
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(tail)););
     return tail;
-  } /* strTailTemp */
+  } /* strTailAssign */
 
 
 
@@ -4687,7 +4766,13 @@ striType strUp (const const_striType stri)
 /**
  *  Convert a string to upper case.
  *  StrUpTemp is used by the compiler if 'stri' is temporary
- *  value that can be reused.
+ *  value that can be reused. Additionally strUpTemp
+ *  is used by the compiler for expressions like:
+ *    aString = strUpTemp(aString);
+ *  Since the conversion to upper case does not raise an error
+ *  strUpTemp can be used as optimization for both cases.
+ *  If an error would occur 'stri' must be kept intact.
+ *  Freeing 'stri' would trigger a heap corruption.
  *  @return the string converted to lower case.
  */
 striType strUpTemp (const striType stri)

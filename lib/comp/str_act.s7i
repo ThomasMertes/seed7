@@ -109,6 +109,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     strHashCode (const const_striType);");
     declareExtern(c_prog, "striType    strHead (const_striType, intType);");
     declareExtern(c_prog, "void        strHeadSlice (const const_striType, const intType, striType);");
+    declareExtern(c_prog, "striType    strHeadAssign (const striType, const intType);");
     declareExtern(c_prog, "striType    strHeadTemp (const striType, const intType);");
     declareExtern(c_prog, "intType     strIPos (const const_striType, const const_striType, const intType);");
     declareExtern(c_prog, "boolType    strLe (const const_striType, const const_striType);");
@@ -140,7 +141,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        strSubstrFixLenSlice (const const_striType, intType, intType, striType);");
     declareExtern(c_prog, "striType    strTail (const_striType, intType);");
     declareExtern(c_prog, "void        strTailSlice (const const_striType, intType, striType);");
-    declareExtern(c_prog, "striType    strTailTemp (const striType, intType);");
+    declareExtern(c_prog, "striType    strTailAssign (const striType, intType);");
     declareExtern(c_prog, "striType    strToUtf8 (const const_striType);");
     declareExtern(c_prog, "striType    strTrim (const const_striType);");
     declareExtern(c_prog, "striType    strUp (const const_striType);");
@@ -710,7 +711,7 @@ const proc: process (STR_CPY, in reference: function,
       if isActionExpression(params[3], "STR_HEAD") and
           getActionParameter(params[3], 1) = params[1] then
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strHeadTemp(";
+        statement.expr &:= "=strHeadAssign(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ", ";
         process_expr(getActionParameter(params[3], 4), statement);
@@ -718,7 +719,7 @@ const proc: process (STR_CPY, in reference: function,
       elsif isActionExpression(params[3], "STR_TAIL") and
           getActionParameter(params[3], 1) = params[1] then
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strTailTemp(";
+        statement.expr &:= "=strTailAssign(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ", ";
         process_expr(getActionParameter(params[3], 3), statement);
@@ -4330,7 +4331,7 @@ const proc: process_inline_str_tail (in reference: stri,
       if start_is_variable then
         if string_index_check then
           start_range := getIntRange(start);
-          if start_range.minValue < 0 then
+          if start_range.minValue < 1 then
             incr(countIndexChecks);
             c_expr.expr &:= "idxChk(";
             c_expr.expr &:= start_name;

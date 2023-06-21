@@ -80,6 +80,7 @@ intType strHashCode (const const_striType stri);
 void strHeadSlice (const const_striType stri, const intType stop, striType slice);
 #endif
 striType strHead (const const_striType stri, const intType stop);
+striType strHeadAssign (const striType stri, const intType stop);
 striType strHeadTemp (const striType stri, const intType stop);
 intType strIPos (const const_striType mainStri, const const_striType searched,
     const intType fromIndex);
@@ -127,7 +128,7 @@ striType strSubstrFixLen (const const_striType stri, intType start,
 void strTailSlice (const const_striType stri, intType start, striType slice);
 #endif
 striType strTail (const const_striType stri, intType start);
-striType strTailTemp (const striType stri, intType start);
+striType strTailAssign (const striType stri, intType start);
 striType strToUtf8 (const const_striType stri);
 striType strTrim (const const_striType stri);
 striType strUp (const const_striType stri);
