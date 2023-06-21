@@ -81,6 +81,21 @@ const func boolean: raisesIndexError (in func string: expression) is func
   end func;
 
 
+const func boolean: raisesIndexError (in func boolean: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var boolean: exprResult is FALSE;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_string_index is func
   local
     var boolean: okay is TRUE;
@@ -206,18 +221,20 @@ const func string: headFunction (in string: stri, in integer: stop) is
 const proc: check_string_head is func
   local
     var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
     var string: stri is "";
     var string: stri2 is "";
   begin
     if  not raisesIndexError("" [ .. integer.first ]) or
         not raisesIndexError("" [ ..            -5 ]) or
+        not raisesIndexError("" [ ..            -2 ]) or
         not raisesIndexError("" [ ..            -1 ]) or
         not raisesIndexError("1" [ .. integer.first ]) or
         not raisesIndexError("1" [ ..            -5 ]) or
+        not raisesIndexError("1" [ ..            -2 ]) or
         not raisesIndexError("1" [ ..            -1 ]) or
         not raisesIndexError("1234567890" [ .. integer.first ]) or
         not raisesIndexError("1234567890" [ ..            -5 ]) or
+        not raisesIndexError("1234567890" [ ..            -2 ]) or
         not raisesIndexError("1234567890" [ ..            -1 ]) then
       writeln(" ***** STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
@@ -225,12 +242,15 @@ const proc: check_string_head is func
 
     if  not raisesIndexError("" [ .. intExpr(integer.first) ]) or
         not raisesIndexError("" [ .. intExpr(           -5) ]) or
+        not raisesIndexError("" [ .. intExpr(           -2) ]) or
         not raisesIndexError("" [ .. intExpr(           -1) ]) or
         not raisesIndexError("1" [ .. intExpr(integer.first) ]) or
         not raisesIndexError("1" [ .. intExpr(           -5) ]) or
+        not raisesIndexError("1" [ .. intExpr(           -2) ]) or
         not raisesIndexError("1" [ .. intExpr(           -1) ]) or
         not raisesIndexError("1234567890" [ .. intExpr(integer.first) ]) or
         not raisesIndexError("1234567890" [ .. intExpr(           -5) ]) or
+        not raisesIndexError("1234567890" [ .. intExpr(           -2) ]) or
         not raisesIndexError("1234567890" [ .. intExpr(           -1) ]) then
       writeln(" ***** STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
@@ -238,12 +258,15 @@ const proc: check_string_head is func
 
     if  not raisesIndexError(striExpr("") [ .. integer.first ]) or
         not raisesIndexError(striExpr("") [ ..            -5 ]) or
+        not raisesIndexError(striExpr("") [ ..            -2 ]) or
         not raisesIndexError(striExpr("") [ ..            -1 ]) or
         not raisesIndexError(striExpr("1") [ .. integer.first ]) or
         not raisesIndexError(striExpr("1") [ ..            -5 ]) or
+        not raisesIndexError(striExpr("1") [ ..            -2 ]) or
         not raisesIndexError(striExpr("1") [ ..            -1 ]) or
         not raisesIndexError(striExpr("1234567890") [ .. integer.first ]) or
         not raisesIndexError(striExpr("1234567890") [ ..            -5 ]) or
+        not raisesIndexError(striExpr("1234567890") [ ..            -2 ]) or
         not raisesIndexError(striExpr("1234567890") [ ..            -1 ]) then
       writeln(" ***** STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
@@ -251,83 +274,183 @@ const proc: check_string_head is func
 
     if  not raisesIndexError(striExpr("") [ .. intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(striExpr("") [ .. intExpr(           -2) ]) or
         not raisesIndexError(striExpr("") [ .. intExpr(           -1) ]) or
         not raisesIndexError(striExpr("1") [ .. intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("1") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(striExpr("1") [ .. intExpr(           -2) ]) or
         not raisesIndexError(striExpr("1") [ .. intExpr(           -1) ]) or
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(integer.first) ]) or
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -2) ]) or
         not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -1) ]) then
       writeln(" ***** STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
-    ok := raisesIndexError(stri := "" [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := "" [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := "" [ ..            -1 ]) and ok;
-    ok := raisesIndexError(stri := "1" [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := "1" [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := "1" [ ..            -1 ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ ..            -1 ]) and ok;
-    if not ok then
+    if  not raisesIndexError("" [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError("" [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError("" [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError("" [ ..            -1 ] = "abcdefgh") or
+        not raisesIndexError("1" [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError("1" [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError("1" [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError("1" [ ..            -1 ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ ..            -1 ] = "abcdefgh") then
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("" [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError("" [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError("" [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError("" [ .. intExpr(           -1) ] = "abcdefgh") or
+        not raisesIndexError("1" [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError("1" [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError("1" [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError("1" [ .. intExpr(           -1) ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ .. intExpr(           -1) ] = "abcdefgh") then
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ ..            -1 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ ..            -1 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ ..            -1 ] = "abcdefgh") then
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ .. intExpr(           -1) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ .. intExpr(           -1) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ .. intExpr(           -1) ] = "abcdefgh") then
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    stri := "1234567890";
+    if  not raisesIndexError(stri[ .. integer.first ] = "abcdefgh") or
+        not raisesIndexError(stri[ ..            -5 ] = "abcdefgh") or
+        not raisesIndexError(stri[ ..            -2 ] = "abcdefgh") or
+        not raisesIndexError(stri[ ..            -1 ] = "abcdefgh") or
+        not raisesIndexError(stri[ .. intExpr(integer.first) ] = "abcdefgh") or
+        not raisesIndexError(stri[ .. intExpr(           -5) ] = "abcdefgh") or
+        not raisesIndexError(stri[ .. intExpr(           -2) ] = "abcdefgh") or
+        not raisesIndexError(stri[ .. intExpr(           -1) ] = "abcdefgh") then
+      writeln(" ***** STRING [ .. STOP ] does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := "" [ .. integer.first ]) or
+        not raisesIndexError(stri := "" [ ..            -5 ]) or
+        not raisesIndexError(stri := "" [ ..            -2 ]) or
+        not raisesIndexError(stri := "" [ ..            -1 ]) or
+        not raisesIndexError(stri := "1" [ .. integer.first ]) or
+        not raisesIndexError(stri := "1" [ ..            -5 ]) or
+        not raisesIndexError(stri := "1" [ ..            -2 ]) or
+        not raisesIndexError(stri := "1" [ ..            -1 ]) or
+        not raisesIndexError(stri := "1234567890" [ .. integer.first ]) or
+        not raisesIndexError(stri := "1234567890" [ ..            -5 ]) or
+        not raisesIndexError(stri := "1234567890" [ ..            -2 ]) or
+        not raisesIndexError(stri := "1234567890" [ ..            -1 ]) then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := "" [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := "" [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := "" [ .. intExpr(           -1) ]) and ok;
-    ok := raisesIndexError(stri := "1" [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := "1" [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := "1" [ .. intExpr(           -1) ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ .. intExpr(           -1) ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := "" [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := "" [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := "" [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := "" [ .. intExpr(           -1) ]) or
+        not raisesIndexError(stri := "1" [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := "1" [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := "1" [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := "1" [ .. intExpr(           -1) ]) or
+        not raisesIndexError(stri := "1234567890" [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := "1234567890" [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := "1234567890" [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := "1234567890" [ .. intExpr(           -1) ]) then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := striExpr("") [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ ..            -1 ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ ..            -1 ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ ..            -5 ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ ..            -1 ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := striExpr("") [ .. integer.first ]) or
+        not raisesIndexError(stri := striExpr("") [ ..            -5 ]) or
+        not raisesIndexError(stri := striExpr("") [ ..            -2 ]) or
+        not raisesIndexError(stri := striExpr("") [ ..            -1 ]) or
+        not raisesIndexError(stri := striExpr("1") [ .. integer.first ]) or
+        not raisesIndexError(stri := striExpr("1") [ ..            -5 ]) or
+        not raisesIndexError(stri := striExpr("1") [ ..            -2 ]) or
+        not raisesIndexError(stri := striExpr("1") [ ..            -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ .. integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ ..            -5 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ ..            -2 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ ..            -1 ]) then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := striExpr("") [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ .. intExpr(           -1) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ .. intExpr(           -1) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(integer.first) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -5) ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -1) ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := striExpr("") [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := striExpr("") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := striExpr("") [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := striExpr("") [ .. intExpr(           -1) ]) or
+        not raisesIndexError(stri := striExpr("1") [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := striExpr("1") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := striExpr("1") [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := striExpr("1") [ .. intExpr(           -1) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ .. intExpr(           -1) ]) then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (4)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
     stri := "";
-    ok := raisesIndexError(stri2 := stri [ .. integer.first ]) and ok;
-    ok := raisesIndexError(stri2 := stri [ ..            -2 ]) and ok;
-    ok := raisesIndexError(stri2 := stri [ ..            -1 ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri2 := stri [ .. integer.first ]) or
+        not raisesIndexError(stri2 := stri [ ..            -5 ]) or
+        not raisesIndexError(stri2 := stri [ ..            -2 ]) or
+        not raisesIndexError(stri2 := stri [ ..            -1 ]) or
+        not raisesIndexError(stri2 := stri [ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri2 := stri [ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri2 := stri [ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri2 := stri [ .. intExpr(           -1) ]) then
       writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := stri[ .. integer.first ]) or
+        not raisesIndexError(stri := stri[ ..            -5 ]) or
+        not raisesIndexError(stri := stri[ ..            -2 ]) or
+        not raisesIndexError(stri := stri[ ..            -1 ]) or
+        not raisesIndexError(stri := stri[ .. intExpr(integer.first) ]) or
+        not raisesIndexError(stri := stri[ .. intExpr(           -5) ]) or
+        not raisesIndexError(stri := stri[ .. intExpr(           -2) ]) or
+        not raisesIndexError(stri := stri[ .. intExpr(           -1) ]) then
+      writeln(" ***** stri := STRING [ .. STOP ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -438,8 +561,8 @@ const func string: tailFunction (in string: stri, in integer: start) is
 const proc: check_string_tail is func
   local
     var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
     var string: stri is "";
+    var string: stri2 is "";
   begin
     if  not raisesIndexError("" [ integer.first .. ]) or
         not raisesIndexError("" [            -5 .. ]) or
@@ -505,74 +628,169 @@ const proc: check_string_tail is func
       okay := FALSE;
     end if;
 
-    ok := raisesIndexError(stri := "" [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := "" [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := "" [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := "" [             0 .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [             0 .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [             0 .. ]) and ok;
-    if not ok then
+    if  not raisesIndexError("" [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError("" [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError("" [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError("" [             0 .. ] = "abcdefgh") or
+        not raisesIndexError("1" [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError("1" [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError("1" [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError("1" [             0 .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [             0 .. ] = "abcdefgh") then
+      writeln(" ***** STRING [ START .. ] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("" [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError("" [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError("" [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError("" [ intExpr(            0) .. ] = "abcdefgh") or
+        not raisesIndexError("1" [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError("1" [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError("1" [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError("1" [ intExpr(            0) .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError("1234567890" [ intExpr(            0) .. ] = "abcdefgh") then
+      writeln(" ***** STRING [ START .. ] does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [             0 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [             0 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [            -5 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [            -1 .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [             0 .. ] = "abcdefgh") then
+      writeln(" ***** STRING [ START .. ] does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("") [ intExpr(            0) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1") [ intExpr(            0) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError(striExpr("1234567890") [ intExpr(            0) .. ] = "abcdefgh") then
+      writeln(" ***** STRING [ START .. ] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    stri := "1234567890";
+    if  not raisesIndexError(stri[ integer.first .. ] = "abcdefgh") or
+        not raisesIndexError(stri[            -5 .. ] = "abcdefgh") or
+        not raisesIndexError(stri[            -1 .. ] = "abcdefgh") or
+        not raisesIndexError(stri[             0 .. ] = "abcdefgh") or
+        not raisesIndexError(stri[ intExpr(integer.first) .. ] = "abcdefgh") or
+        not raisesIndexError(stri[ intExpr(           -5) .. ] = "abcdefgh") or
+        not raisesIndexError(stri[ intExpr(           -1) .. ] = "abcdefgh") or
+        not raisesIndexError(stri[ intExpr(            0) .. ] = "abcdefgh") then
+      writeln(" ***** STRING [ START .. ] does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := "" [ integer.first .. ]) or
+        not raisesIndexError(stri := "" [            -5 .. ]) or
+        not raisesIndexError(stri := "" [            -1 .. ]) or
+        not raisesIndexError(stri := "" [             0 .. ]) or
+        not raisesIndexError(stri := "1" [ integer.first .. ]) or
+        not raisesIndexError(stri := "1" [            -5 .. ]) or
+        not raisesIndexError(stri := "1" [            -1 .. ]) or
+        not raisesIndexError(stri := "1" [             0 .. ]) or
+        not raisesIndexError(stri := "1234567890" [ integer.first .. ]) or
+        not raisesIndexError(stri := "1234567890" [            -5 .. ]) or
+        not raisesIndexError(stri := "1234567890" [            -1 .. ]) or
+        not raisesIndexError(stri := "1234567890" [             0 .. ]) then
       writeln(" ***** stri := STRING [ START .. ] does not work correctly. (1)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := "" [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := "" [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := "" [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := "" [ intExpr(            0) .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := "1" [ intExpr(            0) .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := "1234567890" [ intExpr(            0) .. ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := "" [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := "" [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := "" [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := "" [ intExpr(            0) .. ]) or
+        not raisesIndexError(stri := "1" [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := "1" [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := "1" [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := "1" [ intExpr(            0) .. ]) or
+        not raisesIndexError(stri := "1234567890" [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := "1234567890" [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := "1234567890" [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := "1234567890" [ intExpr(            0) .. ]) then
       writeln(" ***** stri := STRING [ START .. ] does not work correctly. (2)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := striExpr("") [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [             0 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [             0 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ integer.first .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [            -5 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [            -1 .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [             0 .. ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := striExpr("") [ integer.first .. ]) or
+        not raisesIndexError(stri := striExpr("") [            -5 .. ]) or
+        not raisesIndexError(stri := striExpr("") [            -1 .. ]) or
+        not raisesIndexError(stri := striExpr("") [             0 .. ]) or
+        not raisesIndexError(stri := striExpr("1") [ integer.first .. ]) or
+        not raisesIndexError(stri := striExpr("1") [            -5 .. ]) or
+        not raisesIndexError(stri := striExpr("1") [            -1 .. ]) or
+        not raisesIndexError(stri := striExpr("1") [             0 .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ integer.first .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            -5 .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            -1 .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [             0 .. ]) then
       writeln(" ***** stri := STRING [ START .. ] does not work correctly. (3)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    ok := raisesIndexError(stri := striExpr("") [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("") [ intExpr(            0) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1") [ intExpr(            0) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(integer.first) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(           -5) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(           -1) .. ]) and ok;
-    ok := raisesIndexError(stri := striExpr("1234567890") [ intExpr(            0) .. ]) and ok;
-    if not ok then
+    if  not raisesIndexError(stri := striExpr("") [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := striExpr("") [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := striExpr("") [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := striExpr("") [ intExpr(            0) .. ]) or
+        not raisesIndexError(stri := striExpr("1") [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := striExpr("1") [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := striExpr("1") [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := striExpr("1") [ intExpr(            0) .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ intExpr(            0) .. ]) then
       writeln(" ***** stri := STRING [ START .. ] does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    stri := "";
+    if  not raisesIndexError(stri2 := stri [ integer.first .. ]) or
+        not raisesIndexError(stri2 := stri [            -5 .. ]) or
+        not raisesIndexError(stri2 := stri [            -1 .. ]) or
+        not raisesIndexError(stri2 := stri [             0 .. ]) or
+        not raisesIndexError(stri2 := stri [ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri2 := stri [ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri2 := stri [ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri2 := stri [ intExpr(            0) .. ]) then
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := stri[ integer.first .. ]) or
+        not raisesIndexError(stri := stri[            -5 .. ]) or
+        not raisesIndexError(stri := stri[            -1 .. ]) or
+        not raisesIndexError(stri := stri[             0 .. ]) or
+        not raisesIndexError(stri := stri[ intExpr(integer.first) .. ]) or
+        not raisesIndexError(stri := stri[ intExpr(           -5) .. ]) or
+        not raisesIndexError(stri := stri[ intExpr(           -1) .. ]) or
+        not raisesIndexError(stri := stri[ intExpr(            0) .. ]) then
+      writeln(" ***** stri := STRING [ START .. ] does not work correctly. (6)");
       okay := FALSE;
     end if;
 
