@@ -296,6 +296,11 @@ intType setCmp (const const_setType set1, const const_setType set2)
     const bitSetType *bitset2;
 
   /* setCmp */
+    logFunction(printf("setCmp(");
+                printSet(set1);
+                printf(", ");
+                printSet(set2);
+                printf(")\n"););
     if (set1->max_position >= set2->max_position) {
       if (set1->min_position > set2->max_position) {
         bitset_index = 0;

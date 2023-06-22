@@ -83,6 +83,21 @@ const func boolean: raisesRangeError (in func integer: expression) is func
   end func;
 
 
+const func boolean: raisesRangeError (in func string: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var string: exprResult is "";
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_literal is func
   local
     var boolean: okay is TRUE;
@@ -496,7 +511,14 @@ const proc: check_rand is func
     test_set := EMPTY_SET;
     if  not raisesRangeError(rand(EMPTY_SET)) or
         not raisesRangeError(rand(test_set)) then
-      writeln(" ***** rand(EMPTY_SET) does not raise RANGE_ERROR.");
+      writeln(" ***** rand(EMPTY_SET) does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    test_set2 := (set of string).EMPTY_SET;
+    if  not raisesRangeError(rand((set of string).EMPTY_SET)) or
+        not raisesRangeError(rand(test_set2)) then
+      writeln(" ***** rand(EMPTY_SET) does not raise RANGE_ERROR. (2)");
       okay := FALSE;
     end if;
 
