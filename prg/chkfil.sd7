@@ -562,6 +562,10 @@ const proc: check_file_seek is func
       aFile := open("qwerty", "w");
       if aFile <> STD_NULL then
         writeln(aFile, "qwertyuiop");
+        if not seekable(aFile) then
+          writeln("A regular file is not seekable. (1)");
+          okay := FALSE;
+        end if;
         seek(aFile, END_MARKER_POS);
         writeln(aFile, SEEK_TEST_END_MARKER);
         close(aFile);
@@ -584,6 +588,10 @@ const proc: check_file_seek is func
             okay := FALSE;
           end if;
           stri := "";
+          if not seekable(aFile) then
+            writeln("A regular file is not seekable. (2)");
+            okay := FALSE;
+          end if;
           seek(aFile, END_MARKER_POS);
           read(aFile, stri);
           if stri <> "this" then
@@ -618,6 +626,15 @@ const proc: check_file_seek is func
             writeln("gets(file, 999999999) does not work correctly. (4)");
             okay := FALSE;
           end if;
+          seek(aFile, END_MARKER_POS);
+          if tell(aFile) <> END_MARKER_POS then
+            writeln("tell(aFile) does not return the position set by seek. (1)");
+            okay := FALSE;
+          end if;
+          if bigTell(aFile) <> bigInteger(END_MARKER_POS) then
+            writeln("tell(aFile) does not return the position set by seek. (2)");
+            okay := FALSE;
+          end if;
           if length(aFile) <> SEEK_TEST_FILE_SIZE then
             writeln("length(aFile) returns " <& length(aFile) <&
                     " instead of " <& SEEK_TEST_FILE_SIZE <& ". (1)");
@@ -626,6 +643,16 @@ const proc: check_file_seek is func
           if bigLength(aFile) <> bigInteger(SEEK_TEST_FILE_SIZE) then
             writeln("bigLength(aFile) returns " <& bigLength(aFile) <&
                     " instead of " <& SEEK_TEST_FILE_SIZE <& ". (1)");
+            okay := FALSE;
+          end if;
+          if  not raisesRangeError(seek(aFile, -2147483648)) or
+              not raisesRangeError(seek(aFile,           0)) then
+            writeln("seek with negative number does not raise RANGE_ERROR. (1)");
+            okay := FALSE;
+          end if;
+          if  not raisesRangeError(seek(aFile, -2147483648_)) or
+              not raisesRangeError(seek(aFile,           0_)) then
+            writeln("seek with negative number does not raise RANGE_ERROR. (2)");
             okay := FALSE;
           end if;
           close(aFile);
