@@ -568,7 +568,7 @@ const proc: process (HSH_LNG, in reference: function,
 
   begin
     c_expr.expr &:= "(intType)((";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")->size)";
   end func;
 
@@ -583,7 +583,7 @@ const proc: process (HSH_RAND_KEY, in reference: function,
     proc_type := getType(function);
     result_type := resultType(proc_type);
     c_expr.expr &:= "hshRand(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")->key.value." & raw_type_value(result_type);
   end func;
 
