@@ -72,6 +72,7 @@ const proc: process_const_hsh_contains (in reference: aSetRef, in reference: key
       incr(countOptimizations);
       c_expr.expr &:= "0/*FALSE*/";
     elsif hashLength(aSetRef) = 1 then
+      incr(countOptimizations);
       key_element := hashKeysToList(aSetRef)[1];
       c_expr.expr &:= "((compareType)(";
       process_expr(param4, c_expr);
@@ -586,6 +587,7 @@ const proc: process_const_hsh_rand_key (in reference: aSetRef,
       c_expr.expr &:= type_name(result_type);
       c_expr.expr &:= ")(raiseError(RANGE_ERROR), 0)";
     elsif hashLength(aSetRef) = 1 then
+      incr(countOptimizations);
       key_element := hashKeysToList(aSetRef)[1];
       setVar(key_element, FALSE);
       process_expr(key_element, c_expr);
