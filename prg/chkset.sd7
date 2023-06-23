@@ -49,8 +49,40 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func char: charExpr (in char: ch) is
+  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+
+
+const func string: striExpr (in string: stri) is
+  return stri & str(rand(1, 9))[2 ..];
+
+
 const func boolean: boolExpr (ref boolean: value) is
   return value and str(rand(1, 9))[2 ..] = "";
+
+
+const func bitset: genSet (in integer: anElement) is func
+  result
+    var bitset: aSet is EMPTY_SET;
+  begin
+    incl(aSet, anElement);
+  end func;
+
+
+const func set of char: genSet (in char: anElement) is func
+  result
+    var set of char: aSet is (set of char).EMPTY_SET;
+  begin
+    incl(aSet, anElement);
+  end func;
+
+
+const func striSet: genSet (in string: anElement) is func
+  result
+    var striSet: aSet is striSet.value;
+  begin
+    incl(aSet, anElement);
+  end func;
 
 
 const func boolean: raisesRangeError (in func bitset: expression) is func
@@ -331,6 +363,7 @@ const proc: check_card is func
     var bitset: test_set is EMPTY_SET;
     var string: random_stri is "";
     var set of string: test_set2 is (set of string).EMPTY_SET;
+    const set of string: constStriSet1 is {"test"};
     var integer: count is 0;
   begin
     for size_of_set range 0 to 128 do
@@ -372,6 +405,35 @@ const proc: check_card is func
         okay := FALSE;
       end if;
     end for;
+
+    if  card({-1234567890}) <> 1 or
+        card({         -1}) <> 1 or
+        card({          0}) <> 1 or
+        card({          1}) <> 1 or
+        card({ 1234567890}) <> 1 then
+      writeln(" ***** card() of a set with one element does not return 1. (1)");
+      okay := FALSE;
+    end if;
+
+    if  card(genSet(-1234567890)) <> 1 or
+        card(genSet(         -1)) <> 1 or
+        card(genSet(          0)) <> 1 or
+        card(genSet(          1)) <> 1 or
+        card(genSet( 1234567890)) <> 1 then
+      writeln(" ***** card() of a set with one element does not return 1. (2)");
+      okay := FALSE;
+    end if;
+
+    if  card({"test"     }) <> 1 or
+        card(constStriSet1) <> 1 then
+      writeln(" ***** card() of a set with one element does not return 1. (3)");
+      okay := FALSE;
+    end if;
+
+    if card(genSet("test")) <> 1 then
+      writeln(" ***** card() of a set with one element does not return 1. (4)");
+      okay := FALSE;
+    end if;
 
     number := -1;
     if  card(bitset(1)) <> 1 or
@@ -440,6 +502,7 @@ const proc: check_rand is func
     var bitset: test_set is EMPTY_SET;
     var string: random_stri is "";
     var set of string: test_set2 is (set of string).EMPTY_SET;
+    const set of string: constStriSet1 is {"test"};
   begin
     for size_of_set range 0 to 128 do
       test_set := EMPTY_SET;
@@ -490,7 +553,16 @@ const proc: check_rand is func
         rand({          0}) <>           0 or
         rand({          1}) <>           1 or
         rand({ 1234567890}) <>  1234567890 then
-      writeln(" ***** rand() of a set with one element does not return this element.");
+      writeln(" ***** rand() of a set with one element does not return this element. (1)");
+      okay := FALSE;
+    end if;
+
+    if  rand(genSet(-1234567890)) <> -1234567890 or
+        rand(genSet(         -1)) <>          -1 or
+        rand(genSet(          0)) <>           0 or
+        rand(genSet(          1)) <>           1 or
+        rand(genSet( 1234567890)) <>  1234567890 then
+      writeln(" ***** rand() of a set with one element does not return this element. (2)");
       okay := FALSE;
     end if;
 
@@ -512,6 +584,17 @@ const proc: check_rand is func
     if  not raisesRangeError(rand(EMPTY_SET)) or
         not raisesRangeError(rand(test_set)) then
       writeln(" ***** rand(EMPTY_SET) does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  rand({"test"     }) <> "test" or
+        rand(constStriSet1) <> "test" then
+      writeln(" ***** rand() of a set with one element does not return this element. (3)");
+      okay := FALSE;
+    end if;
+
+    if rand(genSet("test")) <> "test" then
+      writeln(" ***** rand() of a set with one element does not return this element. (4)");
       okay := FALSE;
     end if;
 
@@ -9946,6 +10029,16 @@ const proc: check_elem is func
       okay := FALSE;
     end if;
 
+    if  not (        1  in genSet(1)) or
+        not (intExpr(1) in genSet(1)) then
+      okay := FALSE;
+    end if;
+
+    if          1  not in genSet(1) or
+        intExpr(1) not in genSet(1) then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("set membership test works correctly.");
     else
@@ -10234,6 +10327,16 @@ const proc: check_elem_char is func
         ch     in {'\0;', '\1000000;'}   or
         ch not in {'\0;' .. '\1000000;'} then
       writeln("set membership test for char fails. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not (         'A'  in genSet('A')) or
+        not (charExpr('A') in genSet('A')) then
+      okay := FALSE;
+    end if;
+
+    if           'A'  not in genSet('A') or
+        charExpr('A') not in genSet('A') then
       okay := FALSE;
     end if;
 
@@ -10527,11 +10630,47 @@ const proc: check_elem_string is func
       okay := FALSE;
     end if;
 
+    if  not (         "A"  in genSet("A")) or
+        not (striExpr("A") in genSet("A")) then
+      okay := FALSE;
+    end if;
+
+    if           "A"  not in genSet("A") or
+        striExpr("A") not in genSet("A") then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("set membership test for string works correctly.");
     else
       writeln(" ***** set membership test for string does not work correctly");
       writeln;
+    end if;
+  end func;
+
+
+const proc: check_to_array is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  toArray({1}) <> [] (1) then
+      writeln(" ***** toArray(bitset) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  toArray(genSet(1)) <> [] (1) then
+      writeln(" ***** toArray(bitset) does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  toArray({"1"}) <> [] ("1") then
+      writeln(" ***** toArray(hashset) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  toArray(genSet("1")) <> [] ("1") then
+      writeln(" ***** toArray(hashset) does not work correctly. (2)");
+      okay := FALSE;
     end if;
   end func;
 
@@ -11044,6 +11183,7 @@ const proc: main is func
     check_elem;
     check_elem_char;
     check_elem_string;
+    check_to_array;
     check_min;
     check_max;
     check_next;
