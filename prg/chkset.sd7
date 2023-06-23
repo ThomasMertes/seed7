@@ -503,6 +503,7 @@ const proc: check_rand is func
     var string: random_stri is "";
     var set of string: test_set2 is (set of string).EMPTY_SET;
     const set of string: constStriSet1 is {"test"};
+    const set of string: constStriSet2 is {"one", "two"};
   begin
     for size_of_set range 0 to 128 do
       test_set := EMPTY_SET;
@@ -595,6 +596,12 @@ const proc: check_rand is func
 
     if rand(genSet("test")) <> "test" then
       writeln(" ***** rand() of a set with one element does not return this element. (4)");
+      okay := FALSE;
+    end if;
+
+    if  rand({"one", "two"}) not in {"one", "two"} or
+        rand(constStriSet2)  not in {"one", "two"} then
+      writeln(" ***** rand() of a set with two elements does not work correctly.");
       okay := FALSE;
     end if;
 

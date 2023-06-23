@@ -573,18 +573,48 @@ const proc: process (HSH_LNG, in reference: function,
   end func;
 
 
+const proc: process_const_hsh_rand_key (in reference: aSetRef,
+    in type: result_type, inout expr_type: c_expr) is func
+
+  local
+    var reference: key_element is NIL;
+  begin
+    if hashLength(aSetRef) = 0 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= "(";
+      c_expr.expr &:= type_name(result_type);
+      c_expr.expr &:= ")(raiseError(RANGE_ERROR), 0)";
+    elsif hashLength(aSetRef) = 1 then
+      key_element := hashKeysToList(aSetRef)[1];
+      setVar(key_element, FALSE);
+      process_expr(key_element, c_expr);
+      setVar(key_element, TRUE);
+    else
+      c_expr.expr &:= "hshRand(";
+      getAnyParamToExpr(aSetRef, c_expr);
+      c_expr.expr &:= ")->key.value." & raw_type_value(result_type);
+    end if;
+  end func;
+
+
 const proc: process (HSH_RAND_KEY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var type: proc_type is void;
     var type: result_type is void;
+    var reference: evaluatedParam is NIL;
   begin
     proc_type := getType(function);
     result_type := resultType(proc_type);
-    c_expr.expr &:= "hshRand(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")->key.value." & raw_type_value(result_type);
+    if getConstant(params[1], HASHOBJECT, evaluatedParam) then
+      process_const_hsh_rand_key(evaluatedParam, result_type, c_expr);
+    else
+      c_expr.expr &:= "hshRand(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")->key.value." & raw_type_value(result_type);
+    end if;
   end func;
 
 
