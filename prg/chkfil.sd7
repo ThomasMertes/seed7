@@ -645,13 +645,16 @@ const proc: check_file_seek is func
                     " instead of " <& SEEK_TEST_FILE_SIZE <& ". (1)");
             okay := FALSE;
           end if;
-          if  not raisesRangeError(seek(aFile, -2147483648)) or
-              not raisesRangeError(seek(aFile,           0)) then
+          if  not raisesRangeError(seek(aFile, integer.first)) or
+              not raisesRangeError(seek(aFile,   -2147483648)) or
+              not raisesRangeError(seek(aFile,             0)) then
             writeln("seek with negative number does not raise RANGE_ERROR. (1)");
             okay := FALSE;
           end if;
-          if  not raisesRangeError(seek(aFile, -2147483648_)) or
-              not raisesRangeError(seek(aFile,           0_)) then
+          if  not raisesRangeError(seek(aFile, -18446744073709551616_)) or
+              not raisesRangeError(seek(aFile,  -9223372036854775808_)) or
+              not raisesRangeError(seek(aFile,           -2147483648_)) or
+              not raisesRangeError(seek(aFile,                     0_)) then
             writeln("seek with negative number does not raise RANGE_ERROR. (2)");
             okay := FALSE;
           end if;

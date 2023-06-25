@@ -922,6 +922,7 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
 
   {
     cFileType cFile;
+    errInfoType err_info = OKAY_NO_ERROR;
     os_off_t file_position;
 
   /* filBigSeek */
@@ -935,9 +936,9 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
       raise_error(FILE_ERROR);
     } else {
 #if OS_OFF_T_SIZE == 32
-      file_position = (os_off_t) bigToInt32(position, NULL);
+      file_position = (os_off_t) bigToInt32(position, &err_info);
 #elif OS_OFF_T_SIZE == 64
-      file_position = (os_off_t) bigToInt64(position, NULL);
+      file_position = (os_off_t) bigToInt64(position, &err_info);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
