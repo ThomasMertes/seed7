@@ -179,7 +179,8 @@ clean_utils:
 	del ..\bin\which.exe
 
 distclean: clean clean_utils
-	copy level_bk.h level.h /Y
+	del level_bk.h
+	del level.h
 	del vers_bccv5.h
 
 test:

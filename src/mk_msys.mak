@@ -159,7 +159,7 @@ clean_utils:
 	rm -f ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 distclean: clean clean_utils
-	cp level_bk.h level.h
+	rm -f level_bk.h level.h
 	rm -f vers_msys.h
 
 test:

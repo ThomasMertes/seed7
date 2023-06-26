@@ -155,7 +155,7 @@ clean_utils:
 	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 distclean: clean clean_utils
-	cp level_bk.h level.h
+	rm -f level_bk.h level.h
 	rm -f vers_osxcl.h
 
 test:

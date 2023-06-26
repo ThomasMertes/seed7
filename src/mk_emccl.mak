@@ -158,7 +158,7 @@ clean_utils:
 	rm -f ../bin/sql7.wasm ../bin/sydir7.wasm ../bin/tar7.wasm ../bin/toutf8.wasm ../bin/which.wasm
 
 distclean: clean clean_utils
-	cp level_bk.h level.h
+	rm -f level_bk.h level.h
 	rm -f vers_emccl.h
 
 test:

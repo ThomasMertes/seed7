@@ -29,31 +29,67 @@
 
 
 
-int main (int argc, char *argv[])
+long readLevel (const char *const fileName)
 
   {
     FILE *levelFile;
     char buffer1[16];
     char buffer2[16];
+    long level;
+
+  /* readLevel */
+    levelFile = fopen(fileName, "r");
+    if (levelFile != NULL) {
+      fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &level);
+      fclose(levelFile);
+    } else {
+      level = -1;
+    } /* if */
+    return level;
+  } /* readLevel */
+
+
+
+void writeLevel (const char *const fileName, long level)
+
+  {
+    FILE *levelFile;
+
+  /* writeLevel */
+    levelFile = fopen(fileName, "wb");
+    if (levelFile != NULL) {
+      fprintf(levelFile, "#define LEVEL %ld\n", level);
+      fclose(levelFile);
+    } else {
+      printf("*** Cannot write to \"%s\".\n", fileName);
+    } /* if */
+  } /* writeLevel */
+
+
+
+int main (int argc, char *argv[])
+
+  {
+    long releaseLevel;
+    long backupLevel;
     long currentLevel;
+    FILE *levelFile;
 
   /* main */
-    levelFile = fopen("level.h", "r");
-    if (levelFile != NULL) {
-      fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &currentLevel);
-      fclose(levelFile);
+    releaseLevel = readLevel("level_rl.h");
+    backupLevel = readLevel("level_bk.h");
+    currentLevel = readLevel("level.h");
+    if (releaseLevel != -1) {
+      if (releaseLevel != backupLevel) {
+        writeLevel("level_bk.h", releaseLevel);
+        currentLevel = releaseLevel;
+      } else {
+        currentLevel++;
+      } /* if */
     } else {
-      printf("Create \"level.h\".\n");
-      currentLevel = 0;
-    } /* if */
-    levelFile = fopen("level.h", "wb");
-    if (levelFile != NULL) {
       currentLevel++;
-      fprintf(levelFile, "#define LEVEL %ld\n", currentLevel);
-      fclose(levelFile);
-      printf("Current level is %ld\n", currentLevel);
-    } else {
-      printf("*** Cannot write to \"level.h\".\n");
     } /* if */
+    printf("Current level is %ld\n", currentLevel);
+    writeLevel("level.h", currentLevel);
     return 0;
   } /* main */
