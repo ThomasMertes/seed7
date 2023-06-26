@@ -95,6 +95,34 @@ static void prepareCompileCommand (void)
 
 
 
+static void checkForLevelH (void)
+
+  {
+    FILE *levelFile;
+    char buffer1[16];
+    char buffer2[16];
+    long level;
+
+  /* checkForLevelH */
+    levelFile = fopen("level.h", "r");
+    if (levelFile != NULL) {
+      fclose(levelFile);
+    } else {
+      levelFile = fopen("level_rl.h", "r");
+      if (levelFile != NULL) {
+        fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &level);
+        fclose(levelFile);
+        levelFile = fopen("level.h", "wb");
+        if (levelFile != NULL) {
+          fprintf(levelFile, "#define LEVEL %ld\n", level);
+          fclose(levelFile);
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* checkForLevelH */
+
+
+
 const char *writeOption (const char *option, char *command)
 
   {
@@ -148,6 +176,7 @@ int main (int argc, char **argv)
   /* main */
     prepareCompileCommand();
     sprintf(command, "%s", c_compiler);
+    checkForLevelH();
     curr_arg = argv[idx];
     if (memcmp(curr_arg, "OPTION=", 7 * sizeof(char)) == 0 &&
         (curr_arg)[7] != '\0') {

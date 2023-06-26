@@ -29,7 +29,7 @@
 
 
 
-long readLevel (const char *const fileName)
+static long readLevel (const char *const fileName)
 
   {
     FILE *levelFile;
@@ -50,7 +50,7 @@ long readLevel (const char *const fileName)
 
 
 
-void writeLevel (const char *const fileName, long level)
+static void writeLevel (const char *const fileName, long level)
 
   {
     FILE *levelFile;
