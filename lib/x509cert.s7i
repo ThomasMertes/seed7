@@ -198,15 +198,15 @@ const func algorithmIdentifierType: getAlgorithmIdentifier (in string: stri, ino
 
 const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
-    stri := genAsn1Element(tagObjectIdentifier, algId.algorithm);
+    asn1 := genAsn1Element(tagObjectIdentifier, algId.algorithm);
     if algId.parameters = "" then
-      stri &:= genAsn1Element(tagNull, "");
+      asn1 &:= genAsn1Element(tagNull, "");
     else
-      stri &:= genAsn1Element(tagObjectIdentifier, algId.parameters);
+      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.parameters);
     end if;
-    stri := genAsn1Sequence(stri);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -236,11 +236,11 @@ const func rsaKey: getRsaKey (in string: stri) is func
 
 const func string: genX509RsaKey (in rsaKey: anRsaKey) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
-    stri := genAsn1Integer(bytes(anRsaKey.modulus, SIGNED, BE));
-    stri &:= genAsn1Integer(bytes(anRsaKey.exponent, SIGNED, BE));
-    stri := genAsn1Sequence(stri);
+    asn1 := genAsn1Integer(bytes(anRsaKey.modulus, SIGNED, BE));
+    asn1 &:= genAsn1Integer(bytes(anRsaKey.exponent, SIGNED, BE));
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -391,11 +391,11 @@ const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: stri, inout in
 
 const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var string: subjectPublicKey is "";
   begin
-    stri := genAlgorithmIdentifier(keyInfo.algorithm);
+    asn1 := genAlgorithmIdentifier(keyInfo.algorithm);
     if keyInfo.subjectPublicKey <> "" then
       subjectPublicKey := keyInfo.subjectPublicKey;
     else
@@ -403,8 +403,8 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
     end if;
     # The initial octet of a bit-string encodes
     # the number of unused bits in the final octet.
-    stri &:= genAsn1Element(tagBitString, "\0;" & subjectPublicKey);
-    stri := genAsn1Sequence(stri);
+    asn1 &:= genAsn1Element(tagBitString, "\0;" & subjectPublicKey);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -444,7 +444,7 @@ const func nameType: getName (in string: stri, inout integer: pos) is func
 
 const func string: genX509Name (in nameType: name) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var string: attrKey is "";
     var string: attrValue is "";
@@ -454,9 +454,9 @@ const func string: genX509Name (in nameType: name) is func
       setElement := genAsn1Element(tagObjectIdentifier, attrKey);
       setElement &:= genAsn1Element(tagPrintableString, attrValue);
       setElement := genAsn1Sequence(setElement);
-      stri &:= genAsn1Set(setElement);
+      asn1 &:= genAsn1Set(setElement);
     end for;
-    stri := genAsn1Sequence(stri);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -557,13 +557,13 @@ const func validityType: getValidity (in string: stri, inout integer: pos) is fu
 
 const func string: genX509Validity (in validityType: validity) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
-    stri := genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notBefore, "") &
+    asn1 := genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notBefore, "") &
                                        str_hh_mm_ss(validity.notBefore, "") & "Z");
-    stri &:= genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notAfter, "") &
+    asn1 &:= genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notAfter, "") &
                                         str_hh_mm_ss(validity.notAfter, "") & "Z");
-    stri := genAsn1Sequence(stri);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -688,19 +688,19 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
 
 const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var string: version is "";
   begin
     version := genAsn1Integer(str(chr(tbsCertificate.version)));
-    stri := genAsn1Tag(0, version);
-    stri &:= genAsn1Integer(tbsCertificate.serialNumber);
-    stri &:= genAlgorithmIdentifier(tbsCertificate.signature);
-    stri &:= genX509Name(tbsCertificate.issuer);
-    stri &:= genX509Validity(tbsCertificate.validity);
-    stri &:= genX509Name(tbsCertificate.subject);
-    stri &:= genX509PublicKeyInfo(tbsCertificate.subjectPublicKeyInfo);
-    stri := genAsn1Sequence(stri);
+    asn1 := genAsn1Tag(0, version);
+    asn1 &:= genAsn1Integer(tbsCertificate.serialNumber);
+    asn1 &:= genAlgorithmIdentifier(tbsCertificate.signature);
+    asn1 &:= genX509Name(tbsCertificate.issuer);
+    asn1 &:= genX509Validity(tbsCertificate.validity);
+    asn1 &:= genX509Name(tbsCertificate.subject);
+    asn1 &:= genX509PublicKeyInfo(tbsCertificate.subjectPublicKeyInfo);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
@@ -838,16 +838,16 @@ const func x509cert: getX509Cert (in string: stri) is func
 
 const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var digestAlgorithm: digestAlg is NO_DIGEST;
     var string: signature is "";
     var algorithmIdentifierType: digestAlgorithm is algorithmIdentifierType.value;
   begin
-    stri := genX509TbsCertificate(cert.tbsCertificate);
+    asn1 := genX509TbsCertificate(cert.tbsCertificate);
     digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
     if digestAlg <> NO_DIGEST then
-      cert.messageDigest := msgDigest(digestAlg, stri);
+      cert.messageDigest := msgDigest(digestAlg, asn1);
     end if;
     digestAlgorithm.algorithm :=
         getDigestOidFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
@@ -855,9 +855,9 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
     signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
     signature := genAsn1Sequence(signature);
     cert.signatureValue := rsassaPkcs1V15Encrypt(encryptionKey, signature);
-    stri &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
-    stri &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
-    stri := genAsn1Sequence(stri);
+    asn1 &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
+    asn1 &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
+    asn1 := genAsn1Sequence(asn1);
   end func;
 
 
