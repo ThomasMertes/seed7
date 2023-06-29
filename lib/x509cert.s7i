@@ -164,29 +164,29 @@ const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4,
 const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
 
 
-const func algorithmIdentifierType: getAlgorithmIdentifier (in string: stri, inout integer: pos) is func
+const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, inout integer: pos) is func
   result
     var algorithmIdentifierType: algId is algorithmIdentifierType.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
     var integer: beyond is 0;
   begin
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
       beyond := pos + dataElem.length;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagObjectIdentifier then
-        algId.algorithm := getData(stri, pos, dataElem);
+        algId.algorithm := getData(asn1, pos, dataElem);
       end if;
       if pos < beyond then
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
         # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagCategory)]);
         if dataElem.tagCategory = tagNull then
           algId.parameters := "";
         elsif dataElem.tagCategory = tagObjectIdentifier then
-          algId.parameters := getData(stri, pos, dataElem);
+          algId.parameters := getData(asn1, pos, dataElem);
           # writeln("algId.parameters: " <& literal(algId.parameters));
         else
           writeln("*** Unexpected data element ***");
@@ -210,7 +210,7 @@ const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is
   end func;
 
 
-const func rsaKey: getRsaKey (in string: stri) is func
+const func rsaKey: getRsaKey (in string: asn1) is func
   result
     var rsaKey: anRsaKey is rsaKey.value;
   local
@@ -219,14 +219,14 @@ const func rsaKey: getRsaKey (in string: stri) is func
     var bigInteger: modulus is 0_;
     var bigInteger: exponent is 0_;
   begin
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     if dataElem.tagCategory = tagSequence then
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagInteger then
-        modulus := bytes2BigInt(getData(stri, pos, dataElem), UNSIGNED, BE);
-        dataElem := getAsn1DataElement(stri, pos);
+        modulus := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE);
+        dataElem := getAsn1DataElement(asn1, pos);
         if dataElem.tagCategory = tagInteger then
-          exponent := bytes2BigInt(getData(stri, pos, dataElem), UNSIGNED, BE);
+          exponent := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE);
           anRsaKey := rsaKey(modulus, exponent);
         end if;
       end if;
@@ -346,28 +346,28 @@ const func string: getEllipticCurveOid (in ellipticCurve: curve) is func
   end func;
 
 
-const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: stri, inout integer: pos) is func
+const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: asn1, inout integer: pos) is func
   result
     var subjectPublicKeyInfoType: keyInfo is subjectPublicKeyInfoType.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
   begin
     # writeln("in getPublicKeyInfo " <& pos);
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
-      keyInfo.algorithm := getAlgorithmIdentifier(stri, pos);
-      dataElem := getAsn1DataElement(stri, pos);
+      keyInfo.algorithm := getAlgorithmIdentifier(asn1, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagBitString then
         # The initial octet of a bit-string encodes
         # the number of unused bits in the final octet.
-        keyInfo.subjectPublicKey := getData(stri, pos, dataElem);
+        keyInfo.subjectPublicKey := getData(asn1, pos, dataElem);
         if keyInfo.subjectPublicKey[1] <> '\0;' then
           writeln("Initial octet of bit-string: " <& ord(keyInfo.subjectPublicKey[1]));
         end if;
         keyInfo.subjectPublicKey := keyInfo.subjectPublicKey[2 ..];
-        # keyInfo.subjectPublicKey := getData(stri, pos, dataElem)[2 ..];
+        # keyInfo.subjectPublicKey := getData(asn1, pos, dataElem)[2 ..];
         # writeln("subjectPublicKey: " <& literal(keyInfo.subjectPublicKey));
         # writeln("length(subjectPublicKey): " <& length(keyInfo.subjectPublicKey));
         # writeln("algorithm: " <& literal(keyInfo.algorithm.algorithm));
@@ -408,7 +408,7 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
   end func;
 
 
-const func nameType: getName (in string: stri, inout integer: pos) is func
+const func nameType: getName (in string: asn1, inout integer: pos) is func
   result
     var nameType: name is nameType.value;
   local
@@ -418,21 +418,21 @@ const func nameType: getName (in string: stri, inout integer: pos) is func
     var string: attrValue is "";
   begin
     # writeln("in getName");
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
       posAfterwards := pos + dataElem.length;
       while pos < posAfterwards do
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
         if dataElem.tagCategory = tagSet then
-          dataElem := getAsn1DataElement(stri, pos);
+          dataElem := getAsn1DataElement(asn1, pos);
           if dataElem.tagCategory = tagSequence then
-            dataElem := getAsn1DataElement(stri, pos);
+            dataElem := getAsn1DataElement(asn1, pos);
             if dataElem.tagCategory = tagObjectIdentifier then
-              attrKey := getData(stri, pos, dataElem);
+              attrKey := getData(asn1, pos, dataElem);
             end if;
-            dataElem := getAsn1DataElement(stri, pos);
-            attrValue := getData(stri, pos, dataElem);
+            dataElem := getAsn1DataElement(asn1, pos);
+            attrValue := getData(asn1, pos, dataElem);
             name @:= [attrKey] attrValue;
             # writeln("getName: " <& objectIdentifier(attrKey) <& ": " <& literal(attrValue));
           end if;
@@ -527,29 +527,29 @@ const func validityType: validityType (in time: notBefore, in time: notAfter) is
   end func;
 
 
-const func validityType: getValidity (in string: stri, inout integer: pos) is func
+const func validityType: getValidity (in string: asn1, inout integer: pos) is func
   result
     var validityType: validity is validityType.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
   begin
     # writeln("in getValidity");
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagUTCTime then
-        validity.notBefore := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+        validity.notBefore := getTime_yymmddhhmmssZ(getData(asn1, pos, dataElem));
       elsif dataElem.tagCategory = tagGeneralizedTime then
-        validity.notBefore := getTime_yyyymmddhhmmssfffZ(getData(stri, pos, dataElem));
+        validity.notBefore := getTime_yyyymmddhhmmssfffZ(getData(asn1, pos, dataElem));
       end if;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagUTCTime then
-        validity.notAfter := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+        validity.notAfter := getTime_yymmddhhmmssZ(getData(asn1, pos, dataElem));
       elsif dataElem.tagCategory = tagGeneralizedTime then
-        validity.notAfter := getTime_yyyymmddhhmmssfffZ(getData(stri, pos, dataElem));
+        validity.notAfter := getTime_yyyymmddhhmmssfffZ(getData(asn1, pos, dataElem));
       end if;
     end if;
   end func;
@@ -567,33 +567,33 @@ const func string: genX509Validity (in validityType: validity) is func
   end func;
 
 
-const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer: pos, in integer: beyond) is func
+const func tbsCertificateType: getTbsCertificate (in string: asn1, inout integer: pos, in integer: beyond) is func
   result
     var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
   begin
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagInteger then
-        tbsCertificate.version := bytes2Int(getData(stri, pos, dataElem), UNSIGNED, BE);
+        tbsCertificate.version := bytes2Int(getData(asn1, pos, dataElem), UNSIGNED, BE);
       end if;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagInteger then
-        tbsCertificate.serialNumber := getData(stri, pos, dataElem);
+        tbsCertificate.serialNumber := getData(asn1, pos, dataElem);
       end if;
     elsif dataElem.tagCategory = tagInteger then
       # Some certificates don't have an explicit tag and a version number.
-      tbsCertificate.serialNumber := getData(stri, pos, dataElem);
+      tbsCertificate.serialNumber := getData(asn1, pos, dataElem);
     end if;
-    tbsCertificate.signature := getAlgorithmIdentifier(stri, pos);
-    tbsCertificate.issuer := getName(stri, pos);
-    tbsCertificate.validity := getValidity(stri, pos);
-    tbsCertificate.subject := getName(stri, pos);
-    tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(stri, pos);
+    tbsCertificate.signature := getAlgorithmIdentifier(asn1, pos);
+    tbsCertificate.issuer := getName(asn1, pos);
+    tbsCertificate.validity := getValidity(asn1, pos);
+    tbsCertificate.subject := getName(asn1, pos);
+    tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(asn1, pos);
     if pos < beyond then
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.constructed and ord(dataElem.tagCategory) = 3 then
         # EXPLICIT TAG 3
         skipData(pos, dataElem);
@@ -603,7 +603,7 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
   end func;
 
 
-const func tbsCertificateType: getPkcs7SignedDataCert (in string: stri, inout integer: pos) is func
+const func tbsCertificateType: getPkcs7SignedDataCert (in string: asn1, inout integer: pos) is func
   result
     var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
   local
@@ -614,59 +614,59 @@ const func tbsCertificateType: getPkcs7SignedDataCert (in string: stri, inout in
     var string: content is "";
     var integer: digestStartPos is 0;
   begin
-    # writeln("SIGNED_DATA pos: " <& pos <& ", length(stri): " <& length(stri));
-    dataElem := getAsn1DataElement(stri, pos);
+    # writeln("SIGNED_DATA pos: " <& pos <& ", length(asn1): " <& length(asn1));
+    dataElem := getAsn1DataElement(asn1, pos);
     if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
       # writeln("EXPLICIT TAG: " <& ord(dataElem.tagCategory) <& ", length: " <& dataElem.length);
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
     end if;
     if dataElem.tagCategory = tagSequence then
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagInteger then
-        version := bytes2Int(getData(stri, pos, dataElem), UNSIGNED, BE);
+        version := bytes2Int(getData(asn1, pos, dataElem), UNSIGNED, BE);
         # writeln("version: " <& version);
       end if;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagSet then
-        digestAlgorithmIdentifiers := getData(stri, pos, dataElem);
+        digestAlgorithmIdentifiers := getData(asn1, pos, dataElem);
         # writeln(literal(digestAlgorithmIdentifiers));
       end if;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagCategory = tagSequence then
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
         if dataElem.tagCategory = tagObjectIdentifier then
-          contentType := getData(stri, pos, dataElem);  # E.g.: PKCS_7_DATA
+          contentType := getData(asn1, pos, dataElem);  # E.g.: PKCS_7_DATA
           # writeln("contentType: " <& literal(contentType));
         end if;
       end if;
-      dataElem := getAsn1DataElement(stri, pos);
+      dataElem := getAsn1DataElement(asn1, pos);
       if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
         # writeln("EXPLICIT TAG: " <& ord(dataElem.tagCategory) <& ", length: " <& dataElem.length);
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
       end if;
       if dataElem.tagCategory = tagOctetString then
-        content := getData(stri, pos, dataElem);
+        content := getData(asn1, pos, dataElem);
         # writeln(literal(content));
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
         if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
           # writeln("EXPLICIT TAG: " <& ord(dataElem.tagCategory) <& ", length: " <& dataElem.length);
-          dataElem := getAsn1DataElement(stri, pos);
+          dataElem := getAsn1DataElement(asn1, pos);
         end if;
         digestStartPos := pos;
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
       elsif dataElem.tagCategory = tagSequence then
         digestStartPos := pos;
-        dataElem := getAsn1DataElement(stri, pos);
+        dataElem := getAsn1DataElement(asn1, pos);
       end if;
       if dataElem.tagCategory = tagSequence then
-        tbsCertificate := getTbsCertificate(stri, pos, pos + dataElem.length);
+        tbsCertificate := getTbsCertificate(asn1, pos, pos + dataElem.length);
         tbsCertificate.digestStartPos := digestStartPos;
       end if;
     end if;
   end func;
 
 
-const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer: pos) is func
+const func tbsCertificateType: getTbsCertificate (in string: asn1, inout integer: pos) is func
   result
     var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
   local
@@ -674,13 +674,13 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
     var integer: digestStartPos is 0;
   begin
     digestStartPos := pos;
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     if dataElem.tagCategory = tagObjectIdentifier then
-      if getData(stri, pos, dataElem) = PKCS_7_SIGNED_DATA then
-        tbsCertificate := getPkcs7SignedDataCert(stri, pos);
+      if getData(asn1, pos, dataElem) = PKCS_7_SIGNED_DATA then
+        tbsCertificate := getPkcs7SignedDataCert(asn1, pos);
       end if;
     elsif dataElem.tagCategory = tagSequence then
-      tbsCertificate := getTbsCertificate(stri, pos, pos + dataElem.length);
+      tbsCertificate := getTbsCertificate(asn1, pos, pos + dataElem.length);
       tbsCertificate.digestStartPos := digestStartPos;
     end if;
   end func;
@@ -806,7 +806,7 @@ const proc: showSignatureAlgorithm (in string: algorithm) is func
  *  Read a X.509 public key certificate from ''stri''.
  *  @return the X.509 public key certificate.
  *)
-const func x509cert: getX509Cert (in string: stri) is func
+const func x509cert: getX509Cert (in string: asn1) is func
   result
     var x509cert: cert is x509cert.value;
   local
@@ -814,22 +814,22 @@ const func x509cert: getX509Cert (in string: stri) is func
     var asn1DataElement: dataElem is asn1DataElement.value;
     var digestAlgorithm: digestAlg is NO_DIGEST;
   begin
-    dataElem := getAsn1DataElement(stri, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     # writeln("getX509Cert: tagCategory=" <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
-      cert.tbsCertificate := getTbsCertificate(stri, pos);
+      cert.tbsCertificate := getTbsCertificate(asn1, pos);
     end if;
-    cert.signatureAlgorithm := getAlgorithmIdentifier(stri, pos);
-    dataElem := getAsn1DataElement(stri, pos);
+    cert.signatureAlgorithm := getAlgorithmIdentifier(asn1, pos);
+    dataElem := getAsn1DataElement(asn1, pos);
     if dataElem.tagCategory = tagBitString then
       # The initial octet of a bit-string encodes
       # the number of unused bits in the final octet.
-      cert.signatureValue := getData(stri, pos, dataElem)[2 ..];
+      cert.signatureValue := getData(asn1, pos, dataElem)[2 ..];
       # showSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
       digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
       if digestAlg <> NO_DIGEST then
         cert.messageDigest := msgDigest(digestAlg,
-            stri[cert.tbsCertificate.digestStartPos .. cert.tbsCertificate.digestEndPos]);
+            asn1[cert.tbsCertificate.digestStartPos .. cert.tbsCertificate.digestEndPos]);
       end if;
     end if;
     # writeln("end getX509Cert");
