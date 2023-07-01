@@ -364,6 +364,7 @@ const proc: check_card is func
     var string: random_stri is "";
     var set of string: test_set2 is (set of string).EMPTY_SET;
     const set of string: constStriSet1 is {"test"};
+    const set of string: constStriSet2 is {"one", "two"};
     var integer: count is 0;
   begin
     for size_of_set range 0 to 128 do
@@ -432,6 +433,12 @@ const proc: check_card is func
 
     if card(genSet("test")) <> 1 then
       writeln(" ***** card() of a set with one element does not return 1. (4)");
+      okay := FALSE;
+    end if;
+
+    if  card({"one", "two"}) <> 2 or
+        card(constStriSet2)  <> 2 then
+      writeln(" ***** card() of a set with two elements does not return 2.");
       okay := FALSE;
     end if;
 
