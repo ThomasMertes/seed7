@@ -978,6 +978,7 @@ const func boolean: validateSignature (in x509cert: cert, in subjectPublicKeyInf
  *  @param locality Locality of issuer and subject (e.g. "Vienna").
  *  @param organization Organization of issuer and subject.
  *  @param organizationUnit Organization unit of issuer and subject.
+ *  @param validity Validity of the certificate.
  *)
 const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
     in bigInteger: serialNumber, in string: commonName, in string: country,
@@ -1016,10 +1017,11 @@ const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
  *  @param locality Locality of issuer and subject (e.g. "Vienna").
  *  @param organization Organization of issuer and subject.
  *  @param organizationUnit Organization unit of issuer and subject.
+ *  @param validity Validity of the certificate.
  *)
-const func x509cert: createX509Cert (in ellipticCurve: curve, in ecPoint: publicEccKey,
-    in bigInteger: serialNumber, in string: commonName, in string: country,
-    in string: locality, in string: organization,
+const func x509cert: createX509Cert (in ellipticCurve: curve,
+    in ecPoint: publicEccKey, in bigInteger: serialNumber, in string: commonName,
+    in string: country, in string: locality, in string: organization,
     in string: organizationUnit, in x509Validity: validity) is func
   result
     var x509cert: cert is x509cert.value;
