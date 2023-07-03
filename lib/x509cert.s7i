@@ -408,7 +408,7 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
   end func;
 
 
-const func x509Name: getName (in string: asn1, inout integer: pos) is func
+const func x509Name: getX509Name (in string: asn1, inout integer: pos) is func
   result
     var x509Name: name is x509Name.value;
   local
@@ -417,7 +417,7 @@ const func x509Name: getName (in string: asn1, inout integer: pos) is func
     var string: attrKey is "";
     var string: attrValue is "";
   begin
-    # writeln("in getName");
+    # writeln("in getX509Name");
     dataElem := getAsn1DataElement(asn1, pos);
     # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
@@ -434,7 +434,7 @@ const func x509Name: getName (in string: asn1, inout integer: pos) is func
             dataElem := getAsn1DataElement(asn1, pos);
             attrValue := getData(asn1, pos, dataElem);
             name @:= [attrKey] attrValue;
-            # writeln("getName: " <& objectIdentifier(attrKey) <& ": " <& literal(attrValue));
+            # writeln("getX509Name: " <& objectIdentifier(attrKey) <& ": " <& literal(attrValue));
           end if;
         end if;
       end while;
@@ -588,9 +588,9 @@ const func tbsCertificateType: getTbsCertificate (in string: asn1, inout integer
       tbsCertificate.serialNumber := getData(asn1, pos, dataElem);
     end if;
     tbsCertificate.signature := getAlgorithmIdentifier(asn1, pos);
-    tbsCertificate.issuer := getName(asn1, pos);
+    tbsCertificate.issuer := getX509Name(asn1, pos);
     tbsCertificate.validity := getX509Validity(asn1, pos);
-    tbsCertificate.subject := getName(asn1, pos);
+    tbsCertificate.subject := getX509Name(asn1, pos);
     tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(asn1, pos);
     if pos < beyond then
       dataElem := getAsn1DataElement(asn1, pos);
