@@ -460,6 +460,30 @@ const func x509Name: getX509Name (in string: asn1, inout integer: pos) is func
   end func;
 
 
+const func x509Name: x509Name (in string: commonName,
+    in string: country, in string: locality, in string: organization,
+    in string: organizationUnit) is func
+  result
+    var x509Name: x509Name is x509Name.value;
+  begin
+    if commonName <> "" then
+      x509Name @:= [COMMON_NAME_OID] commonName;
+    end if;
+    if country <> "" then
+      x509Name @:= [COUNTRY_NAME_OID] country;
+    end if;
+    if locality <> "" then
+      x509Name @:= [LOCALITY_NAME_OID] locality;
+    end if;
+    if organization <> "" then
+      x509Name @:= [ORGANIZATION_NAME_OID] organization;
+    end if;
+    if organizationUnit <> "" then
+      x509Name @:= [ORGANIZATION_UNIT_NAME_OID] organizationUnit;
+    end if;
+  end func;
+
+
 const func string: genX509Name (in x509Name: name) is func
   result
     var string: asn1 is "";
