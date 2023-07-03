@@ -900,7 +900,7 @@ const func x509cert: getX509Cert (in string: asn1) is func
   end func;
 
 
-const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) is func
+const func string: genX509Cert (inout x509cert: cert, in rsaKey: issuerKey) is func
   result
     var string: asn1 is "";
   local
@@ -918,7 +918,7 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
     signature := genAlgorithmIdentifier(digestAlgorithm);
     signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
     signature := genAsn1Sequence(signature);
-    cert.signatureValue := rsassaPkcs1V15Encrypt(encryptionKey, signature);
+    cert.signatureValue := rsassaPkcs1V15Encrypt(issuerKey, signature);
     asn1 &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
     asn1 &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
     asn1 := genAsn1Sequence(asn1);
