@@ -40,7 +40,7 @@ const type: algorithmIdentifierType is new struct
     var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
   end struct;
 
-const type: nameType is hash [string] string;
+const type: x509Name is hash [string] string;
 
 const type: validityType is new struct
     var time: notBefore is time.value;
@@ -59,9 +59,9 @@ const type: tbsCertificateType is new struct
     var integer: version is 0;  # v1
     var string: serialNumber is "";  # INTEGER (up to 20 octets in length)
     var algorithmIdentifierType: signature is algorithmIdentifierType.value;
-    var nameType: issuer is nameType.value;
+    var x509Name: issuer is x509Name.value;
     var validityType: validity is validityType.value;
-    var nameType: subject is nameType.value;
+    var x509Name: subject is x509Name.value;
     var subjectPublicKeyInfoType: subjectPublicKeyInfo is subjectPublicKeyInfoType.value;
     var integer: digestStartPos is 0;
     var integer: digestEndPos is 0;
@@ -408,9 +408,9 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
   end func;
 
 
-const func nameType: getName (in string: asn1, inout integer: pos) is func
+const func x509Name: getName (in string: asn1, inout integer: pos) is func
   result
-    var nameType: name is nameType.value;
+    var x509Name: name is x509Name.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
     var integer: posAfterwards is 0;
@@ -442,7 +442,7 @@ const func nameType: getName (in string: asn1, inout integer: pos) is func
   end func;
 
 
-const func string: genX509Name (in nameType: name) is func
+const func string: genX509Name (in x509Name: name) is func
   result
     var string: asn1 is "";
   local
