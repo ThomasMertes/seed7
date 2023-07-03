@@ -275,7 +275,7 @@ const proc: showServerHello (in string: stri, inout integer: pos) is func
  *  Shows the content of a X.509 public key certificate.
  *  This function can be used to debug the library tls.s7i.
  *)
-const proc: showX509Cert (in x509cert: cert) is func
+const proc: showX509Cert (in x509Cert: cert) is func
   local
     var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
     var string: aKey is "";
@@ -335,8 +335,8 @@ const proc: showCertificate (in string: stri, inout integer: pos) is func
     var integer: sequenceLen is 0;
     var integer: certLen is 0;
     var integer: index is 1;
-    var x509cert: cert is x509cert.value;
-    var array x509cert: certList is 0 times x509cert.value;
+    var x509Cert: cert is x509Cert.value;
+    var array x509Cert: certList is 0 times x509Cert.value;
   begin
     writeln("certificate: " <& literal(stri));
     length := bytes2Int(stri[pos fixLen 3], UNSIGNED, BE);

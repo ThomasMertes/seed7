@@ -82,12 +82,15 @@ const type: tbsCertificateType is new struct
 *)
   end struct;
 
-const type: x509cert is new struct
+const type: x509Cert is new struct
     var tbsCertificateType:      tbsCertificate     is tbsCertificateType.value;
     var algorithmIdentifierType: signatureAlgorithm is algorithmIdentifierType.value;
     var string:                  signatureValue     is "";
     var string:                  messageDigest      is "";
   end struct;
+
+# The type x509cert is deprecated. Use x509Cert instead.
+const type: x509cert is x509Cert;
 
 const type: certSubjectIndexHashType is hash [string] integer;
 
@@ -870,9 +873,9 @@ const proc: showSignatureAlgorithm (in string: algorithm) is func
  *  Read a X.509 public key certificate from ''stri''.
  *  @return the X.509 public key certificate.
  *)
-const func x509cert: getX509Cert (in string: asn1) is func
+const func x509Cert: getX509Cert (in string: asn1) is func
   result
-    var x509cert: cert is x509cert.value;
+    var x509Cert: cert is x509Cert.value;
   local
     var integer: pos is 1;
     var asn1DataElement: dataElem is asn1DataElement.value;
@@ -900,7 +903,7 @@ const func x509cert: getX509Cert (in string: asn1) is func
   end func;
 
 
-const func string: genX509Cert (inout x509cert: cert, in rsaKey: issuerKey) is func
+const func string: genX509Cert (inout x509Cert: cert, in rsaKey: issuerKey) is func
   result
     var string: asn1 is "";
   local
@@ -930,7 +933,7 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: issuerKey) is f
  *  @return TRUE if the certificate can be validated,
  *          FALSE otherwise.
  *)
-const func boolean: validateSignature (in x509cert: cert, in subjectPublicKeyInfoType: publicKey) is func
+const func boolean: validateSignature (in x509Cert: cert, in subjectPublicKeyInfoType: publicKey) is func
   result
     var boolean: okay is FALSE;
   local
@@ -980,12 +983,12 @@ const func boolean: validateSignature (in x509cert: cert, in subjectPublicKeyInf
  *  @param organizationUnit Organization unit of issuer and subject.
  *  @param validity Validity of the certificate.
  *)
-const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
+const func x509Cert: createX509Cert (in rsaKey: publicRsaKey,
     in bigInteger: serialNumber, in string: commonName, in string: country,
     in string: locality, in string: organization,
     in string: organizationUnit, in x509Validity: validity) is func
   result
-    var x509cert: cert is x509cert.value;
+    var x509Cert: cert is x509Cert.value;
   begin
     cert.tbsCertificate.version := 0;  # v1
     cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
@@ -1019,12 +1022,12 @@ const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
  *  @param organizationUnit Organization unit of issuer and subject.
  *  @param validity Validity of the certificate.
  *)
-const func x509cert: createX509Cert (in ellipticCurve: curve,
+const func x509Cert: createX509Cert (in ellipticCurve: curve,
     in ecPoint: publicEccKey, in bigInteger: serialNumber, in string: commonName,
     in string: country, in string: locality, in string: organization,
     in string: organizationUnit, in x509Validity: validity) is func
   result
-    var x509cert: cert is x509cert.value;
+    var x509Cert: cert is x509Cert.value;
   begin
     cert.tbsCertificate.version := 0;  # v1
     cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
@@ -1107,7 +1110,7 @@ const func x509Extension: x509BasicConstraints (in boolean: cA) is func
  *  @param isCritical TRUE if the extension is critical, FALSE otherwise.
  *  @param extension The extension to be added.
  *)
-const proc: addExtension (inout x509cert: cert, in boolean: isCritical,
+const proc: addExtension (inout x509Cert: cert, in boolean: isCritical,
     in var x509Extension: extension) is func
   begin
     extension.isCritical := isCritical;
@@ -1150,7 +1153,7 @@ const func certAndKey: selfSignedX509Cert (in rsaKeyPair: keyPair,
   result
     var certAndKey: certificate is certAndKey.value;
   local
-    var x509cert: cert is x509cert.value;
+    var x509Cert: cert is x509Cert.value;
   begin
     cert := createX509Cert(keyPair.publicKey, serialNumber, commonName,
                            country, locality, organization, organizationUnit,

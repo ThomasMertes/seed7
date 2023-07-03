@@ -520,7 +520,7 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
   end func;
 
 
-const proc: validateCertificates (in array x509cert: cert) is func
+const proc: validateCertificates (in array x509Cert: cert) is func
   local
     var integer: index is 1;
     var integer: issuerIndex is 1;
@@ -576,7 +576,7 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     var integer: sequenceLen is 0;
     var integer: certLen is 0;
     var integer: index is 1;
-    var array x509cert: cert is 0 times x509cert.value;
+    var array x509Cert: cert is 0 times x509Cert.value;
   begin
     # writeln("certificate");
     startPos := state.pos;
@@ -589,7 +589,7 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
       parameters.serverCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
     end while;
-    cert := length(parameters.serverCertificates.certList) times x509cert.value;
+    cert := length(parameters.serverCertificates.certList) times x509Cert.value;
     for key index range parameters.serverCertificates.certList do
       # writeln("read Cert-" <& index);
       cert[index] := getX509Cert(parameters.serverCertificates.certList[index]);
@@ -608,7 +608,7 @@ const proc: processClientCertificate (inout tlsParameters: parameters, inout tls
     var integer: sequenceLen is 0;
     var integer: certLen is 0;
     var integer: index is 1;
-    var array x509cert: cert is 0 times x509cert.value;
+    var array x509Cert: cert is 0 times x509Cert.value;
   begin
     # writeln("client_certificate");
     startPos := state.pos;
@@ -621,7 +621,7 @@ const proc: processClientCertificate (inout tlsParameters: parameters, inout tls
       parameters.clientCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
     end while;
-    cert := length(parameters.clientCertificates.certList) times x509cert.value;
+    cert := length(parameters.clientCertificates.certList) times x509Cert.value;
     for key index range parameters.clientCertificates.certList do
       # writeln("read Cert-" <& index);
       cert[index] := getX509Cert(parameters.clientCertificates.certList[index]);
