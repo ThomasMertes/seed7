@@ -42,7 +42,7 @@ const type: algorithmIdentifierType is new struct
 
 const type: x509Name is hash [string] string;
 
-const type: validityType is new struct
+const type: x509Validity is new struct
     var time: notBefore is time.value;
     var time: notAfter is time.value;
   end struct;
@@ -60,7 +60,7 @@ const type: tbsCertificateType is new struct
     var string: serialNumber is "";  # INTEGER (up to 20 octets in length)
     var algorithmIdentifierType: signature is algorithmIdentifierType.value;
     var x509Name: issuer is x509Name.value;
-    var validityType: validity is validityType.value;
+    var x509Validity: validity is x509Validity.value;
     var x509Name: subject is x509Name.value;
     var subjectPublicKeyInfoType: subjectPublicKeyInfo is subjectPublicKeyInfoType.value;
     var integer: digestStartPos is 0;
@@ -518,22 +518,22 @@ const func time: getTime_yyyymmddhhmmssfffZ (in string: stri) is func
   end func;
 
 
-const func validityType: validityType (in time: notBefore, in time: notAfter) is func
+const func x509Validity: x509Validity (in time: notBefore, in time: notAfter) is func
   result
-    var validityType: validity is validityType.value;
+    var x509Validity: validity is x509Validity.value;
   begin
     validity.notBefore := notBefore;
     validity.notAfter := notAfter;
   end func;
 
 
-const func validityType: getValidity (in string: asn1, inout integer: pos) is func
+const func x509Validity: getX509Validity (in string: asn1, inout integer: pos) is func
   result
-    var validityType: validity is validityType.value;
+    var x509Validity: validity is x509Validity.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
   begin
-    # writeln("in getValidity");
+    # writeln("in getX509Validity");
     dataElem := getAsn1DataElement(asn1, pos);
     # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
@@ -555,7 +555,7 @@ const func validityType: getValidity (in string: asn1, inout integer: pos) is fu
   end func;
 
 
-const func string: genX509Validity (in validityType: validity) is func
+const func string: genX509Validity (in x509Validity: validity) is func
   result
     var string: asn1 is "";
   begin
@@ -589,7 +589,7 @@ const func tbsCertificateType: getTbsCertificate (in string: asn1, inout integer
     end if;
     tbsCertificate.signature := getAlgorithmIdentifier(asn1, pos);
     tbsCertificate.issuer := getName(asn1, pos);
-    tbsCertificate.validity := getValidity(asn1, pos);
+    tbsCertificate.validity := getX509Validity(asn1, pos);
     tbsCertificate.subject := getName(asn1, pos);
     tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(asn1, pos);
     if pos < beyond then
@@ -918,7 +918,7 @@ const func boolean: validateSignature (in x509cert: cert, in subjectPublicKeyInf
 const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
     in bigInteger: serialNumber, in string: commonName, in string: country,
     in string: locality, in string: organization,
-    in string: organizationUnit, in validityType: validity) is func
+    in string: organizationUnit, in x509Validity: validity) is func
   result
     var x509cert: cert is x509cert.value;
   begin
@@ -956,7 +956,7 @@ const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
 const func x509cert: createX509Cert (in ellipticCurve: curve, in ecPoint: publicEccKey,
     in bigInteger: serialNumber, in string: commonName, in string: country,
     in string: locality, in string: organization,
-    in string: organizationUnit, in validityType: validity) is func
+    in string: organizationUnit, in x509Validity: validity) is func
   result
     var x509cert: cert is x509cert.value;
   begin
@@ -1013,7 +1013,7 @@ const func certAndKey: certAndKey (in array string: certList, in bigInteger: pri
 const func certAndKey: selfSignedX509Cert (in rsaKeyPair: keyPair,
     in bigInteger: serialNumber, in string: commonName, in string: country,
     in string: locality, in string: organization,
-    in string: organizationUnit, in validityType: validity) is func
+    in string: organizationUnit, in x509Validity: validity) is func
   result
     var certAndKey: certificate is certAndKey.value;
   local
@@ -1042,7 +1042,7 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
   return selfSignedX509Cert(genRsaKeyPair(2048, 16#10001_),
                             rand(0_, 2_ ** (20 * 8) - 1_), commonName,
                             country, locality, organization, organizationUnit,
-                            validityType(time(NOW) - 1 . YEARS,
+                            x509Validity(time(NOW) - 1 . YEARS,
                                          time(NOW) + 1 . YEARS));
 
 
@@ -1052,4 +1052,4 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
 const certAndKey: stdCertificate is selfSignedX509Cert(
     stdRsaKeyPair, 6_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
-    validityType(date(2022, 1, 1), date(2026, 1, 1)));
+    x509Validity(date(2022, 1, 1), date(2026, 1, 1)));
