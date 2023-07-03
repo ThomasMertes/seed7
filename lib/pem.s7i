@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  pem.s7i       Support for the PEM cryptographic file format.    *)
-(*  Copyright (C) 2022  Thomas Mertes                               *)
+(*  Copyright (C) 2022, 2023  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -47,7 +47,26 @@ const type: pemObject is new struct
 
 
 (**
- *  Convert a PEM object to a string.
+ *  Create a PEM object from ''pemType'' and ''content''.
+ *  @param pemType Tyoe of the PEM object.
+ *  @param content String of bytes with the content of the PEM object.
+ *)
+const func pemObject: pemObject (in string: pemType, in string: content) is func
+  result
+    var pemObject: pemObj is pemObject.value;
+  begin
+    pemObj.pemType := pemType;
+	pemObj.content := content;
+  end func;
+
+
+(**
+ *  Convert a PEM object to a string with PEM data.
+ *  PEM data consists of a head, base64 encoded content and a footer.
+ *  E.g.:
+ *   -----BEGIN aPemType-----
+ *   <base64 encoded data>
+ *   -----END aPemType-----
  *  @param pemObj PEM object with valid type and content.
  *  @exception RANGE_ERROR If PEM content contains characters beyond '\255;'.
  *)
@@ -58,11 +77,16 @@ const func string: str (in pemObject: pemObj) is
 
 
 (**
- *  Convert a string to a PEM object.
- *  @param pemKey String which contains a PEM object.
- *  @exception RANGE_ERROR If string does not contain a PEM object.
+ *  Convert a string with PEM data to a PEM object.
+ *  PEM data consists of a head, base64 encoded content and a footer.
+ *  E.g.:
+ *   -----BEGIN aPemType-----
+ *   <base64 encoded data>
+ *   -----END aPemType-----
+ *  @param pemData String which contains PEM data.
+ *  @exception RANGE_ERROR If string does not contain PEM data.
  *)
-const func pemObject: pemObject (in string: pemKey) is func
+const func pemObject: pemObject (in string: pemData) is func
   result
     var pemObject: pemObj is pemObject.value;
   local
@@ -71,21 +95,21 @@ const func pemObject: pemObject (in string: pemKey) is func
     var string: pemType is "";
     var string: footer is "";
   begin
-    if startsWith(pemKey, PEM_HEADER_START) then
+    if startsWith(pemData, PEM_HEADER_START) then
       pos1 := succ(length(PEM_HEADER_START));
-      pos2 := pos(pemKey, PEM_HEADER_END, pos1);
+      pos2 := pos(pemData, PEM_HEADER_END, pos1);
       if pos2 <> 0 then
-        pemType := pemKey[pos1 .. pred(pos2)];
+        pemType := pemData[pos1 .. pred(pos2)];
         pos1 := pos2 + length(PEM_HEADER_END);
         footer := PEM_FOOTER_START & pemType & PEM_HEADER_END;
-        pos2 := pos(pemKey, footer, pos1);
+        pos2 := pos(pemData, footer, pos1);
         if pos2 <> 0 then
           # Remove line endings at the end of the base64 encoded data.
           repeat
             decr(pos2);
-          until pos2 = 0 or (pemKey[pos2] <> '\n' and pemKey[pos2] <> '\r');
+          until pos2 = 0 or (pemData[pos2] <> '\n' and pemData[pos2] <> '\r');
           pemObj.pemType := pemType;
-          pemObj.content := fromBase64(pemKey[pos1 .. pos2]);
+          pemObj.content := fromBase64(pemData[pos1 .. pos2]);
         else
           raise RANGE_ERROR;
         end if;
