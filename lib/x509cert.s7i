@@ -55,6 +55,12 @@ const type: subjectPublicKeyInfoType is new struct
     var ecPoint: publicEccKey is ecPoint.value;
   end struct;
 
+const type: x509Extension is new struct
+    var string: extensionOid is "";
+    var boolean: isCritical is FALSE;
+    var string: octetStringData is "";
+  end struct;
+
 const type: tbsCertificateType is new struct
     var integer: version is 0;  # v1
     var string: serialNumber is "";  # INTEGER (up to 20 octets in length)
@@ -63,6 +69,7 @@ const type: tbsCertificateType is new struct
     var x509Validity: validity is x509Validity.value;
     var x509Name: subject is x509Name.value;
     var subjectPublicKeyInfoType: subjectPublicKeyInfo is subjectPublicKeyInfoType.value;
+    var array x509Extension: extensions is 0 times x509Extension.value;
     var integer: digestStartPos is 0;
     var integer: digestEndPos is 0;
 (*
@@ -162,6 +169,17 @@ const string: SHA1_OID   is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
 const string: SHA256_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 1));
 const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 2));
 const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
+
+
+const integer: KEY_USAGE_DIGITAL_SIGNATURE is  7;
+const integer: KEY_USAGE_NON_REPUDIATION   is  6;
+const integer: KEY_USAGE_KEY_ENCIPHERMENT  is  5;
+const integer: KEY_USAGE_DATA_ENCIPHERMENT is  4;
+const integer: KEY_USAGE_KEY_AGREEMENT     is  3;
+const integer: KEY_USAGE_KEY_CERT_SIGN     is  2;
+const integer: KEY_USAGE_CRL_SIGN          is  1;
+const integer: KEY_USAGE_ENCIPHER_ONLY     is  0;
+const integer: KEY_USAGE_DECIPHER_ONLY     is 15;
 
 
 const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, inout integer: pos) is func
@@ -686,11 +704,26 @@ const func tbsCertificateType: getTbsCertificate (in string: asn1, inout integer
   end func;
 
 
+const func string: toAsn1 (in x509Extension: extension) is func
+  result
+    var string: asn1 is "";
+  begin
+    asn1 := genAsn1Element(tagObjectIdentifier, extension.extensionOid);
+    if extension.isCritical then
+      asn1 &:= genAsn1Element(tagBoolean, "\255;");
+    end if;
+    asn1 &:= genAsn1Element(tagOctetString, extension.octetStringData);
+    asn1 := genAsn1Sequence(asn1);
+  end func;
+
+
 const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate) is func
   result
     var string: asn1 is "";
   local
     var string: version is "";
+    var integer: index is 0;
+    var string: extensions is "";
   begin
     version := genAsn1Integer(str(chr(tbsCertificate.version)));
     asn1 := genAsn1Tag(0, version);
@@ -700,6 +733,13 @@ const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate)
     asn1 &:= genX509Validity(tbsCertificate.validity);
     asn1 &:= genX509Name(tbsCertificate.subject);
     asn1 &:= genX509PublicKeyInfo(tbsCertificate.subjectPublicKeyInfo);
+    if length(tbsCertificate.extensions) <> 0 then
+      for index range 1 to length(tbsCertificate.extensions) do
+        extensions &:= toAsn1(tbsCertificate.extensions[index]);
+      end for;
+      extensions := genAsn1Sequence(extensions);
+      asn1 &:= genAsn1Tag(3, extensions);
+    end if;
     asn1 := genAsn1Sequence(asn1);
   end func;
 
@@ -979,6 +1019,73 @@ const func x509cert: createX509Cert (in ellipticCurve: curve, in ecPoint: public
     cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
     cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
     cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+  end func;
+
+
+(**
+ *  Create a KeyUsage X509 certificate extension from a bitset.
+ *  Elements in the bitset can be KEY_USAGE_DIGITAL_SIGNATURE,
+ *  KEY_USAGE_NON_REPUDIATION, KEY_USAGE_KEY_ENCIPHERMENT,
+ *  KEY_USAGE_DATA_ENCIPHERMENT, KEY_USAGE_KEY_AGREEMENT,
+ *  KEY_USAGE_KEY_CERT_SIGN, KEY_USAGE_CRL_SIGN,
+ *  KEY_USAGE_ENCIPHER_ONLY and KEY_USAGE_DECIPHER_ONLY.
+ *  @param keyUsage Set of allowed key usages.
+ *)
+const func x509Extension: x509KeyUsage (in bitset: keyUsage) is func
+  result
+    var x509Extension: keyUsageExtension is x509Extension.value;
+  local
+    var string: bits is "";
+  begin
+    keyUsageExtension.extensionOid := KEY_USAGE_OID;
+    bits := bytes(integer(keyUsage), UNSIGNED, LE);
+    keyUsageExtension.octetStringData := genAsn1Element(tagBitString,
+        str(char(lowestSetBit(ord(bits[length(bits)])))) & bits);
+  end func;
+
+
+(**
+ *  Create a BasicConstraints X509 certificate extension from a path length.
+ *  The cA flag of this BasicConstraints extension is set to TRUE.
+ *  @param pathLenConstraint Given path length constraint.
+ *)
+const func x509Extension: x509BasicConstraints (in integer: pathLenConstraint) is func
+  result
+    var x509Extension: basicConstraintsExtension is x509Extension.value;
+  begin
+    basicConstraintsExtension.extensionOid := BASIC_CONSTRAINTS_OID;
+    basicConstraintsExtension.octetStringData := genAsn1Sequence(
+        genAsn1Element(tagBoolean, "\255;") &
+        genAsn1Integer(bytes(pathLenConstraint, SIGNED, BE)));
+  end func;
+
+
+(**
+ *  Create a BasicConstraints X509 certificate extension from a cA flag.
+ *  @param cA Frag to be set in the constraint.
+ *)
+const func x509Extension: x509BasicConstraints (in boolean: cA) is func
+  result
+    var x509Extension: basicConstraintsExtension is x509Extension.value;
+  begin
+    basicConstraintsExtension.extensionOid := BASIC_CONSTRAINTS_OID;
+    basicConstraintsExtension.octetStringData := genAsn1Sequence(
+        cA ? genAsn1Element(tagBoolean, "\255;") : "");
+  end func;
+
+
+(**
+ *  Add the given ''extension'' to the X509 certificate ''cert''.
+ *  The extension field is added to the standard extensions tag (tag 3).
+ *  @param cert Certificat to which the extension is added.
+ *  @param isCritical TRUE if the extension is critical, FALSE otherwise.
+ *  @param extension The extension to be added.
+ *)
+const proc: addExtension (inout x509cert: cert, in boolean: isCritical,
+    in var x509Extension: extension) is func
+  begin
+    extension.isCritical := isCritical;
+    cert.tbsCertificate.extensions &:= extension;
   end func;
 
 
