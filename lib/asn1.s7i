@@ -266,18 +266,18 @@ const proc: skipData (inout integer: pos, in asn1DataElement: dataElement) is fu
 
 const func string: genAsn1Length (in integer: length) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var string: lengthAsBytes is "";
   begin
     if length <= 127 then
       # Short form
-      stri &:= chr(length);
+      asn1 &:= chr(length);
     else
       # Long form
       lengthAsBytes := bytes(length, SIGNED, BE);
-      stri &:= chr(128 + length(lengthAsBytes));
-      stri &:= lengthAsBytes;
+      asn1 &:= chr(128 + length(lengthAsBytes));
+      asn1 &:= lengthAsBytes;
     end if;
   end func;
 
@@ -318,11 +318,11 @@ const func asn1TagType: asn1TagTypeOfString (in string: stri) is func
  *)
 const func string: genAsn1Element (in asn1TagType: tagCategory, in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
-    stri &:= chr(ord(tagCategory));
-    stri &:= genAsn1Length(length(data));
-    stri &:= data;
+    asn1 &:= chr(ord(tagCategory));
+    asn1 &:= genAsn1Length(length(data));
+    asn1 &:= data;
   end func;
 
 
@@ -332,11 +332,11 @@ const func string: genAsn1Element (in asn1TagType: tagCategory, in string: data)
  *)
 const func string: genAsn1Integer (in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
-    stri &:= chr(ord(tagInteger));
-    stri &:= genAsn1Length(length(data));
-    stri &:= data;
+    asn1 &:= chr(ord(tagInteger));
+    asn1 &:= genAsn1Length(length(data));
+    asn1 &:= data;
   end func;
 
 
@@ -346,15 +346,15 @@ const func string: genAsn1Integer (in string: data) is func
  *)
 const func string: genAsn1String (in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   local
     var asn1TagType: tagCategory is tagEndOfContent;
   begin
     tagCategory := asn1TagTypeOfString(data);
     if tagCategory = tagUTF8String then
-      stri := genAsn1Element(tagUTF8String, toUtf8(data));
+      asn1 := genAsn1Element(tagUTF8String, toUtf8(data));
     else
-      stri := genAsn1Element(tagCategory, data);
+      asn1 := genAsn1Element(tagCategory, data);
     end if;
   end func;
 
@@ -365,12 +365,12 @@ const func string: genAsn1String (in string: data) is func
  *)
 const func string: genAsn1Sequence (in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
     # A sequence is universal (0) and constructed (32).
-    stri &:= chr(ord(tagSequence) + 32);
-    stri &:= genAsn1Length(length(data));
-    stri &:= data;
+    asn1 &:= chr(ord(tagSequence) + 32);
+    asn1 &:= genAsn1Length(length(data));
+    asn1 &:= data;
   end func;
 
 
@@ -380,12 +380,12 @@ const func string: genAsn1Sequence (in string: data) is func
  *)
 const func string: genAsn1Set (in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
     # A set is universal (0) and constructed (32).
-    stri &:= chr(ord(tagSet) + 32);
-    stri &:= genAsn1Length(length(data));
-    stri &:= data;
+    asn1 &:= chr(ord(tagSet) + 32);
+    asn1 &:= genAsn1Length(length(data));
+    asn1 &:= data;
   end func;
 
 
@@ -395,12 +395,12 @@ const func string: genAsn1Set (in string: data) is func
  *)
 const func string: genAsn1Tag (in integer: tagNumber, in string: data) is func
   result
-    var string: stri is "";
+    var string: asn1 is "";
   begin
     # A tag is context-specific (128) and constructed (32).
-    stri &:= chr(tagNumber + 160);
-    stri &:= genAsn1Length(length(data));
-    stri &:= data;
+    asn1 &:= chr(tagNumber + 160);
+    asn1 &:= genAsn1Length(length(data));
+    asn1 &:= data;
   end func;
 
 
