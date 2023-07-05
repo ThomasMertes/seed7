@@ -31,6 +31,7 @@ include "asn1.s7i";
 include "pkcs1.s7i";
 include "elliptic.s7i";
 include "msgdigest.s7i";
+include "unicode.s7i";
 include "time.s7i";
 include "duration.s7i";
 
@@ -454,6 +455,11 @@ const func x509Name: getX509Name (in string: asn1, inout integer: pos) is func
             end if;
             dataElem := getAsn1DataElement(asn1, pos);
             attrValue := getData(asn1, pos, dataElem);
+            if dataElem.tagCategory = tagUTF8String then
+              attrValue := fromUtf8(attrValue);
+            elsif dataElem.tagCategory = tagBMPString then
+              attrValue := fromUtf16Be(attrValue);
+            end if;
             name @:= [attrKey] attrValue;
             # writeln("getX509Name: " <& objectIdentifier(attrKey) <& ": " <& literal(attrValue));
           end if;
@@ -497,7 +503,7 @@ const func string: genX509Name (in x509Name: name) is func
   begin
     for attrValue key attrKey range name do
       setElement := genAsn1Element(tagObjectIdentifier, attrKey);
-      setElement &:= genAsn1Element(tagPrintableString, attrValue);
+      setElement &:= genAsn1String(attrValue);
       setElement := genAsn1Sequence(setElement);
       asn1 &:= genAsn1Set(setElement);
     end for;
@@ -973,6 +979,33 @@ const func boolean: validateSignature (in x509Cert: cert, in subjectPublicKeyInf
 
 
 (**
+ *  Create a X509 certificate that can be used for signing by the issuer.
+ *  @param publicRsaKey Public RSA key to be entered to the certificate.
+ *  @param serialNumber Serial number of certificate.
+ *  @param issuer Common name, country, locality, organization, etc. of issuer.
+ *  @param subject Common name, country, locality, organization, etc. of subject.
+ *  @param validity Validity of the certificate.
+ *)
+const func x509Cert: createX509Cert (in rsaKey: publicRsaKey,
+    in bigInteger: serialNumber, in x509Name: issuer,
+    in x509Name: subject, in x509Validity: validity) is func
+  result
+    var x509Cert: cert is x509Cert.value;
+  begin
+    cert.tbsCertificate.version := 0;  # v1
+    cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
+    cert.tbsCertificate.signature.algorithm := SHA256_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.issuer := issuer;
+    cert.tbsCertificate.validity := validity;
+    cert.tbsCertificate.subject := subject;
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := RSA_ENCRYPTION_OID;
+    cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey := publicRsaKey;
+    cert.signatureAlgorithm.algorithm := SHA256_WITH_RSA_ENCRYPTION;
+  end func;
+
+
+
+(**
  *  Create a X509 certificate that can be used for self signing.
  *  @param publicRsaKey Public RSA key to be entered to the certificate.
  *  @param serialNumber Serial number of certificate.
@@ -1007,6 +1040,35 @@ const func x509Cert: createX509Cert (in rsaKey: publicRsaKey,
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := RSA_ENCRYPTION_OID;
     cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey := publicRsaKey;
     cert.signatureAlgorithm.algorithm := SHA256_WITH_RSA_ENCRYPTION;
+  end func;
+
+
+(**
+ *  Create a X509 certificate that can is signed by the issuer.
+ *  @param curve Elliptic curve used for the cryptographie.
+ *  @param publicEccKey Public ECC key to be entered to the certificate.
+ *  @param serialNumber Serial number of certificate.
+ *  @param issuer Common name, country, locality, organization, etc. of issuer.
+ *  @param subject Common name, country, locality, organization, etc. of subject.
+ *  @param validity Validity of the certificate.
+ *)
+const func x509Cert: createX509Cert (in ellipticCurve: curve,
+    in ecPoint: publicEccKey, in bigInteger: serialNumber, in x509Name: issuer,
+    in x509Name: subject, in x509Validity: validity) is func
+  result
+    var x509Cert: cert is x509Cert.value;
+  begin
+    cert.tbsCertificate.version := 0;  # v1
+    cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
+    cert.tbsCertificate.signature.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.issuer := issuer;
+    cert.tbsCertificate.validity := validity;
+    cert.tbsCertificate.subject := subject;
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := EC_PUBLIC_KEY;
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters := getEllipticCurveOid(curve);
+    cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
+    cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
+    cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
   end func;
 
 

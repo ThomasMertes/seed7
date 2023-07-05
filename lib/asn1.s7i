@@ -27,6 +27,7 @@
 
 
 include "bytedata.s7i";
+include "unicode.s7i";
 
 
 const array string: classTagName is [0] (
@@ -281,6 +282,36 @@ const func string: genAsn1Length (in integer: length) is func
   end func;
 
 
+const func asn1TagType: asn1TagTypeOfString (in string: stri) is func
+  result
+    var asn1TagType: tagCategory is tagEndOfContent;
+  local
+    const set of char: visibleChar is {' ' .. '~'};  # ASCII without control chars
+    const set of char: printableChar is
+        {'A' .. 'Z'} | {'a' .. 'z'} | {'0' .. '9'} |
+        {' ', ''', '(', ')', '+', ',', '-', '.', '/', ':', '=', '?'};
+    var boolean: isPrintableString is TRUE;
+    var boolean: isVisibleString is TRUE;
+    var char: ch is ' ';
+  begin
+    for ch range stri until not isPrintableString do
+      if ch not in printableChar then
+        isPrintableString := FALSE;
+      end if;
+      if ch not in visibleChar then
+        isVisibleString := FALSE;
+      end if;
+    end for;
+    if isPrintableString then
+      tagCategory := tagPrintableString;
+    elsif isVisibleString then
+      tagCategory := tagVisibleString;
+    else
+      tagCategory := tagUTF8String;
+    end if;
+  end func;
+
+
 (**
  *  Create an ASN.1/BER data element from ''tagCategory'' and ''data''.
  *  @return the ASN.1/BER data element as [[string]].
@@ -306,6 +337,25 @@ const func string: genAsn1Integer (in string: data) is func
     stri &:= chr(ord(tagInteger));
     stri &:= genAsn1Length(length(data));
     stri &:= data;
+  end func;
+
+
+(**
+ *  Create a string ASN.1/BER data element from ''data''.
+ *  @return the string ASN.1/BER data element as [[string]].
+ *)
+const func string: genAsn1String (in string: data) is func
+  result
+    var string: stri is "";
+  local
+    var asn1TagType: tagCategory is tagEndOfContent;
+  begin
+    tagCategory := asn1TagTypeOfString(data);
+    if tagCategory = tagUTF8String then
+      stri := genAsn1Element(tagUTF8String, toUtf8(data));
+    else
+      stri := genAsn1Element(tagCategory, data);
+    end if;
   end func;
 
 
