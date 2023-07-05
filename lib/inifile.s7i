@@ -70,10 +70,9 @@ const func string: getIniSection (inout file: inFile) is func
   result
     var string: symbol is "";
   begin
-    inFile.bufferChar := getc(inFile);
-    while inFile.bufferChar in space_or_tab do
+    repeat
       inFile.bufferChar := getc(inFile);
-    end while;
+    until inFile.bufferChar not in space_or_tab;
     while inFile.bufferChar <> ']' and inFile.bufferChar <> '\n' and inFile.bufferChar <> EOF do
       symbol &:= str(inFile.bufferChar);
       inFile.bufferChar := getc(inFile);

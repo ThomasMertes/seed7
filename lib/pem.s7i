@@ -48,6 +48,7 @@ const type: pemObject is new struct
 
 (**
  *  Create a PEM object from ''pemType'' and ''content''.
+ *   pemObject("CERTIFICATE", certificateBytes);
  *  @param pemType Tyoe of the PEM object.
  *  @param content String of bytes with the content of the PEM object.
  *)
@@ -124,6 +125,11 @@ const func pemObject: pemObject (in string: pemData) is func
 
 (**
  *  Read the next PEM object from the given ''pemFile''.
+ *   aPemObject := readPemObject(pemFile);
+ *   while aPemObject <> pemObject.value do
+ *     ...
+ *     aPemObject := readPemObject(pemFile);
+ *   end while;
  *  @param pemFile File that contains PEM objects.
  *  @return A PEM object with PEM type and content, or
  *          or a PEM object with empty type and content
