@@ -1,3 +1,125 @@
+20230709:
+- Explanations about the initialization with 'is', the 'return'
+  declaration construct and the meaning of dollar signs have been
+  added or improved in the FAQ.
+- A chapters about arrays has been added to the tutorial.
+- In the manual, chapters about variants of for-each loops have been
+  added or improved.
+- A chapter about the exception GRAPHIC_ERROR has been added to the
+  manual.
+- The compiler (s7c.sd7) has been improved:
+  - The generated code for array indexing that always raises
+    INDEX_ERROR, has been improved to be accepted by clang. A cast to
+    the desired type has been added.
+  - The code generation for the hash set functions card() and rand()
+    has been improved to support temporary sets.
+  - Spezialized code is now generated, if the hash set function rand()
+    is used with constant sets.
+  - The functions strHeadAssign and strTailAssign are used now. They
+    are always called like this: aString = strHeadAssign(aString, pos);
+- In the library gzip.s7i the functions length() and tell() have been
+  added for a gzipWriteFile.
+- In the library tar.s7i the function putFile() has been improved to
+  check for seekable() before aplying seek().
+- The function pemObject() which creates a PEM object from 'pemType'
+  and 'content' has been added to pem.s7i.
+- Support for the generation of non-self-signed certificates has been
+  added to the x509cert.s7i library.
+- Support for X509 extensions has been added to the x509cert.s7i
+  library.
+- A function to create an x509Name has been added to x509cert.s7i.
+- In x509cert.s7i several things have been renamed:
+  - The types validityType and nameType have been renamed to
+    x509Validity and x509Name respectively.
+  - The function getName() has been renamed to getX509Name().
+  - The parameter encryptionKey has been renamed to issuerKey.
+- In x509cert.s7i the type x509cert is deprecated now. The type
+  x509Cert should be used instead.
+- In asn1.s7i and x509cert.s7i parameters and result variables have
+  been renamed from 'stri' to 'asn1'.
+- In pkcs1.s7i an additional function to generate a RSA key pair has
+  been added.
+- Now 'in varfunc' call-by-name parameters can be specified with 'in'
+  and 'ref'. This is done in the library seed7_05.s7i by defining
+  IN_PARAM_IS_REFERENCE(varfunc aType).
+- In seed7_05.s7i the boolean condition parameters of loops have been
+  changed to be defined with 'ref'. This corresponds to the fact that
+  changing a condition variable in the loop body can terminate the
+  loop.
+- The test suite has been improved to increase the code coverage.
+- A test program for enumerations (chkenum.sd7) has been added.
+- Tests have been added to chkbig.sd7:
+  - Tests for bigInteger comparisons (=, <>, <, <=, >=, > and compare).
+  - Tests for the optimization of ord(a mod b).
+  - Tests for the multiplication of a constant with a bigInteger.
+  - Tests for the divRem operator and for the rand and gcd functions.
+  - Tests for the modulus of a bigInteger by a power of two.
+- Tests have been added to chkbin.sd7:
+  - Tests for the bin64 &, | and >< operators.
+  - Tests for the optimization of bin64(a mod b).
+  - Tests for bin64 shift operator have been improved.
+- Tests have been added to chkbst.sd7:
+  - Tests for bstring length.
+  - Improve tests for bstring assignments.
+- Tests have been added to chkchr.sd7:
+  - Tests for char literals and conversions
+  - Tests for the char functions succ(), pred(), lower() and upper().
+- Tests in chkhsh.sd7 have been improved:
+  - Tests for hash tables with enumeration type keys and values have
+    been added.
+  - Tests for hash tables with bstring keys and values have been added.
+  - Tests for hash tables with bitset keys and values have been added.
+  - Tests for hash keys() and values() function have been added.
+- Tests in chkstr.sd7 have been improved:
+  - Tests for c_literal() have been added.
+  - Tests for string head (stri[.. stop]) have been added.
+  - Tests for string tail (stri[start ..]) have been added.
+  - Tests for the string pos(), rpos() and replace() functions have
+    been added. These tests trigger a Boyer-Moore string search.
+  - Tests for fromUtf8() have been added.
+  - Tests for lower() and upper() have been added.
+  - Tests for string assignment have been added.
+- Tests for the expression A * B ** C have been added to chkint.sd7
+  and chkovf.sd7.
+- Tests for string head (stri[.. n]) and string tail (stri[n ..]) have
+  been added to chkidx.sd7.
+- In chkset.sd7 tests for the hash set functions card(), rand() and
+  toArray() have been added. Tests for the operators 'in' and 'not in'
+  have been added as well.
+- In chkprc.sd7 tests for for-until loops have been added.
+- Tests for the type clib_file and for the functions seekable(),
+  tell(), bigTell() and seek() have been added to chkfil.sd7.
+- The handling of the version level (the last number in the version
+  string) has been improved:
+  - The file src/level_rl.h which contains the release level has been
+    introduced.
+  - The files src/level.h and src/level_bk.h have been removed from the
+    release.
+  - In the makefiles the target distclean has been improved to remove
+    src/level.h and src/level_bk.h.
+  - The program levelup.c has been improved to maintain the file
+    level.h. If level_rl.h has changed it will be copied to level.h. If
+    there is no change in level_rl.h every compilation of s7 will
+    increment the level.
+  - The program wrdepend.c has been improved to check if level.h is
+    missing. In this case, level_rl.h is copied to level.h.
+  - The minor version number of s7 and s7c has been incremented.
+- In seed7_05.s7i, forloop.s7i, chkarr.sd7, chkbig.sd7, chkbin.sd7,
+  chkbst.sd7, chkfil.sd7, chkflt.sd7, chkidx.sd7, chkint.sd7,
+  chkovf.sd7, chkset.sd7 and chkstr.sd7 'ref func' parameters have been
+  replaced with 'in func' parameters.
+- In chk_all.sd7, chkarr.sd7, chkfil.sd7, chkidx.sd7, chkovf.sd7 and
+  chkstr.sd7 'ref proc' parameters have been replaced with 'in proc'
+  parameters.
+- In str_rtl.c the functions strHeadAssign and strTailAssign have been
+  introduced. These functions leave the string parameter intact in case
+  of an error.
+- In str_rtl.c the function strHeadTemp has been refactored to assume
+  that the string parameter is always tempory and can be freed in case
+  of an error.
+- Documentation comments have been improved in pem.s7i and
+  x509cert.s7i.
+
 20230529:
 - The FAQ concerning break and continue has been improved.
 - Chapters about assignment and constants have been added to the

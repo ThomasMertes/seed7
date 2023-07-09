@@ -239,6 +239,7 @@ pre.indent {
 <li><a class="link" href="#tutorial_Assignment"><b>Assignment</b></a></li>
 <li><a class="link" href="#tutorial_Constants"><b>Constants</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
+<li><a class="link" href="#tutorial_Arrays"><b>Arrays</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_containers"><b>For loop and containers</b></a></li>
 <li><a class="link" href="#tutorial_Functions"><b>Functions</b></a></li>
 <li><a class="link" href="#tutorial_Parameters"><b>Parameters</b></a></li>
@@ -259,6 +260,8 @@ pre.indent {
 <li><a class="link" href="#stats_for-until-statement"><b>for-until-statement</b></a></li>
 <li><a class="link" href="#stats_for-step-statement"><b>for-step-statement</b></a></li>
 <li><a class="link" href="#stats_for-each-statement"><b>for-each-statement</b></a></li>
+<li><a class="link" href="#stats_for-each-key-statement"><b>for-each-key-statement</b></a></li>
+<li><a class="link" href="#stats_for-key-statement"><b>for-key-statement</b></a></li>
 <li><a class="link" href="#stats_if-statement"><b>if-statement</b></a></li>
 <li><a class="link" href="#stats_case-statement"><b>case-statement</b></a></li></ol></li>
 <li><a class="link" href="#types_file_start"><big><b>PREDEFINED TYPES</b></big></a><ol>
@@ -453,6 +456,7 @@ pre.indent {
 <li><a class="link" href="#errors_RANGE_ERROR"><b><i>RANGE_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_FILE_ERROR"><b><i>FILE_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_DATABASE_ERROR"><b><i>DATABASE_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_GRAPHIC_ERROR"><b><i>GRAPHIC_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_ILLEGAL_ACTION"><b><i>ILLEGAL_ACTION</i></b></a></li></ol></li>
 <li><a class="link" href="#errors_Handlers"><b>Handlers</b></a></li>
 <li><a class="link" href="#errors_Stack_trace"><b>Stack trace</b></a></li>
@@ -729,7 +733,7 @@ hello world
 </p><pre class="indent">
 hello world
 </pre><p>
-  The option <b>-q</b> can be used to suppress the information line
+  The option <span class="link"><tt><b>-q</b></tt></span> can be used to suppress the information line
   of the Seed7 interpreter:
 </p><pre class="indent">
 s7 -q hello
@@ -1025,7 +1029,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
 </p><pre class="indent">
-<a class="comment" href="#tokens_Line_comments"># Print a Fahrenheit-Celsius table with foating point numbers.</a>
+<a class="comment" href="#tokens_Line_comments"># Print a Fahrenheit-Celsius table with floating point numbers.</a>
 
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <a class="comment" href="#tokens_Line_comments"># This must be included first.</a>
   <span class="keywd">include</span> <span class="lib">"<span class="lib">float.s7i</span>"</span>;     <a class="comment" href="#tokens_Line_comments"># Subsequent includes do not need a $.</a>
@@ -1079,10 +1083,107 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <
   of 6.
 </p>
 
-<a name="tutorial_For_loop_and_containers"><h3>2.6 For loop and containers</h3></a>
+<a name="tutorial_Arrays"><h3>2.6 Arrays</h3></a>
 <p>
-    A <tt><a class="link" href="#stats_for-each-statement">for-loop</a></tt> can be used to iterate over the elements of an <tt><a class="type" href="#types_array">array</a></tt>
-  (so it is actually a <tt><a class="link" href="#stats_for-each-statement">for-each-loop</a></tt>):
+    Arrays allow a variable to contain several values. E.g.:
+  An array can be used to store a mapping from a day number to
+  a day name:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> 7 <span class="op_no_ul">times</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    weekdayName<span class="op_no_ul">[</span>1<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"monday"</a>;
+    weekdayName<span class="op_no_ul">[</span>2<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"tuesday"</a>;
+    weekdayName<span class="op_no_ul">[</span>3<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"wednesday"</a>;
+    weekdayName<span class="op_no_ul">[</span>4<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"thursday"</a>;
+    weekdayName<span class="op_no_ul">[</span>5<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"friday"</a>;
+    weekdayName<span class="op_no_ul">[</span>6<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"saturday"</a>;
+    weekdayName<span class="op_no_ul">[</span>7<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"sunday"</a>;
+    <a class="keywd_no_ul" href="#stats_for-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-statement">range</a> 1 <a class="keywd_no_ul" href="#stats_for-statement">to</a> 7 <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+      <span class="func_no_ul">writeln</span>(weekdayName<span class="op_no_ul">[</span>number<span class="op_no_ul">]</span>);
+    <a class="keywd_no_ul" href="#stats_for-statement">end</a> <a class="keywd_no_ul" href="#stats_for-statement">for</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  Since <tt>weekdayName</tt> is not changed after its values have been
+  assigned, it can be declared as constant that is initialized
+  with an array literal:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_for-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-statement">range</a> 1 <a class="keywd_no_ul" href="#stats_for-statement">to</a> 7 <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+      <span class="func_no_ul">writeln</span>(weekdayName<span class="op_no_ul">[</span>number<span class="op_no_ul">]</span>);
+    <a class="keywd_no_ul" href="#stats_for-statement">end</a> <a class="keywd_no_ul" href="#stats_for-statement">for</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  The example above uses the array literal
+</p><pre class="indent">
+[] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>)
+</pre><p>
+  This array literal has the type <tt><a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a></tt> and it is
+  indexed beginning from 1. A corresponding array literal
+  indexed beginning from 0 would be:
+</p><pre class="indent">
+[0] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>)
+</pre><p>
+  The <a class="link" href="#stats_for-statement">for-loop</a> above uses the literal <tt>7</tt> as upper bound. The function
+  <tt><span class="func">length</span></tt> can be used instead:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#stats_for-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-statement">range</a> 1 <a class="keywd_no_ul" href="#stats_for-statement">to</a> <span class="func">length</span>(weekdayName) <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+</pre><p>
+  This works as long as the array <tt>weekdayName</tt> is indexed beginning from 1.
+  If this is not the case the functions <tt><span class="func">minIdx</span></tt> and <tt><span class="func">maxIdx</span></tt> can be used:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#stats_for-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-statement">range</a> <span class="func">minIdx</span>(weekdayName) <a class="keywd_no_ul" href="#stats_for-statement">to</a> <span class="func">maxIdx</span>(weekdayName) <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+</pre><p>
+  For this case there is a convenient <a class="link" href="#stats_for-key-statement">for-key-loop</a>:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#stats_for-key-statement">for</a> <a class="keywd_no_ul" href="#stats_for-key-statement">key</a> number <a class="keywd_no_ul" href="#stats_for-key-statement">range</a> weekdayName <a class="keywd_no_ul" href="#stats_for-key-statement">do</a>
+  <span class="func_no_ul">writeln</span>(weekdayName<span class="op_no_ul">[</span>number<span class="op_no_ul">]</span>);
+<a class="keywd_no_ul" href="#stats_for-key-statement">end for</a>;
+</pre><p>
+  This <a class="link" href="#stats_for-key-statement">for-key-loop</a> loops over the indices of the <tt><a class="type" href="#types_array">array</a></tt> <tt>weekdayName</tt>
+  (from 1 to 7). In the loop body the index is just used to access an
+  element from the array. For this case there is a convenient <a class="link" href="#stats_for-each-statement">for-each-loop</a>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_for-each-statement">for</a> name <a class="keywd_no_ul" href="#stats_for-each-statement">range</a> weekdayName <a class="keywd_no_ul" href="#stats_for-each-statement">do</a>
+      <span class="func_no_ul">writeln</span>(name);
+    <a class="keywd_no_ul" href="#stats_for-each-statement">end</a> <a class="keywd_no_ul" href="#stats_for-each-statement">for</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  A <a class="link" href="#stats_for-each-statement">for-each-loop</a> iterates over the elements of an <tt><a class="type" href="#types_array">array</a></tt>.
+  Sometimes the elements and a corresponding index are needed.
+  This is supported by the <a class="link" href="#stats_for-each-key-statement">for-each-key-loop</a>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_for-each-key-statement">for</a> name <a class="keywd_no_ul" href="#stats_for-each-key-statement">key</a> index <a class="keywd_no_ul" href="#stats_for-each-key-statement">range</a> weekdayName <a class="keywd_no_ul" href="#stats_for-each-key-statement">do</a>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"day "</a> <span class="op_no_ul">&lt;&amp;</span> index <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a> <span class="op_no_ul">&lt;&amp;</span> name);
+    <a class="keywd_no_ul" href="#stats_for-each-key-statement">end</a> <a class="keywd_no_ul" href="#stats_for-each-key-statement">for</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  Another example of a <tt><a class="link" href="#stats_for-each-statement">for-each-loop</a></tt> is:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
@@ -1090,20 +1191,41 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> number <span class="keywd_no_ul">range</span> [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100) <span class="keywd_no_ul">do</span>
+    <a class="keywd_no_ul" href="#stats_for-each-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-each-statement">range</a> [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100) <a class="keywd_no_ul" href="#stats_for-each-statement">do</a>
       <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
-    <span class="keywd_no_ul">end for</span>;
+    <a class="keywd_no_ul" href="#stats_for-each-statement">end for</a>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  In the example above <tt>[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)</tt>
-  is an array literal. This array literal has the type
-  <tt><a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a></tt> and it is indexed from one. A corresponding
-  array literal indexed from 0 would be:
+  The example above uses the array literal
 </p><pre class="indent">
-[0] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
+[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
 </pre><p>
-  <tt><span class="link">For-loops</span></tt> can also iterate over the elements of a <tt><a class="type" href="#types_set">set</a></tt>:
+  This array literal has the type <tt><a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a></tt>. The index type of
+  an array is not restricted to integers. A type like <tt><a class="type" href="#types_char">char</a></tt>, that
+  has a 1:1 mapping to <tt><a class="type" href="#types_integer">integer</a></tt>, can also be used as index:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> [<a class="type_no_ul" href="#types_char">char</a>] <a class="type_no_ul" href="#types_string">string</a>: digitName <span class="keywd">is</span>
+        [<a class="stri" href="#tokens_Character_literals">'0'</a>] (<a class="stri" href="#tokens_String_literals">"zero"</a>, <a class="stri" href="#tokens_String_literals">"one"</a>, <a class="stri" href="#tokens_String_literals">"two"</a>, <a class="stri" href="#tokens_String_literals">"three"</a>, <a class="stri" href="#tokens_String_literals">"four"</a>, <a class="stri" href="#tokens_String_literals">"five"</a>, <a class="stri" href="#tokens_String_literals">"six"</a>, <a class="stri" href="#tokens_String_literals">"seven"</a>, <a class="stri" href="#tokens_String_literals">"eight"</a>, <a class="stri" href="#tokens_String_literals">"nine"</a>);
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+  <span class="keywd">begin</span>
+    number <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">rand</span>(1, 9999999);
+    <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a>);
+    <span class="keywd_no_ul">for</span> ch <span class="keywd_no_ul">range</span> <span class="func_no_ul">str</span>(number) <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">write</span>(digitName[ch] <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
+    <span class="keywd_no_ul">end for</span>;
+    <span class="func_no_ul">writeln</span>;
+  <span class="keywd">end func</span>;
+</pre><p></p>
+
+<a name="tutorial_For_loop_and_containers"><h3>2.7 For loop and containers</h3></a>
+<p>
+    <tt><span class="link">For-loops</span></tt> can also iterate over the elements of a <tt><a class="type" href="#types_set">set</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
@@ -1212,7 +1334,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre>
 
-<a name="tutorial_Functions"><h3>2.7 Functions</h3></a>
+<a name="tutorial_Functions"><h3>2.8 Functions</h3></a>
 <p>
     The program below uses the function <tt><span class="func">flipCoin</span></tt> to flip
   a coin until the result is heads:
@@ -1305,7 +1427,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   the <tt><span class="keywd">result</span></tt> part is mandatory.
 </p>
 
-<a name="tutorial_Parameters"><h3>2.8 Parameters</h3></a>
+<a name="tutorial_Parameters"><h3>2.9 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters to describe this situation:
@@ -1433,7 +1555,7 @@ reset(8);
   over an explicit <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter.
 </p>
 
-<a name="tutorial_Overloading"><h3>2.9 Overloading</h3></a>
+<a name="tutorial_Overloading"><h3>2.10 Overloading</h3></a>
 <p>
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1511,7 +1633,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   above are taken from the <tt><span class="lib">mixarith.s7i</span></tt> library.
 </p>
 
-<a name="tutorial_Declare_a_statement"><h3>2.10 Declare a statement</h3></a>
+<a name="tutorial_Declare_a_statement"><h3>2.11 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre class="indent">
@@ -1554,7 +1676,7 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Because of these powerful features Seed7 does not need iterators.
 </p>
 
-<a name="tutorial_Template_declaring_a_statement"><h3>2.11 Template declaring a statement</h3></a>
+<a name="tutorial_Template_declaring_a_statement"><h3>2.12 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
@@ -1895,12 +2017,16 @@ $ <span class="keywd">names</span> <span class="keywd">unicode</span>;
     <dt><a name="stats_ebnf_single_statement">single_statement</a> ::=</dt><dd>
       <a class="ebnf" href="#stats_ebnf_assignment_statement">assignment_statement</a> | <a class="ebnf" href="#stats_ebnf_while_statement">while_statement</a> | <a class="ebnf" href="#stats_ebnf_repeat_statement">repeat_statement</a> |<br />
       <a class="ebnf" href="#stats_ebnf_for_statement">for_statement</a> | <a class="ebnf" href="#stats_ebnf_for_step_statement">for_step_statement</a> | <a class="ebnf" href="#stats_ebnf_for_each_statement">for_each_statement</a> |<br />
-      <a class="ebnf" href="#stats_ebnf_if_statement">if_statement</a> | <a class="ebnf" href="#stats_ebnf_case_statement">case_statement</a> |<br />
-      procedure_call | <a class="ebnf" href="#stats_ebnf_empty_statement">empty_statement</a> .</dd>
+      <a class="ebnf" href="#stats_ebnf_for_each_key_statement">for_each_key_statement</a> | <a class="ebnf" href="#stats_ebnf_for_key_statement">for_key_statement</a> | <a class="ebnf" href="#stats_ebnf_if_statement">if_statement</a> |<br />
+      <a class="ebnf" href="#stats_ebnf_case_statement">case_statement</a> | procedure_call | <a class="ebnf" href="#stats_ebnf_empty_statement">empty_statement</a> .</dd>
 <dt><br /></dt>
     <dt><a name="stats_ebnf_empty_statement">empty_statement</a> ::=</dt><dd>
       'noop' .</dd>
 </dl></tt></dd></dl><p>
+  The execution of a <tt><span class="keywd">noop</span></tt> statement (short for NO OPeration) has
+  no effect. Some places in a program require a statement. If
+  nothing needs to be done in such a place a <tt><span class="keywd">noop</span></tt> can be used.
+</p><p>
   Everywhere where one statement can be written a sequence of
   statements can also be used. The semicolon-operator concatenates
   two statements giving a new statement. The semicolon operator
@@ -1908,7 +2034,7 @@ $ <span class="keywd">names</span> <span class="keywd">unicode</span>;
   sequence. In this case the semicolon is just ignored.
 
 </p><p>
-  Declaration:
+  <a name="stats_semicolon_operator_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ; .()   <span class="keywd">is</span> &lt;- 50;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ;       <span class="keywd">is</span> &lt;- 50 [1];
@@ -1938,35 +2064,35 @@ minimum := maximum <span class="op">div</span> 2;
   must be defined additionally.
 
 </p><p>
-  Declaration:
+  <a name="stats_assignment_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). := .()   <span class="keywd">is</span> &lt;-> 20;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_type">type</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: source)                   <span class="keywd">is action</span> <span class="stri">"TYP_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_proc">proc</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: source)                   <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: source)       <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: source) <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ACTION</span>: dest) := (<span class="keywd">in</span> <span class="type">ACTION</span>: source)                <span class="keywd">is action</span> <span class="stri">"ACT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_boolean">boolean</a>: dest) <a name="stats_(inout_boolean):=(in_boolean)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: source)              <span class="keywd">is action</span> <span class="stri">"BLN_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: dest) <a name="stats_(inout_integer):=(in_integer)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: source)              <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bigInteger">bigInteger</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bigInteger">bigInteger</a>: source)        <span class="keywd">is action</span> <span class="stri">"BIG_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_char">char</a>: dest) <a name="stats_(inout_char):=(in_char)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_char">char</a>: source)                    <span class="keywd">is action</span> <span class="stri">"CHR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_string">string</a>: dest) <a name="stats_(inout_string):=(in_string)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source)                <span class="keywd">is action</span> <span class="stri">"STR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin64">bin64</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin64">bin64</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin32">bin32</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin32">bin32</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bstring">bstring</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bstring">bstring</a>: source)              <span class="keywd">is action</span> <span class="stri">"BST_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_reference">reference</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_reference">reference</a>: source)          <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_ref_list">ref_list</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: source)            <span class="keywd">is action</span> <span class="stri">"RFL_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">ptrType</span>: source)              <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">varptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">varptrType</span>: source)        <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">arrayType</span>: dest) := (<span class="keywd">in</span> <span class="type">arrayType</span>: source)          <span class="keywd">is action</span> <span class="stri">"ARR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_set">bitset</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_set">bitset</a>: source)                <span class="keywd">is action</span> <span class="stri">"SET_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">structType</span>: dest) := (<span class="keywd">in</span> <span class="type">structType</span>: source)        <span class="keywd">is action</span> <span class="stri">"SCT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">enumType</span>: dest) := (<span class="keywd">in</span> <span class="type">enumType</span>: source)            <span class="keywd">is action</span> <span class="stri">"ENU_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">clib_file</span>: dest) := (<span class="keywd">in</span> <span class="type">clib_file</span>: source)          <span class="keywd">is action</span> <span class="stri">"FIL_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_process">process</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_process">process</a>: source)              <span class="keywd">is action</span> <span class="stri">"PCS_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">interfaceType</span>: source) <span class="keywd">is action</span> <span class="stri">"ITF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">aType</span>: source)         <span class="keywd">is action</span> <span class="stri">"ITF_CPY2"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_type">type</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: source)                   <span class="keywd">is action</span> <span class="stri">"TYP_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_proc">proc</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: source)                   <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: source)       <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: source) <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">ACTION</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">ACTION</span>: source)                <span class="keywd">is action</span> <span class="stri">"ACT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_boolean">boolean</a>: dest) <a name="stats_(inout_boolean):=(in_boolean)">:=</a> (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_boolean">boolean</a>: source)              <span class="keywd">is action</span> <span class="stri">"BLN_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: dest) <a name="stats_(inout_integer):=(in_integer)">:=</a> (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: source)              <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_bigInteger">bigInteger</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_bigInteger">bigInteger</a>: source)        <span class="keywd">is action</span> <span class="stri">"BIG_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_char">char</a>: dest) <a name="stats_(inout_char):=(in_char)">:=</a> (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_char">char</a>: source)                    <span class="keywd">is action</span> <span class="stri">"CHR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_string">string</a>: dest) <a name="stats_(inout_string):=(in_string)">:=</a> (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_string">string</a>: source)                <span class="keywd">is action</span> <span class="stri">"STR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_bin64">bin64</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_bin64">bin64</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_bin32">bin32</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_bin32">bin32</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_bstring">bstring</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_bstring">bstring</a>: source)              <span class="keywd">is action</span> <span class="stri">"BST_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_reference">reference</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_reference">reference</a>: source)          <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_ref_list">ref_list</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_ref_list">ref_list</a>: source)            <span class="keywd">is action</span> <span class="stri">"RFL_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">ptrType</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">ptrType</span>: source)              <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">varptrType</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">varptrType</span>: source)        <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">arrayType</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">arrayType</span>: source)          <span class="keywd">is action</span> <span class="stri">"ARR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_set">bitset</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_set">bitset</a>: source)                <span class="keywd">is action</span> <span class="stri">"SET_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">structType</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">structType</span>: source)        <span class="keywd">is action</span> <span class="stri">"SCT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">enumType</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">enumType</span>: source)            <span class="keywd">is action</span> <span class="stri">"ENU_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">clib_file</span>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">clib_file</span>: source)          <span class="keywd">is action</span> <span class="stri">"FIL_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_process">process</a>: dest) := (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_process">process</a>: source)              <span class="keywd">is action</span> <span class="stri">"PCS_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">interfaceType</span>: source) <span class="keywd">is action</span> <span class="stri">"ITF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">aType</span>: source)         <span class="keywd">is action</span> <span class="stri">"ITF_CPY2"</span>;
 </pre><p></p>
 
 <a name="stats_Ignoring_values"><h3>4.2 Ignoring values</h3></a>
@@ -2001,7 +2127,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   For example:
 </p><pre class="indent">
 <span class="keywd">while</span> maximum > minimum <span class="keywd">do</span>
-  minimum := 2 * minimum + stepValue;
+  minimum <a class="op_no_ul" href="#stats_Assignment">:=</a> 2 * minimum + stepValue;
   decr(stepValue);
 <span class="keywd">end while</span>;
 </pre><p></p><dl><dt>
@@ -2023,16 +2149,16 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The expression must be of type <tt><a class="type" href="#types_boolean">boolean</a></tt>.
 
 </p><p>
-  Declaration:
+  <a name="stats_while_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .while.().do.().end.while   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition)  do (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while      <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) end while     <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
 </pre><p>
   Alternate declaration:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">if</span> condition <span class="keywd">then</span>
       statement;
@@ -2049,7 +2175,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">repeat</span>
   incr(minimum);
-  maximum := maximum - stepValue;
+  maximum <a class="op_no_ul" href="#stats_Assignment">:=</a> maximum - stepValue;
 <span class="keywd">until</span> 2 * minimum > maximum;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
@@ -2070,16 +2196,16 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The expression must be of type <tt><a class="type" href="#types_boolean">boolean</a></tt>.
 
 </p><p>
-  Declaration:
+  <a name="stats_repeat_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .repeat.().until.()   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) until (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition)       <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) until (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) until (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type" href="#types_boolean">boolean</a>: condition)     <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
 </pre><p>
   Alternate declaration:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement) until (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     statement;
     <span class="keywd">if</span> <span class="keywd">not</span> condition <span class="keywd">then</span>
@@ -2129,54 +2255,54 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
 
-  Declaration:
+  <a name="stats_for_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().do.().end.for       <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().do.().end.for   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: aVar) range (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: lowerLimit) to (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: upperLimit) do
-              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: aVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: lowerLimit) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: upperLimit) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
             end for                                                      <span class="keywd">is action</span> <span class="stri">"PRC_FOR_TO"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: aVar) range (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: upperLimit) downto (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: lowerLimit) do
-              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: aVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: upperLimit) downto (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: lowerLimit) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
             end for                                                      <span class="keywd">is action</span> <span class="stri">"PRC_FOR_DOWNTO"</span>;
 </pre><p>
   Declaration for non-integer types:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
-        (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) do
-        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">local</span>
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
-        variable := lowerLimit;
-        continue := variable &lt;= upperLimit;
+        variable <a class="op_no_ul" href="#stats_Assignment">:=</a> lowerLimit;
+        continue <a class="op_no_ul" href="#stats_Assignment">:=</a> variable &lt;= upperLimit;
         <span class="keywd">while</span> continue <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable &lt; upperLimit <span class="keywd">then</span>
             incr(variable);
           <span class="keywd">else</span>
-            continue := <span class="var">FALSE</span>;
+            continue <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">FALSE</span>;
           <span class="keywd">end if</span>;
         <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
 
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
-        (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) do
-        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit) downto (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">local</span>
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
-        variable := upperLimit;
-        continue := variable >= lowerLimit;
+        variable <a class="op_no_ul" href="#stats_Assignment">:=</a> upperLimit;
+        continue <a class="op_no_ul" href="#stats_Assignment">:=</a> variable >= lowerLimit;
         <span class="keywd">while</span> continue <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable > lowerLimit <span class="keywd">then</span>
             decr(variable);
           <span class="keywd">else</span>
-            continue := <span class="var">FALSE</span>;
+            continue <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">FALSE</span>;
           <span class="keywd">end if</span>;
         <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
@@ -2197,7 +2323,7 @@ FOR_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     incr(numColumns);
   <span class="keywd">end if</span>;
   <span class="keywd">if</span> numColumns = selectedNum <span class="keywd">then</span>
-    selectedColumn := column;
+    selectedColumn <a class="op_no_ul" href="#stats_Assignment">:=</a> column;
   <span class="keywd">end if</span>;
 <span class="keywd">end for</span>;
 </pre><p></p><dl><dt>
@@ -2238,46 +2364,46 @@ FOR_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
 
-  Declaration:
+  <a name="stats_for_until_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().until.().do.().end.for       <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().until.().do.().end.for   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_UNTIL_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_UNTIL_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
-        until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
-        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit)
+        until (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">local</span>
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
-        variable := lowerLimit;
-        continue := variable &lt;= upperLimit;
+        variable <a class="op_no_ul" href="#stats_Assignment">:=</a> lowerLimit;
+        continue <a class="op_no_ul" href="#stats_Assignment">:=</a> variable &lt;= upperLimit;
         <span class="keywd">while</span> continue <span class="op">and not</span> condition <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable &lt; upperLimit <span class="keywd">then</span>
             incr(variable);
           <span class="keywd">else</span>
-            continue := <span class="var">FALSE</span>;
+            continue <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">FALSE</span>;
           <span class="keywd">end if</span>;
         <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
 
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
-        until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
-        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit) downto (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit)
+        until (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">local</span>
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
-        variable := upperLimit;
-        continue := variable >= lowerLimit;
+        variable <a class="op_no_ul" href="#stats_Assignment">:=</a> upperLimit;
+        continue <a class="op_no_ul" href="#stats_Assignment">:=</a> variable >= lowerLimit;
         <span class="keywd">while</span> continue <span class="op">and not</span> condition <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable > lowerLimit <span class="keywd">then</span>
             decr(variable);
           <span class="keywd">else</span>
-            continue := <span class="var">FALSE</span>;
+            continue <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">FALSE</span>;
           <span class="keywd">end if</span>;
         <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
@@ -2331,20 +2457,20 @@ FOR_UNTIL_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
 
-  Declaration:
+  <a name="stats_for_step_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().step.().do.().end.for       <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().step.().do.().end.for   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_STEP_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_STEP_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) +:= (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
 
-      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
-          step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: incr_step) do
-          (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit)
+          step (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: incr_step) do
+          (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
         <span class="keywd">begin</span>
-          variable := lowerLimit;
+          variable <a class="op_no_ul" href="#stats_Assignment">:=</a> lowerLimit;
           <span class="keywd">while</span> variable &lt;= upperLimit <span class="keywd">do</span>
             statements;
             variable +:= incr_step;
@@ -2352,13 +2478,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
         <span class="keywd">end func</span>;
 
     <span class="keywd">end if</span>;
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) -:= (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
 
-      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit)
-          step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: decr_step) do
-          (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: upperLimit) downto (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: lowerLimit)
+          step (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: decr_step) do
+          (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
         <span class="keywd">begin</span>
-          variable := upperLimit;
+          variable <a class="op_no_ul" href="#stats_Assignment">:=</a> upperLimit;
           <span class="keywd">while</span> variable >= lowerLimit <span class="keywd">do</span>
             statements;
             variable -:= decr_step;
@@ -2374,76 +2500,263 @@ FOR_STEP_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
 <a name="stats_for-each-statement"><h3>4.8 for-each-statement</h3></a>
 <p>
-  For example:
+  A for-each-statement loops over the elements of a container
+  (<tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_set">set</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>, <tt><a class="type" href="#types_bstring">bstring</a></tt>, <tt><a class="type" href="#types_ref_list">ref_list</a></tt>). For example:
 </p><pre class="indent">
-<span class="keywd">for</span> currObject <span class="keywd">range</span> element_list <span class="keywd">do</span>
-  result &amp;:= " " &amp; str(currObject);
-<span class="keywd">end for</span>;
+<span class="keywd_no_ul">for</span> currObject <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">do</span>
+  <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"element: "</a> <span class="op_no_ul">&lt;&amp;</span> currObject);
+<span class="keywd_no_ul">end for</span>;
+</pre><p>
+  A for-each-statement can be combined with an <tt><span class="keywd">until</span></tt> condition:
+</p><pre class="indent">
+<span class="keywd_no_ul">for</span> currObject <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">until</span> found <span class="keywd_no_ul">do</span>
+  <a class="keywd_no_ul", href="#stats_if-statement">if</a> currObject <span class="op">=</a> searched <a class="keywd_no_ul", href="#stats_if-statement">then</a>
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"found: "</a> <span class="op_no_ul">&lt;&amp;</span> currObject);
+    found <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">TRUE</span>;
+  <a class="keywd_no_ul", href="#stats_if-statement">end if</a>;
+<span class="keywd_no_ul">end for</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     First the element list which stands behind <tt><span class="keywd">range</span></tt> is evaluated.
     If the element list is empty the for-each-statement is finished.
     Otherwise the first element of the element list is assigned
-    to the control variable which stands behind <tt><span class="keywd">for</span></tt>. Then the
-    statements behind <tt><span class="keywd">do</span></tt> are executed. If there is no next element
-    in the element the for-each-statement is finished. Otherwise
-    the next element of the element list is assigned to the control
-    variable. This check for next element - execute cycle is repeated
-    until there is no next element in the element list.
+    to the control variable which stands behind <tt><span class="keywd">for</span></tt>. If there is
+    an <tt><span class="keywd">until</span></tt> part the condition behind <tt><span class="keywd">until</span></tt> is checked and if it
+    evaluates to <tt><span class="var">TRUE</span></tt> the for-each-statement is finished. If the
+    for-each-statement is not finished the statements behind <tt><span class="keywd">do</span></tt>
+    (loop body) are executed. If there is no next element in the
+    element list the for-each-statement is finished. Otherwise the
+    next element of the element list is assigned to the control
+    variable. This check for next element - assign element -
+    check possible until condition - execute loop body - cycle is
+    repeated until there is no next element in the element list.
 </dd></dl>
 <dl><dt>
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="stats_ebnf_for_each_statement">for_each_statement</a> ::=</dt><dd>
-      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">until</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> ] '<span class="keywd">do</span>'<br />
       &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
 
-  Declaration:
+  <a name="stats_for_each_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().do.().end.for   <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_reference">reference</a>: variable) range (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: aRefList) do
-              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_char">char</a>: forVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_string">string</a>: stri) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end for <span class="keywd">is action</span> <span class="stri">"STR_FOR"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_reference">reference</a>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_ref_list">ref_list</a>: aRefList) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
             end for <span class="keywd">is action</span> <span class="stri">"RFL_FOR"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">baseType</span>: variable) range (<span class="keywd">in</span> <span class="type">arrayType</span>: arr_obj) do
-              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">arrayType</span>: arr_obj) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
             end for <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> number <span class="keywd">range</span> minIdx(arr_obj) <span class="keywd">to</span> maxIdx(arr_obj) <span class="keywd">do</span>
-      variable := arr_obj[number];
+      variable <a class="op_no_ul" href="#stats_Assignment">:=</a> arr_obj[number];
       statements;
     <span class="keywd">end for</span>;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">baseType</span>: variable) range (<span class="keywd">in</span> <span class="type">setType</span>: a_set) do
-              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: forVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">hashType</span>: aHashMap) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
             end for <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">for</span> variable <span class="keywd">range</span> min(a_set) <span class="keywd">to</span> max(a_set) <span class="keywd">do</span>
-      <span class="keywd">if</span> variable <span class="keywd">in</span> a_set <span class="keywd">then</span>
+    FOR_DATA(forVar, aHashMap, statements, hashType.dataCopy);
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">setType</span>: aSet) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">baseType</span>: upperBound <span class="keywd">is</span> <span class="type">baseType</span>.value;
+    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: leave <span class="keywd">is</span> <span class="var">FALSE</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> aSet <> setType.EMPTY_SET <span class="keywd">then</span>
+      variable <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">min</span>(aSet);
+      upperBound <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">max</span>(aSet);
+      <span class="keywd">repeat</span>
         statements;
-      <span class="keywd">end if</span>;
+        <span class="keywd">if</span> variable = upperBound <span class="keywd">then</span>
+          leave <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">TRUE</span>;
+        <span class="keywd">else</span>
+          variable <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">next</span>(aSet, variable);
+        <span class="keywd">end if</span>;
+       <span class="keywd">until</span> leave;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_char">char</a>: forVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_bstring">bstring</a>: bstri) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> number <span class="keywd">range</span> 1 <span class="keywd">to</span> length(bstri) <span class="keywd">do</span>
+      forVar <a class="op_no_ul" href="#stats_Assignment">:=</a> bstri[number];
+      statements;
     <span class="keywd">end for</span>;
   <span class="keywd">end func</span>;
 </pre><p></p>
 
-<a name="stats_if-statement"><h3>4.9 if-statement</h3></a>
+<a name="stats_for-each-key-statement"><h3>4.9 for-each-key-statement</h3></a>
+<p>
+  A for-each-key-statement loops over the elements and keys (indices)
+  of a container (<tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>). For example:
+</p><pre class="indent">
+<span class="keywd_no_ul">for</span> currObject <span class="keywd_no_ul">key</span> currIndex <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">do</span>
+  <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"key: "</a> <span class="op_no_ul">&lt;&amp;</span> currIndex <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">", element: "</a> <span class="op_no_ul">&lt;&amp;</span> currObject);
+<span class="keywd_no_ul">end for</span>;
+</pre><p>
+  A for-each-key-statement can be combined with an <tt><span class="keywd">until</span></tt> condition:
+</p><pre class="indent">
+<span class="keywd_no_ul">for</span> currObject <span class="keywd_no_ul">key</span> currIndex <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">until</span> found <span class="keywd_no_ul">do</span>
+  <a class="keywd_no_ul", href="#stats_if-statement">if</a> currObject <span class="op">=</a> searched <a class="keywd_no_ul", href="#stats_if-statement">then</a>
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"found key: "</a> <span class="op_no_ul">&lt;&amp;</span> currIndex <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">", element: "</a> <span class="op_no_ul">&lt;&amp;</span> currObject);
+    found <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">TRUE</span>;
+  <a class="keywd_no_ul", href="#stats_if-statement">end if</a>;
+<span class="keywd_no_ul">end for</span>;
+</pre><p></p><dl><dt>
+  Semantics:</dt><dd>
+    First the element list which stands behind <tt><span class="keywd">range</span></tt> is evaluated.
+    If the element list is empty the for-each-key-statement is
+    finished. Otherwise the first element of the element list is
+    assigned to the control variable which stands behind <tt><span class="keywd">for</span></tt> and
+    the index (key) of the first element is assigned to the key
+    control variable which stands behind the keyword <tt><span class="keywd">key</span></tt>. If there
+    is an <tt><span class="keywd">until</span></tt> part the condition behind <tt><span class="keywd">until</span></tt> is checked and
+    if it evaluates to <tt><span class="var">TRUE</span></tt> the for-each-statement is finished.
+    If the for-each-statement is not finished the statements behind
+    <tt><span class="keywd">do</span></tt> (loop body) are executed. If there is no next element
+    in the element list the for-each-key-statement is finished.
+    Otherwise the next element of the element list is assigned to the
+    control variable and the index of the next element is assigned
+    to the key control variable. This check for next element -
+    assign index and element - check possible until condition -
+    execute loop body - cycle is repeated until there is no next
+    element in the element list.
+</dd></dl>
+<dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="stats_ebnf_for_each_key_statement">for_each_key_statement</a> ::=</dt><dd>
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">key</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">until</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> ] '<span class="keywd">do</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
+</dl></tt></dd></dl><p>
+
+  <a name="stats_for_each_key_statement_declaration">Declaration</a>:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().key.().range.().do.().end.for   <span class="keywd">is</span> -> 25;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_char">char</a>: forVar) key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_string">string</a>: stri) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end for <span class="keywd">is action</span> <span class="stri">"STR_FOR_VAR_KEY"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: forVar) key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> arrayType: arr) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> keyVar <span class="keywd">range</span> minIdx(arr) <span class="keywd">to</span> maxIdx(arr) <span class="keywd">do</span>
+      forVar <a class="op_no_ul" href="#stats_Assignment">:=</a> arr[keyVar];
+      statements;
+    <span class="keywd">end for</span>;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: forVar) key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">keyType</span>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">hashType</span>: aHashMap) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    FOR_DATA_KEY(forVar, keyVar, aHashMap, statements, hashType.dataCopy, hashType.keyCopy);
+  <span class="keywd">end func</span>;
+</pre><p></p>
+
+<a name="stats_for-key-statement"><h3>4.10 for-key-statement</h3></a>
+<p>
+  A for-key-statement loops over the keys (indices) of a container
+  (<tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>). For example:
+</p><pre class="indent">
+<span class="keywd_no_ul">for</span> <span class="keywd_no_ul">key</span> currIndex <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">do</span>
+  <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"key: "</a> <span class="op_no_ul">&lt;&amp;</span> currIndex);
+<span class="keywd_no_ul">end for</span>;
+</pre><p>
+  A for-key-statement can be combined with an <tt><span class="keywd">until</span></tt> condition:
+</p><pre class="indent">
+<span class="keywd_no_ul">for</span> <span class="keywd_no_ul">key</span> currIndex <span class="keywd_no_ul">range</span> element_list <span class="keywd_no_ul">until</span> found <span class="keywd_no_ul">do</span>
+  <a class="keywd_no_ul", href="#stats_if-statement">if</a> element_list[currIndex] <span class="op">=</a> searched <a class="keywd_no_ul", href="#stats_if-statement">then</a>
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"found key: "</a> <span class="op_no_ul">&lt;&amp;</span> currIndex);
+    found <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">TRUE</span>;
+  <a class="keywd_no_ul", href="#stats_if-statement">end if</a>;
+<span class="keywd_no_ul">end for</span>;
+</pre><p></p><dl><dt>
+  Semantics:</dt><dd>
+    First the element list which stands behind <tt><span class="keywd">range</span></tt> is evaluated.
+    If the element list is empty the for-key-statement is finished.
+    Otherwise the index (key) of the first element is assigned to
+    the key control variable which stands behind the keyword <tt><span class="keywd">key</span></tt>.
+    If there is an <tt><span class="keywd">until</span></tt> part the condition behind <tt><span class="keywd">until</span></tt> is
+    checked and if it evaluates to <tt><span class="var">TRUE</span></tt> the for-each-statement
+    is finished. If the for-each-statement is not finished the
+    statements behind <tt><span class="keywd">do</span></tt> (loop body) are executed. If there is
+    no next element in the element list the for-key-statement is
+    finished. Otherwise the index of the next element is assigned
+    to the key control variable. This check for next element -
+    assign index - check possible until condition - 
+    execute loop body - cycle is repeated until there is no next
+    element in the element list.
+</dd></dl>
+<dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="stats_ebnf_for_key_statement">for_key_statement</a> ::=</dt><dd>
+      '<span class="keywd">for</span>' '<span class="keywd">key</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">until</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> ] '<span class="keywd">do</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
+</dl></tt></dd></dl><p>
+
+  <a name="stats_for_key_statement_declaration">Declaration</a>:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.key.().range.().do.().end.for   <span class="keywd">is</span> -> 25;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_string">string</a>: stri) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end for <span class="keywd">is action</span> <span class="stri">"STR_FOR_KEY"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type" href="#types_integer">integer</a>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> arrayType: arr) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> keyVar <span class="keywd">range</span> minIdx(arr) <span class="keywd">to</span> maxIdx(arr) <span class="keywd">do</span>
+      statements;
+    <span class="keywd">end for</span>;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for key (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">keyType</span>: keyVar) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">hashType</span>: aHashMap) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+            end for <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    FOR_KEY(keyVar, aHashMap, statements, hashType.keyCopy);
+  <span class="keywd">end func</span>;
+</pre><p></p>
+
+<a name="stats_if-statement"><h3>4.11 if-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
 <span class="keywd">if</span> sumValue &lt; minimum <span class="keywd">then</span>
-  factor := sumValue;
-  sumValue := minimum;
+  factor <a class="op_no_ul" href="#stats_Assignment">:=</a> sumValue;
+  sumValue <a class="op_no_ul" href="#stats_Assignment">:=</a> minimum;
 <span class="keywd">elsif</span> sumValue > maximum <span class="keywd">then</span>
-  factor := -sumValue;
-  sumValue := maximum;
+  factor <a class="op_no_ul" href="#stats_Assignment">:=</a> -sumValue;
+  sumValue <a class="op_no_ul" href="#stats_Assignment">:=</a> maximum;
 <span class="keywd">else</span>
-  factor := 0;
+  factor <a class="op_no_ul" href="#stats_Assignment">:=</a> 0;
 <span class="keywd">end if</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
@@ -2471,7 +2784,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The expression must be of type <tt><a class="type" href="#types_boolean">boolean</a></tt>.
 
 </p><p>
-  Declaration:
+  <a name="stats_if_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().end.if      <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().().end.if   <span class="keywd">is</span> -> 25;
@@ -2486,58 +2799,58 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">const</span> <a class="type" href="#types_type">type</a>: ELSIF_PROC                                 <span class="keywd">is</span> func <span class="type">ELSIF_RESULT</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">ELSIF_PROC</span>: dest) ::= (<span class="keywd">ref</span> <span class="type">ELSIF_RESULT</span>: source) <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
                   end if                               <span class="keywd">is action</span> <span class="stri">"PRC_IF"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
-                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span>: elsifPart)
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+                  (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">ELSIF_PROC</span>: elsifPart)
                   end if                               <span class="keywd">is action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
 
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)              <span class="keywd">is action</span> <span class="stri">"PRC_IF"</span>;
+<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)              <span class="keywd">is action</span> <span class="stri">"PRC_IF"</span>;
 
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
-                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span>: elsifPart)           <span class="keywd">is action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
+<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statements)
+                  (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">ELSIF_PROC</span>: elsifPart)           <span class="keywd">is action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
 
 <span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: else
-                    (<span class="keywd">in</span> <a class="type" href="#types_void">void</a>: elsePart)                <span class="keywd">is</span> ELSIF_EMPTY;
+                    (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_void">void</a>: elsePart)                <span class="keywd">is</span> ELSIF_EMPTY;
 </pre><p></p>
 
-<a name="stats_case-statement"><h3>4.10 case-statement</h3></a>
+<a name="stats_case-statement"><h3>4.12 case-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
 <span class="keywd">case</span> currChar <span class="keywd">of</span>
   <span class="keywd">when</span> {<span class="stri">'A'</span> .. <span class="stri">'Z'</span>} | {<span class="stri">'a'</span> .. <span class="stri">'z'</span>}:
-    characterClass := LETTER;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> LETTER;
   <span class="keywd">when</span> {<span class="stri">'0'</span> .. <span class="stri">'9'</span>}:
-    characterClass := DIGIT;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> DIGIT;
   <span class="keywd">when</span> {<span class="stri">'!'</span>, <span class="stri">'$'</span>, <span class="stri">'%'</span>, <span class="stri">'&'</span>, <span class="stri">'*'</span>, <span class="stri">'+'</span>, <span class="stri">','</span>, <span class="stri">'-'</span>, <span class="stri">'.'</span>, <span class="stri">'/',
       ':'</span>, <span class="stri">';'</span>, <span class="stri">'&lt;'</span>, <span class="stri">'='</span>, <span class="stri">'>'</span>, <span class="stri">'?'</span>, <span class="stri">'@'</span>, <span class="stri">'\'</span>, <span class="stri">'^'</span>, <span class="stri">'`',
       '|'</span>, <span class="stri">'~'</span>}:
-    characterClass := SPECIAL;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> SPECIAL;
   <span class="keywd">when</span> {<span class="stri">'('</span>, <span class="stri">')'</span>, <span class="stri">'['</span>, <span class="stri">']'</span>, <span class="stri">'{'</span>, <span class="stri">'}'</span>}:
-    characterClass := PAREN;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> PAREN;
   <span class="keywd">when</span> {<span class="stri">'"'</span>}:  <span class="comment"># Also possible '\"'</span>
-    characterClass := APPOSTROPHE;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> APPOSTROPHE;
   <span class="keywd">when</span> {<span class="stri">'''</span>}:  <span class="comment"># Also possible '\''</span>
-    characterClass := QUOTE;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> QUOTE;
   <span class="keywd">otherwise</span>:
-    characterClass := ILLEGAL;
+    characterClass <a class="op_no_ul" href="#stats_Assignment">:=</a> ILLEGAL;
 <span class="keywd">end case</span>;
 </pre><p>
   Case statements work also for strings:
 </p><pre class="indent">
 <span class="keywd">case</span> elementName <span class="keywd">of</span>
-  <span class="keywd">when</span> {<span class="stri">"li"</span>}:       alternateEndTags := {<span class="stri">"&lt;li"</span>};
-  <span class="keywd">when</span> {<span class="stri">"dt"</span>, <span class="stri">"dd"</span>}: alternateEndTags := {<span class="stri">"&lt;dt"</span>, <span class="stri">"&lt;dd"</span>};
-  <span class="keywd">when</span> {<span class="stri">"td"</span>, <span class="stri">"th"</span>}: alternateEndTags := {<span class="stri">"&lt;td"</span>, <span class="stri">"&lt;th"</span>, <span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
-  <span class="keywd">when</span> {<span class="stri">"tr"</span>}:       alternateEndTags := {<span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+  <span class="keywd">when</span> {<span class="stri">"li"</span>}:       alternateEndTags <a class="op_no_ul" href="#stats_Assignment">:=</a> {<span class="stri">"&lt;li"</span>};
+  <span class="keywd">when</span> {<span class="stri">"dt"</span>, <span class="stri">"dd"</span>}: alternateEndTags <a class="op_no_ul" href="#stats_Assignment">:=</a> {<span class="stri">"&lt;dt"</span>, <span class="stri">"&lt;dd"</span>};
+  <span class="keywd">when</span> {<span class="stri">"td"</span>, <span class="stri">"th"</span>}: alternateEndTags <a class="op_no_ul" href="#stats_Assignment">:=</a> {<span class="stri">"&lt;td"</span>, <span class="stri">"&lt;th"</span>, <span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+  <span class="keywd">when</span> {<span class="stri">"tr"</span>}:       alternateEndTags <a class="op_no_ul" href="#stats_Assignment">:=</a> {<span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
   <span class="keywd">when</span> {<span class="stri">"thead"</span>, <span class="stri">"tbody"</span>, <span class="stri">"tfoot"</span>}:
-                     alternateEndTags := {<span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+                     alternateEndTags <a class="op_no_ul" href="#stats_Assignment">:=</a> {<span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
 <span class="keywd">end case</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
@@ -2566,7 +2879,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       <a class="ebnf" href="#expr_ebnf_expression">expression</a> .</dd>
 </dl></tt></dd></dl><p>
 
-  Declaration:
+  <a name="stats_case_statement_declaration">Declaration</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().end.case                    <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().otherwise. : .().end.case   <span class="keywd">is</span> -> 25;
@@ -2576,15 +2889,15 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .().()   <span class="keywd">is</span> &lt;- 60;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .()      <span class="keywd">is</span> &lt;- 60;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: CASE_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: CASE_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_type">type</a>: WHEN_RESULT <span class="keywd">is</span> <a class="type" href="#types_void">void</a>;
     <span class="keywd">var</span> <a class="type" href="#types_type">type</a>: WHEN_PROC <span class="keywd">is</span> <a class="type" href="#types_void">void</a>;
     <span class="keywd">var</span> <a class="type" href="#types_type">type</a>: SELECTOR_TYPE <span class="keywd">is</span> <a class="type" href="#types_void">void</a>;
   <span class="keywd">begin</span>
-    <span class="type">WHEN_RESULT</span> := newtype;
-    <span class="type">WHEN_PROC</span> := (<a class="type" href="#types_func">func</a> <span class="type">WHEN_RESULT</span>);
-    <span class="type">SELECTOR_TYPE</span> := <a class="type" href="#types_set">set</a> <a class="type" href="#types_set">of</a> <span class="type">aType</span>;
+    <span class="type">WHEN_RESULT</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> newtype;
+    <span class="type">WHEN_PROC</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> (<a class="type" href="#types_func">func</a> <span class="type">WHEN_RESULT</span>);
+    <span class="type">SELECTOR_TYPE</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="type" href="#types_set">set</a> <a class="type" href="#types_set">of</a> <span class="type">aType</span>;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of end case                     <span class="keywd">is</span> noop;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
                     otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
@@ -9775,7 +10088,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: loop
               (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements1)
-            until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+            until (<span class="keywd">in</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
               (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements2)
             end loop <span class="keywd">is func</span>
   <span class="keywd">local</span>
@@ -10125,8 +10438,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><p>
   The semantic definition of the <a class="link" href="#stats_while-statement">while-statement</a> is as follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">ref</span> func <a class="type" href="#types_boolean">boolean</a>: condition) do
-    (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">in</span> func <a class="type" href="#types_boolean">boolean</a>: condition) do
+    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">if</span> condition <span class="keywd">then</span>
       statement;
@@ -11585,7 +11898,7 @@ my_dir := homeDir;
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
-  Symbolic links in sourcePath are always followed. Therefore
+  Symbolic links in <tt>sourcePath</tt> are always followed. Therefore
   <tt><span class="func">copyFile</span></tt> will never create a symbolic link. Note that <tt><span class="func">copyFile</span></tt>
   does not preserve hard links (they are resolved to distinct files).
 </p>
@@ -15054,7 +15367,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       used to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used
       to describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
       <tt><span class="exception">NUMERIC_ERROR</span></tt>, <tt><span class="exception">OVERFLOW_ERROR</span></tt>, <tt><span class="exception">RANGE_ERROR</span></tt>, <tt><span class="exception">FILE_ERROR</span></tt>,
-      <tt><span class="exception">DATABASE_ERROR</span></tt> and <tt><span class="exception">ACTION_ERROR</span></tt> describe errors that occurred.</li>
+      <tt><span class="exception">DATABASE_ERROR</span></tt>, <tt><span class="exception">GRAPHIC_ERROR</span></tt> and <tt><span class="exception">ACTION_ERROR</span></tt> describe
+      errors that occurred.</li>
     <li>In some situations a function has only one possible error
       situation (e.g. a <tt><span class="exception">MEMORY_ERROR</span></tt>). This is handled with functions
       that return NULL in case of a <tt><span class="exception">MEMORY_ERROR</span></tt>.</li>
@@ -15197,7 +15511,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
   The compiler does checks when generating code. As a result of
   the checks some warnings might be written. The warning level can
-  be specified with the option <span class="link"><tt><b>-w</b></tt></span>
+  be specified with the option <span class="link"><tt><b>-w</b><span class="keywd">n</span></tt></span>
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Level </th><th> Warning</th></tr>
     
@@ -15220,8 +15534,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   corresponding exception <a class="link" href="#errors_Handlers">handler</a> exists the program is terminated.
   There are various exceptions, which can be raised: <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt>,
   <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>, <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>, <tt><a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a></tt>, <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt>,
-  <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> and <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise an exception
-  with the <tt><span class="keywd">raise</span></tt> statement. For example:
+  <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt>, <tt><a class="exception" href="#errors_GRAPHIC_ERROR">GRAPHIC_ERROR</a></tt> and <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise
+  an exception with the <tt><span class="keywd">raise</span></tt> statement. For example:
 </p><pre class="indent">
 <span class="keywd">raise</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
 </pre><p>
@@ -15445,7 +15759,14 @@ Searching for dynamic libraries failed: libclntsh.so
   be used to specify the place of the connector library.
 </p>
 
-<a name="errors_ILLEGAL_ACTION"><h4>16.3.8 ILLEGAL_ACTION</h4></a>
+<a name="errors_GRAPHIC_ERROR"><h4>16.3.8 GRAPHIC_ERROR</h4></a>
+<p>
+  The exception <tt><span class="exception">GRAPHIC_ERROR</span></tt> may be raised by graphic drivers.
+  If an underlying graphic library function reports an error a
+  <tt><span class="exception">GRAPHIC_ERROR</span></tt> is raised.
+</p>
+
+<a name="errors_ILLEGAL_ACTION"><h4>16.3.9 ILLEGAL_ACTION</h4></a>
 <p>
   The exception <tt><span class="exception">ILLEGAL_ACTION</span></tt> may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.

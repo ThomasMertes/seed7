@@ -344,6 +344,9 @@ Can I overload two functions which just differ in the result type?
 <li><a class="link" href="#faq_variable_parameter_list"><b>
 Can functions have variable parameter lists?
 </b></a></li>
+<li><a class="link" href="#faq_initialization_with_is"><b>
+Why does the initialization use the keyword 'is' instead of ':=' ?
+</b></a></li>
 <li><a class="link" href="#faq_initialize_data"><b>
 Is there an elegant way to initialize data?
 </b></a></li>
@@ -467,6 +470,9 @@ Are there exceptions?
 <li><a class="link" href="#faq_stack_trace"><b>
 What happens if an exception is not caught?
 </b></a></li>
+<li><a class="link" href="#faq_no_return_statement"><b>
+Is there a return statement?
+</b></a></li>
 <li><a class="link" href="#faq_break_and_continue"><b>
 Why are break and continue not supported?
 </b></a></li>
@@ -516,7 +522,7 @@ How does the compiler implement call-by-name parameters?
 What does action "XYZ_SOMETHING" mean?
 </b></a></li>
 <li><a class="link" href="#faq_dollar_signs"><b>
-Why are there dollar signs at some places?
+Why are there dollar signs in some places?
 </b></a></li>
 <li><a class="link" href="#faq_seed7_version_number"><b>
 Why does "seed7_05.s7i" contain a version number?
@@ -1196,6 +1202,7 @@ chkarr ........... okay
 chkprc ........... okay
 chkbig ........... okay
 chkbool ........... okay
+chkenum ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay
@@ -1267,7 +1274,7 @@ The following options are recognized by s7:
   <li><b>-i</b>   Show the identifier table after the analysis phase.</li>
   <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
-  <li><b>-q</b>   Compile quiet. Line and file information and compilation
+  <li><a name="faq_interpreter_option-q"><b>-q</b></a>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
   <li><b>-s</b>   Deactivate signal handlers.</li>
   <li><a name="faq_interpreter_option-t"><b>-t</b><span class="keywd">x</span></a>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
@@ -1281,7 +1288,7 @@ The following options are recognized by s7:
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
   <li><a name="faq_interpreter_option-v"><b>-v</b><span class="keywd">n</span></a>  Set verbosity level of analysis phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
        of the following characters:<ul>
-         <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
+         <li><b>0</b> Compile quiet (equivalent to <a class="link" href="#faq_interpreter_option-q"><b>-q</b></a>)</li>
          <li><b>1</b> Write just the header with version information (default)</li>
          <li><b>2</b> Write a list of include libraries</li>
          <li><b>3</b> Write line numbers, while analyzing</li></ul></li>
@@ -1642,8 +1649,8 @@ For example:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
-              (<span class="keywd_no_ul">ref</span> <span class="type">proc</span>: statement)
+<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
+              (<span class="keywd_no_ul">in</span> <span class="type">proc</span>: statement)
             end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">if</span> condition <span class="keywd_no_ul">then</span>
@@ -2093,6 +2100,71 @@ and call it with
 </p><pre class="indent">
 print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
 </pre></div>
+
+<div><br /><a name="faq_initialization_with_is"><h3>Why does the initialization use the keyword 'is' instead of ':=' ?
+</h3></a><hr />
+<p>
+The decision to use the keyword <tt><span class="keywd">is</span></tt> relates to the <span class="link">Structured Syntax
+Definition</span> of Seed7. A variable declaration in Seed7 looks like:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">integer</span><span class="op">:</span> number <span class="keywd">is</span> 42
+</pre><p>
+The syntax of this variable declaration is defined in the file <span class="lib">syntax.s7i</span>.
+A variable declaration with <tt><span class="op">:=</span></tt> would need a different syntax definition.
+An attempt to define this new syntax leads to an error:
+</p><pre class="indent">
+*** tst356.sd7(3):42: <span class="link">":=" redeclared with infix priority 127 not 20</span>
+syntax expr: .var.(). : .(expr). := .(expr)    is  -> 40;
+---------------------------------------------------------^
+</pre><p>
+The error rejects the desired syntax pattern:
+</p><pre class="indent">
+var () : <span class="comment"><b>()</b></span> := ()
+</pre><p>
+In syntax patterns <tt>()</tt> denotes the place for any expression (=parameter).
+The other symbols in a syntax pattern should appear as expected.
+The error above highlights a conflict between an existing syntax pattern
+an the new one. The use of <tt><span class="op">:=</span></tt> in this pattern conflicts with the one
+in the assignment syntax pattern. The assignment operator (<tt><span class="op_no_ul">:=</span></tt>) is
+already defined as infix operator with the priority 20. The syntax
+pattern of the <tt><span class="op_no_ul">:=</span></tt> operator is:
+</p><pre class="indent">
+<span class="comment"><b>()</b></span> := ()
+</pre><p>
+In both patterns there is a parameter left of the <tt><span class="op">:=</span></tt> symbol<!--(*--> (marked in <span class="comment">green</span>)<!--*)-->. In case of
+the <span class="link">assignment</span>, the priority of the left parameter must be less than 20.
+In case of the variable declaration, this parameter is situated in
+between <tt><span class="op">:</span></tt> and <tt><span class="op">:=</span></tt>. Such a middle parameter allows the much weaker
+priority 127. Code like
+</p><pre class="indent">
+  <span class="keywd">var</span> integer <span class="op">:</span> number <span class="op">:=</span> 42;
+<span class="keywd">begin</span>
+</pre><p>
+would be interpreted as
+</p><pre class="indent">
+<span class="keywd">var</span> integer <span class="op">:</span> (number <span class="op">:=</span> 42;) <span class="keywd">begin</span>
+</pre><p>
+Since the syntax pattern would expect a <tt><span class="op">:=</span></tt> after <tt>number <span class="op">:=</span> 42;</tt> this
+would lead to the error:
+</p><pre class="indent">
+*** tst356.sd7(8):47: <span class="link">":=" expected found "begin"</span>
+  begin
+-------^
+</pre><p>
+To avoid this misinterpretation, the syntax of a variable declaration
+with <tt><span class="op">:=</span></tt> is rejected beforehand with:
+</p><pre class="indent">
+*** tst356.sd7(3):42: <span class="link">":=" redeclared with infix priority 127 not 20</span>
+</pre><p>
+Languages with hard-coded syntax analysis use a trick to allow the same
+symbol for assignments and initialization. They read the parameter
+between <tt><span class="op">:</span></tt> and <tt><span class="op">:=</span></tt> with special parsing code to read an identifier.
+Afterwards, they check if the identifier is followed by an assignment
+symbol. The <span class="link">Structured Syntax Definition</span> of Seed7 does not support such
+tricks. Instead it provides a systematic approach for the syntax
+description. This general concept to define syntax is available to
+all programmers.
+</p></div>
 
 <div><br /><a name="faq_initialize_data"><h3>Is there an elegant way to initialize data?
 </h3></a><hr />
@@ -2637,7 +2709,7 @@ Below is a <a class="link" href="#faq_call_by_name">call-by-name parameter</a> d
 <span class="keywd">const</span> <span class="type">proc</span>: whileTrueDo (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: callByNameParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">while</span> callByNameParam <span class="keywd">do</span>
-      noop;
+      <span class="func_no_ul">noop</span>;
     <span class="keywd">end while</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -3366,6 +3438,47 @@ if the exception is not related to floating point operations.
 debug compiled Seed7 programs.
 </p></div>
 
+<div><br /><a name="faq_no_return_statement"><h3>Is there a return statement?
+</h3></a><hr />
+<p>
+There is no <tt><span class="keywd">return</span></tt> statement in Seed7. Instead there is a <tt><span class="keywd">return</span></tt> construct
+that can be used to declare a function:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
+  <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+</pre><p>
+This is a shortcut for a function declaration with a result variable:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+  <span class="keywd">begin</span>
+    coinState <span class="op_no_ul">:=</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+The <tt><span class="keywd">return</span></tt> above is not a statement but an alternate possibility to declare
+a function. This alternate function declaration differs from the normal function
+declaration that uses:
+</p><pre class="indent">
+<span class="keywd">func</span>
+  ...
+<span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+Using <tt><span class="keywd">return</span></tt> as statement triggers an error.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);     <span class="comment"># THIS WILL NOT WORK</span>
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+The <tt><span class="keywd">return</span></tt> construct of Seed7 is not comparable to the <tt><span class="keywd">return</span></tt> statements
+of other programming languages. Since no <tt><span class="keywd">return</span></tt> statement exists, it is not
+possible to leave a function from the middle of a loop (except when <a class="link" href="#faq_exceptions">exceptions</a>
+are used).
+</p></div>
+
 <div><br /><a name="faq_break_and_continue"><h3>Why are break and continue not supported?
 </h3></a><hr />
 <p>
@@ -3468,7 +3581,7 @@ exceptions:
         statements;
       <span class="keywd">exception</span>
         <span class="keywd">catch</span> DO_BREAK:    exitLoop <span class="op_no_ul">:=</span> <span class="var">TRUE</span>;
-        <span class="keywd">catch</span> DO_CONTINUE: noop;
+        <span class="keywd">catch</span> DO_CONTINUE: <span class="func_no_ul">noop</span>;
       <span class="keywd">end block</span>;
     <span class="keywd_no_ul">until</span> exitLoop;
   <span class="keywd">end func</span>;
@@ -3886,20 +3999,30 @@ parameters as list. The action functions take the parameters they need from the
 list, perform the action and deliver a result.
 </p></div>
 
-<div><br /><a name="faq_dollar_signs"><h3>Why are there dollar signs at some places?
+<div><br /><a name="faq_dollar_signs"><h3>Why are there dollar signs in some places?
 </h3></a><hr />
 <p>
-The $ is used to force the analyzer to use a hard coded expression recognition
-instead of the configurable one. This mechanism is used to boot the Seed7 language:
+The syntax and semantics of Seed7 are defined in the library <tt><span class="lib">seed7_05.s7i</span></tt>. So when
+the interpreter or compiler starts reading a Seed7 program, it knows almost nothing
+about Seed7. No statements, functions, operators, types or variables are predefined.
+All these things come from the <tt><span class="lib">seed7_05.s7i</span></tt> library. Without <tt><span class="lib">seed7_05.s7i</span></tt>, there
+are just a few hard-coded things such as <span class="link">comments</span> and <span class="link">literals</span>. Among the hard-coded
+things are include statements which are introduced with a dollar sign. For that
+reason a Seed7 program needs a
+</p><pre class="indent">
+$ include <span class="lib">"seed7_05.s7i"</span>;
+</pre><p>
+at the beginning. The <tt><span class="lib">seed7_05.s7i</span></tt> library starts with including the <tt><span class="lib">syntax.s7i</span></tt>
+library. The file <tt><span class="lib">syntax.s7i</span></tt> contains many <tt>$</tt> commands. First the type <tt><span class="type">type</span></tt>
+is defined. Declarations of other types, system variables and syntax descriptions
+of operators and statements follow. At several places the <tt>$</tt> is used to force the
+analyzer to use a hard-coded expression recognition instead of the configurable one.
+After finishing the inclusion of <tt><span class="lib">syntax.s7i</span></tt>, the file <tt><span class="lib">seed7_05.s7i</span></tt> contains some
+<tt>$</tt> declarations until the <tt><span class="keywd">const</span></tt> declaration statement is established. From that
+point onward almost no <tt>$</tt> statements are needed.
 </p><p>
-At the beginning of the seed7_05.s7i file nothing is declared. This means that
-no statements, no functions, no operators, no types and no variables are predefined.
-To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
-contains only $ commands. First the type <tt><span class="type">type</span></tt> is defined. Declarations of other
-types, system variables and syntax descriptions of operators and statements follow.
-After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
-declarations until the <tt>'<span class="keywd">const</span>'</tt> declaration statement is established. From that point
-onward almost no $ statements are needed.
+Among other things the <tt><span class="lib">seed7_05.s7i</span></tt> library defines <tt><span class="keywd">include</span></tt> statements and <tt><span class="keywd">syntax</span></tt>
+statements, that work without <tt>$</tt>.
 </p></div>
 
 <div><br /><a name="faq_seed7_version_number"><h3>Why does "seed7_05.s7i" contain a version number?

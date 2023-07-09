@@ -504,9 +504,18 @@ COMPILING UNDER MAC OS
   (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
   the command line tools can be downloaded directly. The tools
   contain the C compilers clang and gcc. They also provide a
-  'make' utility. Depending on the version of OS X it might be
-  necessary to install also XQuartz (the X11 support of OS X).
-  In newer versions of OS X gcc is based on clang. You can use
+  'make' utility. Depending on the version of Mac OS it might be
+  necessary to install also XQuartz (the X11 support of Mac OS).
+  If the x11 lib is not found it can be installed using brew:
+
+    brew install libx11
+
+  The brew location must be linked to to /usr/local/include,
+  so the C compiler can find it:
+
+    sudo ln -s /opt/homebrew/include/X11 /usr/local/include/X11
+
+  In newer versions of Mac OS gcc is based on clang. You can use
   this gcc, but it is not the original gcc. To obtain the
   original gcc you have to download it from a repository like
   Homebrew. To compile Seed7 with gcc (the clang based gcc or
@@ -932,6 +941,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay
+    chkenum ........... okay
     chkbitdata ........... okay
     chkset ........... okay
     chkhsh ........... okay

@@ -673,6 +673,7 @@ information from the interpreter):
   chkprc ........... okay
   chkbig ........... okay
   chkbool ........... okay
+  chkenum ........... okay
   chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
@@ -1120,8 +1121,8 @@ For example:
 
   $ syntax expr: .while.().do.().end.while is -> 25;
 
-  const proc: while (ref func boolean: condition) do
-                (ref proc: statement)
+  const proc: while (in func boolean: condition) do
+                (in proc: statement)
               end while is func
     begin
       if condition then
@@ -1570,6 +1571,71 @@ So you could declare a function
 and call it with
 
   print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+
+
+Why does the initialization use the keyword 'is' instead of ':=' ?
+==================================================================
+
+The decision to use the keyword 'is' relates to the Structured Syntax
+Definition of Seed7. A variable declaration in Seed7 looks like:
+
+  var integer: number is 42
+
+The syntax of this variable declaration is defined in the file syntax.s7i.
+A variable declaration with := would need a different syntax definition.
+An attempt to define this new syntax leads to an error:
+
+  *** tst356.sd7(3):42: ":=" redeclared with infix priority 127 not 20
+  syntax expr: .var.(). : .(expr). := .(expr)    is  -> 40;
+  ---------------------------------------------------------^
+
+The error rejects the desired syntax pattern:
+
+  var () : () := ()
+
+In syntax patterns () denotes the place for any expression (=parameter).
+The other symbols in a syntax pattern should appear as expected.
+The error above highlights a conflict between an existing syntax pattern
+an the new one. The use of := in this pattern conflicts with the one
+in the assignment syntax pattern. The assignment operator (:=) is
+already defined as infix operator with the priority 20. The syntax
+pattern of the := operator is:
+
+  () := ()
+
+In both patterns there is a parameter left of the := symbol. In case of
+the assignment, the priority of the left parameter must be less than 20.
+In case of the variable declaration, this parameter is situated in
+between : and :=. Such a middle parameter allows the much weaker
+priority 127. Code like
+
+    var integer : number := 42;
+  begin
+
+would be interpreted as
+
+  var integer : (number := 42;) begin
+
+Since the syntax pattern would expect a := after 'number := 42;' this
+would lead to the error:
+
+  *** tst356.sd7(8):47: ":=" expected found "begin"
+    begin
+  -------^
+
+To avoid this misinterpretation, the syntax of a variable declaration
+with := is rejected beforehand with:
+
+  *** tst356.sd7(3):42: ":=" redeclared with infix priority 127 not 20
+
+Languages with hard-coded syntax analysis use a trick to allow the same
+symbol for assignments and initialization. They read the parameter
+between : and := with special parsing code to read an identifier.
+Afterwards, they check if the identifier is followed by an assignment
+symbol. The Structured Syntax Definition of Seed7 does not support such
+tricks. Instead it provides a systematic approach for the syntax
+description. This general concept to define syntax is available to
+all programmers.
 
 
 Is there an elegant way to initialize data?
@@ -2844,6 +2910,47 @@ Chapter 16.5 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
 
 
+Is there a return statement?
+============================
+
+There is no 'return' statement in Seed7. Instead there is a 'return' construct
+that can be used to declare a function:
+
+    const func boolean: flipCoin is
+      return rand(FALSE, TRUE);
+
+This is a shortcut for a function declaration with a result variable:
+
+    const func boolean: flipCoin is func
+      result
+        var boolean: coinState is FALSE;
+      begin
+        coinState := rand(FALSE, TRUE);
+      end func;
+
+The 'return' above is not a statement but an alternate possibility to declare
+a function. This alternate function declaration differs from the normal function
+declaration that uses:
+
+    func
+      ...
+    end func;
+
+Using 'return' as statement triggers an error.
+
+    const func boolean: flipCoin is func
+      result
+        var boolean: coinState is FALSE;
+      begin
+        return rand(FALSE, TRUE);     # THIS WILL NOT WORK
+      end func;
+
+The 'return' construct of Seed7 is not comparable to the 'return' statements
+of other programming languages. Since no 'return' statement exists, it is not
+possible to leave a function from the middle of a loop (except when exceptions
+are used).
+
+
 Why are break and continue not supported?
 =========================================
 
@@ -2977,7 +3084,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 
-    *** chkloop.sd7(35):52: Match for {while "X" do {1 + 2 } end while } failed
+  *** chkloop.sd7(35):52: Match for {while "X" do {1 + 2 } end while } failed
 
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the call-code. Call-code can be executed by the interpreter.
@@ -3364,20 +3471,30 @@ parameters as list. The action functions take the parameters they need from the
 list, perform the action and deliver a result.
 
 
-Why are there dollar signs at some places?
+Why are there dollar signs in some places?
 ==========================================
 
-The $ is used to force the analyzer to use a hard coded expression recognition
-instead of the configurable one. This mechanism is used to boot the Seed7 language:
+The syntax and semantics of Seed7 are defined in the library 'seed7_05.s7i'. So when
+the interpreter or compiler starts reading a Seed7 program, it knows almost nothing
+about Seed7. No statements, functions, operators, types or variables are predefined.
+All these things come from the 'seed7_05.s7i' library. Without 'seed7_05.s7i', there
+are just a few hard-coded things such as comments and literals. Among the hard-coded
+things are include statements which are introduced with a dollar sign. For that
+reason a Seed7 program needs a
 
-At the beginning of the seed7_05.s7i file nothing is declared. This means that
-no statements, no functions, no operators, no types and no variables are predefined.
-To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
-contains only $ commands. First the type 'type' is defined. Declarations of other
-types, system variables and syntax descriptions of operators and statements follow.
-After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
-declarations until the 'const' declaration statement is established. From that point
-onward almost no $ statements are needed.
+  $ include "seed7_05.s7i";
+
+at the beginning. The 'seed7_05.s7i' library starts with including the 'syntax.s7i'
+library. The file 'syntax.s7i' contains many $ commands. First the type 'type'
+is defined. Declarations of other types, system variables and syntax descriptions
+of operators and statements follow. At several places the $ is used to force the
+analyzer to use a hard-coded expression recognition instead of the configurable one.
+After finishing the inclusion of 'syntax.s7i', the file 'seed7_05.s7i' contains some
+$ declarations until the 'const' declaration statement is established. From that
+point onward almost no $ statements are needed.
+
+Among other things the 'seed7_05.s7i' library defines 'include' statements and 'syntax'
+statements, that work without $.
 
 
 Why does "seed7_05.s7i" contain a version number?

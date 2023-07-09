@@ -1168,6 +1168,10 @@ const func x509Extension: x509BasicConstraints (in boolean: cA) is func
 (**
  *  Add the given ''extension'' to the X509 certificate ''cert''.
  *  The extension field is added to the standard extensions tag (tag 3).
+ *   cert := createX509Cert(subjectKey, serial, issuer, subject, validity);
+ *   addExtension(cert, TRUE, x509BasicConstraints(0));
+ *   addExtension(cert, TRUE,
+ *                x509KeyUsage({KEY_USAGE_CRL_SIGN, KEY_USAGE_KEY_CERT_SIGN}));
  *  @param cert Certificat to which the extension is added.
  *  @param isCritical TRUE if the extension is critical, FALSE otherwise.
  *  @param extension The extension to be added.

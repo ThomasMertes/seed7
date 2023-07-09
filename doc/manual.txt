@@ -30,12 +30,13 @@ CONTENTS
   2.3     Assignment
   2.4     Constants
   2.5     For loop and float expressions
-  2.6     For loop and containers
-  2.7     Functions
-  2.8     Parameters
-  2.9     Overloading
-  2.10    Declare a statement
-  2.11    Template declaring a statement
+  2.6     Arrays
+  2.7     For loop and containers
+  2.8     Functions
+  2.9     Parameters
+  2.10    Overloading
+  2.11    Declare a statement
+  2.12    Template declaring a statement
   3.    DECLARATIONS
   3.1     Normal declarations
   3.2     Syntax declarations
@@ -50,8 +51,10 @@ CONTENTS
   4.6     for-until-statement
   4.7     for-step-statement
   4.8     for-each-statement
-  4.9     if-statement
-  4.10    case-statement
+  4.9     for-each-key-statement
+  4.10    for-key-statement
+  4.11    if-statement
+  4.12    case-statement
   5.    PREDEFINED TYPES
   5.1     boolean
   5.2     integer
@@ -244,7 +247,8 @@ CONTENTS
   17.3.5  RANGE_ERROR
   17.3.6  FILE_ERROR
   17.3.7  DATABASE_ERROR
-  17.3.8  ILLEGAL_ACTION
+  17.3.8  GRAPHIC_ERROR
+  17.3.9  ILLEGAL_ACTION
   17.4    Handlers
   17.5    Stack trace
   17.6    Suppressing exception checks
@@ -816,7 +820,7 @@ CONTENTS
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
 
-    # Print a Fahrenheit-Celsius table with foating point numbers.
+    # Print a Fahrenheit-Celsius table with floating point numbers.
 
     $ include "seed7_05.s7i";  # This must be included first.
       include "float.s7i";     # Subsequent includes do not need a $.
@@ -870,10 +874,107 @@ CONTENTS
   of 6.
 
 
-2.6 For loop and containers
+2.6 Arrays
 
-    A for-loop can be used to iterate over the elements of an 'array'
-  (so it is actually a for-each-loop):
+    Arrays allow a variable to contain several values. E.g.:
+  An array can be used to store a mapping from a day number to
+  a day name:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var array string: weekdayName is 7 times "";
+        var integer: number is 0;
+      begin
+        weekdayName[1] := "monday";
+        weekdayName[2] := "tuesday";
+        weekdayName[3] := "wednesday";
+        weekdayName[4] := "thursday";
+        weekdayName[5] := "friday";
+        weekdayName[6] := "saturday";
+        weekdayName[7] := "sunday";
+        for number range 1 to 7 do
+          writeln(weekdayName[number]);
+        end for;
+      end func;
+
+  Since 'weekdayName' is not changed after its values have been
+  assigned, it can be declared as constant that is initialized
+  with an array literal:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        const array string: weekdayName is [] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday");
+        var integer: number is 0;
+      begin
+        for number range 1 to 7 do
+          writeln(weekdayName[number]);
+        end for;
+      end func;
+
+  The example above uses the array literal
+
+    [] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+
+  This array literal has the type 'array string' and it is
+  indexed beginning from 1. A corresponding array literal
+  indexed beginning from 0 would be:
+
+    [0] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+
+  The for-loop above uses the literal '7' as upper bound. The function
+  'length' can be used instead:
+
+    for number range 1 to length(weekdayName) do
+
+  This works as long as the array 'weekdayName' is indexed beginning from 1.
+  If this is not the case the functions 'minIdx' and 'maxIdx' can be used:
+
+    for number range minIdx(weekdayName) to maxIdx(weekdayName) do
+
+  For this case there is a convenient for-key-loop:
+
+    for key number range weekdayName do
+      writeln(weekdayName[number]);
+    end for;
+
+  This for-key-loop loops over the indices of the 'array' 'weekdayName'
+  (from 1 to 7). In the loop body the index is just used to access an
+  element from the array. For this case there is a convenient for-each-loop:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        const array string: weekdayName is [] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday");
+        var string: name is "";
+      begin
+        for name range weekdayName do
+          writeln(name);
+        end for;
+      end func;
+
+  A for-each-loop iterates over the elements of an 'array'.
+  Sometimes the elements and a corresponding index are needed.
+  This is supported by the for-each-key-loop:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        const array string: weekdayName is [] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday");
+        var string: name is "";
+        var integer: index is 0;
+      begin
+        for name key index range weekdayName do
+          writeln("day " <& index <& ": " <& name);
+        end for;
+      end func;
+
+  Another example of a for-each-loop is:
 
     $ include "seed7_05.s7i";
 
@@ -887,14 +988,35 @@ CONTENTS
         writeln;
       end func;
 
-  In the example above '[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)'
-  is an array literal. This array literal has the type
-  'array integer' and it is indexed from one. A corresponding
-  array literal indexed from 0 would be:
+  The example above uses the array literal
 
-    [0] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
+    [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)
 
-  For-loops can also iterate over the elements of a 'set':
+  This array literal has the type 'array integer'. The index type of
+  an array is not restricted to integers. A type like 'char', that
+  has a 1:1 mapping to 'integer', can also be used as index:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        const array [char] string: digitName is
+            ['0'] ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine");
+        var integer: number is 0;
+        var char: ch is ' ';
+      begin
+        number := rand(1, 9999999);
+        write(number <& ": ");
+        for ch range str(number) do
+          write(digitName[ch] <& " ");
+        end for;
+        writeln;
+      end func;
+
+
+2.7 For loop and containers
+
+    For-loops can also iterate over the elements of a 'set':
 
     $ include "seed7_05.s7i";
 
@@ -1003,7 +1125,7 @@ CONTENTS
       end func;
 
 
-2.7 Functions
+2.8 Functions
 
     The program below uses the function 'flipCoin' to flip
   a coin until the result is heads:
@@ -1096,7 +1218,7 @@ CONTENTS
   the 'result' part is mandatory.
 
 
-2.8 Parameters
+2.9 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -1224,7 +1346,7 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.9 Overloading
+2.10 Overloading
 
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1302,7 +1424,7 @@ CONTENTS
   above are taken from the "mixarith.s7i" library.
 
 
-2.10 Declare a statement
+2.11 Declare a statement
 
     This example program writes its arguments
 
@@ -1345,7 +1467,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.11 Template declaring a statement
+2.12 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:
@@ -1686,11 +1808,15 @@ CONTENTS
     single_statement ::=
       assignment_statement | while_statement | repeat_statement |
       for_statement | for_step_statement | for_each_statement |
-      if_statement | case_statement |
-      procedure_call | empty_statement .
+      for_each_key_statement | for_key_statement | if_statement |
+      case_statement | procedure_call | empty_statement .
 
     empty_statement ::=
       'noop' .
+
+  The execution of a 'noop' statement (short for NO OPeration) has
+  no effect. Some places in a program require a statement. If
+  nothing needs to be done in such a place a 'noop' can be used.
 
   Everywhere where one statement can be written a sequence of
   statements can also be used. The semicolon-operator concatenates
@@ -1818,12 +1944,12 @@ CONTENTS
 
     $ syntax expr: .while.().do.().end.while   is -> 25;
 
-    const proc: while (ref func boolean: condition) do (in proc: statement) end while is action "PRC_WHILE";
-    const proc: while (in boolean: condition)  do (in proc: statement) end while      is action "PRC_WHILE";
+    const proc: while (in func boolean: condition) do (in proc: statement) end while is action "PRC_WHILE";
+    const proc: while (ref boolean: condition) do (in proc: statement) end while     is action "PRC_WHILE";
 
   Alternate declaration:
 
-    const proc: while (ref func boolean: condition) do (in proc: statement) end while is func
+    const proc: while (in func boolean: condition) do (in proc: statement) end while is func
       begin
         if condition then
           statement;
@@ -1865,12 +1991,12 @@ CONTENTS
 
     $ syntax expr: .repeat.().until.()   is -> 25;
 
-    const proc: repeat (in proc: statement) until (ref func boolean: condition) is action "PRC_REPEAT";
-    const proc: repeat (in proc: statement) until (in boolean: condition)       is action "PRC_REPEAT";
+    const proc: repeat (in proc: statement) until (in func boolean: condition) is action "PRC_REPEAT";
+    const proc: repeat (in proc: statement) until (ref boolean: condition)     is action "PRC_REPEAT";
 
   Alternate declaration:
 
-    const proc: repeat (in proc: statement) until (ref func boolean: condition) is func
+    const proc: repeat (in proc: statement) until (in func boolean: condition) is func
       begin
         statement;
         if not condition then
@@ -2038,7 +2164,7 @@ CONTENTS
       begin
 
         const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
-            until (ref func boolean: condition) do
+            until (in func boolean: condition) do
             (in proc: statements) end for is func
           local
             var boolean: continue is FALSE;
@@ -2056,7 +2182,7 @@ CONTENTS
           end func;
 
         const proc: for (inout aType: variable) range (in aType: lowerLimit) downto (in aType: upperLimit)
-            until (ref func boolean: condition) do
+            until (in func boolean: condition) do
             (in proc: statements) end for is func
           local
             var boolean: continue is FALSE;
@@ -2165,28 +2291,42 @@ CONTENTS
 
 4.8 for-each-statement
 
-  For example:
+  A for-each-statement loops over the elements of a container
+  ('array', 'hash', 'set', 'string', 'bstring', 'ref_list'). For example:
 
     for currObject range element_list do
-      result &:= " " & str(currObject);
+      writeln("element: " <& currObject);
+    end for;
+
+  A for-each-statement can be combined with an 'until' condition:
+
+    for currObject range element_list until found do
+      if currObject = searched then
+        writeln("found: " <& currObject);
+        found := TRUE;
+      end if;
     end for;
 
   Semantics:
     First the element list which stands behind 'range' is evaluated.
     If the element list is empty the for-each-statement is finished.
     Otherwise the first element of the element list is assigned
-    to the control variable which stands behind 'for'. Then the
-    statements behind 'do' are executed. If there is no next element
-    in the element the for-each-statement is finished. Otherwise
-    the next element of the element list is assigned to the control
-    variable. This check for next element - execute cycle is repeated
-    until there is no next element in the element list.
+    to the control variable which stands behind 'for'. If there is
+    an 'until' part the condition behind 'until' is checked and if it
+    evaluates to 'TRUE' the for-each-statement is finished. If the
+    for-each-statement is not finished the statements behind 'do'
+    (loop body) are executed. If there is no next element in the
+    element list the for-each-statement is finished. Otherwise the
+    next element of the element list is assigned to the control
+    variable. This check for next element - assign element -
+    check possible until condition - execute loop body - cycle is
+    repeated until there is no next element in the element list.
 
 
   Syntax:
 
     for_each_statement ::=
-      'for' identifier 'range' expression 'do'
+      'for' identifier 'range' expression [ 'until' expression ] 'do'
         statement
       'end' 'for' .
 
@@ -2194,6 +2334,10 @@ CONTENTS
   Declaration:
 
     $ syntax expr: .for.().range.().do.().end.for   is -> 25;
+
+    const proc: for (inout char: forVar) range (in string: stri) do
+                  (in proc: statement)
+                end for is action "STR_FOR";
 
     const proc: for (inout reference: variable) range (in ref_list: aRefList) do
                   (in proc: statement)
@@ -2211,19 +2355,188 @@ CONTENTS
         end for;
       end func;
 
-    const proc: for (inout baseType: variable) range (in setType: a_set) do
+    const proc: for (inout baseType: forVar) range (in hashType: aHashMap) do
                   (in proc: statements)
                 end for is func
       begin
-        for variable range min(a_set) to max(a_set) do
-          if variable in a_set then
+        FOR_DATA(forVar, aHashMap, statements, hashType.dataCopy);
+      end func;
+
+    const proc: for (inout baseType: variable) range (in setType: aSet) do
+                  (in proc: statements)
+                end for is func
+      local
+        var baseType: upperBound is baseType.value;
+        var boolean: leave is FALSE;
+      begin
+        if aSet <> setType.EMPTY_SET then
+          variable := min(aSet);
+          upperBound := max(aSet);
+          repeat
             statements;
-          end if;
+            if variable = upperBound then
+              leave := TRUE;
+            else
+              variable := next(aSet, variable);
+            end if;
+           until leave;
+        end if;
+      end func;
+
+    const proc: for (inout char: forVar) range (in bstring: bstri) do
+                  (in proc: statements)
+                end for is func
+      local
+        var integer: number is 0;
+      begin
+        for number range 1 to length(bstri) do
+          forVar := bstri[number];
+          statements;
         end for;
       end func;
 
 
-4.9 if-statement
+4.9 for-each-key-statement
+
+  A for-each-key-statement loops over the elements and keys (indices)
+  of a container ('array', 'hash', 'string'). For example:
+
+    for currObject key currIndex range element_list do
+      writeln("key: " <& currIndex <& ", element: " <& currObject);
+    end for;
+
+  A for-each-key-statement can be combined with an 'until' condition:
+
+    for currObject key currIndex range element_list until found do
+      if currObject = searched then
+        writeln("found key: " <& currIndex <& ", element: " <& currObject);
+        found := TRUE;
+      end if;
+    end for;
+
+  Semantics:
+    First the element list which stands behind 'range' is evaluated.
+    If the element list is empty the for-each-key-statement is
+    finished. Otherwise the first element of the element list is
+    assigned to the control variable which stands behind 'for' and
+    the index (key) of the first element is assigned to the key
+    control variable which stands behind the keyword 'key'. If there
+    is an 'until' part the condition behind 'until' is checked and
+    if it evaluates to 'TRUE' the for-each-statement is finished.
+    If the for-each-statement is not finished the statements behind
+    'do' (loop body) are executed. If there is no next element
+    in the element list the for-each-key-statement is finished.
+    Otherwise the next element of the element list is assigned to the
+    control variable and the index of the next element is assigned
+    to the key control variable. This check for next element -
+    assign index and element - check possible until condition -
+    execute loop body - cycle is repeated until there is no next
+    element in the element list.
+
+
+  Syntax:
+
+    for_each_key_statement ::=
+      'for' identifier 'key' identifier 'range' expression [ 'until' expression ] 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: .for.().key.().range.().do.().end.for   is -> 25;
+
+    const proc: for (inout char: forVar) key (inout integer: keyVar) range (in string: stri) do
+                  (in proc: statement)
+                end for is action "STR_FOR_VAR_KEY";
+
+    const proc: for (inout baseType: forVar) key (inout integer: keyVar) range (in arrayType: arr) do
+                  (in proc: statement)
+                end for is func
+      begin
+        for keyVar range minIdx(arr) to maxIdx(arr) do
+          forVar := arr[keyVar];
+          statements;
+        end for;
+      end func;
+
+    const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHashMap) do
+                  (in proc: statements)
+                end for is func
+      begin
+        FOR_DATA_KEY(forVar, keyVar, aHashMap, statements, hashType.dataCopy, hashType.keyCopy);
+      end func;
+
+
+4.10 for-key-statement
+
+  A for-key-statement loops over the keys (indices) of a container
+  ('array', 'hash', 'string'). For example:
+
+    for key currIndex range element_list do
+      writeln("key: " <& currIndex);
+    end for;
+
+  A for-key-statement can be combined with an 'until' condition:
+
+    for key currIndex range element_list until found do
+      if element_list[currIndex] = searched then
+        writeln("found key: " <& currIndex);
+        found := TRUE;
+      end if;
+    end for;
+
+  Semantics:
+    First the element list which stands behind 'range' is evaluated.
+    If the element list is empty the for-key-statement is finished.
+    Otherwise the index (key) of the first element is assigned to
+    the key control variable which stands behind the keyword 'key'.
+    If there is an 'until' part the condition behind 'until' is
+    checked and if it evaluates to 'TRUE' the for-each-statement
+    is finished. If the for-each-statement is not finished the
+    statements behind 'do' (loop body) are executed. If there is
+    no next element in the element list the for-key-statement is
+    finished. Otherwise the index of the next element is assigned
+    to the key control variable. This check for next element -
+    assign index - check possible until condition -
+    execute loop body - cycle is repeated until there is no next
+    element in the element list.
+
+
+  Syntax:
+
+    for_key_statement ::=
+      'for' 'key' identifier 'range' expression [ 'until' expression ] 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: .for.key.().range.().do.().end.for   is -> 25;
+
+    const proc: for key (inout integer: keyVar) range (in string: stri) do
+                  (in proc: statement)
+                end for is action "STR_FOR_KEY";
+
+    const proc: for key (inout integer: keyVar) range (in arrayType: arr) do
+                  (in proc: statement)
+                end for is func
+      begin
+        for keyVar range minIdx(arr) to maxIdx(arr) do
+          statements;
+        end for;
+      end func;
+
+    const proc: for key (inout keyType: keyVar) range (in hashType: aHashMap) do
+                  (in proc: statements)
+                end for is func
+      begin
+        FOR_KEY(keyVar, aHashMap, statements, hashType.keyCopy);
+      end func;
+
+
+4.11 if-statement
 
   For example:
 
@@ -2297,7 +2610,7 @@ CONTENTS
                         (in void: elsePart)                is ELSIF_EMPTY;
 
 
-4.10 case-statement
+4.12 case-statement
 
   For example:
 
@@ -9566,7 +9879,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     const proc: loop
                   (in proc: statements1)
-                until (ref func boolean: condition) do
+                until (in func boolean: condition) do
                   (in proc: statements2)
                 end loop is func
       local
@@ -9916,8 +10229,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   The semantic definition of the while-statement is as follows:
 
-    const proc: while (ref func boolean: condition) do
-        (ref proc: statement) end while is func
+    const proc: while (in func boolean: condition) do
+        (in proc: statement) end while is func
       begin
         if condition then
           statement;
@@ -11376,7 +11689,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
-  Symbolic links in sourcePath are always followed. Therefore
+  Symbolic links in 'sourcePath' are always followed. Therefore
   'copyFile' will never create a symbolic link. Note that 'copyFile'
   does not preserve hard links (they are resolved to distinct files).
 
@@ -14845,7 +15158,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       used to store the error state. The value 'OKAY_NO_ERROR' is used
       to describe that no error occurred. Values like 'MEMORY_ERROR',
       'NUMERIC_ERROR', 'OVERFLOW_ERROR', 'RANGE_ERROR', 'FILE_ERROR',
-      'DATABASE_ERROR' and 'ACTION_ERROR' describe errors that occurred.
+      'DATABASE_ERROR', 'GRAPHIC_ERROR' and 'ACTION_ERROR' describe
+      errors that occurred.
     - In some situations a function has only one possible error
       situation (e.g. a 'MEMORY_ERROR'). This is handled with functions
       that return NULL in case of a 'MEMORY_ERROR'.
@@ -14988,7 +15302,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   The compiler does checks when generating code. As a result of
   the checks some warnings might be written. The warning level can
-  be specified with the option -w
+  be specified with the option -wn
 
     Level | Warning
     ------+--------------------------------------------------------------
@@ -15011,8 +15325,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   corresponding exception handler exists the program is terminated.
   There are various exceptions, which can be raised: MEMORY_ERROR,
   NUMERIC_ERROR, OVERFLOW_ERROR, INDEX_ERROR, RANGE_ERROR, FILE_ERROR,
-  DATABASE_ERROR and ILLEGAL_ACTION. A program can raise an exception
-  with the 'raise' statement. For example:
+  DATABASE_ERROR, GRAPHIC_ERROR and ILLEGAL_ACTION. A program can raise
+  an exception with the 'raise' statement. For example:
 
     raise RANGE_ERROR;
 
@@ -15236,7 +15550,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   be used to specify the place of the connector library.
 
 
-16.3.8 ILLEGAL_ACTION
+16.3.8 GRAPHIC_ERROR
+
+  The exception GRAPHIC_ERROR may be raised by graphic drivers.
+  If an underlying graphic library function reports an error a
+  GRAPHIC_ERROR is raised.
+
+
+16.3.9 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
