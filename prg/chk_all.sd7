@@ -485,10 +485,16 @@ const func string: cmdOutput (in var string: cmdAndParams) is func
       parameters &:= parameter;
       parameter := getCommandLineWord(cmdAndParams);
     end while;
-    pipe2(commandPath(command), parameters, childStdin, childStdout);
-    output := gets(childStdout, 999999999);
-    close(childStdin);
-    close(childStdout);
+    if succeeds(
+        pipe2(commandPath(command), parameters, childStdin, childStdout)) then
+      output := gets(childStdout, 999999999);
+      close(childStdin);
+      close(childStdout);
+    else
+      writeln;
+      writeln(" *** Unable to execute " <& command);
+      writeln("     Maybe antivirus software removed the executable.");
+    end if;
   end func;
 
 
