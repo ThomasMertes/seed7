@@ -88,6 +88,8 @@ longjmpPosition waitFinished;
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -107,7 +109,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -138,6 +143,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -157,7 +164,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -193,6 +203,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -212,7 +224,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -255,6 +270,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -274,7 +291,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -323,6 +343,8 @@ static void alarm_signal_handler (int sig_num)
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -342,7 +364,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       gettimeofday(&time_val, NULL);
@@ -393,6 +418,8 @@ static void alarm_signal_handler (int sig_num)
  *  Wait until the given time is reached
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'min', 'sec' or
+ *                         'time_zone' is not in the allowed range.
  */
 void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -411,7 +438,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
-      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      logError(printf("timAwait: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02)
+                      " or Timezone " FMT_D " not in allowed range.\n",
+                      year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
     } else {
       gettimeofday(&time_val, NULL);

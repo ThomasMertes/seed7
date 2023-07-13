@@ -238,20 +238,26 @@ typedef int64Type timeStampType;
 #define TIMESTAMPTYPE_SIZE 64
 
 #if TIME_T_SIZE == 32
-#define TIME_T_MAX INT32TYPE_MAX
 #if TIME_T_SIGNED
+#define TIME_T_MIN          INT32TYPE_MIN
+#define TIME_T_MAX          INT32TYPE_MAX
 #define TIME_T_ERROR        INT32TYPE_MIN
 #define FMT_T                     FMT_D32
 #else
+#define TIME_T_MIN                      0
+#define TIME_T_MAX         UINT32TYPE_MAX
 #define TIME_T_ERROR       UINT32TYPE_MAX
 #define FMT_T                     FMT_U32
 #endif
 #elif TIME_T_SIZE == 64
-#define TIME_T_MAX INT64TYPE_MAX
 #if TIME_T_SIGNED
+#define TIME_T_MIN          INT64TYPE_MIN
+#define TIME_T_MAX          INT64TYPE_MAX
 #define TIME_T_ERROR        INT64TYPE_MIN
 #define FMT_T                     FMT_D64
 #else
+#define TIME_T_MIN                      0
+#define TIME_T_MAX         UINT64TYPE_MAX
 #define TIME_T_ERROR       UINT64TYPE_MAX
 #define FMT_T                     FMT_U64
 #endif
@@ -311,21 +317,13 @@ typedef int64Type timeStampType;
 
 #if TIME_T_SIGNED
 #if TIME_T_SIZE < INTTYPE_SIZE
-#if TIME_T_SIZE == 32
-#define inTimeTRange(timestamp) ((timestamp) >= INT32TYPE_MIN && (timestamp) <= INT32TYPE_MAX)
-#elif TIME_T_SIZE == 64
-#define inTimeTRange(timestamp) ((timestamp) >= INT64TYPE_MIN && (timestamp) <= INT64TYPE_MAX)
-#endif
+#define inTimeTRange(timestamp) ((timestamp) >= TIME_T_MIN && (timestamp) <= TIME_T_MAX)
 #else
 #define inTimeTRange(timestamp) 1
 #endif
 #else
 #if TIME_T_SIZE < INTTYPE_SIZE
-#if TIME_T_SIZE == 32
-#define inTimeTRange(timestamp) ((timestamp) >= 0 && (timestamp) <= UINT32TYPE_MAX)
-#elif TIME_T_SIZE == 64
-#define inTimeTRange(timestamp) ((timestamp) >= 0 && (timestamp) <= UINT64TYPE_MAX)
-#endif
+#define inTimeTRange(timestamp) ((timestamp) >= 0 && (timestamp) <= TIME_T_MAX)
 #else
 #define inTimeTRange(timestamp) ((timestamp) >= 0)
 #endif

@@ -460,12 +460,15 @@ time_t timToOsTimestamp (intType year, intType month, intType day,
 /**
  *  Sets timeZone and daylightSavingTime for a given time.
  *  @return the time in the local time zone.
+ *  @exception RANGE_ERROR If 'year', 'month', 'day', 'hour', 'minute'
+ *                         or 'second' is not in the allowed range.
  */
 void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     intType minute, intType second, intType *timeZone, boolType *isDst)
 
   {
-    time_t timestamp;
+    timeStampType timestamp;
+    time_t osTimestamp;
 #if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
@@ -476,59 +479,70 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     logFunction(printf("timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                         F_D(02) ":" F_D(02) ":" F_D(02) ")\n",
                        year, month, day, hour, minute, second););
-    timestamp = 0;
+    osTimestamp = 0;
 #if defined USE_LOCALTIME_R
-    local_time = localtime_r(&timestamp, &tm_result);
+    local_time = localtime_r(&osTimestamp, &tm_result);
 #elif defined USE_LOCALTIME_S
-    if (localtime_s(&tm_result, &timestamp) != 0) {
+    if (localtime_s(&tm_result, &osTimestamp) != 0) {
       local_time = NULL;
     } else {
       local_time = &tm_result;
     } /* if */
 #else
-    local_time = localtime(&timestamp);
+    local_time = localtime(&osTimestamp);
 #endif
     if (unlikely(local_time == NULL)) {
       logError(printf("timSetLocalTZ: "
                       "One of localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
                       "errno=%d\nerror: %s\n",
-                      timestamp, errno, strerror(errno)););
+                      osTimestamp, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       timeZoneReference = unchecked_mkutc(local_time) / 60;
       /* printf("timeZoneReference: %ld\n", timeZoneReference); */
-      timestamp = timToOsTimestamp(year, month, day, hour, minute, second, 0);
-      if (unlikely(timestamp == TIME_T_ERROR)) {
+      timestamp = timToTimestamp(year, month, day, hour, minute, second, 0);
+      if (unlikely(timestamp == TIMESTAMPTYPE_MIN)) {
+        logError(printf("timSetLocalTZ: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                               F_D(02) ":" F_D(02) ":" F_D(02)
+                        " not in allowed range.\n",
+                        year, month, day, hour, minute, second););
+        raise_error(RANGE_ERROR);
+      } else if (unlikely(
+          (timeZoneReference >= 0 && (timestamp < TIME_T_MIN + timeZoneReference * 60 ||
+                                      timestamp > TIME_T_MAX)) ||
+	  (timeZoneReference < 0 && (timestamp < TIME_T_MIN ||
+                                     timestamp > TIME_T_MAX + timeZoneReference * 60)))) {
         *timeZone = timeZoneReference;
         *isDst    = 0;
       } else {
-        /* printf("timestamp: %ld\n", timestamp); */
-        timestamp -= timeZoneReference * 60;
+        /* printf("timestamp: " FMT_D64 "\n", timestamp); */
+        osTimestamp = (time_t) timestamp - timeZoneReference * 60;
+        /* printf("osTimestamp: %ld\n", osTimestamp); */
 #if !LOCALTIME_WORKS_SIGNED
-        if (timestamp < 0) {
+        if (osTimestamp < 0) {
           *timeZone = timeZoneReference;
           *isDst    = 0;
         } else {
 #endif
 #if defined USE_LOCALTIME_R
-          local_time = localtime_r(&timestamp, &tm_result);
+          local_time = localtime_r(&osTimestamp, &tm_result);
 #elif defined USE_LOCALTIME_S
-          if (localtime_s(&tm_result, &timestamp) != 0) {
+          if (localtime_s(&tm_result, &osTimestamp) != 0) {
             local_time = NULL;
           } else {
             local_time = &tm_result;
           } /* if */
 #else
-          local_time = localtime(&timestamp);
+          local_time = localtime(&osTimestamp);
 #endif
           if (unlikely(local_time == NULL)) {
             logError(printf("timSetLocalTZ: One of "
                             "localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
                             "errno=%d\nerror: %s\n",
-                            timestamp, errno, strerror(errno)););
+                            osTimestamp, errno, strerror(errno)););
             raise_error(RANGE_ERROR);
           } else {
-            *timeZone = ((intType) unchecked_mkutc(local_time) - (intType) timestamp) / 60;
+            *timeZone = ((intType) unchecked_mkutc(local_time) - (intType) osTimestamp) / 60;
             /* Correct timeZone values that are outside of the allowed range. */
             /* Under Linux this never happens, but Windows has this problem.  */
             if (unlikely(*timeZone < -12 * 60)) {
