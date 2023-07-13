@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "complex.s7i";
   include "bstring.s7i";
+  include "time.s7i";
 
 enable_output(type);
 
@@ -47,6 +48,7 @@ const type: booleanCharHash        is hash [boolean] char;
 const type: booleanStringHash      is hash [boolean] string;
 const type: booleanBstringHash     is hash [boolean] bstring;
 const type: booleanBitsetHash      is hash [boolean] bitset;
+const type: booleanTimeHash        is hash [boolean] time;
 const type: booleanEnumTypeHash    is hash [boolean] enumerationType;
 const type: booleanTypeHash        is hash [boolean] type;
 const type: booleanReferenceHash   is hash [boolean] reference;
@@ -62,6 +64,7 @@ const type: integerCharHash        is hash [integer] char;
 const type: integerStringHash      is hash [integer] string;
 const type: integerBstringHash     is hash [integer] bstring;
 const type: integerBitsetHash      is hash [integer] bitset;
+const type: integerTimeHash        is hash [integer] time;
 const type: integerEnumTypeHash    is hash [integer] enumerationType;
 const type: integerTypeHash        is hash [integer] type;
 const type: integerReferenceHash   is hash [integer] reference;
@@ -77,6 +80,7 @@ const type: bigIntegerCharHash        is hash [bigInteger] char;
 const type: bigIntegerStringHash      is hash [bigInteger] string;
 const type: bigIntegerBstringHash     is hash [bigInteger] bstring;
 const type: bigIntegerBitsetHash      is hash [bigInteger] bitset;
+const type: bigIntegerTimeHash        is hash [bigInteger] time;
 const type: bigIntegerEnumTypeHash    is hash [bigInteger] enumerationType;
 const type: bigIntegerTypeHash        is hash [bigInteger] type;
 const type: bigIntegerReferenceHash   is hash [bigInteger] reference;
@@ -92,6 +96,7 @@ const type: rationalCharHash        is hash [rational] char;
 const type: rationalStringHash      is hash [rational] string;
 const type: rationalBstringHash     is hash [rational] bstring;
 const type: rationalBitsetHash      is hash [rational] bitset;
+const type: rationalTimeHash        is hash [rational] time;
 const type: rationalEnumTypeHash    is hash [rational] enumerationType;
 const type: rationalTypeHash        is hash [rational] type;
 const type: rationalReferenceHash   is hash [rational] reference;
@@ -107,6 +112,7 @@ const type: bigRationalCharHash        is hash [bigRational] char;
 const type: bigRationalStringHash      is hash [bigRational] string;
 const type: bigRationalBstringHash     is hash [bigRational] bstring;
 const type: bigRationalBitsetHash      is hash [bigRational] bitset;
+const type: bigRationalTimeHash        is hash [bigRational] time;
 const type: bigRationalEnumTypeHash    is hash [bigRational] enumerationType;
 const type: bigRationalTypeHash        is hash [bigRational] type;
 const type: bigRationalReferenceHash   is hash [bigRational] reference;
@@ -122,6 +128,7 @@ const type: floatCharHash        is hash [float] char;
 const type: floatStringHash      is hash [float] string;
 const type: floatBstringHash     is hash [float] bstring;
 const type: floatBitsetHash      is hash [float] bitset;
+const type: floatTimeHash        is hash [float] time;
 const type: floatEnumTypeHash    is hash [float] enumerationType;
 const type: floatTypeHash        is hash [float] type;
 const type: floatReferenceHash   is hash [float] reference;
@@ -137,6 +144,7 @@ const type: complexCharHash        is hash [complex] char;
 const type: complexStringHash      is hash [complex] string;
 const type: complexBstringHash     is hash [complex] bstring;
 const type: complexBitsetHash      is hash [complex] bitset;
+const type: complexTimeHash        is hash [complex] time;
 const type: complexEnumTypeHash    is hash [complex] enumerationType;
 const type: complexTypeHash        is hash [complex] type;
 const type: complexReferenceHash   is hash [complex] reference;
@@ -152,6 +160,7 @@ const type: charCharHash        is hash [char] char;
 const type: charStringHash      is hash [char] string;
 const type: charBstringHash     is hash [char] bstring;
 const type: charBitsetHash      is hash [char] bitset;
+const type: charTimeHash        is hash [char] time;
 const type: charEnumTypeHash    is hash [char] enumerationType;
 const type: charTypeHash        is hash [char] type;
 const type: charReferenceHash   is hash [char] reference;
@@ -167,6 +176,7 @@ const type: stringCharHash        is hash [string] char;
 const type: stringStringHash      is hash [string] string;
 const type: stringBstringHash     is hash [string] bstring;
 const type: stringBitsetHash      is hash [string] bitset;
+const type: stringTimeHash        is hash [string] time;
 const type: stringEnumTypeHash    is hash [string] enumerationType;
 const type: stringTypeHash        is hash [string] type;
 const type: stringReferenceHash   is hash [string] reference;
@@ -182,6 +192,7 @@ const type: bstringCharHash        is hash [bstring] char;
 const type: bstringStringHash      is hash [bstring] string;
 const type: bstringBstringHash     is hash [bstring] bstring;
 const type: bstringBitsetHash      is hash [bstring] bitset;
+const type: bstringTimeHash        is hash [bstring] time;
 const type: bstringEnumTypeHash    is hash [bstring] enumerationType;
 const type: bstringTypeHash        is hash [bstring] type;
 const type: bstringReferenceHash   is hash [bstring] reference;
@@ -197,10 +208,27 @@ const type: bitsetCharHash        is hash [bitset] char;
 const type: bitsetStringHash      is hash [bitset] string;
 const type: bitsetBstringHash     is hash [bitset] bstring;
 const type: bitsetBitsetHash      is hash [bitset] bitset;
+const type: bitsetTimeHash        is hash [bitset] time;
 const type: bitsetEnumTypeHash    is hash [bitset] enumerationType;
 const type: bitsetTypeHash        is hash [bitset] type;
 const type: bitsetReferenceHash   is hash [bitset] reference;
 const type: bitsetHashHash        is hash [bitset] bitsetBooleanHash;
+
+const type: timeBooleanHash     is hash [time] boolean;
+const type: timeIntegerHash     is hash [time] integer;
+const type: timeBigIntegerHash  is hash [time] bigInteger;
+const type: timeBigRationalHash is hash [time] bigRational;
+const type: timeFloatHash       is hash [time] float;
+const type: timeComplexHash     is hash [time] complex;
+const type: timeCharHash        is hash [time] char;
+const type: timeStringHash      is hash [time] string;
+const type: timeBstringHash     is hash [time] bstring;
+const type: timeBitsetHash      is hash [time] bitset;
+const type: timeTimeHash        is hash [time] time;
+const type: timeEnumTypeHash    is hash [time] enumerationType;
+const type: timeTypeHash        is hash [time] type;
+const type: timeReferenceHash   is hash [time] reference;
+const type: timeHashHash        is hash [time] timeBooleanHash;
 
 const type: enumTypeBooleanHash     is hash [enumerationType] boolean;
 const type: enumTypeIntegerHash     is hash [enumerationType] integer;
@@ -212,6 +240,7 @@ const type: enumTypeCharHash        is hash [enumerationType] char;
 const type: enumTypeStringHash      is hash [enumerationType] string;
 const type: enumTypeBstringHash     is hash [enumerationType] bstring;
 const type: enumTypeBitsetHash      is hash [enumerationType] bitset;
+const type: enumTypeTimeHash        is hash [enumerationType] time;
 const type: enumTypeEnumTypeHash    is hash [enumerationType] enumerationType;
 const type: enumTypeTypeHash        is hash [enumerationType] type;
 const type: enumTypeReferenceHash   is hash [enumerationType] reference;
@@ -231,7 +260,8 @@ const proc: chkBooleanHash is func
     var booleanStringHash:      booleanStringHashVar      is booleanStringHash     .EMPTY_HASH;
     var booleanBstringHash:     booleanBstringHashVar     is booleanBstringHash    .EMPTY_HASH;
     var booleanBitsetHash:      booleanBitsetHashVar      is booleanBitsetHash     .EMPTY_HASH;
-    var booleanEnumTypeHash:    booleanEnumTypeHashVar    is booleanEnumTypeHash     .EMPTY_HASH;
+    var booleanTimeHash:        booleanTimeHashVar        is booleanTimeHash       .EMPTY_HASH;
+    var booleanEnumTypeHash:    booleanEnumTypeHashVar    is booleanEnumTypeHash   .EMPTY_HASH;
     var booleanTypeHash:        booleanTypeHashVar        is booleanTypeHash       .EMPTY_HASH;
     var booleanReferenceHash:   booleanReferenceHashVar   is booleanReferenceHash  .EMPTY_HASH;
     var booleanHashHash:        booleanHashHashVar        is booleanHashHash       .EMPTY_HASH;
@@ -246,6 +276,7 @@ const proc: chkBooleanHash is func
         length(booleanStringHashVar)      <> 0 or
         length(booleanBstringHashVar)     <> 0 or
         length(booleanBitsetHashVar)      <> 0 or
+        length(booleanTimeHashVar)        <> 0 or
         length(booleanEnumTypeHashVar)    <> 0 or
         length(booleanTypeHashVar)        <> 0 or
         length(booleanReferenceHashVar)   <> 0 or
@@ -263,6 +294,7 @@ const proc: chkBooleanHash is func
         TRUE in booleanStringHashVar      or
         TRUE in booleanBstringHashVar     or
         TRUE in booleanBitsetHashVar      or
+        TRUE in booleanTimeHashVar        or
         TRUE in booleanEnumTypeHashVar    or
         TRUE in booleanTypeHashVar        or
         TRUE in booleanReferenceHashVar   or
@@ -280,6 +312,7 @@ const proc: chkBooleanHash is func
         keys(booleanStringHashVar)      <> 0 times FALSE or
         keys(booleanBstringHashVar)     <> 0 times FALSE or
         keys(booleanBitsetHashVar)      <> 0 times FALSE or
+        keys(booleanTimeHashVar)        <> 0 times FALSE or
         keys(booleanEnumTypeHashVar)    <> 0 times FALSE or
         keys(booleanTypeHashVar)        <> 0 times FALSE or
         keys(booleanReferenceHashVar)   <> 0 times FALSE or
@@ -297,6 +330,7 @@ const proc: chkBooleanHash is func
         values(booleanStringHashVar)      <> 0 times "" or
         values(booleanBstringHashVar)     <> 0 times bstring("") or
         values(booleanBitsetHashVar)      <> 0 times {} or
+        values(booleanTimeHashVar)        <> 0 times time.value or
         values(booleanEnumTypeHashVar)    <> 0 times RED or
         values(booleanTypeHashVar)        <> 0 times boolean or
         values(booleanReferenceHashVar)   <> 0 times NIL then
@@ -313,6 +347,7 @@ const proc: chkBooleanHash is func
     booleanStringHashVar      @:= [TRUE] "success";
     booleanBstringHashVar     @:= [TRUE] bstring("okay");
     booleanBitsetHashVar      @:= [TRUE] {123};
+    booleanTimeHashVar        @:= [TRUE] time("2011-12-13 14:15");
     booleanEnumTypeHashVar    @:= [TRUE] GREEN;
     booleanTypeHashVar        @:= [TRUE] char;
     booleanReferenceHashVar   @:= [TRUE] NIL;
@@ -327,6 +362,7 @@ const proc: chkBooleanHash is func
         length(booleanStringHashVar)      <> 1 or
         length(booleanBstringHashVar)     <> 1 or
         length(booleanBitsetHashVar)      <> 1 or
+        length(booleanTimeHashVar)        <> 1 or
         length(booleanEnumTypeHashVar)    <> 1 or
         length(booleanTypeHashVar)        <> 1 or
         length(booleanReferenceHashVar)   <> 1 or
@@ -344,6 +380,7 @@ const proc: chkBooleanHash is func
         TRUE in booleanStringHashVar      and
         TRUE in booleanBstringHashVar     and
         TRUE in booleanBitsetHashVar      and
+        TRUE in booleanTimeHashVar        and
         TRUE in booleanEnumTypeHashVar    and
         TRUE in booleanTypeHashVar        and
         TRUE in booleanReferenceHashVar   and
@@ -363,6 +400,7 @@ const proc: chkBooleanHash is func
         keys(booleanStringHashVar)      <> [] (TRUE) or
         keys(booleanBstringHashVar)     <> [] (TRUE) or
         keys(booleanBitsetHashVar)      <> [] (TRUE) or
+        keys(booleanTimeHashVar)        <> [] (TRUE) or
         keys(booleanEnumTypeHashVar)    <> [] (TRUE) or
         keys(booleanTypeHashVar)        <> [] (TRUE) or
         keys(booleanReferenceHashVar)   <> [] (TRUE) or
@@ -380,6 +418,7 @@ const proc: chkBooleanHash is func
         values(booleanStringHashVar)      <> [] ("success") or
         values(booleanBstringHashVar)     <> [] (bstring("okay")) or
         values(booleanBitsetHashVar)      <> [] ({123}) or
+        values(booleanTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(booleanEnumTypeHashVar)    <> [] (GREEN) or
         values(booleanTypeHashVar)        <> [] (char) or
         values(booleanReferenceHashVar)   <> [] (NIL) then
@@ -396,6 +435,7 @@ const proc: chkBooleanHash is func
     booleanStringHashVar      @:= [TRUE] "success";
     booleanBstringHashVar     @:= [TRUE] bstring("okay");
     booleanBitsetHashVar      @:= [TRUE] {123};
+    booleanTimeHashVar        @:= [TRUE] time("2011-12-13 14:15");
     booleanEnumTypeHashVar    @:= [TRUE] GREEN;
     booleanTypeHashVar        @:= [TRUE] char;
     booleanReferenceHashVar   @:= [TRUE] NIL;
@@ -410,6 +450,7 @@ const proc: chkBooleanHash is func
         TRUE not in booleanStringHashVar      or
         TRUE not in booleanBstringHashVar     or
         TRUE not in booleanBitsetHashVar      or
+        TRUE not in booleanTimeHashVar        or
         TRUE not in booleanEnumTypeHashVar    or
         TRUE not in booleanTypeHashVar        or
         TRUE not in booleanReferenceHashVar   or
@@ -417,19 +458,20 @@ const proc: chkBooleanHash is func
       writeln(" ***** Elements missing in hash[boolean] table");
       okay := FALSE;
     end if;
-    if  booleanBooleanHashVar     [TRUE] <> TRUE                    or
-        booleanIntegerHashVar     [TRUE] <> 1234                    or
-        booleanBigIntegerHashVar  [TRUE] <> 9999999999_             or
-        booleanBigRationalHashVar [TRUE] <> 9999999999_ / 12345678_ or
-        booleanFloatHashVar       [TRUE] <> 3.1415926535            or
-        booleanComplexHashVar     [TRUE] <> complex(1.2, 3.4)       or
-        booleanCharHashVar        [TRUE] <> 'Q'                     or
-        booleanStringHashVar      [TRUE] <> "success"               or
-        booleanBstringHashVar     [TRUE] <> bstring("okay")         or
-        booleanBitsetHashVar      [TRUE] <> {123}                   or
-        booleanEnumTypeHashVar    [TRUE] <> GREEN                   or
-        booleanTypeHashVar        [TRUE] <> char                    or
-        booleanReferenceHashVar   [TRUE] <> NIL                     then
+    if  booleanBooleanHashVar     [TRUE] <> TRUE                     or
+        booleanIntegerHashVar     [TRUE] <> 1234                     or
+        booleanBigIntegerHashVar  [TRUE] <> 9999999999_              or
+        booleanBigRationalHashVar [TRUE] <> 9999999999_ / 12345678_  or
+        booleanFloatHashVar       [TRUE] <> 3.1415926535             or
+        booleanComplexHashVar     [TRUE] <> complex(1.2, 3.4)        or
+        booleanCharHashVar        [TRUE] <> 'Q'                      or
+        booleanStringHashVar      [TRUE] <> "success"                or
+        booleanBstringHashVar     [TRUE] <> bstring("okay")          or
+        booleanBitsetHashVar      [TRUE] <> {123}                    or
+        booleanTimeHashVar        [TRUE] <> time("2011-12-13 14:15") or
+        booleanEnumTypeHashVar    [TRUE] <> GREEN                    or
+        booleanTypeHashVar        [TRUE] <> char                     or
+        booleanReferenceHashVar   [TRUE] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[boolean] table");
       okay := FALSE;
     end if;
@@ -454,6 +496,7 @@ const proc: chkIntegerHash is func
     var integerStringHash:      integerStringHashVar      is integerStringHash     .EMPTY_HASH;
     var integerBstringHash:     integerBstringHashVar     is integerBstringHash    .EMPTY_HASH;
     var integerBitsetHash:      integerBitsetHashVar      is integerBitsetHash     .EMPTY_HASH;
+    var integerTimeHash:        integerTimeHashVar        is integerTimeHash       .EMPTY_HASH;
     var integerEnumTypeHash:    integerEnumTypeHashVar    is integerEnumTypeHash   .EMPTY_HASH;
     var integerTypeHash:        integerTypeHashVar        is integerTypeHash       .EMPTY_HASH;
     var integerReferenceHash:   integerReferenceHashVar   is integerReferenceHash  .EMPTY_HASH;
@@ -469,6 +512,7 @@ const proc: chkIntegerHash is func
         length(integerStringHashVar)      <> 0 or
         length(integerBstringHashVar)     <> 0 or
         length(integerBitsetHashVar)      <> 0 or
+        length(integerTimeHashVar)        <> 0 or
         length(integerEnumTypeHashVar)    <> 0 or
         length(integerTypeHashVar)        <> 0 or
         length(integerReferenceHashVar)   <> 0 or
@@ -486,6 +530,7 @@ const proc: chkIntegerHash is func
         87654321 in integerStringHashVar      or
         87654321 in integerBstringHashVar     or
         87654321 in integerBitsetHashVar      or
+        87654321 in integerTimeHashVar        or
         87654321 in integerEnumTypeHashVar    or
         87654321 in integerTypeHashVar        or
         87654321 in integerReferenceHashVar   or
@@ -503,6 +548,7 @@ const proc: chkIntegerHash is func
         keys(integerStringHashVar)      <> 0 times 0 or
         keys(integerBstringHashVar)     <> 0 times 0 or
         keys(integerBitsetHashVar)      <> 0 times 0 or
+        keys(integerTimeHashVar)        <> 0 times 0 or
         keys(integerEnumTypeHashVar)    <> 0 times 0 or
         keys(integerTypeHashVar)        <> 0 times 0 or
         keys(integerReferenceHashVar)   <> 0 times 0 or
@@ -520,6 +566,7 @@ const proc: chkIntegerHash is func
         values(integerStringHashVar)      <> 0 times "" or
         values(integerBstringHashVar)     <> 0 times bstring("") or
         values(integerBitsetHashVar)      <> 0 times {} or
+        values(integerTimeHashVar)        <> 0 times time.value or
         values(integerEnumTypeHashVar)    <> 0 times RED or
         values(integerTypeHashVar)        <> 0 times boolean or
         values(integerReferenceHashVar)   <> 0 times NIL then
@@ -536,6 +583,7 @@ const proc: chkIntegerHash is func
     integerStringHashVar      @:= [87654321] "success";
     integerBstringHashVar     @:= [87654321] bstring("okay");
     integerBitsetHashVar      @:= [87654321] {123};
+    integerTimeHashVar        @:= [87654321] time("2011-12-13 14:15");
     integerEnumTypeHashVar    @:= [87654321] GREEN;
     integerTypeHashVar        @:= [87654321] char;
     integerReferenceHashVar   @:= [87654321] NIL;
@@ -550,6 +598,7 @@ const proc: chkIntegerHash is func
         length(integerStringHashVar)      <> 1 or
         length(integerBstringHashVar)     <> 1 or
         length(integerBitsetHashVar)      <> 1 or
+        length(integerTimeHashVar)        <> 1 or
         length(integerEnumTypeHashVar)    <> 1 or
         length(integerTypeHashVar)        <> 1 or
         length(integerReferenceHashVar)   <> 1 or
@@ -567,6 +616,7 @@ const proc: chkIntegerHash is func
         87654321 in integerStringHashVar      and
         87654321 in integerBstringHashVar     and
         87654321 in integerBitsetHashVar      and
+        87654321 in integerTimeHashVar        and
         87654321 in integerEnumTypeHashVar    and
         87654321 in integerTypeHashVar        and
         87654321 in integerReferenceHashVar   and
@@ -586,6 +636,7 @@ const proc: chkIntegerHash is func
         keys(integerStringHashVar)      <> [] (87654321) or
         keys(integerBstringHashVar)     <> [] (87654321) or
         keys(integerBitsetHashVar)      <> [] (87654321) or
+        keys(integerTimeHashVar)        <> [] (87654321) or
         keys(integerEnumTypeHashVar)    <> [] (87654321) or
         keys(integerTypeHashVar)        <> [] (87654321) or
         keys(integerReferenceHashVar)   <> [] (87654321) or
@@ -603,6 +654,7 @@ const proc: chkIntegerHash is func
         values(integerStringHashVar)      <> [] ("success") or
         values(integerBstringHashVar)     <> [] (bstring("okay")) or
         values(integerBitsetHashVar)      <> [] ({123}) or
+        values(integerTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(integerEnumTypeHashVar)    <> [] (GREEN) or
         values(integerTypeHashVar)        <> [] (char) or
         values(integerReferenceHashVar)   <> [] (NIL) then
@@ -619,6 +671,7 @@ const proc: chkIntegerHash is func
     integerStringHashVar      @:= [87654321] "success";
     integerBstringHashVar     @:= [87654321] bstring("okay");
     integerBitsetHashVar      @:= [87654321] {123};
+    integerTimeHashVar        @:= [87654321] time("2011-12-13 14:15");
     integerEnumTypeHashVar    @:= [87654321] GREEN;
     integerTypeHashVar        @:= [87654321] char;
     integerReferenceHashVar   @:= [87654321] NIL;
@@ -633,6 +686,7 @@ const proc: chkIntegerHash is func
         87654321 not in integerStringHashVar      or
         87654321 not in integerBstringHashVar     or
         87654321 not in integerBitsetHashVar      or
+        87654321 not in integerTimeHashVar        or
         87654321 not in integerEnumTypeHashVar    or
         87654321 not in integerTypeHashVar        or
         87654321 not in integerReferenceHashVar   or
@@ -640,19 +694,20 @@ const proc: chkIntegerHash is func
       writeln(" ***** Elements missing in hash[integer] table");
       okay := FALSE;
     end if;
-    if  integerBooleanHashVar     [87654321] <> TRUE                    or
-        integerIntegerHashVar     [87654321] <> 1234                    or
-        integerBigIntegerHashVar  [87654321] <> 9999999999_             or
-        integerBigRationalHashVar [87654321] <> 9999999999_ / 12345678_ or
-        integerFloatHashVar       [87654321] <> 3.1415926535            or
-        integerComplexHashVar     [87654321] <> complex(1.2, 3.4)       or
-        integerCharHashVar        [87654321] <> 'Q'                     or
-        integerStringHashVar      [87654321] <> "success"               or
-        integerBstringHashVar     [87654321] <> bstring("okay")         or
-        integerBitsetHashVar      [87654321] <> {123}                   or
-        integerEnumTypeHashVar    [87654321] <> GREEN                   or
-        integerTypeHashVar        [87654321] <> char                    or
-        integerReferenceHashVar   [87654321] <> NIL                     then
+    if  integerBooleanHashVar     [87654321] <> TRUE                     or
+        integerIntegerHashVar     [87654321] <> 1234                     or
+        integerBigIntegerHashVar  [87654321] <> 9999999999_              or
+        integerBigRationalHashVar [87654321] <> 9999999999_ / 12345678_  or
+        integerFloatHashVar       [87654321] <> 3.1415926535             or
+        integerComplexHashVar     [87654321] <> complex(1.2, 3.4)        or
+        integerCharHashVar        [87654321] <> 'Q'                      or
+        integerStringHashVar      [87654321] <> "success"                or
+        integerBstringHashVar     [87654321] <> bstring("okay")          or
+        integerBitsetHashVar      [87654321] <> {123}                    or
+        integerTimeHashVar        [87654321] <> time("2011-12-13 14:15") or
+        integerEnumTypeHashVar    [87654321] <> GREEN                    or
+        integerTypeHashVar        [87654321] <> char                     or
+        integerReferenceHashVar   [87654321] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[integer] table");
       okay := FALSE;
     end if;
@@ -678,6 +733,7 @@ const proc: chkBigIntegerHash is func
     var bigIntegerStringHash:      bigIntegerStringHashVar      is bigIntegerStringHash     .EMPTY_HASH;
     var bigIntegerBstringHash:     bigIntegerBstringHashVar     is bigIntegerBstringHash    .EMPTY_HASH;
     var bigIntegerBitsetHash:      bigIntegerBitsetHashVar      is bigIntegerBitsetHash     .EMPTY_HASH;
+    var bigIntegerTimeHash:        bigIntegerTimeHashVar        is bigIntegerTimeHash       .EMPTY_HASH;
     var bigIntegerEnumTypeHash:    bigIntegerEnumTypeHashVar    is bigIntegerEnumTypeHash   .EMPTY_HASH;
     var bigIntegerTypeHash:        bigIntegerTypeHashVar        is bigIntegerTypeHash       .EMPTY_HASH;
     var bigIntegerReferenceHash:   bigIntegerReferenceHashVar   is bigIntegerReferenceHash  .EMPTY_HASH;
@@ -693,6 +749,7 @@ const proc: chkBigIntegerHash is func
         length(bigIntegerStringHashVar)      <> 0 or
         length(bigIntegerBstringHashVar)     <> 0 or
         length(bigIntegerBitsetHashVar)      <> 0 or
+        length(bigIntegerTimeHashVar)        <> 0 or
         length(bigIntegerEnumTypeHashVar)    <> 0 or
         length(bigIntegerTypeHashVar)        <> 0 or
         length(bigIntegerReferenceHashVar)   <> 0 or
@@ -710,6 +767,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ in bigIntegerStringHashVar      or
         9223372036854775808_ in bigIntegerBstringHashVar     or
         9223372036854775808_ in bigIntegerBitsetHashVar      or
+        9223372036854775808_ in bigIntegerTimeHashVar        or
         9223372036854775808_ in bigIntegerEnumTypeHashVar    or
         9223372036854775808_ in bigIntegerTypeHashVar        or
         9223372036854775808_ in bigIntegerReferenceHashVar   or
@@ -727,6 +785,7 @@ const proc: chkBigIntegerHash is func
         keys(bigIntegerStringHashVar)      <> 0 times 0_ or
         keys(bigIntegerBstringHashVar)     <> 0 times 0_ or
         keys(bigIntegerBitsetHashVar)      <> 0 times 0_ or
+        keys(bigIntegerTimeHashVar)        <> 0 times 0_ or
         keys(bigIntegerEnumTypeHashVar)    <> 0 times 0_ or
         keys(bigIntegerTypeHashVar)        <> 0 times 0_ or
         keys(bigIntegerReferenceHashVar)   <> 0 times 0_ or
@@ -744,6 +803,7 @@ const proc: chkBigIntegerHash is func
         values(bigIntegerStringHashVar)      <> 0 times "" or
         values(bigIntegerBstringHashVar)     <> 0 times bstring("") or
         values(bigIntegerBitsetHashVar)      <> 0 times {} or
+        values(bigIntegerTimeHashVar)        <> 0 times time.value or
         values(bigIntegerEnumTypeHashVar)    <> 0 times RED or
         values(bigIntegerTypeHashVar)        <> 0 times boolean or
         values(bigIntegerReferenceHashVar)   <> 0 times NIL then
@@ -760,6 +820,7 @@ const proc: chkBigIntegerHash is func
     bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
     bigIntegerBstringHashVar     @:= [9223372036854775808_] bstring("okay");
     bigIntegerBitsetHashVar      @:= [9223372036854775808_] {123};
+    bigIntegerTimeHashVar        @:= [9223372036854775808_] time("2011-12-13 14:15");
     bigIntegerEnumTypeHashVar    @:= [9223372036854775808_] GREEN;
     bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
     bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
@@ -774,6 +835,7 @@ const proc: chkBigIntegerHash is func
         length(bigIntegerStringHashVar)      <> 1 or
         length(bigIntegerBstringHashVar)     <> 1 or
         length(bigIntegerBitsetHashVar)      <> 1 or
+        length(bigIntegerTimeHashVar)        <> 1 or
         length(bigIntegerEnumTypeHashVar)    <> 1 or
         length(bigIntegerTypeHashVar)        <> 1 or
         length(bigIntegerReferenceHashVar)   <> 1 or
@@ -791,6 +853,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ in bigIntegerStringHashVar      and
         9223372036854775808_ in bigIntegerBstringHashVar     and
         9223372036854775808_ in bigIntegerBitsetHashVar      and
+        9223372036854775808_ in bigIntegerTimeHashVar        and
         9223372036854775808_ in bigIntegerEnumTypeHashVar    and
         9223372036854775808_ in bigIntegerTypeHashVar        and
         9223372036854775808_ in bigIntegerReferenceHashVar   and
@@ -810,6 +873,7 @@ const proc: chkBigIntegerHash is func
         keys(bigIntegerStringHashVar)      <> [] (9223372036854775808_) or
         keys(bigIntegerBstringHashVar)     <> [] (9223372036854775808_) or
         keys(bigIntegerBitsetHashVar)      <> [] (9223372036854775808_) or
+        keys(bigIntegerTimeHashVar)        <> [] (9223372036854775808_) or
         keys(bigIntegerEnumTypeHashVar)    <> [] (9223372036854775808_) or
         keys(bigIntegerTypeHashVar)        <> [] (9223372036854775808_) or
         keys(bigIntegerReferenceHashVar)   <> [] (9223372036854775808_) or
@@ -827,6 +891,7 @@ const proc: chkBigIntegerHash is func
         values(bigIntegerStringHashVar)      <> [] ("success") or
         values(bigIntegerBstringHashVar)     <> [] (bstring("okay")) or
         values(bigIntegerBitsetHashVar)      <> [] ({123}) or
+        values(bigIntegerTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(bigIntegerEnumTypeHashVar)    <> [] (GREEN) or
         values(bigIntegerTypeHashVar)        <> [] (char) or
         values(bigIntegerReferenceHashVar)   <> [] (NIL) then
@@ -843,6 +908,7 @@ const proc: chkBigIntegerHash is func
     bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
     bigIntegerBstringHashVar     @:= [9223372036854775808_] bstring("okay");
     bigIntegerBitsetHashVar      @:= [9223372036854775808_] {123};
+    bigIntegerTimeHashVar        @:= [9223372036854775808_] time("2011-12-13 14:15");
     bigIntegerEnumTypeHashVar    @:= [9223372036854775808_] GREEN;
     bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
     bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
@@ -857,6 +923,7 @@ const proc: chkBigIntegerHash is func
         9223372036854775808_ not in bigIntegerStringHashVar      or
         9223372036854775808_ not in bigIntegerBstringHashVar     or
         9223372036854775808_ not in bigIntegerBitsetHashVar      or
+        9223372036854775808_ not in bigIntegerTimeHashVar        or
         9223372036854775808_ not in bigIntegerEnumTypeHashVar    or
         9223372036854775808_ not in bigIntegerTypeHashVar        or
         9223372036854775808_ not in bigIntegerReferenceHashVar   or
@@ -864,19 +931,20 @@ const proc: chkBigIntegerHash is func
       writeln(" ***** Elements missing in hash[bigInteger] table");
       okay := FALSE;
     end if;
-    if  bigIntegerBooleanHashVar     [9223372036854775808_] <> TRUE                    or
-        bigIntegerIntegerHashVar     [9223372036854775808_] <> 1234                    or
-        bigIntegerBigIntegerHashVar  [9223372036854775808_] <> 9999999999_             or
-        bigIntegerBigRationalHashVar [9223372036854775808_] <> 9999999999_ / 12345678_ or
-        bigIntegerFloatHashVar       [9223372036854775808_] <> 3.1415926535            or
-        bigIntegerComplexHashVar     [9223372036854775808_] <> complex(1.2, 3.4)       or
-        bigIntegerCharHashVar        [9223372036854775808_] <> 'Q'                     or
-        bigIntegerStringHashVar      [9223372036854775808_] <> "success"               or
-        bigIntegerBstringHashVar     [9223372036854775808_] <> bstring("okay")         or
-        bigIntegerBitsetHashVar      [9223372036854775808_] <> {123}                   or
-        bigIntegerEnumTypeHashVar    [9223372036854775808_] <> GREEN                   or
-        bigIntegerTypeHashVar        [9223372036854775808_] <> char                    or
-        bigIntegerReferenceHashVar   [9223372036854775808_] <> NIL                     then
+    if  bigIntegerBooleanHashVar     [9223372036854775808_] <> TRUE                     or
+        bigIntegerIntegerHashVar     [9223372036854775808_] <> 1234                     or
+        bigIntegerBigIntegerHashVar  [9223372036854775808_] <> 9999999999_              or
+        bigIntegerBigRationalHashVar [9223372036854775808_] <> 9999999999_ / 12345678_  or
+        bigIntegerFloatHashVar       [9223372036854775808_] <> 3.1415926535             or
+        bigIntegerComplexHashVar     [9223372036854775808_] <> complex(1.2, 3.4)        or
+        bigIntegerCharHashVar        [9223372036854775808_] <> 'Q'                      or
+        bigIntegerStringHashVar      [9223372036854775808_] <> "success"                or
+        bigIntegerBstringHashVar     [9223372036854775808_] <> bstring("okay")          or
+        bigIntegerBitsetHashVar      [9223372036854775808_] <> {123}                    or
+        bigIntegerTimeHashVar        [9223372036854775808_] <> time("2011-12-13 14:15") or
+        bigIntegerEnumTypeHashVar    [9223372036854775808_] <> GREEN                    or
+        bigIntegerTypeHashVar        [9223372036854775808_] <> char                     or
+        bigIntegerReferenceHashVar   [9223372036854775808_] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[bigInteger] table");
       okay := FALSE;
     end if;
@@ -902,6 +970,7 @@ const proc: chkRationalHash is func
     var rationalStringHash:      rationalStringHashVar      is rationalStringHash     .EMPTY_HASH;
     var rationalBstringHash:     rationalBstringHashVar     is rationalBstringHash    .EMPTY_HASH;
     var rationalBitsetHash:      rationalBitsetHashVar      is rationalBitsetHash     .EMPTY_HASH;
+    var rationalTimeHash:        rationalTimeHashVar        is rationalTimeHash       .EMPTY_HASH;
     var rationalEnumTypeHash:    rationalEnumTypeHashVar    is rationalEnumTypeHash   .EMPTY_HASH;
     var rationalTypeHash:        rationalTypeHashVar        is rationalTypeHash       .EMPTY_HASH;
     var rationalReferenceHash:   rationalReferenceHashVar   is rationalReferenceHash  .EMPTY_HASH;
@@ -917,6 +986,7 @@ const proc: chkRationalHash is func
         length(rationalStringHashVar)      <> 0 or
         length(rationalBstringHashVar)     <> 0 or
         length(rationalBitsetHashVar)      <> 0 or
+        length(rationalTimeHashVar)        <> 0 or
         length(rationalEnumTypeHashVar)    <> 0 or
         length(rationalTypeHashVar)        <> 0 or
         length(rationalReferenceHashVar)   <> 0 or
@@ -934,6 +1004,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 in rationalStringHashVar      or
         9876543212 / 1234567890 in rationalBstringHashVar     or
         9876543212 / 1234567890 in rationalBitsetHashVar      or
+        9876543212 / 1234567890 in rationalTimeHashVar        or
         9876543212 / 1234567890 in rationalEnumTypeHashVar    or
         9876543212 / 1234567890 in rationalTypeHashVar        or
         9876543212 / 1234567890 in rationalReferenceHashVar   or
@@ -951,6 +1022,7 @@ const proc: chkRationalHash is func
         keys(rationalStringHashVar)      <> 0 times 0 / 1 or
         keys(rationalBstringHashVar)     <> 0 times 0 / 1 or
         keys(rationalBitsetHashVar)      <> 0 times 0 / 1 or
+        keys(rationalTimeHashVar)        <> 0 times 0 / 1 or
         keys(rationalEnumTypeHashVar)    <> 0 times 0 / 1 or
         keys(rationalTypeHashVar)        <> 0 times 0 / 1 or
         keys(rationalReferenceHashVar)   <> 0 times 0 / 1 or
@@ -968,6 +1040,7 @@ const proc: chkRationalHash is func
         values(rationalStringHashVar)      <> 0 times "" or
         values(rationalBstringHashVar)     <> 0 times bstring("") or
         values(rationalBitsetHashVar)      <> 0 times {} or
+        values(rationalTimeHashVar)        <> 0 times time.value or
         values(rationalEnumTypeHashVar)    <> 0 times RED or
         values(rationalTypeHashVar)        <> 0 times boolean or
         values(rationalReferenceHashVar)   <> 0 times NIL then
@@ -984,6 +1057,7 @@ const proc: chkRationalHash is func
     rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
     rationalBstringHashVar     @:= [9876543212 / 1234567890] bstring("okay");
     rationalBitsetHashVar      @:= [9876543212 / 1234567890] {123};
+    rationalTimeHashVar        @:= [9876543212 / 1234567890] time("2011-12-13 14:15");
     rationalEnumTypeHashVar    @:= [9876543212 / 1234567890] GREEN;
     rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
     rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
@@ -998,6 +1072,7 @@ const proc: chkRationalHash is func
         length(rationalStringHashVar)      <> 1 or
         length(rationalBstringHashVar)     <> 1 or
         length(rationalBitsetHashVar)      <> 1 or
+        length(rationalTimeHashVar)        <> 1 or
         length(rationalEnumTypeHashVar)    <> 1 or
         length(rationalTypeHashVar)        <> 1 or
         length(rationalReferenceHashVar)   <> 1 or
@@ -1015,6 +1090,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 in rationalStringHashVar      and
         9876543212 / 1234567890 in rationalBstringHashVar     and
         9876543212 / 1234567890 in rationalBitsetHashVar      and
+        9876543212 / 1234567890 in rationalTimeHashVar        and
         9876543212 / 1234567890 in rationalEnumTypeHashVar    and
         9876543212 / 1234567890 in rationalTypeHashVar        and
         9876543212 / 1234567890 in rationalReferenceHashVar   and
@@ -1034,6 +1110,7 @@ const proc: chkRationalHash is func
         keys(rationalStringHashVar)      <> [] (9876543212 / 1234567890) or
         keys(rationalBstringHashVar)     <> [] (9876543212 / 1234567890) or
         keys(rationalBitsetHashVar)      <> [] (9876543212 / 1234567890) or
+        keys(rationalTimeHashVar)        <> [] (9876543212 / 1234567890) or
         keys(rationalEnumTypeHashVar)    <> [] (9876543212 / 1234567890) or
         keys(rationalTypeHashVar)        <> [] (9876543212 / 1234567890) or
         keys(rationalReferenceHashVar)   <> [] (9876543212 / 1234567890) or
@@ -1051,6 +1128,7 @@ const proc: chkRationalHash is func
         values(rationalStringHashVar)      <> [] ("success") or
         values(rationalBstringHashVar)     <> [] (bstring("okay")) or
         values(rationalBitsetHashVar)      <> [] ({123}) or
+        values(rationalTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(rationalEnumTypeHashVar)    <> [] (GREEN) or
         values(rationalTypeHashVar)        <> [] (char) or
         values(rationalReferenceHashVar)   <> [] (NIL) then
@@ -1067,6 +1145,7 @@ const proc: chkRationalHash is func
     rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
     rationalBstringHashVar     @:= [9876543212 / 1234567890] bstring("okay");
     rationalBitsetHashVar      @:= [9876543212 / 1234567890] {123};
+    rationalTimeHashVar        @:= [9876543212 / 1234567890] time("2011-12-13 14:15");
     rationalEnumTypeHashVar    @:= [9876543212 / 1234567890] GREEN;
     rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
     rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
@@ -1081,6 +1160,7 @@ const proc: chkRationalHash is func
         9876543212 / 1234567890 not in rationalStringHashVar      or
         9876543212 / 1234567890 not in rationalBstringHashVar     or
         9876543212 / 1234567890 not in rationalBitsetHashVar      or
+        9876543212 / 1234567890 not in rationalTimeHashVar        or
         9876543212 / 1234567890 not in rationalEnumTypeHashVar    or
         9876543212 / 1234567890 not in rationalTypeHashVar        or
         9876543212 / 1234567890 not in rationalReferenceHashVar   or
@@ -1088,19 +1168,20 @@ const proc: chkRationalHash is func
       writeln(" ***** Elements missing in hash[rational] table");
       okay := FALSE;
     end if;
-    if  rationalBooleanHashVar     [9876543212 / 1234567890] <> TRUE                    or
-        rationalIntegerHashVar     [9876543212 / 1234567890] <> 1234                    or
-        rationalBigIntegerHashVar  [9876543212 / 1234567890] <> 9999999999_             or
-        rationalBigRationalHashVar [9876543212 / 1234567890] <> 9999999999_ / 12345678_ or
-        rationalFloatHashVar       [9876543212 / 1234567890] <> 3.1415926535            or
-        rationalComplexHashVar     [9876543212 / 1234567890] <> complex(1.2, 3.4)       or
-        rationalCharHashVar        [9876543212 / 1234567890] <> 'Q'                     or
-        rationalStringHashVar      [9876543212 / 1234567890] <> "success"               or
-        rationalBstringHashVar     [9876543212 / 1234567890] <> bstring("okay")         or
-        rationalBitsetHashVar      [9876543212 / 1234567890] <> {123}                   or
-        rationalEnumTypeHashVar    [9876543212 / 1234567890] <> GREEN                   or
-        rationalTypeHashVar        [9876543212 / 1234567890] <> char                    or
-        rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                     then
+    if  rationalBooleanHashVar     [9876543212 / 1234567890] <> TRUE                     or
+        rationalIntegerHashVar     [9876543212 / 1234567890] <> 1234                     or
+        rationalBigIntegerHashVar  [9876543212 / 1234567890] <> 9999999999_              or
+        rationalBigRationalHashVar [9876543212 / 1234567890] <> 9999999999_ / 12345678_  or
+        rationalFloatHashVar       [9876543212 / 1234567890] <> 3.1415926535             or
+        rationalComplexHashVar     [9876543212 / 1234567890] <> complex(1.2, 3.4)        or
+        rationalCharHashVar        [9876543212 / 1234567890] <> 'Q'                      or
+        rationalStringHashVar      [9876543212 / 1234567890] <> "success"                or
+        rationalBstringHashVar     [9876543212 / 1234567890] <> bstring("okay")          or
+        rationalBitsetHashVar      [9876543212 / 1234567890] <> {123}                    or
+        rationalTimeHashVar        [9876543212 / 1234567890] <> time("2011-12-13 14:15") or
+        rationalEnumTypeHashVar    [9876543212 / 1234567890] <> GREEN                    or
+        rationalTypeHashVar        [9876543212 / 1234567890] <> char                     or
+        rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[rational] table");
       okay := FALSE;
     end if;
@@ -1126,6 +1207,7 @@ const proc: chkBigRationalHash is func
     var bigRationalStringHash:      bigRationalStringHashVar      is bigRationalStringHash     .EMPTY_HASH;
     var bigRationalBstringHash:     bigRationalBstringHashVar     is bigRationalBstringHash    .EMPTY_HASH;
     var bigRationalBitsetHash:      bigRationalBitsetHashVar      is bigRationalBitsetHash     .EMPTY_HASH;
+    var bigRationalTimeHash:        bigRationalTimeHashVar        is bigRationalTimeHash       .EMPTY_HASH;
     var bigRationalEnumTypeHash:    bigRationalEnumTypeHashVar    is bigRationalEnumTypeHash   .EMPTY_HASH;
     var bigRationalTypeHash:        bigRationalTypeHashVar        is bigRationalTypeHash       .EMPTY_HASH;
     var bigRationalReferenceHash:   bigRationalReferenceHashVar   is bigRationalReferenceHash  .EMPTY_HASH;
@@ -1141,6 +1223,7 @@ const proc: chkBigRationalHash is func
         length(bigRationalStringHashVar)      <> 0 or
         length(bigRationalBstringHashVar)     <> 0 or
         length(bigRationalBitsetHashVar)      <> 0 or
+        length(bigRationalTimeHashVar)        <> 0 or
         length(bigRationalEnumTypeHashVar)    <> 0 or
         length(bigRationalTypeHashVar)        <> 0 or
         length(bigRationalReferenceHashVar)   <> 0 or
@@ -1158,6 +1241,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ in bigRationalStringHashVar      or
         9876543212_ / 1234567890_ in bigRationalBstringHashVar     or
         9876543212_ / 1234567890_ in bigRationalBitsetHashVar      or
+        9876543212_ / 1234567890_ in bigRationalTimeHashVar        or
         9876543212_ / 1234567890_ in bigRationalEnumTypeHashVar    or
         9876543212_ / 1234567890_ in bigRationalTypeHashVar        or
         9876543212_ / 1234567890_ in bigRationalReferenceHashVar   or
@@ -1175,6 +1259,7 @@ const proc: chkBigRationalHash is func
         keys(bigRationalStringHashVar)      <> 0 times 0_ / 1_ or
         keys(bigRationalBstringHashVar)     <> 0 times 0_ / 1_ or
         keys(bigRationalBitsetHashVar)      <> 0 times 0_ / 1_ or
+        keys(bigRationalTimeHashVar)        <> 0 times 0_ / 1_ or
         keys(bigRationalEnumTypeHashVar)    <> 0 times 0_ / 1_ or
         keys(bigRationalTypeHashVar)        <> 0 times 0_ / 1_ or
         keys(bigRationalReferenceHashVar)   <> 0 times 0_ / 1_ or
@@ -1192,6 +1277,7 @@ const proc: chkBigRationalHash is func
         values(bigRationalStringHashVar)      <> 0 times "" or
         values(bigRationalBstringHashVar)     <> 0 times bstring("") or
         values(bigRationalBitsetHashVar)      <> 0 times {} or
+        values(bigRationalTimeHashVar)        <> 0 times time.value or
         values(bigRationalEnumTypeHashVar)    <> 0 times RED or
         values(bigRationalTypeHashVar)        <> 0 times boolean or
         values(bigRationalReferenceHashVar)   <> 0 times NIL then
@@ -1208,6 +1294,7 @@ const proc: chkBigRationalHash is func
     bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
     bigRationalBstringHashVar     @:= [9876543212_ / 1234567890_] bstring("okay");
     bigRationalBitsetHashVar      @:= [9876543212_ / 1234567890_] {123};
+    bigRationalTimeHashVar        @:= [9876543212_ / 1234567890_] time("2011-12-13 14:15");
     bigRationalEnumTypeHashVar    @:= [9876543212_ / 1234567890_] GREEN;
     bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
     bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
@@ -1222,6 +1309,7 @@ const proc: chkBigRationalHash is func
         length(bigRationalStringHashVar)      <> 1 or
         length(bigRationalBstringHashVar)     <> 1 or
         length(bigRationalBitsetHashVar)      <> 1 or
+        length(bigRationalTimeHashVar)        <> 1 or
         length(bigRationalEnumTypeHashVar)    <> 1 or
         length(bigRationalTypeHashVar)        <> 1 or
         length(bigRationalReferenceHashVar)   <> 1 or
@@ -1239,6 +1327,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ in bigRationalStringHashVar      and
         9876543212_ / 1234567890_ in bigRationalBstringHashVar     and
         9876543212_ / 1234567890_ in bigRationalBitsetHashVar      and
+        9876543212_ / 1234567890_ in bigRationalTimeHashVar        and
         9876543212_ / 1234567890_ in bigRationalEnumTypeHashVar    and
         9876543212_ / 1234567890_ in bigRationalTypeHashVar        and
         9876543212_ / 1234567890_ in bigRationalReferenceHashVar   and
@@ -1258,6 +1347,7 @@ const proc: chkBigRationalHash is func
         keys(bigRationalStringHashVar)      <> [] (9876543212_ / 1234567890_) or
         keys(bigRationalBstringHashVar)     <> [] (9876543212_ / 1234567890_) or
         keys(bigRationalBitsetHashVar)      <> [] (9876543212_ / 1234567890_) or
+        keys(bigRationalTimeHashVar)        <> [] (9876543212_ / 1234567890_) or
         keys(bigRationalEnumTypeHashVar)    <> [] (9876543212_ / 1234567890_) or
         keys(bigRationalTypeHashVar)        <> [] (9876543212_ / 1234567890_) or
         keys(bigRationalReferenceHashVar)   <> [] (9876543212_ / 1234567890_) or
@@ -1275,6 +1365,7 @@ const proc: chkBigRationalHash is func
         values(bigRationalStringHashVar)      <> [] ("success") or
         values(bigRationalBstringHashVar)     <> [] (bstring("okay")) or
         values(bigRationalBitsetHashVar)      <> [] ({123}) or
+        values(bigRationalTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(bigRationalEnumTypeHashVar)    <> [] (GREEN) or
         values(bigRationalTypeHashVar)        <> [] (char) or
         values(bigRationalReferenceHashVar)   <> [] (NIL) then
@@ -1291,6 +1382,7 @@ const proc: chkBigRationalHash is func
     bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
     bigRationalBstringHashVar     @:= [9876543212_ / 1234567890_] bstring("okay");
     bigRationalBitsetHashVar      @:= [9876543212_ / 1234567890_] {123};
+    bigRationalTimeHashVar        @:= [9876543212_ / 1234567890_] time("2011-12-13 14:15");
     bigRationalEnumTypeHashVar    @:= [9876543212_ / 1234567890_] GREEN;
     bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
     bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
@@ -1305,6 +1397,7 @@ const proc: chkBigRationalHash is func
         9876543212_ / 1234567890_ not in bigRationalStringHashVar      or
         9876543212_ / 1234567890_ not in bigRationalBstringHashVar     or
         9876543212_ / 1234567890_ not in bigRationalBitsetHashVar      or
+        9876543212_ / 1234567890_ not in bigRationalTimeHashVar        or
         9876543212_ / 1234567890_ not in bigRationalEnumTypeHashVar    or
         9876543212_ / 1234567890_ not in bigRationalTypeHashVar        or
         9876543212_ / 1234567890_ not in bigRationalReferenceHashVar   or
@@ -1312,19 +1405,20 @@ const proc: chkBigRationalHash is func
       writeln(" ***** Elements missing in hash[bigRational] table");
       okay := FALSE;
     end if;
-    if  bigRationalBooleanHashVar     [9876543212_ / 1234567890_] <> TRUE                    or
-        bigRationalIntegerHashVar     [9876543212_ / 1234567890_] <> 1234                    or
-        bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_] <> 9999999999_             or
-        bigRationalBigRationalHashVar [9876543212_ / 1234567890_] <> 9999999999_ / 12345678_ or
-        bigRationalFloatHashVar       [9876543212_ / 1234567890_] <> 3.1415926535            or
-        bigRationalComplexHashVar     [9876543212_ / 1234567890_] <> complex(1.2, 3.4)       or
-        bigRationalCharHashVar        [9876543212_ / 1234567890_] <> 'Q'                     or
-        bigRationalStringHashVar      [9876543212_ / 1234567890_] <> "success"               or
-        bigRationalBstringHashVar     [9876543212_ / 1234567890_] <> bstring("okay")         or
-        bigRationalBitsetHashVar      [9876543212_ / 1234567890_] <> {123}                   or
-        bigRationalEnumTypeHashVar    [9876543212_ / 1234567890_] <> GREEN                   or
-        bigRationalTypeHashVar        [9876543212_ / 1234567890_] <> char                    or
-        bigRationalReferenceHashVar   [9876543212_ / 1234567890_] <> NIL                     then
+    if  bigRationalBooleanHashVar     [9876543212_ / 1234567890_] <> TRUE                     or
+        bigRationalIntegerHashVar     [9876543212_ / 1234567890_] <> 1234                     or
+        bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_] <> 9999999999_              or
+        bigRationalBigRationalHashVar [9876543212_ / 1234567890_] <> 9999999999_ / 12345678_  or
+        bigRationalFloatHashVar       [9876543212_ / 1234567890_] <> 3.1415926535             or
+        bigRationalComplexHashVar     [9876543212_ / 1234567890_] <> complex(1.2, 3.4)        or
+        bigRationalCharHashVar        [9876543212_ / 1234567890_] <> 'Q'                      or
+        bigRationalStringHashVar      [9876543212_ / 1234567890_] <> "success"                or
+        bigRationalBstringHashVar     [9876543212_ / 1234567890_] <> bstring("okay")          or
+        bigRationalBitsetHashVar      [9876543212_ / 1234567890_] <> {123}                    or
+        bigRationalTimeHashVar        [9876543212_ / 1234567890_] <> time("2011-12-13 14:15") or
+        bigRationalEnumTypeHashVar    [9876543212_ / 1234567890_] <> GREEN                    or
+        bigRationalTypeHashVar        [9876543212_ / 1234567890_] <> char                     or
+        bigRationalReferenceHashVar   [9876543212_ / 1234567890_] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[bigRational] table");
       okay := FALSE;
     end if;
@@ -1350,6 +1444,7 @@ const proc: chkFloatHash is func
     var floatStringHash:      floatStringHashVar      is floatStringHash     .EMPTY_HASH;
     var floatBstringHash:     floatBstringHashVar     is floatBstringHash    .EMPTY_HASH;
     var floatBitsetHash:      floatBitsetHashVar      is floatBitsetHash     .EMPTY_HASH;
+    var floatTimeHash:        floatTimeHashVar        is floatTimeHash       .EMPTY_HASH;
     var floatEnumTypeHash:    floatEnumTypeHashVar    is floatEnumTypeHash   .EMPTY_HASH;
     var floatTypeHash:        floatTypeHashVar        is floatTypeHash       .EMPTY_HASH;
     var floatReferenceHash:   floatReferenceHashVar   is floatReferenceHash  .EMPTY_HASH;
@@ -1365,6 +1460,7 @@ const proc: chkFloatHash is func
         length(floatStringHashVar)      <> 0 or
         length(floatBstringHashVar)     <> 0 or
         length(floatBitsetHashVar)      <> 0 or
+        length(floatTimeHashVar)        <> 0 or
         length(floatEnumTypeHashVar)    <> 0 or
         length(floatTypeHashVar)        <> 0 or
         length(floatReferenceHashVar)   <> 0 or
@@ -1382,6 +1478,7 @@ const proc: chkFloatHash is func
         3.1415926535 in floatStringHashVar      or
         3.1415926535 in floatBstringHashVar     or
         3.1415926535 in floatBitsetHashVar      or
+        3.1415926535 in floatTimeHashVar        or
         3.1415926535 in floatEnumTypeHashVar    or
         3.1415926535 in floatTypeHashVar        or
         3.1415926535 in floatReferenceHashVar   or
@@ -1399,6 +1496,7 @@ const proc: chkFloatHash is func
         keys(floatStringHashVar)      <> 0 times 0.0 or
         keys(floatBstringHashVar)     <> 0 times 0.0 or
         keys(floatBitsetHashVar)      <> 0 times 0.0 or
+        keys(floatTimeHashVar)        <> 0 times 0.0 or
         keys(floatEnumTypeHashVar)    <> 0 times 0.0 or
         keys(floatTypeHashVar)        <> 0 times 0.0 or
         keys(floatReferenceHashVar)   <> 0 times 0.0 or
@@ -1416,6 +1514,7 @@ const proc: chkFloatHash is func
         values(floatStringHashVar)      <> 0 times "" or
         values(floatBstringHashVar)     <> 0 times bstring("") or
         values(floatBitsetHashVar)      <> 0 times {} or
+        values(floatTimeHashVar)        <> 0 times time.value or
         values(floatEnumTypeHashVar)    <> 0 times RED or
         values(floatTypeHashVar)        <> 0 times boolean or
         values(floatReferenceHashVar)   <> 0 times NIL then
@@ -1432,6 +1531,7 @@ const proc: chkFloatHash is func
     floatStringHashVar      @:= [3.1415926535] "success";
     floatBstringHashVar     @:= [3.1415926535] bstring("okay");
     floatBitsetHashVar      @:= [3.1415926535] {123};
+    floatTimeHashVar        @:= [3.1415926535] time("2011-12-13 14:15");
     floatEnumTypeHashVar    @:= [3.1415926535] GREEN;
     floatTypeHashVar        @:= [3.1415926535] char;
     floatReferenceHashVar   @:= [3.1415926535] NIL;
@@ -1446,6 +1546,7 @@ const proc: chkFloatHash is func
         length(floatStringHashVar)      <> 1 or
         length(floatBstringHashVar)     <> 1 or
         length(floatBitsetHashVar)      <> 1 or
+        length(floatTimeHashVar)        <> 1 or
         length(floatEnumTypeHashVar)    <> 1 or
         length(floatTypeHashVar)        <> 1 or
         length(floatReferenceHashVar)   <> 1 or
@@ -1463,6 +1564,7 @@ const proc: chkFloatHash is func
         3.1415926535 in floatStringHashVar      and
         3.1415926535 in floatBstringHashVar     and
         3.1415926535 in floatBitsetHashVar      and
+        3.1415926535 in floatTimeHashVar        and
         3.1415926535 in floatEnumTypeHashVar    and
         3.1415926535 in floatTypeHashVar        and
         3.1415926535 in floatReferenceHashVar   and
@@ -1482,6 +1584,7 @@ const proc: chkFloatHash is func
         keys(floatStringHashVar)      <> [] (3.1415926535) or
         keys(floatBstringHashVar)     <> [] (3.1415926535) or
         keys(floatBitsetHashVar)      <> [] (3.1415926535) or
+        keys(floatTimeHashVar)        <> [] (3.1415926535) or
         keys(floatEnumTypeHashVar)    <> [] (3.1415926535) or
         keys(floatTypeHashVar)        <> [] (3.1415926535) or
         keys(floatReferenceHashVar)   <> [] (3.1415926535) or
@@ -1499,6 +1602,7 @@ const proc: chkFloatHash is func
         values(floatStringHashVar)      <> [] ("success") or
         values(floatBstringHashVar)     <> [] (bstring("okay")) or
         values(floatBitsetHashVar)      <> [] ({123}) or
+        values(floatTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(floatEnumTypeHashVar)    <> [] (GREEN) or
         values(floatTypeHashVar)        <> [] (char) or
         values(floatReferenceHashVar)   <> [] (NIL) then
@@ -1515,6 +1619,7 @@ const proc: chkFloatHash is func
     floatStringHashVar      @:= [3.1415926535] "success";
     floatBstringHashVar     @:= [3.1415926535] bstring("okay");
     floatBitsetHashVar      @:= [3.1415926535] {123};
+    floatTimeHashVar        @:= [3.1415926535] time("2011-12-13 14:15");
     floatEnumTypeHashVar    @:= [3.1415926535] GREEN;
     floatTypeHashVar        @:= [3.1415926535] char;
     floatReferenceHashVar   @:= [3.1415926535] NIL;
@@ -1529,6 +1634,7 @@ const proc: chkFloatHash is func
         3.1415926535 not in floatStringHashVar      or
         3.1415926535 not in floatBstringHashVar     or
         3.1415926535 not in floatBitsetHashVar      or
+        3.1415926535 not in floatTimeHashVar        or
         3.1415926535 not in floatEnumTypeHashVar    or
         3.1415926535 not in floatTypeHashVar        or
         3.1415926535 not in floatReferenceHashVar   or
@@ -1536,19 +1642,20 @@ const proc: chkFloatHash is func
       writeln(" ***** Elements missing in hash[float] table");
       okay := FALSE;
     end if;
-    if  floatBooleanHashVar     [3.1415926535] <> TRUE                    or
-        floatIntegerHashVar     [3.1415926535] <> 1234                    or
-        floatBigIntegerHashVar  [3.1415926535] <> 9999999999_             or
-        floatBigRationalHashVar [3.1415926535] <> 9999999999_ / 12345678_ or
-        floatFloatHashVar       [3.1415926535] <> 3.1415926535            or
-        floatComplexHashVar     [3.1415926535] <> complex(1.2, 3.4)       or
-        floatCharHashVar        [3.1415926535] <> 'Q'                     or
-        floatStringHashVar      [3.1415926535] <> "success"               or
-        floatBstringHashVar     [3.1415926535] <> bstring("okay")         or
-        floatBitsetHashVar      [3.1415926535] <> {123}                   or
-        floatEnumTypeHashVar    [3.1415926535] <> GREEN                   or
-        floatTypeHashVar        [3.1415926535] <> char                    or
-        floatReferenceHashVar   [3.1415926535] <> NIL                     then
+    if  floatBooleanHashVar     [3.1415926535] <> TRUE                     or
+        floatIntegerHashVar     [3.1415926535] <> 1234                     or
+        floatBigIntegerHashVar  [3.1415926535] <> 9999999999_              or
+        floatBigRationalHashVar [3.1415926535] <> 9999999999_ / 12345678_  or
+        floatFloatHashVar       [3.1415926535] <> 3.1415926535             or
+        floatComplexHashVar     [3.1415926535] <> complex(1.2, 3.4)        or
+        floatCharHashVar        [3.1415926535] <> 'Q'                      or
+        floatStringHashVar      [3.1415926535] <> "success"                or
+        floatBstringHashVar     [3.1415926535] <> bstring("okay")          or
+        floatBitsetHashVar      [3.1415926535] <> {123}                    or
+        floatTimeHashVar        [3.1415926535] <> time("2011-12-13 14:15") or
+        floatEnumTypeHashVar    [3.1415926535] <> GREEN                    or
+        floatTypeHashVar        [3.1415926535] <> char                     or
+        floatReferenceHashVar   [3.1415926535] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[float] table");
       okay := FALSE;
     end if;
@@ -1574,6 +1681,7 @@ const proc: chkComplexHash is func
     var complexStringHash:      complexStringHashVar      is complexStringHash     .EMPTY_HASH;
     var complexBstringHash:     complexBstringHashVar     is complexBstringHash    .EMPTY_HASH;
     var complexBitsetHash:      complexBitsetHashVar      is complexBitsetHash     .EMPTY_HASH;
+    var complexTimeHash:        complexTimeHashVar        is complexTimeHash       .EMPTY_HASH;
     var complexEnumTypeHash:    complexEnumTypeHashVar    is complexEnumTypeHash   .EMPTY_HASH;
     var complexTypeHash:        complexTypeHashVar        is complexTypeHash       .EMPTY_HASH;
     var complexReferenceHash:   complexReferenceHashVar   is complexReferenceHash  .EMPTY_HASH;
@@ -1589,6 +1697,7 @@ const proc: chkComplexHash is func
         length(complexStringHashVar)      <> 0 or
         length(complexBstringHashVar)     <> 0 or
         length(complexBitsetHashVar)      <> 0 or
+        length(complexTimeHashVar)        <> 0 or
         length(complexEnumTypeHashVar)    <> 0 or
         length(complexTypeHashVar)        <> 0 or
         length(complexReferenceHashVar)   <> 0 or
@@ -1606,6 +1715,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) in complexStringHashVar      or
         complex(5.6, 7.8) in complexBstringHashVar     or
         complex(5.6, 7.8) in complexBitsetHashVar      or
+        complex(5.6, 7.8) in complexTimeHashVar        or
         complex(5.6, 7.8) in complexEnumTypeHashVar    or
         complex(5.6, 7.8) in complexTypeHashVar        or
         complex(5.6, 7.8) in complexReferenceHashVar   or
@@ -1623,6 +1733,7 @@ const proc: chkComplexHash is func
         keys(complexStringHashVar)      <> 0 times complex(0.0, 0.0) or
         keys(complexBstringHashVar)     <> 0 times complex(0.0, 0.0) or
         keys(complexBitsetHashVar)      <> 0 times complex(0.0, 0.0) or
+        keys(complexTimeHashVar)        <> 0 times complex(0.0, 0.0) or
         keys(complexEnumTypeHashVar)    <> 0 times complex(0.0, 0.0) or
         keys(complexTypeHashVar)        <> 0 times complex(0.0, 0.0) or
         keys(complexReferenceHashVar)   <> 0 times complex(0.0, 0.0) or
@@ -1640,6 +1751,7 @@ const proc: chkComplexHash is func
         values(complexStringHashVar)      <> 0 times "" or
         values(complexBstringHashVar)     <> 0 times bstring("") or
         values(complexBitsetHashVar)      <> 0 times {} or
+        values(complexTimeHashVar)        <> 0 times time.value or
         values(complexEnumTypeHashVar)    <> 0 times RED or
         values(complexTypeHashVar)        <> 0 times boolean or
         values(complexReferenceHashVar)   <> 0 times NIL then
@@ -1656,6 +1768,7 @@ const proc: chkComplexHash is func
     complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
     complexBstringHashVar     @:= [complex(5.6, 7.8)] bstring("okay");
     complexBitsetHashVar      @:= [complex(5.6, 7.8)] {123};
+    complexTimeHashVar        @:= [complex(5.6, 7.8)] time("2011-12-13 14:15");
     complexEnumTypeHashVar    @:= [complex(5.6, 7.8)] GREEN;
     complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
     complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
@@ -1670,6 +1783,7 @@ const proc: chkComplexHash is func
         length(complexStringHashVar)      <> 1 or
         length(complexBstringHashVar)     <> 1 or
         length(complexBitsetHashVar)      <> 1 or
+        length(complexTimeHashVar)        <> 1 or
         length(complexEnumTypeHashVar)    <> 1 or
         length(complexTypeHashVar)        <> 1 or
         length(complexReferenceHashVar)   <> 1 or
@@ -1687,6 +1801,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) in complexStringHashVar      and
         complex(5.6, 7.8) in complexBstringHashVar     and
         complex(5.6, 7.8) in complexBitsetHashVar      and
+        complex(5.6, 7.8) in complexTimeHashVar        and
         complex(5.6, 7.8) in complexEnumTypeHashVar    and
         complex(5.6, 7.8) in complexTypeHashVar        and
         complex(5.6, 7.8) in complexReferenceHashVar   and
@@ -1706,6 +1821,7 @@ const proc: chkComplexHash is func
         keys(complexStringHashVar)      <> [] (complex(5.6, 7.8)) or
         keys(complexBstringHashVar)     <> [] (complex(5.6, 7.8)) or
         keys(complexBitsetHashVar)      <> [] (complex(5.6, 7.8)) or
+        keys(complexTimeHashVar)        <> [] (complex(5.6, 7.8)) or
         keys(complexEnumTypeHashVar)    <> [] (complex(5.6, 7.8)) or
         keys(complexTypeHashVar)        <> [] (complex(5.6, 7.8)) or
         keys(complexReferenceHashVar)   <> [] (complex(5.6, 7.8)) or
@@ -1723,6 +1839,7 @@ const proc: chkComplexHash is func
         values(complexStringHashVar)      <> [] ("success") or
         values(complexBstringHashVar)     <> [] (bstring("okay")) or
         values(complexBitsetHashVar)      <> [] ({123}) or
+        values(complexTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(complexEnumTypeHashVar)    <> [] (GREEN) or
         values(complexTypeHashVar)        <> [] (char) or
         values(complexReferenceHashVar)   <> [] (NIL) then
@@ -1739,6 +1856,7 @@ const proc: chkComplexHash is func
     complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
     complexBstringHashVar     @:= [complex(5.6, 7.8)] bstring("okay");
     complexBitsetHashVar      @:= [complex(5.6, 7.8)] {123};
+    complexTimeHashVar        @:= [complex(5.6, 7.8)] time("2011-12-13 14:15");
     complexEnumTypeHashVar    @:= [complex(5.6, 7.8)] GREEN;
     complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
     complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
@@ -1753,6 +1871,7 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) not in complexStringHashVar      or
         complex(5.6, 7.8) not in complexBstringHashVar     or
         complex(5.6, 7.8) not in complexBitsetHashVar      or
+        complex(5.6, 7.8) not in complexTimeHashVar        or
         complex(5.6, 7.8) not in complexEnumTypeHashVar    or
         complex(5.6, 7.8) not in complexTypeHashVar        or
         complex(5.6, 7.8) not in complexReferenceHashVar   or
@@ -1760,19 +1879,20 @@ const proc: chkComplexHash is func
       writeln(" ***** Elements missing in hash[complex] table");
       okay := FALSE;
     end if;
-    if  complexBooleanHashVar     [complex(5.6, 7.8)] <> TRUE                    or
-        complexIntegerHashVar     [complex(5.6, 7.8)] <> 1234                    or
-        complexBigIntegerHashVar  [complex(5.6, 7.8)] <> 9999999999_             or
-        complexBigRationalHashVar [complex(5.6, 7.8)] <> 9999999999_ / 12345678_ or
-        complexFloatHashVar       [complex(5.6, 7.8)] <> 3.1415926535            or
-        complexComplexHashVar     [complex(5.6, 7.8)] <> complex(1.2, 3.4)       or
-        complexCharHashVar        [complex(5.6, 7.8)] <> 'Q'                     or
-        complexStringHashVar      [complex(5.6, 7.8)] <> "success"               or
-        complexBstringHashVar     [complex(5.6, 7.8)] <> bstring("okay")         or
-        complexBitsetHashVar      [complex(5.6, 7.8)] <> {123}                   or
-        complexEnumTypeHashVar    [complex(5.6, 7.8)] <> GREEN                   or
-        complexTypeHashVar        [complex(5.6, 7.8)] <> char                    or
-        complexReferenceHashVar   [complex(5.6, 7.8)] <> NIL                     then
+    if  complexBooleanHashVar     [complex(5.6, 7.8)] <> TRUE                     or
+        complexIntegerHashVar     [complex(5.6, 7.8)] <> 1234                     or
+        complexBigIntegerHashVar  [complex(5.6, 7.8)] <> 9999999999_              or
+        complexBigRationalHashVar [complex(5.6, 7.8)] <> 9999999999_ / 12345678_  or
+        complexFloatHashVar       [complex(5.6, 7.8)] <> 3.1415926535             or
+        complexComplexHashVar     [complex(5.6, 7.8)] <> complex(1.2, 3.4)        or
+        complexCharHashVar        [complex(5.6, 7.8)] <> 'Q'                      or
+        complexStringHashVar      [complex(5.6, 7.8)] <> "success"                or
+        complexBstringHashVar     [complex(5.6, 7.8)] <> bstring("okay")          or
+        complexBitsetHashVar      [complex(5.6, 7.8)] <> {123}                    or
+        complexTimeHashVar        [complex(5.6, 7.8)] <> time("2011-12-13 14:15") or
+        complexEnumTypeHashVar    [complex(5.6, 7.8)] <> GREEN                    or
+        complexTypeHashVar        [complex(5.6, 7.8)] <> char                     or
+        complexReferenceHashVar   [complex(5.6, 7.8)] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[complex] table");
       okay := FALSE;
     end if;
@@ -1798,6 +1918,7 @@ const proc: chkCharHash is func
     var charStringHash:      charStringHashVar      is charStringHash     .EMPTY_HASH;
     var charBstringHash:     charBstringHashVar     is charBstringHash    .EMPTY_HASH;
     var charBitsetHash:      charBitsetHashVar      is charBitsetHash     .EMPTY_HASH;
+    var charTimeHash:        charTimeHashVar        is charTimeHash       .EMPTY_HASH;
     var charEnumTypeHash:    charEnumTypeHashVar    is charEnumTypeHash   .EMPTY_HASH;
     var charTypeHash:        charTypeHashVar        is charTypeHash       .EMPTY_HASH;
     var charReferenceHash:   charReferenceHashVar   is charReferenceHash  .EMPTY_HASH;
@@ -1813,6 +1934,7 @@ const proc: chkCharHash is func
         length(charStringHashVar)      <> 0 or
         length(charBstringHashVar)     <> 0 or
         length(charBitsetHashVar)      <> 0 or
+        length(charTimeHashVar)        <> 0 or
         length(charEnumTypeHashVar)    <> 0 or
         length(charTypeHashVar)        <> 0 or
         length(charReferenceHashVar)   <> 0 or
@@ -1830,6 +1952,7 @@ const proc: chkCharHash is func
         'k' in charStringHashVar      or
         'k' in charBstringHashVar     or
         'k' in charBitsetHashVar      or
+        'k' in charTimeHashVar        or
         'k' in charEnumTypeHashVar    or
         'k' in charTypeHashVar        or
         'k' in charReferenceHashVar   or
@@ -1847,6 +1970,7 @@ const proc: chkCharHash is func
         keys(charStringHashVar)      <> 0 times ' ' or
         keys(charBstringHashVar)     <> 0 times ' ' or
         keys(charBitsetHashVar)      <> 0 times ' ' or
+        keys(charTimeHashVar)        <> 0 times ' ' or
         keys(charEnumTypeHashVar)    <> 0 times ' ' or
         keys(charTypeHashVar)        <> 0 times ' ' or
         keys(charReferenceHashVar)   <> 0 times ' ' or
@@ -1864,6 +1988,7 @@ const proc: chkCharHash is func
         values(charStringHashVar)      <> 0 times "" or
         values(charBstringHashVar)     <> 0 times bstring("") or
         values(charBitsetHashVar)      <> 0 times {} or
+        values(charTimeHashVar)        <> 0 times time.value or
         values(charEnumTypeHashVar)    <> 0 times RED or
         values(charTypeHashVar)        <> 0 times boolean or
         values(charReferenceHashVar)   <> 0 times NIL then
@@ -1880,6 +2005,7 @@ const proc: chkCharHash is func
     charStringHashVar      @:= ['k'] "success";
     charBstringHashVar     @:= ['k'] bstring("okay");
     charBitsetHashVar      @:= ['k'] {123};
+    charTimeHashVar        @:= ['k'] time("2011-12-13 14:15");
     charEnumTypeHashVar    @:= ['k'] GREEN;
     charTypeHashVar        @:= ['k'] char;
     charReferenceHashVar   @:= ['k'] NIL;
@@ -1894,6 +2020,7 @@ const proc: chkCharHash is func
         length(charStringHashVar)      <> 1 or
         length(charBstringHashVar)     <> 1 or
         length(charBitsetHashVar)      <> 1 or
+        length(charTimeHashVar)        <> 1 or
         length(charEnumTypeHashVar)    <> 1 or
         length(charTypeHashVar)        <> 1 or
         length(charReferenceHashVar)   <> 1 or
@@ -1911,6 +2038,7 @@ const proc: chkCharHash is func
         'k' in charStringHashVar      and
         'k' in charBstringHashVar     and
         'k' in charBitsetHashVar      and
+        'k' in charTimeHashVar        and
         'k' in charEnumTypeHashVar    and
         'k' in charTypeHashVar        and
         'k' in charReferenceHashVar   and
@@ -1930,6 +2058,7 @@ const proc: chkCharHash is func
         keys(charStringHashVar)      <> [] ('k') or
         keys(charBstringHashVar)     <> [] ('k') or
         keys(charBitsetHashVar)      <> [] ('k') or
+        keys(charTimeHashVar)        <> [] ('k') or
         keys(charEnumTypeHashVar)    <> [] ('k') or
         keys(charTypeHashVar)        <> [] ('k') or
         keys(charReferenceHashVar)   <> [] ('k') or
@@ -1947,6 +2076,7 @@ const proc: chkCharHash is func
         values(charStringHashVar)      <> [] ("success") or
         values(charBstringHashVar)     <> [] (bstring("okay")) or
         values(charBitsetHashVar)      <> [] ({123}) or
+        values(charTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(charEnumTypeHashVar)    <> [] (GREEN) or
         values(charTypeHashVar)        <> [] (char) or
         values(charReferenceHashVar)   <> [] (NIL) then
@@ -1963,6 +2093,7 @@ const proc: chkCharHash is func
     charStringHashVar      @:= ['k'] "success";
     charBstringHashVar     @:= ['k'] bstring("okay");
     charBitsetHashVar      @:= ['k'] {123};
+    charTimeHashVar        @:= ['k'] time("2011-12-13 14:15");
     charEnumTypeHashVar    @:= ['k'] GREEN;
     charTypeHashVar        @:= ['k'] char;
     charReferenceHashVar   @:= ['k'] NIL;
@@ -1977,6 +2108,7 @@ const proc: chkCharHash is func
         'k' not in charStringHashVar      or
         'k' not in charBstringHashVar     or
         'k' not in charBitsetHashVar      or
+        'k' not in charTimeHashVar        or
         'k' not in charEnumTypeHashVar    or
         'k' not in charTypeHashVar        or
         'k' not in charReferenceHashVar   or
@@ -1984,19 +2116,20 @@ const proc: chkCharHash is func
       writeln(" ***** Elements missing in hash[char] table");
       okay := FALSE;
     end if;
-    if  charBooleanHashVar     ['k'] <> TRUE                    or
-        charIntegerHashVar     ['k'] <> 1234                    or
-        charBigIntegerHashVar  ['k'] <> 9999999999_             or
-        charBigRationalHashVar ['k'] <> 9999999999_ / 12345678_ or
-        charFloatHashVar       ['k'] <> 3.1415926535            or
-        charComplexHashVar     ['k'] <> complex(1.2, 3.4)       or
-        charCharHashVar        ['k'] <> 'Q'                     or
-        charStringHashVar      ['k'] <> "success"               or
-        charBstringHashVar     ['k'] <> bstring("okay")         or
-        charBitsetHashVar      ['k'] <> {123}                   or
-        charEnumTypeHashVar    ['k'] <> GREEN                   or
-        charTypeHashVar        ['k'] <> char                    or
-        charReferenceHashVar   ['k'] <> NIL                     then
+    if  charBooleanHashVar     ['k'] <> TRUE                     or
+        charIntegerHashVar     ['k'] <> 1234                     or
+        charBigIntegerHashVar  ['k'] <> 9999999999_              or
+        charBigRationalHashVar ['k'] <> 9999999999_ / 12345678_  or
+        charFloatHashVar       ['k'] <> 3.1415926535             or
+        charComplexHashVar     ['k'] <> complex(1.2, 3.4)        or
+        charCharHashVar        ['k'] <> 'Q'                      or
+        charStringHashVar      ['k'] <> "success"                or
+        charBstringHashVar     ['k'] <> bstring("okay")          or
+        charBitsetHashVar      ['k'] <> {123}                    or
+        charTimeHashVar        ['k'] <> time("2011-12-13 14:15") or
+        charEnumTypeHashVar    ['k'] <> GREEN                    or
+        charTypeHashVar        ['k'] <> char                     or
+        charReferenceHashVar   ['k'] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[char] table");
       okay := FALSE;
     end if;
@@ -2022,6 +2155,7 @@ const proc: chkStringHash is func
     var stringStringHash:      stringStringHashVar      is stringStringHash     .EMPTY_HASH;
     var stringBstringHash:     stringBstringHashVar     is stringBstringHash    .EMPTY_HASH;
     var stringBitsetHash:      stringBitsetHashVar      is stringBitsetHash     .EMPTY_HASH;
+    var stringTimeHash:        stringTimeHashVar        is stringTimeHash       .EMPTY_HASH;
     var stringEnumTypeHash:    stringEnumTypeHashVar    is stringEnumTypeHash   .EMPTY_HASH;
     var stringTypeHash:        stringTypeHashVar        is stringTypeHash       .EMPTY_HASH;
     var stringReferenceHash:   stringReferenceHashVar   is stringReferenceHash  .EMPTY_HASH;
@@ -2037,6 +2171,7 @@ const proc: chkStringHash is func
         length(stringStringHashVar)      <> 0 or
         length(stringBstringHashVar)     <> 0 or
         length(stringBitsetHashVar)      <> 0 or
+        length(stringTimeHashVar)        <> 0 or
         length(stringEnumTypeHashVar)    <> 0 or
         length(stringTypeHashVar)        <> 0 or
         length(stringReferenceHashVar)   <> 0 or
@@ -2054,6 +2189,7 @@ const proc: chkStringHash is func
         "asdfghjkl" in stringStringHashVar      or
         "asdfghjkl" in stringBstringHashVar     or
         "asdfghjkl" in stringBitsetHashVar      or
+        "asdfghjkl" in stringTimeHashVar        or
         "asdfghjkl" in stringEnumTypeHashVar    or
         "asdfghjkl" in stringTypeHashVar        or
         "asdfghjkl" in stringReferenceHashVar   or
@@ -2071,6 +2207,7 @@ const proc: chkStringHash is func
         keys(stringStringHashVar)      <> 0 times "" or
         keys(stringBstringHashVar)     <> 0 times "" or
         keys(stringBitsetHashVar)      <> 0 times "" or
+        keys(stringTimeHashVar)        <> 0 times "" or
         keys(stringEnumTypeHashVar)    <> 0 times "" or
         keys(stringTypeHashVar)        <> 0 times "" or
         keys(stringReferenceHashVar)   <> 0 times "" or
@@ -2088,6 +2225,7 @@ const proc: chkStringHash is func
         values(stringStringHashVar)      <> 0 times "" or
         values(stringBstringHashVar)     <> 0 times bstring("") or
         values(stringBitsetHashVar)      <> 0 times {} or
+        values(stringTimeHashVar)        <> 0 times time.value or
         values(stringEnumTypeHashVar)    <> 0 times RED or
         values(stringTypeHashVar)        <> 0 times boolean or
         values(stringReferenceHashVar)   <> 0 times NIL then
@@ -2104,6 +2242,7 @@ const proc: chkStringHash is func
     stringStringHashVar      @:= ["asdfghjkl"] "success";
     stringBstringHashVar     @:= ["asdfghjkl"] bstring("okay");
     stringBitsetHashVar      @:= ["asdfghjkl"] {123};
+    stringTimeHashVar        @:= ["asdfghjkl"] time("2011-12-13 14:15");
     stringEnumTypeHashVar    @:= ["asdfghjkl"] GREEN;
     stringTypeHashVar        @:= ["asdfghjkl"] char;
     stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
@@ -2118,6 +2257,7 @@ const proc: chkStringHash is func
         length(stringStringHashVar)      <> 1 or
         length(stringBstringHashVar)     <> 1 or
         length(stringBitsetHashVar)      <> 1 or
+        length(stringTimeHashVar)        <> 1 or
         length(stringEnumTypeHashVar)    <> 1 or
         length(stringTypeHashVar)        <> 1 or
         length(stringReferenceHashVar)   <> 1 or
@@ -2135,6 +2275,7 @@ const proc: chkStringHash is func
         "asdfghjkl" in stringStringHashVar      and
         "asdfghjkl" in stringBstringHashVar     and
         "asdfghjkl" in stringBitsetHashVar      and
+        "asdfghjkl" in stringTimeHashVar        and
         "asdfghjkl" in stringEnumTypeHashVar    and
         "asdfghjkl" in stringTypeHashVar        and
         "asdfghjkl" in stringReferenceHashVar   and
@@ -2154,6 +2295,7 @@ const proc: chkStringHash is func
         keys(stringStringHashVar)      <> [] ("asdfghjkl") or
         keys(stringBstringHashVar)     <> [] ("asdfghjkl") or
         keys(stringBitsetHashVar)      <> [] ("asdfghjkl") or
+        keys(stringTimeHashVar)        <> [] ("asdfghjkl") or
         keys(stringEnumTypeHashVar)    <> [] ("asdfghjkl") or
         keys(stringTypeHashVar)        <> [] ("asdfghjkl") or
         keys(stringReferenceHashVar)   <> [] ("asdfghjkl") or
@@ -2171,6 +2313,7 @@ const proc: chkStringHash is func
         values(stringStringHashVar)      <> [] ("success") or
         values(stringBstringHashVar)     <> [] (bstring("okay")) or
         values(stringBitsetHashVar)      <> [] ({123}) or
+        values(stringTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(stringEnumTypeHashVar)    <> [] (GREEN) or
         values(stringTypeHashVar)        <> [] (char) or
         values(stringReferenceHashVar)   <> [] (NIL) then
@@ -2187,6 +2330,7 @@ const proc: chkStringHash is func
     stringStringHashVar      @:= ["asdfghjkl"] "success";
     stringBstringHashVar     @:= ["asdfghjkl"] bstring("okay");
     stringBitsetHashVar      @:= ["asdfghjkl"] {123};
+    stringTimeHashVar        @:= ["asdfghjkl"] time("2011-12-13 14:15");
     stringEnumTypeHashVar    @:= ["asdfghjkl"] GREEN;
     stringTypeHashVar        @:= ["asdfghjkl"] char;
     stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
@@ -2201,6 +2345,7 @@ const proc: chkStringHash is func
         "asdfghjkl" not in stringStringHashVar      or
         "asdfghjkl" not in stringBstringHashVar     or
         "asdfghjkl" not in stringBitsetHashVar      or
+        "asdfghjkl" not in stringTimeHashVar        or
         "asdfghjkl" not in stringEnumTypeHashVar    or
         "asdfghjkl" not in stringTypeHashVar        or
         "asdfghjkl" not in stringReferenceHashVar   or
@@ -2208,19 +2353,20 @@ const proc: chkStringHash is func
       writeln(" ***** Elements missing in hash[string] table");
       okay := FALSE;
     end if;
-    if  stringBooleanHashVar     ["asdfghjkl"] <> TRUE                    or
-        stringIntegerHashVar     ["asdfghjkl"] <> 1234                    or
-        stringBigIntegerHashVar  ["asdfghjkl"] <> 9999999999_             or
-        stringBigRationalHashVar ["asdfghjkl"] <> 9999999999_ / 12345678_ or
-        stringFloatHashVar       ["asdfghjkl"] <> 3.1415926535            or
-        stringComplexHashVar     ["asdfghjkl"] <> complex(1.2, 3.4)       or
-        stringCharHashVar        ["asdfghjkl"] <> 'Q'                     or
-        stringStringHashVar      ["asdfghjkl"] <> "success"               or
-        stringBstringHashVar     ["asdfghjkl"] <> bstring("okay")         or
-        stringBitsetHashVar      ["asdfghjkl"] <> {123}                   or
-        stringEnumTypeHashVar    ["asdfghjkl"] <> GREEN                   or
-        stringTypeHashVar        ["asdfghjkl"] <> char                    or
-        stringReferenceHashVar   ["asdfghjkl"] <> NIL                     then
+    if  stringBooleanHashVar     ["asdfghjkl"] <> TRUE                     or
+        stringIntegerHashVar     ["asdfghjkl"] <> 1234                     or
+        stringBigIntegerHashVar  ["asdfghjkl"] <> 9999999999_              or
+        stringBigRationalHashVar ["asdfghjkl"] <> 9999999999_ / 12345678_  or
+        stringFloatHashVar       ["asdfghjkl"] <> 3.1415926535             or
+        stringComplexHashVar     ["asdfghjkl"] <> complex(1.2, 3.4)        or
+        stringCharHashVar        ["asdfghjkl"] <> 'Q'                      or
+        stringStringHashVar      ["asdfghjkl"] <> "success"                or
+        stringBstringHashVar     ["asdfghjkl"] <> bstring("okay")          or
+        stringBitsetHashVar      ["asdfghjkl"] <> {123}                    or
+        stringTimeHashVar        ["asdfghjkl"] <> time("2011-12-13 14:15") or
+        stringEnumTypeHashVar    ["asdfghjkl"] <> GREEN                    or
+        stringTypeHashVar        ["asdfghjkl"] <> char                     or
+        stringReferenceHashVar   ["asdfghjkl"] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[string] table");
       okay := FALSE;
     end if;
@@ -2246,6 +2392,7 @@ const proc: chkBstringHash is func
     var bstringStringHash:      bstringStringHashVar      is bstringStringHash     .EMPTY_HASH;
     var bstringBstringHash:     bstringBstringHashVar     is bstringBstringHash    .EMPTY_HASH;
     var bstringBitsetHash:      bstringBitsetHashVar      is bstringBitsetHash     .EMPTY_HASH;
+    var bstringTimeHash:        bstringTimeHashVar        is bstringTimeHash       .EMPTY_HASH;
     var bstringEnumTypeHash:    bstringEnumTypeHashVar    is bstringEnumTypeHash   .EMPTY_HASH;
     var bstringTypeHash:        bstringTypeHashVar        is bstringTypeHash       .EMPTY_HASH;
     var bstringReferenceHash:   bstringReferenceHashVar   is bstringReferenceHash  .EMPTY_HASH;
@@ -2261,6 +2408,7 @@ const proc: chkBstringHash is func
         length(bstringStringHashVar)      <> 0 or
         length(bstringBstringHashVar)     <> 0 or
         length(bstringBitsetHashVar)      <> 0 or
+        length(bstringTimeHashVar)        <> 0 or
         length(bstringEnumTypeHashVar)    <> 0 or
         length(bstringTypeHashVar)        <> 0 or
         length(bstringReferenceHashVar)   <> 0 or
@@ -2278,6 +2426,7 @@ const proc: chkBstringHash is func
         bstring("qwert") in bstringStringHashVar      or
         bstring("qwert") in bstringBstringHashVar     or
         bstring("qwert") in bstringBitsetHashVar      or
+        bstring("qwert") in bstringTimeHashVar        or
         bstring("qwert") in bstringEnumTypeHashVar    or
         bstring("qwert") in bstringTypeHashVar        or
         bstring("qwert") in bstringReferenceHashVar   or
@@ -2295,6 +2444,7 @@ const proc: chkBstringHash is func
         keys(bstringStringHashVar)      <> 0 times bstring("") or
         keys(bstringBstringHashVar)     <> 0 times bstring("") or
         keys(bstringBitsetHashVar)      <> 0 times bstring("") or
+        keys(bstringTimeHashVar)        <> 0 times bstring("") or
         keys(bstringEnumTypeHashVar)    <> 0 times bstring("") or
         keys(bstringTypeHashVar)        <> 0 times bstring("") or
         keys(bstringReferenceHashVar)   <> 0 times bstring("") or
@@ -2312,6 +2462,7 @@ const proc: chkBstringHash is func
         values(bstringStringHashVar)      <> 0 times "" or
         values(bstringBstringHashVar)     <> 0 times bstring("") or
         values(bstringBitsetHashVar)      <> 0 times {} or
+        values(bstringTimeHashVar)        <> 0 times time.value or
         values(bstringEnumTypeHashVar)    <> 0 times RED or
         values(bstringTypeHashVar)        <> 0 times boolean or
         values(bstringReferenceHashVar)   <> 0 times NIL then
@@ -2328,6 +2479,7 @@ const proc: chkBstringHash is func
     bstringStringHashVar      @:= [bstring("qwert")] "success";
     bstringBstringHashVar     @:= [bstring("qwert")] bstring("okay");
     bstringBitsetHashVar      @:= [bstring("qwert")] {123};
+    bstringTimeHashVar        @:= [bstring("qwert")] time("2011-12-13 14:15");
     bstringEnumTypeHashVar    @:= [bstring("qwert")] GREEN;
     bstringTypeHashVar        @:= [bstring("qwert")] char;
     bstringReferenceHashVar   @:= [bstring("qwert")] NIL;
@@ -2342,6 +2494,7 @@ const proc: chkBstringHash is func
         length(bstringStringHashVar)      <> 1 or
         length(bstringBstringHashVar)     <> 1 or
         length(bstringBitsetHashVar)      <> 1 or
+        length(bstringTimeHashVar)        <> 1 or
         length(bstringEnumTypeHashVar)    <> 1 or
         length(bstringTypeHashVar)        <> 1 or
         length(bstringReferenceHashVar)   <> 1 or
@@ -2359,6 +2512,7 @@ const proc: chkBstringHash is func
         bstring("qwert") in bstringStringHashVar      and
         bstring("qwert") in bstringBstringHashVar     and
         bstring("qwert") in bstringBitsetHashVar      and
+        bstring("qwert") in bstringTimeHashVar        and
         bstring("qwert") in bstringEnumTypeHashVar    and
         bstring("qwert") in bstringTypeHashVar        and
         bstring("qwert") in bstringReferenceHashVar   and
@@ -2378,6 +2532,7 @@ const proc: chkBstringHash is func
         keys(bstringStringHashVar)      <> [] (bstring("qwert")) or
         keys(bstringBstringHashVar)     <> [] (bstring("qwert")) or
         keys(bstringBitsetHashVar)      <> [] (bstring("qwert")) or
+        keys(bstringTimeHashVar)        <> [] (bstring("qwert")) or
         keys(bstringEnumTypeHashVar)    <> [] (bstring("qwert")) or
         keys(bstringTypeHashVar)        <> [] (bstring("qwert")) or
         keys(bstringReferenceHashVar)   <> [] (bstring("qwert")) or
@@ -2395,6 +2550,7 @@ const proc: chkBstringHash is func
         values(bstringStringHashVar)      <> [] ("success") or
         values(bstringBstringHashVar)     <> [] (bstring("okay")) or
         values(bstringBitsetHashVar)      <> [] ({123}) or
+        values(bstringTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(bstringEnumTypeHashVar)    <> [] (GREEN) or
         values(bstringTypeHashVar)        <> [] (char) or
         values(bstringReferenceHashVar)   <> [] (NIL) then
@@ -2411,6 +2567,7 @@ const proc: chkBstringHash is func
     bstringStringHashVar      @:= [bstring("qwert")] "success";
     bstringBstringHashVar     @:= [bstring("qwert")] bstring("okay");
     bstringBitsetHashVar      @:= [bstring("qwert")] {123};
+    bstringTimeHashVar        @:= [bstring("qwert")] time("2011-12-13 14:15");
     bstringEnumTypeHashVar    @:= [bstring("qwert")] GREEN;
     bstringTypeHashVar        @:= [bstring("qwert")] char;
     bstringReferenceHashVar   @:= [bstring("qwert")] NIL;
@@ -2425,6 +2582,7 @@ const proc: chkBstringHash is func
         bstring("qwert") not in bstringStringHashVar      or
         bstring("qwert") not in bstringBstringHashVar     or
         bstring("qwert") not in bstringBitsetHashVar      or
+        bstring("qwert") not in bstringTimeHashVar        or
         bstring("qwert") not in bstringEnumTypeHashVar    or
         bstring("qwert") not in bstringTypeHashVar        or
         bstring("qwert") not in bstringReferenceHashVar   or
@@ -2432,19 +2590,20 @@ const proc: chkBstringHash is func
       writeln(" ***** Elements missing in hash[bstring] table");
       okay := FALSE;
     end if;
-    if  bstringBooleanHashVar     [bstring("qwert")] <> TRUE                    or
-        bstringIntegerHashVar     [bstring("qwert")] <> 1234                    or
-        bstringBigIntegerHashVar  [bstring("qwert")] <> 9999999999_             or
-        bstringBigRationalHashVar [bstring("qwert")] <> 9999999999_ / 12345678_ or
-        bstringFloatHashVar       [bstring("qwert")] <> 3.1415926535            or
-        bstringComplexHashVar     [bstring("qwert")] <> complex(1.2, 3.4)       or
-        bstringCharHashVar        [bstring("qwert")] <> 'Q'                     or
-        bstringStringHashVar      [bstring("qwert")] <> "success"               or
-        bstringBstringHashVar     [bstring("qwert")] <> bstring("okay")         or
-        bstringBitsetHashVar      [bstring("qwert")] <> {123}                   or
-        bstringEnumTypeHashVar    [bstring("qwert")] <> GREEN                   or
-        bstringTypeHashVar        [bstring("qwert")] <> char                    or
-        bstringReferenceHashVar   [bstring("qwert")] <> NIL                     then
+    if  bstringBooleanHashVar     [bstring("qwert")] <> TRUE                     or
+        bstringIntegerHashVar     [bstring("qwert")] <> 1234                     or
+        bstringBigIntegerHashVar  [bstring("qwert")] <> 9999999999_              or
+        bstringBigRationalHashVar [bstring("qwert")] <> 9999999999_ / 12345678_  or
+        bstringFloatHashVar       [bstring("qwert")] <> 3.1415926535             or
+        bstringComplexHashVar     [bstring("qwert")] <> complex(1.2, 3.4)        or
+        bstringCharHashVar        [bstring("qwert")] <> 'Q'                      or
+        bstringStringHashVar      [bstring("qwert")] <> "success"                or
+        bstringBstringHashVar     [bstring("qwert")] <> bstring("okay")          or
+        bstringBitsetHashVar      [bstring("qwert")] <> {123}                    or
+        bstringTimeHashVar        [bstring("qwert")] <> time("2011-12-13 14:15") or
+        bstringEnumTypeHashVar    [bstring("qwert")] <> GREEN                    or
+        bstringTypeHashVar        [bstring("qwert")] <> char                     or
+        bstringReferenceHashVar   [bstring("qwert")] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[bstring] table");
       okay := FALSE;
     end if;
@@ -2470,6 +2629,7 @@ const proc: chkBitsetHash is func
     var bitsetStringHash:      bitsetStringHashVar      is bitsetStringHash     .EMPTY_HASH;
     var bitsetBstringHash:     bitsetBstringHashVar     is bitsetBstringHash    .EMPTY_HASH;
     var bitsetBitsetHash:      bitsetBitsetHashVar      is bitsetBitsetHash     .EMPTY_HASH;
+    var bitsetTimeHash:        bitsetTimeHashVar        is bitsetTimeHash       .EMPTY_HASH;
     var bitsetEnumTypeHash:    bitsetEnumTypeHashVar    is bitsetEnumTypeHash   .EMPTY_HASH;
     var bitsetTypeHash:        bitsetTypeHashVar        is bitsetTypeHash       .EMPTY_HASH;
     var bitsetReferenceHash:   bitsetReferenceHashVar   is bitsetReferenceHash  .EMPTY_HASH;
@@ -2485,6 +2645,7 @@ const proc: chkBitsetHash is func
         length(bitsetStringHashVar)      <> 0 or
         length(bitsetBstringHashVar)     <> 0 or
         length(bitsetBitsetHashVar)      <> 0 or
+        length(bitsetTimeHashVar)        <> 0 or
         length(bitsetEnumTypeHashVar)    <> 0 or
         length(bitsetTypeHashVar)        <> 0 or
         length(bitsetReferenceHashVar)   <> 0 or
@@ -2502,6 +2663,7 @@ const proc: chkBitsetHash is func
         {234} in bitsetStringHashVar      or
         {234} in bitsetBstringHashVar     or
         {234} in bitsetBitsetHashVar      or
+        {234} in bitsetTimeHashVar        or
         {234} in bitsetEnumTypeHashVar    or
         {234} in bitsetTypeHashVar        or
         {234} in bitsetReferenceHashVar   or
@@ -2519,6 +2681,7 @@ const proc: chkBitsetHash is func
         keys(bitsetStringHashVar)      <> 0 times bitset.value or
         keys(bitsetBstringHashVar)     <> 0 times bitset.value or
         keys(bitsetBitsetHashVar)      <> 0 times bitset.value or
+        keys(bitsetTimeHashVar)        <> 0 times bitset.value or
         keys(bitsetEnumTypeHashVar)    <> 0 times bitset.value or
         keys(bitsetTypeHashVar)        <> 0 times bitset.value or
         keys(bitsetReferenceHashVar)   <> 0 times bitset.value or
@@ -2536,6 +2699,7 @@ const proc: chkBitsetHash is func
         values(bitsetStringHashVar)      <> 0 times "" or
         values(bitsetBstringHashVar)     <> 0 times bstring("") or
         values(bitsetBitsetHashVar)      <> 0 times {} or
+        values(bitsetTimeHashVar)        <> 0 times time.value or
         values(bitsetEnumTypeHashVar)    <> 0 times RED or
         values(bitsetTypeHashVar)        <> 0 times boolean or
         values(bitsetReferenceHashVar)   <> 0 times NIL then
@@ -2552,6 +2716,7 @@ const proc: chkBitsetHash is func
     bitsetStringHashVar      @:= [{234}] "success";
     bitsetBstringHashVar     @:= [{234}] bstring("okay");
     bitsetBitsetHashVar      @:= [{234}] {123};
+    bitsetTimeHashVar        @:= [{234}] time("2011-12-13 14:15");
     bitsetEnumTypeHashVar    @:= [{234}] GREEN;
     bitsetTypeHashVar        @:= [{234}] char;
     bitsetReferenceHashVar   @:= [{234}] NIL;
@@ -2566,6 +2731,7 @@ const proc: chkBitsetHash is func
         length(bitsetStringHashVar)      <> 1 or
         length(bitsetBstringHashVar)     <> 1 or
         length(bitsetBitsetHashVar)      <> 1 or
+        length(bitsetTimeHashVar)        <> 1 or
         length(bitsetEnumTypeHashVar)    <> 1 or
         length(bitsetTypeHashVar)        <> 1 or
         length(bitsetReferenceHashVar)   <> 1 or
@@ -2583,6 +2749,7 @@ const proc: chkBitsetHash is func
         {234} in bitsetStringHashVar      and
         {234} in bitsetBstringHashVar     and
         {234} in bitsetBitsetHashVar      and
+        {234} in bitsetTimeHashVar        and
         {234} in bitsetEnumTypeHashVar    and
         {234} in bitsetTypeHashVar        and
         {234} in bitsetReferenceHashVar   and
@@ -2602,6 +2769,7 @@ const proc: chkBitsetHash is func
         keys(bitsetStringHashVar)      <> [] ({234}) or
         keys(bitsetBstringHashVar)     <> [] ({234}) or
         keys(bitsetBitsetHashVar)      <> [] ({234}) or
+        keys(bitsetTimeHashVar)        <> [] ({234}) or
         keys(bitsetEnumTypeHashVar)    <> [] ({234}) or
         keys(bitsetTypeHashVar)        <> [] ({234}) or
         keys(bitsetReferenceHashVar)   <> [] ({234}) or
@@ -2619,6 +2787,7 @@ const proc: chkBitsetHash is func
         values(bitsetStringHashVar)      <> [] ("success") or
         values(bitsetBstringHashVar)     <> [] (bstring("okay")) or
         values(bitsetBitsetHashVar)      <> [] ({123}) or
+        values(bitsetTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(bitsetEnumTypeHashVar)    <> [] (GREEN) or
         values(bitsetTypeHashVar)        <> [] (char) or
         values(bitsetReferenceHashVar)   <> [] (NIL) then
@@ -2635,6 +2804,7 @@ const proc: chkBitsetHash is func
     bitsetStringHashVar      @:= [{234}] "success";
     bitsetBstringHashVar     @:= [{234}] bstring("okay");
     bitsetBitsetHashVar      @:= [{234}] {123};
+    bitsetTimeHashVar        @:= [{234}] time("2011-12-13 14:15");
     bitsetEnumTypeHashVar    @:= [{234}] GREEN;
     bitsetTypeHashVar        @:= [{234}] char;
     bitsetReferenceHashVar   @:= [{234}] NIL;
@@ -2649,6 +2819,7 @@ const proc: chkBitsetHash is func
         {234} not in bitsetStringHashVar      or
         {234} not in bitsetBstringHashVar     or
         {234} not in bitsetBitsetHashVar      or
+        {234} not in bitsetTimeHashVar        or
         {234} not in bitsetEnumTypeHashVar    or
         {234} not in bitsetTypeHashVar        or
         {234} not in bitsetReferenceHashVar   or
@@ -2656,19 +2827,20 @@ const proc: chkBitsetHash is func
       writeln(" ***** Elements missing in hash[bitset] table");
       okay := FALSE;
     end if;
-    if  bitsetBooleanHashVar     [{234}] <> TRUE                    or
-        bitsetIntegerHashVar     [{234}] <> 1234                    or
-        bitsetBigIntegerHashVar  [{234}] <> 9999999999_             or
-        bitsetBigRationalHashVar [{234}] <> 9999999999_ / 12345678_ or
-        bitsetFloatHashVar       [{234}] <> 3.1415926535            or
-        bitsetComplexHashVar     [{234}] <> complex(1.2, 3.4)       or
-        bitsetCharHashVar        [{234}] <> 'Q'                     or
-        bitsetStringHashVar      [{234}] <> "success"               or
-        bitsetBstringHashVar     [{234}] <> bstring("okay")         or
-        bitsetBitsetHashVar      [{234}] <> {123}                   or
-        bitsetEnumTypeHashVar    [{234}] <> GREEN                   or
-        bitsetTypeHashVar        [{234}] <> char                    or
-        bitsetReferenceHashVar   [{234}] <> NIL                     then
+    if  bitsetBooleanHashVar     [{234}] <> TRUE                     or
+        bitsetIntegerHashVar     [{234}] <> 1234                     or
+        bitsetBigIntegerHashVar  [{234}] <> 9999999999_              or
+        bitsetBigRationalHashVar [{234}] <> 9999999999_ / 12345678_  or
+        bitsetFloatHashVar       [{234}] <> 3.1415926535             or
+        bitsetComplexHashVar     [{234}] <> complex(1.2, 3.4)        or
+        bitsetCharHashVar        [{234}] <> 'Q'                      or
+        bitsetStringHashVar      [{234}] <> "success"                or
+        bitsetBstringHashVar     [{234}] <> bstring("okay")          or
+        bitsetBitsetHashVar      [{234}] <> {123}                    or
+        bitsetTimeHashVar        [{234}] <> time("2011-12-13 14:15") or
+        bitsetEnumTypeHashVar    [{234}] <> GREEN                    or
+        bitsetTypeHashVar        [{234}] <> char                     or
+        bitsetReferenceHashVar   [{234}] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[bitset] table");
       okay := FALSE;
     end if;
@@ -2676,6 +2848,243 @@ const proc: chkBitsetHash is func
       writeln("Hash tables with bitset keys work correctly.");
     else
       writeln(" ***** Hash tables with bitset keys do not work correctly");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkTimeHash is func
+  local
+    var boolean: okay is TRUE;
+    var timeBooleanHash:     timeBooleanHashVar     is timeBooleanHash    .EMPTY_HASH;
+    var timeIntegerHash:     timeIntegerHashVar     is timeIntegerHash    .EMPTY_HASH;
+    var timeBigIntegerHash:  timeBigIntegerHashVar  is timeBigIntegerHash .EMPTY_HASH;
+    var timeBigRationalHash: timeBigRationalHashVar is timeBigRationalHash.EMPTY_HASH;
+    var timeFloatHash:       timeFloatHashVar       is timeFloatHash      .EMPTY_HASH;
+    var timeComplexHash:     timeComplexHashVar     is timeComplexHash    .EMPTY_HASH;
+    var timeCharHash:        timeCharHashVar        is timeCharHash       .EMPTY_HASH;
+    var timeStringHash:      timeStringHashVar      is timeStringHash     .EMPTY_HASH;
+    var timeBstringHash:     timeBstringHashVar     is timeBstringHash    .EMPTY_HASH;
+    var timeBitsetHash:      timeBitsetHashVar      is timeBitsetHash     .EMPTY_HASH;
+    var timeTimeHash:        timeTimeHashVar        is timeTimeHash       .EMPTY_HASH;
+    var timeEnumTypeHash:    timeEnumTypeHashVar    is timeEnumTypeHash   .EMPTY_HASH;
+    var timeTypeHash:        timeTypeHashVar        is timeTypeHash       .EMPTY_HASH;
+    var timeReferenceHash:   timeReferenceHashVar   is timeReferenceHash  .EMPTY_HASH;
+    var timeHashHash:        timeHashHashVar        is timeHashHash       .EMPTY_HASH;
+  begin
+    if  length(timeBooleanHashVar)     <> 0 or
+        length(timeIntegerHashVar)     <> 0 or
+        length(timeBigIntegerHashVar)  <> 0 or
+        length(timeBigRationalHashVar) <> 0 or
+        length(timeFloatHashVar)       <> 0 or
+        length(timeComplexHashVar)     <> 0 or
+        length(timeCharHashVar)        <> 0 or
+        length(timeStringHashVar)      <> 0 or
+        length(timeBstringHashVar)     <> 0 or
+        length(timeBitsetHashVar)      <> 0 or
+        length(timeTimeHashVar)        <> 0 or
+        length(timeEnumTypeHashVar)    <> 0 or
+        length(timeTypeHashVar)        <> 0 or
+        length(timeReferenceHashVar)   <> 0 or
+        length(timeHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[time] table not 0");
+      okay := FALSE;
+    end if;
+    if  time("2010-11-12 13:14") in timeBooleanHashVar     or
+        time("2010-11-12 13:14") in timeIntegerHashVar     or
+        time("2010-11-12 13:14") in timeBigIntegerHashVar  or
+        time("2010-11-12 13:14") in timeBigRationalHashVar or
+        time("2010-11-12 13:14") in timeFloatHashVar       or
+        time("2010-11-12 13:14") in timeComplexHashVar     or
+        time("2010-11-12 13:14") in timeCharHashVar        or
+        time("2010-11-12 13:14") in timeStringHashVar      or
+        time("2010-11-12 13:14") in timeBstringHashVar     or
+        time("2010-11-12 13:14") in timeBitsetHashVar      or
+        time("2010-11-12 13:14") in timeTimeHashVar        or
+        time("2010-11-12 13:14") in timeEnumTypeHashVar    or
+        time("2010-11-12 13:14") in timeTypeHashVar        or
+        time("2010-11-12 13:14") in timeReferenceHashVar   or
+        time("2010-11-12 13:14") in timeHashHashVar        then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    if  keys(timeBooleanHashVar)     <> 0 times time.value or
+        keys(timeIntegerHashVar)     <> 0 times time.value or
+        keys(timeBigIntegerHashVar)  <> 0 times time.value or
+        keys(timeBigRationalHashVar) <> 0 times time.value or
+        keys(timeFloatHashVar)       <> 0 times time.value or
+        keys(timeComplexHashVar)     <> 0 times time.value or
+        keys(timeCharHashVar)        <> 0 times time.value or
+        keys(timeStringHashVar)      <> 0 times time.value or
+        keys(timeBstringHashVar)     <> 0 times time.value or
+        keys(timeBitsetHashVar)      <> 0 times time.value or
+        keys(timeTimeHashVar)        <> 0 times time.value or
+        keys(timeEnumTypeHashVar)    <> 0 times time.value or
+        keys(timeTypeHashVar)        <> 0 times time.value or
+        keys(timeReferenceHashVar)   <> 0 times time.value or
+        keys(timeHashHashVar)        <> 0 times time.value then
+      writeln(" ***** Number of keys in empty hash[time] table is not 0");
+      okay := FALSE;
+    end if;
+    if  values(timeBooleanHashVar)     <> 0 times FALSE or
+        values(timeIntegerHashVar)     <> 0 times 0 or
+        values(timeBigIntegerHashVar)  <> 0 times 0_ or
+        values(timeBigRationalHashVar) <> 0 times 0_ / 1_ or
+        values(timeFloatHashVar)       <> 0 times 0.0 or
+        values(timeComplexHashVar)     <> 0 times complex(0.0, 0.0) or
+        values(timeCharHashVar)        <> 0 times ' ' or
+        values(timeStringHashVar)      <> 0 times "" or
+        values(timeBstringHashVar)     <> 0 times bstring("") or
+        values(timeBitsetHashVar)      <> 0 times {} or
+        values(timeTimeHashVar)        <> 0 times time.value or
+        values(timeEnumTypeHashVar)    <> 0 times RED or
+        values(timeTypeHashVar)        <> 0 times boolean or
+        values(timeReferenceHashVar)   <> 0 times NIL then
+      writeln(" ***** Number of values in empty hash[time] table is not 0");
+      okay := FALSE;
+    end if;
+    timeBooleanHashVar     @:= [time("2010-11-12 13:14")] TRUE;
+    timeIntegerHashVar     @:= [time("2010-11-12 13:14")] 1234;
+    timeBigIntegerHashVar  @:= [time("2010-11-12 13:14")] 9999999999_;
+    timeBigRationalHashVar @:= [time("2010-11-12 13:14")] 9999999999_ / 12345678_;
+    timeFloatHashVar       @:= [time("2010-11-12 13:14")] 3.1415926535;
+    timeComplexHashVar     @:= [time("2010-11-12 13:14")] complex(1.2, 3.4);
+    timeCharHashVar        @:= [time("2010-11-12 13:14")] 'Q';
+    timeStringHashVar      @:= [time("2010-11-12 13:14")] "success";
+    timeBstringHashVar     @:= [time("2010-11-12 13:14")] bstring("okay");
+    timeBitsetHashVar      @:= [time("2010-11-12 13:14")] {123};
+    timeTimeHashVar        @:= [time("2010-11-12 13:14")] time("2011-12-13 14:15");
+    timeEnumTypeHashVar    @:= [time("2010-11-12 13:14")] GREEN;
+    timeTypeHashVar        @:= [time("2010-11-12 13:14")] char;
+    timeReferenceHashVar   @:= [time("2010-11-12 13:14")] NIL;
+    timeHashHashVar        @:= [time("2010-11-12 13:14")] timeBooleanHashVar;
+    if  length(timeBooleanHashVar)     <> 1 or
+        length(timeIntegerHashVar)     <> 1 or
+        length(timeBigIntegerHashVar)  <> 1 or
+        length(timeBigRationalHashVar) <> 1 or
+        length(timeFloatHashVar)       <> 1 or
+        length(timeComplexHashVar)     <> 1 or
+        length(timeCharHashVar)        <> 1 or
+        length(timeStringHashVar)      <> 1 or
+        length(timeBstringHashVar)     <> 1 or
+        length(timeBitsetHashVar)      <> 1 or
+        length(timeTimeHashVar)        <> 1 or
+        length(timeEnumTypeHashVar)    <> 1 or
+        length(timeTypeHashVar)        <> 1 or
+        length(timeReferenceHashVar)   <> 1 or
+        length(timeHashHashVar)        <> 1 then
+      writeln(" ***** Number of elements in hash[time] table not 1");
+      okay := FALSE;
+    end if;
+    if  time("2010-11-12 13:14") in timeBooleanHashVar     and
+        time("2010-11-12 13:14") in timeIntegerHashVar     and
+        time("2010-11-12 13:14") in timeBigIntegerHashVar  and
+        time("2010-11-12 13:14") in timeBigRationalHashVar and
+        time("2010-11-12 13:14") in timeFloatHashVar       and
+        time("2010-11-12 13:14") in timeComplexHashVar     and
+        time("2010-11-12 13:14") in timeCharHashVar        and
+        time("2010-11-12 13:14") in timeStringHashVar      and
+        time("2010-11-12 13:14") in timeBstringHashVar     and
+        time("2010-11-12 13:14") in timeBitsetHashVar      and
+        time("2010-11-12 13:14") in timeTimeHashVar        and
+        time("2010-11-12 13:14") in timeEnumTypeHashVar    and
+        time("2010-11-12 13:14") in timeTypeHashVar        and
+        time("2010-11-12 13:14") in timeReferenceHashVar   and
+        time("2010-11-12 13:14") in timeHashHashVar        then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[time] table");
+      okay := FALSE;
+    end if;
+    if  keys(timeBooleanHashVar)     <> [] (time("2010-11-12 13:14")) or
+        keys(timeIntegerHashVar)     <> [] (time("2010-11-12 13:14")) or
+        keys(timeBigIntegerHashVar)  <> [] (time("2010-11-12 13:14")) or
+        keys(timeBigRationalHashVar) <> [] (time("2010-11-12 13:14")) or
+        keys(timeFloatHashVar)       <> [] (time("2010-11-12 13:14")) or
+        keys(timeComplexHashVar)     <> [] (time("2010-11-12 13:14")) or
+        keys(timeCharHashVar)        <> [] (time("2010-11-12 13:14")) or
+        keys(timeStringHashVar)      <> [] (time("2010-11-12 13:14")) or
+        keys(timeBstringHashVar)     <> [] (time("2010-11-12 13:14")) or
+        keys(timeBitsetHashVar)      <> [] (time("2010-11-12 13:14")) or
+        keys(timeTimeHashVar)        <> [] (time("2010-11-12 13:14")) or
+        keys(timeEnumTypeHashVar)    <> [] (time("2010-11-12 13:14")) or
+        keys(timeTypeHashVar)        <> [] (time("2010-11-12 13:14")) or
+        keys(timeReferenceHashVar)   <> [] (time("2010-11-12 13:14")) or
+        keys(timeHashHashVar)        <> [] (time("2010-11-12 13:14")) then
+      writeln(" ***** keys(hash[time]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  values(timeBooleanHashVar)     <> [] (TRUE) or
+        values(timeIntegerHashVar)     <> [] (1234) or
+        values(timeBigIntegerHashVar)  <> [] (9999999999_) or
+        values(timeBigRationalHashVar) <> [] (9999999999_ / 12345678_) or
+        values(timeFloatHashVar)       <> [] (3.1415926535) or
+        values(timeComplexHashVar)     <> [] (complex(1.2, 3.4)) or
+        values(timeCharHashVar)        <> [] ('Q') or
+        values(timeStringHashVar)      <> [] ("success") or
+        values(timeBstringHashVar)     <> [] (bstring("okay")) or
+        values(timeBitsetHashVar)      <> [] ({123}) or
+        values(timeTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
+        values(timeEnumTypeHashVar)    <> [] (GREEN) or
+        values(timeTypeHashVar)        <> [] (char) or
+        values(timeReferenceHashVar)   <> [] (NIL) then
+      writeln(" ***** values(hash[time]) does not work correctly");
+      okay := FALSE;
+    end if;
+    timeBooleanHashVar     @:= [time("2010-11-12 13:14")] TRUE;
+    timeIntegerHashVar     @:= [time("2010-11-12 13:14")] 1234;
+    timeBigIntegerHashVar  @:= [time("2010-11-12 13:14")] 9999999999_;
+    timeBigRationalHashVar @:= [time("2010-11-12 13:14")] 9999999999_ / 12345678_;
+    timeFloatHashVar       @:= [time("2010-11-12 13:14")] 3.1415926535;
+    timeComplexHashVar     @:= [time("2010-11-12 13:14")] complex(1.2, 3.4);
+    timeCharHashVar        @:= [time("2010-11-12 13:14")] 'Q';
+    timeStringHashVar      @:= [time("2010-11-12 13:14")] "success";
+    timeBstringHashVar     @:= [time("2010-11-12 13:14")] bstring("okay");
+    timeBitsetHashVar      @:= [time("2010-11-12 13:14")] {123};
+    timeTimeHashVar        @:= [time("2010-11-12 13:14")] time("2011-12-13 14:15");
+    timeEnumTypeHashVar    @:= [time("2010-11-12 13:14")] GREEN;
+    timeTypeHashVar        @:= [time("2010-11-12 13:14")] char;
+    timeReferenceHashVar   @:= [time("2010-11-12 13:14")] NIL;
+    timeHashHashVar        @:= [time("2010-11-12 13:14")] timeBooleanHashVar;
+    if  time("2010-11-12 13:14") not in timeBooleanHashVar     or
+        time("2010-11-12 13:14") not in timeIntegerHashVar     or
+        time("2010-11-12 13:14") not in timeBigIntegerHashVar  or
+        time("2010-11-12 13:14") not in timeBigRationalHashVar or
+        time("2010-11-12 13:14") not in timeFloatHashVar       or
+        time("2010-11-12 13:14") not in timeComplexHashVar     or
+        time("2010-11-12 13:14") not in timeCharHashVar        or
+        time("2010-11-12 13:14") not in timeStringHashVar      or
+        time("2010-11-12 13:14") not in timeBstringHashVar     or
+        time("2010-11-12 13:14") not in timeBitsetHashVar      or
+        time("2010-11-12 13:14") not in timeTimeHashVar        or
+        time("2010-11-12 13:14") not in timeEnumTypeHashVar    or
+        time("2010-11-12 13:14") not in timeTypeHashVar        or
+        time("2010-11-12 13:14") not in timeReferenceHashVar   or
+        time("2010-11-12 13:14") not in timeHashHashVar        then
+      writeln(" ***** Elements missing in hash[time] table");
+      okay := FALSE;
+    end if;
+    if  timeBooleanHashVar     [time("2010-11-12 13:14")] <> TRUE                     or
+        timeIntegerHashVar     [time("2010-11-12 13:14")] <> 1234                     or
+        timeBigIntegerHashVar  [time("2010-11-12 13:14")] <> 9999999999_              or
+        timeBigRationalHashVar [time("2010-11-12 13:14")] <> 9999999999_ / 12345678_  or
+        timeFloatHashVar       [time("2010-11-12 13:14")] <> 3.1415926535             or
+        timeComplexHashVar     [time("2010-11-12 13:14")] <> complex(1.2, 3.4)        or
+        timeCharHashVar        [time("2010-11-12 13:14")] <> 'Q'                      or
+        timeStringHashVar      [time("2010-11-12 13:14")] <> "success"                or
+        timeBstringHashVar     [time("2010-11-12 13:14")] <> bstring("okay")          or
+        timeBitsetHashVar      [time("2010-11-12 13:14")] <> {123}                    or
+        timeTimeHashVar        [time("2010-11-12 13:14")] <> time("2011-12-13 14:15") or
+        timeEnumTypeHashVar    [time("2010-11-12 13:14")] <> GREEN                    or
+        timeTypeHashVar        [time("2010-11-12 13:14")] <> char                     or
+        timeReferenceHashVar   [time("2010-11-12 13:14")] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[time] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with time keys work correctly.");
+    else
+      writeln(" ***** Hash tables with time keys do not work correctly");
       writeln;
     end if;
   end func;
@@ -2694,6 +3103,7 @@ const proc: chkEnumerationTypeHash is func
     var enumTypeStringHash:      enumTypeStringHashVar      is enumTypeStringHash     .EMPTY_HASH;
     var enumTypeBstringHash:     enumTypeBstringHashVar     is enumTypeBstringHash    .EMPTY_HASH;
     var enumTypeBitsetHash:      enumTypeBitsetHashVar      is enumTypeBitsetHash     .EMPTY_HASH;
+    var enumTypeTimeHash:        enumTypeTimeHashVar        is enumTypeTimeHash       .EMPTY_HASH;
     var enumTypeEnumTypeHash:    enumTypeEnumTypeHashVar    is enumTypeEnumTypeHash   .EMPTY_HASH;
     var enumTypeTypeHash:        enumTypeTypeHashVar        is enumTypeTypeHash       .EMPTY_HASH;
     var enumTypeReferenceHash:   enumTypeReferenceHashVar   is enumTypeReferenceHash  .EMPTY_HASH;
@@ -2709,6 +3119,7 @@ const proc: chkEnumerationTypeHash is func
         length(enumTypeStringHashVar)      <> 0 or
         length(enumTypeBstringHashVar)     <> 0 or
         length(enumTypeBitsetHashVar)      <> 0 or
+        length(enumTypeTimeHashVar)        <> 0 or
         length(enumTypeEnumTypeHashVar)    <> 0 or
         length(enumTypeTypeHashVar)        <> 0 or
         length(enumTypeReferenceHashVar)   <> 0 or
@@ -2726,6 +3137,7 @@ const proc: chkEnumerationTypeHash is func
         YELLOW in enumTypeStringHashVar      or
         YELLOW in enumTypeBstringHashVar     or
         YELLOW in enumTypeBitsetHashVar      or
+        YELLOW in enumTypeTimeHashVar        or
         YELLOW in enumTypeEnumTypeHashVar    or
         YELLOW in enumTypeTypeHashVar        or
         YELLOW in enumTypeReferenceHashVar   or
@@ -2743,6 +3155,7 @@ const proc: chkEnumerationTypeHash is func
         keys(enumTypeStringHashVar)      <> 0 times RED or
         keys(enumTypeBstringHashVar)     <> 0 times RED or
         keys(enumTypeBitsetHashVar)      <> 0 times RED or
+        keys(enumTypeTimeHashVar)        <> 0 times RED or
         keys(enumTypeEnumTypeHashVar)    <> 0 times RED or
         keys(enumTypeTypeHashVar)        <> 0 times RED or
         keys(enumTypeReferenceHashVar)   <> 0 times RED or
@@ -2760,6 +3173,7 @@ const proc: chkEnumerationTypeHash is func
         values(enumTypeStringHashVar)      <> 0 times "" or
         values(enumTypeBstringHashVar)     <> 0 times bstring("") or
         values(enumTypeBitsetHashVar)      <> 0 times {} or
+        values(enumTypeTimeHashVar)        <> 0 times time.value or
         values(enumTypeEnumTypeHashVar)    <> 0 times RED or
         values(enumTypeTypeHashVar)        <> 0 times boolean or
         values(enumTypeReferenceHashVar)   <> 0 times NIL then
@@ -2776,6 +3190,7 @@ const proc: chkEnumerationTypeHash is func
     enumTypeStringHashVar      @:= [YELLOW] "success";
     enumTypeBstringHashVar     @:= [YELLOW] bstring("okay");
     enumTypeBitsetHashVar      @:= [YELLOW] {123};
+    enumTypeTimeHashVar        @:= [YELLOW] time("2011-12-13 14:15");
     enumTypeEnumTypeHashVar    @:= [YELLOW] GREEN;
     enumTypeTypeHashVar        @:= [YELLOW] char;
     enumTypeReferenceHashVar   @:= [YELLOW] NIL;
@@ -2790,6 +3205,7 @@ const proc: chkEnumerationTypeHash is func
         length(enumTypeStringHashVar)      <> 1 or
         length(enumTypeBstringHashVar)     <> 1 or
         length(enumTypeBitsetHashVar)      <> 1 or
+        length(enumTypeTimeHashVar)        <> 1 or
         length(enumTypeEnumTypeHashVar)    <> 1 or
         length(enumTypeTypeHashVar)        <> 1 or
         length(enumTypeReferenceHashVar)   <> 1 or
@@ -2807,6 +3223,7 @@ const proc: chkEnumerationTypeHash is func
         YELLOW in enumTypeStringHashVar      and
         YELLOW in enumTypeBstringHashVar     and
         YELLOW in enumTypeBitsetHashVar      and
+        YELLOW in enumTypeTimeHashVar        and
         YELLOW in enumTypeEnumTypeHashVar    and
         YELLOW in enumTypeTypeHashVar        and
         YELLOW in enumTypeReferenceHashVar   and
@@ -2826,6 +3243,7 @@ const proc: chkEnumerationTypeHash is func
         keys(enumTypeStringHashVar)      <> [] (YELLOW) or
         keys(enumTypeBstringHashVar)     <> [] (YELLOW) or
         keys(enumTypeBitsetHashVar)      <> [] (YELLOW) or
+        keys(enumTypeTimeHashVar)        <> [] (YELLOW) or
         keys(enumTypeEnumTypeHashVar)    <> [] (YELLOW) or
         keys(enumTypeTypeHashVar)        <> [] (YELLOW) or
         keys(enumTypeReferenceHashVar)   <> [] (YELLOW) or
@@ -2843,6 +3261,7 @@ const proc: chkEnumerationTypeHash is func
         values(enumTypeStringHashVar)      <> [] ("success") or
         values(enumTypeBstringHashVar)     <> [] (bstring("okay")) or
         values(enumTypeBitsetHashVar)      <> [] ({123}) or
+        values(enumTypeTimeHashVar)        <> [] (time("2011-12-13 14:15")) or
         values(enumTypeEnumTypeHashVar)    <> [] (GREEN) or
         values(enumTypeTypeHashVar)        <> [] (char) or
         values(enumTypeReferenceHashVar)   <> [] (NIL) then
@@ -2859,6 +3278,7 @@ const proc: chkEnumerationTypeHash is func
     enumTypeStringHashVar      @:= [YELLOW] "success";
     enumTypeBstringHashVar     @:= [YELLOW] bstring("okay");
     enumTypeBitsetHashVar      @:= [YELLOW] {123};
+    enumTypeTimeHashVar        @:= [YELLOW] time("2011-12-13 14:15");
     enumTypeEnumTypeHashVar    @:= [YELLOW] GREEN;
     enumTypeTypeHashVar        @:= [YELLOW] char;
     enumTypeReferenceHashVar   @:= [YELLOW] NIL;
@@ -2873,6 +3293,7 @@ const proc: chkEnumerationTypeHash is func
         YELLOW not in enumTypeStringHashVar      or
         YELLOW not in enumTypeBstringHashVar     or
         YELLOW not in enumTypeBitsetHashVar      or
+        YELLOW not in enumTypeTimeHashVar        or
         YELLOW not in enumTypeEnumTypeHashVar    or
         YELLOW not in enumTypeTypeHashVar        or
         YELLOW not in enumTypeReferenceHashVar   or
@@ -2880,19 +3301,20 @@ const proc: chkEnumerationTypeHash is func
       writeln(" ***** Elements missing in hash[enumerationType] table");
       okay := FALSE;
     end if;
-    if  enumTypeBooleanHashVar     [YELLOW] <> TRUE                    or
-        enumTypeIntegerHashVar     [YELLOW] <> 1234                    or
-        enumTypeBigIntegerHashVar  [YELLOW] <> 9999999999_             or
-        enumTypeBigRationalHashVar [YELLOW] <> 9999999999_ / 12345678_ or
-        enumTypeFloatHashVar       [YELLOW] <> 3.1415926535            or
-        enumTypeComplexHashVar     [YELLOW] <> complex(1.2, 3.4)       or
-        enumTypeCharHashVar        [YELLOW] <> 'Q'                     or
-        enumTypeStringHashVar      [YELLOW] <> "success"               or
-        enumTypeBstringHashVar     [YELLOW] <> bstring("okay")         or
-        enumTypeBitsetHashVar      [YELLOW] <> {123}                   or
-        enumTypeEnumTypeHashVar    [YELLOW] <> GREEN                   or
-        enumTypeTypeHashVar        [YELLOW] <> char                    or
-        enumTypeReferenceHashVar   [YELLOW] <> NIL                     then
+    if  enumTypeBooleanHashVar     [YELLOW] <> TRUE                     or
+        enumTypeIntegerHashVar     [YELLOW] <> 1234                     or
+        enumTypeBigIntegerHashVar  [YELLOW] <> 9999999999_              or
+        enumTypeBigRationalHashVar [YELLOW] <> 9999999999_ / 12345678_  or
+        enumTypeFloatHashVar       [YELLOW] <> 3.1415926535             or
+        enumTypeComplexHashVar     [YELLOW] <> complex(1.2, 3.4)        or
+        enumTypeCharHashVar        [YELLOW] <> 'Q'                      or
+        enumTypeStringHashVar      [YELLOW] <> "success"                or
+        enumTypeBstringHashVar     [YELLOW] <> bstring("okay")          or
+        enumTypeBitsetHashVar      [YELLOW] <> {123}                    or
+        enumTypeTimeHashVar        [YELLOW] <> time("2011-12-13 14:15") or
+        enumTypeEnumTypeHashVar    [YELLOW] <> GREEN                    or
+        enumTypeTypeHashVar        [YELLOW] <> char                     or
+        enumTypeReferenceHashVar   [YELLOW] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[enumerationType] table");
       okay := FALSE;
     end if;
@@ -3043,6 +3465,7 @@ const proc: main is func
     chkStringHash;
     chkBstringHash;
     chkBitsetHash;
+    chkTimeHash;
     chkEnumerationTypeHash;
     chkKeysFunction;
     chkValuesFunction;
