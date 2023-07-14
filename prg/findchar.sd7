@@ -63,15 +63,34 @@ const proc: doFind (in string: fileName, in string: fileContent, in string: sear
   end func;
 
 
+const proc: doFindRecursive (in string: fileName, in string: extension,
+    in string: searchedChar) is func
+  local
+    var string: dirName is "";
+    var array string: dir is 0 times "";
+    var string: fileNameInDir is "";
+    var string: fileContent is "";
+  begin
+    if fileType(fileName) = FILE_DIR then
+      dirName := fileName;
+      dir := readDir(dirName);
+      for fileNameInDir range dir do
+        doFindRecursive(dirName & "/" & fileNameInDir, extension, searchedChar);
+      end for;
+    elsif extension = "" or endsWith(fileName, extension) then
+      fileContent := getf(fileName);
+      doFind(fileName, fileContent, searchedChar);
+    end if;
+  end func;
+
+
 const proc: main is func
   local
     var array string: arg_v is 0 times "";
-    var integer: arg_number is 2;
-    var array string: dir is 0 times "";
+    var integer: argNumber is 1;
+    var string: extension is "";
     var string: searchedChar is "\r";
     var string: fileName is "";
-    var string: dirName is "";
-    var string: fileContent is "";
   begin
     OUT := STD_CONSOLE;
     arg_v := argv(PROGRAM);
@@ -83,41 +102,38 @@ const proc: main is func
       writeln("Findchar is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: findchar [ r | t | f | n | s ] { file_name }");
+      writeln("usage: findchar [ -e extension ] [ r | t | f | n | s ] { file_name }");
       writeln;
       writeln("The character to search for is specified with a single letter:");
       writeln("r=Return, t=Tab, f=Formfeed, n=Newline, s=Space at end of line");
+      writeln("The contents of directories are searched recursively.");
+      writeln("The option -e restricts the search to files with the given extension.");
     else
-      if arg_v[1] = "r" then
-        searchedChar := "\r";
-      elsif arg_v[1] = "t" then
-        searchedChar := "\t";
-      elsif arg_v[1] = "f" then
-        searchedChar := "\f";
-      elsif arg_v[1] = "n" then
-        searchedChar := "\n";
-      elsif arg_v[1] = "s" then
-        searchedChar := " \n";
-      else
-        searchedChar := arg_v[1];
+      if arg_v[argNumber] = "-e" then
+        incr(argNumber);
+        if argNumber <= length(arg_v) then
+          extension := arg_v[argNumber];
+          incr(argNumber);
+        end if;
       end if;
-      while arg_number <= length(arg_v) do
-        fileName := convDosPath(arg_v[arg_number]);
+      if argNumber <= length(arg_v) then
+        case arg_v[argNumber] of
+          when {"r"}: searchedChar := "\r";
+          when {"t"}: searchedChar := "\t";
+          when {"f"}: searchedChar := "\f";
+          when {"n"}: searchedChar := "\n";
+          when {"s"}: searchedChar := " \n";
+          otherwise: searchedChar := arg_v[argNumber];
+        end case;
+        incr(argNumber);
+      end if;
+      while argNumber <= length(arg_v) do
+        fileName := convDosPath(arg_v[argNumber]);
         if fileName[length(fileName)] = '/' then
           fileName := fileName[..pred(length(fileName))];
         end if;
-        if fileType(fileName) = FILE_DIR then
-          dirName := fileName;
-          dir := readDir(dirName);
-          for fileName range dir do
-            fileContent := getf(dirName & "/" & fileName);
-            doFind(fileName, fileContent, searchedChar);
-          end for;
-        else
-          fileContent := getf(fileName);
-          doFind(fileName, fileContent, searchedChar);
-        end if;
-        incr(arg_number);
+        doFindRecursive(fileName, extension, searchedChar);
+        incr(argNumber);
       end while;
     end if;
     if totalCount <> 0 then
