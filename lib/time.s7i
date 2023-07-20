@@ -826,6 +826,7 @@ const func time: toUTC (in time: aTime) is func
     timeInUTC := aTime;
     timeInUTC.minute -:= aTime.timeZone;
     timeInUTC.timeZone := 0;
+    timeInUTC.daylightSavingTime := FALSE;
     NORMALIZE(timeInUTC);
   end func;
 
@@ -984,7 +985,8 @@ const func integer: timestamp1601 (in time: aTime) is func
     const integer: SECONDS_1601_1970 is 11644473600;
     const integer: NANOSECS100_TICK is 10000000;
   begin
-    nanosecs100 := (timestamp1970(aTime) + SECONDS_1601_1970) * NANOSECS100_TICK;
+    nanosecs100 := (timestamp1970(aTime) + SECONDS_1601_1970) * NANOSECS100_TICK +
+                   aTime.micro_second * 10;
   end func;
 
 
@@ -1002,8 +1004,9 @@ const func time: timestamp1601ToTime (in integer: timestamp) is func
     const integer: NANOSECS100_TICK is 10000000;
     var integer: utcSeconds is 0;
   begin
-    utcSeconds := timestamp div NANOSECS100_TICK - SECONDS_1601_1970;
+    utcSeconds := timestamp mdiv NANOSECS100_TICK - SECONDS_1601_1970;
     aTime := timestamp1970ToTime(utcSeconds);
+    aTime.micro_second := (timestamp mod NANOSECS100_TICK) div 10
   end func;
 
 
