@@ -51,6 +51,9 @@ const type: rsaKeyPair is new struct
   end struct;
 
 
+(**
+ *  Generate an RSA key (private or public) from ''modulus'' and ''exponent''.
+ *)
 const func rsaKey: rsaKey (in bigInteger: modulus, in bigInteger: exponent) is func
   result
     var rsaKey: aKey is rsaKey.value;
@@ -68,6 +71,9 @@ const func string: literal (in rsaKey: aKey) is
                       aKey.exponent <& "_)";
 
 
+(**
+ *  Generate an RSA key pair from ''publicKey'' and ''privateKey''.
+ *)
 const func rsaKeyPair: rsaKeyPair (in rsaKey: publicKey, in rsaKey: privateKey) is func
   result
     var rsaKeyPair: aKeyPair is rsaKeyPair.value;
@@ -77,6 +83,9 @@ const func rsaKeyPair: rsaKeyPair (in rsaKey: publicKey, in rsaKey: privateKey) 
   end func;
 
 
+(**
+ *  Generate an RSA key pair from ''modulus'', ''publicExponent'' and ''privateExponent''.
+ *)
 const func rsaKeyPair: rsaKeyPair (in bigInteger: modulus,
     in bigInteger: publicExponent, in bigInteger: privateExponent) is func
   result

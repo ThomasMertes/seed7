@@ -97,6 +97,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Compute the cardinality of a set.
+       *   card({"one", "two", "three"})  returns  3
        *  @return the number of elements in ''aSet''.
        *)
       const func integer: card (in setType: aSet)                              is action "HSH_LNG";
@@ -123,6 +124,8 @@ const func type: hashset (in type: baseType) is func
       (**
        *  Set membership test.
        *  Determine if ''aValue'' is a member of the set ''aSet''.
+       *   "one" in {"one", "three"})  returns  TRUE
+       *   "two" in {"one", "three"})  returns  FALSE
        *  @return TRUE if ''aValue'' is a member of  ''aSet'',
        *          FALSE otherwise.
        *)
@@ -132,6 +135,8 @@ const func type: hashset (in type: baseType) is func
       (**
        *  Negated set membership test.
        *  Determine if ''aValue'' is not a member of the set ''aSet''.
+       *   "one" not in {"one", "three"})  returns  FALSE
+       *   "two" not in {"one", "three"})  returns  TRUE
        *  @return FALSE if ''aValue'' is a member of  ''aSet'',
        *          TRUE otherwise.
        *)
@@ -195,6 +200,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Union of two sets.
+       *   {"one", "two"} | {"one", "three"}  returns  {"one", "two", "three"}
        *  @return the union of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -212,6 +218,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Intersection of two sets.
+       *   {"one", "two"} & {"one", "three"}  returns  {"one"}
        *  @return the intersection of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -230,6 +237,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Symmetric difference of two sets.
+       *   {"one", "two"} >< {"one", "three"}  returns  {"two", "three"}
        *  @return the symmetric difference of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -253,6 +261,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Difference of two sets.
+       *   {"one", "two"} - {"one", "three"}  returns  {"two"}
        *  @return the difference of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)

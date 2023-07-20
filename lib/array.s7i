@@ -190,18 +190,27 @@ const func type: array (in type: baseType) is func
 
       (**
        *  Determine the length of the array ''arr''.
+       *   length([] (2, 3, 5))   returns  3
+       *   length([0] (2, 3, 5))  returns  3
+       *   length([2] (2, 3, 5))  returns  3
        *  @return the length of the array.
        *)
       const func integer: length (in arrayType: arr)                          is action "ARR_LNG";
 
       (**
        *  Minimum index of array ''arr''.
+       *   minIdx([] (2, 3, 5))   returns  1
+       *   minIdx([0] (2, 3, 5))  returns  0
+       *   minIdx([2] (2, 3, 5))  returns  2
        *  @return the minimum index of the array.
        *)
       const func integer: minIdx (in arrayType: arr)                          is action "ARR_MINIDX";
 
       (**
        *  Maximum index of array ''arr''.
+       *   maxIdx([] (2, 3, 5))   returns  3
+       *   maxIdx([0] (2, 3, 5))  returns  2
+       *   maxIdx([2] (2, 3, 5))  returns  4
        *  @return the maximum index of the array.
        *)
       const func integer: maxIdx (in arrayType: arr)                          is action "ARR_MAXIDX";

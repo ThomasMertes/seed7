@@ -65,6 +65,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Union of two sets.
+       *   {'a', 'b'} | {'a', 'c'}  returns  {'a', 'b', 'c'}
        *  @return the union of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -72,6 +73,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Intersection of two sets.
+       *   {'a', 'b'} & {'a', 'c'}  returns  {'a'}
        *  @return the intersection of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -79,6 +81,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Symmetric difference of two sets.
+       *   {'a', 'b'} >< {'a', 'c'}  returns  {'b', 'c'}
        *  @return the symmetric difference of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -86,6 +89,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Difference of two sets.
+       *   {'a', 'b'} - {'a', 'c'}  returns  {'b'}
        *  @return the difference of the two sets.
        *  @exception MEMORY_ERROR Not enough memory for the result.
        *)
@@ -186,6 +190,8 @@ const func type: bitset (in type: baseType) is func
       (**
        *  Set membership test.
        *  Determine if ''aValue'' is a member of the set ''aSet''.
+       *   'a' in {'a', 'c', 'd'}  returns  TRUE
+       *   'b' in {'a', 'c', 'd'}  returns  FALSE
        *  @return TRUE If ''aValue'' is a member of  ''aSet'',
        *          FALSE otherwise.
        *)
@@ -195,6 +201,8 @@ const func type: bitset (in type: baseType) is func
       (**
        *  Negated set membership test.
        *  Determine if ''aValue'' is not a member of the set ''aSet''.
+       *   'a' not in {'a', 'c', 'd'}  returns  FALSE
+       *   'b' not in {'a', 'c', 'd'}  returns  TRUE
        *  @return FALSE If ''aValue'' is a member of  ''aSet'',
        *          TRUE otherwise.
        *)
@@ -237,6 +245,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Compute the cardinality of a set.
+       *   card({'a', 'b', 'c'})  returns  3
        *  @return the number of elements in ''aSet''.
        *  @exception RANGE_ERROR Result does not fit into an integer.
        *)
@@ -256,6 +265,7 @@ const func type: bitset (in type: baseType) is func
        *  Delivers the element from ''aSet'' for which the following condition holds:
        *   element <= X
        *  for all X which are in the set.
+       *   min({'a', 'b', 'c'})  returns  'a'
        *  @return the minimum element of ''aSet''.
        *  @exception RANGE_ERROR If ''aSet'' is the empty set.
        *)
@@ -267,6 +277,7 @@ const func type: bitset (in type: baseType) is func
        *  Delivers the element from ''aSet'' for which the following condition holds:
        *   element >= X
        *  for all X which are in the set.
+       *   max({'a', 'b', 'c'})  returns  'c'
        *  @return the maximal element of ''aSet''.
        *  @exception RANGE_ERROR If ''aSet'' is the empty set.
        *)
@@ -359,6 +370,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Obtain an array containing all the values in ''aSet''.
+       *   toArray({'a', 'b', 'c'})  returns  []('a', 'b', 'c')
        *  @return all the values from ''aSet''.
        *)
       const func array baseType: toArray (in setType: aSet) is func

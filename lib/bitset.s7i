@@ -54,6 +54,7 @@ const bitset: (attr bitset) . value                             is EMPTY_SET;
 
 (**
  *  Union of two sets.
+ *   {1, 2} | {1, 3}  returns  {1, 2, 3}
  *  @return the union of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  *)
@@ -62,6 +63,7 @@ const func bitset: (in bitset: set1) | (in bitset: set2)        is action "SET_U
 
 (**
  *  Intersection of two sets.
+ *   {1, 2} & {1, 3}  returns  {1}
  *  @return the intersection of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  *)
@@ -70,6 +72,7 @@ const func bitset: (in bitset: set1) & (in bitset: set2)        is action "SET_I
 
 (**
  *  Symmetric difference of two sets.
+ *   {1, 2} >< {1, 3}  returns  {2, 3}
  *  @return the symmetric difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  *)
@@ -78,6 +81,7 @@ const func bitset: (in bitset: set1) >< (in bitset: set2)       is action "SET_S
 
 (**
  *  Difference of two sets.
+ *   {1, 2} - {1, 3}  returns  {2}
  *  @return the difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  *)
@@ -190,6 +194,8 @@ const func integer: hashCode (in bitset: aSet)                  is action "SET_H
 (**
  *  Set membership test.
  *  Determine if ''number'' is a member of the set ''aSet''.
+ *   2 in {2, 3, 5, 7}  returns  TRUE
+ *   4 in {2, 3, 5, 7}  returns  FALSE
  *  @return TRUE if ''number'' is a member of  ''aSet'',
  *          FALSE otherwise.
  *)
@@ -199,6 +205,8 @@ const func boolean: (in integer: number) in (in bitset: aSet)   is action "SET_E
 (**
  *  Negated set membership test.
  *  Determine if ''number'' is not a member of the set ''aSet''.
+ *   2 not in {2, 3, 5, 7}  returns  FALSE
+ *   4 not in {2, 3, 5, 7}  returns  TRUE
  *  @return FALSE if ''number'' is a member of  ''aSet'',
  *          TRUE otherwise.
  *)
@@ -238,6 +246,8 @@ const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isEle
 
 (**
  *  Compute the cardinality of a set.
+ *   card({2, 3, 5, 7, 11})  returns  5
+ *   card(EMPTY_SET)         returns  0
  *  @return the number of elements in ''aSet''.
  *  @exception RANGE_ERROR Result does not fit into an integer.
  *)
@@ -247,6 +257,7 @@ const func integer: card (in bitset: aSet)                      is action "SET_C
 (**
  *  Compute pseudo-random element from ''aSet''.
  *  The random values are uniform distributed.
+ *   rand(EMPTY_SET)  raises  RANGE_ERROR
  *  @return a random number such that rand(aSet) in aSet holds.
  *  @exception RANGE_ERROR If ''aSet'' is empty.
  *)
@@ -258,6 +269,8 @@ const func integer: rand (in bitset: aSet)                      is action "SET_R
  *  Delivers the element from ''aSet'' for which the following condition holds:
  *   element <= X
  *  for all X which are in the set.
+ *   min({2, 3, 5, 7, 11})  returns  2
+ *   min(EMPTY_SET)         raises   RANGE_ERROR
  *  @return the minimum element of ''aSet''.
  *  @exception RANGE_ERROR If ''aSet'' is the empty set.
  *)
@@ -269,6 +282,8 @@ const func integer: min (in bitset: aSet)                       is action "SET_M
  *  Delivers the element from ''aSet'' for which the following condition holds:
  *   element >= X
  *  for all X which are in the set.
+ *   max({2, 3, 5, 7, 11})  returns  11
+ *   max(EMPTY_SET)         raises   RANGE_ERROR
  *  @return the maximal element of ''aSet''.
  *  @exception RANGE_ERROR If ''aSet'' is the empty set.
  *)
@@ -277,6 +292,11 @@ const func integer: max (in bitset: aSet)                       is action "SET_M
 
 (**
  *  Minimal element of ''aSet'' that is larger than ''number''.
+ *   next({2, 3, 5, 7, 11},  2)  returns  3
+ *   next({2, 3, 5, 7, 11},  3)  returns  5
+ *   next({2, 3, 5, 7, 11},  7)  returns  11
+ *   next({2, 3, 5, 7, 11}, 11)  raises   RANGE_ERROR
+ *   next({}, 1)                 raises   RANGE_ERROR
  *  @return the minimum element of ''aSet'' that is larger than ''number''.
  *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
  *)
@@ -403,6 +423,7 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boole
 
 (**
  *  Obtain an array containing all the values in ''aSet''.
+ *   toArray({2, 3, 5})  returns  [](2, 3, 5)
  *  @return all the values from ''aSet''.
  *)
 const func array integer: toArray (in bitset: aSet) is func
@@ -432,6 +453,8 @@ const func array integer: toArray (in bitset: aSet) is func
 
 (**
  *  Convert a ''bitset'' to a [[string]].
+ *   str({})      returns  "{}"
+ *   str({1, 2})  returns  "{1, 2}"
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
