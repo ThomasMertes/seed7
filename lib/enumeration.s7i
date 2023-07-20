@@ -1,0 +1,234 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  enumeration.s7i  Enumeration types support library              *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
+
+
+(**
+ *  Abstract data type, describing enumeration types.
+ *  To define a new enumeration type the desired enumeration literals
+ *  must be listed. Commas must seperate the enumeration literals.
+ *   const type: enumType is new enum
+ *       enum_literal1, enum_literal2
+ *     end enum;
+ *  In order to do I/O for a new enumeration type it is necessary to
+ *  define the functions ''str'' and ''parse''.
+ *   const func string: str (in enumType: enumValue) is
+ *       return literal(enumValue);
+ *   enable_output(enumType);
+ *)
+const func type: new enum (ref expr: elem_expr) end enum is func
+  result
+    var type: enumType is void;
+  local
+    var ref_list: elem_list is ref_list.EMPTY;
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+    var ref_list: literal_list is ref_list.EMPTY;
+  begin
+    global
+    enumType := subtype ENUMERATION;
+    IN_PARAM_IS_VALUE(enumType);
+    elem_list := expr_to_list(elem_expr);
+    const proc: (ref enumType: dest) ::= (in enumType: source)       is action "ENU_CREATE";
+    const proc: (ref enumType: dest) ::= enumlit                     is action "ENU_GENLIT";
+    const proc: destroy (ref enumType: aValue)                       is action "GEN_DESTR";
+    const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
+
+    (**
+     *  Convert an enumeration value to the corresponding literal.
+     *  @return the enumeration literal.
+     *  @exception MEMORY_ERROR Not enough memory to represent the result.
+     *)
+    const func string: literal (in enumType: enumValue)              is action "ENU_LIT";
+
+    const func enumType: getValue(in reference: aReference,
+                                  attr enumType)                     is action "ENU_VALUE";
+    const func enumType: ICONV2(in integer: number,
+                                in ref_list: literalList,
+                                attr enumType)                       is action "ENU_ICONV2";
+    const func integer: ORD2(in enumType: enum_val,
+                             in ref_list: literalList)               is action "ENU_ORD2";
+    literal_list := ref_list.EMPTY;
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      # const integer: ord(symb elem_obj) is pred(number);
+      const enumType: .(symb elem_obj) is enumlit;
+      elem_obj := getobj(. (symb elem_obj));
+      if elem_obj <> NIL and getType(elem_obj) = enumType then
+        literal_list := literal_list & make_list(elem_obj);
+      end if;
+    end for;
+    const ref_list: (attr enumType) . literal_list                   is literal_list;
+    if length(literal_list) >= 1 then
+
+      (**
+       *  Default value of ''enumType''.
+       *)
+      const enumType: (attr enumType) . value is  getValue(literal_list[1], enumType);
+
+      (**
+       *  Minimum value of ''enumType''.
+       *)
+      const enumType: (attr enumType) . first is  getValue(literal_list[1], enumType);
+
+      (**
+       *  Maximum value of ''enumType''.
+       *)
+      const enumType: (attr enumType) . last is   getValue(literal_list[length(literal_list)], enumType);
+
+    end if;
+
+    (**
+     *  Check if two enumeration values are equal.
+     *  @return TRUE if the two enumeration values are equal,
+     *          FALSE otherwise.
+     *)
+    const func boolean: (in enumType: enum1) = (in enumType: enum2)  is action "ENU_EQ";
+
+    (**
+     *  Check if two enumeration values are not equal.
+     *  @return FALSE if the two enumeration values are equal,
+     *          TRUE otherwise.
+     *)
+    const func boolean: (in enumType: enum1) <> (in enumType: enum2) is action "ENU_NE";
+
+    (**
+     *  Conversion from integer ''number'' to ''enumType''.
+     *  The first enumeration literal of ''enumType'' corresponds to 0.
+     *  @return the corresponding enumeration value.
+     *  @exception RANGE_ERROR If number is neither 0 nor 1.
+     *)
+    const func enumType: (attr enumType) conv (in integer: number) is
+      return ICONV2(number, enumType.literal_list, enumType);
+
+    (**
+     *  Convert ''enumValue'' to [[integer]].
+     *  The first enumeration literal of ''enumType'' corresponds to 0.
+     *  @return the [[integer]] result of the conversion.
+     *)
+    const func integer: ord (in enumType: enumValue) is
+      return ORD2(enumValue, enumType.literal_list);
+
+    (**
+     *  Convert ''enumValue'' to [[integer]].
+     *  The first enumeration literal of ''enumType'' corresponds to 0.
+     *  @return the [[integer]] result of the conversion.
+     *)
+    const func integer: integer (in enumType: enumValue) is
+      return ord(enumValue);
+
+    (**
+     *  Compute the hash value of an enumeration value.
+     *  @return the hash value.
+     *)
+    const func integer: hashCode (in enumType: enumValue) is
+      return ord(enumValue);
+
+    (**
+     *  Compare two enumeration values.
+     *  @return -1, 0 or 1 if the first argument is considered to be
+     *          respectively less than, equal to, or greater than the
+     *          second.
+     *)
+    const func integer: compare (in enumType: enum1, in enumType: enum2) is
+      return compare(ord(enum1), ord(enum2));
+
+    (**
+     *  Conversion from ''enumValue'' to [[integer]].
+     *  The first enumeration literal of ''enumType'' corresponds to 0.
+     *  @return the [[integer]] result of the conversion.
+     *)
+    const func integer: (attr integer) conv (in enumType: enumValue) is
+      return ord(enumValue);
+
+    (**
+     *  Successor of ''enumValue''.
+     *   succ(enumType.last)  raises  RANGE_ERROR
+     *  @return the successor of ''enumValue''.
+     *  @exception RANGE_ERROR If ''enumValue'' is the last value of the enumeration.
+     *)
+    const func enumType: succ (in enumType: enumValue) is
+      return enumType conv succ(ord(enumValue));
+
+    (**
+     *  Predecessor of ''enumValue''.
+     *   pred(enumType.first)  raises  RANGE_ERROR
+     *  @return the predecessor of ''enumValue''.
+     *  @exception RANGE_ERROR If ''enumValue'' is the first value of the enumeration.
+     *)
+    const func enumType: pred (in enumType: enumValue) is
+      return enumType conv pred(ord(enumValue));
+
+    (**
+     *  Increment an enumeration variable.
+     *  @exception RANGE_ERROR If ''enumValue'' is the last value of the enumeration.
+     *)
+    const proc: incr (inout enumType: enumValue) is func
+      begin
+        enumValue := succ(enumValue);
+      end func;
+
+    (**
+     *  Decrement an enumeration variable.
+     *  @exception RANGE_ERROR If ''enumValue'' is the first value of the enumeration.
+     *)
+    const proc: decr (inout enumType: enumValue) is func
+      begin
+        enumValue := pred(enumValue);
+      end func;
+
+    (**
+     *  Compute pseudo-random enumeration value in the range [low, high].
+     *  The random values are uniform distributed.
+     *  @return a random value such that low <= rand(low, high) and
+     *          rand(low, high) <= high holds.
+     *  @exception RANGE_ERROR The range is empty (low > high holds).
+     *)
+    const func enumType: rand (in enumType: low, in enumType: high) is
+      return enumType conv rand(ord(low), ord(high));
+
+    const func boolean: (in enumType: enum_val1) < (in enumType: enum_val2) is
+      return ord(enum_val1) < ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) <= (in enumType: enum_val2) is
+      return ord(enum_val1) <= ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) > (in enumType: enum_val2) is
+      return ord(enum_val1) > ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) >= (in enumType: enum_val2) is
+      return ord(enum_val1) >= ord(enum_val2);
+
+    FOR_DECLS(enumType);  (* Necessary for this is <= < >= > *)
+    FOR_ENUM_DECLS(enumType);
+    DECLARE_TERNARY(enumType);
+    CASE_DECLS(enumType);
+    SUBRANGE_TYPES(enumType);
+    end global;
+  end func;

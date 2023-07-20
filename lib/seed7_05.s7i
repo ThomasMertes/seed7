@@ -439,6 +439,9 @@ const proc: repeat until (ref boolean: condition)         is action "PRC_REPEAT_
 
 $ include "integer.s7i";
 
+const func integer: (attr integer) conv (in boolean: boolValue) is
+  return ord(boolValue);
+
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
 
@@ -1046,107 +1049,11 @@ CASE_DECLS(char);
 CASE_DECLS(boolean);
 CASE_DECLS(string);
 
-const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
 const proc: TRACE (ref expr: traceobject)               is action "REF_TRACE";
 
-const func type: new enum (ref expr: elem_expr) end enum is func
-  result
-    var type: enumType is void;
-  local
-    var ref_list: elem_list is ref_list.EMPTY;
-    var integer: number is 0;
-    var reference: elem_obj is NIL;
-    var ref_list: literal_list is ref_list.EMPTY;
-  begin
-    global
-    enumType := subtype ENUMERATION;
-    IN_PARAM_IS_VALUE(enumType);
-    elem_list := expr_to_list(elem_expr);
-    const proc: (ref enumType: dest) ::= (in enumType: source)       is action "ENU_CREATE";
-    const proc: (ref enumType: dest) ::= enumlit                     is action "ENU_GENLIT";
-    const proc: destroy (ref enumType: aValue)                       is action "GEN_DESTR";
-    const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
-    const func boolean: (in enumType: enum1) = (in enumType: enum2)  is action "ENU_EQ";
-    const func boolean: (in enumType: enum1) <> (in enumType: enum2) is action "ENU_NE";
-    const func string: literal (in enumType: enumValue)              is action "ENU_LIT";
-    const func enumType: getValue(in reference: aReference,
-                                  attr enumType)                     is action "ENU_VALUE";
-    const func enumType: ICONV2(in integer: number,
-                                in ref_list: literalList,
-                                attr enumType)                       is action "ENU_ICONV2";
-    const func integer: ORD2(in enumType: enum_val,
-                             in ref_list: literalList)               is action "ENU_ORD2";
-    literal_list := ref_list.EMPTY;
-    for number range 1 to length(elem_list) do
-      elem_obj := elem_list[number];
-      # const integer: ord(symb elem_obj) is pred(number);
-      const enumType: .(symb elem_obj) is enumlit;
-      elem_obj := getobj(. (symb elem_obj));
-      if elem_obj <> NIL and getType(elem_obj) = enumType then
-        literal_list := literal_list & make_list(elem_obj);
-      end if;
-    end for;
-    const ref_list: (attr enumType) . literal_list                   is literal_list;
-    if length(literal_list) >= 1 then
-      const enumType: (attr enumType) . value is  getValue(literal_list[1], enumType);
-      const enumType: (attr enumType) . first is  getValue(literal_list[1], enumType);
-      const enumType: (attr enumType) . last is   getValue(literal_list[length(literal_list)], enumType);
-    end if;
+(* ENUMERATION *)
 
-    const func enumType: (attr enumType) conv (in integer: number) is
-      return ICONV2(number, enumType.literal_list, enumType);
-
-    const func integer: ord (in enumType: enum_val) is
-      return ORD2(enum_val, enumType.literal_list);
-
-    const func integer: hashCode (in enumType: enum_val) is
-      return ord(enum_val);
-
-    const func integer: compare (in enumType: enum1, in enumType: enum2) is
-      return compare(ord(enum1), ord(enum2));
-
-    const func integer: (attr integer) conv (in enumType: enum_val) is
-      return ord(enum_val);
-
-    const func enumType: succ (in enumType: enum_val) is
-      return enumType conv succ(ord(enum_val));
-
-    const func enumType: pred (in enumType: enum_val) is
-      return enumType conv pred(ord(enum_val));
-
-    const proc: incr (inout enumType: enum_val) is func
-      begin
-        enum_val := succ(enum_val);
-      end func;
-
-    const proc: decr (inout enumType: enum_val) is func
-      begin
-        enum_val := pred(enum_val);
-      end func;
-
-    const func enumType: rand (in enumType: low, in enumType: high) is
-      return enumType conv rand(ord(low), ord(high));
-
-    const func boolean: (in enumType: enum_val1) < (in enumType: enum_val2) is
-      return ord(enum_val1) < ord(enum_val2);
-
-    const func boolean: (in enumType: enum_val1) <= (in enumType: enum_val2) is
-      return ord(enum_val1) <= ord(enum_val2);
-
-    const func boolean: (in enumType: enum_val1) > (in enumType: enum_val2) is
-      return ord(enum_val1) > ord(enum_val2);
-
-    const func boolean: (in enumType: enum_val1) >= (in enumType: enum_val2) is
-      return ord(enum_val1) >= ord(enum_val2);
-
-    FOR_DECLS(enumType);  (* Necessary for this is <= < >= > *)
-    FOR_ENUM_DECLS(enumType);
-    DECLARE_TERNARY(enumType);
-    CASE_DECLS(enumType);
-    SUBRANGE_TYPES(enumType);
-    end global;
-  end func;
-
+$ include "enumeration.s7i";
 
 (* BLOCK *)
 
