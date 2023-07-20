@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  enumeration.s7i  Enumeration types support library              *)
-(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2023  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
