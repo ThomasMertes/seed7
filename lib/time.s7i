@@ -831,8 +831,37 @@ const func time: toUTC (in time: aTime) is func
 
 
 (**
- *  Sets timeZone and daylightSavingTime for a given time.
+ *  Convert the time ''aTime'' to a time in the local time zone.
+ *  In the result year, month, day, hour, minute, secand and micro_second
+ *  from ''aTime'' are adjusted to the local time zone.
+ *  In the time zone of Central European Time (CET) the following holds:
+ *   str(toLocalTZ(time("2000-1-1")))  returns "2000-01-01 01:00:00 UTC+1"
  *  @return the time in the local time zone.
+ *)
+const func time: toLocalTZ (in time: aTime) is func
+  result
+    var time: localTime is time.value;
+  begin
+    if aTime.timeZone = 0 then
+      localTime := aTime;
+    else
+      localTime := toUTC(aTime);
+    end if;
+    SET_LOCAL_TZ(localTime.year, localTime.month, localTime.day,
+        localTime.hour, localTime.minute, localTime.second,
+        localTime.timeZone, localTime.daylightSavingTime);
+    localTime.minute +:= localTime.timeZone;
+    NORMALIZE(localTime);
+  end func;
+
+
+(**
+ *  Sets timeZone and daylightSavingTime for a given time.
+ *  In the result year, month, day, hour, minute, secand and micro_second
+ *  from ''aTime'' are returned unchanged.
+ *  In the time zone of Central European Time (CET) the following holds:
+ *   str(setLocalTZ(time("2000-1-1")))  returns "2000-01-01 00:00:00 UTC+1"
+ *  @return the time where the local time zone has been set.
  *)
 const func time: setLocalTZ (in time: aTime) is func
   result
