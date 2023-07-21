@@ -27,7 +27,7 @@ $ include "seed7_05.s7i";
   include "getf.s7i";
   include "console.s7i";
 
-var integer: totalCount is 0;
+var bigInteger: totalCount is 0_;
 
 
 const proc: doFind (in string: fileName, in string: fileContent, in string: searchedChar) is func
@@ -38,28 +38,33 @@ const proc: doFind (in string: fileName, in string: fileContent, in string: sear
     var integer: max is 0;
     var integer: maxLine is 1;
   begin
-    position := pos(fileContent, searchedChar);
-    if position <> 0 then
-      write(fileName <& " " <& literal(searchedChar) <& " at " <& position);
-      max := pred(position);
-      repeat
-        incr(count);
-        startPos := succ(position);
-        position := pos(fileContent, searchedChar, startPos);
-        if position <> 0 and position - startPos > max then
-          max := position - startPos;
-          maxLine := succ(count);
+    if searchedChar = "" then
+      count := length(fileContent);
+      writeln(fileName <& " " <& count <& " chars");
+    else
+      position := pos(fileContent, searchedChar);
+      if position <> 0 then
+        write(fileName <& " " <& literal(searchedChar) <& " at " <& position);
+        max := pred(position);
+        repeat
+          incr(count);
+          startPos := succ(position);
+          position := pos(fileContent, searchedChar, startPos);
+          if position <> 0 and position - startPos > max then
+            max := position - startPos;
+            maxLine := succ(count);
+          end if;
+        until position = 0;
+        if count > 1 then
+          write(" found " <& count <& " times");
         end if;
-      until position = 0;
-      if count > 1 then
-        write(" found " <& count <& " times");
+        if searchedChar = "\n" then
+          write(", maximum line (" <& maxLine <& ") length: " <& max);
+        end if;
+        writeln;
       end if;
-      if searchedChar = "\n" then
-        write(", maximum line (" <& maxLine <& ") length: " <& max);
-      end if;
-      writeln;
     end if;
-    totalCount +:= count;
+    totalCount +:= bigInteger(count);
   end func;
 
 
@@ -105,7 +110,7 @@ const proc: main is func
       writeln("usage: findchar [ -e extension ] [ r | t | f | n | s ] { file_name }");
       writeln;
       writeln("The character to search for is specified with a single letter:");
-      writeln("r=Return, t=Tab, f=Formfeed, n=Newline, s=Space at end of line");
+      writeln("r=Return, t=Tab, f=Formfeed, n=Newline, c=any Char, s=Space at end of line");
       writeln("The contents of directories are searched recursively.");
       writeln("The option -e restricts the search to files with the given extension.");
     else
@@ -122,6 +127,7 @@ const proc: main is func
           when {"t"}: searchedChar := "\t";
           when {"f"}: searchedChar := "\f";
           when {"n"}: searchedChar := "\n";
+          when {"c"}: searchedChar := "";
           when {"s"}: searchedChar := " \n";
           otherwise: searchedChar := arg_v[argNumber];
         end case;
@@ -136,7 +142,7 @@ const proc: main is func
         incr(argNumber);
       end while;
     end if;
-    if totalCount <> 0 then
+    if totalCount <> 0_ then
       writeln("totally found " <& totalCount <& " times");
     end if;
   end func;
