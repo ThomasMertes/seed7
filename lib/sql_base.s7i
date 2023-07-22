@@ -117,10 +117,29 @@ const proc: destroy (ref database: aValue)                     is action "SQL_DE
 const proc: (inout database: dest) := (ref database: source)   is action "SQL_CPY_DB";
 
 const func database: _GENERATE_EMPTY_DATABASE                  is action "SQL_EMPTY_DB";
+
+
+(**
+ *  Default value of ''database'' (empty database).
+ *)
 const database: (attr database) . value                        is _GENERATE_EMPTY_DATABASE;
 
+
+(**
+ *  Check if two database connections are equal.
+ *  @return TRUE if the two database connections are equal,
+ *          FALSE otherwise.
+ *)
 const func boolean: (in database: db1) = (in database: db2)    is action "SQL_EQ_DB";
+
+
+(**
+ *  Check if two database connections are not equal.
+ *  @return FALSE if the two database connections are equal,
+ *          TRUE otherwise.
+ *)
 const func boolean: (in database: db1) <> (in database: db2)   is action "SQL_NE_DB";
+
 
 const func integer: DRIVER_NUM (in database: db)               is action "SQL_DRIVER";
 
@@ -138,20 +157,25 @@ const proc: destroy (ref sqlStatement: aValue)                           is acti
 const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)     is action "SQL_CPY_STMT";
 
 const func sqlStatement: _GENERATE_EMPTY_STATEMENT                       is action "SQL_EMPTY_STMT";
+
+
+(**
+ *  Default value of ''sqlStatement'' (empty prepared sql statement).
+ *)
 const sqlStatement: (attr sqlStatement) . value                          is _GENERATE_EMPTY_STATEMENT;
 
 
 (**
- *  Check if two database connections are equal.
- *  @return TRUE if the two database connections are equal,
+ *  Check if two prepared sql statements are equal.
+ *  @return TRUE if the two prepared sql statements are equal,
  *          FALSE otherwise.
  *)
 const func boolean: (in sqlStatement: stmt1) = (in sqlStatement: stmt2)  is action "SQL_EQ_STMT";
 
 
 (**
- *  Check if two database connections are not equal.
- *  @return FALSE if the two database connections are equal,
+ *  Check if two prepared sql statements are not equal.
+ *  @return FALSE if the two prepared sql statements are equal,
  *          TRUE otherwise.
  *)
 const func boolean: (in sqlStatement: stmt1) <> (in sqlStatement: stmt2) is action "SQL_NE_STMT";
