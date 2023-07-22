@@ -5077,10 +5077,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                                   column, datetime2););
                   err_info = RANGE_ERROR;
                 } else if (isTime) {
-                  *year = 2000;
-                  timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                  timSetLocalTZ(2000, *month, *day, *hour, *minute, *second,
                                 time_zone, is_dst);
-                  *year = 0;
                 } else {
                   timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                                 time_zone, is_dst);
