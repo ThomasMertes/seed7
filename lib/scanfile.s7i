@@ -1401,18 +1401,35 @@ const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
 
 
 (**
- *  Reads name and value of an attribute inside an XML tag from [[file]].
- *  Attribute name and value are returned in ''attributeName'' and
- *  ''attributeValue'' respectively. Surrounding single or double
- *  quotes of the attribute value are omitted. It is a syntax
- *  error if an attribute value is not quoted. XML entities in
- *  ''attributeValue'' are left as is. If no more attributes are
+ *  Reads name and value of an attribute inside an XML tag from a [[file]].
+ *  The function skips possible leading whitespace characters. Attribute
+ *  name and value are returned in ''attributeName'' and ''attributeValue''
+ *  respectively. Attribute assignments can have the following forms:
+ *   aName="aValue"
+ *   aName='aValue'
+ *  Surrounding single or double quotes of the attribute value are omitted.
+ *  It is a syntax error if an attribute value is not quoted. White
+ *  space characters before and after the = are ignored. XML entities
+ *  in ''attributeValue'' are left as is. If no more attributes are
  *  present in the XML tag ''attributeName'' is set to "". In this case
  *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
  *  If a syntax error occurs the function skips beyond the end
  *  of the XML tag. To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
+ *  The attributes of an opening XML tag can be processed with:
+ *   getNextXmlAttribute(inFile, attributeName, attributeValue);
+ *   while attributeName <> "" do
+ *     ... process the current attribute ...
+ *     getNextXmlAttribute(inFile, attributeName, attributeValue);
+ *   end while;
+ *   if attributeValue = "/>" then
+ *     ... this tag closes itself ...
+ *   elsif attributeValue = ">" then
+ *     ... this is a normal opening tag ...
+ *   else
+ *     ... there is a syntax error ...
+ *   end if;
  *  @param inFile Input file
  *  @param attributeName Destination for the attribute name.
  *  @param attributeValue Destination for the attribute value:
@@ -1502,13 +1519,16 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
 
 (**
  *  Reads name and value of an attribute inside a HTML tag from a [[file]].
- *  Before reading the attribute assignment it skips whitespace
- *  characters. Attribute assignments can have the following forms:
+ *  The function skips possible leading whitespace characters. Attribute
+ *  name and value are returned in ''attributeName'' and ''attributeValue''
+ *  respectively. Attribute assignments can have the following forms:
  *   aName="aValue"
  *   aName='aValue'
  *   aName=aValue
  *   aName
- *  White space characters before and after the = are ignored.
+ *  Possible surrounding single or double quotes of the attribute value
+ *  are omitted. White space characters before and after the = are
+ *  ignored. HTML entities in ''attributeValue'' are left as is. 
  *  The variable ''attributeName'' is set to "" if no more attributes
  *  are present in the HTML tag. If the HTML tag ends with / the
  *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
