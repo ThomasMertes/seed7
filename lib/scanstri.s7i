@@ -1190,6 +1190,7 @@ const func string: getXmlCdataContent (inout string: stri) is func
  *   <html
  *   <meta
  *   <table
+ *   </span
  *  Before reading a tag head or content, it skips whitespace characters
  *  and XML comments. An XML/HTML tag head starts with < and ends
  *  before a > or a / or a whitespace character or the end of ''stri''.
@@ -1208,7 +1209,9 @@ const func string: getXmlCdataContent (inout string: stri) is func
  *  comment is ignored and getXmlTagHeadOrContent() is called recursive.
  *  The function can be used as follows:
  *   symbol := getXmlTagHeadOrContent(stri);
- *   if startsWith(symbol, "<") then
+ *   if startsWith(symbol, "</") then
+ *     ... handle the closing XML/HTML element ...
+ *   elsif startsWith(symbol, "<") then
  *     ... handle the attributes of the XML/HTML element ...
  *   else
  *     ... handle the content text ...
