@@ -158,7 +158,7 @@ const func xmlNode: readHtmlNode (inout htmlDomParserState: parserState,
             decodeHtmlEntities(attributeValue);
         getNextHtmlAttribute(parserState.inFile, attributeName, attributeValue);
       end while;
-      if attributeValue = "/" or containerElement.name in voidHtmlElements or
+      if attributeValue = "/>" or containerElement.name in voidHtmlElements or
            startsWith(containerElement.name, "/") then
         # The HTML tag ends with /> or
         # it is a superflous end tag that starts with </
@@ -166,7 +166,7 @@ const func xmlNode: readHtmlNode (inout htmlDomParserState: parserState,
         emptyElement.attributes := containerElement.attributes;
         node := toInterface(emptyElement);
         parserState.symbol := getXmlTagHeadOrContent(parserState.inFile);
-      else # attributeValue = ""
+      else # attributeValue = ">"
         # The HTML tag ends with >
         node := readHtmlContainerSubNodes(parserState, containerElement, parentEndTagHead);
       end if;

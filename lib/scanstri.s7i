@@ -1210,9 +1210,9 @@ const func string: getXmlCdataContent (inout string: stri) is func
  *  The function can be used as follows:
  *   symbol := getXmlTagHeadOrContent(stri);
  *   if startsWith(symbol, "</") then
- *     ... handle the closing XML/HTML element ...
+ *     ... handle the XML/HTML end-tag ...
  *   elsif startsWith(symbol, "<") then
- *     ... handle the attributes of the XML/HTML element ...
+ *     ... handle the attributes of the XML/HTML start-tag ...
  *   else
  *     ... handle the content text ...
  *   end if;
@@ -1395,21 +1395,23 @@ const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
  *  space characters before and after the = are ignored. XML entities
  *  in ''attributeValue'' are left as is. If no more attributes are
  *  present in the XML tag ''attributeName'' is set to "". In this case
- *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
- *  If a syntax error occurs the function skips beyond the end
- *  of the XML tag. To indicate the syntax error ''attributeName'' is
+ *  ''attributeValue'' contains the end of the XML tag (">" or "/>") and
+ *  ''stri'' is empty or stri[1] contains the character after '>'.
+ *  If a syntax error occurs the function skips beyond the end of
+ *  the XML tag (''stri'' is empty or stri[1] contains the character
+ *  after '>'). To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
- *  the error (this will never be ">" or "/>").
- *  The attributes of an opening XML tag can be processed with:
+ *  the error (this will never be ">" or "/>"). The attributes of
+ *  an XML start-tag or empty-element tag can be processed with:
  *   getNextXmlAttribute(stri, attributeName, attributeValue);
  *   while attributeName <> "" do
  *     ... process the current attribute ...
  *     getNextXmlAttribute(stri, attributeName, attributeValue);
  *   end while;
  *   if attributeValue = "/>" then
- *     ... this tag closes itself ...
+ *     ... this is an empty-element tag ...
  *   elsif attributeValue = ">" then
- *     ... this is a normal opening tag ...
+ *     ... this is a start-tag ...
  *   else
  *     ... there is a syntax error ...
  *   end if;
@@ -1521,22 +1523,21 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
  *   aName
  *  Possible surrounding single or double quotes of the attribute value
  *  are omitted. White space characters before and after the = are
- *  ignored. HTML entities in ''attributeValue'' are left as is. 
- *  The variable ''attributeName'' is set to "" if no more attributes
- *  are present in the HTML tag. If the HTML tag ends with / the
- *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
- *  set to "". If the HTML tag does not end with / ''attributeValue'' and
- *  ''attributeName'' are set to "", if no more attributes are present.
- *  The attributes of an opening HTML tag can be processed with:
+ *  ignored. HTML entities in ''attributeValue'' are left as is.
+ *  If no more attributes are present in the XML tag ''attributeName''
+ *  is set to "". In this case ''attributeValue'' contains the end of
+ *  the HTML tag (">" or "/>") and ''stri'' is empty or stri[1] contains
+ *  the character after '>'. The attributes of a HTML start-tag or
+ *  empty-element tag can be processed with:
  *   getNextHtmlAttribute(stri, attributeName, attributeValue);
  *   while attributeName <> "" do
  *     ... process the current attribute ...
  *     getNextHtmlAttribute(stri, attributeName, attributeValue);
  *   end while;
- *   if attributeValue = "/" then
- *     ... this tag closes itself ...
- *   else
- *     ... this is a normal opening tag ...
+ *   if attributeValue = "/>" then
+ *     ... this is an empty-element tag ...
+ *   else  # attributeValue = ">"
+ *     ... this is a start-tag ...
  *   end if;
  *  @param stri Input [[string]] from which the consumed characters are removed.
  *  @param attributeName Destination for the attribute name.
@@ -1549,10 +1550,10 @@ const proc: getNextHtmlAttribute (inout string: stri,
     if attributeName = "/" and stri <> "" and stri[1] = '>' then
       stri := stri[2 ..];
       attributeName := "";
-      attributeValue := "/";
+      attributeValue := "/>";
     elsif attributeName = ">" then
       attributeName := "";
-      attributeValue := "";
+      attributeValue := ">";
     else
       skipWhiteSpace(stri);
       if stri <> "" and stri[1] = '=' then
