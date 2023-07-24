@@ -1318,9 +1318,9 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
  *  Reads a symbol which can appear inside an XML/HTML tag from a [[file]].
  *  Before reading the symbol it skips whitespace characters. A symbol
  *  inside an XML/HTML tag can be a name, a string literal (quoted with "
- *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
- *  element tag sign (/) or a special symbol (sequence of characters
- *  terminated with the character > or a whitespace character). Special
+ *  or ' ), the equals sign (=), the end of tag character (>), the slash
+ *  character (/) or a special symbol (a sequence of characters that
+ *  does not include the character > or a whitespace character). Special 
  *  symbols can only appear in HTML tags. When the function is called it
  *  is assumed that inFile.bufferChar contains a whitespace character or
  *  the first character of a symbol. When the function is left
