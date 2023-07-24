@@ -95,7 +95,7 @@ const func file: openTarFileWithMagic (in string: inFileName, in boolean: do_unz
   end func;
 
 
-const proc: tarTell (inout file: inFile, in array string: arg_list,
+const proc: tarTell (inout file: inFile, in array string: fileList,
     in boolean: do_view) is func
   local
     var tarHeader: header is tarHeader.value;
@@ -140,14 +140,14 @@ const proc: tarTell (inout file: inFile, in array string: arg_list,
   end func;
 
 
-const proc: tarTell (in string: inFileName, in array string: arg_list,
+const proc: tarTell (in string: inFileName, in array string: fileList,
     in boolean: do_view, in boolean: do_unzip) is func
   local
     var file: inFile is STD_NULL;
   begin
     inFile := openTarFileWithMagic(inFileName, do_unzip);
     if inFile <> STD_NULL then
-      tarTell(inFile, arg_list, do_view);
+      tarTell(inFile, fileList, do_view);
     else
       write("tar7: Cannot open \"");
       write(inFileName);
@@ -156,7 +156,7 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
   end func;
 
 
-const proc: tarXtract (inout file: inFile, in array string: arg_list,
+const proc: tarXtract (inout file: inFile, in array string: fileList,
     in boolean: do_view) is func
   local
     var tarHeader: header is tarHeader.value;
@@ -222,14 +222,14 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
   end func;
 
 
-const proc: tarXtract (in string: inFileName, in array string: arg_list,
+const proc: tarXtract (in string: inFileName, in array string: fileList,
     in boolean: do_view, in boolean: do_unzip) is func
   local
     var file: inFile is STD_NULL;
   begin
     inFile := openTarFileWithMagic(inFileName, do_unzip);
     if inFile <> STD_NULL then
-      tarXtract(inFile, arg_list, do_view);
+      tarXtract(inFile, fileList, do_view);
     else
       write("tar7: Cannot open \"");
       write(inFileName);
@@ -251,7 +251,7 @@ const proc: tarXtract (in string: inFileName) is func
 
 
 const proc: tarCreate (inout file: outFile, in string: basePath, in string: pathFromBase,
-    in array string: arg_list, in boolean: do_view) is func
+    in array string: fileList, in boolean: do_view) is func
   local
     var string: name is "";
     var array string: dir_content is 0 times "";
@@ -259,7 +259,7 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
     var integer: bytesCopied is 0;
     var tarHeader: header is tarHeader.value;
   begin
-    for name range arg_list do
+    for name range fileList do
       name := pathFromBase & name;
       if fileType(basePath & name) = FILE_ABSENT then
         writeln("*** The file " <& literal(basePath & name) <& " does not exist.");
@@ -294,7 +294,7 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
   end func;
 
 
-const proc: tarCreate (in string: outFileName, in array string: arg_list,
+const proc: tarCreate (in string: outFileName, in array string: fileList,
     in boolean: do_view, in boolean: do_zip) is func
   local
     var file: outFile is STD_NULL;
@@ -308,7 +308,7 @@ const proc: tarCreate (in string: outFileName, in array string: arg_list,
       outFile := openGzipFile(compressedFile, WRITE);
     end if;
     if outFile <> STD_NULL then
-      for name range arg_list do
+      for name range fileList do
         tarCreate(outFile, "", "", [] name, do_view);
       end for;
       close(outFile);
@@ -319,14 +319,14 @@ const proc: tarCreate (in string: outFileName, in array string: arg_list,
   end func;
 
 
-const proc: tarCreate (in string: outFileName, in array string: arg_list,
+const proc: tarCreate (in string: outFileName, in array string: fileList,
     in boolean: do_view) is func
   begin
-    tarCreate(outFileName, arg_list, do_view, FALSE);
+    tarCreate(outFileName, fileList, do_view, FALSE);
   end func;
 
 
-const proc: tarCreate (in string: outFileName, in array string: arg_list) is func
+const proc: tarCreate (in string: outFileName, in array string: fileList) is func
   begin
-    tarCreate(outFileName, arg_list, FALSE, FALSE);
+    tarCreate(outFileName, fileList, FALSE, FALSE);
   end func;

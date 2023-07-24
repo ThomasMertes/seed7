@@ -25,6 +25,7 @@
 
 $ include "seed7_05.s7i";
   include "tar_cmds.s7i";
+  include "wildcard.s7i";
   include "console.s7i";
 
 
@@ -32,11 +33,12 @@ const proc: main is func
   local
     var string: option is "";
     var char: command is ' ';
-    var string: file_name is "";
+    var string: tarFileName is "";
     var boolean: do_view is FALSE;
     var boolean: do_zip_unzip is FALSE;
     var boolean: file_arg is FALSE;
     var array string: arg_list is 0 times "";
+    var array string: fileList is 0 times "";
     var integer: index is 0;
   begin
     OUT := STD_CONSOLE;
@@ -64,7 +66,7 @@ const proc: main is func
         end while;
         if file_arg then
           if length(argv(PROGRAM)) >= 2 then
-            file_name := convDosPath(argv(PROGRAM)[2]);
+            tarFileName := convDosPath(argv(PROGRAM)[2]);
             arg_list := argv(PROGRAM)[3 .. ];
           else
             writeln("tar7: The option 'f' needs a file name.");
@@ -73,19 +75,19 @@ const proc: main is func
         else
           writeln("tar7: The option 'f' is missing.");
           command := ' ';
-          # file_name := "/dev/flp";
+          # tarFileName := "/dev/flp";
           # arg_list := argv(PROGRAM)[2 .. ];
         end if;
         for key index range arg_list do
-          arg_list[index] := convDosPath(arg_list[index]);
+          fileList &:= findMatchingFiles(convDosPath(arg_list[index]));
         end for;
         case command of
           when {'t'}:
-            tarTell(file_name, arg_list, do_view, do_zip_unzip);
+            tarTell(tarFileName, fileList, do_view, do_zip_unzip);
           when {'x'}:
-            tarXtract(file_name, arg_list, do_view, do_zip_unzip);
+            tarXtract(tarFileName, fileList, do_view, do_zip_unzip);
           when {'c'}:
-            tarCreate(file_name, arg_list, do_view, do_zip_unzip);
+            tarCreate(tarFileName, fileList, do_view, do_zip_unzip);
         end case;
       else
         write("tar7: Illegal option '");
