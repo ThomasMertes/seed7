@@ -424,40 +424,64 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
     if "CPPFLAGS" not in makeData.macros then
       makeData.macros @:= ["CPPFLAGS"] "";
     end if;
+    if "CXXFLAGS" not in makeData.macros then
+      makeData.macros @:= ["CXXFLAGS"] "";
+    end if;
     if "CFLAGS" not in makeData.macros then
       makeData.macros @:= ["CFLAGS"] "";
     end if;
     if "CC" not in makeData.macros then
       makeData.macros @:= ["CC"] "cc";
     end if;
+    if "CXX" not in makeData.macros then
+      makeData.macros @:= ["CXX"] "c++";
+    end if;
     makeData.macros @:= ["MAKE"] "make7";
     if length(targets) <> 0 then
       makeData.macros @:= ["MAKECMDGOALS"] join(targets, " ");
     end if;
     readMakefile(makeData, makefile);
-    if ".c.o" in makeData.rules and "%.o" not in makeData.patternRules then
-      rule.name := "%.o";
-      rule.dependencies := [] ("%.c");
-      rule.commands := makeData.rules[".c.o"].commands;
-      makeData.patternRules @:= [rule.name] [] (rule);
-      excl(makeData.rules, ".c.o");
-    elsif "%.o" not in makeData.patternRules then
-      rule.name := "%.o";
-      rule.dependencies := [] ("%.c");
-      rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
-      makeData.patternRules @:= [rule.name] [] (rule);
+    if not patternRulePresent(makeData, "%.o", "%.c") then
+      if ".c.o" in makeData.rules then
+        rule.name := "%.o";
+        rule.dependencies := [] ("%.c");
+        rule.commands := makeData.rules[".c.o"].commands;
+        addPatternRule(makeData, rule);
+        excl(makeData.rules, ".c.o");
+      else
+        rule.name := "%.o";
+        rule.dependencies := [] ("%.c");
+        rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
+        addPatternRule(makeData, rule);
+      end if;
     end if;
-    if ".c.obj" in makeData.rules and "%.obj" not in makeData.patternRules then
-      rule.name := "%.obj";
-      rule.dependencies := [] ("%.c");
-      rule.commands := makeData.rules[".c.obj"].commands;
-      makeData.patternRules @:= [rule.name] [] (rule);
-      excl(makeData.rules, ".c.obj");
-    elsif "%.obj" not in makeData.patternRules then
-      rule.name := "%.obj";
-      rule.dependencies := [] ("%.c");
-      rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
-      makeData.patternRules @:= [rule.name] [] (rule);
+    if not patternRulePresent(makeData, "%.obj", "%.c") then
+      if ".c.obj" in makeData.rules then
+        rule.name := "%.obj";
+        rule.dependencies := [] ("%.c");
+        rule.commands := makeData.rules[".c.obj"].commands;
+        addPatternRule(makeData, rule);
+        excl(makeData.rules, ".c.obj");
+      else
+        rule.name := "%.obj";
+        rule.dependencies := [] ("%.c");
+        rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
+        addPatternRule(makeData, rule);
+      end if;
+    end if;
+    if not patternRulePresent(makeData, "%.o", "%.cpp") then
+      if ".cpp.o" in makeData.rules then
+        rule.name := "%.o";
+        rule.dependencies := [] ("%.cpp");
+        rule.commands := makeData.rules[".cpp.o"].commands;
+        addPatternRule(makeData, rule);
+        excl(makeData.rules, ".cpp.o");
+      else
+        rule.name := "%.o";
+        rule.dependencies := [] ("%.cpp");
+        rule.commands := [] (applyMacros(makeData.macros, "$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@", TRUE));
+        addPatternRule(makeData, rule);
+      end if;
     end if;
     if length(targets) = 0 then
       processRule(makeData, makeData.nameOfFirstRule);

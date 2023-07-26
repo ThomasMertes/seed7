@@ -1073,6 +1073,36 @@ const func string: getDependency (inout string: stri) is func
   end func;
 
 
+const func boolean: patternRulePresent (in makeDataType: makeData, in string: name,
+    in string: dependency) is func
+  result
+    var boolean: patternRulePresent is FALSE;
+  local
+    var integer: ruleArrayIndex is 0;
+    var string: ruleDependency is "";
+  begin
+    if name in makeData.patternRules then
+      for key ruleArrayIndex range makeData.patternRules[name]
+          until patternRulePresent do
+        for ruleDependency range makeData.patternRules[name][ruleArrayIndex].dependencies
+            until patternRulePresent do
+          patternRulePresent := ruleDependency = dependency;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const proc: addPatternRule (inout makeDataType: makeData, in ruleType: rule) is func
+  begin
+    if rule.name in makeData.patternRules then
+      makeData.patternRules[rule.name] &:= rule;
+    else
+      makeData.patternRules @:= [rule.name] [] (rule);
+    end if;
+  end func;
+
+
 const proc: readRule (inout makeDataType: makeData, in string: name) is func
   local
     var file: makefile is STD_NULL;
@@ -1114,11 +1144,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
       makeData.nameOfFirstRule := name;
     end if;
     if pos(name, '%') <> 0 then
-      if name in makeData.patternRules then
-        makeData.patternRules[name] &:= rule;
-      else
-        makeData.patternRules @:= [name] [] (rule);
-      end if;
+      addPatternRule(makeData, rule);
     elsif name in makeData.rules then
       if length(rule.commands) = 0 then
         makeData.rules[name].dependencies &:= rule.dependencies;
