@@ -117,6 +117,13 @@ const type: asn1DataElement is new struct
   end struct;
 
 
+# The element tagCategory is deprecated. Use tagType instead.
+const func asn1TagType: (in asn1DataElement: dataElem) . tagCategory is
+    return dataElem.tagType;
+const varfunc asn1TagType: (inout asn1DataElement: dataElem) . tagCategory is
+    return var dataElem.tagType;
+
+
 const func string: encodeObjectIdentifier (in array integer: oid) is func
   result
     var string: encodedOid is "";
