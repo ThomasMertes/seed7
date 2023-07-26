@@ -65,6 +65,9 @@ const array string: classTagName is [0] (
     "(use long-form)"
   );
 
+(**
+ *  Category of ASN.1/BER data element.
+ *)
 const type: asn1TagType is new enum
     tagEndOfContent,
     tagBoolean,
@@ -107,7 +110,7 @@ const type: asn1TagClass is new enum
 const type: asn1DataElement is new struct
     var asn1TagClass: tagClass is universalTagClass;
     var boolean: constructed is FALSE;
-    var asn1TagType: tagCategory is tagEndOfContent;
+    var asn1TagType: tagType is tagEndOfContent;
     var boolean: indefinite is FALSE;
     var integer: dataStart is 0;
     var integer: length is 0;
@@ -212,7 +215,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
     incr(pos);
     dataElement.tagClass := asn1TagClass conv (classTag >> 6);
     dataElement.constructed := (classTag >> 5) mod 2 <> 0;
-    dataElement.tagCategory := asn1TagType conv (classTag mod 32);
+    dataElement.tagType := asn1TagType conv (classTag mod 32);
     if length <= 127 then
       # Short form
       # writeln("Short form: length=" <& length <& ", pos=" <& pos);
@@ -284,7 +287,7 @@ const func string: genAsn1Length (in integer: length) is func
 
 const func asn1TagType: asn1TagTypeOfString (in string: stri) is func
   result
-    var asn1TagType: tagCategory is tagEndOfContent;
+    var asn1TagType: tagType is tagEndOfContent;
   local
     const set of char: visibleChar is {' ' .. '~'};  # ASCII without control chars
     const set of char: printableChar is
@@ -303,24 +306,24 @@ const func asn1TagType: asn1TagTypeOfString (in string: stri) is func
       end if;
     end for;
     if isPrintableString then
-      tagCategory := tagPrintableString;
+      tagType := tagPrintableString;
     elsif isVisibleString then
-      tagCategory := tagVisibleString;
+      tagType := tagVisibleString;
     else
-      tagCategory := tagUTF8String;
+      tagType := tagUTF8String;
     end if;
   end func;
 
 
 (**
- *  Create an ASN.1/BER data element from ''tagCategory'' and ''data''.
+ *  Create an ASN.1/BER data element from ''tagType'' and ''data''.
  *  @return the ASN.1/BER data element as [[string]].
  *)
-const func string: genAsn1Element (in asn1TagType: tagCategory, in string: data) is func
+const func string: genAsn1Element (in asn1TagType: tagType, in string: data) is func
   result
     var string: asn1 is "";
   begin
-    asn1 &:= chr(ord(tagCategory));
+    asn1 &:= chr(ord(tagType));
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;
@@ -328,6 +331,7 @@ const func string: genAsn1Element (in asn1TagType: tagCategory, in string: data)
 
 (**
  *  Create an integer ASN.1/BER data element from ''data''.
+ *  The tag type of the generated data element is tagInteger.
  *  @return the integer ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1Integer (in string: data) is func
@@ -342,25 +346,28 @@ const func string: genAsn1Integer (in string: data) is func
 
 (**
  *  Create a string ASN.1/BER data element from ''data''.
+ *  Depending on ''data'' the tag type of the generated data element
+ *  is tagPrintableString, tagVisibleString or tagUTF8String.
  *  @return the string ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1String (in string: data) is func
   result
     var string: asn1 is "";
   local
-    var asn1TagType: tagCategory is tagEndOfContent;
+    var asn1TagType: tagType is tagEndOfContent;
   begin
-    tagCategory := asn1TagTypeOfString(data);
-    if tagCategory = tagUTF8String then
+    tagType := asn1TagTypeOfString(data);
+    if tagType = tagUTF8String then
       asn1 := genAsn1Element(tagUTF8String, toUtf8(data));
     else
-      asn1 := genAsn1Element(tagCategory, data);
+      asn1 := genAsn1Element(tagType, data);
     end if;
   end func;
 
 
 (**
  *  Create a sequence ASN.1/BER data element from ''data''.
+ *  The tag type of the generated data element is tagSequence.
  *  @return the sequence ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1Sequence (in string: data) is func
@@ -376,6 +383,7 @@ const func string: genAsn1Sequence (in string: data) is func
 
 (**
  *  Create a set ASN.1/BER data element from ''data''.
+ *  The tag type of the generated data element is tagSet.
  *  @return the set ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1Set (in string: data) is func
@@ -393,7 +401,7 @@ const func string: genAsn1Set (in string: data) is func
  *  Create an explicit ASN.1/BER tag with ''tagNumber'' from ''data''.
  *  @return the explicit ASN.1/BER tag as [[string]].
  *)
-const func string: genAsn1Tag (in integer: tagNumber, in string: data) is func
+const func string: genExplicitAsn1Tag (in integer: tagNumber, in string: data) is func
   result
     var string: asn1 is "";
   begin
@@ -409,7 +417,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
     var integer: startPos is 0;
     var boolean: constructed is TRUE;
     var integer: classTag is 0;
-    var asn1TagType: tagCategory is tagEndOfContent;
+    var asn1TagType: tagType is tagEndOfContent;
     var integer: length is 0;
     var integer: numOctets is 0;
     var string: contents is "";
@@ -426,7 +434,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
     write("UACP"[(classTag >> 6) + 1]);
     constructed := (classTag >> 5) mod 2 <> 0;
     write("PC"[succ(ord(constructed))]);
-    tagCategory := asn1TagType conv (classTag mod 32);
+    tagType := asn1TagType conv (classTag mod 32);
     write(" " <& length radix 16 lpad0 2);
     if classTag mod 32 = 31 then
       writeln(" *** long form *** ");
@@ -462,11 +470,11 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
     end if;
     write(" " <& length lpad 4);
     if (classTag >> 6) = 2 then
-      write(" EXPLICIT TAG [" <& ord(tagCategory) <& "]");
+      write(" EXPLICIT TAG [" <& ord(tagType) <& "]");
     else
-      write(" " <& classTagName[ord(tagCategory)]);
+      write(" " <& classTagName[ord(tagType)]);
     end if;
-    if tagCategory = tagObjectIdentifier then
+    if tagType = tagObjectIdentifier then
       write(":");
       for subId range decodeObjectIdentifier(contents) do
         write(" " <& subId);
