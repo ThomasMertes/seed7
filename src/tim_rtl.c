@@ -510,7 +510,7 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
       } else if (unlikely(
           (timeZoneReference >= 0 && (timestamp < TIME_T_MIN + timeZoneReference * 60 ||
                                       timestamp > TIME_T_MAX)) ||
-	  (timeZoneReference < 0 && (timestamp < TIME_T_MIN ||
+          (timeZoneReference < 0 && (timestamp < TIME_T_MIN ||
                                      timestamp > TIME_T_MAX + timeZoneReference * 60)))) {
         *timeZone = timeZoneReference;
         *isDst    = 0;

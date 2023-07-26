@@ -2625,6 +2625,11 @@ striType strHeadAssign (const striType stri, const intType stop)
       logError(printf("strHeadAssign: Stop negative."););
       /* We keep stri intact to avoid a heap corruption. */
       raise_error(INDEX_ERROR);
+      /* The function strHeadAssign() is only used by the compiler. */
+      /* In this situation raise_error() always does a longjmp().   */
+      /* Therefore the line below is never reached. The variable    */
+      /* head is initialised to silence a C compiler warning.       */
+      head = NULL;
     } else {
       striSize = stri->size;
       if (stop >= 1 && striSize >= 1) {
@@ -2696,6 +2701,11 @@ striType strHeadTemp (const striType stri, const intType stop)
       logError(printf("strHeadTemp: Stop negative."););
       FREE_STRI(stri, stri->size);
       raise_error(INDEX_ERROR);
+      /* The function strHeadAssign() is only used by the compiler. */
+      /* In this situation raise_error() always does a longjmp().   */
+      /* Therefore the line below is never reached. The variable    */
+      /* head is initialised to silence a C compiler warning.       */
+      head = NULL;
     } else {
       striSize = stri->size;
       if (stop >= 1 && striSize >= 1) {
@@ -2706,7 +2716,7 @@ striType strHeadTemp (const striType stri, const intType stop)
           headSize = (memSizeType) stop;
         } /* if */
       } else {
-	headSize = 0;
+        headSize = 0;
       } /* if */
       stri->size = headSize;
 #if WITH_STRI_CAPACITY
