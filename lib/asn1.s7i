@@ -66,7 +66,7 @@ const array string: classTagName is [0] (
   );
 
 (**
- *  Category of ASN.1/BER data element.
+ *  Tag type used by ASN.1/BER data elements.
  *)
 const type: asn1TagType is new enum
     tagEndOfContent,
@@ -107,6 +107,10 @@ const type: asn1TagClass is new enum
     universalTagClass, applicationTagClass, contextSpecificTagClass, privateTagClass
   end enum;
 
+(**
+ *  ASN.1/BER data element.
+ *  This type is used for reading ASN.1/BER data.
+ *)
 const type: asn1DataElement is new struct
     var asn1TagClass: tagClass is universalTagClass;
     var boolean: constructed is FALSE;
@@ -205,6 +209,10 @@ const func string: objectIdentifier (in string: encodedOid) is func
  *  It is assumed that the data element header starts at position ''pos''.
  *  The function advances ''pos'' beyond the header to the actual data.
  *  The actual data can be read afterwards, with the function ''getData''.
+ *   dataElem := getAsn1DataElement(asn1, pos);
+ *   if dataElem.tagType = tagObjectIdentifier then
+ *     contentType := getData(asn1, pos, dataElem);
+ *     ...
  *  @return the header of an ASN.1/BER data element.
  *)
 const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: pos) is func
@@ -339,6 +347,7 @@ const func string: genAsn1Element (in asn1TagType: tagType, in string: data) is 
 (**
  *  Create an integer ASN.1/BER data element from ''data''.
  *  The tag type of the generated data element is tagInteger.
+ *   genAsn1Integer(bytes(123, SIGNED, BE))  returns  "\2;\1;{"
  *  @return the integer ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1Integer (in string: data) is func
@@ -355,6 +364,9 @@ const func string: genAsn1Integer (in string: data) is func
  *  Create a string ASN.1/BER data element from ''data''.
  *  Depending on ''data'' the tag type of the generated data element
  *  is tagPrintableString, tagVisibleString or tagUTF8String.
+ *   genAsn1String("abc")  returns  "\19;\3;abc"
+ *   genAsn1String("#%&")  returns  "\26;\3;#%&"
+ *   genAsn1String("€")    returns  "\f\3;â\130;¬"
  *  @return the string ASN.1/BER data element as [[string]].
  *)
 const func string: genAsn1String (in string: data) is func
