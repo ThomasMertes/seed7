@@ -67,6 +67,7 @@ int registerExitFunction (tp_atExitFunction function)
     atExitDataType *atExitElement;
 
   /* registerExitFunction */
+    logFunction(printf("registerExitFunction()\n"););
     atExitElement = malloc(sizeof(atExitDataType));
     if (unlikely(atExitElement == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -92,6 +93,7 @@ void doExit (int returnCode)
       atExitElement->function();
       atExitElement = atExitElement->next;
     } /* if */
+    logFunction(printf("doExit() -->\n"););
     emscripten_force_exit(returnCode);
   } /* doExit */
 

@@ -146,6 +146,9 @@ void remove_window (int windowId)
             (destrFuncType) &genericDestr,
             (destrFuncType) &genericDestr);
   } /* remove_window */
+
+
+
 static void addEventPromiseForWindowId (int windowId)
 
   { /* addEventPromiseForWindowId */
@@ -185,6 +188,7 @@ static void setupEventPromises (void)
     winType window;
 
   /* setupEventPromises */
+    logFunction(printf("setupEventPromises()\n"););
     EM_ASM({
       eventPromises = [];
     });
@@ -201,6 +205,7 @@ static void setupEventPromises (void)
 static void freeEventPromises (void)
 
   { /* freeEventPromises */
+    logFunction(printf("freeEventPromises()\n"););
     EM_ASM({
       executeCallbacks();
       eventPromises = [];

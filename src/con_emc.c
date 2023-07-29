@@ -138,6 +138,7 @@ static void addEventPromiseForStdin (void)
 static void setupEventPromises (void)
 
   { /* setupEventPromises */
+    logFunction(printf("setupEventPromises()\n"););
     EM_ASM({
       eventPromises = [];
     });
@@ -149,6 +150,7 @@ static void setupEventPromises (void)
 static void freeEventPromises (void)
 
   { /* freeEventPromises */
+    logFunction(printf("freeEventPromises()\n"););
     EM_ASM({
       executeCallbacks2();
       eventPromises = [];
