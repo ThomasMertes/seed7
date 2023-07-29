@@ -45,6 +45,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "tim_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -60,7 +61,8 @@ typedef struct {
     int window;
     boolType is_pixmap;
     boolType is_subwindow;
-    boolType ignoreFirstResize;
+    int ignoreFirstResize;
+    intType creationTimestamp;
     int width;
     int height;
     intType clear_col;
@@ -73,6 +75,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define is_pixmap(win)            (((const_emc_winType) win)->is_pixmap)
 #define is_subwindow(win)         (((const_emc_winType) win)->is_subwindow)
 #define to_ignoreFirstResize(win) (((const_emc_winType) win)->ignoreFirstResize)
+#define to_creationTimestamp(win) (((const_emc_winType) win)->creationTimestamp)
 #define to_width(win)             (((const_emc_winType) win)->width)
 #define to_height(win)            (((const_emc_winType) win)->height)
 #define to_clear_col(win)         (((const_emc_winType) win)->clear_col)
@@ -82,6 +85,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define is_var_pixmap(win)            (((emc_winType) win)->is_pixmap)
 #define is_var_subwindow(win)         (((emc_winType) win)->is_subwindow)
 #define to_var_ignoreFirstResize(win) (((emc_winType) win)->ignoreFirstResize)
+#define to_var_creationTimestamp(win) (((emc_winType) win)->creationTimestamp)
 #define to_var_width(win)             (((emc_winType) win)->width)
 #define to_var_height(win)            (((emc_winType) win)->height)
 #define to_var_clear_col(win)         (((emc_winType) win)->clear_col)
@@ -101,15 +105,45 @@ extern intType pointerY;
 
 
 
-boolType ignoreResize (winType aWindow)
+boolType ignoreResize (winType aWindow, int width, int height)
 
-  { /* ignoreResize */
-    if (to_ignoreFirstResize(aWindow)) {
-      to_var_ignoreFirstResize(aWindow) = FALSE;
-      return TRUE;
-    } else {
-      return FALSE;
-    } /* if */
+  {
+    intType currentTimestamp;
+    boolType doIgnoreResize;
+
+  /* ignoreResize */
+    logFunction(printf("ignoreResize(" FMT_U_MEM ", %d, %d)\n",
+                        (memSizeType) aWindow, width, height););  
+    switch (to_ignoreFirstResize(aWindow)) {
+      case 1:
+        to_var_ignoreFirstResize(aWindow) = 0;
+        currentTimestamp = timMicroSec() / 1000000;
+        doIgnoreResize = to_creationTimestamp(aWindow) != 0 &&
+                         currentTimestamp >= to_creationTimestamp(aWindow) &&
+                         currentTimestamp <= to_creationTimestamp(aWindow) + 1;
+        break;
+      case 2:
+        currentTimestamp = timMicroSec() / 1000000;
+        if (to_creationTimestamp(aWindow) != 0 &&
+            currentTimestamp >= to_creationTimestamp(aWindow) &&
+            currentTimestamp <= to_creationTimestamp(aWindow) + 1) {
+          if (to_width(aWindow) == width && to_height(aWindow) == height) {
+            to_var_ignoreFirstResize(aWindow) = 0;
+          } else {
+            to_var_ignoreFirstResize(aWindow) = 1;
+          } /* if */
+          doIgnoreResize = TRUE;
+        } else {
+          to_var_ignoreFirstResize(aWindow) = 0;
+          doIgnoreResize = FALSE;
+        } /* if */
+        break;
+      default:
+        doIgnoreResize = FALSE;
+        break;
+    } /* switch */
+    logFunction(printf("ignoreResize --> %d\n", doIgnoreResize););
+    return doIgnoreResize;
   } /* ignoreResize */
 
 
@@ -708,7 +742,8 @@ winType drwEmpty (void)
       emptyWindow->window = 0;
       emptyWindow->is_pixmap = TRUE;
       emptyWindow->is_subwindow = FALSE;
-      emptyWindow->ignoreFirstResize = FALSE;
+      emptyWindow->ignoreFirstResize = 0;
+      emptyWindow->creationTimestamp = 0;
       emptyWindow->width = 0;
       emptyWindow->height = 0;
     } /* if */
@@ -865,7 +900,8 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
-        pixmap->ignoreFirstResize = FALSE;
+        pixmap->ignoreFirstResize = 0;
+        pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
         pixmap->height = (int) height;
         maxWindowId = pixmap->window;
@@ -949,7 +985,8 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
-        pixmap->ignoreFirstResize = FALSE;
+        pixmap->ignoreFirstResize = 0;
+        pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
         pixmap->height = (int) height;
         maxWindowId = pixmap->window;
@@ -1049,7 +1086,8 @@ winType drwNewPixmap (intType width, intType height)
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
-        pixmap->ignoreFirstResize = FALSE;
+        pixmap->ignoreFirstResize = 0;
+        pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
         pixmap->height = (int) height;
         maxWindowId = pixmap->window;
@@ -1119,6 +1157,12 @@ winType drwOpen (intType xPos, intType yPos,
                 canvas.height = height;
                 ignoreFirstResize = 1;
               } else {
+                if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
+                  windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
+                                        height + (windowObject.outerHeight - windowObject.innerHeight));
+                  ignoreFirstResize = 2;
+                  windowObject.moveTo(left, top);
+                }
                 canvas.width  = windowObject.innerWidth;
                 canvas.height = windowObject.innerHeight;
               }
@@ -1129,7 +1173,7 @@ winType drwOpen (intType xPos, intType yPos,
               mapIdToCanvas[currentWindowId] = canvas;
               mapCanvasToId.set(canvas, currentWindowId);
               mapIdToContext[currentWindowId] = context;
-              return (currentWindowId << 1) | ignoreFirstResize;
+              return (currentWindowId << 2) | ignoreFirstResize;
             }
           } else {
             return 0;
@@ -1149,10 +1193,11 @@ winType drwOpen (intType xPos, intType yPos,
         } else {
           memset(result, 0, sizeof(emc_winRecord));
           result->usage_count = 1;
-          result->window = windowIdAndFlags >> 1;
+          result->window = windowIdAndFlags >> 2;
           result->is_pixmap = FALSE;
           result->is_subwindow = FALSE;
-          result->ignoreFirstResize = windowIdAndFlags & 1;;
+          result->ignoreFirstResize = windowIdAndFlags & 3;
+          result->creationTimestamp = timMicroSec() / 1000000;
           result->width = (int) width;
           result->height = (int) height;
           maxWindowId = result->window;
@@ -1240,7 +1285,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         result->window = windowId;
         result->is_pixmap = FALSE;
         result->is_subwindow = TRUE;
-        result->ignoreFirstResize = FALSE;
+        result->ignoreFirstResize = 0;
+        result->creationTimestamp = 0;
         result->width = (int) width;
         result->height = (int) height;
         maxWindowId = result->window;

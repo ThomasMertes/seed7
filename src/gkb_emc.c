@@ -89,7 +89,7 @@ static boolType codeIdPressed[54];
 static rtlHashType charPressed;
 static boolType mouseKeyPressed[5];
 
-extern boolType ignoreResize (winType aWindow);
+extern boolType ignoreResize (winType aWindow, int width, int height);
 extern boolType resize (winType resizeWindow, int width, int height);
 extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern int maxWindowId;
@@ -763,7 +763,7 @@ EMSCRIPTEN_KEEPALIVE int decodeResizeEvent (int windowId, int width, int height)
     logFunction(printf("decodeResizeEvent(%d, %d, %d)\n",
                        windowId, width, height););
     window = find_window(windowId);
-    if (ignoreResize(window)) {
+    if (ignoreResize(window, width, height)) {
       result = K_NONE;
     } else {
       if (resize(window, width, height)) {
