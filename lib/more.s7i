@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  more.s7i      Filter file which shows another file screenwise   *)
-(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*  Copyright (C) 1992, 1993, 1994, 2005, 2023  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,60 +26,113 @@
 (********************************************************************)
 
 
-const type: more_file is sub null_file struct
-    var file: out_file is STD_NULL;
-    var file: command_file is STD_NULL;
-    var integer: pagesize is 0;
+(**
+ *  [[file|File]] implementation type of a more filter file.
+ *)
+const type: moreFile is sub null_file struct
+    var file: destFile is STD_NULL;
+    var file: commandFile is STD_NULL;
+    var integer: pageSize is 0;
+    var integer: nextPromptLine is 0;
     var integer: line is 0;
     var boolean: active is TRUE;
   end struct;
 
 
-const func file: openMore (in file: out_fil, in file: cmd_fil, in integer: pg_size) is func
+(**
+ *  Open a more filter file for viewing a file page by page or line by line.
+ *   more := openMore(OUT, KEYBOARD, 20);
+ *   writeln(more, multiPageDocument);
+ *  After writing a page (command: space) or single line (command: return/enter)
+ *  to a ''moreFile'' it prompts for the next command with:
+ *   --More--
+ *  The following commands are accepted:
+ *  * space        Display the next ''pageSize'' lines.
+ *  * return/enter Display the next line.
+ *  * q            Skip the remaining data written to the ''moreFile''.
+ *  @param destFile Destination file for all data written to the ''moreFile''.
+ *  @param commandFile File from which commands (' ', '\n', 'q') are read.
+ *  @param pageSize Size of the page displayed after pressing the space key.
+ *  @return the ''moreFile'' opened.
+ *)
+const func file: openMore (in file: destFile, in file: commandFile,
+    in integer: pageSize) is func
   result
     var file: newFile is STD_NULL;
   local
-    var more_file: new_more_file is more_file.value;
+    var moreFile: new_moreFile is moreFile.value;
   begin
-    new_more_file.out_file := out_fil;
-    new_more_file.command_file := cmd_fil;
-    new_more_file.pagesize := pg_size;
-    new_more_file.line := 0;
-    new_more_file.active := TRUE;
-    newFile := toInterface(new_more_file);
+    new_moreFile.destFile := destFile;
+    new_moreFile.commandFile := commandFile;
+    new_moreFile.pageSize := pageSize;
+    new_moreFile.nextPromptLine := pageSize;
+    new_moreFile.line := 0;
+    new_moreFile.active := TRUE;
+    newFile := toInterface(new_moreFile);
   end func;
 
 
-const proc: page (inout more_file: more_fil) is func
+(*
+const proc: page (inout moreFile: outFile) is func
   begin
-    more_fil.active := TRUE;
-    more_fil.line := 0;
+    outFile.active := TRUE;
+    outFile.line := 0;
   end func;
+*)
 
 
-const proc: writeln (inout more_file: more_fil) is func
+(**
+ *  Write end-of-line to ''outFile''.
+ *  This function writes the end-of-line marker to the destination file.
+ *  It also handles the commands allowed by a ''moreFile'':
+ *  * space        Display the next ''pageSize'' lines.
+ *  * return/enter Display the next line.
+ *  * q            Skip the remaining data written to the ''moreFile''.
+ *)
+const proc: writeln (inout moreFile: outFile) is func
   local
-    var string: command is "";
+    var char: command is ' ';
   begin
-    if more_fil.active then
-      writeln(more_fil.out_file);
-      incr(more_fil.line);
-      if more_fil.line >= more_fil.pagesize then
-        write(more_fil.out_file, " *** MORE *** ");
-        readln(more_fil.command_file, command);
-        writeln(more_fil.out_file);
-        if lower(command) = "q" then
-          more_fil.active := FALSE;
+    if outFile.active then
+      writeln(outFile.destFile);
+      incr(outFile.line);
+      if outFile.line >= outFile.nextPromptLine then
+        write(outFile.destFile, "--More-- ");
+        flush(outFile.destFile);
+        command := getc(outFile.commandFile);
+        backSpace(outFile.destFile, "--More-- ");
+        if command = ' ' then
+          outFile.nextPromptLine := outFile.pageSize;
+        elsif command = '\n' then
+          outFile.nextPromptLine := 1;
+        elsif lower(command) = 'q' then
+          outFile.active := FALSE;
         end if;
-        more_fil.line := 0;
+        outFile.line := 0;
       end if;
     end if;
   end func;
 
 
-const proc: write (inout more_file: more_fil, in string: stri) is func
+(**
+ *  Write the [[string]] ''stri'' to a ''moreFile''.
+ *  New lines ('\n') trigger a call of the function ''writeln''.
+ *)
+const proc: write (inout moreFile: outFile, in string: stri) is func
+  local
+    var integer: startPos is 1;
+    var integer: nlPos is 0;
   begin
-    if more_fil.active then
-      write(more_fil.out_file, stri);
+    if outFile.active then
+      nlPos := pos(stri, '\n');
+      while nlPos <> 0 and outFile.active do
+        write(outFile.destFile, stri[startPos .. pred(nlPos)]);
+        writeln(outFile);
+        startPos := succ(nlPos);
+	nlPos := pos(stri, '\n', startPos);
+      end while;
+      if outFile.active then
+        write(outFile.destFile, stri[startPos ..]);
+      end if;
     end if;
   end func;
