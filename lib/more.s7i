@@ -43,8 +43,8 @@ const type: moreFile is sub null_file struct
  *  Open a more filter file for viewing a file page by page or line by line.
  *   more := openMore(OUT, KEYBOARD, 20);
  *   writeln(more, multiPageDocument);
- *  After writing a page (command: space) or single line (command: return/enter)
- *  to a ''moreFile'' it prompts for the next command with:
+ *  After writing the requested number of lines it prompts for the
+ *  next command with:
  *   --More--
  *  The following commands are accepted:
  *  * space        Display the next ''pageSize'' lines.
@@ -70,15 +70,6 @@ const func file: openMore (in file: destFile, in file: commandFile,
     new_moreFile.active := TRUE;
     newFile := toInterface(new_moreFile);
   end func;
-
-
-(*
-const proc: page (inout moreFile: outFile) is func
-  begin
-    outFile.active := TRUE;
-    outFile.line := 0;
-  end func;
-*)
 
 
 (**

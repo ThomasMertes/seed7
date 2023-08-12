@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  upper.s7i     Filter file which turns characters to upper case  *)
-(*  Copyright (C) 1992, 1993, 1994, 2005 Thomas Mertes              *)
+(*  Copyright (C) 1992, 1993, 1994, 2005, 2023  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,75 +26,116 @@
 (********************************************************************)
 
 
-const type: upper_file is sub null_file struct
-    var file: destination_file is STD_NULL;
+(**
+ *  [[file|File]] implementation type which turns characters to upper case.
+ *  All data that is written to a ''upperFile'' is converted to upper
+ *  case and forwarded to the ''destFile''. All functions that read from
+ *  ''upperFile'' read from ''destFile'' instead and deliver the data
+ *  after converting it to upper case.
+ *)
+const type: upperFile is sub null_file struct
+    var file: destFile is STD_NULL;
   end struct;
 
 
-const func file: openUpper (in file: aFile) is func
+(**
+ *  Open a filter file which turns characters to upper case.
+ *  All data that is written to a ''upperFile'' is converted to upper
+ *  case and forwarded to the ''destFile''. E.g.:
+ *   upperOutput := openUpper(OUT);
+ *   repeat
+ *     write("Enter sentence: ");
+ *     flush(OUT);
+ *     readln(sentence);
+ *     writeln(upperOutput, sentence);
+ *   until sentence = "";
+ *  All functions that read from ''upperFile'' read from ''destFile''
+ *  instead and deliver the data after converting it to upper case.
+ *  This can be used to allow upper and lower case commands:
+ *   KEYBOARD := openUpper(KEYBOARD);
+ *   repeat
+ *     write("command: ");
+ *     flush(OUT);
+ *     command := getc(KEYBOARD);
+ *     writeln;
+ *     ...
+ *   until command = 'Q';
+ *  @param destFile File to which data is written or from which data is read.
+ *  @return the ''upperFile'' opened.
+ *)
+const func file: openUpper (in file: destFile) is func
   result
     var file: newFile is STD_NULL;
   local
-    var upper_file: new_upper_file is upper_file.value;
+    var upperFile: new_upperFile is upperFile.value;
   begin
-    new_upper_file.destination_file := aFile;
-    newFile := toInterface(new_upper_file);
+    new_upperFile.destFile := destFile;
+    newFile := toInterface(new_upperFile);
   end func;
 
 
-(*
-const proc: page (ref upper_file: upper_fil) is func
+(**
+ *  Write the [[string]] ''stri'' to ''outFile''.
+ *  The characters are converted to upper case, before they are written.
+ *)
+const proc: write (inout upperFile: outFile, in string: stri) is func
   begin
-    page(upper_fil.destination_file);
-  end func;
-*)
-
-
-const proc: write (inout upper_file: upper_fil, in string: stri) is func
-  begin
-    write(upper_fil.destination_file, upper(stri));
+    write(outFile.destFile, upper(stri));
   end func;
 
 
-const proc: writeln (inout upper_file: upper_fil) is func
+(**
+ *  Write end-of-line to ''outFile''.
+ *)
+const proc: writeln (inout upperFile: outFile) is func
   begin
-    writeln(upper_fil.destination_file);
+    writeln(outFile.destFile);
   end func;
 
 
-const proc: writeln (inout upper_file: upper_fil, in string: stri) is func
+(**
+ *  Write a [[string]] followed by end-of-line to ''outFile''.
+ *  The characters are converted to upper case, before they are written.
+ *)
+const proc: writeln (inout upperFile: outFile, in string: stri) is func
   begin
-    writeln(upper_fil.destination_file, upper(stri));
+    writeln(outFile.destFile, upper(stri));
   end func;
 
 
-const proc: moveLeft (inout upper_file: upper_fil, in string: stri) is func
+const proc: moveLeft (inout upperFile: outFile, in string: stri) is func
   begin
-    moveLeft(upper_fil.destination_file, stri);
+    moveLeft(outFile.destFile, stri);
   end func;
 
 
-const proc: erase (inout upper_file: upper_fil, in string: stri) is func
+const proc: erase (inout upperFile: outFile, in string: stri) is func
   begin
-    erase(upper_fil.destination_file, stri);
+    erase(outFile.destFile, stri);
   end func;
 
 
-const proc: cursorOn (inout upper_file: upper_fil, in char: cursorChar) is func
+const proc: cursorOn (inout upperFile: outFile, in char: cursorChar) is func
   begin
-    cursorOn(upper_fil.destination_file, cursorChar);
+    cursorOn(outFile.destFile, cursorChar);
   end func;
 
 
-const proc: cursorOff (inout upper_file: upper_fil, in char: cursorChar) is func
+const proc: cursorOff (inout upperFile: outFile, in char: cursorChar) is func
   begin
-    cursorOff(upper_fil.destination_file, cursorChar);
+    cursorOff(outFile.destFile, cursorChar);
   end func;
 
 
-const func string: gets (inout upper_file: upper_fil, in integer: maxLength) is func
+(**
+ *  Read a [[string]] with a maximum length from a file.
+ *  The characters read are converted to upper case.
+ *  @return the string read and converted to upper case.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout upperFile: inFile, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
-    stri := upper(gets(upper_fil.destination_file, maxLength));
+    stri := upper(gets(inFile.destFile, maxLength));
   end func;

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lower.s7i     Filter file which turns characters to lower case  *)
-(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*  Copyright (C) 1992, 1993, 1994, 2005, 2023  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,75 +26,116 @@
 (********************************************************************)
 
 
-const type: lower_file is sub null_file struct
-    var file: destination_file is STD_NULL;
+(**
+ *  [[file|File]] implementation type which turns characters to lower case.
+ *  All data that is written to a ''lowerFile'' is converted to lower
+ *  case and forwarded to the ''destFile''. All functions that read from
+ *  ''lowerFile'' read from ''destFile'' instead and deliver the data
+ *  after converting it to lower case.
+ *)
+const type: lowerFile is sub null_file struct
+    var file: destFile is STD_NULL;
   end struct;
 
 
-const func file: openLower (in file: aFile) is func
+(**
+ *  Open a filter file which turns characters to lower case.
+ *  All data that is written to a ''lowerFile'' is converted to lower
+ *  case and forwarded to the ''destFile''. E.g.:
+ *   lowerOutput := openLower(OUT);
+ *   repeat
+ *     write("Enter sentence: ");
+ *     flush(OUT);
+ *     readln(sentence);
+ *     writeln(lowerOutput, sentence);
+ *   until sentence = "";
+ *  All functions that read from ''lowerFile'' read from ''destFile''
+ *  instead and deliver the data after converting it to lower case.
+ *  This can be used to allow upper and lower case commands:
+ *   KEYBOARD := openLower(KEYBOARD);
+ *   repeat
+ *     write("command: ");
+ *     flush(OUT);
+ *     command := getc(KEYBOARD);
+ *     writeln;
+ *     ...
+ *   until command = 'q';
+ *  @param destFile File to which data is written or from which data is read.
+ *  @return the ''lowerFile'' opened.
+ *)
+const func file: openLower (in file: destFile) is func
   result
     var file: newFile is STD_NULL;
   local
-    var lower_file: new_lower_file is lower_file.value;
+    var lowerFile: new_lowerFile is lowerFile.value;
   begin
-    new_lower_file.destination_file := aFile;
-    newFile := toInterface(new_lower_file);
+    new_lowerFile.destFile := destFile;
+    newFile := toInterface(new_lowerFile);
   end func;
 
 
-(*
-const proc: page (ref lower_file: lower_fil) is func
+(**
+ *  Write the [[string]] ''stri'' to ''outFile''.
+ *  The characters are converted to lower case, before they are written.
+ *)
+const proc: write (inout lowerFile: outFile, in string: stri) is func
   begin
-    page(lower_fil.destination_file);
-  end func;
-*)
-
-
-const proc: write (inout lower_file: lower_fil, in string: stri) is func
-  begin
-    write(lower_fil.destination_file, lower(stri));
+    write(outFile.destFile, lower(stri));
   end func;
 
 
-const proc: writeln (inout lower_file: lower_fil) is func
+(**
+ *  Write end-of-line to ''outFile''.
+ *)
+const proc: writeln (inout lowerFile: outFile) is func
   begin
-    writeln(lower_fil.destination_file);
+    writeln(outFile.destFile);
   end func;
 
 
-const proc: writeln (inout lower_file: lower_fil, in string: stri) is func
+(**
+ *  Write a [[string]] followed by end-of-line to ''outFile''.
+ *  The characters are converted to lower case, before they are written.
+ *)
+const proc: writeln (inout lowerFile: outFile, in string: stri) is func
   begin
-    writeln(lower_fil.destination_file, lower(stri));
+    writeln(outFile.destFile, lower(stri));
   end func;
 
 
-const proc: moveLeft (inout lower_file: lower_fil, in string: stri) is func
+const proc: moveLeft (inout lowerFile: outFile, in string: stri) is func
   begin
-    moveLeft(lower_fil.destination_file, stri);
+    moveLeft(outFile.destFile, stri);
   end func;
 
 
-const proc: erase (inout lower_file: lower_fil, in string: stri) is func
+const proc: erase (inout lowerFile: outFile, in string: stri) is func
   begin
-    erase(lower_fil.destination_file, stri);
+    erase(outFile.destFile, stri);
   end func;
 
 
-const proc: cursorOn (inout lower_file: lower_fil, in char: cursorChar) is func
+const proc: cursorOn (inout lowerFile: outFile, in char: cursorChar) is func
   begin
-    cursorOn(lower_fil.destination_file, cursorChar);
+    cursorOn(outFile.destFile, cursorChar);
   end func;
 
 
-const proc: cursorOff (inout lower_file: lower_fil, in char: cursorChar) is func
+const proc: cursorOff (inout lowerFile: outFile, in char: cursorChar) is func
   begin
-    cursorOff(lower_fil.destination_file, cursorChar);
+    cursorOff(outFile.destFile, cursorChar);
   end func;
 
 
-const func string: gets (inout lower_file: lower_fil, in integer: maxLength) is func
+(**
+ *  Read a [[string]] with a maximum length from a file.
+ *  The characters read are converted to lower case.
+ *  @return the string read and converted to lower case.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout lowerFile: inFile, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
-    stri := lower(gets(lower_fil.destination_file, maxLength));
+    stri := lower(gets(inFile.destFile, maxLength));
   end func;
