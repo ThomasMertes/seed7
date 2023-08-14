@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  findchar.sd7  Utility to search for specific chars in files.    *)
-(*  Copyright (C) 2010 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2019, 2022, 2023  Thomas Mertes            *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -107,7 +107,7 @@ const proc: main is func
       writeln("Findchar is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: findchar [ -e extension ] [ r | t | f | n | s ] { file_name }");
+      writeln("usage: findchar [ -e extension ] [ r | t | f | n | c | s ] { file_name }");
       writeln;
       writeln("The character to search for is specified with a single letter:");
       writeln("r=Return, t=Tab, f=Formfeed, n=Newline, c=any Char, s=Space at end of line");
