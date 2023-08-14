@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  tar7.sd7      Tar archiving utility                             *)
 (*  Copyright (C) 1994, 2004, 2005, 2010, 2012  Thomas Mertes       *)
-(*  Copyright (C) 2013, 2019  Thomas Mertes                         *)
+(*  Copyright (C) 2013, 2019, 2020, 2023  Thomas Mertes             *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -78,15 +78,15 @@ const proc: main is func
           # tarFileName := "/dev/flp";
           # arg_list := argv(PROGRAM)[2 .. ];
         end if;
-        for key index range arg_list do
-          fileList &:= findMatchingFiles(convDosPath(arg_list[index]));
-        end for;
         case command of
           when {'t'}:
-            tarTell(tarFileName, fileList, do_view, do_zip_unzip);
+            tarTell(tarFileName, arg_list, do_view, do_zip_unzip);
           when {'x'}:
-            tarXtract(tarFileName, fileList, do_view, do_zip_unzip);
+            tarXtract(tarFileName, arg_list, do_view, do_zip_unzip);
           when {'c'}:
+            for key index range arg_list do
+              fileList &:= findMatchingFiles(convDosPath(arg_list[index]));
+            end for;
             tarCreate(tarFileName, fileList, do_view, do_zip_unzip);
         end case;
       else
