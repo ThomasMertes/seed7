@@ -85,7 +85,7 @@ const type: httpServer is new struct
   end struct;
 
 
-const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is func
+const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is func
   result
     var httpRequest: request is httpRequest.value;
   local
@@ -95,7 +95,7 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
     var integer: questionMarkPos is 0;
     var integer: colonPos is 0;
   begin
-    # writeln("processHttpRequest");
+    # writeln("getHttpRequest");
     conn.timeout := time(NOW) + conn.keepAliveTime;
     conn.buffer := conn.buffer[conn.readPos ..];
     conn.readPos := 1;
@@ -167,7 +167,7 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
         conn.request := httpRequest.value;
       end if;
     end if;
- end func;
+  end func;
 
 
 const proc: openHttpSession (inout httpServer: server, inout file: sock) is func
@@ -207,11 +207,11 @@ const proc: closeHttpSession (inout httpServer: server, inout file: sock) is fun
   end func;
 
 
-const func httpRequest: processHttpRequest (inout httpServer: server, inout file: sock) is func
+const func httpRequest: getHttpRequest (inout httpServer: server, inout file: sock) is func
   result
     var httpRequest: request is httpRequest.value;
   begin
-    # writeln("processHttpRequest: " <& ord(sock));
+    # writeln("getHttpRequest: " <& ord(sock));
     if sock not in server.sessions then
       openHttpSession(server, sock);
     end if;
@@ -220,7 +220,7 @@ const func httpRequest: processHttpRequest (inout httpServer: server, inout file
         closeHttpSession(server, sock);
       else
         block
-          request := processHttpRequest(server.sessions[sock]);
+          request := getHttpRequest(server.sessions[sock]);
         exception
           catch FILE_ERROR:
             noop;
@@ -244,6 +244,14 @@ const proc: cleanSessions (inout httpServer: server) is func
   end func;
 
 
+(**
+ *  Open a HTTP or HTTPS server at the given ''port''.
+ *  @param port Port of the HTTP/HTTPS server.
+ *  @param certificate Server certificate used for HTTPS.
+ *  @param useTls TRUE if an HTTPS server should be opened, or
+ *                FALSE if an HTTP server should be opened.
+ *  @return an open HTTP or HTTPS server.
+ *)
 const func httpServer: openHttpServer (in integer: port,
     in certAndKey: certificate, in boolean: useTls) is func
   result
@@ -257,7 +265,13 @@ const func httpServer: openHttpServer (in integer: port,
   end func;
 
 
-const func httpRequest: getRequest (inout httpServer: server) is func
+(**
+ *  Get the next HTTP request from the HTTP or HTTPS ''server''.
+ *  If necessary this function waits until a request is received.
+ *  @param server HTTP or HTTPS server that receives the request.
+ *  @return the received HTTP request.
+ *)
+const func httpRequest: getHttpRequest (inout httpServer: server) is func
   result
     var httpRequest: request is httpRequest.value;
   local
@@ -267,7 +281,7 @@ const func httpRequest: getRequest (inout httpServer: server) is func
     repeat
       waitForRequest(server.httpListener, existingConnection, newConnection);
       if existingConnection <> STD_NULL then
-        request := processHttpRequest(server, existingConnection);
+        request := getHttpRequest(server, existingConnection);
       end if;
       if newConnection <> STD_NULL then
         openHttpSession(server, newConnection);
