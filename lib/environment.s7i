@@ -100,7 +100,7 @@ const func string: file (PROGRAM) is func
 (**
  *  Terminate the program with the given exit ''status''.
  *  By convention, the exit status 0 indicates normal termination.
- *  This function does not return. Placing exit(0) at the end of the
+ *  This function does not return. Placing exit(0); at the end of the
  *  ''main'' function is unnecessary since leaving ''main'' terminates
  *  the program with an exit status of 0.
  *)
@@ -110,7 +110,7 @@ const proc: exit (in integer: status)                  is action "PRC_EXIT";
 (**
  *  Terminate the program with the exit status 0.
  *  By convention, the exit status 0 indicates normal termination.
- *  This function does not return. Placing exit(PROGRAM) at the end of the
+ *  This function does not return. Placing exit(PROGRAM); at the end of the
  *  ''main'' function is unnecessary since leaving ''main'' terminates
  *  the program with an exit status of 0.
  *)
