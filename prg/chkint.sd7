@@ -9752,6 +9752,44 @@ const func boolean: check_reduced_overflow_checking_for_mult is func
       writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (2)");
       okay := FALSE;
     end if;
+
+    if  pred(-abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287514))) <>  9223372036703762980 or
+        pred(-abs(intExpr(1022287531))) *      -abs(intExpr(9022287515))  <>  9223372036703762980 or
+        pred(-abs(intExpr(1022287531))) *       abs(intExpr(9022287515))  <> -9223372036703762980 or
+        pred(-abs(intExpr(1022287531))) * succ( abs(intExpr(9022287514))) <> -9223372036703762980 or
+             -abs(intExpr(1022287531))  * pred(-abs(intExpr(9022287522))) <>  9223372035859775713 or
+             -abs(intExpr(1022287531))  *      -abs(intExpr(9022287523))  <>  9223372035859775713 or
+             -abs(intExpr(1022287531))  *       abs(intExpr(9022287523))  <> -9223372035859775713 or
+             -abs(intExpr(1022287531))  * succ( abs(intExpr(9022287522))) <> -9223372035859775713 or
+        succ(-abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287531))) <>  9223372036038075960 or
+        succ(-abs(intExpr(1022287531))) *      -abs(intExpr(9022287532))  <>  9223372036038075960 or
+        succ(-abs(intExpr(1022287531))) *       abs(intExpr(9022287532))  <> -9223372036038075960 or
+        succ(-abs(intExpr(1022287531))) * succ( abs(intExpr(9022287531))) <> -9223372036038075960 or
+        pred( abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287531))) <> -9223372036038075960 or
+        pred( abs(intExpr(1022287531))) *      -abs(intExpr(9022287532))  <> -9223372036038075960 or
+        pred( abs(intExpr(1022287531))) *       abs(intExpr(9022287532))  <>  9223372036038075960 or
+        pred( abs(intExpr(1022287531))) * succ( abs(intExpr(9022287531))) <>  9223372036038075960 or
+              abs(intExpr(1022287531))  * pred(-abs(intExpr(9022287522))) <> -9223372035859775713 or
+              abs(intExpr(1022287531))  *      -abs(intExpr(9022287523))  <> -9223372035859775713 or
+              abs(intExpr(1022287531))  *       abs(intExpr(9022287523))  <>  9223372035859775713 or
+              abs(intExpr(1022287531))  * succ( abs(intExpr(9022287522))) <>  9223372035859775713 or
+        succ( abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287514))) <> -9223372036703762980 or
+        succ( abs(intExpr(1022287531))) *      -abs(intExpr(9022287515))  <> -9223372036703762980 or
+        succ( abs(intExpr(1022287531))) *       abs(intExpr(9022287515))  <>  9223372036703762980 or
+        succ( abs(intExpr(1022287531))) * succ( abs(intExpr(9022287514))) <>  9223372036703762980 then
+      writeln(" ***** Reduced overflow check for mult failed. (1)");
+      okay := FALSE;
+    end if;
+
+    if            intExpr(-1)            * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 or
+        pred(     intExpr( 0) mod 2)     * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 or
+        pred(     intExpr( 0) mod 3)     * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 or
+        pred(     intExpr( 0) mod 4)     * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 or
+            (     intExpr( 1) mod 5 - 2) * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 or
+        pred(-abs(intExpr( 0)))          * pred(-abs(intExpr(9223372036854775806))) <>  9223372036854775807 then
+      writeln(" ***** Reduced overflow check for mult failed. (2)");
+      okay := FALSE;
+    end if;
   end func;
 
 

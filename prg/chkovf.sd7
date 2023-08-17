@@ -2400,6 +2400,74 @@ const func boolean: check_reduced_overflow_checking_for_mult is func
       writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (2)");
       okay := FALSE;
     end if;
+
+    if  not raisesOverflowError(pred(-abs(intExpr(1022287532))) * pred(-abs(intExpr(9022287514)))) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287515)))) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287532))) *      -abs(intExpr(9022287515)) ) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287531))) *      -abs(intExpr(9022287516)) ) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287532))) *       abs(intExpr(9022287515)) ) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287531))) *       abs(intExpr(9022287516)) ) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287532))) * succ( abs(intExpr(9022287514)))) or
+        not raisesOverflowError(pred(-abs(intExpr(1022287531))) * succ( abs(intExpr(9022287515)))) or
+        not raisesOverflowError(     -abs(intExpr(1022287532))  * pred(-abs(intExpr(9022287522)))) or
+        not raisesOverflowError(     -abs(intExpr(1022287531))  * pred(-abs(intExpr(9022287523)))) or
+        not raisesOverflowError(     -abs(intExpr(1022287532))  *      -abs(intExpr(9022287523)) ) or
+        not raisesOverflowError(     -abs(intExpr(1022287531))  *      -abs(intExpr(9022287524)) ) or
+        not raisesOverflowError(     -abs(intExpr(1022287532))  *       abs(intExpr(9022287523)) ) or
+        not raisesOverflowError(     -abs(intExpr(1022287531))  *       abs(intExpr(9022287524)) ) or
+        not raisesOverflowError(     -abs(intExpr(1022287532))  * succ( abs(intExpr(9022287522)))) or
+        not raisesOverflowError(     -abs(intExpr(1022287531))  * succ( abs(intExpr(9022287523)))) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287532))) * pred(-abs(intExpr(9022287531)))) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287532)))) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287532))) *      -abs(intExpr(9022287532)) ) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287531))) *      -abs(intExpr(9022287533)) ) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287532))) *       abs(intExpr(9022287532)) ) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287531))) *       abs(intExpr(9022287533)) ) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287532))) * succ( abs(intExpr(9022287531)))) or
+        not raisesOverflowError(succ(-abs(intExpr(1022287531))) * succ( abs(intExpr(9022287532)))) or
+        not raisesOverflowError(pred( abs(intExpr(1022287532))) * pred(-abs(intExpr(9022287531)))) or
+        not raisesOverflowError(pred( abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287532)))) or
+        not raisesOverflowError(pred( abs(intExpr(1022287532))) *      -abs(intExpr(9022287532)) ) or
+        not raisesOverflowError(pred( abs(intExpr(1022287531))) *      -abs(intExpr(9022287533)) ) or
+        not raisesOverflowError(pred( abs(intExpr(1022287532))) *       abs(intExpr(9022287532)) ) or
+        not raisesOverflowError(pred( abs(intExpr(1022287531))) *       abs(intExpr(9022287533)) ) or
+        not raisesOverflowError(pred( abs(intExpr(1022287532))) * succ( abs(intExpr(9022287531)))) or
+        not raisesOverflowError(pred( abs(intExpr(1022287531))) * succ( abs(intExpr(9022287532)))) or
+        not raisesOverflowError(      abs(intExpr(1022287532))  * pred(-abs(intExpr(9022287522)))) or
+        not raisesOverflowError(      abs(intExpr(1022287531))  * pred(-abs(intExpr(9022287523)))) or
+        not raisesOverflowError(      abs(intExpr(1022287532))  *      -abs(intExpr(9022287523)) ) or
+        not raisesOverflowError(      abs(intExpr(1022287531))  *      -abs(intExpr(9022287524)) ) or
+        not raisesOverflowError(      abs(intExpr(1022287532))  *       abs(intExpr(9022287523)) ) or
+        not raisesOverflowError(      abs(intExpr(1022287531))  *       abs(intExpr(9022287524)) ) or
+        not raisesOverflowError(      abs(intExpr(1022287532))  * succ( abs(intExpr(9022287522)))) or
+        not raisesOverflowError(      abs(intExpr(1022287531))  * succ( abs(intExpr(9022287523)))) or
+        not raisesOverflowError(succ( abs(intExpr(1022287532))) * pred(-abs(intExpr(9022287514)))) or
+        not raisesOverflowError(succ( abs(intExpr(1022287531))) * pred(-abs(intExpr(9022287515)))) or
+        not raisesOverflowError(succ( abs(intExpr(1022287532))) *      -abs(intExpr(9022287515)) ) or
+        not raisesOverflowError(succ( abs(intExpr(1022287531))) *      -abs(intExpr(9022287516)) ) or
+        not raisesOverflowError(succ( abs(intExpr(1022287532))) *       abs(intExpr(9022287515)) ) or
+        not raisesOverflowError(succ( abs(intExpr(1022287531))) *       abs(intExpr(9022287516)) ) or
+        not raisesOverflowError(succ( abs(intExpr(1022287532))) * succ( abs(intExpr(9022287514)))) or
+        not raisesOverflowError(succ( abs(intExpr(1022287531))) * succ( abs(intExpr(9022287515)))) then
+      writeln(" ***** Reduced overflow check for mult failed. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(          intExpr(-2)            * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(          intExpr(-1)            * pred(-abs(intExpr(9223372036854775807)))) or
+        not raisesOverflowError(    (     intExpr( 0) mod 2 - 2) * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(pred(     intExpr( 0) mod 2)     * pred(-abs(intExpr(9223372036854775807)))) or
+        not raisesOverflowError(    (     intExpr( 0) mod 3 - 2) * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(pred(     intExpr( 0) mod 3)     * pred(-abs(intExpr(9223372036854775807)))) or
+        not raisesOverflowError(    (     intExpr( 0) mod 4 - 2) * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(pred(     intExpr( 0) mod 4)     * pred(-abs(intExpr(9223372036854775807)))) or
+        not raisesOverflowError(    (     intExpr( 1) mod 5 - 3) * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(    (     intExpr( 1) mod 5 - 2) * pred(-abs(intExpr(9223372036854775807)))) or
+        not raisesOverflowError(    (-abs(intExpr( 0))      - 2) * pred(-abs(intExpr(9223372036854775806)))) or
+        not raisesOverflowError(pred(-abs(intExpr( 0)))          * pred(-abs(intExpr(9223372036854775807)))) then
+      writeln(" ***** Reduced overflow check for mult failed. (2)");
+      okay := FALSE;
+    end if;
   end func;
 
 
