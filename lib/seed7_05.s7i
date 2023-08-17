@@ -1102,11 +1102,6 @@ $ include "environment.s7i";
 
 const proc: heapstat (PROGRAM)              is action "PRC_HEAPSTAT";
 const func integer: heapsize (PROGRAM)      is action "PRC_HSIZE";
-const proc: exit (in integer: status)       is action "PRC_EXIT";
-const proc: exit (PROGRAM) is func
-  begin
-    exit(0);
-  end func;
 
 const proc: include (in string: fileName)  is action "PRC_INCLUDE";
 
