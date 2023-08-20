@@ -2027,7 +2027,7 @@ const func rpmCatalogEntry: followSymlink (inout rpmArchive: rpm, in string: fil
  *  Note that the function returns only the file names.
  *  Additional information must be obtained with other calls.
  *  @param rpm Open RPM archive.
- *  @param dirPath path of a directory in the RPM archive.
+ *  @param dirPath Path of a directory in the RPM archive.
  *  @return an array with the file names.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.

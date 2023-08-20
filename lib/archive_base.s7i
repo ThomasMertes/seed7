@@ -26,9 +26,29 @@
 (********************************************************************)
 
 
+(**
+ *  Hash map that contains all paths in an archive as keys of the hash map.
+ *  The [[ar]], [[cpio]], [[rpm]], [[tar]] and [[zip]] libraries use this type
+ *  to maintain the paths of the files in the archive. Some archive libraries
+ *  store additional information in the value of the hash map. This additional
+ *  information is not used by [[#readDir(in_archiveRegisterType,in_string)|readDir]].
+ *)
 const type: archiveRegisterType is hash [string] integer;
 
 
+(**
+ *  Determine the file names in a directory inside an archive.
+ *  The [[ar]], [[cpio]], [[rpm]], [[tar]] and [[zip]] libraries use this function.
+ *  The archive libraries maintain the files in the archive with the hash map ''register''.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param register Hash map that contains all paths in the archive as keys of the hash map.
+ *  @param dirPath Path of a directory in the archive.
+ *  @return an array with the file names.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''dirPath'' is not present in the ''register''.
+ *)
 const func array string: readDir (in archiveRegisterType: register, in string: dirPath) is func
   result
     var array string: fileNames is 0 times "";

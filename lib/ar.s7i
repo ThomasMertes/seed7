@@ -478,7 +478,7 @@ const proc: setHeaderFileName (inout arArchive: ar, inout arHeader: header) is f
  *  Note that the function returns only the file names.
  *  Additional information must be obtained with other calls.
  *  @param ar Open AR archive.
- *  @param dirPath path of a directory in the AR archive.
+ *  @param dirPath Path of a directory in the AR archive.
  *  @return an array with the file names.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
