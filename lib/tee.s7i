@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tee.s7i       Filter file which emulates the tee functionality  *)
-(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*  Copyright (C) 1992, 1993, 1994, 2005, 2023  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,68 +26,117 @@
 (********************************************************************)
 
 
-const type: tee_file is sub null_file struct
-    var file: out_file1 is STD_NULL;
-    var file: out_file2 is STD_NULL;
+(**
+ *  [[file|File]] implementation type to write to several destination files at once.
+ *)
+const type: teeFile is sub null_file struct
+    var array file: destFiles is 0 times STD_NULL;
   end struct;
 
 
-const func file: openTee (in file: out_fil1, in file: out_fil2) is func
+(**
+ *  Open a tee file to write to the destination files given in ''destFiles''.
+ *  @param destFiles Array with destination files.
+ *  @return the ''teeFile'' opened.
+ *)
+const func file: openTee (in array file: destFiles) is func
   result
     var file: newFile is STD_NULL;
   local
-    var tee_file: new_tee_file is tee_file.value;
+    var teeFile: new_teeFile is teeFile.value;
   begin
-    new_tee_file.out_file1 := out_fil1;
-    new_tee_file.out_file2 := out_fil2;
-    newFile := toInterface(new_tee_file);
+    new_teeFile.destFiles := destFiles;
+    newFile := toInterface(new_teeFile);
   end func;
 
 
-const proc: write (inout tee_file: tee_fil, in string: stri) is func
+(**
+ *  Open a tee file to write to the destination files ''destFile1'' and ''destFile2''.
+ *  @param destFile1 First destination file.
+ *  @param destFile2 Second destination file.
+ *  @return the ''teeFile'' opened.
+ *)
+const func file: openTee (in file: destFile1, in file: destFile2) is
+  return openTee([](destFile1, destFile2));
+
+
+(**
+ *  Write the [[string]] ''stri'' to ''outFile''.
+ *  The characters are forwarded to all destination files.
+ *)
+const proc: write (inout teeFile: outFile, in string: stri) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    write(tee_fil.out_file1, stri);
-    write(tee_fil.out_file2, stri);
+    for destFile range outFile.destFiles do
+      write(destFile, stri);
+    end for;
   end func;
 
 
-const proc: writeln (inout tee_file: tee_fil) is func
+(**
+ *  Write end-of-line to ''outFile''.
+ *  The end-of-line is forwarded to all destination files.
+ *)
+const proc: writeln (inout teeFile: outFile) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    writeln(tee_fil.out_file1);
-    writeln(tee_fil.out_file2);
+    for destFile range outFile.destFiles do
+      writeln(destFile);
+    end for;
   end func;
 
 
-const proc: flush (inout tee_file: tee_fil) is func
+(**
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
+ *  This causes that all destination files are flushed.
+ *)
+const proc: flush (inout teeFile: outFile) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    flush(tee_fil.out_file1);
-    flush(tee_fil.out_file2);
+    for destFile range outFile.destFiles do
+      flush(destFile);
+    end for;
   end func;
 
 
-const proc: moveLeft (inout tee_file: tee_fil, in string: stri) is func
+const proc: moveLeft (inout teeFile: outFile, in string: stri) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    moveLeft(tee_fil.out_file1, stri);
-    moveLeft(tee_fil.out_file2, stri);
+    for destFile range outFile.destFiles do
+      moveLeft(destFile, stri);
+    end for;
   end func;
 
 
-const proc: erase (inout tee_file: tee_fil, in string: stri) is func
+const proc: erase (inout teeFile: outFile, in string: stri) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    erase(tee_fil.out_file1, stri);
-    erase(tee_fil.out_file2, stri);
+    for destFile range outFile.destFiles do
+      erase(destFile, stri);
+    end for;
   end func;
 
 
-const proc: cursorOn (inout tee_file: tee_fil, in char: cursorChar) is func
+const proc: cursorOn (inout teeFile: outFile, in char: cursorChar) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    cursorOn(tee_fil.out_file1, cursorChar);
-    cursorOn(tee_fil.out_file2, cursorChar);
+    for destFile range outFile.destFiles do
+      cursorOn(destFile, cursorChar);
+    end for;
   end func;
 
 
-const proc: cursorOff (inout tee_file: tee_fil, in char: cursorChar) is func
+const proc: cursorOff (inout teeFile: outFile, in char: cursorChar) is func
+  local
+    var file: destFile is STD_NULL;
   begin
-    cursorOff(tee_fil.out_file1, cursorChar);
-    cursorOff(tee_fil.out_file2, cursorChar);
+    for destFile range outFile.destFiles do
+      cursorOff(destFile, cursorChar);
+    end for;
   end func;
