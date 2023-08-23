@@ -415,16 +415,19 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
 
 
 (**
- *  Get data specified by an URL using the HTTP protocol.
+ *  Get data specified by an ''location'' using the HTTP protocol.
+ *   getHttp("example.com")
+ *   getHttp("www.example.com/index.html")
+ *  @param location Url without http:// at the beginning.
  *  @return the string of data found, or "" if nothing was found.
  *)
-const func string: getHttp (in string: url) is func
+const func string: getHttp (in string: location) is func
   result
     var string: data is "";
   local
     var httpLocation: locationData is httpLocation.value;
   begin
-    locationData := getHttpLocation(url, httpDefaultPort);
+    locationData := getHttpLocation(location, httpDefaultPort);
     if proxyServer <> "" then
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;
