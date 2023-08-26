@@ -115,7 +115,7 @@ const proc: int_prototypes (inout file: c_prog) is func
                         \rand_val;})");
       else
         declareExtern(c_prog, "uintType    uintRandLimited (uintType);");
-     end if;
+      end if;
     else
       declareExtern(c_prog, "uintType    uintRand (void);");
       declareExtern(c_prog, "uintType    uintRandMantissa (void);");
@@ -737,7 +737,7 @@ const proc: int_mult_with_overflow_check (in reference: factor1, in reference: f
         end if;
         if factor2_range.minValue < 0 and factor2_range.maxValue > 0 then
           c_expr.expr &:= ")";
-	end if;
+        end if;
         if factor1_range.maxValue <= 0 then
           c_expr.expr &:= ":0";
         end if;
@@ -3137,7 +3137,7 @@ const proc: process (INT_LSHIFT, in reference: function,
       if lshift_range.maxValue < 0 or
           lshift_range.minValue >= ccConf.INTTYPE_SIZE or
           (lshift_range.minValue >= 0 and
-	   lshift_range.minValue < ccConf.INTTYPE_SIZE and
+           lshift_range.minValue < ccConf.INTTYPE_SIZE and
            (integer.first >> lshift_range.minValue > number_range.maxValue or
             integer.last >> lshift_range.minValue < number_range.minValue)) then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
