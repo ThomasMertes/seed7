@@ -95,7 +95,7 @@ const func string: expandInternalMacro (in char: macro, in ruleType: rule,
   begin
     case macro of
       when {'@'}:
-          expandedMacro := rule.name;
+          expandedMacro := rule.target;
       when {'<'}:
           if length(rule.dependencies) <> 0 then
             expandedMacro := rule.dependencies[1];
@@ -218,7 +218,7 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
         if makeData.executeCommands then
           commandStatus := processCommand(command);
           if commandStatus <> 0 and not (ignoreError or makeData.doIgnoreErrors) then
-            writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);
+            writeln(" *** [" <& rule.target <& "] Error " <& commandStatus);
             raise FILE_ERROR;
           end if;
         end if;
@@ -259,7 +259,7 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
     var time: targetTime is time.value;
     var boolean: commandsNecessary is FALSE;
   begin
-    (* write(rule.name <& ":");
+    (* write(rule.target <& ":");
       for dependency range rule.dependencies do
         write(" " <& dependency);
       end for;
@@ -268,7 +268,7 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
       for dependency range rule.dependencies do
         processRule(makeData, dependency);
       end for;
-      ruleFile := convDosPath(rule.name);
+      ruleFile := convDosPath(rule.target);
       if fileType(ruleFile) = FILE_ABSENT then
         processCommands(makeData, rule);
       else
@@ -345,7 +345,7 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
       end if;
       if numberOfRulesFound = 1 then
         patternRule := makeData.patternRules[ruleNameFound][ruleIndexFound];
-        actualRule.name := targetName;
+        actualRule.target := targetName;
         if stemFound = targetName then
           # Avoid rule recursion.
           for dependency range patternRule.dependencies do
@@ -443,13 +443,13 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
     readMakefile(makeData, makefile);
     if not patternRulePresent(makeData, "%.o", "%.c") then
       if ".c.o" in makeData.rules then
-        rule.name := "%.o";
+        rule.target := "%.o";
         rule.dependencies := [] ("%.c");
         rule.commands := makeData.rules[".c.o"].commands;
         addPatternRule(makeData, rule);
         excl(makeData.rules, ".c.o");
       else
-        rule.name := "%.o";
+        rule.target := "%.o";
         rule.dependencies := [] ("%.c");
         rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
         addPatternRule(makeData, rule);
@@ -457,13 +457,13 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
     end if;
     if not patternRulePresent(makeData, "%.obj", "%.c") then
       if ".c.obj" in makeData.rules then
-        rule.name := "%.obj";
+        rule.target := "%.obj";
         rule.dependencies := [] ("%.c");
         rule.commands := makeData.rules[".c.obj"].commands;
         addPatternRule(makeData, rule);
         excl(makeData.rules, ".c.obj");
       else
-        rule.name := "%.obj";
+        rule.target := "%.obj";
         rule.dependencies := [] ("%.c");
         rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
         addPatternRule(makeData, rule);
@@ -471,20 +471,20 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
     end if;
     if not patternRulePresent(makeData, "%.o", "%.cpp") then
       if ".cpp.o" in makeData.rules then
-        rule.name := "%.o";
+        rule.target := "%.o";
         rule.dependencies := [] ("%.cpp");
         rule.commands := makeData.rules[".cpp.o"].commands;
         addPatternRule(makeData, rule);
         excl(makeData.rules, ".cpp.o");
       else
-        rule.name := "%.o";
+        rule.target := "%.o";
         rule.dependencies := [] ("%.cpp");
         rule.commands := [] (applyMacros(makeData.macros, "$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@", TRUE));
         addPatternRule(makeData, rule);
       end if;
     end if;
     if length(targets) = 0 then
-      processRule(makeData, makeData.nameOfFirstRule);
+      processRule(makeData, makeData.targetOfFirstRule);
     else
       for target range targets do
         processRule(makeData, target);
