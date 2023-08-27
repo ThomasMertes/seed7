@@ -946,15 +946,16 @@ const func string: getFtp (in string: connectStri, in integer: portNumber, in st
 
 
 (**
- *  Get data specified by an URL using the FTP protocol.
- *  The contents of the file "/pub/read_me.txt" can be obtained from
- *  the computer ''www.example.org'' with:
- *   fileContent := getFtp("www.example.org/pub/read_me.txt");
+ *  Get data specified by a ''location'' using the FTP protocol.
+ *  The contents of the file "/Public/UNIDATA/UnicodeData.txt" can be
+ *  obtained from the computer ''ftp.unicode.org'' with:
+ *   getFtp("ftp.unicode.org/Public/UNIDATA/UnicodeData.txt")
  *  User and password can be specified with:
- *   fileContent := getFtp("user:password@www.example.org/pub/read_me.txt");
+ *   getFtp("user:password@www.example.org/pub/read_me.txt")
+ *  @param location Url without ftp:// at the beginning.
  *  @return the string of data found, or "" if nothing was found.
  *)
-const func string: getFtp (in string: url) is func
+const func string: getFtp (in string: location) is func
   result
     var string: fileContent is "";
   local
@@ -962,6 +963,6 @@ const func string: getFtp (in string: url) is func
     var integer: portNumber is 0;
     var string: path is "";
   begin
-    splitFtpLocation(url, connectStri, portNumber, path);
+    splitFtpLocation(location, connectStri, portNumber, path);
     fileContent := getFtp(connectStri, portNumber, path);
   end func;

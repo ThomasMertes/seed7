@@ -415,7 +415,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
 
 
 (**
- *  Get data specified by an ''location'' using the HTTP protocol.
+ *  Get data specified by a ''location'' using the HTTP protocol.
  *   getHttp("example.com")
  *   getHttp("www.example.com/index.html")
  *  @param location Url without http:// at the beginning.
