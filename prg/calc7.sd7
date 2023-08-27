@@ -72,6 +72,7 @@ const proc: main is func
           \include \"getf.s7i\";\n\
           \include \"gethttp.s7i\";\n\
           \include \"gethttps.s7i\";\n\
+          \include \"ftp.s7i\";\n\
           \include \"keybd.s7i\";\n\
           \include \"draw.s7i\";\n\
           \\n\
