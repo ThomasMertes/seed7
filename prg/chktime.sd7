@@ -1,0 +1,1851 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chktime.sd7   Checks time functions                             *)
+(*  Copyright (C) 2023  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "time.s7i";
+
+
+const func boolean: raisesRangeError (in proc: statement) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (in func time: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var time: exprResult is time.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const proc: checkISO8601ToTimeConversion is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  time("-4711-1-1")   <> date(-4711,  1,  1) or
+        time("-4711-12-31") <> date(-4711, 12, 31) or
+        time("-999-12-31")  <> date( -999, 12, 31) or
+        time("-123-1-23")   <> date( -123,  1, 23) or
+        time("-42-4-2")     <> date(  -42,  4,  2) or
+        time("-1-1-1")      <> date(   -1,  1,  1) or
+        time("-1-12-31")    <> date(   -1, 12, 31) or
+        time("0-1-1")       <> date(    0,  1,  1) or
+        time("0-12-31")     <> date(    0, 12, 31) or
+        time("1-1-1")       <> date(    1,  1,  1) or
+        time("42-4-2")      <> date(   42,  4,  2) or
+        time("123-1-23")    <> date(  123,  1, 23) or
+        time("999-12-31")   <> date(  999, 12, 31) or
+        time("1000-1-1")    <> date( 1000,  1,  1) or
+        time("1600-12-31")  <> date( 1600, 12, 31) or
+        time("1601-1-1")    <> date( 1601,  1,  1) or
+        time("1752-12-31")  <> date( 1752, 12, 31) or
+        time("1753-1-1")    <> date( 1753,  1,  1) or
+        time("1800-1-1")    <> date( 1800,  1,  1) or
+        time("1893-3-31")   <> date( 1893,  3, 31) or
+        time("1893-4-1")    <> date( 1893,  4,  1) or
+        time("1899-12-31")  <> date( 1899, 12, 31) or
+        time("1900-1-1")    <> date( 1900,  1,  1) or
+        time("1961-1-9")    <> date( 1961,  1,  9) or
+        time("1969-12-31")  <> date( 1969, 12, 31) or
+        time("1970-1-1")    <> date( 1970,  1,  1) or
+        time("1979-12-31")  <> date( 1979, 12, 31) or
+        time("1980-1-1")    <> date( 1980,  1,  1) or
+        time("2010-11-12")  <> date( 2010, 11, 12) or
+        time("2011-11-11")  <> date( 2011, 11, 11) or
+        time("2012-12-12")  <> date( 2012, 12, 12) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format to a time fails. (1)");
+      okay := FALSE;
+    end if;
+
+    if  time("0:0:0")    <> time(0, 1, 1,  0,  0,  0) or
+        time("0:0:59")   <> time(0, 1, 1,  0,  0, 59) or
+        time("0:59:59")  <> time(0, 1, 1,  0, 59, 59) or
+        time("1:0:0")    <> time(0, 1, 1,  1,  0,  0) or
+        time("11:59:59") <> time(0, 1, 1, 11, 59, 59) or
+        time("12:0:0")   <> time(0, 1, 1, 12,  0,  0) or
+        time("23:59:59") <> time(0, 1, 1, 23, 59, 59) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format to a time fails. (2)");
+      okay := FALSE;
+    end if;
+
+    if  time("-4711-1-1 0:0:0")             <> time(-4711,  1,  1,  0,  0,  0) or
+        time("-4711-12-31 23:59:59")        <> time(-4711, 12, 31, 23, 59, 59) or
+        time("-999-12-31 23:59:59")         <> time( -999, 12, 31, 23, 59, 59) or
+        time("-123-1-23 12:31:12")          <> time( -123,  1, 23, 12, 31, 12) or
+        time("-42-4-2 4:42:42")             <> time(  -42,  4,  2,  4, 42, 42) or
+        time("-1-1-1 0:0:0")                <> time(   -1,  1,  1,  0,  0,  0) or
+        time("-1-12-31 23:59:59")           <> time(   -1, 12, 31, 23, 59, 59) or
+        time("0-1-1 0:0:0")                 <> time(    0,  1,  1,  0,  0,  0) or
+        time("0-12-31 23:59:59")            <> time(    0, 12, 31, 23, 59, 59) or
+        time("1-1-1 0:0:0")                 <> time(    1,  1,  1,  0,  0,  0) or
+        time("1-12-31 23:59:59")            <> time(    1, 12, 31, 23, 59, 59) or
+        time("42-4-2 4:42:42")              <> time(   42,  4,  2,  4, 42, 42) or
+        time("123-1-23 12:31:12")           <> time(  123,  1, 23, 12, 31, 12) or
+        time("999-12-31 23:59:59")          <> time(  999, 12, 31, 23, 59, 59) or
+        time("1000-1-1 0:0:0")              <> time( 1000,  1,  1,  0,  0,  0) or
+        time("1600-12-31 23:59:59")         <> time( 1600, 12, 31, 23, 59, 59) or
+        time("1601-1-1 0:0:0")              <> time( 1601,  1,  1,  0,  0,  0) or
+        time("1752-12-31 23:59:59")         <> time( 1752, 12, 31, 23, 59, 59) or
+        time("1753-1-1 0:0:0")              <> time( 1753,  1,  1,  0,  0,  0) or
+        time("1800-1-1 0:0:0")              <> time( 1800,  1,  1,  0,  0,  0) or
+        time("1893-3-31 23:59:59")          <> time( 1893,  3, 31, 23, 59, 59) or
+        time("1893-4-1 0:0:0")              <> time( 1893,  4,  1,  0,  0,  0) or
+        time("1899-12-31 23:59:59")         <> time( 1899, 12, 31, 23, 59, 59) or
+        time("1900-1-1 0:0:0")              <> time( 1900,  1,  1,  0,  0,  0) or
+        time("1961-1-9 6:1:0")              <> time( 1961,  1,  9,  6,  1,  0) or
+        time("1969-12-31 23:59:59")         <> time( 1969, 12, 31, 23, 59, 59) or
+        time("1970-1-1 0:0:0")              <> time( 1970,  1,  1,  0,  0,  0) or
+        time("1970-1-2 0:0:0")              <> time( 1970,  1,  2,  0,  0,  0) or
+        time("1979-12-31 23:59:59")         <> time( 1979, 12, 31, 23, 59, 59) or
+        time("1980-1-1 0:0:0")              <> time( 1980,  1,  1,  0,  0,  0) or
+        time("2010-11-12 13:14:15")         <> time( 2010, 11, 12, 13, 14, 15) or
+        time("2011-11-11 11:11:11")         <> time( 2011, 11, 11, 11, 11, 11) or
+        time("2012-12-12 12:12:12")         <> time( 2012, 12, 12, 12, 12, 12) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format to a time fails. (3)");
+      okay := FALSE;
+    end if;
+
+    if  time("-4711-12-31 23:59:59.123456") <> time(-4711, 12, 31, 23, 59, 59, 123456) or
+        time("-1-12-31 23:59:59.999999")    <> time(   -1, 12, 31, 23, 59, 59, 999999) or
+        time("0-12-31 23:59:59.123456")     <> time(    0, 12, 31, 23, 59, 59, 123456) or
+        time("0-12-31 23:59:59.999999")     <> time(    0, 12, 31, 23, 59, 59, 999999) or
+        time("1-12-31 23:59:59.123456")     <> time(    1, 12, 31, 23, 59, 59, 123456) or
+        time("1-12-31 23:59:59.999999")     <> time(    1, 12, 31, 23, 59, 59, 999999) or
+        time("1600-12-31 23:59:59.999999")  <> time( 1600, 12, 31, 23, 59, 59, 999999) or
+        time("1601-1-1 0:0:0.0")            <> time( 1601,  1,  1,  0,  0,  0,      0) or
+        time("1893-3-31 23:59:59.999999")   <> time( 1893,  3, 31, 23, 59, 59, 999999) or
+        time("1893-4-1 0:0:0.0")            <> time( 1893,  4,  1,  0,  0,  0,      0) or
+        time("1969-12-31 23:59:59.999999")  <> time( 1969, 12, 31, 23, 59, 59, 999999) or
+        time("1970-1-1 0:0:0.0")            <> time( 1970,  1,  1,  0,  0,  0,      0) or
+        time("1970-1-2 0:0:0.0")            <> time( 1970,  1,  2,  0,  0,  0,      0) or
+        time("1979-12-31 23:59:59.999999")  <> time( 1979, 12, 31, 23, 59, 59, 999999) or
+        time("1980-1-1 0:0:0.0")            <> time( 1980,  1,  1,  0,  0,  0,      0) or
+        time("2010-11-12 13:14:15.16")      <> time( 2010, 11, 12, 13, 14, 15, 160000) or
+        time("2011-11-11 11:11:11.11")      <> time( 2011, 11, 11, 11, 11, 11, 110000) or
+        time("2012-12-12 12:12:12.12")      <> time( 2012, 12, 12, 12, 12, 12, 120000) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format to a time fails. (4)");
+      okay := FALSE;
+    end if;
+
+    if  time("-1-1-31")  <> date(   -1,  1, 31) or
+        time("-1-2-28")  <> date(   -1,  2, 28) or
+        time("-1-3-31")  <> date(   -1,  3, 31) or
+        time("-1-4-30")  <> date(   -1,  4, 30) or
+        time("-1-5-31")  <> date(   -1,  5, 31) or
+        time("-1-6-30")  <> date(   -1,  6, 30) or
+        time("-1-7-31")  <> date(   -1,  7, 31) or
+        time("-1-8-31")  <> date(   -1,  8, 31) or
+        time("-1-9-30")  <> date(   -1,  9, 30) or
+        time("-1-10-31") <> date(   -1, 10, 31) or
+        time("-1-11-30") <> date(   -1, 11, 30) or
+        time("-1-12-31") <> date(   -1, 12, 31) or
+        time("0-1-31")   <> date(    0,  1, 31) or
+        time("0-2-29")   <> date(    0,  2, 29) or
+        time("0-3-31")   <> date(    0,  3, 31) or
+        time("0-4-30")   <> date(    0,  4, 30) or
+        time("0-5-31")   <> date(    0,  5, 31) or
+        time("0-6-30")   <> date(    0,  6, 30) or
+        time("0-7-31")   <> date(    0,  7, 31) or
+        time("0-8-31")   <> date(    0,  8, 31) or
+        time("0-9-30")   <> date(    0,  9, 30) or
+        time("0-10-31")  <> date(    0, 10, 31) or
+        time("0-11-30")  <> date(    0, 11, 30) or
+        time("0-12-31")  <> date(    0, 12, 31) or
+        time("1-1-31")   <> date(    1,  1, 31) or
+        time("1-2-28")   <> date(    1,  2, 28) or
+        time("1-3-31")   <> date(    1,  3, 31) or
+        time("1-4-30")   <> date(    1,  4, 30) or
+        time("1-5-31")   <> date(    1,  5, 31) or
+        time("1-6-30")   <> date(    1,  6, 30) or
+        time("1-7-31")   <> date(    1,  7, 31) or
+        time("1-8-31")   <> date(    1,  8, 31) or
+        time("1-9-30")   <> date(    1,  9, 30) or
+        time("1-10-31")  <> date(    1, 10, 31) or
+        time("1-11-30")  <> date(    1, 11, 30) or
+        time("1-12-31")  <> date(    1, 12, 31) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format to a time fails. (5)");
+      okay := FALSE;
+    end if;
+
+    if not raisesRangeError(time("-1--1-1")) or
+       not raisesRangeError(time("-1-13-1")) or
+       not raisesRangeError(time("-1-1--1")) or
+       not raisesRangeError(time("-1-1-32")) or
+       not raisesRangeError(time("-1-2--1")) or
+       not raisesRangeError(time("-1-2-29")) or
+       not raisesRangeError(time("-1-3--1")) or
+       not raisesRangeError(time("-1-3-32")) or
+       not raisesRangeError(time("-1-4--1")) or
+       not raisesRangeError(time("-1-4-31")) or
+       not raisesRangeError(time("-1-5--1")) or
+       not raisesRangeError(time("-1-5-32")) or
+       not raisesRangeError(time("-1-6--1")) or
+       not raisesRangeError(time("-1-6-31")) or
+       not raisesRangeError(time("-1-7--1")) or
+       not raisesRangeError(time("-1-7-32")) or
+       not raisesRangeError(time("-1-8--1")) or
+       not raisesRangeError(time("-1-8-32")) or
+       not raisesRangeError(time("-1-9--1")) or
+       not raisesRangeError(time("-1-9-31")) or
+       not raisesRangeError(time("-1-10--1")) or
+       not raisesRangeError(time("-1-10-32")) or
+       not raisesRangeError(time("-1-11--1")) or
+       not raisesRangeError(time("-1-11-31")) or
+       not raisesRangeError(time("-1-12--1")) or
+       not raisesRangeError(time("-1-12-32")) or
+       not raisesRangeError(time("0--1-1")) or
+       not raisesRangeError(time("0-13-1")) or
+       not raisesRangeError(time("0-1--1")) or
+       not raisesRangeError(time("0-1-32")) or
+       not raisesRangeError(time("0-2--1")) or
+       not raisesRangeError(time("0-2-30")) or
+       not raisesRangeError(time("0-3--1")) or
+       not raisesRangeError(time("0-3-32")) or
+       not raisesRangeError(time("0-4--1")) or
+       not raisesRangeError(time("0-4-31")) or
+       not raisesRangeError(time("0-5--1")) or
+       not raisesRangeError(time("0-5-32")) or
+       not raisesRangeError(time("0-6--1")) or
+       not raisesRangeError(time("0-6-31")) or
+       not raisesRangeError(time("0-7--1")) or
+       not raisesRangeError(time("0-7-32")) or
+       not raisesRangeError(time("0-8--1")) or
+       not raisesRangeError(time("0-8-32")) or
+       not raisesRangeError(time("0-9--1")) or
+       not raisesRangeError(time("0-9-31")) or
+       not raisesRangeError(time("0-10--1")) or
+       not raisesRangeError(time("0-10-32")) or
+       not raisesRangeError(time("0-11--1")) or
+       not raisesRangeError(time("0-11-31")) or
+       not raisesRangeError(time("0-12--1")) or
+       not raisesRangeError(time("0-12-32")) or
+       not raisesRangeError(time("1--1-1")) or
+       not raisesRangeError(time("1-13-1")) or
+       not raisesRangeError(time("1-1--1")) or
+       not raisesRangeError(time("1-1-32")) or
+       not raisesRangeError(time("1-2--1")) or
+       not raisesRangeError(time("1-2-29")) or
+       not raisesRangeError(time("1-3--1")) or
+       not raisesRangeError(time("1-3-32")) or
+       not raisesRangeError(time("1-4--1")) or
+       not raisesRangeError(time("1-4-31")) or
+       not raisesRangeError(time("1-5--1")) or
+       not raisesRangeError(time("1-5-32")) or
+       not raisesRangeError(time("1-6--1")) or
+       not raisesRangeError(time("1-6-31")) or
+       not raisesRangeError(time("1-7--1")) or
+       not raisesRangeError(time("1-7-32")) or
+       not raisesRangeError(time("1-8--1")) or
+       not raisesRangeError(time("1-8-32")) or
+       not raisesRangeError(time("1-9--1")) or
+       not raisesRangeError(time("1-9-31")) or
+       not raisesRangeError(time("1-10--1")) or
+       not raisesRangeError(time("1-10-32")) or
+       not raisesRangeError(time("1-11--1")) or
+       not raisesRangeError(time("1-11-31")) or
+       not raisesRangeError(time("1-12--1")) or
+       not raisesRangeError(time("1-12-32")) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format with illegal time value does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(time("-1:0:0")) or
+        not raisesRangeError(time("-1:0:59")) or
+        not raisesRangeError(time("-1:59:59")) or
+        not raisesRangeError(time("24:0:0")) or
+        not raisesRangeError(time("24:0:59")) or
+        not raisesRangeError(time("24:59:59")) or
+        not raisesRangeError(time("0:-1:0")) or
+        not raisesRangeError(time("0:-1:59")) or
+        not raisesRangeError(time("0:60:0")) or
+        not raisesRangeError(time("0:60:59")) or
+        not raisesRangeError(time("23:-1:0")) or
+        not raisesRangeError(time("23:-1:59")) or
+        not raisesRangeError(time("23:60:0")) or
+        not raisesRangeError(time("23:60:59")) or
+        not raisesRangeError(time("0:0:-1")) or
+        not raisesRangeError(time("0:0:60")) or
+        not raisesRangeError(time("0:59:-1")) or
+        not raisesRangeError(time("0:59:60")) or
+        not raisesRangeError(time("23:0:-1")) or
+        not raisesRangeError(time("23:0:60")) or
+        not raisesRangeError(time("23:59:-1")) or
+        not raisesRangeError(time("23:59:60")) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format with illegal time value does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(time("2010-11-12 -1:0:0")) or
+        not raisesRangeError(time("2010-11-12 -1:0:59")) or
+        not raisesRangeError(time("2010-11-12 -1:59:59")) or
+        not raisesRangeError(time("2010-11-12 24:0:0")) or
+        not raisesRangeError(time("2010-11-12 24:0:59")) or
+        not raisesRangeError(time("2010-11-12 24:59:59")) or
+        not raisesRangeError(time("2010-11-12 0:-1:0")) or
+        not raisesRangeError(time("2010-11-12 0:-1:59")) or
+        not raisesRangeError(time("2010-11-12 0:60:0")) or
+        not raisesRangeError(time("2010-11-12 0:60:59")) or
+        not raisesRangeError(time("2010-11-12 23:-1:0")) or
+        not raisesRangeError(time("2010-11-12 23:-1:59")) or
+        not raisesRangeError(time("2010-11-12 23:60:0")) or
+        not raisesRangeError(time("2010-11-12 23:60:59")) or
+        not raisesRangeError(time("2010-11-12 0:0:-1")) or
+        not raisesRangeError(time("2010-11-12 0:0:60")) or
+        not raisesRangeError(time("2010-11-12 0:59:-1")) or
+        not raisesRangeError(time("2010-11-12 0:59:60")) or
+        not raisesRangeError(time("2010-11-12 23:0:-1")) or
+        not raisesRangeError(time("2010-11-12 23:0:60")) or
+        not raisesRangeError(time("2010-11-12 23:59:-1")) or
+        not raisesRangeError(time("2010-11-12 23:59:60")) then
+      writeln(" ***** Conversion of a string in ISO 8601 date format with illegal time value does not raise RANGE_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The conversion of a string in ISO 8601 date format works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkTimeToStringConversion is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  str(date(-4711,  1,  1)) <> "-4711-01-01 00:00:00 UTC" or
+        str(date(-4711, 12, 31)) <> "-4711-12-31 00:00:00 UTC" or
+        str(date( -999, 12, 31)) <> "-999-12-31 00:00:00 UTC"  or
+        str(date( -123,  1, 23)) <> "-123-01-23 00:00:00 UTC"  or
+        str(date(  -42,  4,  2)) <> "-042-04-02 00:00:00 UTC"  or
+        str(date(   -1,  1,  1)) <> "-001-01-01 00:00:00 UTC"  or
+        str(date(   -1, 12, 31)) <> "-001-12-31 00:00:00 UTC"  or
+        str(date(    0,  1,  1)) <> "0000-01-01 00:00:00 UTC"  or
+        str(date(    0, 12, 31)) <> "0000-12-31 00:00:00 UTC"  or
+        str(date(    1,  1,  1)) <> "0001-01-01 00:00:00 UTC"  or
+        str(date(   42,  4,  2)) <> "0042-04-02 00:00:00 UTC"  or
+        str(date(  123,  1, 23)) <> "0123-01-23 00:00:00 UTC"  or
+        str(date(  999, 12, 31)) <> "0999-12-31 00:00:00 UTC"  or
+        str(date( 1000,  1,  1)) <> "1000-01-01 00:00:00 UTC"  or
+        str(date( 1600, 12, 31)) <> "1600-12-31 00:00:00 UTC"  or
+        str(date( 1601,  1,  1)) <> "1601-01-01 00:00:00 UTC"  or
+        str(date( 1752, 12, 31)) <> "1752-12-31 00:00:00 UTC"  or
+        str(date( 1753,  1,  1)) <> "1753-01-01 00:00:00 UTC"  or
+        str(date( 1800,  1,  1)) <> "1800-01-01 00:00:00 UTC"  or
+        str(date( 1893,  3, 31)) <> "1893-03-31 00:00:00 UTC"  or
+        str(date( 1893,  4,  1)) <> "1893-04-01 00:00:00 UTC"  or
+        str(date( 1899, 12, 31)) <> "1899-12-31 00:00:00 UTC"  or
+        str(date( 1900,  1,  1)) <> "1900-01-01 00:00:00 UTC"  or
+        str(date( 1961,  1,  9)) <> "1961-01-09 00:00:00 UTC"  or
+        str(date( 1969, 12, 31)) <> "1969-12-31 00:00:00 UTC"  or
+        str(date( 1970,  1,  1)) <> "1970-01-01 00:00:00 UTC"  or
+        str(date( 1979, 12, 31)) <> "1979-12-31 00:00:00 UTC"  or
+        str(date( 1980,  1,  1)) <> "1980-01-01 00:00:00 UTC"  or
+        str(date( 2010, 11, 12)) <> "2010-11-12 00:00:00 UTC"  or
+        str(date( 2011, 11, 11)) <> "2011-11-11 00:00:00 UTC"  or
+        str(date( 2012, 12, 12)) <> "2012-12-12 00:00:00 UTC"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (1)");
+      okay := FALSE;
+    end if;
+
+    if  str(time(0, 1, 1,  0,  0,  0)) <> "0000-01-01 00:00:00 UTC" or
+        str(time(0, 1, 1,  0,  0, 59)) <> "0000-01-01 00:00:59 UTC" or
+        str(time(0, 1, 1,  0, 59, 59)) <> "0000-01-01 00:59:59 UTC" or
+        str(time(0, 1, 1,  1,  0,  0)) <> "0000-01-01 01:00:00 UTC" or
+        str(time(0, 1, 1, 11, 59, 59)) <> "0000-01-01 11:59:59 UTC" or
+        str(time(0, 1, 1, 12,  0,  0)) <> "0000-01-01 12:00:00 UTC" or
+        str(time(0, 1, 1, 23, 59, 59)) <> "0000-01-01 23:59:59 UTC" then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (2)");
+      okay := FALSE;
+    end if;
+
+    if  str(time(-4711,  1,  1,  0,  0,  0)) <> "-4711-01-01 00:00:00 UTC" or
+        str(time(-4711, 12, 31, 23, 59, 59)) <> "-4711-12-31 23:59:59 UTC" or
+        str(time( -999, 12, 31, 23, 59, 59)) <> "-999-12-31 23:59:59 UTC"  or
+        str(time( -123,  1, 23, 12, 31, 12)) <> "-123-01-23 12:31:12 UTC"  or
+        str(time(  -42,  4,  2,  4, 42, 42)) <> "-042-04-02 04:42:42 UTC"  or
+        str(time(   -1,  1,  1,  0,  0,  0)) <> "-001-01-01 00:00:00 UTC"  or
+        str(time(   -1, 12, 31, 23, 59, 59)) <> "-001-12-31 23:59:59 UTC"  or
+        str(time(    0,  1,  1,  0,  0,  0)) <> "0000-01-01 00:00:00 UTC"  or
+        str(time(    0, 12, 31, 23, 59, 59)) <> "0000-12-31 23:59:59 UTC"  or
+        str(time(    1,  1,  1,  0,  0,  0)) <> "0001-01-01 00:00:00 UTC"  or
+        str(time(    1, 12, 31, 23, 59, 59)) <> "0001-12-31 23:59:59 UTC"  or
+        str(time(   42,  4,  2,  4, 42, 42)) <> "0042-04-02 04:42:42 UTC"  or
+        str(time(  123,  1, 23, 12, 31, 12)) <> "0123-01-23 12:31:12 UTC"  or
+        str(time(  999, 12, 31, 23, 59, 59)) <> "0999-12-31 23:59:59 UTC"  or
+        str(time( 1000,  1,  1,  0,  0,  0)) <> "1000-01-01 00:00:00 UTC"  or
+        str(time( 1600, 12, 31, 23, 59, 59)) <> "1600-12-31 23:59:59 UTC"  or
+        str(time( 1601,  1,  1,  0,  0,  0)) <> "1601-01-01 00:00:00 UTC"  or
+        str(time( 1752, 12, 31, 23, 59, 59)) <> "1752-12-31 23:59:59 UTC"  or
+        str(time( 1753,  1,  1,  0,  0,  0)) <> "1753-01-01 00:00:00 UTC"  or
+        str(time( 1800,  1,  1,  0,  0,  0)) <> "1800-01-01 00:00:00 UTC"  or
+        str(time( 1893,  3, 31, 23, 59, 59)) <> "1893-03-31 23:59:59 UTC"  or
+        str(time( 1893,  4,  1,  0,  0,  0)) <> "1893-04-01 00:00:00 UTC"  or
+        str(time( 1899, 12, 31, 23, 59, 59)) <> "1899-12-31 23:59:59 UTC"  or
+        str(time( 1900,  1,  1,  0,  0,  0)) <> "1900-01-01 00:00:00 UTC"  or
+        str(time( 1961,  1,  9,  6,  1,  0)) <> "1961-01-09 06:01:00 UTC"  or
+        str(time( 1969, 12, 31, 23, 59, 59)) <> "1969-12-31 23:59:59 UTC"  or
+        str(time( 1970,  1,  1,  0,  0,  0)) <> "1970-01-01 00:00:00 UTC"  or
+        str(time( 1970,  1,  2,  0,  0,  0)) <> "1970-01-02 00:00:00 UTC"  or
+        str(time( 1979, 12, 31, 23, 59, 59)) <> "1979-12-31 23:59:59 UTC"  or
+        str(time( 1980,  1,  1,  0,  0,  0)) <> "1980-01-01 00:00:00 UTC"  or
+        str(time( 2010, 11, 12, 13, 14, 15)) <> "2010-11-12 13:14:15 UTC"  or
+        str(time( 2011, 11, 11, 11, 11, 11)) <> "2011-11-11 11:11:11 UTC"  or
+        str(time( 2012, 12, 12, 12, 12, 12)) <> "2012-12-12 12:12:12 UTC"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (3)");
+      okay := FALSE;
+    end if;
+
+    if  str(time(-4711, 12, 31, 23, 59, 59, 123456)) <> "-4711-12-31 23:59:59.123456 UTC" or
+        str(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-001-12-31 23:59:59.999999 UTC"  or
+        str(time(    0, 12, 31, 23, 59, 59, 123456)) <> "0000-12-31 23:59:59.123456 UTC"  or
+        str(time(    0, 12, 31, 23, 59, 59, 999999)) <> "0000-12-31 23:59:59.999999 UTC"  or
+        str(time(    1, 12, 31, 23, 59, 59, 123456)) <> "0001-12-31 23:59:59.123456 UTC"  or
+        str(time(    1, 12, 31, 23, 59, 59, 999999)) <> "0001-12-31 23:59:59.999999 UTC"  or
+        str(time( 1600, 12, 31, 23, 59, 59, 999999)) <> "1600-12-31 23:59:59.999999 UTC"  or
+        str(time( 1601,  1,  1,  0,  0,  0,      0)) <> "1601-01-01 00:00:00 UTC"  or
+        str(time( 1893,  3, 31, 23, 59, 59, 999999)) <> "1893-03-31 23:59:59.999999 UTC"  or
+        str(time( 1893,  4,  1,  0,  0,  0,      0)) <> "1893-04-01 00:00:00 UTC"  or
+        str(time( 1969, 12, 31, 23, 59, 59, 999999)) <> "1969-12-31 23:59:59.999999 UTC"  or
+        str(time( 1970,  1,  1,  0,  0,  0,      0)) <> "1970-01-01 00:00:00 UTC"  or
+        str(time( 1970,  1,  2,  0,  0,  0,      0)) <> "1970-01-02 00:00:00 UTC"  or
+        str(time( 1979, 12, 31, 23, 59, 59, 999999)) <> "1979-12-31 23:59:59.999999 UTC"  or
+        str(time( 1980,  1,  1,  0,  0,  0,      0)) <> "1980-01-01 00:00:00 UTC"  or
+        str(time( 2010, 11, 12, 13, 14, 15, 160000)) <> "2010-11-12 13:14:15.160000 UTC"  or
+        str(time( 2011, 11, 11, 11, 11, 11, 110000)) <> "2011-11-11 11:11:11.110000 UTC"  or
+        str(time( 2012, 12, 12, 12, 12, 12, 120000)) <> "2012-12-12 12:12:12.120000 UTC"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (4)");
+      okay := FALSE;
+    end if;
+
+    if  str(date(   -1,  1, 31)) <> "-001-01-31 00:00:00 UTC" or
+        str(date(   -1,  2, 28)) <> "-001-02-28 00:00:00 UTC" or
+        str(date(   -1,  3, 31)) <> "-001-03-31 00:00:00 UTC" or
+        str(date(   -1,  4, 30)) <> "-001-04-30 00:00:00 UTC" or
+        str(date(   -1,  5, 31)) <> "-001-05-31 00:00:00 UTC" or
+        str(date(   -1,  6, 30)) <> "-001-06-30 00:00:00 UTC" or
+        str(date(   -1,  7, 31)) <> "-001-07-31 00:00:00 UTC" or
+        str(date(   -1,  8, 31)) <> "-001-08-31 00:00:00 UTC" or
+        str(date(   -1,  9, 30)) <> "-001-09-30 00:00:00 UTC" or
+        str(date(   -1, 10, 31)) <> "-001-10-31 00:00:00 UTC" or
+        str(date(   -1, 11, 30)) <> "-001-11-30 00:00:00 UTC" or
+        str(date(   -1, 12, 31)) <> "-001-12-31 00:00:00 UTC" or
+        str(date(    0,  1, 31)) <> "0000-01-31 00:00:00 UTC" or
+        str(date(    0,  2, 29)) <> "0000-02-29 00:00:00 UTC" or
+        str(date(    0,  3, 31)) <> "0000-03-31 00:00:00 UTC" or
+        str(date(    0,  4, 30)) <> "0000-04-30 00:00:00 UTC" or
+        str(date(    0,  5, 31)) <> "0000-05-31 00:00:00 UTC" or
+        str(date(    0,  6, 30)) <> "0000-06-30 00:00:00 UTC" or
+        str(date(    0,  7, 31)) <> "0000-07-31 00:00:00 UTC" or
+        str(date(    0,  8, 31)) <> "0000-08-31 00:00:00 UTC" or
+        str(date(    0,  9, 30)) <> "0000-09-30 00:00:00 UTC" or
+        str(date(    0, 10, 31)) <> "0000-10-31 00:00:00 UTC" or
+        str(date(    0, 11, 30)) <> "0000-11-30 00:00:00 UTC" or
+        str(date(    0, 12, 31)) <> "0000-12-31 00:00:00 UTC" or
+        str(date(    1,  1, 31)) <> "0001-01-31 00:00:00 UTC" or
+        str(date(    1,  2, 28)) <> "0001-02-28 00:00:00 UTC" or
+        str(date(    1,  3, 31)) <> "0001-03-31 00:00:00 UTC" or
+        str(date(    1,  4, 30)) <> "0001-04-30 00:00:00 UTC" or
+        str(date(    1,  5, 31)) <> "0001-05-31 00:00:00 UTC" or
+        str(date(    1,  6, 30)) <> "0001-06-30 00:00:00 UTC" or
+        str(date(    1,  7, 31)) <> "0001-07-31 00:00:00 UTC" or
+        str(date(    1,  8, 31)) <> "0001-08-31 00:00:00 UTC" or
+        str(date(    1,  9, 30)) <> "0001-09-30 00:00:00 UTC" or
+        str(date(    1, 10, 31)) <> "0001-10-31 00:00:00 UTC" or
+        str(date(    1, 11, 30)) <> "0001-11-30 00:00:00 UTC" or
+        str(date(    1, 12, 31)) <> "0001-12-31 00:00:00 UTC" then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (5)");
+      okay := FALSE;
+    end if;
+
+    if  strDate(date(-4711,  1,  1)) <> "-4711-01-01" or
+        strDate(date(-4711, 12, 31)) <> "-4711-12-31" or
+        strDate(date( -999, 12, 31)) <> "-999-12-31"  or
+        strDate(date( -123,  1, 23)) <> "-123-01-23"  or
+        strDate(date(  -42,  4,  2)) <> "-042-04-02"  or
+        strDate(date(   -1,  1,  1)) <> "-001-01-01"  or
+        strDate(date(   -1, 12, 31)) <> "-001-12-31"  or
+        strDate(date(    0,  1,  1)) <> "0000-01-01"  or
+        strDate(date(    0, 12, 31)) <> "0000-12-31"  or
+        strDate(date(    1,  1,  1)) <> "0001-01-01"  or
+        strDate(date(   42,  4,  2)) <> "0042-04-02"  or
+        strDate(date(  123,  1, 23)) <> "0123-01-23"  or
+        strDate(date(  999, 12, 31)) <> "0999-12-31"  or
+        strDate(date( 1000,  1,  1)) <> "1000-01-01"  or
+        strDate(date( 1600, 12, 31)) <> "1600-12-31"  or
+        strDate(date( 1601,  1,  1)) <> "1601-01-01"  or
+        strDate(date( 1752, 12, 31)) <> "1752-12-31"  or
+        strDate(date( 1753,  1,  1)) <> "1753-01-01"  or
+        strDate(date( 1800,  1,  1)) <> "1800-01-01"  or
+        strDate(date( 1893,  3, 31)) <> "1893-03-31"  or
+        strDate(date( 1893,  4,  1)) <> "1893-04-01"  or
+        strDate(date( 1899, 12, 31)) <> "1899-12-31"  or
+        strDate(date( 1900,  1,  1)) <> "1900-01-01"  or
+        strDate(date( 1961,  1,  9)) <> "1961-01-09"  or
+        strDate(date( 1969, 12, 31)) <> "1969-12-31"  or
+        strDate(date( 1970,  1,  1)) <> "1970-01-01"  or
+        strDate(date( 1979, 12, 31)) <> "1979-12-31"  or
+        strDate(date( 1980,  1,  1)) <> "1980-01-01"  or
+        strDate(date( 2010, 11, 12)) <> "2010-11-12"  or
+        strDate(date( 2011, 11, 11)) <> "2011-11-11"  or
+        strDate(date( 2012, 12, 12)) <> "2012-12-12"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (6)");
+      okay := FALSE;
+    end if;
+
+    if  strTime(time(0, 1, 1,  0,  0,  0)) <> "00:00:00" or
+        strTime(time(0, 1, 1,  0,  0, 59)) <> "00:00:59" or
+        strTime(time(0, 1, 1,  0, 59, 59)) <> "00:59:59" or
+        strTime(time(0, 1, 1,  1,  0,  0)) <> "01:00:00" or
+        strTime(time(0, 1, 1, 11, 59, 59)) <> "11:59:59" or
+        strTime(time(0, 1, 1, 12,  0,  0)) <> "12:00:00" or
+        strTime(time(0, 1, 1, 23, 59, 59)) <> "23:59:59" then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (7)");
+      okay := FALSE;
+    end if;
+
+    if  strDateTime(time(-4711,  1,  1,  0,  0,  0)) <> "-4711-01-01 00:00:00" or
+        strDateTime(time(-4711, 12, 31, 23, 59, 59)) <> "-4711-12-31 23:59:59" or
+        strDateTime(time( -999, 12, 31, 23, 59, 59)) <> "-999-12-31 23:59:59"  or
+        strDateTime(time( -123,  1, 23, 12, 31, 12)) <> "-123-01-23 12:31:12"  or
+        strDateTime(time(  -42,  4,  2,  4, 42, 42)) <> "-042-04-02 04:42:42"  or
+        strDateTime(time(   -1,  1,  1,  0,  0,  0)) <> "-001-01-01 00:00:00"  or
+        strDateTime(time(   -1, 12, 31, 23, 59, 59)) <> "-001-12-31 23:59:59"  or
+        strDateTime(time(    0,  1,  1,  0,  0,  0)) <> "0000-01-01 00:00:00"  or
+        strDateTime(time(    0, 12, 31, 23, 59, 59)) <> "0000-12-31 23:59:59"  or
+        strDateTime(time(    1,  1,  1,  0,  0,  0)) <> "0001-01-01 00:00:00"  or
+        strDateTime(time(    1, 12, 31, 23, 59, 59)) <> "0001-12-31 23:59:59"  or
+        strDateTime(time(   42,  4,  2,  4, 42, 42)) <> "0042-04-02 04:42:42"  or
+        strDateTime(time(  123,  1, 23, 12, 31, 12)) <> "0123-01-23 12:31:12"  or
+        strDateTime(time(  999, 12, 31, 23, 59, 59)) <> "0999-12-31 23:59:59"  or
+        strDateTime(time( 1000,  1,  1,  0,  0,  0)) <> "1000-01-01 00:00:00"  or
+        strDateTime(time( 1600, 12, 31, 23, 59, 59)) <> "1600-12-31 23:59:59"  or
+        strDateTime(time( 1601,  1,  1,  0,  0,  0)) <> "1601-01-01 00:00:00"  or
+        strDateTime(time( 1752, 12, 31, 23, 59, 59)) <> "1752-12-31 23:59:59"  or
+        strDateTime(time( 1753,  1,  1,  0,  0,  0)) <> "1753-01-01 00:00:00"  or
+        strDateTime(time( 1800,  1,  1,  0,  0,  0)) <> "1800-01-01 00:00:00"  or
+        strDateTime(time( 1893,  3, 31, 23, 59, 59)) <> "1893-03-31 23:59:59"  or
+        strDateTime(time( 1893,  4,  1,  0,  0,  0)) <> "1893-04-01 00:00:00"  or
+        strDateTime(time( 1899, 12, 31, 23, 59, 59)) <> "1899-12-31 23:59:59"  or
+        strDateTime(time( 1900,  1,  1,  0,  0,  0)) <> "1900-01-01 00:00:00"  or
+        strDateTime(time( 1961,  1,  9,  6,  1,  0)) <> "1961-01-09 06:01:00"  or
+        strDateTime(time( 1969, 12, 31, 23, 59, 59)) <> "1969-12-31 23:59:59"  or
+        strDateTime(time( 1970,  1,  1,  0,  0,  0)) <> "1970-01-01 00:00:00"  or
+        strDateTime(time( 1970,  1,  2,  0,  0,  0)) <> "1970-01-02 00:00:00"  or
+        strDateTime(time( 1979, 12, 31, 23, 59, 59)) <> "1979-12-31 23:59:59"  or
+        strDateTime(time( 1980,  1,  1,  0,  0,  0)) <> "1980-01-01 00:00:00"  or
+        strDateTime(time( 2010, 11, 12, 13, 14, 15)) <> "2010-11-12 13:14:15"  or
+        strDateTime(time( 2011, 11, 11, 11, 11, 11)) <> "2011-11-11 11:11:11"  or
+        strDateTime(time( 2012, 12, 12, 12, 12, 12)) <> "2012-12-12 12:12:12"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (8)");
+      okay := FALSE;
+    end if;
+
+    if  strDateTime(time(-4711, 12, 31, 23, 59, 59, 123456)) <> "-4711-12-31 23:59:59" or
+        strDateTime(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-001-12-31 23:59:59"  or
+        strDateTime(time(    0, 12, 31, 23, 59, 59, 123456)) <> "0000-12-31 23:59:59"  or
+        strDateTime(time(    0, 12, 31, 23, 59, 59, 999999)) <> "0000-12-31 23:59:59"  or
+        strDateTime(time(    1, 12, 31, 23, 59, 59, 123456)) <> "0001-12-31 23:59:59"  or
+        strDateTime(time(    1, 12, 31, 23, 59, 59, 999999)) <> "0001-12-31 23:59:59"  or
+        strDateTime(time( 1600, 12, 31, 23, 59, 59, 999999)) <> "1600-12-31 23:59:59"  or
+        strDateTime(time( 1601,  1,  1,  0,  0,  0,      0)) <> "1601-01-01 00:00:00"  or
+        strDateTime(time( 1893,  3, 31, 23, 59, 59, 999999)) <> "1893-03-31 23:59:59"  or
+        strDateTime(time( 1893,  4,  1,  0,  0,  0,      0)) <> "1893-04-01 00:00:00"  or
+        strDateTime(time( 1969, 12, 31, 23, 59, 59, 999999)) <> "1969-12-31 23:59:59"  or
+        strDateTime(time( 1970,  1,  1,  0,  0,  0,      0)) <> "1970-01-01 00:00:00"  or
+        strDateTime(time( 1970,  1,  2,  0,  0,  0,      0)) <> "1970-01-02 00:00:00"  or
+        strDateTime(time( 1979, 12, 31, 23, 59, 59, 999999)) <> "1979-12-31 23:59:59"  or
+        strDateTime(time( 1980,  1,  1,  0,  0,  0,      0)) <> "1980-01-01 00:00:00"  or
+        strDateTime(time( 2010, 11, 12, 13, 14, 15, 160000)) <> "2010-11-12 13:14:15"  or
+        strDateTime(time( 2011, 11, 11, 11, 11, 11, 110000)) <> "2011-11-11 11:11:11"  or
+        strDateTime(time( 2012, 12, 12, 12, 12, 12, 120000)) <> "2012-12-12 12:12:12"  then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (9)");
+      okay := FALSE;
+    end if;
+
+    if  strDate(date(   -1,  1, 31)) <> "-001-01-31" or
+        strDate(date(   -1,  2, 28)) <> "-001-02-28" or
+        strDate(date(   -1,  3, 31)) <> "-001-03-31" or
+        strDate(date(   -1,  4, 30)) <> "-001-04-30" or
+        strDate(date(   -1,  5, 31)) <> "-001-05-31" or
+        strDate(date(   -1,  6, 30)) <> "-001-06-30" or
+        strDate(date(   -1,  7, 31)) <> "-001-07-31" or
+        strDate(date(   -1,  8, 31)) <> "-001-08-31" or
+        strDate(date(   -1,  9, 30)) <> "-001-09-30" or
+        strDate(date(   -1, 10, 31)) <> "-001-10-31" or
+        strDate(date(   -1, 11, 30)) <> "-001-11-30" or
+        strDate(date(   -1, 12, 31)) <> "-001-12-31" or
+        strDate(date(    0,  1, 31)) <> "0000-01-31" or
+        strDate(date(    0,  2, 29)) <> "0000-02-29" or
+        strDate(date(    0,  3, 31)) <> "0000-03-31" or
+        strDate(date(    0,  4, 30)) <> "0000-04-30" or
+        strDate(date(    0,  5, 31)) <> "0000-05-31" or
+        strDate(date(    0,  6, 30)) <> "0000-06-30" or
+        strDate(date(    0,  7, 31)) <> "0000-07-31" or
+        strDate(date(    0,  8, 31)) <> "0000-08-31" or
+        strDate(date(    0,  9, 30)) <> "0000-09-30" or
+        strDate(date(    0, 10, 31)) <> "0000-10-31" or
+        strDate(date(    0, 11, 30)) <> "0000-11-30" or
+        strDate(date(    0, 12, 31)) <> "0000-12-31" or
+        strDate(date(    1,  1, 31)) <> "0001-01-31" or
+        strDate(date(    1,  2, 28)) <> "0001-02-28" or
+        strDate(date(    1,  3, 31)) <> "0001-03-31" or
+        strDate(date(    1,  4, 30)) <> "0001-04-30" or
+        strDate(date(    1,  5, 31)) <> "0001-05-31" or
+        strDate(date(    1,  6, 30)) <> "0001-06-30" or
+        strDate(date(    1,  7, 31)) <> "0001-07-31" or
+        strDate(date(    1,  8, 31)) <> "0001-08-31" or
+        strDate(date(    1,  9, 30)) <> "0001-09-30" or
+        strDate(date(    1, 10, 31)) <> "0001-10-31" or
+        strDate(date(    1, 11, 30)) <> "0001-11-30" or
+        strDate(date(    1, 12, 31)) <> "0001-12-31" then
+      writeln(" ***** Conversion to a string in ISO 8601 date format fails. (10)");
+      okay := FALSE;
+    end if;
+
+    if  str_yyyy_mm_dd(date(-4711,  1,  1), "/") <> "-4711/01/01" or
+        str_yyyy_mm_dd(date(-4711, 12, 31), "/") <> "-4711/12/31" or
+        str_yyyy_mm_dd(date( -999, 12, 31), "/") <> "-999/12/31"  or
+        str_yyyy_mm_dd(date( -123,  1, 23), "/") <> "-123/01/23"  or
+        str_yyyy_mm_dd(date(  -42,  4,  2), "/") <> "-042/04/02"  or
+        str_yyyy_mm_dd(date(   -1,  1,  1), "/") <> "-001/01/01"  or
+        str_yyyy_mm_dd(date(   -1, 12, 31), "/") <> "-001/12/31"  or
+        str_yyyy_mm_dd(date(    0,  1,  1), "/") <> "0000/01/01"  or
+        str_yyyy_mm_dd(date(    0, 12, 31), "/") <> "0000/12/31"  or
+        str_yyyy_mm_dd(date(    1,  1,  1), "/") <> "0001/01/01"  or
+        str_yyyy_mm_dd(date(   42,  4,  2), "/") <> "0042/04/02"  or
+        str_yyyy_mm_dd(date(  123,  1, 23), "/") <> "0123/01/23"  or
+        str_yyyy_mm_dd(date(  999, 12, 31), "/") <> "0999/12/31"  or
+        str_yyyy_mm_dd(date( 1000,  1,  1), "/") <> "1000/01/01"  or
+        str_yyyy_mm_dd(date( 1600, 12, 31), "/") <> "1600/12/31"  or
+        str_yyyy_mm_dd(date( 1601,  1,  1), "/") <> "1601/01/01"  or
+        str_yyyy_mm_dd(date( 1752, 12, 31), "/") <> "1752/12/31"  or
+        str_yyyy_mm_dd(date( 1753,  1,  1), "/") <> "1753/01/01"  or
+        str_yyyy_mm_dd(date( 1800,  1,  1), "/") <> "1800/01/01"  or
+        str_yyyy_mm_dd(date( 1893,  3, 31), "/") <> "1893/03/31"  or
+        str_yyyy_mm_dd(date( 1893,  4,  1), "/") <> "1893/04/01"  or
+        str_yyyy_mm_dd(date( 1899, 12, 31), "/") <> "1899/12/31"  or
+        str_yyyy_mm_dd(date( 1900,  1,  1), "/") <> "1900/01/01"  or
+        str_yyyy_mm_dd(date( 1961,  1,  9), "/") <> "1961/01/09"  or
+        str_yyyy_mm_dd(date( 1969, 12, 31), "/") <> "1969/12/31"  or
+        str_yyyy_mm_dd(date( 1970,  1,  1), "/") <> "1970/01/01"  or
+        str_yyyy_mm_dd(date( 1979, 12, 31), "/") <> "1979/12/31"  or
+        str_yyyy_mm_dd(date( 1980,  1,  1), "/") <> "1980/01/01"  or
+        str_yyyy_mm_dd(date( 2010, 11, 12), "/") <> "2010/11/12"  or
+        str_yyyy_mm_dd(date( 2011, 11, 11), "/") <> "2011/11/11"  or
+        str_yyyy_mm_dd(date( 2012, 12, 12), "/") <> "2012/12/12"  then
+      writeln(" ***** Conversion to a string in YYYY/MM/DD format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_yy_mm_dd(date(-4711,  1,  1), "/") <> "-11/01/01" or
+        str_yy_mm_dd(date(-4711, 12, 31), "/") <> "-11/12/31" or
+        str_yy_mm_dd(date( -999, 12, 31), "/") <> "-99/12/31" or
+        str_yy_mm_dd(date( -123,  1, 23), "/") <> "-23/01/23" or
+        str_yy_mm_dd(date(  -42,  4,  2), "/") <> "-42/04/02" or
+        str_yy_mm_dd(date(   -1,  1,  1), "/") <> "-1/01/01"  or
+        str_yy_mm_dd(date(   -1, 12, 31), "/") <> "-1/12/31"  or
+        str_yy_mm_dd(date(    0,  1,  1), "/") <> "00/01/01"  or
+        str_yy_mm_dd(date(    0, 12, 31), "/") <> "00/12/31"  or
+        str_yy_mm_dd(date(    1,  1,  1), "/") <> "01/01/01"  or
+        str_yy_mm_dd(date(   42,  4,  2), "/") <> "42/04/02"  or
+        str_yy_mm_dd(date(  123,  1, 23), "/") <> "23/01/23"  or
+        str_yy_mm_dd(date(  999, 12, 31), "/") <> "99/12/31"  or
+        str_yy_mm_dd(date( 1000,  1,  1), "/") <> "00/01/01"  or
+        str_yy_mm_dd(date( 1600, 12, 31), "/") <> "00/12/31"  or
+        str_yy_mm_dd(date( 1601,  1,  1), "/") <> "01/01/01"  or
+        str_yy_mm_dd(date( 1752, 12, 31), "/") <> "52/12/31"  or
+        str_yy_mm_dd(date( 1753,  1,  1), "/") <> "53/01/01"  or
+        str_yy_mm_dd(date( 1800,  1,  1), "/") <> "00/01/01"  or
+        str_yy_mm_dd(date( 1893,  3, 31), "/") <> "93/03/31"  or
+        str_yy_mm_dd(date( 1893,  4,  1), "/") <> "93/04/01"  or
+        str_yy_mm_dd(date( 1899, 12, 31), "/") <> "99/12/31"  or
+        str_yy_mm_dd(date( 1900,  1,  1), "/") <> "00/01/01"  or
+        str_yy_mm_dd(date( 1961,  1,  9), "/") <> "61/01/09"  or
+        str_yy_mm_dd(date( 1969, 12, 31), "/") <> "69/12/31"  or
+        str_yy_mm_dd(date( 1970,  1,  1), "/") <> "70/01/01"  or
+        str_yy_mm_dd(date( 1979, 12, 31), "/") <> "79/12/31"  or
+        str_yy_mm_dd(date( 1980,  1,  1), "/") <> "80/01/01"  or
+        str_yy_mm_dd(date( 2010, 11, 12), "/") <> "10/11/12"  or
+        str_yy_mm_dd(date( 2011, 11, 11), "/") <> "11/11/11"  or
+        str_yy_mm_dd(date( 2012, 12, 12), "/") <> "12/12/12"  then
+      writeln(" ***** Conversion to a string in YY/MM/DD format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_mm_dd_yyyy(date(-4711,  1,  1), "/") <> "01/01/-4711" or
+        str_mm_dd_yyyy(date(-4711, 12, 31), "/") <> "12/31/-4711" or
+        str_mm_dd_yyyy(date( -999, 12, 31), "/") <> "12/31/-999"  or
+        str_mm_dd_yyyy(date( -123,  1, 23), "/") <> "01/23/-123"  or
+        str_mm_dd_yyyy(date(  -42,  4,  2), "/") <> "04/02/-042"  or
+        str_mm_dd_yyyy(date(   -1,  1,  1), "/") <> "01/01/-001"  or
+        str_mm_dd_yyyy(date(   -1, 12, 31), "/") <> "12/31/-001"  or
+        str_mm_dd_yyyy(date(    0,  1,  1), "/") <> "01/01/0000"  or
+        str_mm_dd_yyyy(date(    0, 12, 31), "/") <> "12/31/0000"  or
+        str_mm_dd_yyyy(date(    1,  1,  1), "/") <> "01/01/0001"  or
+        str_mm_dd_yyyy(date(   42,  4,  2), "/") <> "04/02/0042"  or
+        str_mm_dd_yyyy(date(  123,  1, 23), "/") <> "01/23/0123"  or
+        str_mm_dd_yyyy(date(  999, 12, 31), "/") <> "12/31/0999"  or
+        str_mm_dd_yyyy(date( 1000,  1,  1), "/") <> "01/01/1000"  or
+        str_mm_dd_yyyy(date( 1600, 12, 31), "/") <> "12/31/1600"  or
+        str_mm_dd_yyyy(date( 1601,  1,  1), "/") <> "01/01/1601"  or
+        str_mm_dd_yyyy(date( 1752, 12, 31), "/") <> "12/31/1752"  or
+        str_mm_dd_yyyy(date( 1753,  1,  1), "/") <> "01/01/1753"  or
+        str_mm_dd_yyyy(date( 1800,  1,  1), "/") <> "01/01/1800"  or
+        str_mm_dd_yyyy(date( 1893,  3, 31), "/") <> "03/31/1893"  or
+        str_mm_dd_yyyy(date( 1893,  4,  1), "/") <> "04/01/1893"  or
+        str_mm_dd_yyyy(date( 1899, 12, 31), "/") <> "12/31/1899"  or
+        str_mm_dd_yyyy(date( 1900,  1,  1), "/") <> "01/01/1900"  or
+        str_mm_dd_yyyy(date( 1961,  1,  9), "/") <> "01/09/1961"  or
+        str_mm_dd_yyyy(date( 1969, 12, 31), "/") <> "12/31/1969"  or
+        str_mm_dd_yyyy(date( 1970,  1,  1), "/") <> "01/01/1970"  or
+        str_mm_dd_yyyy(date( 1979, 12, 31), "/") <> "12/31/1979"  or
+        str_mm_dd_yyyy(date( 1980,  1,  1), "/") <> "01/01/1980"  or
+        str_mm_dd_yyyy(date( 2010, 11, 12), "/") <> "11/12/2010"  or
+        str_mm_dd_yyyy(date( 2011, 11, 11), "/") <> "11/11/2011"  or
+        str_mm_dd_yyyy(date( 2012, 12, 12), "/") <> "12/12/2012"  then
+      writeln(" ***** Conversion to a string in MM/DD/YYYY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_mm_dd_yy(date(-4711,  1,  1), "/") <> "01/01/-11" or
+        str_mm_dd_yy(date(-4711, 12, 31), "/") <> "12/31/-11" or
+        str_mm_dd_yy(date( -999, 12, 31), "/") <> "12/31/-99" or
+        str_mm_dd_yy(date( -123,  1, 23), "/") <> "01/23/-23" or
+        str_mm_dd_yy(date(  -42,  4,  2), "/") <> "04/02/-42" or
+        str_mm_dd_yy(date(   -1,  1,  1), "/") <> "01/01/-1"  or
+        str_mm_dd_yy(date(   -1, 12, 31), "/") <> "12/31/-1"  or
+        str_mm_dd_yy(date(    0,  1,  1), "/") <> "01/01/00"  or
+        str_mm_dd_yy(date(    0, 12, 31), "/") <> "12/31/00"  or
+        str_mm_dd_yy(date(    1,  1,  1), "/") <> "01/01/01"  or
+        str_mm_dd_yy(date(   42,  4,  2), "/") <> "04/02/42"  or
+        str_mm_dd_yy(date(  123,  1, 23), "/") <> "01/23/23"  or
+        str_mm_dd_yy(date(  999, 12, 31), "/") <> "12/31/99"  or
+        str_mm_dd_yy(date( 1000,  1,  1), "/") <> "01/01/00"  or
+        str_mm_dd_yy(date( 1600, 12, 31), "/") <> "12/31/00"  or
+        str_mm_dd_yy(date( 1601,  1,  1), "/") <> "01/01/01"  or
+        str_mm_dd_yy(date( 1752, 12, 31), "/") <> "12/31/52"  or
+        str_mm_dd_yy(date( 1753,  1,  1), "/") <> "01/01/53"  or
+        str_mm_dd_yy(date( 1800,  1,  1), "/") <> "01/01/00"  or
+        str_mm_dd_yy(date( 1893,  3, 31), "/") <> "03/31/93"  or
+        str_mm_dd_yy(date( 1893,  4,  1), "/") <> "04/01/93"  or
+        str_mm_dd_yy(date( 1899, 12, 31), "/") <> "12/31/99"  or
+        str_mm_dd_yy(date( 1900,  1,  1), "/") <> "01/01/00"  or
+        str_mm_dd_yy(date( 1961,  1,  9), "/") <> "01/09/61"  or
+        str_mm_dd_yy(date( 1969, 12, 31), "/") <> "12/31/69"  or
+        str_mm_dd_yy(date( 1970,  1,  1), "/") <> "01/01/70"  or
+        str_mm_dd_yy(date( 1979, 12, 31), "/") <> "12/31/79"  or
+        str_mm_dd_yy(date( 1980,  1,  1), "/") <> "01/01/80"  or
+        str_mm_dd_yy(date( 2010, 11, 12), "/") <> "11/12/10"  or
+        str_mm_dd_yy(date( 2011, 11, 11), "/") <> "11/11/11"  or
+        str_mm_dd_yy(date( 2012, 12, 12), "/") <> "12/12/12"  then
+      writeln(" ***** Conversion to a string in MM/DD/YY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_dd_mm_yyyy(date(-4711,  1,  1), "/") <> "01/01/-4711" or
+        str_dd_mm_yyyy(date(-4711, 12, 31), "/") <> "31/12/-4711" or
+        str_dd_mm_yyyy(date( -999, 12, 31), "/") <> "31/12/-999"  or
+        str_dd_mm_yyyy(date( -123,  1, 23), "/") <> "23/01/-123"  or
+        str_dd_mm_yyyy(date(  -42,  4,  2), "/") <> "02/04/-042"  or
+        str_dd_mm_yyyy(date(   -1,  1,  1), "/") <> "01/01/-001"  or
+        str_dd_mm_yyyy(date(   -1, 12, 31), "/") <> "31/12/-001"  or
+        str_dd_mm_yyyy(date(    0,  1,  1), "/") <> "01/01/0000"  or
+        str_dd_mm_yyyy(date(    0, 12, 31), "/") <> "31/12/0000"  or
+        str_dd_mm_yyyy(date(    1,  1,  1), "/") <> "01/01/0001"  or
+        str_dd_mm_yyyy(date(   42,  4,  2), "/") <> "02/04/0042"  or
+        str_dd_mm_yyyy(date(  123,  1, 23), "/") <> "23/01/0123"  or
+        str_dd_mm_yyyy(date(  999, 12, 31), "/") <> "31/12/0999"  or
+        str_dd_mm_yyyy(date( 1000,  1,  1), "/") <> "01/01/1000"  or
+        str_dd_mm_yyyy(date( 1600, 12, 31), "/") <> "31/12/1600"  or
+        str_dd_mm_yyyy(date( 1601,  1,  1), "/") <> "01/01/1601"  or
+        str_dd_mm_yyyy(date( 1752, 12, 31), "/") <> "31/12/1752"  or
+        str_dd_mm_yyyy(date( 1753,  1,  1), "/") <> "01/01/1753"  or
+        str_dd_mm_yyyy(date( 1800,  1,  1), "/") <> "01/01/1800"  or
+        str_dd_mm_yyyy(date( 1893,  3, 31), "/") <> "31/03/1893"  or
+        str_dd_mm_yyyy(date( 1893,  4,  1), "/") <> "01/04/1893"  or
+        str_dd_mm_yyyy(date( 1899, 12, 31), "/") <> "31/12/1899"  or
+        str_dd_mm_yyyy(date( 1900,  1,  1), "/") <> "01/01/1900"  or
+        str_dd_mm_yyyy(date( 1961,  1,  9), "/") <> "09/01/1961"  or
+        str_dd_mm_yyyy(date( 1969, 12, 31), "/") <> "31/12/1969"  or
+        str_dd_mm_yyyy(date( 1970,  1,  1), "/") <> "01/01/1970"  or
+        str_dd_mm_yyyy(date( 1979, 12, 31), "/") <> "31/12/1979"  or
+        str_dd_mm_yyyy(date( 1980,  1,  1), "/") <> "01/01/1980"  or
+        str_dd_mm_yyyy(date( 2010, 11, 12), "/") <> "12/11/2010"  or
+        str_dd_mm_yyyy(date( 2011, 11, 11), "/") <> "11/11/2011"  or
+        str_dd_mm_yyyy(date( 2012, 12, 12), "/") <> "12/12/2012"  then
+      writeln(" ***** Conversion to a string in DD/MM/YYYY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_dd_mm_yy(date(-4711,  1,  1), "/") <> "01/01/-11" or
+        str_dd_mm_yy(date(-4711, 12, 31), "/") <> "31/12/-11" or
+        str_dd_mm_yy(date( -999, 12, 31), "/") <> "31/12/-99" or
+        str_dd_mm_yy(date( -123,  1, 23), "/") <> "23/01/-23" or
+        str_dd_mm_yy(date(  -42,  4,  2), "/") <> "02/04/-42" or
+        str_dd_mm_yy(date(   -1,  1,  1), "/") <> "01/01/-1"  or
+        str_dd_mm_yy(date(   -1, 12, 31), "/") <> "31/12/-1"  or
+        str_dd_mm_yy(date(    0,  1,  1), "/") <> "01/01/00"  or
+        str_dd_mm_yy(date(    0, 12, 31), "/") <> "31/12/00"  or
+        str_dd_mm_yy(date(    1,  1,  1), "/") <> "01/01/01"  or
+        str_dd_mm_yy(date(   42,  4,  2), "/") <> "02/04/42"  or
+        str_dd_mm_yy(date(  123,  1, 23), "/") <> "23/01/23"  or
+        str_dd_mm_yy(date(  999, 12, 31), "/") <> "31/12/99"  or
+        str_dd_mm_yy(date( 1000,  1,  1), "/") <> "01/01/00"  or
+        str_dd_mm_yy(date( 1600, 12, 31), "/") <> "31/12/00"  or
+        str_dd_mm_yy(date( 1601,  1,  1), "/") <> "01/01/01"  or
+        str_dd_mm_yy(date( 1752, 12, 31), "/") <> "31/12/52"  or
+        str_dd_mm_yy(date( 1753,  1,  1), "/") <> "01/01/53"  or
+        str_dd_mm_yy(date( 1800,  1,  1), "/") <> "01/01/00"  or
+        str_dd_mm_yy(date( 1893,  3, 31), "/") <> "31/03/93"  or
+        str_dd_mm_yy(date( 1893,  4,  1), "/") <> "01/04/93"  or
+        str_dd_mm_yy(date( 1899, 12, 31), "/") <> "31/12/99"  or
+        str_dd_mm_yy(date( 1900,  1,  1), "/") <> "01/01/00"  or
+        str_dd_mm_yy(date( 1961,  1,  9), "/") <> "09/01/61"  or
+        str_dd_mm_yy(date( 1969, 12, 31), "/") <> "31/12/69"  or
+        str_dd_mm_yy(date( 1970,  1,  1), "/") <> "01/01/70"  or
+        str_dd_mm_yy(date( 1979, 12, 31), "/") <> "31/12/79"  or
+        str_dd_mm_yy(date( 1980,  1,  1), "/") <> "01/01/80"  or
+        str_dd_mm_yy(date( 2010, 11, 12), "/") <> "12/11/10"  or
+        str_dd_mm_yy(date( 2011, 11, 11), "/") <> "11/11/11"  or
+        str_dd_mm_yy(date( 2012, 12, 12), "/") <> "12/12/12"  then
+      writeln(" ***** Conversion to a string in DD/MM/YY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_d_m_yyyy(date(-4711,  1,  1), "/") <> "1/1/-4711"   or
+        str_d_m_yyyy(date(-4711, 12, 31), "/") <> "31/12/-4711" or
+        str_d_m_yyyy(date( -999, 12, 31), "/") <> "31/12/-999"  or
+        str_d_m_yyyy(date( -123,  1, 23), "/") <> "23/1/-123"   or
+        str_d_m_yyyy(date(  -42,  4,  2), "/") <> "2/4/-042"    or
+        str_d_m_yyyy(date(   -1,  1,  1), "/") <> "1/1/-001"    or
+        str_d_m_yyyy(date(   -1, 12, 31), "/") <> "31/12/-001"  or
+        str_d_m_yyyy(date(    0,  1,  1), "/") <> "1/1/0000"    or
+        str_d_m_yyyy(date(    0, 12, 31), "/") <> "31/12/0000"  or
+        str_d_m_yyyy(date(    1,  1,  1), "/") <> "1/1/0001"    or
+        str_d_m_yyyy(date(   42,  4,  2), "/") <> "2/4/0042"    or
+        str_d_m_yyyy(date(  123,  1, 23), "/") <> "23/1/0123"   or
+        str_d_m_yyyy(date(  999, 12, 31), "/") <> "31/12/0999"  or
+        str_d_m_yyyy(date( 1000,  1,  1), "/") <> "1/1/1000"    or
+        str_d_m_yyyy(date( 1600, 12, 31), "/") <> "31/12/1600"  or
+        str_d_m_yyyy(date( 1601,  1,  1), "/") <> "1/1/1601"    or
+        str_d_m_yyyy(date( 1752, 12, 31), "/") <> "31/12/1752"  or
+        str_d_m_yyyy(date( 1753,  1,  1), "/") <> "1/1/1753"    or
+        str_d_m_yyyy(date( 1800,  1,  1), "/") <> "1/1/1800"    or
+        str_d_m_yyyy(date( 1893,  3, 31), "/") <> "31/3/1893"   or
+        str_d_m_yyyy(date( 1893,  4,  1), "/") <> "1/4/1893"    or
+        str_d_m_yyyy(date( 1899, 12, 31), "/") <> "31/12/1899"  or
+        str_d_m_yyyy(date( 1900,  1,  1), "/") <> "1/1/1900"    or
+        str_d_m_yyyy(date( 1961,  1,  9), "/") <> "9/1/1961"    or
+        str_d_m_yyyy(date( 1969, 12, 31), "/") <> "31/12/1969"  or
+        str_d_m_yyyy(date( 1970,  1,  1), "/") <> "1/1/1970"    or
+        str_d_m_yyyy(date( 1979, 12, 31), "/") <> "31/12/1979"  or
+        str_d_m_yyyy(date( 1980,  1,  1), "/") <> "1/1/1980"    or
+        str_d_m_yyyy(date( 2010, 11, 12), "/") <> "12/11/2010"  or
+        str_d_m_yyyy(date( 2011, 11, 11), "/") <> "11/11/2011"  or
+        str_d_m_yyyy(date( 2012, 12, 12), "/") <> "12/12/2012"  then
+      writeln(" ***** Conversion to a string in D/M/YYYY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_d_m_yy(date(-4711,  1,  1), "/") <> "1/1/-11"   or
+        str_d_m_yy(date(-4711, 12, 31), "/") <> "31/12/-11" or
+        str_d_m_yy(date( -999, 12, 31), "/") <> "31/12/-99" or
+        str_d_m_yy(date( -123,  1, 23), "/") <> "23/1/-23"  or
+        str_d_m_yy(date(  -42,  4,  2), "/") <> "2/4/-42"   or
+        str_d_m_yy(date(   -1,  1,  1), "/") <> "1/1/-1"    or
+        str_d_m_yy(date(   -1, 12, 31), "/") <> "31/12/-1"  or
+        str_d_m_yy(date(    0,  1,  1), "/") <> "1/1/00"    or
+        str_d_m_yy(date(    0, 12, 31), "/") <> "31/12/00"  or
+        str_d_m_yy(date(    1,  1,  1), "/") <> "1/1/01"    or
+        str_d_m_yy(date(   42,  4,  2), "/") <> "2/4/42"    or
+        str_d_m_yy(date(  123,  1, 23), "/") <> "23/1/23"   or
+        str_d_m_yy(date(  999, 12, 31), "/") <> "31/12/99"  or
+        str_d_m_yy(date( 1000,  1,  1), "/") <> "1/1/00"    or
+        str_d_m_yy(date( 1600, 12, 31), "/") <> "31/12/00"  or
+        str_d_m_yy(date( 1601,  1,  1), "/") <> "1/1/01"    or
+        str_d_m_yy(date( 1752, 12, 31), "/") <> "31/12/52"  or
+        str_d_m_yy(date( 1753,  1,  1), "/") <> "1/1/53"    or
+        str_d_m_yy(date( 1800,  1,  1), "/") <> "1/1/00"    or
+        str_d_m_yy(date( 1893,  3, 31), "/") <> "31/3/93"   or
+        str_d_m_yy(date( 1893,  4,  1), "/") <> "1/4/93"    or
+        str_d_m_yy(date( 1899, 12, 31), "/") <> "31/12/99"  or
+        str_d_m_yy(date( 1900,  1,  1), "/") <> "1/1/00"    or
+        str_d_m_yy(date( 1961,  1,  9), "/") <> "9/1/61"    or
+        str_d_m_yy(date( 1969, 12, 31), "/") <> "31/12/69"  or
+        str_d_m_yy(date( 1970,  1,  1), "/") <> "1/1/70"    or
+        str_d_m_yy(date( 1979, 12, 31), "/") <> "31/12/79"  or
+        str_d_m_yy(date( 1980,  1,  1), "/") <> "1/1/80"    or
+        str_d_m_yy(date( 2010, 11, 12), "/") <> "12/11/10"  or
+        str_d_m_yy(date( 2011, 11, 11), "/") <> "11/11/11"  or
+        str_d_m_yy(date( 2012, 12, 12), "/") <> "12/12/12"  then
+      writeln(" ***** Conversion to a string in D/M/YY format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_hh_mm(time(0, 1, 1,  0,  0,  0), ":") <> "00:00" or
+        str_hh_mm(time(0, 1, 1,  0, 59, 59), ":") <> "00:59" or
+        str_hh_mm(time(0, 1, 1,  1,  0,  0), ":") <> "01:00" or
+        str_hh_mm(time(0, 1, 1, 11, 59, 59), ":") <> "11:59" or
+        str_hh_mm(time(0, 1, 1, 12,  0,  0), ":") <> "12:00" or
+        str_hh_mm(time(0, 1, 1, 23, 59, 59), ":") <> "23:59" then
+      writeln(" ***** Conversion to a string in HH:MM format fails.");
+      okay := FALSE;
+    end if;
+
+    if  str_hh_mm_ss(time(0, 1, 1,  0,  0,  0), ":") <> "00:00:00" or
+        str_hh_mm_ss(time(0, 1, 1,  0,  0, 59), ":") <> "00:00:59" or
+        str_hh_mm_ss(time(0, 1, 1,  0, 59, 59), ":") <> "00:59:59" or
+        str_hh_mm_ss(time(0, 1, 1,  1,  0,  0), ":") <> "01:00:00" or
+        str_hh_mm_ss(time(0, 1, 1, 11, 59, 59), ":") <> "11:59:59" or
+        str_hh_mm_ss(time(0, 1, 1, 12,  0,  0), ":") <> "12:00:00" or
+        str_hh_mm_ss(time(0, 1, 1, 23, 59, 59), ":") <> "23:59:59" then
+      writeln(" ***** Conversion to a string in HH:MM:SS format fails.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The conversion of a time to a string works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkLeapYearFunctions is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not isLeapYear(   0) or
+            isLeapYear(   1) or
+        not isLeapYear(   4) or
+        not isLeapYear(1600) or
+            isLeapYear(1601) or
+            isLeapYear(1700) or
+            isLeapYear(1800) or
+        not isLeapYear(1804) or
+            isLeapYear(1893) or
+            isLeapYear(1899) or
+            isLeapYear(1900) or
+            isLeapYear(1901) or
+        not isLeapYear(1904) or
+            isLeapYear(1969) or
+            isLeapYear(1970) or
+            isLeapYear(1979) or
+        not isLeapYear(1980) or
+        not isLeapYear(2000) or
+            isLeapYear(2001) or
+        not isLeapYear(2004) or
+            isLeapYear(2038) or
+            isLeapYear(2099) or
+            isLeapYear(2100) then
+      writeln(" ***** isLeapYear() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  daysInYear(   0) <> 366 or
+        daysInYear(   1) <> 365 or
+        daysInYear(   4) <> 366 or
+        daysInYear(1600) <> 366 or
+        daysInYear(1601) <> 365 or
+        daysInYear(1700) <> 365 or
+        daysInYear(1800) <> 365 or
+        daysInYear(1804) <> 366 or
+        daysInYear(1893) <> 365 or
+        daysInYear(1899) <> 365 or
+        daysInYear(1900) <> 365 or
+        daysInYear(1901) <> 365 or
+        daysInYear(1904) <> 366 or
+        daysInYear(1969) <> 365 or
+        daysInYear(1970) <> 365 or
+        daysInYear(1979) <> 365 or
+        daysInYear(1980) <> 366 or
+        daysInYear(2000) <> 366 or
+        daysInYear(2001) <> 365 or
+        daysInYear(2004) <> 366 or
+        daysInYear(2038) <> 365 or
+        daysInYear(2099) <> 365 or
+        daysInYear(2100) <> 365 then
+      writeln(" ***** daysInYear() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  daysInMonth(2000,  1) <> 31 or
+        daysInMonth(2000,  2) <> 29 or
+        daysInMonth(2000,  3) <> 31 or
+        daysInMonth(2000,  4) <> 30 or
+        daysInMonth(2000,  5) <> 31 or
+        daysInMonth(2000,  6) <> 30 or
+        daysInMonth(2000,  7) <> 31 or
+        daysInMonth(2000,  8) <> 31 or
+        daysInMonth(2000,  9) <> 30 or
+        daysInMonth(2000, 10) <> 31 or
+        daysInMonth(2000, 11) <> 30 or
+        daysInMonth(2000, 12) <> 31 or
+        daysInMonth(2001,  1) <> 31 or
+        daysInMonth(2001,  2) <> 28 or
+        daysInMonth(2001,  3) <> 31 or
+        daysInMonth(2001,  4) <> 30 or
+        daysInMonth(2001,  5) <> 31 or
+        daysInMonth(2001,  6) <> 30 or
+        daysInMonth(2001,  7) <> 31 or
+        daysInMonth(2001,  8) <> 31 or
+        daysInMonth(2001,  9) <> 30 or
+        daysInMonth(2001, 10) <> 31 or
+        daysInMonth(2001, 11) <> 30 or
+        daysInMonth(2001, 12) <> 31 then
+      writeln(" ***** daysInMonth() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  daysInMonth(date(2000,  1,  1)) <> 31 or
+        daysInMonth(date(2000,  2,  1)) <> 29 or
+        daysInMonth(date(2000,  3,  1)) <> 31 or
+        daysInMonth(date(2000,  4,  1)) <> 30 or
+        daysInMonth(date(2000,  5,  1)) <> 31 or
+        daysInMonth(date(2000,  6,  1)) <> 30 or
+        daysInMonth(date(2000,  7,  1)) <> 31 or
+        daysInMonth(date(2000,  8,  1)) <> 31 or
+        daysInMonth(date(2000,  9,  1)) <> 30 or
+        daysInMonth(date(2000, 10,  1)) <> 31 or
+        daysInMonth(date(2000, 11,  1)) <> 30 or
+        daysInMonth(date(2000, 12,  1)) <> 31 or
+        daysInMonth(date(2001,  1,  1)) <> 31 or
+        daysInMonth(date(2001,  2,  1)) <> 28 or
+        daysInMonth(date(2001,  3,  1)) <> 31 or
+        daysInMonth(date(2001,  4,  1)) <> 30 or
+        daysInMonth(date(2001,  5,  1)) <> 31 or
+        daysInMonth(date(2001,  6,  1)) <> 30 or
+        daysInMonth(date(2001,  7,  1)) <> 31 or
+        daysInMonth(date(2001,  8,  1)) <> 31 or
+        daysInMonth(date(2001,  9,  1)) <> 30 or
+        daysInMonth(date(2001, 10,  1)) <> 31 or
+        daysInMonth(date(2001, 11,  1)) <> 30 or
+        daysInMonth(date(2001, 12,  1)) <> 31 then
+      writeln(" ***** daysInMonth() with time argument does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Leap year functions work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkTimestamp1970 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  timestamp1970(time("0-1-1"))               <> -62167219200 or
+        timestamp1970(time("1-1-1"))               <> -62135596800 or
+        timestamp1970(time("1600-12-31 23:59:59")) <> -11644473601 or
+        timestamp1970(time("1601-1-1"))            <> -11644473600 or
+        timestamp1970(time("1893-3-31 23:59:59"))  <>  -2422051201 or
+        timestamp1970(time("1893-4-01"))           <>  -2422051200 or
+        timestamp1970(time("1899-12-31 23:59:59")) <>  -2208988801 or
+        timestamp1970(time("1900-1-1"))            <>  -2208988800 or
+        timestamp1970(time("1901-12-13 20:45:51")) <>  -2147483649 or
+        timestamp1970(time("1901-12-13 20:45:52")) <>  -2147483648 or
+        timestamp1970(time("1969-12-31 23:59:59")) <>           -1 or
+        timestamp1970(time("1970-1-1"))            <>            0 or
+        timestamp1970(time("1970-1-1 0:0:1"))      <>            1 or
+        timestamp1970(time("1979-12-31 23:59:59")) <>    315532799 or
+        timestamp1970(time("1980-1-1"))            <>    315532800 or
+        timestamp1970(time("1999-12-31 23:59:59")) <>    946684799 or
+        timestamp1970(time("2000-1-1"))            <>    946684800 or
+        timestamp1970(time("2001-9-9 1:46:39"))    <>    999999999 or
+        timestamp1970(time("2001-9-9 1:46:40"))    <>   1000000000 or
+        timestamp1970(time("2004-1-10 13:37:03"))  <>   1073741823 or
+        timestamp1970(time("2004-1-10 13:37:04"))  <>   1073741824 or
+        timestamp1970(time("2038-1-19 3:14:07"))   <>   2147483647 or
+        timestamp1970(time("2038-1-19 3:14:08"))   <>   2147483648 or
+        timestamp1970(time("2099-12-31 23:59:59")) <>   4102444799 or
+        timestamp1970(time("2100-1-1"))            <>   4102444800 then
+      writeln(" ***** timestamp1970() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  timestamp1970ToTime( -2147483648) <> toLocalTZ(time(1901, 12, 13, 20, 45, 52)) or
+        timestamp1970ToTime(          -1) <> toLocalTZ(time(1969, 12, 31, 23, 59, 59)) or
+        timestamp1970ToTime(           0) <> toLocalTZ(date(1970,  1,  1))             or
+        timestamp1970ToTime(           1) <> toLocalTZ(time(1970,  1,  1,  0,  0,  1)) or
+        timestamp1970ToTime(   315532799) <> toLocalTZ(time(1979, 12, 31, 23, 59, 59)) or
+        timestamp1970ToTime(   315532800) <> toLocalTZ(date(1980,  1,  1))             or
+        timestamp1970ToTime(   946684799) <> toLocalTZ(time(1999, 12, 31, 23, 59, 59)) or
+        timestamp1970ToTime(   946684800) <> toLocalTZ(date(2000,  1,  1))             or
+        timestamp1970ToTime(   999999999) <> toLocalTZ(time(2001,  9,  9,  1, 46, 39)) or
+        timestamp1970ToTime(  1000000000) <> toLocalTZ(time(2001,  9,  9,  1, 46, 40)) or
+        timestamp1970ToTime(  1073741823) <> toLocalTZ(time(2004,  1, 10, 13, 37,  3)) or
+        timestamp1970ToTime(  1073741824) <> toLocalTZ(time(2004,  1, 10, 13, 37,  4)) or
+        timestamp1970ToTime(  2147483647) <> toLocalTZ(time(2038,  1, 19,  3, 14, 07)) then
+      writeln(" ***** timestamp1970ToTime() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("timestamp1970() and timestamp1970ToTime() work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkTimestamp1601 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  timestamp1601(time("1600-12-31 23:59:59.999999")) <>                -10 or
+        timestamp1601(time("1601-1-1"))                   <>                  0 or
+        timestamp1601(time("1893-3-31 23:59:59.999999"))  <>  92224223999999990 or
+        timestamp1601(time("1893-4-01"))                  <>  92224224000000000 or
+        timestamp1601(time("1899-12-31 23:59:59.999999")) <>  94354847999999990 or
+        timestamp1601(time("1900-1-1"))                   <>  94354848000000000 or
+        timestamp1601(time("1901-12-13 20:45:51.999999")) <>  94969899519999990 or
+        timestamp1601(time("1901-12-13 20:45:52"))        <>  94969899520000000 or
+        timestamp1601(time("1969-12-31 23:59:59.999999")) <> 116444735999999990 or
+        timestamp1601(time("1970-1-1"))                   <> 116444736000000000 or
+        timestamp1601(time("1970-1-1 0:0:0.000001"))      <> 116444736000000010 or
+        timestamp1601(time("1979-12-31 23:59:59.999999")) <> 119600063999999990 or
+        timestamp1601(time("1980-1-1"))                   <> 119600064000000000 or
+        timestamp1601(time("1999-12-31 23:59:59.999999")) <> 125911583999999990 or
+        timestamp1601(time("2000-1-1"))                   <> 125911584000000000 or
+        timestamp1601(time("2001-9-9 1:46:39.999999"))    <> 126444735999999990 or
+        timestamp1601(time("2001-9-9 1:46:40"))           <> 126444736000000000 or
+        timestamp1601(time("2004-1-10 13:37:03.999999"))  <> 127182154239999990 or
+        timestamp1601(time("2004-1-10 13:37:04"))         <> 127182154240000000 or
+        timestamp1601(time("2038-1-19 3:14:07.999999"))   <> 137919572479999990 or
+        timestamp1601(time("2038-1-19 3:14:08"))          <> 137919572480000000 or
+        timestamp1601(time("2099-12-31 23:59:59.999999")) <> 157469183999999990 or
+        timestamp1601(time("2100-1-1"))                   <> 157469184000000000 then
+      writeln(" ***** timestamp1601() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  timestamp1601ToTime( 94969899520000000) <> toLocalTZ(time(1901, 12, 13, 20, 45, 52))         or
+        timestamp1601ToTime(116444735999999990) <> toLocalTZ(time(1969, 12, 31, 23, 59, 59, 999999)) or
+        timestamp1601ToTime(116444736000000000) <> toLocalTZ(date(1970,  1,  1))                     or
+        timestamp1601ToTime(116444736000000010) <> toLocalTZ(time(1970,  1,  1,  0,  0,  0,      1)) or
+        timestamp1601ToTime(119600063999999990) <> toLocalTZ(time(1979, 12, 31, 23, 59, 59, 999999)) or
+        timestamp1601ToTime(119600064000000000) <> toLocalTZ(date(1980,  1,  1))                     or
+        timestamp1601ToTime(125911583999999990) <> toLocalTZ(time(1999, 12, 31, 23, 59, 59, 999999)) or
+        timestamp1601ToTime(125911584000000000) <> toLocalTZ(date(2000,  1,  1))                     or
+        timestamp1601ToTime(126444735999999990) <> toLocalTZ(time(2001,  9,  9,  1, 46, 39, 999999)) or
+        timestamp1601ToTime(126444736000000000) <> toLocalTZ(time(2001,  9,  9,  1, 46, 40))         or
+        timestamp1601ToTime(127182154239999990) <> toLocalTZ(time(2004,  1, 10, 13, 37, 03, 999999)) or
+        timestamp1601ToTime(127182154240000000) <> toLocalTZ(time(2004,  1, 10, 13, 37, 04))         or
+        timestamp1601ToTime(137919572479999990) <> toLocalTZ(time(2038,  1, 19,  3, 14, 07, 999999)) then
+      writeln(" ***** timestamp1601ToTime() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("timestamp1601() and timestamp1601ToTime() work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkJulianDayNumber is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  julianDayNumber(time("-4713-11-23")) <>      -1 or
+        julianDayNumber(time("-4713-11-24")) <>       0 or
+        julianDayNumber(time("0-1-1"))       <> 1721060 or
+        julianDayNumber(time("1-1-1"))       <> 1721426 or
+        julianDayNumber(time("1600-12-31"))  <> 2305813 or
+        julianDayNumber(time("1601-1-1"))    <> 2305814 or
+        julianDayNumber(time("1858-11-16"))  <> 2400000 or
+        julianDayNumber(time("1899-12-31"))  <> 2415020 or
+        julianDayNumber(time("1900-1-1"))    <> 2415021 or
+        julianDayNumber(time("1901-12-12"))  <> 2415731 or
+        julianDayNumber(time("1901-12-13"))  <> 2415732 or
+        julianDayNumber(time("1901-12-14"))  <> 2415733 or
+        julianDayNumber(time("1968-5-23"))   <> 2440000 or
+        julianDayNumber(time("1969-12-31"))  <> 2440587 or
+        julianDayNumber(time("1970-1-1"))    <> 2440588 or
+        julianDayNumber(time("1999-12-31"))  <> 2451544 or
+        julianDayNumber(time("2000-1-1"))    <> 2451545 or
+        julianDayNumber(time("2038-1-18"))   <> 2465442 or
+        julianDayNumber(time("2038-1-19"))   <> 2465443 or
+        julianDayNumber(time("2038-1-20"))   <> 2465444 then
+      writeln(" ***** julianDayNumber() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  julianDayNumToTime(     -1) <> time("-4713-11-23") or
+        julianDayNumToTime(      0) <> time("-4713-11-24") or
+        julianDayNumToTime(1721060) <> time("0-1-1")       or
+        julianDayNumToTime(1721426) <> time("1-1-1")       or
+        julianDayNumToTime(2305813) <> time("1600-12-31")  or
+        julianDayNumToTime(2305814) <> time("1601-1-1")    or
+        julianDayNumToTime(2400000) <> time("1858-11-16")  or
+        julianDayNumToTime(2415020) <> time("1899-12-31")  or
+        julianDayNumToTime(2415021) <> time("1900-1-1")    or
+        julianDayNumToTime(2415731) <> time("1901-12-12")  or
+        julianDayNumToTime(2415732) <> time("1901-12-13")  or
+        julianDayNumToTime(2415733) <> time("1901-12-14")  or
+        julianDayNumToTime(2440000) <> time("1968-5-23")   or
+        julianDayNumToTime(2440587) <> time("1969-12-31")  or
+        julianDayNumToTime(2440588) <> time("1970-1-1")    or
+        julianDayNumToTime(2451544) <> time("1999-12-31")  or
+        julianDayNumToTime(2451545) <> time("2000-1-1")    or
+        julianDayNumToTime(2465442) <> time("2038-1-18")   or
+        julianDayNumToTime(2465443) <> time("2038-1-19")   or
+        julianDayNumToTime(2465444) <> time("2038-1-20")   then
+      writeln(" ***** julianDayNumToTime() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("julianDayNumber() and julianDayNumToTime() work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkTrunc is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  truncToYear(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010,  1,  1,  0,  0,  0, 0) then
+      writeln(" ***** truncToYear() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  truncToMonth(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010, 11,  1,  0,  0,  0, 0) then
+      writeln(" ***** truncToMonth() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  truncToDay(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010, 11, 12,  0,  0,  0, 0) then
+      writeln(" ***** truncToDay() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  truncToHour(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010, 11, 12, 13,  0,  0, 0) then
+      writeln(" ***** truncToHour() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  truncToMinute(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010, 11, 12, 13, 14,  0, 0) then
+      writeln(" ***** truncToMinute() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  truncToSecond(time(2010, 11, 12, 13, 14, 15, 160000)) <> time(2010, 11, 12, 13, 14, 15, 0) then
+      writeln(" ***** truncToSecond() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Time truncation works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkWeekDate is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  weekOfYear(time("2005-01-01")) <>  0 or
+        weekOfYear(time("2007-12-31")) <> 53 then
+      writeln(" ***** weekOfYear() does not work correctly.)");
+      okay := FALSE;
+    end if;
+
+    if  weekDateYear(time("2005-01-01")) <> 2004 or
+        weekDateYear(time("2007-12-31")) <> 2008 then
+      writeln(" ***** weekDateYear() does not work correctly.)");
+      okay := FALSE;
+    end if;
+
+    if  weekDateWeek(time("2005-01-01")) <> 53 or
+        weekDateWeek(time("2007-12-31")) <>  1 then
+      writeln(" ***** weekDateWeek() does not work correctly.)");
+      okay := FALSE;
+    end if;
+
+    if  dayOfWeek(time("2005-01-01")) <> 6 or
+        dayOfWeek(time("2007-12-31")) <> 1 then
+      writeln(" ***** dayOfWeek() does not work correctly.)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Week date functions work correctly.");
+    end if;
+  end func;
+
+
+const proc: checkAwait is func
+  local
+    var time: aTime is time.value;
+    var boolean: okay is TRUE;
+  begin
+    aTime := time(NOW);
+    aTime.month := 0;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 0.");
+      okay := FALSE;
+    end if;
+    aTime.month := 13;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 13.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.day := 0;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a day of 0.");
+      okay := FALSE;
+    end if;
+    aTime.month := 1;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 1 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.year := 2000;
+    aTime.month := 2;
+    aTime.day := 30;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a year of 2000, a month of 2 and a day of 30.");
+      okay := FALSE;
+    end if;
+    aTime.year := 2001;
+    aTime.month := 2;
+    aTime.day := 29;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a year of 2001, a month of 2 and a day of 29.");
+      okay := FALSE;
+    end if;
+    aTime.month := 3;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 3 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 4;
+    aTime.day := 31;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 4 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 5;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 5 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 6;
+    aTime.day := 31;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 6 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 7;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 7 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 8;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 8 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 9;
+    aTime.day := 31;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 9 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 10;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 10 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 11;
+    aTime.day := 31;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 11 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 12;
+    aTime.day := 32;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a month of 12 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.hour := -1;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a hour of -1.");
+      okay := FALSE;
+    end if;
+    aTime.hour := 24;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a hour of 24.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.minute := -1;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a minute of -1.");
+      okay := FALSE;
+    end if;
+    aTime.minute := 60;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a minute of 60.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.second := -1;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a second of -1.");
+      okay := FALSE;
+    end if;
+    aTime.second := 60;
+    if not raisesRangeError(await(aTime)) then
+      writeln(" ***** await accepts a second of 60.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("await accepts only legal time values.");
+    end if;
+  end func;
+
+
+const proc: checkSetLocalTZ is func
+  local
+    var time: aTime is time.value;
+    var boolean: okay is TRUE;
+  begin
+    aTime := time(NOW);
+    aTime.month := 0;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 0.");
+      okay := FALSE;
+    end if;
+    aTime.month := 13;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 13.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.day := 0;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a day of 0.");
+      okay := FALSE;
+    end if;
+    aTime.month := 1;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 1 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.year := 2000;
+    aTime.month := 2;
+    aTime.day := 30;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a year of 2000, a month of 2 and a day of 30.");
+      okay := FALSE;
+    end if;
+    aTime.year := 2001;
+    aTime.month := 2;
+    aTime.day := 29;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a year of 2001, a month of 2 and a day of 29.");
+      okay := FALSE;
+    end if;
+    aTime.month := 3;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 3 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 4;
+    aTime.day := 31;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 4 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 5;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 5 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 6;
+    aTime.day := 31;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 6 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 7;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 7 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 8;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 8 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 9;
+    aTime.day := 31;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 9 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 10;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 10 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime.month := 11;
+    aTime.day := 31;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 11 and a day of 31.");
+      okay := FALSE;
+    end if;
+    aTime.month := 12;
+    aTime.day := 32;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a month of 12 and a day of 32.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.hour := -1;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a hour of -1.");
+      okay := FALSE;
+    end if;
+    aTime.hour := 24;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a hour of 24.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.minute := -1;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a minute of -1.");
+      okay := FALSE;
+    end if;
+    aTime.minute := 60;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a minute of 60.");
+      okay := FALSE;
+    end if;
+    aTime := time(NOW);
+    aTime.second := -1;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a second of -1.");
+      okay := FALSE;
+    end if;
+    aTime.second := 60;
+    if not raisesRangeError(setLocalTZ(aTime)) then
+      writeln(" ***** setLocalTZ accepts a second of 60.");
+      okay := FALSE;
+    end if;
+
+(*
+        setLocalTZ(time("-4711-1-1"))   <> time("-4711,  1,  1")));
+        setLocalTZ(time("-4711-12-31")) <> time("-4711, 12, 31")));
+        setLocalTZ(time("-999-12-31"))  <> time(" -999, 12, 31")));
+        setLocalTZ(time("-123-1-23"))   <> time(" -123,  1, 23")));
+        setLocalTZ(time("-42-4-2"))     <> time("  -42,  4,  2")));
+        setLocalTZ(time("-1-1-1"))      <> time("   -1,  1,  1")));
+        setLocalTZ(time("-1-12-31"))    <> time("   -1, 12, 31")));
+        setLocalTZ(time("0-1-1"))       <> time("    0,  1,  1")));
+        setLocalTZ(time("0-12-31"))     <> time("    0, 12, 31")));
+        setLocalTZ(time("1-1-1"))       <> time("    1,  1,  1")));
+        setLocalTZ(time("42-4-2"))      <> time("   42,  4,  2")));
+        setLocalTZ(time("123-1-23"))    <> time("  123,  1, 23")));
+        setLocalTZ(time("999-12-31"))   <> time("  999, 12, 31")));
+        setLocalTZ(time("1000-1-1"))    <> time(" 1000,  1,  1")));
+        setLocalTZ(time("1600-12-31")   <> time(" 1600, 12, 31")));
+        setLocalTZ(time("1601-1-1")     <> time(" 1601,  1,  1")));
+        setLocalTZ(time("1752-12-31"))  <> time(" 1752, 12, 31")));
+        setLocalTZ(time("1753-1-1"))    <> time(" 1753,  1,  1")));
+        setLocalTZ(time("1800-1-1"))    <> time(" 1800,  1,  1")));
+        setLocalTZ(time("1893-3-31"))   <> time(" 1893,  3, 31")));
+        setLocalTZ(time("1893-4-01"))   <> time(" 1893,  4,  1")));
+        setLocalTZ(time("1899-12-31"))  <> time(" 1899, 12, 31")));
+        setLocalTZ(time("1900-1-1"))    <> time(" 1900,  1,  1")));
+        setLocalTZ(time("1961-1-9"))    <> time(" 1961,  1,  9")));
+        setLocalTZ(time("1969-12-31"))  <> time(" 1969, 12, 31")));
+        setLocalTZ(time("1970-1-1"))    <> time(" 1970,  1,  1")));
+        setLocalTZ(time("1979-12-31"))  <> time(" 1979, 12, 31")));
+        setLocalTZ(time("1980-1-1"))    <> time(" 1980,  1,  1")));
+        setLocalTZ(time("2010-11-12"))  <> time(" 2010, 11, 12")));
+        setLocalTZ(time("2011-11-11"))  <> time(" 2011, 11, 11")));
+        setLocalTZ(time("2012-12-12"))  <> time(" 2012, 12, 12")));
+        setLocalTZ(time("0:0:0"))           <> time(" 0,  0,  0")));
+        setLocalTZ(time("0:0:59"))          <> time(" 0,  0, 59")));
+        setLocalTZ(time("0:59:59"))         <> time(" 0, 59, 59")));
+        setLocalTZ(time("1:0:0"))           <> time(" 1,  0,  0")));
+        setLocalTZ(time("11:59:59"))        <> time("11, 59, 59")));
+        setLocalTZ(time("12:0:0"))          <> time("12,  0,  0")));
+        setLocalTZ(time("23:59:59"))        <> time("23, 59, 59")));
+        setLocalTZ(time("-4711-1-1 0:0:0"))      <> time("-4711,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("-4711-12-31 23:59:59")) <> time("-4711, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("-999-12-31 23:59:59"))  <> time(" -999, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("-123-1-23 12:31:12"))   <> time(" -123,  1, 23, 12, 31, 12")));
+        setLocalTZ(time("-42-4-2 4:42:42"))      <> time("  -42,  4,  2,  4, 42, 42")));
+        setLocalTZ(time("-1-1-1 0:0:0"))         <> time("   -1,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("-1-12-31 23:59:59"))    <> time("   -1, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("0-1-1 0:0:0"))          <> time("    0,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("0-12-31 23:59:59"))     <> time("    0, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1-1-1 0:0:0"))          <> time("    1,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("42-4-2 4:42:42"))       <> time("   42,  4,  2,  4, 42, 42")));
+        setLocalTZ(time("123-1-23 12:31:12"))    <> time("  123,  1, 23, 12, 31, 12")));
+        setLocalTZ(time("999-12-31 23:59:59"))   <> time("  999, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1000-1-1 0:0:0"))       <> time(" 1000,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1600-12-31 23:59:59")   <> time(" 1600, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1601-1-1 0:0:0")        <> time(" 1601,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1752-12-31 23:59:59"))  <> time(" 1752, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1753-1-1 0:0:0"))       <> time(" 1753,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1800-1-1 0:0:0"))       <> time(" 1800,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1893-3-31 23:59:59"))   <> time(" 1893,  3, 31, 23,  0,  0")));
+        setLocalTZ(time("1893-4-01 0:0:0"))      <> time(" 1893,  4,  1,  0,  0,  0")));
+        setLocalTZ(time("1899-12-31 23:59:59"))  <> time(" 1899, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1900-1-1 0:0:0"))       <> time(" 1900,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1961-1-9 6:1:0"))       <> time(" 1961,  1,  9,  6,  1,  0")));
+        setLocalTZ(time("1969-12-31 23:59:59"))  <> time(" 1969, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1970-1-1 0:0:0"))       <> time(" 1970,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1979-12-31 23:59:59"))  <> time(" 1979, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1980-1-1 0:0:0"))       <> time(" 1980,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("2010-11-12 13:14:15"))  <> time(" 2010, 11, 12, 13, 14, 15")));
+        setLocalTZ(time("2011-11-11 11:11:11"))  <> time(" 2011, 11, 11, 11, 11, 11")));
+        setLocalTZ(time("2012-12-12 12:12:12"))  <> time(" 2012, 12, 12, 12, 12, 12")));
+        setLocalTZ(time("-4711-1-1 0:0:0"))             <> time("-4711,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("-4711-12-31 23:59:59"))        <> time("-4711, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("-4711-12-31 23:59:59.123456")) <> time("-4711, 12, 31, 23, 59, 59.123456")));
+        setLocalTZ(time("-999-12-31 23:59:59"))         <> time(" -999, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("-123-1-23 12:31:12"))          <> time(" -123,  1, 23, 12, 31, 12")));
+        setLocalTZ(time("-42-4-2 4:42:42"))             <> time("  -42,  4,  2,  4, 42, 42")));
+        setLocalTZ(time("-1-1-1 0:0:0"))                <> time("   -1,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("-1-12-31 23:59:59"))           <> time("   -1, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("-1-12-31 23:59:59.999999"))    <> time("   -1, 12, 31, 23, 59, 59.999999")));
+        setLocalTZ(time("0-1-1 0:0:0"))                 <> time("    0,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("0-12-31 23:59:59"))            <> time("    0, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("0-12-31 23:59:59.123456"))     <> time("    0, 12, 31, 23, 59, 59.123456")));
+        setLocalTZ(time("1-1-1 0:0:0"))                 <> time("    1,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1-12-31 23:59:59"))            <> time("    1, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1-12-31 23:59:59.123456"))     <> time("    1, 12, 31, 23, 59, 59.123456")));
+        setLocalTZ(time("1-12-31 23:59:59.999999"))     <> time("    1, 12, 31, 23, 59, 59.999999")));
+        setLocalTZ(time("42-4-2 4:42:42"))              <> time("   42,  4,  2,  4, 42, 42")));
+        setLocalTZ(time("123-1-23 12:31:12"))           <> time("  123,  1, 23, 12, 31, 12")));
+        setLocalTZ(time("999-12-31 23:59:59"))          <> time("  999, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1000-1-1 0:0:0"))              <> time(" 1000,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1600-12-31 23:59:59.999999")   <> time(" 1600, 12, 31, 23, 59, 59.999999")));
+        setLocalTZ(time("1601-1-1 0:0:0.0")             <> time(" 1601,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1752-12-31 23:59:59"))         <> time(" 1752, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1753-1-1 0:0:0"))              <> time(" 1753,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1800-1-1 0:0:0"))              <> time(" 1800,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1893-3-31 23:59:59.999999"))   <> time(" 1893,  3, 31, 23,  0,  0.999999")));
+        setLocalTZ(time("1893-4-01 0:0:0.0"))           <> time(" 1893,  4,  1,  0,  0,  0")));
+        setLocalTZ(time("1899-12-31 23:59:59"))         <> time(" 1899, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1900-1-1 0:0:0"))              <> time(" 1900,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1961-1-9 6:1:0"))              <> time(" 1961,  1,  9,  6,  1,  0")));
+        setLocalTZ(time("1969-12-31 23:59:59"))         <> time(" 1969, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1970-1-1 0:0:0"))              <> time(" 1970,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("1970-1-2 0:0:0"))              <> time(" 1970,  1,  2,  0,  0,  0")));
+        setLocalTZ(time("1979-12-31 23:59:59"))         <> time(" 1979, 12, 31, 23, 59, 59")));
+        setLocalTZ(time("1980-1-1 0:0:0"))              <> time(" 1980,  1,  1,  0,  0,  0")));
+        setLocalTZ(time("2010-11-12 13:14:15.16"))      <> time(" 2010, 11, 12, 13, 14, 15.16")));
+        setLocalTZ(time("2011-11-11 11:11:11.11"))      <> time(" 2011, 11, 11, 11, 11, 11.11")));
+        setLocalTZ(time("2012-12-12 12:12:12.12"))      <> time(" 2012, 12, 12, 12, 12, 12.12")));
+*)
+
+    if  not raisesRangeError(setLocalTZ(date(-1, -1,  1))) or
+        not raisesRangeError(setLocalTZ(date(-1, 13,  1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  1, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  1, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1,  2, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  2, 29))) or
+        not raisesRangeError(setLocalTZ(date(-1,  3, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  3, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1,  4, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  4, 31))) or
+        not raisesRangeError(setLocalTZ(date(-1,  5, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  5, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1,  6, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  6, 31))) or
+        not raisesRangeError(setLocalTZ(date(-1,  7, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  7, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1,  8, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  8, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1,  9, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1,  9, 31))) or
+        not raisesRangeError(setLocalTZ(date(-1, 10, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1, 10, 32))) or
+        not raisesRangeError(setLocalTZ(date(-1, 11, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1, 11, 31))) or
+        not raisesRangeError(setLocalTZ(date(-1, 12, -1))) or
+        not raisesRangeError(setLocalTZ(date(-1, 12, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0, -1,  1))) or
+        not raisesRangeError(setLocalTZ(date( 0, 13,  1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  1, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  1, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0,  2, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  2, 30))) or
+        not raisesRangeError(setLocalTZ(date( 0,  3, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  3, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0,  4, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  4, 31))) or
+        not raisesRangeError(setLocalTZ(date( 0,  5, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  5, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0,  6, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  6, 31))) or
+        not raisesRangeError(setLocalTZ(date( 0,  7, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  7, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0,  8, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  8, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0,  9, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0,  9, 31))) or
+        not raisesRangeError(setLocalTZ(date( 0, 10, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0, 10, 32))) or
+        not raisesRangeError(setLocalTZ(date( 0, 11, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0, 11, 31))) or
+        not raisesRangeError(setLocalTZ(date( 0, 12, -1))) or
+        not raisesRangeError(setLocalTZ(date( 0, 12, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1, -1,  1))) or
+        not raisesRangeError(setLocalTZ(date( 1, 13,  1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  1, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  1, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1,  2, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  2, 29))) or
+        not raisesRangeError(setLocalTZ(date( 1,  3, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  3, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1,  4, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  4, 31))) or
+        not raisesRangeError(setLocalTZ(date( 1,  5, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  5, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1,  6, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  6, 31))) or
+        not raisesRangeError(setLocalTZ(date( 1,  7, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  7, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1,  8, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  8, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1,  9, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1,  9, 31))) or
+        not raisesRangeError(setLocalTZ(date( 1, 10, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1, 10, 32))) or
+        not raisesRangeError(setLocalTZ(date( 1, 11, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1, 11, 31))) or
+        not raisesRangeError(setLocalTZ(date( 1, 12, -1))) or
+        not raisesRangeError(setLocalTZ(date( 1, 12, 32))) then
+      writeln(" ***** setLocalTZ of illegal time value does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+(*
+    if  not raisesRangeError(setLocalTZ(time(-1,  0,  0))) or
+        not raisesRangeError(setLocalTZ(time(-1,  0, 59))) or
+        not raisesRangeError(setLocalTZ(time(-1, 59, 59))) or
+        not raisesRangeError(setLocalTZ(time(24,  0,  0))) or
+        not raisesRangeError(setLocalTZ(time(24,  0, 59))) or
+        not raisesRangeError(setLocalTZ(time(24, 59, 59))) or
+        not raisesRangeError(setLocalTZ(time( 0, -1,  0))) or
+        not raisesRangeError(setLocalTZ(time( 0, -1, 59))) or
+        not raisesRangeError(setLocalTZ(time( 0, 60,  0))) or
+        not raisesRangeError(setLocalTZ(time( 0, 60, 59))) or
+        not raisesRangeError(setLocalTZ(time(23, -1,  0))) or
+        not raisesRangeError(setLocalTZ(time(23, -1, 59))) or
+        not raisesRangeError(setLocalTZ(time(23, 60,  0))) or
+        not raisesRangeError(setLocalTZ(time(23, 60, 59))) or
+        not raisesRangeError(setLocalTZ(time( 0,  0, -1))) or
+        not raisesRangeError(setLocalTZ(time( 0,  0, 60))) or
+        not raisesRangeError(setLocalTZ(time( 0, 59, -1))) or
+        not raisesRangeError(setLocalTZ(time( 0, 59, 60))) or
+        not raisesRangeError(setLocalTZ(time(23,  0, -1))) or
+        not raisesRangeError(setLocalTZ(time(23,  0, 60))) or
+        not raisesRangeError(setLocalTZ(time(23, 59, -1))) or
+        not raisesRangeError(setLocalTZ(time(23, 59, 60))) then
+      writeln(" ***** setLocalTZ of illegal time value does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+*)
+
+    if  not raisesRangeError(setLocalTZ(time(2010, 11, 12, -1,  0,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, -1,  0, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, -1, 59, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 24,  0,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 24,  0, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 24, 59, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, -1,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, -1, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, 60,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, 60, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, -1,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, -1, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, 60,  0))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, 60, 59))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0,  0, -1))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0,  0, 60))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, 59, -1))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12,  0, 59, 60))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23,  0, -1))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23,  0, 60))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, 59, -1))) or
+        not raisesRangeError(setLocalTZ(time(2010, 11, 12, 23, 59, 60))) then
+      writeln(" ***** setLocalTZ of illegal time value does not raise RANGE_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("setLocalTZ accepts only legal time values.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    writeln;
+    checkISO8601ToTimeConversion;
+    checkTimeToStringConversion;
+    checkLeapYearFunctions;
+    checkTimestamp1970;
+    checkTimestamp1601;
+    checkJulianDayNumber;
+    checkTrunc;
+    checkWeekDate;
+    checkAwait;
+    checkSetLocalTZ;
+  end func;

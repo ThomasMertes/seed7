@@ -1124,6 +1124,25 @@ const func time: time (in integer: year, in integer: month, in integer: day,
 
 
 (**
+ *  Return the specified UTC time.
+ *)
+const func time: time (in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second,
+    in integer: micro_second) is func
+  result
+    var time: utcTime is time.value;
+  begin
+    utcTime.year         := year;
+    utcTime.month        := month;
+    utcTime.day          := day;
+    utcTime.hour         := hour;
+    utcTime.minute       := minute;
+    utcTime.second       := second;
+    utcTime.micro_second := micro_second;
+  end func;
+
+
+(**
  *  Return the specified time in the specified timeZone.
  *)
 const func time: timeInTimeZone (in integer: year, in integer: month, in integer: day,

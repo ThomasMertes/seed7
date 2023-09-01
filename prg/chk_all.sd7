@@ -330,6 +330,18 @@ const string: chkenum_output is "\n\
   \Enumeration literal function works correctly.\n\
   \The ternary operator ? : works correctly for enumerations.\n";
 
+const string: chktime_output is "\n\
+  \The conversion of a string in ISO 8601 date format works correctly.\n\
+  \The conversion of a time to a string works correctly.\n\
+  \Leap year functions work correctly.\n\
+  \timestamp1970() and timestamp1970ToTime() work correctly.\n\
+  \timestamp1601() and timestamp1601ToTime() work correctly.\n\
+  \julianDayNumber() and julianDayNumToTime() work correctly.\n\
+  \Time truncation works correctly.\n\
+  \Week date functions work correctly.\n\
+  \await accepts only legal time values.\n\
+  \setLocalTZ accepts only legal time values.\n";
+
 const string:chkbitdata_output is "\n\
   \getBit(lsbBitStream) works correctly.\n\
   \getBits(lsbBitStream) works correctly.\n\
@@ -706,6 +718,7 @@ const proc: main is func
     check("chkbig",  chkbig_output);
     check("chkbool", chkbool_output);
     check("chkenum", chkenum_output);
+    check("chktime", chktime_output);
     check("chkbitdata", chkbitdata_output);
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);
