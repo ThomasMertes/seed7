@@ -57,7 +57,7 @@ const func pemObject: pemObject (in string: pemType, in string: content) is func
     var pemObject: pemObj is pemObject.value;
   begin
     pemObj.pemType := pemType;
-	pemObj.content := content;
+    pemObj.content := content;
   end func;
 
 

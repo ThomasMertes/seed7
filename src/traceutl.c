@@ -1038,7 +1038,7 @@ void prot_dot_expr (const_listType list)
   {
     int number;
     const_cstriType idString;
-    
+
   /* prot_dot_expr */
     logFunction(printf("prot_dot_expr\n"););
     number = 0;

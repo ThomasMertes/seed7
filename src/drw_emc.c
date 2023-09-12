@@ -113,7 +113,7 @@ boolType ignoreResize (winType aWindow, int width, int height)
 
   /* ignoreResize */
     logFunction(printf("ignoreResize(" FMT_U_MEM ", %d, %d)\n",
-                        (memSizeType) aWindow, width, height););  
+                        (memSizeType) aWindow, width, height););
     switch (to_ignoreFirstResize(aWindow)) {
       case 1:
         to_var_ignoreFirstResize(aWindow) = 0;

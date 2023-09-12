@@ -120,7 +120,7 @@ const proc: write (inout moreFile: outFile, in string: stri) is func
         write(outFile.destFile, stri[startPos .. pred(nlPos)]);
         writeln(outFile);
         startPos := succ(nlPos);
-	nlPos := pos(stri, '\n', startPos);
+        nlPos := pos(stri, '\n', startPos);
       end while;
       if outFile.active then
         write(outFile.destFile, stri[startPos ..]);

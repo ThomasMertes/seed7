@@ -1320,7 +1320,7 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
  *  inside an XML/HTML tag can be a name, a string literal (quoted with "
  *  or ' ), the equals sign (=), the end of tag character (>), the slash
  *  character (/) or a special symbol (a sequence of characters that
- *  does not include the character > or a whitespace character). Special 
+ *  does not include the character > or a whitespace character). Special
  *  symbols can only appear in HTML tags. When the function is called it
  *  is assumed that inFile.bufferChar contains a whitespace character or
  *  the first character of a symbol. When the function is left
