@@ -79,7 +79,7 @@ const func file: openHttps (in string: location) is func
   end func;
 
 
-const func string: getHttps (in string: serverName, in integer: portNumber, in string: url) is func
+const func string: getHttps (in string: serverName, in integer: portNumber, in string: location) is func
   result
     var string: data is "";
   local
@@ -89,7 +89,7 @@ const func string: getHttps (in string: serverName, in integer: portNumber, in s
     var boolean: okay is TRUE;
     var integer: repeatCount is 0;
   begin
-    locationData := getHttpLocation(url, httpDefaultPort);
+    locationData := getHttpLocation(location, httpDefaultPort);
     locationData.httpsProtocol := TRUE;
     locationData.serverName := serverName;
     locationData.portNumber := portNumber;

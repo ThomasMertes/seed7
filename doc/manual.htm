@@ -42,20 +42,20 @@ a.link:link    { color: blue; text-decoration: none }
 a.link:hover   { color: blue; text-decoration: underline }
 a.link:active  { color: orange; text-decoration: underline }
 
-a.head:visited { color: cyan;  background-color: blue }
-a.head:link    { color: cyan;  background-color: blue }
-a.head:hover   { color: white; background-color: blue }
-a.head:active  { color: green; background-color: blue }
+a.head:visited { color: cyan;  background-color: mediumblue }
+a.head:link    { color: cyan;  background-color: mediumblue }
+a.head:hover   { color: white; background-color: mediumblue }
+a.head:active  { color: green; background-color: mediumblue }
 
-a.menu:visited { color: purple; background-color: silver }
-a.menu:link    { color: purple; background-color: silver }
+a.menu:visited { color: indigo; background-color: gainsboro }
+a.menu:link    { color: indigo; background-color: gainsboro }
 a.menu:hover   { color: red;    background-color: white  }
-a.menu:active  { color: green;  background-color: silver }
+a.menu:active  { color: green;  background-color: gainsboro }
 
-a.navigation:visited { color: purple; text-decoration: none; background-color: silver }
-a.navigation:link    { color: purple; text-decoration: none; background-color: silver }
-a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
-a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
+a.navigation:visited { color: indigo; text-decoration: none; background-color: gainsboro }
+a.navigation:link    { color: indigo; text-decoration: none; background-color: gainsboro }
+a.navigation:hover   { color: red;    text-decoration: none; background-color: gainsboro }
+a.navigation:active  { color: green;  text-decoration: none; background-color: gainsboro }
 
 a.type:visited { color: red; text-decoration: underline }
 a.type:link    { color: red; text-decoration: underline }
@@ -142,6 +142,8 @@ span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
 span.input   { color: green }
+
+span.navigation { color: gainsboro; text-decoration: none; background-color: gainsboro }
 
 span.box {
   border: solid 1px black;
@@ -278,7 +280,7 @@ pre.indent {
 <li><a class="link" href="#types_hash"><b>hash</b></a></li>
 <li><a class="link" href="#types_set"><b>set</b></a></li>
 <li><a class="link" href="#types_struct"><b>struct</b></a></li>
-<li><a class="link" href="#types_ENUMERATION"><b>ENUMERATION</b></a></li>
+<li><a class="link" href="#types_enumeration"><b>enumeration</b></a></li>
 <li><a class="link" href="#types_bin64"><b>bin64</b></a></li>
 <li><a class="link" href="#types_bin32"><b>bin32</b></a></li>
 <li><a class="link" href="#types_bstring"><b>bstring</b></a></li>
@@ -288,6 +290,8 @@ pre.indent {
 <li><a class="link" href="#types_file"><b>file</b></a></li>
 <li><a class="link" href="#types_text"><b>text</b></a></li>
 <li><a class="link" href="#types_fileSys"><b>fileSys</b></a></li>
+<li><a class="link" href="#types_database"><b>database</b></a></li>
+<li><a class="link" href="#types_sqlStatement"><b>sqlStatement</b></a></li>
 <li><a class="link" href="#types_process"><b>process</b></a></li>
 <li><a class="link" href="#types_category"><b>category</b></a></li>
 <li><a class="link" href="#types_reference"><b>reference</b></a></li>
@@ -2707,7 +2711,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
     no next element in the element list the for-key-statement is
     finished. Otherwise the index of the next element is assigned
     to the key control variable. This check for next element -
-    assign index - check possible until condition - 
+    assign index - check possible until condition -
     execute loop body - cycle is repeated until there is no next
     element in the element list.
 </dd></dl>
@@ -4930,38 +4934,38 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="op">times</span>     Array generation
                   ( Left operand: <a class="type" href="#types_integer">integer</a>,
                     Right operand: <span class="type">baseType</span>,
-                    A <span class="op">times</span> B Generates an <span class="type">array</span> <span class="type">baseType</span> with A elements of B,
-                    3 <span class="op">times</span> B <b>&rArr;</b> [] (B, B, B),
-                    0 <span class="op">times</span> B <b>&rArr;</b> empty array with starting index 1,
-                    (1 <span class="op">times</span> B)[1] <b>&rArr;</b> B,
-                    (0 <span class="op">times</span> B)[1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
-                    -1 <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    A <span class="op_no_ul">times</span> B Generates an <span class="type">array</span> <span class="type">baseType</span> with A elements of B,
+                    3 <span class="op_no_ul">times</span> B <b>&rArr;</b> [] (B, B, B),
+                    0 <span class="op_no_ul">times</span> B <b>&rArr;</b> empty array with starting index 1,
+                    (1 <span class="op_no_ul">times</span> B)[1] <b>&rArr;</b> B,
+                    (0 <span class="op_no_ul">times</span> B)[1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    -1 <span class="op_no_ul">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       [ A .. B ] <span class="op">times</span> C    Array generation
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
                     Type of argument C: <span class="type">baseType</span>,
-                    [ A .. B ] <span class="op">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
+                    [ A .. B ] <span class="op_no_ul">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
                     with pred(B - A) elements of C,
-                    [ -1 .. -2 ] <span class="op">times</span> B <b>&rArr;</b> empty array with starting index -1,
-                    [ -1 .. -3 ] <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    [ -1 .. -2 ] <span class="op_no_ul">times</span> B <b>&rArr;</b> empty array with starting index -1,
+                    [ -1 .. -3 ] <span class="op_no_ul">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       [ A len L ] <span class="op">times</span> C    Array generation
                   ( Type of arguments A and L: <a class="type" href="#types_integer">integer</a>,
                     Type of argument C: <span class="type">baseType</span>,
-                    [ A len L ] <span class="op">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
+                    [ A len L ] <span class="op_no_ul">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
                     with L elements of C,
-                    [ -1 len 0 ] <span class="op">times</span> B <b>&rArr;</b> empty array with starting index -1,
-                    [ -1 len -1 ] <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    [ -1 len 0 ] <span class="op_no_ul">times</span> B <b>&rArr;</b> empty array with starting index -1,
+                    [ -1 len -1 ] <span class="op_no_ul">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="type">indexType</span> <span class="op">times</span> A   Array generation for indices from <span class="type">indexType</span>.<span class="var">first</span>
                           to <span class="type">indexType</span>.<span class="var">last</span>.
                   ( Type of argument A: <span class="type">baseType</span>,
-                    <a class="type" href="#types_boolean">boolean</a> <span class="op">times</span> 5 <b>&rArr;</b> [<span class="var">FALSE</span>] (5, 5) )
+                    <a class="type" href="#types_boolean">boolean</a> <span class="op_no_ul">times</span> 5 <b>&rArr;</b> [<span class="var">FALSE</span>] (5, 5) )
     Indices:
       <span class="op">[</span> A <span class="op">]</span>     Access one array element
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <span class="type">baseType</span>,
-                    A[minIdx(A)] <b>&rArr;</b> First element,
-                    A[maxIdx(A)] <b>&rArr;</b> Last element,
-                    A[pred(minIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
-                    A[succ(maxIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
+                    A[<span class="func">minIdx</span>(A)] <b>&rArr;</b> First element,
+                    A[<span class="func">maxIdx</span>(A)] <b>&rArr;</b> Last element,
+                    A[pred(<span class="func">minIdx</span>(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A[succ(<span class="func">maxIdx</span>(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A <span class="op">..</span> B <span class="op">]</span>  Get a sub array from the position A to the position B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
                     X<span class="op">[</span>A <span class="op">..</span> B<span class="op">]</span> is okay for A >= <span class="func">minIdx</span>(X) and B >= <span class="func">pred</span>(A),
@@ -4985,16 +4989,29 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Functions:
       <span class="func">length</span>(A) Length of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    length(A) = succ(maxIdx(A) - minIdx(A)),
-                    length(0 <span class="op">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 0,
-                    length(5 <span class="op">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 5 )
+                    <span class="func">length</span>(A) = succ(<span class="func">maxIdx</span>(A) - <span class="func">minIdx</span>(A)),
+                    <span class="func">length</span>([] (2, 3, 5))  <b>&rArr;</b> 3,
+                    <span class="func">length</span>([0] (2, 3, 5)) <b>&rArr;</b> 3,
+                    <span class="func">length</span>([2] (2, 3, 5)) <b>&rArr;</b> 3,
+                    <span class="func">length</span>([<span class="stri">'a'</span>] (1, 2, 3)) <b>&rArr;</b> 3
+                    <span class="func">length</span>(0 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 0,
+                    <span class="func">length</span>(5 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 5 )
       <span class="func">minIdx</span>(A) Minimal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    minIdx(3 <span class="op">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 1,
-                    minIdx([-1 .. 4] <span class="op">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> -1 )
+                    <span class="func">minIdx</span>([] (2, 3, 5))  <b>&rArr;</b> 1,
+                    <span class="func">minIdx</span>([0] (2, 3, 5)) <b>&rArr;</b> 0,
+                    <span class="func">minIdx</span>([2] (2, 3, 5)) <b>&rArr;</b> 2,
+                    <span class="func">minIdx</span>([<span class="stri">'a'</span>] (1, 2, 3)) <b>&rArr;</b> <span class="stri">'a'</span>,
+                    <span class="func">minIdx</span>(3 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 1,
+                    <span class="func">minIdx</span>([-1 .. 4] <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> -1 )
       <span class="func">maxIdx</span>(A) Maximal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    maxIdx(3 <span class="op">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 3 )
+                    <span class="func">maxIdx</span>([] (2, 3, 5))  <b>&rArr;</b> 3,
+                    <span class="func">maxIdx</span>([0] (2, 3, 5)) <b>&rArr;</b> 2,
+                    <span class="func">maxIdx</span>([2] (2, 3, 5)) <b>&rArr;</b> 4,
+                    <span class="func">maxIdx</span>([<span class="stri">'a'</span>] (1, 2, 3)) <b>&rArr;</b> <span class="stri">'c'</span>,
+                    <span class="func">maxIdx</span>(3 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 3,
+                    <span class="func">maxIdx</span>([-1 .. 4] <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 4 )
       <span class="func">rand</span>(A)   Random element from an array
                 The random elements are uniform distributed.
                   ( Type of result:  <span class="type">baseType</span> )
@@ -5180,19 +5197,39 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="type">setType</span>.<span class="var">value</span>      Default value of <span class="type">setType</span> (<span class="type">setType</span>.<span class="var">EMPTY_SET</span>)
     Infix operators:
       <span class="op">|</span>         Union
-                  ( {1, 3} | {2, 3} <b>&rArr;</b> {1, 2, 3} )
+                  ( {1, 2} <span class="op_no_ul">|</span> {1, 3} <b>&rArr;</b> {1, 2, 3},
+                    {<span class="stri">'a'</span>, <span class="stri">'b'</span>} <span class="op_no_ul">|</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>} <b>&rArr;</b> {<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>},
+                    {<span class="stri">"one"</span>, <span class="stri">"two"</span>} <span class="op_no_ul">|</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>} <b>&rArr;</b> {<span class="stri">"one"</span>, <span class="stri">"two"</span>, <span class="stri">"three"</span>} )
       <span class="op">&amp;</span>         Intersection
-                  ( {1, 3} &amp; {2, 3} <b>&rArr;</b> {3} )
+                  ( {1, 2} <span class="op_no_ul">&amp;</span> {1, 3} <b>&rArr;</b> {1},
+                    {<span class="stri">'a'</span>, <span class="stri">'b'</span>} <span class="op_no_ul">&amp;</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>} <b>&rArr;</b> {<span class="stri">'a'</span>},
+                    {<span class="stri">"one"</span>, <span class="stri">"two"</span>} <span class="op_no_ul">&amp;</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>} <b>&rArr;</b> {<span class="stri">"one"</span>} )
       <span class="op">-</span>         Difference
-                  ( {1, 3} - {2, 3} <b>&rArr;</b> {1} )
+                  ( {1, 2} <span class="op_no_ul">-</span> {1, 3} <b>&rArr;</b> {2},
+                    {<span class="stri">'a'</span>, <span class="stri">'b'</span>} <span class="op_no_ul">-</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>} <b>&rArr;</b> {<span class="stri">'b'</span>},
+                    {<span class="stri">"one"</span>, <span class="stri">"two"</span>} <span class="op_no_ul">-</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>} <b>&rArr;</b> {<span class="stri">"two"</span>} )
       <span class="op">>&lt;</span>        Symmetric Difference
-                  ( {1, 3} >&lt; {2, 3} <b>&rArr;</b> {1, 2} )
+                  ( {1, 2} <span class="op_no_ul">>&lt;</span> {1, 3} <b>&rArr;</b> {2, 3},
+                    {<span class="stri">'a'</span>, <span class="stri">'b'</span>} <span class="op_no_ul">>&lt;</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>} <b>&rArr;</b> {<span class="stri">'b'</span>, <span class="stri">'c'</span>},
+                    {<span class="stri">"one"</span>, <span class="stri">"two"</span>} <span class="op_no_ul">>&lt;</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>} <b>&rArr;</b> {<span class="stri">"two"</span>, <span class="stri">"three"</span>} )
       <span class="op">in</span>        Element
                   ( Left argument: <span class="type">baseType</span>,
-                    Type of result: <a class="type" href="#types_boolean">boolean</a> )
+                    Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    2 <span class="op_no_ul">in</span> {2, 3, 5, 7} <b>&rArr;</b> <span class="var">TRUE</span>,
+                    4 <span class="op_no_ul">in</span> {2, 3, 5, 7} <b>&rArr;</b> <span class="var">FALSE</span>,
+                    <span class="stri">'a'</span> <span class="op_no_ul">in</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>, <span class="stri">'d'</span>} <b>&rArr;</b>  <span class="var">TRUE</span>,
+                    <span class="stri">'b'</span> <span class="op_no_ul">in</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>, <span class="stri">'d'</span>} <b>&rArr;</b> <span class="var">FALSE</span>,
+                    <span class="stri">"one"</span> <span class="op_no_ul">in</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> <span class="var">TRUE</span>,
+                    <span class="stri">"two"</span> <span class="op_no_ul">in</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> <span class="var">FALSE</span> )
       <span class="op">not in</span>    Is not Element
                   ( Left argument: <span class="type">baseType</span>,
-                    Type of result: <a class="type" href="#types_boolean">boolean</a> )
+                    Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    2 <span class="op_no_ul">not in</span> {2, 3, 5, 7} <b>&rArr;</b> <span class="var">FALSE</span>,
+                    4 <span class="op_no_ul">not in</span> {2, 3, 5, 7} <b>&rArr;</b> <span class="var">TRUE</span>,
+                    <span class="stri">'a'</span> <span class="op_no_ul">not in</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>, <span class="stri">'d'</span>} <b>&rArr;</b> <span class="var">FALSE</span>,
+                    <span class="stri">'b'</span> <span class="op_no_ul">not in</span> {<span class="stri">'a'</span>, <span class="stri">'c'</span>, <span class="stri">'d'</span>} <b>&rArr;</b> <span class="var">TRUE</span>,
+                    <span class="stri">"one"</span> <span class="op_no_ul">not in</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> <span class="var">FALSE</span>,
+                    <span class="stri">"two"</span> <span class="op_no_ul">not in</span> {<span class="stri">"one"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> <span class="var">TRUE</span> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>     Equal and not equal
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
@@ -5233,50 +5270,64 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Functions:
       <span class="func">bitset</span>(A) Convert an <a class="type" href="#types_integer">integer</a> number to a <span class="type">bitset</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
-                    bitset(2220) <b>&rArr;</b> {2, 3, 5, 7, 11} )
+                    <span class="func">bitset</span>(2220) <b>&rArr;</b> {2, 3, 5, 7, 11} )
       <span class="func">bitset</span>(A) Convert a <a class="type" href="#types_string">string</a> to a <span class="type">bitset</span>
                   ( Type of argumant A: <a class="type" href="#types_string">string</a>,
-                    bitset("{}") <b>&rArr;</b> {},
-                    bitset("{2, 3, 5, 7}") <b>&rArr;</b> {2, 3, 5, 7} )
+                    <span class="func">bitset</span>("{}") <b>&rArr;</b> {},
+                    <span class="func">bitset</span>("{2, 3, 5, 7}") <b>&rArr;</b> {2, 3, 5, 7} )
       <span class="func">integer</span>(A) Convert a <span class="type">bitset</span> to an <a class="type" href="#types_integer">integer</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    integer({2, 3, 5, 7, 11}) <b>&rArr;</b> 2220 )
+                    <span class="func">integer</span>({2, 3, 5, 7, 11}) <b>&rArr;</b> 2220 )
       <span class="func">card</span>(A)   Cardinality of a set
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    card(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> 0  )
+                    <span class="func">card</span>({2, 3, 5, 7, 11}) <b>&rArr;</b> 5,
+                    <span class="func">card</span>({<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}) <b>&rArr;</b> 3,
+                    <span class="func">card</span>({<span class="stri">"one"</span>, <span class="stri">"two"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> 3
+                    <span class="func">card</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> 0 )
       <span class="func">min</span>(A)    Minimal element
                   ( Type of result: <span class="type">baseType</span>,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element &lt;= X
                     for all X which are in the set.
-                    min(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="func">min</span>({2, 3, 5, 7, 11}) <b>&rArr;</b> 2,
+                    <span class="func">min</span>({<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}) <b>&rArr;</b> <span class="stri">'a'</span>,
+                    <span class="func">min</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">max</span>(A)    Maximum element
                   ( Type of result: <span class="type">baseType</span>,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element >= X
                     for all X which are in the set.
-                    min(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="func">max</span>({2, 3, 5, 7, 11}) <b>&rArr;</b> 11,
+                    <span class="func">max</span>({<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}) <b>&rArr;</b> <span class="stri">'c'</span>,
+                    <span class="func">max</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">next</span>(A, B) Minimal element of set A that is larger than B
                   ( Type of argument B: <span class="type">baseType</span>,
                     Type of result: <span class="type">baseType</span>,
-                    next(A, max(A)) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="func">next</span>({2, 3, 5, 7, 11}, 2) <b>&rArr;</b> 3,
+                    <span class="func">next</span>({2, 3, 5, 7, 11}, 3) <b>&rArr;</b> 5,
+                    <span class="func">next</span>({2, 3, 5, 7, 11}, 7) <b>&rArr;</b> 11,
+                    <span class="func">next</span>({2, 3, 5, 7, 11}, 11) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    <span class="func">next</span>({}, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    <span class="func">next</span>(A, max(A)) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
-                    str(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> <span class="stri">"{}"</span>,
-                    str({}) <b>&rArr;</b> <span class="stri">"{}"</span> )
-                    str({1, 2}) <b>&rArr;</b> <span class="stri">"{1, 2}"</span> )
+                    <span class="func">str</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> <span class="stri">"{}"</span>,
+                    <span class="func">str</span>({}) <b>&rArr;</b> <span class="stri">"{}"</span>,
+                    <span class="func">str</span>({1, 2}) <b>&rArr;</b> <span class="stri">"{1, 2}"</span> )
       <span class="func">rand</span>(A)   Random element from a set
                 The random elements are uniform distributed.
                   ( Type of result: <span class="type">baseType</span>,
-                    rand(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="func">rand</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
-      <span class="func">toArray</span>(A)  Obtain an array containing all the values in A 
-                  ( Type of result: <a class="type" href="#types_array">array</a> <span class="type">baseType</span> )
+      <span class="func">toArray</span>(A)  Obtain an array containing all the values in A
+                  ( Type of result: <a class="type" href="#types_array">array</a> <span class="type">baseType</span>,
+                    <span class="func">toArray</span>({2, 3, 5}) <b>&rArr;</b> [](2, 3, 5),
+                    <span class="func">toArray</span>({'a', 'b', 'c'}) <b>&rArr;</b> []('a', 'b', 'c') )
     Statements:
       A <span class="op">|:=</span> B   Assign the union of A and B to A
       A <span class="op">&amp;:=</span> B   Assign the intersection of A and B to A
@@ -5284,8 +5335,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       A <span class="op">@:=</span> [B] C  Add or remove B to respectively from A
                   ( Type of argument B: <span class="type">baseType</span>,
                     Type of argument C: <a class="type" href="#types_boolean">boolean</a>,
-                    A @:= [B] <span class="var">TRUE</span> <b>&rArr;</b> <span class="func">incl</span>(A,B),
-                    A @:= [B] <span class="var">FALSE</span> <b>&rArr;</b> <span class="func">excl</span>(A,B) )
+                    A <span class="op_no_ul">@:=</span> [B] <span class="var">TRUE</span> <b>&rArr;</b> <span class="func">incl</span>(A,B),
+                    A <span class="op_no_ul">@:=</span> [B] <span class="var">FALSE</span> <b>&rArr;</b> <span class="func">excl</span>(A,B) )
       <span class="func">incl</span>(A,B) Include element B to set A
                   ( Type of argument B: <span class="type">baseType</span> )
       <span class="func">excl</span>(A,B) Exclude element B from set A
@@ -5351,11 +5402,11 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ENUMERATION"><h3>5.14 ENUMERATION</h3></a>
+<a name="types_enumeration"><h3>5.14 enumeration</h3></a>
 <p>
     With
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: enumType <span class="keywd">is new enum</span>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: anEnumType <span class="keywd">is new enum</span>
     enum_literal1, enum_literal2
   <span class="keywd">end enum</span>;
 </pre><p>
@@ -5368,70 +5419,74 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   necessary to define the functions <tt><span class="func">str</span></tt> and <tt><font color=blue>parse</font></tt> in order to
   do I/O for a new enumeration type. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: str (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">enumType</span>: enumValue) <span class="keywd">is</span>
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: str (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">anEnumType</span>: enumValue) <span class="keywd">is</span>
     <span class="keywd">return</span> literal(enumValue);
 
-enable_output(<span class="type">enumType</span>);
+enable_output(<span class="type">anEnumType</span>);
 </pre><p>
   The need to define <tt><span class="func">str</span></tt> opens the oportunity to convert to
   strings, that differ from the original literals.
 </p><pre class="tt">
     Constants:
-      <span class="type">enumType</span>.<span class="var">value</span>  Default value of <span class="type">enumType</span> (enum_literal1)
-      <span class="type">enumType</span>.<span class="var">first</span>  Minimum value of <span class="type">enumType</span> (enum_literal1)
-      <span class="type">enumType</span>.<span class="var">last</span>   Maximum value of <span class="type">enumType</span> (enum_literal2)
+      <span class="type">anEnumType</span>.<span class="var">value</span>  Default value of <span class="type">anEnumType</span> (enum_literal1)
+      <span class="type">anEnumType</span>.<span class="var">first</span>  Minimum value of <span class="type">anEnumType</span> (enum_literal1)
+      <span class="type">anEnumType</span>.<span class="var">last</span>   Maximum value of <span class="type">anEnumType</span> (enum_literal2)
     Infix operators:
       A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
                     <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
                     <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
-      <span class="type">enumType</span> <span class="op">conv</span> A  Conversion from <a class="type" href="#types_integer">integer</a> A to <span class="type">enumType</span>
+      <span class="type">anEnumType</span> <span class="op">conv</span> A  Conversion from <a class="type" href="#types_integer">integer</a> A to <span class="type">anEnumType</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
-                    <span class="type">enumType</span> <span class="op">conv</span> 0 <b>&rArr;</b> enum_literal1,
-                    <span class="type">enumType</span> <span class="op">conv</span> 1 <b>&rArr;</b> enum_literal2,
-                    <span class="type">enumType</span> <span class="op">conv</span> 2 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    <span class="type">enumType</span> <span class="op">conv</span> (-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A   Conversion from <span class="type">enumType</span> A to <a class="type" href="#types_integer">integer</a>
+                    <span class="type">anEnumType</span> <span class="op_no_ul">conv</span> 0 <b>&rArr;</b> enum_literal1,
+                    <span class="type">anEnumType</span> <span class="op_no_ul">conv</span> 1 <b>&rArr;</b> enum_literal2,
+                    <span class="type">anEnumType</span> <span class="op_no_ul">conv</span> 2 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    <span class="type">anEnumType</span> <span class="op_no_ul">conv</span> (-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A   Conversion from <span class="type">anEnumType</span> A to <a class="type" href="#types_integer">integer</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal1 <b>&rArr;</b> 0,
-                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal2 <b>&rArr;</b> 1 )
+                    <a class="type" href="#types_integer">integer</a> <span class="op_no_ul">conv</span> enum_literal1 <b>&rArr;</b> 0,
+                    <a class="type" href="#types_integer">integer</a> <span class="op_no_ul">conv</span> enum_literal2 <b>&rArr;</b> 1 )
     Relations:
-      =, &lt;>, &lt;, &lt;=, >, >=
+      <span class="op">=</span>, <span class="op">&lt;></span>, &lt;, &lt;=, >, >=
     Functions:
-      ord(A)    Ordinal number
+      <span class="func">ord</span>(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    ord(enum_literal1) <b>&rArr;</b> 0,
-                    ord(enum_literal2) <b>&rArr;</b> 1 )
-      succ(A)   Successor
-                  ( succ(A) <b>&rArr;</b> enumType <span class="op">conv</span>(succ(ord(A))),
-                    succ(enum_literal1) <b>&rArr;</b> enum_literal2,
-                    succ(<span class="type">enumType</span>.last) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      pred(A)   Predecessor
-                  ( pred(A) <b>&rArr;</b> enumType <span class="op">conv</span>(pred(ord(A))),
-                    pred(enum_literal2) <b>&rArr;</b> enum_literal1,
-                    pred(<span class="type">enumType</span>.first) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      literal(A) Conversion to a literal
+                    <span class="func">ord</span>(enum_literal1) <b>&rArr;</b> 0,
+                    <span class="func">ord</span>(enum_literal2) <b>&rArr;</b> 1 )
+      <span class="func">integer</span>(A) Ordinal number
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    <span class="func">integer</span>(enum_literal1) <b>&rArr;</b> 0,
+                    <span class="func">integer</span>(enum_literal2) <b>&rArr;</b> 1 )
+      <span class="func">succ</span>(A)   Successor
+                  ( <span class="func">succ</span>(A) <b>&rArr;</b> enumType <span class="op_no_ul">conv</span> <span class="func">succ</span>(<span class="func">ord</span>(A)),
+                    <span class="func">succ</span>(enum_literal1) <b>&rArr;</b> enum_literal2,
+                    <span class="func">succ</span>(<span class="type">anEnumType</span>.<span class="var">last</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">pred</span>(A)   Predecessor
+                  ( <span class="func">pred</span>(A) <b>&rArr;</b> enumType <span class="op_no_ul">conv</span> <span class="func">pred</span>(<span class="func">ord</span>(A)),
+                    <span class="func">pred</span>(enum_literal2) <b>&rArr;</b> enum_literal1,
+                    <span class="func">pred</span>(<span class="type">anEnumType</span>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
-                    literal(enum_literal1) <b>&rArr;</b> "enum_literal1",
-                    literal(enum_literal2) <b>&rArr;</b> "enum_literal2" )
-      rand(A, B) Random value in the range [A, B]
+                    <span class="func">literal</span>(enum_literal1) <b>&rArr;</b> "enum_literal1",
+                    <span class="func">literal</span>(enum_literal2) <b>&rArr;</b> "enum_literal2" )
+      <span class="func">rand</span>(A, B) Random value in the range [A, B]
                  The random values are uniform distributed.
-                  ( rand(A, B) returns a random enumeration value such that
-                    A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
-                    rand(A, A) <b>&rArr;</b> A,
-                    rand(enum_literal2, enum_literal1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      compare(A, B) Compare function
+                  ( <span class="func">rand</span>(A, B) returns a random enumeration value such that
+                    A &lt;= <span class="func">rand</span>(A, B) <span class="op">and</span> <span class="func">rand</span>(A, B) &lt;= B holds.
+                    <span class="func">rand</span>(A, A) <b>&rArr;</b> A,
+                    <span class="func">rand</span>(enum_literal2, enum_literal1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    compare(enum_literal1, enum_literal2) <b>&rArr;</b> -1,
-                    compare(enum_literal1, enum_literal1) <b>&rArr;</b> 0,
-                    compare(enum_literal2, enum_literal1) <b>&rArr;</b> 1 )
-      hashCode(A) Hash function
+                    <span class="func">compare</span>(enum_literal1, enum_literal2) <b>&rArr;</b> -1,
+                    <span class="func">compare</span>(enum_literal1, enum_literal1) <b>&rArr;</b> 0,
+                    <span class="func">compare</span>(enum_literal2, enum_literal1) <b>&rArr;</b> 1 )
+      <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
-      incr(A)   Increment
-                  ( incr(A) <b>&rArr;</b> A:=succ(A) )
-      decr(A)   Decrement
-                  ( decr(A) <b>&rArr;</b> A:=pred(A) )
+      <span class="func">incr</span>(A)   Increment
+                  ( <span class="func">incr</span>(A) <b>&rArr;</b> A:=<span class="func">succ</span>(A) )
+      <span class="func">decr</span>(A)   Decrement
+                  ( <span class="func">decr</span>(A) <b>&rArr;</b> A:=<span class="func">pred</span>(A) )
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
@@ -5853,6 +5908,8 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">weekDateWeek</span>(A)  Compute the week of the ISO 8601 week date
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">toUTC</span>(A)  Conversion to Coordinated Universal Time (UTC)
+      <span class="func">toLocalTZ</span>  Convert given time to a time in the local time zone.
+      <span class="func">setLocalTZ</span>  Sets timeZone and daylightSavingTime for a given time.
       <span class="func">julianDayNumber</span>(A)  Number of days that have elapsed since
                 January 1, 4713 BC in the proleptic Julian calendar
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
@@ -6024,6 +6081,10 @@ enable_output(<span class="type">enumType</span>);
       <span class="type">socket</span>         Sockets of the operation system
       <span class="type">tlsFile</span>        Transport Layer Security (TLS/SSL) sockets
       <span class="type">striFile</span>       Files stored in a string
+      <span class="type">teeFile</span>        File that writes to several destination files at once
+      <span class="type">moreFile</span>       Filter file which shows another file screenwise
+      <span class="type">lowerFile</span>      Filter file which turns characters to lower case
+      <span class="type">upperFile</span>      Filter file which turns characters to upper case
       <span class="type">subFile</span>        Read access to the sub segment of a base file
       <span class="type">xzFile</span>         Read decompressed data from a XZ file
       <span class="type">zstdFile</span>       Read decompressed data from a Zstandard file
@@ -6058,6 +6119,13 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">openStriFile</span>(content) Open a <span class="type">striFile</span> with the given string content
                   ( Type of argument content: <a class="type" href="#types_string">string</a> )
       <span class="func">openStriFile</span> Open a <span class="type">striFile</span> with an empty string content
+      <span class="func">openTee</span>(destFiles) Open a tee file to write to the given destination files
+                  ( Type of argument destFiles: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
+      <span class="func">openTee</span>(dest1, dest2) Open a tee file to write to the two destination files
+      <span class="func">openMore</span>(dest, cmds, pageSize) Open a more filter file for viewing a file page by page
+                  ( Type of argument pageSize: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">openLower</span>(dest) Open a filter file which turns characters to lower case
+      <span class="func">openUpper</span>(dest) Open a filter file which turns characters to upper case
       <span class="func">openGzipFile</span>(compressed, <span class="var">READ</span>) Open a GZIP file for reading (decompression)
                   ( Returns STD_NULL if the file is not in GZIP format )
       <span class="func">openGzipFile</span>(destFile, <span class="var">WRITE</span>) Open a GZIP file for writing (compression)
@@ -6144,7 +6212,7 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">readln</span>(A)  Read a line from <a class="type" href="#types_file">file</a> A
       <span class="func">readln</span>(A, B) Read a line from <a class="type" href="#types_file">file</a> A into the <a class="type" href="#types_string">string</a> B
                   ( Type of right operand: <a class="type" href="#types_string">string</a> )
-      <span class="func">readln</span>(A, B, C)  Read a line from <a class="type" href="#types_file">file</a> A into B or use default value C 
+      <span class="func">readln</span>(A, B, C)  Read a line from <a class="type" href="#types_file">file</a> A into B or use default value C
                   ( Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of argument C: <a class="type" href="#types_string">string</a> )
       <span class="func">skip</span>(A, B) Skip B characters from <a class="type" href="#types_file">file</a> A
@@ -6399,7 +6467,137 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_process"><h3>5.24 process</h3></a>
+<a name="types_database"><h3>5.24 database</h3></a>
+<p>
+    The type <tt><span class="type">database</span></tt> describes database connections.
+  The library <span class="stri">"<span class="lib">sql_base.s7i</span>"</span> defines functions to manage database connections.
+</p><pre class="tt">
+    Constants:
+      <span class="type">database</span>.<span class="var">value</span>  Default value of <span class="type">database</span> (empty database)
+    Relations:
+      <span class="op">=</span>, <span class="op">&lt;></span>
+    Functions:
+      <span class="func">openDatabase</span>(driver, host, port, dbName, user, password)  Open database
+                  ( Type of argument driver: <span class="type">dbCategory</span>,
+                    Type of argument host: <a class="type" href="#types_string">string</a>,
+                    Type of argument port: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument dbName: <a class="type" href="#types_string">string</a>,
+                    Type of argument user: <a class="type" href="#types_string">string</a>,
+                    Type of argument password: <a class="type" href="#types_string">string</a> )
+      <span class="func">openDatabase</span>(DB_ODBC, odbcDriver, server, dbName, user, password)  Open ODBC database
+                  ( Type of argument odbcDriver: <a class="type" href="#types_string">string</a>,
+                    Type of argument server: <a class="type" href="#types_string">string</a>,
+                    Type of argument dbName: <a class="type" href="#types_string">string</a>,
+                    Type of argument user: <a class="type" href="#types_string">string</a>,
+                    Type of argument password: <a class="type" href="#types_string">string</a> )
+      <span class="func">openDatabase</span>(DB_INFORMIX, host, port, server, dbName, user, password)  Open Informix database
+                  ( Type of argument host: <a class="type" href="#types_string">string</a>,
+                    Type of argument port: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument server: <a class="type" href="#types_string">string</a>,
+                    Type of argument dbName: <a class="type" href="#types_string">string</a>,
+                    Type of argument user: <a class="type" href="#types_string">string</a>,
+                    Type of argument password: <a class="type" href="#types_string">string</a> )
+      <span class="func">openDatabase</span>(driver, dbPath, user, password)  Open the database dbPath with the specified user and password
+                  ( Type of argument driver: <span class="type">dbCategory</span>,
+                    Type of argument dbPath: <a class="type" href="#types_string">string</a>,
+                    Type of argument user: <a class="type" href="#types_string">string</a>,
+                    Type of argument password: <a class="type" href="#types_string">string</a> )
+      <span class="func">openDatabase</span>(driver, connectStri)  Open a database with the specified driver and connectStri
+                  ( Type of argument driver: <span class="type">dbCategory</span>,
+                    Type of argument connectStri: <a class="type" href="#types_string">string</a> )
+      <span class="func">close</span>(db)  Close the specified database db
+      <span class="func">getAutoCommit</span>(db)  Get the current auto-commit mode of db
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
+    Statements:
+      <span class="func">setAutoCommit</span>(db, autoCommit)  Set the auto-commit mode for db.
+                  ( Type of argument autoCommit: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">commit</span>(db)  Execute a commit statement for db
+      <span class="func">rollback</span> (db)  Execute a rollback statement for db
+</pre><p></p>
+
+<a name="types_sqlStatement"><h3>5.25 sqlStatement</h3></a>
+<p>
+    The type <tt><span class="type">sqlStatement</span></tt> describes prepared sql statements.
+</p><pre class="tt">
+    Constants:
+      <span class="type">sqlStatement</span>.<span class="var">value</span>  Default value of <span class="type">sqlStatement</span>
+    Relations:
+      <span class="op">=</span>, <span class="op">&lt;></span>
+    Functions:
+      <span class="func">prepare</span>(db, sqlStatementStri)  Create a prepared statement for db
+                  ( Type of argument db: <a class="type" href="#types_database">database</a>
+                    Type of argument sqlStatementStri: <a class="type" href="#types_string">string</a> )
+      <span class="func">fetch</span>(statement)  Fetch a row from the result data of an executed statement
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_bigInteger">bigInteger</a>)  Get the specified column of fetched data as <a class="type" href="#types_bigInteger">bigInteger</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_bigInteger">bigInteger</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_bigRational">bigRational</a>)  Get the specified column of fetched data as <a class="type" href="#types_bigRational">bigRational</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_bigRational">bigRational</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_boolean">boolean</a>)  Get the specified column of fetched data as <a class="type" href="#types_boolean">boolean</a
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_bstring">bstring</a>)  Get the specified column of fetched data as <a class="type" href="#types_bstring">bstring</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_bstring">bstring</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_duration">duration</a>)  Get the specified column of fetched data as <a class="type" href="#types_duration">duration</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_duration">duration</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_float">float</a>)  Get the specified column of fetched data as <a class="type" href="#types_float">float</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_float">float</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_integer">integer</a>)  Get the specified column of fetched data as <a class="type" href="#types_integer">integer</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_string">string</a>)  Get the specified column of fetched data as <a class="type" href="#types_string">string</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">column</span>(statement, column, <a class="type" href="#types_time">time</a>)  Get the specified column of fetched data as <a class="type" href="#types_time">time</a>
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_time">time</a> )
+      <span class="func">isNull</span>(statement, column)  Determine if the specified column of fetched data is NULL
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">columnCount</span>(statement)  Return the number of columns in the result data of a statement
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">columnName</span>(statement, column)  Return the name of a column in the result data of a statement
+                  ( Type of argument column: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
+    Statements:
+      <span class="func">bind</span>(statement, pos, num)  Bind a bigInteger parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument num: <a class="type" href="#types_bigInteger">bigInteger</a> )
+      <span class="func">bind</span>(statement, pos, bigRatData)  Bind a bigRational parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument bigRatData: <a class="type" href="#types_bigRational">bigRational</a> )
+      <span class="func">bind</span>(statement, pos, flag)  Bind a boolean parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument flag: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">bind</span>(statement, pos, bstri)  Bind a bstring parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument bstri: <a class="type" href="#types_bstring">bstring</a> )
+      <span class="func">bind</span>(statement, pos, number)  Bind a float parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument number: <a class="type" href="#types_float">float</a> )
+      <span class="func">bind</span>(statement, pos, number)  Bind an integer parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument number: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">bind</span>(statement, pos, NULL)  Bind a NULL parameter to a prepared SQL statement.
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">bind</span>(statement, pos, stri)  Bind a string parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument : <a class="type" href="#types_string">string</a> )
+      <span class="func">bind</span>(statement, pos, timeData)  Bind a time parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument timeData: <a class="type" href="#types_time">time</a> )
+      <span class="func">bind</span>(statement, pos, durationData)  Bind a duration parameter to a prepared SQL statement
+                  ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument durationData: <a class="type" href="#types_duration">duration</a> )
+      <span class="func">execute</span>(statement)  Execute the specified prepared SQL statement
+</pre><p></p>
+
+<a name="types_process"><h3>5.26 process</h3></a>
 <p>
     The type <tt><span class="type">process</span></tt> describes processes of the operating system.
   The library <span class="stri">"<span class="lib">process.s7i</span>"</span> defines functions to create and manage processes.
@@ -6451,7 +6649,7 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_category"><h3>5.25 category</h3></a>
+<a name="types_category"><h3>5.27 category</h3></a>
 <p>
     The type <tt><span class="type">category</span></tt> describes the category of a <tt><a class="type" href="#types_reference">reference</a></tt>.
   The <tt><span class="type">category</span></tt> functions are defined in the library <span class="stri">"<span class="lib">category.s7i</span>"</span>.
@@ -6505,7 +6703,7 @@ enable_output(<span class="type">enumType</span>);
                   ( Type of argument D: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_reference"><h3>5.26 reference</h3></a>
+<a name="types_reference"><h3>5.28 reference</h3></a>
 <p>
     The type <tt><span class="type">reference</span></tt> describes a reference to an object in the
   abstract syntax tree (AST) of a program. You cannot access the AST
@@ -6663,7 +6861,7 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ref_list"><h3>5.27 ref_list</h3></a>
+<a name="types_ref_list"><h3>5.29 ref_list</h3></a>
 <p>
     The type <tt><span class="type">ref_list</span></tt> describes a list of <tt><a class="type" href="#types_reference">reference</a></tt> objects. The
   <tt><span class="type">ref_list</span></tt> functions are defined in the library <span class="stri">"<span class="lib">ref_list.s7i</span>"</span>.
@@ -6738,7 +6936,7 @@ enable_output(<span class="type">enumType</span>);
                     Type of argument statements: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_program"><h3>5.28 program</h3></a>
+<a name="types_program"><h3>5.30 program</h3></a>
 <p>
     The type <tt><span class="type">program</span></tt> describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -6778,7 +6976,7 @@ enable_output(<span class="type">enumType</span>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ptr"><h3>5.29 ptr</h3></a>
+<a name="types_ptr"><h3>5.31 ptr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_ptr">ptr</a> <span class="type">baseType</span></tt> describes a pointer to an object
   of a <tt><span class="type">baseType</span></tt>. With
@@ -6805,7 +7003,7 @@ enable_output(<span class="type">enumType</span>);
                   ( Type of argument <span class="type">ptrType</span>: <a class="type" href="#types_type">type</a> )
 </pre><p></p>
 
-<a name="types_func"><h3>5.30 func</h3></a>
+<a name="types_func"><h3>5.32 func</h3></a>
 <p>
     The type <tt><a class="type" href="#types_func">func</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt>. For example: <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a></tt> describes an <tt><a class="type" href="#types_integer">integer</a></tt>
@@ -6894,7 +7092,7 @@ enable_output(<span class="type">enumType</span>);
   parameter is <tt><span class="var">TRUE</span></tt>.
 </p>
 
-<a name="types_varfunc"><h3>5.31 varfunc</h3></a>
+<a name="types_varfunc"><h3>5.33 varfunc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_varfunc">varfunc</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt> variable. For example: A function which returns an
@@ -6927,7 +7125,7 @@ enable_output(<span class="type">enumType</span>);
   and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
-<a name="types_void"><h3>5.32 void</h3></a>
+<a name="types_void"><h3>5.34 void</h3></a>
 <p>
     The type <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
 </p><pre class="tt">
@@ -6937,7 +7135,7 @@ enable_output(<span class="type">enumType</span>);
       <a class="type" href="#types_void">void</a>.<span class="var">value</span>  Default value of <a class="type" href="#types_void">void</a> (empty)
 </pre><p></p>
 
-<a name="types_proc"><h3>5.33 proc</h3></a>
+<a name="types_proc"><h3>5.35 proc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_proc">proc</a></tt> describes procedures. The type <tt><a class="type" href="#types_proc">proc</a></tt>
   is defined as <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt>.
@@ -6974,7 +7172,7 @@ enable_output(<span class="type">enumType</span>);
                     Type of result: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_type"><h3>5.34 type</h3></a>
+<a name="types_type"><h3>5.36 type</h3></a>
 <p>
     The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
 </p><pre class="indent">
@@ -7083,7 +7281,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_object"><h3>5.35 object</h3></a>
+<a name="types_object"><h3>5.37 object</h3></a>
 <p>
     The type <tt><a class="type" href="#types_object">object</a></tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7096,7 +7294,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="types_expr"><h3>5.36 expr</h3></a>
+<a name="types_expr"><h3>5.38 expr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_expr">expr</a></tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -9634,6 +9832,8 @@ type_implements_interface(<span class="type">my_file_type</span>, <a class="type
 </p><dl>
     <dt><span class="func">skipSpace</span></dt>
       <dd>Skips space characters from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">skipSpaceOrTab</span></dt>
+      <dd>Skips space and tab characters from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">skipWhiteSpace</span></dt>
       <dd>Skips whitespace characters from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getWhiteSpace</span></dt>
@@ -9662,10 +9862,14 @@ type_implements_interface(<span class="type">my_file_type</span>, <a class="type
       <dd>Reads a XML/HTML tag or the XML/HTML content text from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getXmlCharacterReference</span></dt>
       <dd>Reads a predefined XML entity from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">getXmlCdataContent</span></dt>
+      <dd>Read the content text of a CDATA section from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getXmlTagHeadOrContent</span></dt>
       <dd>Reads a XML/HTML tag head or a XML/HTML content from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getSymbolInXmlTag</span></dt>
       <dd>Reads a symbol which can appear inside a XML/HTML tag from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">skipXmlTag</span></dt>
+      <dd>Skips beyond an XML Tag in a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getNextXmlAttribute</span></dt>
       <dd>Reads name and value of an attribute inside a XML tag from <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getHtmlAttributeValue</span></dt>
@@ -11856,7 +12060,7 @@ my_dir := homeDir;
 <p>
     The function <tt><span class="func">removeFile</span></tt> removes a file of any type unless it
   is a directory that is not empty. An attempt to remove a directory
-  that is not empty triggers <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>. 
+  that is not empty triggers <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
@@ -12404,7 +12608,7 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
   statements for fast execution. Prepared statements are created
   with the following function:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">sqlStatement</span>: <b><span class="func">prepare</span></b> (<span class="keywd">in</span> <span class="type">database</span>: db, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sqlStatementStri)  
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">sqlStatement</span>: <b><span class="func">prepare</span></b> (<span class="keywd">in</span> <span class="type">database</span>: db, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sqlStatementStri)
 </pre><p>
   Regarding the parameter <tt>sqlStatementStri</tt> some things must be considered:
 </p><ul>
@@ -14351,8 +14555,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>bigIntType</td>   <td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
     <tr><td rowspan="2"><tt><span class="type">pollData</span></tt></td>         <td><a name="ffi_pollType">pollType</a></td>     <td>struct select_based_pollStruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
     <tr><td>pollType</td>     <td>struct poll_based_pollStruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td rowspan="2"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_winType">winType</a></td>      <td>x11_winRecord *</td>                   <td>drw_x11.c</td>   <td>Functions cast from struct winStruct * to x11_winRecord *</td></tr>
+    <tr><td rowspan="3"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_PRIMITIVE_WINDOW"></a><a name="ffi_winType">winType</a></td>      <td>x11_winRecord *</td>                   <td>drw_x11.c</td>   <td>Functions cast from struct winStruct * to x11_winRecord *</td></tr>
     <tr><td>winType</td>      <td>win_winRecord *</td>                   <td>drw_win.c</td>   <td>Functions cast from struct winStruct * to win_winRecord *</td></tr>
+    <tr><td>winType</td>      <td>emc_winRecord *</td>                   <td>drw_emc.c</td>   <td>Functions cast from struct winStruct * to emc_winRecord *</td></tr>
     <tr><td rowspan="7"><tt><span class="type">database</span></tt></td>         <td><a name="ffi_databaseType">databaseType</a></td> <td>dbType</td>                            <td>sql_cli.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_fire.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_lite.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
@@ -15541,7 +15746,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </pre><p>
   Additional exceptions can be declared with:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_ENUMERATION">EXCEPTION</a>: MY_ERROR <span class="keywd">is</span> enumlit;
+<span class="keywd">const</span> <a class="type" href="#types_enumeration">EXCEPTION</a>: MY_ERROR <span class="keywd">is</span> enumlit;
 </pre><p></p>
 
 <a name="errors_MEMORY_ERROR"><h4>16.3.1 MEMORY_ERROR</h4></a>

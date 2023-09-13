@@ -2701,7 +2701,7 @@ striType strHeadTemp (const striType stri, const intType stop)
       logError(printf("strHeadTemp: Stop negative."););
       FREE_STRI(stri, stri->size);
       raise_error(INDEX_ERROR);
-      /* The function strHeadAssign() is only used by the compiler. */
+      /* The function strHeadTemp() is only used by the compiler.   */
       /* In this situation raise_error() always does a longjmp().   */
       /* Therefore the line below is never reached. The variable    */
       /* head is initialised to silence a C compiler warning.       */

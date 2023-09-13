@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH S7 1 "January 27, 2013" "Version 2.1" "SEED7 COMPILER"
+.TH S7C 1 "September 12, 2023" "Version 3.2" "SEED7 COMPILER"
 .SH NAME
 s7c \- compiler for the Seed7 programming language
 .SH SYNOPSIS
@@ -29,8 +29,17 @@ and many examples can be found in
 .B \-?
 Write Seed7 compiler usage.
 .TP
-.B \-O and \-O2
-Tell the C compiler to optimize.
+.B \-On
+Tell the C compiler to optimize with level n (n is between 1 and 3).
+.TP
+.B \-O
+Equivalent to -O1
+.TP
+.B \-S
+Specify the stack size of the executable (e.g.:
+.B \-S
+.I 16777216
+).
 .TP
 .B \-b
 Specify the directory of the Seed7 runtime libraries (e.g.:
@@ -38,9 +47,18 @@ Specify the directory of the Seed7 runtime libraries (e.g.:
 .I ../bin
 ).
 .TP
+.B \-c
+Specify configuration (C compiler, etc.) to be used (e.g.:
+.B \-c
+.I emcc
+).
+.TP
 .B \-e
-Generate code which sends a signal, when an uncaught exception occurs.
+Generate code which sends a signal, if an uncaught exception occurs.
 This option allows debuggers to handle uncaught Seed7 exceptions.
+.TP
+.B \-flto
+Enable link time optimization.
 .TP
 .B \-g
 Tell the C compiler to generate an executable with debug information.
@@ -57,9 +75,8 @@ Add a directory to the include library search path (e.g.:
 ).
 .TP
 .B \-ocn
-Optimize constants with level n. E.g.:
+Optimize generated C code with level n (n is between 0 and 3). E.g.:
 .B \-oc3
-Where n is a digit between 0 and 3
 .TP
 .B \-p
 Activate simple function profiling.
@@ -73,13 +90,17 @@ or
 .B \-tx
 Set runtime trace level to x. E.g.:
 .B \-te
+.TP
+.B \-wn
+Specify warning level n. E.g.:
+.B \-w2
 .PD 1
-.SH OPTIMIZATION LEVEL FOR CONSTANTS
+.SH OPTIMIZATION LEVEL FOR GENERATED C CODE
 .PD 0
 The option
 .B \-ocn
-can optimize constants with level n.
-The following optimization levels for constants are supported:
+can optimize generated C code with level n.
+The following optimization levels for generated C code are supported:
 .TP
 .I  0
 Do no optimizations with constants.
@@ -121,6 +142,9 @@ The option
 can set the trace level.
 The trace levels x are specified with letters from the following list:
 .TP
+.I  d
+Trace dynamic calls
+.TP
 .I  e
 Trace exceptions and handlers
 .TP
@@ -129,6 +153,22 @@ Trace functions
 .TP
 .I  s
 Trace signals
+.PD 1
+.SH WARNING LEVEL
+.PD 0
+The option
+.B \-wn
+can set the warning level to n.
+The following warning levels are supported:
+.TP
+.I  0
+Omit warnings.
+.TP
+.I  1
+Write normal warnings (default).
+.TP
+.I  2
+Write warnings for raised exceptions.
 .PD 1
 .SH FILES
 .PD 0

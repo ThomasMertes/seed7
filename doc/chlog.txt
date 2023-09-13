@@ -1,8 +1,103 @@
+20230913:
+- The parameters of getHttp(), getHttps() and getFtp() have been
+  renamed from 'url' to 'location'. A location is a URL without
+  http://, https:// and ftp://, respectively. Many thanks to Liam
+  O'Brien for pointing out that getHttps("https://example.com/") does
+  not work. The documentation has been improved to contain the example
+  getHttps("example.com").
+- The exit() function has been moved from seed7_05.s7i to the library
+  environment.s7i. Many thanks to u/IllegalMigrant for pointing out
+  that exit() was not documented.
+- The libraries lower.s7i, more.s7i, upper.s7i, archive_base.s7i,
+  http_response.s7i, makedata.s7i, tar_cmds.s7i and tee.s7i have been
+  added to the library section and the subject index of the homepage.
+  Many thanks to Liam O'Brien for pointing out that they were missing.
+- The contrast of menus in the Seed7 homepage has been improved. Many
+  thanks u/SachemAgogic for pointing out that the contrast was too low.
+- The make7 example program has been improved to support C++. Now the
+  macros CXX and CXXFLAGS are supported as well as the target .cpp.o
+  and the pattern rule "%.o" with a dependency of "%.cpp" (changes have
+  been made in make.s7i and makedata.s7i).
+- Chapters about the types 'database' and 'sqlStatement' have been
+  added to the manual.
+- The file to generate a man page for the Seed7 compiler (doc/s7c.1)
+  has been improved.
+- A test program for time functions (chktime.sd7) has been added.
+- The program findchar.sd7 has been improved to support the option -e
+  (specify extension) and to allow a search for any char (with the
+  option c).
+- The program calc7.sd7 has been improved to support the function
+  getFtp().
+- The program tar7.sd7 has been improved:
+  - Wildcards can be used when an archive is created.
+    This works even if the OS shell does not support wildcards.
+  - Specific members from an archive can be requested when an archive
+    is extracted (or when listing archive contents with tell).
+- The library tar_cmds.s7i has been improved to support the changes of
+  tar7.sd7.
+- In lib/comp/int_act.s7i the integer overflow checks created by the
+  compiler have been improved. This improvement is used if both factors
+  are unknown at compile time and for C compilers that have neither
+  builtin overflow operations, nor an option like -ftrapv, nor support
+  for 128-bit integers.
+- Tests for the improved overflow checks have been added to chkint.sd7
+  and chkovf.sd7.
+- In the library makedata.s7i, the rule 'name' has been renamed to
+  'target'. The library make.s7i has been adjusted to use 'target'.
+- In scanfile.s7i and scanstri.s7i the functions getNextXmlAttribute()
+  and getNextHtmlAttribute() have been aligned to behave identically if
+  there are no more attributes in a tag.
+- In htmldom.s7i the function readHtmlNode has been adjusted to the
+  change of getNextHtmlAttribute().
+- Several improvements have been made in the time.s7i library:
+  - The function time() with a micro seconds parameter has been added.
+  - The function toLocalTZ() has been added.
+  - The functions hashCode(), toUTC(), timestamp1601() and
+    timestamp1601ToTime() have been fixed to work correctly.
+- In duration.s7i the function hashCode() has been fixed to work
+  correctly.
+- In httpserv.s7i the functions processHttpRequest() and getRequest()
+  have been renamed to getHttpRequest(). The webserver comanche.sd7
+  has been changed to call getHttpRequest() instead of getRequest().
+- In tee.s7i the type teeFile has been improved to allow writing to
+  many files at once.
+- The libraries lower.s7i, more.s7i, tee.s7i and lower.s7i have been
+  refactored to use camel case identifiers and documentation comments.
+- In asn1.s7i the struct asn1DataElement has been changed. Using the
+  tagCategory of an asn1DataElement is deprecated now. Use tagType
+  instead of tagCategory as tagType is also used in the ASN.1
+  documentation. The renaming has also been done in x509cert.s7i.
+- The program chk_all.sd7 has been improved to write a warning if the
+  execution of a test program fails.
+- Tests for hash tables with time keys and values have been added to
+  chkhsh.sd7.
+- In tim_rtl.c the function timSetLocalTZ() has been improved to raise
+  RANGE_ERROR if a value is not in the allowed range.
+- In sql_cli.c and sql_lite.c calls of timSetLocalTZ() have been
+  simplified.
+- The abstract data type (template) to define enumeration types has
+  been moved from seed7_05.s7i to the new enumeration.s7i library.
+- In drw_emc.c and gkb_emc.c opening a window with a requested size has
+  been improved to work correctly if the Firefox window is maximized.
+- Logging functions have been added in con_emc.c, drw_emc.c, emc_utl.c,
+  gkb_emc.c, tim_rtl.c and tim_unx.c.
+- In str_rtl.c comments about the silencing of a C compiler warning
+  have been added to strHeadAssign() and strHeadTemp().
+- In common.h the definitions of TIME_T_MIN, TIME_T_MAX and
+  inTimeTRange() have been improved.
+- Documentation comments have been added or improved in ar.s7i,
+  archive_base.s7i, array.s7i, asn1.s7i, bitset.s7i, bitsetof.s7i,
+  boolean.s7i, cpio.s7i, ftp.s7i, gethttp.s7i, gethttps.s7i,
+  hashsetof.s7i, http_response.s7i, httpserv.s7i, idxarray.s7i,
+  lower.s7i, makedata.s7i, more.s7i, pkcs1.s7i, rpm.s7i, scanfile.s7i,
+  scanstri.s7i, sql_base.s7i, tar.s7i, tar_cmds.s7i, tee.s7i, time.s7i,
+  upper.s7i, zip.s7i, tim_rtl.c and tim_unx.c.
+
 20230709:
 - Explanations about the initialization with 'is', the 'return'
   declaration construct and the meaning of dollar signs have been
   added or improved in the FAQ.
-- A chapters about arrays has been added to the tutorial.
+- A chapter about arrays has been added to the tutorial.
 - In the manual, chapters about variants of for-each loops have been
   added or improved.
 - A chapter about the exception GRAPHIC_ERROR has been added to the
@@ -20,7 +115,7 @@
 - In the library gzip.s7i the functions length() and tell() have been
   added for a gzipWriteFile.
 - In the library tar.s7i the function putFile() has been improved to
-  check for seekable() before aplying seek().
+  check for seekable() before applying seek().
 - The function pemObject() which creates a PEM object from 'pemType'
   and 'content' has been added to pem.s7i.
 - Support for the generation of non-self-signed certificates has been
@@ -228,9 +323,9 @@
     improved.
 - Many thanks to Gary Chike for pointing out problems:
   - The RosettaCode example "Convert decimal number to rational" did
-    not work correct. To fix that, the function fraction(), which gets
-    a fraction as string (e.g. "1/3"), has been added to bigrat.s7i and
-    rational.s7i.
+    not work correctly. To fix that, the function fraction(), which
+    gets a fraction as string (e.g. "1/3"), has been added to
+    bigrat.s7i and rational.s7i.
   - Mac OS 13.2.1 had permission problems when installing Seed7. The
     copying of manual pages failed. In mk_osx.mak and mk_osxcl.mak, the
     copying of the s7 and s7c manual pages to /usr/share/man/man1 has
@@ -434,7 +529,7 @@
 - 30 libraries have been adjusted to use the fixLen sub-string. The
   guaranteed sub-string length assures that conversions like
   bytes2Int() do not get data that is too short.
-- The library zip.s7i has been fixed to work correct if a descriptor
+- The library zip.s7i has been fixed to work correctly if a descriptor
   signature follows the deflated data.
 - The library jpeg.s7i has been refactored to use the segment length
   for reading a segment into a string.
@@ -804,7 +899,7 @@
   PEM cryptographic file format.
 - In encoding.s7i the function fromBase64 has been improved to
   check that no = is in the middle of a base64 string.
-- The library zstd.s7i has been fixed to work correct if the ID
+- The library zstd.s7i has been fixed to work correctly if the ID
   field size of the dictionary is 0.
 - The Seed7 compiler (s7c) has been improved to support warning
   levels.
@@ -1009,7 +1104,7 @@
 - The compiler (s7c) has been improved to inline the action
   DRAW_PIXEL_TO_RGB.
 - The makefiles have been improved to simplify the build system. Now
-  utilies like chkccomp, wrdepend, setwpath and sudo are compiled
+  utilities like chkccomp, wrdepend, setwpath and sudo are compiled
   with extra commands. Support for Informix databases has also been
   added.
 - Several improvements have been made in chkccomp.c:
@@ -1964,7 +2059,7 @@
   and that any other value triggers a termination of the program
   (with SIGABRT).
 - The function drwCapture() in drw_win.c has been improved to work
-  correct, if the screen has been scaled.
+  correctly, if the screen has been scaled.
 - In drw_win.c the functions drwPut() and drwSetTransparentColor()
   have been improved such that images with a transparent color work.
 - The runtime of drwRgbColor() in drw_x11.c has been reduced by 31%
@@ -1983,7 +2078,7 @@
 
 20210130:
 - The parser (used by interpreter and compiler to read a program) has
-  been improved to work correct, if seed7_05.s7i is not included.
+  been improved to work correctly, if seed7_05.s7i is not included.
   Many thanks go to Domingo Alvarez Duarte for pointing out that a
   missing seed7_05.s7i include statement causes a parser error.
 - The example program mirror.sd7 has been added. This program mirrors
@@ -2035,7 +2130,7 @@
 - In entutl.c in the function init_entity() dereferencing NULL is
   avoided now, if the memory allocation fails.
 - In blnlib.c the function bln_ternary() has been improved to work
-  correct, if evaluate() returns NULL. This happens if an exception
+  correctly, if evaluate() returns NULL. This happens if an exception
   is triggered inside evaluate().
 - Implementations of drwBorder() and drwSetPos() have been added to
   drw_emc.c. The functions drwXPos() and drwYPos() have been improved.
@@ -2061,8 +2156,8 @@
   because of a previous realloc(). The function sct_elem() has been
   improved to consider that grow_stack() might fail.
 - In typeutl.c the function get_varfunc_type() has been improved to
-  work correct, if new_type() returns NULL. This can happen in out of
-  memory situations.
+  work correctly, if new_type() returns NULL. This can happen in out
+  of memory situations.
 - In findid.c the functions clean_idents() and write_idents() have
   been refactored to use a progType parameter and to allow NULL
   values in the ident tables.
@@ -2154,7 +2249,7 @@
   propertyfile.s7i. This function processes an UTF-8 encoded property
   file.
 - In propertyfile.s7i the function readPropertyNameOrValue() has been
-  changed to work correct for unicode escapes (\u) and for escaped
+  changed to work correctly for unicode escapes (\u) and for escaped
   newlines. An extended unicode escape (\U) has been added also.
 - Testcases that check if seek() does clear the EOF flag have been
   added to chkfil.sd7.
@@ -2167,7 +2262,7 @@
   if a function has been left without taking profiling into account.
 - The compiler has been improved to recognize if a raise statement
   leaves a function and generates code to make the profiling work
-  correct (if it has been enabled).
+  correctly (if it has been enabled).
 - The recognition of constant expressions in the compiler has been
   improved to consider variable functions as variable. The changes
   are in comp/const.s7i in two functions named isConstantCall().
@@ -2184,7 +2279,7 @@
   account that MATCHOBJECT is constant (and the underlying object
   is variable).
 - In cmd_unx.c the function setenv7() has been improved to work
-  correct, if a value is enlarged.
+  correctly, if a value is enlarged.
 - In cmd_unx.c the functions getenv7(), setenv7() and unsetenv7() have
   been improved to optionally work case insensitive.
 - Changes in cmd_drv.h, cmd_rtl.c and fil_unx.c allow that some
@@ -2337,7 +2432,7 @@
 - The example program chkidx.sd7 has been added. This program checks
   if INDEX_ERROR is correctly raised for string operations.
 - The example program chkarr.sd7 has been added. This program checks
-  if array operations work correct.
+  if array operations work correctly.
 - The program chk_all.sd7 has been improved to call and check the new
   programs chkidx.sd7 and chkarr.sd7.
 - Compiler and interpreter have been improved to support the actions
@@ -2426,14 +2521,14 @@
 - In big_rtl.c the functions bigMDivSizeLess() and bigModSizeLess()
   have been simplified. A bug triggered by a zero dividend has been
   fixed also.
-- In flt_rtl.c the function fltRand() has been fixed to work correct
+- In flt_rtl.c the function fltRand() has been fixed to work correctly
   for rand(-Infinity, Infinity).
 - In numutl.c the function getDecimalInt() has been improved.
 - The function setEmpty() has been removed from set_rtl.c.
 - In set_rtl.c the functions setNext() and setToUInt() have been fixed
-  to work correct.
+  to work correctly.
 - In strlib.c and str_rtl.c the function strSplit() has been fixed to
-  work correct, if the delimiter consists of two or more characters.
+  work correctly, if the delimiter consists of two or more characters.
 - In fil_rtl.c the functions get_mode() and filClose() have been
   improved.
 - The program chkccomp.c has been improved to determine the values
@@ -2539,7 +2634,7 @@
 - The library rpm.s7i has been improved to support a LZMA compressed
   payload.
 - The library cpio.s7i has been improved such that setFileMode(),
-  putFile() and mkdir() work correct.
+  putFile() and mkdir() work correctly.
 - The library lzma.s7i has been fixed such that xz.s7i can handle
   uncompressed chunks in an XZ archive. A bug in the function length()
   has been fixed also.
@@ -2649,7 +2744,7 @@
 - The compiler has been improved to write a warning if there is a catch
   statement for an exception although the checks for this exception
   have been suppressed (with the option -s).
-- The compiler has been improved to work correct for all corner cases
+- The compiler has been improved to work correctly for all corner cases
   of the string operations [, mult and @:=.
 - Testcases for the operators [, mult and @:= and for the functions
   pos() and rpos() have been added to chkstr.sd7.
@@ -3090,7 +3185,7 @@
 - Testcases for pos() and rpos() have been added to chkstr.sd7.
 - The compiler has been improved to optimize the functions pos() and
   rpos() (actions STR_POS, STR_RPOS, STR_CHPOS, STR_RCHPOS).
-- The program setwpath.c has been improved to work correct in more
+- The program setwpath.c has been improved to work correctly in more
   situations (E.g.: If no PATH variable exists, if the path to be added
   is a substring of an existing path, if the first path in the PATH
   variable is to be removed, if there is only on path in the PATH
@@ -3123,7 +3218,7 @@
   function is used for Emscripten and node.js as replacement for the
   C run-time library function system().
 - The files sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
-  and sql_post.c have been improved to work correct, if no database
+  and sql_post.c have been improved to work correctly, if no database
   include file could be found. Normally this should not happen,
   because Seed7 can provide its own database include files.
 - The functions getenv7() and setenv7() have been added to cmd_unx.c.
@@ -3165,11 +3260,11 @@
 - The example program chkdb.sd7 has been improved to write better
   error messages.
 - In reflib.c the function ref_select() has been improved to work
-  correct, if a derived struct overrides an element of the parent
+  correctly, if a derived struct overrides an element of the parent
   struct.
 
 20190818:
-- Interpreter and compiler have been improved to work correct, if a
+- Interpreter and compiler have been improved to work correctly, if a
   derived struct overrides an element of the parent struct. Many thanks
   go to Zachary Menzies, for reporting this error and for providing a
   test program.
@@ -3218,7 +3313,7 @@
   A character width can be 0 (for control characters), 1 (for normal
   printable characters) and 2 (for fullwidth characters, e.g. KANJI).
 - The library console.s7i has been improved to use the function
-  width(), to work correct with fullwidth characters (where the width
+  width(), to work correctly with fullwidth characters (where the width
   of a character is 2).
 - Documentation comments have been improved in sql_base.s7i,
   bytedata.s7i, unicode.s7i, integer.s7i and str_rtl.c.
@@ -3301,9 +3396,9 @@
 - The program chkflt.sd7 has been improved to check floating-point
   literals and the new operators 'rem' and 'mod'. The tests for the
   operator ** have been improved also.
-- Compiler and interpreter have been improved to work correct, even
+- Compiler and interpreter have been improved to work correctly, even
   when the C functions fmod(), exp(), ldexp(), frexp() and sqrt() do
-  not work 100% correct.
+  not work 100% correctly.
 - The program chkccomp.c has been improved to detect weaknesses of
   numeric functions. These weaknesses happen when handling with NaN,
   Infinity or when other special cases occur.
@@ -3323,14 +3418,14 @@
 - The functions fltDecompose(), fltExp(), fltLdexp(), fltMod() and
   fltRem() have been added to flt_rtl.c. These functions are used, when
   the corresponding C functions frexp(), exp(), ldexp() and fmod() do
-  not work 100% correct.
+  not work 100% correctly.
 - In flt_rtl.c the functions fltEq(), fltGe(), fltGt(), fltLe() and
   fltLt() have been improved. These improvements help, when the
-  comparison of float or double values does not work 100% correct.
+  comparison of float or double values does not work 100% correctly.
 - In flt_rtl.c the functions fltPow(), getMantissaAndExponent(),
   setMantissaAndExponent() and fltSqrt() have been improved. These
   improvements help, when the underlying C functions pow(), frexp(),
-  ldexp() and sqrt() do not work 100% correct.
+  ldexp() and sqrt() do not work 100% correctly.
 - The program chkccomp.c has been improved to define the macros
   FLOAT_NAN_COMPARISON_OKAY, FLOAT_ZERO_COMPARISON_OKAY,
   SQRT_OF_NAN_OKAY, SQRT_OF_NEGATIVE_OKAY, EXP_OF_NAN_OKAY,
@@ -3529,7 +3624,7 @@
   - The function setupDll has been improved to open the dll
     libeay32.dll, when necessary.
   - In the function sqlBindStri() the binding of a field with the type
-    BYTEAOID (used for BLOB data) has been improved, to work correct,  
+    BYTEAOID (used for BLOB data) has been improved, to work correctly,  
     when the string contains a zero byte ('\0;').
   - The function sqlColumnBigRat() has been improved to process fields
     with the type FLOAT8OID as double instead of float.
@@ -3544,7 +3639,7 @@
 - In chkccomp.c code to determine NULL_DEVICE, HAS_CDECL, HAS_STDCALL,
   INTPTR_T_DEFINED, PRINTF_ROUNDING, LINE_DIRECTIVE_ACCEPTS_UTF8,
   HAS_SETJMP and HAS_SIGSETJMP has been added or improved.
-- The file sigutl.c has been improved to work correct, when neither
+- The file sigutl.c has been improved to work correctly, when neither
   signal() nor sigaction() are present.
 - Log functions have been added or improved in con_emc.c, con_inf.c,
   sql_my.c, sql_post.c and timlib.c.
@@ -3947,10 +4042,10 @@
   adjusted to the reduced number of parameters.
 - In int_rtl.c the performance of the function intParse has been
   improved (when two's complement integers are used).
-- In pcs_unx.c the function pcsStart has been improved to work correct
-  when stdin, stdout or stderr are not redirected.
-- In flt_rtl.c the function fltPow() has been improved to work correct,
-  when the base is zero and the exponent is NaN.
+- In pcs_unx.c the function pcsStart has been improved to work
+  correctly when stdin, stdout or stderr are not redirected.
+- In flt_rtl.c the function fltPow() has been improved to work
+  correctly when the base is zero and the exponent is NaN.
 - The program chkccomp.c has been improved to check the function pow()
   with more test cases.
 - In striutl.c the function heapAllocOsStri() has been refactored to
@@ -4048,10 +4143,10 @@
 - In cmd_rtl.c the function getOsCwd has been improved to assure that
   PATH_DELIMITER is used as path delimiter.
 - In flt_rtl.c the functions fltDigits and fltSci have been improved,
-  to work correct, when printf() with format %f and %e and a huge
+  to work correctly, when printf() with format %f and %e and a huge
   precision crashes. Additionally fltSci() has been improved to work
-  correct, when the number of exponent digits written with format %f is
-  not fixed.
+  correctly, when the number of exponent digits written with format %f
+  is not fixed.
 - In con_wat.c the functions kbdShut and conWrite have been improved
   and the functions term_descr_equal, tcset_term_descr, kbd_init,
   doWriteConsole and doCPuts have been added.
@@ -4431,8 +4526,8 @@
   solitaire game.
 - The example program sydir7.sd7 has been improved to use fewer calls
   of fileTypeSL.
-- In flt_rtl.c the function fltCmp has been improved to work correct,
-  when NAN_COMPARISON_OKAY is FALSE.
+- In flt_rtl.c the function fltCmp has been improved to work
+  correctly, when NAN_COMPARISON_OKAY is FALSE.
 - Checks in chkbig.sd7 for div, rem, divRem, mdiv and mod have been
   structured into more areas.
 - The reference counting of window objects in drwlib.c and drw_rtl.c
@@ -4555,8 +4650,8 @@
   dimensional array of strings can be used to specify the content.
 - The compiler has been improved to use the function bigAbsTemp to
   optimize bigInteger expressions.
-- Checks that test if the function abs works correct have been added
-  to chkbig.sd7.
+- Checks that test if the function abs works correctly have been#
+  added to chkbig.sd7.
 - The picture on_off_pic has been added to pic16.s7i and pic32.s7i.
 - Tests for the function abs have been added to chk_all.sd7.
 - The program ide7.sd7 has been improved to use the new version of
@@ -4582,7 +4677,7 @@
   readable echo.
 - The function readPassword has been added to editline.s7i.
 - In array.s7i the for-until loops for arrays have been improved to
-  work correct, when the until-condition uses the for variable.
+  work correctly, when the until-condition uses the for variable.
 - In cli_cmds.s7i the functions getCommandParameter,
   getUnixCommandParameter and getDosCommandParameter has been
   improved to recognize when a closing quote is missing.
@@ -4797,7 +4892,7 @@
 - The functions uBigMultIntoHelp and uBigSquare have been removed from
   big_rtl.c
 - In flt_rtl.c the functions fltDgts and fltSci have been improved to
-  work correct, when printf() does not have a fixed maximum for the
+  work correctly, when printf() does not have a fixed maximum for the
   float precision.
 - The program chkccomp.c has been changed such that several test
   programs link with SYSTEM_LIBS, when wide variants of system file
@@ -4960,7 +5055,7 @@
 - Definitions of macros to check the st_mode field of struct stat
   (e.g. S_ISDIR, S_ISREG, etc.) have been moved from fil_rtl.h to
   stat_drv.h.
-- The program chkccomp.c has been improved to work correct, when
+- The program chkccomp.c has been improved to work correctly, when
   C compiler options are separated by linefeeds (\n). In this case the
   linefeeds are replaced by spaces. The linefeeds are used in
   cc_conf.s7i to allow the definition of SYSTEM_DB_LIBS as an array of
@@ -5255,9 +5350,9 @@
   the function __mulodi4 in int_rtl.c is used instead.
 
 20160229:
-- The function fltCmp in flt_rtl.c has been improved to work correct
-  in the case that isnan returns neither 0 nor 1 (Many thanks go to
-  Arnel L. for reporting this problem).
+- The function fltCmp in flt_rtl.c has been improved to work
+  correctly in the case that isnan returns neither 0 nor 1 (Many
+  thanks go to Arnel L. for reporting this problem).
 - The function determineGetaddrlimit in chkccomp.c has been improved
   to include <sys/types.h> before <sys/resource.h>. FreeBSD needs
   that to work correctly (Many thanks go to Pietro Cerutti for
@@ -5432,7 +5527,7 @@
 - The makefile mk_mingc.mak has been improved such that it can be
   called without the parameters S7_LIB_DIR and SEED7_LIBRARY.
 - The program chkccomp.c has been improved to check if pow() works
-  correct when the exponent is the maximum odd value that fits in
+  correctly when the exponent is the maximum odd value that fits in
   a float respectively double.
 - A buffer in a test program used by chkccomp.c has been enlarged
   to avoid a possible buffer overflow.
@@ -5665,7 +5760,7 @@
 
 20150614:
 - The exponentiation operator for float values has been improved to
-  work correct, when the base is negative zero, one or NaN (not a
+  work correctly, when the base is negative zero, one or NaN (not a
   number).
 - The chapter describing float exponentiation in the manual has been
   improved.
@@ -7283,12 +7378,12 @@
 - The generic compare functions bigCmpGeneric, bstCmpGeneric,
   chrCmpGeneric, intCmpGeneric, rflCmpGeneric, setCmpGeneric,
   strCmpGeneric and typCmpGeneric have been improved to work
-  endianness neutral. Now they work correct on little- and
+  endianness neutral. Now they work correctly on little- and
   big-endian systems.
 - The generic create functions bigCreateGeneric, bstCreateGeneric,
   drwCreateGeneric, rflCreateGeneric, setCreateGeneric,
   strCreateGeneric and itfCreateGeneric have been improved to work
-  endianness neutral. Now they work correct on little- and
+  endianness neutral. Now they work correctly on little- and
   big-endian systems.
 - The new generic copy functions bigCpyGeneric, bstCpyGeneric,
   drwCpyGeneric, fltCpyGeneric, rflCpyGeneric, setCpyGeneric and

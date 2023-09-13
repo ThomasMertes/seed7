@@ -69,7 +69,7 @@ CONTENTS
   5.11    hash
   5.12    set
   5.13    struct
-  5.14    ENUMERATION
+  5.14    enumeration
   5.15    bin64
   5.16    bin32
   5.17    bstring
@@ -79,19 +79,21 @@ CONTENTS
   5.21    file
   5.22    text
   5.23    fileSys
-  5.24    process
-  5.25    category
-  5.26    reference
-  5.27    ref_list
-  5.28    program
-  5.29    ptr
-  5.30    func
-  5.31    varfunc
-  5.32    void
-  5.33    proc
-  5.34    type
-  5.35    object
-  5.36    expr
+  5.24    database
+  5.25    sqlStatement
+  5.26    process
+  5.27    category
+  5.28    reference
+  5.29    ref_list
+  5.30    program
+  5.31    ptr
+  5.32    func
+  5.33    varfunc
+  5.34    void
+  5.35    proc
+  5.36    type
+  5.37    object
+  5.38    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -4777,15 +4779,28 @@ CONTENTS
       length(A) Length of array
                   ( Type of result: integer,
                     length(A) = succ(maxIdx(A) - minIdx(A)),
+                    length([] (2, 3, 5))  => 3,
+                    length([0] (2, 3, 5)) => 3,
+                    length([2] (2, 3, 5)) => 3,
+                    length(['a'] (1, 2, 3)) => 3
                     length(0 times TRUE) => 0,
                     length(5 times TRUE) => 5 )
       minIdx(A) Minimal index of array
                   ( Type of result: integer,
+                    minIdx([] (2, 3, 5))  => 1,
+                    minIdx([0] (2, 3, 5)) => 0,
+                    minIdx([2] (2, 3, 5)) => 2,
+                    minIdx(['a'] (1, 2, 3)) => 'a',
                     minIdx(3 times TRUE) => 1,
                     minIdx([-1 .. 4] times TRUE) => -1 )
       maxIdx(A) Maximal index of array
                   ( Type of result: integer,
-                    maxIdx(3 times TRUE) => 3 )
+                    maxIdx([] (2, 3, 5))  => 3,
+                    maxIdx([0] (2, 3, 5)) => 2,
+                    maxIdx([2] (2, 3, 5)) => 4,
+                    maxIdx(['a'] (1, 2, 3)) => 'c',
+                    maxIdx(3 times TRUE) => 3,
+                    maxIdx([-1 .. 4] times TRUE) => 4 )
       rand(A)   Random element from an array
                 The random elements are uniform distributed.
                   ( Type of result:  baseType )
@@ -4971,19 +4986,39 @@ CONTENTS
       setType.value      Default value of setType (setType.EMPTY_SET)
     Infix operators:
       |         Union
-                  ( {1, 3} | {2, 3} => {1, 2, 3} )
+                  ( {1, 2} | {1, 3} => {1, 2, 3},
+                    {'a', 'b'} | {'a', 'c'} => {'a', 'b', 'c'},
+                    {"one", "two"} | {"one", "three"} => {"one", "two", "three"} )
       &         Intersection
-                  ( {1, 3} & {2, 3} => {3} )
+                  ( {1, 2} & {1, 3} => {1},
+                    {'a', 'b'} & {'a', 'c'} => {'a'},
+                    {"one", "two"} & {"one", "three"} => {"one"} )
       -         Difference
-                  ( {1, 3} - {2, 3} => {1} )
+                  ( {1, 2} - {1, 3} => {2},
+                    {'a', 'b'} - {'a', 'c'} => {'b'},
+                    {"one", "two"} - {"one", "three"} => {"two"} )
       ><        Symmetric Difference
-                  ( {1, 3} >< {2, 3} => {1, 2} )
+                  ( {1, 2} >< {1, 3} => {2, 3},
+                    {'a', 'b'} >< {'a', 'c'} => {'b', 'c'},
+                    {"one", "two"} >< {"one", "three"} => {"two", "three"} )
       in        Element
                   ( Left argument: baseType,
-                    Type of result: boolean )
+                    Type of result: boolean,
+                    2 in {2, 3, 5, 7} => TRUE,
+                    4 in {2, 3, 5, 7} => FALSE,
+                    'a' in {'a', 'c', 'd'} =>  TRUE,
+                    'b' in {'a', 'c', 'd'} => FALSE,
+                    "one" in {"one", "three"}) => TRUE,
+                    "two" in {"one", "three"}) => FALSE )
       not in    Is not Element
                   ( Left argument: baseType,
-                    Type of result: boolean )
+                    Type of result: boolean,
+                    2 not in {2, 3, 5, 7} => FALSE,
+                    4 not in {2, 3, 5, 7} => TRUE,
+                    'a' not in {'a', 'c', 'd'} => FALSE,
+                    'b' not in {'a', 'c', 'd'} => TRUE,
+                    "one" not in {"one", "three"}) => FALSE,
+                    "two" not in {"one", "three"}) => TRUE )
     Relations:
       =, <>     Equal and not equal
                   ( Type of result: boolean )
@@ -5034,13 +5069,18 @@ CONTENTS
                     integer({2, 3, 5, 7, 11}) => 2220 )
       card(A)   Cardinality of a set
                   ( Type of result: integer,
-                    card(setType.EMPTY_SET) => 0  )
+                    card({2, 3, 5, 7, 11}) => 5,
+                    card({'a', 'b', 'c'}) => 3,
+                    card({"one", "two", "three"}) => 3
+                    card(setType.EMPTY_SET) => 0 )
       min(A)    Minimal element
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element <= X
                     for all X which are in the set.
+                    min({2, 3, 5, 7, 11}) => 2,
+                    min({'a', 'b', 'c'}) => 'a',
                     min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       max(A)    Maximum element
                   ( Type of result: baseType,
@@ -5048,15 +5088,22 @@ CONTENTS
                     which the following condition holds:
                        Element >= X
                     for all X which are in the set.
-                    min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+                    max({2, 3, 5, 7, 11}) => 11,
+                    max({'a', 'b', 'c'}) => 'c',
+                    max(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       next(A, B) Minimal element of set A that is larger than B
                   ( Type of argument B: baseType,
                     Type of result: baseType,
+                    next({2, 3, 5, 7, 11}, 2) => 3,
+                    next({2, 3, 5, 7, 11}, 3) => 5,
+                    next({2, 3, 5, 7, 11}, 7) => 11,
+                    next({2, 3, 5, 7, 11}, 11) => EXCEPTION RANGE_ERROR,
+                    next({}, 1) => EXCEPTION RANGE_ERROR,
                     next(A, max(A)) => EXCEPTION RANGE_ERROR )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(setType.EMPTY_SET) => "{}",
-                    str({}) => "{}" )
+                    str({}) => "{}",
                     str({1, 2}) => "{1, 2}" )
       rand(A)   Random element from a set
                 The random elements are uniform distributed.
@@ -5067,7 +5114,9 @@ CONTENTS
       hashCode(A) Hash function
                   ( Type of result: integer )
       toArray(A)  Obtain an array containing all the values in A
-                  ( Type of result: array baseType )
+                  ( Type of result: array baseType,
+                    toArray({2, 3, 5}) => [](2, 3, 5),
+                    toArray({'a', 'b', 'c'}) => []('a', 'b', 'c') )
     Statements:
       A |:= B   Assign the union of A and B to A
       A &:= B   Assign the intersection of A and B to A
@@ -5142,11 +5191,11 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.14 ENUMERATION
+5.14 enumeration
 
     With
 
-    const type: enumType is new enum
+    const type: anEnumType is new enum
         enum_literal1, enum_literal2
       end enum;
 
@@ -5159,30 +5208,30 @@ CONTENTS
   necessary to define the functions 'str' and 'parse' in order to
   do I/O for a new enumeration type. E.g.:
 
-    const func string: str (in enumType: enumValue) is
+    const func string: str (in anEnumType: enumValue) is
         return literal(enumValue);
 
-    enable_output(enumType);
+    enable_output(anEnumType);
 
   The need to define 'str' opens the oportunity to convert to
   strings, that differ from the original literals.
 
     Constants:
-      enumType.value  Default value of enumType (enum_literal1)
-      enumType.first  Minimum value of enumType (enum_literal1)
-      enumType.last   Maximum value of enumType (enum_literal2)
+      anEnumType.value  Default value of anEnumType (enum_literal1)
+      anEnumType.first  Minimum value of anEnumType (enum_literal1)
+      anEnumType.last   Maximum value of anEnumType (enum_literal2)
     Infix operators:
       A ? B : C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: boolean,
                     TRUE ? a : b => a,
                     FALSE ? a : b => b )
-      enumType conv A  Conversion from integer A to enumType
+      anEnumType conv A  Conversion from integer A to anEnumType
                   ( Type of argument A: integer,
-                    enumType conv 0 => enum_literal1,
-                    enumType conv 1 => enum_literal2,
-                    enumType conv 2 => EXCEPTION RANGE_ERROR,
-                    enumType conv (-1) => EXCEPTION RANGE_ERROR )
-      integer conv A   Conversion from enumType A to integer
+                    anEnumType conv 0 => enum_literal1,
+                    anEnumType conv 1 => enum_literal2,
+                    anEnumType conv 2 => EXCEPTION RANGE_ERROR,
+                    anEnumType conv (-1) => EXCEPTION RANGE_ERROR )
+      integer conv A   Conversion from anEnumType A to integer
                   ( Type of result: integer,
                     integer conv enum_literal1 => 0,
                     integer conv enum_literal2 => 1 )
@@ -5193,14 +5242,18 @@ CONTENTS
                   ( Type of result: integer,
                     ord(enum_literal1) => 0,
                     ord(enum_literal2) => 1 )
+      integer(A) Ordinal number
+                  ( Type of result: integer,
+                    integer(enum_literal1) => 0,
+                    integer(enum_literal2) => 1 )
       succ(A)   Successor
-                  ( succ(A) => enumType conv(succ(ord(A))),
+                  ( succ(A) => enumType conv succ(ord(A)),
                     succ(enum_literal1) => enum_literal2,
-                    succ(enumType.last) => EXCEPTION RANGE_ERROR )
+                    succ(anEnumType.last) => EXCEPTION RANGE_ERROR )
       pred(A)   Predecessor
-                  ( pred(A) => enumType conv(pred(ord(A))),
+                  ( pred(A) => enumType conv pred(ord(A)),
                     pred(enum_literal2) => enum_literal1,
-                    pred(enumType.first) => EXCEPTION RANGE_ERROR )
+                    pred(anEnumType.first) => EXCEPTION RANGE_ERROR )
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(enum_literal1) => "enum_literal1",
@@ -5644,6 +5697,8 @@ CONTENTS
       weekDateWeek(A)  Compute the week of the ISO 8601 week date
                   ( Type of result: integer )
       toUTC(A)  Conversion to Coordinated Universal Time (UTC)
+      toLocalTZ  Convert given time to a time in the local time zone.
+      setLocalTZ  Sets timeZone and daylightSavingTime for a given time.
       julianDayNumber(A)  Number of days that have elapsed since
                 January 1, 4713 BC in the proleptic Julian calendar
                   ( Type of result: integer )
@@ -5815,6 +5870,10 @@ CONTENTS
       socket         Sockets of the operation system
       tlsFile        Transport Layer Security (TLS/SSL) sockets
       striFile       Files stored in a string
+      teeFile        File that writes to several destination files at once
+      moreFile       Filter file which shows another file screenwise
+      lowerFile      Filter file which turns characters to lower case
+      upperFile      Filter file which turns characters to upper case
       subFile        Read access to the sub segment of a base file
       xzFile         Read decompressed data from a XZ file
       zstdFile       Read decompressed data from a Zstandard file
@@ -5849,6 +5908,13 @@ CONTENTS
       openStriFile(content) Open a striFile with the given string content
                   ( Type of argument content: string )
       openStriFile Open a striFile with an empty string content
+      openTee(destFiles) Open a tee file to write to the given destination files
+                  ( Type of argument destFiles: array string )
+      openTee(dest1, dest2) Open a tee file to write to the two destination files
+      openMore(dest, cmds, pageSize) Open a more filter file for viewing a file page by page
+                  ( Type of argument pageSize: integer )
+      openLower(dest) Open a filter file which turns characters to lower case
+      openUpper(dest) Open a filter file which turns characters to upper case
       openGzipFile(compressed, READ) Open a GZIP file for reading (decompression)
                   ( Returns STD_NULL if the file is not in GZIP format )
       openGzipFile(destFile, WRITE) Open a GZIP file for writing (compression)
@@ -6190,7 +6256,137 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.24 process
+5.24 database
+
+    The type 'database' describes database connections.
+  The library "sql_base.s7i" defines functions to manage database connections.
+
+    Constants:
+      database.value  Default value of database (empty database)
+    Relations:
+      =, <>
+    Functions:
+      openDatabase(driver, host, port, dbName, user, password)  Open database
+                  ( Type of argument driver: dbCategory,
+                    Type of argument host: string,
+                    Type of argument port: integer,
+                    Type of argument dbName: string,
+                    Type of argument user: string,
+                    Type of argument password: string )
+      openDatabase(DB_ODBC, odbcDriver, server, dbName, user, password)  Open ODBC database
+                  ( Type of argument odbcDriver: string,
+                    Type of argument server: string,
+                    Type of argument dbName: string,
+                    Type of argument user: string,
+                    Type of argument password: string )
+      openDatabase(DB_INFORMIX, host, port, server, dbName, user, password)  Open Informix database
+                  ( Type of argument host: string,
+                    Type of argument port: integer,
+                    Type of argument server: string,
+                    Type of argument dbName: string,
+                    Type of argument user: string,
+                    Type of argument password: string )
+      openDatabase(driver, dbPath, user, password)  Open the database dbPath with the specified user and password
+                  ( Type of argument driver: dbCategory,
+                    Type of argument dbPath: string,
+                    Type of argument user: string,
+                    Type of argument password: string )
+      openDatabase(driver, connectStri)  Open a database with the specified driver and connectStri
+                  ( Type of argument driver: dbCategory,
+                    Type of argument connectStri: string )
+      close(db)  Close the specified database db
+      getAutoCommit(db)  Get the current auto-commit mode of db
+                  ( Type of result: boolean )
+    Statements:
+      setAutoCommit(db, autoCommit)  Set the auto-commit mode for db.
+                  ( Type of argument autoCommit: boolean )
+      commit(db)  Execute a commit statement for db
+      rollback (db)  Execute a rollback statement for db
+
+
+5.25 sqlStatement
+
+    The type 'sqlStatement' describes prepared sql statements.
+
+    Constants:
+      sqlStatement.value  Default value of sqlStatement
+    Relations:
+      =, <>
+    Functions:
+      prepare(db, sqlStatementStri)  Create a prepared statement for db
+                  ( Type of argument db: database
+                    Type of argument sqlStatementStri: string )
+      fetch(statement)  Fetch a row from the result data of an executed statement
+                  ( Type of result: boolean )
+      column(statement, column, bigInteger)  Get the specified column of fetched data as bigInteger
+                  ( Type of argument column: integer,
+                    Type of result: bigInteger )
+      column(statement, column, bigRational)  Get the specified column of fetched data as bigRational
+                  ( Type of argument column: integer,
+                    Type of result: bigRational )
+      column(statement, column, boolean)  Get the specified column of fetched data as boolean</a
+                  ( Type of argument column: integer,
+                    Type of result: boolean )
+      column(statement, column, bstring)  Get the specified column of fetched data as bstring
+                  ( Type of argument column: integer,
+                    Type of result: bstring )
+      column(statement, column, duration)  Get the specified column of fetched data as duration
+                  ( Type of argument column: integer,
+                    Type of result: duration )
+      column(statement, column, float)  Get the specified column of fetched data as float
+                  ( Type of argument column: integer,
+                    Type of result: float )
+      column(statement, column, integer)  Get the specified column of fetched data as integer
+                  ( Type of argument column: integer,
+                    Type of result: integer )
+      column(statement, column, string)  Get the specified column of fetched data as string
+                  ( Type of argument column: integer,
+                    Type of result: string )
+      column(statement, column, time)  Get the specified column of fetched data as time
+                  ( Type of argument column: integer,
+                    Type of result: time )
+      isNull(statement, column)  Determine if the specified column of fetched data is NULL
+                  ( Type of argument column: integer,
+                    Type of result: boolean )
+      columnCount(statement)  Return the number of columns in the result data of a statement
+                  ( Type of result: integer )
+      columnName(statement, column)  Return the name of a column in the result data of a statement
+                  ( Type of argument column: integer,
+                    Type of result: string )
+    Statements:
+      bind(statement, pos, num)  Bind a bigInteger parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument num: bigInteger )
+      bind(statement, pos, bigRatData)  Bind a bigRational parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument bigRatData: bigRational )
+      bind(statement, pos, flag)  Bind a boolean parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument flag: boolean )
+      bind(statement, pos, bstri)  Bind a bstring parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument bstri: bstring )
+      bind(statement, pos, number)  Bind a float parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument number: float )
+      bind(statement, pos, number)  Bind an integer parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument number: integer )
+      bind(statement, pos, NULL)  Bind a NULL parameter to a prepared SQL statement.
+                  ( Type of argument pos: integer )
+      bind(statement, pos, stri)  Bind a string parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument : string )
+      bind(statement, pos, timeData)  Bind a time parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument timeData: time )
+      bind(statement, pos, durationData)  Bind a duration parameter to a prepared SQL statement
+                  ( Type of argument pos: integer,
+                    Type of argument durationData: duration )
+      execute(statement)  Execute the specified prepared SQL statement
+
+
+5.26 process
 
     The type 'process' describes processes of the operating system.
   The library "process.s7i" defines functions to create and manage processes.
@@ -6242,7 +6438,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.25 category
+5.27 category
 
     The type 'category' describes the category of a 'reference'.
   The 'category' functions are defined in the library "category.s7i".
@@ -6296,7 +6492,7 @@ CONTENTS
                   ( Type of argument D: proc )
 
 
-5.26 reference
+5.28 reference
 
     The type 'reference' describes a reference to an object in the
   abstract syntax tree (AST) of a program. You cannot access the AST
@@ -6454,7 +6650,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.27 ref_list
+5.29 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects. The
   'ref_list' functions are defined in the library "ref_list.s7i".
@@ -6529,7 +6725,7 @@ CONTENTS
                     Type of argument statements: proc )
 
 
-5.28 program
+5.30 program
 
     The type 'program' describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -6569,7 +6765,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.29 ptr
+5.31 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -6596,7 +6792,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.30 func
+5.32 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -6685,7 +6881,7 @@ CONTENTS
   parameter is TRUE.
 
 
-5.31 varfunc
+5.33 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -6718,7 +6914,7 @@ CONTENTS
   and structs can be used in the usual way.
 
 
-5.32 void
+5.34 void
 
     The type 'void' describes the empty type.
 
@@ -6728,7 +6924,7 @@ CONTENTS
       void.value  Default value of void (empty)
 
 
-5.33 proc
+5.35 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -6765,7 +6961,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.34 type
+5.36 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -6874,7 +7070,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.35 object
+5.37 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -6887,7 +7083,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.36 expr
+5.38 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -9425,6 +9621,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     skipSpace
       Skips space characters from a 'file'.
+    skipSpaceOrTab
+      Skips space and tab characters from a 'file'.
     skipWhiteSpace
       Skips whitespace characters from a 'file'.
     getWhiteSpace
@@ -9453,10 +9651,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       Reads a XML/HTML tag or the XML/HTML content text from a 'file'.
     getXmlCharacterReference
       Reads a predefined XML entity from a 'file'.
+    getXmlCdataContent
+      Read the content text of a CDATA section from a 'file'.
     getXmlTagHeadOrContent
       Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
     getSymbolInXmlTag
       Reads a symbol which can appear inside a XML/HTML tag from a 'file'.
+    skipXmlTag
+      Skips beyond an XML Tag in a 'file'.
     getNextXmlAttribute
       Reads name and value of an attribute inside a XML tag from 'file'.
     getHtmlAttributeValue
@@ -14144,6 +14346,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
                      pollType     struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
     PRIMITIVE_WINDOW winType      x11_winRecord *                   drw_x11.c   Functions cast from struct winStruct * to x11_winRecord *
                      winType      win_winRecord *                   drw_win.c   Functions cast from struct winStruct * to win_winRecord *
+                     winType      emc_winRecord *                   drw_emc.c   Functions cast from struct winStruct * to emc_winRecord *
     database         databaseType dbType                            sql_cli.c   Functions cast from databaseType to dbType
                      databaseType dbType                            sql_fire.c  Functions cast from databaseType to dbType
                      databaseType dbType                            sql_lite.c  Functions cast from databaseType to dbType

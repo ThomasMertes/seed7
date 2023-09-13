@@ -34,6 +34,7 @@ chkprc.sd7   Checks procedures and statements
 chkscan.sd7  Checks the scanner functions
 chkset.sd7   Checks set literals and operations
 chkstr.sd7   Checks string literals and operations
+chktime.sd7  Checks time functions
 clock.sd7    Displays a digital clock
 clock2.sd7   Displays a digital clock with microseconds
 clock3.sd7   Analog Clock
@@ -175,6 +176,7 @@ editline.s7i Filter file for linewise editing with history
 elliptic.s7i Support for elliptic curve cryptography (ECC).
 enable_io.s7i Templates to enable file I/O for a given type
 encoding.s7i Encoding and decoding functions
+enumeration.s7i Enumeration types support library
 environment.s7i Support for program arguments and environment.
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise

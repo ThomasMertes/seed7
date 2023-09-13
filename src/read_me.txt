@@ -14,7 +14,7 @@ BUILD SEED7
     https://sourceforge.net/projects/seed7/files/bin
 
   In this directory is also a Seed7 installer for Windows
-  (seed7_05_20191117_win.exe).
+  (seed7_05_20230709_win.exe).
 
 
 THE MAKEFILES

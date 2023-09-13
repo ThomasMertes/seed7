@@ -401,13 +401,13 @@ const func string: getHttp (in var httpLocation: locationData) is func
   end func;
 
 
-const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
+const func string: getHttp (in string: serverName, in integer: portNumber, in string: location) is func
   result
     var string: data is "";
   local
     var httpLocation: locationData is httpLocation.value;
   begin
-    locationData := getHttpLocation(url, httpDefaultPort);
+    locationData := getHttpLocation(location, httpDefaultPort);
     locationData.serverName := serverName;
     locationData.portNumber := portNumber;
     data := getHttp(locationData);
