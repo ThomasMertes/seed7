@@ -27,6 +27,7 @@
 const type: inlineParamData is new struct
     var reference: paramValue is NIL;
     var integer: paramNum is 0;
+    var reference: actualParam is NIL;
   end struct;
 
 const type: inlineParamHash is hash [reference] array inlineParamData;
@@ -139,6 +140,7 @@ const proc: push_inline_func_param (in reference: formal_param,
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */\n";
         paramData.paramValue := actual_param;
+        paramData.actualParam := actual_param;
         pushInlineParam(formal_param, paramData);
       elsif not isVar(formal_param) and getConstant(actual_param, evaluatedParam) then
         c_expr.expr &:= "/* push const param o_";
@@ -146,6 +148,7 @@ const proc: push_inline_func_param (in reference: formal_param,
         c_expr.expr &:= " */\n";
         setVar(evaluatedParam, FALSE);
         paramData.paramValue := evaluatedParam;
+        paramData.actualParam := actual_param;
         pushInlineParam(formal_param, paramData);
       else
         c_expr.expr &:= "/* push param o_";
@@ -166,6 +169,7 @@ const proc: push_inline_func_param (in reference: formal_param,
         incr(c_expr.temp_num);
         temp_num := c_expr.temp_num;
         paramData.paramNum := temp_num;
+        paramData.actualParam := actual_param;
         pushInlineParam(formal_param, paramData);
         param_name := "par_";
         param_name &:= str(temp_num);
@@ -457,6 +461,7 @@ const proc: push_inline_proc_param (in reference: formal_param,
           c_expr.temp_decls &:= ";\n";
         end if;
       end if;
+      paramData.actualParam := actual_param;
       pushInlineParam(formal_param, paramData);
     end if;
   end func;
