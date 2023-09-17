@@ -2794,6 +2794,72 @@ const proc: check_bytesBeWithLength is func
       okay := FALSE;
     end if;
 
+    if  bytes(    intExpr(                100) mod               256, UNSIGNED, BE, 1) <>                                         "\100;" or
+        bytes(    intExpr(                255) mod               256, UNSIGNED, BE, 1) <>                                         "\255;" or
+        bytes(    intExpr(              10000) mod             65536, UNSIGNED, BE, 2) <>                                    "\039;\016;" or
+        bytes(    intExpr(              65535) mod             65536, UNSIGNED, BE, 2) <>                                    "\255;\255;" or
+        bytes(    intExpr(           10000000) mod          16777216, UNSIGNED, BE, 3) <>                               "\152;\150;\128;" or
+        bytes(    intExpr(           16777215) mod          16777216, UNSIGNED, BE, 3) <>                               "\255;\255;\255;" or
+        bytes(    intExpr(         1000000000) mod        4294967296, UNSIGNED, BE, 4) <>                          "\059;\154;\202;\000;" or
+        bytes(    intExpr(         4294967295) mod        4294967296, UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(    intExpr(      1000000000000) mod     1099511627776, UNSIGNED, BE, 5) <>                     "\232;\212;\165;\016;\000;" or
+        bytes(    intExpr(      1099511627775) mod     1099511627776, UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(    intExpr(    100000000000000) mod   281474976710656, UNSIGNED, BE, 6) <>                "\090;\243;\016;\122;\064;\000;" or
+        bytes(    intExpr(    281474976710655) mod   281474976710656, UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(    intExpr(  10000000000000000) mod 72057594037927936, UNSIGNED, BE, 7) <>           "\035;\134;\242;\111;\193;\000;\000;" or
+        bytes(    intExpr(  72057594037927935) mod 72057594037927936, UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(abs(intExpr(                100)), UNSIGNED, BE, 1) <>                                         "\100;" or
+        bytes(abs(intExpr(                255)), UNSIGNED, BE, 1) <>                                         "\255;" or
+        bytes(abs(intExpr(              10000)), UNSIGNED, BE, 2) <>                                    "\039;\016;" or
+        bytes(abs(intExpr(              65535)), UNSIGNED, BE, 2) <>                                    "\255;\255;" or
+        bytes(abs(intExpr(           10000000)), UNSIGNED, BE, 3) <>                               "\152;\150;\128;" or
+        bytes(abs(intExpr(           16777215)), UNSIGNED, BE, 3) <>                               "\255;\255;\255;" or
+        bytes(abs(intExpr(         1000000000)), UNSIGNED, BE, 4) <>                          "\059;\154;\202;\000;" or
+        bytes(abs(intExpr(         4294967295)), UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(abs(intExpr(      1000000000000)), UNSIGNED, BE, 5) <>                     "\232;\212;\165;\016;\000;" or
+        bytes(abs(intExpr(      1099511627775)), UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(    100000000000000)), UNSIGNED, BE, 6) <>                "\090;\243;\016;\122;\064;\000;" or
+        bytes(abs(intExpr(    281474976710655)), UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(  10000000000000000)), UNSIGNED, BE, 7) <>           "\035;\134;\242;\111;\193;\000;\000;" or
+        bytes(abs(intExpr(  72057594037927935)), UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)), UNSIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(abs(intExpr(9223372036854775807)), UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)), UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(abs(intExpr(9223372036854775807)), UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(pred(    intExpr(                101) mod               257), UNSIGNED, BE, 1) <>                                         "\100;" or
+        bytes(pred(    intExpr(                256) mod               257), UNSIGNED, BE, 1) <>                                         "\255;" or
+        bytes(pred(    intExpr(              10001) mod             65537), UNSIGNED, BE, 2) <>                                    "\039;\016;" or
+        bytes(pred(    intExpr(              65536) mod             65537), UNSIGNED, BE, 2) <>                                    "\255;\255;" or
+        bytes(pred(    intExpr(           10000001) mod          16777217), UNSIGNED, BE, 3) <>                               "\152;\150;\128;" or
+        bytes(pred(    intExpr(           16777216) mod          16777217), UNSIGNED, BE, 3) <>                               "\255;\255;\255;" or
+        bytes(pred(    intExpr(         1000000001) mod        4294967297), UNSIGNED, BE, 4) <>                          "\059;\154;\202;\000;" or
+        bytes(pred(    intExpr(         4294967296) mod        4294967297), UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(      1000000000001) mod     1099511627777), UNSIGNED, BE, 5) <>                     "\232;\212;\165;\016;\000;" or
+        bytes(pred(    intExpr(      1099511627776) mod     1099511627777), UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(    100000000000001) mod   281474976710657), UNSIGNED, BE, 6) <>                "\090;\243;\016;\122;\064;\000;" or
+        bytes(pred(    intExpr(    281474976710656) mod   281474976710657), UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(  10000000000000001) mod 72057594037927937), UNSIGNED, BE, 7) <>           "\035;\134;\242;\111;\193;\000;\000;" or
+        bytes(pred(    intExpr(  72057594037927936) mod 72057594037927937), UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\254;" or
+        bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
+        bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\254;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(bytes(                 0, SIGNED, BE, integer.first)) or
         not raisesRangeError(bytes(                 0, SIGNED, BE, -1)) or
         not raisesRangeError(bytes(                 0, SIGNED, BE, 0)) or
@@ -3932,6 +3998,72 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(1000000000000000000), UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(intExpr(9223372036854775807), UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
       writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(    intExpr(                100) mod               256, UNSIGNED, LE, 1) <>                                         "\100;" or
+        bytes(    intExpr(                255) mod               256, UNSIGNED, LE, 1) <>                                         "\255;" or
+        bytes(    intExpr(              10000) mod             65536, UNSIGNED, LE, 2) <>                                    "\016;\039;" or
+        bytes(    intExpr(              65535) mod             65536, UNSIGNED, LE, 2) <>                                    "\255;\255;" or
+        bytes(    intExpr(           10000000) mod          16777216, UNSIGNED, LE, 3) <>                               "\128;\150;\152;" or
+        bytes(    intExpr(           16777215) mod          16777216, UNSIGNED, LE, 3) <>                               "\255;\255;\255;" or
+        bytes(    intExpr(         1000000000) mod        4294967296, UNSIGNED, LE, 4) <>                          "\000;\202;\154;\059;" or
+        bytes(    intExpr(         4294967295) mod        4294967296, UNSIGNED, LE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(    intExpr(      1000000000000) mod     1099511627776, UNSIGNED, LE, 5) <>                     "\000;\016;\165;\212;\232;" or
+        bytes(    intExpr(      1099511627775) mod     1099511627776, UNSIGNED, LE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(    intExpr(    100000000000000) mod   281474976710656, UNSIGNED, LE, 6) <>                "\000;\064;\122;\016;\243;\090;" or
+        bytes(    intExpr(    281474976710655) mod   281474976710656, UNSIGNED, LE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(    intExpr(  10000000000000000) mod 72057594037927936, UNSIGNED, LE, 7) <>           "\000;\000;\193;\111;\242;\134;\035;" or
+        bytes(    intExpr(  72057594037927935) mod 72057594037927936, UNSIGNED, LE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, LE, 8) <>      "\000;\000;\100;\167;\179;\182;\224;\013;" or
+        bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, LE, 8) <>      "\255;\255;\255;\255;\255;\255;\255;\127;" or
+        bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
+        bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(abs(intExpr(                100)), UNSIGNED, LE, 1) <>                                         "\100;" or
+        bytes(abs(intExpr(                255)), UNSIGNED, LE, 1) <>                                         "\255;" or
+        bytes(abs(intExpr(              10000)), UNSIGNED, LE, 2) <>                                    "\016;\039;" or
+        bytes(abs(intExpr(              65535)), UNSIGNED, LE, 2) <>                                    "\255;\255;" or
+        bytes(abs(intExpr(           10000000)), UNSIGNED, LE, 3) <>                               "\128;\150;\152;" or
+        bytes(abs(intExpr(           16777215)), UNSIGNED, LE, 3) <>                               "\255;\255;\255;" or
+        bytes(abs(intExpr(         1000000000)), UNSIGNED, LE, 4) <>                          "\000;\202;\154;\059;" or
+        bytes(abs(intExpr(         4294967295)), UNSIGNED, LE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(abs(intExpr(      1000000000000)), UNSIGNED, LE, 5) <>                     "\000;\016;\165;\212;\232;" or
+        bytes(abs(intExpr(      1099511627775)), UNSIGNED, LE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(    100000000000000)), UNSIGNED, LE, 6) <>                "\000;\064;\122;\016;\243;\090;" or
+        bytes(abs(intExpr(    281474976710655)), UNSIGNED, LE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(  10000000000000000)), UNSIGNED, LE, 7) <>           "\000;\000;\193;\111;\242;\134;\035;" or
+        bytes(abs(intExpr(  72057594037927935)), UNSIGNED, LE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(abs(intExpr(1000000000000000000)), UNSIGNED, LE, 8) <>      "\000;\000;\100;\167;\179;\182;\224;\013;" or
+        bytes(abs(intExpr(9223372036854775807)), UNSIGNED, LE, 8) <>      "\255;\255;\255;\255;\255;\255;\255;\127;" or
+        bytes(abs(intExpr(1000000000000000000)), UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
+        bytes(abs(intExpr(9223372036854775807)), UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(pred(    intExpr(                101) mod               257), UNSIGNED, LE, 1) <>                                         "\100;" or
+        bytes(pred(    intExpr(                256) mod               257), UNSIGNED, LE, 1) <>                                         "\255;" or
+        bytes(pred(    intExpr(              10001) mod             65537), UNSIGNED, LE, 2) <>                                    "\016;\039;" or
+        bytes(pred(    intExpr(              65536) mod             65537), UNSIGNED, LE, 2) <>                                    "\255;\255;" or
+        bytes(pred(    intExpr(           10000001) mod          16777217), UNSIGNED, LE, 3) <>                               "\128;\150;\152;" or
+        bytes(pred(    intExpr(           16777216) mod          16777217), UNSIGNED, LE, 3) <>                               "\255;\255;\255;" or
+        bytes(pred(    intExpr(         1000000001) mod        4294967297), UNSIGNED, LE, 4) <>                          "\000;\202;\154;\059;" or
+        bytes(pred(    intExpr(         4294967296) mod        4294967297), UNSIGNED, LE, 4) <>                          "\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(      1000000000001) mod     1099511627777), UNSIGNED, LE, 5) <>                     "\000;\016;\165;\212;\232;" or
+        bytes(pred(    intExpr(      1099511627776) mod     1099511627777), UNSIGNED, LE, 5) <>                     "\255;\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(    100000000000001) mod   281474976710657), UNSIGNED, LE, 6) <>                "\000;\064;\122;\016;\243;\090;" or
+        bytes(pred(    intExpr(    281474976710656) mod   281474976710657), UNSIGNED, LE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
+        bytes(pred(    intExpr(  10000000000000001) mod 72057594037927937), UNSIGNED, LE, 7) <>           "\000;\000;\193;\111;\242;\134;\035;" or
+        bytes(pred(    intExpr(  72057594037927936) mod 72057594037927937), UNSIGNED, LE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, LE, 8) <>      "\000;\000;\100;\167;\179;\182;\224;\013;" or
+        bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, LE, 8) <>      "\254;\255;\255;\255;\255;\255;\255;\127;" or
+        bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
+        bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, LE, 9) <> "\254;\255;\255;\255;\255;\255;\255;\127;\000;" then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (5)");
       okay := FALSE;
     end if;
 

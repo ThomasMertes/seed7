@@ -4983,6 +4983,8 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
   local
     var reference: evaluatedNumber is NIL;
     var integer: numberValue is 0;
+    var intRange: numberRange is intRange.value;
+    var boolean: rangeCheckDone is FALSE;
     var string: buffer_name is "";
     var string: number_name is "";
     var integer: index is 0;
@@ -5016,16 +5018,21 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "number_", number, c_expr);
       if function_range_check then
-        c_expr.expr &:= "rngChk(";
-        if length < 8 then
-          checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
-        else
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "<0";
+        numberRange := getIntRange(number);
+        if numberRange.minValue < 0 or
+            (length < 8 and numberRange.maxValue >= 2 ** (8 * length)) then
+          c_expr.expr &:= "rngChk(";
+          if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "<0";
+          else
+            checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= strRaiseError("RANGE_ERROR");
+          c_expr.expr &:= ":(";
+          rangeCheckDone := TRUE;
         end if;
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= strRaiseError("RANGE_ERROR");
-        c_expr.expr &:= ":(";
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
@@ -5057,7 +5064,7 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
       c_expr.expr &:= "&";
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf";
-      if function_range_check then
+      if rangeCheckDone then
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
@@ -5112,6 +5119,8 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
   local
     var reference: evaluatedNumber is NIL;
     var integer: numberValue is 0;
+    var intRange: numberRange is intRange.value;
+    var boolean: rangeCheckDone is FALSE;
     var string: buffer_name is "";
     var string: number_name is "";
     var integer: index is 0;
@@ -5145,16 +5154,21 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "number_", number, c_expr);
       if function_range_check then
-        c_expr.expr &:= "rngChk(";
-        if length < 8 then
-          checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
-        else
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "<0";
+        numberRange := getIntRange(number);
+        if numberRange.minValue < 0 or
+            (length < 8 and numberRange.maxValue >= 2 ** (8 * length)) then
+          c_expr.expr &:= "rngChk(";
+          if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "<0";
+          else
+            checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= strRaiseError("RANGE_ERROR");
+          c_expr.expr &:= ":(";
+          rangeCheckDone := TRUE;
         end if;
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= strRaiseError("RANGE_ERROR");
-        c_expr.expr &:= ":(";
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
@@ -5186,7 +5200,7 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
       c_expr.expr &:= "&";
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf";
-      if function_range_check then
+      if rangeCheckDone then
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
