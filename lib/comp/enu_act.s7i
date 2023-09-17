@@ -92,8 +92,8 @@ const proc: process (ENU_ICONV2, in reference: function,
     elsif conversion_range_check then
       if number_range.minValue >= 0 and
           number_range.maxValue < numberOfEnumLiterals then
-        # This conversion cannot overflow
-        incr(countOptimizations);
+        # This conversion cannot trigger a range error.
+        countRangeOptimizations(c_expr);
         c_expr.expr &:= "/*no_range_check_conversion*/(enumType)(";
         process_expr(params[1], c_expr);
         c_expr.expr &:= ")";

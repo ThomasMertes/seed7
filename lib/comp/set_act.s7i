@@ -178,7 +178,8 @@ const proc: process (SET_CARD, in reference: function,
         c_expr.expr &:= integerLiteral(card(bitset(argumentRange.minValue)));
       elsif function_range_check then
         if argumentRange.minValue >= 0 then
-          # This computation cannot overflow
+          # This function cannot trigger a range error.
+          countRangeOptimizations(c_expr);
           c_expr.expr &:= "/*no_range_check_cardinality*/uintCard((uintType) (";
           process_expr(argument, c_expr);
           c_expr.expr &:= "))";

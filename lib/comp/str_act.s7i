@@ -2237,18 +2237,26 @@ const proc: process_const_str_mult (in string: stri, in reference: factor,
 
   local
     var char: ch is ' ';
+    var intRange: factorRange is intRange.value;
   begin
     if stri = "" then
       incr(countOptimizations);
       if function_range_check then
-        incr(countRangeChecks);
-        c_expr.expr &:= "(rngChk((";
-        process_expr(factor, c_expr);
-        c_expr.expr &:= ")<0)?";
-        c_expr.expr &:= strRaiseError("RANGE_ERROR");
-        c_expr.expr &:= ":";
-        c_expr.expr &:= stringLiteral("");
-        c_expr.expr &:= ")";
+        factorRange := getIntRange(factor);
+        if factorRange.minValue >= 0 then
+          # This function cannot trigger a range error.
+          countRangeOptimizations(c_expr);
+          c_expr.expr &:= stringLiteral("");
+        else
+          incr(countRangeChecks);
+          c_expr.expr &:= "(rngChk((";
+          process_expr(factor, c_expr);
+          c_expr.expr &:= ")<0)?";
+          c_expr.expr &:= strRaiseError("RANGE_ERROR");
+          c_expr.expr &:= ":";
+          c_expr.expr &:= stringLiteral("");
+          c_expr.expr &:= ")";
+        end if;
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= stringLiteral("");

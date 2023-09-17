@@ -1986,6 +1986,7 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
       end if;
       c_expr.expr &:= "(";
       if function_range_check then
+        incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         if not fixedLengthSubstring then
           c_expr.expr &:= start_name;
@@ -2021,6 +2022,7 @@ const proc: optimize_int_bytes_be_2_uint (in string: stri_name, in integer: leng
         c_expr.expr &:= "|";
       end if;
       if function_range_check then
+        incr(countRangeChecks);
         c_expr.expr &:= "(rngChk(";
         c_expr.expr &:= stri_name;
         c_expr.expr &:= "->mem[";
@@ -2161,6 +2163,7 @@ const proc: optimize_int_bytes_le_2_uint (in string: stri_name, in integer: leng
         c_expr.expr &:= "|";
       end if;
       if function_range_check then
+        incr(countRangeChecks);
         c_expr.expr &:= "(rngChk(";
         c_expr.expr &:= stri_name;
         c_expr.expr &:= "->mem[";
@@ -5019,8 +5022,12 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
       number_name := getParameterAsVariable("intType", "number_", number, c_expr);
       if function_range_check then
         numberRange := getIntRange(number);
-        if numberRange.minValue < 0 or
-            (length < 8 and numberRange.maxValue >= 2 ** (8 * length)) then
+        if numberRange.minValue >= 0 and
+            (length >= 8 or numberRange.maxValue < 2 ** (8 * length)) then
+          # This function cannot trigger a range error.
+          countRangeOptimizations(c_expr);
+        else
+          incr(countRangeChecks);
           c_expr.expr &:= "rngChk(";
           if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
             c_expr.expr &:= number_name;
@@ -5155,8 +5162,12 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
       number_name := getParameterAsVariable("intType", "number_", number, c_expr);
       if function_range_check then
         numberRange := getIntRange(number);
-        if numberRange.minValue < 0 or
-            (length < 8 and numberRange.maxValue >= 2 ** (8 * length)) then
+        if numberRange.minValue >= 0 and
+            (length >= 8 or numberRange.maxValue < 2 ** (8 * length)) then
+          # This function cannot trigger a range error.
+          countRangeOptimizations(c_expr);
+        else
+          incr(countRangeChecks);
           c_expr.expr &:= "rngChk(";
           if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
             c_expr.expr &:= number_name;

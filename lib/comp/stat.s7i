@@ -30,6 +30,7 @@ var integer: countEvaluations              is 0;
 var integer: countDivisionChecks           is 0;
 var integer: countOptimizedDivisionChecks  is 0;
 var integer: countRangeChecks              is 0;
+var integer: countOptimizedRangeChecks     is 0;
 var integer: countNoRangeChecks            is 0;
 var integer: countIndexChecks              is 0;
 var integer: countOptimizedIndexChecks     is 0;
@@ -49,6 +50,13 @@ const proc: countIndexOptimizations (in expr_type: c_expr) is func
   begin
     incr(countOptimizedIndexChecks);
     # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Index check optimized away.");
+  end func;
+
+
+const proc: countRangeOptimizations (in expr_type: c_expr) is func
+  begin
+    incr(countOptimizedRangeChecks);
+    # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Range check optimized away.");
   end func;
 
 

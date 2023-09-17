@@ -7472,6 +7472,9 @@ const proc: pass_2 (in string: source, in program: prog,
             if countRangeChecks <> 0 then
               writeln(countRangeChecks <& " range checks inserted");
             end if;
+            if countOptimizedRangeChecks <> 0 then
+              writeln(countOptimizedRangeChecks <& " range checks optimized away");
+            end if;
             if countNoRangeChecks <> 0 then
               writeln(countNoRangeChecks <& " range checks suppressed");
             end if;

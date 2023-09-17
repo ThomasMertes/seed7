@@ -371,6 +371,7 @@ const proc: process_const_bin_n_bytes_be (in reference: number,
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
       if function_range_check and length < 8 then
+        incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         c_expr.expr &:= "(uintType)";
         c_expr.expr &:= number_name;
@@ -486,6 +487,7 @@ const proc: process_const_bin_n_bytes_le (in reference: number,
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
       if function_range_check and length < 8 then
+        incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         c_expr.expr &:= "(uintType)";
         c_expr.expr &:= number_name;
