@@ -811,22 +811,29 @@ const func boolean: isDigitString (in string: stri, in integer: base) is func
     var boolean: isDigitString is TRUE;
   local
     var char: ch is ' ';
+    var char: maxBaseDigit is ' ';
+    var char: maxBaseDigit2 is ' ';
   begin
     isDigitString := stri <> "";
     if base <= 10 then
+      maxBaseDigit := char(ord('0') + base - 1);
       for ch range stri do
-        if ch < '0' or ch >= chr(base) then
+        if ch < '0' or ch > maxBaseDigit then
+          isDigitString := FALSE;
+        end if;
+      end for;
+    elsif base <= 36 then
+      maxBaseDigit := char(ord('a') + base - 11);
+      maxBaseDigit2 := char(ord('A') + base - 11);
+      for ch range stri do
+        if (ch < '0' or ch > '9') and
+            (ch < 'a' or ch > maxBaseDigit) and
+            (ch < 'A' or ch > maxBaseDigit2) then
           isDigitString := FALSE;
         end if;
       end for;
     else
-      for ch range stri do
-        if (ch < '0' or ch > '9') and
-            (ch < 'a' or ch >= chr(ord('a') + base - 10)) and
-            (ch < 'A' or ch >= chr(ord('A') + base - 10)) then
-          isDigitString := FALSE;
-        end if;
-      end for;
+      raise RANGE_ERROR;
     end if;
   end func;
 
