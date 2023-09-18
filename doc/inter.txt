@@ -36,11 +36,14 @@ THE SEED7 INTERPRETER
          d Trace dynamic calls
          e Trace exceptions and handlers
          h Trace heap size (in combination with 'a')
+         s Trace signals
   -d   Equivalent to -da
   -i   Show the identifier table after the analyzing phase.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
+  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
        statistics are suppressed.
+  -s   Deactivate signal handlers.
   -tx  Set runtime trace level to x. Where x is a string consisting
        of the following characters:
          a Trace primitive actions
@@ -48,6 +51,7 @@ THE SEED7 INTERPRETER
          d Trace dynamic calls
          e Trace exceptions and handlers
          h Trace heap size (in combination with 'a')
+         s Trace signals
   -t   Equivalent to -ta
   -vn  Set verbosity level of analyse phase to n. Where n is one
        of the following characters:

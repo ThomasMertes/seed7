@@ -293,7 +293,7 @@ const func string: genAsn1Length (in integer: length) is func
       asn1 &:= chr(length);
     else
       # Long form
-      lengthAsBytes := bytes(length, SIGNED, BE);
+      lengthAsBytes := bytes(length, UNSIGNED, BE);
       asn1 &:= chr(128 + length(lengthAsBytes));
       asn1 &:= lengthAsBytes;
     end if;

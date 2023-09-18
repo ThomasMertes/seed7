@@ -674,6 +674,7 @@ information from the interpreter):
   chkbig ........... okay
   chkbool ........... okay
   chkenum ........... okay
+  chktime ........... okay
   chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
