@@ -815,7 +815,9 @@ const func boolean: isDigitString (in string: stri, in integer: base) is func
     var char: maxBaseDigit2 is ' ';
   begin
     isDigitString := stri <> "";
-    if base <= 10 then
+    if base <= 1 then
+      raise RANGE_ERROR;
+    elsif base <= 10 then
       maxBaseDigit := char(ord('0') + base - 1);
       for ch range stri do
         if ch < '0' or ch > maxBaseDigit then
