@@ -119,7 +119,6 @@ const type: tiffIntegerTagValues is hash [integer] array integer;
 const type: tiffStringTagValues is hash [integer] string;
 
 const type: tiffHeader is new struct
-    var string: magic is "";
     var boolean: littleEndian is TRUE;
     var integer: width is 0;
     var integer: height is 0;                     # Named length the TIFF 6.0 specification
@@ -147,27 +146,25 @@ const type: tiffIDFEntry is new struct
 
 const proc: showHeader (in tiffHeader: header) is func
   begin
-    writeln("magic: " <& literal(header.magic));
     writeln("littleEndian: " <& header.littleEndian);
     writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
   end func;
 
 
-const proc: readHeader (inout file: tiffFile, in string: magic,
-    inout tiffHeader: header) is func
+const proc: readHeader (inout file: tiffFile, inout tiffHeader: header) is func
   local
     var string: stri is "";
   begin
     stri := gets(tiffFile, 4);
     if length(stri) = 4 then
-      header.magic := magic;
-      header.littleEndian := magic = TIFF_MAGIC_LE;
       if header.littleEndian then
         header.offsetToFirstIfd := bytes2Int(stri, UNSIGNED, LE);
       else
         header.offsetToFirstIfd := bytes2Int(stri, UNSIGNED, BE);
       end if;
       # showHeader(header);
+    else
+      raise RANGE_ERROR;
     end if;
   end func;
 
@@ -1409,7 +1406,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
   begin
     magic := gets(tiffFile, length(TIFF_MAGIC_LE));
     if magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
-      readHeader(tiffFile, magic, header);
+      header.littleEndian := magic = TIFF_MAGIC_LE;
+      readHeader(tiffFile, header);
       if header.offsetToFirstIfd <> 0 then
         seek(tiffFile, succ(header.offsetToFirstIfd));
         readImageFileDirectory(tiffFile, header);
