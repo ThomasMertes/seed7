@@ -994,7 +994,7 @@ const proc: checkConv is func
         directionType conv 2 <> DOWN or
         directionType conv 3 <> LEFT or
         directionType conv 4 <> RIGHT then
-      writeln(" ***** Enumeration conv operator with does not work correctly. (1)");
+      writeln(" ***** Enumeration conv operator does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -1003,7 +1003,7 @@ const proc: checkConv is func
         directionType conv intExpr(2) <> DOWN or
         directionType conv intExpr(3) <> LEFT or
         directionType conv intExpr(4) <> RIGHT then
-      writeln(" ***** Enumeration conv operator with does not work correctly. (2)");
+      writeln(" ***** Enumeration conv operator does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1012,7 +1012,7 @@ const proc: checkConv is func
         directionType conv (intExpr(2) mod 5) <> DOWN or
         directionType conv (intExpr(3) mod 5) <> LEFT or
         directionType conv (intExpr(4) mod 5) <> RIGHT then
-      writeln(" ***** Enumeration conv operator with does not work correctly. (3)");
+      writeln(" ***** Enumeration conv operator does not work correctly. (3)");
       okay := FALSE;
     end if;
 
