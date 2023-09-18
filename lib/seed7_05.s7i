@@ -874,12 +874,16 @@ const func integer: integer (in string: stri, in integer: base) is func
         incr(pos);
       end if;
       while pos <= length(stri) do
-        digit := digitval[ord(stri[pos]) - ord('0') + 1];
-        if digit = -1 or digit >= base then
+        if stri[pos] >= '0' and stri[pos] <= 'z' then
+          digit := digitval[ord(stri[pos]) - ord('0') + 1];
+          if digit = -1 or digit >= base then
+            raise RANGE_ERROR;
+          end if;
+          anInteger := anInteger * base + digit;
+          incr(pos);
+        else
           raise RANGE_ERROR;
         end if;
-        anInteger := anInteger * base + digit;
-        incr(pos);
       end while;
       if negative then
         anInteger := -anInteger;
