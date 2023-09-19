@@ -4793,7 +4793,7 @@ const proc: check_bytesBe2Int is func
         bytes2Int("\000;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>    72057594037927935 or
         bytes2Int("\001;\000;\000;\000;\000;\000;\000;\000;", SIGNED, BE) <>    72057594037927936 or
         bytes2Int("\127;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>  9223372036854775807 then
-      writeln("Conversion of big endian byte string to integer does not work correctly.");
+      writeln("Conversion of big endian byte string to integer does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -4811,7 +4811,7 @@ const proc: check_bytesBe2Int is func
         bytes2Int(      "\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>      6618611909121 or
         bytes2Int(   "\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>   1976943448883713 or
         bytes2Int("\8;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <> 578437695752307201 then
-      writeln("Conversion of big endian byte string to integer does not work correctly.");
+      writeln("Conversion of big endian byte string to integer does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -4829,7 +4829,7 @@ const proc: check_bytesBe2Int is func
         bytes2Int(      "\255;\5;\4;\3;\2;\1;", SIGNED, BE) <>     -1077969485311 or
         bytes2Int(   "\255;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <>   -274856364801535 or
         bytes2Int("\255;\7;\6;\5;\4;\3;\2;\1;", SIGNED, BE) <> -70080650589044223 then
-      writeln("Conversion of big endian byte string to integer does not work correctly.");
+      writeln("Conversion of big endian byte string to integer does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -4876,7 +4876,23 @@ const proc: check_bytesBe2Int is func
         bytes2Int("\000;\000;\000;\128;\000;\000;\000;\000;\000;\000;", SIGNED, BE) <>    36028797018963968 or
         bytes2Int("\000;\000;\000;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>    72057594037927935 or
         bytes2Int("\000;\000;\127;\255;\255;\255;\255;\255;\255;\255;", SIGNED, BE) <>  9223372036854775807 then
-      writeln("Conversion of big endian byte string to integer does not work correctly.");
+      writeln("Conversion of big endian byte string to integer does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pred(bytes2Int(striExpr("\128;\000;\000;\000;\000;\000;\000;\001;")[1 fixLen 7], SIGNED, BE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\128;\000;\000;\000;\000;\000;\000;\001;")[1 len 7],    SIGNED, BE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\128;\000;\000;\000;\000;\000;\000;\001;")[.. 7],       SIGNED, BE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\245;\242;\114;\115;\128;\123;")          [1 fixLen 5], SIGNED, BE)) <>       -43177053313 or
+        pred(bytes2Int(striExpr("\245;\242;\114;\115;\128;\123;")          [1 len 5],    SIGNED, BE)) <>       -43177053313 or
+        pred(bytes2Int(striExpr("\245;\242;\114;\115;\128;\123;")          [.. 5],       SIGNED, BE)) <>       -43177053313 or
+        succ(bytes2Int(striExpr("\010;\013;\141;\140;\128;\123;")          [1 fixLen 5], SIGNED, BE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\010;\013;\141;\140;\128;\123;")          [1 len 5],    SIGNED, BE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\010;\013;\141;\140;\128;\123;")          [.. 5],       SIGNED, BE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\127;\255;\255;\255;\255;\255;\255;\254;")[1 fixLen 7], SIGNED, BE)) <>  36028797018963968 or
+        succ(bytes2Int(striExpr("\127;\255;\255;\255;\255;\255;\255;\254;")[1 len 7],    SIGNED, BE)) <>  36028797018963968 or
+        succ(bytes2Int(striExpr("\127;\255;\255;\255;\255;\255;\255;\254;")[.. 7],       SIGNED, BE)) <>  36028797018963968 then
+      writeln("Conversion of big endian byte string to integer does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -5697,7 +5713,7 @@ const proc: check_bytesLe2Int is func
         bytes2Int("\255;\255;\255;\255;\255;\255;\255;\000;", SIGNED, LE) <>    72057594037927935 or
         bytes2Int("\000;\000;\000;\000;\000;\000;\000;\001;", SIGNED, LE) <>    72057594037927936 or
         bytes2Int("\255;\255;\255;\255;\255;\255;\255;\127;", SIGNED, LE) <>  9223372036854775807 then
-      writeln("Conversion of little endian byte string to integer does not work correctly.");
+      writeln("Conversion of little endian byte string to integer does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -5715,7 +5731,7 @@ const proc: check_bytesLe2Int is func
         bytes2Int("\1;\2;\3;\4;\5;\6;",       SIGNED, LE) <>      6618611909121 or
         bytes2Int("\1;\2;\3;\4;\5;\6;\7;",    SIGNED, LE) <>   1976943448883713 or
         bytes2Int("\1;\2;\3;\4;\5;\6;\7;\8;", SIGNED, LE) <> 578437695752307201 then
-      writeln("Conversion of little endian byte string to integer does not work correctly.");
+      writeln("Conversion of little endian byte string to integer does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -5733,7 +5749,7 @@ const proc: check_bytesLe2Int is func
         bytes2Int("\1;\2;\3;\4;\5;\255;",       SIGNED, LE) <>     -1077969485311 or
         bytes2Int("\1;\2;\3;\4;\5;\6;\255;",    SIGNED, LE) <>   -274856364801535 or
         bytes2Int("\1;\2;\3;\4;\5;\6;\7;\255;", SIGNED, LE) <> -70080650589044223 then
-      writeln("Conversion of little endian byte string to integer does not work correctly.");
+      writeln("Conversion of little endian byte string to integer does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -5780,7 +5796,23 @@ const proc: check_bytesLe2Int is func
         bytes2Int("\000;\000;\000;\000;\000;\000;\128;\000;\000;\000;", SIGNED, LE) <>    36028797018963968 or
         bytes2Int("\255;\255;\255;\255;\255;\255;\255;\000;\000;\000;", SIGNED, LE) <>    72057594037927935 or
         bytes2Int("\255;\255;\255;\255;\255;\255;\255;\127;\000;\000;", SIGNED, LE) <>  9223372036854775807 then
-      writeln("Conversion of little endian byte string to integer does not work correctly.");
+      writeln("Conversion of little endian byte string to integer does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pred(bytes2Int(striExpr("\000;\000;\000;\000;\000;\000;\128;\001;")[1 fixLen 7], SIGNED, LE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\000;\000;\000;\000;\000;\000;\128;\001;")[1 len 7],    SIGNED, LE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\000;\000;\000;\000;\000;\000;\128;\001;")[.. 7],       SIGNED, LE)) <> -36028797018963969 or
+        pred(bytes2Int(striExpr("\128;\115;\114;\242;\245;\123;")          [1 fixLen 5], SIGNED, LE)) <>       -43177053313 or
+        pred(bytes2Int(striExpr("\128;\115;\114;\242;\245;\123;")          [1 len 5],    SIGNED, LE)) <>       -43177053313 or
+        pred(bytes2Int(striExpr("\128;\115;\114;\242;\245;\123;")          [.. 5],       SIGNED, LE)) <>       -43177053313 or
+        succ(bytes2Int(striExpr("\128;\140;\141;\013;\010;\123;")          [1 fixLen 5], SIGNED, LE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\128;\140;\141;\013;\010;\123;")          [1 len 5],    SIGNED, LE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\128;\140;\141;\013;\010;\123;")          [.. 5],       SIGNED, LE)) <>        43177053313 or
+        succ(bytes2Int(striExpr("\255;\255;\255;\255;\255;\255;\127;\254;")[1 fixLen 7], SIGNED, LE)) <>  36028797018963968 or
+        succ(bytes2Int(striExpr("\255;\255;\255;\255;\255;\255;\127;\254;")[1 len 7],    SIGNED, LE)) <>  36028797018963968 or
+        succ(bytes2Int(striExpr("\255;\255;\255;\255;\255;\255;\127;\254;")[.. 7],       SIGNED, LE)) <>  36028797018963968 then
+      writeln("Conversion of little endian byte string to integer does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -30376,11 +30408,31 @@ const proc: check_parse is func
       okay := FALSE;
     end if;
 
-    if  integer(               "0123")  <> 123 or
-        integer(      striExpr("0123")) <> 123 or
-        integer parse          "0123"   <> 123 or
-        integer parse striExpr("0123")  <> 123 then
+    if  integer(               "-0123")  <> -123 or
+        integer(      striExpr("-0123")) <> -123 or
+        integer parse          "-0123"   <> -123 or
+        integer parse striExpr("-0123")  <> -123 or
+        integer(                "0123")  <>  123 or
+        integer(      striExpr( "0123")) <>  123 or
+        integer parse           "0123"   <>  123 or
+        integer parse striExpr( "0123")  <>  123 then
       writeln(" ***** Integer parse with leading zeros does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(integer(striExpr("-9223372036854775807")[1 fixLen 19])) <> -922337203685477581 or
+        pred(integer(striExpr("-9223372036854775807")[1 len 19]))    <> -922337203685477581 or
+        pred(integer(striExpr("-9223372036854775807")[.. 19]))       <> -922337203685477581 or
+        pred(integer(striExpr("-9223372036854775807")[1 fixLen 11])) <>         -9223372037 or
+        pred(integer(striExpr("-9223372036854775807")[1 len 11]))    <>         -9223372037 or
+        pred(integer(striExpr("-9223372036854775807")[.. 11]))       <>         -9223372037 or
+        succ(integer(striExpr( "9223372036854775807")[1 fixLen 10])) <>          9223372037 or
+        succ(integer(striExpr( "9223372036854775807")[1 len 10]))    <>          9223372037 or
+        succ(integer(striExpr( "9223372036854775807")[.. 10]))       <>          9223372037 or
+        succ(integer(striExpr( "9223372036854775807")[1 fixLen 18])) <>  922337203685477581 or
+        succ(integer(striExpr( "9223372036854775807")[1 len 18]))    <>  922337203685477581 or
+        succ(integer(striExpr( "9223372036854775807")[.. 18]))       <>  922337203685477581 then
+      writeln(" ***** Integer parse of numeric string slice does not work correctly.");
       okay := FALSE;
     end if;
 

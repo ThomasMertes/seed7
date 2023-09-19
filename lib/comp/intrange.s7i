@@ -615,19 +615,85 @@ const func intRange: getIntMultRange (in intRange: factor1Range, in intRange: fa
   end func;
 
 
+const func intRange: getStrLenRange (in reference: stri) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var reference: evaluatedParam is NIL;
+    var integer: length is 0;
+  begin
+    if getConstant(stri, STRIOBJECT, evaluatedParam) then
+      length := length(getValue(evaluatedParam, string));
+      valueRange.minValue := length;
+      valueRange.maxValue := length;
+      valueRange.mayRaiseException := FALSE;
+    elsif isActionExpression(stri, "STR_SUBSTR_FIXLEN") and
+        getConstant(getActionParameter(stri, 5), INTOBJECT, evaluatedParam) then
+      length := getValue(evaluatedParam, integer);
+      valueRange.minValue := length;
+      valueRange.maxValue := length;
+    elsif isActionExpression(stri, "STR_SUBSTR") and
+              getConstant(getActionParameter(stri, 5), INTOBJECT, evaluatedParam) or
+          isActionExpression(stri, "STR_HEAD") and
+              getConstant(getActionParameter(stri, 4), INTOBJECT, evaluatedParam) then
+      valueRange.minValue := 0;
+      valueRange.maxValue := getValue(evaluatedParam, integer);
+    elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
+      valueRange.minValue := 0;
+      valueRange.maxValue := integer.last;
+    else
+      valueRange.minValue := 0;
+      # Because of UTF-32 the available bytes are divided by four.
+      valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
+    end if;
+  end func;
+
+
+const func intRange: getIntBytes2IntRange (in reference: stri) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: strLenRange is intRange.value;
+  begin
+    strLenRange := getStrLenRange(stri);
+    if strLenRange.maxValue >= 1 and strLenRange.maxValue < 8 then
+      if ccConf.TWOS_COMPLEMENT_INTTYPE then
+        valueRange.minValue := -2 ** pred(strLenRange.maxValue * 8);
+      else
+        valueRange.minValue := -pred(2 ** pred(strLenRange.maxValue * 8));
+      end if;
+      valueRange.maxValue := pred(2 ** pred(strLenRange.maxValue * 8));
+    end if;
+  end func;
+
+
 const func intRange: getIntBytes2UIntRange (in reference: stri) is func
   result
     var intRange: valueRange is intRange.value;
   local
-    var integer: length is 0;
+    var intRange: strLenRange is intRange.value;
   begin
     valueRange.minValue := 0;
-    if isActionExpression(stri, "STR_SUBSTR") and
-        category(getValue(stri, ref_list)[6]) = INTOBJECT and
-        not isVar(getValue(stri, ref_list)[6]) then
-      length := getValue(getValue(stri, ref_list)[6], integer);
-      if length >= 1 and length < 8 then
-        valueRange.maxValue := pred(2 ** (length * 8));
+    strLenRange := getStrLenRange(stri);
+    if strLenRange.maxValue >= 1 and strLenRange.maxValue < 8 then
+      valueRange.maxValue := pred(2 ** (strLenRange.maxValue * 8));
+    end if;
+  end func;
+
+
+const func intRange: getIntParse1Range (in reference: stri) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: strLenRange is intRange.value;
+  begin
+    strLenRange := getStrLenRange(stri);
+    if strLenRange.maxValue >= 1 then
+      if strLenRange.maxValue < length(str(integer.first)) then
+        valueRange.minValue := -pred(10 ** pred(strLenRange.maxValue));
+      end if;
+      if strLenRange.maxValue < length(str(integer.last)) then
+        valueRange.maxValue := pred(10 ** strLenRange.maxValue);
       end if;
     end if;
   end func;
@@ -767,6 +833,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
               end if;
               valueRange.maxValue := max(bitLength(argument1Range.minValue),
                                          bitLength(argument1Range.maxValue));
+            when {"INT_BYTES_BE_2_INT",
+                  "INT_BYTES_LE_2_INT"}:
+              valueRange := getIntBytes2IntRange(params[1]);
             when {"INT_BYTES_BE_2_UINT",
                   "INT_BYTES_LE_2_UINT"}:
               valueRange := getIntBytes2UIntRange(params[1]);
@@ -857,6 +926,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
                                             getIntRange(params[3]));
             when {"INT_NEGATE"}:
               valueRange := getIntNegateRange(getIntRange(params[2]));
+            when {"INT_PARSE1"}:
+              valueRange := getIntParse1Range(params[1]);
             when {"INT_PRED"}:
               argument1Range := getIntRange(params[1]);
               if argument1Range.minValue <> integer.first then
@@ -958,28 +1029,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
               end if;
             when {"STR_LNG"}:
-              if getConstant(params[1], STRIOBJECT, evaluatedParam) then
-                number := length(getValue(evaluatedParam, string));
-                valueRange.minValue := number;
-                valueRange.maxValue := number;
-                valueRange.mayRaiseException := FALSE;
-              elsif isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
-                  getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                valueRange.minValue := number;
-                valueRange.maxValue := number;
-              elsif isActionExpression(params[1], "STR_SUBSTR") and
-                  getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
-                valueRange.minValue := 0;
-                valueRange.maxValue := getValue(evaluatedParam, integer);
-              elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
-                valueRange.minValue := 0;
-                valueRange.maxValue := integer.last;
-              else
-                valueRange.minValue := 0;
-                # Because of UTF-32 the available bytes are divided by four.
-                valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
-              end if;
+              valueRange := getStrLenRange(params[1]);
           end case;
           # writeln(actionName <& ": " <& valueRange.minValue <& " " <& valueRange.maxValue);
         elsif category(function) = BLOCKOBJECT then
