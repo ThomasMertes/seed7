@@ -191,7 +191,7 @@ void timFromTimestamp (time_t timestamp,
       /* Under Linux this never happens, but Windows has this problem.  */
       if (unlikely(*timeZone < -12 * 60)) {
         *timeZone += 24 * 60;
-        if (*day < monthDays[((*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0)][*month - 1]) {
+        if (*day < monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1]) {
           (*day)++;
         } else if (*month < 12) {
           (*month)++;
@@ -207,7 +207,7 @@ void timFromTimestamp (time_t timestamp,
           (*day)--;
         } else if (*month > 1) {
           (*month)--;
-          *day = monthDays[((*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0)][*month - 1];
+          *day = monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1];
         } else {
           (*year)--;
           *month = 12;
@@ -238,16 +238,62 @@ void timFromIntTimestamp (intType timestamp,
     intType *minute, intType *second, intType *micro_sec, intType *timeZone,
     boolType *isDst)
 
-  { /* timFromIntTimestamp */
-    if (!inTimeTRange(timestamp)) {
-      logError(printf("timFromIntTimestamp(" FMT_D "): "
-                      "Timestamp not in allowed range of time_t.\n",
-                      timestamp););
-      raise_error(RANGE_ERROR);
+  {
+    int monthLength;
+
+  /* timFromIntTimestamp */
+    logFunction(printf("timFromIntTimestamp(" FMT_D ")\n", timestamp););
+    *micro_sec = 0;
+    timUtcFromTimestamp((timeStampType) timestamp,
+        year, month, day, hour, minute, second);
+    timSetLocalTZ(*year, *month, *day, *hour, *minute, *second, timeZone, isDst);
+    *minute += *timeZone;
+    if (*minute >= 0) {
+      *hour += *minute / 60;
+      *minute = *minute % 60;
     } else {
-      timFromTimestamp((time_t) timestamp,
-          year, month, day, hour, minute, second, micro_sec, timeZone, isDst);
+      *hour += (*minute + 1) / 60 - 1;
+      *minute = *minute % 60;
+      if (*minute != 0) {
+        *minute += 60;
+      } /* if */
     } /* if */
+    if (*hour >= 0) {
+      *day += *hour / 24;
+      *hour = *hour % 24;
+    } else {
+      *day += (*hour + 1) / 24 - 1;
+      *hour = *hour % 24;
+      if (*hour != 0) {
+        *hour += 24;
+      } /* if */
+    } /* if */
+    monthLength = monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1];
+    while (*day > monthLength) {
+      *day -= monthLength;
+      if (*month < 12) {
+        (*month)++;
+      } else {
+        *month = 1;
+        (*year)++;
+      } /* if */
+      monthLength = monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1];
+    } /* while */
+    while (*day < 1) {
+      if (*month > 1) {
+        (*month)--;
+      } else {
+        *month = 12;
+        (*year)--;
+      } /* if */
+      *day += monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1];
+    } /* while */
+    logFunction(printf("timFromIntTimestamp(" FMT_D ", "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " "
+                       FMT_D " %d) -->\n",
+                       timestamp, *year, *month, *day, *hour, *minute, *second,
+                       *micro_sec, *timeZone, *isDst););
   } /* timFromIntTimestamp */
 
 
