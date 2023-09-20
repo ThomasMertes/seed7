@@ -780,28 +780,28 @@ const func integer: weekDateWeek (in time: aDate) is func
 
 const proc: NORMALIZE (inout time: tim) is func
   local
-    var integer: month_length is 0;
+    var integer: monthLength is 0;
   begin
-    tim.second +:= tim.micro_second mdiv 1000000;
-    tim.micro_second := tim.micro_second mod 1000000;
-    tim.minute +:= tim.second mdiv 60;
-    tim.second := tim.second mod 60;
-    tim.hour +:= tim.minute mdiv 60;
-    tim.minute := tim.minute mod 60;
-    tim.day +:= tim.hour mdiv 24;
-    tim.hour := tim.hour mod 24;
-    tim.year +:= pred(tim.month) mdiv 12;
-    tim.month := succ(pred(tim.month) mod 12);
-    month_length := daysInMonth(tim.year, tim.month);
-    while tim.day > month_length do
-      tim.day := tim.day - month_length;
+    tim.second       +:= tim.micro_second mdiv 1000000;
+    tim.micro_second  := tim.micro_second mod  1000000;
+    tim.minute       +:= tim.second       mdiv      60;
+    tim.second        := tim.second       mod       60;
+    tim.hour         +:= tim.minute       mdiv      60;
+    tim.minute        := tim.minute       mod       60;
+    tim.day          +:= tim.hour         mdiv      24;
+    tim.hour          := tim.hour         mod       24;
+    tim.year         +:= pred(tim.month)  mdiv      12;
+    tim.month    := succ(pred(tim.month)  mod       12);
+    monthLength := daysInMonth(tim.year, tim.month);
+    while tim.day > monthLength do
+      tim.day := tim.day - monthLength;
       if tim.month < 12 then
         incr(tim.month);
       else
         tim.month := 1;
         incr(tim.year);
       end if;
-      month_length := daysInMonth(tim.year, tim.month);
+      monthLength := daysInMonth(tim.year, tim.month);
     end while;
     while tim.day < 1 do
       if tim.month > 1 then
