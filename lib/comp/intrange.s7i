@@ -615,6 +615,32 @@ const func intRange: getIntMultRange (in intRange: factor1Range, in intRange: fa
   end func;
 
 
+const func intRange: getArrLenRange (in reference: arr) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(arr, ARRAYOBJECT, evaluatedParam) then
+      valueRange.minValue := succ(arrayMaxIdx(evaluatedParam) - arrayMinIdx(evaluatedParam));
+      valueRange.maxValue := valueRange.minValue
+    elsif isActionExpression(arr, "ARR_SUBARR") and
+              getConstant(getActionParameter(arr, 5), INTOBJECT, evaluatedParam) or
+          isActionExpression(arr, "ARR_HEAD") and
+              getConstant(getActionParameter(arr, 4), INTOBJECT, evaluatedParam) then
+      valueRange.minValue := 0;
+      valueRange.maxValue := getValue(evaluatedParam, integer);
+    elsif ccConf.POINTER_SIZE > ccConf.GENERIC_SIZE then
+      valueRange.minValue := 0;
+      valueRange.maxValue := integer.last;
+    else
+      valueRange.minValue := 0;
+      valueRange.maxValue :=
+          ord(2_ ** ccConf.POINTER_SIZE div bigInteger(ccConf.GENERIC_SIZE div 8));
+    end if;
+  end func;
+
+
 const func intRange: getStrLenRange (in reference: stri) is func
   result
     var intRange: valueRange is intRange.value;
@@ -761,9 +787,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
         if category(function) = ACTOBJECT then
           actionName := str(getValue(function, ACTION));
           case actionName of
-            when {"ARR_LNG", "BIG_BIT_LENGTH", "BST_LNG", "FIL_LNG", "HSH_LNG", "RFL_LNG",
-                  "SET_CARD",
-                  "SQL_STMT_COLUMN_COUNT"}:
+            when {"BIG_BIT_LENGTH", "BST_LNG", "CMD_FILESIZE", "CON_HEIGHT",
+                  "CON_WIDTH", "DRW_HEIGHT", "DRW_WIDTH", "DRW_SCREEN_HEIGHT",
+                  "DRW_SCREEN_WIDTH", "FIL_LNG", "HSH_LNG", "RFL_LNG",
+                  "SET_CARD", "SQL_STMT_COLUMN_COUNT"}:
               valueRange.minValue := 0;
               valueRange.maxValue := integer.last;
             when {"BIG_CMP", "BIN_CMP", "BST_CMP", "CHR_CMP", "DRW_CMP",
@@ -772,6 +799,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   "TYP_CMP"}:
               valueRange.minValue := -1;
               valueRange.maxValue := 1;
+            when {"ARR_LNG"}:
+              valueRange := getArrLenRange(params[1]);
             when {"BIG_LOWEST_SET_BIT"}:
               valueRange.minValue := -1;
               valueRange.maxValue := integer.last;
@@ -823,7 +852,6 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange := getIntAddRange(getIntRange(params[1]),
                                            getIntRange(params[3]));
             when {"INT_BIT_LENGTH"}:
-              valueRange.minValue := 0;
               argument1Range := getIntRange(params[1]);
               if argument1Range.minValue <= 0 and argument1Range.maxValue >= 0 then
                 valueRange.minValue := 0;
@@ -861,6 +889,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   valueRange.maxValue := -number;
                 end if;
               end if;
+            when {"INT_FACT"}:
+              valueRange.minValue := 1;
+              valueRange.maxValue := 2432902008176640000;
             when {"INT_ICONV1"}:
               valueRange := getIntRange(params[1]);
             when {"INT_ICONV3"}:
@@ -928,6 +959,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange := getIntNegateRange(getIntRange(params[2]));
             when {"INT_PARSE1"}:
               valueRange := getIntParse1Range(params[1]);
+            when {"INT_PLUS"}:
+              valueRange := getIntRange(params[2]);
             when {"INT_PRED"}:
               argument1Range := getIntRange(params[1]);
               if argument1Range.minValue <> integer.first then
@@ -1016,18 +1049,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange := getSetRandRange(params[1]);
             when {"STR_CHIPOS", "STR_CHPOS", "STR_IPOS", "STR_POS",
                   "STR_RCHIPOS", "STR_RCHPOS", "STR_RIPOS", "STR_RPOS"}:
-              if getConstant(params[1], STRIOBJECT, evaluatedParam) then
-                number := length(getValue(evaluatedParam, string));
-                valueRange.minValue := 0;
-                valueRange.maxValue := number;
-              elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
-                valueRange.minValue := 0;
-                valueRange.maxValue := integer.last;
-              else
-                valueRange.minValue := 0;
-                # Because of UTF-32 the available bytes are divided by four.
-                valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
-              end if;
+              valueRange.minValue := 0;
+              valueRange.maxValue := getStrLenRange(params[1]).maxValue;
             when {"STR_LNG"}:
               valueRange := getStrLenRange(params[1]);
           end case;
