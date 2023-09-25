@@ -57,13 +57,13 @@ int main (int argc, char **argv)
 #endif
 #if defined X11_INCLUDE
     printf("* Search with your package manager for a       *\n");
-    printf("* package with a name like libx11-dev and      *\n");
+    printf("* package like libx11-dev or libX11-devel and  *\n");
     printf("* install it.                                  *\n");
 #endif
 #if defined TERM_INCLUDE
     printf("* Search with your package manager for a       *\n");
-    printf("* package with a name like libncurses-devel or *\n");
-    printf("* libncurses5-dev and install it.              *\n");
+    printf("* package like libncurses-devel, ncurses-devel *\n");
+    printf("* or libncurses5-dev and install it.           *\n");
 #endif
     printf("*                                              *\n");
     printf("* To use your package manager your probably    *\n");
