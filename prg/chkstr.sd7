@@ -2868,6 +2868,14 @@ const proc: check_string_length is func
       okay := FALSE;
     end if;
 
+    if  length(str(         'a' )) <> 1 or
+        length(str(charExpr('a'))) <> 1 or
+        length(str(         'a' )) <> intExpr(1) or
+        length(str(charExpr('a'))) <> intExpr(1) then
+      writeln(" ***** length(str(CHAR)) does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String length works correctly.");
     end if;

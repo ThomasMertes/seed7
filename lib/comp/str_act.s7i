@@ -2037,6 +2037,7 @@ const proc: optimize_str_lng (in reference: lengthParam,
     var reference: evaluatedParam is NIL;
     var string: stri is "";
     var ref_list: params is ref_list.value;
+    var intRange: lengthRange is intRange.value;
   begin
     if getConstant(lengthParam, STRIOBJECT, evaluatedParam) then
       incr(countOptimizations);
@@ -2059,9 +2060,16 @@ const proc: optimize_str_lng (in reference: lengthParam,
       end if;
       c_expr.expr &:= " /* length of fixlLen substring */";
     else
-      c_expr.expr &:= "(intType)((";
-      getAnyParamToExpr(lengthParam, c_expr);
-      c_expr.expr &:= ")->size)";
+      lengthRange := getStrLenRange(lengthParam);
+      if not lengthRange.mayRaiseException and
+          lengthRange.minValue = lengthRange.maxValue then
+        c_expr.expr &:= integerLiteral(lengthRange.minValue);
+        c_expr.expr &:= " /* length of string does not change */";
+      else
+        c_expr.expr &:= "(intType)((";
+        getAnyParamToExpr(lengthParam, c_expr);
+        c_expr.expr &:= ")->size)";
+      end if;
     end if;
   end func;
 

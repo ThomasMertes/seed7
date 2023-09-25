@@ -664,6 +664,10 @@ const func intRange: getStrLenRange (in reference: stri) is func
               getConstant(getActionParameter(stri, 4), INTOBJECT, evaluatedParam) then
       valueRange.minValue := 0;
       valueRange.maxValue := getValue(evaluatedParam, integer);
+    elsif isActionExpression(stri, "CHR_STR") then
+      valueRange.minValue := 1;
+      valueRange.maxValue := 1;
+      valueRange.mayRaiseException := FALSE;
     elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
       valueRange.minValue := 0;
       valueRange.maxValue := integer.last;
