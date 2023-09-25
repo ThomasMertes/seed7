@@ -13708,8 +13708,8 @@ const proc: check_string_ops is func
   end func;
 
 
-const proc: check_string_pos is func
-  local
+const func boolean: check_string_pos_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  pos("",       "") <> 0 or
@@ -13718,26 +13718,79 @@ const proc: check_string_pos is func
         pos("abc",    "") <> 0 or
         pos("abcde",  "") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "") <> 0 then
       writeln(" ***** pos(STRING, \"\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "\0;") <> 0 or
         pos("a",      "\0;") <> 0 or
         pos("ab",     "\0;") <> 0 or
         pos("abc",    "\0;") <> 0 or
         pos("abcde",  "\0;") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "\0;") <> 0 then
       writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
-    if  pos("\4096;\0;\0;", "\4096;") <> 1 or
+
+    if  pos("",       "\255;") <> 0 or
+        pos("a",      "\255;") <> 0 or
+        pos("ab",     "\255;") <> 0 or
+        pos("abc",    "\255;") <> 0 or
+        pos("abcde",  "\255;") <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\255;") <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\255;") <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "\255;") <> 0 then
+      writeln(" ***** pos(STRING, \"\\255;\") does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       "\256;") <> 0 or
+        pos("a",      "\256;") <> 0 or
+        pos("ab",     "\256;") <> 0 or
+        pos("abc",    "\256;") <> 0 or
+        pos("abcde",  "\256;") <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\256;") <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\256;") <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "\256;") <> 0 then
+      writeln(" ***** pos(STRING, \"\\256;\") does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pos("\0;",    "\4096;") <> 0 or
+        pos("\4096;", "\4096;") <> 1 or
+        pos("\0;\0;",    "\4096;") <> 0 or
+        pos("\4096;\0;", "\4096;") <> 1 or
+        pos("\0;\4096;", "\4096;") <> 2 or
+        pos("\0;\0;\0;",    "\4096;") <> 0 or
+        pos("\4096;\0;\0;", "\4096;") <> 1 or
         pos("\0;\4096;\0;", "\4096;") <> 2 or
-        pos("\0;\0;\4096;", "\4096;") <> 3 then
+        pos("\0;\0;\4096;", "\4096;") <> 3 or
+        pos("\0;\0;\0;\0;",    "\4096;") <> 0 or
+        pos("\4096;\0;\0;\0;", "\4096;") <> 1 or
+        pos("\0;\4096;\0;\0;", "\4096;") <> 2 or
+        pos("\0;\0;\4096;\0;", "\4096;") <> 3 or
+        pos("\0;\0;\0;\4096;", "\4096;") <> 4 or
+        pos("\0;\0;\0;\0;\0;",    "\4096;") <> 0 or
+        pos("\4096;\0;\0;\0;\0;", "\4096;") <> 1 or
+        pos("\0;\4096;\0;\0;\0;", "\4096;") <> 2 or
+        pos("\0;\0;\4096;\0;\0;", "\4096;") <> 3 or
+        pos("\0;\0;\0;\4096;\0;", "\4096;") <> 4 or
+        pos("\0;\0;\0;\0;\4096;", "\4096;") <> 5 or
+        pos("\0;\0;\0;\0;\0;\0;",    "\4096;") <> 0 or
+        pos("\4096;\0;\0;\0;\0;\0;", "\4096;") <> 1 or
+        pos("\0;\4096;\0;\0;\0;\0;", "\4096;") <> 2 or
+        pos("\0;\0;\4096;\0;\0;\0;", "\4096;") <> 3 or
+        pos("\0;\0;\0;\4096;\0;\0;", "\4096;") <> 4 or
+        pos("\0;\0;\0;\0;\4096;\0;", "\4096;") <> 5 or
+        pos("\0;\0;\0;\0;\0;\4096;", "\4096;") <> 6 then
       writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "a") <> 0 or
         pos("b",      "a") <> 0 or
         pos("a",      "a") <> 1 or
@@ -13753,6 +13806,14 @@ const proc: check_string_pos is func
         pos("aba",    "a") <> 1 or
         pos("zaa",    "a") <> 2 or
         pos("aaa",    "a") <> 1 or
+        pos("bcde",   "a") <> 0 or
+        pos("abcd",   "a") <> 1 or
+        pos("zabc",   "a") <> 2 or
+        pos("yzab",   "a") <> 3 or
+        pos("xyza",   "a") <> 4 or
+        pos("aabc",   "a") <> 1 or
+        pos("zaba",   "a") <> 2 or
+        pos("yzaa",   "a") <> 3 or
         pos("bcdef",  "a") <> 0 or
         pos("abcde",  "a") <> 1 or
         pos("zabcd",  "a") <> 2 or
@@ -13765,10 +13826,12 @@ const proc: check_string_pos is func
         pos("yzaab",  "a") <> 3 or
         pos("xyzaa",  "a") <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 1 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "a") <> 16394 then
       writeln(" ***** pos(STRING, \"a\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "ab") <> 0 or
         pos("c",      "ab") <> 0 or
         pos("a",      "ab") <> 0 or
@@ -13812,6 +13875,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"ab\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "aa") <> 0 or
         pos("b",      "aa") <> 0 or
         pos("a",      "aa") <> 0 or
@@ -13853,6 +13917,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aa\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "abc") <> 0 or
         pos("d",      "abc") <> 0 or
         pos("a",      "abc") <> 0 or
@@ -13911,6 +13976,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"abc\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  pos("",       "aba") <> 0 or
         pos("c",      "aba") <> 0 or
         pos("a",      "aba") <> 0 or
@@ -13990,33 +14056,92 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aba\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_pos_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos(striExpr(""),       "") <> 0 or
         pos(striExpr("a"),      "") <> 0 or
         pos(striExpr("ab"),     "") <> 0 or
         pos(striExpr("abc"),    "") <> 0 or
         pos(striExpr("abcde"),  "") <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "") <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "") <> 0 then
       writeln(" ***** pos(STRING, \"\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "\0;") <> 0 or
         pos(striExpr("a"),      "\0;") <> 0 or
         pos(striExpr("ab"),     "\0;") <> 0 or
         pos(striExpr("abc"),    "\0;") <> 0 or
         pos(striExpr("abcde"),  "\0;") <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\0;") <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "\0;") <> 0 then
       writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
-    if  pos(striExpr("\4096;\0;\0;"), "\4096;") <> 1 or
+
+    if  pos(striExpr(""),       "\255;") <> 0 or
+        pos(striExpr("a"),      "\255;") <> 0 or
+        pos(striExpr("ab"),     "\255;") <> 0 or
+        pos(striExpr("abc"),    "\255;") <> 0 or
+        pos(striExpr("abcde"),  "\255;") <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\255;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\255;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "\255;") <> 0 then
+      writeln(" ***** pos(STRING, \"\\255;\") does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       "\256;") <> 0 or
+        pos(striExpr("a"),      "\256;") <> 0 or
+        pos(striExpr("ab"),     "\256;") <> 0 or
+        pos(striExpr("abc"),    "\256;") <> 0 or
+        pos(striExpr("abcde"),  "\256;") <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\256;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\256;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "\256;") <> 0 then
+      writeln(" ***** pos(STRING, \"\\256;\") does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr("\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;\0;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\4096;"), "\4096;") <> 2 or
+        pos(striExpr("\0;\0;\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;\0;\0;"), "\4096;") <> 1 or
         pos(striExpr("\0;\4096;\0;"), "\4096;") <> 2 or
-        pos(striExpr("\0;\0;\4096;"), "\4096;") <> 3 then
+        pos(striExpr("\0;\0;\4096;"), "\4096;") <> 3 or
+        pos(striExpr("\0;\0;\0;\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;"), "\4096;") <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;"), "\4096;") <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;"), "\4096;") <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;"), "\4096;") <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;"), "\4096;") <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;"), "\4096;") <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;"), "\4096;") <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\0;"),    "\4096;") <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;\0;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;\0;"), "\4096;") <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;\0;"), "\4096;") <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;\0;"), "\4096;") <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;\0;"), "\4096;") <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\4096;"), "\4096;") <> 6 then
       writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "a") <> 0 or
         pos(striExpr("b"),      "a") <> 0 or
         pos(striExpr("a"),      "a") <> 1 or
@@ -14032,6 +14157,14 @@ const proc: check_string_pos is func
         pos(striExpr("aba"),    "a") <> 1 or
         pos(striExpr("zaa"),    "a") <> 2 or
         pos(striExpr("aaa"),    "a") <> 1 or
+        pos(striExpr("bcde"),   "a") <> 0 or
+        pos(striExpr("abcd"),   "a") <> 1 or
+        pos(striExpr("zabc"),   "a") <> 2 or
+        pos(striExpr("yzab"),   "a") <> 3 or
+        pos(striExpr("xyza"),   "a") <> 4 or
+        pos(striExpr("aabc"),   "a") <> 1 or
+        pos(striExpr("zaba"),   "a") <> 2 or
+        pos(striExpr("yzaa"),   "a") <> 3 or
         pos(striExpr("bcdef"),  "a") <> 0 or
         pos(striExpr("abcde"),  "a") <> 1 or
         pos(striExpr("zabcd"),  "a") <> 2 or
@@ -14044,10 +14177,12 @@ const proc: check_string_pos is func
         pos(striExpr("yzaab"),  "a") <> 3 or
         pos(striExpr("xyzaa"),  "a") <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "a") <> 1 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "a") <> 16394 then
       writeln(" ***** pos(STRING, \"a\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "ab") <> 0 or
         pos(striExpr("c"),      "ab") <> 0 or
         pos(striExpr("a"),      "ab") <> 0 or
@@ -14091,6 +14226,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"ab\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "aa") <> 0 or
         pos(striExpr("b"),      "aa") <> 0 or
         pos(striExpr("a"),      "aa") <> 0 or
@@ -14132,6 +14268,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aa\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "abc") <> 0 or
         pos(striExpr("d"),      "abc") <> 0 or
         pos(striExpr("a"),      "abc") <> 0 or
@@ -14190,6 +14327,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"abc\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       "aba") <> 0 or
         pos(striExpr("c"),      "aba") <> 0 or
         pos(striExpr("a"),      "aba") <> 0 or
@@ -14269,33 +14407,92 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aba\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_pos_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos("",       striExpr("")) <> 0 or
         pos("a",      striExpr("")) <> 0 or
         pos("ab",     striExpr("")) <> 0 or
         pos("abc",    striExpr("")) <> 0 or
         pos("abcde",  striExpr("")) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("")) <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("")) <> 0 then
       writeln(" ***** pos(STRING, \"\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("\0;")) <> 0 or
         pos("a",      striExpr("\0;")) <> 0 or
         pos("ab",     striExpr("\0;")) <> 0 or
         pos("abc",    striExpr("\0;")) <> 0 or
         pos("abcde",  striExpr("\0;")) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\0;")) <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("\0;")) <> 0 then
       writeln(" ***** pos(STRING, \"\\0;\") does not work correctly (3).");
       okay := FALSE;
     end if;
-    if  pos("\4096;\0;\0;", striExpr("\4096;")) <> 1 or
+
+    if  pos("",       striExpr("\255;")) <> 0 or
+        pos("a",      striExpr("\255;")) <> 0 or
+        pos("ab",     striExpr("\255;")) <> 0 or
+        pos("abc",    striExpr("\255;")) <> 0 or
+        pos("abcde",  striExpr("\255;")) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\255;")) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\255;")) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("\255;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\255;\") does not work correctly (3).");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       striExpr("\256;")) <> 0 or
+        pos("a",      striExpr("\256;")) <> 0 or
+        pos("ab",     striExpr("\256;")) <> 0 or
+        pos("abc",    striExpr("\256;")) <> 0 or
+        pos("abcde",  striExpr("\256;")) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\256;")) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\256;")) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("\256;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\256;\") does not work correctly (3).");
+      okay := FALSE;
+    end if;
+
+    if  pos("\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;", striExpr("\4096;")) <> 1 or
+        pos("\0;\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;\0;", striExpr("\4096;")) <> 1 or
+        pos("\0;\4096;", striExpr("\4096;")) <> 2 or
+        pos("\0;\0;\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;\0;\0;", striExpr("\4096;")) <> 1 or
         pos("\0;\4096;\0;", striExpr("\4096;")) <> 2 or
-        pos("\0;\0;\4096;", striExpr("\4096;")) <> 3 then
+        pos("\0;\0;\4096;", striExpr("\4096;")) <> 3 or
+        pos("\0;\0;\0;\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;\0;\0;\0;", striExpr("\4096;")) <> 1 or
+        pos("\0;\4096;\0;\0;", striExpr("\4096;")) <> 2 or
+        pos("\0;\0;\4096;\0;", striExpr("\4096;")) <> 3 or
+        pos("\0;\0;\0;\4096;", striExpr("\4096;")) <> 4 or
+        pos("\0;\0;\0;\0;\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;\0;\0;\0;\0;", striExpr("\4096;")) <> 1 or
+        pos("\0;\4096;\0;\0;\0;", striExpr("\4096;")) <> 2 or
+        pos("\0;\0;\4096;\0;\0;", striExpr("\4096;")) <> 3 or
+        pos("\0;\0;\0;\4096;\0;", striExpr("\4096;")) <> 4 or
+        pos("\0;\0;\0;\0;\4096;", striExpr("\4096;")) <> 5 or
+        pos("\0;\0;\0;\0;\0;\0;",    striExpr("\4096;")) <> 0 or
+        pos("\4096;\0;\0;\0;\0;\0;", striExpr("\4096;")) <> 1 or
+        pos("\0;\4096;\0;\0;\0;\0;", striExpr("\4096;")) <> 2 or
+        pos("\0;\0;\4096;\0;\0;\0;", striExpr("\4096;")) <> 3 or
+        pos("\0;\0;\0;\4096;\0;\0;", striExpr("\4096;")) <> 4 or
+        pos("\0;\0;\0;\0;\4096;\0;", striExpr("\4096;")) <> 5 or
+        pos("\0;\0;\0;\0;\0;\4096;", striExpr("\4096;")) <> 6 then
       writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("a")) <> 0 or
         pos("b",      striExpr("a")) <> 0 or
         pos("a",      striExpr("a")) <> 1 or
@@ -14311,6 +14508,14 @@ const proc: check_string_pos is func
         pos("aba",    striExpr("a")) <> 1 or
         pos("zaa",    striExpr("a")) <> 2 or
         pos("aaa",    striExpr("a")) <> 1 or
+        pos("bcde",   striExpr("a")) <> 0 or
+        pos("abcd",   striExpr("a")) <> 1 or
+        pos("zabc",   striExpr("a")) <> 2 or
+        pos("yzab",   striExpr("a")) <> 3 or
+        pos("xyza",   striExpr("a")) <> 4 or
+        pos("aabc",   striExpr("a")) <> 1 or
+        pos("zaba",   striExpr("a")) <> 2 or
+        pos("yzaa",   striExpr("a")) <> 3 or
         pos("bcdef",  striExpr("a")) <> 0 or
         pos("abcde",  striExpr("a")) <> 1 or
         pos("zabcd",  striExpr("a")) <> 2 or
@@ -14323,10 +14528,12 @@ const proc: check_string_pos is func
         pos("yzaab",  striExpr("a")) <> 3 or
         pos("xyzaa",  striExpr("a")) <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("a")) <> 1 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("a")) <> 16394 then
       writeln(" ***** pos(STRING, \"a\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("ab")) <> 0 or
         pos("c",      striExpr("ab")) <> 0 or
         pos("a",      striExpr("ab")) <> 0 or
@@ -14370,6 +14577,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"ab\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("aa")) <> 0 or
         pos("b",      striExpr("aa")) <> 0 or
         pos("a",      striExpr("aa")) <> 0 or
@@ -14411,6 +14619,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aa\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("abc")) <> 0 or
         pos("d",      striExpr("abc")) <> 0 or
         pos("a",      striExpr("abc")) <> 0 or
@@ -14469,6 +14678,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"abc\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  pos("",       striExpr("aba")) <> 0 or
         pos("c",      striExpr("aba")) <> 0 or
         pos("a",      striExpr("aba")) <> 0 or
@@ -14548,33 +14758,92 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aba\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_pos_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos(striExpr(""),       striExpr("")) <> 0 or
         pos(striExpr("a"),      striExpr("")) <> 0 or
         pos(striExpr("ab"),     striExpr("")) <> 0 or
         pos(striExpr("abc"),    striExpr("")) <> 0 or
         pos(striExpr("abcde"),  striExpr("")) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("")) <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("")) <> 0 then
       writeln(" ***** pos(STRING, \"\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("\0;")) <> 0 or
         pos(striExpr("a"),      striExpr("\0;")) <> 0 or
         pos(striExpr("ab"),     striExpr("\0;")) <> 0 or
         pos(striExpr("abc"),    striExpr("\0;")) <> 0 or
         pos(striExpr("abcde"),  striExpr("\0;")) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\0;")) <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("\0;")) <> 0 then
       writeln(" ***** pos(STRING, \"\\0;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
-    if  pos(striExpr("\4096;\0;\0;"), striExpr("\4096;")) <> 1 or
+
+    if  pos(striExpr(""),       striExpr("\255;")) <> 0 or
+        pos(striExpr("a"),      striExpr("\255;")) <> 0 or
+        pos(striExpr("ab"),     striExpr("\255;")) <> 0 or
+        pos(striExpr("abc"),    striExpr("\255;")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("\255;")) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\255;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\255;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("\255;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\255;\") does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       striExpr("\256;")) <> 0 or
+        pos(striExpr("a"),      striExpr("\256;")) <> 0 or
+        pos(striExpr("ab"),     striExpr("\256;")) <> 0 or
+        pos(striExpr("abc"),    striExpr("\256;")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("\256;")) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\256;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\256;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("\256;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\256;\") does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr("\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;\0;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\4096;"), striExpr("\4096;")) <> 2 or
+        pos(striExpr("\0;\0;\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;\0;\0;"), striExpr("\4096;")) <> 1 or
         pos(striExpr("\0;\4096;\0;"), striExpr("\4096;")) <> 2 or
-        pos(striExpr("\0;\0;\4096;"), striExpr("\4096;")) <> 3 then
+        pos(striExpr("\0;\0;\4096;"), striExpr("\4096;")) <> 3 or
+        pos(striExpr("\0;\0;\0;\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;"), striExpr("\4096;")) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;"), striExpr("\4096;")) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;"), striExpr("\4096;")) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;"), striExpr("\4096;")) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;"), striExpr("\4096;")) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;"), striExpr("\4096;")) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;"), striExpr("\4096;")) <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\0;"),    striExpr("\4096;")) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;\0;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;\0;"), striExpr("\4096;")) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;\0;"), striExpr("\4096;")) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;\0;"), striExpr("\4096;")) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;\0;"), striExpr("\4096;")) <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\4096;"), striExpr("\4096;")) <> 6 then
       writeln(" ***** pos(STRING, \"\\4096;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("a")) <> 0 or
         pos(striExpr("b"),      striExpr("a")) <> 0 or
         pos(striExpr("a"),      striExpr("a")) <> 1 or
@@ -14590,6 +14859,14 @@ const proc: check_string_pos is func
         pos(striExpr("aba"),    striExpr("a")) <> 1 or
         pos(striExpr("zaa"),    striExpr("a")) <> 2 or
         pos(striExpr("aaa"),    striExpr("a")) <> 1 or
+        pos(striExpr("bcde"),   striExpr("a")) <> 0 or
+        pos(striExpr("abcd"),   striExpr("a")) <> 1 or
+        pos(striExpr("zabc"),   striExpr("a")) <> 2 or
+        pos(striExpr("yzab"),   striExpr("a")) <> 3 or
+        pos(striExpr("xyza"),   striExpr("a")) <> 4 or
+        pos(striExpr("aabc"),   striExpr("a")) <> 1 or
+        pos(striExpr("zaba"),   striExpr("a")) <> 2 or
+        pos(striExpr("yzaa"),   striExpr("a")) <> 3 or
         pos(striExpr("bcdef"),  striExpr("a")) <> 0 or
         pos(striExpr("abcde"),  striExpr("a")) <> 1 or
         pos(striExpr("zabcd"),  striExpr("a")) <> 2 or
@@ -14602,10 +14879,12 @@ const proc: check_string_pos is func
         pos(striExpr("yzaab"),  striExpr("a")) <> 3 or
         pos(striExpr("xyzaa"),  striExpr("a")) <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("a")) <> 1 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("a")) <> 16394 then
       writeln(" ***** pos(STRING, \"a\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("ab")) <> 0 or
         pos(striExpr("c"),      striExpr("ab")) <> 0 or
         pos(striExpr("a"),      striExpr("ab")) <> 0 or
@@ -14649,6 +14928,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"ab\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("aa")) <> 0 or
         pos(striExpr("b"),      striExpr("aa")) <> 0 or
         pos(striExpr("a"),      striExpr("aa")) <> 0 or
@@ -14690,6 +14970,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"aa\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("abc")) <> 0 or
         pos(striExpr("d"),      striExpr("abc")) <> 0 or
         pos(striExpr("a"),      striExpr("abc")) <> 0 or
@@ -14748,6 +15029,7 @@ const proc: check_string_pos is func
       writeln(" ***** pos(STRING, \"abc\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  pos(striExpr(""),       striExpr("aba")) <> 0 or
         pos(striExpr("c"),      striExpr("aba")) <> 0 or
         pos(striExpr("a"),      striExpr("aba")) <> 0 or
@@ -14825,6 +15107,189 @@ const proc: check_string_pos is func
         pos(striExpr("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb"),  striExpr("aba")) <> 31 or
         pos(striExpr("cbabcbabcbababababababababababababababababababababa"),  striExpr("aba")) <> 11 then
       writeln(" ***** pos(STRING, \"aba\") does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_pos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_pos_1 then
+      okay := FALSE;
+    end if;
+    if not check_string_pos_2 then
+      okay := FALSE;
+    end if;
+    if not check_string_pos_3 then
+      okay := FALSE;
+    end if;
+    if not check_string_pos_4 then
+      okay := FALSE;
+    end if;
+
+    if  pos("",       str('a')) <> 0 or
+        pos("b",      str('a')) <> 0 or
+        pos("a",      str('a')) <> 1 or
+        pos("bc",     str('a')) <> 0 or
+        pos("ab",     str('a')) <> 1 or
+        pos("za",     str('a')) <> 2 or
+        pos("aa",     str('a')) <> 1 or
+        pos("bcd",    str('a')) <> 0 or
+        pos("abc",    str('a')) <> 1 or
+        pos("zab",    str('a')) <> 2 or
+        pos("yza",    str('a')) <> 3 or
+        pos("aab",    str('a')) <> 1 or
+        pos("aba",    str('a')) <> 1 or
+        pos("zaa",    str('a')) <> 2 or
+        pos("aaa",    str('a')) <> 1 or
+        pos("bcde",   str('a')) <> 0 or
+        pos("abcd",   str('a')) <> 1 or
+        pos("zabc",   str('a')) <> 2 or
+        pos("yzab",   str('a')) <> 3 or
+        pos("xyza",   str('a')) <> 4 or
+        pos("aabc",   str('a')) <> 1 or
+        pos("zaba",   str('a')) <> 2 or
+        pos("yzaa",   str('a')) <> 3 or
+        pos("bcdef",  str('a')) <> 0 or
+        pos("abcde",  str('a')) <> 1 or
+        pos("zabcd",  str('a')) <> 2 or
+        pos("yzabc",  str('a')) <> 3 or
+        pos("xyzab",  str('a')) <> 4 or
+        pos("wxyza",  str('a')) <> 5 or
+        pos("ababc",  str('a')) <> 1 or
+        pos("zabad",  str('a')) <> 2 or
+        pos("yzaba",  str('a')) <> 3 or
+        pos("yzaab",  str('a')) <> 3 or
+        pos("xyzaa",  str('a')) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", str('a')) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", str('a')) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", str('a')) <> 16394 then
+      writeln(" ***** pos(STRING, str('a')) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       str('a')) <> 0 or
+        pos(striExpr("b"),      str('a')) <> 0 or
+        pos(striExpr("a"),      str('a')) <> 1 or
+        pos(striExpr("bc"),     str('a')) <> 0 or
+        pos(striExpr("ab"),     str('a')) <> 1 or
+        pos(striExpr("za"),     str('a')) <> 2 or
+        pos(striExpr("aa"),     str('a')) <> 1 or
+        pos(striExpr("bcd"),    str('a')) <> 0 or
+        pos(striExpr("abc"),    str('a')) <> 1 or
+        pos(striExpr("zab"),    str('a')) <> 2 or
+        pos(striExpr("yza"),    str('a')) <> 3 or
+        pos(striExpr("aab"),    str('a')) <> 1 or
+        pos(striExpr("aba"),    str('a')) <> 1 or
+        pos(striExpr("zaa"),    str('a')) <> 2 or
+        pos(striExpr("aaa"),    str('a')) <> 1 or
+        pos(striExpr("bcde"),   str('a')) <> 0 or
+        pos(striExpr("abcd"),   str('a')) <> 1 or
+        pos(striExpr("zabc"),   str('a')) <> 2 or
+        pos(striExpr("yzab"),   str('a')) <> 3 or
+        pos(striExpr("xyza"),   str('a')) <> 4 or
+        pos(striExpr("aabc"),   str('a')) <> 1 or
+        pos(striExpr("zaba"),   str('a')) <> 2 or
+        pos(striExpr("yzaa"),   str('a')) <> 3 or
+        pos(striExpr("bcdef"),  str('a')) <> 0 or
+        pos(striExpr("abcde"),  str('a')) <> 1 or
+        pos(striExpr("zabcd"),  str('a')) <> 2 or
+        pos(striExpr("yzabc"),  str('a')) <> 3 or
+        pos(striExpr("xyzab"),  str('a')) <> 4 or
+        pos(striExpr("wxyza"),  str('a')) <> 5 or
+        pos(striExpr("ababc"),  str('a')) <> 1 or
+        pos(striExpr("zabad"),  str('a')) <> 2 or
+        pos(striExpr("yzaba"),  str('a')) <> 3 or
+        pos(striExpr("yzaab"),  str('a')) <> 3 or
+        pos(striExpr("xyzaa"),  str('a')) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), str('a')) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), str('a')) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), str('a')) <> 16394 then
+      writeln(" ***** pos(STRING, str('a')) does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       str(charExpr('a'))) <> 0 or
+        pos("b",      str(charExpr('a'))) <> 0 or
+        pos("a",      str(charExpr('a'))) <> 1 or
+        pos("bc",     str(charExpr('a'))) <> 0 or
+        pos("ab",     str(charExpr('a'))) <> 1 or
+        pos("za",     str(charExpr('a'))) <> 2 or
+        pos("aa",     str(charExpr('a'))) <> 1 or
+        pos("bcd",    str(charExpr('a'))) <> 0 or
+        pos("abc",    str(charExpr('a'))) <> 1 or
+        pos("zab",    str(charExpr('a'))) <> 2 or
+        pos("yza",    str(charExpr('a'))) <> 3 or
+        pos("aab",    str(charExpr('a'))) <> 1 or
+        pos("aba",    str(charExpr('a'))) <> 1 or
+        pos("zaa",    str(charExpr('a'))) <> 2 or
+        pos("aaa",    str(charExpr('a'))) <> 1 or
+        pos("bcde",   str(charExpr('a'))) <> 0 or
+        pos("abcd",   str(charExpr('a'))) <> 1 or
+        pos("zabc",   str(charExpr('a'))) <> 2 or
+        pos("yzab",   str(charExpr('a'))) <> 3 or
+        pos("xyza",   str(charExpr('a'))) <> 4 or
+        pos("aabc",   str(charExpr('a'))) <> 1 or
+        pos("zaba",   str(charExpr('a'))) <> 2 or
+        pos("yzaa",   str(charExpr('a'))) <> 3 or
+        pos("bcdef",  str(charExpr('a'))) <> 0 or
+        pos("abcde",  str(charExpr('a'))) <> 1 or
+        pos("zabcd",  str(charExpr('a'))) <> 2 or
+        pos("yzabc",  str(charExpr('a'))) <> 3 or
+        pos("xyzab",  str(charExpr('a'))) <> 4 or
+        pos("wxyza",  str(charExpr('a'))) <> 5 or
+        pos("ababc",  str(charExpr('a'))) <> 1 or
+        pos("zabad",  str(charExpr('a'))) <> 2 or
+        pos("yzaba",  str(charExpr('a'))) <> 3 or
+        pos("yzaab",  str(charExpr('a'))) <> 3 or
+        pos("xyzaa",  str(charExpr('a'))) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", str(charExpr('a'))) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", str(charExpr('a'))) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", str(charExpr('a'))) <> 16394 then
+      writeln(" ***** pos(STRING, str('a')) does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       str(charExpr('a'))) <> 0 or
+        pos(striExpr("b"),      str(charExpr('a'))) <> 0 or
+        pos(striExpr("a"),      str(charExpr('a'))) <> 1 or
+        pos(striExpr("bc"),     str(charExpr('a'))) <> 0 or
+        pos(striExpr("ab"),     str(charExpr('a'))) <> 1 or
+        pos(striExpr("za"),     str(charExpr('a'))) <> 2 or
+        pos(striExpr("aa"),     str(charExpr('a'))) <> 1 or
+        pos(striExpr("bcd"),    str(charExpr('a'))) <> 0 or
+        pos(striExpr("abc"),    str(charExpr('a'))) <> 1 or
+        pos(striExpr("zab"),    str(charExpr('a'))) <> 2 or
+        pos(striExpr("yza"),    str(charExpr('a'))) <> 3 or
+        pos(striExpr("aab"),    str(charExpr('a'))) <> 1 or
+        pos(striExpr("aba"),    str(charExpr('a'))) <> 1 or
+        pos(striExpr("zaa"),    str(charExpr('a'))) <> 2 or
+        pos(striExpr("aaa"),    str(charExpr('a'))) <> 1 or
+        pos(striExpr("bcde"),   str(charExpr('a'))) <> 0 or
+        pos(striExpr("abcd"),   str(charExpr('a'))) <> 1 or
+        pos(striExpr("zabc"),   str(charExpr('a'))) <> 2 or
+        pos(striExpr("yzab"),   str(charExpr('a'))) <> 3 or
+        pos(striExpr("xyza"),   str(charExpr('a'))) <> 4 or
+        pos(striExpr("aabc"),   str(charExpr('a'))) <> 1 or
+        pos(striExpr("zaba"),   str(charExpr('a'))) <> 2 or
+        pos(striExpr("yzaa"),   str(charExpr('a'))) <> 3 or
+        pos(striExpr("bcdef"),  str(charExpr('a'))) <> 0 or
+        pos(striExpr("abcde"),  str(charExpr('a'))) <> 1 or
+        pos(striExpr("zabcd"),  str(charExpr('a'))) <> 2 or
+        pos(striExpr("yzabc"),  str(charExpr('a'))) <> 3 or
+        pos(striExpr("xyzab"),  str(charExpr('a'))) <> 4 or
+        pos(striExpr("wxyza"),  str(charExpr('a'))) <> 5 or
+        pos(striExpr("ababc"),  str(charExpr('a'))) <> 1 or
+        pos(striExpr("zabad"),  str(charExpr('a'))) <> 2 or
+        pos(striExpr("yzaba"),  str(charExpr('a'))) <> 3 or
+        pos(striExpr("yzaab"),  str(charExpr('a'))) <> 3 or
+        pos(striExpr("xyzaa"),  str(charExpr('a'))) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), str(charExpr('a'))) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), str(charExpr('a'))) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), str(charExpr('a'))) <> 16394 then
+      writeln(" ***** pos(STRING, str('a')) does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -14912,13 +15377,60 @@ const proc: check_string_char_pos is func
         pos("abc",    '\0;') <> 0 or
         pos("abcde",  '\0;') <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", '\0;') <> 0 then
       writeln(" ***** pos(STRING, '\\0;') does not work correctly. (1)");
       okay := FALSE;
     end if;
-    if  pos("\4096;\0;\0;", '\4096;') <> 1 or
+    if  pos("",       '\255;') <> 0 or
+        pos("a",      '\255;') <> 0 or
+        pos("ab",     '\255;') <> 0 or
+        pos("abc",    '\255;') <> 0 or
+        pos("abcde",  '\255;') <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\255;') <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\255;') <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", '\255;') <> 0 then
+      writeln(" ***** pos(STRING, '\\255;') does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    if  pos("",       '\256;') <> 0 or
+        pos("a",      '\256;') <> 0 or
+        pos("ab",     '\256;') <> 0 or
+        pos("abc",    '\256;') <> 0 or
+        pos("abcde",  '\256;') <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\256;') <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\256;') <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", '\256;') <> 0 then
+      writeln(" ***** pos(STRING, '\\256;') does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    if  pos("\0;",    '\4096;') <> 0 or
+        pos("\4096;", '\4096;') <> 1 or
+        pos("\0;\0;",    '\4096;') <> 0 or
+        pos("\4096;\0;", '\4096;') <> 1 or
+        pos("\0;\4096;", '\4096;') <> 2 or
+        pos("\0;\0;\0;",    '\4096;') <> 0 or
+        pos("\4096;\0;\0;", '\4096;') <> 1 or
         pos("\0;\4096;\0;", '\4096;') <> 2 or
-        pos("\0;\0;\4096;", '\4096;') <> 3 then
+        pos("\0;\0;\4096;", '\4096;') <> 3 or
+        pos("\0;\0;\0;\0;",    '\4096;') <> 0 or
+        pos("\4096;\0;\0;\0;", '\4096;') <> 1 or
+        pos("\0;\4096;\0;\0;", '\4096;') <> 2 or
+        pos("\0;\0;\4096;\0;", '\4096;') <> 3 or
+        pos("\0;\0;\0;\4096;", '\4096;') <> 4 or
+        pos("\0;\0;\0;\0;\0;",    '\4096;') <> 0 or
+        pos("\4096;\0;\0;\0;\0;", '\4096;') <> 1 or
+        pos("\0;\4096;\0;\0;\0;", '\4096;') <> 2 or
+        pos("\0;\0;\4096;\0;\0;", '\4096;') <> 3 or
+        pos("\0;\0;\0;\4096;\0;", '\4096;') <> 4 or
+        pos("\0;\0;\0;\0;\4096;", '\4096;') <> 5 or
+        pos("\0;\0;\0;\0;\0;\0;",    '\4096;') <> 0 or
+        pos("\4096;\0;\0;\0;\0;\0;", '\4096;') <> 1 or
+        pos("\0;\4096;\0;\0;\0;\0;", '\4096;') <> 2 or
+        pos("\0;\0;\4096;\0;\0;\0;", '\4096;') <> 3 or
+        pos("\0;\0;\0;\4096;\0;\0;", '\4096;') <> 4 or
+        pos("\0;\0;\0;\0;\4096;\0;", '\4096;') <> 5 or
+        pos("\0;\0;\0;\0;\0;\4096;", '\4096;') <> 6 then
       writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (1)");
       okay := FALSE;
     end if;
@@ -14937,6 +15449,14 @@ const proc: check_string_char_pos is func
         pos("aba",    'a') <> 1 or
         pos("zaa",    'a') <> 2 or
         pos("aaa",    'a') <> 1 or
+        pos("bcde",   'a') <> 0 or
+        pos("abcd",   'a') <> 1 or
+        pos("zabc",   'a') <> 2 or
+        pos("yzab",   'a') <> 3 or
+        pos("xyza",   'a') <> 4 or
+        pos("aabc",   'a') <> 1 or
+        pos("zaba",   'a') <> 2 or
+        pos("yzaa",   'a') <> 3 or
         pos("bcdef",  'a') <> 0 or
         pos("abcde",  'a') <> 1 or
         pos("zabcd",  'a') <> 2 or
@@ -14949,7 +15469,8 @@ const proc: check_string_char_pos is func
         pos("yzaab",  'a') <> 3 or
         pos("xyzaa",  'a') <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", 'a') <> 16394 then
       writeln(" ***** pos(STRING, 'a') does not work correctly. (1)");
       okay := FALSE;
     end if;
@@ -14960,13 +15481,60 @@ const proc: check_string_char_pos is func
         pos(striExpr("abc"),    '\0;') <> 0 or
         pos(striExpr("abcde"),  '\0;') <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\0;') <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), '\0;') <> 0 then
       writeln(" ***** pos(STRING, '\\0;') does not work correctly. (2)");
       okay := FALSE;
     end if;
-    if  pos(striExpr("\4096;\0;\0;"), '\4096;') <> 1 or
+    if  pos(striExpr(""),       '\255;') <> 0 or
+        pos(striExpr("a"),      '\255;') <> 0 or
+        pos(striExpr("ab"),     '\255;') <> 0 or
+        pos(striExpr("abc"),    '\255;') <> 0 or
+        pos(striExpr("abcde"),  '\255;') <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\255;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\255;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), '\255;') <> 0 then
+      writeln(" ***** pos(STRING, '\\255;') does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       '\256;') <> 0 or
+        pos(striExpr("a"),      '\256;') <> 0 or
+        pos(striExpr("ab"),     '\256;') <> 0 or
+        pos(striExpr("abc"),    '\256;') <> 0 or
+        pos(striExpr("abcde"),  '\256;') <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\256;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\256;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), '\256;') <> 0 then
+      writeln(" ***** pos(STRING, '\\256;') does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;\0;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\4096;"), '\4096;') <> 2 or
+        pos(striExpr("\0;\0;\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;\0;\0;"), '\4096;') <> 1 or
         pos(striExpr("\0;\4096;\0;"), '\4096;') <> 2 or
-        pos(striExpr("\0;\0;\4096;"), '\4096;') <> 3 then
+        pos(striExpr("\0;\0;\4096;"), '\4096;') <> 3 or
+        pos(striExpr("\0;\0;\0;\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;"), '\4096;') <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;"), '\4096;') <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;"), '\4096;') <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;"), '\4096;') <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;"), '\4096;') <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;"), '\4096;') <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;"), '\4096;') <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\0;"),    '\4096;') <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;\0;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;\0;"), '\4096;') <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;\0;"), '\4096;') <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;\0;"), '\4096;') <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;\0;"), '\4096;') <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\4096;"), '\4096;') <> 6 then
       writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (2)");
       okay := FALSE;
     end if;
@@ -14985,6 +15553,14 @@ const proc: check_string_char_pos is func
         pos(striExpr("aba"),    'a') <> 1 or
         pos(striExpr("zaa"),    'a') <> 2 or
         pos(striExpr("aaa"),    'a') <> 1 or
+        pos(striExpr("bcde"),   'a') <> 0 or
+        pos(striExpr("abcd"),   'a') <> 1 or
+        pos(striExpr("zabc"),   'a') <> 2 or
+        pos(striExpr("yzab"),   'a') <> 3 or
+        pos(striExpr("xyza"),   'a') <> 4 or
+        pos(striExpr("aabc"),   'a') <> 1 or
+        pos(striExpr("zaba"),   'a') <> 2 or
+        pos(striExpr("yzaa"),   'a') <> 3 or
         pos(striExpr("bcdef"),  'a') <> 0 or
         pos(striExpr("abcde"),  'a') <> 1 or
         pos(striExpr("zabcd"),  'a') <> 2 or
@@ -14997,7 +15573,8 @@ const proc: check_string_char_pos is func
         pos(striExpr("yzaab"),  'a') <> 3 or
         pos(striExpr("xyzaa"),  'a') <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), 'a') <> 1 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), 'a') <> 16394 then
       writeln(" ***** pos(STRING, 'a') does not work correctly. (2)");
       okay := FALSE;
     end if;
@@ -15008,13 +15585,60 @@ const proc: check_string_char_pos is func
         pos("abc",    charExpr('\0;')) <> 0 or
         pos("abcde",  charExpr('\0;')) <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\0;')) <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", charExpr('\0;')) <> 0 then
       writeln(" ***** pos(STRING, '\\0;') does not work correctly. (3)");
       okay := FALSE;
     end if;
-    if  pos("\4096;\0;\0;", charExpr('\4096;')) <> 1 or
+    if  pos("",       charExpr('\255;')) <> 0 or
+        pos("a",      charExpr('\255;')) <> 0 or
+        pos("ab",     charExpr('\255;')) <> 0 or
+        pos("abc",    charExpr('\255;')) <> 0 or
+        pos("abcde",  charExpr('\255;')) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\255;')) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\255;')) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", charExpr('\255;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\255;') does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       charExpr('\256;')) <> 0 or
+        pos("a",      charExpr('\256;')) <> 0 or
+        pos("ab",     charExpr('\256;')) <> 0 or
+        pos("abc",    charExpr('\256;')) <> 0 or
+        pos("abcde",  charExpr('\256;')) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\256;')) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\256;')) <> 0 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", charExpr('\256;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\256;') does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;", charExpr('\4096;')) <> 1 or
+        pos("\0;\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;\0;", charExpr('\4096;')) <> 1 or
+        pos("\0;\4096;", charExpr('\4096;')) <> 2 or
+        pos("\0;\0;\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;\0;\0;", charExpr('\4096;')) <> 1 or
         pos("\0;\4096;\0;", charExpr('\4096;')) <> 2 or
-        pos("\0;\0;\4096;", charExpr('\4096;')) <> 3 then
+        pos("\0;\0;\4096;", charExpr('\4096;')) <> 3 or
+        pos("\0;\0;\0;\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;\0;\0;\0;", charExpr('\4096;')) <> 1 or
+        pos("\0;\4096;\0;\0;", charExpr('\4096;')) <> 2 or
+        pos("\0;\0;\4096;\0;", charExpr('\4096;')) <> 3 or
+        pos("\0;\0;\0;\4096;", charExpr('\4096;')) <> 4 or
+        pos("\0;\0;\0;\0;\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;\0;\0;\0;\0;", charExpr('\4096;')) <> 1 or
+        pos("\0;\4096;\0;\0;\0;", charExpr('\4096;')) <> 2 or
+        pos("\0;\0;\4096;\0;\0;", charExpr('\4096;')) <> 3 or
+        pos("\0;\0;\0;\4096;\0;", charExpr('\4096;')) <> 4 or
+        pos("\0;\0;\0;\0;\4096;", charExpr('\4096;')) <> 5 or
+        pos("\0;\0;\0;\0;\0;\0;",    charExpr('\4096;')) <> 0 or
+        pos("\4096;\0;\0;\0;\0;\0;", charExpr('\4096;')) <> 1 or
+        pos("\0;\4096;\0;\0;\0;\0;", charExpr('\4096;')) <> 2 or
+        pos("\0;\0;\4096;\0;\0;\0;", charExpr('\4096;')) <> 3 or
+        pos("\0;\0;\0;\4096;\0;\0;", charExpr('\4096;')) <> 4 or
+        pos("\0;\0;\0;\0;\4096;\0;", charExpr('\4096;')) <> 5 or
+        pos("\0;\0;\0;\0;\0;\4096;", charExpr('\4096;')) <> 6 then
       writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (3)");
       okay := FALSE;
     end if;
@@ -15033,6 +15657,14 @@ const proc: check_string_char_pos is func
         pos("aba",    charExpr('a')) <> 1 or
         pos("zaa",    charExpr('a')) <> 2 or
         pos("aaa",    charExpr('a')) <> 1 or
+        pos("bcde",   charExpr('a')) <> 0 or
+        pos("abcd",   charExpr('a')) <> 1 or
+        pos("zabc",   charExpr('a')) <> 2 or
+        pos("yzab",   charExpr('a')) <> 3 or
+        pos("xyza",   charExpr('a')) <> 4 or
+        pos("aabc",   charExpr('a')) <> 1 or
+        pos("zaba",   charExpr('a')) <> 2 or
+        pos("yzaa",   charExpr('a')) <> 3 or
         pos("bcdef",  charExpr('a')) <> 0 or
         pos("abcde",  charExpr('a')) <> 1 or
         pos("zabcd",  charExpr('a')) <> 2 or
@@ -15045,7 +15677,8 @@ const proc: check_string_char_pos is func
         pos("yzaab",  charExpr('a')) <> 3 or
         pos("xyzaa",  charExpr('a')) <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('a')) <> 1 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 then
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", charExpr('a')) <> 16394 then
       writeln(" ***** pos(STRING, 'a') does not work correctly. (3)");
       okay := FALSE;
     end if;
@@ -15056,13 +15689,60 @@ const proc: check_string_char_pos is func
         pos(striExpr("abc"),    charExpr('\0;')) <> 0 or
         pos(striExpr("abcde"),  charExpr('\0;')) <> 0 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\0;')) <> 0 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), charExpr('\0;')) <> 0 then
       writeln(" ***** pos(STRING, '\\0;') does not work correctly. (4)");
       okay := FALSE;
     end if;
-    if  pos(striExpr("\4096;\0;\0;"), charExpr('\4096;')) <> 1 or
+    if  pos(striExpr(""),       charExpr('\255;')) <> 0 or
+        pos(striExpr("a"),      charExpr('\255;')) <> 0 or
+        pos(striExpr("ab"),     charExpr('\255;')) <> 0 or
+        pos(striExpr("abc"),    charExpr('\255;')) <> 0 or
+        pos(striExpr("abcde"),  charExpr('\255;')) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\255;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\255;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), charExpr('\255;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\255;') does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       charExpr('\256;')) <> 0 or
+        pos(striExpr("a"),      charExpr('\256;')) <> 0 or
+        pos(striExpr("ab"),     charExpr('\256;')) <> 0 or
+        pos(striExpr("abc"),    charExpr('\256;')) <> 0 or
+        pos(striExpr("abcde"),  charExpr('\256;')) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\256;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\256;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), charExpr('\256;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\256;') does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;\0;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\4096;"), charExpr('\4096;')) <> 2 or
+        pos(striExpr("\0;\0;\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;\0;\0;"), charExpr('\4096;')) <> 1 or
         pos(striExpr("\0;\4096;\0;"), charExpr('\4096;')) <> 2 or
-        pos(striExpr("\0;\0;\4096;"), charExpr('\4096;')) <> 3 then
+        pos(striExpr("\0;\0;\4096;"), charExpr('\4096;')) <> 3 or
+        pos(striExpr("\0;\0;\0;\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;"), charExpr('\4096;')) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;"), charExpr('\4096;')) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;"), charExpr('\4096;')) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;"), charExpr('\4096;')) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;"), charExpr('\4096;')) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;"), charExpr('\4096;')) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;"), charExpr('\4096;')) <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\0;"),    charExpr('\4096;')) <> 0 or
+        pos(striExpr("\4096;\0;\0;\0;\0;\0;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\4096;\0;\0;\0;\0;"), charExpr('\4096;')) <> 2 or
+        pos(striExpr("\0;\0;\4096;\0;\0;\0;"), charExpr('\4096;')) <> 3 or
+        pos(striExpr("\0;\0;\0;\4096;\0;\0;"), charExpr('\4096;')) <> 4 or
+        pos(striExpr("\0;\0;\0;\0;\4096;\0;"), charExpr('\4096;')) <> 5 or
+        pos(striExpr("\0;\0;\0;\0;\0;\4096;"), charExpr('\4096;')) <> 6 then
       writeln(" ***** pos(STRING, '\\4096;') does not work correctly. (4)");
       okay := FALSE;
     end if;
@@ -15081,6 +15761,14 @@ const proc: check_string_char_pos is func
         pos(striExpr("aba"),    charExpr('a')) <> 1 or
         pos(striExpr("zaa"),    charExpr('a')) <> 2 or
         pos(striExpr("aaa"),    charExpr('a')) <> 1 or
+        pos(striExpr("bcde"),   charExpr('a')) <> 0 or
+        pos(striExpr("abcd"),   charExpr('a')) <> 1 or
+        pos(striExpr("zabc"),   charExpr('a')) <> 2 or
+        pos(striExpr("yzab"),   charExpr('a')) <> 3 or
+        pos(striExpr("xyza"),   charExpr('a')) <> 4 or
+        pos(striExpr("aabc"),   charExpr('a')) <> 1 or
+        pos(striExpr("zaba"),   charExpr('a')) <> 2 or
+        pos(striExpr("yzaa"),   charExpr('a')) <> 3 or
         pos(striExpr("bcdef"),  charExpr('a')) <> 0 or
         pos(striExpr("abcde"),  charExpr('a')) <> 1 or
         pos(striExpr("zabcd"),  charExpr('a')) <> 2 or
@@ -15093,7 +15781,8 @@ const proc: check_string_char_pos is func
         pos(striExpr("yzaab"),  charExpr('a')) <> 3 or
         pos(striExpr("xyzaa"),  charExpr('a')) <> 4 or
         pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('a')) <> 1 or
-        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 then
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), charExpr('a')) <> 16394 then
       writeln(" ***** pos(STRING, 'a') does not work correctly. (4)");
       okay := FALSE;
     end if;
@@ -16199,8 +16888,8 @@ const proc: check_string_pos_idx is func
   end func;
 
 
-const proc: check_string_rpos is func
-  local
+const func boolean: check_string_rpos_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  rpos("",       "") <> 0 or
@@ -16213,6 +16902,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  rpos("",       "\0;") <> 0 or
         rpos("a",      "\0;") <> 0 or
         rpos("ab",     "\0;") <> 0 or
@@ -16223,10 +16913,12 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  rpos("\0;\4096;\0;",  "\4096;") <> 2 then
       writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  rpos("",       "a") <> 0 or
         rpos("b",      "a") <> 0 or
         rpos("a",      "a") <> 1 or
@@ -16258,6 +16950,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"a\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  rpos("",       "ab") <> 0 or
         rpos("c",      "ab") <> 0 or
         rpos("a",      "ab") <> 0 or
@@ -16301,6 +16994,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+
     if  rpos("",       "abc") <> 0 or
         rpos("d",      "abc") <> 0 or
         rpos("a",      "abc") <> 0 or
@@ -16359,7 +17053,13 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_rpos_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rpos(striExpr(""),       "") <> 0 or
         rpos(striExpr("a"),      "") <> 0 or
         rpos(striExpr("ab"),     "") <> 0 or
@@ -16370,6 +17070,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       "\0;") <> 0 or
         rpos(striExpr("a"),      "\0;") <> 0 or
         rpos(striExpr("ab"),     "\0;") <> 0 or
@@ -16380,10 +17081,12 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr("\0;\4096;\0;"),  "\4096;") <> 2 then
       writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       "a") <> 0 or
         rpos(striExpr("b"),      "a") <> 0 or
         rpos(striExpr("a"),      "a") <> 1 or
@@ -16415,6 +17118,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"a\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       "ab") <> 0 or
         rpos(striExpr("c"),      "ab") <> 0 or
         rpos(striExpr("a"),      "ab") <> 0 or
@@ -16458,6 +17162,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       "abc") <> 0 or
         rpos(striExpr("d"),      "abc") <> 0 or
         rpos(striExpr("a"),      "abc") <> 0 or
@@ -16516,7 +17221,13 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_rpos_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rpos("",       striExpr("")) <> 0 or
         rpos("a",      striExpr("")) <> 0 or
         rpos("ab",     striExpr("")) <> 0 or
@@ -16527,6 +17238,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  rpos("",       striExpr("\0;")) <> 0 or
         rpos("a",      striExpr("\0;")) <> 0 or
         rpos("ab",     striExpr("\0;")) <> 0 or
@@ -16537,10 +17249,12 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  rpos("\0;\4096;\0;",  striExpr("\4096;")) <> 2 then
       writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  rpos("",       striExpr("a")) <> 0 or
         rpos("b",      striExpr("a")) <> 0 or
         rpos("a",      striExpr("a")) <> 1 or
@@ -16572,6 +17286,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"a\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  rpos("",       striExpr("ab")) <> 0 or
         rpos("c",      striExpr("ab")) <> 0 or
         rpos("a",      striExpr("ab")) <> 0 or
@@ -16615,6 +17330,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+
     if  rpos("",       striExpr("abc")) <> 0 or
         rpos("d",      striExpr("abc")) <> 0 or
         rpos("a",      striExpr("abc")) <> 0 or
@@ -16673,7 +17389,13 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_rpos_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rpos(striExpr(""),       striExpr("")) <> 0 or
         rpos(striExpr("a"),      striExpr("")) <> 0 or
         rpos(striExpr("ab"),     striExpr("")) <> 0 or
@@ -16684,6 +17406,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       striExpr("\0;")) <> 0 or
         rpos(striExpr("a"),      striExpr("\0;")) <> 0 or
         rpos(striExpr("ab"),     striExpr("\0;")) <> 0 or
@@ -16694,10 +17417,12 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"\\0;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr("\0;\4096;\0;"),  striExpr("\4096;")) <> 2 then
       writeln(" ***** rpos(STRING, \"\\4096;\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       striExpr("a")) <> 0 or
         rpos(striExpr("b"),      striExpr("a")) <> 0 or
         rpos(striExpr("a"),      striExpr("a")) <> 1 or
@@ -16729,6 +17454,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"a\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       striExpr("ab")) <> 0 or
         rpos(striExpr("c"),      striExpr("ab")) <> 0 or
         rpos(striExpr("a"),      striExpr("ab")) <> 0 or
@@ -16772,6 +17498,7 @@ const proc: check_string_rpos is func
       writeln(" ***** rpos(STRING, \"ab\") does not work correctly. (4)");
       okay := FALSE;
     end if;
+
     if  rpos(striExpr(""),       striExpr("abc")) <> 0 or
         rpos(striExpr("d"),      striExpr("abc")) <> 0 or
         rpos(striExpr("a"),      striExpr("abc")) <> 0 or
@@ -16828,6 +17555,25 @@ const proc: check_string_rpos is func
         rpos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"), striExpr("abc")) <> 31 or
         rpos(striExpr("ababababababcbababababcbababababcbababababcbabababa"), striExpr("abc")) <> 41 then
       writeln(" ***** rpos(STRING, \"abc\") does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_rpos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_rpos_1 then
+      okay := FALSE;
+    end if;
+    if not check_string_rpos_2 then
+      okay := FALSE;
+    end if;
+    if not check_string_rpos_3 then
+      okay := FALSE;
+    end if;
+    if not check_string_rpos_4 then
       okay := FALSE;
     end if;
 
