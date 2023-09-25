@@ -854,7 +854,8 @@ trm_inf.c:47:18: error: term.h: No such file or directory
 </pre></li></ul><p>
   indicate that the curses or ncurses development package is
   missing. I don't know the name of this package in your
-  distribution (under Ubuntu it has the name libncurses5-dev),
+  distribution (under Ubuntu it has the name libncurses5-dev
+  and under openSUSE Tumbleweed the name is ncurses-devel),
   but you can search in your package manager for a curses/ncurses
   package which mentions that it contains the header files.
   To execute programs you need also to install the non-developer
@@ -870,7 +871,15 @@ drw_x11.c:45:24: error: X11/keysym.h: No such file or directory
 </pre></li></ul><p>
   indicate that the X11 development package is missing.
   Under Ubuntu this package has the name libx11-dev and is
-  described as: X11 client-side library (development headers)
+  described as:
+</p><pre class="indent">
+X11 client-side library (development headers)
+</pre><p>
+  Under openSUSE Tumbleweed this package is named libX11-devel
+  and is described as:
+</p><pre class="indent">
+Development files for the Core X11 protocol library
+</pre><p>
   Note that under X11 'client' means: The program which wants
   to draw. A X11 'server' is the place where the drawings are
   displayed. So you have to search for a X11 client developer
@@ -1091,7 +1100,7 @@ traceutl.c(526): warning C4996: 'fileno': The POSIX name for this item is deprec
       <span class="lib">os_decls.h</span> defines macros like <tt><span class="func">os_fileno</span></tt> which are used
       in the source files of Seed7. Depending on the operating
       system <tt><span class="func">os_fileno</span></tt> is defined as <tt><span class="func">fileno</span></tt> or <tt><span class="func">_fileno</span></tt>.
-      This avoids these strange warnings and a vendor lock-in.
+      This avoids these strange warnings and a vendor lock-in.</li>
 <li>Warnings about passing argument with different width due to
       prototype: Some compilers write such warnings for formal
       boolean (boolType) parameters and actual boolean arguments.

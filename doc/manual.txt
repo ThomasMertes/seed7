@@ -927,7 +927,7 @@ CONTENTS
 
     [0] ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
-  The for-loop above uses the literal '7' as upper bound. The function
+  The for-loop above uses the literal 7 as upper bound. The function
   'length' can be used instead:
 
     for number range 1 to length(weekdayName) do

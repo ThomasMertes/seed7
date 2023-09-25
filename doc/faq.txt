@@ -21,7 +21,7 @@ programming languages:
  - Seed7 has abstract data types. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
    abstract data types written in Seed7. User defined abstract data
-   types are possible as well .
+   types are possible as well.
  - The object orientation of Seed7 allows multiple dispatch. That
    means that a function or method is connected to more than one type.
  - Seed7 is a syntactically and semantically extensible language:
@@ -3120,7 +3120,7 @@ considerably. Seed7 libraries can be included directly, while the usual dll/so
 needs an additional header file which desribes the interfaces of the dll/so.
 The Seed7 overloading does not use name mangling and a possible name mangling
 of Seed7 would be incompatible to the ones used by other languages. Fundamental
-types like 'string', bigInteger, 'array', hash and 'file' could not be used
+types like 'string', 'bigInteger', 'array', 'hash' and 'file' could not be used
 directly from other languages. When a Seed7 dll/so is only used by Seed7, there
 would still be the name mangling and the header file issue. Compiling to a dll/so
 is not high on the priority list, but if someone implements it, it will be merged.

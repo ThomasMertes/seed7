@@ -643,7 +643,8 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
   indicate that the curses or ncurses development package is
   missing. I don't know the name of this package in your
-  distribution (under Ubuntu it has the name libncurses5-dev),
+  distribution (under Ubuntu it has the name libncurses5-dev
+  and under openSUSE Tumbleweed the name is ncurses-devel),
   but you can search in your package manager for a curses/ncurses
   package which mentions that it contains the header files.
   To execute programs you need also to install the non-developer
@@ -659,7 +660,15 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
   indicate that the X11 development package is missing.
   Under Ubuntu this package has the name libx11-dev and is
-  described as: X11 client-side library (development headers)
+  described as:
+
+    X11 client-side library (development headers)
+
+  Under openSUSE Tumbleweed this package is named libX11-devel
+  and is described as:
+
+    Development files for the Core X11 protocol library
+
   Note that under X11 'client' means: The program which wants
   to draw. A X11 'server' is the place where the drawings are
   displayed. So you have to search for a X11 client developer
