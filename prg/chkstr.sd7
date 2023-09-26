@@ -15293,6 +15293,252 @@ const proc: check_string_pos is func
       okay := FALSE;
     end if;
 
+    if  pos("",       "zab"[2 fixLen 1]) <> 0 or
+        pos("b",      "zab"[2 fixLen 1]) <> 0 or
+        pos("a",      "zab"[2 fixLen 1]) <> 1 or
+        pos("bc",     "zab"[2 fixLen 1]) <> 0 or
+        pos("ab",     "zab"[2 fixLen 1]) <> 1 or
+        pos("za",     "zab"[2 fixLen 1]) <> 2 or
+        pos("aa",     "zab"[2 fixLen 1]) <> 1 or
+        pos("bcd",    "zab"[2 fixLen 1]) <> 0 or
+        pos("abc",    "zab"[2 fixLen 1]) <> 1 or
+        pos("zab",    "zab"[2 fixLen 1]) <> 2 or
+        pos("yza",    "zab"[2 fixLen 1]) <> 3 or
+        pos("aab",    "zab"[2 fixLen 1]) <> 1 or
+        pos("aba",    "zab"[2 fixLen 1]) <> 1 or
+        pos("zaa",    "zab"[2 fixLen 1]) <> 2 or
+        pos("aaa",    "zab"[2 fixLen 1]) <> 1 or
+        pos("bcde",   "zab"[2 fixLen 1]) <> 0 or
+        pos("abcd",   "zab"[2 fixLen 1]) <> 1 or
+        pos("zabc",   "zab"[2 fixLen 1]) <> 2 or
+        pos("yzab",   "zab"[2 fixLen 1]) <> 3 or
+        pos("xyza",   "zab"[2 fixLen 1]) <> 4 or
+        pos("aabc",   "zab"[2 fixLen 1]) <> 1 or
+        pos("zaba",   "zab"[2 fixLen 1]) <> 2 or
+        pos("yzaa",   "zab"[2 fixLen 1]) <> 3 or
+        pos("bcdef",  "zab"[2 fixLen 1]) <> 0 or
+        pos("abcde",  "zab"[2 fixLen 1]) <> 1 or
+        pos("zabcd",  "zab"[2 fixLen 1]) <> 2 or
+        pos("yzabc",  "zab"[2 fixLen 1]) <> 3 or
+        pos("xyzab",  "zab"[2 fixLen 1]) <> 4 or
+        pos("wxyza",  "zab"[2 fixLen 1]) <> 5 or
+        pos("ababc",  "zab"[2 fixLen 1]) <> 1 or
+        pos("zabad",  "zab"[2 fixLen 1]) <> 2 or
+        pos("yzaba",  "zab"[2 fixLen 1]) <> 3 or
+        pos("yzaab",  "zab"[2 fixLen 1]) <> 3 or
+        pos("xyzaa",  "zab"[2 fixLen 1]) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "zab"[2 fixLen 1]) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "zab"[2 fixLen 1]) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", "zab"[2 fixLen 1]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("b"),      "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("a"),      "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("bc"),     "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("ab"),     "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("za"),     "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("aa"),     "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("bcd"),    "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("abc"),    "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zab"),    "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("yza"),    "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("aab"),    "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("aba"),    "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zaa"),    "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("aaa"),    "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("bcde"),   "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("abcd"),   "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zabc"),   "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("yzab"),   "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("xyza"),   "zab"[2 fixLen 1]) <> 4 or
+        pos(striExpr("aabc"),   "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zaba"),   "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("yzaa"),   "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("bcdef"),  "zab"[2 fixLen 1]) <> 0 or
+        pos(striExpr("abcde"),  "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zabcd"),  "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("yzabc"),  "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("xyzab"),  "zab"[2 fixLen 1]) <> 4 or
+        pos(striExpr("wxyza"),  "zab"[2 fixLen 1]) <> 5 or
+        pos(striExpr("ababc"),  "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zabad"),  "zab"[2 fixLen 1]) <> 2 or
+        pos(striExpr("yzaba"),  "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("yzaab"),  "zab"[2 fixLen 1]) <> 3 or
+        pos(striExpr("xyzaa"),  "zab"[2 fixLen 1]) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "zab"[2 fixLen 1]) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "zab"[2 fixLen 1]) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), "zab"[2 fixLen 1]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("b",      striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("a",      striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("bc",     striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("ab",     striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("za",     striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("aa",     striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("bcd",    striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("abc",    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zab",    striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("yza",    striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("aab",    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("aba",    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zaa",    striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("aaa",    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("bcde",   striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("abcd",   striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zabc",   striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("yzab",   striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("xyza",   striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos("aabc",   striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zaba",   striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("yzaa",   striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("bcdef",  striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos("abcde",  striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zabcd",  striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("yzabc",  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("xyzab",  striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos("wxyza",  striExpr("zab")[intExpr(2) fixLen 1]) <> 5 or
+        pos("ababc",  striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zabad",  striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos("yzaba",  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("yzaab",  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos("xyzaa",  striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("zab")[intExpr(2) fixLen 1]) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("zab")[intExpr(2) fixLen 1]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("b"),      striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("a"),      striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("bc"),     striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("ab"),     striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("za"),     striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("aa"),     striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("bcd"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("abc"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zab"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("yza"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("aab"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("aba"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zaa"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("aaa"),    striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("bcde"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("abcd"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zabc"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("yzab"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("xyza"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos(striExpr("aabc"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zaba"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("yzaa"),   striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("bcdef"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 0 or
+        pos(striExpr("abcde"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zabcd"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("yzabc"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos(striExpr("wxyza"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 5 or
+        pos(striExpr("ababc"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zabad"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 2 or
+        pos(striExpr("yzaba"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("yzaab"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 3 or
+        pos(striExpr("xyzaa"),  striExpr("zab")[intExpr(2) fixLen 1]) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("zab")[intExpr(2) fixLen 1]) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("zab")[intExpr(2) fixLen 1]) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("zab")[intExpr(2) fixLen 1]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("b",      striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("a",      striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("bc",     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("ab",     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("za",     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("aa",     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("bcd",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("abc",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zab",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("yza",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("aab",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("aba",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zaa",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("aaa",    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("bcde",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("abcd",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zabc",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("yzab",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("xyza",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos("aabc",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zaba",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("yzaa",   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("bcdef",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos("abcde",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zabcd",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("yzabc",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("xyzab",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos("wxyza",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 5 or
+        pos("ababc",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zabad",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos("yzaba",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("yzaab",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos("xyzaa",  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 26 or
+        pos("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk", striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("b"),      striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("a"),      striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("bc"),     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("ab"),     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("za"),     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("aa"),     striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("bcd"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("abc"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zab"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("yza"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("aab"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("aba"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zaa"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("aaa"),    striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("bcde"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("abcd"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zabc"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("yzab"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("xyza"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos(striExpr("aabc"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zaba"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("yzaa"),   striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("bcdef"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 0 or
+        pos(striExpr("abcde"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zabcd"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("yzabc"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos(striExpr("wxyza"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 5 or
+        pos(striExpr("ababc"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zabad"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 2 or
+        pos(striExpr("yzaba"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("yzaab"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 3 or
+        pos(striExpr("xyzaa"),  striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 26 or
+        pos(striExpr("zyxwvutsrqponmlk" mult 1024 & "jihgfedcbabcdefghijk"), striExpr("zab")[intExpr(2) fixLen intExpr(1)]) <> 16394 then
+      writeln(" ***** pos(STRING, \"zab\"[2 fixLen 1]) does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
     if  pos(         "0"  mult 1500,                   "12"  ) <>    0 or
         pos(         "0"  mult 1500,          striExpr("12") ) <>    0 or
         pos(striExpr("0"  mult 1500),                  "12"  ) <>    0 or
