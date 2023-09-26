@@ -60,7 +60,7 @@ typedef enum {
     DECL_FAILED,
     EXCEPTION_RAISED,
     OBJTWICEDECLARED,
-    OBJUNDECLARED,
+    PREVIOUS_DECLARATION,
     ILLEGAL_ASSOCIATIVITY,
     ILLEGAL_PRIORITY,
     TWO_PARAMETER_SYNTAX,
@@ -114,6 +114,5 @@ void err_integer (errorType err, intType number);
 void err_cchar (errorType err, int character);
 void err_char (errorType err, charType character);
 void err_at_line (errorType err, lineNumType line);
-void err_undeclared (errorType err, fileNumType file_num,
-                     lineNumType line, const_ustriType stri);
+void err_existing_obj (errorType err, const_objectType obj_found);
 void err_message (errorType err, const_striType stri);

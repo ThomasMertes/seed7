@@ -15467,7 +15467,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     32: Declaration of "%s" failed
     33: Exception "%s" raised
     34: "%s" declared twice
-    35: "%s" not declared
+    35: Previous declaration of "%s"
     36: Associativity expected found "%s"
     37: Statement priority "%s" too big
     38: Syntax with two parameters before operator is illegal

@@ -147,7 +147,8 @@ static objectType get_object (progType currentProg, entityType entity,
         entity->data.owner->decl_level == currentProg->stack_current) {
       defined_object = entity->data.owner->obj;
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
-        err_object(OBJTWICEDECLARED, entity->data.owner->obj);
+        err_object(OBJTWICEDECLARED, defined_object);
+        err_existing_obj(PREVIOUS_DECLARATION, defined_object);
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);

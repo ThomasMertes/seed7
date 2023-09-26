@@ -1128,12 +1128,6 @@ void err_object (errorType err, const_objectType obj_found)
         } /* if */
         prot_nl();
         break;
-      case OBJUNDECLARED:
-        prot_cstri("\"");
-        prot_ustri(GET_ENTITY(obj_found)->ident->name);
-        prot_cstri("\" not declared");
-        prot_nl();
-        break;
       case PARAM_DECL_FAILED:
         prot_cstri("Declaration of parameter ");
         prot_list(obj_found->value.listValue->next);
@@ -1748,28 +1742,38 @@ void err_at_line (errorType err, lineNumType line)
 
 
 
-void err_undeclared (errorType err, fileNumType file_num,
-    lineNumType line, const_ustriType stri)
+void err_existing_obj (errorType err, const_objectType obj_found)
 
-  { /* err_undeclared */
+  {
+    fileNumType fileNumber;
+    lineNumType errorLine;
+
+  /* err_existing_obj */
     if (prog != NULL) {
       prog->error_count++;
     } /* if */
-    write_place(err, get_file_name(file_num), line);
+    fileNumber = obj_found->descriptor.property->file_number;
+    errorLine = obj_found->descriptor.property->line;
+    write_place(err, get_file_name(fileNumber), errorLine);
     switch (err) {
-      case OBJUNDECLARED:
-        prot_cstri("\"");
-        prot_ustri(stri);
-        prot_cstri("\" not declared");
+      case PREVIOUS_DECLARATION:
+        prot_cstri("Previous declaration of ");
+        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
+          prot_cstri("\"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\"");
+        } else {
+          write_name_list(GET_ENTITY(obj_found)->fparam_list);
+        } /* if */
         prot_nl();
         break;
       default:
         undef_err();
         break;
     } /* switch */
-    print_error_line();
+    print_line(fileNumber, errorLine);
     display_compilation_info();
-  } /* err_undeclared */
+  } /* err_existing_obj */
 
 
 
