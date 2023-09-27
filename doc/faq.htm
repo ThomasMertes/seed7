@@ -2031,15 +2031,24 @@ necessary to define the syntax before defining the semantic.
 <div><br /><a name="faq_overload_result"><h3>Can I overload two functions which just differ in the result type?
 </h3></a><hr />
 <p>
-No, return type overloading is not supported. Otherwise the type of an
-expression would depend on its context. Assume the function <tt>f</tt>
-is overloaded like this:
+No, return type overloading is not supported. The example below overloads
+the function f with different result types:
 </p><pre class="indent">
-f(x) -> integer
-f(x) -> string
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func">ord</span>(x);
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>:  f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func">str</span>(x);
 </pre><p>
-In this case the compiler cannot determine the type of <tt>f(x)</tt> unless it analyzes
-the context of the call. Thus type checking expressions may become arbitrarily
+This overloading of the result type triggers compile-time errors:
+</p><pre class="indent">
+*** tst508.sd7(4):34: <a name="faq_OBJTWICEDECLARED_example"></a><span class="link">"f (val char: x)" declared twice</span>
+const func string:  f (in char: x) is return str(x);
+----------------------------------------------------^
+*** tst508.sd7(3):35: <a name="faq_PREVIOUS_DECLARATION_example"></a><span class="link">Previous declaration of "f (val char: x)"</span>
+const func integer: f (in char: x) is return ord(x);
+</pre><p>
+Assume return type overloading would be allowed. In this case the expression
+<tt>f(<span class="stri">'a'</span>)</tt> is ambiguous as it is unclear which <tt>f</tt> should be called. With return type
+overloading the compiler cannot determine the type of <tt>f(<span class="stri">'a'</span>)</tt> unless it analyzes
+the context of the call. Thus type checking expressions can become arbitrary
 complex. Remember that the human reader has to do the same. Omitting return
 type overloading simplifies type checking a lot. This way the following holds:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
@@ -2116,7 +2125,7 @@ The syntax of this variable declaration is defined in the file <span class="lib"
 A variable declaration with <tt><span class="op">:=</span></tt> would need a different syntax definition.
 An attempt to define this new syntax leads to an error:
 </p><pre class="indent">
-*** tst356.sd7(3):42: <span class="link">":=" redeclared with infix priority 127 not 20</span>
+*** tst356.sd7(3):42: <a name="faq_FALSE_INFIX_PRIORITY_example"></a><span class="link">":=" redeclared with infix priority 127 not 20</span>
 syntax expr: .var.(). : .(expr). := .(expr)    is  -> 40;
 ---------------------------------------------------------^
 </pre><p>
@@ -2150,7 +2159,7 @@ would be interpreted as
 Since the syntax pattern would expect a <tt><span class="op">:=</span></tt> after <tt>number <span class="op">:=</span> 42;</tt> this
 would lead to the error:
 </p><pre class="indent">
-*** tst356.sd7(8):47: <span class="link">":=" expected found "begin"</span>
+*** tst356.sd7(8):47: <a name="faq_EXPECTED_SYMBOL_example"></a><span class="link">":=" expected found "begin"</span>
   begin
 -------^
 </pre><p>

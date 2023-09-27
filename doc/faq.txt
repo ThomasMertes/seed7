@@ -1501,15 +1501,24 @@ necessary to define the syntax before defining the semantic.
 Can I overload two functions which just differ in the result type?
 ==================================================================
 
-No, return type overloading is not supported. Otherwise the type of an
-expression would depend on its context. Assume the function f
-is overloaded like this:
+No, return type overloading is not supported. The example below overloads
+the function f with different result types:
 
-  f(x) -> integer
-  f(x) -> string
+  const func integer: f (in char: x) is return ord(x);
+  const func string:  f (in char: x) is return str(x);
 
-In this case the compiler cannot determine the type of f(x) unless it analyzes
-the context of the call. Thus type checking expressions may become arbitrarily
+This overloading of the result type triggers compile-time errors:
+
+  *** tst508.sd7(4):34: "f (val char: x)" declared twice
+  const func string:  f (in char: x) is return str(x);
+  ----------------------------------------------------^
+  *** tst508.sd7(3):35: Previous declaration of "f (val char: x)"
+  const func integer: f (in char: x) is return ord(x);
+
+Assume return type overloading would be allowed. In this case the expression
+f('a') is ambiguous as it is unclear which f should be called. With return type
+overloading the compiler cannot determine the type of f('a') unless it analyzes
+the context of the call. Thus type checking expressions can become arbitrary
 complex. Remember that the human reader has to do the same. Omitting return
 type overloading simplifies type checking a lot. This way the following holds:
 
