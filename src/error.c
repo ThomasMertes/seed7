@@ -716,94 +716,110 @@ static void write_name_list (const_listType params)
       } /* while */
       if (CATEGORY_OF_OBJ(params->obj) != SYMBOLOBJECT &&
           CATEGORY_OF_OBJ(param_list_end->obj) == SYMBOLOBJECT &&
-          HAS_ENTITY(param_list_end->obj)) {
-        prot_cstri(" ");
-        prot_ustri(GET_ENTITY(param_list_end->obj)->ident->name);
+          HAS_ENTITY(param_list_end->obj) &&
+          GET_ENTITY(param_list_end->obj)->ident != NULL &&
+          GET_ENTITY(param_list_end->obj)->ident->infix_priority == 0) {
+        prot_cstri8(id_string(GET_ENTITY(param_list_end->obj)->ident));
       } else {
         param_list_end = NULL;
       } /* if */
-    } else {
-      param_list_end = NULL;
-    } /* if */
-    while (params != param_list_end) {
-      if (CATEGORY_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
-        if (in_formal_param_list) {
-          prot_cstri(", ");
+      while (params != param_list_end) {
+        if (CATEGORY_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
+          if (in_formal_param_list) {
+            prot_cstri(", ");
+          } else {
+            prot_cstri(" (");
+            in_formal_param_list = 1;
+          } /* if */
+          formal_param = params->obj->value.objValue;
+          switch (CATEGORY_OF_OBJ(formal_param)) {
+            case VALUEPARAMOBJECT:
+              if (VAR_OBJECT(formal_param)) {
+                prot_cstri("in var ");
+              } else {
+                prot_cstri("val ");
+              } /* if */
+              write_type(formal_param->type_of);
+              if (HAS_ENTITY(formal_param)) {
+                prot_cstri(": ");
+                prot_cstri8(id_string(GET_ENTITY(formal_param)->ident));
+              } else {
+                prot_cstri(" param");
+              } /* if */
+              break;
+            case REFPARAMOBJECT:
+              if (VAR_OBJECT(formal_param)) {
+                prot_cstri("inout ");
+              } else {
+                prot_cstri("ref ");
+              } /* if */
+              write_type(formal_param->type_of);
+              if (HAS_ENTITY(formal_param)) {
+                prot_cstri(": ");
+                prot_cstri8(id_string(GET_ENTITY(formal_param)->ident));
+              } else {
+                prot_cstri(" param");
+              } /* if */
+              break;
+            case TYPEOBJECT:
+              if (HAS_ENTITY(formal_param)) {
+                prot_cstri("attr ");
+                prot_cstri8(id_string(GET_ENTITY(formal_param)->ident));
+              } else {
+                prot_cstri("attr ");
+                write_type(formal_param->value.typeValue);
+              } /* if */
+              break;
+            default:
+              prot_cstri("unknown formal ");
+              trace1(formal_param);
+              break;
+          } /* switch */
         } else {
-          prot_cstri(" (");
-          in_formal_param_list = 1;
+          if (in_formal_param_list) {
+            prot_cstri(") ");
+            in_formal_param_list = 0;
+          } else {
+            prot_cstri(" ");
+          } /* if */
+          switch (CATEGORY_OF_OBJ(params->obj)) {
+            case SYMBOLOBJECT:
+              if (HAS_ENTITY(params->obj)) {
+                prot_cstri8(id_string(GET_ENTITY(params->obj)->ident));
+              } else {
+                prot_cstri("*symbol*");
+              } /* if */
+              break;
+            default:
+              prot_cstri("unknown param ");
+              trace1(params->obj);
+              break;
+          } /* switch */
         } /* if */
-        formal_param = params->obj->value.objValue;
-        switch (CATEGORY_OF_OBJ(formal_param)) {
-          case VALUEPARAMOBJECT:
-            if (VAR_OBJECT(formal_param)) {
-              prot_cstri("in var ");
-            } else {
-              prot_cstri("val ");
-            } /* if */
-            write_type(formal_param->type_of);
-            if (HAS_ENTITY(formal_param)) {
-              prot_cstri(": ");
-              prot_ustri(GET_ENTITY(formal_param)->ident->name);
-            } else {
-              prot_cstri(" param");
-            } /* if */
-            break;
-          case REFPARAMOBJECT:
-            if (VAR_OBJECT(formal_param)) {
-              prot_cstri("inout ");
-            } else {
-              prot_cstri("ref ");
-            } /* if */
-            write_type(formal_param->type_of);
-            if (HAS_ENTITY(formal_param)) {
-              prot_cstri(": ");
-              prot_ustri(GET_ENTITY(formal_param)->ident->name);
-            } else {
-              prot_cstri(" param");
-            } /* if */
-            break;
-          case TYPEOBJECT:
-            if (HAS_ENTITY(formal_param)) {
-              prot_cstri("attr ");
-              prot_ustri(GET_ENTITY(formal_param)->ident->name);
-            } else {
-              prot_cstri("attr ");
-              write_type(formal_param->value.typeValue);
-            } /* if */
-            break;
-          default:
-            prot_cstri("unknown formal ");
-            trace1(formal_param);
-            break;
-        } /* switch */
-      } else {
-        if (in_formal_param_list) {
-          prot_cstri(") ");
-          in_formal_param_list = 0;
-        } else {
-          prot_cstri(" ");
-        } /* if */
-        switch (CATEGORY_OF_OBJ(params->obj)) {
-          case SYMBOLOBJECT:
-            if (HAS_ENTITY(params->obj)) {
-              prot_ustri(GET_ENTITY(params->obj)->ident->name);
-            } else {
-              prot_cstri("*symbol*");
-            } /* if */
-            break;
-          default:
-            prot_cstri("unknown param ");
-            trace1(params->obj);
-            break;
-        } /* switch */
+        params = params->next;
+      } /* while */
+      if (in_formal_param_list) {
+        prot_cstri(")");
       } /* if */
-      params = params->next;
-    } /* while */
-    if (in_formal_param_list) {
-      prot_cstri(") ");
     } /* if */
   } /* write_name_list */
+
+
+
+static void write_object_with_parameters (const_objectType obj_found)
+
+  { /* write_object_with_parameters */
+    if (HAS_PROPERTY(obj_found) &&
+        obj_found->descriptor.property->params != NULL) {
+      prot_params(obj_found->descriptor.property->params);
+    } else if (HAS_ENTITY(obj_found)) {
+      if (GET_ENTITY(obj_found)->fparam_list != NULL) {
+        write_name_list(GET_ENTITY(obj_found)->fparam_list);
+      } else {
+        prot_cstri8(id_string(GET_ENTITY(obj_found)->ident));
+      } /* if */
+    } /* if */
+  } /* write_object_with_parameters */
 
 
 
@@ -1118,14 +1134,9 @@ void err_object (errorType err, const_objectType obj_found)
     } /* if */
     switch (err) {
       case OBJTWICEDECLARED:
-        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          prot_cstri("\"");
-          prot_ustri(GET_ENTITY(obj_found)->ident->name);
-          prot_cstri("\" declared twice");
-        } else {
-          write_name_list(GET_ENTITY(obj_found)->fparam_list);
-          prot_cstri(" declared twice");
-        } /* if */
+        prot_cstri("\"");
+        write_object_with_parameters(obj_found);
+        prot_cstri("\" declared twice");
         prot_nl();
         break;
       case PARAM_DECL_FAILED:
@@ -1135,15 +1146,9 @@ void err_object (errorType err, const_objectType obj_found)
         prot_nl();
         break;
       case DECL_FAILED:
-        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          prot_cstri("Declaration of \"");
-          prot_ustri(GET_ENTITY(obj_found)->ident->name);
-          prot_cstri("\" failed");
-        } else {
-          prot_cstri("Declaration of ");
-          write_name_list(GET_ENTITY(obj_found)->fparam_list);
-          prot_cstri(" failed");
-        } /* if */
+        prot_cstri("Declaration of \"");
+        write_object_with_parameters(obj_found);
+        prot_cstri("\" failed");
         prot_nl();
         break;
       case EXCEPTION_RAISED:
@@ -1334,15 +1339,9 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         prot_nl();
         break;
       case DECL_FAILED:
-        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          prot_cstri("Declaration of \"");
-          prot_ustri(GET_ENTITY(obj_found)->ident->name);
-          prot_cstri("\" failed");
-        } else {
-          prot_cstri("Declaration of ");
-          write_name_list(GET_ENTITY(obj_found)->fparam_list);
-          prot_cstri(" failed");
-        } /* if */
+        prot_cstri("Declaration of \"");
+        write_object_with_parameters(obj_found);
+        prot_cstri("\" failed");
         prot_nl();
         break;
       case CARD_EXPECTED:
@@ -1757,14 +1756,9 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     write_place(err, get_file_name(fileNumber), errorLine);
     switch (err) {
       case PREVIOUS_DECLARATION:
-        prot_cstri("Previous declaration of ");
-        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          prot_cstri("\"");
-          prot_ustri(GET_ENTITY(obj_found)->ident->name);
-          prot_cstri("\"");
-        } else {
-          write_name_list(GET_ENTITY(obj_found)->fparam_list);
-        } /* if */
+        prot_cstri("Previous declaration of \"");
+        write_object_with_parameters(obj_found);
+        prot_cstri("\"");
         prot_nl();
         break;
       default:
