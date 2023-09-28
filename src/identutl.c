@@ -82,14 +82,10 @@ identType new_ident (const_ustriType name, sySizeType length)
 
 static void free_ident (const_progType currentProg, identType old_ident)
 
-  {
-    sySizeType length;
-
-  /* free_ident */
+  { /* free_ident */
     logFunction(printf("free_ident\n"););
     if (old_ident != NULL) {
-      length = strlen((cstriType) old_ident->name);
-      FREE_ID_NAME(old_ident->name, length);
+      FREE_ID_NAME(old_ident->name, old_ident->length);
       free_ident(currentProg, old_ident->next1);
       free_ident(currentProg, old_ident->next2);
       free_entity(currentProg, old_ident->entity);
