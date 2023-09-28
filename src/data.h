@@ -140,6 +140,7 @@ typedef objectType (*actType) (listType);
 
 typedef struct identStruct {
     ustriType name;
+    sySizeType length;
     identType next1;
     identType next2;
     entityType entity;

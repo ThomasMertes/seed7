@@ -63,6 +63,7 @@ identType new_ident (const_ustriType name, sySizeType length)
         COUNT_ID_NAME(length);
         memcpy(created_ident->name, name, (size_t) length);
         created_ident->name[length] = '\0';
+        created_ident->length = length;
         created_ident->next1 = NULL;
         created_ident->next2 = NULL;
         created_ident->prefix_priority = 0;

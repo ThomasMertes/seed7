@@ -152,7 +152,10 @@ const_cstriType id_string (const_identType actual_ident)
       result = " *NULL_NAME_IDENT* ";
     } else if (actual_ident->name[0] == '\0') {
       result = " *NULL_STRING_IDENT* ";
-    } else if (memchr((cstriType) actual_ident->name, '\0', 51) == NULL) {
+    } else if (actual_ident->length > 1000 ||
+               actual_ident->name[actual_ident->length] != '\0' ||
+               memchr((cstriType) actual_ident->name, '\0',
+                      actual_ident->length) != NULL) {
       result = " *GARBAGE_IDENT* ";
     } else {
       result = (const_cstriType) actual_ident->name;
