@@ -197,6 +197,10 @@ const func intRange: getIntLshiftRange (in intRange: numberRange, in intRange: l
     var intRange: valueRange is intRange.value;
   local
     var boolean: valueOutOfRange is FALSE;
+    var integer: lshiftMin is 0;
+    var integer: lshiftMax is 0;
+    var integer: lshiftFound is 0;
+    var integer: lshift is 0;
   begin
     if numberRange.minValue > numberRange.maxValue or
         lshiftRange.minValue > lshiftRange.maxValue then
@@ -213,6 +217,17 @@ const func intRange: getIntLshiftRange (in intRange: numberRange, in intRange: l
             numberRange.minValue >= integer.first >> lshiftRange.maxValue then
           valueRange.minValue := numberRange.minValue << lshiftRange.maxValue;
         else
+          lshiftMin := max(0, lshiftRange.minValue);
+          lshiftMax := min(bitLength(integer.last), lshiftRange.maxValue);
+          lshiftFound := integer.last;
+          for lshift range lshiftMin to lshiftMax until lshiftFound <> integer.last do
+            if integer.first >> lshift >= numberRange.minValue then
+              lshiftFound := lshift;
+            end if;
+          end for;
+          if lshiftFound <> integer.last then
+            valueRange.minValue := integer.first >> lshiftFound << lshiftFound;
+          end if;
           valueRange.mayOverflow := TRUE;
         end if;
       elsif numberRange.minValue > 0 then
@@ -249,6 +264,17 @@ const func intRange: getIntLshiftRange (in intRange: numberRange, in intRange: l
             numberRange.maxValue <= integer.last >> lshiftRange.maxValue then
           valueRange.maxValue := numberRange.maxValue << lshiftRange.maxValue;
         else
+          lshiftMin := max(0, lshiftRange.minValue);
+          lshiftMax := min(bitLength(integer.last), lshiftRange.maxValue);
+          lshiftFound := integer.last;
+          for lshift range lshiftMin to lshiftMax until lshiftFound <> integer.last do
+            if integer.last >> lshift <= numberRange.maxValue then
+              lshiftFound := lshift;
+            end if;
+          end for;
+          if lshiftFound <> integer.last then
+            valueRange.maxValue := integer.last >> lshiftFound << lshiftFound;
+          end if;
           valueRange.mayOverflow := TRUE;
         end if;
       else
