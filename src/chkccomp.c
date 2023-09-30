@@ -545,11 +545,11 @@ static void replaceQuotes (char *text)
     source = text;
     dest = text;
     if (*source == '\"') {
-      nlPos = strchr(&source[2], '\n');
+      nlPos = strchr(&source[1], '\n');
       if (nlPos == NULL) {
         nlPos = &source[strlen(source)];
       } /* if */
-      if (&nlPos[-1] > &source[2] && nlPos[-1] == '\"') {
+      if (nlPos >= &source[2] && nlPos[-1] == '\"') {
         source++;
         inQuotation = 1;
       } else {
@@ -567,7 +567,7 @@ static void replaceQuotes (char *text)
           if (nlPos == NULL) {
             nlPos = &source[strlen(source)];
           } /* if */
-          if (&nlPos[-1] > &source[2] && nlPos[-1] == '\"') {
+          if (nlPos >= &source[3] && nlPos[-1] == '\"') {
             source += 2;
             inQuotation = 1;
           } else {
