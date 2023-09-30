@@ -964,9 +964,9 @@ const func ccConfigType: getBuiltInConfig is func
     conf.DEFAULT_STACK_SIZE            := integer(configValue("DEFAULT_STACK_SIZE"));
     conf.SYSTEM_LIBS                   := noEmptyStrings(split(configValue("SYSTEM_LIBS"), ' '));
     conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(configValue("SYSTEM_BIGINT_LIBS"), '\n'));
-    conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(configValue("SYSTEM_CONSOLE_LIBS"), ' '));
+    conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(configValue("SYSTEM_CONSOLE_LIBS"), '\n'));
     conf.SYSTEM_DATABASE_LIBS          := noEmptyStrings(split(configValue("SYSTEM_DATABASE_LIBS"), '\n'));
-    conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(configValue("SYSTEM_DRAW_LIBS"), ' '));
+    conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(configValue("SYSTEM_DRAW_LIBS"), '\n'));
     conf.SYSTEM_MATH_LIBS              := noEmptyStrings(split(configValue("SYSTEM_MATH_LIBS"), ' '));
     conf.SEED7_LIB                     := configValue("SEED7_LIB");
     conf.DRAW_LIB                      := configValue("DRAW_LIB");
@@ -1117,10 +1117,10 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"LINKER_FLAGS"}:                  conf.LINKER_FLAGS                  := noEmptyStrings(split(value, ' '));
       when {"DEFAULT_STACK_SIZE"}:            conf.DEFAULT_STACK_SIZE            := integer(value);
       when {"SYSTEM_LIBS"}:                   conf.SYSTEM_LIBS                   := noEmptyStrings(split(value, ' '));
-      when {"SYSTEM_BIGINT_LIBS"}:            conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(value, ' '));
-      when {"SYSTEM_CONSOLE_LIBS"}:           conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(value, ' '));
-      when {"SYSTEM_DATABASE_LIBS"}:          conf.SYSTEM_DATABASE_LIBS          := noEmptyStrings(split(value, ' '));
-      when {"SYSTEM_DRAW_LIBS"}:              conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(value, ' '));
+      when {"SYSTEM_BIGINT_LIBS"}:            conf.SYSTEM_BIGINT_LIBS            := noEmptyStrings(split(value, '\n'));
+      when {"SYSTEM_CONSOLE_LIBS"}:           conf.SYSTEM_CONSOLE_LIBS           := noEmptyStrings(split(value, '\n'));
+      when {"SYSTEM_DATABASE_LIBS"}:          conf.SYSTEM_DATABASE_LIBS          := noEmptyStrings(split(value, '\n'));
+      when {"SYSTEM_DRAW_LIBS"}:              conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(value, '\n'));
       when {"SYSTEM_MATH_LIBS"}:              conf.SYSTEM_MATH_LIBS              := noEmptyStrings(split(value, ' '));
       when {"SEED7_LIB"}:                     conf.SEED7_LIB                     := value;
       when {"DRAW_LIB"}:                      conf.DRAW_LIB                      := value;

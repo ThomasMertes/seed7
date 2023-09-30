@@ -533,6 +533,76 @@ static void appendFile (const char *sourceName, const char *destName)
 
 
 
+static void replaceQuotes (char *text)
+
+  {
+    char *source;
+    char *dest;
+    char *nlPos;
+    int inQuotation = 0;
+
+  /* replaceQuotes */
+    source = text;
+    dest = text;
+    if (*source == '\"') {
+      nlPos = strchr(&source[2], '\n');
+      if (nlPos == NULL) {
+        nlPos = &source[strlen(source)];
+      } /* if */
+      if (&nlPos[-1] > &source[2] && nlPos[-1] == '\"') {
+        source++;
+        inQuotation = 1;
+      } else {
+        *dest = '\"';
+        source++;
+      } /* if */
+    } /* if */
+    while (*source != '\0') {
+      if (*source == '\n') {
+        *dest = '\n';
+        dest++;
+        if (source[1] == '\"') {
+          nlPos = strchr(&source[2], '\n');
+          if (nlPos == NULL) {
+            nlPos = &source[strlen(source)];
+          } /* if */
+          if (&nlPos[-1] > &source[2] && nlPos[-1] == '\"') {
+            source += 2;
+            inQuotation = 1;
+          } else {
+            *dest = '\"';
+            dest++;
+            source += 2;
+          } /* if */
+        } else {
+          source++;
+        } /* if */
+      } else if (*source == '\"') {
+        if (source[1] == '\n' || source[1] == '\0') {
+          if (inQuotation) {
+            source++;
+            inQuotation = 0;
+          } else {
+            *dest = '\"';
+            dest++;
+            source++;
+          } /* if */
+        } else {
+          *dest = '\"';
+          dest++;
+          source++;
+        } /* if */
+      } else {
+        *dest = *source;
+        dest++;
+        source++;
+      } /* if */
+    } /* while */
+    *dest = '\0';
+  } /* replaceQuotes */
+
+
+
 static void replaceNLBySpace (char *text)
 
   { /* replaceNLBySpace */
@@ -543,6 +613,24 @@ static void replaceNLBySpace (char *text)
       text++;
     } /* while */
   } /* replaceNLBySpace */
+
+
+
+static void escapeString (FILE *versionFile, const char *text)
+
+  { /* escapeString */
+    while (*text != '\0') {
+      if (*text == '\"' || *text == '\\') {
+        putc('\\', versionFile);
+        putc(*text, versionFile);
+      } else if (*text == '\n') {
+        fputs("\\n", versionFile);
+      } else {
+        putc(*text, versionFile);
+      } /* if */
+      text++;
+    } /* while */
+  } /* escapeString */
 
 
 
@@ -6163,6 +6251,36 @@ static void appendToFile (const char *fileName, const char *data)
 
 
 
+static void appendToMakeMacros (const char *macroName, const char *macroValue)
+
+  {
+    char buffer[BUFFER_SIZE];
+
+  /* appendToMakeMacros */
+    sprintf(buffer, "%s = %s", macroName, macroValue);
+    replaceNLBySpace(buffer);
+    strcat(buffer, "\n");
+    appendToFile("macros", buffer);
+  } /* appendToMakeMacros */
+
+
+
+static void defineMacro (FILE *versionFile, const char *macroName,
+    const char *macroValue)
+
+  {
+    char buffer[BUFFER_SIZE];
+
+  /* defineMacro */
+    fprintf(versionFile, "#define %s \"", macroName);
+    strcpy(buffer, macroValue);
+    replaceQuotes(buffer);
+    escapeString(versionFile, buffer);
+    fprintf(versionFile, "\"\n");
+  } /* defineMacro */
+
+
+
 static void determineOptionForLinkTimeOptimization (FILE *versionFile)
 
   {
@@ -6346,24 +6464,6 @@ static void determinePartialLinking (FILE *versionFile)
 
 
 
-static void escapeString (FILE *versionFile, const char *text)
-
-  { /* escapeString */
-    while (*text != '\0') {
-      if (*text == '\"' || *text == '\\') {
-        putc('\\', versionFile);
-        putc(*text, versionFile);
-      } else if (*text == '\n') {
-        fputs("\\n", versionFile);
-      } else {
-        putc(*text, versionFile);
-      } /* if */
-      text++;
-    } /* while */
-  } /* escapeString */
-
-
-
 static void appendOption (char *options, const char *optionToAppend)
 
   {
@@ -6471,7 +6571,11 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
           /* printf("filePath: %s\n", filePath); */
           if (fileIsRegular(filePath)) {
             /* printf("fileIsRegular(%s)\n", filePath); */
-            sprintf(linkParam, "\"%s\"", filePath);
+            if (strchr(filePath, ' ') != NULL) {
+              sprintf(linkParam, "\"%s\"", filePath);
+            } else {
+              strcpy(linkParam, filePath);
+            } /* if */
             linkOption[0] = '\0';
             appendOption(linkOption, libraryOption);
             appendOption(linkOption, linkParam);
@@ -6491,18 +6595,21 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
               fprintf(logFile, "\r%s: Cannot link %s\n", scopeName, filePath);
             } /* if */
           } else {
-            sprintf(linkParam, "-L%s", dirPath);
+            if (strchr(dirPath, ' ') != NULL) {
+              sprintf(linkParam, "\"-L%s\"", dirPath);
+            } else {
+              sprintf(linkParam, "-L%s", dirPath);
+            } /* if */
             linkOption[0] = '\0';
             appendOption(linkOption, libraryOption);
             appendOption(linkOption, linkParam);
             appendOption(linkOption, libNameList[nameIndex]);
             /* fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
-            fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
+               fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
             if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
               if (doTest() == 1) {
                 fprintf(logFile, "\r%s: %s found in: %s\n",
                         scopeName, libNameList[nameIndex], dirPath);
-                sprintf(linkParam, "-L%s", dirPath);
                 appendOption(system_libs, linkParam);
                 appendOption(system_libs, libNameList[nameIndex]);
                 libFound = 1;
@@ -6855,19 +6962,22 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
 
 
 
-static void determineX11Defines (FILE *versionFile, char *include_options)
+static void determineX11Defines (FILE *versionFile, char *include_options,
+    char *system_draw_libs)
 
   {
     const char *inclDirList[] = {"/opt/X11/include"};
 #ifdef X11_LIBRARY_PATH
     const char *libDirList[] = { X11_LIBRARY_PATH };
 #endif
+    const char *usrLib[] = {"/usr/lib"};
+    const char *usrLib64[] = {"/usr/lib64"};
 #ifdef X11_LIBS
     const char *libNameList[] = { X11_LIBS };
 #else
     const char *libNameList[] = {"-lX11"};
 #endif
-    const char *xRenderLibNameList[] = {"-lXrender"};
+    const char *xRenderLibNameList[] = {"-lXrender", "libXrender.so", "libXrender.so.1"};
 #ifdef X11_DLL
     const char *dllNameList[] = { X11_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
@@ -6888,8 +6998,6 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     char testProgram[BUFFER_SIZE];
     unsigned int nameIndex;
     int searchForLib = 1;
-    char makeDefinition[BUFFER_SIZE];
-    char system_draw_libs[BUFFER_SIZE];
 
   /* determineX11Defines */
 #ifndef NO_X11_SYSTEM_INCLUDES
@@ -6936,17 +7044,19 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
                          "XRenderPictureAttributes pictureAttributes;\n"
                          "return 0;}\n", x11IncludeCommand);
     if (compileAndLinkWithOptionsOk(testProgram, "", "")) {
+      x11XrenderInclude="X11/extensions/Xrender.h";
+      fprintf(versionFile, "#define X11_XRENDER_INCLUDE \"%s\"\n", x11XrenderInclude);
+      fprintf(logFile, "\rX11: %s found in system include directory.\n", x11XrenderInclude);
       x11XrenderIncludeCommand = "#include <X11/extensions/Xrender.h>\n";
 #ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
     } else {
       x11XrenderInclude = "x11_rend.h";
       fprintf(versionFile, "#define X11_XRENDER_INCLUDE \"%s\"\n", x11XrenderInclude);
+      fprintf(logFile, "\rX11: %s found in Seed7 include directory.\n", x11XrenderInclude);
       x11XrenderIncludeCommand = "#include \"x11_rend.h\"\n";
 #endif
     } /* if */
     if (x11Include == NULL) {
-      fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"\"\n");
-      appendToFile("macros", "SYSTEM_DRAW_LIBS =\n");
       fprintf(versionFile, "#define FORWARD_X11_CALLS 0\n");
     } else {
       sprintf(testProgram, "#include<stdio.h>\n%s"
@@ -6973,7 +7083,6 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
                            "return 0;}\n", x11IncludeCommand);
       /* fprintf(logFile, "%s\n", testProgram);
          fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
-      system_draw_libs[0] = '\0';
 #ifdef X11_LIBRARY_PATH
       if (findStaticLib("X11", testProgram, includeOption, "", "",
                         libDirList, sizeof(libDirList) / sizeof(char *),
@@ -6997,17 +7106,6 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
           fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
           searchForLib = 0;
         } /* if */
-        if (!searchForLib) {
-          sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
-          fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"");
-          /* The SYSTEM_DRAW_LIBS are space separated: */
-          replaceNLBySpace(system_draw_libs);
-          escapeString(versionFile, system_draw_libs);
-          fprintf(versionFile, "\"\n");
-        } /* if */
       } /* if */
 #endif
       if (searchForLib) {
@@ -7030,17 +7128,22 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
                                system_draw_libs)) {
             fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
             searchForLib = 0;
-          } /* if */
-          if (!searchForLib) {
-            sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
-            replaceNLBySpace(makeDefinition);
-            strcat(makeDefinition, "\n");
-            appendToFile("macros", makeDefinition);
-            fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"");
-            /* The SYSTEM_DRAW_LIBS are space separated: */
-            replaceNLBySpace(system_draw_libs);
-            escapeString(versionFile, system_draw_libs);
-            fprintf(versionFile, "\"\n");
+          } else if (getSizeof("char *") == 4) {
+            if (findStaticLib("Xrender", testProgram, includeOption, system_draw_libs, "",
+                              usrLib, sizeof(usrLib) / sizeof(char *),
+                              xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
+                              system_draw_libs)) {
+              fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+              searchForLib = 0;
+            } /* if */
+          } else {
+            if (findStaticLib("Xrender", testProgram, includeOption, system_draw_libs, "",
+                              usrLib64, sizeof(usrLib64) / sizeof(char *),
+                              xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
+                              system_draw_libs)) {
+              fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+              searchForLib = 0;
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
@@ -7051,8 +7154,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
       if (searchForLib) {
         fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
-        fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"%s\"\n", LINKER_OPT_DYN_LINK_LIBS);
-        appendToFile("macros", "SYSTEM_DRAW_LIBS =" LINKER_OPT_DYN_LINK_LIBS "\n");
+        system_draw_libs[0] = '\0';
+        appendOption(system_draw_libs, LINKER_OPT_DYN_LINK_LIBS);
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define X11_DLL");
         for (nameIndex = 0;
@@ -7076,7 +7179,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
 
 
 
-static void determineConsoleDefines (FILE *versionFile, char *include_options)
+static void determineConsoleDefines (FILE *versionFile, char *include_options,
+    char *system_console_libs)
 
   {
 #ifdef CONSOLE_LIBS
@@ -7098,8 +7202,6 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
     unsigned int nameIndex;
     int searchForLib = 1;
     char testProgram[BUFFER_SIZE];
-    char makeDefinition[BUFFER_SIZE];
-    char system_console_libs[BUFFER_SIZE];
 
   /* determineConsoleDefines */
     if (compileAndLinkOk("#include \"stdio.h\"\n"
@@ -7154,8 +7256,6 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
       fprintf(versionFile, "#define USE_KBD_INF\n");
     } /* if */
     if (consoleInclude == NULL) {
-      fprintf(versionFile, "#define SYSTEM_CONSOLE_LIBS \"\"\n");
-      appendToFile("macros", "SYSTEM_CONSOLE_LIBS =\n");
       fprintf(versionFile, "#define FORWARD_TERM_CALLS 0\n");
     } else {
       sprintf(testProgram, "#include<stdio.h>\n#include \"%s\"\n"
@@ -7167,20 +7267,10 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
                            "return 0;}\n", consoleInclude);
       /* fprintf(logFile, "%s\n", testProgram);
          fprintf(logFile, "consoleInclude: \"%s\"\n", consoleInclude); */
-      system_console_libs[0] = '\0';
       if (useSystemHeader) {
         if (findLinkerOption("Console", testProgram, "", "",
                              libNameList, sizeof(libNameList) / sizeof(char *),
                              system_console_libs)) {
-          sprintf(makeDefinition, "SYSTEM_CONSOLE_LIBS = %s", system_console_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
-          fprintf(versionFile, "#define SYSTEM_CONSOLE_LIBS \"");
-          /* The SYSTEM_CONSOLE_LIBS are space separated: */
-          replaceNLBySpace(system_console_libs);
-          escapeString(versionFile, system_console_libs);
-          fprintf(versionFile, "\"\n");
           searchForLib = 0;
         } /* if */
 #ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
@@ -7202,8 +7292,8 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
       fprintf(versionFile, "#define FORWARD_TERM_CALLS %d\n",
               searchForLib && !useSystemHeader);
       if (searchForLib && !useSystemHeader) {
-        fprintf(versionFile, "#define SYSTEM_CONSOLE_LIBS \"%s\"\n", LINKER_OPT_DYN_LINK_LIBS);
-        appendToFile("macros", "SYSTEM_CONSOLE_LIBS =" LINKER_OPT_DYN_LINK_LIBS "\n");
+        system_console_libs[0] = '\0';
+        appendOption(system_console_libs, LINKER_OPT_DYN_LINK_LIBS);
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define CONSOLE_DLL");
         for (nameIndex = 0;
@@ -8476,10 +8566,7 @@ static void determineDb2Defines (FILE *versionFile,
                           libDirList, sizeof(libDirList) / sizeof(char *),
                           libNameList, sizeof(libNameList) / sizeof(char *),
                           db2_libs)) {
-          sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
+          appendToMakeMacros("DB2_LIBS", db2_libs);
           searchForLib = 0;
         } /* if */
       } /* if */
@@ -8487,10 +8574,7 @@ static void determineDb2Defines (FILE *versionFile,
         if (findLinkerOption("DB2", testProgram, includeOption, DB2_LIBRARY_PATH,
                              libNameList, sizeof(libNameList) / sizeof(char *),
                              db2_libs)) {
-          sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
+          appendToMakeMacros("DB2_LIBS", db2_libs);
           searchForLib = 0;
         } /* if */
       } /* if */
@@ -8697,10 +8781,7 @@ static void determineInformixDefines (FILE *versionFile,
                           informix_libs)) {
           /* appendOption(informix_libs, "-lcrypt");
              appendOption(informix_libs, "-lm"); */
-          sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
+          appendToMakeMacros("INFORMIX_LIBS", informix_libs);
           searchForLib = 0;
         } /* if */
       } /* if */
@@ -8708,10 +8789,7 @@ static void determineInformixDefines (FILE *versionFile,
         if (findLinkerOption("Informix", testProgram, includeOption, INFORMIX_LIBRARY_PATH,
                              libNameList, sizeof(libNameList) / sizeof(char *),
                              informix_libs)) {
-          sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
-          replaceNLBySpace(makeDefinition);
-          strcat(makeDefinition, "\n");
-          appendToFile("macros", makeDefinition);
+          appendToMakeMacros("INFORMIX_LIBS", informix_libs);
           searchForLib = 0;
         } /* if */
       } /* if */
@@ -8867,10 +8945,7 @@ static void determineSqlServerDefines (FILE *versionFile,
       if (findLinkerOption("SQL Server", testProgram, includeOption, SQL_SERVER_LIBRARY_PATH,
                            libNameList, sizeof(libNameList) / sizeof(char *),
                            sql_server_libs)) {
-        sprintf(makeDefinition, "SQL_SERVER_LIBS = %s", sql_server_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
+        appendToMakeMacros("SQL_SERVER_LIBS", sql_server_libs);
         searchForLib = 0;
       } /* if */
     } /* if */
@@ -9036,8 +9111,10 @@ static void determineIncludesAndLibs (FILE *versionFile)
 
   {
     char include_options[BUFFER_SIZE];
-    char system_database_libs[BUFFER_SIZE];
     char system_bigint_libs[BUFFER_SIZE];
+    char system_console_libs[BUFFER_SIZE];
+    char system_database_libs[BUFFER_SIZE];
+    char system_draw_libs[BUFFER_SIZE];
     char rpath_buffer[BUFFER_SIZE];
     char *rpath = NULL;
     char rpathOption[BUFFER_SIZE];
@@ -9052,15 +9129,17 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fprintf(logFile, "\rUsing Windows libraries\n");
 #endif
     include_options[0] = '\0';
-    system_database_libs[0] = '\0';
     system_bigint_libs[0] = '\0';
+    system_console_libs[0] = '\0';
+    system_database_libs[0] = '\0';
+    system_draw_libs[0] = '\0';
     if (linkerOptionAllowed("-Wl,--disable-new-dtags")) {
       rpath_buffer[0] = '\0';
       rpath = rpath_buffer;
     } /* if */
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
-    determineX11Defines(versionFile, include_options);
-    determineConsoleDefines(versionFile, include_options);
+    determineX11Defines(versionFile, include_options, system_draw_libs);
+    determineConsoleDefines(versionFile, include_options, system_console_libs);
 #elif defined OS_STRI_WCHAR
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
     fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
@@ -9081,27 +9160,22 @@ static void determineIncludesAndLibs (FILE *versionFile)
       sprintf(rpathOption, "-Wl,--disable-new-dtags,-rpath=%s", rpath);
       appendOption(system_database_libs, rpathOption);
     } /* if */
-    sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
-    replaceNLBySpace(buffer);
-    strcat(buffer, "\n");
-    appendToFile("macros", buffer);
-    sprintf(buffer, "SYSTEM_DATABASE_LIBS = %s", system_database_libs);
-    replaceNLBySpace(buffer);
-    strcat(buffer, "\n");
-    appendToFile("macros", buffer);
-    sprintf(buffer, "SYSTEM_BIGINT_LIBS = %s", system_bigint_libs);
-    replaceNLBySpace(buffer);
-    strcat(buffer, "\n");
-    appendToFile("macros", buffer);
+    appendToMakeMacros("INCLUDE_OPTIONS", include_options);
     fprintf(versionFile, "#define INCLUDE_OPTIONS \"");
     escapeString(versionFile, include_options);
     fprintf(versionFile, "\"\n");
-    fprintf(versionFile, "#define SYSTEM_DATABASE_LIBS \"");
-    escapeString(versionFile, system_database_libs);
-    fprintf(versionFile, "\"\n");
-    fprintf(versionFile, "#define SYSTEM_BIGINT_LIBS \"");
-    escapeString(versionFile, system_bigint_libs);
-    fprintf(versionFile, "\"\n");
+    appendToMakeMacros("SYSTEM_BIGINT_LIBS", system_bigint_libs);
+    defineMacro(versionFile, "SYSTEM_BIGINT_LIBS", system_bigint_libs);
+#if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
+    appendToMakeMacros("SYSTEM_CONSOLE_LIBS", system_console_libs);
+    defineMacro(versionFile, "SYSTEM_CONSOLE_LIBS", system_console_libs);
+#endif
+    appendToMakeMacros("SYSTEM_DATABASE_LIBS", system_database_libs);
+    defineMacro(versionFile, "SYSTEM_DATABASE_LIBS", system_database_libs);
+#if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
+    appendToMakeMacros("SYSTEM_DRAW_LIBS", system_draw_libs);
+    defineMacro(versionFile, "SYSTEM_DRAW_LIBS", system_draw_libs);
+#endif
   } /* determineIncludesAndLibs */
 
 

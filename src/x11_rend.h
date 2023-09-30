@@ -74,6 +74,9 @@ extern Picture XRenderCreatePicture (Display *display,
 extern XRenderPictFormat *XRenderFindVisualFormat (Display *display,
                                                    const Visual *visual);
 extern void XRenderFreePicture (Display *display, Picture picture);
+extern Bool XRenderQueryExtension (Display *dpy,
+                                   int *event_basep,
+                                   int *error_basep);
 extern void XRenderSetPictureTransform (Display *display,
                                         Picture picture,
                                         XTransform *transform);

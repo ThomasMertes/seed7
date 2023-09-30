@@ -139,10 +139,10 @@ const proc: main is func
     writeln("LINKER_FLAGS:                  " <& join(noEmptyArray(ccConf.LINKER_FLAGS), " "));
     writeln("DEFAULT_STACK_SIZE:            " <& ccConf.DEFAULT_STACK_SIZE);
     writeln("SYSTEM_LIBS:                   " <& join(noEmptyArray(ccConf.SYSTEM_LIBS),          " "));
-    writeln("SYSTEM_BIGINT_LIBS:            " <& join(noEmptyArray(ccConf.SYSTEM_BIGINT_LIBS),   " "));
-    writeln("SYSTEM_CONSOLE_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS),  " "));
-    writeln("SYSTEM_DATABASE_LIBS:          " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS), " "));
-    writeln("SYSTEM_DRAW_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS),     " "));
+    writeln("SYSTEM_BIGINT_LIBS:            " <& join(noEmptyArray(ccConf.SYSTEM_BIGINT_LIBS),   "\\n"));
+    writeln("SYSTEM_CONSOLE_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS),  "\\n"));
+    writeln("SYSTEM_DATABASE_LIBS:          " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS), "\\n"));
+    writeln("SYSTEM_DRAW_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS),     "\\n"));
     writeln("SYSTEM_MATH_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_MATH_LIBS),     " "));
     writeln("SEED7_LIB:                     " <& ccConf.SEED7_LIB);
     writeln("DRAW_LIB:                      " <& ccConf.DRAW_LIB);

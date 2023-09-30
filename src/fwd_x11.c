@@ -1842,7 +1842,7 @@ extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
                        src_width, src_height, dest_x, dest_y););
     funcResult = ptr_XWarpPointer(display, src_w, dest_w, src_x, src_y,
                                   src_width, src_height, dest_x, dest_y);
-        logFunction(printf("XWarpPointer --> %d\n", funcResult););
+    logFunction(printf("XWarpPointer --> %d\n", funcResult););
     return funcResult;
   } /* XWarpPointer */
 
