@@ -554,6 +554,7 @@ static void replaceQuotes (char *text)
         inQuotation = 1;
       } else {
         *dest = '\"';
+        dest++;
         source++;
       } /* if */
     } /* if */
