@@ -1071,14 +1071,15 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_DIV"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
+                argument1Range := getIntRange(params[1]);
                 if number > 0 then
-                  valueRange.minValue := integer.first div number;
-                  valueRange.maxValue := integer.last div number;
+                  valueRange.minValue := argument1Range.minValue div number;
+                  valueRange.maxValue := argument1Range.maxValue div number;
                 elsif number = -1 then
-                  valueRange.minValue := -integer.last;
+                  valueRange := getIntNegateRange(argument1Range);
                 elsif number < -1 then
-                  valueRange.minValue := integer.last div number;
-                  valueRange.maxValue := integer.first div number;
+                  valueRange.minValue := argument1Range.maxValue div number;
+                  valueRange.maxValue := argument1Range.minValue div number;
                 end if;
               elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
@@ -1132,14 +1133,15 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_MDIV"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
+                argument1Range := getIntRange(params[1]);
                 if number > 0 then
-                  valueRange.minValue := integer.first mdiv number;
-                  valueRange.maxValue := integer.last mdiv number;
+                  valueRange.minValue := argument1Range.minValue mdiv number;
+                  valueRange.maxValue := argument1Range.maxValue mdiv number;
                 elsif number = -1 then
-                  valueRange.minValue := -integer.last;
+                  valueRange := getIntNegateRange(argument1Range);
                 elsif number < -1 then
-                  valueRange.minValue := integer.last mdiv number;
-                  valueRange.maxValue := integer.first mdiv number;
+                  valueRange.minValue := argument1Range.maxValue mdiv number;
+                  valueRange.maxValue := argument1Range.minValue mdiv number;
                 end if;
               elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
