@@ -4812,6 +4812,22 @@ const func boolean: check_reduced_overflow_checking_for_lshift is func
       writeln(" ***** Reduced overflow check for lshift failed: Range shifted with constant lshift amount.");
       okay := FALSE;
     end if;
+
+    if  not raisesOverflowError(((intExpr(1048575) mod 1048576) << (intExpr(43) mod 44))    +  8796093022208) or
+        not raisesOverflowError(((intExpr(2097151) mod 2097152) << (intExpr(42) mod 43))    +  4398046511104) or
+        not raisesOverflowError(((intExpr(4194303) mod 4194304) << (intExpr(41) mod 42))    +  2199023255552) or
+        not raisesOverflowError(((intExpr(8388607) mod 8388608) << (intExpr(40) mod 41))    +  1099511627776) or
+        not raisesOverflowError(((intExpr(1048575) mod 1048576) << (40 + intExpr(3) mod 4)) +  8796093022208) or
+        not raisesOverflowError(((intExpr(2097151) mod 2097152) << (40 + intExpr(2) mod 4)) +  4398046511104) or
+        not raisesOverflowError(((intExpr(4194303) mod 4194304) << (40 + intExpr(1) mod 4)) +  2199023255552) or
+        not raisesOverflowError(((intExpr(8388607) mod 8388608) << (40 + intExpr(0) mod 4)) +  1099511627776) or
+        not raisesOverflowError(((intExpr(1048574) mod 1048576) << (40 + intExpr(3) mod 4)) + 17592186044416) or
+        not raisesOverflowError(((intExpr(2097150) mod 2097152) << (40 + intExpr(2) mod 4)) +  8796093022208) or
+        not raisesOverflowError(((intExpr(4194302) mod 4194304) << (40 + intExpr(1) mod 4)) +  4398046511104) or
+        not raisesOverflowError(((intExpr(8388606) mod 8388608) << (40 + intExpr(0) mod 4)) +  2199023255552) then
+      writeln(" ***** Reduced overflow check for lshift and add failed.");
+      okay := FALSE;
+    end if;
   end func;
 
 
