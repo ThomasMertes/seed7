@@ -775,6 +775,190 @@ const func intRange: getSetRandRange (in reference: aSet) is func
   end func;
 
 
+const func intRange: getBlnTernaryRange (in reference: condition,
+    in reference: thenParam, in reference: elseParam,
+    inout reference: limitedVariable) is forward;
+
+
+const func intRange: lessEqualLimit (in integer: limit, in reference: conditionParam,
+    in reference: thenOrElseParam, inout reference: limitedVariable) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: subExprValueRange is intRange.value;
+    var ref_list: params is ref_list.EMPTY;
+    var reference: subExprLimitedVariable is NIL;
+  begin
+    if conditionParam = thenOrElseParam then
+      # a > 255 ? 255 : a
+      subExprValueRange := getIntRange(thenOrElseParam);
+      valueRange.minValue := min(subExprValueRange.minValue, limit);
+      valueRange.maxValue := min(subExprValueRange.maxValue, limit);
+      limitedVariable := conditionParam;
+    elsif category(thenOrElseParam) = MATCHOBJECT then
+      params := getValue(thenOrElseParam, ref_list);
+      if category(params[1]) = ACTOBJECT and
+          str(getValue(params[1], ACTION)) = "BLN_TERNARY" then
+        subExprValueRange :=
+            getBlnTernaryRange(params[2], params[4], params[6], subExprLimitedVariable);
+        if subExprLimitedVariable = conditionParam then
+          # a > 255 ? 255 : (a < 0 ? 0 : a)
+          valueRange.minValue := min(subExprValueRange.minValue, limit);
+          valueRange.maxValue := min(subExprValueRange.maxValue, limit);
+          limitedVariable := conditionParam;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: greaterEqualLimit (in integer: limit, in reference: conditionParam,
+    in reference: thenOrElseParam, inout reference: limitedVariable) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: subExprValueRange is intRange.value;
+    var ref_list: params is ref_list.EMPTY;
+    var reference: subExprLimitedVariable is NIL;
+  begin
+    if conditionParam = thenOrElseParam then
+      # a < 0 ? 0 : a
+      subExprValueRange := getIntRange(thenOrElseParam);
+      valueRange.minValue := max(subExprValueRange.minValue, limit);
+      valueRange.maxValue := max(subExprValueRange.maxValue, limit);
+      limitedVariable := conditionParam;
+    elsif category(thenOrElseParam) = MATCHOBJECT then
+      params := getValue(thenOrElseParam, ref_list);
+      if category(params[1]) = ACTOBJECT and
+          str(getValue(params[1], ACTION)) = "BLN_TERNARY" then
+        subExprValueRange :=
+            getBlnTernaryRange(params[2], params[4], params[6], subExprLimitedVariable);
+        if subExprLimitedVariable = conditionParam then
+          # a < 0 ? 0 : (a > 255 ? 255 : a)
+          valueRange.minValue := max(subExprValueRange.minValue, limit);
+          valueRange.maxValue := max(subExprValueRange.maxValue, limit);
+          limitedVariable := conditionParam;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: getBlnTernaryRange (in reference: condition,
+    in reference: thenParam, in reference: elseParam,
+    inout reference: limitedVariable) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var reference: evaluatedParam is NIL;
+    var integer: limit is 0;
+    var reference: evaluatedThenParam is NIL;
+    var reference: evaluatedElseParam is NIL;
+    var integer: number is 0;
+  begin
+    if isActionExpression(condition, "INT_GT") or
+        isActionExpression(condition, "INT_GE") then
+      if getConstant(getActionParameter(condition, 3), INTOBJECT, evaluatedParam) then
+        limit := getValue(evaluatedParam, integer);
+        if getConstant(thenParam, INTOBJECT, evaluatedThenParam) then
+          number := getValue(evaluatedThenParam, integer);
+          if limit = number then
+            valueRange := lessEqualLimit(limit, getActionParameter(condition, 1),
+                                         elseParam, limitedVariable);
+          end if;
+        elsif getConstant(elseParam, INTOBJECT, evaluatedElseParam) then
+          number := getValue(evaluatedElseParam, integer);
+          if limit = number then
+            valueRange := greaterEqualLimit(limit, getActionParameter(condition, 1),
+                                            thenParam, limitedVariable);
+          end if;
+        end if;
+      elsif getConstant(getActionParameter(condition, 1), INTOBJECT, evaluatedParam) then
+        limit := getValue(evaluatedParam, integer);
+        if getConstant(thenParam, INTOBJECT, evaluatedThenParam) then
+          number := getValue(evaluatedThenParam, integer);
+          if limit = number then
+            valueRange := greaterEqualLimit(limit, getActionParameter(condition, 3),
+                                            elseParam, limitedVariable);
+          end if;
+        elsif getConstant(elseParam, INTOBJECT, evaluatedElseParam) then
+          number := getValue(evaluatedElseParam, integer);
+          if limit = number then
+            valueRange := lessEqualLimit(limit, getActionParameter(condition, 3),
+                                         thenParam, limitedVariable);
+          end if;
+        end if;
+      end if;
+    elsif isActionExpression(condition, "INT_LT") or
+        isActionExpression(condition, "INT_LE") then
+      if getConstant(getActionParameter(condition, 3), INTOBJECT, evaluatedParam) then
+        limit := getValue(evaluatedParam, integer);
+        if getConstant(thenParam, INTOBJECT, evaluatedThenParam) then
+          number := getValue(evaluatedThenParam, integer);
+          if limit = number then
+            valueRange := greaterEqualLimit(limit, getActionParameter(condition, 1),
+                                            elseParam, limitedVariable);
+          end if;
+        elsif getConstant(elseParam, INTOBJECT, evaluatedElseParam) then
+          number := getValue(evaluatedElseParam, integer);
+          if limit = number then
+            valueRange := lessEqualLimit(limit, getActionParameter(condition, 1),
+                                         thenParam, limitedVariable);
+          end if;
+        end if;
+      elsif getConstant(getActionParameter(condition, 1), INTOBJECT, evaluatedParam) then
+        limit := getValue(evaluatedParam, integer);
+        if getConstant(thenParam, INTOBJECT, evaluatedThenParam) then
+          number := getValue(evaluatedThenParam, integer);
+          if limit = number then
+            valueRange := lessEqualLimit(limit, getActionParameter(condition, 3),
+                                         elseParam, limitedVariable);
+          end if;
+        elsif getConstant(elseParam, INTOBJECT, evaluatedElseParam) then
+          number := getValue(evaluatedElseParam, integer);
+          if limit = number then
+            valueRange := greaterEqualLimit(limit, getActionParameter(condition, 3),
+                                            thenParam, limitedVariable);
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: getBlnTernaryRange (in reference: condition,
+    in reference: thenParam, in reference: elseParam) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var reference: evaluatedParam is NIL;
+    var reference: limitedVariable is NIL;
+    var intRange: thenValueRange is intRange.value;
+    var intRange: elseValueRange is intRange.value;
+    var boolean: done is FALSE;
+  begin
+    if getConstant(condition, ENUMLITERALOBJECT, evaluatedParam) then
+      if getValue(evaluatedParam, boolean) then
+        valueRange := getIntRange(thenParam);
+      else
+        valueRange := getIntRange(elseParam);
+      end if;
+      done := TRUE;
+    else
+      valueRange := getBlnTernaryRange(condition, thenParam, elseParam, limitedVariable);
+      done := limitedVariable <> NIL;
+    end if;
+    if not done then
+      thenValueRange := getIntRange(thenParam);
+      elseValueRange := getIntRange(elseParam);
+      valueRange.minValue := min(thenValueRange.minValue,
+                                 elseValueRange.minValue);
+      valueRange.maxValue := max(thenValueRange.maxValue,
+                                 elseValueRange.maxValue);
+    end if;
+  end func;
+
+
 const func intRange: getBigOrdOfBigModRange (in bigInteger: divisor) is func
   result
     var intRange: valueRange is intRange.value;
@@ -848,20 +1032,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange.minValue := 0;
               valueRange.maxValue := 1;
             when {"BLN_TERNARY"}:
-              if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
-                if getValue(evaluatedParam, boolean) then
-                  valueRange := getIntRange(params[3]);
-                else
-                  valueRange := getIntRange(params[5]);
-                end if;
-              else
-                argument1Range := getIntRange(params[3]);
-                argument2Range := getIntRange(params[5]);
-                valueRange.minValue := min(argument1Range.minValue,
-                                           argument2Range.minValue);
-                valueRange.maxValue := max(argument1Range.maxValue,
-                                           argument2Range.maxValue);
-              end if;
+              valueRange := getBlnTernaryRange(params[1], params[3], params[5]);
             when {"CHR_ORD"}:
               if ccConf.TWOS_COMPLEMENT_INTTYPE then
                 valueRange.minValue := -2147483648;
