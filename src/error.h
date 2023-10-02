@@ -114,5 +114,7 @@ void err_integer (errorType err, intType number);
 void err_cchar (errorType err, int character);
 void err_char (errorType err, charType character);
 void err_at_line (errorType err, lineNumType line);
+void err_at_file_in_line (errorType err, const_objectType obj_found,
+                          fileNumType fileNumber, lineNumType errorLine);
 void err_existing_obj (errorType err, const_objectType obj_found);
 void err_message (errorType err, const_striType stri);

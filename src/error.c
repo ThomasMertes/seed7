@@ -1133,12 +1133,6 @@ void err_object (errorType err, const_objectType obj_found)
       prot_cstri("*** ");
     } /* if */
     switch (err) {
-      case OBJTWICEDECLARED:
-        prot_cstri("\"");
-        write_object_with_parameters(obj_found);
-        prot_cstri("\" declared twice");
-        prot_nl();
-        break;
       case PARAM_DECL_FAILED:
         prot_cstri("Declaration of parameter ");
         prot_list(obj_found->value.listValue->next);
@@ -1738,6 +1732,40 @@ void err_at_line (errorType err, lineNumType line)
     print_line(in_file.file_number, line);
     display_compilation_info();
   } /* err_at_line */
+
+
+
+void err_at_file_in_line (errorType err, const_objectType obj_found,
+    fileNumType fileNumber, lineNumType errorLine)
+
+  { /* err_at_file_in_line */
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
+    if (fileNumber != 0 && errorLine != 0) {
+      write_place(err, get_file_name(fileNumber), errorLine);
+    } else {
+      write_place(err, in_file.name, in_file.line);
+    } /* if */
+    switch (err) {
+      case OBJTWICEDECLARED:
+        prot_cstri("Redeclaration of \"");
+        write_object_with_parameters(obj_found);
+        prot_cstri("\"");
+        prot_nl();
+        break;
+      default:
+        undef_err();
+        break;
+    } /* switch */
+    if (fileNumber != 0 && errorLine != 0 &&
+        (fileNumber != in_file.file_number || errorLine != in_file.line)) {
+      print_line(fileNumber, errorLine);
+    } else {
+      print_error_line();
+    } /* if */
+    display_compilation_info();
+  } /* err_at_file_in_line */
 
 
 
