@@ -45,6 +45,17 @@ const type: intRangeOfVariableHash is hash[reference] intRange;
 var intRangeOfVariableHash: intRangeOfVariable is intRangeOfVariableHash.value;
 
 
+const func intRange: getIntRange (in integer: number) is func
+  result
+    var intRange: numberRange is intRange.value;
+  begin
+    numberRange.minValue := number;
+    numberRange.maxValue := number;
+    numberRange.mayOverflow := FALSE;
+    numberRange.mayRaiseException := FALSE;
+  end func;
+
+
 const func intRange: getIntRange (in reference: intExpression) is forward;
 
 

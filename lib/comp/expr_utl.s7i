@@ -773,6 +773,34 @@ const func string: defineTempVariable (in string: typeName, in string: namePrefi
   end func;
 
 
+const func string: defineTempVariable (in string: typeName, in string: namePrefix,
+    in expr_type: initExpr, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  local
+    var string: stri is "";
+    var boolean: isNormalVariable is FALSE;
+  begin
+    if startsWith(initExpr.expr, "o_") then
+      stri := initExpr.expr[3 ..];
+      if length(getDigits(stri)) <> 0 then
+        if stri = "" then
+          isNormalVariable := TRUE;
+        elsif startsWith(stri, "_") then
+          stri := stri[2 ..];
+          isNormalVariable := getName(stri) <> "" and stri = "";
+        end if;
+      end if;
+    end if;
+    if isNormalVariable then
+      variableName := initExpr.expr;
+    else
+      variableName := defineTempVariable(typeName, namePrefix, initExpr.expr,  c_expr);
+    end if;
+  end func;
+
+
 const func boolean: isNormalVariable (in reference: a_param) is
   return category(a_param) in {TYPEOBJECT, INTOBJECT, BIGINTOBJECT,
       CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT,

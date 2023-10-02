@@ -418,29 +418,32 @@ const proc: checkIfOutsideRange (in string: number_name, in integer: lowerBound,
   end func;
 
 
-const proc: const_int_add_with_overflow_check (in string: summand1_name, in integer: summand2,
+const proc: const_int_add_with_overflow_check (in expr_type: summand1Expr, in integer: summand2,
     inout expr_type: c_expr) is func
 
   local
-    var string: sum is "";
+    var string: sumName is "";
+    var string: summand1Name is "";
   begin
     if summand2 <> -1 and ccConf.BUILTIN_ADD_OVERFLOW <> "" then
-      sum := defineTempVariable("intType", "sum_", c_expr);
+      sumName := defineTempVariable("intType", "sum_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_ADD_OVERFLOW;
       c_expr.expr &:= "(";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Expr.expr;
       c_expr.expr &:= ", ";
       c_expr.expr &:= integerLiteral(summand2);
       c_expr.expr &:= ", &";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
       c_expr.expr &:= "))?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
     else
+      c_expr.expr &:= "(";
+      summand1Name := defineTempVariable("intType", "summand1_", summand1Expr, c_expr);
       c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Name;
       if summand2 = -1 then
         c_expr.expr &:= "==";
         c_expr.expr &:= integerLiteral(integer.first);
@@ -457,36 +460,40 @@ const proc: const_int_add_with_overflow_check (in string: summand1_name, in inte
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Name;
       c_expr.expr &:= " + ";
       c_expr.expr &:= integerLiteral(summand2);
+      c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: const_int_sbtr_with_overflow_check (in string: minuend_name, in integer: subtrahend,
+const proc: const_int_sbtr_with_overflow_check (in expr_type: minuendExpr, in integer: subtrahend,
     inout expr_type: c_expr) is func
 
   local
-    var string: difference is "";
+    var string: differenceName is "";
+    var string: minuendName is "";
   begin
     if subtrahend <> 1 and ccConf.BUILTIN_SUB_OVERFLOW <> "" then
-      difference := defineTempVariable("intType", "difference_", c_expr);
+      differenceName := defineTempVariable("intType", "difference_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_SUB_OVERFLOW;
       c_expr.expr &:= "(";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendExpr.expr;
       c_expr.expr &:= ", ";
       c_expr.expr &:= integerLiteral(subtrahend);
       c_expr.expr &:= ", &";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
       c_expr.expr &:= "))?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
     else
+      c_expr.expr &:= "(";
+      minuendName := defineTempVariable("intType", "minuend_", minuendExpr, c_expr);
       c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendName;
       if subtrahend = -1 then
         c_expr.expr &:= "==";
         c_expr.expr &:= integerLiteral(integer.last);
@@ -503,36 +510,40 @@ const proc: const_int_sbtr_with_overflow_check (in string: minuend_name, in inte
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendName;
       c_expr.expr &:= " - ";
       c_expr.expr &:= integerLiteral(subtrahend);
+      c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: const_int_sbtr_with_overflow_check (in integer: minuend, in string: subtrahend_name,
+const proc: const_int_sbtr_with_overflow_check (in integer: minuend, in expr_type: subtrahendExpr,
     inout expr_type: c_expr) is func
 
   local
-    var string: difference is "";
+    var string: differenceName is "";
+    var string: subtrahendName is "";
   begin
     if ccConf.BUILTIN_SUB_OVERFLOW <> "" then
-      difference := defineTempVariable("intType", "difference_", c_expr);
+      differenceName := defineTempVariable("intType", "difference_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_SUB_OVERFLOW;
       c_expr.expr &:= "(";
       c_expr.expr &:= integerLiteral(minuend);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= subtrahendExpr.expr;
       c_expr.expr &:= ", &";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
       c_expr.expr &:= "))?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
     else
+      c_expr.expr &:= "(";
+      subtrahendName := defineTempVariable("intType", "subtrahend_", subtrahendExpr, c_expr);
       c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= subtrahendName;
       if minuend < 0 then
         c_expr.expr &:= ">";
         c_expr.expr &:= integerLiteral(-(integer.first - minuend));
@@ -550,101 +561,110 @@ const proc: const_int_sbtr_with_overflow_check (in integer: minuend, in string: 
         c_expr.expr &:= integerLiteral(minuend);
       end if;
       c_expr.expr &:= " - ";
-      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= subtrahendName;
+      c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: int_add_with_overflow_check (in string: summand1_name, in reference: summand2,
+const proc: int_add_with_overflow_check (in expr_type: summand1Expr, in reference: summand2,
     inout expr_type: c_expr) is func
 
   local
-    var string: summand2_name is "";
-    var string: sum is "";
+    var string: sumName is "";
+    var string: summand1Name is "";
+    var string: summand2Name is "";
   begin
     if ccConf.BUILTIN_ADD_OVERFLOW <> "" then
-      sum := defineTempVariable("intType", "sum_", c_expr);
+      sumName := defineTempVariable("intType", "sum_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_ADD_OVERFLOW;
       c_expr.expr &:= "(";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Expr.expr;
       c_expr.expr &:= ", ";
       process_expr(summand2, c_expr);
       c_expr.expr &:= ", &";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
       c_expr.expr &:= "))?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
     else
-      summand2_name := getParameterAsVariable("intType", "summand2_", summand2, c_expr);
-      sum := defineTempVariable("intType", "sum_", c_expr);
-      c_expr.expr &:= sum;
+      c_expr.expr &:= "(";
+      summand1Name := defineTempVariable("intType", "summand1_", summand1Expr, c_expr);
+      summand2Name := getParameterAsVariable("intType", "summand2_", summand2, c_expr);
+      sumName := defineTempVariable("intType", "sum_", c_expr);
+      c_expr.expr &:= sumName;
       c_expr.expr &:= "=(intType)((uintType)";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Name;
       c_expr.expr &:= "+(uintType)";
-      c_expr.expr &:= summand2_name;
+      c_expr.expr &:= summand2Name;
       c_expr.expr &:= "), ";
       (* Formula used: ovfChk((intType)(~(s1^s2)&(sum^s1))<0) *)
       c_expr.expr &:= "ovfChk((intType)(~(";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Name;
       c_expr.expr &:= "^";
-      c_expr.expr &:= summand2_name;
+      c_expr.expr &:= summand2Name;
       c_expr.expr &:= ")&(";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
       c_expr.expr &:= "^";
-      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= summand1Name;
       c_expr.expr &:= "))<0)?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= sum;
+      c_expr.expr &:= sumName;
+      c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: int_sbtr_with_overflow_check (in string: minuend_name, in reference: subtrahend,
+const proc: int_sbtr_with_overflow_check (in expr_type: minuendExpr, in reference: subtrahend,
     inout expr_type: c_expr) is func
 
   local
-    var string: subtrahend_name is "";
-    var string: difference is "";
+    var string: differenceName is "";
+    var string: minuendName is "";
+    var string: subtrahendName is "";
   begin
     if ccConf.BUILTIN_SUB_OVERFLOW <> "" then
-      difference := defineTempVariable("intType", "difference_", c_expr);
+      differenceName := defineTempVariable("intType", "difference_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_SUB_OVERFLOW;
       c_expr.expr &:= "(";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendExpr.expr;
       c_expr.expr &:= ", ";
       process_expr(subtrahend, c_expr);
       c_expr.expr &:= ", &";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
       c_expr.expr &:= "))?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
     else
-      subtrahend_name := getParameterAsVariable("intType", "subtrahend_", subtrahend, c_expr);
-      difference := defineTempVariable("intType", "difference_", c_expr);
-      c_expr.expr &:= difference;
+      c_expr.expr &:= "(";
+      minuendName := defineTempVariable("intType", "minuend_", minuendExpr, c_expr);
+      subtrahendName := getParameterAsVariable("intType", "subtrahend_", subtrahend, c_expr);
+      differenceName := defineTempVariable("intType", "difference_", c_expr);
+      c_expr.expr &:= differenceName;
       c_expr.expr &:= "=(intType)((uintType)";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendName;
       c_expr.expr &:= "-(uintType)";
-      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= subtrahendName;
       c_expr.expr &:= "), ";
       (* Formula used: ovfChk((intType)((m^s)&(d^m))<0) *)
       c_expr.expr &:= "ovfChk((intType)((";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendName;
       c_expr.expr &:= "^";
-      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= subtrahendName;
       c_expr.expr &:= ")&(";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
       c_expr.expr &:= "^";
-      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= minuendName;
       c_expr.expr &:= "))<0)?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= difference;
+      c_expr.expr &:= differenceName;
+      c_expr.expr &:= ")";
     end if;
   end func;
 
@@ -857,7 +877,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
     var reference: evaluatedParam is NIL;
     var integer: summand1_value is 0;
     var intRange: summand1_range is intRange.value;
-    var string: summand1_name is "";
+    var expr_type: summand1Expr is expr_type.value;
   begin
     if summand2 < 0 then
       minAllowedSummand1 := integer.first - summand2;
@@ -893,10 +913,14 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
         c_expr.expr &:= integerLiteral(summand2);
       else
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        summand1_name := getParameterAsVariable("intType", "summand1_", summand1, c_expr);
-        const_int_add_with_overflow_check(summand1_name, summand2, c_expr);
-        c_expr.expr &:= ")";
+        summand1Expr.temp_num := c_expr.temp_num;
+        process_expr(summand1, summand1Expr);
+        c_expr.temp_num := summand1Expr.temp_num;
+        c_expr.temp_decls &:= summand1Expr.temp_decls;
+        c_expr.temp_assigns &:= summand1Expr.temp_assigns;
+        c_expr.temp_frees &:= summand1Expr.temp_frees;
+        c_expr.temp_to_null &:= summand1Expr.temp_to_null;
+        const_int_add_with_overflow_check(summand1Expr, summand2, c_expr);
       end if;
     else
       c_expr.expr &:= "(";
@@ -916,6 +940,7 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
     var integer: minAllowedSummand2 is 0;
     var integer: maxAllowedSummand2 is 0;
     var boolean: fullOverflowCheck is FALSE;
+    var expr_type: summand1Expr is expr_type.value;
     var string: summand1_name is "";
     var string: summand2_name is "";
   begin
@@ -978,9 +1003,9 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
       end if;
       if fullOverflowCheck then
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
         if summand1 = summand2 then
           incr(countOptimizations);
+          c_expr.expr &:= "(";
           summand1_name := getParameterAsVariable("intType", "summand1_", summand1, c_expr);
           c_expr.expr &:= "ovfChk(";
           checkIfOutsideRange(summand1_name, integer.first div 2,
@@ -991,11 +1016,17 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
           c_expr.expr &:= summand1_name;
           c_expr.expr &:= " + ";
           c_expr.expr &:= summand1_name;
+          c_expr.expr &:= ")";
         else
-          summand1_name := getParameterAsVariable("intType", "summand1_", summand1, c_expr);
-          int_add_with_overflow_check(summand1_name, summand2, c_expr);
+          summand1Expr.temp_num := c_expr.temp_num;
+          process_expr(summand1, summand1Expr);
+          c_expr.temp_num := summand1Expr.temp_num;
+          c_expr.temp_decls &:= summand1Expr.temp_decls;
+          c_expr.temp_assigns &:= summand1Expr.temp_assigns;
+          c_expr.temp_frees &:= summand1Expr.temp_frees;
+          c_expr.temp_to_null &:= summand1Expr.temp_to_null;
+          int_add_with_overflow_check(summand1Expr, summand2, c_expr);
         end if;
-        c_expr.expr &:= ")";
       end if;
     else
       c_expr.expr &:= "(";
@@ -1016,7 +1047,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
     var reference: evaluatedParam is NIL;
     var integer: minuend_value is 0;
     var intRange: minuend_range is intRange.value;
-    var string: minuend_name is "";
+    var expr_type: minuendExpr is expr_type.value;
   begin
     if subtrahend < 0 then
       minAllowedMinuend := integer.first;
@@ -1052,10 +1083,14 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
         c_expr.expr &:= integerLiteral(subtrahend);
       else
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        minuend_name := getParameterAsVariable("intType", "minuend_", minuend, c_expr);
-        const_int_sbtr_with_overflow_check(minuend_name, subtrahend, c_expr);
-        c_expr.expr &:= ")";
+        minuendExpr.temp_num := c_expr.temp_num;
+        process_expr(minuend, minuendExpr);
+        c_expr.temp_num := minuendExpr.temp_num;
+        c_expr.temp_decls &:= minuendExpr.temp_decls;
+        c_expr.temp_assigns &:= minuendExpr.temp_assigns;
+        c_expr.temp_frees &:= minuendExpr.temp_frees;
+        c_expr.temp_to_null &:= minuendExpr.temp_to_null;
+        const_int_sbtr_with_overflow_check(minuendExpr, subtrahend, c_expr);
       end if;
     else
       c_expr.expr &:= "(";
@@ -1073,7 +1108,7 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
     var integer: minAllowedSubtrahend is 0;
     var integer: maxAllowedSubtrahend is 0;
     var intRange: subtrahend_range is intRange.value;
-    var string: subtrahend_name is "";
+    var expr_type: subtrahendExpr is expr_type.value;
   begin
     if minuend < 0 then
       minAllowedSubtrahend := integer.first;
@@ -1099,10 +1134,14 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
         c_expr.expr &:= ")";
       else
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        subtrahend_name := getParameterAsVariable("intType", "subtrahend_", subtrahend, c_expr);
-        const_int_sbtr_with_overflow_check(minuend, subtrahend_name, c_expr);
-        c_expr.expr &:= ")";
+        subtrahendExpr.temp_num := c_expr.temp_num;
+        process_expr(subtrahend, subtrahendExpr);
+        c_expr.temp_num := subtrahendExpr.temp_num;
+        c_expr.temp_decls &:= subtrahendExpr.temp_decls;
+        c_expr.temp_assigns &:= subtrahendExpr.temp_assigns;
+        c_expr.temp_frees &:= subtrahendExpr.temp_frees;
+        c_expr.temp_to_null &:= subtrahendExpr.temp_to_null;
+        const_int_sbtr_with_overflow_check(minuend, subtrahendExpr, c_expr);
       end if;
     else
       c_expr.expr &:= integerLiteral(minuend);
@@ -1122,6 +1161,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
     var integer: minAllowedSubtrahend is 0;
     var integer: maxAllowedSubtrahend is 0;
     var boolean: fullOverflowCheck is FALSE;
+    var expr_type: minuendExpr is expr_type.value;
     var string: minuend_name is "";
     var string: subtrahend_name is "";
   begin
@@ -1187,10 +1227,14 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
       end if;
       if fullOverflowCheck then
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        minuend_name := getParameterAsVariable("intType", "minuend_", minuend, c_expr);
-        int_sbtr_with_overflow_check(minuend_name, subtrahend, c_expr);
-        c_expr.expr &:= ")";
+        minuendExpr.temp_num := c_expr.temp_num;
+        process_expr(minuend, minuendExpr);
+        c_expr.temp_num := minuendExpr.temp_num;
+        c_expr.temp_decls &:= minuendExpr.temp_decls;
+        c_expr.temp_assigns &:= minuendExpr.temp_assigns;
+        c_expr.temp_frees &:= minuendExpr.temp_frees;
+        c_expr.temp_to_null &:= minuendExpr.temp_to_null;
+        int_sbtr_with_overflow_check(minuendExpr, subtrahend, c_expr);
       end if;
     else
       c_expr.expr &:= "(";
@@ -1203,12 +1247,14 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
 
 
 const proc: optimize_int_add (in addSubIntElementType: summand,
-    inout expr_type: c_expr) is func
+    inout intRange: sumRange, inout expr_type: c_expr) is func
   begin
     if summand.summand = NIL then
       if summand.doAdd then
+        sumRange := getIntRange(summand.constSummand);
         c_expr.expr &:= integerLiteral(summand.constSummand);
       else
+        sumRange := getIntNegateRange(getIntRange(summand.constSummand));
         if summand.constSummand < -integer.last then
           warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
           c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
@@ -1218,112 +1264,112 @@ const proc: optimize_int_add (in addSubIntElementType: summand,
       end if;
     else
       if summand.doAdd then
+        sumRange := getIntRange(summand.summand);
         process_expr(summand.summand, c_expr);
       else
+        sumRange := getIntNegateRange(getIntRange(summand.summand));
         negate(summand.summand, c_expr);
       end if;
     end if;
   end func;
 
 
-const proc: optimize_int_add (in addSubIntElementType: summand1,
-    in addSubIntElementType: summand2, inout expr_type: c_expr) is func
-  local
-    var integer: summand1_value is 0;
-    var integer: summand2_value is 0;
-  begin
-    if not summand1.doAdd then
-      writeln(" ***** Problem in optimize_int_add (2)");
-    elsif summand2.doAdd then
-      if summand1.summand = NIL then
-        if summand2.summand = NIL then
-          summand1_value := summand1.constSummand;
-          summand2_value := summand2.constSummand;
-          if  (summand2_value > 0 and summand1_value > integer.last - summand2_value) or
-              (summand2_value < 0 and summand1_value < integer.first - summand2_value) then
-            warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-          else
-            c_expr.expr &:= integerLiteral(summand1_value + summand2_value);
-          end if;
-        else
-          process_const_int_add(summand2.summand, summand1.constSummand, c_expr);
-        end if;
-      elsif summand2.summand = NIL then
-        process_const_int_add(summand1.summand, summand2.constSummand, c_expr);
-      else
-        process_int_add(summand1.summand, summand2.summand, c_expr);
-      end if;
-    else
-      if summand1.summand = NIL then
-        if summand2.summand = NIL then
-          summand1_value := summand1.constSummand;
-          summand2_value := summand2.constSummand;
-          if  (summand2_value < 0 and summand1_value > integer.last + summand2_value) or
-              (summand2_value > 0 and summand1_value < integer.first + summand2_value) then
-            warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-          else
-            c_expr.expr &:= integerLiteral(summand1_value - summand2_value);
-          end if;
-        else
-          process_const_int_sbtr(summand1.constSummand, summand2.summand, c_expr);
-        end if;
-      elsif summand2.summand = NIL then
-        process_const_int_sbtr(summand1.summand, summand2.constSummand, c_expr);
-      else
-        process_int_sbtr(summand1.summand, summand2.summand, c_expr);
-      end if;
-    end if;
-  end func;
-
-
 const proc: optimize_int_add (in addSubIntListType: addSubParamList,
-    inout expr_type: c_expr) is func
+    inout intRange: sumRange, inout expr_type: c_expr) is func
 
   local
+    var intRange: summand1Range is intRange.value;
+    var intRange: summand2Range is intRange.value;
+    var expr_type: summand1Expr is expr_type.value;
     var reference: summand2Ref is NIL;
-    var integer: summand2 is 0;
-    var string: summand1_name is "";
-    var string: summand2_name is "";
+    var integer: summand2Value is 0;
     var boolean: doAdd is FALSE;
   begin
-    if length(addSubParamList) >= 3 then
+    if length(addSubParamList) >= 2 then
       incr(countOptimizations);
       if check_int_arithmetic_overflow then
-        incr(countOverflowChecks);
-        summand1_name := defineTempVariable("intType", "summand1_", c_expr);
-        c_expr.expr &:= "(";
-        c_expr.expr &:= summand1_name;
-        c_expr.expr &:= "=";
-        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], c_expr);
-        c_expr.expr &:= ",";
+        summand1Expr.temp_num := c_expr.temp_num;
+        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], summand1Range, summand1Expr);
+        c_expr.temp_num := summand1Expr.temp_num;
+        c_expr.temp_decls &:= summand1Expr.temp_decls;
+        c_expr.temp_assigns &:= summand1Expr.temp_assigns;
+        c_expr.temp_frees &:= summand1Expr.temp_frees;
+        c_expr.temp_to_null &:= summand1Expr.temp_to_null;
         doAdd := addSubParamList[length(addSubParamList)].doAdd;
         summand2Ref := addSubParamList[length(addSubParamList)].summand;
         if summand2Ref = NIL then
-          summand2 := addSubParamList[length(addSubParamList)].constSummand;
-          if summand2 = 0 then
+          summand2Value := addSubParamList[length(addSubParamList)].constSummand;
+          if summand2Value = 0 then
             # This should never happen because 0 should have been optimized out.
             writeln(" ***** Problem in optimize_int_add (1)");
-            c_expr.expr &:= summand1_name;
+            sumRange := summand1Range;
+            c_expr.expr &:= summand1Expr.expr;
           else
+            summand2Range := getIntRange(summand2Value);
             if doAdd then
-              const_int_add_with_overflow_check(summand1_name, summand2, c_expr);
+              sumRange := getIntAddRange(summand1Range, summand2Range);
             else
-              const_int_sbtr_with_overflow_check(summand1_name, summand2, c_expr);
+              sumRange := getIntSbtrRange(summand1Range, summand2Range);
+            end if;
+            if not sumRange.mayOverflow then
+              countOverflowOptimizations(c_expr);
+              if doAdd then
+                c_expr.expr &:= "/*no_overflow_check_add*/(";
+                c_expr.expr &:= summand1Expr.expr;
+                c_expr.expr &:= ") + ";
+              else
+                c_expr.expr &:= "/*no_overflow_check_sbtr*/(";
+                c_expr.expr &:= summand1Expr.expr;
+                c_expr.expr &:= ") - ";
+              end if;
+              c_expr.expr &:= integerLiteral(summand2Value);
+            elsif sumRange.minValue = 0 and sumRange.maxValue = -1 and sumRange.mayOverflow then
+              warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+              c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            else
+              incr(countOverflowChecks);
+              if doAdd then
+                const_int_add_with_overflow_check(summand1Expr, summand2Value, c_expr);
+              else
+                const_int_sbtr_with_overflow_check(summand1Expr, summand2Value, c_expr);
+              end if;
             end if;
           end if;
         else
+          summand2Range := getIntRange(summand2Ref);
           if doAdd then
-            int_add_with_overflow_check(summand1_name, summand2Ref, c_expr);
+            sumRange := getIntAddRange(summand1Range, summand2Range);
           else
-            int_sbtr_with_overflow_check(summand1_name, summand2Ref, c_expr);
+            sumRange := getIntSbtrRange(summand1Range, summand2Range);
+          end if;
+          if not sumRange.mayOverflow then
+            countOverflowOptimizations(c_expr);
+            if doAdd then
+              c_expr.expr &:= "/*no_overflow_check_add*/(";
+              c_expr.expr &:= summand1Expr.expr;
+              c_expr.expr &:= ") + (";
+            else
+              c_expr.expr &:= "/*no_overflow_check_sbtr*/(";
+              c_expr.expr &:= summand1Expr.expr;
+              c_expr.expr &:= ") - (";
+            end if;
+            process_expr(summand2Ref, c_expr);
+            c_expr.expr &:= ")";
+          elsif sumRange.minValue = 0 and sumRange.maxValue = -1 then
+            warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          else
+            incr(countOverflowChecks);
+            if doAdd then
+              int_add_with_overflow_check(summand1Expr, summand2Ref, c_expr);
+            else
+              int_sbtr_with_overflow_check(summand1Expr, summand2Ref, c_expr);
+            end if;
           end if;
         end if;
-        c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
-        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], c_expr);
+        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], summand1Range, c_expr);
         if addSubParamList[length(addSubParamList)].doAdd then
           c_expr.expr &:= ") + ";
         else
@@ -1337,14 +1383,12 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
           c_expr.expr &:= ")";
         end if;
       end if;
-    elsif length(addSubParamList) = 2 then
-      incr(countOptimizations);
-      optimize_int_add(addSubParamList[1], addSubParamList[2], c_expr);
     elsif length(addSubParamList) = 1 then
       incr(countOptimizations);
-      optimize_int_add(addSubParamList[1], c_expr);
+      optimize_int_add(addSubParamList[1], sumRange, c_expr);
     else
       incr(countOptimizations);
+      sumRange := getIntRange(0);
       c_expr.expr &:= integerLiteral(0);
     end if;
   end func;
@@ -1355,11 +1399,12 @@ const proc: optimize_int_add (in ref_list: params, in boolean: doAdd,
 
   local
     var addSubIntListType: addSubParamList is 0 times addSubIntElementType.value;
+    var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(params, doAdd);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
-    optimize_int_add(addSubParamList, c_expr);
+    optimize_int_add(addSubParamList, sumRange, c_expr);
   end func;
 
 
@@ -1368,11 +1413,12 @@ const proc: optimize_int_add (in reference: summand1, in integer: summand2,
 
   local
     var addSubIntListType: addSubParamList is 0 times addSubIntElementType.value;
+    var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(summand1, summand2);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
-    optimize_int_add(addSubParamList, c_expr);
+    optimize_int_add(addSubParamList, sumRange, c_expr);
   end func;
 
 
@@ -2571,8 +2617,6 @@ const proc: process (INT_DIV, in reference: function,
       elsif check_int_division_overflow then
         # integer.first / -1 causes an integer overflow.
         dividend_range := getIntRange(params[1]);
-        c_expr.expr &:= "/* dividend: [" <& dividend_range.minValue <& " .. " <& dividend_range.maxValue <& "], " <&
-                        "divisor: [" <& divisor_range.minValue <& " .. " <& divisor_range.maxValue <& "] */\n";
         if (dividend_range.minValue > integer.first or
             divisor_range.maxValue < -1 or divisor_range.minValue > -1) and
             (not check_int_div_by_zero or
