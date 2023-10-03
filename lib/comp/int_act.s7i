@@ -4571,17 +4571,17 @@ const proc: process (INT_MOD, in reference: function,
             c_expr.expr &:= "%";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= ",";
-            if (dividend_range.maxValue > 0 or divisor_range.minValue < 0) and
-                (dividend_range.minValue < 0 or divisor_range.maxValue > 0) then
+            if (dividend_range.maxValue >= 0 or divisor_range.minValue < 0) and
+                (dividend_range.minValue < 0 or divisor_range.maxValue >= 0) then
               if dividend_range.maxValue < 0 then
                 # Formula used: c=a%b,b>0&&c!=0?c+b:c
                 c_expr.expr &:= divisor_name;
                 c_expr.expr &:= ">0";
-              elsif dividend_range.minValue > 0 then
+              elsif dividend_range.minValue >= 0 then
                 # Formula used: c=a%b,b<0&&c!=0?c+b:c
                 c_expr.expr &:= divisor_name;
                 c_expr.expr &:= "<0";
-              elsif divisor_range.minValue > 0 then
+              elsif divisor_range.minValue >= 0 then
                 # Formula used: c=a%b,a<0&&c!=0?c+b:c
                 c_expr.expr &:= dividend_name;
                 c_expr.expr &:= "<0";
