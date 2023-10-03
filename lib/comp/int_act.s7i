@@ -2215,7 +2215,7 @@ const proc: optimize_int_bytes_le_2_uint (in string: stri_name, in integer: leng
         c_expr.expr &:= "->mem[";
         c_expr.expr &:= integerLiteral(pred(index));
         c_expr.expr &:= "]>";
-        if length = 8 and index = 1 then
+        if length = 8 and index = 8 then
           c_expr.expr &:= "127";
         else
           c_expr.expr &:= "255";
