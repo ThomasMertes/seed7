@@ -13061,32 +13061,36 @@ const func boolean: check_div_optimization_1 is func
         pred(-abs(intExpr(        integer.last))) div                   -3 <>  3074457345618258602 or
         pred(-abs(intExpr(        integer.last))) div                   -2 <>  4611686018427387904 or
         pred(-abs(intExpr( 9223372036854775806))) div                   -1 <>  9223372036854775807 or
-        pred(-abs(intExpr(        integer.last))) div                    1 <>        integer.first or
-        pred(-abs(intExpr(        integer.last))) div                    2 <> -4611686018427387904 or
-        pred(-abs(intExpr(        integer.last))) div                    3 <> -3074457345618258602 or
-        pred(-abs(intExpr(        integer.last))) div             12345653 <>        -747094709113 or
-        pred(-abs(intExpr(        integer.last))) div         integer.last <>                   -1 or
         pred(-abs(intExpr(            12345652))) div -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(            12345652))) div            -12345653 <>                    1 or
         pred(-abs(intExpr(            12345652))) div                   -3 <>              4115217 or
         pred(-abs(intExpr(            12345652))) div                   -2 <>              6172826 or
         pred(-abs(intExpr(            12345652))) div                   -1 <>             12345653 or
+        pred(-abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
+        pred(-abs(intExpr(                   0))) div            -12345653 <>                    0 or
+        pred(-abs(intExpr(                   0))) div                   -3 <>                    0 or
+        pred(-abs(intExpr(                   0))) div                   -2 <>                    0 or
+        pred(-abs(intExpr(                   0))) div                   -1 <>                    1 then
+      writeln(" ***** div optimization with dividend < 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) div                    1 <>        integer.first or
+        pred(-abs(intExpr(        integer.last))) div                    2 <> -4611686018427387904 or
+        pred(-abs(intExpr(        integer.last))) div                    3 <> -3074457345618258602 or
+        pred(-abs(intExpr(        integer.last))) div             12345653 <>        -747094709113 or
+        pred(-abs(intExpr(        integer.last))) div         integer.last <>                   -1 or
         pred(-abs(intExpr(            12345652))) div                    1 <>            -12345653 or
         pred(-abs(intExpr(            12345652))) div                    2 <>             -6172826 or
         pred(-abs(intExpr(            12345652))) div                    3 <>             -4115217 or
         pred(-abs(intExpr(            12345652))) div             12345653 <>                   -1 or
         pred(-abs(intExpr(            12345652))) div         integer.last <>                    0 or
-        pred(-abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
-        pred(-abs(intExpr(                   0))) div            -12345653 <>                    0 or
-        pred(-abs(intExpr(                   0))) div                   -3 <>                    0 or
-        pred(-abs(intExpr(                   0))) div                   -2 <>                    0 or
-        pred(-abs(intExpr(                   0))) div                   -1 <>                    1 or
         pred(-abs(intExpr(                   0))) div                    1 <>                   -1 or
         pred(-abs(intExpr(                   0))) div                    2 <>                    0 or
         pred(-abs(intExpr(                   0))) div                    3 <>                    0 or
         pred(-abs(intExpr(                   0))) div             12345653 <>                    0 or
         pred(-abs(intExpr(                   0))) div         integer.last <>                    0 then
-      writeln(" ***** div optimization with dividend < 0 and constant divisor does not work correctly.");
+      writeln(" ***** div optimization with dividend < 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13095,42 +13099,46 @@ const func boolean: check_div_optimization_1 is func
              -abs(intExpr(        integer.last))  div                   -3 <>  3074457345618258602 or
              -abs(intExpr(        integer.last))  div                   -2 <>  4611686018427387903 or
              -abs(intExpr(        integer.last))  div                   -1 <>         integer.last or
-             -abs(intExpr(        integer.last))  div                    1 <> -9223372036854775807 or
-             -abs(intExpr(        integer.last))  div                    2 <> -4611686018427387903 or
-             -abs(intExpr(        integer.last))  div                    3 <> -3074457345618258602 or
-             -abs(intExpr(        integer.last))  div             12345653 <>        -747094709113 or
-             -abs(intExpr(        integer.last))  div         integer.last <>                   -1 or
              -abs(intExpr(            12345653))  div -9223372036854775807 <>                    0 or
              -abs(intExpr(            12345653))  div            -12345653 <>                    1 or
              -abs(intExpr(            12345653))  div                   -3 <>              4115217 or
              -abs(intExpr(            12345653))  div                   -2 <>              6172826 or
              -abs(intExpr(            12345653))  div                   -1 <>             12345653 or
-             -abs(intExpr(            12345653))  div                    1 <>            -12345653 or
-             -abs(intExpr(            12345653))  div                    2 <>             -6172826 or
-             -abs(intExpr(            12345653))  div                    3 <>             -4115217 or
-             -abs(intExpr(            12345653))  div             12345653 <>                   -1 or
-             -abs(intExpr(            12345653))  div         integer.last <>                    0 or
              -abs(intExpr(                   1))  div -9223372036854775807 <>                    0 or
              -abs(intExpr(                   1))  div            -12345653 <>                    0 or
              -abs(intExpr(                   1))  div                   -3 <>                    0 or
              -abs(intExpr(                   1))  div                   -2 <>                    0 or
              -abs(intExpr(                   1))  div                   -1 <>                    1 or
+             -abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
+             -abs(intExpr(                   0))  div            -12345653 <>                    0 or
+             -abs(intExpr(                   0))  div                   -3 <>                    0 or
+             -abs(intExpr(                   0))  div                   -2 <>                    0 or
+             -abs(intExpr(                   0))  div                   -1 <>                    0 then
+      writeln(" ***** div optimization with dividend <= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  div                    1 <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  div                    2 <> -4611686018427387903 or
+             -abs(intExpr(        integer.last))  div                    3 <> -3074457345618258602 or
+             -abs(intExpr(        integer.last))  div             12345653 <>        -747094709113 or
+             -abs(intExpr(        integer.last))  div         integer.last <>                   -1 or
+             -abs(intExpr(            12345653))  div                    1 <>            -12345653 or
+             -abs(intExpr(            12345653))  div                    2 <>             -6172826 or
+             -abs(intExpr(            12345653))  div                    3 <>             -4115217 or
+             -abs(intExpr(            12345653))  div             12345653 <>                   -1 or
+             -abs(intExpr(            12345653))  div         integer.last <>                    0 or
              -abs(intExpr(                   1))  div                    1 <>                   -1 or
              -abs(intExpr(                   1))  div                    2 <>                    0 or
              -abs(intExpr(                   1))  div                    3 <>                    0 or
              -abs(intExpr(                   1))  div             12345653 <>                    0 or
              -abs(intExpr(                   1))  div         integer.last <>                    0 or
-             -abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
-             -abs(intExpr(                   0))  div            -12345653 <>                    0 or
-             -abs(intExpr(                   0))  div                   -3 <>                    0 or
-             -abs(intExpr(                   0))  div                   -2 <>                    0 or
-             -abs(intExpr(                   0))  div                   -1 <>                    0 or
              -abs(intExpr(                   0))  div                    1 <>                    0 or
              -abs(intExpr(                   0))  div                    2 <>                    0 or
              -abs(intExpr(                   0))  div                    3 <>                    0 or
              -abs(intExpr(                   0))  div             12345653 <>                    0 or
              -abs(intExpr(                   0))  div         integer.last <>                    0 then
-      writeln(" ***** div optimization with dividend <= 0 and constant divisor does not work correctly.");
+      writeln(" ***** div optimization with dividend <= 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13139,42 +13147,46 @@ const func boolean: check_div_optimization_1 is func
               abs(intExpr(        integer.last))  div                   -3 <> -3074457345618258602 or
               abs(intExpr(        integer.last))  div                   -2 <> -4611686018427387903 or
               abs(intExpr(        integer.last))  div                   -1 <> -9223372036854775807 or
-              abs(intExpr(        integer.last))  div                    1 <>         integer.last or
-              abs(intExpr(        integer.last))  div                    2 <>  4611686018427387903 or
-              abs(intExpr(        integer.last))  div                    3 <>  3074457345618258602 or
-              abs(intExpr(        integer.last))  div             12345653 <>         747094709113 or
-              abs(intExpr(        integer.last))  div         integer.last <>                    1 or
               abs(intExpr(            12345653))  div -9223372036854775807 <>                    0 or
               abs(intExpr(            12345653))  div            -12345653 <>                   -1 or
               abs(intExpr(            12345653))  div                   -3 <>             -4115217 or
               abs(intExpr(            12345653))  div                   -2 <>             -6172826 or
               abs(intExpr(            12345653))  div                   -1 <>            -12345653 or
-              abs(intExpr(            12345653))  div                    1 <>             12345653 or
-              abs(intExpr(            12345653))  div                    2 <>              6172826 or
-              abs(intExpr(            12345653))  div                    3 <>              4115217 or
-              abs(intExpr(            12345653))  div             12345653 <>                    1 or
-              abs(intExpr(            12345653))  div         integer.last <>                    0 or
               abs(intExpr(                   1))  div -9223372036854775807 <>                    0 or
               abs(intExpr(                   1))  div            -12345653 <>                    0 or
               abs(intExpr(                   1))  div                   -3 <>                    0 or
               abs(intExpr(                   1))  div                   -2 <>                    0 or
               abs(intExpr(                   1))  div                   -1 <>                   -1 or
+              abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
+              abs(intExpr(                   0))  div            -12345653 <>                    0 or
+              abs(intExpr(                   0))  div                   -3 <>                    0 or
+              abs(intExpr(                   0))  div                   -2 <>                    0 or
+              abs(intExpr(                   0))  div                   -1 <>                    0 then
+      writeln(" ***** div optimization with dividend >= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  div                    1 <>         integer.last or
+              abs(intExpr(        integer.last))  div                    2 <>  4611686018427387903 or
+              abs(intExpr(        integer.last))  div                    3 <>  3074457345618258602 or
+              abs(intExpr(        integer.last))  div             12345653 <>         747094709113 or
+              abs(intExpr(        integer.last))  div         integer.last <>                    1 or
+              abs(intExpr(            12345653))  div                    1 <>             12345653 or
+              abs(intExpr(            12345653))  div                    2 <>              6172826 or
+              abs(intExpr(            12345653))  div                    3 <>              4115217 or
+              abs(intExpr(            12345653))  div             12345653 <>                    1 or
+              abs(intExpr(            12345653))  div         integer.last <>                    0 or
               abs(intExpr(                   1))  div                    1 <>                    1 or
               abs(intExpr(                   1))  div                    2 <>                    0 or
               abs(intExpr(                   1))  div                    3 <>                    0 or
               abs(intExpr(                   1))  div             12345653 <>                    0 or
               abs(intExpr(                   1))  div         integer.last <>                    0 or
-              abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
-              abs(intExpr(                   0))  div            -12345653 <>                    0 or
-              abs(intExpr(                   0))  div                   -3 <>                    0 or
-              abs(intExpr(                   0))  div                   -2 <>                    0 or
-              abs(intExpr(                   0))  div                   -1 <>                    0 or
               abs(intExpr(                   0))  div                    1 <>                    0 or
               abs(intExpr(                   0))  div                    2 <>                    0 or
               abs(intExpr(                   0))  div                    3 <>                    0 or
               abs(intExpr(                   0))  div             12345653 <>                    0 or
               abs(intExpr(                   0))  div         integer.last <>                    0 then
-      writeln(" ***** div optimization with dividend >= 0 and constant divisor does not work correctly.");
+      writeln(" ***** div optimization with dividend >= 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -13183,32 +13195,36 @@ const func boolean: check_div_optimization_1 is func
         succ( abs(intExpr( 9223372036854775806))) div                   -3 <> -3074457345618258602 or
         succ( abs(intExpr( 9223372036854775806))) div                   -2 <> -4611686018427387903 or
         succ( abs(intExpr( 9223372036854775806))) div                   -1 <> -9223372036854775807 or
-        succ( abs(intExpr( 9223372036854775806))) div                    1 <>         integer.last or
-        succ( abs(intExpr( 9223372036854775806))) div                    2 <>  4611686018427387903 or
-        succ( abs(intExpr( 9223372036854775806))) div                    3 <>  3074457345618258602 or
-        succ( abs(intExpr( 9223372036854775806))) div             12345653 <>         747094709113 or
-        succ( abs(intExpr( 9223372036854775806))) div         integer.last <>                    1 or
         succ( abs(intExpr(            12345652))) div -9223372036854775807 <>                    0 or
         succ( abs(intExpr(            12345652))) div            -12345653 <>                   -1 or
         succ( abs(intExpr(            12345652))) div                   -3 <>             -4115217 or
         succ( abs(intExpr(            12345652))) div                   -2 <>             -6172826 or
         succ( abs(intExpr(            12345652))) div                   -1 <>            -12345653 or
+        succ( abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
+        succ( abs(intExpr(                   0))) div            -12345653 <>                    0 or
+        succ( abs(intExpr(                   0))) div                   -3 <>                    0 or
+        succ( abs(intExpr(                   0))) div                   -2 <>                    0 or
+        succ( abs(intExpr(                   0))) div                   -1 <>                   -1 then
+      writeln(" ***** div optimization with dividend > 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) div                    1 <>         integer.last or
+        succ( abs(intExpr( 9223372036854775806))) div                    2 <>  4611686018427387903 or
+        succ( abs(intExpr( 9223372036854775806))) div                    3 <>  3074457345618258602 or
+        succ( abs(intExpr( 9223372036854775806))) div             12345653 <>         747094709113 or
+        succ( abs(intExpr( 9223372036854775806))) div         integer.last <>                    1 or
         succ( abs(intExpr(            12345652))) div                    1 <>             12345653 or
         succ( abs(intExpr(            12345652))) div                    2 <>              6172826 or
         succ( abs(intExpr(            12345652))) div                    3 <>              4115217 or
         succ( abs(intExpr(            12345652))) div             12345653 <>                    1 or
         succ( abs(intExpr(            12345652))) div         integer.last <>                    0 or
-        succ( abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
-        succ( abs(intExpr(                   0))) div            -12345653 <>                    0 or
-        succ( abs(intExpr(                   0))) div                   -3 <>                    0 or
-        succ( abs(intExpr(                   0))) div                   -2 <>                    0 or
-        succ( abs(intExpr(                   0))) div                   -1 <>                   -1 or
         succ( abs(intExpr(                   0))) div                    1 <>                    1 or
         succ( abs(intExpr(                   0))) div                    2 <>                    0 or
         succ( abs(intExpr(                   0))) div                    3 <>                    0 or
         succ( abs(intExpr(                   0))) div             12345653 <>                    0 or
         succ( abs(intExpr(                   0))) div         integer.last <>                    0 then
-      writeln(" ***** div optimization with dividend > 0 and constant divisor does not work correctly.");
+      writeln(" ***** div optimization with dividend > 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -15540,6 +15556,803 @@ const proc: check_div is func
   end func;
 
 
+const func boolean: check_rem_optimization_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  pred(-abs(intExpr(        integer.last))) rem -9223372036854775807 <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) rem            -12345653 <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem                   -3 <>                   -2 or
+        pred(-abs(intExpr(        integer.last))) rem                   -2 <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) rem                   -1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem -9223372036854775807 <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem            -12345653 <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem                   -3 <>                   -2 or
+        pred(-abs(intExpr(            12345652))) rem                   -2 <>                   -1 or
+        pred(-abs(intExpr(            12345652))) rem                   -1 <>                    0 or
+        pred(-abs(intExpr(                   0))) rem -9223372036854775807 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem            -12345653 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem                   -3 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem                   -2 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem                   -1 <>                    0 then
+      writeln(" ***** rem optimization with dividend < 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem                    1 <>                    0 or
+        pred(-abs(intExpr(        integer.last))) rem                    2 <>                    0 or
+        pred(-abs(intExpr(        integer.last))) rem                    3 <>                   -2 or
+        pred(-abs(intExpr(        integer.last))) rem             12345653 <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem         integer.last <>                   -1 or
+        pred(-abs(intExpr(            12345652))) rem                    1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem                    2 <>                   -1 or
+        pred(-abs(intExpr(            12345652))) rem                    3 <>                   -2 or
+        pred(-abs(intExpr(            12345652))) rem             12345653 <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem         integer.last <>            -12345653 or
+        pred(-abs(intExpr(                   0))) rem                    1 <>                    0 or
+        pred(-abs(intExpr(                   0))) rem                    2 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem                    3 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem             12345653 <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem         integer.last <>                   -1 then
+      writeln(" ***** rem optimization with dividend < 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
+             -abs(intExpr(        integer.last))  rem            -12345653 <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem                   -3 <>                   -1 or
+             -abs(intExpr(        integer.last))  rem                   -2 <>                   -1 or
+             -abs(intExpr(        integer.last))  rem                   -1 <>                    0 or
+             -abs(intExpr(            12345653))  rem -9223372036854775807 <>            -12345653 or
+             -abs(intExpr(            12345653))  rem            -12345653 <>                    0 or
+             -abs(intExpr(            12345653))  rem                   -3 <>                   -2 or
+             -abs(intExpr(            12345653))  rem                   -2 <>                   -1 or
+             -abs(intExpr(            12345653))  rem                   -1 <>                    0 or
+             -abs(intExpr(                   1))  rem -9223372036854775807 <>                   -1 or
+             -abs(intExpr(                   1))  rem            -12345653 <>                   -1 or
+             -abs(intExpr(                   1))  rem                   -3 <>                   -1 or
+             -abs(intExpr(                   1))  rem                   -2 <>                   -1 or
+             -abs(intExpr(                   1))  rem                   -1 <>                    0 or
+             -abs(intExpr(                   0))  rem -9223372036854775807 <>                    0 or
+             -abs(intExpr(                   0))  rem            -12345653 <>                    0 or
+             -abs(intExpr(                   0))  rem                   -3 <>                    0 or
+             -abs(intExpr(                   0))  rem                   -2 <>                    0 or
+             -abs(intExpr(                   0))  rem                   -1 <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem                    1 <>                    0 or
+             -abs(intExpr(        integer.last))  rem                    2 <>                   -1 or
+             -abs(intExpr(        integer.last))  rem                    3 <>                   -1 or
+             -abs(intExpr(        integer.last))  rem             12345653 <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem         integer.last <>                    0 or
+             -abs(intExpr(            12345653))  rem                    1 <>                    0 or
+             -abs(intExpr(            12345653))  rem                    2 <>                   -1 or
+             -abs(intExpr(            12345653))  rem                    3 <>                   -2 or
+             -abs(intExpr(            12345653))  rem             12345653 <>                    0 or
+             -abs(intExpr(            12345653))  rem         integer.last <>            -12345653 or
+             -abs(intExpr(                   1))  rem                    1 <>                    0 or
+             -abs(intExpr(                   1))  rem                    2 <>                   -1 or
+             -abs(intExpr(                   1))  rem                    3 <>                   -1 or
+             -abs(intExpr(                   1))  rem             12345653 <>                   -1 or
+             -abs(intExpr(                   1))  rem         integer.last <>                   -1 or
+             -abs(intExpr(                   0))  rem                    1 <>                    0 or
+             -abs(intExpr(                   0))  rem                    2 <>                    0 or
+             -abs(intExpr(                   0))  rem                    3 <>                    0 or
+             -abs(intExpr(                   0))  rem             12345653 <>                    0 or
+             -abs(intExpr(                   0))  rem         integer.last <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
+              abs(intExpr(        integer.last))  rem            -12345653 <>              9740018 or
+              abs(intExpr(        integer.last))  rem                   -3 <>                    1 or
+              abs(intExpr(        integer.last))  rem                   -2 <>                    1 or
+              abs(intExpr(        integer.last))  rem                   -1 <>                    0 or
+              abs(intExpr(            12345653))  rem -9223372036854775807 <>             12345653 or
+              abs(intExpr(            12345653))  rem            -12345653 <>                    0 or
+              abs(intExpr(            12345653))  rem                   -3 <>                    2 or
+              abs(intExpr(            12345653))  rem                   -2 <>                    1 or
+              abs(intExpr(            12345653))  rem                   -1 <>                    0 or
+              abs(intExpr(                   1))  rem -9223372036854775807 <>                    1 or
+              abs(intExpr(                   1))  rem            -12345653 <>                    1 or
+              abs(intExpr(                   1))  rem                   -3 <>                    1 or
+              abs(intExpr(                   1))  rem                   -2 <>                    1 or
+              abs(intExpr(                   1))  rem                   -1 <>                    0 or
+              abs(intExpr(                   0))  rem -9223372036854775807 <>                    0 or
+              abs(intExpr(                   0))  rem            -12345653 <>                    0 or
+              abs(intExpr(                   0))  rem                   -3 <>                    0 or
+              abs(intExpr(                   0))  rem                   -2 <>                    0 or
+              abs(intExpr(                   0))  rem                   -1 <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem                    1 <>                    0 or
+              abs(intExpr(        integer.last))  rem                    2 <>                    1 or
+              abs(intExpr(        integer.last))  rem                    3 <>                    1 or
+              abs(intExpr(        integer.last))  rem             12345653 <>              9740018 or
+              abs(intExpr(        integer.last))  rem         integer.last <>                    0 or
+              abs(intExpr(            12345653))  rem                    1 <>                    0 or
+              abs(intExpr(            12345653))  rem                    2 <>                    1 or
+              abs(intExpr(            12345653))  rem                    3 <>                    2 or
+              abs(intExpr(            12345653))  rem             12345653 <>                    0 or
+              abs(intExpr(            12345653))  rem         integer.last <>             12345653 or
+              abs(intExpr(                   1))  rem                    1 <>                    0 or
+              abs(intExpr(                   1))  rem                    2 <>                    1 or
+              abs(intExpr(                   1))  rem                    3 <>                    1 or
+              abs(intExpr(                   1))  rem             12345653 <>                    1 or
+              abs(intExpr(                   1))  rem         integer.last <>                    1 or
+              abs(intExpr(                   0))  rem                    1 <>                    0 or
+              abs(intExpr(                   0))  rem                    2 <>                    0 or
+              abs(intExpr(                   0))  rem                    3 <>                    0 or
+              abs(intExpr(                   0))  rem             12345653 <>                    0 or
+              abs(intExpr(                   0))  rem         integer.last <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem -9223372036854775807 <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) rem            -12345653 <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem                   -3 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) rem                   -2 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) rem                   -1 <>                    0 or
+        succ( abs(intExpr(            12345652))) rem -9223372036854775807 <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem            -12345653 <>                    0 or
+        succ( abs(intExpr(            12345652))) rem                   -3 <>                    2 or
+        succ( abs(intExpr(            12345652))) rem                   -2 <>                    1 or
+        succ( abs(intExpr(            12345652))) rem                   -1 <>                    0 or
+        succ( abs(intExpr(                   0))) rem -9223372036854775807 <>                    1 or
+        succ( abs(intExpr(                   0))) rem            -12345653 <>                    1 or
+        succ( abs(intExpr(                   0))) rem                   -3 <>                    1 or
+        succ( abs(intExpr(                   0))) rem                   -2 <>                    1 or
+        succ( abs(intExpr(                   0))) rem                   -1 <>                    0 then
+      writeln(" ***** rem optimization with dividend > 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem                    1 <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) rem                    2 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) rem                    3 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) rem             12345653 <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem         integer.last <>                    0 or
+        succ( abs(intExpr(            12345652))) rem                    1 <>                    0 or
+        succ( abs(intExpr(            12345652))) rem                    2 <>                    1 or
+        succ( abs(intExpr(            12345652))) rem                    3 <>                    2 or
+        succ( abs(intExpr(            12345652))) rem             12345653 <>                    0 or
+        succ( abs(intExpr(            12345652))) rem         integer.last <>             12345653 or
+        succ( abs(intExpr(                   0))) rem                    1 <>                    0 or
+        succ( abs(intExpr(                   0))) rem                    2 <>                    1 or
+        succ( abs(intExpr(                   0))) rem                    3 <>                    1 or
+        succ( abs(intExpr(                   0))) rem             12345653 <>                    1 or
+        succ( abs(intExpr(                   0))) rem         integer.last <>                    1 then
+      writeln(" ***** rem optimization with dividend > 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem     (-abs(intExpr( 9223372036854775806)) - 2) <>                   0 or
+        integer.first rem     (-abs(intExpr(            12345651)) - 2) <>            -9740019 or
+        integer.first rem     (-abs(intExpr(                   0)) - 2) <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem pred(-abs(intExpr(        integer.last)))     <>                   0 or
+        integer.first rem pred(-abs(intExpr(            12345652)))     <>            -9740019 or
+        integer.first rem pred(-abs(intExpr(                   1)))     <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem      -abs(intExpr(        integer.last))      <>                  -1 or
+        integer.first rem      -abs(intExpr(            12345653))      <>            -9740019 or
+        integer.first rem      -abs(intExpr(                   2))      <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem pred( abs(intExpr(        integer.last)))     <>                  -2 or
+        integer.first rem pred( abs(intExpr(            12345654)))     <>            -9740019 or
+        integer.first rem pred( abs(intExpr(                   2)))     <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor >= -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem       abs(intExpr(        integer.last))      <>                  -1 or
+        integer.first rem       abs(intExpr(            12345653))      <>            -9740019 or
+        integer.first rem       abs(intExpr(                   1))      <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem succ( abs(intExpr( 9223372036854775806)))     <>                  -1 or
+        integer.first rem succ( abs(intExpr(            12345652)))     <>            -9740019 or
+        integer.first rem succ( abs(intExpr(                   0)))     <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem            pred(compare(intExpr(-1), 0))      <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor in {-2, -1, 0} does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem                  compare(intExpr(1), 0)       <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor in {-1, 0, 1} does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem                    ord(rand(TRUE, TRUE))      <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor in {0, 1} does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem             succ(ord(rand(FALSE, FALSE)))     <>                   0 then
+      writeln(" ***** rem optimization with dividend = integer.first and divisor in {1, 2} does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first rem           intExpr(       integer.first)       <>                   0 or
+        integer.first rem           intExpr(           -12345653)       <>            -9740019 or
+        integer.first rem           intExpr(                  -2)       <>                   0 or
+        integer.first rem           intExpr(                   1)       <>                   0 or
+        integer.first rem           intExpr(            12345653)       <>            -9740019 or
+        integer.first rem           intExpr(        integer.last)       <>                  -1 then
+      writeln(" ***** rem optimization with dividend = integer.first and any divisor does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  -3 rem                           rand( 1,  3)  not in {-1, 0} or
+        -2 rem                           rand( 1,  3)  not in {-2, 0} or
+        -1 rem                           rand( 1,  3)  not in {-1, 0} or
+         0 rem                           rand( 1,  3)  <>       0 or
+         1 rem                           rand( 1,  3)  not in { 0,  1} or
+         2 rem                           rand( 1,  3)  not in { 0,  2} or
+         3 rem                           rand( 1,  3)  not in { 0,  1} or
+        -3 rem                           rand(-3, -1)  not in {-1,  0} or
+        -2 rem                           rand(-3, -1)  not in {-2,  0} or
+        -1 rem                           rand(-3, -1)  not in {-1,  0} or
+         0 rem                           rand(-3, -1)  <>       0 or
+         1 rem                           rand(-3, -1)  not in { 0,  1} or
+         2 rem                           rand(-3, -1)  not in { 0,  2} or
+         3 rem                           rand(-3, -1)  not in { 0,  1} or
+         1 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in { 0,  1} or
+         2 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) <>       0 or
+         3 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in { 0,  1} or
+        -3 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0} or
+        -2 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) <>       0 or
+        -1 rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0} then
+      writeln(" ***** rem with a constant dividend and a divisor in a range does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if   integer.last rem pred(-abs(intExpr(       integer.last))) <>  9223372036854775807 or
+         integer.last rem pred(-abs(intExpr(           12345652))) <>              9740018 or
+         integer.last rem pred(-abs(intExpr(                  0))) <>                    0 or
+             12345653 rem pred(-abs(intExpr(       integer.last))) <>             12345653 or
+             12345653 rem pred(-abs(intExpr(           12345652))) <>                    0 or
+             12345653 rem pred(-abs(intExpr(                  0))) <>                    0 or
+                    1 rem pred(-abs(intExpr(       integer.last))) <>                    1 or
+                    1 rem pred(-abs(intExpr(           12345652))) <>                    1 or
+                    1 rem pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with constant dividend > 0 and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if   integer.last rem      -abs(intExpr(       integer.last))  <>                    0 or
+         integer.last rem      -abs(intExpr(           12345653))  <>              9740018 or
+         integer.last rem      -abs(intExpr(                  1))  <>                    0 or
+             12345653 rem      -abs(intExpr(       integer.last))  <>             12345653 or
+             12345653 rem      -abs(intExpr(           12345653))  <>                    0 or
+             12345653 rem      -abs(intExpr(                  1))  <>                    0 or
+                    1 rem      -abs(intExpr(       integer.last))  <>                    1 or
+                    1 rem      -abs(intExpr(           12345653))  <>                    1 or
+                    1 rem      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with constant dividend > 0 and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 rem       abs(intExpr(       integer.last))  <>                    0 or
+        -9223372036854775807 rem       abs(intExpr(           12345653))  <>             -9740018 or
+        -9223372036854775807 rem       abs(intExpr(                  1))  <>                    0 or
+                   -12345653 rem       abs(intExpr(       integer.last))  <>            -12345653 or
+                   -12345653 rem       abs(intExpr(           12345653))  <>                    0 or
+                   -12345653 rem       abs(intExpr(                  1))  <>                    0 or
+                          -1 rem       abs(intExpr(       integer.last))  <>                   -1 or
+                          -1 rem       abs(intExpr(           12345653))  <>                   -1 or
+                          -1 rem       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with constant dividend < 0 and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        -9223372036854775807 rem succ( abs(intExpr(           12345652))) <>             -9740018 or
+        -9223372036854775807 rem succ( abs(intExpr(                  0))) <>                    0 or
+                   -12345653 rem succ( abs(intExpr(9223372036854775806))) <>            -12345653 or
+                   -12345653 rem succ( abs(intExpr(           12345652))) <>                    0 or
+                   -12345653 rem succ( abs(intExpr(                  0))) <>                    0 or
+                          -1 rem succ( abs(intExpr(9223372036854775806))) <>                   -1 or
+                          -1 rem succ( abs(intExpr(           12345652))) <>                   -1 or
+                          -1 rem succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with constant dividend < 0 and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_rem_optimization_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  succ(intExpr(       integer.first)) rem (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+        succ(intExpr(       integer.first)) rem (-abs(intExpr(            12345651)) - 2) <>             -9740018 or
+        succ(intExpr(       integer.first)) rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(           -12345654)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+        succ(intExpr(           -12345654)) rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(           -12345654)) rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(                  -3)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                   -2 or
+        succ(intExpr(                  -3)) rem (-abs(intExpr(            12345651)) - 2) <>                   -2 or
+        succ(intExpr(                  -3)) rem (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(                  -2)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ(intExpr(                  -2)) rem (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        succ(intExpr(                  -2)) rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(                  -1)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        succ(intExpr(                  -1)) rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(                  -1)) rem (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(                   0)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    1 or
+        succ(intExpr(                   0)) rem (-abs(intExpr(            12345651)) - 2) <>                    1 or
+        succ(intExpr(                   0)) rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+        succ(intExpr(                   1)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    2 or
+        succ(intExpr(                   1)) rem (-abs(intExpr(            12345651)) - 2) <>                    2 or
+        succ(intExpr(                   1)) rem (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(            12345652)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>             12345653 or
+        succ(intExpr(            12345652)) rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(            12345652)) rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+        succ(intExpr( 9223372036854775806)) rem (-abs(intExpr( 9223372036854775806)) - 2) <>  9223372036854775807 or
+        succ(intExpr( 9223372036854775806)) rem (-abs(intExpr(            12345651)) - 2) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem (-abs(intExpr(                   0)) - 2) <>                    1 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) rem pred(-abs(intExpr(        integer.last))) <> -9223372036854775807 or
+        succ(intExpr(       integer.first)) rem pred(-abs(intExpr(            12345652))) <>             -9740018 or
+        succ(intExpr(       integer.first)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(           -12345654)) rem pred(-abs(intExpr(        integer.last))) <>            -12345653 or
+        succ(intExpr(           -12345654)) rem pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(           -12345654)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) rem pred(-abs(intExpr(        integer.last))) <>                   -2 or
+        succ(intExpr(                  -3)) rem pred(-abs(intExpr(            12345652))) <>                   -2 or
+        succ(intExpr(                  -3)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) rem pred(-abs(intExpr(        integer.last))) <>                   -1 or
+        succ(intExpr(                  -2)) rem pred(-abs(intExpr(            12345652))) <>                   -1 or
+        succ(intExpr(                  -2)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred(-abs(intExpr(        integer.last))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) rem pred(-abs(intExpr(        integer.last))) <>                    1 or
+        succ(intExpr(                   0)) rem pred(-abs(intExpr(            12345652))) <>                    1 or
+        succ(intExpr(                   0)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) rem pred(-abs(intExpr(        integer.last))) <>                    2 or
+        succ(intExpr(                   1)) rem pred(-abs(intExpr(            12345652))) <>                    2 or
+        succ(intExpr(                   1)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) rem pred(-abs(intExpr(        integer.last))) <>             12345653 or
+        succ(intExpr(            12345652)) rem pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(            12345652)) rem pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem pred(-abs(intExpr(        integer.last))) <>  9223372036854775807 or
+        succ(intExpr( 9223372036854775806)) rem pred(-abs(intExpr(            12345652))) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem pred(-abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) rem      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(       integer.first)) rem      -abs(intExpr(            12345653))  <>             -9740018 or
+        succ(intExpr(       integer.first)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(           -12345654)) rem      -abs(intExpr(        integer.last))  <>            -12345653 or
+        succ(intExpr(           -12345654)) rem      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(           -12345654)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -3)) rem      -abs(intExpr(        integer.last))  <>                   -2 or
+        succ(intExpr(                  -3)) rem      -abs(intExpr(            12345653))  <>                   -2 or
+        succ(intExpr(                  -3)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -2)) rem      -abs(intExpr(        integer.last))  <>                   -1 or
+        succ(intExpr(                  -2)) rem      -abs(intExpr(            12345653))  <>                   -1 or
+        succ(intExpr(                  -2)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -1)) rem      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(                  -1)) rem      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(                  -1)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   0)) rem      -abs(intExpr(        integer.last))  <>                    1 or
+        succ(intExpr(                   0)) rem      -abs(intExpr(            12345653))  <>                    1 or
+        succ(intExpr(                   0)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   1)) rem      -abs(intExpr(        integer.last))  <>                    2 or
+        succ(intExpr(                   1)) rem      -abs(intExpr(            12345653))  <>                    2 or
+        succ(intExpr(                   1)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(            12345652)) rem      -abs(intExpr(        integer.last))  <>             12345653 or
+        succ(intExpr(            12345652)) rem      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(            12345652)) rem      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem      -abs(intExpr(            12345653))  <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem      -abs(intExpr(                   1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) rem pred( abs(intExpr(        integer.last))) <>                   -1 or
+        succ(intExpr(       integer.first)) rem pred( abs(intExpr(            12345654))) <>             -9740018 or
+        succ(intExpr(       integer.first)) rem pred( abs(intExpr(                   2))) <>                    0 or
+        succ(intExpr(           -12345654)) rem pred( abs(intExpr(        integer.last))) <>            -12345653 or
+        succ(intExpr(           -12345654)) rem pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(           -12345654)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) rem pred( abs(intExpr(        integer.last))) <>                   -2 or
+        succ(intExpr(                  -3)) rem pred( abs(intExpr(            12345654))) <>                   -2 or
+        succ(intExpr(                  -3)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) rem pred( abs(intExpr(        integer.last))) <>                   -1 or
+        succ(intExpr(                  -2)) rem pred( abs(intExpr(            12345654))) <>                   -1 or
+        succ(intExpr(                  -2)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred( abs(intExpr(        integer.last))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(                  -1)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) rem pred( abs(intExpr(        integer.last))) <>                    1 or
+        succ(intExpr(                   0)) rem pred( abs(intExpr(            12345654))) <>                    1 or
+        succ(intExpr(                   0)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) rem pred( abs(intExpr(        integer.last))) <>                    2 or
+        succ(intExpr(                   1)) rem pred( abs(intExpr(            12345654))) <>                    2 or
+        succ(intExpr(                   1)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) rem pred( abs(intExpr(        integer.last))) <>             12345653 or
+        succ(intExpr(            12345652)) rem pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(            12345652)) rem pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem pred( abs(intExpr(        integer.last))) <>                    1 or
+        succ(intExpr( 9223372036854775806)) rem pred( abs(intExpr(            12345654))) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem pred( abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor >= -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) rem       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(       integer.first)) rem       abs(intExpr(            12345653))  <>             -9740018 or
+        succ(intExpr(       integer.first)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(           -12345654)) rem       abs(intExpr(        integer.last))  <>            -12345653 or
+        succ(intExpr(           -12345654)) rem       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(           -12345654)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -3)) rem       abs(intExpr(        integer.last))  <>                   -2 or
+        succ(intExpr(                  -3)) rem       abs(intExpr(            12345653))  <>                   -2 or
+        succ(intExpr(                  -3)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -2)) rem       abs(intExpr(        integer.last))  <>                   -1 or
+        succ(intExpr(                  -2)) rem       abs(intExpr(            12345653))  <>                   -1 or
+        succ(intExpr(                  -2)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -1)) rem       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(                  -1)) rem       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(                  -1)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   0)) rem       abs(intExpr(        integer.last))  <>                    1 or
+        succ(intExpr(                   0)) rem       abs(intExpr(            12345653))  <>                    1 or
+        succ(intExpr(                   0)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   1)) rem       abs(intExpr(        integer.last))  <>                    2 or
+        succ(intExpr(                   1)) rem       abs(intExpr(            12345653))  <>                    2 or
+        succ(intExpr(                   1)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(            12345652)) rem       abs(intExpr(        integer.last))  <>             12345653 or
+        succ(intExpr(            12345652)) rem       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(            12345652)) rem       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem       abs(intExpr(            12345653))  <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem       abs(intExpr(                   1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) rem succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr(       integer.first)) rem succ( abs(intExpr(            12345652))) <>             -9740018 or
+        succ(intExpr(       integer.first)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(           -12345654)) rem succ( abs(intExpr( 9223372036854775806))) <>            -12345653 or
+        succ(intExpr(           -12345654)) rem succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(           -12345654)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) rem succ( abs(intExpr( 9223372036854775806))) <>                   -2 or
+        succ(intExpr(                  -3)) rem succ( abs(intExpr(            12345652))) <>                   -2 or
+        succ(intExpr(                  -3)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) rem succ( abs(intExpr( 9223372036854775806))) <>                   -1 or
+        succ(intExpr(                  -2)) rem succ( abs(intExpr(            12345652))) <>                   -1 or
+        succ(intExpr(                  -2)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) rem succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr(                  -1)) rem succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(                  -1)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) rem succ( abs(intExpr( 9223372036854775806))) <>                    1 or
+        succ(intExpr(                   0)) rem succ( abs(intExpr(            12345652))) <>                    1 or
+        succ(intExpr(                   0)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) rem succ( abs(intExpr( 9223372036854775806))) <>                    2 or
+        succ(intExpr(                   1)) rem succ( abs(intExpr(            12345652))) <>                    2 or
+        succ(intExpr(                   1)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) rem succ( abs(intExpr( 9223372036854775806))) <>             12345653 or
+        succ(intExpr(            12345652)) rem succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(            12345652)) rem succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) rem succ( abs(intExpr(            12345652))) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) rem succ( abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend > integer.first and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_rem_optimization_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  rand( 1,  3) rem                           rand(-3, -1)  not in { 0,  1,  2} or
+        rand(-3, -1) rem                           rand( 1,  3)  not in {-2, -1,  0} or
+        rand(-2,  2) rem                           rand(-3, -1)  not in {-2, -1,  0,  1,  2} or
+        rand( 1,  3) rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in { 0,  1} or
+        rand(-2,  2) rem                           rand( 1,  3)  not in {-2, -1,  0,  1,  2} or
+        rand(-3, -1) rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0} or
+        rand(-2,  2) rem (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} then
+      writeln(" ***** rem with dividend and divisor in a range does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        pred(-abs(intExpr(        integer.last))) rem (-abs(intExpr(            12345651)) - 2) <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem (-abs(intExpr(                   0)) - 2) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem (-abs(intExpr(                   0)) - 2) <>                   -1 then
+      writeln(" ***** rem optimization with dividend < 0 and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem pred(-abs(intExpr(       integer.last))) <>                    0 or
+        pred(-abs(intExpr(        integer.last))) rem pred(-abs(intExpr(           12345652))) <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem pred(-abs(intExpr(                  1))) <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) rem pred(-abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem pred(-abs(intExpr(       integer.last))) <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem pred(-abs(intExpr(           12345652))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem pred(-abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(                   0))) rem pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem pred(-abs(intExpr(           12345652))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend < 0 and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem      -abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) rem      -abs(intExpr(           12345653))  <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem      -abs(intExpr(                  2))  <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) rem      -abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem      -abs(intExpr(       integer.last))  <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem      -abs(intExpr(           12345653))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem      -abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(                   0))) rem      -abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem      -abs(intExpr(           12345653))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend < 0 and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem       abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) rem       abs(intExpr(           12345653))  <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem       abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem       abs(intExpr(       integer.last))  <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem       abs(intExpr(           12345653))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem       abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(                   0))) rem       abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem       abs(intExpr(           12345653))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend < 0 and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) rem succ( abs(intExpr(9223372036854775806))) <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) rem succ( abs(intExpr(           12345652))) <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) rem succ( abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem succ( abs(intExpr(9223372036854775806))) <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) rem succ( abs(intExpr(           12345652))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem succ( abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(                   0))) rem succ( abs(intExpr(9223372036854775806))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem succ( abs(intExpr(           12345652))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) rem succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend < 0 and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  rem (-abs(intExpr(            12345651)) - 2) <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+             -abs(intExpr(            12345653))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+             -abs(intExpr(            12345653))  rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+             -abs(intExpr(            12345653))  rem (-abs(intExpr(                   0)) - 2) <>                   -1 or
+             -abs(intExpr(                   0))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  rem (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem pred(-abs(intExpr(       integer.last))) <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  rem pred(-abs(intExpr(           12345652))) <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem pred(-abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(            12345653))  rem pred(-abs(intExpr(       integer.last))) <>            -12345653 or
+             -abs(intExpr(            12345653))  rem pred(-abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(            12345653))  rem pred(-abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(                   0))  rem pred(-abs(intExpr(       integer.last))) <>                    0 or
+             -abs(intExpr(                   0))  rem pred(-abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  rem pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(        integer.last))  rem      -abs(intExpr(           12345653))  <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem      -abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(            12345653))  rem      -abs(intExpr(       integer.last))  <>            -12345653 or
+             -abs(intExpr(            12345653))  rem      -abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(            12345653))  rem      -abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(                   0))  rem      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  rem      -abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  rem      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem       abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(        integer.last))  rem       abs(intExpr(           12345653))  <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem       abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(            12345653))  rem       abs(intExpr(       integer.last))  <>            -12345653 or
+             -abs(intExpr(            12345653))  rem       abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(            12345653))  rem       abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(                   0))  rem       abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  rem       abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  rem       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+             -abs(intExpr(        integer.last))  rem succ( abs(intExpr(           12345652))) <>             -9740018 or
+             -abs(intExpr(        integer.last))  rem succ( abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(            12345653))  rem succ( abs(intExpr(9223372036854775806))) <>            -12345653 or
+             -abs(intExpr(            12345653))  rem succ( abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(            12345653))  rem succ( abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(                   0))  rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+             -abs(intExpr(                   0))  rem succ( abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  rem succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend <= 0 and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>  9223372036854775807 or
+              abs(intExpr(        integer.last))  rem (-abs(intExpr(            12345651)) - 2) <>              9740018 or
+              abs(intExpr(        integer.last))  rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+              abs(intExpr(            12345653))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>             12345653 or
+              abs(intExpr(            12345653))  rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+              abs(intExpr(            12345653))  rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+              abs(intExpr(                   0))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+              abs(intExpr(                   0))  rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+              abs(intExpr(                   0))  rem (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem pred(-abs(intExpr(       integer.last))) <>  9223372036854775807 or
+              abs(intExpr(        integer.last))  rem pred(-abs(intExpr(           12345652))) <>              9740018 or
+              abs(intExpr(        integer.last))  rem pred(-abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(            12345653))  rem pred(-abs(intExpr(       integer.last))) <>             12345653 or
+              abs(intExpr(            12345653))  rem pred(-abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(            12345653))  rem pred(-abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(                   0))  rem pred(-abs(intExpr(       integer.last))) <>                    0 or
+              abs(intExpr(                   0))  rem pred(-abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  rem pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem      -abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(        integer.last))  rem      -abs(intExpr(           12345653))  <>              9740018 or
+              abs(intExpr(        integer.last))  rem      -abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(            12345653))  rem      -abs(intExpr(       integer.last))  <>             12345653 or
+              abs(intExpr(            12345653))  rem      -abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(            12345653))  rem      -abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(                   0))  rem      -abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  rem      -abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  rem      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(        integer.last))  rem       abs(intExpr(           12345653))  <>              9740018 or
+              abs(intExpr(        integer.last))  rem       abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(            12345653))  rem       abs(intExpr(       integer.last))  <>             12345653 or
+              abs(intExpr(            12345653))  rem       abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(            12345653))  rem       abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(                   0))  rem       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  rem       abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  rem       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(        integer.last))  rem succ( abs(intExpr(           12345652))) <>              9740018 or
+              abs(intExpr(        integer.last))  rem succ( abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(            12345653))  rem succ( abs(intExpr(9223372036854775806))) <>             12345653 or
+              abs(intExpr(            12345653))  rem succ( abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(            12345653))  rem succ( abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(                   0))  rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(                   0))  rem succ( abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  rem succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend >= 0 and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>  9223372036854775807 or
+        succ( abs(intExpr( 9223372036854775806))) rem (-abs(intExpr(            12345651)) - 2) <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+        succ( abs(intExpr(            12345652))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ( abs(intExpr(            12345652))) rem (-abs(intExpr(                   0)) - 2) <>                    1 or
+        succ( abs(intExpr(                   0))) rem (-abs(intExpr( 9223372036854775806)) - 2) <>                    1 or
+        succ( abs(intExpr(                   0))) rem (-abs(intExpr(            12345651)) - 2) <>                    1 or
+        succ( abs(intExpr(                   0))) rem (-abs(intExpr(                   0)) - 2) <>                    1 then
+      writeln(" ***** rem optimization with dividend > 0 and divisor < -1 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem pred(-abs(intExpr(       integer.last))) <>  9223372036854775807 or
+        succ( abs(intExpr( 9223372036854775806))) rem pred(-abs(intExpr(           12345652))) <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem pred(-abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(            12345652))) rem pred(-abs(intExpr(       integer.last))) <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem pred(-abs(intExpr(           12345652))) <>                    0 or
+        succ( abs(intExpr(            12345652))) rem pred(-abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(                   0))) rem pred(-abs(intExpr(       integer.last))) <>                    1 or
+        succ( abs(intExpr(                   0))) rem pred(-abs(intExpr(           12345652))) <>                    1 or
+        succ( abs(intExpr(                   0))) rem pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend > 0 and divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem      -abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) rem      -abs(intExpr(           12345653))  <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem      -abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(            12345652))) rem      -abs(intExpr(       integer.last))  <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem      -abs(intExpr(           12345653))  <>                    0 or
+        succ( abs(intExpr(            12345652))) rem      -abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(                   0))) rem      -abs(intExpr(       integer.last))  <>                    1 or
+        succ( abs(intExpr(                   0))) rem      -abs(intExpr(           12345653))  <>                    1 or
+        succ( abs(intExpr(                   0))) rem      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend > 0 and divisor <= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem       abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) rem       abs(intExpr(           12345653))  <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem       abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(            12345652))) rem       abs(intExpr(       integer.last))  <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem       abs(intExpr(           12345653))  <>                    0 or
+        succ( abs(intExpr(            12345652))) rem       abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(                   0))) rem       abs(intExpr(       integer.last))  <>                    1 or
+        succ( abs(intExpr(                   0))) rem       abs(intExpr(           12345653))  <>                    1 or
+        succ( abs(intExpr(                   0))) rem       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** rem optimization with dividend > 0 and divisor >= 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) rem succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) rem succ( abs(intExpr(           12345652))) <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) rem succ( abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(            12345652))) rem succ( abs(intExpr(9223372036854775806))) <>             12345653 or
+        succ( abs(intExpr(            12345652))) rem succ( abs(intExpr(           12345652))) <>                    0 or
+        succ( abs(intExpr(            12345652))) rem succ( abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(                   0))) rem succ( abs(intExpr(9223372036854775806))) <>                    1 or
+        succ( abs(intExpr(                   0))) rem succ( abs(intExpr(           12345652))) <>                    1 or
+        succ( abs(intExpr(                   0))) rem succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** rem optimization with dividend > 0 and divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_rem_division_check_optimization is func
   result
     var boolean: okay is TRUE;
@@ -16782,6 +17595,18 @@ const proc: check_rem is func
       okay := FALSE;
     end if;
 
+    if not check_rem_optimization_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_rem_optimization_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_rem_optimization_3 then
+      okay := FALSE;
+    end if;
+
     if not check_rem_division_check_optimization then
       okay := FALSE;
     end if;
@@ -17322,32 +18147,36 @@ const func boolean: check_mdiv_optimization_1 is func
         pred(-abs(intExpr(        integer.last))) mdiv                   -3 <>  3074457345618258602 or
         pred(-abs(intExpr(        integer.last))) mdiv                   -2 <>  4611686018427387904 or
         pred(-abs(intExpr( 9223372036854775806))) mdiv                   -1 <>  9223372036854775807 or
-        pred(-abs(intExpr(        integer.last))) mdiv                    1 <>        integer.first or
-        pred(-abs(intExpr(        integer.last))) mdiv                    2 <> -4611686018427387904 or
-        pred(-abs(intExpr(        integer.last))) mdiv                    3 <> -3074457345618258603 or
-        pred(-abs(intExpr(        integer.last))) mdiv             12345653 <>        -747094709114 or
-        pred(-abs(intExpr(        integer.last))) mdiv         integer.last <>                   -2 or
         pred(-abs(intExpr(            12345652))) mdiv -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(            12345652))) mdiv            -12345653 <>                    1 or
         pred(-abs(intExpr(            12345652))) mdiv                   -3 <>              4115217 or
         pred(-abs(intExpr(            12345652))) mdiv                   -2 <>              6172826 or
         pred(-abs(intExpr(            12345652))) mdiv                   -1 <>             12345653 or
+        pred(-abs(intExpr(                   0))) mdiv -9223372036854775807 <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv            -12345653 <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv                   -3 <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv                   -2 <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv                   -1 <>                    1 then
+      writeln(" ***** mdiv optimization with dividend < 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mdiv                    1 <>        integer.first or
+        pred(-abs(intExpr(        integer.last))) mdiv                    2 <> -4611686018427387904 or
+        pred(-abs(intExpr(        integer.last))) mdiv                    3 <> -3074457345618258603 or
+        pred(-abs(intExpr(        integer.last))) mdiv             12345653 <>        -747094709114 or
+        pred(-abs(intExpr(        integer.last))) mdiv         integer.last <>                   -2 or
         pred(-abs(intExpr(            12345652))) mdiv                    1 <>            -12345653 or
         pred(-abs(intExpr(            12345652))) mdiv                    2 <>             -6172827 or
         pred(-abs(intExpr(            12345652))) mdiv                    3 <>             -4115218 or
         pred(-abs(intExpr(            12345652))) mdiv             12345653 <>                   -1 or
         pred(-abs(intExpr(            12345652))) mdiv         integer.last <>                   -1 or
-        pred(-abs(intExpr(                   0))) mdiv -9223372036854775807 <>                    0 or
-        pred(-abs(intExpr(                   0))) mdiv            -12345653 <>                    0 or
-        pred(-abs(intExpr(                   0))) mdiv                   -3 <>                    0 or
-        pred(-abs(intExpr(                   0))) mdiv                   -2 <>                    0 or
-        pred(-abs(intExpr(                   0))) mdiv                   -1 <>                    1 or
         pred(-abs(intExpr(                   0))) mdiv                    1 <>                   -1 or
         pred(-abs(intExpr(                   0))) mdiv                    2 <>                   -1 or
         pred(-abs(intExpr(                   0))) mdiv                    3 <>                   -1 or
         pred(-abs(intExpr(                   0))) mdiv             12345653 <>                   -1 or
         pred(-abs(intExpr(                   0))) mdiv         integer.last <>                   -1 then
-      writeln(" ***** mdiv optimization with dividend < 0 and constant divisor does not work correctly.");
+      writeln(" ***** mdiv optimization with dividend < 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17356,42 +18185,46 @@ const func boolean: check_mdiv_optimization_1 is func
              -abs(intExpr(        integer.last))  mdiv                   -3 <>  3074457345618258602 or
              -abs(intExpr(        integer.last))  mdiv                   -2 <>  4611686018427387903 or
              -abs(intExpr(        integer.last))  mdiv                   -1 <>         integer.last or
-             -abs(intExpr(        integer.last))  mdiv                    1 <> -9223372036854775807 or
-             -abs(intExpr(        integer.last))  mdiv                    2 <> -4611686018427387904 or
-             -abs(intExpr(        integer.last))  mdiv                    3 <> -3074457345618258603 or
-             -abs(intExpr(        integer.last))  mdiv             12345653 <>        -747094709114 or
-             -abs(intExpr(        integer.last))  mdiv         integer.last <>                   -1 or
              -abs(intExpr(            12345653))  mdiv -9223372036854775807 <>                    0 or
              -abs(intExpr(            12345653))  mdiv            -12345653 <>                    1 or
              -abs(intExpr(            12345653))  mdiv                   -3 <>              4115217 or
              -abs(intExpr(            12345653))  mdiv                   -2 <>              6172826 or
              -abs(intExpr(            12345653))  mdiv                   -1 <>             12345653 or
-             -abs(intExpr(            12345653))  mdiv                    1 <>            -12345653 or
-             -abs(intExpr(            12345653))  mdiv                    2 <>             -6172827 or
-             -abs(intExpr(            12345653))  mdiv                    3 <>             -4115218 or
-             -abs(intExpr(            12345653))  mdiv             12345653 <>                   -1 or
-             -abs(intExpr(            12345653))  mdiv         integer.last <>                   -1 or
              -abs(intExpr(                   1))  mdiv -9223372036854775807 <>                    0 or
              -abs(intExpr(                   1))  mdiv            -12345653 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -3 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -2 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -1 <>                    1 or
+             -abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
+             -abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
+             -abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
+             -abs(intExpr(                   0))  mdiv                   -2 <>                    0 or
+             -abs(intExpr(                   0))  mdiv                   -1 <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv                    1 <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  mdiv                    2 <> -4611686018427387904 or
+             -abs(intExpr(        integer.last))  mdiv                    3 <> -3074457345618258603 or
+             -abs(intExpr(        integer.last))  mdiv             12345653 <>        -747094709114 or
+             -abs(intExpr(        integer.last))  mdiv         integer.last <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv                    1 <>            -12345653 or
+             -abs(intExpr(            12345653))  mdiv                    2 <>             -6172827 or
+             -abs(intExpr(            12345653))  mdiv                    3 <>             -4115218 or
+             -abs(intExpr(            12345653))  mdiv             12345653 <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv         integer.last <>                   -1 or
              -abs(intExpr(                   1))  mdiv                    1 <>                   -1 or
              -abs(intExpr(                   1))  mdiv                    2 <>                   -1 or
              -abs(intExpr(                   1))  mdiv                    3 <>                   -1 or
              -abs(intExpr(                   1))  mdiv             12345653 <>                   -1 or
              -abs(intExpr(                   1))  mdiv         integer.last <>                   -1 or
-             -abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
-             -abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
-             -abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
-             -abs(intExpr(                   0))  mdiv                   -2 <>                    0 or
-             -abs(intExpr(                   0))  mdiv                   -1 <>                    0 or
              -abs(intExpr(                   0))  mdiv                    1 <>                    0 or
              -abs(intExpr(                   0))  mdiv                    2 <>                    0 or
              -abs(intExpr(                   0))  mdiv                    3 <>                    0 or
              -abs(intExpr(                   0))  mdiv             12345653 <>                    0 or
              -abs(intExpr(                   0))  mdiv         integer.last <>                    0 then
-      writeln(" ***** mdiv optimization with dividend <= 0 and constant divisor does not work correctly.");
+      writeln(" ***** mdiv optimization with dividend <= 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17400,42 +18233,46 @@ const func boolean: check_mdiv_optimization_1 is func
               abs(intExpr(        integer.last))  mdiv                   -3 <> -3074457345618258603 or
               abs(intExpr(        integer.last))  mdiv                   -2 <> -4611686018427387904 or
               abs(intExpr(        integer.last))  mdiv                   -1 <> -9223372036854775807 or
-              abs(intExpr(        integer.last))  mdiv                    1 <>         integer.last or
-              abs(intExpr(        integer.last))  mdiv                    2 <>  4611686018427387903 or
-              abs(intExpr(        integer.last))  mdiv                    3 <>  3074457345618258602 or
-              abs(intExpr(        integer.last))  mdiv             12345653 <>         747094709113 or
-              abs(intExpr(        integer.last))  mdiv         integer.last <>                    1 or
               abs(intExpr(            12345653))  mdiv -9223372036854775807 <>                   -1 or
               abs(intExpr(            12345653))  mdiv            -12345653 <>                   -1 or
               abs(intExpr(            12345653))  mdiv                   -3 <>             -4115218 or
               abs(intExpr(            12345653))  mdiv                   -2 <>             -6172827 or
               abs(intExpr(            12345653))  mdiv                   -1 <>            -12345653 or
-              abs(intExpr(            12345653))  mdiv                    1 <>             12345653 or
-              abs(intExpr(            12345653))  mdiv                    2 <>              6172826 or
-              abs(intExpr(            12345653))  mdiv                    3 <>              4115217 or
-              abs(intExpr(            12345653))  mdiv             12345653 <>                    1 or
-              abs(intExpr(            12345653))  mdiv         integer.last <>                    0 or
               abs(intExpr(                   1))  mdiv -9223372036854775807 <>                   -1 or
               abs(intExpr(                   1))  mdiv            -12345653 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -3 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -2 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -1 <>                   -1 or
+              abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
+              abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
+              abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
+              abs(intExpr(                   0))  mdiv                   -2 <>                    0 or
+              abs(intExpr(                   0))  mdiv                   -1 <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mdiv                    1 <>         integer.last or
+              abs(intExpr(        integer.last))  mdiv                    2 <>  4611686018427387903 or
+              abs(intExpr(        integer.last))  mdiv                    3 <>  3074457345618258602 or
+              abs(intExpr(        integer.last))  mdiv             12345653 <>         747094709113 or
+              abs(intExpr(        integer.last))  mdiv         integer.last <>                    1 or
+              abs(intExpr(            12345653))  mdiv                    1 <>             12345653 or
+              abs(intExpr(            12345653))  mdiv                    2 <>              6172826 or
+              abs(intExpr(            12345653))  mdiv                    3 <>              4115217 or
+              abs(intExpr(            12345653))  mdiv             12345653 <>                    1 or
+              abs(intExpr(            12345653))  mdiv         integer.last <>                    0 or
               abs(intExpr(                   1))  mdiv                    1 <>                    1 or
               abs(intExpr(                   1))  mdiv                    2 <>                    0 or
               abs(intExpr(                   1))  mdiv                    3 <>                    0 or
               abs(intExpr(                   1))  mdiv             12345653 <>                    0 or
               abs(intExpr(                   1))  mdiv         integer.last <>                    0 or
-              abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
-              abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
-              abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
-              abs(intExpr(                   0))  mdiv                   -2 <>                    0 or
-              abs(intExpr(                   0))  mdiv                   -1 <>                    0 or
               abs(intExpr(                   0))  mdiv                    1 <>                    0 or
               abs(intExpr(                   0))  mdiv                    2 <>                    0 or
               abs(intExpr(                   0))  mdiv                    3 <>                    0 or
               abs(intExpr(                   0))  mdiv             12345653 <>                    0 or
               abs(intExpr(                   0))  mdiv         integer.last <>                    0 then
-      writeln(" ***** mdiv optimization with dividend >= 0 and constant divisor does not work correctly.");
+      writeln(" ***** mdiv optimization with dividend >= 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -17444,32 +18281,36 @@ const func boolean: check_mdiv_optimization_1 is func
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -3 <> -3074457345618258603 or
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -2 <> -4611686018427387904 or
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -1 <> -9223372036854775807 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv                    1 <>         integer.last or
-        succ( abs(intExpr( 9223372036854775806))) mdiv                    2 <>  4611686018427387903 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv                    3 <>  3074457345618258602 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv             12345653 <>         747094709113 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv         integer.last <>                    1 or
         succ( abs(intExpr(            12345652))) mdiv -9223372036854775807 <>                   -1 or
         succ( abs(intExpr(            12345652))) mdiv            -12345653 <>                   -1 or
         succ( abs(intExpr(            12345652))) mdiv                   -3 <>             -4115218 or
         succ( abs(intExpr(            12345652))) mdiv                   -2 <>             -6172827 or
         succ( abs(intExpr(            12345652))) mdiv                   -1 <>            -12345653 or
+        succ( abs(intExpr(                   0))) mdiv -9223372036854775807 <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv            -12345653 <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv                   -3 <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv                   -2 <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv                   -1 <>                   -1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv                    1 <>         integer.last or
+        succ( abs(intExpr( 9223372036854775806))) mdiv                    2 <>  4611686018427387903 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv                    3 <>  3074457345618258602 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv             12345653 <>         747094709113 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv         integer.last <>                    1 or
         succ( abs(intExpr(            12345652))) mdiv                    1 <>             12345653 or
         succ( abs(intExpr(            12345652))) mdiv                    2 <>              6172826 or
         succ( abs(intExpr(            12345652))) mdiv                    3 <>              4115217 or
         succ( abs(intExpr(            12345652))) mdiv             12345653 <>                    1 or
         succ( abs(intExpr(            12345652))) mdiv         integer.last <>                    0 or
-        succ( abs(intExpr(                   0))) mdiv -9223372036854775807 <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv            -12345653 <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv                   -3 <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv                   -2 <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv                   -1 <>                   -1 or
         succ( abs(intExpr(                   0))) mdiv                    1 <>                    1 or
         succ( abs(intExpr(                   0))) mdiv                    2 <>                    0 or
         succ( abs(intExpr(                   0))) mdiv                    3 <>                    0 or
         succ( abs(intExpr(                   0))) mdiv             12345653 <>                    0 or
         succ( abs(intExpr(                   0))) mdiv         integer.last <>                    0 then
-      writeln(" ***** mdiv optimization with dividend > 0 and constant divisor does not work correctly.");
+      writeln(" ***** mdiv optimization with dividend > 0 and constant divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -21092,6 +21933,178 @@ const func boolean: check_mod_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
+    if  pred(-abs(intExpr(        integer.last))) mod -9223372036854775807 <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) mod            -12345653 <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) mod                   -3 <>                   -2 or
+        pred(-abs(intExpr(        integer.last))) mod                   -2 <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) mod                   -1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod -9223372036854775807 <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) mod            -12345653 <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod                   -3 <>                   -2 or
+        pred(-abs(intExpr(            12345652))) mod                   -2 <>                   -1 or
+        pred(-abs(intExpr(            12345652))) mod                   -1 <>                    0 or
+        pred(-abs(intExpr(                   0))) mod -9223372036854775807 <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod            -12345653 <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod                   -3 <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod                   -2 <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod                   -1 <>                    0 then
+      writeln(" ***** mod optimization with dividend < 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod                    1 <>                    0 or
+        pred(-abs(intExpr(        integer.last))) mod                    2 <>                    0 or
+        pred(-abs(intExpr(        integer.last))) mod                    3 <>                    1 or
+        pred(-abs(intExpr(        integer.last))) mod             12345653 <>              2605634 or
+        pred(-abs(intExpr(        integer.last))) mod         integer.last <>  9223372036854775806 or
+        pred(-abs(intExpr(            12345652))) mod                    1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod                    2 <>                    1 or
+        pred(-abs(intExpr(            12345652))) mod                    3 <>                    1 or
+        pred(-abs(intExpr(            12345652))) mod             12345653 <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod         integer.last <>  9223372036842430154 or
+        pred(-abs(intExpr(                   0))) mod                    1 <>                    0 or
+        pred(-abs(intExpr(                   0))) mod                    2 <>                    1 or
+        pred(-abs(intExpr(                   0))) mod                    3 <>                    2 or
+        pred(-abs(intExpr(                   0))) mod             12345653 <>             12345652 or
+        pred(-abs(intExpr(                   0))) mod         integer.last <>  9223372036854775806 then
+      writeln(" ***** mod optimization with dividend < 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
+             -abs(intExpr(        integer.last))  mod            -12345653 <>             -9740018 or
+             -abs(intExpr(        integer.last))  mod                   -3 <>                   -1 or
+             -abs(intExpr(        integer.last))  mod                   -2 <>                   -1 or
+             -abs(intExpr(        integer.last))  mod                   -1 <>                    0 or
+             -abs(intExpr(            12345653))  mod -9223372036854775807 <>            -12345653 or
+             -abs(intExpr(            12345653))  mod            -12345653 <>                    0 or
+             -abs(intExpr(            12345653))  mod                   -3 <>                   -2 or
+             -abs(intExpr(            12345653))  mod                   -2 <>                   -1 or
+             -abs(intExpr(            12345653))  mod                   -1 <>                    0 or
+             -abs(intExpr(                   1))  mod -9223372036854775807 <>                   -1 or
+             -abs(intExpr(                   1))  mod            -12345653 <>                   -1 or
+             -abs(intExpr(                   1))  mod                   -3 <>                   -1 or
+             -abs(intExpr(                   1))  mod                   -2 <>                   -1 or
+             -abs(intExpr(                   1))  mod                   -1 <>                    0 or
+             -abs(intExpr(                   0))  mod -9223372036854775807 <>                    0 or
+             -abs(intExpr(                   0))  mod            -12345653 <>                    0 or
+             -abs(intExpr(                   0))  mod                   -3 <>                    0 or
+             -abs(intExpr(                   0))  mod                   -2 <>                    0 or
+             -abs(intExpr(                   0))  mod                   -1 <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod                    1 <>                    0 or
+             -abs(intExpr(        integer.last))  mod                    2 <>                    1 or
+             -abs(intExpr(        integer.last))  mod                    3 <>                    2 or
+             -abs(intExpr(        integer.last))  mod             12345653 <>              2605635 or
+             -abs(intExpr(        integer.last))  mod         integer.last <>                    0 or
+             -abs(intExpr(            12345653))  mod                    1 <>                    0 or
+             -abs(intExpr(            12345653))  mod                    2 <>                    1 or
+             -abs(intExpr(            12345653))  mod                    3 <>                    1 or
+             -abs(intExpr(            12345653))  mod             12345653 <>                    0 or
+             -abs(intExpr(            12345653))  mod         integer.last <>  9223372036842430154 or
+             -abs(intExpr(                   1))  mod                    1 <>                    0 or
+             -abs(intExpr(                   1))  mod                    2 <>                    1 or
+             -abs(intExpr(                   1))  mod                    3 <>                    2 or
+             -abs(intExpr(                   1))  mod             12345653 <>             12345652 or
+             -abs(intExpr(                   1))  mod         integer.last <>  9223372036854775806 or
+             -abs(intExpr(                   0))  mod                    1 <>                    0 or
+             -abs(intExpr(                   0))  mod                    2 <>                    0 or
+             -abs(intExpr(                   0))  mod                    3 <>                    0 or
+             -abs(intExpr(                   0))  mod             12345653 <>                    0 or
+             -abs(intExpr(                   0))  mod         integer.last <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
+              abs(intExpr(        integer.last))  mod            -12345653 <>             -2605635 or
+              abs(intExpr(        integer.last))  mod                   -3 <>                   -2 or
+              abs(intExpr(        integer.last))  mod                   -2 <>                   -1 or
+              abs(intExpr(        integer.last))  mod                   -1 <>                    0 or
+              abs(intExpr(            12345653))  mod -9223372036854775807 <> -9223372036842430154 or
+              abs(intExpr(            12345653))  mod            -12345653 <>                    0 or
+              abs(intExpr(            12345653))  mod                   -3 <>                   -1 or
+              abs(intExpr(            12345653))  mod                   -2 <>                   -1 or
+              abs(intExpr(            12345653))  mod                   -1 <>                    0 or
+              abs(intExpr(                   1))  mod -9223372036854775807 <> -9223372036854775806 or
+              abs(intExpr(                   1))  mod            -12345653 <>            -12345652 or
+              abs(intExpr(                   1))  mod                   -3 <>                   -2 or
+              abs(intExpr(                   1))  mod                   -2 <>                   -1 or
+              abs(intExpr(                   1))  mod                   -1 <>                    0 or
+              abs(intExpr(                   0))  mod -9223372036854775807 <>                    0 or
+              abs(intExpr(                   0))  mod            -12345653 <>                    0 or
+              abs(intExpr(                   0))  mod                   -3 <>                    0 or
+              abs(intExpr(                   0))  mod                   -2 <>                    0 or
+              abs(intExpr(                   0))  mod                   -1 <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod                    1 <>                    0 or
+              abs(intExpr(        integer.last))  mod                    2 <>                    1 or
+              abs(intExpr(        integer.last))  mod                    3 <>                    1 or
+              abs(intExpr(        integer.last))  mod             12345653 <>              9740018 or
+              abs(intExpr(        integer.last))  mod         integer.last <>                    0 or
+              abs(intExpr(            12345653))  mod                    1 <>                    0 or
+              abs(intExpr(            12345653))  mod                    2 <>                    1 or
+              abs(intExpr(            12345653))  mod                    3 <>                    2 or
+              abs(intExpr(            12345653))  mod             12345653 <>                    0 or
+              abs(intExpr(            12345653))  mod         integer.last <>             12345653 or
+              abs(intExpr(                   1))  mod                    1 <>                    0 or
+              abs(intExpr(                   1))  mod                    2 <>                    1 or
+              abs(intExpr(                   1))  mod                    3 <>                    1 or
+              abs(intExpr(                   1))  mod             12345653 <>                    1 or
+              abs(intExpr(                   1))  mod         integer.last <>                    1 or
+              abs(intExpr(                   0))  mod                    1 <>                    0 or
+              abs(intExpr(                   0))  mod                    2 <>                    0 or
+              abs(intExpr(                   0))  mod                    3 <>                    0 or
+              abs(intExpr(                   0))  mod             12345653 <>                    0 or
+              abs(intExpr(                   0))  mod         integer.last <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod -9223372036854775807 <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) mod            -12345653 <>             -2605635 or
+        succ( abs(intExpr( 9223372036854775806))) mod                   -3 <>                   -2 or
+        succ( abs(intExpr( 9223372036854775806))) mod                   -2 <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mod                   -1 <>                    0 or
+        succ( abs(intExpr(            12345652))) mod -9223372036854775807 <> -9223372036842430154 or
+        succ( abs(intExpr(            12345652))) mod            -12345653 <>                    0 or
+        succ( abs(intExpr(            12345652))) mod                   -3 <>                   -1 or
+        succ( abs(intExpr(            12345652))) mod                   -2 <>                   -1 or
+        succ( abs(intExpr(            12345652))) mod                   -1 <>                    0 or
+        succ( abs(intExpr(                   0))) mod -9223372036854775807 <> -9223372036854775806 or
+        succ( abs(intExpr(                   0))) mod            -12345653 <>            -12345652 or
+        succ( abs(intExpr(                   0))) mod                   -3 <>                   -2 or
+        succ( abs(intExpr(                   0))) mod                   -2 <>                   -1 or
+        succ( abs(intExpr(                   0))) mod                   -1 <>                    0 then
+      writeln(" ***** mod optimization with dividend > 0 and constant divisor < 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod                    1 <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) mod                    2 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) mod                    3 <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) mod             12345653 <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) mod         integer.last <>                    0 or
+        succ( abs(intExpr(            12345652))) mod                    1 <>                    0 or
+        succ( abs(intExpr(            12345652))) mod                    2 <>                    1 or
+        succ( abs(intExpr(            12345652))) mod                    3 <>                    2 or
+        succ( abs(intExpr(            12345652))) mod             12345653 <>                    0 or
+        succ( abs(intExpr(            12345652))) mod         integer.last <>             12345653 or
+        succ( abs(intExpr(                   0))) mod                    1 <>                    0 or
+        succ( abs(intExpr(                   0))) mod                    2 <>                    1 or
+        succ( abs(intExpr(                   0))) mod                    3 <>                    1 or
+        succ( abs(intExpr(                   0))) mod             12345653 <>                    1 or
+        succ( abs(intExpr(                   0))) mod         integer.last <>                    1 then
+      writeln(" ***** mod optimization with dividend > 0 and constant divisor > 0 does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if  integer.first mod     (-abs(intExpr( 9223372036854775806)) - 2) <>                   0 or
         integer.first mod     (-abs(intExpr(            12345651)) - 2) <>            -9740019 or
         integer.first mod     (-abs(intExpr(                   0)) - 2) <>                   0 then
@@ -21239,7 +22252,13 @@ const func boolean: check_mod_optimization_1 is func
       writeln(" ***** mod optimization with constant dividend < 0 and divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mod_optimization_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  succ(intExpr(       integer.first)) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
         succ(intExpr(       integer.first)) mod (-abs(intExpr(            12345651)) - 2) <>             -9740018 or
         succ(intExpr(       integer.first)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
@@ -21428,7 +22447,7 @@ const func boolean: check_mod_optimization_1 is func
   end func;
 
 
-const func boolean: check_mod_optimization_2 is func
+const func boolean: check_mod_optimization_3 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -23208,6 +24227,10 @@ const proc: check_mod is func
     end if;
 
     if not check_mod_optimization_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_optimization_3 then
       okay := FALSE;
     end if;
 

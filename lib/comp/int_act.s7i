@@ -2433,6 +2433,7 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
     var reference: evaluatedDividend is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
+    var intRange: dividend_range is intRange.value;
   begin
     if divisor = 0 then
       incr(countOptimizations);
@@ -2457,6 +2458,28 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
       # integer.first / -1 causes an integer overflow.
       incr(countOptimizations);
       negate(dividend, c_expr);
+    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
+      # Divisor is a power of two.
+      dividend_range := getIntRange(dividend);
+      if dividend_range.minValue >= 0 then
+        incr(countOptimizations);
+        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+          c_expr.expr &:= "(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ") >> ";
+          c_expr.expr &:= integerLiteral(log2(divisor));
+        else
+          c_expr.expr &:= "(";
+          dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+          doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
+          c_expr.expr &:= ")";
+        end if;
+      else
+        c_expr.expr &:= "(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ") / ";
+        c_expr.expr &:= integerLiteral(divisor);
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
@@ -4178,6 +4201,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
         # to deliver the correct result instead of raising OVERFLOW_ERROR.
         # In case of a modulo by -1 the correct result is always 0.
         if reduceOverflowChecks then
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_mod*/ 0";
         else
           warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -4190,6 +4214,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       if not check_int_division_overflow then
         c_expr.expr &:= "0";
       elsif reduceOverflowChecks then
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_mod*/ 0";
       else
         incr(countOverflowChecks);
@@ -5931,6 +5956,7 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
     var reference: evaluatedDividend is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
+    var intRange: dividend_range is intRange.value;
   begin
     if divisor = 0 then
       incr(countOptimizations);
@@ -5948,6 +5974,7 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
         # to deliver the correct result instead of raising OVERFLOW_ERROR.
         # In case of a remainder by -1 the correct result is always 0.
         if reduceOverflowChecks then
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_rem*/ 0";
         else
           warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -5961,6 +5988,7 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
       if not check_int_division_overflow then
         c_expr.expr &:= "0";
       elsif reduceOverflowChecks then
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_rem*/ 0";
       else
         incr(countOverflowChecks);
@@ -5973,6 +6001,22 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
         c_expr.expr &:= ")?";
         c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
         c_expr.expr &:= ":0)";
+      end if;
+    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
+      # Divisor is a power of two.
+      dividend_range := getIntRange(dividend);
+      if dividend_range.minValue >= 0 then
+        incr(countOptimizations);
+        c_expr.expr &:= "(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ")";
+        c_expr.expr &:= "&";
+        c_expr.expr &:= integerLiteral(pred(divisor));
+      else
+        c_expr.expr &:= "(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ") % ";
+        c_expr.expr &:= integerLiteral(divisor);
       end if;
     else
       c_expr.expr &:= "(";
