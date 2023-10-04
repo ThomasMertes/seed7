@@ -7018,7 +7018,7 @@ const func PRIMITIVE_WINDOW: getVgaImageFromBytes (in string: bytes) is func
     var integer: imageByte is 0;
   begin
     if bytes <> "" then
-      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE) div 8;
+      width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE) mdiv 8;
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);

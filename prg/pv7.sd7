@@ -39,7 +39,7 @@ const proc: writeMessage (in string: message) is func
   begin
     clear(curr_win, black);
     rect((width(curr_win) - width(stdFont24, message)) div 2 - 50,
-         height(curr_win) div 2 - 50,
+         height(curr_win) mdiv 2 - 50,
          width(stdFont24, message) + 100, 100, white);
     screen := openPixmapFontFile(curr_win);
     color(screen, black, white);
