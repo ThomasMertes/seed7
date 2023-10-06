@@ -202,6 +202,8 @@ uninstall: setwpath.exe
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
 	echo #define USE_GMP 0 >> chkccomp.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> chkccomp.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 
 base.h:
@@ -240,8 +242,6 @@ settings.h:
 	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> settings.h
 	echo #define LINKER_OPT_STACK_SIZE "/F" >> settings.h
 	echo #define LINKER_FLAGS "" >> settings.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h

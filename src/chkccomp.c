@@ -180,6 +180,10 @@
  *      Set to 1 if the GNU Multiple Precision Arithmetic Library (GMP)
  *      should be used. Set to 0 if the build-in big_rtl.c library should
  *      be used.
+ *  SYSTEM_CONSOLE_LIBS: (optional)
+ *      Options to link system console libraries to a program.
+ *  SYSTEM_DRAW_LIBS: (optional)
+ *      Options to link system graphic libraries to a program.
  *  ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: (optional)
  *      Defined if X11 or ncurses header files can be replaced by header
  *      files provided by Seed7.
@@ -601,6 +605,71 @@ static void replaceQuotes (char *text)
     } /* while */
     *dest = '\0';
   } /* replaceQuotes */
+
+
+
+static void replaceSpaceByNl (char *dest, const char *source)
+
+  {
+    const char *quotePos;
+    const char *spacePos;
+    size_t len;
+
+  /* replaceSpaceByNl */
+    while (*source == ' ') {
+      source++;
+    } /* while */
+    while (*source != '\0') {
+      if (*source == '\"') {
+        quotePos = source;
+        do {
+          quotePos = strchr(&quotePos[1], '\"');
+        } while (quotePos != NULL && quotePos[1] != ' ' && quotePos[1] != '\0');
+        if (quotePos != NULL) {
+          memcpy(dest, source, (quotePos - source) + 1);
+          dest += (quotePos - source) + 1;
+          source = &quotePos[1];
+          while (*source == ' ') {
+            source++;
+          } /* while */
+          if (quotePos[1] == ' ' && *source != '\0') {
+            *dest = '\n';
+            dest++;
+          } /* if */
+        } else {
+          len = strlen(&source[1]);
+          memcpy(dest, &source[1], len);
+          dest += len;
+          source = &source[1 + len];
+        } /* if */
+      } else {
+        while (*source == ' ') {
+          source++;
+        } /* while */
+        if (*source != '\0') {
+          spacePos = strchr(source, ' ');
+          if (spacePos != NULL) {
+            memcpy(dest, source, spacePos - source);
+            dest += spacePos - source;
+            source = &spacePos[1];
+            while (*source == ' ') {
+              source++;
+            } /* while */
+            if (*source != '\0') {
+              *dest = '\n';
+              dest++;
+            } /* if */
+          } else {
+            len = strlen(source);
+            memcpy(dest, source, len);
+            dest += len;
+            source = &source[len];
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* while */
+    *dest = '\0';
+  } /* replaceSpaceByNl */
 
 
 
@@ -7028,13 +7097,15 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
       x11IncludeCommand = "#include <X11/X.h>\n"
                           "#include <X11/Xlib.h>\n"
                           "#include <X11/Xutil.h>\n";
-#ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
     } else {
+#ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
       includeOption[0] = '\0';
       x11Include = "x11_x.h";
       fprintf(versionFile, "#define X11_INCLUDE \"%s\"\n", x11Include);
       fprintf(logFile, "\rX11: %s found in Seed7 include directory.\n", x11Include);
       x11IncludeCommand = "#include \"x11_x.h\"\n";
+#else
+      x11IncludeCommand = "";
 #endif
     } /* if */
     sprintf(testProgram, "%s"
@@ -9138,9 +9209,15 @@ static void determineIncludesAndLibs (FILE *versionFile)
       rpath_buffer[0] = '\0';
       rpath = rpath_buffer;
     } /* if */
+#ifdef SYSTEM_CONSOLE_LIBS
+    replaceSpaceByNl(system_console_libs, SYSTEM_CONSOLE_LIBS);
+#endif
+#ifdef SYSTEM_DRAW_LIBS
+    replaceSpaceByNl(system_draw_libs, SYSTEM_DRAW_LIBS);
+#endif
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
-    determineX11Defines(versionFile, include_options, system_draw_libs);
     determineConsoleDefines(versionFile, include_options, system_console_libs);
+    determineX11Defines(versionFile, include_options, system_draw_libs);
 #elif defined OS_STRI_WCHAR
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
     fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
@@ -9169,14 +9246,14 @@ static void determineIncludesAndLibs (FILE *versionFile)
     defineMacro(versionFile, "SYSTEM_BIGINT_LIBS", system_bigint_libs);
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     appendToMakeMacros("SYSTEM_CONSOLE_LIBS", system_console_libs);
-    defineMacro(versionFile, "SYSTEM_CONSOLE_LIBS", system_console_libs);
 #endif
+    defineMacro(versionFile, "SYSTEM_CONSOLE_LIBS", system_console_libs);
     appendToMakeMacros("SYSTEM_DATABASE_LIBS", system_database_libs);
     defineMacro(versionFile, "SYSTEM_DATABASE_LIBS", system_database_libs);
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     appendToMakeMacros("SYSTEM_DRAW_LIBS", system_draw_libs);
-    defineMacro(versionFile, "SYSTEM_DRAW_LIBS", system_draw_libs);
 #endif
+    defineMacro(versionFile, "SYSTEM_DRAW_LIBS", system_draw_libs);
   } /* determineIncludesAndLibs */
 
 

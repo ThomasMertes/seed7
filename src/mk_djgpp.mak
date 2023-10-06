@@ -185,6 +185,8 @@ chkccomp.h:
 	$(ECHO) "#define UNIX_DO_SLEEP" >> chkccomp.h
 	$(ECHO) "#define ERROR_REDIRECTING_FAILS" >> chkccomp.h
 	$(ECHO) "#define USE_GMP 0" >> chkccomp.h
+	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> chkccomp.h
+	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> chkccomp.h
 
 base.h:
 	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > base.h
@@ -213,8 +215,6 @@ settings.h:
 	$(ECHO) "#define CC_OPT_DEBUG_INFO \"-g\"" >> settings.h
 	$(ECHO) "#define CC_OPT_NO_WARNINGS \"-w\"" >> settings.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> settings.h
-	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> settings.h
-	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> settings.h
 	$(ECHO) "#define SEED7_LIB \"$(SEED7_LIB)\"" >> settings.h
 	$(ECHO) "#define DRAW_LIB \"$(DRAW_LIB)\"" >> settings.h
 	$(ECHO) "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> settings.h
