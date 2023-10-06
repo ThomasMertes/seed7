@@ -391,6 +391,7 @@ objectType arr_cat (listType arguments)
     arrayType result;
 
   /* arr_cat */
+    logFunction(printf("arr_cat\n"););
     isit_array(arg_1(arguments));
     isit_array(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
@@ -403,8 +404,7 @@ objectType arr_cat (listType arguments)
     } else {
       result_size = arr1_size + arr2_size;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = arr1;
-        result = REALLOC_ARRAY(result, arr1_size, result_size);
+        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
@@ -436,6 +436,7 @@ objectType arr_cat (listType arguments)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("arr_cat -->\n"););
     return bld_array_temp(result);
   } /* arr_cat */
 
@@ -640,6 +641,7 @@ objectType arr_extend (listType arguments)
     arrayType result;
 
   /* arr_extend */
+    logFunction(printf("arr_extend\n"););
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
     element = arg_3(arguments);
@@ -650,8 +652,7 @@ objectType arr_extend (listType arguments)
     } else {
       result_size = arr1_size + 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = arr1;
-        result = REALLOC_ARRAY(result, arr1_size, result_size);
+        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
@@ -687,6 +688,7 @@ objectType arr_extend (listType arguments)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("arr_extend -->\n"););
     return bld_array_temp(result);
   } /* arr_extend */
 
@@ -758,10 +760,10 @@ objectType arr_head (listType arguments)
     intType stop;
     memSizeType arr1_size;
     memSizeType result_size;
-    arrayType resized_result;
     arrayType result;
 
   /* arr_head */
+    logFunction(printf("arr_head\n"););
     isit_array(arg_1(arguments));
     isit_int(arg_4(arguments));
     arr1 = take_array(arg_1(arguments));
@@ -773,16 +775,14 @@ objectType arr_head (listType arguments)
       } /* if */
       result_size = arraySize2(arr1->min_position, stop);
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = arr1;
         arg_1(arguments)->value.arrayValue = NULL;
-        destr_array(&result->arr[result_size], arr1_size - result_size);
-        resized_result = REALLOC_ARRAY(result, arr1_size, result_size);
-        if (unlikely(resized_result == NULL)) {
-          destr_array(result->arr, result_size);
-          FREE_ARRAY(result, arr1_size);
+        destr_array(&arr1->arr[result_size], arr1_size - result_size);
+        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
+        if (unlikely(result == NULL)) {
+          destr_array(arr1->arr, result_size);
+          FREE_ARRAY(arr1, arr1_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
-        result = resized_result;
         COUNT3_ARRAY(arr1_size, result_size);
         result->max_position = stop;
       } else {
@@ -810,6 +810,7 @@ objectType arr_head (listType arguments)
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
+    logFunction(printf("arr_head -->\n"););
     return bld_array_temp(result);
   } /* arr_head */
 
