@@ -257,6 +257,31 @@ const func addSubIntListType: getAddSubParamList (in reference: summand1,
   end func;
 
 
+const proc: processNegations (inout addSubIntListType: addSubParamList) is func
+
+  local
+    var integer: index is 1;
+    var boolean: doAdd is TRUE;
+    var reference: summand is NIL;
+  begin
+    for key index range addSubParamList do
+      if index > 1 and addSubParamList[index].summand <> NIL then
+        doAdd := addSubParamList[index].doAdd;
+        summand := addSubParamList[index].summand;
+        while isActionExpression(summand, "INT_NEGATE") or
+              isActionExpression(summand, "INT_PLUS") do
+          if isActionExpression(summand, "INT_NEGATE") then
+            doAdd := not doAdd;
+          end if;
+          summand := getActionParameter(summand, 2);
+        end while;
+        addSubParamList[index].doAdd := doAdd;
+        addSubParamList[index].summand := summand;
+      end if;
+    end for;
+  end func;
+
+
 const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is func
 
   local
@@ -1402,6 +1427,7 @@ const proc: optimize_int_add (in ref_list: params, in boolean: doAdd,
     var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(params, doAdd);
+    processNegations(addSubParamList);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
     optimize_int_add(addSubParamList, sumRange, c_expr);
@@ -1416,6 +1442,7 @@ const proc: optimize_int_add (in reference: summand1, in integer: summand2,
     var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(summand1, summand2);
+    processNegations(addSubParamList);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
     optimize_int_add(addSubParamList, sumRange, c_expr);

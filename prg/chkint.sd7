@@ -7669,99 +7669,84 @@ const proc: check_add is func
   local
     var boolean: okay is TRUE;
   begin
+    if           0 +          0 <>          0 or
+                 0 + 2147483647 <> 2147483647 or
+                 0 + 2147483648 <> 2147483648 or
+                 2 +          3 <>          5 or
+               127 +        127 <>        254 or
+               255 +        255 <>        510 or
+             18341 +      26783 <>      45124 or
+             32767 +      32767 <>      65534 or
+             35759 +      58537 <>      94296 or
+             65535 +      65535 <>     131070 or
+             73819 +     124303 <>     198122 or
+        2147483647 +          0 <> 2147483647 or
+        2147483648 +          0 <> 2147483648 then
+      writeln(" ***** Addition with selected values does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if             INT64_MIN +                    0 <>            INT64_MIN or
                    INT64_MIN +  9223372036854775807 <>                   -1 or
         -9223372036854775807 +                   -1 <>            INT64_MIN or
         -9223372036854775807 +  9223372036854775807 <>                    0 or
+                          -1 + -9223372036854775807 <>            INT64_MIN or
+                          -1 +  9223372036854775807 <>  9223372036854775806 or
                            0 +            INT64_MIN <>            INT64_MIN or
                            0 + -9223372036854775807 <> -9223372036854775807 or
-                           0 +                    0 <>                    0 or
-                           0 +           2147483647 <>           2147483647 or
-                           0 +           2147483648 <>           2147483648 or
                            0 +  9223372036854775807 <>  9223372036854775807 or
-                           2 +                    3 <>                    5 or
-                         127 +                  127 <>                  254 or
-                         255 +                  255 <>                  510 or
-                       18341 +                26783 <>                45124 or
-                       32767 +                32767 <>                65534 or
-                       35759 +                58537 <>                94296 or
-                       65535 +                65535 <>               131070 or
-                       73819 +               124303 <>               198122 or
-                  2147483647 +                    0 <>           2147483647 or
-                  2147483648 +                    0 <>           2147483648 or
          9223372036854775807 +            INT64_MIN <>                   -1 or
          9223372036854775807 + -9223372036854775807 <>                    0 or
-         9223372036854775807 +                    0 <>  9223372036854775807 or
-        intExpr(           INT64_MIN) +                    0 <>            INT64_MIN or
+         9223372036854775807 +                    0 <>  9223372036854775807 then
+      writeln(" ***** Addition with maximum and mininum values does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) +                    0 <>            INT64_MIN or
         intExpr(           INT64_MIN) +  9223372036854775807 <>                   -1 or
         intExpr(-9223372036854775807) +                   -1 <>            INT64_MIN or
         intExpr(-9223372036854775807) +  9223372036854775807 <>                    0 or
+        intExpr(                  -1) + -9223372036854775807 <>            INT64_MIN or
+        intExpr(                  -1) +  9223372036854775807 <>  9223372036854775806 or
         intExpr(                   0) +            INT64_MIN <>            INT64_MIN or
         intExpr(                   0) + -9223372036854775807 <> -9223372036854775807 or
-        intExpr(                   0) +                    0 <>                    0 or
-        intExpr(                   0) +           2147483647 <>           2147483647 or
-        intExpr(                   0) +           2147483648 <>           2147483648 or
         intExpr(                   0) +  9223372036854775807 <>  9223372036854775807 or
-        intExpr(                   2) +                    3 <>                    5 or
-        intExpr(                 127) +                  127 <>                  254 or
-        intExpr(                 255) +                  255 <>                  510 or
-        intExpr(               18341) +                26783 <>                45124 or
-        intExpr(               32767) +                32767 <>                65534 or
-        intExpr(               35759) +                58537 <>                94296 or
-        intExpr(               65535) +                65535 <>               131070 or
-        intExpr(               73819) +               124303 <>               198122 or
-        intExpr(          2147483647) +                    0 <>           2147483647 or
-        intExpr(          2147483648) +                    0 <>           2147483648 or
         intExpr( 9223372036854775807) +            INT64_MIN <>                   -1 or
         intExpr( 9223372036854775807) + -9223372036854775807 <>                    0 or
-        intExpr( 9223372036854775807) +                    0 <>  9223372036854775807 or
-                   INT64_MIN + intExpr(                   0) <>            INT64_MIN or
+        intExpr( 9223372036854775807) +                    0 <>  9223372036854775807 then
+      writeln(" ***** Addition with maximum and mininum values does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN + intExpr(                   0) <>            INT64_MIN or
                    INT64_MIN + intExpr( 9223372036854775807) <>                   -1 or
         -9223372036854775807 + intExpr(                  -1) <>            INT64_MIN or
         -9223372036854775807 + intExpr( 9223372036854775807) <>                    0 or
+                          -1 + intExpr(-9223372036854775807) <>            INT64_MIN or
+                          -1 + intExpr( 9223372036854775807) <>  9223372036854775806 or
                            0 + intExpr(           INT64_MIN) <>            INT64_MIN or
                            0 + intExpr(-9223372036854775807) <> -9223372036854775807 or
-                           0 + intExpr(                   0) <>                    0 or
-                           0 + intExpr(          2147483647) <>           2147483647 or
-                           0 + intExpr(          2147483648) <>           2147483648 or
                            0 + intExpr( 9223372036854775807) <>  9223372036854775807 or
-                           2 + intExpr(                   3) <>                    5 or
-                         127 + intExpr(                 127) <>                  254 or
-                         255 + intExpr(                 255) <>                  510 or
-                       18341 + intExpr(               26783) <>                45124 or
-                       32767 + intExpr(               32767) <>                65534 or
-                       35759 + intExpr(               58537) <>                94296 or
-                       65535 + intExpr(               65535) <>               131070 or
-                       73819 + intExpr(              124303) <>               198122 or
-                  2147483647 + intExpr(                   0) <>           2147483647 or
-                  2147483648 + intExpr(                   0) <>           2147483648 or
          9223372036854775807 + intExpr(           INT64_MIN) <>                   -1 or
          9223372036854775807 + intExpr(-9223372036854775807) <>                    0 or
-         9223372036854775807 + intExpr(                   0) <>  9223372036854775807 or
-        intExpr(           INT64_MIN) + intExpr(                   0) <>            INT64_MIN or
+         9223372036854775807 + intExpr(                   0) <>  9223372036854775807 then
+      writeln(" ***** Addition with maximum and mininum values does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) + intExpr(                   0) <>            INT64_MIN or
         intExpr(           INT64_MIN) + intExpr( 9223372036854775807) <>                   -1 or
         intExpr(-9223372036854775807) + intExpr(                  -1) <>            INT64_MIN or
         intExpr(-9223372036854775807) + intExpr( 9223372036854775807) <>                    0 or
+        intExpr(                  -1) + intExpr(-9223372036854775807) <>            INT64_MIN or
+        intExpr(                  -1) + intExpr( 9223372036854775807) <>  9223372036854775806 or
         intExpr(                   0) + intExpr(           INT64_MIN) <>            INT64_MIN or
         intExpr(                   0) + intExpr(-9223372036854775807) <> -9223372036854775807 or
-        intExpr(                   0) + intExpr(                   0) <>                    0 or
-        intExpr(                   0) + intExpr(          2147483647) <>           2147483647 or
-        intExpr(                   0) + intExpr(          2147483648) <>           2147483648 or
         intExpr(                   0) + intExpr( 9223372036854775807) <>  9223372036854775807 or
-        intExpr(                   2) + intExpr(                   3) <>                    5 or
-        intExpr(                 127) + intExpr(                 127) <>                  254 or
-        intExpr(                 255) + intExpr(                 255) <>                  510 or
-        intExpr(               18341) + intExpr(               26783) <>                45124 or
-        intExpr(               32767) + intExpr(               32767) <>                65534 or
-        intExpr(               35759) + intExpr(               58537) <>                94296 or
-        intExpr(               65535) + intExpr(               65535) <>               131070 or
-        intExpr(               73819) + intExpr(              124303) <>               198122 or
-        intExpr(          2147483647) + intExpr(                   0) <>           2147483647 or
-        intExpr(          2147483648) + intExpr(                   0) <>           2147483648 or
         intExpr( 9223372036854775807) + intExpr(           INT64_MIN) <>                   -1 or
         intExpr( 9223372036854775807) + intExpr(-9223372036854775807) <>                    0 or
         intExpr( 9223372036854775807) + intExpr(                   0) <>  9223372036854775807 then
-      writeln(" ***** Addition with selected values does not work correctly.");
+      writeln(" ***** Addition with maximum and mininum values does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -8894,29 +8879,88 @@ const proc: check_subtract is func
   local
     var boolean: okay is TRUE;
   begin
-    if             INT64_MIN -                    0 <>            INT64_MIN or
-                   INT64_MIN - -9223372036854775807 <>                   -1 or
-        -9223372036854775807 -                    1 <>            INT64_MIN or
-        -9223372036854775807 - -9223372036854775807 <>                    0 or
-                          -1 -  9223372036854775807 <>            INT64_MIN or
-                           0 -  9223372036854775807 <> -9223372036854775807 or
-                           0 -                    0 <>                    0 or
-                           0 -          -2147483647 <>           2147483647 or
-                           0 -          -2147483648 <>           2147483648 or
-                           0 - -9223372036854775807 <>  9223372036854775807 or
-                           2 -                   -3 <>                    5 or
-                         127 -                 -127 <>                  254 or
-                         255 -                 -255 <>                  510 or
-                       18341 -               -26783 <>                45124 or
-                       32767 -               -32767 <>                65534 or
-                       35759 -               -58537 <>                94296 or
-                       65535 -               -65535 <>               131070 or
-                       73819 -              -124303 <>               198122 or
-                  2147483647 -                    0 <>           2147483647 or
-                  2147483648 -                    0 <>           2147483648 or
-         9223372036854775807 -  9223372036854775807 <>                    0 or
-         9223372036854775807 -                    0 <>  9223372036854775807 then
+    if           0 -           0 <>          0 or
+                 0 - -2147483647 <> 2147483647 or
+                 0 - -2147483648 <> 2147483648 or
+                 2 -          -3 <>          5 or
+               127 -        -127 <>        254 or
+               255 -        -255 <>        510 or
+             18341 -      -26783 <>      45124 or
+             32767 -      -32767 <>      65534 or
+             35759 -      -58537 <>      94296 or
+             65535 -      -65535 <>     131070 or
+             73819 -     -124303 <>     198122 or
+        2147483647 -           0 <> 2147483647 or
+        2147483648 -           0 <> 2147483648 then
       writeln(" ***** Subtraction with selected values does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN -            INT64_MIN <>                    0 or
+                   INT64_MIN - -9223372036854775807 <>                   -1 or
+                   INT64_MIN -                    0 <>            INT64_MIN or
+        -9223372036854775807 -            INT64_MIN <>                    1 or
+        -9223372036854775807 - -9223372036854775807 <>                    0 or
+        -9223372036854775807 -                    1 <>            INT64_MIN or
+                          -1 -            INT64_MIN <>  9223372036854775807 or
+                          -1 - -9223372036854775807 <>  9223372036854775806 or
+                          -1 -  9223372036854775807 <>            INT64_MIN or
+                           0 - -9223372036854775807 <>  9223372036854775807 or
+                           0 -  9223372036854775807 <> -9223372036854775807 or
+         9223372036854775807 -                    0 <>  9223372036854775807 or
+         9223372036854775807 -  9223372036854775807 <>                    0 then
+      writeln(" ***** Subtraction with maximum and mininum values does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) -            INT64_MIN <>                    0 or
+        intExpr(           INT64_MIN) - -9223372036854775807 <>                   -1 or
+        intExpr(           INT64_MIN) -                    0 <>            INT64_MIN or
+        intExpr(-9223372036854775807) -            INT64_MIN <>                    1 or
+        intExpr(-9223372036854775807) - -9223372036854775807 <>                    0 or
+        intExpr(-9223372036854775807) -                    1 <>            INT64_MIN or
+        intExpr(                  -1) -            INT64_MIN <>  9223372036854775807 or
+        intExpr(                  -1) - -9223372036854775807 <>  9223372036854775806 or
+        intExpr(                  -1) -  9223372036854775807 <>            INT64_MIN or
+        intExpr(                   0) - -9223372036854775807 <>  9223372036854775807 or
+        intExpr(                   0) -  9223372036854775807 <> -9223372036854775807 or
+        intExpr( 9223372036854775807) -                    0 <>  9223372036854775807 or
+        intExpr( 9223372036854775807) -  9223372036854775807 <>                    0 then
+      writeln(" ***** Subtraction with maximum and mininum values does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN - intExpr(           INT64_MIN) <>                    0 or
+                   INT64_MIN - intExpr(-9223372036854775807) <>                   -1 or
+                   INT64_MIN - intExpr(                   0) <>            INT64_MIN or
+        -9223372036854775807 - intExpr(           INT64_MIN) <>                    1 or
+        -9223372036854775807 - intExpr(-9223372036854775807) <>                    0 or
+        -9223372036854775807 - intExpr(                   1) <>            INT64_MIN or
+                          -1 - intExpr(           INT64_MIN) <>  9223372036854775807 or
+                          -1 - intExpr(-9223372036854775807) <>  9223372036854775806 or
+                          -1 - intExpr( 9223372036854775807) <>            INT64_MIN or
+                           0 - intExpr(-9223372036854775807) <>  9223372036854775807 or
+                           0 - intExpr( 9223372036854775807) <> -9223372036854775807 or
+         9223372036854775807 - intExpr(                   0) <>  9223372036854775807 or
+         9223372036854775807 - intExpr( 9223372036854775807) <>                    0 then
+      writeln(" ***** Subtraction with maximum and mininum values does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) - intExpr(           INT64_MIN) <>                    0 or
+        intExpr(           INT64_MIN) - intExpr(-9223372036854775807) <>                   -1 or
+        intExpr(           INT64_MIN) - intExpr(                   0) <>            INT64_MIN or
+        intExpr(-9223372036854775807) - intExpr(           INT64_MIN) <>                    1 or
+        intExpr(-9223372036854775807) - intExpr(-9223372036854775807) <>                    0 or
+        intExpr(-9223372036854775807) - intExpr(                   1) <>            INT64_MIN or
+        intExpr(                  -1) - intExpr(           INT64_MIN) <>  9223372036854775807 or
+        intExpr(                  -1) - intExpr(-9223372036854775807) <>  9223372036854775806 or
+        intExpr(                  -1) - intExpr( 9223372036854775807) <>            INT64_MIN or
+        intExpr(                   0) - intExpr(-9223372036854775807) <>  9223372036854775807 or
+        intExpr(                   0) - intExpr( 9223372036854775807) <> -9223372036854775807 or
+        intExpr( 9223372036854775807) - intExpr(                   0) <>  9223372036854775807 or
+        intExpr( 9223372036854775807) - intExpr( 9223372036854775807) <>                    0 then
+      writeln(" ***** Subtraction with maximum and mininum values does not work correctly. (4)");
       okay := FALSE;
     end if;
 

@@ -912,6 +912,54 @@ const proc: check_add is func
       okay := FALSE;
     end if;
 
+    if  not (raisesOverflowError(        INT64_MIN  + -         INT64_MIN ) or
+                                         INT64_MIN  + -         INT64_MIN   =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + -         INT64_MIN ) or
+                                 intExpr(INT64_MIN) + -         INT64_MIN   =  0) or
+        not (raisesOverflowError(        INT64_MIN  + - intExpr(INT64_MIN)) or
+                                         INT64_MIN  + - intExpr(INT64_MIN)  =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + - intExpr(INT64_MIN)) or
+                                 intExpr(INT64_MIN) + - intExpr(INT64_MIN)  =  0) then
+      writeln(" ***** Addition integer.first + -integer.first does neither raise OVERFLOW_ERROR nor return 0. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not (raisesOverflowError(        INT64_MIN  + + -         INT64_MIN ) or
+                                         INT64_MIN  + + -         INT64_MIN   =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + + -         INT64_MIN ) or
+                                 intExpr(INT64_MIN) + + -         INT64_MIN   =  0) or
+        not (raisesOverflowError(        INT64_MIN  + + - intExpr(INT64_MIN)) or
+                                         INT64_MIN  + + - intExpr(INT64_MIN)  =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + + - intExpr(INT64_MIN)) or
+                                 intExpr(INT64_MIN) + + - intExpr(INT64_MIN)  =  0) then
+      writeln(" ***** Addition integer.first + -integer.first does neither raise OVERFLOW_ERROR nor return 0. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not (raisesOverflowError(        INT64_MIN  + - +         INT64_MIN ) or
+                                         INT64_MIN  + - +         INT64_MIN   =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + - +         INT64_MIN ) or
+                                 intExpr(INT64_MIN) + - +         INT64_MIN   =  0) or
+        not (raisesOverflowError(        INT64_MIN  + - + intExpr(INT64_MIN)) or
+                                         INT64_MIN  + - + intExpr(INT64_MIN)  =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + - + intExpr(INT64_MIN)) or
+                                 intExpr(INT64_MIN) + - + intExpr(INT64_MIN)  =  0) then
+      writeln(" ***** Addition integer.first + -integer.first does neither raise OVERFLOW_ERROR nor return 0. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not (raisesOverflowError(        INT64_MIN  + - - -         INT64_MIN ) or
+                                         INT64_MIN  + - - -         INT64_MIN   =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + - - -         INT64_MIN ) or
+                                 intExpr(INT64_MIN) + - - -         INT64_MIN   =  0) or
+        not (raisesOverflowError(        INT64_MIN  + - - - intExpr(INT64_MIN)) or
+                                         INT64_MIN  + - - - intExpr(INT64_MIN)  =  0) or
+        not (raisesOverflowError(intExpr(INT64_MIN) + - - - intExpr(INT64_MIN)) or
+                                 intExpr(INT64_MIN) + - - - intExpr(INT64_MIN)  =  0) then
+      writeln(" ***** Addition integer.first + -integer.first does neither raise OVERFLOW_ERROR nor return 0. (4)");
+      okay := FALSE;
+    end if;
+
     if not check_reduced_overflow_checking_for_sums then
       okay := FALSE;
     end if;
