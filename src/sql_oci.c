@@ -97,7 +97,7 @@ typedef struct {
     uint16Type   length;
     memSizeType  long_data_buf_usage;
     uint32Type   long_data_piece_size;
-    uint16Type   return_code;
+    uint16Type   long_data_return_code;
     void        *descriptor;
     OCIRef      *ref;
     int16Type    indicator;
@@ -1363,6 +1363,9 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
 
   {
     resultDataType resultData;
+    memSizeType newBufferLength;
+    void *resizedBuffer;
+    sb4 returnCode = OCI_CONTINUE;
 
   /* longCallback */
     resultData = (resultDataType) octxp;
@@ -1430,23 +1433,28 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
           (resultData->buffer_length - resultData->long_data_buf_usage);
       *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
       resultData->long_data_buf_usage = resultData->buffer_length;
+      resultData->long_data_return_code = OCI_SUCCESS;
     } else if (resultData->buffer_length == resultData->long_data_buf_usage) {
-      resultData->buffer_length += LONG_DATA_BUFFER_SIZE_INCREMENT;
-      resultData->buffer = realloc(resultData->buffer, resultData->buffer_length);
-      if (resultData->buffer != NULL) {
+      newBufferLength = resultData->buffer_length + LONG_DATA_BUFFER_SIZE_INCREMENT;
+      resizedBuffer = realloc(resultData->buffer, newBufferLength);
+      if (resizedBuffer != NULL) {
+        resultData->buffer_length = newBufferLength;
+        resultData->buffer = resizedBuffer;
         resultData->long_data_piece_size = (uint32Type)
             (resultData->buffer_length - resultData->long_data_buf_usage);
         *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
         resultData->long_data_buf_usage = resultData->buffer_length;
+        resultData->long_data_return_code = OCI_SUCCESS;
       } else {
         resultData->long_data_piece_size = 0;
-        *piecep = OCI_LAST_PIECE;
+        *bufpp = NULL;
+        resultData->long_data_return_code = OCI_NO_DATA;
+        returnCode = OCI_NO_DATA;
       } /* if */
     } /* if */
     *alenp = &resultData->long_data_piece_size;
     *indp = &resultData->indicator;
-    resultData->return_code = 0;
-    *rcodep = &resultData->return_code;
+    *rcodep = &resultData->long_data_return_code;
 #if 0
     printf("long_data_piece_size: %u\n", resultData->long_data_piece_size);
     printf("buffer_length: " FMT_U_MEM "\n", resultData->buffer_length);
@@ -1483,7 +1491,7 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
       printf("OUT ind: %lu\n", *(unsigned long *) *indp);
     } /* if */
 #endif
-    return OCI_CONTINUE;
+    return returnCode;
   } /* longCallback */
 
 
