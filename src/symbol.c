@@ -58,36 +58,51 @@
 
 void extend_symb_length (void)
 
-  { /* extend_symb_length */
+  {
+    sySizeType newNameLength;
+    ustriType resizedName;
+
+  /* extend_symb_length */
     if (symbol.name_length > MAX_SYMB_LENGTH - INCR_SYMB_LENGTH) {
       fatal_memory_error(SOURCE_POSITION(2011));
+    } else {
+      newNameLength = symbol.name_length + INCR_SYMB_LENGTH;
+      resizedName = REALLOC_USTRI(symbol.name, symbol.name_length, newNameLength);
+      if (resizedName == NULL) {
+        fatal_memory_error(SOURCE_POSITION(2012));
+      } else {
+        symbol.name_length = newNameLength;
+        symbol.name = resizedName;
+        COUNT3_USTRI(symbol.name_length - INCR_SYMB_LENGTH, symbol.name_length,
+            count.symb, count.symb_bytes);
+      } /* if */
     } /* if */
-    symbol.name_length += INCR_SYMB_LENGTH;
-    symbol.name = REALLOC_USTRI(symbol.name,
-        symbol.name_length - INCR_SYMB_LENGTH, symbol.name_length);
-    if (symbol.name == NULL) {
-      fatal_memory_error(SOURCE_POSITION(2012));
-    } /* if */
-    COUNT3_USTRI(symbol.name_length - INCR_SYMB_LENGTH, symbol.name_length,
-      count.symb, count.symb_bytes);
   } /* extend_symb_length */
 
 
 
 void extend_stri_length (void)
 
-  { /* extend_stri_length */
+  {
+    memSizeType newStriMax;
+    striType resizedStriValue;
+
+  /* extend_stri_length */
     if (symbol.stri_max > MAX_STRI_LEN - INCR_SYMB_LENGTH) {
       fatal_memory_error(SOURCE_POSITION(2013));
+    } else {
+      newStriMax = symbol.stri_max + INCR_SYMB_LENGTH;
+      REALLOC_STRI_SIZE_OK(resizedStriValue, symbol.striValue,
+          symbol.stri_max, newStriMax);
+      if (symbol.striValue == NULL) {
+        fatal_memory_error(SOURCE_POSITION(2014));
+      } else {
+        symbol.stri_max = newStriMax;
+        symbol.striValue = resizedStriValue;
+        COUNT3_STRI(symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
+      } /* if */
     } /* if */
-    symbol.stri_max += INCR_SYMB_LENGTH;
-    REALLOC_STRI_SIZE_OK(symbol.striValue, symbol.striValue,
-        symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
-    if (symbol.striValue == NULL) {
-      fatal_memory_error(SOURCE_POSITION(2014));
-    } /* if */
-    COUNT3_STRI(symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
-  } /* extend_symb_length */
+  } /* extend_stri_length */
 
 
 
