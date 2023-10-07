@@ -171,18 +171,18 @@ char *getenv7 (const char *name)
     char **p, *c;
 
   /* getenv7 */
-    if (name == NULL || environ7 == NULL || strchr(name, '=') != NULL) {
-      return NULL;
-    } else {
+    logFunction(printf("getenv7(\"%s\")\n", name););
+    if (name != NULL && environ7 != NULL && strchr(name, '=') == NULL) {
       nameLen = strlen(name);
       for (p = environ7; (c = *p) != NULL; ++p) {
         if (environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
-          /* printf("getenv7(\"%s\") --> \"%s\"\n", name, &c[nameLen + 1]); */
+          logFunction(printf("getenv7(\"%s\") --> \"%s\"\n", name, &c[nameLen + 1]));
           return &c[nameLen + 1];
         } /* if */
       } /* for */
-      return NULL;
     } /* if */
+    logFunction(printf("getenv7(\"%s\") --> NULL\n", name));
+    return NULL;
   } /* getenv7 */
 
 
@@ -193,6 +193,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
     size_t nameLen;
     char **p, *c;
     size_t nameCount = 0;
+    char **resizedEnviron7;
 
   /* setenv7 */
     logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n", name, value, overwrite););
@@ -218,17 +219,23 @@ int setenv7 (const char *name, const char *value, int overwrite)
           } /* if */
         } /* for */
       } /* if */
-      if ((environ7 = realloc(environ7, sizeof(char *) * (nameCount + 2))) == NULL ||
-          (c = malloc(nameLen + strlen(value) + 2)) == NULL) {
+      resizedEnviron7 = realloc(environ7, sizeof(char *) * (nameCount + 2));
+      if (resizedEnviron7 == NULL) {
         errno = ENOMEM;
         return -1;
       } else {
-        memcpy(c, name, nameLen);
-        c[nameLen] = '=';
-        strcpy(&c[nameLen + 1], value);
-        environ7[nameCount] = c;
-        environ7[nameCount + 1] = NULL;
-        return 0;
+        environ7 = resizedEnviron7;
+        if ((c = malloc(nameLen + strlen(value) + 2)) == NULL) {
+          errno = ENOMEM;
+          return -1;
+        } else {
+          memcpy(c, name, nameLen);
+          c[nameLen] = '=';
+          strcpy(&c[nameLen + 1], value);
+          environ7[nameCount] = c;
+          environ7[nameCount + 1] = NULL;
+          return 0;
+        } /* if */
       } /* if */
     } /* if */
   } /* setenv7 */
@@ -242,6 +249,7 @@ int unsetenv7 (const char *name)
     char **p, *c;
     char **found = NULL;
     size_t nameCount = 0;
+    char **resizedEnviron7;
 
   /* unsetenv7 */
     if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
@@ -257,10 +265,12 @@ int unsetenv7 (const char *name)
           } /* if */
         } /* for */
         if (found != NULL) {
-          if ((environ7 = realloc(environ7, sizeof(char *) * (nameCount))) == NULL) {
+          resizedEnviron7 = realloc(environ7, sizeof(char *) * (nameCount));
+          if (resizedEnviron7 == NULL) {
             errno = ENOMEM;
             return -1;
           } else {
+            environ7 = resizedEnviron7;
             free(*found);
             *found = environ7[nameCount - 1];
             environ7[nameCount - 1] = NULL;
