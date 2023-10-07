@@ -373,6 +373,7 @@ static void addCheck (testType *test, const socketType aSocket,
 
   {
     memSizeType pos;
+    fdAndFileType *resizedFiles;
 
   /* addCheck */
     /* printf("addCheck(..., %u, 0x%lx)\n", aSocket, (unsigned long) fileObj); */
@@ -393,18 +394,23 @@ static void addCheck (testType *test, const socketType aSocket,
         (intType) aSocket);
     if (pos == test->size) {
       if (test->size >= test->capacity) {
-        test->files = REALLOC_TABLE(test->files,
+        resizedFiles = REALLOC_TABLE(test->files,
             fdAndFileType, test->capacity,
             test->capacity + TABLE_INCREMENT);
-        if (test->files == NULL ||
-            !reallocFdSet(test, TABLE_INCREMENT)) {
+        if (resizedFiles == NULL) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          COUNT3_TABLE(fdAndFileType, test->capacity,
-                       test->capacity + TABLE_INCREMENT);
-          test->capacity += TABLE_INCREMENT;
-          /* printf("increment table to %lu\n", test->capacity); */
+          test->files = resizedFiles;
+          if (!reallocFdSet(test, TABLE_INCREMENT)) {
+            raise_error(MEMORY_ERROR);
+            return;
+          } else {
+            COUNT3_TABLE(fdAndFileType, test->capacity,
+                         test->capacity + TABLE_INCREMENT);
+            test->capacity += TABLE_INCREMENT;
+            /* printf("increment table to %lu\n", test->capacity); */
+          } /* if */
         } /* if */
       } /* if */
       test->size++;
