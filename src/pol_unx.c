@@ -142,6 +142,8 @@ static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
 
   {
     memSizeType pos;
+    struct pollfd *resizedPollFds;
+    genericType *resizedPollFiles;
     struct pollfd *aPollFd;
 
   /* addCheck */
@@ -150,18 +152,25 @@ static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
         (intType) aSocket);
     if (pos == pollData->size) {
       if (pollData->size + NUM_OF_EXTRA_ELEMS >= pollData->capacity) {
-        pollData->pollFds = REALLOC_TABLE(pollData->pollFds, struct pollfd,
+        resizedPollFds = REALLOC_TABLE(pollData->pollFds, struct pollfd,
             pollData->capacity, pollData->capacity + TABLE_INCREMENT);
-        pollData->pollFiles = REALLOC_TABLE(pollData->pollFiles, genericType,
-            pollData->capacity, pollData->capacity + TABLE_INCREMENT);
-        if (pollData->pollFds == NULL || pollData->pollFiles == NULL) {
+        if (resizedPollFds == NULL) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          COUNT3_TABLE(struct pollfd, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
-          COUNT3_TABLE(genericType, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
+          pollData->pollFds = resizedPollFds;
+          resizedPollFiles = REALLOC_TABLE(pollData->pollFiles, genericType,
+              pollData->capacity, pollData->capacity + TABLE_INCREMENT);
+          if (resizedPollFiles == NULL) {
+            raise_error(MEMORY_ERROR);
+            return;
+          } else {
+            pollData->pollFiles = resizedPollFiles;
+            COUNT3_TABLE(struct pollfd, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
+            COUNT3_TABLE(genericType, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
+            pollData->capacity += TABLE_INCREMENT;
+          } /* if */
         } /* if */
-        pollData->capacity += TABLE_INCREMENT;
       } /* if */
       pollData->size++;
       aPollFd = &pollData->pollFds[pos];
