@@ -2279,7 +2279,7 @@ static HBITMAP createMaskBitmap (HDC pixmapHdc, int width, int height,
     oldBackgroundColor = SetBkColor(pixmapHdc, transparentColor);
     /* Copy the bits from pixmapHdc to the B+W mask. */
     /* Everything with the background colour ends up */
-    /* white and everythig else ends up black.       */
+    /* white and everything else ends up black.      */
     BitBlt(maskHdc, 0, 0, width, height, pixmapHdc, 0, 0, SRCCOPY);
     /* Take the new mask and use it to turn the      */
     /* transparent colour in the pixmapHdc image to  */

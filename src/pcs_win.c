@@ -529,7 +529,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
             startupInfo.wShowWindow = SW_HIDE;
             startupInfo.hStdInput = childInputRead;
             startupInfo.hStdOutput = childOutputWrite;
-            startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);;
+            startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
             logMessage(printf("before CreateProcessW(\"" FMT_S_OS "\", \"" FMT_S_OS "\", ...)\n",
                               os_command_stri, command_line););
             if (CreateProcessW(os_command_stri,

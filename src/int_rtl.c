@@ -1246,7 +1246,7 @@ intType intBinom (intType n_number, intType k_number)
         } /* for */
       } /* if */
       if (negative) {
-        /* The value INTTYPE_MIN below is casted, to avoid a signed   */
+        /* The value INTTYPE_MIN below is cast, to avoid a signed     */
         /* integer overflow, if it is negated. A negated unsigned     */
         /* value should still be unsigned. But lcc-win32 thinks, that */
         /* negating an unsigned value results in a signed value.      */

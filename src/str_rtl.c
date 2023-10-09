@@ -3579,7 +3579,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
         slice->size = (memSizeType) stop - (memSizeType) start + 1;
       } /* if */
     } else if (unlikely(stop < start - 1)) {
-      logError(printf("strRangeSlice: Stop less then pred(start)."););
+      logError(printf("strRangeSlice: Stop less than pred(start)."););
       raise_error(INDEX_ERROR);
     } else {
       SET_SLICE_CAPACITY(slice, 0);
@@ -3634,7 +3634,7 @@ striType strRange (const const_striType stri, intType start, intType stop)
              result_size * sizeof(strElemType));
       result->size = result_size;
     } else if (unlikely(stop < start - 1)) {
-      logError(printf("strRange: Stop less then pred(start)."););
+      logError(printf("strRange: Stop less than pred(start)."););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else {

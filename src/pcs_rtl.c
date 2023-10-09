@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  pcs_rtl.c     Platform idependent process handling functions.   */
+/*  pcs_rtl.c     Platform independent process handling functions.  */
 /*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/pcs_rtl.c                                       */
 /*  Changes: 2014  Thomas Mertes                                    */
-/*  Content: Platform idependent process handling functions.        */
+/*  Content: Platform independent process handling functions.       */
 /*                                                                  */
 /********************************************************************/
 

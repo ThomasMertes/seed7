@@ -1298,7 +1298,7 @@ objectType flt_single2bits (listType arguments)
     bits = (intType) (uintType) conv.bits;
     logFunction(printf("flt_single2bits(" FMT_E ") --> " FMT_D "\n",
                        number, bits););
-    return bld_int_temp(bits);;
+    return bld_int_temp(bits);
   } /* flt_single2bits */
 
 

@@ -187,8 +187,8 @@ void timFromTimestamp (time_t timestamp,
       *second    = local_time->tm_sec;
       *micro_sec = 0;
       *timeZone  = ((intType) unchecked_mkutc(local_time) - (intType) timestamp) / 60;
-      /* Correct timeZone values that are outside of the allowed range. */
-      /* Under Linux this never happens, but Windows has this problem.  */
+      /* Correct timeZone values that are outside the allowed range.   */
+      /* Under Linux this never happens, but Windows has this problem. */
       if (unlikely(*timeZone < -12 * 60)) {
         *timeZone += 24 * 60;
         if (*day < monthDays[(*year % 4 == 0 && *year % 100 != 0) || *year % 400 == 0][*month - 1]) {
@@ -589,8 +589,8 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
             raise_error(RANGE_ERROR);
           } else {
             *timeZone = ((intType) unchecked_mkutc(local_time) - (intType) osTimestamp) / 60;
-            /* Correct timeZone values that are outside of the allowed range. */
-            /* Under Linux this never happens, but Windows has this problem.  */
+            /* Correct timeZone values that are outside the allowed range.   */
+            /* Under Linux this never happens, but Windows has this problem. */
             if (unlikely(*timeZone < -12 * 60)) {
               *timeZone += 24 * 60;
             } else if (unlikely(*timeZone > 14 * 60)) {

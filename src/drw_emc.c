@@ -99,7 +99,7 @@ void enter_window (winType curr_window, int windowId);
 void remove_window (int windowId);
 void setupEventCallbacksForWindow (int windowId);
 void gkbInitKeyboard (void);
-void synchonizeTimAwaitWithGraphicKeyboard (void);
+void synchronizeTimAwaitWithGraphicKeyboard (void);
 extern intType pointerX;
 extern intType pointerY;
 
@@ -1203,7 +1203,7 @@ winType drwOpen (intType xPos, intType yPos,
           maxWindowId = result->window;
           setupEventCallbacksForWindow(result->window);
           enter_window((winType) result, result->window);
-          synchonizeTimAwaitWithGraphicKeyboard();
+          synchronizeTimAwaitWithGraphicKeyboard();
         } /* if */
       } /* if */
     } /* if */
@@ -1291,7 +1291,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         result->height = (int) height;
         maxWindowId = result->window;
         enter_window((winType) result, result->window);
-        synchonizeTimAwaitWithGraphicKeyboard();
+        synchronizeTimAwaitWithGraphicKeyboard();
       } /* if */
     } /* if */
     logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",

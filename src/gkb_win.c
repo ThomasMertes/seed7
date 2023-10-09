@@ -376,7 +376,7 @@ static void processMouseMove (MSG *msg)
               GetSystemMetrics(SM_CXMINTRACK),
               resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
               SWP_NOSENDCHANGING | SWP_NOZORDER);
-          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);;
+          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);
           resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
           resizeStartWidth = GetSystemMetrics(SM_CXMINTRACK);
           resizeStartHeight -= GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;

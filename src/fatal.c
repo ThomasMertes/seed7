@@ -53,10 +53,10 @@
 #include "fatal.h"
 
 
-/* The long jump position memoryErrorOcurred is */
+/* The long jump position memoryErrorOccurred is */
 /* only used during the analyze phase (parsing). */
 boolType currentlyAnalyzing = FALSE;
-longjmpPosition memoryErrorOcurred;
+longjmpPosition memoryErrorOccurred;
 
 
 
@@ -84,7 +84,7 @@ static void no_memory (const_cstriType source_file, int source_line)
     if (currentlyAnalyzing) {
       logFunction(printf("no_memory(\"%s\", %d) --> longjmp\n",
                          source_file, source_line););
-      do_longjmp(memoryErrorOcurred, 1);
+      do_longjmp(memoryErrorOccurred, 1);
     } else {
       shutDrivers();
       logFunction(printf("no_memory(\"%s\", %d) --> exit\n",

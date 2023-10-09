@@ -54,7 +54,7 @@ typedef struct atExitData {
 
 static atExitDataType *atExitLifoStack = NULL;
 
-/* This function sychronizes timAwait with reading characters from  */
+/* This function synchronizes timAwait with reading characters from */
 /* the keyboard. The console keyboard and the graphic keyboard both */
 /* provide a doWaitOrPushKey() function.                            */
 tp_DoWaitOrPushKey doWaitOrPushKey = NULL;

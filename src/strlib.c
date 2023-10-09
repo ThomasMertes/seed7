@@ -911,9 +911,9 @@ objectType str_head (listType arguments)
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      /* Note that the size of the allocated memory is smaller, */
-      /* than the struct. But this is okay, because the element */
-      /* 'mem' respectively 'mem1' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
       result->size = 0;
     } /* if */
     return bld_stri_temp(result);
@@ -1441,9 +1441,9 @@ objectType str_range (listType arguments)
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      /* Note that the size of the allocated memory is smaller, */
-      /* than the struct. But this is okay, because the element */
-      /* 'mem' respectively 'mem1' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
       result->size = 0;
     } /* if */
     return bld_stri_temp(result);
@@ -1726,10 +1726,10 @@ objectType str_substr (listType arguments)
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      /* Note that the size of the allocated memory is smaller, */
-      /* than the struct. But this is okay, because the element */
-      /* 'mem' respectively 'mem1' is not used. */
-      result->size = 0;
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
+     result->size = 0;
     } /* if */
     return bld_stri_temp(result);
   } /* str_substr */
@@ -1801,9 +1801,9 @@ objectType str_tail (listType arguments)
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      /* Note that the size of the allocated memory is smaller, */
-      /* than the struct. But this is okay, because the element */
-      /* 'mem' respectively 'mem1' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
       result->size = 0;
     } /* if */
     return bld_stri_temp(result);

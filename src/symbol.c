@@ -27,7 +27,7 @@
 /*  INCR_SYMB_LENGTH bytes. The symbol.name never shrinks. If the   */
 /*  symbol.name would become longer than MAX_SYMB_LENGTH bytes      */
 /*  fatal_memory_error is called to terminate the program.          */
-/*  Althrough this is unlikely to happen it is absolutely necessary */
+/*  Although this is unlikely to happen it is absolutely necessary  */
 /*  to be sure to avoid an overflow of symbol.name_length. Note     */
 /*  that this is a misuse of fatal_memory_error. It would be        */
 /*  possible to issue a normal error message instead, but this      */

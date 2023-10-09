@@ -82,10 +82,10 @@
 #define TRACE_DECL_ANY 0
 
 
-/* The long jump position memoryErrorOcurred is */
+/* The long jump position memoryErrorOccurred is */
 /* only used during the analyze phase (parsing). */
 extern boolType currentlyAnalyzing;
-extern longjmpPosition memoryErrorOcurred;
+extern longjmpPosition memoryErrorOccurred;
 
 /* If the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
@@ -476,7 +476,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       memcpy(&traceBackup, &trace, sizeof(traceRecord));
       progBackup = prog;
       if (*err_info == OKAY_NO_ERROR &&
-          do_setjmp(memoryErrorOcurred) == 0) {
+          do_setjmp(memoryErrorOccurred) == 0) {
         currentlyAnalyzing = TRUE;
         resultProg->option_flags = options;
         set_trace(resultProg->option_flags);

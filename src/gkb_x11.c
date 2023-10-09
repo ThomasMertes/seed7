@@ -2390,7 +2390,7 @@ boolType gkbButtonPressed (charType button)
     if (!hasFocus) {
       /* When the window has not the focus it does not receive keyPress   */
       /* and keyRelease events. In this case the state of the modifier    */
-      /* keys in the current moment is retrived with setupModState().     */
+      /* keys in the current moment is retrieved with setupModState().    */
       XQueryKeymap(mydisplay, keyVector);
       setupModState(keyVector);
     } /* if */
@@ -2780,10 +2780,10 @@ boolType gkbButtonPressed (charType button)
       /* used to maintain the modifier key state (Shift, Control, etc.).  */
       /* This way the modifier state is synched with the keypresses. This */
       /* allows that after reading a key the state of the modifier keys   */
-      /* in the moment the key was pressed can be retrieved. When the     */
+      /* at the moment the key was pressed can be retrieved. When the     */
       /* window has not the focus it does not receive keyPress and        */
       /* keyRelease events. In this case the state of the modifier keys   */
-      /* in the current moment is retrived with setupModState().          */
+      /* in the current moment is retrieved with setupModState().         */
       case K_SHIFT:          result = modState.leftShift     ||
                                       modState.rightShift;   finished = TRUE; break;
       case K_LEFT_SHIFT:     result = modState.leftShift;    finished = TRUE; break;

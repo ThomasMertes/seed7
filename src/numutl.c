@@ -199,7 +199,7 @@ double bigRatToDouble (const const_bigIntType numerator,
 
 
 /**
- *  Convert a double to a bigRational number with numerator and denomonator.
+ *  Convert a double to a bigRational number with numerator and denominator.
  *  @param denominator The address of a variable that receives the denominator.
  *  @return the nominator of the converted double.
  */

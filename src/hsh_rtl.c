@@ -33,7 +33,7 @@
 /*                                                                  */
 /*  The functions in this file use type declarations from the       */
 /*  include file data_rtl.h instead of data.h. Therefore the types  */
-/*  rtlHashElemType and rtlHashType are declared different than the */
+/*  rtlHashElemType and rtlHashType are declared different from the */
 /*  types hashElemType and hashType in the interpreter.             */
 /*                                                                  */
 /********************************************************************/

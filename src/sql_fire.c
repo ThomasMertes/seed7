@@ -1503,7 +1503,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
             break;
           case SQL_FLOAT:
             *(float *) sqlvar->sqldata =
-                (float) bigRatToDouble(numerator, denominator);;
+                (float) bigRatToDouble(numerator, denominator);
             break;
           case SQL_DOUBLE:
             *(double *) sqlvar->sqldata =
@@ -3621,7 +3621,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
       err_info = MEMORY_ERROR;
     } else {
       charset_length = strlen(charset);
-      /* Assume that the setting bytes take less then 256 bytes space. */
+      /* Assume that the setting bytes take less than 256 bytes space. */
       dpb_buffer_length = fileName8Length + loginData->user8Length +
           loginData->password8Length + charset_length + 256;
       if (unlikely(!ALLOC_CSTRI(dpb_buffer, dpb_buffer_length))) {

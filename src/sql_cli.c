@@ -127,7 +127,7 @@ static sqlFuncType sqlFunc = NULL;
 /* should be used with care.                                        */
 #define DECODE_NUMERIC_STRUCT 0
 #define ENCODE_NUMERIC_STRUCT 0
-/* Maximum number of decimal digits that fits in in SQL_NUMERIC_STRUCT */
+/* Maximum number of decimal digits that fits in SQL_NUMERIC_STRUCT */
 #define MAX_NUMERIC_PRECISION 38
 #define MIN_PRECISION_FOR_NUMERIC_AS_DECIMAL 100
 #define MAX_PRECISION_FOR_NUMERIC_AS_DECIMAL 1000
@@ -1032,7 +1032,7 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
                          &param->decimalDigits,
                          &param->nullable) != SQL_SUCCESS) {
       /* The function SQLDescribeParam() of the MySQL driver for */
-      /* Unixodbc returns the values below. This are reasonable  */
+      /* Unixodbc returns the values below. These are reasonable */
       /* defaults, if the ODBC driver does not support the       */
       /* function SQLDescribeParam().                            */
       /* printf("FUNCTION_PRESENT(SQLDescribeParam): %d\n",

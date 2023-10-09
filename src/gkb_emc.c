@@ -961,10 +961,10 @@ boolType gkbInputReady (void)
 
 
 
-void synchonizeTimAwaitWithGraphicKeyboard (void)
-  { /* synchonizeTimAwaitWithGraphicKeyboard */
+void synchronizeTimAwaitWithGraphicKeyboard (void)
+  { /* synchronizeTimAwaitWithGraphicKeyboard */
     doWaitOrPushKey = &gkbDoWaitOrPushKey;
-  } /* synchonizeTimAwaitWithGraphicKeyboard */
+  } /* synchronizeTimAwaitWithGraphicKeyboard */
 
 
 
