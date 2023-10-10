@@ -2608,7 +2608,6 @@ striType strHead (const const_striType stri, const intType stop)
  *  Freeing 'stri' would trigger a heap corruption.
  *  @return the substring ending at the stop position.
  *  @exception INDEX_ERROR The stop position is negative.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strHeadAssign (const striType stri, const intType stop)
 
@@ -2684,7 +2683,6 @@ striType strHeadAssign (const striType stri, const intType stop)
  *  freed, because it is guaranteed to be a temorary value.
  *  @return the substring ending at the stop position.
  *  @exception INDEX_ERROR The stop position is negative.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strHeadTemp (const striType stri, const intType stop)
 

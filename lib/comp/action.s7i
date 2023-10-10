@@ -514,8 +514,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_MKDIR, function, params, c_expr);
       when {"CMD_MOVE"}:
         process(CMD_MOVE, function, params, c_expr);
-      when {"CMD_READLINK"}:
-        process(CMD_READLINK, function, params, c_expr);
+      when {"CMD_READ_ABSOLUTE_LINK"}:
+        process(CMD_READ_ABSOLUTE_LINK, function, params, c_expr);
+      when {"CMD_READ_LINK"}:
+        process(CMD_READ_LINK, function, params, c_expr);
       when {"CMD_REMOVE_FILE"}:
         process(CMD_REMOVE_FILE, function, params, c_expr);
       when {"CMD_REMOVE_TREE"}:

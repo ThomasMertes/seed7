@@ -325,12 +325,28 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  *)
-const func string: readLink (in string: filePath)            is action "CMD_READLINK";
+const func string: readLink (in string: filePath)            is action "CMD_READ_LINK";
 
 
 # The function readlink() is deprecated. Use readLink() instead.
 const func string: readlink (in string: filePath) is
   return readLink(filePath);
+
+
+(**
+ *  Reads the absolute destination path of a symbolic link.
+ *  @return The absolute destination path referred by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type or not enough memory to
+ *             represent the result [[string]].
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ *)
+const func string: readAbsoluteLink (in string: filePath)    is action "CMD_READ_ABSOLUTE_LINK";
+
 
 
 (**

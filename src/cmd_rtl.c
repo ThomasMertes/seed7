@@ -1447,6 +1447,56 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                 printf("\"%s\"\n", striAsUnquotedCStri(destination)););
     return destination;
   } /* doReadLink */
+
+
+
+striType readAbsoluteLink (const const_striType filePath, errInfoType *err_info)
+
+  {
+    striType destination;
+    striType absolutePath;
+    striType absoluteDestination;
+    intType pathLength;
+
+  /* readAbsoluteLink */
+    logFunction(printf("readAbsoluteLink(\"%s\", %d)\n",
+                       striAsUnquotedCStri(filePath), *err_info););
+    destination = doReadLink(filePath, err_info);
+    if (destination != NULL) {
+      if (destination->size >= 1 && destination->mem[0] == '/') {
+        absoluteDestination = straightenAbsolutePath(destination);
+        if (unlikely(absoluteDestination == NULL)) {
+          *err_info = MEMORY_ERROR;
+          FREE_STRI(destination, destination->size);
+          destination = NULL;
+        } else {
+          FREE_STRI(destination, destination->size);
+          destination = absoluteDestination;
+        } /* if */
+      } else {
+        absolutePath = getAbsolutePath(filePath);
+        if (unlikely(absolutePath == NULL)) {
+          *err_info = MEMORY_ERROR;
+          FREE_STRI(destination, destination->size);
+          destination = NULL;
+        } else {
+          pathLength = strRChPos(absolutePath, '/');
+          if (pathLength > 1) {
+            pathLength--;
+          } /* if */
+          absolutePath = strHeadAssign(absolutePath, pathLength);
+          absoluteDestination = concatPath(absolutePath, destination);
+          FREE_STRI(absolutePath, pathLength);
+          FREE_STRI(destination, destination->size);
+          destination = absoluteDestination;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("readAbsoluteLink(\"%s\", %d) --> ",
+                       striAsUnquotedCStri(filePath), *err_info);
+                printf("\"%s\"\n", striAsUnquotedCStri(destination)););
+    return destination;
+  } /* readAbsoluteLink */
 #endif
 
 
@@ -1462,12 +1512,12 @@ striType followLink (striType startPath, errInfoType *err_info)
   /* followLink */
     logFunction(printf("followLink(\"%s\")\n", striAsUnquotedCStri(startPath)););
     if (getFileTypeSL(startPath, err_info) == FILE_SYMLINK) {
-      path = doReadLink(startPath, err_info);
+      path = readAbsoluteLink(startPath, err_info);
       while (path != NULL &&
              getFileTypeSL(path, err_info) == FILE_SYMLINK &&
              number_of_links_followed != 0) {
         helpPath = path;
-        path = doReadLink(helpPath, err_info);
+        path = readAbsoluteLink(helpPath, err_info);
         FREE_STRI(helpPath, helpPath->size);
         number_of_links_followed--;
       } /* while */
@@ -3284,6 +3334,43 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
       raise_error(err_info);
     } /* if */
   } /* cmdMove */
+
+
+
+/**
+ *  Reads the absolute destination path of a symbolic link.
+ *  @return The absolute destination path referred by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ */
+striType cmdReadAbsoluteLink (const const_striType filePath)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType destination;
+
+  /* cmdReadAbsoluteLink */
+    logFunction(printf("cmdReadAbsoluteLink(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
+#if HAS_READLINK
+    destination = readAbsoluteLink(filePath, &err_info);
+    if (unlikely(destination == NULL)) {
+      raise_error(err_info);
+    } /* if */
+#else
+    raise_error(FILE_ERROR);
+    destination = NULL;
+#endif
+    logFunction(printf("cmdReadAbsoluteLink --> \"%s\"\n",
+                       striAsUnquotedCStri(destination)););
+    return destination;
+  } /* cmdReadAbsoluteLink */
 
 
 

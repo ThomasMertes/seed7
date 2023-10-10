@@ -86,6 +86,7 @@ striType cmdHomeDir (void);
 rtlArrayType cmdLs (const const_striType dirPath);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
+striType cmdReadAbsoluteLink (const const_striType filePath);
 striType cmdReadLink (const const_striType link_name);
 void cmdRemoveFile (const const_striType file_name);
 void cmdRemoveTree (const const_striType file_name);
