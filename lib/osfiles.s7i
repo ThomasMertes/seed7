@@ -345,7 +345,7 @@ const func string: readlink (in string: filePath) is
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  *)
-const func string: readAbsoluteLink (in string: filePath)    is action "CMD_READ_ABSOLUTE_LINK";
+const func string: readLink (in string: filePath, ABSOLUTE)  is action "CMD_READ_LINK_ABSOLUTE";
 
 
 

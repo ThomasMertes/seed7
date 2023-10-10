@@ -639,28 +639,6 @@ objectType cmd_move (listType arguments)
 
 
 /**
- *  Reads the absolute destination path of a symbolic link.
- *  @return The absolute destination path referred by the symbolic link.
- *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
- *             to the system path type or not enough memory to
- *             represent the result string.
- *  @exception RANGE_ERROR 'filePath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR The file described with the path does not
- *             exist or is not a symbolic link.
- */
-objectType cmd_read_absolute_link (listType arguments)
-
-  { /* cmd_read_absolute_link */
-    isit_stri(arg_1(arguments));
-    return bld_stri_temp(
-        cmdReadAbsoluteLink(take_stri(arg_1(arguments))));
-  } /* cmd_read_absolute_link */
-
-
-
-/**
  *  Reads the destination of a symbolic link.
  *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
@@ -679,6 +657,28 @@ objectType cmd_read_link (listType arguments)
     return bld_stri_temp(
         cmdReadLink(take_stri(arg_1(arguments))));
   } /* cmd_read_link */
+
+
+
+/**
+ *  Reads the absolute destination path of a symbolic link.
+ *  @return The absolute destination path referred by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ */
+objectType cmd_read_link_absolute (listType arguments)
+
+  { /* cmd_read_link_absolute */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdReadLinkAbsolute(take_stri(arg_1(arguments))));
+  } /* cmd_read_link_absolute */
 
 
 

@@ -46,8 +46,8 @@ const ACTION: CMD_HOME_DIR           is action "CMD_HOME_DIR";
 const ACTION: CMD_LS                 is action "CMD_LS";
 const ACTION: CMD_MKDIR              is action "CMD_MKDIR";
 const ACTION: CMD_MOVE               is action "CMD_MOVE";
-const ACTION: CMD_READ_ABSOLUTE_LINK is action "CMD_READ_ABSOLUTE_LINK";
 const ACTION: CMD_READ_LINK          is action "CMD_READ_LINK";
+const ACTION: CMD_READ_LINK_ABSOLUTE is action "CMD_READ_LINK_ABSOLUTE";
 const ACTION: CMD_REMOVE_FILE        is action "CMD_REMOVE_FILE";
 const ACTION: CMD_REMOVE_TREE        is action "CMD_REMOVE_TREE";
 const ACTION: CMD_SETENV             is action "CMD_SETENV";
@@ -89,8 +89,8 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   cmdLs (const const_striType);");
     declareExtern(c_prog, "void        cmdMkdir (const const_striType);");
     declareExtern(c_prog, "void        cmdMove (const const_striType, const const_striType);");
-    declareExtern(c_prog, "striType    cmdReadAbsoluteLink (const const_striType);");
     declareExtern(c_prog, "striType    cmdReadLink (const const_striType);");
+    declareExtern(c_prog, "striType    cmdReadLinkAbsolute (const const_striType);");
     declareExtern(c_prog, "void        cmdRemoveFile (const const_striType);");
     declareExtern(c_prog, "void        cmdRemoveTree (const const_striType);");
     declareExtern(c_prog, "void        cmdSetenv (const const_striType, const const_striType);");
@@ -404,23 +404,23 @@ const proc: process (CMD_MOVE, in reference: function,
   end func;
 
 
-const proc: process (CMD_READ_ABSOLUTE_LINK, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "cmdReadAbsoluteLink(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process (CMD_READ_LINK, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "cmdReadLink(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_READ_LINK_ABSOLUTE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdReadLinkAbsolute(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
