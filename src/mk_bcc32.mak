@@ -128,7 +128,8 @@ sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $<
 
 all: depend
-	$(MAKE) -f mk_bcc32.mak s7 s7c
+	$(MAKE) -f mk_bcc32.mak s7
+	$(MAKE) -f mk_bcc32.mak s7c
 
 clean:
 	del *.obj

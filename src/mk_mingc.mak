@@ -125,7 +125,8 @@ sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $<
 
 all: depend
-	$(MAKE) -f mk_mingc.mak s7 s7c
+	$(MAKE) -f mk_mingc.mak s7
+	$(MAKE) -f mk_mingc.mak s7c
 
 .PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 

@@ -145,7 +145,8 @@ sql_srv.o: sql_srv.c
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_srv.o
 
 all: depend
-	$(MAKE) -f mk_nmake.mak s7 s7c
+	$(MAKE) -f mk_nmake.mak s7
+	$(MAKE) -f mk_nmake.mak s7c
 
 clean:
 	del *.o

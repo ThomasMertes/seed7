@@ -150,7 +150,8 @@ sql_srv.o: sql_srv.c
 	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
 all: depend
-	$(MAKE) s7 s7c
+	$(MAKE) s7
+	$(MAKE) s7c
 
 .PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
