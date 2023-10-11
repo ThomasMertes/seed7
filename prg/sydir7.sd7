@@ -29,9 +29,12 @@ $ include "seed7_05.s7i";
   include "duration.s7i";
 
 const type: syncFlags is new struct
-    var boolean: removeFilesAtDest is FALSE;
-    var boolean: overwriteNewerDestFiles is FALSE;
     var boolean: doChanges is TRUE;
+    var boolean: doCopy is TRUE;
+    var boolean: doUpdate is TRUE;
+    var boolean: doTimeCorrection is TRUE;
+    var boolean: doRemoveFileAtDest is FALSE;
+    var boolean: doOverwriteNewerDestFile is FALSE;
   end struct;
 
 
@@ -93,9 +96,11 @@ const proc: syncDir (in string: sourcePath, in string: destPath,
       incr(destIndex);
     end while;
     if updateMtime then
-      # writeln("update mtime " <& literal(sourcePath) <& " to " <& literal(destPath));
-      if flags.doChanges then
-        setMTime(destPath, getMTime(sourcePath));
+      if flags.doTimeCorrection then
+        # writeln("update mtime " <& literal(sourcePath) <& " to " <& literal(destPath));
+        if flags.doChanges then
+          setMTime(destPath, getMTime(sourcePath));
+        end if;
       end if;
     end if;
   end func;
@@ -143,41 +148,55 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
     sourceType := fileTypeSL(sourcePath);
     destType := fileTypeSL(destPath);
     if sourceType = FILE_ABSENT then
-      if destType <> FILE_ABSENT then
-        if flags.removeFilesAtDest then
-          writeln("remove file " <& literal(destPath));
+      if destType = FILE_DIR then
+        if flags.doRemoveFileAtDest then
+          writeln("remove directory " <& literal(destPath));
           if flags.doChanges then
             removeTree(destPath);
+          end if;
+        end if;
+      elsif destType <> FILE_ABSENT then
+        if flags.doRemoveFileAtDest then
+          writeln("remove file " <& literal(destPath));
+          if flags.doChanges then
+            removeFile(destPath);
           end if;
         end if;
       end if;
     elsif sourceType = FILE_SYMLINK then
       if destType = FILE_ABSENT then
         block
-          if flags.doChanges then
-            cloneFile(sourcePath, destPath);
+          if flags.doCopy then
+            if flags.doChanges then
+              cloneFile(sourcePath, destPath);
+            end if;
+            writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
           end if;
-          writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
         exception
           catch FILE_ERROR:
             writeln(" *** Cannot copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
         end block;
       elsif destType = FILE_SYMLINK then
         if readLink(sourcePath) <> readLink(destPath) then
-          writeln("Source link " <& literal(sourcePath) <&
+          writeln(" *** Source link " <& literal(sourcePath) <&
                   " and destination link " <& literal(destPath) <&
                   " point to different paths");
         end if;
+      elsif destType = FILE_REGULAR and 
+          fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
+        writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link but has the same content as the source");
       else
         writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link");
       end if;
     elsif sourceType = FILE_DIR then
       if destType = FILE_ABSENT then
-        writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
-        if flags.doChanges then
-          mkdir(destPath);
-          syncDir(sourcePath, destPath, flags);
-          setMTime(destPath, getMTime(sourcePath));
+        if flags.doCopy then
+          writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
+          if flags.doChanges then
+            mkdir(destPath);
+            syncDir(sourcePath, destPath, flags);
+            setMTime(destPath, getMTime(sourcePath));
+          end if;
         end if;
       elsif destType = FILE_DIR then
         syncDir(sourcePath, destPath, flags);
@@ -187,10 +206,12 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
     elsif sourceType = FILE_REGULAR then
       if destType = FILE_ABSENT then
         block
-          if flags.doChanges then
-            cloneFile(sourcePath, destPath);
+          if flags.doCopy then
+            writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            if flags.doChanges then
+              cloneFile(sourcePath, destPath);
+            end if;
           end if;
-          writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
         exception
           catch FILE_ERROR:
             writeln(" *** Cannot copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
@@ -202,38 +223,48 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         # writeln(destTime);
         if sourceTime > destTime + 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
-            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            if flags.doChanges then
-              setMTime(destPath, sourceTime);
+            if flags.doTimeCorrection then
+              writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+              if flags.doChanges then
+                setMTime(destPath, sourceTime);
+              end if;
             end if;
           else
-            writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
-            if flags.doChanges then
-              removeFile(destPath);
-              cloneFile(sourcePath, destPath);
+            if flags.doUpdate then
+              writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
+              if flags.doChanges then
+                removeFile(destPath);
+                cloneFile(sourcePath, destPath);
+              end if;
             end if;
           end if;
         elsif sourceTime < destTime - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
-            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            if flags.doChanges then
-              setMTime(destPath, sourceTime);
+            if flags.doTimeCorrection then
+              writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+              if flags.doChanges then
+                setMTime(destPath, sourceTime);
+              end if;
             end if;
-          elsif flags.overwriteNewerDestFiles then
+          elsif flags.doOverwriteNewerDestFile then
             writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));
             if flags.doChanges then
               removeFile(destPath);
               cloneFile(sourcePath, destPath);
             end if;
           else
-            writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
+            if flags.doUpdate then
+              writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
+            end if;
             # writeln(sourceTime <& "   " <& destTime <& "   " <& destTime - 1 . SECONDS);
           end if;
         elsif fileSize(sourcePath) <> fileSize(destPath) then
-          writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
-          if flags.doChanges then
-            removeFile(destPath);
-            cloneFile(sourcePath, destPath);
+          if flags.doUpdate then
+            writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            if flags.doChanges then
+              removeFile(destPath);
+              cloneFile(sourcePath, destPath);
+            end if;
           end if;
         end if;
       else
@@ -251,8 +282,10 @@ const proc: main is func
     var string: parameter is "";
     var string: fromName is "";
     var string: toName is "";
+    var boolean: commandOptionProvided is FALSE;
     var boolean: error is FALSE;
     var syncFlags: flags is syncFlags.value;
+    var string: answer is "";
   begin
     if length(argv(PROGRAM)) < 2 then
       writeln("Sydir7 Version 1.0 - Utility to synchronize directory trees");
@@ -262,25 +295,40 @@ const proc: main is func
       writeln("Sydir7 is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: sydir7 {-c|-n} source destination");
+      writeln("usage: sydir7 {-c|-n|-t|-a} source destination");
       writeln;
       writeln("Options:");
       writeln("  -c Copy files. Remove destination files, if they are missing in source.");
       writeln("     Overwrite newer destination files with older source files.");
       writeln("  -n No change. Write, what should be done to sync, but do not change");
       writeln("     anything.");
+      writeln("  -t Just do time corrections of identical files.");
+      writeln("  -a Just add files that are missing in the destination.");
       writeln;
     else
       for parameter range argv(PROGRAM) do
         if startsWith(parameter, "-") then
           if parameter = "-c" then
-            flags.removeFilesAtDest := TRUE;
-            flags.overwriteNewerDestFiles := TRUE;
+            flags.doRemoveFileAtDest := TRUE;
+            flags.doOverwriteNewerDestFile := TRUE;
           elsif parameter = "-n" then
             flags.doChanges := FALSE;
+          elsif parameter = "-t" then
+            flags.doCopy := FALSE;
+            flags.doUpdate := FALSE;
+          elsif parameter = "-a" then
+            flags.doUpdate := FALSE;
+            flags.doTimeCorrection := FALSE;
           else
             writeln(" *** Unknown option: " <& parameter);
             error := TRUE;
+          end if;
+          if parameter in {"-c", "-t", "-a"} then
+            if commandOptionProvided then
+              writeln(" *** Only one option of -c, -t or -a is allowed.");
+              error := TRUE;
+            end if;
+            commandOptionProvided := TRUE;
           end if;
         else
           incr(numOfFileNames);
@@ -293,6 +341,15 @@ const proc: main is func
       if numOfFileNames <> 2 then
         writeln(" *** Wrong number of parameters.");
         error := TRUE;
+      end if;
+      if not error and flags.doChanges and
+          (flags.doRemoveFileAtDest or flags.doOverwriteNewerDestFile) then
+        writeln("This will remove newer files at the destination!");
+        write("To proceed type \"yes\": ");
+        readln(answer);
+        if answer <> "yes" then
+          error := TRUE;
+        end if;
       end if;
       if not error then
         syncFile(fromName, toName, flags);
