@@ -191,7 +191,7 @@
  *      Precision up to which writing a float with printf (using format %e or
  *      %f) will always work ok.
  *  The macros described can be defined in a makefile and they are only used
- *  in chkccomp.c. This macros are not used in the Seed7 Interpreter (s7) or
+ *  in chkccomp.c. These macros are not used in the Seed7 Interpreter (s7) or
  *  in the Seed7 Runtime Library.
  */
 
@@ -2672,7 +2672,7 @@ static void numericProperties (FILE *versionFile)
     int testResult;
     char buffer[10240];
     char computeValues[BUFFER_SIZE];
-    const char *builtin_add_overflow = "unexisting_function";
+    const char *builtin_add_overflow = "nonexistent_function";
     int has_log2;
     const char *os_isnan_definition = NULL;
 
@@ -4047,7 +4047,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
                              "return 0;\n"
                              "}\n";
     /* The array literal length is repeatCount * elementsInLine. */
-    /* The definitions below correspond to a array literal length of 100000. */
+    /* The definitions below correspond to an array literal length of 100000. */
     const size_t repeatCount = 5000;
     const size_t elementsInLine = 20;
     size_t lineLength;

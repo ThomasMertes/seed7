@@ -33,7 +33,7 @@
 /*                                                                  */
 /*  The functions in this file use type declarations from the       */
 /*  include file data_rtl.h instead of data.h. Therefore the types  */
-/*  rtlArrayType and rtlObjectType are declared different than the  */
+/*  rtlArrayType and rtlObjectType are declared different from the  */
 /*  types arrayType and objectType in the interpreter.              */
 /*                                                                  */
 /********************************************************************/

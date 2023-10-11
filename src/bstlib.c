@@ -303,9 +303,9 @@ objectType bst_empty (listType arguments)
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      /* Note that the size of the allocated memory is smaller, */
-      /* than the struct. But this is okay, because the element */
-      /* 'mem' respectively 'mem1' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
       result->size = 0;
       return bld_bstri_temp(result);
     } /* if */

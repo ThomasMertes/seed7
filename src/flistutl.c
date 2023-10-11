@@ -41,10 +41,10 @@
 /*  with fixed small sizes are allocated out of chunks and are      */
 /*  maintained in free lists. Only strings and large buffers        */
 /*  are directly allocated with malloc. All heap requests run       */
-/*  via macros defined in heaputil.h. This macros call malloc or    */
+/*  via macros defined in heaputil.h. These macros call malloc or   */
 /*  use the chunk mechanism. Requests which run via the chunk       */
 /*  mechanism should be done via macros defined in flistutl.h.      */
-/*  This macros use free lists to maintain the free memory.         */
+/*  These macros use free lists to maintain the free memory.        */
 /*                                                                  */
 /********************************************************************/
 

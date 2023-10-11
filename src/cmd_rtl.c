@@ -236,7 +236,7 @@
 #define OTH_BITS_NORMAL (S_IROTH == 0004 && S_IWOTH == 0002 && S_IXOTH == 0001)
 #define MODE_BITS_NORMAL (USR_BITS_NORMAL && GRP_BITS_NORMAL && OTH_BITS_NORMAL)
 
-#define INITAL_ARRAY_SIZE  256
+#define INITIAL_ARRAY_SIZE 256
 #define ARRAY_SIZE_DELTA   256
 
 #define CONFIG_VALUE_BUFFER_SIZE 4096
@@ -965,9 +965,9 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
       dir_array = NULL;
       *err_info = FILE_ERROR;
     } else {
-      if (likely(ALLOC_RTL_ARRAY(dir_array, INITAL_ARRAY_SIZE))) {
+      if (likely(ALLOC_RTL_ARRAY(dir_array, INITIAL_ARRAY_SIZE))) {
         dir_array->min_position = 1;
-        dir_array->max_position = INITAL_ARRAY_SIZE;
+        dir_array->max_position = INITIAL_ARRAY_SIZE;
         used_max_position = 0;
         nameStri = dirRead(directory);
         if (nameStri != NULL) {
@@ -1164,11 +1164,11 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
                       "Unable to determine the search path delimiter."););
       path_array = NULL;
       *err_info = FILE_ERROR;
-    } else if (unlikely(!ALLOC_RTL_ARRAY(path_array, INITAL_ARRAY_SIZE))) {
+    } else if (unlikely(!ALLOC_RTL_ARRAY(path_array, INITIAL_ARRAY_SIZE))) {
       *err_info = MEMORY_ERROR;
     } else {
       path_array->min_position = 1;
-      path_array->max_position = INITAL_ARRAY_SIZE;
+      path_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       if (search_path_value != NULL) {
         /* printf("path: " FMT_S_OS "\n", search_path_value); */
@@ -2490,11 +2490,11 @@ rtlArrayType cmdEnvironment (void)
       (void) os_getenv(empty_os_stri);
     } /* if */
 #endif
-    if (unlikely(!ALLOC_RTL_ARRAY(environment_array, INITAL_ARRAY_SIZE))) {
+    if (unlikely(!ALLOC_RTL_ARRAY(environment_array, INITIAL_ARRAY_SIZE))) {
       raise_error(MEMORY_ERROR);
     } else {
       environment_array->min_position = 1;
-      environment_array->max_position = INITAL_ARRAY_SIZE;
+      environment_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       if (os_environ != NULL) {
         for (nameStartPos = os_environ; *nameStartPos != NULL && environment_array != NULL;

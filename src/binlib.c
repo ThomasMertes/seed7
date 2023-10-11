@@ -438,7 +438,7 @@ objectType bin_xor_assign (listType arguments)
   {
     objectType binary_variable;
 
-  /* binbin_xor_assign */
+  /* bin_xor_assign */
     binary_variable = arg_1(arguments);
     isit_binary(binary_variable);
     is_variable(binary_variable);

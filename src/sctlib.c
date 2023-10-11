@@ -360,8 +360,9 @@ objectType sct_empty (listType arguments)
     if (!ALLOC_STRUCT(result, 0)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      /* Note that the size of the allocated memory is smaller than the */
-      /* struct. But this is okay, because the element 'stru' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* element 'stru' is not used. */
       result->usage_count = 1;
       result->size = 0;
     } /* if */

@@ -55,9 +55,6 @@
 #define EXTERN
 #include "cmdlib.h"
 
-#define INITAL_ARRAY_SIZE  256
-#define ARRAY_SIZE_DELTA   256
-
 
 
 /**

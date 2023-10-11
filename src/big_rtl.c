@@ -1769,7 +1769,7 @@ static void uBigAddTo (const bigIntType big1, const const_bigIntType big2,
  *  digits nothing is done. The most significant bit of divisor must be
  *  set. The most significant digit of dividend must be less than the
  *  most significant digit of divisor. The computations to meet this
- *  predonditions are done outside this function. The special cases
+ *  preconditions are done outside this function. The special cases
  *  with a one digit divisor or a dividend with less digits than divisor are
  *  handled in other functions. This algorithm based on the algorithm
  *  from D.E. Knuth described in "The art of computer programming"
@@ -2333,7 +2333,7 @@ static bigIntType bigModSizeLess (const const_bigIntType dividend,
  *  digits nothing is done. The most significant bit of divisor must be
  *  set. The most significant digit of dividend must be less than the
  *  most significant digit of divisor. The computations to meet this
- *  predonditions are done outside this function. The special cases
+ *  preconditions are done outside this function. The special cases
  *  with a one digit divisor or a dividend with less digits than divisor are
  *  handled in other functions. This algorithm based on the algorithm
  *  from D.E. Knuth described in "The art of computer programming"

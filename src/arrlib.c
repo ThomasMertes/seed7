@@ -620,8 +620,9 @@ objectType arr_empty (listType arguments)
     if (unlikely(!ALLOC_ARRAY(result, 0))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      /* Note that the size of the allocated memory is smaller, than the */
-      /* struct. But this is okay, because the element 'arr' is not used. */
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* element 'arr' is not used. */
       result->min_position = 1;
       result->max_position = 0;
     } /* if */
