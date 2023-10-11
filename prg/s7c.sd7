@@ -59,9 +59,8 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 
 const boolean: SHOW_STATISTIC is FALSE;
 
-const type: option_hash is hash [string] string;
+const type: optionHash is hash [string] string;
 
-var option_hash: compiler_option is option_hash.value;
 var boolean: compileLibrary is FALSE;
 
 var array string: libraryDirs is 0 times "";
@@ -7274,7 +7273,7 @@ const func string: temp_name (in string: source) is func
 
 
 const proc: pass_1 (in string: source, inout program: prog,
-    inout boolean: okay) is func
+    in optionHash: compilerOptions, inout boolean: okay) is func
 
   local
     var char: optionChar is ' ';
@@ -7284,24 +7283,24 @@ const proc: pass_1 (in string: source, inout program: prog,
       writeln("*** Sourcefile missing");
       okay := FALSE;
     end if;
-    if "-w" in compiler_option then
-      if compiler_option["-w"] in {"0", "1", "2"} then
-        warning_level := integer(compiler_option["-w"]);
+    if "-w" in compilerOptions then
+      if compilerOptions["-w"] in {"0", "1", "2"} then
+        warning_level := integer(compilerOptions["-w"]);
       else
-        writeln("*** Unsupported option: -w" <& compiler_option["-w"]);
+        writeln("*** Unsupported option: -w" <& compilerOptions["-w"]);
         okay := FALSE;
       end if;
     end if;
-    if "-g" in compiler_option then
-      if compiler_option["-g"] in {"", "-debug_c"} then
-        source_debug_info := compiler_option["-g"] <> "-debug_c";
+    if "-g" in compilerOptions then
+      if compilerOptions["-g"] in {"", "-debug_c"} then
+        source_debug_info := compilerOptions["-g"] <> "-debug_c";
       else
-        writeln("*** Unsupported option: -g" <& compiler_option["-g"]);
+        writeln("*** Unsupported option: -g" <& compilerOptions["-g"]);
         okay := FALSE;
       end if;
     end if;
-    if "-t" in compiler_option then
-      for optionChar range compiler_option["-t"] do
+    if "-t" in compilerOptions then
+      for optionChar range compilerOptions["-t"] do
         case optionChar of
           when {'d'}: trace_dynamic_calls := TRUE;
           when {'e'}: trace_exception := TRUE;
@@ -7313,23 +7312,23 @@ const proc: pass_1 (in string: source, inout program: prog,
         end case;
       end for;
     end if;
-    if "-p" in compiler_option then
+    if "-p" in compilerOptions then
       profile_function := TRUE;
     end if;
-    if "-e" in compiler_option then
+    if "-e" in compilerOptions then
       signal_exception := TRUE;
     end if;
-    if "-o" in compiler_option then
-      if compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
-        evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
+    if "-o" in compilerOptions then
+      if compilerOptions["-o"] in {"c0", "c1", "c2", "c3"} then
+        evaluate_const_expr := integer(compilerOptions["-o"][2 ..]);
       else
-        writeln("*** Unsupported option: -o" <& compiler_option["-o"]);
+        writeln("*** Unsupported option: -o" <& compilerOptions["-o"]);
         okay := FALSE;
       end if;
     end if;
     setOptimizationSettings(evaluate_const_expr);
-    if "-s" in compiler_option then
-      for optionChar range compiler_option["-s"] do
+    if "-s" in compilerOptions then
+      for optionChar range compilerOptions["-s"] do
         case optionChar of
           when {'d'}: integer_division_check := FALSE;
           when {'i'}: string_index_check := FALSE;
@@ -7347,12 +7346,12 @@ const proc: pass_1 (in string: source, inout program: prog,
     end if;
     setIntegerDivisionCheck(integer_division_check);
     setIntegerOverflowCheck(integer_overflow_check);
-    if "-c" in compiler_option then
-      if compiler_option["-c"] = "++" then
+    if "-c" in compilerOptions then
+      if compilerOptions["-c"] = "++" then
         generate_c_plus_plus := TRUE;
         declare_with_extern_c := generate_c_plus_plus;
       else
-        configFileName := ccConf.S7_LIB_DIR & "/cc_conf_" & compiler_option["-c"] & ".prop";
+        configFileName := ccConf.S7_LIB_DIR & "/cc_conf_" & compilerOptions["-c"] & ".prop";
         if fileType(configFileName) = FILE_REGULAR then
           ccConf := readConfig(configFileName);
         else
@@ -7361,23 +7360,23 @@ const proc: pass_1 (in string: source, inout program: prog,
         end if;
       end if;
     end if;
-    if "-f" in compiler_option then
-      case compiler_option["-f"] of
+    if "-f" in compilerOptions then
+      case compilerOptions["-f"] of
         when {"lto"}:
           if ccConf.CC_OPT_LINK_TIME_OPTIMIZATION <> "" then
             enable_link_time_optimization := TRUE;
           end if;
         otherwise:
-          writeln("*** Unsupported option: -f" <& compiler_option["-f"]);
+          writeln("*** Unsupported option: -f" <& compilerOptions["-f"]);
           okay := FALSE;
       end case;
     end if;
-    if "-S" in compiler_option then
+    if "-S" in compilerOptions then
       block
-        stack_size := integer(compiler_option["-S"]);
+        stack_size := integer(compilerOptions["-S"]);
       exception
         otherwise:
-          writeln("*** Ignore unsupported option: -S" <& compiler_option["-S"]);
+          writeln("*** Ignore unsupported option: -S" <& compilerOptions["-S"]);
           okay := FALSE;
       end block;
     else
@@ -7637,7 +7636,7 @@ const proc: execProgram (in string: command, in array string: parameters,
 
 
 const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in program: prog,
-    inout boolean: okay) is func
+    in optionHash: compilerOptions, inout boolean: okay) is func
 
   local
     var string: s7_lib_dir     is "";
@@ -7667,8 +7666,8 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       if ccConf.CC_ENVIRONMENT_INI <> "" then
         importEnvironment(ccConf.CC_ENVIRONMENT_INI);
       end if;
-      if "-b" in compiler_option then
-        s7_lib_dir := convDosPath(compiler_option["-b"]);
+      if "-b" in compilerOptions then
+        s7_lib_dir := convDosPath(compilerOptions["-b"]);
       else
         s7_lib_dir := ccConf.S7_LIB_DIR;
       end if;
@@ -7718,8 +7717,8 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       if enable_link_time_optimization then
         compileParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
       end if;
-      if "-O" in compiler_option then
-        case compiler_option["-O"] of
+      if "-O" in compilerOptions then
+        case compilerOptions["-O"] of
           when {"", "1"}:
             compileParams &:= ccConf.CC_OPT_OPTIMIZE_1;
           when {"2"}:
@@ -7727,16 +7726,16 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           when {"3"}:
             compileParams &:= ccConf.CC_OPT_OPTIMIZE_3;
           otherwise:
-            writeln("*** Ignore unsupported option: -O" <& compiler_option["-O"]);
+            writeln("*** Ignore unsupported option: -O" <& compilerOptions["-O"]);
         end case;
       end if;
       if integer_overflow_check and ccConf.CC_OPT_TRAP_OVERFLOW <> "" then
         compileParams &:= ccConf.CC_OPT_TRAP_OVERFLOW;
       end if;
-      if "-g" in compiler_option then
+      if "-g" in compilerOptions then
         compileParams &:= ccConf.CC_OPT_DEBUG_INFO;
-        if compiler_option["-g"] <> "" and compiler_option["-g"] <> "-debug_c" then
-          compileParams &:= compiler_option["-g"];
+        if compilerOptions["-g"] <> "" and compilerOptions["-g"] <> "-debug_c" then
+          compileParams &:= compilerOptions["-g"];
         end if;
       end if;
       if length(ccConf.CC_FLAGS) <> 0 then
@@ -7767,7 +7766,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         removeFile(cErrorFile);
       end if;
       if okay then
-        if "-g" not in compiler_option then
+        if "-g" not in compilerOptions then
           removeFile(cSourceFile);
         end if;
         if compilerLibraryUsed then
@@ -7824,7 +7823,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             if enable_link_time_optimization or ccConf.LINKER_OPT_LTO_MANDATORY then
               linkParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
             end if;
-            if "-g" in compiler_option then
+            if "-g" in compilerOptions then
               if ccConf.LINKER_OPT_DEBUG_INFO <> "" then
                 linkParams &:= ccConf.LINKER_OPT_DEBUG_INFO;
               end if;
@@ -7908,7 +7907,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             elsif fileType(linkErrFile) = FILE_REGULAR then
               removeFile(linkErrFile);
             end if;
-            if "-g" not in compiler_option then
+            if "-g" not in compilerOptions then
               removeFile(objectFile);
             end if;
           end if;
@@ -7969,7 +7968,8 @@ const proc: main is func
 
   local
     var integer: index is 0;
-    var string: curr_arg is "";
+    var string: currArg is "";
+    var optionHash: compilerOptions is optionHash.value;
     var string: source is "";
     var string: sourcePath is "";
     var string: sourceExtension is "";
@@ -7991,40 +7991,40 @@ const proc: main is func
       writeln;
     else
       for index range 1 to length(argv(PROGRAM)) do
-        curr_arg := argv(PROGRAM)[index];
-        if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg in {"-b", "-c", "-S"} and index < length(argv(PROGRAM)) then
+        currArg := argv(PROGRAM)[index];
+        if length(currArg) >= 2 and currArg[1] = '-' then
+          if currArg in {"-b", "-c", "-S"} and index < length(argv(PROGRAM)) then
             incr(index);
-            compiler_option @:= [curr_arg] argv(PROGRAM)[index];
-          elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
+            compilerOptions @:= [currArg] argv(PROGRAM)[index];
+          elsif currArg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
-            if curr_arg[.. 2] in compiler_option then
-              if curr_arg[3 ..] = compiler_option[curr_arg[.. 2]] then
-                writeln("*** Option " <& curr_arg <& " specified twice.");
+          elsif currArg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
+            if currArg[.. 2] in compilerOptions then
+              if currArg[3 ..] = compilerOptions[currArg[.. 2]] then
+                writeln("*** Option " <& currArg <& " specified twice.");
               else
-                writeln("*** Option " <& curr_arg[.. 2] <& " specified twice.");
+                writeln("*** Option " <& currArg[.. 2] <& " specified twice.");
               end if;
               okay := FALSE;
             else
-              compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+              compilerOptions @:= [currArg[.. 2]] currArg[3 ..];
             end if;
           else
-            writeln("*** Unsupported option: " <& curr_arg);
+            writeln("*** Unsupported option: " <& currArg);
             okay := FALSE;
           end if;
         elsif source = "" then
-          source := convDosPath(curr_arg);
+          source := convDosPath(currArg);
         else
-          writeln("*** Superfluous parameter: " <& curr_arg);
+          writeln("*** Superfluous parameter: " <& currArg);
           okay := FALSE;
         end if;
       end for;
-      if "-?" in compiler_option then
+      if "-?" in compilerOptions then
         writeHelp;
       else
-        pass_1(source, prog, okay);
+        pass_1(source, prog, compilerOptions, okay);
         if okay then
           sourcePath := path(prog);
           if  endsWith(sourcePath, ".sd7") or
@@ -8034,7 +8034,7 @@ const proc: main is func
           end if;
         end if;
         pass_2(sourcePath, prog, okay);
-        pass_3(sourcePath, sourceExtension, prog, okay);
+        pass_3(sourcePath, sourceExtension, prog, compilerOptions, okay);
       end if;
     end if;
   end func;
