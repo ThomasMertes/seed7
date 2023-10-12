@@ -188,6 +188,7 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
     inFileType new_file;
     FILE *in_fil;
     ustriType name_ustri;
+    ustriType resized_name_ustri;
     memSizeType name_length;
     striType in_name;
     int path_info = PATH_IS_NORMAL;
@@ -218,9 +219,13 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
           if (name_ustri != NULL) {
             /* printf("name_ustri: \"%s\"\n", name_ustri); */
             name_length = strlen((cstriType) name_ustri);
-            name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(sourceFileName->size), name_length);
-            if (name_ustri == NULL) {
-              *err_info = MEMORY_ERROR;
+            resized_name_ustri = REALLOC_USTRI(name_ustri,
+                max_utf8_size(sourceFileName->size), name_length);
+            /* Theoretical a 'realloc', which shrinks memory, should  */
+            /* never fail. For the strange case that it fails we keep */
+            /* name_ustri intact with the oversized memory size.      */
+            if (resized_name_ustri != NULL) {
+              name_ustri = resized_name_ustri;
             } /* if */
           } /* if */
           if (name_ustri == NULL) {
@@ -231,7 +236,8 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
             *err_info = MEMORY_ERROR;
           } else {
             in_name->size = sourceFileName->size;
-            memcpy(in_name->mem, sourceFileName->mem, sourceFileName->size * sizeof(strElemType));
+            memcpy(in_name->mem, sourceFileName->mem,
+                   sourceFileName->size * sizeof(strElemType));
             if (in_file.curr_infile != NULL) {
               memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
             } /* if */
