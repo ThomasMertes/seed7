@@ -1102,7 +1102,7 @@ static boolType mouseButtonPressed (unsigned int button_mask)
 
 
 
-static boolType keyCodePressed (char keyVector[32], KeyCode keyCode)
+static boolType keyCodePressed (const char keyVector[32], KeyCode keyCode)
 
   {
     unsigned int byteIndex;
@@ -2811,7 +2811,7 @@ boolType gkbButtonPressed (charType button)
         if (button <= 0xff) {
           sym1 = (KeySym) button;
         } else if (button <= 0x318e) {
-          sym1 = (KeySym) (button + 0x01000000);
+          sym1 = (KeySym) button + 0x01000000;
           keysymIndex = sizeof(keysymTable) / sizeof(struct keysymCharPair) - 1;
           while (keysymIndex >= 0 && keysymTable[keysymIndex].unicodeChar != button) {
             keysymIndex--;
@@ -2820,7 +2820,7 @@ boolType gkbButtonPressed (charType button)
             sym2 = (KeySym) keysymTable[keysymIndex].keysym;
           } /* if */
         } else if (button <= 0x10FFFF) {
-          sym1 = (KeySym) (button + 0x01000000);
+          sym1 = (KeySym) button + 0x01000000;
           /* printf("2 button = %04x, keysym= %04x\n", button, sym1); */
         } else {
           result = FALSE;
