@@ -175,7 +175,7 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
 /**
  *  Create a command line string that can be used by CreateProcessW().
  *  All parameters that contain a space or a quotation (") or a control
- *  character or a character byond ASCII are quoted. All other parameters
+ *  character or a character beyond ASCII are quoted. All other parameters
  *  are not quoted. The command line string must be freed with os_stri_free().
  *  @param err_info Unchanged if the function succeeds, and
  *                  MEMORY_ERROR if a memory allocation failed, and

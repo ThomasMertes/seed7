@@ -319,14 +319,14 @@ const proc: moveFish (inout cellType: source, inout cellType: dest) is func
 
 const proc: moveAllFish is func
   local
-    var integer: line         is 0;
-    var integer: column       is 0;
-    var integer: up_line      is 0;
-    var integer: down_line    is 0;
-    var integer: left_column  is 0;
-    var integer: right_column is 0;
-    var integer: column_byond is 0;
-    var integer: column_step  is 0;
+    var integer: line          is 0;
+    var integer: column        is 0;
+    var integer: up_line       is 0;
+    var integer: down_line     is 0;
+    var integer: left_column   is 0;
+    var integer: right_column  is 0;
+    var integer: column_beyond is 0;
+    var integer: column_step   is 0;
     var integer: nmoves is 0;
     var array integer: moveopts is 4 times 0;
   begin
@@ -343,14 +343,14 @@ const proc: moveAllFish is func
       end if;
       if odd(line) then
         column := 1;
-        column_byond := succ(MAX_COLUMN);
+        column_beyond := succ(MAX_COLUMN);
         column_step := 1;
       else
         column := MAX_COLUMN;
-        column_byond := 0;
+        column_beyond := 0;
         column_step := -1;
       end if;
-      while column <> column_byond do
+      while column <> column_beyond do
         (* Look through array for fish and check if already processed *)
         if field[line][column].content = FISH and not field[line][column].processed then
           if column = 1 then

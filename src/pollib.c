@@ -58,7 +58,7 @@ static genericType incrUsageCount (const genericType pollFile)
   {
     objectType fileObject;
     structType fileStruct;
-    objectType newFileOject;
+    objectType newFileObject;
 
   /* incrUsageCount */
     fileObject = (objectType) (memSizeType) pollFile;
@@ -75,15 +75,15 @@ static genericType incrUsageCount (const genericType pollFile)
           fileStruct->usage_count++;
         } /* if */
         if (TEMP_OBJECT(fileObject) || TEMP2_OBJECT(fileObject)) {
-          if (!ALLOC_OBJECT(newFileOject)) {
+          if (!ALLOC_OBJECT(newFileObject)) {
             CLEAR_TEMP_FLAG(fileObject);
             CLEAR_TEMP2_FLAG(fileObject);
             raise_error(MEMORY_ERROR);
           } else {
-            memcpy(newFileOject, fileObject, sizeof(objectRecord));
-            CLEAR_TEMP_FLAG(newFileOject);
-            CLEAR_TEMP2_FLAG(newFileOject);
-            fileObject = newFileOject;
+            memcpy(newFileObject, fileObject, sizeof(objectRecord));
+            CLEAR_TEMP_FLAG(newFileObject);
+            CLEAR_TEMP2_FLAG(newFileObject);
+            fileObject = newFileObject;
           } /* if */
         } /* if */
       } /* if */

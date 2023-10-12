@@ -4576,7 +4576,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                   (SQLWCHAR *) columnData->buffer, length);
               if (unlikely(err_info != OKAY_NO_ERROR)) {
                 logError(printf("sqlColumnDuration: In column " FMT_D
-                                " the duration contains characters byond Latin-1.\n",
+                                " the duration contains characters beyond Latin-1.\n",
                                 column););
               } else {
                 /* printf("sqlColumnDuration: Duration = \"%s\"\n", duration); */
@@ -5066,7 +5066,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                   (SQLWCHAR *) columnData->buffer, length);
               if (unlikely(err_info != OKAY_NO_ERROR)) {
                 logError(printf("sqlColumnTime: In column " FMT_D
-                                " the datetime2 contains characters byond Latin-1.\n",
+                                " the datetime2 contains characters beyond Latin-1.\n",
                                 column););
               } else {
                 okay = assignTime(datetime2, year, month, day, hour, minute,

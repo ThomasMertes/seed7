@@ -234,7 +234,7 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
  *         the format %1.1f is used (largeNumber is either
  *         DOUBLE_STR_LARGE_NUMBER or FLOAT_STR_LARGE_NUMBER).
  *  @param format Format to be used if abs(doubleValue) <= largeValue
- *         holds (format is eitner FMT_E_DBL or FMT_E_FLT).
+ *         holds (format is either FMT_E_DBL or FMT_E_FLT).
  *  @param buffer Destination buffer for the decimal representation.
  *  @return the number of characters in the destination buffer.
  */

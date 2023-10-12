@@ -2806,7 +2806,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     doExecute(dbproc, "SET ANSI_PADDING ON", &err_info);
                     /* Set the default nullability of new created columns. */
                     /* By default connections from DB-Library applications */
-                    /* create non nullable columns. This is changed such   */
+                    /* create non-nullable columns. This is changed such   */
                     /* that nullable columns are created by default.       */
                     doExecute(dbproc, "SET ANSI_NULL_DFLT_ON ON", &err_info);
                     /* Identifiers can be delimited by double quotation    */

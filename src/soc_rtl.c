@@ -2119,7 +2119,7 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
         break;
       default:
         logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
-                        "Unsupperted option.\n",
+                        "Unsupported option.\n",
                         sock, optname, optval ? "TRUE" : "FALSE"););
         raise_error(RANGE_ERROR);
         break;

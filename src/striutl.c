@@ -138,7 +138,7 @@ int code_page = DEFAULT_CODE_PAGE;
 /**
  *  Write a Seed7 string to a static C string buffer.
  *  This function is intended to do debug/log output with printf().
- *  Control chars and chars byond ASCII are written with Seed7
+ *  Control chars and chars beyond ASCII are written with Seed7
  *  escape sequences. Strings longer than the AND_SO_ON_LIMIT are
  *  truncated and an information about the total length is added.
  *  Since a static buffer is used every call of printf() can only
@@ -238,7 +238,7 @@ static cstriType striCharsAsUnquotedCStri (const strElemType *const striChars,
 /**
  *  Write a Seed7 bstring to a static C string buffer.
  *  This function is intended to do debug/log output with printf().
- *  Control chars and chars byond ASCII are written with Seed7
+ *  Control chars and chars beyond ASCII are written with Seed7
  *  escape sequences. Strings longer than the AND_SO_ON_LIMIT are
  *  truncated and an information about the total length is added.
  *  Since a static buffer is used every call of printf() can only

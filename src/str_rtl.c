@@ -2680,7 +2680,7 @@ striType strHeadAssign (const striType stri, const intType stop)
  *  The first character in a string has the position 1.
  *  StrHeadTemp is used by the compiler if 'stri' is temporary
  *  value that can be reused. In case of an error 'stri' can be
- *  freed, because it is guaranteed to be a temorary value.
+ *  freed, because it is guaranteed to be a temporary value.
  *  @return the substring ending at the stop position.
  *  @exception INDEX_ERROR The stop position is negative.
  */
