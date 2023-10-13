@@ -43,6 +43,7 @@ const ACTION: PRC_HEAPSTAT         is action "PRC_HEAPSTAT";
 const ACTION: PRC_HSIZE            is action "PRC_HSIZE";
 const ACTION: PRC_IF               is action "PRC_IF";
 const ACTION: PRC_IF_ELSIF         is action "PRC_IF_ELSIF";
+const ACTION: PRC_LINE             is action "PRC_LINE";
 const ACTION: PRC_NOOP             is action "PRC_NOOP";
 const ACTION: PRC_RAISE            is action "PRC_RAISE";
 const ACTION: PRC_REPEAT           is action "PRC_REPEAT";
@@ -1155,6 +1156,14 @@ const proc: process (PRC_HSIZE, in reference: function,
 
   begin
     c_expr.expr &:= "heapsize()";
+  end func;
+
+
+const proc: process (PRC_LINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= integerLiteral(c_expr.currentLine);
   end func;
 
 

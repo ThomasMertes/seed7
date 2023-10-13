@@ -97,6 +97,9 @@ const func string: file (PROGRAM) is func
   end func;
 
 
+const func integer: sourceLine (PROGRAM)               is action "PRC_LINE";
+
+
 (**
  *  Terminate the program with the given exit ''status''.
  *  By convention, the exit status 0 indicates normal termination.

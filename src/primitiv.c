@@ -709,6 +709,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_IF_ELSIF",               prc_if_elsif,               },
     { "PRC_IF_NOOP",                prc_if_noop,                },
     { "PRC_INCLUDE",                prc_include,                },
+    { "PRC_LINE",                   prc_line,                   },
     { "PRC_LOCAL",                  prc_local,                  },
     { "PRC_NOOP",                   prc_noop,                   },
     { "PRC_RAISE",                  prc_raise,                  },

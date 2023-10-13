@@ -50,6 +50,7 @@ objectType prc_if               (listType arguments);
 objectType prc_if_elsif         (listType arguments);
 objectType prc_if_noop          (listType arguments);
 objectType prc_include          (listType arguments);
+objectType prc_line             (listType arguments);
 objectType prc_local            (listType arguments);
 objectType prc_noop             (listType arguments);
 objectType prc_raise            (listType arguments);

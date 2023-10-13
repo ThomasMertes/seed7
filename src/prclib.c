@@ -984,6 +984,14 @@ objectType prc_include (listType arguments)
 
 
 
+objectType prc_line (listType arguments)
+
+  { /* prc_line */
+    return bld_int_temp((intType) GET_LINE_NUM(curr_exec_object));
+  } /* prc_line */
+
+
+
 objectType prc_local (listType arguments)
 
   {

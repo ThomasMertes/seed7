@@ -1355,6 +1355,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_IF_ELSIF, function, params, c_expr);
       when {"PRC_IF_NOOP"}:
         process(PRC_IF_NOOP, function, params, c_expr);
+      when {"PRC_LINE"}:
+        process(PRC_LINE, function, params, c_expr);
       when {"PRC_NOOP"}:
         process(PRC_NOOP, function, params, c_expr);
       when {"PRC_RAISE"}:
