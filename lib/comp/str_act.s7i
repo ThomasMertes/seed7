@@ -410,52 +410,40 @@ const proc: process_str_append (in reference: param1, in reference: param3,
 
   local
     var reference: evaluatedParam is NIL;
+    var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if evaluate_const_expr >= 1 then
+    if optimizeStringFunctions then
       optimize_str_append(param1, param3, c_expr);
     elsif getConstant(param3, STRIOBJECT, evaluatedParam) then
       process_const_str_append(param1, getValue(evaluatedParam, string), c_expr);
     else
-      process_expr(param1, c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      if isActionExpression(param3, "CHR_STR") then
+      statement.temp_num := c_expr.temp_num;
+      prepareAnyParamTemporarys(param1, c_param1, statement);
+      if useSpecialCaseFunctions and
+          isActionExpression(param3, "CHR_STR") then
         incr(countOptimizations);
-        process_expr(getActionParameter(param3, 1), c_param3);
+        statement.expr &:= "strPush(&(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "), ";
+        process_expr(getActionParameter(param3, 1), statement);
       else
-        process_expr(param3, c_param3);
+        prepareAnyParamTemporarys(param3, c_param3, statement);
+        if c_param3.expr <> "" then
+          statement.expr &:= "strAppend(&(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "), ";
+          statement.expr &:= c_param3.expr;
+        else
+          statement.expr &:= "strAppendTemp(&(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "), ";
+          statement.expr &:= c_param3.result_expr;
+        end if;
       end if;
-      if has_temp_values(c_param3) then
-        c_expr.expr &:= "{\n";
-        appendWithDiagnostic(c_param1.temp_decls, c_expr);
-        appendWithDiagnostic(c_param3.temp_decls, c_expr);
-        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        appendWithDiagnostic(c_param3.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      if isActionExpression(param3, "CHR_STR") then
-        c_expr.expr &:= "strPush(&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "), ";
-        c_expr.expr &:= c_param3.expr;
-      elsif c_param3.expr <> "" then
-        c_expr.expr &:= "strAppend(&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "), ";
-        c_expr.expr &:= c_param3.expr;
-      else
-        c_expr.expr &:= "strAppendTemp(&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "), ";
-        c_expr.expr &:= c_param3.result_expr;
-      end if;
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param3) then
-        appendWithDiagnostic(c_param1.temp_frees, c_expr);
-        appendWithDiagnostic(c_param3.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -567,7 +555,7 @@ const proc: process (STR_CAT, in reference: function,
   local
     var expr_type: c_param1 is expr_type.value;
   begin
-    if evaluate_const_expr >= 1 then
+    if optimizeStringFunctions then
       optimize_str_cat(params, c_expr);
     else
       prepare_stri_result(c_expr);
@@ -759,42 +747,56 @@ const proc: process (STR_CPY, in reference: function,
     var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
+    var boolean: codeGenerated is FALSE;
   begin
-    if isActionExpression(params[3], "STR_CAT") and
+    if useSpecialCaseFunctions and
+        isActionExpression(params[3], "STR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
+      incr(countOptimizations);
       process_str_append(params[1], getActionParameter(params[3], 3), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
-      if isActionExpression(params[3], "STR_HEAD") and
-          getActionParameter(params[3], 1) = params[1] then
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strHeadAssign(";
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= ", ";
-        process_expr(getActionParameter(params[3], 4), statement);
-        statement.expr &:= ");\n";
-      elsif isActionExpression(params[3], "STR_TAIL") and
-          getActionParameter(params[3], 1) = params[1] then
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strTailAssign(";
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= ", ";
-        process_expr(getActionParameter(params[3], 3), statement);
-        statement.expr &:= ");\n";
-      elsif isActionExpression(params[3], "STR_LOW") and
-          getActionParameter(params[3], 1) = params[1] then
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strLowTemp(";
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= ");\n";
-      elsif isActionExpression(params[3], "STR_UP") and
-          getActionParameter(params[3], 1) = params[1] then
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= "=strUpTemp(";
-        statement.expr &:= c_param1.expr;
-        statement.expr &:= ");\n";
-      else
+      if useSpecialCaseFunctions then
+        if isActionExpression(params[3], "STR_HEAD") and
+            getActionParameter(params[3], 1) = params[1] then
+          incr(countOptimizations);
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "=strHeadAssign(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= ", ";
+          process_expr(getActionParameter(params[3], 4), statement);
+          statement.expr &:= ");\n";
+          codeGenerated := TRUE;
+        elsif isActionExpression(params[3], "STR_TAIL") and
+            getActionParameter(params[3], 1) = params[1] then
+          incr(countOptimizations);
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "=strTailAssign(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= ", ";
+          process_expr(getActionParameter(params[3], 3), statement);
+          statement.expr &:= ");\n";
+          codeGenerated := TRUE;
+        elsif isActionExpression(params[3], "STR_LOW") and
+            getActionParameter(params[3], 1) = params[1] then
+          incr(countOptimizations);
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "=strLowTemp(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= ");\n";
+          codeGenerated := TRUE;
+        elsif isActionExpression(params[3], "STR_UP") and
+            getActionParameter(params[3], 1) = params[1] then
+          incr(countOptimizations);
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "=strUpTemp(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= ");\n";
+          codeGenerated := TRUE;
+	end if;
+      end if;
+      if not codeGenerated then
         c_param3.demand := ASSIGN_RESULT;
         prepareAnyParamTemporarys(params[3], c_param3, statement);
         if c_param3.result_expr <> "" then
@@ -2144,7 +2146,7 @@ const proc: process (STR_LNG, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if evaluate_const_expr >= 1 then
+    if optimizeStringFunctions then
       optimize_str_lng(params[1], c_expr);
     else
       c_expr.expr &:= "(intType)((";
@@ -2395,7 +2397,8 @@ const proc: process (STR_MULT, in reference: function,
       process_const_str_mult(getValue(evaluatedParam, string), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_str_mult(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif isActionExpression(params[1], "CHR_STR") then
+    elsif useSpecialCaseFunctions and
+        isActionExpression(params[1], "CHR_STR") then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
       c_expr.result_expr := "strChMult(";
@@ -3472,7 +3475,8 @@ const proc: process (STR_REPL, in reference: function,
   begin
     if getConstant(params[2], STRIOBJECT, evaluatedParam) then
       process_const_str_repl(params[1], getValue(evaluatedParam, string), params[3], c_expr);
-    elsif isActionExpression(params[2], "CHR_STR") then
+    elsif useSpecialCaseFunctions and
+        isActionExpression(params[2], "CHR_STR") then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
       if getConstant(params[3], STRIOBJECT, evaluatedParam) then

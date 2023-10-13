@@ -22932,10 +22932,15 @@ const proc: check_string_append is func
     stri := "ab"; stri &:=          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:= striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
 
-    stri := "12345"; stri &:= '6';          ok := ok and stri = "123456";
-    stri := "12345"; stri &:= chr(48);      ok := ok and stri = "123450";
-    stri := "12345"; stri &:= str('6');     ok := ok and stri = "123456";
-    stri := "12345"; stri &:= str(chr(48)); ok := ok and stri = "123450";
+    stri := "12345"; stri &:=                  '6';    ok := ok and stri = "123456";
+    stri := "12345"; stri &:=              chr( 48);   ok := ok and stri = "123450";
+    stri := "12345"; stri &:=     charExpr(    '6' );  ok := ok and stri = "123456";
+    stri := "12345"; stri &:=     charExpr(chr( 48));  ok := ok and stri = "123450";
+
+    stri := "12345"; stri &:= str(             '6'  ); ok := ok and stri = "123456";
+    stri := "12345"; stri &:= str(         chr( 48) ); ok := ok and stri = "123450";
+    stri := "12345"; stri &:= str(charExpr(    '6' )); ok := ok and stri = "123456";
+    stri := "12345"; stri &:= str(charExpr(chr( 48))); ok := ok and stri = "123450";
 
     stri := "12345"; stri &:= "456"         & str('6');     ok := ok and stri = "123454566";
     stri := "12345"; stri &:= str('6')      & "456";        ok := ok and stri = "123456456";

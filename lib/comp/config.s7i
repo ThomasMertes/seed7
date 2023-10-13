@@ -42,6 +42,8 @@ var boolean: signal_exception        is FALSE;
 var integer: evaluate_const_expr     is 1;
 var boolean: inlineFunctions         is FALSE;
 var boolean: structFreelist          is FALSE;
+var boolean: useSpecialCaseFunctions is FALSE;
+var boolean: optimizeStringFunctions is FALSE;
 var boolean: modDividendOptimization is FALSE;
 var boolean: callOptimizeIntAdd      is FALSE;
 var boolean: reduceOverflowChecks    is FALSE;
@@ -86,6 +88,8 @@ var boolean: check_int_rem_zero_by_zero is FALSE;
 
 const proc: setOptimizationSettings (in integer: evaluate_const_expr) is func
   begin
+    useSpecialCaseFunctions := evaluate_const_expr >= 2;
+    optimizeStringFunctions := evaluate_const_expr >= 2;
     callOptimizeIntAdd      := evaluate_const_expr >= 2;
     inlineFunctions         := evaluate_const_expr >= 3;
     structFreelist          := evaluate_const_expr >= 3;
