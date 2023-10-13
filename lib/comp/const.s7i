@@ -428,36 +428,36 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
   result
     var boolean: okay is FALSE;
   begin
-    if isFuncParamData(currExpr) then
-      okay := FALSE;
-    elsif canEvaluateSpecialAction(currExpr, evaluatedExpr) then
-      okay := TRUE;
-    elsif currExpr in inlineParam and
-          inlineParam[currExpr][1].paramValue <> NIL then
-      evaluatedExpr := inlineParam[currExpr][1].paramValue;
-      okay := TRUE;
-    elsif evaluate_const_expr >= 1 and category(currExpr) = exprCategory and
-        not isVar(currExpr) then
-      evaluatedExpr := currExpr;
-      incr(countEvaluations);
-      okay := TRUE;
-    elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
-      block
-        evaluatedExpr := evaluate(prog, currExpr);
-        if evaluatedExpr <> NIL then
-          if category(evaluatedExpr) = exprCategory then
-            incr(countEvaluations);
-            okay := TRUE;
+    if evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
+      if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
+        okay := TRUE;
+      elsif currExpr in inlineParam and
+            inlineParam[currExpr][1].paramValue <> NIL then
+        evaluatedExpr := inlineParam[currExpr][1].paramValue;
+        okay := TRUE;
+      elsif category(currExpr) = exprCategory and
+          not isVar(currExpr) then
+        evaluatedExpr := currExpr;
+        incr(countEvaluations);
+        okay := TRUE;
+      elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+        block
+          evaluatedExpr := evaluate(prog, currExpr);
+          if evaluatedExpr <> NIL then
+            if category(evaluatedExpr) = exprCategory then
+              incr(countEvaluations);
+              okay := TRUE;
+            end if;
           end if;
-        end if;
-      exception
-        catch NUMERIC_ERROR:  noop;
-        catch OVERFLOW_ERROR: noop;
-        catch RANGE_ERROR:    noop;
-        catch INDEX_ERROR:    noop;
-        catch FILE_ERROR:     noop;
-        catch DATABASE_ERROR: noop;
-      end block;
+        exception
+          catch NUMERIC_ERROR:  noop;
+          catch OVERFLOW_ERROR: noop;
+          catch RANGE_ERROR:    noop;
+          catch INDEX_ERROR:    noop;
+          catch FILE_ERROR:     noop;
+          catch DATABASE_ERROR: noop;
+        end block;
+      end if;
     end if;
   end func;
 
@@ -465,36 +465,38 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
 const func boolean: getConstant (in var reference: currExpr,
     inout reference: evaluatedExpr) is func
   result
-    var boolean: okay is FALSE;
+      var boolean: okay is FALSE;
   begin
-    if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
-      okay := TRUE;
-    elsif currExpr in inlineParam and
-          inlineParam[currExpr][1].paramValue <> NIL then
-       evaluatedExpr := inlineParam[currExpr][1].paramValue;
-       okay := TRUE;
-    elsif evaluate_const_expr >= 1 and category(currExpr) in constantExpressionCategories and
-        not isVar(currExpr) then
-      evaluatedExpr := currExpr;
-      incr(countEvaluations);
-      okay := TRUE;
-    elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
-      block
-        evaluatedExpr := evaluate(prog, currExpr);
-        if evaluatedExpr <> NIL then
-          if category(evaluatedExpr) in constantExpressionCategories then
-            incr(countEvaluations);
-            okay := TRUE;
+    if evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
+      if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
+        okay := TRUE;
+      elsif currExpr in inlineParam and
+            inlineParam[currExpr][1].paramValue <> NIL then
+         evaluatedExpr := inlineParam[currExpr][1].paramValue;
+         okay := TRUE;
+      elsif category(currExpr) in constantExpressionCategories and
+          not isVar(currExpr) then
+        evaluatedExpr := currExpr;
+        incr(countEvaluations);
+        okay := TRUE;
+      elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+        block
+          evaluatedExpr := evaluate(prog, currExpr);
+          if evaluatedExpr <> NIL then
+            if category(evaluatedExpr) in constantExpressionCategories then
+              incr(countEvaluations);
+              okay := TRUE;
+            end if;
           end if;
-        end if;
-      exception
-        catch NUMERIC_ERROR:  noop;
-        catch OVERFLOW_ERROR: noop;
-        catch RANGE_ERROR:    noop;
-        catch INDEX_ERROR:    noop;
-        catch FILE_ERROR:     noop;
-        catch DATABASE_ERROR: noop;
-      end block;
+        exception
+          catch NUMERIC_ERROR:  noop;
+          catch OVERFLOW_ERROR: noop;
+          catch RANGE_ERROR:    noop;
+          catch INDEX_ERROR:    noop;
+          catch FILE_ERROR:     noop;
+          catch DATABASE_ERROR: noop;
+        end block;
+      end if;
     end if;
   end func;
 
