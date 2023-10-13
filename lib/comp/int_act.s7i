@@ -257,7 +257,8 @@ const func addSubIntListType: getAddSubParamList (in reference: summand1,
   end func;
 
 
-const proc: processNegations (inout addSubIntListType: addSubParamList) is func
+const proc: processNegations (inout addSubIntListType: addSubParamList,
+    inout expr_type: c_expr) is func
 
   local
     var integer: index is 1;
@@ -1430,7 +1431,7 @@ const proc: optimize_int_add (in ref_list: params, in boolean: doAdd,
     var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(params, doAdd);
-    processNegations(addSubParamList);
+    processNegations(addSubParamList, c_expr);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
     optimize_int_add(addSubParamList, sumRange, c_expr);
@@ -1445,7 +1446,7 @@ const proc: optimize_int_add (in reference: summand1, in integer: summand2,
     var intRange: sumRange is intRange.value;
   begin
     addSubParamList := getAddSubParamList(summand1, summand2);
-    processNegations(addSubParamList);
+    processNegations(addSubParamList, c_expr);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
     optimize_int_add(addSubParamList, sumRange, c_expr);
