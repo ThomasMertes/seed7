@@ -271,6 +271,8 @@ const proc: processNegations (inout addSubIntListType: addSubParamList) is func
         while isActionExpression(summand, "INT_NEGATE") or
               isActionExpression(summand, "INT_PLUS") do
           if isActionExpression(summand, "INT_NEGATE") then
+            # Negate a negated value. No overflow check necessary.
+            countOverflowOptimizations(c_expr);
             doAdd := not doAdd;
           end if;
           summand := getActionParameter(summand, 2);
@@ -855,14 +857,15 @@ const proc: int_mult_with_overflow_check (in reference: factor1, in reference: f
 const proc: negate (in reference: number, inout expr_type: c_expr) is func
 
   local
-    var reference: aParam is NIL;
     var intRange: number_range is intRange.value;
     var string: number_name is "";
   begin
-    if isActionExpression(number, "INT_NEGATE") then
+    if reduceOverflowChecks and
+        isActionExpression(number, "INT_NEGATE") then
       # Negate a negated value. No overflow check necessary.
-      aParam := getActionParameter(number, 2);
-      process_expr(aParam, c_expr);
+      countOverflowOptimizations(c_expr);
+      c_expr.expr &:= "/*no_overflow_check_negate_of_negate*/";
+      process_expr(getActionParameter(number, 2), c_expr);
     elsif check_int_arithmetic_overflow and ccConf.TWOS_COMPLEMENT_INTTYPE then
       number_range := getIntRange(number);
       if number_range.minValue >= -integer.last then
