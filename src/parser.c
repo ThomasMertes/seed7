@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Parser                                       */
 /*  File: seed7/src/parser.c                                        */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Main procedures of the parser.                         */
+/*  Content: Main functions of the parser.                          */
 /*                                                                  */
 /********************************************************************/
 

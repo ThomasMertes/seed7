@@ -23,7 +23,7 @@
 /*  File: seed7/src/listutl.c                                       */
 /*  Changes: 1990 - 1994, 2002, 2008, 2013  Thomas Mertes           */
 /*           2015 - 2018, 2021  Thomas Mertes                       */
-/*  Content: Procedures to maintain objects of type listType.       */
+/*  Content: Functions to maintain objects of type listType.        */
 /*                                                                  */
 /********************************************************************/
 

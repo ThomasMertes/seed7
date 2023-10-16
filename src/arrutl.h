@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/arrutl.h                                        */
 /*  Changes: 2013  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type arrayType.      */
+/*  Content: Functions to maintain objects of type arrayType.       */
 /*                                                                  */
 /********************************************************************/
 

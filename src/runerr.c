@@ -23,7 +23,7 @@
 /*  File: seed7/src/runerr.c                                        */
 /*  Changes: 1990 - 1994, 2010 - 2011, 2014 - 2017   Thomas Mertes  */
 /*           2020, 2021   Thomas Mertes                             */
-/*  Content: Runtime error and exception handling procedures.       */
+/*  Content: Runtime error and exception handling functions.        */
 /*                                                                  */
 /********************************************************************/
 

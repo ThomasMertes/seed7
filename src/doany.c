@@ -21,12 +21,12 @@
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/doany.c                                         */
 /*  Changes: 1993, 1994, 2015  Thomas Mertes                        */
-/*  Content: Procedures to call several Seed7 functions from C.     */
+/*  Content: Functions to call several Seed7 functions from C.      */
 /*                                                                  */
 /*  This File contains a set of do_.. functions that allow to       */
 /*  call several Seed7-expressions from C. The expressions are      */
 /*  interpreted with the same mechanism that is used to execute     */
-/*  the MAIN program at runtime. The procedures are used during     */
+/*  the MAIN program at runtime. The functions are used during      */
 /*  the analysis phase and during the execution phase.              */
 /*                                                                  */
 /********************************************************************/

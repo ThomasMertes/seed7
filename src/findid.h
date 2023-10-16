@@ -21,7 +21,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/findid.h                                        */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain the identifier table.           */
+/*  Content: Functions to maintain the identifier table.            */
 /*                                                                  */
 /********************************************************************/
 

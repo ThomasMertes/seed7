@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/endutl.h                                        */
 /*  Changes: 2000  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type entityType.     */
+/*  Content: Functions to maintain objects of type entityType.      */
 /*                                                                  */
 /********************************************************************/
 

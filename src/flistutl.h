@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/flistutl.h                                      */
 /*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Procedures for free memory list maintenance.           */
+/*  Content: Functions for free memory list maintenance.            */
 /*                                                                  */
 /********************************************************************/
 

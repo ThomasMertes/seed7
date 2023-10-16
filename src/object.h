@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Utility                                      */
 /*  File: seed7/src/object.h                                        */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Procedures to maintain objects and lists.              */
+/*  Content: Functions to maintain objects and lists.               */
 /*                                                                  */
 /********************************************************************/
 

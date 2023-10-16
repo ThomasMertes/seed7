@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Libraries                                    */
 /*  File: seed7/src/libpath.h                                       */
 /*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
-/*  Content: Procedures to manage the include library search path.  */
+/*  Content: Functions to manage the include library search path.   */
 /*                                                                  */
 /********************************************************************/
 

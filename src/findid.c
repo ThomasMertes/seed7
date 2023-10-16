@@ -22,7 +22,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/findid.c                                        */
 /*  Changes: 1991 - 1994, 2012, 2013, 2015, 2021  Thomas Mertes     */
-/*  Content: Procedures to maintain the identifier table.           */
+/*  Content: Functions to maintain the identifier table.            */
 /*                                                                  */
 /********************************************************************/
 

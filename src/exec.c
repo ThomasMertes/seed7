@@ -23,7 +23,7 @@
 /*  File: seed7/src/exec.c                                          */
 /*  Changes: 1999, 2000, 2004, 2011 - 2015, 2017  Thomas Mertes     */
 /*           2019 - 2021  Thomas Mertes                             */
-/*  Content: Main interpreter procedures.                           */
+/*  Content: Main interpreter functions.                            */
 /*                                                                  */
 /********************************************************************/
 

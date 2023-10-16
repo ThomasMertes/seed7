@@ -21,7 +21,7 @@
 /*  Module: Reflection                                              */
 /*  File: seed7/src/datautl.c                                       */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identType.      */
+/*  Content: Functions to maintain objects of type identType.       */
 /*                                                                  */
 /********************************************************************/
 
@@ -49,7 +49,7 @@ static const const_cstriType category_name[] = {
                          /*                    forward              */
     "FWDREFOBJECT",      /* objValue -    Reference to Object which */
                          /*               was declared forward      */
-    "BLOCKOBJECT",       /* blockValue - Procedure possibly with    */
+    "BLOCKOBJECT",       /* blockValue - Function possibly with     */
                          /*              parameters, declared       */
                          /*              result or local variables  */
     "CALLOBJECT",        /* listValue - Subroutine call:            */
@@ -88,7 +88,7 @@ static const const_cstriType category_name[] = {
     "ACTOBJECT",         /* actValue -    Action                    */
     "VALUEPARAMOBJECT",  /* objValue -    Formal value parameter    */
     "REFPARAMOBJECT",    /* objValue -    Formal ref parameter      */
-    "RESULTOBJECT",      /* objValue -    Result of procedure       */
+    "RESULTOBJECT",      /* objValue -    Result of function        */
     "LOCALVOBJECT",      /* objValue -    Local variable            */
     "DATABASEOBJECT",    /* databaseValue - Database                */
     "SQLSTMTOBJECT",     /* sqlStmtValue -  SQL statement           */

@@ -21,7 +21,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/match.h                                         */
 /*  Changes: 1995, 1999, 2000  Thomas Mertes                        */
-/*  Content: Procedures to do static match on expressions.          */
+/*  Content: Functions to do static match on expressions.           */
 /*                                                                  */
 /********************************************************************/
 

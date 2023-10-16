@@ -35,7 +35,7 @@ typedef enum {
                          /*                    forward              */
     FWDREFOBJECT,        /* objValue -    Reference to Object which */
                          /*               was declared forward      */
-    BLOCKOBJECT,         /* blockValue - Procedure possibly with    */
+    BLOCKOBJECT,         /* blockValue - Function possibly with     */
                          /*              parameters, declared       */
                          /*              result or local variables  */
     CALLOBJECT,          /* listValue - Subroutine call:            */
@@ -74,7 +74,7 @@ typedef enum {
     ACTOBJECT,           /* actValue -    Action                    */
     VALUEPARAMOBJECT,    /* objValue -    Formal value parameter    */
     REFPARAMOBJECT,      /* objValue -    Formal ref parameter      */
-    RESULTOBJECT,        /* objValue -    Result of procedure       */
+    RESULTOBJECT,        /* objValue -    Result of function        */
     LOCALVOBJECT,        /* objValue -    Local variable            */
     DATABASEOBJECT,      /* databaseValue - Database                */
     SQLSTMTOBJECT,       /* sqlStmtValue -  SQL statement           */

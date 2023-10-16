@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/blockutl.c                                      */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Procedures to maintain objects of type blockType.      */
+/*  Content: Functions to maintain objects of type blockType.       */
 /*                                                                  */
 /********************************************************************/
 

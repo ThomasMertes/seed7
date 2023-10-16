@@ -22,7 +22,7 @@
 /*  Module: Runtime                                                 */
 /*  File: seed7/src/runerr.h                                        */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Runtime error and exception handling procedures.       */
+/*  Content: Runtime error and exception handling functions.        */
 /*                                                                  */
 /********************************************************************/
 

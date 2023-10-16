@@ -21,7 +21,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/info.c                                          */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Procedures for compile time info.                      */
+/*  Content: Functions for compile time info.                       */
 /*                                                                  */
 /********************************************************************/
 

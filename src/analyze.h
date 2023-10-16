@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Main                                         */
 /*  File: seed7/src/analyze.h                                       */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Main procedure of the analysis phase.                  */
+/*  Content: Main function of the analysis phase.                   */
 /*                                                                  */
 /********************************************************************/
 

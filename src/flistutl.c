@@ -22,16 +22,16 @@
 /*  File: seed7/src/flistutl.c                                      */
 /*  Changes: 1993, 1994, 2010, 2013, 2015, 2019  Thomas Mertes      */
 /*           2021  Thomas Mertes                                    */
-/*  Content: Procedures for free memory list maintenance.           */
+/*  Content: Functions for free memory list maintenance.            */
 /*                                                                  */
-/*  This file contains the heapsize procedure which calculates      */
+/*  This file contains the heapsize function which calculates       */
 /*  the size of the currently used heap memory. This is done by     */
 /*  subtracting the size of the free lists from the size of all     */
 /*  memory requested with ALLOC_ macros. Note that the memory       */
 /*  totally requested from the system is more than the memory       */
 /*  requested with the ALLOC_ macros because of the chunk           */
 /*  mechanism.                                                      */
-/*  There is also the procedure reuse_free_lists which gives the    */
+/*  There is also the function reuse_free_lists which gives the     */
 /*  memory occupied by the free lists back to the system. This      */
 /*  makes only sense when the CHUNK_ALLOCS are turned off. This is  */
 /*  because the chunk alloc mechanism is tuned for speed (and to    */

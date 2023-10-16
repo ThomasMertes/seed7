@@ -23,7 +23,7 @@
 /*  Changes: 1992 - 1994, 2010, 2021  Thomas Mertes                 */
 /*  Content: Submit fatal compile time error messages.              */
 /*                                                                  */
-/*  This file contains the procedure fatal_memory_error which is    */
+/*  This file contains the function fatal_memory_error which is     */
 /*  called if there is no more memory in the parsing phase.         */
 /*  (In the interpreting phase an EXCEPTION is called in this case) */
 /*                                                                  */

@@ -25,7 +25,7 @@
 /*                                                                  */
 /*  Actions are searched with a binary search. Normally a detailed  */
 /*  implementation of the binary search algorithm is used. With the */
-/*  USE_BSEARCH flag it is possible to use the bsearch procedure of */
+/*  USE_BSEARCH flag it is possible to use the bsearch function of  */
 /*  the c-library instead.                                          */
 /*                                                                  */
 /********************************************************************/

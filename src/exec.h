@@ -21,7 +21,7 @@
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/exec.h                                          */
 /*  Changes: 1999  Thomas Mertes                                    */
-/*  Content: Main interpreter procedures.                           */
+/*  Content: Main interpreter functions.                            */
 /*                                                                  */
 /********************************************************************/
 

@@ -290,8 +290,8 @@ void conCursor (boolType on)
 
 /**
  *  Moves the system cursor to the given place of the console.
- *  If no system cursor exists this procedure can be replaced by
- *  a dummy procedure.
+ *  If no system cursor exists this function can be replaced by
+ *  a dummy function.
  */
 void conSetCursor (intType line, intType column)
 

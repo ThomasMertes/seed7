@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/typeutl.h                                       */
 /*  Changes: 1999  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type typeType.       */
+/*  Content: Functions to maintain objects of type typeType.        */
 /*                                                                  */
 /********************************************************************/
 

@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Infile                                       */
 /*  File: seed7/src/infile.h                                        */
 /*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
-/*  Content: Procedures to open, close and read the source file.    */
+/*  Content: Functions to open, close and read the source file.     */
 /*                                                                  */
 /*  The next_character macro is the key macro for all parsing       */
 /*  operations. All read operations for source file(s) are based    */

@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/traceutl.c                                      */
 /*  Changes: 1990 - 1994, 2008, 2010 - 2021  Thomas Mertes          */
-/*  Content: Tracing and protocol procedures.                       */
+/*  Content: Tracing and protocol functions.                        */
 /*                                                                  */
 /********************************************************************/
 

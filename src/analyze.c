@@ -22,7 +22,7 @@
 /*  File: seed7/src/analyze.c                                       */
 /*  Changes: 1991 - 1994, 2010, 2012 - 2016, 2018  Thomas Mertes    */
 /*           2019, 2021  Thomas Mertes                              */
-/*  Content: Main procedure of the analysis phase.                  */
+/*  Content: Main function of the analysis phase.                   */
 /*                                                                  */
 /********************************************************************/
 

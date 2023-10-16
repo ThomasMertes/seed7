@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Syntax                                       */
 /*  File: seed7/src/token.h                                         */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type tokenType.      */
+/*  Content: Functions to maintain objects of type tokenType.       */
 /*                                                                  */
 /********************************************************************/
 

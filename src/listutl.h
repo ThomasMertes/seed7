@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/listutl.h                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2002  Thomas Mertes      */
-/*  Content: Procedures to maintain objects of type listType.       */
+/*  Content: Functions to maintain objects of type listType.        */
 /*                                                                  */
 /********************************************************************/
 

@@ -23,10 +23,10 @@
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
 /*  Content: Compute the type of a character very quickly.          */
 /*                                                                  */
-/*  The procedure init_chclass initializes several arrays to obtain */
-/*  the type of a character very quickly. The is.. procedures from  */
+/*  The function init_chclass initializes several arrays to obtain  */
+/*  the type of a character very quickly. The is.. macros from      */
 /*  the c-library give not exact the results we need here. Our      */
-/*  procedures are also defined for EOF and need no bit operation   */
+/*  functions are also defined for EOF and need no bit operation    */
 /*  with a mask. Our arrays contain direct boolean values, so only  */
 /*  one array access is necessary and this brings speed. No joke:   */
 /*  The character class is used in the scanner which consumes       */

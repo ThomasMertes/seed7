@@ -21,7 +21,7 @@
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/doany.h                                         */
 /*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Procedures to call several Seed7 functions from C.     */
+/*  Content: Functions to call several Seed7 functions from C.      */
 /*                                                                  */
 /********************************************************************/
 

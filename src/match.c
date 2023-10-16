@@ -23,7 +23,7 @@
 /*  File: seed7/src/match.c                                         */
 /*  Changes: 1995, 1999, 2000, 2007, 2008, 2010  Thomas Mertes      */
 /*           2013, 2015, 2018, 2019, 2021  Thomas Mertes            */
-/*  Content: Procedures to do static match on expressions.          */
+/*  Content: Functions to do static match on expressions.           */
 /*                                                                  */
 /********************************************************************/
 

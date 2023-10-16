@@ -23,7 +23,7 @@
 /*  File: seed7/src/executl.c                                       */
 /*  Changes: 1993, 1994, 2011 - 2013, 2015 - 2017  Thomas Mertes    */
 /*           2020, 2021  Thomas Mertes                              */
-/*  Content: Initialization operation procedures used at runtime.   */
+/*  Content: Initialization operation functions used at runtime.    */
 /*                                                                  */
 /********************************************************************/
 

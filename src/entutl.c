@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/entutl.c                                        */
 /*  Changes: 2000, 2013 - 2015, 2021  Thomas Mertes                 */
-/*  Content: Procedures to maintain objects of type entityType.     */
+/*  Content: Functions to maintain objects of type entityType.      */
 /*                                                                  */
 /********************************************************************/
 

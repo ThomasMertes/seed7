@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  striutl.c     Procedures to work with wide char strings.        */
+/*  striutl.c     Functions to work with wide char strings.         */
 /*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.c                                       */
 /*  Changes: 1991 - 1994, 2005 - 2021  Thomas Mertes                */
-/*  Content: Procedures to work with wide char strings.             */
+/*  Content: Functions to work with wide char strings.              */
 /*                                                                  */
 /********************************************************************/
 

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  rtl_err.h     Runtime error and exception handling procedures.  */
+/*  rtl_err.h     Runtime error and exception handling functions.   */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/rtl_err.h                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2005  Thomas Mertes      */
-/*  Content: Runtime error and exception handling procedures.       */
+/*  Content: Runtime error and exception handling functions.        */
 /*                                                                  */
 /********************************************************************/
 

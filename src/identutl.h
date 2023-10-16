@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/identutl.h                                      */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identType.      */
+/*  Content: Functions to maintain objects of type identType.       */
 /*                                                                  */
 /********************************************************************/
 

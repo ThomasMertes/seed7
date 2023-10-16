@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Infile                                       */
 /*  File: seed7/src/infile.c                                        */
 /*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
-/*  Content: Procedures to open, close and read the source file.    */
+/*  Content: Functions to open, close and read the source file.     */
 /*                                                                  */
 /********************************************************************/
 
