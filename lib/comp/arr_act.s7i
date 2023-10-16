@@ -283,11 +283,10 @@ const proc: process (ARR_CPY, in reference: function,
           statement.expr &:= c_param1.expr;
           statement.expr &:= "=";
         else
-          statement.temp_decls &:= "arrayType old_array;\n";
           statement.temp_decls &:= "arrayType *array_ptr=&(";
           statement.temp_decls &:= c_param1.expr;
           statement.temp_decls &:= ");\n";
-          statement.expr &:= "old_array=*array_ptr;\n";
+          statement.temp_decls &:= "arrayType old_array=*array_ptr;\n";
           statement.expr &:= "*array_ptr=";
         end if;
         statement.expr &:= c_param3.result_expr;
