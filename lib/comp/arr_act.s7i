@@ -114,16 +114,16 @@ const proc: declare_prototype_if_necessary (in reference: function,
   end func;
 
 
-const proc: process (ARR_APPEND, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_arr_append (in reference: param1, in reference: param3,
+    inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
+    process_expr(param1, c_param1);
     c_param3.temp_num := c_param1.temp_num;
-    getTemporaryToResultExpr(params[3], c_param3);
+    getTemporaryToResultExpr(param3, c_param3);
     incr(c_param3.temp_num);
     if has_temp_values(c_param3) then
       c_expr.expr &:= "{\n";
@@ -143,6 +143,14 @@ const proc: process (ARR_APPEND, in reference: function,
       appendWithDiagnostic(c_param3.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process (ARR_APPEND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_arr_append(params[1], params[3], c_expr);
   end func;
 
 
@@ -255,60 +263,45 @@ const proc: process (ARR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) then
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "{\n";
-      appendWithDiagnostic(c_param1.temp_decls, c_expr);
-      appendWithDiagnostic(c_param3.temp_decls, c_expr);
-      appendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      appendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    if c_param3.result_expr <> "" then
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "{\n";
-      setDiagnosticLine(c_expr);
-      if isNormalVariable(params[1]) then
-        c_expr.expr &:= "arrayType old_array=";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ";\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "=";
-      else
-        c_expr.expr &:= "arrayType *array_ptr=&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ");\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "arrayType old_array=*array_ptr;\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "*array_ptr=";
-      end if;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
-      process_destr_declaration(getExprResultType(params[1]), global_c_expr);
-      setDiagnosticLine(c_expr);
-      process_destr_call(getExprResultType(params[1]),
-          "old_array", c_expr.expr);
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "}\n";
+    if isActionExpression(params[3], "ARR_CAT") and
+        getActionParameter(params[3], 1) = params[1] then
+      process_arr_append(params[1], getActionParameter(params[3], 3), c_expr);
     else
-      process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
-      setDiagnosticLine(c_expr);
-      process_cpy_call(getExprResultType(params[1]),
-          c_param1.expr, c_param3.expr, c_expr.expr);
-      c_expr.expr &:= ";\n";
-    end if;
-    if has_temp_values(c_param3) then
-      appendWithDiagnostic(c_param1.temp_frees, c_expr);
-      appendWithDiagnostic(c_param3.temp_frees, c_expr);
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "}\n";
+      statement.temp_num := c_expr.temp_num;
+      prepareAnyParamTemporarys(params[1], c_param1, statement);
+      c_param3.demand := ASSIGN_RESULT;
+      prepareAnyParamTemporarys(params[3], c_param3, statement);
+      if c_param3.result_expr <> "" then
+        if isNormalVariable(params[1]) then
+          statement.temp_decls &:= "arrayType old_array=";
+          statement.temp_decls &:= c_param1.expr;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "=";
+        else
+          statement.temp_decls &:= "arrayType old_array;\n";
+          statement.temp_decls &:= "arrayType *array_ptr=&(";
+          statement.temp_decls &:= c_param1.expr;
+          statement.temp_decls &:= ");\n";
+          statement.expr &:= "old_array=*array_ptr;\n";
+          statement.expr &:= "*array_ptr=";
+        end if;
+        statement.expr &:= c_param3.result_expr;
+        statement.expr &:= ";\n";
+        process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+        process_destr_call(getExprResultType(params[1]),
+            "old_array", statement.expr);
+      else
+        process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
+        process_cpy_call(getExprResultType(params[1]),
+            c_param1.expr, c_param3.expr, statement.expr);
+        statement.expr &:= ";\n";
+      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
