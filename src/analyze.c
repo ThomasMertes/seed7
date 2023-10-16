@@ -22,7 +22,7 @@
 /*  File: seed7/src/analyze.c                                       */
 /*  Changes: 1991 - 1994, 2010, 2012 - 2016, 2018  Thomas Mertes    */
 /*           2019, 2021  Thomas Mertes                              */
-/*  Content: Main procedure of the analyzing phase.                 */
+/*  Content: Main procedure of the analysis phase.                  */
 /*                                                                  */
 /********************************************************************/
 
@@ -82,8 +82,8 @@
 #define TRACE_DECL_ANY 0
 
 
-/* The long jump position memoryErrorOccurred is */
-/* only used during the analyze phase (parsing). */
+/* The long jump position memoryErrorOccurred is  */
+/* only used during the analysis phase (parsing). */
 extern boolType currentlyAnalyzing;
 extern longjmpPosition memoryErrorOccurred;
 

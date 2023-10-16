@@ -27,7 +27,7 @@
 /*  call several Seed7-expressions from C. The expressions are      */
 /*  interpreted with the same mechanism that is used to execute     */
 /*  the MAIN program at runtime. The procedures are used during     */
-/*  the analysation phase and during the execution phase.           */
+/*  the analysis phase and during the execution phase.              */
 /*                                                                  */
 /********************************************************************/
 

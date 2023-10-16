@@ -53,8 +53,8 @@
 #include "fatal.h"
 
 
-/* The long jump position memoryErrorOccurred is */
-/* only used during the analyze phase (parsing). */
+/* The long jump position memoryErrorOccurred is  */
+/* only used during the analysis phase (parsing). */
 boolType currentlyAnalyzing = FALSE;
 longjmpPosition memoryErrorOccurred;
 

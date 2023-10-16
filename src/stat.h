@@ -21,7 +21,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/stat.h                                          */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures for maintaining an analyze phase statistic. */
+/*  Content: Functions to maintain the analysis phase statistic.    */
 /*                                                                  */
 /********************************************************************/
 
