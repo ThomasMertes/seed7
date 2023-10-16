@@ -537,7 +537,17 @@ static void appendFile (const char *sourceName, const char *destName)
 
 
 
-static void replaceQuotes (char *text)
+/**
+ *  Removes quotes from quotations in a string with newline separated values.
+ *  This function is used to write library options to the file version.h.
+ *  The Seed7 compiler needs unquoted library options if the C linker is
+ *  invoked without the use of a shell (that would interpret the quotations).
+ *  The unquoted library options might contain spaces but this is not a problem.
+ *  If text is "one\ntwo\n\"three four\"\n\"five  six\""
+ *  after removeQuotesFromQuotations(text) the text buffer will contain:
+ *  "one\ntwo\nthree four\nfive  six"
+ */
+static void removeQuotesFromQuotations (char *text)
 
   {
     char *source;
@@ -545,7 +555,7 @@ static void replaceQuotes (char *text)
     char *nlPos;
     int inQuotation = 0;
 
-  /* replaceQuotes */
+  /* removeQuotesFromQuotations */
     source = text;
     dest = text;
     if (*source == '\"') {
@@ -604,10 +614,19 @@ static void replaceQuotes (char *text)
       } /* if */
     } /* while */
     *dest = '\0';
-  } /* replaceQuotes */
+  } /* removeQuotesFromQuotations */
 
 
 
+/**
+ *  Replace unquoted spaces with newlines.
+ *  Unquoted consecutive spaces are replaced with one newline.
+ *  This function is used to convert library options that come from chkccomp.h.
+ *  Makefiles write library options to chkccomp.h and use them also when they
+ *  invoke the C linker (because of that the quoting of paths with spaces is needed).
+ *  E.g.: replaceSpaceByNl(dest, "one  two \"three four\"  \"five  six\"")
+ *        assigns "one\ntwo\n\"three four\"\n\"five  six\"" to dest.
+ */
 static void replaceSpaceByNl (char *dest, const char *source)
 
   {
@@ -673,6 +692,11 @@ static void replaceSpaceByNl (char *dest, const char *source)
 
 
 
+/**
+ *  Replace all newlines with spaces.
+ *  This function is used just before the C compiler is invoked.
+ *  It is assumed that paths with spaces in them are quoted.
+ */
 static void replaceNLBySpace (char *text)
 
   { /* replaceNLBySpace */
@@ -6335,19 +6359,19 @@ static void appendToMakeMacros (const char *macroName, const char *macroValue)
 
 
 
-static void defineMacro (FILE *versionFile, const char *macroName,
+static void defineCMacro (FILE *versionFile, const char *macroName,
     const char *macroValue)
 
   {
     char buffer[BUFFER_SIZE];
 
-  /* defineMacro */
+  /* defineCMacro */
     fprintf(versionFile, "#define %s \"", macroName);
     strcpy(buffer, macroValue);
-    replaceQuotes(buffer);
+    removeQuotesFromQuotations(buffer);
     escapeString(versionFile, buffer);
     fprintf(versionFile, "\"\n");
-  } /* defineMacro */
+  } /* defineCMacro */
 
 
 
@@ -9243,17 +9267,17 @@ static void determineIncludesAndLibs (FILE *versionFile)
     escapeString(versionFile, include_options);
     fprintf(versionFile, "\"\n");
     appendToMakeMacros("SYSTEM_BIGINT_LIBS", system_bigint_libs);
-    defineMacro(versionFile, "SYSTEM_BIGINT_LIBS", system_bigint_libs);
+    defineCMacro(versionFile, "SYSTEM_BIGINT_LIBS", system_bigint_libs);
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     appendToMakeMacros("SYSTEM_CONSOLE_LIBS", system_console_libs);
 #endif
-    defineMacro(versionFile, "SYSTEM_CONSOLE_LIBS", system_console_libs);
+    defineCMacro(versionFile, "SYSTEM_CONSOLE_LIBS", system_console_libs);
     appendToMakeMacros("SYSTEM_DATABASE_LIBS", system_database_libs);
-    defineMacro(versionFile, "SYSTEM_DATABASE_LIBS", system_database_libs);
+    defineCMacro(versionFile, "SYSTEM_DATABASE_LIBS", system_database_libs);
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     appendToMakeMacros("SYSTEM_DRAW_LIBS", system_draw_libs);
 #endif
-    defineMacro(versionFile, "SYSTEM_DRAW_LIBS", system_draw_libs);
+    defineCMacro(versionFile, "SYSTEM_DRAW_LIBS", system_draw_libs);
   } /* determineIncludesAndLibs */
 
 
