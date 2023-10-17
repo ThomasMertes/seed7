@@ -69,7 +69,7 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test getBitLsb(file):
+    # Test deprecated getBitLsb(file):
     testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
@@ -199,7 +199,7 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test getBitsLsb(file):
+    # Test deprecated getBitsLsb(file):
     testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
@@ -1818,7 +1818,7 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test getBitMsb(file):
+    # Test deprecated getBitMsb(file):
     testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
@@ -1948,7 +1948,7 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test getBitsMsb(file):
+    # Test deprecated getBitsMsb(file):
     testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
