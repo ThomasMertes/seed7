@@ -142,7 +142,7 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
   result
     var fseWeightsType: fseWeights is fseWeightsType.value;
   local
-    var integer: bitPos is 8;
+    var lsbBitStream: huffmanWeightsBitStream is lsbBitStream.value;
     var integer: remainingProbabilities is 0;
     var integer: currentSymbol is 0;
     var integer: bitsNeeded is 0;
@@ -152,15 +152,15 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
     var integer: skip is 0;
     var integer: index is 0;
   begin
-    fseWeights.accuracyLog := getBitsLsb(compressed, bitPos, 4) + 5;
+    huffmanWeightsBitStream := openLsbBitStream(compressed);
+    fseWeights.accuracyLog := getBits(huffmanWeightsBitStream, 4) + 5;
     remainingProbabilities := 1 << fseWeights.accuracyLog;
-
     while remainingProbabilities > 0 do
       bitsNeeded := log2(succ(remainingProbabilities));
-      value := getBitsLsb(compressed, bitPos, bitsNeeded);
+      value := getBits(huffmanWeightsBitStream, bitsNeeded);
       thresh := (1 << succ(bitsNeeded)) - 1 - (remainingProbabilities + 1);
       if value >= thresh then
-        value +:= getBitLsb(compressed, bitPos) << bitsNeeded;
+        value +:= getBit(huffmanWeightsBitStream) << bitsNeeded;
         if value >= 1 << bitsNeeded then
           value -:= thresh;
         end if;
@@ -180,7 +180,7 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
       if probability = 0 then
         # The next two bits specify how many symbols following have probability 0 too.
         repeat
-          skip := getBitsLsb(compressed, bitPos, 2);
+          skip := getBits(huffmanWeightsBitStream, 2);
           for index range 1 to skip do
             # Does not count into remainingProbabilities because probability = 0
             fseWeights.fseValues @:= [currentSymbol] 1;  # value = probability + 1
@@ -189,6 +189,7 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
         until skip <> 3;  # As long as skip = 3 the next two bits specify how many symbols to skip.
       end if;
     end while;
+    close(huffmanWeightsBitStream);
 
     if remainingProbabilities <> 0 then
       raise RANGE_ERROR;
