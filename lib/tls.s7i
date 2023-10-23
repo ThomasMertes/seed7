@@ -72,6 +72,7 @@ const string: SSL_3_0 is "\3;\0;";
 const string: TLS_1_0 is "\3;\1;";
 const string: TLS_1_1 is "\3;\2;";
 const string: TLS_1_2 is "\3;\3;";
+const string: TLS_1_3 is "\3;\4;";
 
 const type: keyExchangeAlgorithm is new enum
     RSA, EC_DIFFIE_HELLMAN
@@ -105,7 +106,7 @@ const type: tlsParameters is new struct
     var ellipticCurve:        curve                    is ellipticCurve.value;
     var integer:              signatureScheme          is 0;
     var eccKeyPair:           ownEccKeyPair            is eccKeyPair.value;
-    var ecPoint:              publicEccKeyOfSever      is ecPoint.value;
+    var ecPoint:              publicEccKeyOfServer     is ecPoint.value;
     var string:               readMacSecret            is "";
     var string:               writeMacSecret           is "";
     var cipherState:          readCipherState          is cipherState.value;
@@ -175,7 +176,9 @@ const integer: RECORD_SIZE_LIMIT                      is    28;  # RFC8449
 const integer: PWD_PROTECT                            is    29;  # RFC8492
 const integer: PWD_CLEAR                              is    30;  # RFC8492
 const integer: PASSWORD_SALT                          is    31;  # RFC8492
-const integer: TICKET_PINNING                         is    32;
+const integer: TICKET_PINNING                         is    32;  # RFC8672
+const integer: TLS_CERT_WITH_EXTERN_PSK               is    33;  # RFC8773
+const integer: DELEGATED_CREDENTIAL                   is    34;  # RFC9345
 const integer: SESSION_TICKET_TLS                     is    35;  # RFC4507
 const integer: PRE_SHARED_KEY                         is    41;  # RFC8446
 const integer: EARLY_DATA                             is    42;  # RFC8446
@@ -225,9 +228,12 @@ const integer: ECDSA_SECP256R1_SHA256 is 16#0403;
 const array integer: signatureSchemes is [] (
     ECDSA_SECP256R1_SHA256, RSA_PKCS1_SHA256, RSA_PKCS1_SHA1, ECDSA_SHA1, RSA_PKCS1_MD5_SHA1);
 
-const array integer: serverSignatureSchemes is [] (
+const array integer: serverSignatureSchemesRsa is [] (
     RSA_PKCS1_SHA512, RSA_PKCS1_SHA384, RSA_PKCS1_SHA256, RSA_PKCS1_SHA1,
     RSA_PKCS1_MD5_SHA1);
+
+const array integer: serverSignatureSchemesEcdsa is [] (
+    ECDSA_SECP256R1_SHA256, ECDSA_SHA1);
 
 const type: tlsParseState is new struct
     var char: contentType is NO_MESSAGE;
@@ -494,7 +500,6 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
     var string: signatureHash is "";
     var string: rsaSignatureStri is "";
     var digestAlgorithm: digestAlg is NO_DIGEST;
-    var integer: signatureHashNumber is 0;
     var ecdsaSignatureType: ecdsaSignature is ecdsaSignatureType.value;
   begin
     case parameters.signatureScheme of
@@ -509,7 +514,7 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
       when {ECDSA_SECP256R1_SHA256}:
         signatureHash := sha256(hashParameter);
         ecdsaSignature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                            parameters.privateEccCertificateKey);
+                               parameters.privateEccCertificateKey);
         signatureStri := genAsn1Sequence(
             genAsn1Element(tagInteger, bytes(ecdsaSignature.r, SIGNED, BE)) &
             genAsn1Element(tagInteger, bytes(ecdsaSignature.s, SIGNED, BE)));
@@ -684,11 +689,19 @@ const proc: processSignatureAlgorithmsExtension (inout tlsParameters: parameters
       signatureScheme := bytes2Int(extensionData[pos fixLen 2], UNSIGNED, BE);
       # writeln("signatureScheme: " <& signatureScheme radix 16 lpad0 4);
       pos +:= 2;
-      for schemeFromList range serverSignatureSchemes until parameters.signatureScheme <> 0 do
-        if schemeFromList = signatureScheme then
-          parameters.signatureScheme := signatureScheme;
-        end if;
-      end for;
+      if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+        for schemeFromList range serverSignatureSchemesEcdsa until parameters.signatureScheme <> 0 do
+          if schemeFromList = signatureScheme then
+            parameters.signatureScheme := signatureScheme;
+          end if;
+        end for;
+      else
+        for schemeFromList range serverSignatureSchemesRsa until parameters.signatureScheme <> 0 do
+          if schemeFromList = signatureScheme then
+            parameters.signatureScheme := signatureScheme;
+          end if;
+        end for;
+      end if;
     end while;
     # writeln("signatureScheme: " <& parameters.signatureScheme radix 16 lpad0 4);
   end func;
@@ -859,7 +872,7 @@ const proc: processServerKeyExchange (inout tlsParameters: parameters, inout tls
           pointLength := ord(state.message[state.pos]);
           incr(state.pos);
           pointData := state.message[state.pos len pointLength];
-          parameters.publicEccKeyOfSever := ecPointDecode(parameters.curve, pointData);
+          parameters.publicEccKeyOfServer := ecPointDecode(parameters.curve, pointData);
           state.pos +:= pointLength;
           serverParams := state.message[paramsStartPos .. pred(state.pos)];
           signatureScheme := bytes2Int(state.message[state.pos fixLen 2], UNSIGNED, BE);
@@ -1307,10 +1320,17 @@ const func string: genCertificateRequest (inout tlsParameters: parameters) is fu
                           "\1;" &                     # Bytes in certificate_types list
                           "\1;";                      # Certificate type: rsa_sign
     if parameters.tls_version >= TLS_1_2 then
-      certificateRequest &:= bytes(length(serverSignatureSchemes) * 2, UNSIGNED, BE, 2);
-      for signatureAlgorithm range serverSignatureSchemes do
-        certificateRequest &:= bytes(signatureAlgorithm, UNSIGNED, BE, 2);
-      end for;
+      if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+        certificateRequest &:= bytes(length(serverSignatureSchemesEcdsa) * 2, UNSIGNED, BE, 2);
+        for signatureAlgorithm range serverSignatureSchemesEcdsa do
+          certificateRequest &:= bytes(signatureAlgorithm, UNSIGNED, BE, 2);
+        end for;
+      else
+        certificateRequest &:= bytes(length(serverSignatureSchemesRsa) * 2, UNSIGNED, BE, 2);
+        for signatureAlgorithm range serverSignatureSchemesRsa do
+          certificateRequest &:= bytes(signatureAlgorithm, UNSIGNED, BE, 2);
+        end for;
+      end if;
     end if;
     certificateRequest &:= "\0;\0;";                  # Bytes in certificate_authorities list
     length := length(certificateRequest);
@@ -1369,7 +1389,7 @@ const func string: genClientKeyExchange (inout tlsParameters: parameters) is fun
       parameters.ownEccKeyPair := genEccKeyPair(parameters.curve);
       pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
       clientKeyExchange &:= str(chr(length(pointData))) & pointData;
-      sharedSecretEcPoint := multFast(parameters.curve, parameters.publicEccKeyOfSever,
+      sharedSecretEcPoint := multFast(parameters.curve, parameters.publicEccKeyOfServer,
                                       parameters.ownEccKeyPair.privateKey);
       # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
       # writeln("length: " <& getSizeInBytes(parameters.curve));

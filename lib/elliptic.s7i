@@ -515,9 +515,28 @@ const func ecPoint: ecPointDecode (in ellipticCurve: curve, in string: encoded) 
  *  Type to describe a pair of ECC keys (private key and public key).
  *)
 const type: eccKeyPair is new struct
+    var ellipticCurve: curve is ellipticCurve.value;
     var bigInteger: privateKey is 0_;
     var ecPoint: publicKey is ecPoint.value;
   end struct;
+
+
+const func eccKeyPair: eccKeyPair (in ellipticCurve: curve,
+    in bigInteger: privateKey, in ecPoint: publicKey) is func
+  result
+    var eccKeyPair: keyPair is eccKeyPair.value;
+  begin
+    keyPair.curve := curve;
+    keyPair.privateKey := privateKey;
+    keyPair.publicKey := publicKey;
+  end func;
+
+
+const eccKeyPair: stdEccKeyPair is eccKeyPair(
+    secp256r1,
+    74624382696344922655307391993066343569456111979064004675311073248448678904789_,
+    ecPoint(88877469563668185112995971247814023116402020168635356824775921814423688893259_,
+            29134039813344649890715104713898999575368238414646407541580162911271978616303_));
 
 
 (**
@@ -534,6 +553,7 @@ const func eccKeyPair: genEccKeyPair (in ellipticCurve: curve) is func
   result
     var eccKeyPair: keyPair is eccKeyPair.value;
   begin
+    keyPair.curve := curve;
     keyPair.privateKey := genPrivateKey(curve);
     keyPair.publicKey := multFast(curve, curve.g, keyPair.privateKey);
   end func;
@@ -611,7 +631,8 @@ const func boolean: verify (in ellipticCurve: curve, in var bigInteger: message,
     var ecPoint: point is ecPoint.value;
   begin
     message := truncate(message, curve.p);
-    if  0_ < signature.r and signature.r < curve.n and
+    if publicKey.x <> 0_ and publicKey.y <> 0_ and
+        0_ < signature.r and signature.r < curve.n and
         0_ < signature.s and signature.s < curve.n then
       w := modInverse(signature.s, curve.n);
       u1 := (message * w) mod curve.n;

@@ -38,6 +38,7 @@ include "duration.s7i";
 
 const type: algorithmIdentifierType is new struct
     var string: algorithm is "";     # OBJECT IDENTIFIER
+    var string: subAlgorithm is "";  # OBJECT IDENTIFIER
     var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
   end struct;
 
@@ -157,6 +158,7 @@ const string: ECDSA_WITH_SHA256 is encodeObjectIdentifier([] (1, 2, 840, 10045, 
 const string: ECDSA_WITH_SHA384 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 3));
 const string: ECDSA_WITH_SHA512 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 4));
 
+const string: PRIME_FIELD   is encodeObjectIdentifier([] (1, 2, 840, 10045, 1, 1));     # "*\134;H\206;=\1;\1;"
 const string: EC_PUBLIC_KEY is encodeObjectIdentifier([] (1, 2, 840, 10045, 2, 1));     # "*\134;H\206;=\2;\1;"
 
 const string: SECP192K1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 31));
@@ -205,13 +207,15 @@ const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, ino
       if pos < beyond then
         dataElem := getAsn1DataElement(asn1, pos);
         # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
-        if dataElem.tagType = tagNull then
-          algId.parameters := "";
-        elsif dataElem.tagType = tagObjectIdentifier then
+        if dataElem.tagType = tagObjectIdentifier then
+          algId.subAlgorithm := getData(asn1, pos, dataElem);
+          # writeln("algId.subAlgorithm: " <& literal(algId.subAlgorithm));
+        elsif dataElem.tagType = tagSequence then
           algId.parameters := getData(asn1, pos, dataElem);
           # writeln("algId.parameters: " <& literal(algId.parameters));
-        else
-          writeln("*** Unexpected data element ***");
+        elsif dataElem.tagType <> tagNull then
+          writeln("*** Unexpected data element " <&
+                  classTagName[ord(dataElem.tagType)] <& " ***");
         end if;
       end if;
     end if;
@@ -223,10 +227,12 @@ const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is
     var string: asn1 is "";
   begin
     asn1 := genAsn1Element(tagObjectIdentifier, algId.algorithm);
-    if algId.parameters = "" then
-      asn1 &:= genAsn1Element(tagNull, "");
+    if algId.subAlgorithm <> "" then
+      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.subAlgorithm);
+    elsif algId.parameters <> "" then
+      asn1 &:= genAsn1Sequence(algId.parameters);
     else
-      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.parameters);
+      asn1 &:= genAsn1Element(tagNull, "");
     end if;
     asn1 := genAsn1Sequence(asn1);
   end func;
@@ -285,6 +291,7 @@ const func rsaSignatureType: getRsaSignature (in string: signatureStri) is func
       # Tailing garbage bytes
       # writeln("Tailing garbage bytes");
       signature.algorithmIdentifier.algorithm := "";
+      signature.algorithmIdentifier.subAlgorithm := "";
       signature.algorithmIdentifier.parameters := "";
       signature.signature := "";
     end if;
@@ -368,6 +375,65 @@ const func string: getEllipticCurveOid (in ellipticCurve: curve) is func
   end func;
 
 
+const func ellipticCurve: getEllipticCurve (in string: asn1) is func
+  result
+    var ellipticCurve: curve is ellipticCurve.value;
+  local
+    var integer: pos is 1;
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var string: data is "";
+    var boolean: okay is FALSE;
+  begin
+    dataElem := getAsn1DataElement(asn1, pos);
+    if dataElem.tagType = tagInteger and
+        bytes2Int(getData(asn1, pos, dataElem), UNSIGNED, BE) = 1 then
+      dataElem := getAsn1DataElement(asn1, pos);
+      if dataElem.tagType = tagSequence then
+        dataElem := getAsn1DataElement(asn1, pos);
+        if dataElem.tagType = tagObjectIdentifier and
+            getData(asn1, pos, dataElem) = PRIME_FIELD then
+          dataElem := getAsn1DataElement(asn1, pos);
+          if dataElem.tagType = tagInteger then
+            curve.p := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE);
+            curve.bits := bitLength(curve.p);
+            dataElem := getAsn1DataElement(asn1, pos);
+            if dataElem.tagType = tagSequence then
+              dataElem := getAsn1DataElement(asn1, pos);
+              if dataElem.tagType = tagOctetString then
+                curve.a := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE) mod curve.p;
+                dataElem := getAsn1DataElement(asn1, pos);
+                if dataElem.tagType = tagOctetString then
+                  curve.b := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE) mod curve.p;
+                  dataElem := getAsn1DataElement(asn1, pos);
+                  if dataElem.tagType = tagBitString then
+                    data := getData(asn1, pos, dataElem);
+                    dataElem := getAsn1DataElement(asn1, pos);
+                    if dataElem.tagType = tagOctetString then
+                      curve.g := ecPointDecode(curve, getData(asn1, pos, dataElem));
+                      dataElem := getAsn1DataElement(asn1, pos);
+                      if dataElem.tagType = tagInteger then
+                        curve.n := bytes2BigInt(getData(asn1, pos, dataElem), UNSIGNED, BE);
+                        dataElem := getAsn1DataElement(asn1, pos);
+                        if dataElem.tagType = tagInteger and
+                            bytes2Int(getData(asn1, pos, dataElem), UNSIGNED, BE) = 1 then
+                          okay := TRUE;
+                        end if;
+                      end if;
+                    end if;
+                  end if;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+    if not okay then
+      curve := ellipticCurve.value;
+    end if;
+  end func;
+
+
 const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: asn1, inout integer: pos) is func
   result
     var subjectPublicKeyInfoType: keyInfo is subjectPublicKeyInfoType.value;
@@ -390,7 +456,7 @@ const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: asn1, inout in
         end if;
         keyInfo.subjectPublicKey := keyInfo.subjectPublicKey[2 ..];
         # keyInfo.subjectPublicKey := getData(asn1, pos, dataElem)[2 ..];
-        # writeln("subjectPublicKey: " <& literal(keyInfo.subjectPublicKey));
+        # writeln("subjectPublicKey: " <& hex(keyInfo.subjectPublicKey));
         # writeln("length(subjectPublicKey): " <& length(keyInfo.subjectPublicKey));
         # writeln("algorithm: " <& literal(keyInfo.algorithm.algorithm));
         # writeln("algorithm parameters: " <& literal(keyInfo.algorithm.parameters));
@@ -399,9 +465,17 @@ const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: asn1, inout in
           keyInfo.publicRsaKey := getRsaKey(keyInfo.subjectPublicKey);
         elsif keyInfo.algorithm.algorithm = EC_PUBLIC_KEY then
           # writeln("EC_PUBLIC_KEY");
-          keyInfo.eCurve := getEllipticCurveFromOid(keyInfo.algorithm.parameters);
-          if keyInfo.eCurve.bits <> 0 then
-            keyInfo.publicEccKey := ecPointDecode(keyInfo.eCurve, keyInfo.subjectPublicKey);
+          if keyInfo.algorithm.subAlgorithm <> "" then
+            keyInfo.eCurve := getEllipticCurveFromOid(keyInfo.algorithm.subAlgorithm);
+            # writeln("keyInfo.eCurve.name: " <& keyInfo.eCurve.name);
+            if keyInfo.eCurve.bits <> 0 then
+              keyInfo.publicEccKey := ecPointDecode(keyInfo.eCurve, keyInfo.subjectPublicKey);
+            end if;
+          else
+            keyInfo.eCurve := getEllipticCurve(keyInfo.algorithm.parameters);
+            if keyInfo.eCurve.bits <> 0 then
+              keyInfo.publicEccKey := ecPointDecode(keyInfo.eCurve, keyInfo.subjectPublicKey);
+            end if;
           end if;
         else
           writeln("*** Unknown algorithm ***");
@@ -420,8 +494,10 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
     asn1 := genAlgorithmIdentifier(keyInfo.algorithm);
     if keyInfo.subjectPublicKey <> "" then
       subjectPublicKey := keyInfo.subjectPublicKey;
-    else
+    elsif keyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
       subjectPublicKey := genX509RsaKey(keyInfo.publicRsaKey);
+    elsif keyInfo.algorithm.algorithm = EC_PUBLIC_KEY then
+      subjectPublicKey := ecPointEncode(keyInfo.eCurve, keyInfo.publicEccKey);
     end if;
     # The initial octet of a bit-string encodes
     # the number of unused bits in the final octet.
@@ -914,20 +990,46 @@ const func string: genX509Cert (inout x509Cert: cert, in rsaKey: issuerKey) is f
     var string: asn1 is "";
   local
     var digestAlgorithm: digestAlg is NO_DIGEST;
+    var algorithmIdentifierType: digestAlgorithmId is algorithmIdentifierType.value;
     var string: signature is "";
-    var algorithmIdentifierType: digestAlgorithm is algorithmIdentifierType.value;
   begin
     asn1 := genX509TbsCertificate(cert.tbsCertificate);
     digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
     if digestAlg <> NO_DIGEST then
       cert.messageDigest := msgDigest(digestAlg, asn1);
     end if;
-    digestAlgorithm.algorithm :=
+    digestAlgorithmId.algorithm :=
         getDigestOidFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
-    signature := genAlgorithmIdentifier(digestAlgorithm);
+    signature := genAlgorithmIdentifier(digestAlgorithmId);
     signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
     signature := genAsn1Sequence(signature);
     cert.signatureValue := rsassaPkcs1V15Encrypt(issuerKey, signature);
+    asn1 &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
+    asn1 &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
+    asn1 := genAsn1Sequence(asn1);
+  end func;
+
+
+const func string: genX509Cert (inout x509Cert: cert, in ellipticCurve: curve,
+    in bigInteger: issuerKey) is func
+  result
+    var string: asn1 is "";
+  local
+    var digestAlgorithm: digestAlg is NO_DIGEST;
+    var algorithmIdentifierType: digestAlgorithmId is algorithmIdentifierType.value;
+    var ecdsaSignatureType: ecdsaSignature is ecdsaSignatureType.value;
+  begin
+    asn1 := genX509TbsCertificate(cert.tbsCertificate);
+    digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+    if digestAlg <> NO_DIGEST then
+      cert.messageDigest := msgDigest(digestAlg, asn1);
+    end if;
+    digestAlgorithmId.algorithm :=
+        getDigestOidFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+    ecdsaSignature := sign(curve, bytes2BigInt(cert.messageDigest, UNSIGNED, BE), issuerKey);
+    cert.signatureValue := genAsn1Sequence(
+        genAsn1Integer(bytes(ecdsaSignature.r, UNSIGNED, BE)) &
+        genAsn1Integer(bytes(ecdsaSignature.s, UNSIGNED, BE)));
     asn1 &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
     asn1 &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
     asn1 := genAsn1Sequence(asn1);
@@ -1060,7 +1162,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
   begin
     cert.tbsCertificate.version := 0;  # v1
     cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
-    cert.tbsCertificate.signature.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.signature.algorithm := ECDSA_WITH_SHA256;
     cert.tbsCertificate.issuer := issuer;
     cert.tbsCertificate.validity := validity;
     cert.tbsCertificate.subject := subject;
@@ -1068,7 +1170,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters := getEllipticCurveOid(curve);
     cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
     cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
-    cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.signatureAlgorithm.algorithm := ECDSA_WITH_SHA256;
   end func;
 
 
@@ -1093,7 +1195,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
   begin
     cert.tbsCertificate.version := 0;  # v1
     cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
-    cert.tbsCertificate.signature.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.signature.algorithm := ECDSA_WITH_SHA256;
     cert.tbsCertificate.issuer @:= [COMMON_NAME_OID] commonName;
     cert.tbsCertificate.issuer @:= [COUNTRY_NAME_OID] country;
     cert.tbsCertificate.issuer @:= [LOCALITY_NAME_OID] locality;
@@ -1109,7 +1211,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters := getEllipticCurveOid(curve);
     cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
     cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
-    cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.signatureAlgorithm.algorithm := ECDSA_WITH_SHA256;
   end func;
 
 
@@ -1255,3 +1357,40 @@ const certAndKey: stdCertificate is selfSignedX509Cert(
     stdRsaKeyPair, 6_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
     x509Validity(date(2022, 1, 1), date(2026, 1, 1)));
+
+
+(**
+ *  Create a self signed X509 certificate from an ECC key pair.
+ *  @param keyPair Public and private RSA keys.
+ *  @param serialNumber Serial number of certificate.
+ *  @param commonName Common name of issuer and subject.
+ *  @param country Country of issuer and subject (e.g. "AT" for Austria).
+ *  @param locality Locality of issuer and subject (e.g. "Vienna").
+ *  @param organization Organization of issuer and subject.
+ *  @param organizationUnit Organization unit of issuer and subject.
+ *)
+const func certAndKey: selfSignedX509Cert (in eccKeyPair: keyPair,
+    in bigInteger: serialNumber, in string: commonName, in string: country,
+    in string: locality, in string: organization,
+    in string: organizationUnit, in x509Validity: validity) is func
+  result
+    var certAndKey: certificate is certAndKey.value;
+  local
+    var x509Cert: cert is x509Cert.value;
+  begin
+    cert := createX509Cert(keyPair.curve, keyPair.publicKey, serialNumber,
+                           commonName, country, locality, organization,
+                           organizationUnit, validity);
+    certificate.certList := [] (genX509Cert(cert, keyPair.curve, keyPair.privateKey));
+    certificate.privateEccKey := keyPair.privateKey;
+    # printAsn1(certificate.certList[1]);
+  end func;
+
+
+(**
+ *  Self signed X509 certificate.
+ *)
+const certAndKey: stdEccCertificate is selfSignedX509Cert(
+    stdEccKeyPair, 1_, "localhost",
+    "AT", "Vienna", "Black Hole", "Super Massive",
+    x509Validity(date(2023, 1, 1), date(2028, 1, 1)));

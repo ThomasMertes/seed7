@@ -69,6 +69,7 @@ const proc: showAlert (in string: stri) is func
       when { 86}: write(" - inappropriate_fallback");
       when { 90}: write(" - user_canceled");
       when {100}: write(" - no_renegotiation");
+      when {109}: write(" - missing_extension");
       when {110}: write(" - unsupported_extension");
       when {111}: write(" - certificate_unobtainable");
       when {112}: write(" - unrecognized_name");
@@ -156,6 +157,8 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {PWD_CLEAR}:                              writeln("pwd_clear");
         when {PASSWORD_SALT}:                          writeln("password_salt");
         when {TICKET_PINNING}:                         writeln("ticket_pinning");
+        when {TLS_CERT_WITH_EXTERN_PSK}:               writeln("tls_cert_with_extern_psk");
+        when {DELEGATED_CREDENTIAL}:                   writeln("delegated_credential");
         when {SESSION_TICKET_TLS}:                     writeln("SessionTicket TLS");
         when {PRE_SHARED_KEY}:                         writeln("pre_shared_key");
         when {EARLY_DATA}:                             writeln("early_data");
@@ -381,8 +384,6 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
     var integer: pointLength is 0;
     var string: pointData is "";
     var ecPoint: publicEccKey is ecPoint.value;
-    var integer: signatureHashNumber is 0;
-    var string: signatureHash is "";
     var integer: signatureAlgorithm is 0;
     var integer: signatureLength is 0;
     var integer: intLength is 0;
@@ -412,12 +413,9 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
         writeln("publicEccKey.x: " <& publicEccKey.x radix 16);
         writeln("publicEccKey.y: " <& publicEccKey.y radix 16);
         pos +:= pointLength;
-        signatureHashNumber := ord(stri[pos]);
-        writeln("signatureHashNumber: " <& signatureHashNumber);
-        incr(pos);
-        signatureAlgorithm := ord(stri[pos]);
-        writeln("signatureAlgorithm: " <& signatureAlgorithm);
-        incr(pos);
+        signatureAlgorithm := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
+        writeln("signatureAlgorithm: " <& signatureAlgorithm radix 16 lpad0 4);
+        pos +:= 2;
         signatureLength := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
         writeln("signatureLength: " <& signatureLength);
         pos +:= 2;
