@@ -1167,7 +1167,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
     cert.tbsCertificate.validity := validity;
     cert.tbsCertificate.subject := subject;
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := EC_PUBLIC_KEY;
-    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters := getEllipticCurveOid(curve);
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.subAlgorithm := getEllipticCurveOid(curve);
     cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
     cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
     cert.signatureAlgorithm.algorithm := ECDSA_WITH_SHA256;
@@ -1208,7 +1208,7 @@ const func x509Cert: createX509Cert (in ellipticCurve: curve,
     cert.tbsCertificate.subject @:= [ORGANIZATION_NAME_OID] organization;
     cert.tbsCertificate.subject @:= [ORGANIZATION_UNIT_NAME_OID] organizationUnit;
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := EC_PUBLIC_KEY;
-    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.parameters := getEllipticCurveOid(curve);
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.subAlgorithm := getEllipticCurveOid(curve);
     cert.tbsCertificate.subjectPublicKeyInfo.eCurve := curve;
     cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey := publicEccKey;
     cert.signatureAlgorithm.algorithm := ECDSA_WITH_SHA256;

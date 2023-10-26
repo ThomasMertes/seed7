@@ -139,6 +139,7 @@ const char: UNEXPECTED_MESSAGE  is '\10;';
 const char: BAD_RECORD_MAC      is '\20;';
 const char: DECRYPTION_FAILED   is '\21;';
 const char: HANDSHAKE_FAILURE   is '\40;';
+const char: BAD_CERTIFICATE     is '\42;';
 const char: ILLEGAL_PARAMETER   is '\47;';
 const char: PROCOCOL_VERSION    is '\70;';
 const char: NO_RENEGOTIATION    is '\100;';
@@ -603,6 +604,14 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     # validateCertificates(cert);
     parameters.publicRsaCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
     parameters.publicEccCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicEccKey;
+    # writeln("rsa key: " <& literal(parameters.publicRsaCertificateKey));
+    # writeln("ecc key: " <& literal(parameters.publicEccCertificateKey));
+    if  parameters.publicRsaCertificateKey.modulus = 0_ and
+        parameters.publicRsaCertificateKey.exponent = 0_ and
+        parameters.publicEccCertificateKey.x = 0_ and
+        parameters.publicEccCertificateKey.y = 0_ then
+      state.alert := BAD_CERTIFICATE;
+    end if;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
 
@@ -1722,7 +1731,11 @@ const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
         sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
       end if;
     else
-      sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+      if new_file.parseState.alert = CLOSE_NOTIFY then
+        sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+      else
+        sendAlertAndClose(new_file, new_file.parseState.alert);
+      end if;
     end if;
   end func;
 

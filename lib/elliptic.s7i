@@ -53,6 +53,11 @@ const func ecPoint: ecPoint (in bigInteger: x, in bigInteger: y) is func
   end func;
 
 
+const func string: literal (in ecPoint: aKey) is
+  return "ecPoint(" <& aKey.x <& "_, " <&
+                       aKey.y <& "_)";
+
+
 #
 #  Create the neutral elliptic curve point.
 #
