@@ -28,18 +28,18 @@
 
 (**
  *  Enumeration of cipher algorithms.
- *  Currently the ciphers NO_CIPHER, RC4, DES, TDES, BLOWFISH and
- *  AES are supported.
+ *  Currently the ciphers NO_CIPHER, RC4, DES, TDES, BLOWFISH, AES and
+ *  AES_GCM are supported.
  *)
 const type: cipherAlgorithm is new enum
-    NO_CIPHER, RC4, DES, TDES, BLOWFISH, AES
+    NO_CIPHER, RC4, DES, TDES, BLOWFISH, AES, AES_GCM
   end enum;
 
 
 (**
  *  Interface type for the internal state of a cipher.
- *  The cipherState interface is implemented with [[arc4]], [[des]],
- *  [[tdes]], [[blowfish]], [[aes]] and [[#noCipherState|noCipher]] (no encryption).
+ *  The cipherState interface is implemented with [[arc4]], [[des]], [[tdes]],
+ *  [[blowfish]], [[aes]], [[aes_gcm]] and [[#noCipherState|noCipher]] (no encryption).
  *)
 const type: cipherState is sub object interface;
 
@@ -60,6 +60,32 @@ const func integer: blockSize (in cipherAlgorithm: cipherAlg) is DYNAMIC;
  *)
 const func cipherState: setCipherKey (in cipherAlgorithm: cipherAlg,
     in string: cipherKey, in string: initializationVector) is DYNAMIC;
+
+
+(**
+ *  Initialize the authenticated encryption with associated data (AEAD).
+ *  For all other cipher algorithms this function does nothing.
+ *)
+const proc: initAead (inout cipherState: state, in string: recordTypeAndVersion,
+    in integer: sequenceNumber) is DYNAMIC;
+
+
+(**
+ *  Obtain the computed MAC of data that has been decrypted with an AEAD cipher.
+ *  For all other cipher algorithms this function raises an exception.
+ *  After a successful decryption with an AEAD cipher getComputedMac and getMac
+ *  should return the same value.
+ *)
+const func string: getComputedMac (in cipherState: state) is DYNAMIC;
+
+
+(**
+ *  Obtain the MAC that is appended to the encrypted data of an AEAD cipher.
+ *  For all other cipher algorithms this function raises an exception.
+ *  After a successful decryption with an AEAD cipher getComputedMac and getMac
+ *  should return the same value.
+ *)
+const func string: getMac (in cipherState: state) is DYNAMIC;
 
 
 (**
@@ -105,6 +131,10 @@ const func cipherState: setCipherKey (NO_CIPHER, in string: cipherKey,
   begin
     state := toInterface(new_state);
   end func;
+
+
+const proc: initAead (inout noCipherState: state, in string: recordTypeAndVersion,
+    in integer: sequenceNumber) is noop;
 
 
 const func string: encode (inout noCipherState: state, in string: plaintext) is

@@ -35,7 +35,7 @@ include "cipher.s7i";
  *  [[cipher|cipherState]] implementation type describing the state of a Blowfish cipher.
  *  The data is encrypted / decrypted with the Blowfish block cipher.
  *)
-const type: blowfishState is new struct
+const type: blowfishState is sub noCipherState struct
     var array bin32: pBox is 0 times bin32.value;
     var array array integer: sBox is 0 times 0 times 0;
   end struct;

@@ -36,7 +36,7 @@ include "cipher.s7i";
  *  The data is encrypted / decrypted with the AES (Advanced encryption
  *  standard) block cipher.
  *)
-const type: aesState is new struct
+const type: aesState is sub noCipherState struct
     var array bin32: encryptionSubKey is 0 times bin32.value;
     var array bin32: decryptionSubKey is 0 times bin32.value;
     var integer: rounds is 0;

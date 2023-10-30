@@ -36,24 +36,27 @@ include "arc4.s7i";
 include "des.s7i";
 include "tdes.s7i";
 include "aes.s7i";
+include "aes_gcm.s7i";
 
 
 const type: cipherSuite is integer;
 
-const cipherSuite: TLS_NULL_WITH_NULL_NULL               is 16#0000;
-const cipherSuite: TLS_RSA_WITH_RC4_128_MD5              is 16#0004;
-const cipherSuite: TLS_RSA_WITH_RC4_128_SHA              is 16#0005;
-const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA              is 16#0009;
-const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA         is 16#000a; # Mandatory TLS 1.1 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA          is 16#002f; # Mandatory TLS 1.2 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA          is 16#0035;
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256       is 16#003c;
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256       is 16#003d;
-const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA  is 16#c009;
-const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA  is 16#c00a;
-const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA    is 16#c013;
-const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 is 16#c02f;
-const cipherSuite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 is 16#c030;
+const cipherSuite: TLS_NULL_WITH_NULL_NULL                 is 16#0000;
+const cipherSuite: TLS_RSA_WITH_RC4_128_MD5                is 16#0004;
+const cipherSuite: TLS_RSA_WITH_RC4_128_SHA                is 16#0005;
+const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA                is 16#0009;
+const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA           is 16#000a; # Mandatory TLS 1.1 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA            is 16#002f; # Mandatory TLS 1.2 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA            is 16#0035;
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256         is 16#003c;
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256         is 16#003d;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA    is 16#c009;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA    is 16#c00a;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA      is 16#c013;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 is 16#c02b;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 is 16#c02c;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256   is 16#c02f;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384   is 16#c030;
 
 const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
@@ -65,7 +68,8 @@ const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_AES_128_CBC_SHA256,
     TLS_RSA_WITH_AES_256_CBC_SHA256,
     TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
   );
 
 const string: SSL_3_0 is "\3;\0;";
@@ -89,6 +93,7 @@ const type: tlsParameters is new struct
     var integer:              key_size                 is 0;
     var integer:              key_material_length      is 0;
     var integer:              block_size               is 0;
+    var integer:              iv_size                  is 0;
     var boolean:              is_exportable            is FALSE;
     var digestAlgorithm:      mac_algorithm            is NO_DIGEST;
     var integer:              hash_size                is 0;
@@ -354,11 +359,20 @@ const proc: storeCipherSuite (inout tlsParameters: parameters) is func
       parameters.bulk_cipher_algorithm := AES;
       parameters.key_material_length := 16;
       parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 then
+      parameters.key_exchange_algorithm := EC_DIFFIE_HELLMAN;
+      parameters.bulk_cipher_algorithm := AES_GCM;
+      parameters.key_material_length := 16;
+      parameters.iv_size := 4;  # Implicit salt of the GCM nonce
+      parameters.mac_algorithm := NO_DIGEST;
     else
       writeln("Unsupported cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);
       # raise RANGE_ERROR;
     end if;
     parameters.block_size := blockSize(parameters.bulk_cipher_algorithm);
+    if parameters.iv_size = 0 then
+      parameters.iv_size := parameters.block_size;
+    end if;
     parameters.hash_size := digestSize(parameters.mac_algorithm);
   end func;
 
@@ -370,7 +384,7 @@ const proc: computeMasterSecret (inout tlsParameters: parameters,
     if parameters.tls_version = SSL_3_0 then
       parameters.master_secret := keyBlockFunction(preMasterSecret,
           parameters.client_random & parameters.server_random, 48);
-    elsif parameters.tls_version = TLS_1_2 then
+    elsif parameters.tls_version >= TLS_1_2 then
       parameters.master_secret := p_hash(SHA256, preMasterSecret,
           "master secret" & parameters.client_random & parameters.server_random, 48);
     else
@@ -397,15 +411,15 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
     if parameters.tls_version = SSL_3_0 then
       key_block := keyBlockFunction(parameters.master_secret,
           parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
-    elsif parameters.tls_version = TLS_1_2 then
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
+    elsif parameters.tls_version >= TLS_1_2 then
       key_block := p_hash(SHA256, parameters.master_secret,
           "key expansion" & parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
     else
       key_block := pseudoRandomFunction(parameters.master_secret,
           "key expansion", parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
     end if;
     # writeln("key_block: " <& hex(key_block));
     # writeln("length(key_block): " <& length(key_block));
@@ -417,13 +431,15 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
     key_block_pos +:= parameters.key_material_length;
     server_write_key := key_block[key_block_pos fixLen parameters.key_material_length];
     key_block_pos +:= parameters.key_material_length;
-    client_initialization_vector := key_block[key_block_pos fixLen parameters.block_size];
-    key_block_pos +:= parameters.block_size;
-    server_initialization_vector := key_block[key_block_pos fixLen parameters.block_size];
+    client_initialization_vector := key_block[key_block_pos fixLen parameters.iv_size];
+    key_block_pos +:= parameters.iv_size;
+    server_initialization_vector := key_block[key_block_pos fixLen parameters.iv_size];
     # writeln("client_write_MAC_secret: " <& hex(client_write_MAC_secret));
     # writeln("server_write_MAC_secret: " <& hex(server_write_MAC_secret));
     # writeln("client_write_key: " <& hex(client_write_key));
     # writeln("server_write_key: " <& hex(server_write_key));
+    # writeln("client_initialization_vector: " <& hex(client_initialization_vector));
+    # writeln("server_initialization_vector: " <& hex(server_initialization_vector));
     if parameters.isClient then
       parameters.readMacSecret := server_write_MAC_secret;
       parameters.writeMacSecret := client_write_MAC_secret;
@@ -761,7 +777,7 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
     state.pos +:= 3;
     beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
-        state.message[state.pos len 2] <= TLS_1_2 then
+        state.message[state.pos len 2] <= TLS_1_3 then
       if state.message[state.pos len 2] < parameters.tls_version then
         parameters.tls_version := state.message[state.pos len 2];
       end if;
@@ -1036,7 +1052,7 @@ const proc: processFinished (inout tlsParameters: parameters, inout tlsParseStat
         finished_label := "client finished";  # The sender is a client.
       end if;
       # writeln("finished_label: " <& literal(finished_label));
-      if parameters.tls_version = TLS_1_2 then
+      if parameters.tls_version >= TLS_1_2 then
         computed_verify_data := p_hash(SHA256, parameters.master_secret, finished_label &
                                        sha256(parameters.handshake_messages), 12);
       else
@@ -1466,7 +1482,7 @@ const func string: genFinished (inout tlsParameters: parameters) is func
         finished_label := "server finished";
       end if;
       # writeln("finished_label: " <& literal(finished_label));
-      if parameters.tls_version = TLS_1_2 then
+      if parameters.tls_version >= TLS_1_2 then
         verify_data := p_hash(SHA256, parameters.master_secret, finished_label &
                               sha256(parameters.handshake_messages), 12);
       else
@@ -1544,6 +1560,7 @@ const func string: tlsEncryptRecord (inout tlsParameters: parameters, in string:
     # writeln("data: " <& hex(content));
     # writeln("mac: " <& hex(mac));
     # writeln("before encode: " <& hex(iv & content & mac & padding));
+    initAead(parameters.writeCipherState, plain[.. 3], parameters.writeSequenceNumber);
     encoded := encode(parameters.writeCipherState, iv & content & mac & padding);
     # writeln("encoded: " <& literal(encoded));
     # writeln("length(encoded): " <& length(encoded));
@@ -1572,10 +1589,12 @@ const func boolean: tlsDecryptRecord (inout tlsParameters: parameters, inout tls
     version := state.message[2 len 2];
     # writeln("Version: " <& ord(version[1]) <& "." <& ord(version[2]));
     # writeln("message: " <& literal(state.message));
+    initAead(parameters.readCipherState, state.message[.. 3], parameters.readSequenceNumber);
     decoded := decode(parameters.readCipherState, state.message[state.pos len state.length]);
     if parameters.block_size <> 0 then
       padding_length := ord(decoded[length(decoded)]);
-      if decoded[length(decoded) - padding_length ..] =
+      if padding_length < length(decoded) and
+          decoded[length(decoded) - padding_length ..] =
           str(chr(padding_length)) mult succ(padding_length) then
         decoded := decoded[.. length(decoded) - succ(padding_length)];
         if version >= TLS_1_1 then
@@ -1595,14 +1614,19 @@ const func boolean: tlsDecryptRecord (inout tlsParameters: parameters, inout tls
                content;
       # writeln("plain: " <& hex(plain));
       # writeln("mac: " <& hex(mac));
-      if version = SSL_3_0 then
-        verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
-                            msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
-                                      bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) &
-                                      plain[1 len 1] & plain[4 ..]));
+      if parameters.bulk_cipher_algorithm = AES_GCM then
+        mac := getMac(parameters.readCipherState);
+	verify := getComputedMac(parameters.readCipherState);
       else
-        verify := hmac(parameters.mac_algorithm, parameters.readMacSecret,
-                       bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) & plain);
+        if version = SSL_3_0 then
+          verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
+                              msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
+                                        bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) &
+                                        plain[1 len 1] & plain[4 ..]));
+        else
+          verify := hmac(parameters.mac_algorithm, parameters.readMacSecret,
+                         bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) & plain);
+        end if;
       end if;
       # writeln("verify: " <& hex(verify));
       if mac = verify then

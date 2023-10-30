@@ -36,7 +36,7 @@ include "des.s7i";
  *  The data is encrypted / decrypted with the TDES (Triple DES)
  *  block cipher.
  *)
-const type: tdesState is new struct
+const type: tdesState is sub noCipherState struct
     var array bin32: encryptionSubKey1 is 0 times bin32.value;
     var array bin32: encryptionSubKey2 is 0 times bin32.value;
     var array bin32: encryptionSubKey3 is 0 times bin32.value;

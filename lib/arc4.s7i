@@ -35,7 +35,7 @@ include "cipher.s7i";
  *  The data is encrypted / decrypted with the ARC4 (Alleged RC4)
  *  stream cipher.
  *)
-const type: arc4State is new struct
+const type: arc4State is sub noCipherState struct
     var array char: s is [0 .. 255] times ' ';
     var integer: i is 0;
     var integer: j is 0;
