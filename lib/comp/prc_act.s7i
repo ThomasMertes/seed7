@@ -630,10 +630,18 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           (constant_start_value or constant_end_value) and
           not varChangedInStatements(variable, statements) then
         if constant_start_value then
-          variableRange.minValue := start_value;
+          if for_to then
+            variableRange.minValue := start_value;
+          else
+            variableRange.maxValue := start_value;
+          end if;
         end if;
         if constant_end_value then
-          variableRange.maxValue := end_value;
+          if for_to then
+            variableRange.maxValue := end_value;
+          else
+            variableRange.minValue := end_value;
+          end if;
         end if;
         # write(file(statements) <& "(" <& line(statements) <& ") ");
         # writeln("for variable range: " <& variableRange.minValue <& ".." <& variableRange.maxValue);

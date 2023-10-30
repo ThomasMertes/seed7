@@ -1472,6 +1472,17 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
 
+    counter := 0;
+    for number range 1 to 16 do
+      if number <> 1 then
+        incr(counter);
+      end if;
+    end for;
+    if counter <> 15 then
+      writeln(" ***** for integer range 1 to 16 ...  does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("For to statements work correctly.");
     else
@@ -1688,6 +1699,17 @@ const proc: check_for_int_downto is func
     end for;
     if counter <> 16 or number <> 0 then
       writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 16 downto 1 do
+      if number <> 16 then
+        incr(counter);
+      end if;
+    end for;
+    if counter <> 15 then
+      writeln(" ***** for integer range 16 downto 1 ...  does not work correctly.");
       okay := FALSE;
     end if;
 
