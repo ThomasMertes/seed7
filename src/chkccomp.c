@@ -624,17 +624,17 @@ static void removeQuotesFromQuotations (char *text)
  *  This function is used to convert library options that come from chkccomp.h.
  *  Makefiles write library options to chkccomp.h and use them also when they
  *  invoke the C linker (because of that the quoting of paths with spaces is needed).
- *  E.g.: replaceSpaceByNl(dest, "one  two \"three four\"  \"five  six\"")
+ *  E.g.: replaceUnquotedSpacesWithNl(dest, "one  two \"three four\"  \"five  six\"")
  *        assigns "one\ntwo\n\"three four\"\n\"five  six\"" to dest.
  */
-static void replaceSpaceByNl (char *dest, const char *source)
+static void replaceUnquotedSpacesWithNl (char *dest, const char *source)
 
   {
     const char *quotePos;
     const char *spacePos;
     size_t len;
 
-  /* replaceSpaceByNl */
+  /* replaceUnquotedSpacesWithNl */
     while (*source == ' ') {
       source++;
     } /* while */
@@ -688,7 +688,7 @@ static void replaceSpaceByNl (char *dest, const char *source)
       } /* if */
     } /* while */
     *dest = '\0';
-  } /* replaceSpaceByNl */
+  } /* replaceUnquotedSpacesWithNl */
 
 
 
@@ -6975,6 +6975,36 @@ static void addDynamicLibsWithRpath (const char *scopeName, int baseDirExists,
 
 
 
+static int visualDepthOf32BitsSupported (const char *x11IncludeCommand,
+    const char *includeOption, const char *systemDrawLibs)
+
+  {
+    char testProgram[BUFFER_SIZE];
+    int testResult = 0;
+
+  /* visualDepthOf32BitsSupported */
+    sprintf(testProgram, "#include<stdio.h>\n%s"
+                         "int main(int argc,char *argv[]){\n"
+                         "Display* display;\n"
+                         "XVisualInfo vinfo;\n"
+                         "display = XOpenDisplay(NULL);\n"
+                         "printf(\"%%d\\n\",\n"
+                         "    display != NULL &&\n"
+                         "    XMatchVisualInfo(display, DefaultScreen(display),\n"
+                         "                     32, TrueColor, &vinfo) != 0);\n"
+                         "return 0;}\n",
+            x11IncludeCommand);
+    if (compileAndLinkWithOptionsOk(testProgram, includeOption, systemDrawLibs)) {
+      testResult = doTest();
+      if (testResult < 0) {
+        testResult = 0;
+      } /* if */
+    } /* if */
+    return testResult;
+  } /* visualDepthOf32BitsSupported */
+
+
+
 static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeCommand,
     const char *includeOption, const char *systemDrawLibs)
 
@@ -7245,6 +7275,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
       } /* if */
 #endif
       if (!searchForLib) {
+        fprintf(versionFile, "#define VISUAL_DEPTH_OF_32_BITS_SUPPORTED %d\n",
+                visualDepthOf32BitsSupported(x11IncludeCommand, includeOption, system_draw_libs));
         defineX11rgbToPixelMacro(versionFile, x11IncludeCommand, includeOption, system_draw_libs);
       } /* if */
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
@@ -9234,10 +9266,10 @@ static void determineIncludesAndLibs (FILE *versionFile)
       rpath = rpath_buffer;
     } /* if */
 #ifdef SYSTEM_CONSOLE_LIBS
-    replaceSpaceByNl(system_console_libs, SYSTEM_CONSOLE_LIBS);
+    replaceUnquotedSpacesWithNl(system_console_libs, SYSTEM_CONSOLE_LIBS);
 #endif
 #ifdef SYSTEM_DRAW_LIBS
-    replaceSpaceByNl(system_draw_libs, SYSTEM_DRAW_LIBS);
+    replaceUnquotedSpacesWithNl(system_draw_libs, SYSTEM_DRAW_LIBS);
 #endif
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineConsoleDefines(versionFile, include_options, system_console_libs);
@@ -9246,6 +9278,12 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
     fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
     fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
+    fputs("#define PIXEL_ALPHA_MASK \"ff000000\"\n", versionFile);
+    fputs("#define createARGB(alpha, red, green, blue) "
+              "(ARGB) ((((DWORD) alpha) << 24) | "
+                      "(((DWORD) red) << 16) | "
+                      "(((DWORD) green) << 8) | "
+                       "((DWORD) blue))\n", versionFile);
 #endif
     determineMySqlDefines(versionFile, include_options, system_database_libs);
     determineSqliteDefines(versionFile, include_options, system_database_libs);

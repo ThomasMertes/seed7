@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2023-09-13 the number of lines is:
+than 400000 lines of Seed7. For version 2023-11-04 the number of lines is:
 
-  177503  C source files (*.c)
-   13190  C header files (*.h)
-  244554  Seed7 source files (*.sd7)
-  177770  Seed7 library/include files (*.s7i)
+  177376  C source files (*.c)
+   13200  C header files (*.h)
+  247492  Seed7 source files (*.sd7)
+  178983  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1501,15 +1501,15 @@ necessary to define the syntax before defining the semantic.
 Can I overload two functions which just differ in the result type?
 ==================================================================
 
-No, return type overloading is not supported. The example below overloads
-the function f with different result types:
+No, return type overloading is not supported. The example below shows
+what happens if the function f is overloaded with different result types:
 
   const func integer: f (in char: x) is return ord(x);
   const func string:  f (in char: x) is return str(x);
 
 This overloading of the result type triggers compile-time errors:
 
-  *** tst508.sd7(4):34: "f (val char: x)" declared twice
+  *** tst508.sd7(4):34: Redeclaration of "f (val char: x)"
   const func string:  f (in char: x) is return str(x);
   ----------------------------------------------------^
   *** tst508.sd7(3):35: Previous declaration of "f (val char: x)"

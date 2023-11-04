@@ -877,12 +877,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2023-09-13 the number of lines is:
+than 400000 lines of Seed7. For version 2023-11-04 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">177503</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13190</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">244554</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">177770</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">177376</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13200</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">247492</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">178983</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2031,15 +2031,15 @@ necessary to define the syntax before defining the semantic.
 <div><br /><a name="faq_overload_result"><h3>Can I overload two functions which just differ in the result type?
 </h3></a><hr />
 <p>
-No, return type overloading is not supported. The example below overloads
-the function f with different result types:
+No, return type overloading is not supported. The example below shows
+what happens if the function <tt>f</tt> is overloaded with different result types:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func">ord</span>(x);
 <span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>:  f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func">str</span>(x);
 </pre><p>
 This overloading of the result type triggers compile-time errors:
 </p><pre class="indent">
-*** tst508.sd7(4):34: <a name="faq_OBJTWICEDECLARED_example"></a><span class="link">"f (val char: x)" declared twice</span>
+*** tst508.sd7(4):34: <a name="faq_OBJTWICEDECLARED_example"></a><span class="link">Redeclaration of "f (val char: x)"</span>
 const func string:  f (in char: x) is return str(x);
 ----------------------------------------------------^
 *** tst508.sd7(3):35: <a name="faq_PREVIOUS_DECLARATION_example"></a><span class="link">Previous declaration of "f (val char: x)"</span>

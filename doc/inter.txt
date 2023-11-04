@@ -38,7 +38,7 @@ THE SEED7 INTERPRETER
          h Trace heap size (in combination with 'a')
          s Trace signals
   -d   Equivalent to -da
-  -i   Show the identifier table after the analyzing phase.
+  -i   Show the identifier table after the analysis phase.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
   -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
@@ -53,7 +53,7 @@ THE SEED7 INTERPRETER
          h Trace heap size (in combination with 'a')
          s Trace signals
   -t   Equivalent to -ta
-  -vn  Set verbosity level of analyse phase to n. Where n is one
+  -vn  Set verbosity level of analysis phase to n. Where n is one
        of the following characters:
          0 Compile quiet (equivalent to -q)
          1 Write just the header with version information (default)

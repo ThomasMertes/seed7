@@ -1,3 +1,135 @@
+20231104:
+- In tim_rtl.c the function timFromIntTimestamp() has been fixed to
+  work with negative timestamps under Windows. Many thanks to Liam
+  O'Brien for pointing out that "chk_all" failed on the "chktime" test
+  in Windows.
+- The answer concerning return type overloading in the FAQ has been
+  improved.
+- In the manual links have been added to the list of parsing errors.
+  The links refer to an example that triggers this parsing error.
+- The error messages of the interpreter and compiler have been
+  improved:
+  - If something is redeclared an additional error has been added that
+    refers to the previous declaration. Additionally the lines of
+    current and previous declarations are shown.
+  - Error messages referring to functions have been improved to write
+    function parameter names.
+  - Now longer identifiers are written correctly in error messages.
+- The utility program sydir7.sd7 has been improved to support the
+  options -t (only do time corrections of identical files) and -a
+  (only add files that are missing in the destination).
+- The new library aes_gcm.s7i has been added. This library supports
+  the AES GCM cipher.
+- Support for the AES GCM cipher has been added to the tls.s7i
+  library.
+- The constant stdEccKeyPair has been added to elliptic.s7i. This
+  constant defines public and private keys for elliptic curve
+  cryptography (ECC).
+- The constant stdEccCertificate has been added to x509cert.s7i. This
+  constant defines a certificate for elliptic curve cryptography.
+- The function readLink(filePath, ABSOLUTE) has been added to the
+  library osfiles.s7i.
+- In bitdata.s7i the functions getBitLsb(), getBitsLsb(), getBitMsb()
+  and getBitsMsb() with a file as parameter are deprecated now.
+  The functions with the types lsbBitStream and msbBitStream should be
+  used instead.
+- The library zstd.s7i has been refactored to use lsbBitStream instead
+  of the deprecated functions getBitLsb and getBitsLsb.
+- The handling of the TIFF magic number in the tiff.s7i library has
+  been improved.
+- In seed7_05.s7i the function isDigitString(), with the base as
+  parameter, has been fixed to correctly check the range of possible
+  digits. Additionally the function now raises RANGE_ERROR if the
+  base is less than 2.
+- In seed7_05.s7i the function integer(), with the base as parameter,
+  has been fixed to trigger RANGE_ERROR if a digit is not in the
+  allowed range.
+- The function sourceLine(PROGRAM) has been added to the
+  environment.s7i library.
+- The compiler (s7c.sd7) has been improved:
+  - Do not optimize constants with -oc0
+  - Call optimize_int_add starting with -oc2
+  - Optimize string expressions starting with -oc2
+  - The compilation stops if unsupported options are found.
+  - Optimizations for the string pos function have been added:
+    - If the main string is actually a byte string.
+    - If the search string is known to have a length of 1.
+    - The main string length for char search is reduced if there are
+      previous occurrences of the last characters.
+  - An optimization for div and rem operators has been added that
+    takes effect if the dividend is known to be >= 0 and the divisor
+    is a power of two.
+  - The optimization of mod has been improved to consider the case
+    that dividend or divisor is always >= 0.
+  - The optimization of addition-/subtraction-chains has been improved
+    to optimize more overflow checks away.
+  - The optimization of the integer negate operation has been improved.
+  - An optimization for the assignment of an array concatenation has
+    been added.
+  - Unnecessary range checks in the conversion from integer to byte
+    strings have been omitted.
+  - The compiler counts if range checks are optimized away, and the
+    count is written in the compilation statistics.
+  - The code generation of several assignment statements has been
+    refactored.
+  - An optimization for the string length has been added, if the
+    result is known at compile-time.
+  - The computation of possible integer expression results in
+    lib/comp/intrange.s7i has been improved:
+    - The function getIntRange has been improved to work for inline
+      parameters.
+    - The determination of of possible left shift results has been
+      improved (in the function getIntLshiftRange). Corresponding
+      tests have been added to chkint.sd7 and chkovf.sd7.
+    - The range of possible loop variable values of for-downto loop
+      has been fixed. Tests for this case have been added to
+      chkprc.s7i.
+    - The estimation of possible integer results of the div, mdiv
+      and ? : operators has been improved.
+    - The possible result of string search and string length is
+      estimated more accurately.
+    - The possible result of a binary to integer conversion is
+      estimated more accurately. Corresponding tests have been added to
+      chkint.s7i
+    - The function getIntRange has been improved to consider the
+      actions CMD_FILESIZE, CON_HEIGHT, CON_WIDTH, DRW_HEIGHT,
+      DRW_WIDTH, DRW_SCREEN_HEIGHT, DRW_SCREEN_WIDTH,
+      INT_BYTES_BE_2_INT, INT_BYTES_LE_2_INT, INT_FACT, INT_PARSE1
+      and INT_PLUS.
+    - The functions getIntBytes2IntRange, getIntBytes2UIntRange,
+      getIntRange, getArrLenRange, getStrLenRange, lessEqualLimit,
+      greaterEqualLimit, getIntParse1Range and getBlnTernaryRange
+      have been added.
+  - An error in the bytes2Int optimization has been fixed and
+    corresponding tests have been added to chkint.sd7.
+  - The compiler options have been refactored (they are now stored
+    locally instead of globally).
+- The programs bas7.sd7 and pv7.sd7 have been refactored to use mdiv
+  instead of div (since the dividend is known to be >= 0).
+- The Seed7 build system has been improved:
+  - Now the system libraries needed for bigInteger, console, database
+    and drawing support (SYSTEM_BIGINT_LIBS, SYSTEM_CONSOLE_LIBS,
+    SYSTEM_DATABASE_LIBS, SYSTEM_DRAW_LIBS) are stored as string
+    with a newline (\n) between individual libraries.
+  - The functions removeQuotesFromQuotations, appendToMakeMacros,
+    replaceUnquotedSpacesWithNl, visualDepthOf32BitsSupported and
+    defineCMacro have been added to chkccomp.c.
+  - Building Seed7 with tcc under Windows has been fixed.
+  - The makefiles have been adjusted to work with CLion.
+  - The warning about missing packages has been improved.
+  - The description of the build system in src/read_me.txt and
+    src/read_me.htm has been improved.
+- In cmd_unx.c, infile.c, pol_sel.c, pol_unx.c, sql_oci.c and symbol.c
+  a memory leak is avoided if realloc fails.
+- The action CMD_READLINK has been renamed to CMD_READ_LINK.
+- Empty statements (;;) have been removed in fltlib.c, gkb_win.c,
+  pcs_win.c and sql_fire.c.
+- Spelling corrections have been made in several files.
+- Comments in C files have been changed to use the term function
+  instead of the term procedure.
+- Documentation comments have been added or improved in bitdata.s7i,
+  cipher.s7i, chkccomp.c, numutl.c, pcs_win.c and striutl.c.
+
 20230913:
 - The parameters of getHttp(), getHttps() and getFtp() have been
   renamed from 'url' to 'location'. A location is a URL without
@@ -1238,7 +1370,7 @@
   created with a file or a string as data source.
 - In bitdata.s7i the functions getBitLsb(), getBitsLsb(),
   peekBitsLsb(), skipBitsLsb(), getBitMsb(), getBitsMsb(),
-  peekBitsMsb() and skipBitsMsb() with string als parameters are
+  peekBitsMsb() and skipBitsMsb() with a string as parameter are
   deprecated now. The functions with the types lsbBitStream and
   msbBitStream should be used instead.
 - In huffman.s7i the functions getHuffmanSymbolMsb(string, ...) and

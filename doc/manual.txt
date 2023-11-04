@@ -1391,9 +1391,11 @@ CONTENTS
   Return type overloading is not supported. Therefore
   the attempt above results in the compile-time error:
 
-    *** tst344.sd7(5):34:  addOne (val integer param)  declared twice
+    *** tst344.sd7(5):34: Redeclaration of "addOne (val integer: num)"
     const func float:   addOne (in integer: num) is return float(num) + 1.0;
     ------------------------------------------------------------------------^
+    *** tst344.sd7(4):35: Previous declaration of "addOne (val integer: num)"
+    const func integer: addOne (in integer: num) is return num + 1;
 
   The absence of return type overloading improves readability,
   since:
@@ -15466,7 +15468,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     31: Declaration of parameter %s failed
     32: Declaration of "%s" failed
     33: Exception "%s" raised
-    34: "%s" declared twice
+    34: Redeclaration of "%s"
     35: Previous declaration of "%s"
     36: Associativity expected found "%s"
     37: Statement priority "%s" too big
