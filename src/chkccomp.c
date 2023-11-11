@@ -6848,22 +6848,25 @@ static void defineLibraryMacro (const char *scopeName, int dbHomeExists,
     unsigned int nameIndex;
 
   /* defineLibraryMacro */
-    fprintf(versionFile, "#define %s", macroName);
-    if (dbHomeExists) {
-      listDynamicLibs(scopeName, dbHome,
-                      dllDirList, dllDirListLength,
-                      dllNameList, dllNameListLength, versionFile);
+    if (dllNameListLength > 1 ||
+        (dllNameListLength == 1 && dllNameList[0][0] != '\0')) {
+      fprintf(versionFile, "#define %s", macroName);
+      if (dbHomeExists) {
+        listDynamicLibs(scopeName, dbHome,
+                        dllDirList, dllDirListLength,
+                        dllNameList, dllNameListLength, versionFile);
+      } /* if */
+      for (nameIndex = 0; nameIndex < baseDllNameListLength; nameIndex++) {
+        listDynamicLibsInSameDir(scopeName, baseDllNameList[nameIndex], dllNameList,
+                                 dllNameListLength, versionFile);
+      } /* for */
+      for (nameIndex = 0; nameIndex < dllNameListLength; nameIndex++) {
+        fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+                scopeName, dllNameList[nameIndex]);
+        fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
+      } /* for */
+      fprintf(versionFile, "\n");
     } /* if */
-    for (nameIndex = 0; nameIndex < baseDllNameListLength; nameIndex++) {
-      listDynamicLibsInSameDir(scopeName, baseDllNameList[nameIndex], dllNameList,
-                               dllNameListLength, versionFile);
-    } /* for */
-    for (nameIndex = 0; nameIndex < dllNameListLength; nameIndex++) {
-      fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
-              scopeName, dllNameList[nameIndex]);
-      fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
-    } /* for */
-    fprintf(versionFile, "\n");
   } /* defineLibraryMacro */
 
 
@@ -7972,12 +7975,19 @@ static void determinePostgresDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"libpq.dll"};
 #endif
-    const char *libDirList[] = {"/lib"};
-    const char *dllDirList[] = {"/lib", "/bin"};
+#if LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll", "libintl-9.dll"};
     const char *libeay32DllList[] = {"libeay32.dll"};
     const char *libcryptoDllList[] = {"libcrypto-1_1-x64.dll"};
     const char *libsslDllList[] = {"libssl-1_1-x64.dll"};
+#else
+    const char *libIntlDllList[] = {""};
+    const char *libeay32DllList[] = {""};
+    const char *libcryptoDllList[] = {""};
+    const char *libsslDllList[] = {""};
+#endif
+    const char *libDirList[] = {"/lib"};
+    const char *dllDirList[] = {"/lib", "/bin"};
     unsigned int dirIndex;
     unsigned int nameIndex;
     int searchForLib = 1;
