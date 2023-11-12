@@ -6816,6 +6816,12 @@ static int pointerSizeOfDynamicLibrary (const char *dllName)
           } else if (buffer[4] == '\2') {
             pointerSize = 64;
           } /* if */
+        } else if (memcmp(buffer, "\376\355\372\316" /* 0xfeedface */, 4) == 0 ||
+                   memcmp(buffer, "\316\372\355\376" /* 0xcefaedfe */, 4) == 0) {
+          pointerSize = 32;
+        } else if (memcmp(buffer, "\376\355\372\317" /* 0xfeedfacf */, 4) == 0 ||
+                   memcmp(buffer, "\317\372\355\376" /* 0xcffaedfe */, 4) == 0) {
+          pointerSize = 64;
         } else if (memcmp(buffer, "MZ", 2) == 0) {
           if (fread(&buffer[5], 1, 59, dllFile) == 59) {
             offset = (unsigned long) buffer[60] |
