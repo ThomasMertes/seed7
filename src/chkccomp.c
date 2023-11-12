@@ -6784,9 +6784,9 @@ static int canLoadDynamicLibrary (const char *dllName)
     sprintf(testProgram,
             "#include <stdio.h>\n#include <dlfcn.h>\n"
             "int main (int argc, char *argv[0]) {\n"
-            "printf(\"%%d\\n\", dlopen(\"%s\", RTLD_LAZY) != 0);\n"
+            "printf(\"%%d\\n\", dlopen(\"%s\", RTLD_LAZY) != NULL);\n"
             "return 0; }\n",
-        dllName);
+            dllName);
 #endif
     if (compileAndLinkWithOptionsOk(testProgram, "", LINKER_OPT_DYN_LINK_LIBS)) {
       return doTest() == 1;
@@ -6797,6 +6797,58 @@ static int canLoadDynamicLibrary (const char *dllName)
 
 
 
+static int pointerSizeOfDynamicLibrary (const char *dllName)
+
+  {
+    FILE *dllFile;
+    unsigned char buffer[BUFFER_SIZE];
+    unsigned long offset;
+    unsigned long machine;
+    int pointerSize = 0;
+
+  /* pointerSizeOfDynamicLibrary */
+    dllFile = fopen(dllName, "rb");
+    if (dllFile != NULL) {
+      if (fread(buffer, 1, 5, dllFile) == 5) {
+        if (memcmp(buffer, "\177ELF", 4) == 0) {
+          if (buffer[4] == '\1') {
+            pointerSize = 32;
+          } else if (buffer[4] == '\2') {
+            pointerSize = 64;
+          } /* if */
+        } else if (memcmp(buffer, "MZ", 2) == 0) {
+          if (fread(&buffer[5], 1, 59, dllFile) == 59) {
+            offset = (unsigned long) buffer[60] |
+                     (unsigned long) buffer[61] << 8 |
+                     (unsigned long) buffer[62] << 16 |
+                     (unsigned long) buffer[63] << 24;
+            if (offset <= BUFFER_SIZE - 6 &&
+                fread(&buffer[64], 1, offset - 58, dllFile) == offset - 58) {
+              if (memcmp(&buffer[offset], "PE\0\0", 4) == 0) {
+                machine = (unsigned long) buffer[offset + 4] |
+                          (unsigned long) buffer[offset + 5] << 8;
+                if (machine ==  0x184 || machine ==  0x1d3 || machine ==  0x1c0 ||
+                    machine ==  0x14c || machine == 0x6232 || machine == 0x9041 ||
+                    machine == 0x5032 || machine ==  0x1a2 || machine ==  0x1a3 ||
+                    machine ==  0x1a6) {
+                  pointerSize = 32;
+                } else if (machine ==  0x284 || machine == 0x8664 || machine == 0xaa64 ||
+                           machine ==  0x200 || machine == 0x6264 || machine ==  0x1f0 ||
+                           machine ==  0x1f1 || machine ==  0x166 || machine == 0x5064 ||
+                           machine ==  0x1a8) {
+                  pointerSize = 64;
+                } /* if */
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return pointerSize;
+  } /* pointerSizeOfDynamicLibrary */
+
+
+
 static void listDynamicLibs (const char *scopeName, const char *baseDir,
     const char **dllDirList, size_t dllDirListLength,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
@@ -6804,6 +6856,7 @@ static void listDynamicLibs (const char *scopeName, const char *baseDir,
   {
     unsigned int dirIndex;
     unsigned int nameIndex;
+    int dllPointerSize;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
 
@@ -6822,9 +6875,14 @@ static void listDynamicLibs (const char *scopeName, const char *baseDir,
           /* printf("filePath: %s\n", filePath); */
           if (fileIsRegular(filePath)) {
             /* printf("fileIsRegular(%s)\n", filePath); */
-            fprintf(logFile, "\r%s: DLL / Shared library: %s (%spresent)\n",
+            fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)",
                     scopeName, filePath,
-                    canLoadDynamicLibrary(filePath) ? "" : "not ");
+                    canLoadDynamicLibrary(filePath) ? "present" : "cannot load");
+            dllPointerSize = pointerSizeOfDynamicLibrary(filePath);
+            if (dllPointerSize != 0) {
+              fprintf(logFile, " (%d-bit)", dllPointerSize);
+            } /* if */
+            fprintf(logFile, "\n");
             fprintf(versionFile, " \"");
             escapeString(versionFile, filePath);
             fprintf(versionFile, "\",");
@@ -6844,6 +6902,7 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
     const char *backslashPos;
     const char *dirPathEnd;
     unsigned int nameIndex;
+    int dllPointerSize;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
 
@@ -6873,9 +6932,14 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
         /* printf("filePath: %s\n", filePath); */
         if (fileIsRegular(filePath)) {
           /* printf("fileIsRegular(%s)\n", filePath); */
-          fprintf(logFile, "\r%s: DLL / Shared library: %s (%spresent)\n",
+          fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)",
                   scopeName, filePath,
-                  canLoadDynamicLibrary(filePath) ? "" : "not ");
+                  canLoadDynamicLibrary(filePath) ? "present" : "cannot load");
+          dllPointerSize = pointerSizeOfDynamicLibrary(filePath);
+          if (dllPointerSize != 0) {
+            fprintf(logFile, " (%d-bit)", dllPointerSize);
+          } /* if */
+          fprintf(logFile, "\n");
           fprintf(versionFile, " \"");
           escapeString(versionFile, filePath);
           fprintf(versionFile, "\",");
@@ -6928,6 +6992,7 @@ static void addDynamicLibToDllListWithRpath (const char *scopeName, const char *
   {
     unsigned int dirIndex;
     unsigned int nameIndex;
+    int dllPointerSize;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     int found = 0;
@@ -6947,8 +7012,13 @@ static void addDynamicLibToDllListWithRpath (const char *scopeName, const char *
           /* printf("filePath: %s\n", filePath); */
           if (fileIsRegular(filePath)) {
             /* printf("fileIsRegular(%s)\n", filePath); */
-            fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+            fprintf(logFile, "\r%s: DLL / Shared library: %s",
                     scopeName, filePath);
+            dllPointerSize = pointerSizeOfDynamicLibrary(filePath);
+            if (dllPointerSize != 0) {
+              fprintf(logFile, " (%d-bit)", dllPointerSize);
+            } /* if */
+            fprintf(logFile, "\n");
             if (rpath == NULL) {
               appendOption(dllList, filePath);
             } /* if */
