@@ -152,6 +152,12 @@
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
+ *  CC_FLAGS: (optional)
+ *      Contains C compiler flags, which should be used when C programs are
+ *      compiled. This is defined in chkccomp.h if 32- and 64-bit flags differ.
+ *  CC_FLAGS64: (optional)
+ *      Contains additional C compiler flags, which should be used when
+ *      C programs are compiled with a 64-bit C compiler.
  *  CC_OPT_LINK_TIME_OPTIMIZATION: (optional)
  *      Contains the compiler option for link time optimization (e.g.: "-flto").
  *  LINKER_OPT_STATIC_LINKING: (optional)
@@ -6775,8 +6781,7 @@ static int canLoadDynamicLibrary (const char *dllName)
     sprintf(testProgram,
             "#include <stdio.h>\n#include <windows.h>\n"
             "int main (int argc, char *argv[0]) {\n"
-            "UINT oldErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);\n"
-            "SetErrorMode(oldErrorMode | SEM_FAILCRITICALERRORS);\n"
+            "SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);\n"
             "printf(\"%%d\\n\", LoadLibrary(\"%s\") != NULL);\n"
             "return 0; }\n",
             dllPath);
@@ -9645,6 +9650,13 @@ int main (int argc, char **argv)
     fprintf(logFile, "Prepare compile command: ");
     fflush(logFile);
     prepareCompileCommand();
+#ifdef CC_FLAGS64
+    if (getSizeof("char *") == 8) {
+      fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS " " CC_FLAGS64);
+    } else {
+      fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS);
+    } /* if */
+#endif
     determineCompilerVersion(versionFile);
     prepareDoSleep();
     if (assertCompAndLnk("#include <stdio.h>\n"

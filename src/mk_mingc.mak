@@ -194,6 +194,8 @@ chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
 	echo #define TEST_C_COMPILER "../bin/call_gcc" >> chkccomp.h
 	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
+	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> chkccomp.h
+	echo #define CC_FLAGS64 "-Wa,-mbig-obj" >> chkccomp.h
 	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto" >> chkccomp.h
 	echo #define LINKER_OPT_NO_LTO "-fno-lto" >> chkccomp.h
 	echo #define USE_GMP 0 >> chkccomp.h
@@ -210,7 +212,6 @@ base.h:
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
 	echo #define C_COMPILER_SCRIPT "call_gcc" >> base.h
 	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
-	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> base.h
 	echo #define CC_ERROR_FILEDES 2 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
