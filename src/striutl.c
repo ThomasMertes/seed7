@@ -2315,6 +2315,7 @@ striType stri_to_standard_path (const striType stri)
 
   {
     memSizeType pathLength;
+    memSizeType stdPathSize;
     striType resized_stdPath;
     striType stdPath;
 
@@ -2382,7 +2383,8 @@ striType stri_to_standard_path (const striType stri)
           stdPath->size--;
         } /* if */
         if (unlikely(stdPath->size != pathLength)) {
-          REALLOC_STRI_SIZE_SMALLER(resized_stdPath, stdPath, pathLength, stdPath->size);
+          stdPathSize = stdPath->size;
+          REALLOC_STRI_SIZE_SMALLER(resized_stdPath, stdPath, pathLength, stdPathSize);
           if (unlikely(resized_stdPath == NULL)) {
             FREE_STRI(stdPath, pathLength);
             stdPath = NULL;
