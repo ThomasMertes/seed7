@@ -249,15 +249,15 @@ static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
 
 
 #define driveLetterPathWrong(standardPath) \
-    (standardPath->size >= 2 && \
-     (standardPath->mem[standardPath->size - 1] == '/' || \
-      (standardPath->mem[1] == ':' && \
-      ((standardPath->mem[0] >= 'a' && standardPath->mem[0] <= 'z') || \
-       (standardPath->mem[0] >= 'A' && standardPath->mem[0] <= 'Z')))))
+    ((standardPath)->size >= 2 && \
+     ((standardPath)->mem[(standardPath)->size - 1] == '/' || \
+      ((standardPath)->mem[1] == ':' && \
+      (((standardPath)->mem[0] >= 'a' && (standardPath)->mem[0] <= 'z') || \
+       ((standardPath)->mem[0] >= 'A' && (standardPath)->mem[0] <= 'Z')))))
 
 #define standardPathWrong(standardPath) \
-    (standardPath->size >= 2 && \
-     standardPath->mem[standardPath->size - 1] == '/')
+    ((standardPath)->size >= 2 && \
+     (standardPath)->mem[(standardPath)->size - 1] == '/')
 
 
 #ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME

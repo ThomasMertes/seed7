@@ -59,8 +59,8 @@
 
 /* DECIMAL_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
 #define DECIMAL_WITH_LIMIT(decimal, length) \
-    (int) (length <= AND_SO_ON_LIMIT ? length : AND_SO_ON_LIMIT), \
-    decimal, length > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
+    (int) ((length) <= AND_SO_ON_LIMIT ? (length) : AND_SO_ON_LIMIT), \
+    decimal, (length) > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
 
 
 

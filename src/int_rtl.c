@@ -75,61 +75,61 @@
 
 #if   INTTYPE_SIZE == 32
 #define DECIMAL_DIGITS(num) \
-  (num < UINT_SUFFIX(100000000) ?               \
-      (num < UINT_SUFFIX(10000) ?               \
-        (num < UINT_SUFFIX(100) ?               \
-          (num < UINT_SUFFIX(10) ? 1 : 2)       \
-        :                                       \
-          (num < UINT_SUFFIX(1000) ? 3 : 4)     \
-        )                                       \
-      :                                         \
-        (num < UINT_SUFFIX(1000000) ?           \
-          (num < UINT_SUFFIX(100000) ? 5 : 6)   \
-        :                                       \
-          (num < UINT_SUFFIX(10000000) ? 7 : 8) \
-        )                                       \
-      )                                         \
-    :                                           \
-      (num < UINT_SUFFIX(1000000000) ? 9 : 10)  \
+  ((num) < UINT_SUFFIX(100000000) ?               \
+      ((num) < UINT_SUFFIX(10000) ?               \
+        ((num) < UINT_SUFFIX(100) ?               \
+          ((num) < UINT_SUFFIX(10) ? 1 : 2)       \
+        :                                         \
+          ((num) < UINT_SUFFIX(1000) ? 3 : 4)     \
+        )                                         \
+      :                                           \
+        ((num) < UINT_SUFFIX(1000000) ?           \
+          ((num) < UINT_SUFFIX(100000) ? 5 : 6)   \
+        :                                         \
+          ((num) < UINT_SUFFIX(10000000) ? 7 : 8) \
+        )                                         \
+      )                                           \
+    :                                             \
+      ((num) < UINT_SUFFIX(1000000000) ? 9 : 10)  \
     )
 #elif INTTYPE_SIZE == 64
 #define DECIMAL_DIGITS(num) \
-    (num < UINT_SUFFIX(10000000000000000) ?                 \
-      (num < UINT_SUFFIX(100000000) ?                       \
-        (num < UINT_SUFFIX(10000) ?                         \
-          (num < UINT_SUFFIX(100) ?                         \
-            (num < UINT_SUFFIX(10) ? 1 : 2)                 \
-          :                                                 \
-            (num < UINT_SUFFIX(1000) ? 3 : 4)               \
-          )                                                 \
-        :                                                   \
-          (num < UINT_SUFFIX(1000000) ?                     \
-            (num < UINT_SUFFIX(100000) ? 5 : 6)             \
-          :                                                 \
-            (num < UINT_SUFFIX(10000000) ? 7 : 8)           \
-          )                                                 \
-        )                                                   \
-      :                                                     \
-        (num < UINT_SUFFIX(1000000000000) ?                 \
-          (num < UINT_SUFFIX(10000000000) ?                 \
-            (num < UINT_SUFFIX(1000000000) ? 9 : 10)        \
-          :                                                 \
-            (num < UINT_SUFFIX(100000000000) ? 11 : 12)     \
-          )                                                 \
-        :                                                   \
-          (num < UINT_SUFFIX(100000000000000) ?             \
-            (num < UINT_SUFFIX(10000000000000) ? 13 : 14)   \
-          :                                                 \
-            (num < UINT_SUFFIX(1000000000000000) ? 15 : 16) \
-          )                                                 \
-        )                                                   \
-      )                                                     \
-    :                                                       \
-      (num < UINT_SUFFIX(1000000000000000000) ?             \
-        (num < UINT_SUFFIX(100000000000000000) ? 17 : 18)   \
-      :                                                     \
-        (num < UINT_SUFFIX(10000000000000000000) ? 19 : 20) \
-      )                                                     \
+    ((num) < UINT_SUFFIX(10000000000000000) ?                 \
+      ((num) < UINT_SUFFIX(100000000) ?                       \
+        ((num) < UINT_SUFFIX(10000) ?                         \
+          ((num) < UINT_SUFFIX(100) ?                         \
+            ((num) < UINT_SUFFIX(10) ? 1 : 2)                 \
+          :                                                   \
+            ((num) < UINT_SUFFIX(1000) ? 3 : 4)               \
+          )                                                   \
+        :                                                     \
+          ((num) < UINT_SUFFIX(1000000) ?                     \
+            ((num) < UINT_SUFFIX(100000) ? 5 : 6)             \
+          :                                                   \
+            ((num) < UINT_SUFFIX(10000000) ? 7 : 8)           \
+          )                                                   \
+        )                                                     \
+      :                                                       \
+        ((num) < UINT_SUFFIX(1000000000000) ?                 \
+          ((num) < UINT_SUFFIX(10000000000) ?                 \
+            ((num) < UINT_SUFFIX(1000000000) ? 9 : 10)        \
+          :                                                   \
+            ((num) < UINT_SUFFIX(100000000000) ? 11 : 12)     \
+          )                                                   \
+        :                                                     \
+          ((num) < UINT_SUFFIX(100000000000000) ?             \
+            ((num) < UINT_SUFFIX(10000000000000) ? 13 : 14)   \
+          :                                                   \
+            ((num) < UINT_SUFFIX(1000000000000000) ? 15 : 16) \
+          )                                                   \
+        )                                                     \
+      )                                                       \
+    :                                                         \
+      ((num) < UINT_SUFFIX(1000000000000000000) ?             \
+        ((num) < UINT_SUFFIX(100000000000000000) ? 17 : 18)   \
+      :                                                       \
+        ((num) < UINT_SUFFIX(10000000000000000000) ? 19 : 20) \
+      )                                                       \
     )
 #endif
 

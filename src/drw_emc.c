@@ -71,25 +71,25 @@ typedef struct {
 
 typedef const emc_winRecord *const_emc_winType;
 
-#define to_window(win)            (((const_emc_winType) win)->window)
-#define is_pixmap(win)            (((const_emc_winType) win)->is_pixmap)
-#define is_subwindow(win)         (((const_emc_winType) win)->is_subwindow)
-#define to_ignoreFirstResize(win) (((const_emc_winType) win)->ignoreFirstResize)
-#define to_creationTimestamp(win) (((const_emc_winType) win)->creationTimestamp)
-#define to_width(win)             (((const_emc_winType) win)->width)
-#define to_height(win)            (((const_emc_winType) win)->height)
-#define to_clear_col(win)         (((const_emc_winType) win)->clear_col)
-#define to_resizeReturnsKey(win)  (((const_emc_winType) win)->resizeReturnsKey)
+#define to_window(win)            (((const_emc_winType) (win))->window)
+#define is_pixmap(win)            (((const_emc_winType) (win))->is_pixmap)
+#define is_subwindow(win)         (((const_emc_winType) (win))->is_subwindow)
+#define to_ignoreFirstResize(win) (((const_emc_winType) (win))->ignoreFirstResize)
+#define to_creationTimestamp(win) (((const_emc_winType) (win))->creationTimestamp)
+#define to_width(win)             (((const_emc_winType) (win))->width)
+#define to_height(win)            (((const_emc_winType) (win))->height)
+#define to_clear_col(win)         (((const_emc_winType) (win))->clear_col)
+#define to_resizeReturnsKey(win)  (((const_emc_winType) (win))->resizeReturnsKey)
 
-#define to_var_window(win)            (((emc_winType) win)->window)
-#define is_var_pixmap(win)            (((emc_winType) win)->is_pixmap)
-#define is_var_subwindow(win)         (((emc_winType) win)->is_subwindow)
-#define to_var_ignoreFirstResize(win) (((emc_winType) win)->ignoreFirstResize)
-#define to_var_creationTimestamp(win) (((emc_winType) win)->creationTimestamp)
-#define to_var_width(win)             (((emc_winType) win)->width)
-#define to_var_height(win)            (((emc_winType) win)->height)
-#define to_var_clear_col(win)         (((emc_winType) win)->clear_col)
-#define to_var_resizeReturnsKey(win)  (((emc_winType) win)->resizeReturnsKey)
+#define to_var_window(win)            (((emc_winType) (win))->window)
+#define is_var_pixmap(win)            (((emc_winType) (win))->is_pixmap)
+#define is_var_subwindow(win)         (((emc_winType) (win))->is_subwindow)
+#define to_var_ignoreFirstResize(win) (((emc_winType) (win))->ignoreFirstResize)
+#define to_var_creationTimestamp(win) (((emc_winType) (win))->creationTimestamp)
+#define to_var_width(win)             (((emc_winType) (win))->width)
+#define to_var_height(win)            (((emc_winType) (win))->height)
+#define to_var_clear_col(win)         (((emc_winType) (win))->clear_col)
+#define to_var_resizeReturnsKey(win)  (((emc_winType) (win))->resizeReturnsKey)
 
 int maxWindowId = 0;
 

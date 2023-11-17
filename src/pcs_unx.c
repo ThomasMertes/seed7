@@ -75,13 +75,13 @@ typedef const unx_processRecord *const_unx_processType;
 size_t sizeof_processRecord = sizeof(unx_processRecord);
 #endif
 
-#define to_pid(process)          (((const_unx_processType) process)->pid)
-#define to_isTerminated(process) (((const_unx_processType) process)->isTerminated)
-#define to_exitValue(process)    (((const_unx_processType) process)->exitValue)
+#define to_pid(process)          (((const_unx_processType) (process))->pid)
+#define to_isTerminated(process) (((const_unx_processType) (process))->isTerminated)
+#define to_exitValue(process)    (((const_unx_processType) (process))->exitValue)
 
-#define to_var_pid(process)          (((unx_processType) process)->pid)
-#define to_var_isTerminated(process) (((unx_processType) process)->isTerminated)
-#define to_var_exitValue(process)    (((unx_processType) process)->exitValue)
+#define to_var_pid(process)          (((unx_processType) (process))->pid)
+#define to_var_isTerminated(process) (((unx_processType) (process))->isTerminated)
+#define to_var_exitValue(process)    (((unx_processType) (process))->exitValue)
 
 
 

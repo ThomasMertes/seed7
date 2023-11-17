@@ -72,7 +72,7 @@ static fileType protfile = &protFileRecord;
 static boolType internal_protocol = FALSE;
 
 /* #define prot_ptr(ptr) */
-#define prot_ptr(ptr) prot_int((intType) (memSizeType) ptr)
+#define prot_ptr(ptr) prot_int((intType) (memSizeType) (ptr))
 
 
 

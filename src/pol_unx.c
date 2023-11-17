@@ -84,8 +84,8 @@ typedef const poll_based_pollRecord *const_poll_based_pollType;
 size_t sizeof_pollRecord = sizeof(poll_based_pollRecord);
 #endif
 
-#define conv(genericPollData) ((const_poll_based_pollType) genericPollData)
-#define var_conv(genericPollData) ((poll_based_pollType) genericPollData)
+#define conv(genericPollData) ((const_poll_based_pollType) (genericPollData))
+#define var_conv(genericPollData) ((poll_based_pollType) (genericPollData))
 
 
 #define TABLE_START_SIZE    256

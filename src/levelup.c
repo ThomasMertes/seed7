@@ -73,7 +73,6 @@ int main (int argc, char *argv[])
     long releaseLevel;
     long backupLevel;
     long currentLevel;
-    FILE *levelFile;
 
   /* main */
     releaseLevel = readLevel("level_rl.h");

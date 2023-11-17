@@ -61,7 +61,7 @@
 
 #if HAS_WMEMCMP && WCHAR_T_SIZE == 32
 #define memcmp_strelem(mem1, mem2, len) \
-    wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, (size_t) len)
+    wmemcmp((const wchar_t *) (mem1), (const wchar_t *) (mem2), (size_t) (len))
 #else
 
 

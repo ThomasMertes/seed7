@@ -240,7 +240,7 @@ const size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 
 #if WITH_BIGINT_CAPACITY
 #define HEAP_ALLOC_BIG(var,len)  (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))? \
-                                 ((var)->capacity = len, CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE): \
+                                 ((var)->capacity = (len), CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE): \
                                  FALSE)
 #define HEAP_FREE_BIG(var,len)   (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) \
                                  FREE_HEAP(var, SIZ_RTLBIG(len)))
@@ -278,8 +278,8 @@ static unsigned int flist_allowed[BIG_FREELIST_ARRAY_SIZE] = {
 
 #define POP_BIG(var,len)   (var = (bigIntType) flist[len], flist[len] = flist[len]->next, \
                            flist_allowed[len]++, TRUE)
-#define PUSH_BIG(var,len)  {((freeListElemType) var)->next = flist[len]; \
-                           flist[len] = (freeListElemType) var; flist_allowed[len]--; }
+#define PUSH_BIG(var,len)  {((freeListElemType) (var))->next = flist[len]; \
+                           flist[len] = (freeListElemType) (var); flist_allowed[len]--; }
 
 #define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var, len) : \
                                       HEAP_ALLOC_BIG(var, len))
