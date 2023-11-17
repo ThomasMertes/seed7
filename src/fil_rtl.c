@@ -1835,7 +1835,11 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
       /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, *err_info); */
       if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (unlikely(path_info == PATH_IS_NORMAL))
+        if (path_info == PATH_IS_EMULATED_ROOT ||
+            path_info == PATH_NOT_MAPPED) {
+          /* Cannot open this file. Do not raise an exception. */
+          *err_info = OKAY_NO_ERROR;
+        } else
 #endif
         {
           logError(printf("cFileOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
