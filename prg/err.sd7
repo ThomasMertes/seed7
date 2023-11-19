@@ -40,27 +40,25 @@ ignore('abcde'); (* "'" expected found "b"                       *)
 ignore(          (* Character literal exceeds source line        *) '
 );
 ignore("a""b");  (* Use \" instead of "" to represent " in a string  *)
-include "\\a";   (* Use / instead of \ as path delimiter         *)
 ignore("\!");    (* Illegal string escape "\!"                   *)
 ignore("\8y");   (* Numerical escape sequences should end with ";" not "y"  *)
-ignore("\8\");   (* Numerical escape sequences should end with ";" not "\"  *) ignore("\
+ignore("\8\");   (* Numerical escape sequences should end with ";" not "\"  *) ignore(
+"\9999999999;"); (* The numerical escape sequence "\9999999999;" is too big *) ignore("\
 continued");     (* String continuations should end with "\" not "c"  *)
 ignore(" ...     (* String literal exceeds source line  *)
 );
 $ 12345;         (* Name expected found "12345"         *)
 $ syntax expr:   (* Integer literal expected found "x"  *)  l2 is -> x;
 $ include 1;     (* String literal expected found "1"   *)
-$ syntax expr:   (* Identifier expected found "123"     *)  .123 .() is -> 1;
 const integer:   (* Identifier expected found "asdf"    *)  "asdf" is 1;
-();              (* Expression expected found ")"       *)
 const proc: (ref char param) ::= (ref integer param) is func
   begin
     raise NUMERIC_ERROR;
   end func;
 const char:      (* Declaration of "j3" failed          *)  j3 is 1;
                  (* Exception "RANGE_ERROR" raised      *)  raise RANGE_ERROR;
-const integer:   (* "j3" declared twice                 *)  j3 is 1;
-                                (* Not declared                *)
+const integer:   (* Previous declaration of "num1"      *)  num1 is 1;
+const integer:   (* Redeclaration of "num1"             *)  num1 is 1;
 $ syntax expr:   (* Associativity expected found "x"                      *)  .h is x 1;
 $ syntax expr:   (* Statement priority "999999" too big                   *)  .j is -> 999999;
 $ syntax expr:   (* Syntax with two parameters before operator is illegal *)  .().().x is -> 1;
@@ -93,6 +91,7 @@ ignore("í €");(*UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+
 ignore("í€A");(*UTF-8 continuation byte expected found "A" *)
 ignore("€"); (* Unexpected UTF-8 continuation byte found "\128;" (U+0080) *)
 ignore("íA");    (* Solitary UTF-8 start byte found "\237;" (U+00ed) *)
+include "\\a";   (* Use / instead of \ as path delimiter in "\\a"  *)
 (* Ã„Âµâ‚¬ *)     (* Illegal character in text "\8;" (U+0008) *)
 (*ï¼¡ï¼¢ï¼£*)    (* Illegal character in text "\7;" (U+0007) *)
                 (* Unclosed comment
