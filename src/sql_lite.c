@@ -2417,9 +2417,18 @@ databaseType sqlOpenLite (const const_striType host, intType port,
         if (open_result != SQLITE_OK) {
           if (connection != NULL) {
             setDbErrorMsg("sqlOpenLite", "sqlite3_open", connection);
-            logError(printf("sqlOpenLite: sqlite3_open error %d: %s\n",
-                            open_result, sqlite3_errmsg(connection)););
+            logError(printf("sqlOpenLite: sqlite3_open(\"%s\", *) --> %d, "
+                            "error %d: %s\n",
+                            fileName8, open_result,
+                            sqlite3_errcode(connection),
+                            sqlite3_errmsg(connection)););
             sqlite3_close(connection);
+          } else {
+            dbLibError("sqlOpenLite", "sqlite3_open",
+                       "sqlite3_open(\"%s\", *) --> %d\n",
+                       fileName8, open_result);
+            logError(printf("sqlOpenLite: sqlite3_open(\"%s\", *) --> %d\n",
+                            fileName8, open_result););
           } /* if */
           err_info = DATABASE_ERROR;
           database = NULL;
@@ -2430,6 +2439,8 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           sqlite3_close(connection);
           database = NULL;
         } else {
+          logMessage(printf("sqlOpenLite: sqlite3_open(\"%s\", *) --> SQLITE_OK\n",
+                            fileName8););
           memset(database, 0, sizeof(dbRecordLite));
           database->usage_count = 1;
           database->sqlFunc = sqlFunc;
