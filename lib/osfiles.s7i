@@ -501,9 +501,9 @@ const func string: homeDir                                   is action "CMD_HOME
 
 (**
  *  Determine the absolute path for a given ''path''.
- *   toAbsPath(getcwd, "aFile")    -->  Returns e.g. "/home/myuser/aFile"
- *   toAbsPath(".", "aFile")       -->  Returns e.g. "/home/myuser/aFile"
- *   toAbsPath("/usr", "include")  -->  Returns "/usr/include"
+ *   toAbsPath(getcwd, "aFile")    returns e.g. "/home/myuser/aFile"
+ *   toAbsPath(".", "aFile")       returns e.g. "/home/myuser/aFile"
+ *   toAbsPath("/usr", "include")  returns "/usr/include"
  *  @param basePath Path of the base location. The relative ''path'' is
  *         relative to this location.
  *  @param path Absolute or relative path for which the absolute path should
@@ -608,6 +608,26 @@ const proc: makeParentDirs (in string: filePath) is func
   end func;
 
 
+(**
+ *  Convert a DOS/Windows path to the standard path representation.
+ *  A path in the standard path representation is left unchanged.
+ *   convDosPath("C:/abc")          returns "/c/abc"
+ *   convDosPath("C:/abc/")         returns "/c/abc"
+ *   convDosPath("C:/abc//def")     returns "/c/abc/def"
+ *   convDosPath("C:\\abc")         returns "/c/abc"
+ *   convDosPath("C:\\abc\\")       returns "/c/abc"
+ *   convDosPath("C:\\abc\\\\def")  returns "/c/abc/def"
+ *   convDosPath("d:/abc")          returns "/d/abc"
+ *   convDosPath("d://abc")         returns "/d/abc"
+ *   convDosPath("d:\\abc")         returns "/d/abc"
+ *   convDosPath("d:\\\\abc")       returns "/d/abc"
+ *   convDosPath("d:abc")           returns "/d/abc"
+ *   convDosPath("dir/file")        returns "dir/file"
+ *   convDosPath("dir\\file")       returns "dir/file"
+ *   convDosPath("/usr/include")    returns "/usr/include"
+ *  @param path Absolute or relative DOS/Windows path.
+ *  @return The path in the standard path representation.
+ *)
 const func string: convDosPath (in string: path) is func
   result
     var string: stdPath is "";
