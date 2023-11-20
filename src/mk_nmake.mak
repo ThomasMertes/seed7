@@ -269,10 +269,7 @@ settings.h:
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
 
 version.h: chkccomp.exe base.h settings.h
-	.\chkccomp.exe version.h
-	$(CC) setpaths.c -o setpaths
-	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
-	del setpaths.exe
+	.\chkccomp.exe version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)"
 	copy version.h vers_nmake.h /Y
 
 .c.o:

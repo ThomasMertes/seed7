@@ -124,7 +124,12 @@ sql_srv.o: sql_srv.c
 
 clean:
 	del *.o
-	del $(ALL_S7_LIBS)
+	del ..\bin\$(COMPILER_LIB)
+	del ..\bin\$(COMP_DATA_LIB)
+	del ..\bin\$(DRAW_LIB)
+	del ..\bin\$(CONSOLE_LIB)
+	del ..\bin\$(DATABASE_LIB)
+	del ..\bin\$(SEED7_LIB)
 	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7.exe
@@ -177,6 +182,7 @@ chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define UNIX_DO_SLEEP >> chkccomp.h
 	echo #define ERROR_REDIRECTING_FAILS >> chkccomp.h
+	echo #define LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION 512 >> chkccomp.h
 	echo #define USE_GMP 0 >> chkccomp.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> chkccomp.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> chkccomp.h
@@ -191,6 +197,7 @@ base.h:
 	echo #define CC_ERROR_FILEDES 0 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define OS_STRI_USES_CODE_PAGE >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
 
@@ -200,7 +207,6 @@ settings.h:
 	echo #define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo #define AWAIT_WITH_SELECT >> settings.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
-	echo #define OS_STRI_USES_CODE_PAGE >> settings.h
 	echo #define MAP_LONG_FILE_NAMES_TO_SHORT >> settings.h
 	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
@@ -218,10 +224,7 @@ settings.h:
 
 version.h: chkccomp.exe base.h settings.h
 	echo The following C compiler errors can be safely ignored
-	.\chkccomp.exe version.h
-	$(CC) setpaths.c -o setpaths.exe
-	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
-	del setpaths.exe
+	.\chkccomp.exe version.h S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY)
 	copy version.h vers_dj2.h /Y
 
 chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h

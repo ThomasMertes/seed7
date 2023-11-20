@@ -747,9 +747,15 @@ static void determineCompilerVersion (FILE *versionFile)
     cc_version_info_filedes = CC_VERSION_INFO_FILEDES;
 #else
     /* Use heuristic to determine CC_VERSION_INFO_FILEDES. */
-    sprintf(command, "%s %s %s cc_vers1.txt %s cc_vers2.txt",
+#ifdef ERROR_REDIRECTING_FAILS
+    sprintf(command, "%s %s %scc_vers1.txt",
+            c_compiler, CC_OPT_VERSION_INFO,
+            REDIRECT_FILEDES_1);
+#else
+    sprintf(command, "%s %s %scc_vers1.txt %scc_vers2.txt",
             c_compiler, CC_OPT_VERSION_INFO,
             REDIRECT_FILEDES_1, REDIRECT_FILEDES_2);
+#endif
     aFile = fopen("cc_vers1.txt", "r");
     if (aFile != NULL) {
       ch = getc(aFile);
@@ -774,20 +780,25 @@ static void determineCompilerVersion (FILE *versionFile)
 #endif
     if (cc_version_info_filedes == 1) {
       if (nullDevice != NULL) {
-        sprintf(command, "%s %s %s cc_vers.txt %s %s",
+#ifdef ERROR_REDIRECTING_FAILS
+        sprintf(command, "%s %s %scc_vers.txt",
+                c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_1);
+#else
+        sprintf(command, "%s %s %scc_vers.txt %s%s",
                 c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_1,
                 REDIRECT_FILEDES_2, nullDevice);
+#endif
       } else {
-        sprintf(command, "%s %s %s cc_vers.txt",
+        sprintf(command, "%s %s %scc_vers.txt",
                 c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_1);
       } /* if */
     } else if (cc_version_info_filedes == 2) {
       if (nullDevice != NULL) {
-        sprintf(command, "%s %s %s cc_vers.txt %s %s",
+        sprintf(command, "%s %s %scc_vers.txt %s%s",
                 c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_2,
                 REDIRECT_FILEDES_1, nullDevice);
       } else {
-        sprintf(command, "%s %s %s cc_vers.txt",
+        sprintf(command, "%s %s %scc_vers.txt",
                 c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_2);
       } /* if */
     } /* if */
@@ -1441,6 +1452,105 @@ static int expectTestResult (const char *content, int expected)
     } /* if */
     return okay;
   } /* expectTestResult */
+
+
+
+static void testOutputToBuffer (char *buffer)
+
+  {
+    char command[COMMAND_SIZE];
+    char outputFileName[NAME_SIZE];
+    char sourceFileName[NAME_SIZE];
+    char backupFileName[NAME_SIZE];
+    time_t startTime;
+    int returncode;
+    FILE *outFile;
+    int ch;
+    int pos = 0;
+    int readFailed = 0;
+    int errorOccurred = 0;
+    int repeatCount = 0;
+
+  /* testOutputToBuffer */
+    fprintf(logFile, ">");
+    fflush(logFile);
+#ifdef ERROR_REDIRECTING_FAILS
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out",
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber);
+#else
+    sprintf(command, ".%cctest%d%s %sctest%d.out", PATH_DELIMITER,
+            testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
+            testNumber);
+#endif
+#else
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out %sctest%d.err",
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
+            REDIRECT_FILEDES_2, testNumber);
+#else
+    sprintf(command, ".%cctest%d%s %sctest%d.out %sctest%d.err",
+            PATH_DELIMITER, testNumber, LINKED_PROGRAM_EXTENSION,
+            REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, testNumber);
+#endif
+#endif
+    sprintf(outputFileName, "ctest%d.out", testNumber);
+    startTime = time(NULL);
+    do {
+      returncode = system(command);
+      if (returncode != -1) {
+        if (fileIsPresentPossiblyAfterDelay(outputFileName)) {
+          outFile = fopen(outputFileName, "r");
+          if (outFile != NULL) {
+            ch = getc(outFile);
+            readFailed = ch == EOF;
+            if (readFailed) {
+              /* This workaround is necessary for windows. Some  */
+              /* antivirus software causes an empty output file. */
+              /* The test program is restarted to get a result.  */
+              fclose(outFile);
+              doSleep(1);
+              repeatCount++;
+            } else {
+              do {
+                buffer[pos] = ch;
+                pos++;
+              } while ((ch = getc(outFile)) != '\n');
+              fclose(outFile);
+              buffer[pos] = '\0';
+            } /* if */
+          } else {
+            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", outputFileName);
+            errorOccurred = 1;
+          } /* if */
+        } else {
+          fprintf(logFile, "\n *** File \"%s\" missing.\n ", outputFileName);
+          errorOccurred = 1;
+        } /* if */
+      } else {
+        fprintf(logFile, "\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
+        errorOccurred = 1;
+      } /* if */
+    } while (readFailed && !errorOccurred && time(NULL) < startTime + 5);
+    if (repeatCount != 0) {
+      if (readFailed) {
+        fprintf(logFile, "\n *** Cannot read data from \"%s\".\n", outputFileName);
+#ifndef ERROR_REDIRECTING_FAILS
+        showErrorsForTool("Run", ".err");
+#endif
+        sprintf(sourceFileName, "ctest%d.c", testNumber);
+        sprintf(backupFileName, "ctest%d.cbak", testNumber);
+        copyFile(sourceFileName, backupFileName);
+      } else {
+        numberOfSuccessfulTestsAfterRestart++;
+      } /* if */
+    } /* if */
+    fprintf(logFile, "\b");
+    fflush(logFile);
+  } /* testOutputToBuffer */
+
 
 
 
@@ -3786,6 +3896,16 @@ static void numericProperties (FILE *versionFile)
     if (assertCompAndLnk(buffer)) {
       testOutputToVersionFile(versionFile);
     } /* if */
+#ifdef LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION
+    fprintf(versionFile, "#define LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION \"%d\"\n",
+            LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION);
+    fprintf(versionFile, "#define PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d\n",
+            LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION);
+    fprintf(versionFile, "#define LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION \"%d\"\n",
+            LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION);
+    fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n",
+            LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION);
+#else
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "char buffer[100010];\n"
                          "int main(int argc,char *argv[]){\n"
@@ -3795,10 +3915,9 @@ static void numericProperties (FILE *versionFile)
       testResult = doTest();
       if (testResult == -1) {
         /* The test program crashed. Assume a low precision limit. */
-        testResult = 102;
         fputs("#define LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION \"100\"\n", versionFile);
-      } /* if */
-      if (testResult >= 2 && testResult < 100002) {
+        fputs("#define PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION 100\n", versionFile);
+      } else if (testResult >= 2 && testResult < 100002) {
         testResult -= 2;
 #ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
         fprintf(versionFile, "/* PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d */\n", testResult);
@@ -3816,10 +3935,9 @@ static void numericProperties (FILE *versionFile)
       testResult = doTest();
       if (testResult == -1) {
         /* The test program crashed. Assume a low precision limit. */
-        testResult = 102;
         fputs("#define LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION \"100\"\n", versionFile);
-      } /* if */
-      if (testResult >= 2 && testResult < 100002) {
+        fputs("#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION 100\n", versionFile);
+      } else if (testResult >= 2 && testResult < 100002) {
         testResult -= 2;
 #ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
         fprintf(versionFile, "/* PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d */\n", testResult);
@@ -3828,6 +3946,7 @@ static void numericProperties (FILE *versionFile)
         fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n", testResult);
       } /* if */
     } /* if */
+#endif
     if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "printf(\"%d\\n\", strtod(\"0x123\", NULL) != 0.0);\n"
@@ -6320,6 +6439,276 @@ static void determineOsFunctions (FILE *versionFile)
 
 
 
+#if defined OS_STRI_WCHAR
+static void determineCurrentWorkingDirectory (char *cwd)
+
+  { /* determineCurrentWorkingDirectory */
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <wchar.h>\n"
+                                    "#include <direct.h>\n#include <ctype.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{wchar_t buffer[8192];\n"
+                                    "wchar_t *wstri;\n"
+                                    "unsigned long utf32;\n"
+                                    "if (_wgetcwd(buffer, 8192) != NULL) {\n"
+                                    "  if (isalpha(buffer[0]) && buffer[1]==':') {\n"
+                                    "    buffer[1] = tolower(buffer[0]);\n"
+                                    "    buffer[0] = '/';\n"
+                                    "  }\n"
+                                    "  for (wstri = buffer; *wstri != '\\0'; wstri++) {\n"
+                                    "    if (*wstri <= 0x7F) {\n"
+                                    "      if (*wstri == '\\\\') {\n"
+                                    "        putchar('/');\n"
+                                    "      } else {\n"
+                                    "        putchar((unsigned char) *wstri);\n"
+                                    "      }\n"
+                                    "    } else if (*wstri <= 0x7FF) {\n"
+                                    "      putchar((unsigned char) (0xC0 | (*wstri >>  6)));\n"
+                                    "      putchar((unsigned char) (0x80 |( *wstri        & 0x3F)));\n"
+                                    "    } else if (*wstri >= 0xD800 && *wstri <= 0xDBFF &&\n"
+                                    "               wstri[1] >= 0xDC00 && wstri[1] <= 0xDFFF) {\n"
+                                    "      utf32 = ((((unsigned long) *wstri   - 0xD800) << 10) +\n"
+                                    "                ((unsigned long) wstri[1] - 0xDC00) + 0x10000);\n"
+                                    "      wstri++;\n"
+                                    "      putchar((unsigned char) (0xF0 | (utf32 >> 18)));\n"
+                                    "      putchar((unsigned char) (0x80 |((utf32 >> 12) & 0x3F)));\n"
+                                    "      putchar((unsigned char) (0x80 |((utf32 >>  6) & 0x3F)));\n"
+                                    "      putchar((unsigned char) (0x80 |( utf32        & 0x3F)));\n"
+                                    "    } else {\n"
+                                    "      putchar((unsigned char) (0xE0 | (*wstri >> 12)));\n"
+                                    "      putchar((unsigned char) (0x80 |((*wstri >>  6) & 0x3F)));\n"
+                                    "      putchar((unsigned char) (0x80 |( *wstri        & 0x3F)));\n"
+                                    "    }\n"
+                                    "  }\n"
+                                    "}\n"
+                                    "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
+      testOutputToBuffer(cwd);
+    } /* if */
+  } /* determineCurrentWorkingDirectory */
+
+#else
+
+
+
+static void determineCurrentWorkingDirectory (char *cwd)
+
+  { /* determineCurrentWorkingDirectory */
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                    "#include <ctype.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{char buffer[8192];\n"
+                                    "char *stri;\n"
+                                    "if (getcwd(buffer, 8192) != NULL) {\n"
+                                    "  if (isalpha(buffer[0]) && buffer[1]==':') {\n"
+                                    "    buffer[1] = tolower(buffer[0]);\n"
+                                    "    buffer[0] = '/';\n"
+                                    "  }\n"
+                                    "  for (stri = buffer; *stri != '\\0'; stri++) {\n"
+                                    "    if (*stri == '\\\\') {\n"
+                                    "      *stri = '/';\n"
+                                    "    }\n"
+                                    "  }\n"
+                                    "  printf(\"%s\", buffer);\n"
+                                    "}\n"
+                                    "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
+      testOutputToBuffer(cwd);
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
+                                           "#include <ctype.h>\n"
+                                           "int main(int argc,char *argv[])\n"
+                                           "{char buffer[8192];\n"
+                                           "char *stri;\n"
+                                           "if (getcwd(buffer, 8192) != NULL) {\n"
+                                           "  if (isalpha(buffer[0]) && buffer[1]==':') {\n"
+                                           "    buffer[1] = tolower(buffer[0]);\n"
+                                           "    buffer[0] = '/';\n"
+                                           "  }\n"
+                                           "  for (stri = buffer; *stri != '\\0'; stri++) {\n"
+                                           "    if (*stri == '\\\\') {\n"
+                                           "      *stri = '/';\n"
+                                           "    }\n"
+                                           "  }\n"
+                                           "  printf(\"%s\", buffer);\n"
+                                           "}\n"
+                                           "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
+      testOutputToBuffer(cwd);
+    } /* if */
+  } /* determineCurrentWorkingDirectory */
+#endif
+
+
+
+#ifdef OS_STRI_USES_CODE_PAGE
+static unsigned char *conv_437[] = {
+    "\000", "\001", "\002", "\003", "\004", "\005", "\006", "\007",
+    "\b", "\t", "\n", "\013", "\f", "\r", "\016", "\017",
+    "\020", "\021", "\022", "\023", "\024", "\025", "\026", "\027",
+    "\030", "\031", "\032", "\033", "\034", "\035", "\036", "\037",
+    " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+    "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+    "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_",
+    "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\177",
+    "\303\207", "\303\274", "\303\251", "\303\242",
+    "\303\244", "\303\240", "\303\245", "\303\247",
+    "\303\252", "\303\253", "\303\250", "\303\257",
+    "\303\256", "\303\254", "\303\204", "\303\205",
+    "\303\211", "\303\246", "\303\206", "\303\264",
+    "\303\266", "\303\262", "\303\273", "\303\271",
+    "\303\277", "\303\226", "\303\234", "\302\242",
+    "\302\243", "\302\245", "\342\202\247", "\306\222",
+    "\303\241", "\303\255", "\303\263", "\303\272",
+    "\303\261", "\303\221", "\302\252", "\302\272",
+    "\302\277", "\342\214\220", "\302\254", "\302\275",
+    "\302\274", "\302\241", "\302\253", "\302\273",
+    "\342\226\221", "\342\226\222", "\342\226\223", "\342\224\202",
+    "\342\224\244", "\342\225\241", "\342\225\242", "\342\225\226",
+    "\342\225\225", "\342\225\243", "\342\225\221", "\342\225\227",
+    "\342\225\235", "\342\225\234", "\342\225\233", "\342\224\220",
+    "\342\224\224", "\342\224\264", "\342\224\254", "\342\224\234",
+    "\342\224\200", "\342\224\274", "\342\225\236", "\342\225\237",
+    "\342\225\232", "\342\225\224", "\342\225\251", "\342\225\246",
+    "\342\225\240", "\342\225\220", "\342\225\254", "\342\225\247",
+    "\342\225\250", "\342\225\244", "\342\225\245", "\342\225\231",
+    "\342\225\230", "\342\225\222", "\342\225\223", "\342\225\253",
+    "\342\225\252", "\342\224\230", "\342\224\214", "\342\226\210",
+    "\342\226\204", "\342\226\214", "\342\226\220", "\342\226\200",
+    "\316\261", "\303\237", "\316\223", "\317\200",
+    "\316\243", "\317\203", "\302\265", "\317\204",
+    "\316\246", "\316\230", "\316\251", "\316\264",
+    "\342\210\236", "\317\206", "\316\265", "\342\210\251",
+    "\342\211\241", "\302\261", "\342\211\245", "\342\211\244",
+    "\342\214\240", "\342\214\241", "\303\267", "\342\211\210",
+    "\302\260", "\342\210\231", "\302\267", "\342\210\232",
+    "\342\201\277", "\302\262", "\342\226\240", "\302\240"};
+
+static unsigned char *conv_850[] = {
+    "\000", "\001", "\002", "\003", "\004", "\005", "\006", "\007",
+    "\b", "\t", "\n", "\013", "\f", "\r", "\016", "\017",
+    "\020", "\021", "\022", "\023", "\024", "\025", "\026", "\027",
+    "\030", "\031", "\032", "\033", "\034", "\035", "\036", "\037",
+    " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+    "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+    "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_",
+    "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\177",
+    "\303\207", "\303\274", "\303\251", "\303\242",
+    "\303\244", "\303\240", "\303\245", "\303\247",
+    "\303\252", "\303\253", "\303\250", "\303\257",
+    "\303\256", "\303\254", "\303\204", "\303\205",
+    "\303\211", "\303\246", "\303\206", "\303\264",
+    "\303\266", "\303\262", "\303\273", "\303\271",
+    "\303\277", "\303\226", "\303\234", "\303\270",
+    "\302\243", "\303\230", "\303\227", "\306\222",
+    "\303\241", "\303\255", "\303\263", "\303\272",
+    "\303\261", "\303\221", "\302\252", "\302\272",
+    "\302\277", "\302\256", "\302\254", "\302\275",
+    "\302\274", "\302\241", "\302\253", "\302\273",
+    "\342\226\221", "\342\226\222", "\342\226\223", "\342\224\202",
+    "\342\224\244", "\303\201", "\303\202", "\303\200",
+    "\302\251", "\342\225\243", "\342\225\221", "\342\225\227",
+    "\342\225\235", "\302\242", "\302\245", "\342\224\220",
+    "\342\224\224", "\342\224\264", "\342\224\254", "\342\224\234",
+    "\342\224\200", "\342\224\274", "\303\243", "\303\203",
+    "\342\225\232", "\342\225\224", "\342\225\251", "\342\225\246",
+    "\342\225\240", "\342\225\220", "\342\225\254", "\302\244",
+    "\303\260", "\303\220", "\303\212", "\303\213",
+    "\303\210", "\304\261", "\303\215", "\303\216",
+    "\303\217", "\342\224\230", "\342\224\214", "\342\226\210",
+    "\342\226\204", "\302\246", "\303\214", "\342\226\200",
+    "\303\223", "\303\237", "\303\224", "\303\222",
+    "\303\265", "\303\225", "\302\265", "\303\276",
+    "\303\236", "\303\232", "\303\233", "\303\231",
+    "\303\275", "\303\235", "\302\257", "\302\264",
+    "\302\255", "\302\261", "\342\200\227", "\302\276",
+    "\302\266", "\302\247", "\303\267", "\302\270",
+    "\302\260", "\302\250", "\302\267", "\302\271",
+    "\302\263", "\302\262", "\342\226\240", "\302\240"};
+
+static unsigned char *conv_858[] = {
+    "\000", "\001", "\002", "\003", "\004", "\005", "\006", "\007",
+    "\b", "\t", "\n", "\013", "\f", "\r", "\016", "\017",
+    "\020", "\021", "\022", "\023", "\024", "\025", "\026", "\027",
+    "\030", "\031", "\032", "\033", "\034", "\035", "\036", "\037",
+    " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+    "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+    "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_",
+    "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\177",
+    "\303\207", "\303\274", "\303\251", "\303\242",
+    "\303\244", "\303\240", "\303\245", "\303\247",
+    "\303\252", "\303\253", "\303\250", "\303\257",
+    "\303\256", "\303\254", "\303\204", "\303\205",
+    "\303\211", "\303\246", "\303\206", "\303\264",
+    "\303\266", "\303\262", "\303\273", "\303\271",
+    "\303\277", "\303\226", "\303\234", "\303\270",
+    "\302\243", "\303\230", "\303\227", "\306\222",
+    "\303\241", "\303\255", "\303\263", "\303\272",
+    "\303\261", "\303\221", "\302\252", "\302\272",
+    "\302\277", "\302\256", "\302\254", "\302\275",
+    "\302\274", "\302\241", "\302\253", "\302\273",
+    "\342\226\221", "\342\226\222", "\342\226\223", "\342\224\202",
+    "\342\224\244", "\303\201", "\303\202", "\303\200",
+    "\302\251", "\342\225\243", "\342\225\221", "\342\225\227",
+    "\342\225\235", "\302\242", "\302\245", "\342\224\220",
+    "\342\224\224", "\342\224\264", "\342\224\254", "\342\224\234",
+    "\342\224\200", "\342\224\274", "\303\243", "\303\203",
+    "\342\225\232", "\342\225\224", "\342\225\251", "\342\225\246",
+    "\342\225\240", "\342\225\220", "\342\225\254", "\302\244",
+    "\303\260", "\303\220", "\303\212", "\303\213",
+    "\303\210", "\342\202\254", "\303\215", "\303\216",
+    "\303\217", "\342\224\230", "\342\224\214", "\342\226\210",
+    "\342\226\204", "\302\246", "\303\214", "\342\226\200",
+    "\303\223", "\303\237", "\303\224", "\303\222",
+    "\303\265", "\303\225", "\302\265", "\303\276",
+    "\303\236", "\303\232", "\303\233", "\303\231",
+    "\303\275", "\303\235", "\302\257", "\302\264",
+    "\302\255", "\302\261", "\342\200\227", "\302\276",
+    "\302\266", "\302\247", "\303\267", "\302\270",
+    "\302\260", "\302\250", "\302\267", "\302\271",
+    "\302\263", "\302\262", "\342\226\240", "\302\240"};
+
+
+
+static void mapCodePageToUtf8 (unsigned char **codePageTable, char *stri)
+
+  {
+    unsigned char *codePageChar;
+    unsigned char *utf8Char;
+    size_t utf8CharLength;
+    unsigned char *utf8;
+    unsigned char utf8Buffer[BUFFER_SIZE];
+
+  /* mapCodePageToUtf8 */
+    utf8 = utf8Buffer;
+    for (codePageChar = stri; *codePageChar != '\0'; codePageChar++) {
+      utf8Char = codePageTable[(unsigned char) *codePageChar];
+      utf8CharLength = strlen(utf8Char);
+      memcpy(utf8, utf8Char, utf8CharLength);
+      utf8 += utf8CharLength;
+    } /* for */
+    *utf8 = '\0';
+    strcpy(stri, utf8Buffer);
+  } /* mapCodePageToUtf8 */
+
+
+
+static void mapToUtf8 (int codePage, char *stri)
+
+  { /* mapToUtf8 */
+    if (codePage == 437) {
+      mapCodePageToUtf8(conv_437, stri);
+    } else if (codePage == 850) {
+      mapCodePageToUtf8(conv_850, stri);
+    } else if (codePage == 858) {
+      mapCodePageToUtf8(conv_858, stri);
+    } /* if */
+  } /* mapToUtf8 */
+#endif
+
+
+
 static int linkerOptionAllowed (const char *linkerOption)
 
   {
@@ -6413,8 +6802,13 @@ static void determineOptionForLinkTimeOptimization (FILE *versionFile)
         sprintf(command, "%s %s%s ctest%d%s",
                 ARCHIVER, ARCHIVER_OPT_REPLACE, libraryName,
                 testNumber, OBJECT_FILE_EXTENSION);
+#ifdef ERROR_REDIRECTING_FAILS
+        sprintf(&command[strlen(command)], " %s%s",
+                REDIRECT_FILEDES_1, nullDevice);
+#else
         sprintf(&command[strlen(command)], " %s%s %s%s",
                 REDIRECT_FILEDES_1, nullDevice, REDIRECT_FILEDES_2, nullDevice);
+#endif
         /* fprintf(logFile, "command: %s\n", command); */
         returncode = system(command);
         /* fprintf(logFile, "returncode: %d\n", returncode); */
@@ -9582,6 +9976,84 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
 
 
 
+#ifdef OS_STRI_USES_CODE_PAGE
+static int getCodePage (void)
+
+  {
+    int codePage = 0;
+
+  /* getCodePage */
+    if (compileAndLinkOk("#include<stdio.h>\n"
+                         "#include<dos.h>\n"
+                         "int main (int argc, char *argv[]) {\n"
+                         "union REGS r;\n"
+                         "int code_page;\n"
+                         "r.h.ah = (unsigned char) 0x66;\n"
+                         "r.h.al = (unsigned char) 0x01;\n"
+                         "int86(0x21, &r, &r);\n"
+                         "code_page = r.w.bx;\n"
+                         "printf(\"%d\\n\", code_page);\n"
+                         "return 0; }\n")) {
+      codePage = doTest();
+    } /* if */
+  } /* getCodePage */
+#endif
+
+
+
+static void setPaths (FILE *versionFile, char *s7_lib_dir, char *seed7_library,
+    char *cc_env_ini, char *cwd)
+
+  {
+    size_t cwd_length;
+    char path_buffer[BUFFER_SIZE];
+
+  /* setPaths */
+    cwd_length = strlen(cwd);
+    if (s7_lib_dir != NULL) {
+      if (cc_env_ini != NULL) {
+        fprintf(versionFile, "#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
+                s7_lib_dir, cc_env_ini);
+      } /* if */
+#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
+      fprintf(versionFile, "#define C_COMPILER \"%s/%s\"\n",
+              s7_lib_dir, C_COMPILER_SCRIPT);
+      fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", versionFile);
+#endif
+      fprintf(versionFile, "#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
+    } else {
+      if (cwd_length >= 4 && memcmp(&cwd[cwd_length - 4], "/src", 4) == 0) {
+        memcpy(path_buffer, cwd, cwd_length + 1);
+        memcpy(&path_buffer[cwd_length - 3], "bin", 3);
+        if (cc_env_ini != NULL) {
+          fprintf(versionFile, "#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
+                 path_buffer, cc_env_ini);
+        } /* if */
+#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
+        fprintf(versionFile, "#define C_COMPILER \"%s/%s\"\n",
+               path_buffer, C_COMPILER_SCRIPT);
+        fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", versionFile);
+#endif
+        fprintf(versionFile, "#define S7_LIB_DIR \"%s\"\n", path_buffer);
+      } /* if */
+    } /* if */
+    if (seed7_library != NULL) {
+      fprintf(versionFile, "#define SEED7_LIBRARY \"%s\"\n", seed7_library);
+    } else {
+      if (cwd_length >= 4 && memcmp(&cwd[cwd_length - 4], "/src", 4) == 0) {
+        memcpy(path_buffer, cwd, cwd_length + 1);
+        if (fileIsDir("../lib")) {
+          memcpy(&path_buffer[cwd_length - 3], "lib", 3);
+        } else {
+          memcpy(&path_buffer[cwd_length - 3], "prg", 3);
+        } /* if */
+        fprintf(versionFile, "#define SEED7_LIBRARY \"%s\"\n", path_buffer);
+      } /* if */
+    } /* if */
+  } /* setPaths */
+
+
+
 static FILE *openVersionFile (const char *versionFileName)
 
   {
@@ -9623,6 +10095,12 @@ int main (int argc, char **argv)
   {
     char *versionFileName = NULL;
     FILE *versionFile = NULL;
+    char **curr_arg;
+    char *s7_lib_dir = NULL;
+    char *seed7_library = NULL;
+    char *cc_env_ini = NULL;
+    char currentWorkingDirectory[BUFFER_SIZE] = "";
+    int codePage = 0;
     int driveLetters;
 
   /* main */
@@ -9631,6 +10109,18 @@ int main (int argc, char **argv)
     } /* if */
     if (argc >= 2) {
       versionFileName = argv[1];
+      for (curr_arg = &argv[2]; *curr_arg != NULL; curr_arg++) {
+        if (memcmp(*curr_arg, "S7_LIB_DIR=", 11 * sizeof(char)) == 0 &&
+            (*curr_arg)[11] != '\0') {
+          s7_lib_dir = &(*curr_arg)[11];
+        } else if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
+                   (*curr_arg)[14] != '\0') {
+          seed7_library = &(*curr_arg)[14];
+        } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
+                   (*curr_arg)[19] != '\0') {
+          cc_env_ini = &(*curr_arg)[19];
+        } /* if */
+      } /* for */
       if (fileIsRegular(versionFileName)) {
         fprintf(stdout, "Truncating existing \"%s\".\n", versionFileName);
       } /* if */
@@ -9673,6 +10163,15 @@ int main (int argc, char **argv)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define C_VERSION %d\n", doTest());
     } /* if */
+#ifdef OS_STRI_USES_CODE_PAGE
+    codePage = getCodePage();
+    fprintf(versionFile, "#define DEFAULT_CODE_PAGE %d\n", codePage);
+#endif
+    determineCurrentWorkingDirectory(currentWorkingDirectory);
+#ifdef OS_STRI_USES_CODE_PAGE
+    mapToUtf8(codePage, currentWorkingDirectory);
+#endif
+    fprintf(versionFile, "#define BUILD_DIRECTORY \"%s\"\n", currentWorkingDirectory);
     fprintf(logFile, " done\n");
     determineOptionForLinkTimeOptimization(versionFile);
     determinePartialLinking(versionFile);
@@ -10103,6 +10602,7 @@ int main (int argc, char **argv)
       fprintf(logFile, "%lu times tests succeeded after restart.\n",
               numberOfSuccessfulTestsAfterRestart);
     } /* if */
+    setPaths(versionFile, s7_lib_dir, seed7_library, cc_env_ini, currentWorkingDirectory);
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");

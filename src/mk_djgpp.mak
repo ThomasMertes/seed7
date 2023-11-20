@@ -129,7 +129,12 @@ sql_srv.o: sql_srv.c
 
 clean:
 	del *.o
-	del $(ALL_S7_LIBS)
+	del ..\bin\$(COMPILER_LIB)
+	del ..\bin\$(COMP_DATA_LIB)
+	del ..\bin\$(DRAW_LIB)
+	del ..\bin\$(CONSOLE_LIB)
+	del ..\bin\$(DATABASE_LIB)
+	del ..\bin\$(SEED7_LIB)
 	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7.exe
@@ -184,6 +189,7 @@ chkccomp.h:
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" > chkccomp.h
 	$(ECHO) "#define UNIX_DO_SLEEP" >> chkccomp.h
 	$(ECHO) "#define ERROR_REDIRECTING_FAILS" >> chkccomp.h
+	$(ECHO) "#define LIMIT_PRINTF_MAXIMUM_FLOAT_PRECISION 512" >> chkccomp.h
 	$(ECHO) "#define USE_GMP 0" >> chkccomp.h
 	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> chkccomp.h
 	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> chkccomp.h
@@ -198,6 +204,7 @@ base.h:
 	$(ECHO) "#define CC_ERROR_FILEDES 0" >> base.h
 	$(ECHO) "#define CC_VERSION_INFO_FILEDES 1" >> base.h
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> base.h
+	$(ECHO) "#define OS_STRI_USES_CODE_PAGE" >> base.h
 	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 	$(ECHO) "#define SYSTEM_MATH_LIBS \"$(SYSTEM_MATH_LIBS)\"" >> base.h
 
@@ -207,7 +214,6 @@ settings.h:
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> settings.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> settings.h
 	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> settings.h
-	$(ECHO) "#define OS_STRI_USES_CODE_PAGE" >> settings.h
 	$(ECHO) "#define MAP_LONG_FILE_NAMES_TO_SHORT" >> settings.h
 	$(ECHO) "#define USE_CONSOLE_FOR_PROT_CSTRI" >> settings.h
 	$(ECHO) "#define LIBRARY_FILE_EXTENSION \".a\"" >> settings.h
@@ -226,10 +232,7 @@ settings.h:
 version.h: chkccomp.exe base.h settings.h
 	@$(ECHO)
 	@$(ECHO) "The following C compiler errors can be safely ignored"
-	.\chkccomp.exe version.h
-	$(CC) setpaths.c -o setpaths.exe
-	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
-	del setpaths.exe
+	.\chkccomp.exe version.h S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY)
 	copy version.h vers_djg.h /Y
 
 chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h

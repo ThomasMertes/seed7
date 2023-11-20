@@ -269,11 +269,8 @@ settings.h:
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
 
 version.h: chkccomp.exe base.h settings.h
-	.\chkccomp.exe version.h
+	.\chkccomp.exe version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)"
 	set > ..\bin\$(CC_ENVIRONMENT_INI)
-	$(CC) setpaths.c -o setpaths.exe
-	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
-	del setpaths.exe
 	copy version.h vers_clangw.h /Y
 
 chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h

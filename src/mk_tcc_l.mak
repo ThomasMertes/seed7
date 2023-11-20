@@ -241,10 +241,7 @@ settings.h:
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
 
 version.h: chkccomp base.h settings.h
-	./chkccomp version.h
-	$(CC) setpaths.c -o setpaths
-	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
-	rm setpaths
+	./chkccomp version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)"
 	cp version.h vers_tcc_l.h
 
 chkccomp: chkccomp.c chkccomp.h base.h settings.h

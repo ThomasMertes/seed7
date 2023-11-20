@@ -292,12 +292,9 @@ settings.h:
 	echo #define SPECIAL_LIB "$(SPECIAL_LIB)" >> settings.h
 
 version.h: chkccomp.exe base.h settings.h
-	.\chkccomp.exe version.h
+	.\chkccomp.exe version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)"
 	del ctest*.wasm
 	set > ..\bin\$(CC_ENVIRONMENT_INI)
-	gcc setpaths.c -o setpaths
-	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
-	del setpaths.exe
 	copy version.h vers_emccw.h /Y
 
 chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h
