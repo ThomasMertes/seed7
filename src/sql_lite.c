@@ -2337,7 +2337,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
     const strElemType dbExtension[] = {'.', 'd', 'b'};
     const memSizeType extensionLength = sizeof(dbExtension) / sizeof(strElemType);
     striType dbNameWithExtension = NULL;
-    sqlite3 *connection;
+    sqlite3 *connection = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
     int open_result;
     dbType database;
