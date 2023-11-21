@@ -342,6 +342,10 @@ static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
 static unsigned long numberOfSuccessfulTestsAfterRestart = 0;
 
+static char buildDirectory[BUFFER_SIZE];
+static char s7LibDir[BUFFER_SIZE];
+static char seed7Library[BUFFER_SIZE];
+
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
 static const char *int32TypeStri = NULL;
@@ -1167,7 +1171,6 @@ static int compileAndLinkWithOptionsOk (const char *content, const char *compile
     const char *linkerOptions)
 
   {
-    char fileName[NAME_SIZE];
     int okay = 0;
 
   /* compileAndLinkWithOptionsOk */
@@ -1260,10 +1263,7 @@ static int assertCompAndLnk (const char *content)
 
 static void prepareDoSleep (void)
 
-  {
-    char fileName[NAME_SIZE];
-
-  /* prepareDoSleep */
+  { /* prepareDoSleep */
 #if defined UNIX_DO_SLEEP
     cleanUpCompilation("do_sleep", 0);
     if (!doCompileAndLinkContent("do_sleep",
@@ -6443,6 +6443,7 @@ static void determineOsFunctions (FILE *versionFile)
 static void determineCurrentWorkingDirectory (char *cwd)
 
   { /* determineCurrentWorkingDirectory */
+    cwd[0] = '\0';
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <wchar.h>\n"
                                     "#include <direct.h>\n#include <ctype.h>\n"
                                     "int main(int argc,char *argv[])\n"
@@ -6492,6 +6493,7 @@ static void determineCurrentWorkingDirectory (char *cwd)
 static void determineCurrentWorkingDirectory (char *cwd)
 
   { /* determineCurrentWorkingDirectory */
+    cwd[0] = '\0';
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <unistd.h>\n"
                                     "#include <ctype.h>\n"
                                     "int main(int argc,char *argv[])\n"
@@ -9803,7 +9805,6 @@ static void determineIncludesAndLibs (FILE *versionFile)
     char rpath_buffer[BUFFER_SIZE];
     char *rpath = NULL;
     char rpathOption[BUFFER_SIZE];
-    char buffer[BUFFER_SIZE];
 
   /* determineIncludesAndLibs */
 #if LIBRARY_TYPE == UNIX_LIBRARIES
@@ -10000,56 +10001,71 @@ static int getCodePage (void)
 #endif
 
 
-
-static void setPaths (FILE *versionFile, char *s7_lib_dir, char *seed7_library,
-    char *cc_env_ini, char *cwd)
+static void setS7LibDir (const char *const s7_lib_dir_arg,
+    const char *const build_directory, char *s7_lib_dir)
 
   {
-    size_t cwd_length;
-    char path_buffer[BUFFER_SIZE];
+    size_t path_length;
 
-  /* setPaths */
-    cwd_length = strlen(cwd);
-    if (s7_lib_dir != NULL) {
-      if (cc_env_ini != NULL) {
-        fprintf(versionFile, "#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
-                s7_lib_dir, cc_env_ini);
-      } /* if */
-#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
-      fprintf(versionFile, "#define C_COMPILER \"%s/%s\"\n",
-              s7_lib_dir, C_COMPILER_SCRIPT);
-      fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", versionFile);
-#endif
-      fprintf(versionFile, "#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
+  /* setS7LibDir */
+    if (s7_lib_dir_arg != NULL) {
+      strcpy(s7_lib_dir, s7_lib_dir_arg);
     } else {
-      if (cwd_length >= 4 && memcmp(&cwd[cwd_length - 4], "/src", 4) == 0) {
-        memcpy(path_buffer, cwd, cwd_length + 1);
-        memcpy(&path_buffer[cwd_length - 3], "bin", 3);
-        if (cc_env_ini != NULL) {
-          fprintf(versionFile, "#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
-                 path_buffer, cc_env_ini);
-        } /* if */
-#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
-        fprintf(versionFile, "#define C_COMPILER \"%s/%s\"\n",
-               path_buffer, C_COMPILER_SCRIPT);
-        fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", versionFile);
-#endif
-        fprintf(versionFile, "#define S7_LIB_DIR \"%s\"\n", path_buffer);
+      path_length = strlen(build_directory);
+      if (path_length >= 4 && memcmp(&build_directory[path_length - 4], "/src", 4) == 0) {
+        memcpy(s7_lib_dir, build_directory, path_length - 3);
+        memcpy(&s7_lib_dir[path_length - 3], "bin", 3);
+        s7_lib_dir[path_length] = '\0';
+      } else {
+        s7_lib_dir[0] = '\0';
       } /* if */
     } /* if */
-    if (seed7_library != NULL) {
-      fprintf(versionFile, "#define SEED7_LIBRARY \"%s\"\n", seed7_library);
+  } /* setS7LibDir */
+
+
+
+static void setSeed7Library (const char *const seed7_library_arg,
+    const char *const build_directory, char *seed7_library)
+
+  {
+    size_t path_length;
+
+  /* setSeed7Library */
+    if (seed7_library_arg != NULL) {
+      strcpy(seed7_library, seed7_library_arg);
     } else {
-      if (cwd_length >= 4 && memcmp(&cwd[cwd_length - 4], "/src", 4) == 0) {
-        memcpy(path_buffer, cwd, cwd_length + 1);
+      path_length = strlen(build_directory);
+      if (path_length >= 4 && memcmp(&build_directory[path_length - 4], "/src", 4) == 0) {
+        memcpy(seed7_library, build_directory, path_length - 3);
         if (fileIsDir("../lib")) {
-          memcpy(&path_buffer[cwd_length - 3], "lib", 3);
+          memcpy(&seed7_library[path_length - 3], "lib", 3);
         } else {
-          memcpy(&path_buffer[cwd_length - 3], "prg", 3);
+          memcpy(&seed7_library[path_length - 3], "prg", 3);
         } /* if */
-        fprintf(versionFile, "#define SEED7_LIBRARY \"%s\"\n", path_buffer);
+        seed7_library[path_length] = '\0';
+      } else {
+        seed7_library[0] = '\0';
       } /* if */
     } /* if */
+  } /* setSeed7Library */
+
+
+
+static void setPaths (FILE *versionFile, char *s7_lib_dir, char *seed7_library,
+    char *cc_environment_ini)
+
+  { /* setPaths */
+    if (cc_environment_ini != NULL) {
+      fprintf(versionFile, "#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
+              s7_lib_dir, cc_environment_ini);
+    } /* if */
+#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
+    fprintf(versionFile, "#define C_COMPILER \"%s/%s\"\n",
+            s7_lib_dir, C_COMPILER_SCRIPT);
+    fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", versionFile);
+#endif
+    fprintf(versionFile, "#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
+    fprintf(versionFile, "#define SEED7_LIBRARY \"%s\"\n", seed7_library);
   } /* setPaths */
 
 
@@ -10096,10 +10112,9 @@ int main (int argc, char **argv)
     char *versionFileName = NULL;
     FILE *versionFile = NULL;
     char **curr_arg;
-    char *s7_lib_dir = NULL;
-    char *seed7_library = NULL;
-    char *cc_env_ini = NULL;
-    char currentWorkingDirectory[BUFFER_SIZE] = "";
+    char *s7_lib_dir_arg = NULL;
+    char *seed7_library_arg = NULL;
+    char *cc_environment_ini_arg = NULL;
     int codePage = 0;
     int driveLetters;
 
@@ -10112,13 +10127,13 @@ int main (int argc, char **argv)
       for (curr_arg = &argv[2]; *curr_arg != NULL; curr_arg++) {
         if (memcmp(*curr_arg, "S7_LIB_DIR=", 11 * sizeof(char)) == 0 &&
             (*curr_arg)[11] != '\0') {
-          s7_lib_dir = &(*curr_arg)[11];
+          s7_lib_dir_arg = &(*curr_arg)[11];
         } else if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
                    (*curr_arg)[14] != '\0') {
-          seed7_library = &(*curr_arg)[14];
+          seed7_library_arg = &(*curr_arg)[14];
         } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
                    (*curr_arg)[19] != '\0') {
-          cc_env_ini = &(*curr_arg)[19];
+          cc_environment_ini_arg = &(*curr_arg)[19];
         } /* if */
       } /* for */
       if (fileIsRegular(versionFileName)) {
@@ -10167,11 +10182,13 @@ int main (int argc, char **argv)
     codePage = getCodePage();
     fprintf(versionFile, "#define DEFAULT_CODE_PAGE %d\n", codePage);
 #endif
-    determineCurrentWorkingDirectory(currentWorkingDirectory);
+    determineCurrentWorkingDirectory(buildDirectory);
 #ifdef OS_STRI_USES_CODE_PAGE
-    mapToUtf8(codePage, currentWorkingDirectory);
+    mapToUtf8(codePage, buildDirectory);
 #endif
-    fprintf(versionFile, "#define BUILD_DIRECTORY \"%s\"\n", currentWorkingDirectory);
+    fprintf(versionFile, "#define BUILD_DIRECTORY \"%s\"\n", buildDirectory);
+    setS7LibDir(s7_lib_dir_arg, buildDirectory, s7LibDir);
+    setSeed7Library(seed7_library_arg, buildDirectory, seed7Library);
     fprintf(logFile, " done\n");
     determineOptionForLinkTimeOptimization(versionFile);
     determinePartialLinking(versionFile);
@@ -10602,7 +10619,7 @@ int main (int argc, char **argv)
       fprintf(logFile, "%lu times tests succeeded after restart.\n",
               numberOfSuccessfulTestsAfterRestart);
     } /* if */
-    setPaths(versionFile, s7_lib_dir, seed7_library, cc_env_ini, currentWorkingDirectory);
+    setPaths(versionFile, s7LibDir, seed7Library, cc_environment_ini_arg);
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");
