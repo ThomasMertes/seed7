@@ -637,6 +637,11 @@ objectType cmd_move (listType arguments)
 
 /**
  *  Reads the destination of a symbolic link.
+ *  This function reads the link destination from the file system
+ *  without any change. Symbolic links can be relative or absolute.
+ *  Relative symbolic links are relative to their place in the
+ *  file system and not relative to the current working directory.
+ *  @param filePath/arg_1 Relative or absolute path of a symbolic link.
  *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type or not enough memory to
@@ -644,7 +649,7 @@ objectType cmd_move (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist or is not a symbolic link.
  */
 objectType cmd_read_link (listType arguments)
@@ -659,6 +664,12 @@ objectType cmd_read_link (listType arguments)
 
 /**
  *  Reads the absolute destination path of a symbolic link.
+ *  Symbolic links can be relative or absolute. Relative symbolic links
+ *  are relative to their place in the file system and not relative to
+ *  the current working directory. For a relative symbolic link
+ *  'filePath' is converted to an absolute path and the symbolic
+ *  link is concatenated to that path.
+ *  @param filePath/arg_1 Relative or absolute path of a symbolic link.
  *  @return The absolute destination path referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type or not enough memory to
@@ -666,7 +677,7 @@ objectType cmd_read_link (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist or is not a symbolic link.
  */
 objectType cmd_read_link_absolute (listType arguments)

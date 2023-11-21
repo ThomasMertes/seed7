@@ -1383,17 +1383,17 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                        striAsUnquotedCStri(filePath), *err_info););
     os_filePath = cp_to_os_path(filePath, &path_info, err_info);
     if (unlikely(os_filePath == NULL)) {
-      logError(printf("cmdReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
+      logError(printf("doReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, *err_info););
     } else {
       if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
-        logError(printf("cmdReadLink: os_lstat(" FMT_S_OS ", *) failed:\n"
+        logError(printf("doReadLink: os_lstat(" FMT_S_OS ", *) failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_filePath, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
-        logError(printf("cmdReadLink: "
+        logError(printf("doReadLink: "
                         "The file " FMT_S_OS " is not a symbolic link.\n",
                         os_filePath););
         *err_info = FILE_ERROR;
@@ -1413,14 +1413,14 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
           readlink_result = readlink(os_filePath, link_destination,
                                      (size_t) (link_size + NULL_TERMINATION_LEN));
           if (unlikely(readlink_result < 0)) {
-            logError(printf("cmdReadLink: "
+            logError(printf("doReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "errno=%d\nerror: %s\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN,
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
           } else if (unlikely((memSizeType) readlink_result > link_size)) {
-            logError(printf("cmdReadLink: "
+            logError(printf("doReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "Link destination possibly truncated.\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN););
@@ -1429,7 +1429,7 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
             link_destination[readlink_result] = '\0';
             destination = cp_from_os_path(link_destination, err_info);
             if (unlikely(destination == NULL)) {
-              logError(printf("cmdReadLink: "
+              logError(printf("doReadLink: "
                               "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
                               "err_info=%d\n",
                               link_destination, *err_info););
@@ -3339,6 +3339,11 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
 
 /**
  *  Reads the destination of a symbolic link.
+ *  This function reads the link destination from the file system
+ *  without any change. Symbolic links can be relative or absolute.
+ *  Relative symbolic links are relative to their place in the
+ *  file system and not relative to the current working directory.
+ *  @param filePath Relative or absolute path of a symbolic link.
  *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type or not enough memory to
@@ -3346,7 +3351,7 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist or is not a symbolic link.
  */
 striType cmdReadLink (const const_striType filePath)
@@ -3376,6 +3381,12 @@ striType cmdReadLink (const const_striType filePath)
 
 /**
  *  Reads the absolute destination path of a symbolic link.
+ *  Symbolic links can be relative or absolute. Relative symbolic links
+ *  are relative to their place in the file system and not relative to
+ *  the current working directory. For a relative symbolic link
+ *  'filePath' is converted to an absolute path and the symbolic
+ *  link is concatenated to that path.
+ *  @param filePath Relative or absolute path of a symbolic link.
  *  @return The absolute destination path referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type or not enough memory to
@@ -3383,7 +3394,7 @@ striType cmdReadLink (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist or is not a symbolic link.
  */
 striType cmdReadLinkAbsolute (const const_striType filePath)

@@ -315,6 +315,13 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
 
 (**
  *  Reads the destination of a symbolic link.
+ *  This function reads the link destination from the file system
+ *  without any change. Symbolic links can be relative or absolute.
+ *  Relative symbolic links are relative to their place in the
+ *  file system and not relative to the current working directory.
+ *   readLink("/aDir/symbolicLink")            returns e.g. "../linkDest"
+ *   readLink("/aDir/symbolicLink", ABSOLUTE)  returns e.g. "/aDir/linkDest"
+ *  @param filePath Relative or absolute path of a symbolic link.
  *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type or not enough memory to
@@ -322,7 +329,7 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
  *             exist or is not a symbolic link.
  *)
 const func string: readLink (in string: filePath)            is action "CMD_READ_LINK";
@@ -335,6 +342,14 @@ const func string: readlink (in string: filePath) is
 
 (**
  *  Reads the absolute destination path of a symbolic link.
+ *  Symbolic links can be relative or absolute. Relative symbolic links
+ *  are relative to their place in the file system and not relative to
+ *  the current working directory. For a relative symbolic link
+ *  ''filePath'' is converted to an absolute path and the symbolic
+ *  link is concatenated to that path.
+ *   readLink("/aDir/symbolicLink")            returns e.g. "../linkDest"
+ *   readLink("/aDir/symbolicLink", ABSOLUTE)  returns e.g. "/aDir/linkDest"
+ *  @param filePath Relative or absolute path of a symbolic link.
  *  @return The absolute destination path referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type or not enough memory to
@@ -342,7 +357,7 @@ const func string: readlink (in string: filePath) is
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with the path does not
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
  *             exist or is not a symbolic link.
  *)
 const func string: readLink (in string: filePath, ABSOLUTE)  is action "CMD_READ_LINK_ABSOLUTE";
