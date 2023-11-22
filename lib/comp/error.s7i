@@ -236,6 +236,29 @@ const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
   end func;
 
 
+const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: currentVariable,
+    in reference: inoutParam, in expr_type: c_expr) is func
+  begin
+    if warning_level >= 1 then
+      writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
+              "): The variable " <& literal(str(currentVariable)) <&
+              " is used for two or more inout-parameters (" <& str(inoutParam) <& ").");
+    end if;
+  end func;
+
+
+const proc: error (VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER, in reference: currentVariable,
+    in reference: inoutParam, in reference: refParam, in expr_type: c_expr) is func
+  begin
+    if warning_level >= 1 then
+      writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
+              "): The variable " <& literal(str(currentVariable)) <&
+              " is used as inout-parameter (" <& str(inoutParam) <&
+              ") and ref-parameter (" <& str(refParam) <& ").");
+    end if;
+  end func;
+
+
 const proc: error (FORWARD_CALLED, in reference: current_expression,
     in reference: function) is func
   begin

@@ -1291,6 +1291,42 @@ const proc: processFuncParam (in reference: formal_param,
   end func;
 
 
+const proc: checkParameterAliasing (in ref_list: formalParams,
+    in ref_list: actualParams, in expr_type: c_expr) is func
+
+  local
+    var integer: checkedParamNumber is 0;
+    var reference: formalParam is NIL;
+    var reference: checkedActualInOutParam is NIL;
+    var integer: paramNumber is 0;
+    var reference: actualParam is NIL;
+    var bitset: alreadyComplained is {};
+  begin
+    for checkedParamNumber range 1 to length(formalParams) do
+      formalParam := formalParams[checkedParamNumber];
+      if isInOutParam(formalParam) then
+        checkedActualInOutParam := actualParams[checkedParamNumber];
+        for paramNumber range 1 to length(actualParams) do
+          actualParam := actualParams[paramNumber];
+          if paramNumber <> checkedParamNumber and
+              actualParam = checkedActualInOutParam then
+            if isInOutParam(formalParams[paramNumber]) then
+              if checkedParamNumber not in alreadyComplained then
+                error(VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS,
+                      actualParam, formalParam, c_expr);
+                incl(alreadyComplained, checkedParamNumber);
+              end if;
+            elsif category(formalParams[paramNumber]) = REFPARAMOBJECT then
+              error(VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER,
+                    actualParam, formalParam, formalParams[paramNumber], c_expr);
+            end if;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
 const proc: call_params (in ref_list: formal_params,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
@@ -1302,7 +1338,7 @@ const proc: call_params (in ref_list: formal_params,
     var boolean: first_element is TRUE;
     var integer: temp_num is 0;
   begin
-#    for number range 1 to length(formal_params) do
+    checkParameterAliasing(formal_params, actual_params, c_expr);
     for number range 1 to length(actual_params) do
       formal_param := formal_params[number];
       actual_param := actual_params[number];
@@ -1405,6 +1441,8 @@ const proc: process_const_func_call (in reference: function,
     function_type := getType(function);
     result_type := resultType(function_type);
     formal_params := formalParams(function);
+    c_params.currentFile := c_expr.currentFile;
+    c_params.currentLine := c_expr.currentLine;
     if valueIsAtHeap(result_type) and
         not isVarfunc(function_type) and
         function not in return_ref_to_value then
