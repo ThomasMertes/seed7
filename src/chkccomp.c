@@ -5904,13 +5904,12 @@ static void determineStatFunctions (FILE *versionFile)
     int has_struct_stati64 = 0;
 
   /* determineStatFunctions */
-#if !defined os_lstat || !defined os_stat
-    fputs("#define DEFINE_WSTATI64_EXT\n", versionFile);
-#endif
 #ifndef os_lstat
-    fputs("#define os_lstat wstati64Ext\n", versionFile);
+    fputs("#define DEFINE_LSTATI64_EXT\n", versionFile);
+    fputs("#define os_lstat lstati64Ext\n", versionFile);
 #endif
 #ifndef os_stat
+    fputs("#define DEFINE_WSTATI64_EXT\n", versionFile);
     fputs("#define os_stat wstati64Ext\n", versionFile);
 #endif
 #ifndef os_stat_struct

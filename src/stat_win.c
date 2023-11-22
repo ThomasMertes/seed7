@@ -207,8 +207,7 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
     int result = 0;
 
   /* wstati64Ext */
-    logFunction(printf("wstati64Ext(\"%ls\", *)", path);
-                fflush(stdout););
+    logFunction(printf("wstati64Ext(\"%ls\", *)\n", path););
     if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
       /* The function os_stat_orig() fails with ENOENT, if the path is     */
       /* longer than MAX_PATH. So GetFileAttributesExW(), which works with */
@@ -272,9 +271,55 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       result = -1;
 #endif
     } /* if */
-    logFunctionResult(printf("%d\n", result););
+    logFunction(printf("wstati64Ext --> %d\n", result););
     return result;
   } /* wstati64Ext */
+#endif
+
+
+
+#ifdef DEFINE_LSTATI64_EXT
+int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
+
+  {
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    HANDLE fileHandle;
+    int result;
+
+  /* lstati64Ext */
+    logFunction(printf("lstati64Ext(\"%ls\", *)\n", path););
+    result = wstati64Ext(path, statBuf);
+    if (result == 0) {
+      if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
+        /* printf("dwFileAttributes: " FMT_X32 "\n", fileInfo.dwFileAttributes); */
+        if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+          statBuf->st_mode = S_IFLNK | S_IRUSR | S_IRGRP | S_IROTH |
+                                       S_IWUSR | S_IWGRP | S_IWOTH |
+                                       S_IXUSR | S_IXGRP | S_IXOTH;
+          fileHandle = CreateFileW(path, 0, FILE_SHARE_READ, NULL,
+                                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
+                                   FILE_FLAG_BACKUP_SEMANTICS, NULL);
+          if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+            statBuf->st_size = 0;
+          } else {
+            /* Compute the length of the symbolic link. */
+            /* Surrogate pairs are not considered.      */
+            /* A link with surrogate pairs will have    */
+            /* fewer UTF-32 characters.                 */
+            statBuf->st_size = (int64Type)
+                GetFinalPathNameByHandleW(fileHandle, NULL, 0, FILE_NAME_OPENED);
+            statBuf->st_size -= NULL_TERMINATION_LEN;
+#if USE_EXTENDED_LENGTH_PATH
+            statBuf->st_size -= PREFIX_LEN;
+#endif
+            CloseHandle(fileHandle);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("lstati64Ext --> %d\n", result););
+    return result;
+  } /* lstati64Ext */
 #endif
 
 
@@ -295,8 +340,7 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
     int result;
 
   /* fstati64Ext */
-    logFunction(printf("fstati64Ext(%d, *)", fd);
-                fflush(stdout););
+    logFunction(printf("fstati64Ext(%d, *)\n", fd););
     fileHandle = (HANDLE) _get_osfhandle(fd);
 #ifdef os_fstat_orig
     result = os_fstat_orig(fd, &tmp);
@@ -348,7 +392,7 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
       errno = ENOENT;
       result = -1;
     } /* if */
-    logFunctionResult(printf("%d\n", result););
+    logFunction(printf("fstati64Ext --> %d\n", result););
     return result;
   } /* fstati64Ext */
 #endif

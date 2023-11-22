@@ -84,12 +84,12 @@
 #endif
 
 
-#ifndef S_ISLNK
-#ifdef S_IFLNK
-#define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
-#else
-#define S_ISLNK(mode) FALSE
+#ifndef S_IFLNK
+#define S_IFLNK  0120000  /* Symbolic link */
 #endif
+
+#ifndef S_ISLNK
+#define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
 #endif
 
 #ifndef S_ISSOCK
@@ -212,6 +212,9 @@ struct stati64Ext {
 
 #ifdef DEFINE_WSTATI64_EXT
 int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
+#endif
+#ifdef DEFINE_LSTATI64_EXT
+int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
 #endif
 #ifdef DEFINE_FSTATI64_EXT
 int fstati64Ext (int fd, os_fstat_struct *statBuf);

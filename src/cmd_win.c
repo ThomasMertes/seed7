@@ -547,6 +547,76 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
 
 
 
+striType winReadLink (const const_striType filePath, errInfoType *err_info)
+
+  {
+    os_striType os_filePath;
+    int path_info;
+    HANDLE fileHandle;
+    os_charType buffer[PATH_MAX];
+    os_striType bufferPtr;
+    DWORD bufferSize;
+    DWORD linkSize;
+    striType destination = NULL;
+
+  /* winReadLink */
+    logFunction(printf("winReadLink(\"%s\", %d)\n",
+                       striAsUnquotedCStri(filePath), *err_info););
+    os_filePath = cp_to_os_path(filePath, &path_info, err_info);
+    if (unlikely(os_filePath == NULL)) {
+      logError(printf("winReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, *err_info););
+    } else {
+      fileHandle = CreateFileW(os_filePath, 0, FILE_SHARE_READ,
+                               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("winReadLink: OpenFileW(\"%ls\", *, OF_READ) failed\n"
+                        os_filePath););
+        *err_info = FILE_ERROR;
+      } else {
+        bufferSize = (DWORD) (sizeof(buffer) / sizeof(os_charType));
+        linkSize = GetFinalPathNameByHandleW(fileHandle, buffer,
+                                             bufferSize, FILE_NAME_OPENED);
+        if (unlikely(linkSize == 0)) {
+          logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+          *err_info = FILE_ERROR;
+        } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
+          destination = cp_from_os_path(buffer, err_info);
+        } else {
+          do {
+            bufferSize = linkSize;
+            if (unlikely(!os_stri_alloc(bufferPtr, (memSizeType) bufferSize))) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              linkSize = GetFinalPathNameByHandleW(fileHandle, bufferPtr,
+                                                   bufferSize, FILE_NAME_OPENED);
+              if (unlikely(linkSize == 0)) {
+                logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+                *err_info = FILE_ERROR;
+              } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
+                destination = cp_from_os_path(buffer, err_info);
+              } else if (linkSize <= bufferSize) {
+                logError(printf("winReadLink: GetFinalPathNameByHandle loop\n"););
+                *err_info = FILE_ERROR;
+              } /* if */
+              os_stri_free(bufferPtr);
+            } /* if */
+          } while (destination == NULL && *err_info == OKAY_NO_ERROR);
+        } /* if */
+        CloseHandle(fileHandle);
+      } /* if */
+      os_stri_free(os_filePath);
+    } /* if */
+    logFunction(printf("winReadLink(\"%s\", %d) --> ",
+                       striAsUnquotedCStri(filePath), *err_info);
+                printf("\"%s\"\n", striAsUnquotedCStri(destination)););
+    return destination;
+  } /* winReadLink */
+
+
+
 striType cmdGetGroup (const const_striType filePath)
 
   {
