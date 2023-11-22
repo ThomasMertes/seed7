@@ -1389,7 +1389,7 @@ const proc: getBounds (in string: array_name, in integer: dimension,
     for key varName range string_var do
       if startsWith(varName, array_name) then
         getBoundsFromIndexPart(varName[succ(length(array_name)) ..],
-            dimension, first, ubound, ubound);
+            dimension, first, lbound, ubound);
       end if;
     end for;
   end func;
