@@ -7187,7 +7187,7 @@ static int canLoadDynamicLibrary (const char *dllName)
     *destChar = '\0';
     sprintf(testProgram,
             "#include <stdio.h>\n#include <windows.h>\n"
-            "int main (int argc, char *argv[0]) {\n"
+            "int main (int argc, char *argv[]) {\n"
             "SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);\n"
             "printf(\"%%d\\n\", LoadLibrary(\"%s\") != NULL);\n"
             "return 0; }\n",
@@ -7195,7 +7195,7 @@ static int canLoadDynamicLibrary (const char *dllName)
 #else
     sprintf(testProgram,
             "#include <stdio.h>\n#include <dlfcn.h>\n"
-            "int main (int argc, char *argv[0]) {\n"
+            "int main (int argc, char *argv[]) {\n"
             "printf(\"%%d\\n\", dlopen(\"%s\", RTLD_LAZY) != NULL);\n"
             "return 0; }\n",
             dllName);
@@ -7391,9 +7391,9 @@ static void defineLibraryMacro (const char *scopeName, int dbHomeExists,
                                  dllNameListLength, versionFile);
       } /* for */
       for (nameIndex = 0; nameIndex < dllNameListLength; nameIndex++) {
-        fprintf(logFile, "\r%s: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)\n",
                 scopeName, dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -7469,9 +7469,9 @@ static void addDynamicLib (const char *scopeName,
     for (nameIndex = 0;
          nameIndex < dllNameListLength;
          nameIndex++) {
-      fprintf(logFile, "\r%s: DLL / Shared library: %s (%spresent)\n",
+      fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)\n",
               scopeName, dllNameList[nameIndex],
-              canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+              canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
       appendOption(dllList, dllNameList[nameIndex]);
     } /* for */
   } /* addDynamicLib */
@@ -7830,9 +7830,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         for (nameIndex = 0;
              nameIndex < sizeof(dllNameList) / sizeof(char *);
              nameIndex++) {
-          fprintf(logFile, "\rX11: DLL / Shared library: %s (%spresent)\n",
+          fprintf(logFile, "\rX11: DLL / Shared library: %s (%s)\n",
                   dllNameList[nameIndex],
-                  canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                  canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
           fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -7840,9 +7840,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         for (nameIndex = 0;
              nameIndex < sizeof(xRenderDllNameList) / sizeof(char *);
              nameIndex++) {
-          fprintf(logFile, "\rX11_XRENDER: DLL / Shared library: %s (%spresent)\n",
+          fprintf(logFile, "\rX11_XRENDER: DLL / Shared library: %s (%s)\n",
                   xRenderDllNameList[nameIndex],
-                  canLoadDynamicLibrary(xRenderDllNameList[nameIndex]) ? "" : "not ");
+                  canLoadDynamicLibrary(xRenderDllNameList[nameIndex]) ? "present" : "cannot load");
           fprintf(versionFile, " \"%s\",", xRenderDllNameList[nameIndex]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -7972,9 +7972,9 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options,
         for (nameIndex = 0;
              nameIndex < sizeof(dllNameList) / sizeof(char *);
              nameIndex++) {
-          fprintf(logFile, "\rConsole: DLL / Shared library: %s (%spresent)\n",
+          fprintf(logFile, "\rConsole: DLL / Shared library: %s (%s)\n",
                   dllNameList[nameIndex],
-                  canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                  canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
           fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -8140,9 +8140,9 @@ static void determineMySqlDefines (FILE *versionFile,
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rMySql/MariaDb: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rMySql/MariaDb: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -8286,20 +8286,25 @@ static void determineSqliteDefines (FILE *versionFile,
             dllPath[0] = dllPath[1];
             dllPath[1] = ':';
           } /* if */
-          fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%s)",
-                  dllPath, canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
-          dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
-          if (dllPointerSize != 0) {
-            fprintf(logFile, " (%d-bit)", dllPointerSize);
+          fprintf(logFile, "\rSQLite: DLL / Shared library: %s", dllPath);
+          if (fileIsRegular(dllPath)) {
+            fprintf(logFile, " (%s)",
+                    canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
+            dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
+            if (dllPointerSize != 0) {
+              fprintf(logFile, " (%d-bit)", dllPointerSize);
+            } /* if */
+          } else {
+            fprintf(logFile, " (missing)");
           } /* if */
           fprintf(logFile, "\n");
           fprintf(versionFile, " \"%s\",", dllPath);
         } /* for */
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -8698,9 +8703,9 @@ static void determinePostgresDefines (FILE *versionFile,
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -8850,9 +8855,9 @@ static void determineOdbcDefines (FILE *versionFile,
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define ODBC_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rOdbc: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rOdbc: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -9143,9 +9148,9 @@ static void determineFireDefines (FILE *versionFile,
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rFirebird: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rFirebird: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -9301,9 +9306,9 @@ static void determineDb2Defines (FILE *versionFile,
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define DB2_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rDB2: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rDB2: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -9673,9 +9678,9 @@ static void determineSqlServerDefines (FILE *versionFile,
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define SQL_SERVER_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rSQL Server: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rSQL Server: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -9777,9 +9782,9 @@ static void determineTdsDefines (FILE *versionFile,
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define TDS_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rTDS: DLL / Shared library: %s (%spresent)\n",
+        fprintf(logFile, "\rTDS: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
-                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "" : "not ");
+                canLoadDynamicLibrary(dllNameList[nameIndex]) ? "present" : "cannot load");
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
