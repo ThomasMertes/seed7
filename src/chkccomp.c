@@ -8170,6 +8170,7 @@ static void determineSqliteDefines (FILE *versionFile,
     const char *sqliteInclude = NULL;
     char testProgram[BUFFER_SIZE];
     char dllPath[BUFFER_SIZE];
+    int dllPointerSize;
     int dbHomeExists = 0;
 
   /* determineSqliteDefines */
@@ -8273,8 +8274,13 @@ static void determineSqliteDefines (FILE *versionFile,
             dllPath[0] = dllPath[1];
             dllPath[1] = ':';
           } /* if */
-          fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%spresent)\n",
-                  dllPath, canLoadDynamicLibrary(dllPath) ? "" : "not ");
+          fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%s)",
+                  dllPath, canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
+          dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
+          if (dllPointerSize != 0) {
+            fprintf(logFile, " (%d-bit)", dllPointerSize);
+          } /* if */
+          fprintf(logFile, "\n");
           fprintf(versionFile, " \"%s\",", dllPath);
         } /* for */
       } /* if */
