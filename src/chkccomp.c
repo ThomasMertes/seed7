@@ -8197,31 +8197,36 @@ static void determineSqliteDefines (FILE *versionFile,
         fprintf(logFile, "\rSQLite: %s found in %s\n", sqliteInclude, dbHome);
         appendOption(include_options, includeOption);
       } /* if */
-    } else if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "sqlite3_stmt *ppStmt;\n"
-                                           "return 0;}\n",
-                                           includeOption, "")) {
-      sqliteInclude = "sqlite3.h";
-      fprintf(logFile, "\rSQLite: %s found in system include directory.\n", sqliteInclude);
-      appendOption(include_options, includeOption);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
-                                           "#include \"db_lite.h\"\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "sqlite3_stmt *ppStmt;\n"
-                                           "return 0;}\n",
-                                           "", "") ||
-               compileAndLinkWithOptionsOk("#define CDECL\n"
-                                           "#include \"tst_vers.h\"\n"
-                                           "#include \"db_lite.h\"\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "sqlite3_stmt *ppStmt;\n"
-                                           "return 0;}\n",
-                                           "", "")) {
-      sqliteInclude = "db_lite.h";
-      fprintf(logFile, "\rSQLite: %s found in Seed7 include directory.\n", sqliteInclude);
     } /* if */
-    if (sqliteInclude != NULL) {
+    if (sqliteInclude == NULL) {
+      if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "sqlite3_stmt *ppStmt;\n"
+                                      "return 0;}\n",
+                                      includeOption, "")) {
+        sqliteInclude = "sqlite3.h";
+        fprintf(logFile, "\rSQLite: %s found in system include directory.\n", sqliteInclude);
+        appendOption(include_options, includeOption);
+      } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                             "#include \"db_lite.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "sqlite3_stmt *ppStmt;\n"
+                                             "return 0;}\n",
+                                             "", "") ||
+                 compileAndLinkWithOptionsOk("#define CDECL\n"
+                                             "#include \"tst_vers.h\"\n"
+                                             "#include \"db_lite.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "sqlite3_stmt *ppStmt;\n"
+                                             "return 0;}\n",
+                                             "", "")) {
+        sqliteInclude = "db_lite.h";
+        fprintf(logFile, "\rSQLite: %s found in Seed7 include directory.\n", sqliteInclude);
+      } /* if */
+    } /* if */
+    if (sqliteInclude == NULL) {
+      fprintf(logFile, "\rSQLite: ***** No include file found. Cannot define SQLITE_INCLUDE.\n");
+    } else {
       fprintf(versionFile, "#define SQLITE_INCLUDE \"%s\"\n", sqliteInclude);
     } /* if */
 #ifndef SQLITE_USE_DLL
