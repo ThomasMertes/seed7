@@ -3369,7 +3369,7 @@ striType cmdReadLink (const const_striType filePath)
       raise_error(err_info);
     } /* if */
 #else
-#ifdef OS_STRI_WCHAR
+#ifdef DEFINE_WIN_READ_LINK
     destination = winReadLink(filePath, &err_info);
     if (unlikely(destination == NULL)) {
       raise_error(err_info);
@@ -3419,7 +3419,7 @@ striType cmdReadLinkAbsolute (const const_striType filePath)
       raise_error(err_info);
     } /* if */
 #else
-#ifdef OS_STRI_WCHAR
+#ifdef DEFINE_WIN_READ_LINK
     destination = winReadLink(filePath, &err_info);
     if (unlikely(destination == NULL)) {
       raise_error(err_info);

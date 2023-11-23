@@ -547,6 +547,7 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
 
 
 
+#ifdef DEFINE_WIN_READ_LINK
 striType winReadLink (const const_striType filePath, errInfoType *err_info)
 
   {
@@ -614,6 +615,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                 printf("\"%s\"\n", striAsUnquotedCStri(destination)););
     return destination;
   } /* winReadLink */
+#endif
 
 
 

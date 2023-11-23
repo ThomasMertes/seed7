@@ -6258,6 +6258,18 @@ static void determineOsWCharFunctions (FILE *versionFile)
       fputs("#define os_setmode _setmode\n", versionFile);
     } /* if */
 #endif
+    if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{HANDLE fileHandle;\n"
+                         "fileHandle = CreateFile(\"tst_vers.h\", 0, FILE_SHARE_READ, NULL,\n"
+                         "    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |\n"
+                         "    FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
+                         "printf(\"%d\\n\", fileHandle != INVALID_HANDLE_VALUE &&\n"
+                         "    GetFinalPathNameByHandleW(fileHandle,\n"
+                         "        NULL, 0, FILE_NAME_OPENED) != 0);\n"
+                         "return 0;}\n")) {
+      fputs("#define DEFINE_WIN_READ_LINK\n", versionFile);
+    } /* if */
   } /* determineOsWCharFunctions */
 #endif
 

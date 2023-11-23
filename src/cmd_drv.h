@@ -70,7 +70,7 @@ int wsetenv (const const_os_striType name, const const_os_striType value,
 #ifdef DEFINE_WUNSETENV
 int wunsetenv (const const_os_striType name);
 #endif
-#ifdef OS_STRI_WCHAR
+#ifdef DEFINE_WIN_READ_LINK
 striType winReadLink (const const_striType filePath, errInfoType *err_info);
 #endif
 striType cmdGetGroup (const const_striType filePath);

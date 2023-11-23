@@ -296,6 +296,7 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
           statBuf->st_mode = S_IFLNK | S_IRUSR | S_IRGRP | S_IROTH |
                                        S_IWUSR | S_IWGRP | S_IWOTH |
                                        S_IXUSR | S_IXGRP | S_IXOTH;
+#ifdef DEFINE_WIN_READ_LINK
           fileHandle = CreateFileW(path, 0, FILE_SHARE_READ, NULL,
                                    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
                                    FILE_FLAG_BACKUP_SEMANTICS, NULL);
@@ -314,6 +315,9 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
 #endif
             CloseHandle(fileHandle);
           } /* if */
+#else
+          statBuf->st_size = 0;
+#endif
         } /* if */
       } /* if */
     } /* if */
