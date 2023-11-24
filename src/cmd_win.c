@@ -573,13 +573,15 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
       if (unlikely(
           GetFileAttributesExW(os_filePath, GetFileExInfoStandard,
                                &fileInfo) == 0)) {
-        logError(printf("doReadLink: GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
+        logError(printf("winReadLink(\"%s\", *): "
+                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
                         "lastError=" FMT_U32 "\n",
-                        os_filePath, (uint32Type) GetLastError()););
+                        striAsUnquotedCStri(filePath), os_filePath,
+                        (uint32Type) GetLastError()););
         *err_info = FILE_ERROR;
       } else if (unlikely(
           (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0)) {
-        logError(printf("doReadLink(\"%s\", *): "
+        logError(printf("winReadLink(\"%s\", *): "
                         "The file \"" FMT_S_OS "\" is not a reparse point.\n",
                         striAsUnquotedCStri(filePath), os_filePath););
         *err_info = FILE_ERROR;
@@ -588,15 +590,18 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-          logError(printf("winReadLink: CreateFileW(\"" FMT_S_OS "\", *) failed\n"
-                          os_filePath););
+          logError(printf("winReadLink(\"%s\", *): "
+                          "CreateFileW(\"" FMT_S_OS "\", *) failed\n",
+                          striAsUnquotedCStri(filePath), os_filePath););
           *err_info = FILE_ERROR;
         } else {
           bufferSize = (DWORD) (sizeof(buffer) / sizeof(os_charType));
           linkSize = GetFinalPathNameByHandleW(fileHandle, buffer,
                                                bufferSize, FILE_NAME_OPENED);
           if (unlikely(linkSize == 0)) {
-            logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+            logError(printf("winReadLink(\"%s\", *): "
+                            "GetFinalPathNameByHandle failed\n",
+                            striAsUnquotedCStri(filePath)););
             *err_info = FILE_ERROR;
           } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
             destination = cp_from_os_path(buffer, err_info);
@@ -609,12 +614,16 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                 linkSize = GetFinalPathNameByHandleW(fileHandle, bufferPtr,
                                                      bufferSize, FILE_NAME_OPENED);
                 if (unlikely(linkSize == 0)) {
-                  logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+                  logError(printf("winReadLink(\"%s\", *): "
+                                  "GetFinalPathNameByHandle failed\n",
+                                  striAsUnquotedCStri(filePath)););
                   *err_info = FILE_ERROR;
                 } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
                   destination = cp_from_os_path(buffer, err_info);
                 } else if (linkSize <= bufferSize) {
-                  logError(printf("winReadLink: GetFinalPathNameByHandle loop\n"););
+                  logError(printf("winReadLink(\"%s\", *): "
+                                  "GetFinalPathNameByHandle loop\n",
+                                  striAsUnquotedCStri(filePath)););
                   *err_info = FILE_ERROR;
                 } /* if */
                 os_stri_free(bufferPtr);
