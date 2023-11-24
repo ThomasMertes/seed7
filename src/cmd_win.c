@@ -553,6 +553,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
   {
     os_striType os_filePath;
     int path_info;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
     HANDLE fileHandle;
     os_charType buffer[PATH_MAX];
     os_striType bufferPtr;
@@ -569,44 +570,59 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, *err_info););
     } else {
-      fileHandle = CreateFileW(os_filePath, 0, FILE_SHARE_READ,
-                               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
-                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
-      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-        logError(printf("winReadLink: OpenFileW(\"%ls\", *, OF_READ) failed\n"
-                        os_filePath););
+      if (unlikely(
+          GetFileAttributesExW(os_filePath, GetFileExInfoStandard,
+                               &fileInfo) == 0)) {
+        logError(printf("doReadLink: GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        os_filePath, (uint32Type) GetLastError()););
+        *err_info = FILE_ERROR;
+      } else if (unlikely(
+          (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0)) {
+        logError(printf("doReadLink(\"%s\", *): "
+                        "The file \"" FMT_S_OS "\" is not a reparse point.\n",
+                        striAsUnquotedCStri(filePath), os_filePath););
         *err_info = FILE_ERROR;
       } else {
-        bufferSize = (DWORD) (sizeof(buffer) / sizeof(os_charType));
-        linkSize = GetFinalPathNameByHandleW(fileHandle, buffer,
-                                             bufferSize, FILE_NAME_OPENED);
-        if (unlikely(linkSize == 0)) {
-          logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+        fileHandle = CreateFileW(os_filePath, 0, FILE_SHARE_READ,
+                                 NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
+                                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+          logError(printf("winReadLink: CreateFileW(\"" FMT_S_OS "\", *) failed\n"
+                          os_filePath););
           *err_info = FILE_ERROR;
-        } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
-          destination = cp_from_os_path(buffer, err_info);
         } else {
-          do {
-            bufferSize = linkSize;
-            if (unlikely(!os_stri_alloc(bufferPtr, (memSizeType) bufferSize))) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              linkSize = GetFinalPathNameByHandleW(fileHandle, bufferPtr,
-                                                   bufferSize, FILE_NAME_OPENED);
-              if (unlikely(linkSize == 0)) {
-                logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
-                *err_info = FILE_ERROR;
-              } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
-                destination = cp_from_os_path(buffer, err_info);
-              } else if (linkSize <= bufferSize) {
-                logError(printf("winReadLink: GetFinalPathNameByHandle loop\n"););
-                *err_info = FILE_ERROR;
+          bufferSize = (DWORD) (sizeof(buffer) / sizeof(os_charType));
+          linkSize = GetFinalPathNameByHandleW(fileHandle, buffer,
+                                               bufferSize, FILE_NAME_OPENED);
+          if (unlikely(linkSize == 0)) {
+            logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+            *err_info = FILE_ERROR;
+          } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
+            destination = cp_from_os_path(buffer, err_info);
+          } else {
+            do {
+              bufferSize = linkSize;
+              if (unlikely(!os_stri_alloc(bufferPtr, (memSizeType) bufferSize))) {
+                *err_info = MEMORY_ERROR;
+              } else {
+                linkSize = GetFinalPathNameByHandleW(fileHandle, bufferPtr,
+                                                     bufferSize, FILE_NAME_OPENED);
+                if (unlikely(linkSize == 0)) {
+                  logError(printf("winReadLink: GetFinalPathNameByHandle failed\n"););
+                  *err_info = FILE_ERROR;
+                } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
+                  destination = cp_from_os_path(buffer, err_info);
+                } else if (linkSize <= bufferSize) {
+                  logError(printf("winReadLink: GetFinalPathNameByHandle loop\n"););
+                  *err_info = FILE_ERROR;
+                } /* if */
+                os_stri_free(bufferPtr);
               } /* if */
-              os_stri_free(bufferPtr);
-            } /* if */
-          } while (destination == NULL && *err_info == OKAY_NO_ERROR);
+            } while (destination == NULL && *err_info == OKAY_NO_ERROR);
+          } /* if */
+          CloseHandle(fileHandle);
         } /* if */
-        CloseHandle(fileHandle);
       } /* if */
       os_stri_free(os_filePath);
     } /* if */

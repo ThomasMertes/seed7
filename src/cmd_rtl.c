@@ -1388,14 +1388,14 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                       striAsUnquotedCStri(filePath), path_info, *err_info););
     } else {
       if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
-        logError(printf("doReadLink: os_lstat(" FMT_S_OS ", *) failed:\n"
+        logError(printf("doReadLink: os_lstat(\"" FMT_S_OS "\", *) failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_filePath, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
-        logError(printf("doReadLink: "
-                        "The file " FMT_S_OS " is not a symbolic link.\n",
-                        os_filePath););
+        logError(printf("doReadLink(\"%s\", *): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_filePath););
         *err_info = FILE_ERROR;
       } else if (unlikely(link_stat.st_size < 0 ||
                           (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
