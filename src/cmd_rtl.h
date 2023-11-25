@@ -43,9 +43,6 @@
 #define FILE_SYMLINK  7
 #define FILE_SOCKET   8
 
-#if HAS_READLINK
-striType doReadLink (const const_striType filePath, errInfoType *err_info);
-#endif
 #if HAS_SYMBOLIC_LINKS
 striType followLink (striType path, errInfoType *err_info);
 #endif

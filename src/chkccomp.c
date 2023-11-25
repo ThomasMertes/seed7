@@ -6261,14 +6261,28 @@ static void determineOsWCharFunctions (FILE *versionFile)
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{HANDLE fileHandle;\n"
-                         "fileHandle = CreateFile(\"tst_vers.h\", 0, FILE_SHARE_READ, NULL,\n"
+                         "fileHandle = CreateFileA(\"tst_vers.h\", 0, FILE_SHARE_READ, NULL,\n"
                          "    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |\n"
                          "    FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
                          "printf(\"%d\\n\", fileHandle != INVALID_HANDLE_VALUE &&\n"
                          "    GetFinalPathNameByHandleW(fileHandle,\n"
                          "        NULL, 0, FILE_NAME_OPENED) != 0);\n"
                          "return 0;}\n")) {
-      fputs("#define DEFINE_WIN_READ_LINK\n", versionFile);
+      fputs("#define HAS_GET_FINAL_PATH_NAME_BY_HANDLE\n", versionFile);
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{HANDLE fileHandle;\n"
+                         "DWORD sz;\n"
+                         "char buffer[1000];\n"
+                         "fileHandle = CreateFileA(\"tst_vers.h\", GENERIC_READ, 0, NULL,\n"
+                         "    OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |\n"
+                         "	FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
+                         "printf(\"%d\\n\", fileHandle != INVALID_HANDLE_VALUE &&\n"
+                         "    DeviceIoControl(fileHandle, FSCTL_GET_REPARSE_POINT,\n"
+                         "        NULL, 0, buffer, sizeof(buffer), &sz, NULL) != 0);\n"
+                         "return 0;}\n")) {
+      fputs("#define HAS_DEVICE_IO_CONTROL\n", versionFile);
     } /* if */
   } /* determineOsWCharFunctions */
 #endif

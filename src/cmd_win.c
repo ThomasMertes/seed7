@@ -453,6 +453,136 @@ int wunsetenv (const const_os_striType name)
 
 
 
+#ifdef HAS_DEVICE_IO_CONTROL
+
+typedef struct {
+    ULONG ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union {
+      struct {
+        USHORT SubstituteNameOffset;
+        USHORT SubstituteNameLength;
+        USHORT PrintNameOffset;
+        USHORT PrintNameLength;
+        ULONG Flags;
+        WCHAR PathBuffer[1];
+      } SymbolicLinkReparseBuffer;
+    };
+  } REPARSE_DATA_BUFFER;
+
+
+
+/**
+ *  Reads the destination of a symbolic link.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if the conversion to the system path failed, and
+ *                  FILE_ERROR if the file does not exist or is not a symbolic link.
+ *  @return The destination referred by the symbolic link, or
+ *          NULL if an error occurred.
+ */
+striType winReadLink (const const_striType filePath, errInfoType *err_info)
+
+  {
+    os_striType os_filePath;
+    int path_info;
+    HANDLE fileHandle;
+    union info_t {
+      char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
+      REPARSE_DATA_BUFFER reparseDataBuffer;
+    } info;
+    memSizeType dataBufferHeadLength;
+    memSizeType dataBufferLength;
+    REPARSE_DATA_BUFFER *reparseDataBuffer;
+    DWORD bytesReturned;
+    DWORD lastError;
+    striType destination = NULL;
+
+  /* winReadLink */
+    logFunction(printf("winReadLink(\"%s\", %d)\n",
+                       striAsUnquotedCStri(filePath), *err_info););
+    os_filePath = cp_to_os_path(filePath, &path_info, err_info);
+    if (unlikely(os_filePath == NULL)) {
+      logError(printf("winReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, *err_info););
+    } else {
+      fileHandle = CreateFileW(os_filePath, GENERIC_READ, 0, NULL,
+                               OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("winReadLink(\"%s\", *): "
+                        "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath), os_filePath,
+                        (uint32Type) GetLastError()););
+        *err_info = FILE_ERROR;
+      } else {
+        if (unlikely(DeviceIoControl(fileHandle,
+                                     FSCTL_GET_REPARSE_POINT,
+                                     NULL, 0, info.buffer, sizeof(info),
+                                     &bytesReturned, NULL) == 0)) {
+          lastError = GetLastError();
+          if (lastError != ERROR_MORE_DATA) {
+            logError(printf("winReadLink(\"%s\", *): "
+                            "DeviceIoControl() failed:\n"
+                            "lastError=" FMT_U32 "%s\n",
+                            striAsUnquotedCStri(filePath),
+                            (uint32Type) lastError,
+                            lastError == ERROR_NOT_A_REPARSE_POINT ?
+                                " (ERROR_NOT_A_REPARSE_POINT)" : ""););
+            *err_info = FILE_ERROR;
+          } else {
+            dataBufferHeadLength = (memSizeType)
+                ((char *) &info.reparseDataBuffer.SymbolicLinkReparseBuffer -
+                 (char *) &info.reparseDataBuffer);
+            dataBufferLength = dataBufferHeadLength +
+                info.reparseDataBuffer.ReparseDataLength;
+            reparseDataBuffer = (REPARSE_DATA_BUFFER *) malloc(dataBufferLength);
+            if (unlikely(reparseDataBuffer == NULL)) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              if (unlikely(DeviceIoControl(fileHandle,
+                                           FSCTL_GET_REPARSE_POINT, NULL, 0,
+                                           reparseDataBuffer, dataBufferLength,
+                                           &bytesReturned, NULL) == 0)) {
+                logError(printf("winReadLink(\"%s\", *): "
+                                "DeviceIoControl() failed:\n"
+                                "lastError=" FMT_U32 "%\n",
+                                striAsUnquotedCStri(filePath),
+                                (uint32Type) GetLastError()););
+                *err_info = FILE_ERROR;
+              } else {
+                destination = cp_from_os_path_buffer(
+                    &((wchar_t *) reparseDataBuffer->SymbolicLinkReparseBuffer.PathBuffer)[
+                        reparseDataBuffer->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t)],
+                    reparseDataBuffer->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t),
+                    err_info);
+              } /* if */
+              free(reparseDataBuffer);
+            } /* if */
+          } /* if */
+        } else {
+          destination = cp_from_os_path_buffer(
+              &((wchar_t *) info.reparseDataBuffer.SymbolicLinkReparseBuffer.PathBuffer)[
+                  info.reparseDataBuffer.SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t)],
+              info.reparseDataBuffer.SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t),
+              err_info);
+        } /* if */
+        CloseHandle(fileHandle);
+      } /* if */
+      os_stri_free(os_filePath);
+    } /* if */
+    logFunction(printf("winReadLink(\"%s\", %d) --> ",
+                       striAsUnquotedCStri(filePath), *err_info);
+                printf("\"%s\"\n", striAsUnquotedCStri(destination)););
+    return destination;
+  } /* winReadLink */
+#endif
+
+
+
 static striType getNameFromSid (PSID sid)
 
   {
@@ -544,103 +674,6 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
     } /* if */
     return sid;
   } /* getSidFromName */
-
-
-
-#ifdef DEFINE_WIN_READ_LINK
-striType winReadLink (const const_striType filePath, errInfoType *err_info)
-
-  {
-    os_striType os_filePath;
-    int path_info;
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
-    HANDLE fileHandle;
-    os_charType buffer[PATH_MAX];
-    os_striType bufferPtr;
-    DWORD bufferSize;
-    DWORD linkSize;
-    striType destination = NULL;
-
-  /* winReadLink */
-    logFunction(printf("winReadLink(\"%s\", %d)\n",
-                       striAsUnquotedCStri(filePath), *err_info););
-    os_filePath = cp_to_os_path(filePath, &path_info, err_info);
-    if (unlikely(os_filePath == NULL)) {
-      logError(printf("winReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, *err_info););
-    } else {
-      if (unlikely(
-          GetFileAttributesExW(os_filePath, GetFileExInfoStandard,
-                               &fileInfo) == 0)) {
-        logError(printf("winReadLink(\"%s\", *): "
-                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
-                        "lastError=" FMT_U32 "\n",
-                        striAsUnquotedCStri(filePath), os_filePath,
-                        (uint32Type) GetLastError()););
-        *err_info = FILE_ERROR;
-      } else if (unlikely(
-          (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0)) {
-        logError(printf("winReadLink(\"%s\", *): "
-                        "The file \"" FMT_S_OS "\" is not a reparse point.\n",
-                        striAsUnquotedCStri(filePath), os_filePath););
-        *err_info = FILE_ERROR;
-      } else {
-        fileHandle = CreateFileW(os_filePath, 0, FILE_SHARE_READ,
-                                 NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
-                                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
-        if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-          logError(printf("winReadLink(\"%s\", *): "
-                          "CreateFileW(\"" FMT_S_OS "\", *) failed\n",
-                          striAsUnquotedCStri(filePath), os_filePath););
-          *err_info = FILE_ERROR;
-        } else {
-          bufferSize = (DWORD) (sizeof(buffer) / sizeof(os_charType));
-          linkSize = GetFinalPathNameByHandleW(fileHandle, buffer,
-                                               bufferSize, FILE_NAME_OPENED);
-          if (unlikely(linkSize == 0)) {
-            logError(printf("winReadLink(\"%s\", *): "
-                            "GetFinalPathNameByHandle failed\n",
-                            striAsUnquotedCStri(filePath)););
-            *err_info = FILE_ERROR;
-          } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
-            destination = cp_from_os_path(buffer, err_info);
-          } else {
-            do {
-              bufferSize = linkSize;
-              if (unlikely(!os_stri_alloc(bufferPtr, (memSizeType) bufferSize))) {
-                *err_info = MEMORY_ERROR;
-              } else {
-                linkSize = GetFinalPathNameByHandleW(fileHandle, bufferPtr,
-                                                     bufferSize, FILE_NAME_OPENED);
-                if (unlikely(linkSize == 0)) {
-                  logError(printf("winReadLink(\"%s\", *): "
-                                  "GetFinalPathNameByHandle failed\n",
-                                  striAsUnquotedCStri(filePath)););
-                  *err_info = FILE_ERROR;
-                } else if (linkSize <= bufferSize - NULL_TERMINATION_LEN) {
-                  destination = cp_from_os_path(buffer, err_info);
-                } else if (linkSize <= bufferSize) {
-                  logError(printf("winReadLink(\"%s\", *): "
-                                  "GetFinalPathNameByHandle loop\n",
-                                  striAsUnquotedCStri(filePath)););
-                  *err_info = FILE_ERROR;
-                } /* if */
-                os_stri_free(bufferPtr);
-              } /* if */
-            } while (destination == NULL && *err_info == OKAY_NO_ERROR);
-          } /* if */
-          CloseHandle(fileHandle);
-        } /* if */
-      } /* if */
-      os_stri_free(os_filePath);
-    } /* if */
-    logFunction(printf("winReadLink(\"%s\", %d) --> ",
-                       striAsUnquotedCStri(filePath), *err_info);
-                printf("\"%s\"\n", striAsUnquotedCStri(destination)););
-    return destination;
-  } /* winReadLink */
-#endif
 
 
 

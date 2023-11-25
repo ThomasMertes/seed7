@@ -231,6 +231,8 @@ os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info);
 striType stri_to_standard_path (const striType stri);
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info);
+striType cp_from_os_path_buffer (const_os_striType os_path,
+                                 memSizeType length, errInfoType *err_info);
 #if EMULATE_ROOT_CWD
 void setEmulatedCwdToRoot (void);
 void setEmulatedCwd (os_striType os_path, errInfoType *err_info);

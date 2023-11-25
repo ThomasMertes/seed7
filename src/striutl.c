@@ -2439,6 +2439,49 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
 
 
+/**
+ *  Convert a path returned by a system call to a Seed7 standard path.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use system paths of the type os_striType.
+ *  Depending on the operating system os_striType can describe byte or
+ *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+ *  it can use a code page. Beyond the conversion from os_striType a
+ *  mapping from drive letters might take place on some operating
+ *  systems.
+ *  @param os_path os_striType path to be converted.
+ *  @param length Number of chars in os_path.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 standard path, or
+ *          NULL if the memory allocation failed.
+ */
+striType cp_from_os_path_buffer (const_os_striType os_path,
+    memSizeType length, errInfoType *err_info)
+
+  {
+    striType stdPath;
+
+  /* cp_from_os_path_buffer */
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+    if (memcmp(os_path, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType)) == 0) {
+      /* For extended path omit the prefix. */
+      os_path = &os_path[PREFIX_LEN];
+    } /* if */
+#endif
+    stdPath = conv_from_os_stri(os_path, length);
+    if (unlikely(stdPath == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      stdPath = stri_to_standard_path(stdPath);
+      if (unlikely(stdPath == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+    } /* if */
+    return stdPath;
+  } /* cp_from_os_path_buffer */
+
+
+
 #ifdef MAP_LONG_FILE_NAMES_TO_SHORT
 static boolType isShortFileName (os_striType fileName)
 

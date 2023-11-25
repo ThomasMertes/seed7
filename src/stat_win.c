@@ -289,7 +289,7 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
   /* lstati64Ext */
     logFunction(printf("lstati64Ext(\"%ls\", *)\n", path););
     result = wstati64Ext(path, statBuf);
-#ifdef DEFINE_WIN_READ_LINK
+#ifdef HAS_DEVICE_IO_CONTROL
     /* Return S_IFLNK only if winReadLink() is available */
     /* to read the link.                                 */
     if (result == 0) {
@@ -299,24 +299,8 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
           statBuf->st_mode = S_IFLNK | S_IRUSR | S_IRGRP | S_IROTH |
                                        S_IWUSR | S_IWGRP | S_IWOTH |
                                        S_IXUSR | S_IXGRP | S_IXOTH;
-          fileHandle = CreateFileW(path, 0, FILE_SHARE_READ, NULL,
-                                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
-                                   FILE_FLAG_BACKUP_SEMANTICS, NULL);
-          if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-            statBuf->st_size = 0;
-          } else {
-            /* Compute the length of the symbolic link. */
-            /* Surrogate pairs are not considered.      */
-            /* A link with surrogate pairs will have    */
-            /* fewer UTF-32 characters.                 */
-            statBuf->st_size = (int64Type)
-                GetFinalPathNameByHandleW(fileHandle, NULL, 0, FILE_NAME_OPENED);
-            statBuf->st_size -= NULL_TERMINATION_LEN;
-#if USE_EXTENDED_LENGTH_PATH
-            statBuf->st_size -= PREFIX_LEN;
-#endif
-            CloseHandle(fileHandle);
-          } /* if */
+          /* The st_size of a Windows symbolic link (S_IFLNK) is not used. */
+          statBuf->st_size = 0;
         } /* if */
       } /* if */
     } /* if */

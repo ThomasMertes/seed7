@@ -1447,9 +1447,11 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                 printf("\"%s\"\n", striAsUnquotedCStri(destination)););
     return destination;
   } /* doReadLink */
+#endif
 
 
 
+#ifdef HAS_DO_READ_LINK
 static striType readLinkAbsolute (const const_striType filePath, errInfoType *err_info)
 
   {
@@ -3363,21 +3365,14 @@ striType cmdReadLink (const const_striType filePath)
   /* cmdReadLink */
     logFunction(printf("cmdReadLink(\"%s\")\n",
                        striAsUnquotedCStri(filePath)););
-#if HAS_READLINK
+#ifdef HAS_DO_READ_LINK
     destination = doReadLink(filePath, &err_info);
-    if (unlikely(destination == NULL)) {
-      raise_error(err_info);
-    } /* if */
-#else
-#ifdef DEFINE_WIN_READ_LINK
-    destination = winReadLink(filePath, &err_info);
     if (unlikely(destination == NULL)) {
       raise_error(err_info);
     } /* if */
 #else
     raise_error(FILE_ERROR);
     destination = NULL;
-#endif
 #endif
     logFunction(printf("cmdReadLink --> \"%s\"\n",
                        striAsUnquotedCStri(destination)););
@@ -3413,21 +3408,14 @@ striType cmdReadLinkAbsolute (const const_striType filePath)
   /* cmdReadLinkAbsolute */
     logFunction(printf("cmdReadLinkAbsolute(\"%s\")\n",
                        striAsUnquotedCStri(filePath)););
-#if HAS_READLINK
+#ifdef HAS_DO_READ_LINK
     destination = readLinkAbsolute(filePath, &err_info);
-    if (unlikely(destination == NULL)) {
-      raise_error(err_info);
-    } /* if */
-#else
-#ifdef DEFINE_WIN_READ_LINK
-    destination = winReadLink(filePath, &err_info);
     if (unlikely(destination == NULL)) {
       raise_error(err_info);
     } /* if */
 #else
     raise_error(FILE_ERROR);
     destination = NULL;
-#endif
 #endif
     logFunction(printf("cmdReadLinkAbsolute --> \"%s\"\n",
                        striAsUnquotedCStri(destination)););
