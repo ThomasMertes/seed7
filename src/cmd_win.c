@@ -471,6 +471,13 @@ typedef struct {
     };
   } REPARSE_DATA_BUFFER;
 
+#ifndef FSCTL_GET_REPARSE_POINT
+#define FSCTL_GET_REPARSE_POINT 0x900a8
+#endif
+#ifndef IO_REPARSE_TAG_SYMLINK
+#define IO_REPARSE_TAG_SYMLINK 0xa000000c
+#endif
+
 
 
 /**
@@ -533,6 +540,13 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                             lastError == ERROR_NOT_A_REPARSE_POINT ?
                                 " (ERROR_NOT_A_REPARSE_POINT)" : ""););
             *err_info = FILE_ERROR;
+          } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
+                              IO_REPARSE_TAG_SYMLINK)) {
+            logError(printf("winReadLink(\"%s\", *): "
+                            "Unexpected ReparseTag: " FMT_U32 "\n",
+                            striAsUnquotedCStri(filePath),
+                            (uint32Type) info.reparseDataBuffer.ReparseTag););
+            *err_info = FILE_ERROR;
           } else {
             dataBufferHeadLength = (memSizeType)
                 ((char *) &info.reparseDataBuffer.SymbolicLinkReparseBuffer -
@@ -563,6 +577,13 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
               free(reparseDataBuffer);
             } /* if */
           } /* if */
+        } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
+                            IO_REPARSE_TAG_SYMLINK)) {
+          logError(printf("winReadLink(\"%s\", *): "
+                          "Unexpected ReparseTag: " FMT_U32 "\n",
+                          striAsUnquotedCStri(filePath),
+                          (uint32Type) info.reparseDataBuffer.ReparseTag););
+          *err_info = FILE_ERROR;
         } else {
           destination = cp_from_os_path_buffer(
               &((wchar_t *) info.reparseDataBuffer.SymbolicLinkReparseBuffer.PathBuffer)[

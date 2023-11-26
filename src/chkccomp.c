@@ -6271,13 +6271,16 @@ static void determineOsWCharFunctions (FILE *versionFile)
       fputs("#define HAS_GET_FINAL_PATH_NAME_BY_HANDLE\n", versionFile);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "#ifndef FSCTL_GET_REPARSE_POINT\n"
+                         "#define FSCTL_GET_REPARSE_POINT 0x900a8\n"
+                         "#endif\n"
                          "int main(int argc,char *argv[])\n"
                          "{HANDLE fileHandle;\n"
                          "DWORD sz;\n"
                          "char buffer[1000];\n"
                          "fileHandle = CreateFileA(\"tst_vers.h\", GENERIC_READ, 0, NULL,\n"
                          "    OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |\n"
-                         "	FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
+                         "    FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
                          "printf(\"%d\\n\", fileHandle != INVALID_HANDLE_VALUE &&\n"
                          "    DeviceIoControl(fileHandle, FSCTL_GET_REPARSE_POINT,\n"
                          "        NULL, 0, buffer, sizeof(buffer), &sz, NULL) != 0);\n"
