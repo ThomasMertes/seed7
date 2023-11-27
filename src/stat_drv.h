@@ -86,6 +86,13 @@
 
 #ifndef S_IFLNK
 #define S_IFLNK  0120000  /* Symbolic link */
+#undef S_ISDIR
+#undef S_ISCHR
+#undef S_ISBLK
+#undef S_ISREG
+#undef S_ISFIFO
+#undef S_ISLNK
+#undef S_ISSOCK
 #endif
 
 #ifndef S_ISLNK
