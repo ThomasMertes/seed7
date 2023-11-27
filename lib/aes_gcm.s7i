@@ -27,6 +27,7 @@
 
 include "bin32.s7i";
 include "bin64.s7i";
+include "bigint.s7i";
 include "aes.s7i";
 
 
@@ -73,10 +74,14 @@ const func factorHType: computeFactorH (in string: h) is func
 
 
 const array bin64: last4 is [0] (
-    bin64(16#0000), bin64(16#1c20), bin64(16#3840), bin64(16#2460),
-    bin64(16#7080), bin64(16#6ca0), bin64(16#48c0), bin64(16#54e0),
-    bin64(16#e100), bin64(16#fd20), bin64(16#d940), bin64(16#c560),
-    bin64(16#9180), bin64(16#8da0), bin64(16#a9c0), bin64(16#b5e0));
+    bin64(16#0000000000000000),  bin64(16#1c20000000000000),
+    bin64(16#3840000000000000),  bin64(16#2460000000000000),
+    bin64(16#7080000000000000),  bin64(16#6ca0000000000000),
+    bin64(16#48c0000000000000),  bin64(16#54e0000000000000),
+    bin64(16#e100000000000000_), bin64(16#fd20000000000000_),
+    bin64(16#d940000000000000_), bin64(16#c560000000000000_),
+    bin64(16#9180000000000000_), bin64(16#8da0000000000000_),
+    bin64(16#a9c0000000000000_), bin64(16#b5e0000000000000_));
 
 
 const func string: gcmMult (in string: factor1,               # 128-bit factor 1 vector
@@ -104,14 +109,14 @@ const func string: gcmMult (in string: factor1,               # 128-bit factor 1
         rem := ord(zl & bin64(16#f));
         zl := zh << 60 | zl >> 4;
         zh := zh >> 4;
-        zh ><:= last4[rem] << 48;
+        zh ><:= last4[rem];
         zh ><:= factorH.highHalfHTable[lo];
         zl ><:= factorH.lowHalfHTable[lo];
       end if;
       rem := ord(zl & bin64(16#f));
       zl := zh << 60 | zl >> 4;
       zh := zh >> 4;
-      zh ><:= last4[rem] << 48;
+      zh ><:= last4[rem];
       zh ><:= factorH.highHalfHTable[hi];
       zl ><:= factorH.lowHalfHTable[hi];
     end for;
@@ -260,7 +265,7 @@ const func string: aesGcmEncode (inout aesGcmState: state,
       for index range 1 to blockLength do
         encodedChar := bin32(encodedNonce[index]) >< bin32(plainText[startIndex + index - 1]);
         encoded &:= char(ord(encodedChar));
-	# The authentication hash (computedMac) is computed with the encoded data.
+        # The authentication hash (computedMac) is computed with the encoded data.
         state.computedMac @:= [index] char(ord(bin32(state.computedMac[index]) >< encodedChar));
       end for;
       state.computedMac := gcmMult(state.computedMac, state.factorH);
@@ -297,7 +302,7 @@ const func string: aesGcmDecode (inout aesGcmState: state,
       # Decrypt the encoded data with the encodedNonce
       for index range 1 to blockLength do
         encodedChar := bin32(encoded[startIndex + index - 1]);
-	# The authentication hash (computedMac) is computed with the encoded data.
+        # The authentication hash (computedMac) is computed with the encoded data.
         state.computedMac @:= [index] char(ord(bin32(state.computedMac[index]) >< encodedChar));
         plainText &:= char(ord(bin32(encodedNonce[index]) >< encodedChar));
       end for;
@@ -312,8 +317,8 @@ const func string: aesGcmDecode (inout aesGcmState: state,
 
 const proc: initializeComputedMac (inout aesGcmState: state, in integer: plainTextLength) is func
   begin
-    state. encodedNonce1 := encodeAesBlock(state.aesCipherState.encryptionSubKey,
-                                           state.aesCipherState.rounds, state.nonce);
+    state.encodedNonce1 := encodeAesBlock(state.aesCipherState.encryptionSubKey,
+                                          state.aesCipherState.rounds, state.nonce);
     state.computedMac := bytes(state.sequenceNumber, UNSIGNED, BE, 8) &
                                state.recordTypeAndVersion &  # 3 bytes
                                bytes(plainTextLength, UNSIGNED, BE, 2) &
