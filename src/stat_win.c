@@ -221,7 +221,7 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
           logError(printf("wstati64Ext: "
-                          "CreateFileW(\"" FMT_S_OS "\", *) failed:\n",
+                          "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
                           "GetLastError=" FMT_U32 "\n",
                           path, (uint32Type) GetLastError()););
           errno = ENOENT;
@@ -229,7 +229,7 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
         } else {
           if (unlikely(GetFileInformationByHandle(fileHandle, &handleFileInfo) == 0)) {
             logError(printf("wstati64Ext(\"%ls\", *): "
-                            "GetFileInformationByHandle(" FMT_U_MEM ", *) failed.\n"
+                            "GetFileInformationByHandle(" FMT_U_MEM ", *) failed:\n"
                             "GetLastError=" FMT_U32 "\n",
                             path, (memSizeType) fileHandle,
                             (uint32Type) GetLastError()););
@@ -327,7 +327,15 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
   /* lstati64Ext */
     logFunction(printf("lstati64Ext(\"%ls\", *)\n", path););
 #ifdef HAS_DEVICE_IO_CONTROL
-    if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
+    if (unlikely(GetFileAttributesExW(path, GetFileExInfoStandard,
+                                      &fileInfo) == 0)) {
+      logError(printf("lstati64Ext: "
+                      "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                      "GetLastError=" FMT_U32 "\n",
+                      path, (uint32Type) GetLastError()););
+      errno = ENOENT;
+      result = -1;
+    } else {
       /* The function os_stat_orig() fails with ENOENT, if the path is     */
       /* longer than MAX_PATH. So GetFileAttributesExW(), which works with */
       /* an extended length path, is used.                                 */
@@ -359,6 +367,7 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
         statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'A');
       } /* if */
       statBuf->st_rdev = statBuf->st_dev;
+      result = 0;
     } /* if */
 #else
     result = wstati64Ext(path, statBuf);
@@ -413,7 +422,8 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
         logError(printf("fstati64Ext(%d, *): "
                         "GetFileInformationByHandle(" FMT_U_MEM ", *) failed.\n"
                         "GetLastError=" FMT_U32 "\n",
-                        fd, (memSizeType) fileHandle, (uint32Type) GetLastError()););
+                        fd, (memSizeType) fileHandle,
+                        (uint32Type) GetLastError()););
         errno = EACCES;
         result = -1;
       } /* if */
@@ -434,7 +444,8 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
       logError(printf("fstati64Ext(%d, *): "
                       "GetFileInformationByHandle(" FMT_U_MEM ", *) failed:\n"
                       "GetLastError=" FMT_U32 "\n",
-                      fd, (memSizeType) fileHandle, (uint32Type) GetLastError()););
+                      fd, (memSizeType) fileHandle,
+                      (uint32Type) GetLastError()););
       errno = ENOENT;
       result = -1;
     } /* if */
