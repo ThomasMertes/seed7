@@ -182,7 +182,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
                   " and destination link " <& literal(destPath) <&
                   " point to different paths");
         end if;
-      elsif destType = FILE_REGULAR and 
+      elsif destType = FILE_REGULAR and
           fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
         writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link but has the same content as the source");
       else

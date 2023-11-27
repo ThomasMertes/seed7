@@ -208,7 +208,7 @@ const proc: initAead (inout aesGcmState: state, in string: recordTypeAndVersion,
  *  Obtain the computed MAC of data that has been decrypted with the AES GCM cipher.
  *  After a successful decryption getComputedMac and getMac should return
  *  the same value.
- *) 
+ *)
 const func string: getComputedMac (in aesGcmState: state) is
   return state.computedMac;
 
@@ -217,7 +217,7 @@ const func string: getComputedMac (in aesGcmState: state) is
  *  Obtain the MAC that is appended to the encrypted data of the AES GCM cipher.
  *  After a successful decryption getComputedMac and getMac should return
  *  the same value.
- *) 
+ *)
 const func string: getMac (in aesGcmState: state) is
   return state.mac;
 
