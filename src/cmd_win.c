@@ -469,7 +469,7 @@ typedef struct {
         WCHAR PathBuffer[1];
       } SymbolicLinkReparseBuffer;
     };
-  } REPARSE_DATA_BUFFER;
+  } REPARSE_DATA_BUFFER7;
 
 #ifndef FSCTL_GET_REPARSE_POINT
 #define FSCTL_GET_REPARSE_POINT 0x900a8
@@ -497,11 +497,11 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
     HANDLE fileHandle;
     union info_t {
       char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
-      REPARSE_DATA_BUFFER reparseDataBuffer;
+      REPARSE_DATA_BUFFER7 reparseDataBuffer;
     } info;
     memSizeType dataBufferHeadLength;
     memSizeType dataBufferLength;
-    REPARSE_DATA_BUFFER *reparseDataBuffer;
+    REPARSE_DATA_BUFFER7 *reparseDataBuffer;
     DWORD bytesReturned;
     DWORD lastError;
     striType destination = NULL;
@@ -553,7 +553,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                  (char *) &info.reparseDataBuffer);
             dataBufferLength = dataBufferHeadLength +
                 info.reparseDataBuffer.ReparseDataLength;
-            reparseDataBuffer = (REPARSE_DATA_BUFFER *) malloc(dataBufferLength);
+            reparseDataBuffer = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
             if (unlikely(reparseDataBuffer == NULL)) {
               *err_info = MEMORY_ERROR;
             } else {
