@@ -543,7 +543,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
           } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
                               IO_REPARSE_TAG_SYMLINK)) {
             logError(printf("winReadLink(\"%s\", *): "
-                            "Unexpected ReparseTag: " FMT_U32 "\n",
+                            "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                             striAsUnquotedCStri(filePath),
                             (uint32Type) info.reparseDataBuffer.ReparseTag););
             *err_info = FILE_ERROR;
@@ -567,6 +567,13 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                 striAsUnquotedCStri(filePath),
                                 (uint32Type) GetLastError()););
                 *err_info = FILE_ERROR;
+              } else if (unlikely(reparseDataBuffer->ReparseTag !=
+                                  IO_REPARSE_TAG_SYMLINK)) {
+                logError(printf("winReadLink(\"%s\", *): "
+                                "Unexpected ReparseTag: 0x" FMT_X32 "\n",
+                                striAsUnquotedCStri(filePath),
+                                (uint32Type) reparseDataBuffer->ReparseTag););
+                *err_info = FILE_ERROR;
               } else {
                 destination = cp_from_os_path_buffer(
                     &((wchar_t *) reparseDataBuffer->SymbolicLinkReparseBuffer.PathBuffer)[
@@ -580,7 +587,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
         } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
                             IO_REPARSE_TAG_SYMLINK)) {
           logError(printf("winReadLink(\"%s\", *): "
-                          "Unexpected ReparseTag: " FMT_U32 "\n",
+                          "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                           striAsUnquotedCStri(filePath),
                           (uint32Type) info.reparseDataBuffer.ReparseTag););
           *err_info = FILE_ERROR;
