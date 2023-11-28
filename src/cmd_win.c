@@ -611,7 +611,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
 
 
 
-static striType getNameFromSid (PSID sid)
+static striType getNameFromSid (PSID sid, errInfoType *err_info)
 
   {
     LPWSTR AcctName;
@@ -619,7 +619,6 @@ static striType getNameFromSid (PSID sid)
     LPWSTR DomainName;
     DWORD dwDomainName = 0;
     SID_NAME_USE eUse = SidTypeUnknown;
-    errInfoType err_info = OKAY_NO_ERROR;
     striType name;
 
   /* getNameFromSid */
@@ -635,7 +634,7 @@ static striType getNameFromSid (PSID sid)
       if (AcctName != NULL) {
         GlobalFree(AcctName);
       } /* if */
-      raise_error(MEMORY_ERROR);
+      *err_info = MEMORY_ERROR;
       name = NULL;
     } else if (unlikely(
       LookupAccountSidW(NULL, sid,
@@ -647,15 +646,12 @@ static striType getNameFromSid (PSID sid)
                       (uint32Type) GetLastError()););
       GlobalFree(AcctName);
       GlobalFree(DomainName);
-      raise_error(FILE_ERROR);
+      *err_info = FILE_ERROR;
       name = NULL;
     } else {
-      name = os_stri_to_stri(AcctName, &err_info);
+      name = os_stri_to_stri(AcctName, err_info);
       GlobalFree(AcctName);
       GlobalFree(DomainName);
-      if (unlikely(name == NULL)) {
-        raise_error(err_info);
-      } /* if */
     } /* if */
     return name;
   } /* getNameFromSid */
@@ -711,6 +707,7 @@ striType cmdGetGroup (const const_striType filePath)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
+    HANDLE fileHandle;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidGroup = NULL;
     striType group;
@@ -723,26 +720,44 @@ striType cmdGetGroup (const const_striType filePath)
       logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
-      group = NULL;
-    } else if (unlikely(
-      GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                            GROUP_SECURITY_INFORMATION, NULL,
-                            &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
-      logError(printf("cmdGetGroup: "
-                      "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                      "lastError=" FMT_U32 "\n",
-                      os_path, (uint32Type) GetLastError()););
-      os_stri_free(os_path);
-      raise_error(FILE_ERROR);
       group = NULL;
     } else {
+      fileHandle = CreateFileW(os_path, READ_CONTROL, 0,
+                               NULL, OPEN_EXISTING,
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("cmdGetGroup(\"%s\"): "
+                        "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else {
+        if (unlikely(GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+                                     GROUP_SECURITY_INFORMATION, NULL,
+                                     &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+          logError(printf("cmdGetGroup(\"%s\"): "
+                          "GetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
+                          "lastError=" FMT_U32 "\n",
+                          striAsUnquotedCStri(filePath),
+                          (memSizeType) fileHandle,
+                          (uint32Type) GetLastError()););
+          err_info = FILE_ERROR;
+          group = NULL;
+        } else {
+          group = getNameFromSid(pSidGroup, &err_info);
+          /* The SID referenced by pSidOwner is located */
+          /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+          /* Therefore it is freed together with pSD.   */
+          LocalFree(pSD);
+        } /* if */
+        CloseHandle(fileHandle);
+      } /* if */
       os_stri_free(os_path);
-      group = getNameFromSid(pSidGroup);
-      /* The SID referenced by pSidOwner is located */
-      /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-      /* Therefore it is freed together with pSD.   */
-      LocalFree(pSD);
+    } /* if */
+    if (unlikely(group == NULL)) {
+      raise_error(err_info);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
     return group;
@@ -756,6 +771,7 @@ striType cmdGetOwner (const const_striType filePath)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
+    HANDLE fileHandle;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidOwner = NULL;
     striType owner;
@@ -768,26 +784,44 @@ striType cmdGetOwner (const const_striType filePath)
       logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
-      owner = NULL;
-    } else if (unlikely(
-      GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                            OWNER_SECURITY_INFORMATION, &pSidOwner,
-                            NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
-      logError(printf("cmdGetOwner: "
-                      "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                      "lastError=" FMT_U32 "\n",
-                      os_path, (uint32Type) GetLastError()););
-      os_stri_free(os_path);
-      raise_error(FILE_ERROR);
       owner = NULL;
     } else {
+      fileHandle = CreateFileW(os_path, READ_CONTROL, 0,
+                               NULL, OPEN_EXISTING,
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("cmdGetOwner(\"%s\"): "
+                        "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else {
+        if (unlikely(GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+                                     OWNER_SECURITY_INFORMATION, &pSidOwner,
+                                     NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+          logError(printf("cmdGetOwner(\"%s\"): "
+                          "GetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
+                          "lastError=" FMT_U32 "\n",
+                          striAsUnquotedCStri(filePath),
+                          (memSizeType) fileHandle,
+                          (uint32Type) GetLastError()););
+          err_info = FILE_ERROR;
+          owner = NULL;
+        } else {
+          owner = getNameFromSid(pSidOwner, &err_info);
+          /* The SID referenced by pSidOwner is located */
+          /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+          /* Therefore it is freed together with pSD.   */
+          LocalFree(pSD);
+        } /* if */
+        CloseHandle(fileHandle);
+      } /* if */
       os_stri_free(os_path);
-      owner = getNameFromSid(pSidOwner);
-      /* The SID referenced by pSidOwner is located */
-      /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-      /* Therefore it is freed together with pSD.   */
-      LocalFree(pSD);
+    } /* if */
+    if (unlikely(owner == NULL)) {
+      raise_error(err_info);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
     return owner;
@@ -869,6 +903,7 @@ striType cmdUser (void)
     HANDLE hToken = NULL;
     TOKEN_USER *ptu;
     DWORD dwSize = 0;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType user;
 
   /* cmdUser */
@@ -900,8 +935,11 @@ striType cmdUser (void)
             raise_error(FILE_ERROR);
             user = NULL;
           } else {
-            user = getNameFromSid(ptu->User.Sid);
+            user = getNameFromSid(ptu->User.Sid, &err_info);
             LocalFree((HLOCAL) ptu);
+            if (unlikely(user == NULL)) {
+              raise_error(err_info);
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
