@@ -75,6 +75,9 @@ DWORD SetNamedSecurityInfoW (LPWSTR pObjectName,
     PACL pDacl, PACL pSacl);
 #endif
 
+static SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+static PSID administratorSid = NULL;
+
 
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
@@ -615,43 +618,58 @@ static striType getNameFromSid (PSID sid, errInfoType *err_info)
 
   {
     LPWSTR AcctName;
-    DWORD dwAcctName = 0;
+    DWORD sizeAcctName = 0;
     LPWSTR DomainName;
-    DWORD dwDomainName = 0;
+    DWORD sizeDomainName = 0;
     SID_NAME_USE eUse = SidTypeUnknown;
     striType name;
 
   /* getNameFromSid */
-    LookupAccountSidW(NULL, sid,
-                      NULL, (LPDWORD) &dwAcctName,
-                      NULL, (LPDWORD) &dwDomainName, &eUse);
-    AcctName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwAcctName * sizeof(os_charType));
-    DomainName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwDomainName * sizeof(os_charType));
-    if (unlikely(AcctName == NULL || DomainName == NULL)) {
-      logError(printf("getNameFromSid: GlobalAlloc() failed:\n"
-                      "lastError=" FMT_U32 "\n",
-                      (uint32Type) GetLastError()););
-      if (AcctName != NULL) {
-        GlobalFree(AcctName);
-      } /* if */
+    if (unlikely(administratorSid == NULL)) {
+      AllocateAndInitializeSid(&ntAuthority, 2,
+                               SECURITY_BUILTIN_DOMAIN_RID,
+                               DOMAIN_ALIAS_RID_ADMINS,
+                               0, 0, 0, 0, 0, 0,
+                               &administratorSid);
+    } /* if */
+    if (unlikely(administratorSid == NULL)) {
       *err_info = MEMORY_ERROR;
-      name = NULL;
-    } else if (unlikely(
-      LookupAccountSidW(NULL, sid,
-                        AcctName, (LPDWORD) &dwAcctName,
-                        DomainName, (LPDWORD) &dwDomainName,
-                        &eUse) == FALSE)) {
-      logError(printf("getNameFromSid: LookupAccountSidW() failed:\n"
-                      "lastError=" FMT_U32 "\n",
-                      (uint32Type) GetLastError()););
-      GlobalFree(AcctName);
-      GlobalFree(DomainName);
-      *err_info = FILE_ERROR;
-      name = NULL;
+    } else if (memcmp(sid, administratorSid, sizeof(SID)) == 0) {
+      name = cstri_to_stri("root");
+      if (unlikely(name == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
     } else {
-      name = os_stri_to_stri(AcctName, err_info);
-      GlobalFree(AcctName);
-      GlobalFree(DomainName);
+      LookupAccountSidW(NULL, sid,
+                        NULL, (LPDWORD) &sizeAcctName,
+                        NULL, (LPDWORD) &sizeDomainName, &eUse);
+      AcctName = (LPWSTR) GlobalAlloc(GMEM_FIXED, sizeAcctName * sizeof(os_charType));
+      DomainName = (LPWSTR) GlobalAlloc(GMEM_FIXED, sizeDomainName * sizeof(os_charType));
+      if (unlikely(AcctName == NULL || DomainName == NULL)) {
+        logError(printf("getNameFromSid: GlobalAlloc() failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        (uint32Type) GetLastError()););
+        if (AcctName != NULL) {
+          GlobalFree(AcctName);
+        } /* if */
+        *err_info = MEMORY_ERROR;
+        name = NULL;
+      } else {
+        if (unlikely(LookupAccountSidW(NULL, sid,
+                                       AcctName, (LPDWORD) &sizeAcctName,
+                                       DomainName, (LPDWORD) &sizeDomainName,
+                                       &eUse) == FALSE)) {
+          logError(printf("getNameFromSid: LookupAccountSidW() failed:\n"
+                          "lastError=" FMT_U32 "\n",
+                          (uint32Type) GetLastError()););
+          *err_info = FILE_ERROR;
+          name = NULL;
+        } else {
+          name = os_stri_to_stri(AcctName, err_info);
+        } /* if */
+        GlobalFree(AcctName);
+        GlobalFree(DomainName);
+      } /* if */
     } /* if */
     return name;
   } /* getNameFromSid */
@@ -673,26 +691,48 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
                        striAsUnquotedCStri(name), *err_info););
     accountName = stri_to_os_stri(name, err_info);
     if (likely(accountName != NULL)) {
-      LookupAccountNameW(NULL, accountName, NULL, &numberOfBytesForSid,
-                         NULL, &numberOfCharsForDomainName, &sidNameUse);
-      sid = (PSID) malloc(numberOfBytesForSid);
-      if (unlikely(sid == NULL)) {
-        *err_info = MEMORY_ERROR;
-      } else if (unlikely(!ALLOC_OS_STRI(domainName, numberOfCharsForDomainName))) {
-        free(sid);
-        *err_info = MEMORY_ERROR;
-        sid = NULL;
-      } else {
-        if (unlikely(LookupAccountNameW(NULL, accountName, sid, &numberOfBytesForSid,
-                                        domainName, &numberOfCharsForDomainName, &sidNameUse) == 0)) {
-          logError(printf("getSidFromName: LookupAccountNameW failed:\n"
-                          "lastError=" FMT_U32 "\n",
-                          (uint32Type) GetLastError()););
-          free(sid);
-          *err_info = FILE_ERROR;
-          sid = NULL;
+      if (memcmp(accountName, L"root\0", 5 * sizeof(os_charType)) == 0) {
+        if (unlikely(administratorSid == NULL)) {
+          AllocateAndInitializeSid(&ntAuthority,
+                                   2, /* 2 sub-authorities */
+                                   SECURITY_BUILTIN_DOMAIN_RID,
+                                   DOMAIN_ALIAS_RID_ADMINS,
+                                   0, 0, 0, 0, 0, 0,
+                                   &administratorSid);
         } /* if */
-        FREE_OS_STRI(domainName);
+        if (unlikely(administratorSid == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          numberOfBytesForSid = GetLengthSid(administratorSid);
+          sid = (PSID) malloc(numberOfBytesForSid);
+          if (unlikely(sid == NULL)) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            memcpy(sid, administratorSid, numberOfBytesForSid);
+          } /* if */
+        } /* if */
+      } else {
+        LookupAccountNameW(NULL, accountName, NULL, &numberOfBytesForSid,
+                           NULL, &numberOfCharsForDomainName, &sidNameUse);
+        sid = (PSID) malloc(numberOfBytesForSid);
+        if (unlikely(sid == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } else if (unlikely(!ALLOC_OS_STRI(domainName, numberOfCharsForDomainName))) {
+          free(sid);
+          *err_info = MEMORY_ERROR;
+          sid = NULL;
+        } else {
+          if (unlikely(LookupAccountNameW(NULL, accountName, sid, &numberOfBytesForSid,
+                                          domainName, &numberOfCharsForDomainName, &sidNameUse) == 0)) {
+            logError(printf("getSidFromName: LookupAccountNameW failed:\n"
+                            "lastError=" FMT_U32 "\n",
+                            (uint32Type) GetLastError()););
+            free(sid);
+            *err_info = FILE_ERROR;
+            sid = NULL;
+          } /* if */
+          FREE_OS_STRI(domainName);
+        } /* if */
       } /* if */
       os_stri_free(accountName);
     } /* if */
