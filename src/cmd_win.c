@@ -693,8 +693,7 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
     if (likely(accountName != NULL)) {
       if (memcmp(accountName, L"root\0", 5 * sizeof(os_charType)) == 0) {
         if (unlikely(administratorSid == NULL)) {
-          AllocateAndInitializeSid(&ntAuthority,
-                                   2, /* 2 sub-authorities */
+          AllocateAndInitializeSid(&ntAuthority, 2,
                                    SECURITY_BUILTIN_DOMAIN_RID,
                                    DOMAIN_ALIAS_RID_ADMINS,
                                    0, 0, 0, 0, 0, 0,
@@ -728,7 +727,7 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
                             "lastError=" FMT_U32 "\n",
                             (uint32Type) GetLastError()););
             free(sid);
-            *err_info = FILE_ERROR;
+            *err_info = RANGE_ERROR;
             sid = NULL;
           } /* if */
           FREE_OS_STRI(domainName);
@@ -875,6 +874,7 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
+    HANDLE fileHandle;
     PSID pSidGroup;
 
   /* cmdSetGroup */
@@ -885,19 +885,42 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
       logError(printf("cmdSetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
     } else {
-      pSidGroup = getSidFromName(group, &err_info);
-      if (unlikely(pSidGroup == NULL)) {
-        os_stri_free(os_path);
-        raise_error(err_info);
+      fileHandle = CreateFileW(os_path, WRITE_OWNER, 0,
+                               NULL, OPEN_EXISTING,
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("cmdSetGroup(\"%s\"): "
+                        "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
       } else {
-        SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                              GROUP_SECURITY_INFORMATION, NULL,
-                              pSidGroup, NULL, NULL);
-        free(pSidGroup);
-        os_stri_free(os_path);
+        pSidGroup = getSidFromName(group, &err_info);
+        if (likely(pSidGroup != NULL)) {
+          if (unlikely(SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+                                       GROUP_SECURITY_INFORMATION,
+                                       NULL, pSidGroup, NULL,
+                                       NULL) != ERROR_SUCCESS)) {
+            logError(printf("cmdSetGroup(\"%s\", ",
+                            striAsUnquotedCStri(filePath));
+                     printf("\"%s\"): "
+                            "SetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
+                            "lastError=" FMT_U32 "\n",
+                            striAsUnquotedCStri(group),
+                            (memSizeType) fileHandle,
+                            (uint32Type) GetLastError()););
+            err_info = FILE_ERROR;
+          } /* if */
+          free(pSidGroup);
+        } /* if */
+        CloseHandle(fileHandle);
       } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
   } /* cmdSetGroup */
 
@@ -909,6 +932,7 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
+    HANDLE fileHandle;
     PSID pSidOwner;
 
   /* cmdSetOwner */
@@ -919,19 +943,42 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
       logError(printf("cmdSetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
     } else {
-      pSidOwner = getSidFromName(owner, &err_info);
-      if (unlikely(pSidOwner == NULL)) {
-        os_stri_free(os_path);
-        raise_error(err_info);
+      fileHandle = CreateFileW(os_path, WRITE_OWNER, 0,
+                               NULL, OPEN_EXISTING,
+                               FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("cmdSetOwner(\"%s\"): "
+                        "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
       } else {
-        SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                              OWNER_SECURITY_INFORMATION, pSidOwner,
-                              NULL, NULL, NULL);
-        free(pSidOwner);
-        os_stri_free(os_path);
+        pSidOwner = getSidFromName(owner, &err_info);
+        if (likely(pSidOwner != NULL)) {
+          if (unlikely(SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+                                       OWNER_SECURITY_INFORMATION,
+                                       pSidOwner, NULL, NULL,
+                                       NULL) != ERROR_SUCCESS)) {
+            logError(printf("cmdSetOwner(\"%s\", ",
+                            striAsUnquotedCStri(filePath));
+                     printf("\"%s\"): "
+                            "SetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
+                            "lastError=" FMT_U32 "\n",
+                            striAsUnquotedCStri(owner),
+                            (memSizeType) fileHandle,
+                            (uint32Type) GetLastError()););
+            err_info = FILE_ERROR;
+          } /* if */
+          free(pSidOwner);
+        } /* if */
+        CloseHandle(fileHandle);
       } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
   } /* cmdSetOwner */
 
