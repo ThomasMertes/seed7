@@ -10012,6 +10012,21 @@ const proc: check_subtract_assign is func
     num :=  4611686018427387903; num -:= num; ok := ok and num = 0;
     num :=  9223372036854775806; num -:= num; ok := ok and num = 0;
     num :=         integer.last; num -:= num; ok := ok and num = 0;
+    arr[1] :=        integer.first; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] := -9223372036854775807; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] := -4611686018427387904; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] := -1234567890123456789; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=          -1073741825; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=          -1073741824; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=                   -1; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=                    0; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=                    1; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=           1073741823; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=           1073741824; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=  1234567890123456789; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=  4611686018427387903; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=  9223372036854775806; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
+    arr[1] :=         integer.last; arr[1] -:= arr[1]; ok := ok and arr[1] = 0;
     if not ok then
       writeln(" ***** Subtraction assignment with itself does not work correctly.");
       okay := FALSE;
