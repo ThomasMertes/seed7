@@ -18264,6 +18264,50 @@ const proc: chkMultAssign is func
     end if;
 
     ok := TRUE;
+    big1 := -18446744073709551616_; big1 *:= big1; ok := ok and big1 = 340282366920938463463374607431768211456_;
+    big1 := -18446744073709551615_; big1 *:= big1; ok := ok and big1 = 340282366920938463426481119284349108225_;
+    big1 := -13043817825332782213_; big1 *:= big1; ok := ok and big1 = 170141183460469231748655437451289177369_;
+    big1 := -13043817825332782212_; big1 *:= big1; ok := ok and big1 = 170141183460469231722567801800623612944_;
+    big1 := -12345678901234567890_; big1 *:= big1; ok := ok and big1 = 152415787532388367501905199875019052100_;
+    big1 :=  -9223372036854775808_; big1 *:= big1; ok := ok and big1 =  85070591730234615865843651857942052864_;
+    big1 :=  -9223372036854775807_; big1 *:= big1; ok := ok and big1 =  85070591730234615847396907784232501249_;
+    big1 :=  -4611686018427387906_; big1 *:= big1; ok := ok and big1 =  21267647932558653984907657038195064836_;
+    big1 :=  -4611686018427387905_; big1 *:= big1; ok := ok and big1 =  21267647932558653975684285001340289025_;
+    big1 :=      -199032864766431_; big1 *:= big1; ok := ok and big1 =           39614081257132410564184477761_;
+    big1 :=      -199032864766430_; big1 *:= big1; ok := ok and big1 =           39614081257132012498454944900_;
+    big1 :=      -123456789012345_; big1 *:= big1; ok := ok and big1 =           15241578753238669120562399025_;
+    big1 :=           -3037000499_; big1 *:= big1; ok := ok and big1 =                     9223372030926249001_;
+    big1 :=           -3037000498_; big1 *:= big1; ok := ok and big1 =                     9223372024852248004_;
+    big1 :=           -1234567890_; big1 *:= big1; ok := ok and big1 =                     1524157875019052100_;
+    big1 :=                -46341_; big1 *:= big1; ok := ok and big1 =                              2147488281_;
+    big1 :=                -46340_; big1 *:= big1; ok := ok and big1 =                              2147395600_;
+    big1 :=                -12345_; big1 *:= big1; ok := ok and big1 =                               152399025_;
+    big1 :=                    -1_; big1 *:= big1; ok := ok and big1 =                                       1_;
+    big1 :=                     0_; big1 *:= big1; ok := ok and big1 =                                       0_;
+    big1 :=                     1_; big1 *:= big1; ok := ok and big1 =                                       1_;
+    big1 :=                 12345_; big1 *:= big1; ok := ok and big1 =                               152399025_;
+    big1 :=                 46340_; big1 *:= big1; ok := ok and big1 =                              2147395600_;
+    big1 :=                 46341_; big1 *:= big1; ok := ok and big1 =                              2147488281_;
+    big1 :=            1234567890_; big1 *:= big1; ok := ok and big1 =                     1524157875019052100_;
+    big1 :=            3037000498_; big1 *:= big1; ok := ok and big1 =                     9223372024852248004_;
+    big1 :=            3037000499_; big1 *:= big1; ok := ok and big1 =                     9223372030926249001_;
+    big1 :=       123456789012345_; big1 *:= big1; ok := ok and big1 =           15241578753238669120562399025_;
+    big1 :=       199032864766430_; big1 *:= big1; ok := ok and big1 =           39614081257132012498454944900_;
+    big1 :=       199032864766431_; big1 *:= big1; ok := ok and big1 =           39614081257132410564184477761_;
+    big1 :=   4611686018427387905_; big1 *:= big1; ok := ok and big1 =  21267647932558653975684285001340289025_;
+    big1 :=   4611686018427387906_; big1 *:= big1; ok := ok and big1 =  21267647932558653984907657038195064836_;
+    big1 :=   9223372036854775807_; big1 *:= big1; ok := ok and big1 =  85070591730234615847396907784232501249_;
+    big1 :=   9223372036854775808_; big1 *:= big1; ok := ok and big1 =  85070591730234615865843651857942052864_;
+    big1 :=  12345678901234567890_; big1 *:= big1; ok := ok and big1 = 152415787532388367501905199875019052100_;
+    big1 :=  13043817825332782212_; big1 *:= big1; ok := ok and big1 = 170141183460469231722567801800623612944_;
+    big1 :=  13043817825332782213_; big1 *:= big1; ok := ok and big1 = 170141183460469231748655437451289177369_;
+    big1 :=  18446744073709551615_; big1 *:= big1; ok := ok and big1 = 340282366920938463426481119284349108225_;
+    big1 :=  18446744073709551616_; big1 *:= big1; ok := ok and big1 = 340282366920938463463374607431768211456_;
+    if not ok then
+      writeln("Multiplication assignment of bigInteger with itself does not work correctly.");
+    end if;
+
+    ok := TRUE;
     big1 := bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
     big1 *:= bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
     ok := ok and big1 = 16#14b66dc33f6acdca878d6495a927ab94fa645b6812e4895f6d3b523a7ca16729e012490ce65e44f452e93fdf501b22bec5c036b1b9d8008938972d842394de53ab6e24568d51bc1e1e451b28f70e99e8911c11fb60cb77b303f308cdca88557d76c9ffa034453347e9a0f6729e0211125c77ed4507beeedccf4ee417717bcca718b8ff635c630edca5e20890f2a63112330b11be88e95347c0341aec1f2c757d4d5d2419b56f97b2da862d474bb2b9e867af3674e1f5dc1df4d83fa27838fe53820148d00e7c20890f2a51fda4bf42be9c535b2b3b0264f4297c6458d1458729b6a56d866788a95f43ce76b3fdcbcb94d0f77fe1940eedca5e20890f2a521_;
@@ -18281,6 +18325,15 @@ const proc: chkMultAssign is func
     ok := ok and big1 = 16#fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001_;
     if not ok then
       writeln("Karatsuba multiplication assignment does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    big1 := bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
+    big1 *:= big1;
+    ok := ok and big1 = 16#14b66dc33f6acdca878d6495a927ab94fa645b6812e4895f6d3b523a7ca16729e012490ce65e44f452e93fdf501b22bec5c036b1b9d8008938972d842394de53ab6e24568d51bc1e1e451b28f70e99e8911c11fb60cb77b303f308cdca88557d76c9ffa034453347e9a0f6729e0211125c77ed4507beeedccf4ee417717bcca718b8ff635c630edca5e20890f2a63112330b11be88e95347c0341aec1f2c757d4d5d2419b56f97b2da862d474bb2b9e867af3674e1f5dc1df4d83fa27838fe53820148d00e7c20890f2a51fda4bf42be9c535b2b3b0264f4297c6458d1458729b6a56d866788a95f43ce76b3fdcbcb94d0f77fe1940eedca5e20890f2a521_;
+    if not ok then
+      writeln("Karatsuba multiplication assignment with itself does not work correctly.");
       okay := FALSE;
     end if;
 
