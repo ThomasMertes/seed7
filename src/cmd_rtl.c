@@ -844,9 +844,9 @@ static void move_any_file (const const_os_striType from_name,
   /* move_any_file */
     logFunction(printf("move_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                        from_name, to_name););
-    if (os_stat(to_name, &to_stat) == 0) {
+    if (os_lstat(to_name, &to_stat) == 0) {
       logError(printf("move_any_file: "
-                      "Destination " FMT_S_OS " exists already.\n",
+                      "Destination " FMT_S_OS " already exists.\n",
                       to_name););
       *err_info = FILE_ERROR;
     } else {
@@ -2085,9 +2085,9 @@ void cmdCloneFile (const const_striType sourcePath, const const_striType destPat
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(destPath), path_info, err_info););
       } else {
-        if (os_stat(os_destPath, &to_stat) == 0) {
+        if (os_lstat(os_destPath, &to_stat) == 0) {
           logError(printf("cmdCloneFile: "
-                          "Destination " FMT_S_OS " exists already.\n",
+                          "Destination " FMT_S_OS " already exists.\n",
                           os_destPath););
           err_info = FILE_ERROR;
         } else {
@@ -2444,9 +2444,9 @@ void cmdCopyFile (const const_striType sourcePath, const const_striType destPath
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(destPath), path_info, err_info););
       } else {
-        if (os_stat(os_destPath, &to_stat) == 0) {
+        if (os_lstat(os_destPath, &to_stat) == 0) {
           logError(printf("cmdCopyFile: "
-                          "Destination " FMT_S_OS " exists already.\n",
+                          "Destination " FMT_S_OS " already exists.\n",
                           os_destPath););
           err_info = FILE_ERROR;
         } else {
