@@ -878,10 +878,10 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
       if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
                                         &fileInfo) == 0)) {
         logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
-                        "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
                         "lastError=" FMT_U32 "\n",
-                        striAsUnquotedCStri(filePath),
-	                ospath, (uint32Type) GetLastError()););
+                        striAsUnquotedCStri(filePath), os_path,
+                        (uint32Type) GetLastError()););
         err_info = FILE_ERROR;
         group = NULL;
       } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
@@ -893,7 +893,7 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
       } else if (unlikely(GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
                                                 GROUP_SECURITY_INFORMATION,
                                                 NULL, &pSidGroup, NULL, NULL,
-	                                        &pSD) != ERROR_SUCCESS)) {
+                                                &pSD) != ERROR_SUCCESS)) {
         logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
                         "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
                         "lastError=" FMT_U32 "\n",
@@ -1007,10 +1007,10 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
       if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
                                         &fileInfo) == 0)) {
         logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
-                        "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
                         "lastError=" FMT_U32 "\n",
-                        striAsUnquotedCStri(filePath),
-	                ospath, (uint32Type) GetLastError()););
+                        striAsUnquotedCStri(filePath), os_path,
+                        (uint32Type) GetLastError()););
         err_info = FILE_ERROR;
         owner = NULL;
       } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {

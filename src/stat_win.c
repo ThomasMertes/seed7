@@ -162,7 +162,7 @@ static short unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
     unsigned int mode;
 
   /* fileAttr2UnixMode */
-    logFunction(printf("fileAttr2UnixMode(" FMT_X32 ", \"%ls\")\n",
+    logFunction(printf("fileAttr2UnixMode(0x" FMT_X32 ", \"%ls\")\n",
                        attr, path != NULL ? path : L"**NULL**"););
     mode = S_IRUSR | S_IRGRP | S_IROTH;
     if ((attr & FILE_ATTRIBUTE_READONLY) == 0) {
@@ -342,6 +342,7 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       memset(statBuf, 0, sizeof(os_stat_struct));
       statBuf->st_nlink = 1;
       if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+        /* printf("attr: 0x" FMT_X32 "\n", fileInfo.dwFileAttributes); */
         statBuf->st_mode = S_IFLNK | S_IRUSR | S_IRGRP | S_IROTH |
                                      S_IWUSR | S_IWGRP | S_IWOTH |
                                      S_IXUSR | S_IXGRP | S_IXOTH;
