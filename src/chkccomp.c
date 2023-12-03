@@ -6185,14 +6185,16 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_rename
+    fputs("#define DEFINE_WIN_RENAME\n", versionFile);
+    fputs("#define os_rename winRename\n", versionFile);
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
                                     "int main(int argc,char *argv[])\n"
                                     "{printf(\"%d\\n\",\n"
                                     "    _wrename(L\"testfile\", L\"newname\") == 0);\n"
                                     "return 0;}\n", "", SYSTEM_LIBS)) {
-      fputs("#define os_rename _wrename\n", versionFile);
+      fputs("#define os_rename_orig _wrename\n", versionFile);
     } else {
-      fprintf(logFile, "\n *** Cannot define os_rename.\n");
+      fprintf(logFile, "\n *** Cannot define os_rename_orig.\n");
       showErrors();
     } /* if */
 #endif

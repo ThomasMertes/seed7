@@ -70,6 +70,9 @@ int wsetenv (const const_os_striType name, const const_os_striType value,
 #ifdef DEFINE_WUNSETENV
 int wunsetenv (const const_os_striType name);
 #endif
+#ifdef DEFINE_WIN_RENAME
+int winRename (const const_os_striType oldPath, const const_os_striType newPath);
+#endif
 #if HAS_READLINK
 striType doReadLink (const const_striType filePath, errInfoType *err_info);
 #define HAS_DO_READ_LINK

@@ -45,6 +45,7 @@
 #ifdef OS_STRI_WCHAR
 #include "wchar.h"
 #endif
+#include "errno.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -452,6 +453,54 @@ int wunsetenv (const const_os_striType name)
     result = !SetEnvironmentVariableW(name, NULL);
     return result;
   } /* wunsetenv */
+#endif
+
+
+
+#ifdef DEFINE_WIN_RENAME
+/**
+ *  Renames a file, moving it between directories if required.
+ *  This function is a replacement for _wrename(), which does not work correctly.
+ *  Unlike the Linux/Unix/BSD rename() function the Windows _wrename() function
+ *  follows symbolic links and renames the link destination. This makes it
+ *  impossible to rename symbolic links with _wrename(). This function uses
+ *  MoveFileExW(), which does not follow symbolic links like the rename()
+ *  functions of Linux/Unix/BSD.
+ */
+int winRename (const const_os_striType oldPath, const const_os_striType newPath)
+
+  {
+    DWORD lastError;
+    int result;
+
+  /* winRename */
+    logFunction(printf("winRename(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                       oldPath, newPath););
+    if (unlikely(MoveFileExW(oldPath, newPath, MOVEFILE_REPLACE_EXISTING)) == 0) {
+      lastError = GetLastError();
+      logError(printf("winRename(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                      "MoveFileW failed:\nlastError=" FMT_U32 "\n",
+                      oldPath, newPath, (uint32Type) lastError););
+      if (lastError == ERROR_FILE_NOT_FOUND ||
+          lastError == ERROR_PATH_NOT_FOUND) {
+        errno = ENOENT;
+      } else if (lastError == ERROR_NOT_SAME_DEVICE) {
+#ifdef EXDEV
+        errno = EXDEV;
+#else
+        errno = EACCES;
+#endif
+      } else if (lastError == ERROR_PRIVILEGE_NOT_HELD) {
+        errno = EACCES;
+      } /* if */
+      result = -1;
+    } else {
+      result = 0;
+    } /* if */
+    logFunction(printf("winRename (\"" FMT_S_OS "\", \"" FMT_S_OS "\") --> %d\n",
+                       oldPath, newPath, result););
+    return result;
+  } /* winRename */
 #endif
 
 
