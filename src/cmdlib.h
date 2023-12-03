@@ -42,6 +42,7 @@ objectType cmd_get_ctime            (listType arguments);
 objectType cmd_get_group            (listType arguments);
 objectType cmd_get_group_of_symlink (listType arguments);
 objectType cmd_get_mtime            (listType arguments);
+objectType cmd_get_mtime_of_symlink (listType arguments);
 objectType cmd_get_owner            (listType arguments);
 objectType cmd_get_owner_of_symlink (listType arguments);
 objectType cmd_get_search_path      (listType arguments);

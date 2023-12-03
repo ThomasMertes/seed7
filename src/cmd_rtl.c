@@ -3057,7 +3057,8 @@ void cmdGetCTime (const const_striType filePath,
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  */
 void cmdGetMTime (const const_striType filePath,
     intType *year, intType *month, intType *day, intType *hour,
@@ -3091,9 +3092,11 @@ void cmdGetMTime (const const_striType filePath,
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       if (unlikely(stat_result != 0)) {
-        logError(printf("cmdGetMTime: os_stat(\"" FMT_S_OS "\") failed:\n"
+        logError(printf("cmdGetMTime(\"%s\"): "
+                        "os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
-                        os_path, errno, strerror(errno)););
+                        striAsUnquotedCStri(filePath), os_path,
+                        errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
         /* printf("cmdGetMTime: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
@@ -3111,6 +3114,80 @@ void cmdGetMTime (const const_striType filePath,
                        *year, *month, *day, *hour, *min, *sec,
                        *micro_sec, *time_zone, *is_dst););
   } /* cmdGetMTime */
+
+
+
+/**
+ *  Determine the modification time of a symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+void cmdGetMTimeOfSymlink (const const_striType filePath,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
+
+  {
+    os_striType os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdGetMTimeOfSymlink */
+    logFunction(printf("cmdGetMTimeOfSymlink(\"%s\")\n", striAsUnquotedCStri(filePath)););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        timFromTimestamp(0,
+            year, month, day, hour,
+            min, sec, micro_sec, time_zone, is_dst);
+      } else
+#endif
+      {
+        logError(printf("cmdGetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetMTimeOfSymlink(\"%s\"): "
+                        "os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        striAsUnquotedCStri(filePath), os_path,
+                        errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+      } else {
+        /* printf("cmdGetMTimeOfSymlink: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
+        timFromTimestamp(stat_buf.st_mtime,
+            year, month, day, hour,
+            min, sec, micro_sec, time_zone, is_dst);
+      } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    logFunction(printf("cmdGetMTimeOfSymlink(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
+                       *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
+  } /* cmdGetMTimeOfSymlink */
 
 
 

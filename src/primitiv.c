@@ -268,6 +268,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_GET_GROUP",              cmd_get_group,              },
     { "CMD_GET_GROUP_OF_SYMLINK",   cmd_get_group_of_symlink,   },
     { "CMD_GET_MTIME",              cmd_get_mtime,              },
+    { "CMD_GET_MTIME_OF_SYMLINK",   cmd_get_mtime_of_symlink,   },
     { "CMD_GET_OWNER",              cmd_get_owner,              },
     { "CMD_GET_OWNER_OF_SYMLINK",   cmd_get_owner_of_symlink,   },
     { "CMD_GET_SEARCH_PATH",        cmd_get_search_path,        },

@@ -490,7 +490,8 @@ objectType cmd_get_group_of_symlink (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_get_mtime (listType arguments)
 
@@ -509,15 +510,15 @@ objectType cmd_get_mtime (listType arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetMTime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intValue,
-            &arg_3(arguments)->value.intValue,
-            &arg_4(arguments)->value.intValue,
-            &arg_5(arguments)->value.intValue,
-            &arg_6(arguments)->value.intValue,
-            &arg_7(arguments)->value.intValue,
-            &arg_8(arguments)->value.intValue,
-            &arg_9(arguments)->value.intValue,
-            &is_dst);
+                &arg_2(arguments)->value.intValue,
+                &arg_3(arguments)->value.intValue,
+                &arg_4(arguments)->value.intValue,
+                &arg_5(arguments)->value.intValue,
+                &arg_6(arguments)->value.intValue,
+                &arg_7(arguments)->value.intValue,
+                &arg_8(arguments)->value.intValue,
+                &arg_9(arguments)->value.intValue,
+                &is_dst);
     if (is_dst) {
       arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
@@ -525,6 +526,54 @@ objectType cmd_get_mtime (listType arguments)
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
+
+
+
+/**
+ *  Determine the modification time of a symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+objectType cmd_get_mtime_of_symlink (listType arguments)
+
+  {
+    boolType is_dst;
+
+  /* cmd_get_mtime_of_symlink */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    isit_bool(arg_10(arguments));
+    cmdGetMTimeOfSymlink(take_stri(arg_1(arguments)),
+                         &arg_2(arguments)->value.intValue,
+                         &arg_3(arguments)->value.intValue,
+                         &arg_4(arguments)->value.intValue,
+                         &arg_5(arguments)->value.intValue,
+                         &arg_6(arguments)->value.intValue,
+                         &arg_7(arguments)->value.intValue,
+                         &arg_8(arguments)->value.intValue,
+                         &arg_9(arguments)->value.intValue,
+                         &is_dst);
+    if (is_dst) {
+      arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
+    } else {
+      arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_get_mtime_of_symlink */
 
 
 

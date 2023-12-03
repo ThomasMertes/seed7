@@ -47,6 +47,11 @@ const proc: GET_MTIME (in string: filePath, inout integer: year,
     inout integer: minute, inout integer: second, inout integer: micro_second,
     inout integer: timeZone, inout boolean: daylightSavingTime)  is action "CMD_GET_MTIME";
 
+const proc: GET_MTIME_OF_SYMLINK (in string: filePath, inout integer: year,
+    inout integer: month, inout integer: day, inout integer: hour,
+    inout integer: minute, inout integer: second, inout integer: micro_second,
+    inout integer: timeZone, inout boolean: daylightSavingTime)  is action "CMD_GET_MTIME_OF_SYMLINK";
+
 const proc: SET_ATIME (in string: filePath, in integer: year, in integer: month,
     in integer: day, in integer: hour, in integer: minute, in integer: second,
     in integer: micro_second, in integer: timeZone)              is action "CMD_SET_ATIME";
@@ -216,13 +221,39 @@ const func time: getCTime (in string: filePath) is func
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const func time: getMTime (in string: filePath) is func
   result
     var time: modificationTime is time.value;
   begin
-    GET_MTIME(filePath, modificationTime.year, modificationTime.month, modificationTime.day,
+    GET_MTIME(filePath,
+        modificationTime.year, modificationTime.month, modificationTime.day,
+        modificationTime.hour, modificationTime.minute, modificationTime.second,
+        modificationTime.micro_second, modificationTime.timeZone,
+        modificationTime.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Determine the modification time of a symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ *)
+const func time: getMTime (in string: filePath, SYMLINK) is func
+  result
+    var time: modificationTime is time.value;
+  begin
+    GET_MTIME_OF_SYMLINK(filePath,
+        modificationTime.year, modificationTime.month, modificationTime.day,
         modificationTime.hour, modificationTime.minute, modificationTime.second,
         modificationTime.micro_second, modificationTime.timeZone,
         modificationTime.daylightSavingTime);
