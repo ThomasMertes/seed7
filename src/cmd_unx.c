@@ -334,7 +334,7 @@ int unsetenvForNodeJs (const char *name)
 
 
 
-static striType getGroupFromGid (gid_t gid)
+static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
 
   {
 #if HAS_GETGRGID_R || HAS_GETGRGID
@@ -356,22 +356,27 @@ static striType getGroupFromGid (gid_t gid)
       logError(printf("getGroupFromGid: getgrgid_r(" FMT_U32 ", ...) failed:\n"
                       "errno=%d\nerror: %s\n",
                       gid, errno, strerror(errno)););
-      raise_error(FILE_ERROR);
+      *err_info = FILE_ERROR;
       group = NULL;
     } else
 #else
     grpResult = getgrgid(gid);
 #endif
-    if (grpResult != NULL) {
-      group = cstri8_or_cstri_to_stri(grpResult->gr_name);
-      if (unlikely(group == NULL)) {
-        raise_error(MEMORY_ERROR);
+    {
+      if (grpResult != NULL) {
+        group = cstri8_or_cstri_to_stri(grpResult->gr_name);
+      } else {
+        group = intStr((intType) gid);
       } /* if */
-    } else {
-      group = intStr((intType) gid);
-    } /* if */
+      if (unlikely(group == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+    }
 #else
     group = intStr((intType) gid);
+    if (unlikely(group == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } /* if */
 #endif
     return group;
   } /* getGroupFromGid */
@@ -444,7 +449,7 @@ static gid_t getGidFromGroup (const const_striType group, errInfoType *err_info)
 
 
 
-static striType getUserFromUid (uid_t uid)
+static striType getUserFromUid (uid_t uid, errInfoType *err_info)
 
   {
 #if HAS_GETPWUID_R || HAS_GETPWUID
@@ -466,22 +471,27 @@ static striType getUserFromUid (uid_t uid)
       logError(printf("getUserFromUid: getpwuid_r(" FMT_U32 ", ...) failed:\n"
                       "errno=%d\nerror: %s\n",
                       uid, errno, strerror(errno)););
-      raise_error(FILE_ERROR);
+      *err_info = FILE_ERROR;
       user = NULL;
     } else
 #else
     pwdResult = getpwuid(uid);
 #endif
-    if (pwdResult != NULL) {
-      user = cstri8_or_cstri_to_stri(pwdResult->pw_name);
-      if (unlikely(user == NULL)) {
-        raise_error(MEMORY_ERROR);
+    {
+      if (pwdResult != NULL) {
+        user = cstri8_or_cstri_to_stri(pwdResult->pw_name);
+      } else {
+        user = intStr((intType) uid);
       } /* if */
-    } else {
-      user = intStr((intType) uid);
-    } /* if */
+      if (unlikely(user == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+    }
 #else
     user = intStr((intType) uid);
+    if (unlikely(user == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } /* if */
 #endif
     return user;
   } /* getUserFromUid */
@@ -572,7 +582,6 @@ striType cmdGetGroup (const const_striType filePath)
       logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
       group = NULL;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -580,18 +589,68 @@ striType cmdGetGroup (const const_striType filePath)
         logError(printf("cmdGetGroup: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
-        os_stri_free(os_path);
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
         group = NULL;
       } else {
-        os_stri_free(os_path);
         /* printf("cmdGetGroup: st_gid=" FMT_U32 "\n", stat_buf.st_gid); */
-        group = getGroupFromGid(stat_buf.st_gid);
+        group = getGroupFromGid(stat_buf.st_gid, &err_info);
       } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(group == NULL)) {
+      raise_error(err_info);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
     return group;
   } /* cmdGetGroup */
+
+
+
+striType cmdGetGroupOfSymlink (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    os_stat_struct stat_buf;
+    int stat_result;
+    striType group;
+
+  /* cmdGetGroupOfSymlink */
+    logFunction(printf("cmdGetGroupOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      group = NULL;
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetGroupOfSymlink: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdGetGroupOfSymlink: "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        os_path););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else {
+        /* printf("cmdGetGroupOfSymlink: st_gid=" FMT_U32 "\n", stat_buf.st_gid); */
+        group = getGroupFromGid(stat_buf.st_gid, &err_info);
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(group == NULL)) {
+      raise_error(err_info);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
+    return group;
+  } /* cmdGetGroupOfSymlink */
 
 
 
@@ -613,7 +672,6 @@ striType cmdGetOwner (const const_striType filePath)
       logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
       owner = NULL;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -621,18 +679,69 @@ striType cmdGetOwner (const const_striType filePath)
         logError(printf("cmdGetOwner: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
-        os_stri_free(os_path);
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
         owner = NULL;
       } else {
-        os_stri_free(os_path);
         /* printf("cmdGetOwner: st_uid=" FMT_U32 "\n", stat_buf.st_uid); */
-        owner = getUserFromUid(stat_buf.st_uid);
+        owner = getUserFromUid(stat_buf.st_uid, &err_info);
       } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(owner == NULL)) {
+      raise_error(err_info);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwner */
+
+
+
+striType cmdGetOwnerOfSymlink (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    os_stat_struct stat_buf;
+    int stat_result;
+    striType owner;
+
+  /* cmdGetOwnerOfSymlink */
+    logFunction(printf("cmdGetOwnerOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      owner = NULL;
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetOwnerOfSymlink: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdGetOwnerOfSymlink: "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        os_path););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else {
+        os_stri_free(os_path);
+        /* printf("cmdGetOwnerOfSymlink: st_uid=" FMT_U32 "\n", stat_buf.st_uid); */
+        owner = getUserFromUid(stat_buf.st_uid, &err_info);
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(owner == NULL)) {
+      raise_error(err_info);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
+    return owner;
+  } /* cmdGetOwnerOfSymlink */
 
 
 
@@ -715,10 +824,14 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
 striType cmdUser (void)
 
   {
+    errInfoType err_info = OKAY_NO_ERROR;
     striType user;
 
   /* cmdUser */
-    user = getUserFromUid(getuid());
+    user = getUserFromUid(getuid(), &err_info);
+    if (unlikely(user == NULL)) {
+      raise_error(err_info);
+    } /* if */
     logFunction(printf("cmdUser() --> \"%s\"", striAsUnquotedCStri(user)););
     return user;
   } /* cmdUser */

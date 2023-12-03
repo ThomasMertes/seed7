@@ -849,7 +849,73 @@ striType cmdGetGroup (const const_striType filePath)
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
     return group;
-  } /* cmdGetGoup */
+  } /* cmdGetGroup */
+
+
+
+striType cmdGetGroupOfSymlink (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    PSECURITY_DESCRIPTOR pSD = NULL;
+    PSID pSidGroup = NULL;
+    striType group;
+
+  /* cmdGetGroupOfSymlink */
+    logFunction(printf("cmdGetGroupOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+      group = NULL;
+    } else {
+      if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
+                                        &fileInfo) == 0)) {
+        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                        "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+	                ospath, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else if (unlikely(GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                                                GROUP_SECURITY_INFORMATION,
+                                                NULL, &pSidGroup, NULL, NULL,
+	                                        &pSD) != ERROR_SUCCESS)) {
+        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                        "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else {
+        group = getNameFromSid(pSidGroup, &err_info);
+        /* The SID referenced by pSidOwner is located */
+        /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+        /* Therefore it is freed together with pSD.   */
+        LocalFree(pSD);
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(group == NULL)) {
+      raise_error(err_info);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
+    return group;
+  } /* cmdGetGroupOfSymlink */
 
 
 
@@ -914,6 +980,71 @@ striType cmdGetOwner (const const_striType filePath)
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwner */
+
+
+
+striType cmdGetOwnerOfSymlink (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    PSECURITY_DESCRIPTOR pSD = NULL;
+    PSID pSidOwner = NULL;
+    striType owner;
+
+  /* cmdGetOwnerOfSymlink */
+    logFunction(printf("cmdGetOwnerOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      owner = NULL;
+    } else {
+      if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
+                                        &fileInfo) == 0)) {
+        logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
+                        "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+	                ospath, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+        logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else if (unlikely(GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                                                OWNER_SECURITY_INFORMATION,
+                                                &pSidOwner, NULL, NULL, NULL,
+                                                &pSD) != ERROR_SUCCESS)) {
+        logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
+                        "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath),
+                        os_path, (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else {
+        owner = getNameFromSid(pSidOwner, &err_info);
+        /* The SID referenced by pSidOwner is located */
+        /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+        /* Therefore it is freed together with pSD.   */
+        LocalFree(pSD);
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(owner == NULL)) {
+      raise_error(err_info);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
+    return owner;
+  } /* cmdGetOwnerOfSymlink */
 
 
 

@@ -472,6 +472,16 @@ objectType cmd_get_group (listType arguments)
 
 
 
+objectType cmd_get_group_of_symlink (listType arguments)
+
+  { /* cmd_get_group_of_symlink */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdGetGroupOfSymlink(take_stri(arg_1(arguments))));
+  } /* cmd_get_group_of_symlink */
+
+
+
 /**
  *  Determine the modification time of a file.
  *  @return the modification time of the file.
@@ -525,6 +535,16 @@ objectType cmd_get_owner (listType arguments)
     return bld_stri_temp(
         cmdGetOwner(take_stri(arg_1(arguments))));
   } /* cmd_get_owner */
+
+
+
+objectType cmd_get_owner_of_symlink (listType arguments)
+
+  { /* cmd_get_owner_of_symlink */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdGetOwnerOfSymlink(take_stri(arg_1(arguments))));
+  } /* cmd_get_owner_of_symlink */
 
 
 

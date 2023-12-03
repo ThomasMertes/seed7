@@ -84,6 +84,8 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info);
 #endif
 #endif
 striType cmdGetGroup (const const_striType filePath);
+striType cmdGetGroupOfSymlink (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);
+striType cmdGetOwnerOfSymlink (const const_striType filePath);
 void cmdSetGroup (const const_striType filePath, const const_striType group);
 void cmdSetOwner (const const_striType filePath, const const_striType owner);

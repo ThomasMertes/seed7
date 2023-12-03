@@ -273,9 +273,23 @@ const proc: setMTime (in string: filePath, in time: aTime) is func
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const func string: getOwner (in string: filePath)            is action "CMD_GET_OWNER";
+
+
+(**
+ *  Determine the name of the owner (UID) of a symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ *)
+const func string: getOwner (in string: filePath, SYMLINK)   is action "CMD_GET_OWNER_OF_SYMLINK";
 
 
 (**
@@ -285,7 +299,8 @@ const func string: getOwner (in string: filePath)            is action "CMD_GET_
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const proc: setOwner (in string: filePath, in string: owner) is action "CMD_SET_OWNER";
 
@@ -302,6 +317,19 @@ const func string: getGroup (in string: filePath)            is action "CMD_GET_
 
 
 (**
+ *  Determine the name of the group (GID) to which a symbolic link belongs.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ *)
+const func string: getGroup (in string: filePath, SYMLINK)   is action "CMD_GET_GROUP_OF_SYMLINK";
+
+
+(**
  *  Set the group of a file.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type.
@@ -315,10 +343,10 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
 
 (**
  *  Reads the destination of a symbolic link.
- *  This function reads the link destination from the file system
- *  without any change. Symbolic links can be relative or absolute.
- *  Relative symbolic links are relative to their place in the
- *  file system and not relative to the current working directory.
+ *  This function reads the link destination stored in the file system.
+ *  Symbolic links can be relative or absolute. Relative symbolic links
+ *  are relative to their place in the file system and not relative to
+ *  the current working directory.
  *   readLink("/aDir/symbolicLink")            returns e.g. "../linkDest"
  *   readLink("/aDir/symbolicLink", ABSOLUTE)  returns e.g. "/aDir/linkDest"
  *  @param filePath Relative or absolute path of a symbolic link.
@@ -327,10 +355,11 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
  *             to the system path type or not enough memory to
  *             represent the result [[string]].
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
+ *             representation, or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist or is not a symbolic link.
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
  *)
 const func string: readLink (in string: filePath)            is action "CMD_READ_LINK";
 
@@ -342,11 +371,11 @@ const func string: readlink (in string: filePath) is
 
 (**
  *  Reads the absolute destination path of a symbolic link.
- *  Symbolic links can be relative or absolute. Relative symbolic links
- *  are relative to their place in the file system and not relative to
- *  the current working directory. For a relative symbolic link
- *  ''filePath'' is converted to an absolute path and the symbolic
- *  link is concatenated to that path.
+ *  The symbolic links stored in the file system can be relative or
+ *  absolute. Relative symbolic links are relative to their place in
+ *  the file system and not relative to the current working directory.
+ *  For a relative symbolic link ''filePath'' is converted to an
+ *  absolute path, and the symbolic link is concatenated to this path.
  *   readLink("/aDir/symbolicLink")            returns e.g. "../linkDest"
  *   readLink("/aDir/symbolicLink", ABSOLUTE)  returns e.g. "/aDir/linkDest"
  *  @param filePath Relative or absolute path of a symbolic link.
@@ -358,7 +387,8 @@ const func string: readlink (in string: filePath) is
  *             representation or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist or is not a symbolic link.
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
  *)
 const func string: readLink (in string: filePath, ABSOLUTE)  is action "CMD_READ_LINK_ABSOLUTE";
 
