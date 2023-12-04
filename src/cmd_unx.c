@@ -564,6 +564,16 @@ static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
 
 
 
+/**
+ *  Determine the name of the group (GID) to which a file belongs.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 striType cmdGetGroup (const const_striType filePath)
 
   {
@@ -606,6 +616,18 @@ striType cmdGetGroup (const const_striType filePath)
 
 
 
+/**
+ *  Determine the name of the group (GID) to which a symbolic link belongs.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 striType cmdGetGroupOfSymlink (const const_striType filePath)
 
   {
@@ -654,6 +676,16 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
 
 
 
+/**
+ *  Determine the name of the owner (UID) of a file.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 striType cmdGetOwner (const const_striType filePath)
 
   {
@@ -696,6 +728,18 @@ striType cmdGetOwner (const const_striType filePath)
 
 
 
+/**
+ *  Determine the name of the owner (UID) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 striType cmdGetOwnerOfSymlink (const const_striType filePath)
 
   {

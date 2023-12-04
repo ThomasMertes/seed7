@@ -59,9 +59,9 @@
 
 /**
  *  Convert an rtlArrayType to an arrayType object.
- *  The strings in ''anRtlArray'' are reused in the created arrayType
- *  object. The memory of ''anRtlArray'' itself is freed. It is assumed
- *  that ''anRtlArray'' is not used afterwards.
+ *  The strings in 'anRtlArray' are reused in the created arrayType
+ *  object. The memory of 'anRtlArray' itself is freed. It is assumed
+ *  that 'anRtlArray' is not used afterwards.
  *  @return the new created arrayType object.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system string type.
@@ -244,9 +244,9 @@ objectType cmd_environment (listType arguments)
 /**
  *  Determine the file mode (permissions) of a file.
  *  @return the file mode.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
@@ -372,6 +372,7 @@ objectType cmd_getenv (listType arguments)
 
 /**
  *  Determine the access time of a file.
+ *  The function follows symbolic links.
  *  @return the access time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -397,15 +398,15 @@ objectType cmd_get_atime (listType arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetATime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intValue,
-            &arg_3(arguments)->value.intValue,
-            &arg_4(arguments)->value.intValue,
-            &arg_5(arguments)->value.intValue,
-            &arg_6(arguments)->value.intValue,
-            &arg_7(arguments)->value.intValue,
-            &arg_8(arguments)->value.intValue,
-            &arg_9(arguments)->value.intValue,
-            &is_dst);
+                &arg_2(arguments)->value.intValue,
+                &arg_3(arguments)->value.intValue,
+                &arg_4(arguments)->value.intValue,
+                &arg_5(arguments)->value.intValue,
+                &arg_6(arguments)->value.intValue,
+                &arg_7(arguments)->value.intValue,
+                &arg_8(arguments)->value.intValue,
+                &arg_9(arguments)->value.intValue,
+                &is_dst);
     if (is_dst) {
       arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
@@ -418,6 +419,7 @@ objectType cmd_get_atime (listType arguments)
 
 /**
  *  Determine the change time of a file.
+ *  The function follows symbolic links.
  *  @return the change time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -443,15 +445,15 @@ objectType cmd_get_ctime (listType arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetCTime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intValue,
-            &arg_3(arguments)->value.intValue,
-            &arg_4(arguments)->value.intValue,
-            &arg_5(arguments)->value.intValue,
-            &arg_6(arguments)->value.intValue,
-            &arg_7(arguments)->value.intValue,
-            &arg_8(arguments)->value.intValue,
-            &arg_9(arguments)->value.intValue,
-            &is_dst);
+                &arg_2(arguments)->value.intValue,
+                &arg_3(arguments)->value.intValue,
+                &arg_4(arguments)->value.intValue,
+                &arg_5(arguments)->value.intValue,
+                &arg_6(arguments)->value.intValue,
+                &arg_7(arguments)->value.intValue,
+                &arg_8(arguments)->value.intValue,
+                &arg_9(arguments)->value.intValue,
+                &is_dst);
     if (is_dst) {
       arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
@@ -462,6 +464,16 @@ objectType cmd_get_ctime (listType arguments)
 
 
 
+/**
+ *  Determine the name of the group (GID) to which a file belongs.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 objectType cmd_get_group (listType arguments)
 
   { /* cmd_get_group */
@@ -472,6 +484,18 @@ objectType cmd_get_group (listType arguments)
 
 
 
+/**
+ *  Determine the name of the group (GID) to which a symbolic link belongs.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 objectType cmd_get_group_of_symlink (listType arguments)
 
   { /* cmd_get_group_of_symlink */
@@ -484,13 +508,14 @@ objectType cmd_get_group_of_symlink (listType arguments)
 
 /**
  *  Determine the modification time of a file.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or a system function returns an error.
  */
 objectType cmd_get_mtime (listType arguments)
@@ -531,13 +556,15 @@ objectType cmd_get_mtime (listType arguments)
 
 /**
  *  Determine the modification time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
  *  @return the modification time of the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or it is not a symbolic link, or a system function
  *             returns an error.
  */
@@ -577,6 +604,16 @@ objectType cmd_get_mtime_of_symlink (listType arguments)
 
 
 
+/**
+ *  Determine the name of the owner (UID) of a file.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 objectType cmd_get_owner (listType arguments)
 
   { /* cmd_get_owner */
@@ -587,6 +624,18 @@ objectType cmd_get_owner (listType arguments)
 
 
 
+/**
+ *  Determine the name of the owner (UID) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 objectType cmd_get_owner_of_symlink (listType arguments)
 
   { /* cmd_get_owner_of_symlink */
@@ -825,6 +874,7 @@ objectType cmd_setenv (listType arguments)
 
 /**
  *  Set the access time of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
@@ -881,6 +931,17 @@ objectType cmd_set_filemode (listType arguments)
 
 
 
+/**
+ *  Set the group of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 objectType cmd_set_group (listType arguments)
 
   { /* cmd_set_group */
@@ -895,6 +956,7 @@ objectType cmd_set_group (listType arguments)
 
 /**
  *  Set the modification time of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
@@ -930,6 +992,17 @@ objectType cmd_set_mtime (listType arguments)
 
 
 
+/**
+ *  Set the owner of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 objectType cmd_set_owner (listType arguments)
 
   { /* cmd_set_owner */

@@ -2921,6 +2921,7 @@ striType cmdGetenv (const const_striType name)
 
 /**
  *  Determine the access time of a file.
+ *  The function follows symbolic links.
  *  @return the access time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -2986,6 +2987,7 @@ void cmdGetATime (const const_striType filePath,
 
 /**
  *  Determine the change time of a file.
+ *  The function follows symbolic links.
  *  @return the change time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -3051,6 +3053,7 @@ void cmdGetCTime (const const_striType filePath,
 
 /**
  *  Determine the modification time of a file.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -3119,6 +3122,8 @@ void cmdGetMTime (const const_striType filePath,
 
 /**
  *  Determine the modification time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
  *  @return the modification time of the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
