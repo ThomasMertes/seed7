@@ -1876,7 +1876,7 @@ static int systemForNodeJs (const char *command)
 
 /**
  *  Determine the size of a file.
- *  The file size is measured in bytes.
+ *  The function follows symbolic links. The file size is measured in bytes.
  *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
@@ -2543,6 +2543,7 @@ rtlArrayType cmdEnvironment (void)
 
 /**
  *  Determine the file mode (permissions) of a file.
+ *  The function follows symbolic links.
  *  @return the file mode.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -2613,7 +2614,7 @@ setType cmdFileMode (const const_striType filePath)
 
 /**
  *  Determine the size of a file.
- *  The file size is measured in bytes.
+ *  The function follows symbolic links. The file size is measured in bytes.
  *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
