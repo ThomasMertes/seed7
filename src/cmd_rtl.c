@@ -3785,6 +3785,7 @@ void cmdSetenv (const const_striType name, const const_striType value)
 
 /**
  *  Set the access time of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
@@ -3849,6 +3850,7 @@ void cmdSetATime (const const_striType filePath,
 
 /**
  *  Change the file mode (permissions) of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
@@ -3918,6 +3920,7 @@ void cmdSetFileMode (const const_striType filePath, const const_setType mode)
 
 /**
  *  Set the modification time of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path

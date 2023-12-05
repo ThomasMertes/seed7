@@ -6148,12 +6148,14 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_chmod
+    fputs("#define DEFINE_WCHMOD_EXT\n", versionFile);
+    fputs("#define os_chmod wchmodExt\n", versionFile);
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
                                     "int main(int argc,char *argv[])\n"
                                     "{printf(\"%d\\n\",\n"
                                     "    _wchmod(L\"testfile\",0777) != -1);\n"
                                     "return 0;}\n", "", SYSTEM_LIBS)) {
-      fputs("#define os_chmod _wchmod\n", versionFile);
+      fputs("#define os_chmod_orig _wchmod\n", versionFile);
     } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n\n"
                                            "#include <io.h>\n"
                                            "int main(int argc,char *argv[])\n"
@@ -6161,9 +6163,9 @@ static void determineOsWCharFunctions (FILE *versionFile)
                                            "    _wchmod(L\"testfile\",0777) != -1);\n"
                                            "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define OS_CHMOD_INCLUDE_IO_H\n", versionFile);
-      fputs("#define os_chmod _wchmod\n", versionFile);
+      fputs("#define os_chmod_orig _wchmod\n", versionFile);
     } else {
-      fprintf(logFile, "\n *** Cannot define os_chmod.\n");
+      fprintf(logFile, "\n *** Cannot define os_chmod_orig.\n");
       showErrors();
     } /* if */
 #endif
@@ -6288,6 +6290,19 @@ static void determineOsWCharFunctions (FILE *versionFile)
                          "        NULL, 0, buffer, sizeof(buffer), &sz, NULL) != 0);\n"
                          "return 0;}\n")) {
       fputs("#define HAS_DEVICE_IO_CONTROL\n", versionFile);
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{HANDLE fileHandle;\n"
+                         "FILE_BASIC_INFO fileBasicInfoData;\n"
+                         "fileHandle = CreateFileA(\"tst_vers.h\", GENERIC_READ, 0, NULL,\n"
+                         "    OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |\n"
+                         "    FILE_FLAG_BACKUP_SEMANTICS, NULL);\n"
+                         "printf(\"%d\\n\", fileHandle != INVALID_HANDLE_VALUE &&\n"
+                         "    GetFileInformationByHandleEx(fileHandle, FileBasicInfo,\n"
+                         "        &fileBasicInfoData, sizeof(FILE_BASIC_INFO)) != 0);\n"
+                         "return 0;}\n")) {
+      fputs("#define HAS_GET_FILE_INFORMATION_BY_HANDLE_EX\n", versionFile);
     } /* if */
   } /* determineOsWCharFunctions */
 #endif

@@ -83,6 +83,9 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info);
 #define HAS_DO_READ_LINK
 #endif
 #endif
+#ifdef DEFINE_WCHMOD_EXT
+int wchmodExt (const wchar_t *path, int pmode);
+#endif
 striType cmdGetGroup (const const_striType filePath);
 striType cmdGetGroupOfSymlink (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);

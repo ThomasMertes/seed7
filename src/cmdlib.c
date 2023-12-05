@@ -913,6 +913,7 @@ objectType cmd_set_atime (listType arguments)
 
 /**
  *  Change the file mode (permissions) of a file.
+ *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path

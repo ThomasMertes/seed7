@@ -217,7 +217,7 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
         /* Follow the symbolic link and get the data from the destination. */
         fileHandle = CreateFileW(path, 0, FILE_SHARE_READ,
-                                 NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
+                                 NULL, OPEN_EXISTING,
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
           logError(printf("wstati64Ext: "

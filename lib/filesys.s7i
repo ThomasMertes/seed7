@@ -186,6 +186,7 @@ const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) i
 
 (**
  *  Change the file mode (permissions) of a file.
+ *  The function follows symbolic links.
  *  Not all file systems support this function.
  *)
 const proc: setFileMode (inout fileSys: fileSystem, in string: filePath,
