@@ -80,6 +80,12 @@ DWORD SetNamedSecurityInfoW (LPWSTR pObjectName,
 static SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
 static PSID administratorSid = NULL;
 
+#ifdef HAS_SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#define SYMBOLIC_LINK_FLAG SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#else
+#define SYMBOLIC_LINK_FLAG 0
+#endif
+
 
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
@@ -506,6 +512,102 @@ int winRename (const const_os_striType oldPath, const const_os_striType newPath)
 
 
 
+#ifdef DEFINE_WIN_SYMLINK
+static int wSymlink(const const_os_striType targetPath, const const_os_striType symlinkPath)
+
+  {
+    int result;
+
+  /* wSymlink */
+    logFunction(printf("wSymlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                       targetPath, symlinkPath););
+    if (unlikely(CreateSymbolicLinkW(symlinkPath, targetPath,
+                                     SYMBOLIC_LINK_FLAG) == 0)) {
+      logError(printf("wSymlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                      "CreateSymbolicLinkW(\"" FMT_S_OS "\", \"" FMT_S_OS
+                                           "\", " FMT_U32 ") failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      targetPath, symlinkPath, symlinkPath, targetPath,
+                      (uint32Type) SYMBOLIC_LINK_FLAG,
+                      (uint32Type) GetLastError()););
+      result = -1;
+    } else {
+      result = 0;
+    } /* if */
+    logFunction(printf("wSymlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\") --> %d\n",
+                       targetPath, symlinkPath, result););
+    return result;
+  } /* wSymlink */
+  
+
+
+void winSymlink (const const_striType targetPath,
+    const const_striType symlinkPath, errInfoType *err_info)
+  {
+    os_striType os_targetPath;
+    os_striType symlinkTargetPath;
+    os_striType os_symlinkPath;
+    int path_info;
+
+  /* winSymlink */
+    logFunction(printf("winSymlink(\"%s\", ",
+                       striAsUnquotedCStri(targetPath));
+                printf("\"%s\", %d)\n",
+                       striAsUnquotedCStri(symlinkPath), *err_info););
+    if (targetPath->size > 0 && targetPath->mem[0] == '/') {
+      /* Create a symbolic link to an absolute target. */
+      os_targetPath = cp_to_os_path(targetPath, &path_info, err_info);
+    } else
+#if FORBID_DRIVE_LETTERS
+    if (unlikely(targetPath->size >= 2 && (targetPath->mem[targetPath->size - 1] == '/' ||
+                 (targetPath->mem[1] == ':' &&
+                 ((targetPath->mem[0] >= 'a' && targetPath->mem[0] <= 'z') ||
+                  (targetPath->mem[0] >= 'A' && targetPath->mem[0] <= 'Z')))))) {
+#else
+    if (unlikely(targetPath->size >= 2 && targetPath->mem[targetPath->size - 1] == '/')) {
+#endif
+      logError(printf("winSymlink(\"%s\", ...): "
+                      "Target path with drive letters or not legal.\n",
+                      striAsUnquotedCStri(targetPath)););
+      *err_info = RANGE_ERROR;
+      os_targetPath = NULL;
+    } else if (unlikely(memchr_strelem(targetPath->mem, '\\', targetPath->size) != NULL)) {
+      logError(printf("winSymlink(\"%s\", ...): Target path contains a backslash.\n",
+                      striAsUnquotedCStri(targetPath)););
+      *err_info = RANGE_ERROR;
+      os_targetPath = NULL;
+    } else {
+      os_targetPath = stri_to_os_stri(targetPath, err_info);
+    } /* if */
+    if (likely(os_targetPath != NULL)) {
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+      if (memcmp(os_targetPath, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType)) == 0) {
+        /* Omit the extended path prefix from the target path. */
+        symlinkTargetPath = &os_targetPath[PREFIX_LEN];
+      } else {
+        symlinkTargetPath = os_targetPath;
+      } /* if */
+#else
+      symlinkTargetPath = os_targetPath;
+#endif
+      os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, err_info);
+      if (likely(os_symlinkPath != NULL)) {
+        if (unlikely(wSymlink(symlinkTargetPath, os_symlinkPath) != 0)) {
+          *err_info = FILE_ERROR;
+        } /* if */
+        os_stri_free(os_symlinkPath);
+      } /* if */
+      os_stri_free(os_targetPath);
+    } /* if */
+    logFunction(printf("winSymlink(\"%s\", ",
+                       striAsUnquotedCStri(targetPath));
+                printf("\"%s\", %d) -->\n",
+                       striAsUnquotedCStri(symlinkPath), *err_info););
+  } /* winSymlink */
+#endif
+
+
+
 #ifdef HAS_DEVICE_IO_CONTROL
 
 typedef struct {
@@ -616,7 +718,7 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                            &bytesReturned, NULL) == 0)) {
                 logError(printf("winReadLink(\"%s\", *): "
                                 "DeviceIoControl() failed:\n"
-                                "lastError=" FMT_U32 "%\n",
+                                "lastError=" FMT_U32 "\n",
                                 striAsUnquotedCStri(filePath),
                                 (uint32Type) GetLastError()););
                 *err_info = FILE_ERROR;
@@ -1002,6 +1104,7 @@ static striType getNameFromSid (PSID sid, errInfoType *err_info)
     } /* if */
     if (unlikely(administratorSid == NULL)) {
       *err_info = MEMORY_ERROR;
+      name = NULL;
     } else if (memcmp(sid, administratorSid, sizeof(SID)) == 0) {
       name = cstri_to_stri("root");
       if (unlikely(name == NULL)) {

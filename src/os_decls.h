@@ -89,6 +89,9 @@
 #ifndef os_rename
 #define os_rename rename
 #endif
+#ifndef os_symlink
+#define os_symlink symlink
+#endif
 #ifndef os_system
 #define os_system system
 #endif

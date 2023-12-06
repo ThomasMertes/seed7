@@ -702,7 +702,7 @@ static void copy_any_file (const const_os_striType from_name,
               link_destination[readlink_result] = '\0';
               /* printf("readlink_result=%lu\n", readlink_result);
                  printf("link=" FMT_S_OS "\n", link_destination); */
-              if (symlink(link_destination, to_name) != 0) {
+              if (os_symlink(link_destination, to_name) != 0) {
                 *err_info = FILE_ERROR;
               } /* if */
             } else {
@@ -4277,41 +4277,43 @@ striType cmdShellEscape (const const_striType stri)
 
 /**
  *  Create a symbolic link.
- *  The symbolic link 'destPath' will refer to 'sourcePath' afterwards.
- *  @param sourcePath String to be contained in the symbolic link.
- *  @param destPath Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
- *             destPath to the system path type.
- *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use the
+ *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
+ *             symlinkPath to the system path type.
+ *  @exception RANGE_ERROR 'targetPath' or 'symlinkPath' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
+void cmdSymlink (const const_striType targetPath, const const_striType symlinkPath)
 
   {
 #if HAS_SYMBOLIC_LINKS
-    os_striType os_sourcePath;
-    os_striType os_destPath;
+    os_striType os_targetPath;
+    os_striType os_symlinkPath;
     int path_info;
 #endif
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
-    logFunction(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(sourcePath));
-                printf("\"%s\")\n", striAsUnquotedCStri(destPath)););
+    logFunction(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(targetPath));
+                printf("\"%s\")\n", striAsUnquotedCStri(symlinkPath)););
 #if HAS_SYMBOLIC_LINKS
-    os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
-    if (likely(os_sourcePath != NULL)) {
-      os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
-      if (likely(os_destPath != NULL)) {
-        if (symlink(os_sourcePath, os_destPath) != 0) {
+    os_targetPath = cp_to_os_path(targetPath, &path_info, &err_info);
+    if (likely(os_targetPath != NULL)) {
+      os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, &err_info);
+      if (likely(os_symlinkPath != NULL)) {
+        if (os_symlink(os_targetPath, os_symlinkPath) != 0) {
           err_info = FILE_ERROR;
         } /* if */
-        os_stri_free(os_destPath);
+        os_stri_free(os_symlinkPath);
       } /* if */
-      os_stri_free(os_sourcePath);
+      os_stri_free(os_targetPath);
     } /* if */
+#elif defined DEFINE_WIN_SYMLINK
+    winSymlink(targetPath, symlinkPath, &err_info);
 #else
     err_info = FILE_ERROR;
 #endif

@@ -2992,12 +2992,12 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
                  ((std_path->mem[0] < 'a' || std_path->mem[0] > 'z') &&
                   (std_path->mem[0] < 'A' || std_path->mem[0] > 'Z'))))) {
 #endif
-      logError(printf("cp_to_os_path(\"%s\"): Path with drive letters or not legal.",
+      logError(printf("cp_to_os_path(\"%s\"): Path with drive letters or not legal.\n",
                       striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
       result = NULL;
     } else if (unlikely(memchr_strelem(std_path->mem, '\\', std_path->size) != NULL)) {
-      logError(printf("cp_to_os_path(\"%s\"): Path contains a backslash.",
+      logError(printf("cp_to_os_path(\"%s\"): Path contains a backslash.\n",
                       striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
       result = NULL;

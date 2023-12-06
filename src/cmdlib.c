@@ -1092,12 +1092,12 @@ objectType cmd_shell_escape (listType arguments)
 
 /**
  *  Create a symbolic link.
- *  The symbolic link 'destPath' will refer to 'sourcePath' afterwards.
- *  @param sourcePath/arg_1 String to be contained in the symbolic link.
- *  @param destPath/arg_2 Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
- *             destPath to the system path type.
- *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use the
+ *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
+ *  @param targetPath/arg_1 String to be contained in the symbolic link.
+ *  @param symlinkPath/arg_2 Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
+ *             symlinkPath to the system path type.
+ *  @exception RANGE_ERROR 'targetPath' or 'symlinkPath' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.

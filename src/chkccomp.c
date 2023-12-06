@@ -6200,6 +6200,30 @@ static void determineOsWCharFunctions (FILE *versionFile)
       showErrors();
     } /* if */
 #endif
+#ifndef os_symlink
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <windows.h>\n"
+                                    "int main(int argc, char *argv[]){\n"
+                                    "int okay=0;\n"
+                                    "if (CreateSymbolicLinkW(L\"test_symlink\",L\"qwertzuiop\",0) != 0) {\n"
+                                    "okay=1;\n"
+                                    "remove(\"test_symlink\");}\n"
+                                    "printf(\"%d\\n\", okay);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
+      fputs("#define DEFINE_WIN_SYMLINK\n", versionFile);
+      fputs("#define os_symlink winSymlink\n", versionFile);
+    } /* if */
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <windows.h>\n"
+                                    "int main(int argc, char *argv[]){\n"
+                                    "int okay=0;\n"
+                                    "if (CreateSymbolicLinkW(L\"test_symlink\",L\"qwertzuiop\",\n"
+                                    "SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0) {\n"
+                                    "okay=1;\n"
+                                    "remove(\"test_symlink\");}\n"
+                                    "printf(\"%d\\n\", okay);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS) && doTest() == 1) {
+      fputs("#define HAS_SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE\n", versionFile);
+    } /* if */
+#endif
 #ifndef os_system
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <stdlib.h>\n"
                                     "int main(int argc,char *argv[])\n"

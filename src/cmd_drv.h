@@ -83,6 +83,10 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info);
 #define HAS_DO_READ_LINK
 #endif
 #endif
+#ifdef DEFINE_WIN_SYMLINK
+void winSymlink (const const_striType targetPath,
+    const const_striType symlinkPath, errInfoType *err_info);
+#endif
 #ifdef DEFINE_WCHMOD_EXT
 int wchmodExt (const wchar_t *path, int pmode);
 #endif

@@ -446,17 +446,17 @@ const func string: readLink (in string: filePath, ABSOLUTE)  is action "CMD_READ
 
 (**
  *  Create a symbolic link.
- *  The symbolic link ''destPath'' will refer to ''sourcePath'' afterwards.
- *  @param sourcePath String to be contained in the symbolic link.
- *  @param destPath Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
- *             destPath to the system path type.
- *  @exception RANGE_ERROR ''sourcePath'' or ''destPath'' does not use the
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
+ *             symlinkPath to the system path type.
+ *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: symlink (in string: sourcePath, in string: destPath)   is action "CMD_SYMLINK";
+const proc: symlink (in string: targetPath, in string: symlinkPath)  is action "CMD_SYMLINK";
 
 
 (**
