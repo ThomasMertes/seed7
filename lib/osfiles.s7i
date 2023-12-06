@@ -126,7 +126,12 @@ const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILE
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func fileMode: fileMode (in string: filePath)          is action "CMD_FILEMODE";
+const func fileMode: getFileMode (in string: filePath)       is action "CMD_FILEMODE";
+
+
+# The function fileMode() is deprecated. Use getFileMode() instead.
+const func fileMode: fileMode (in string: filePath) is
+  return getFileMode(filePath);
 
 
 (**
@@ -798,8 +803,8 @@ const func fileType: fileType (inout osFileSys: fileSystem, in string: filePath)
 const func fileType: fileTypeSL (inout osFileSys: fileSystem, in string: filePath) is
   return fileTypeSL(filePath);
 
-const func fileMode: fileMode (inout osFileSys: fileSystem, in string: filePath) is
-  return fileMode(filePath);
+const func fileMode: getFileMode (inout osFileSys: fileSystem, in string: filePath) is
+  return getFileMode(filePath);
 
 const proc: setFileMode (inout osFileSys: fileSystem, in string: filePath,
     in fileMode: mode) is func

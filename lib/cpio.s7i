@@ -750,7 +750,7 @@ const func fileType: fileTypeSL (inout cpioArchive: cpio, in string: filePath) i
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
  *             the chain of symbolic links is too long.
  *)
-const func fileMode: fileMode (inout cpioArchive: cpio, in string: filePath) is func
+const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   begin

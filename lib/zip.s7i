@@ -1053,7 +1053,7 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
  *)
-const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is func
+const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   local
@@ -1096,7 +1096,7 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
           end if;
         when {ZIP_HOST_SYSTEM_UNIX}:
           # The unix mode is in the high 16 bits of the attributes.
-          mode := fileMode conv (header.external_file_attributes >> 16);
+          mode := fileMode(header.external_file_attributes >> 16);
         otherwise:
           mode := {READ_USER, READ_GROUP, READ_OTHER,
                    WRITE_USER, WRITE_GROUP, WRITE_OTHER};

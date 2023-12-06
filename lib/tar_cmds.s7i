@@ -40,7 +40,7 @@ const proc: setUpHead (in string: basePath, in string: filePath,
     in string: filePathSuffix, inout tarHeader: header) is func
   begin
     header.name     := (filePath & filePathSuffix)[.. 100];
-    header.mode     := fileMode(basePath & filePath);
+    header.mode     := getFileMode(basePath & filePath);
     header.uid      := 100;
     header.gid      := 100;
     header.fileSize := 0;

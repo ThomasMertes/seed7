@@ -2166,7 +2166,7 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
  *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
  *             the chain of symbolic links is too long.
  *)
-const func fileMode: fileMode (inout rpmArchive: rpm, in string: filePath) is func
+const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   begin

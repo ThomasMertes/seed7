@@ -612,7 +612,7 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
  *)
-const func fileMode: fileMode (inout arArchive: ar, in string: filePath) is func
+const func fileMode: getFileMode (inout arArchive: ar, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   local
@@ -630,7 +630,7 @@ const func fileMode: fileMode (inout arArchive: ar, in string: filePath) is func
       raise FILE_ERROR;
     end if;
     # writeln(filePath <& " mode: " <& modeValue radix 8);
-    mode := fileMode conv modeValue;
+    mode := fileMode(modeValue);
   end func;
 
 

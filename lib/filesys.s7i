@@ -89,14 +89,14 @@ const func fileMode: fileMode (in integer: int_mode) is
 const func fileMode: (attr fileMode) conv (in integer: int_mode) is
   return fileMode conv (bitset(int_mode));
 
-const func string: str (in fileMode: aFileMode) is func
+const func string: str (in fileMode: mode) is func
   result
     var string: permissions is "rwxrwxrwx";
   local
     var filePermission: aPermission is READ_USER;
   begin
     for aPermission range READ_USER downto EXEC_OTHER do
-      if aPermission not in aFileMode then
+      if aPermission not in mode then
         permissions @:= [9 - ord(aPermission)] '-';
       end if;
     end for;
@@ -181,7 +181,12 @@ const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath)
  *  The function follows symbolic links.
  *  @return the file mode.
  *)
-const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+const func fileMode: getFileMode (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+# The function fileMode() is deprecated. Use getFileMode() instead.
+const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) is
+  return getFileMode(fileSystem, filePath);
 
 
 (**

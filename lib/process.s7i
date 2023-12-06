@@ -324,7 +324,7 @@ const func string: commandPath (in string: command) is func
       for path range getSearchPath do
         filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
         if searching and fileType(filePath) = FILE_REGULAR and
-            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+            getFileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
           searching := FALSE;
           cmdPath := filePath;
         end if;
@@ -341,7 +341,7 @@ const func string: commandPath (in string: command) is func
         end if;
       end if;
       if fileType(cmdPath) <> FILE_REGULAR or
-          fileMode(cmdPath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} = fileMode.value then
+          getFileMode(cmdPath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} = fileMode.value then
         cmdPath := "";
       end if;
     end if;
@@ -366,7 +366,7 @@ const func string: commandDir (in string: command) is func
       for path range getSearchPath do
         filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
         if searching and fileType(filePath) = FILE_REGULAR and
-            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+            getFileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
           searching := FALSE;
           cmdDir := path;
         end if;
