@@ -685,9 +685,18 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
                        numberOfFollowsAllowed););
     substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
     if (substituteNameLength >= 1 && substituteName[0] == (wchar_t) '\\') {
-      if (substituteNameLength < PREFIX_LEN) {
+      /* An absolute substitute name starts with \??\c:\    */
+      /* (assuming that the drive letter of the path is c). */
+      /* Our check allows also variants of this prefix.     */
+      /* For the recursive call we need a prefix of \\?\c:\ */
+      /* (=PATH_PREFIX) instead.                            */
+      if (substituteNameLength < 7 ||
+          substituteName[2] != (wchar_t) '?'  ||
+          substituteName[3] != (wchar_t) '\\' ||
+          substituteName[5] != (wchar_t) ':'  ||
+          substituteName[6] != (wchar_t) '\\') {
         logError(printf("wchmodExt3(\"%ls\", \"%.*ls\", %hu, ...): "
-                        "The absolute substituteName is too short.\n",
+                        "The prefix of the absolute substitute name is wrong.\n",
                         path, (int) substituteNameByteLen / sizeof(wchar_t),
                         substituteName, substituteNameByteLen););
         errno = EACCES;
@@ -703,6 +712,12 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
         FREE_OS_STRI(destination);
       } /* if */
     } else {
+      /* A relative substitute name is relative to the  */
+      /* directory of the symlink (and not relative to  */
+      /* the current working directory). The relative   */
+      /* substitute name is concatenated to to the      */
+      /* directory of the given path (=directory of the */
+      /* symlink).                                      */
       lastBackslashPos = os_stri_strrchr(path, (wchar_t) '\\');
       if (unlikely(lastBackslashPos == NULL)) {
         logError(printf("wchmodExt3(\"%ls\", ...): "
@@ -735,7 +750,7 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
 static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowed)
 
   {
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    DWORD fileAttributes;
     HANDLE fileHandle;
     union info_t {
       char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
@@ -758,16 +773,16 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
       errno = ENOENT;
 #endif
       result = -1;
-    } else if (unlikely(GetFileAttributesExW(path, GetFileExInfoStandard,
-                                             &fileInfo) == 0)) {
+    } else if (unlikely((fileAttributes = GetFileAttributesW(path)) ==
+                        INVALID_FILE_ATTRIBUTES)) {
       logError(printf("wchmodExt2(\"%ls\", 0%o): "
-                      "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                      "GetFileAttributesW(\"%ls\") failed:\n"
                       "GetLastError=" FMT_U32 "\n",
                       path, pmode, path, (uint32Type) GetLastError()););
       errno = ENOENT;
       result = -1;
     } else {
-      if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+      if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
         fileHandle = CreateFileW(path, GENERIC_READ, 0, NULL,
                                  OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
@@ -887,23 +902,23 @@ int wchmodExt (const wchar_t *path, int pmode)
 int wchmodExt (const wchar_t *path, int pmode)
 
   {
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    DWORD fileAttributes;
     HANDLE fileHandle;
     FILE_BASIC_INFO fileBasicInfoData;
     int result = 0;
 
   /* wchmodExt */
     logFunction(printf("wchmodExt(\"%ls\", 0%o)\n", path, pmode););
-    if (unlikely(GetFileAttributesExW(path, GetFileExInfoStandard,
-                                      &fileInfo) == 0)) {
+    if (unlikely((fileAttributes = GetFileAttributesW(path)) ==
+                 INVALID_FILE_ATTRIBUTES)) {
       logError(printf("wchmodExt: "
-                      "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                      "GetFileAttributesW(\"%ls\") failed:\n"
                       "GetLastError=" FMT_U32 "\n",
                       path, (uint32Type) GetLastError()););
       errno = ENOENT;
       result = -1;
     } else {
-      if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+      if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
         /* Follow the symbolic link and set the data at the destination. */
         fileHandle = CreateFileW(path,
                                  FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
