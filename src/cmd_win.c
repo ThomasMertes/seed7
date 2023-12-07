@@ -632,7 +632,8 @@ typedef struct {
 #define IO_REPARSE_TAG_SYMLINK 0xa000000c
 #endif
 
-#define DRIVE_NAME_LENGTH 2
+#define DRIVE_NAME_LENGTH   2 /* Length of c: */
+#define DRIVE_PREFIX_LENGTH 6 /* Length of \\?\c: */
 
 
 
@@ -867,16 +868,15 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
         /* substitute name is concatenated to the drive taken    */
         /* from osSymlinkPath (=directory of the symlink). Only  */
         /* Windows has root relative symbolic links.             */
-        directoryPathLength = 6;  /* length of \\?\c: */
         if (unlikely(!ALLOC_OS_STRI(destination,
-                      directoryPathLength + substituteNameLength))) {
+                      DRIVE_PREFIX_LENGTH + substituteNameLength))) {
           errno = EACCES;
           result = -1;
         } else {
-          memcpy(destination, osSymlinkPath, directoryPathLength * sizeof(wchar_t));
-          memcpy(&destination[directoryPathLength],
+          memcpy(destination, osSymlinkPath, DRIVE_PREFIX_LENGTH * sizeof(wchar_t));
+          memcpy(&destination[DRIVE_PREFIX_LENGTH],
                  substituteName, substituteNameByteLen);
-          destination[directoryPathLength + substituteNameLength] = '\0';
+          destination[DRIVE_PREFIX_LENGTH + substituteNameLength] = '\0';
           result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
           FREE_OS_STRI(destination);
         } /* if */
@@ -885,6 +885,8 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
         result = -1;
       } else {
         memcpy(destination, substituteName, substituteNameByteLen);
+        /* Overwrite the substitute prefix \??\      */
+        /* with the extended length path prefix \\?\ */
         memcpy(destination, PATH_PREFIX, PREFIX_LEN * sizeof(wchar_t));
         destination[substituteNameLength] = '\0';
         result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
