@@ -97,4 +97,6 @@ striType cmdGetGroupOfSymlink (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);
 striType cmdGetOwnerOfSymlink (const const_striType filePath);
 void cmdSetGroup (const const_striType filePath, const const_striType group);
+void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType group);
 void cmdSetOwner (const const_striType filePath, const const_striType owner);
+void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType owner);

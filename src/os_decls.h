@@ -74,6 +74,9 @@
 #ifndef os_chown
 #define os_chown chown
 #endif
+#ifndef os_lchown
+#define os_lchown lchown
+#endif
 #ifndef os_chmod
 #define os_chmod chmod
 #endif

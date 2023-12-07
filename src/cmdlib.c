@@ -957,6 +957,31 @@ objectType cmd_set_group (listType arguments)
 
 
 /**
+ *  Set the group of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+objectType cmd_set_group_of_symlink (listType arguments)
+
+  { /* cmd_set_group_of_symlink */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSetGroupOfSymlink(take_stri(arg_1(arguments)),
+                         take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_set_group_of_symlink */
+
+
+
+/**
  *  Set the modification time of a file.
  *  The function follows symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
@@ -1014,6 +1039,31 @@ objectType cmd_set_owner (listType arguments)
                 take_stri(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* cmd_set_owner */
+
+
+
+/**
+ *  Set the owner of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+objectType cmd_set_owner_of_symlink (listType arguments)
+
+  { /* cmd_set_owner_of_symlink */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSetOwnerOfSymlink(take_stri(arg_1(arguments)),
+                         take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_set_owner_of_symlink */
 
 
 

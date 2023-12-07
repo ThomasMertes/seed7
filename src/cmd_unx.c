@@ -812,7 +812,7 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
         os_stri_free(os_path);
         raise_error(err_info);
       } else {
-        if (unlikely(os_chown(os_path, (gid_t) -1, gid) != 0)) {
+        if (unlikely(os_chown(os_path, (uid_t) -1, gid) != 0)) {
           logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, (long) gid, errno, strerror(errno)););
@@ -824,6 +824,54 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
       } /* if */
     } /* if */
   } /* cmdSetGroup */
+
+
+
+void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType group)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    os_stat_struct stat_buf;
+    gid_t gid;
+
+  /* cmdSetGroupOfSymlink */
+    logFunction(printf("cmdSetGroupOfSymlink(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(group)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+    } else {
+      if (unlikely(os_lstat(os_path, &stat_buf) != 0)) {
+        logError(printf("cmdSetGroupOfSymlink: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdSetGroupOfSymlink: "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        os_path););
+        err_info = FILE_ERROR;
+      } else {
+        gid = getGidFromGroup(group, &err_info);
+        if (likely(gid != (gid_t) -1)) {
+          if (unlikely(os_lchown(os_path, (uid_t) -1, gid) != 0)) {
+            logError(printf("cmdSetGroupOfSymlink: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            os_path, (long) gid, errno, strerror(errno)););
+            err_info = FILE_ERROR;
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetGroupOfSymlink */
 
 
 
@@ -862,6 +910,54 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
       } /* if */
     } /* if */
   } /* cmdSetOwner */
+
+
+
+void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType owner)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    os_stat_struct stat_buf;
+    uid_t uid;
+
+  /* cmdSetOwnerOfSymlink */
+    logFunction(printf("cmdSetOwnerOfSymlink(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(owner)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+    } else {
+      if (unlikely(os_lstat(os_path, &stat_buf) != 0)) {
+        logError(printf("cmdSetOwnerOfSymlink: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdSetOwnerOfSymlink: "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        os_path););
+        err_info = FILE_ERROR;
+      } else {
+        uid = getUidFromUser(owner, &err_info);
+        if (likely(uid != (uid_t) -1)) {
+          if (unlikely(os_lchown(os_path, uid, (gid_t) -1) != 0)) {
+            logError(printf("cmdSetOwnerOfSymlink: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            os_path, (long) uid, errno, strerror(errno)););
+            err_info = FILE_ERROR;
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetOwnerOfSymlink */
 
 
 
