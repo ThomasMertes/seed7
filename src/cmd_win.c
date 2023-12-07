@@ -1223,6 +1223,7 @@ striType cmdGetGroup (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     HANDLE fileHandle;
+    DWORD returnCode;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidGroup = NULL;
     striType group;
@@ -1249,15 +1250,16 @@ striType cmdGetGroup (const const_striType filePath)
         err_info = FILE_ERROR;
         group = NULL;
       } else {
-        if (unlikely(GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+        returnCode = GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
                                      GROUP_SECURITY_INFORMATION, NULL,
-                                     &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+                                     &pSidGroup, NULL, NULL, &pSD);
+        if (unlikely(returnCode != ERROR_SUCCESS)) {
           logError(printf("cmdGetGroup(\"%s\"): "
                           "GetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
-                          "lastError=" FMT_U32 "\n",
+                          "returnCode=" FMT_U32 "\n",
                           striAsUnquotedCStri(filePath),
                           (memSizeType) fileHandle,
-                          (uint32Type) GetLastError()););
+                          (uint32Type) returnCode););
           err_info = FILE_ERROR;
           group = NULL;
         } else {
@@ -1299,6 +1301,7 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     DWORD fileAttributes;
+    DWORD returnCode;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidGroup = NULL;
     striType group;
@@ -1329,23 +1332,26 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
         group = NULL;
-      } else if (unlikely(GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                                                GROUP_SECURITY_INFORMATION,
-                                                NULL, &pSidGroup, NULL, NULL,
-                                                &pSD) != ERROR_SUCCESS)) {
-        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
-                        "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                        "lastError=" FMT_U32 "\n",
-                        striAsUnquotedCStri(filePath),
-                        os_path, (uint32Type) GetLastError()););
-        err_info = FILE_ERROR;
-        group = NULL;
       } else {
-        group = getNameFromSid(pSidGroup, &err_info);
-        /* The SID referenced by pSidOwner is located */
-        /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-        /* Therefore it is freed together with pSD.   */
-        LocalFree(pSD);
+        returnCode = GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                                           GROUP_SECURITY_INFORMATION,
+                                           NULL, &pSidGroup, NULL, NULL,
+                                           &pSD);
+        if (unlikely(returnCode != ERROR_SUCCESS)) {
+          logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                          "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                          "returnCode=" FMT_U32 "\n",
+                          striAsUnquotedCStri(filePath),
+                          os_path, (uint32Type) returnCode););
+          err_info = FILE_ERROR;
+          group = NULL;
+        } else {
+          group = getNameFromSid(pSidGroup, &err_info);
+          /* The SID referenced by pSidOwner is located */
+          /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+          /* Therefore it is freed together with pSD.   */
+          LocalFree(pSD);
+        } /* if */
       } /* if */
       os_stri_free(os_path);
     } /* if */
@@ -1375,6 +1381,7 @@ striType cmdGetOwner (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     HANDLE fileHandle;
+    DWORD returnCode;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidOwner = NULL;
     striType owner;
@@ -1401,15 +1408,16 @@ striType cmdGetOwner (const const_striType filePath)
         err_info = FILE_ERROR;
         owner = NULL;
       } else {
-        if (unlikely(GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
-                                     OWNER_SECURITY_INFORMATION, &pSidOwner,
-                                     NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+        returnCode = GetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+                                     OWNER_SECURITY_INFORMATION,
+                                     &pSidOwner, NULL, NULL, NULL, &pSD);
+        if (unlikely(returnCode != ERROR_SUCCESS)) {
           logError(printf("cmdGetOwner(\"%s\"): "
                           "GetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
-                          "lastError=" FMT_U32 "\n",
+                          "returnCode=" FMT_U32 "\n",
                           striAsUnquotedCStri(filePath),
                           (memSizeType) fileHandle,
-                          (uint32Type) GetLastError()););
+                          (uint32Type) returnCode););
           err_info = FILE_ERROR;
           owner = NULL;
         } else {
@@ -1451,6 +1459,7 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     DWORD fileAttributes;
+    DWORD returnCode;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidOwner = NULL;
     striType owner;
@@ -1480,23 +1489,26 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
         owner = NULL;
-      } else if (unlikely(GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                                                OWNER_SECURITY_INFORMATION,
-                                                &pSidOwner, NULL, NULL, NULL,
-                                                &pSD) != ERROR_SUCCESS)) {
-        logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
-                        "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                        "lastError=" FMT_U32 "\n",
-                        striAsUnquotedCStri(filePath),
-                        os_path, (uint32Type) GetLastError()););
-        err_info = FILE_ERROR;
-        owner = NULL;
       } else {
-        owner = getNameFromSid(pSidOwner, &err_info);
-        /* The SID referenced by pSidOwner is located */
-        /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-        /* Therefore it is freed together with pSD.   */
-        LocalFree(pSD);
+        returnCode = GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                                           OWNER_SECURITY_INFORMATION,
+                                           &pSidOwner, NULL, NULL, NULL,
+                                           &pSD);
+        if (unlikely(returnCode != ERROR_SUCCESS)) {
+          logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
+                          "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                          "returnCode=" FMT_U32 "\n",
+                          striAsUnquotedCStri(filePath),
+                          os_path, (uint32Type) returnCode););
+          err_info = FILE_ERROR;
+          owner = NULL;
+        } else {
+          owner = getNameFromSid(pSidOwner, &err_info);
+          /* The SID referenced by pSidOwner is located */
+          /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+          /* Therefore it is freed together with pSD.   */
+          LocalFree(pSD);
+        } /* if */
       } /* if */
       os_stri_free(os_path);
     } /* if */
@@ -1516,6 +1528,7 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     HANDLE fileHandle;
+    DWORD returnCode;
     PSID pSidGroup;
 
   /* cmdSetGroup */
@@ -1540,18 +1553,18 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
       } else {
         pSidGroup = getSidFromName(group, &err_info);
         if (likely(pSidGroup != NULL)) {
-          if (unlikely(SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+          returnCode = SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
                                        GROUP_SECURITY_INFORMATION,
-                                       NULL, pSidGroup, NULL,
-                                       NULL) != ERROR_SUCCESS)) {
+                                       NULL, pSidGroup, NULL, NULL);
+          if (unlikely(returnCode != ERROR_SUCCESS)) {
             logError(printf("cmdSetGroup(\"%s\", ",
                             striAsUnquotedCStri(filePath));
                      printf("\"%s\"): "
                             "SetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
-                            "lastError=" FMT_U32 "\n",
+                            "returnCode=" FMT_U32 "\n",
                             striAsUnquotedCStri(group),
                             (memSizeType) fileHandle,
-                            (uint32Type) GetLastError()););
+                            (uint32Type) returnCode););
             err_info = FILE_ERROR;
           } /* if */
           free(pSidGroup);
@@ -1574,6 +1587,7 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     DWORD fileAttributes;
+    DWORD returnCode;
     PSID pSidGroup;
 
   /* cmdSetGroupOfSymlink */
@@ -1601,17 +1615,17 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
       } else {
         pSidGroup = getSidFromName(group, &err_info);
         if (likely(pSidGroup != NULL)) {
-          if (unlikely(SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+          returnCode = SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
                                              GROUP_SECURITY_INFORMATION,
-                                             NULL, pSidGroup, NULL,
-                                             NULL) != ERROR_SUCCESS)) {
+                                             NULL, pSidGroup, NULL, NULL);
+          if (unlikely(returnCode != ERROR_SUCCESS)) {
             logError(printf("cmdSetGroupOfSymlink(\"%s\", ",
                             striAsUnquotedCStri(filePath));
                      printf("\"%s\"): "
                             "SetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                            "lastError=" FMT_U32 "\n",
-                            striAsUnquotedCStri(owner), os_path,
-                            (uint32Type) GetLastError()););
+                            "returnCode=" FMT_U32 "\n",
+                            striAsUnquotedCStri(group), os_path,
+                            (uint32Type) returnCode););
             err_info = FILE_ERROR;
           } /* if */
           free(pSidGroup);
@@ -1633,6 +1647,7 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     HANDLE fileHandle;
+    DWORD returnCode;
     PSID pSidOwner;
 
   /* cmdSetOwner */
@@ -1657,18 +1672,18 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
       } else {
         pSidOwner = getSidFromName(owner, &err_info);
         if (likely(pSidOwner != NULL)) {
-          if (unlikely(SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
+          returnCode = SetSecurityInfo(fileHandle, SE_FILE_OBJECT,
                                        OWNER_SECURITY_INFORMATION,
-                                       pSidOwner, NULL, NULL,
-                                       NULL) != ERROR_SUCCESS)) {
+                                       pSidOwner, NULL, NULL, NULL);
+          if (unlikely(returnCode != ERROR_SUCCESS)) {
             logError(printf("cmdSetOwner(\"%s\", ",
                             striAsUnquotedCStri(filePath));
                      printf("\"%s\"): "
                             "SetSecurityInfo(" FMT_U_MEM ", ...) failed:\n"
-                            "lastError=" FMT_U32 "\n",
+                            "returnCode=" FMT_U32 "\n",
                             striAsUnquotedCStri(owner),
                             (memSizeType) fileHandle,
-                            (uint32Type) GetLastError()););
+                            (uint32Type) returnCode););
             err_info = FILE_ERROR;
           } /* if */
           free(pSidOwner);
@@ -1691,6 +1706,7 @@ void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType o
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     DWORD fileAttributes;
+    DWORD returnCode;
     PSID pSidOwner;
 
   /* cmdSetOwnerOfSymlink */
@@ -1718,17 +1734,17 @@ void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType o
       } else {
         pSidOwner = getSidFromName(owner, &err_info);
         if (likely(pSidOwner != NULL)) {
-          if (unlikely(SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+          returnCode = SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
                                              OWNER_SECURITY_INFORMATION,
-                                             pSidOwner, NULL, NULL,
-                                             NULL) != ERROR_SUCCESS)) {
+                                             pSidOwner, NULL, NULL, NULL);
+          if (unlikely(returnCode != ERROR_SUCCESS)) {
             logError(printf("cmdSetOwnerOfSymlink(\"%s\", ",
                             striAsUnquotedCStri(filePath));
                      printf("\"%s\"): "
                             "SetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
-                            "lastError=" FMT_U32 "\n",
+                            "returnCode=" FMT_U32 "\n",
                             striAsUnquotedCStri(owner), os_path,
-                            (uint32Type) GetLastError()););
+                            (uint32Type) returnCode););
             err_info = FILE_ERROR;
           } /* if */
           free(pSidOwner);
