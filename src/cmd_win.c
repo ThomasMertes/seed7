@@ -1298,7 +1298,7 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    DWORD fileAttributes;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidGroup = NULL;
     striType group;
@@ -1314,16 +1314,16 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
       raise_error(err_info);
       group = NULL;
     } else {
-      if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
-                                        &fileInfo) == 0)) {
+      if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
+                   INVALID_FILE_ATTRIBUTES)) {
         logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
-                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
+                        "GetFileAttributesW(\"" FMT_S_OS "\") failed:\n"
                         "lastError=" FMT_U32 "\n",
                         striAsUnquotedCStri(filePath), os_path,
                         (uint32Type) GetLastError()););
         err_info = FILE_ERROR;
         group = NULL;
-      } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+      } else if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
                         "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath), os_path););
@@ -1450,7 +1450,7 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
     os_striType os_path;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    DWORD fileAttributes;
     PSECURITY_DESCRIPTOR pSD = NULL;
     PSID pSidOwner = NULL;
     striType owner;
@@ -1465,16 +1465,16 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
                       striAsUnquotedCStri(filePath), path_info, err_info););
       owner = NULL;
     } else {
-      if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard,
-                                        &fileInfo) == 0)) {
+      if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
+                   INVALID_FILE_ATTRIBUTES)) {
         logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
-                        "GetFileAttributesExW(\"" FMT_S_OS "\", *) failed:\n"
+                        "GetFileAttributesW(\"" FMT_S_OS "\") failed:\n"
                         "lastError=" FMT_U32 "\n",
                         striAsUnquotedCStri(filePath), os_path,
                         (uint32Type) GetLastError()););
         err_info = FILE_ERROR;
         owner = NULL;
-      } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+      } else if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
                         "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath), os_path););
