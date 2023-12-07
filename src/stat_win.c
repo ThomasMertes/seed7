@@ -454,3 +454,87 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
     return result;
   } /* fstati64Ext */
 #endif
+
+
+
+#if defined DEFINE_WCHMOD_EXT && defined HAS_GET_FILE_INFORMATION_BY_HANDLE_EX
+int wchmodExt (const wchar_t *path, int pmode)
+
+  {
+    DWORD fileAttributes;
+    HANDLE fileHandle;
+    FILE_BASIC_INFO fileBasicInfoData;
+    int result = 0;
+
+  /* wchmodExt */
+    logFunction(printf("wchmodExt(\"%ls\", 0%o)\n", path, pmode););
+    if (unlikely((fileAttributes = GetFileAttributesW(path)) ==
+                 INVALID_FILE_ATTRIBUTES)) {
+      logError(printf("wchmodExt: "
+                      "GetFileAttributesW(\"%ls\") failed:\n"
+                      "GetLastError=" FMT_U32 "\n",
+                      path, (uint32Type) GetLastError()););
+      errno = ENOENT;
+      result = -1;
+    } else {
+      if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+        /* Follow the symbolic link and set the data at the destination. */
+        fileHandle = CreateFileW(path,
+                                 FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES,
+                                 0, NULL, OPEN_EXISTING,
+                                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+          logError(printf("wchmodExt: "
+                          "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                          "GetLastError=" FMT_U32 "\n",
+                          path, (uint32Type) GetLastError()););
+          errno = ENOENT;
+          result = -1;
+        } else {
+          if (unlikely(GetFileInformationByHandleEx(fileHandle, FileBasicInfo,
+                                                    &fileBasicInfoData,
+                                                    sizeof(FILE_BASIC_INFO)) == 0)) {
+            logError(printf("wchmodExt(\"%ls\", 0%o): "
+                            "GetFileInformationByHandleEx(" FMT_U_MEM ", *) failed:\n"
+                            "GetLastError=" FMT_U32 "\n",
+                            path, pmode, (memSizeType) fileHandle,
+                            (uint32Type) GetLastError()););
+            errno = EACCES;
+            result = -1;
+          } else {
+            /* printf("fileAttributes: 0x%lx\n",
+                (unsigned long) fileBasicInfoData.FileAttributes); */
+            if ((pmode & S_IWUSR) == 0) {
+              fileBasicInfoData.FileAttributes |= FILE_ATTRIBUTE_READONLY;
+              if ((fileBasicInfoData.FileAttributes & FILE_ATTRIBUTE_NORMAL) != 0) {
+                fileBasicInfoData.FileAttributes &= ~((DWORD) FILE_ATTRIBUTE_NORMAL);
+              } /* if */
+            } else if ((fileBasicInfoData.FileAttributes & FILE_ATTRIBUTE_READONLY) != 0) {
+              fileBasicInfoData.FileAttributes &= ~((DWORD) FILE_ATTRIBUTE_READONLY);
+              if (fileBasicInfoData.FileAttributes == 0) {
+                fileBasicInfoData.FileAttributes = FILE_ATTRIBUTE_NORMAL;
+              } /* if */
+            } /* if */
+            /* printf("fileAttributes: 0x%lx\n",
+                (unsigned long) fileBasicInfoData.FileAttributes); */
+            if (unlikely(SetFileInformationByHandle(fileHandle, FileBasicInfo,
+                                                    &fileBasicInfoData,
+                                                    sizeof(FILE_BASIC_INFO)) == 0)) {
+              logError(printf("wchmodExt(\"%ls\", 0%o): "
+                              "SetFileInformationByHandle(" FMT_U_MEM ", *) failed:\n"
+                              "GetLastError=" FMT_U32 "\n",
+                              path, pmode, (memSizeType) fileHandle,
+                              (uint32Type) GetLastError()););
+              errno = EACCES;
+              result = -1;
+            } /* if */
+          } /* if */
+        } /* if */
+      } else {
+        result = os_chmod_orig(path, pmode);
+      } /* if */
+    } /* if */
+    logFunction(printf("wchmodExt --> %d\n", result););
+    return result;
+  } /* wchmodExt */
+#endif

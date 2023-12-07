@@ -226,3 +226,6 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
 #ifdef DEFINE_FSTATI64_EXT
 int fstati64Ext (int fd, os_fstat_struct *statBuf);
 #endif
+#if defined DEFINE_WCHMOD_EXT && defined HAS_GET_FILE_INFORMATION_BY_HANDLE_EX
+int wchmodExt (const wchar_t *path, int pmode);
+#endif
