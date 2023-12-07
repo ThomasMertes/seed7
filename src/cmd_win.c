@@ -633,6 +633,70 @@ typedef struct {
 #define IO_REPARSE_TAG_SYMLINK 0xa000000c
 #endif
 
+#define DRIVE_NAME_LENGTH 2
+
+
+
+static striType getSymlinkDestination (const wchar_t *osSymlinkPath,
+    const wchar_t *substituteName, USHORT substituteNameByteLen,
+    errInfoType *err_info)
+
+  {
+    USHORT substituteNameLength;
+    wchar_t *osTargetPath;
+    striType destination;
+
+  /* getSymlinkDestination */
+    logFunction(printf("getSymlinkDestination(\"%ls\", \"%.*ls\", %hu, %d)\n",
+                       osSymlinkPath, (int) substituteNameByteLen / sizeof(wchar_t),
+                       substituteName, substituteNameByteLen, *err_info););
+    substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
+    if (substituteNameLength >= 1 && substituteName[0] == (wchar_t) '\\') {
+      /* An absolute substitute name starts with \??\c:\    */
+      /* (assuming that the drive letter of the path is c). */
+      /* Our check allows also variants of this prefix.     */
+      if (substituteNameLength < 7 ||
+          substituteName[2] != (wchar_t) '?'  ||
+          substituteName[3] != (wchar_t) '\\' ||
+          substituteName[5] != (wchar_t) ':'  ||
+          substituteName[6] != (wchar_t) '\\') {
+        /* This is a root relative symbolic link. It is relative */
+        /* to the drive of the symlink (and not relative to the  */
+        /* current working drive). A root relative symbolic link */
+        /* is converted to an absolute link. The root relative   */
+        /* substitute name is concatenated to the drive taken    */
+        /* from osSymlinkPath (=directory of the symlink). Only  */
+        /* Windows has root relative symbolic links.             */
+        if (unlikely(!ALLOC_OS_STRI(osTargetPath,
+                      DRIVE_NAME_LENGTH + substituteNameLength))) {
+          *err_info = MEMORY_ERROR;
+          destination = NULL;
+        } else {
+          memcpy(osTargetPath, &osSymlinkPath[PREFIX_LEN],
+                 DRIVE_NAME_LENGTH * sizeof(wchar_t));
+          memcpy(&osTargetPath[DRIVE_NAME_LENGTH],
+                 substituteName, substituteNameByteLen);
+          destination = cp_from_os_path_buffer(osTargetPath,
+                                               DRIVE_NAME_LENGTH + substituteNameLength,
+                                               err_info);
+          FREE_OS_STRI(osTargetPath);
+        } /* if */
+      } else {
+        /* Skip the prefix \??\ */
+        destination = cp_from_os_path_buffer(&substituteName[PREFIX_LEN],
+                                             substituteNameLength - PREFIX_LEN,
+                                             err_info);
+      } /* if */
+    } else {
+      destination = cp_from_os_path_buffer(substituteName,
+                                           substituteNameLength,
+                                           err_info);
+    } /* if */
+    logFunction(printf("getSymlinkDestination --> \"%s\"\n",
+                       striAsUnquotedCStri(destination)););
+    return destination;
+  } /* getSymlinkDestination */
+
 
 
 /**
@@ -730,10 +794,10 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                 (uint32Type) reparseDataBuffer->ReparseTag););
                 *err_info = FILE_ERROR;
               } else {
-                destination = cp_from_os_path_buffer(
+                destination = getSymlinkDestination(os_filePath,
                     &((wchar_t *) reparseDataBuffer->SymbolicLinkReparseBuffer.PathBuffer)[
-                        reparseDataBuffer->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t)],
-                    reparseDataBuffer->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t),
+                        reparseDataBuffer->SymbolicLinkReparseBuffer.SubstituteNameOffset / sizeof(wchar_t)],
+                    reparseDataBuffer->SymbolicLinkReparseBuffer.SubstituteNameLength,
                     err_info);
               } /* if */
               free(reparseDataBuffer);
@@ -747,10 +811,10 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                           (uint32Type) info.reparseDataBuffer.ReparseTag););
           *err_info = FILE_ERROR;
         } else {
-          destination = cp_from_os_path_buffer(
+          destination = getSymlinkDestination(os_filePath,
               &((wchar_t *) info.reparseDataBuffer.SymbolicLinkReparseBuffer.PathBuffer)[
-                  info.reparseDataBuffer.SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t)],
-              info.reparseDataBuffer.SymbolicLinkReparseBuffer.PrintNameLength / sizeof(wchar_t),
+                  info.reparseDataBuffer.SymbolicLinkReparseBuffer.SubstituteNameOffset / sizeof(wchar_t)],
+              info.reparseDataBuffer.SymbolicLinkReparseBuffer.SubstituteNameLength,
               err_info);
         } /* if */
         CloseHandle(fileHandle);
@@ -770,7 +834,7 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
 
 
 
-static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
+static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteName,
     USHORT substituteNameByteLen, int pmode, int numberOfFollowsAllowed)
 
   {
@@ -782,7 +846,7 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
 
   /* wchmodExt3 */
     logFunction(printf("wchmodExt3(\"%ls\", \"%.*ls\", %hu, 0%o, %d)\n",
-                       path, (int) substituteNameByteLen / sizeof(wchar_t),
+                       osSymlinkPath, (int) substituteNameByteLen / sizeof(wchar_t),
                        substituteName, substituteNameByteLen, pmode,
                        numberOfFollowsAllowed););
     substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
@@ -797,12 +861,26 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
           substituteName[3] != (wchar_t) '\\' ||
           substituteName[5] != (wchar_t) ':'  ||
           substituteName[6] != (wchar_t) '\\') {
-        logError(printf("wchmodExt3(\"%ls\", \"%.*ls\", %hu, ...): "
-                        "The prefix of the absolute substitute name is wrong.\n",
-                        path, (int) substituteNameByteLen / sizeof(wchar_t),
-                        substituteName, substituteNameByteLen););
-        errno = EACCES;
-        result = -1;
+        /* This is a root relative symbolic link. It is relative */
+        /* to the drive of the symlink (and not relative to the  */
+        /* current working drive). A root relative symbolic link */
+        /* is converted to an absolute link. The root relative   */
+        /* substitute name is concatenated to the drive taken    */
+        /* from osSymlinkPath (=directory of the symlink). Only  */
+        /* Windows has root relative symbolic links.             */
+        directoryPathLength = 6;  /* length of \\?\c: */
+        if (unlikely(!ALLOC_OS_STRI(destination,
+                      directoryPathLength + substituteNameLength))) {
+          errno = EACCES;
+          result = -1;
+        } else {
+          memcpy(destination, osSymlinkPath, directoryPathLength * sizeof(wchar_t));
+          memcpy(&destination[directoryPathLength],
+                 substituteName, substituteNameByteLen);
+          destination[directoryPathLength + substituteNameLength] = '\0';
+          result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
+          FREE_OS_STRI(destination);
+        } /* if */
       } else if (unlikely(!ALLOC_OS_STRI(destination, substituteNameLength))) {
         errno = EACCES;
         result = -1;
@@ -814,27 +892,27 @@ static int wchmodExt3 (const wchar_t *path, const wchar_t *substituteName,
         FREE_OS_STRI(destination);
       } /* if */
     } else {
-      /* A relative substitute name is relative to the  */
-      /* directory of the symlink (and not relative to  */
-      /* the current working directory). The relative   */
-      /* substitute name is concatenated to to the      */
-      /* directory of the given path (=directory of the */
-      /* symlink).                                      */
-      lastBackslashPos = os_stri_strrchr(path, (wchar_t) '\\');
+      /* A relative substitute name is relative to the    */
+      /* directory of the symlink (and not relative to    */
+      /* the current working directory). The relative     */
+      /* substitute name is concatenated to the directory */
+      /* of the given osSymlinkPath (=directory of the    */
+      /* symlink).                                        */
+      lastBackslashPos = os_stri_strrchr(osSymlinkPath, (wchar_t) '\\');
       if (unlikely(lastBackslashPos == NULL)) {
         logError(printf("wchmodExt3(\"%ls\", ...): "
                         "Absolute path does not contain a backslash.\n",
-                        path););
+                        osSymlinkPath););
         errno = EACCES;
         result = -1;
       } else {
-        directoryPathLength = (lastBackslashPos - path) + 1;
+        directoryPathLength = (lastBackslashPos - osSymlinkPath) + 1;
         if (unlikely(!ALLOC_OS_STRI(destination,
                       directoryPathLength + substituteNameLength))) {
           errno = EACCES;
           result = -1;
         } else {
-          memcpy(destination, path, directoryPathLength * sizeof(wchar_t));
+          memcpy(destination, osSymlinkPath, directoryPathLength * sizeof(wchar_t));
           memcpy(&destination[directoryPathLength],
                  substituteName, substituteNameByteLen);
           destination[directoryPathLength + substituteNameLength] = '\0';
