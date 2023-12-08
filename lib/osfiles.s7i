@@ -120,6 +120,37 @@ const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILE
 
 
 (**
+ *  Determine the size of a file.
+ *  The function follows symbolic links. The file size is measured in bytes.
+ *  For directories, fifos and sockets a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR The file size is not representable as integer.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ *)
+const func integer: fileSize (in string: filePath)           is action "CMD_FILESIZE";
+
+
+(**
+ *  Determine the size of a file.
+ *  The function follows symbolic links. The file size is measured in bytes.
+ *  For directories, fifos and sockets a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ *)
+const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_FILESIZE";
+
+
+(**
  *  Determine the file mode (permissions) of a file.
  *  The function follows symbolic links.
  *  @return the file mode.
@@ -152,37 +183,6 @@ const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_
 
 
 (**
- *  Determine the size of a file.
- *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories, fifos and sockets a size of 0 is returned.
- *  @return the size of the file.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception RANGE_ERROR The file size is not representable as integer.
- *  @exception FILE_ERROR It was not possible to determine the file size.
- *)
-const func integer: fileSize (in string: filePath)           is action "CMD_FILESIZE";
-
-
-(**
- *  Determine the size of a file.
- *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories, fifos and sockets a size of 0 is returned.
- *  @return the size of the file.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR It was not possible to determine the file size.
- *)
-const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_FILESIZE";
-
-
-(**
  *  Determine the access time of a file.
  *  The function follows symbolic links.
  *  @return the access time of the file.
@@ -201,6 +201,26 @@ const func time: getATime (in string: filePath) is func
         accessTime.hour, accessTime.minute, accessTime.second,
         accessTime.micro_second, accessTime.timeZone,
         accessTime.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Set the access time of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: setATime (in string: filePath, in time: aTime) is func
+  begin
+    SET_ATIME(filePath, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone);
   end func;
 
 
@@ -251,6 +271,81 @@ const func time: getMTime (in string: filePath) is func
 
 
 (**
+ *  Set the modification time of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
+ *)
+const proc: setMTime (in string: filePath, in time: aTime) is func
+  begin
+    SET_MTIME(filePath, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone);
+  end func;
+
+
+(**
+ *  Determine the name of the owner (UID) of a file.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
+ *)
+const func string: getOwner (in string: filePath)            is action "CMD_GET_OWNER";
+
+
+(**
+ *  Set the owner of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
+ *)
+const proc: setOwner (in string: filePath, in string: owner) is action "CMD_SET_OWNER";
+
+
+(**
+ *  Determine the name of the group (GID) to which a file belongs.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
+ *)
+const func string: getGroup (in string: filePath)            is action "CMD_GET_GROUP";
+
+
+(**
+ *  Set the group of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
+ *)
+const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_GROUP";
+
+
+(**
  *  Determine the modification time of a symbolic link.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
@@ -273,47 +368,6 @@ const func time: getMTime (in string: filePath, SYMLINK) is func
         modificationTime.hour, modificationTime.minute, modificationTime.second,
         modificationTime.micro_second, modificationTime.timeZone,
         modificationTime.daylightSavingTime);
-  end func;
-
-
-(**
- *  Set the access time of a file.
- *  The function follows symbolic links.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
- *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
- *)
-const proc: setATime (in string: filePath, in time: aTime) is func
-  begin
-    SET_ATIME(filePath, aTime.year, aTime.month, aTime.day,
-        aTime.hour, aTime.minute, aTime.second,
-        aTime.micro_second, aTime.timeZone);
-  end func;
-
-
-(**
- *  Set the modification time of a file.
- *  The function follows symbolic links.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
- *             converted to the system file time.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or a system function returns an error.
- *)
-const proc: setMTime (in string: filePath, in time: aTime) is func
-  begin
-    SET_MTIME(filePath, aTime.year, aTime.month, aTime.day,
-        aTime.hour, aTime.minute, aTime.second,
-        aTime.micro_second, aTime.timeZone);
   end func;
 
 
@@ -341,19 +395,6 @@ const proc: setMTime (in string: filePath, in time: aTime, SYMLINK) is func
 
 
 (**
- *  Determine the name of the owner (UID) of a file.
- *  The function follows symbolic links.
- *  @return the name of the file owner.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or a system function returns an error.
- *)
-const func string: getOwner (in string: filePath)            is action "CMD_GET_OWNER";
-
-
-(**
  *  Determine the name of the owner (UID) of a symbolic link.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
@@ -366,20 +407,6 @@ const func string: getOwner (in string: filePath)            is action "CMD_GET_
  *             returns an error.
  *)
 const func string: getOwner (in string: filePath, SYMLINK)   is action "CMD_GET_OWNER_OF_SYMLINK";
-
-
-(**
- *  Set the owner of a file.
- *  The function follows symbolic links.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or a system function returns an error.
- *)
-const proc: setOwner (in string: filePath, in string: owner) is action "CMD_SET_OWNER";
 
 
 (**
@@ -399,19 +426,6 @@ const proc: setOwner (in string: filePath, in string: owner, SYMLINK) is action 
 
 
 (**
- *  Determine the name of the group (GID) to which a file belongs.
- *  The function follows symbolic links.
- *  @return the name of the file group.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or a system function returns an error.
- *)
-const func string: getGroup (in string: filePath)            is action "CMD_GET_GROUP";
-
-
-(**
  *  Determine the name of the group (GID) to which a symbolic link belongs.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
@@ -424,20 +438,6 @@ const func string: getGroup (in string: filePath)            is action "CMD_GET_
  *             returns an error.
  *)
 const func string: getGroup (in string: filePath, SYMLINK)   is action "CMD_GET_GROUP_OF_SYMLINK";
-
-
-(**
- *  Set the group of a file.
- *  The function follows symbolic links.
- *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
- *             to the system path type.
- *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or a system function returns an error.
- *)
-const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_GROUP";
 
 
 (**
