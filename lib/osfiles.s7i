@@ -60,6 +60,10 @@ const proc: SET_MTIME (in string: filePath, in integer: year, in integer: month,
     in integer: day, in integer: hour, in integer: minute, in integer: second,
     in integer: micro_second, in integer: timeZone)              is action "CMD_SET_MTIME";
 
+const proc: SET_MTIME_OF_SYMLINK (in string: filePath, in integer: year, in integer: month,
+    in integer: day, in integer: hour, in integer: minute, in integer: second,
+    in integer: micro_second, in integer: timeZone)              is action "CMD_SET_MTIME_OF_SYMLINK";
+
 
 (**
  *  Determine the filenames in a directory.
@@ -302,11 +306,35 @@ const proc: setATime (in string: filePath, in time: aTime) is func
  *             path type.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const proc: setMTime (in string: filePath, in time: aTime) is func
   begin
     SET_MTIME(filePath, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone);
+  end func;
+
+
+(**
+ *  Set the modification time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ *)
+const proc: setMTime (in string: filePath, in time: aTime, SYMLINK) is func
+  begin
+    SET_MTIME_OF_SYMLINK(filePath, aTime.year, aTime.month, aTime.day,
         aTime.hour, aTime.minute, aTime.second,
         aTime.micro_second, aTime.timeZone);
   end func;

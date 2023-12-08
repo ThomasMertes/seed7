@@ -60,6 +60,7 @@ objectType cmd_set_filemode         (listType arguments);
 objectType cmd_set_group            (listType arguments);
 objectType cmd_set_group_of_symlink (listType arguments);
 objectType cmd_set_mtime            (listType arguments);
+objectType cmd_set_mtime_of_symlink (listType arguments);
 objectType cmd_set_owner            (listType arguments);
 objectType cmd_set_owner_of_symlink (listType arguments);
 objectType cmd_set_search_path      (listType arguments);

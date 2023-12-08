@@ -537,7 +537,7 @@ static int wSymlink(const const_os_striType targetPath, const const_os_striType 
                        targetPath, symlinkPath, result););
     return result;
   } /* wSymlink */
-  
+
 
 
 void winSymlink (const const_striType targetPath,
@@ -1637,6 +1637,115 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
       raise_error(err_info);
     } /* if */
   } /* cmdSetGroupOfSymlink */
+
+
+
+void cmdSetMTimeOfSymlink (const const_striType filePath,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
+
+  {
+    const_os_striType os_path;
+    int path_info;
+    errInfoType err_info = OKAY_NO_ERROR;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    SYSTEMTIME mTimeAsSystemTime;
+    union {
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } modificationTime;
+    HANDLE fileHandle;
+
+  /* cmdSetMTimeOfSymlink */
+    logFunction(printf("cmdSetMTimeOfSymlink(\"%s\", " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ")\n",
+                       striAsUnquotedCStri(filePath), year, month,
+                       day, hour, min, sec, micro_sec, time_zone););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+    } else {
+      if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard, &fileInfo) == 0)) {
+        logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
+                        "GetFileAttributesExW(\"" FMT_S_OS "\", ...) failed:\n"
+                        "lastError=" FMT_U32 "\n",
+                        striAsUnquotedCStri(filePath), os_path,
+                        (uint32Type) GetLastError()););
+        err_info = FILE_ERROR;
+      } else if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+        logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+      } else {
+        mTimeAsSystemTime.wYear         = (WORD) year;
+        mTimeAsSystemTime.wMonth        = (WORD) month;
+        mTimeAsSystemTime.wDay          = (WORD) day;
+        mTimeAsSystemTime.wHour         = (WORD) hour;
+        mTimeAsSystemTime.wMinute       = (WORD) min;
+        mTimeAsSystemTime.wSecond       = (WORD) sec;
+        mTimeAsSystemTime.wMilliseconds = 0;
+        if (unlikely(SystemTimeToFileTime(
+            &mTimeAsSystemTime, &modificationTime.filetime) == 0)) {
+          logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
+                          "SystemTimeToFileTime() failed.\n",
+                          striAsUnquotedCStri(filePath)););
+          err_info = RANGE_ERROR;
+        } else {
+          if (unlikely((time_zone >= 0 &&
+                         ((uint64Type) time_zone > UINT64TYPE_MAX / 600000000 ||
+                          modificationTime.nanosecs100 <
+                              600000000 * (uint64Type) time_zone)) ||
+                       (time_zone < 0 &&
+                         (time_zone == INTTYPE_MIN ||
+                          -time_zone > INT64TYPE_MAX / 600000000 ||
+                          modificationTime.nanosecs100 > UINT64TYPE_MAX -
+                              (uint64Type) (600000000 * -time_zone))))) {
+            logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
+                            "The filetime (" FMT_U64 ") would be out of range "
+                            "with the time zone " FMT_D ".\n",
+                            striAsUnquotedCStri(filePath),
+                            modificationTime.nanosecs100, time_zone););
+            err_info = RANGE_ERROR;
+          } else {
+            /* printf("nanosecs100: " FMT_U64 "\n", modificationTime.nanosecs100); */
+            modificationTime.nanosecs100 -= 600000000 * time_zone;
+            /* printf("nanosecs100: " FMT_U64 "\n", modificationTime.nanosecs100); */
+            fileHandle = CreateFileW(os_path, FILE_WRITE_ATTRIBUTES, 0, NULL,
+                                     OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
+                                     FILE_FLAG_BACKUP_SEMANTICS, NULL);
+            if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+              logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
+                              "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                              "lastError=" FMT_U32 "\n",
+                              striAsUnquotedCStri(filePath),
+                              os_path, (uint32Type) GetLastError()););
+              err_info = FILE_ERROR;
+            } else {
+              if (unlikely(SetFileTime(fileHandle,
+                                       &fileInfo.ftCreationTime,
+                                       &fileInfo.ftLastAccessTime,
+                                       &modificationTime.filetime) == 0)) {
+                logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
+                                "SetFileTime(\"" FMT_S_OS "\", *) failed:\n"
+                                "lastError=" FMT_U32 "\n",
+                                striAsUnquotedCStri(filePath),
+                                os_path, (uint32Type) GetLastError()););
+                err_info = FILE_ERROR;
+              } /* if */
+              CloseHandle(fileHandle);
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetMTimeOfSymlink */
 
 
 

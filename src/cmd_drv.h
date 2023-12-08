@@ -98,5 +98,8 @@ striType cmdGetOwner (const const_striType filePath);
 striType cmdGetOwnerOfSymlink (const const_striType filePath);
 void cmdSetGroup (const const_striType filePath, const const_striType group);
 void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType group);
+void cmdSetMTimeOfSymlink (const const_striType filePath,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone);
 void cmdSetOwner (const const_striType filePath, const const_striType owner);
 void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType owner);

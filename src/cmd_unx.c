@@ -34,13 +34,14 @@
 
 #include "version.h"
 
-#define _XOPEN_SOURCE 500
+/* #define _XOPEN_SOURCE 500 */
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
 #include "sys/types.h"
 #include "sys/stat.h"
+#include "sys/time.h"
 #include "fcntl.h"
 #include "signal.h"
 #ifdef EMULATE_NODE_ENVIRONMENT
@@ -67,6 +68,7 @@
 #include "striutl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
+#include "tim_rtl.h"
 #include "str_rtl.h"
 #include "int_rtl.h"
 #include "rtl_err.h"
@@ -872,6 +874,77 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
       raise_error(err_info);
     } /* if */
   } /* cmdSetGroupOfSymlink */
+
+
+
+void cmdSetMTimeOfSymlink (const const_striType filePath,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
+
+  {
+    const_os_striType os_path;
+    int path_info;
+    errInfoType err_info = OKAY_NO_ERROR;
+    os_stat_struct stat_buf;
+    struct timeval time_val[2];
+
+  /* cmdSetMTimeOfSymlink */
+    logFunction(printf("cmdSetMTimeOfSymlink(\"%s\", " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ")\n",
+                       striAsUnquotedCStri(filePath), year, month,
+                       day, hour, min, sec, micro_sec, time_zone););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+    } else {
+      if (unlikely(os_lstat(os_path, &stat_buf) != 0)) {
+        logError(printf("cmdSetMTimeOfSymlink: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdSetMTimeOfSymlink: "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        os_path););
+        err_info = FILE_ERROR;
+      } else {
+        time_val[0].tv_sec = stat_buf.st_atime;
+        time_val[0].tv_usec = 0;
+        time_val[1].tv_sec = timToOsTimestamp(year, month, day, hour,
+            min, sec, time_zone);
+        time_val[1].tv_usec = 0;
+        /* printf("cmdSetMTimeOfSymlink: modtime=%ld\n", time_val[1].tv_sec); */
+        if (unlikely(time_val[1].tv_sec == (long) TIME_T_ERROR)) {
+          logError(printf("cmdSetMTimeOfSymlink: timToOsTimestamp("
+                          F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
+                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
+                          year, month, day, hour, min, sec,
+                          micro_sec, time_zone););
+          err_info = RANGE_ERROR;
+        } else {
+#ifdef HAS_LUTIMES
+          if (unlikely(os_lutimes(os_path, time_val) != 0)) {
+            logError(printf("cmdSetMTimeOfSymlink: "
+                            "os_lutimes(\"" FMT_S_OS "\", [%ld, %ld]) failed.\n"
+                            "errno=%d\nerror: %s\n",
+                            os_path, time_val[0].tv_sec, time_val[1].tv_sec,
+                            errno, strerror(errno)););
+            err_info = FILE_ERROR;
+          } /* if */
+#else
+          err_info = FILE_ERROR;
+#endif
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+    logFunction(printf("cmdSetMTimeOfSymlink -->\n"););
+  } /* cmdSetMTimeOfSymlink */
 
 
 

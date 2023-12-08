@@ -286,6 +286,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_SET_GROUP",              cmd_set_group,              },
     { "CMD_SET_GROUP_OF_SYMLINK",   cmd_set_group_of_symlink,   },
     { "CMD_SET_MTIME",              cmd_set_mtime,              },
+    { "CMD_SET_MTIME_OF_SYMLINK",   cmd_set_mtime_of_symlink,   },
     { "CMD_SET_OWNER",              cmd_set_owner,              },
     { "CMD_SET_OWNER_OF_SYMLINK",   cmd_set_owner_of_symlink,   },
     { "CMD_SET_SEARCH_PATH",        cmd_set_search_path,        },

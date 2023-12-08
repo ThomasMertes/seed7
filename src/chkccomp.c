@@ -6443,6 +6443,18 @@ static void determineOsFunctions (FILE *versionFile)
     } /* if */
 #endif
     determineEnvironDefines(versionFile);
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <sys/time.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{struct timeval time_val[2];\n"
+                                    "time_val[0].tv_sec = 0;\n"
+                                    "time_val[0].tv_usec = 0;\n"
+                                    "time_val[1].tv_sec = 0;\n"
+                                    "time_val[1].tv_usec = 0;\n"
+                                    "printf(\"%d\\n\", lutimes(\"testfile\", time_val) == 0);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
+      fputs("#define HAS_LUTIMES\n", versionFile);
+      fputs("#define os_lutimes lutimes\n", versionFile);
+    } /* if */
     if (!compileAndLinkOk("#include <stdio.h>\n"
                           "int main(int argc,char *argv[]){\n"
                           "flockfile(stdin);\n"

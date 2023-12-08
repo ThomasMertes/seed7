@@ -540,6 +540,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SET_GROUP_OF_SYMLINK, function, params, c_expr);
       when {"CMD_SET_MTIME"}:
         process(CMD_SET_MTIME, function, params, c_expr);
+      when {"CMD_SET_MTIME_OF_SYMLINK"}:
+        process(CMD_SET_MTIME_OF_SYMLINK, function, params, c_expr);
       when {"CMD_SET_OWNER"}:
         process(CMD_SET_OWNER, function, params, c_expr);
       when {"CMD_SET_OWNER_OF_SYMLINK"}:
