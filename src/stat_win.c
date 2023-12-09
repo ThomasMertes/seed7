@@ -361,7 +361,7 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
       /* file is currently in use, by some other program. This happens   */
       /* e.g. with c:\pagefile.sys, c:\swapfile.sys or c:\hiberfil.sys.  */
-      /* Interestingly  FindFirstFileW() succeeds for these files.       */
+      /* Interestingly FindFirstFileW() succeeds for these files.        */
       findFirstHandle = FindFirstFileW(path, &findFileData);
       if (unlikely(findFirstHandle == INVALID_HANDLE_VALUE)) {
         logError(printf("lstati64Ext: "

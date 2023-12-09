@@ -51,6 +51,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "tim_rtl.h"
 #include "str_rtl.h"
 #include "tim_drv.h"
 #include "rtl_err.h"
@@ -627,8 +628,8 @@ typedef struct {
         struct {
           WCHAR PathBuffer[1];
         } MountPoint;
-      };
-    } ReparseBuffer;
+      } Data;
+    } Destination;
   } REPARSE_DATA_BUFFER7;
 
 #ifndef FSCTL_GET_REPARSE_POINT
@@ -677,7 +678,7 @@ static striType getSymlinkDestination (const wchar_t *osSymlinkPath,
         /* from osSymlinkPath (=directory of the symlink). Only  */
         /* Windows has root relative symbolic links.             */
         if (unlikely(!ALLOC_OS_STRI(osTargetPath,
-                      DRIVE_NAME_LENGTH + substituteNameLength))) {
+                      (memSizeType) DRIVE_NAME_LENGTH + substituteNameLength))) {
           *err_info = MEMORY_ERROR;
           destination = NULL;
         } else {
@@ -686,20 +687,18 @@ static striType getSymlinkDestination (const wchar_t *osSymlinkPath,
           memcpy(&osTargetPath[DRIVE_NAME_LENGTH],
                  substituteName, substituteNameByteLen);
           destination = cp_from_os_path_buffer(osTargetPath,
-                                               DRIVE_NAME_LENGTH + substituteNameLength,
-                                               err_info);
+              (memSizeType) DRIVE_NAME_LENGTH + substituteNameLength,
+              err_info);
           FREE_OS_STRI(osTargetPath);
         } /* if */
       } else {
         /* Skip the prefix \??\ */
         destination = cp_from_os_path_buffer(&substituteName[PREFIX_LEN],
-                                             substituteNameLength - PREFIX_LEN,
-                                             err_info);
+            substituteNameLength - PREFIX_LEN, err_info);
       } /* if */
     } else {
       destination = cp_from_os_path_buffer(substituteName,
-                                           substituteNameLength,
-                                           err_info);
+          substituteNameLength, err_info);
     } /* if */
     logFunction(printf("getSymlinkDestination --> \"%s\"\n",
                        striAsUnquotedCStri(destination)););
@@ -725,11 +724,11 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
     HANDLE fileHandle;
     union info_t {
       char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
-      REPARSE_DATA_BUFFER7 reparseDataBuffer;
+      REPARSE_DATA_BUFFER7 reparseData;
     } info;
     memSizeType dataBufferHeadLength;
     memSizeType dataBufferLength;
-    REPARSE_DATA_BUFFER7 *reparseDataBuffer;
+    REPARSE_DATA_BUFFER7 *reparseData;
     DWORD bytesReturned;
     DWORD lastError;
     WCHAR *pathBuffer;
@@ -770,28 +769,28 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                             lastError == ERROR_NOT_A_REPARSE_POINT ?
                                 " (ERROR_NOT_A_REPARSE_POINT)" : ""););
             *err_info = FILE_ERROR;
-          } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
+          } else if (unlikely(info.reparseData.ReparseTag !=
                               IO_REPARSE_TAG_SYMLINK &&
-                              info.reparseDataBuffer.ReparseTag !=
+                              info.reparseData.ReparseTag !=
                               IO_REPARSE_TAG_MOUNT_POINT)) {
             logError(printf("winReadLink(\"%s\", *): "
                             "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                             striAsUnquotedCStri(filePath),
-                            (uint32Type) info.reparseDataBuffer.ReparseTag););
+                            (uint32Type) info.reparseData.ReparseTag););
             *err_info = FILE_ERROR;
           } else {
             dataBufferHeadLength = (memSizeType)
-                ((char *) &info.reparseDataBuffer.ReparseBuffer -
-                 (char *) &info.reparseDataBuffer);
+                ((char *) &info.reparseData.Destination -
+                 (char *) &info.reparseData);
             dataBufferLength = dataBufferHeadLength +
-                info.reparseDataBuffer.ReparseDataLength;
-            reparseDataBuffer = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
-            if (unlikely(reparseDataBuffer == NULL)) {
+                info.reparseData.ReparseDataLength;
+            reparseData = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
+            if (unlikely(reparseData == NULL)) {
               *err_info = MEMORY_ERROR;
             } else {
               if (unlikely(DeviceIoControl(fileHandle,
                                            FSCTL_GET_REPARSE_POINT, NULL, 0,
-                                           reparseDataBuffer, dataBufferLength,
+                                           reparseData, (DWORD) dataBufferLength,
                                            &bytesReturned, NULL) == 0)) {
                 logError(printf("winReadLink(\"%s\", *): "
                                 "DeviceIoControl() failed:\n"
@@ -800,47 +799,47 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                 (uint32Type) GetLastError()););
                 *err_info = FILE_ERROR;
               } else {
-                if (reparseDataBuffer->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
-                  pathBuffer = reparseDataBuffer->ReparseBuffer.SymbolicLink.PathBuffer;
-                } else if (reparseDataBuffer->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
-                  pathBuffer = reparseDataBuffer->ReparseBuffer.MountPoint.PathBuffer;
+                if (reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+                  pathBuffer = reparseData->Destination.Data.SymbolicLink.PathBuffer;
+                } else if (reparseData->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+                  pathBuffer = reparseData->Destination.Data.MountPoint.PathBuffer;
                 } else {
                   logError(printf("winReadLink(\"%s\", *): "
                                   "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                                   striAsUnquotedCStri(filePath),
-                                  (uint32Type) reparseDataBuffer->ReparseTag););
+                                  (uint32Type) reparseData->ReparseTag););
                   *err_info = FILE_ERROR;
                   pathBuffer = NULL;
                 } /* if */
                 if (likely(pathBuffer != NULL)) {
                   destination = getSymlinkDestination(os_filePath,
-                      &pathBuffer[reparseDataBuffer->ReparseBuffer.SubstituteNameOffset /
+                      &pathBuffer[reparseData->Destination.SubstituteNameOffset /
                           sizeof(wchar_t)],
-                      reparseDataBuffer->ReparseBuffer.SubstituteNameLength,
+                      reparseData->Destination.SubstituteNameLength,
                       err_info);
                 } /* if */
               } /* if */
-              free(reparseDataBuffer);
+              free(reparseData);
             } /* if */
           } /* if */
         } else {
-          if (info.reparseDataBuffer.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
-            pathBuffer = info.reparseDataBuffer.ReparseBuffer.SymbolicLink.PathBuffer;
-          } else if (info.reparseDataBuffer.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
-            pathBuffer = info.reparseDataBuffer.ReparseBuffer.MountPoint.PathBuffer;
+          if (info.reparseData.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+            pathBuffer = info.reparseData.Destination.Data.SymbolicLink.PathBuffer;
+          } else if (info.reparseData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+            pathBuffer = info.reparseData.Destination.Data.MountPoint.PathBuffer;
           } else {
             logError(printf("winReadLink(\"%s\", *): "
                             "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                             striAsUnquotedCStri(filePath),
-                            (uint32Type) info.reparseDataBuffer.ReparseTag););
+                            (uint32Type) info.reparseData.ReparseTag););
             *err_info = FILE_ERROR;
             pathBuffer = NULL;
           } /* if */
           if (likely(pathBuffer != NULL)) {
             destination = getSymlinkDestination(os_filePath,
-                &pathBuffer[info.reparseDataBuffer.ReparseBuffer.SubstituteNameOffset /
+                &pathBuffer[info.reparseData.Destination.SubstituteNameOffset /
                     sizeof(wchar_t)],
-                info.reparseDataBuffer.ReparseBuffer.SubstituteNameLength,
+                info.reparseData.Destination.SubstituteNameLength,
                 err_info);
           } /* if */
         } /* if */
@@ -896,7 +895,7 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
         /* from osSymlinkPath (=directory of the symlink). Only  */
         /* Windows has root relative symbolic links.             */
         if (unlikely(!ALLOC_OS_STRI(destination,
-                      DRIVE_PREFIX_LENGTH + substituteNameLength))) {
+                      (memSizeType) DRIVE_PREFIX_LENGTH + substituteNameLength))) {
           errno = EACCES;
           result = -1;
         } else {
@@ -907,7 +906,7 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
           result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
           FREE_OS_STRI(destination);
         } /* if */
-      } else if (unlikely(!ALLOC_OS_STRI(destination, substituteNameLength))) {
+      } else if (unlikely(!ALLOC_OS_STRI(destination, (memSizeType) substituteNameLength))) {
         errno = EACCES;
         result = -1;
       } else {
@@ -934,7 +933,7 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
         errno = EACCES;
         result = -1;
       } else {
-        directoryPathLength = (lastBackslashPos - osSymlinkPath) + 1;
+        directoryPathLength = (memSizeType) (lastBackslashPos - osSymlinkPath) + 1;
         if (unlikely(!ALLOC_OS_STRI(destination,
                       directoryPathLength + substituteNameLength))) {
           errno = EACCES;
@@ -962,11 +961,11 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
     HANDLE fileHandle;
     union info_t {
       char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
-      REPARSE_DATA_BUFFER7 reparseDataBuffer;
+      REPARSE_DATA_BUFFER7 reparseData;
     } info;
     memSizeType dataBufferHeadLength;
     memSizeType dataBufferLength;
-    REPARSE_DATA_BUFFER7 *reparseDataBuffer;
+    REPARSE_DATA_BUFFER7 *reparseData;
     DWORD bytesReturned;
     DWORD lastError;
     WCHAR *pathBuffer;
@@ -1018,30 +1017,30 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
                                   " (ERROR_NOT_A_REPARSE_POINT)" : ""););
               errno = EACCES;
               result = -1;
-            } else if (unlikely(info.reparseDataBuffer.ReparseTag !=
+            } else if (unlikely(info.reparseData.ReparseTag !=
                                 IO_REPARSE_TAG_SYMLINK &&
-                                info.reparseDataBuffer.ReparseTag !=
+                                info.reparseData.ReparseTag !=
                                 IO_REPARSE_TAG_MOUNT_POINT)) {
               logError(printf("wchmodExt2(\"%ls\", 0%o): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                               path, pmode,
-                              (uint32Type) info.reparseDataBuffer.ReparseTag););
+                              (uint32Type) info.reparseData.ReparseTag););
               errno = EACCES;
               result = -1;
             } else {
               dataBufferHeadLength = (memSizeType)
-                  ((char *) &info.reparseDataBuffer.ReparseBuffer -
-                   (char *) &info.reparseDataBuffer);
+                  ((char *) &info.reparseData.Destination -
+                   (char *) &info.reparseData);
               dataBufferLength = dataBufferHeadLength +
-                  info.reparseDataBuffer.ReparseDataLength;
-              reparseDataBuffer = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
-              if (unlikely(reparseDataBuffer == NULL)) {
+                  info.reparseData.ReparseDataLength;
+              reparseData = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
+              if (unlikely(reparseData == NULL)) {
                 errno = EACCES;
                 result = -1;
               } else {
                 if (unlikely(DeviceIoControl(fileHandle,
                                              FSCTL_GET_REPARSE_POINT, NULL, 0,
-                                             reparseDataBuffer, dataBufferLength,
+                                             reparseData, (DWORD) dataBufferLength,
                                              &bytesReturned, NULL) == 0)) {
                   logError(printf("wchmodExt2(\"%ls\", 0%o): "
                                   "DeviceIoControl() failed:\n"
@@ -1050,49 +1049,49 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
                   errno = EACCES;
                   result = -1;
                 } else {
-                  if (reparseDataBuffer->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
-                    pathBuffer = reparseDataBuffer->ReparseBuffer.SymbolicLink.PathBuffer;
-                  } else if (reparseDataBuffer->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
-                    pathBuffer = reparseDataBuffer->ReparseBuffer.MountPoint.PathBuffer;
+                  if (reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+                    pathBuffer = reparseData->Destination.Data.SymbolicLink.PathBuffer;
+                  } else if (reparseData->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+                    pathBuffer = reparseData->Destination.Data.MountPoint.PathBuffer;
                   } else {
                     logError(printf("wchmodExt2(\"%ls\", 0%o): "
                                     "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                                     path, pmode,
-                                    (uint32Type) reparseDataBuffer->ReparseTag););
+                                    (uint32Type) reparseData->ReparseTag););
                     pathBuffer = NULL;
                     errno = EACCES;
                     result = -1;
                   } /* if */
                   if (likely(pathBuffer != NULL)) {
                     result = wchmodExt3(path,
-                        &pathBuffer[reparseDataBuffer->ReparseBuffer.SubstituteNameOffset /
+                        &pathBuffer[reparseData->Destination.SubstituteNameOffset /
                             sizeof(wchar_t)],
-                        reparseDataBuffer->ReparseBuffer.SubstituteNameLength,
+                        reparseData->Destination.SubstituteNameLength,
                         pmode, numberOfFollowsAllowed);
                   } /* if */
                 } /* if */
-                free(reparseDataBuffer);
+                free(reparseData);
               } /* if */
             } /* if */
           } else {
-            if (info.reparseDataBuffer.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
-              pathBuffer = info.reparseDataBuffer.ReparseBuffer.SymbolicLink.PathBuffer;
-            } else if (info.reparseDataBuffer.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
-              pathBuffer = info.reparseDataBuffer.ReparseBuffer.MountPoint.PathBuffer;
+            if (info.reparseData.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+              pathBuffer = info.reparseData.Destination.Data.SymbolicLink.PathBuffer;
+            } else if (info.reparseData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+              pathBuffer = info.reparseData.Destination.Data.MountPoint.PathBuffer;
             } else {
               logError(printf("wchmodExt2(\"%ls\", 0%o): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                               path, pmode,
-                              (uint32Type) info.reparseDataBuffer.ReparseTag););
+                              (uint32Type) info.reparseData.ReparseTag););
               pathBuffer = NULL;
               errno = EACCES;
               result = -1;
             } /* if */
             if (likely(pathBuffer != NULL)) {
               result = wchmodExt3(path,
-                  &pathBuffer[info.reparseDataBuffer.ReparseBuffer.SubstituteNameOffset /
+                  &pathBuffer[info.reparseData.Destination.SubstituteNameOffset /
                       sizeof(wchar_t)],
-                  info.reparseDataBuffer.ReparseBuffer.SubstituteNameLength,
+                  info.reparseData.Destination.SubstituteNameLength,
                   pmode, numberOfFollowsAllowed);
             } /* if */
           } /* if */
