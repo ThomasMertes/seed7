@@ -334,6 +334,32 @@ objectType cmd_filetype_sl (listType arguments)
 
 
 /**
+ *  Get the final path that functions like getMTime() and open() would use.
+ *  If 'filePath' is not a symbolic link it is returned. For a symbolic link
+ *  the function follows the symbolic link chain until the path is not a
+ *  symbolic link again. The final path may refer to a non-existing file.
+ *  @param filePath Relative or absolute path.
+ *  @return The final path after possibly following a symbolic link chain.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist or a system function returns an error.
+ */
+objectType cmd_final_path (listType arguments)
+
+  { /* cmd_final_path */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdFinalPath(take_stri(arg_1(arguments))));
+  } /* cmd_final_path */
+
+
+
+/**
  *  Determine the current working directory of the calling process.
  *  @return The absolute path of the current working directory.
  *  @exception MEMORY_ERROR Not enough memory to represent the

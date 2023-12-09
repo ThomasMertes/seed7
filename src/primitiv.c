@@ -261,6 +261,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_FILESIZE",               cmd_filesize,               },
     { "CMD_FILETYPE",               cmd_filetype,               },
     { "CMD_FILETYPE_SL",            cmd_filetype_sl,            },
+    { "CMD_FINAL_PATH",             cmd_final_path,             },
     { "CMD_GETCWD",                 cmd_getcwd,                 },
     { "CMD_GETENV",                 cmd_getenv,                 },
     { "CMD_GET_ATIME",              cmd_get_atime,              },

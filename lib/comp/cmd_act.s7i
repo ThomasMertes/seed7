@@ -34,6 +34,7 @@ const ACTION: CMD_FILEMODE             is action "CMD_FILEMODE";
 const ACTION: CMD_FILESIZE             is action "CMD_FILESIZE";
 const ACTION: CMD_FILETYPE             is action "CMD_FILETYPE";
 const ACTION: CMD_FILETYPE_SL          is action "CMD_FILETYPE_SL";
+const ACTION: CMD_FINAL_PATH           is action "CMD_FINAL_PATH";
 const ACTION: CMD_GETCWD               is action "CMD_GETCWD";
 const ACTION: CMD_GETENV               is action "CMD_GETENV";
 const ACTION: CMD_GET_ATIME            is action "CMD_GET_ATIME";
@@ -83,6 +84,7 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     cmdFileSize (const const_striType);");
     declareExtern(c_prog, "intType     cmdFileType (const const_striType);");
     declareExtern(c_prog, "intType     cmdFileTypeSL (const const_striType);");
+    declareExtern(c_prog, "striType    cmdFinalPath (const const_striType);");
     declareExtern(c_prog, "striType    cmdGetcwd (void);");
     declareExtern(c_prog, "striType    cmdGetenv (const const_striType);");
     declareExtern(c_prog, "void        cmdGetATime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
@@ -228,6 +230,17 @@ const proc: process (CMD_FILETYPE_SL, in reference: function,
     c_expr.expr &:= "cmdFileTypeSL(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_FINAL_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdFinalPath(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

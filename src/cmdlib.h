@@ -35,6 +35,7 @@ objectType cmd_filemode             (listType arguments);
 objectType cmd_filesize             (listType arguments);
 objectType cmd_filetype             (listType arguments);
 objectType cmd_filetype_sl          (listType arguments);
+objectType cmd_final_path           (listType arguments);
 objectType cmd_getcwd               (listType arguments);
 objectType cmd_getenv               (listType arguments);
 objectType cmd_get_atime            (listType arguments);

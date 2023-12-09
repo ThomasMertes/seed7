@@ -64,6 +64,7 @@ setType cmdFileMode (const const_striType file_name);
 intType cmdFileSize (const const_striType file_name);
 intType cmdFileType (const const_striType file_name);
 intType cmdFileTypeSL (const const_striType file_name);
+striType cmdFinalPath (const const_striType filePath);
 striType cmdGetcwd (void);
 striType cmdGetenv (const const_striType stri);
 void cmdGetATime (const const_striType file_name,

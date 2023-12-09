@@ -1499,11 +1499,9 @@ static striType readLinkAbsolute (const const_striType filePath, errInfoType *er
                 printf("\"%s\"\n", striAsUnquotedCStri(destination)););
     return destination;
   } /* readLinkAbsolute */
-#endif
 
 
 
-#if HAS_SYMBOLIC_LINKS
 striType followLink (striType startPath, errInfoType *err_info)
 
   {
@@ -2840,6 +2838,55 @@ intType cmdFileTypeSL (const const_striType filePath)
 
 
 /**
+ *  Get the final path that functions like getMTime() and open() would use.
+ *  If 'filePath' is not a symbolic link it is returned. For a symbolic link
+ *  the function follows the symbolic link chain until the path is not a
+ *  symbolic link again. The final path may refer to a non-existing file.
+ *  @param filePath Relative or absolute path.
+ *  @return The final path after possibly following a symbolic link chain.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist or a system function returns an error.
+ */
+striType cmdFinalPath (const const_striType filePath)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType destination;
+
+  /* cmdFinalPath */
+    logFunction(printf("cmdFinalPath(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
+#ifdef HAS_DO_READ_LINK
+    if (unlikely(!ALLOC_STRI_SIZE_OK(destination, filePath->size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      destination->size = filePath->size;
+      memcpy(destination->mem, filePath->mem, filePath->size * sizeof(strElemType));
+      destination = followLink(destination, &err_info);
+      if (unlikely(destination == NULL)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+#else
+    logError(printf("cmdFinalPath: "
+                    "Reading symbolic links is not supported.\n"););
+    raise_error(FILE_ERROR);
+    destination = NULL;
+#endif
+    logFunction(printf("cmdFinalPath --> \"%s\"\n",
+                       striAsUnquotedCStri(destination)););
+    return destination;
+  } /* cmdFinalPath */
+
+
+
+/**
  *  Determine the current working directory of the calling process.
  *  @return The absolute path of the current working directory.
  *  @exception MEMORY_ERROR Not enough memory to represent the
@@ -3454,6 +3501,8 @@ striType cmdReadLink (const const_striType filePath)
       raise_error(err_info);
     } /* if */
 #else
+    logError(printf("cmdReadLink: "
+                    "Reading symbolic links is not supported.\n"););
     raise_error(FILE_ERROR);
     destination = NULL;
 #endif
@@ -3497,6 +3546,8 @@ striType cmdReadLinkAbsolute (const const_striType filePath)
       raise_error(err_info);
     } /* if */
 #else
+    logError(printf("cmdReadLinkAbsolute: "
+                    "Reading symbolic links is not supported.\n"););
     raise_error(FILE_ERROR);
     destination = NULL;
 #endif

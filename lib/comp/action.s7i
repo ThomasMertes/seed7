@@ -490,6 +490,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_FILETYPE, function, params, c_expr);
       when {"CMD_FILETYPE_SL"}:
         process(CMD_FILETYPE_SL, function, params, c_expr);
+      when {"CMD_FINAL_PATH"}:
+        process(CMD_FINAL_PATH, function, params, c_expr);
       when {"CMD_GETCWD"}:
         process(CMD_GETCWD, function, params, c_expr);
       when {"CMD_GETENV"}:
