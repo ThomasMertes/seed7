@@ -322,23 +322,15 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
 
   {
     WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    HANDLE findFirstHandle;
+    WIN32_FIND_DATAW findFileData;
     int result;
 
   /* lstati64Ext */
     logFunction(printf("lstati64Ext(\"%ls\", *)\n", path););
 #ifdef HAS_DEVICE_IO_CONTROL
     if (unlikely(GetFileAttributesExW(path, GetFileExInfoStandard,
-                                      &fileInfo) == 0)) {
-      logError(printf("lstati64Ext: "
-                      "GetFileAttributesExW(\"%ls\", *) failed:\n"
-                      "GetLastError=" FMT_U32 "\n",
-                      path, (uint32Type) GetLastError()););
-      errno = ENOENT;
-      result = -1;
-    } else {
-      /* The function os_stat_orig() fails with ENOENT, if the path is     */
-      /* longer than MAX_PATH. So GetFileAttributesExW(), which works with */
-      /* an extended length path, is used.                                 */
+                                      &fileInfo) != 0)) {
       memset(statBuf, 0, sizeof(os_stat_struct));
       statBuf->st_nlink = 1;
       if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
@@ -355,10 +347,6 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
                                           fileInfo.nFileSizeLow;
         } /* if */
       } /* if */
-      /* For devices os_stat_orig() sets all times to 1980-01-01 00:00:00. */
-      /* For daylight saving time os_stat_orig() returns adjusted times.   */
-      /* To get correct times the times from GetFileAttributesExW() are    */
-      /* used instead of the times from os_stat_orig().                    */
       statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
       statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
       statBuf->st_ctime = fileTime2UnixTime(&fileInfo.ftCreationTime);
@@ -369,6 +357,48 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       } /* if */
       statBuf->st_rdev = statBuf->st_dev;
       result = 0;
+    } else {
+      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
+      /* file is currently in use, by some other program. This happens   */
+      /* e.g. with c:\pagefile.sys, c:\swapfile.sys or c:\hiberfil.sys.  */
+      /* Interestingly  FindFirstFileW() succeeds for these files.       */
+      findFirstHandle = FindFirstFileW(path, &findFileData);
+      if (unlikely(findFirstHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("lstati64Ext: "
+                        "FindFirstFileW(\"%ls\", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (uint32Type) GetLastError()););
+        errno = ENOENT;
+        result = -1;
+      } else {
+        FindClose(findFirstHandle);
+        memset(statBuf, 0, sizeof(os_stat_struct));
+        statBuf->st_nlink = 1;
+        if ((findFileData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+          /* printf("attr: 0x" FMT_X32 "\n", findFileData.dwFileAttributes); */
+          statBuf->st_mode = S_IFLNK | S_IRUSR | S_IRGRP | S_IROTH |
+                                       S_IWUSR | S_IWGRP | S_IWOTH |
+                                       S_IXUSR | S_IXGRP | S_IXOTH;
+          /* The st_size of a Windows symbolic link (S_IFLNK) is not used. */
+          statBuf->st_size = 0;
+        } else {
+          statBuf->st_mode = fileAttr2UnixMode(findFileData.dwFileAttributes, path);
+          if (!S_ISDIR(statBuf->st_mode)) {
+            statBuf->st_size = ((int64Type) findFileData.nFileSizeHigh << 32) |
+                                            findFileData.nFileSizeLow;
+          } /* if */
+        } /* if */
+        statBuf->st_atime = fileTime2UnixTime(&findFileData.ftLastAccessTime);
+        statBuf->st_mtime = fileTime2UnixTime(&findFileData.ftLastWriteTime);
+        statBuf->st_ctime = fileTime2UnixTime(&findFileData.ftCreationTime);
+        if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
+          statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'a');
+        } else if (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z') {
+          statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'A');
+        } /* if */
+        statBuf->st_rdev = statBuf->st_dev;
+        result = 0;
+      } /* if */
     } /* if */
 #else
     result = wstati64Ext(path, statBuf);
