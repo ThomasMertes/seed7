@@ -735,7 +735,8 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, *err_info););
     } else {
-      fileHandle = CreateFileW(os_filePath, GENERIC_READ, 0, NULL,
+      fileHandle = CreateFileW(os_filePath, 0,
+                               FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                                OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
                                FILE_FLAG_BACKUP_SEMANTICS, NULL);
       if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
@@ -965,7 +966,8 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
       result = -1;
     } else {
       if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
-        fileHandle = CreateFileW(path, GENERIC_READ, 0, NULL,
+        fileHandle = CreateFileW(path, 0,
+                                 FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                                  OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
