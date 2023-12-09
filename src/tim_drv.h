@@ -37,6 +37,10 @@
 #endif
 #endif
 
+/* Seconds between 1601-01-01 and 1970-01-01 */
+#define SECONDS_FROM_1601_TO_1970 INT64_SUFFIX(11644473600)
+#define WINDOWS_TICK UINT64_SUFFIX(10000000)
+
 #ifdef USE_ALTERNATE_LOCALTIME_R
 #define localtime_r alternate_localtime_r
 #endif

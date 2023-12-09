@@ -886,6 +886,7 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
     int path_info;
     errInfoType err_info = OKAY_NO_ERROR;
     os_stat_struct stat_buf;
+    timeStampType modificationTime;
     struct timeval time_val[2];
 
   /* cmdSetMTimeOfSymlink */
@@ -910,20 +911,25 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
                         os_path););
         err_info = FILE_ERROR;
       } else {
-        time_val[0].tv_sec = stat_buf.st_atime;
-        time_val[0].tv_usec = 0;
-        time_val[1].tv_sec = timToOsTimestamp(year, month, day, hour,
-            min, sec, time_zone);
-        time_val[1].tv_usec = 0;
-        /* printf("cmdSetMTimeOfSymlink: modtime=%ld\n", time_val[1].tv_sec); */
-        if (unlikely(time_val[1].tv_sec == (long) TIME_T_ERROR)) {
-          logError(printf("cmdSetMTimeOfSymlink: timToOsTimestamp("
+        modificationTime = timToTimestamp(year, month, day, hour, min, sec,
+                                          time_zone);
+        /* printf("modificationTime=" FMT_D64 "\n", modificationTime); */
+        if (unlikely(modificationTime == TIMESTAMPTYPE_MIN ||
+                     modificationTime < LONG_MIN ||
+                     modificationTime > LONG_MAX)) {
+          logError(printf("cmdSetMTimeOfSymlink: timToTimestamp("
                           F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
-                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
+                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed "
+                          "or the result does not fit into a long.\n",
                           year, month, day, hour, min, sec,
                           micro_sec, time_zone););
           err_info = RANGE_ERROR;
         } else {
+          time_val[0].tv_sec = stat_buf.st_atime;
+          time_val[0].tv_usec = 0;
+          time_val[1].tv_sec = (long) modificationTime;
+          time_val[1].tv_usec = 0;
+          /* printf("modtime=%ld\n", time_val[1].tv_sec); */
 #ifdef HAS_LUTIMES
           if (unlikely(os_lutimes(os_path, time_val) != 0)) {
             logError(printf("cmdSetMTimeOfSymlink: "
@@ -934,6 +940,8 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
             err_info = FILE_ERROR;
           } /* if */
 #else
+          logError(printf("cmdSetMTimeOfSymlink: "
+                          "The function lutimes() is not available.\n"););
           err_info = FILE_ERROR;
 #endif
         } /* if */

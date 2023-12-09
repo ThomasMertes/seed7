@@ -60,10 +60,6 @@
 #include "tim_drv.h"
 
 
-/* Seconds between 1601-01-01 and 1970-01-01 */
-#define SECONDS_FROM_1601_TO_1970 INT64_SUFFIX(11644473600)
-#define WINDOWS_TICK UINT64_SUFFIX(10000000)
-
 #define USE_UTIME_ORIG 0
 
 

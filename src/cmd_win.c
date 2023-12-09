@@ -52,6 +52,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
+#include "tim_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -1649,11 +1650,11 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
     int path_info;
     errInfoType err_info = OKAY_NO_ERROR;
     WIN32_FILE_ATTRIBUTE_DATA fileInfo;
-    SYSTEMTIME mTimeAsSystemTime;
+    timeStampType modificationTime;
     union {
       uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
-    } modificationTime;
+    } modificationFileTime;
     HANDLE fileHandle;
 
   /* cmdSetMTimeOfSymlink */
@@ -1680,63 +1681,47 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
       } else {
-        mTimeAsSystemTime.wYear         = (WORD) year;
-        mTimeAsSystemTime.wMonth        = (WORD) month;
-        mTimeAsSystemTime.wDay          = (WORD) day;
-        mTimeAsSystemTime.wHour         = (WORD) hour;
-        mTimeAsSystemTime.wMinute       = (WORD) min;
-        mTimeAsSystemTime.wSecond       = (WORD) sec;
-        mTimeAsSystemTime.wMilliseconds = 0;
-        if (unlikely(SystemTimeToFileTime(
-            &mTimeAsSystemTime, &modificationTime.filetime) == 0)) {
-          logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
-                          "SystemTimeToFileTime() failed.\n",
-                          striAsUnquotedCStri(filePath)););
+        modificationTime = timToTimestamp(year, month, day, hour, min, sec,
+                                          time_zone);
+        /* printf("modificationTime=" FMT_D64 "\n", modificationTime); */
+        if (unlikely(modificationTime == TIMESTAMPTYPE_MIN ||
+                     modificationTime < -SECONDS_FROM_1601_TO_1970 ||
+                     modificationTime > UINT64TYPE_MAX / WINDOWS_TICK -
+                                        SECONDS_FROM_1601_TO_1970)) {
+          logError(printf("cmdSetMTimeOfSymlink: timToTimestamp("
+                          F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
+                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed "
+                          "or the result does not fit into a FILETIME.\n",
+                          year, month, day, hour, min, sec,
+                          micro_sec, time_zone););
           err_info = RANGE_ERROR;
         } else {
-          if (unlikely((time_zone >= 0 &&
-                         ((uint64Type) time_zone > UINT64TYPE_MAX / 600000000 ||
-                          modificationTime.nanosecs100 <
-                              600000000 * (uint64Type) time_zone)) ||
-                       (time_zone < 0 &&
-                         (time_zone == INTTYPE_MIN ||
-                          -time_zone > INT64TYPE_MAX / 600000000 ||
-                          modificationTime.nanosecs100 > UINT64TYPE_MAX -
-                              (uint64Type) (600000000 * -time_zone))))) {
-            logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
-                            "The filetime (" FMT_U64 ") would be out of range "
-                            "with the time zone " FMT_D ".\n",
+          modificationFileTime.nanosecs100 = (uint64Type) (
+              modificationTime + SECONDS_FROM_1601_TO_1970) * WINDOWS_TICK;
+          /* printf("filetime=" FMT_U64 "\n", modificationFileTime.nanosecs100); */
+          fileHandle = CreateFileW(os_path, FILE_WRITE_ATTRIBUTES, 0, NULL,
+                                   OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
+                                   FILE_FLAG_BACKUP_SEMANTICS, NULL);
+          if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+            logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
+                            "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                            "lastError=" FMT_U32 "\n",
                             striAsUnquotedCStri(filePath),
-                            modificationTime.nanosecs100, time_zone););
-            err_info = RANGE_ERROR;
+                            os_path, (uint32Type) GetLastError()););
+            err_info = FILE_ERROR;
           } else {
-            /* printf("nanosecs100: " FMT_U64 "\n", modificationTime.nanosecs100); */
-            modificationTime.nanosecs100 -= 600000000 * time_zone;
-            /* printf("nanosecs100: " FMT_U64 "\n", modificationTime.nanosecs100); */
-            fileHandle = CreateFileW(os_path, FILE_WRITE_ATTRIBUTES, 0, NULL,
-                                     OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
-                                     FILE_FLAG_BACKUP_SEMANTICS, NULL);
-            if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+            if (unlikely(SetFileTime(fileHandle,
+                                     &fileInfo.ftCreationTime,
+                                     &fileInfo.ftLastAccessTime,
+                                     &modificationFileTime.filetime) == 0)) {
               logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
-                              "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                              "SetFileTime(\"" FMT_S_OS "\", *) failed:\n"
                               "lastError=" FMT_U32 "\n",
                               striAsUnquotedCStri(filePath),
                               os_path, (uint32Type) GetLastError()););
               err_info = FILE_ERROR;
-            } else {
-              if (unlikely(SetFileTime(fileHandle,
-                                       &fileInfo.ftCreationTime,
-                                       &fileInfo.ftLastAccessTime,
-                                       &modificationTime.filetime) == 0)) {
-                logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
-                                "SetFileTime(\"" FMT_S_OS "\", *) failed:\n"
-                                "lastError=" FMT_U32 "\n",
-                                striAsUnquotedCStri(filePath),
-                                os_path, (uint32Type) GetLastError()););
-                err_info = FILE_ERROR;
-              } /* if */
-              CloseHandle(fileHandle);
             } /* if */
+            CloseHandle(fileHandle);
           } /* if */
         } /* if */
       } /* if */
