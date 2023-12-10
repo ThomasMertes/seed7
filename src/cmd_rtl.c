@@ -1299,8 +1299,13 @@ static intType getFileTypeSL (const const_striType filePath, errInfoType *err_in
     if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is a directory. Do not raise an exception. */
+        *err_info = OKAY_NO_ERROR;
         type_of_file = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
+        /* The file path cannot be mapped to a system path. */
+        /* Do not raise an exception. */
+        *err_info = OKAY_NO_ERROR;
         type_of_file = FILE_ABSENT;
       } else
 #endif

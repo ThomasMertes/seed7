@@ -1277,10 +1277,23 @@ striType cmdGetGroup (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
-      group = NULL;
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is in the group root. Do not raise an exception. */
+        err_info = OKAY_NO_ERROR;
+        group = cstri_to_stri("root");
+        if (unlikely(group == NULL)) {
+          err_info = MEMORY_ERROR;
+          group = NULL;
+        } /* if */
+      } else
+#endif
+      {
+        logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        group = NULL;
+      }
     } else {
       fileHandle = CreateFileW(os_path, READ_CONTROL, 0,
                                NULL, OPEN_EXISTING,
@@ -1355,11 +1368,22 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdGetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
-      raise_error(err_info);
-      group = NULL;
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        err_info = FILE_ERROR;
+        group = NULL;
+      } else
+#endif
+      {
+        logError(printf("cmdGetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        group = NULL;
+      }
     } else {
       if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
                    INVALID_FILE_ATTRIBUTES)) {
@@ -1435,10 +1459,23 @@ striType cmdGetOwner (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
-      owner = NULL;
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is owned by root. Do not raise an exception. */
+        err_info = OKAY_NO_ERROR;
+        owner = cstri_to_stri("root");
+        if (unlikely(owner == NULL)) {
+          err_info = MEMORY_ERROR;
+          owner = NULL;
+        } /* if */
+      } else
+#endif
+      {
+        logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        owner = NULL;
+      }
     } else {
       fileHandle = CreateFileW(os_path, READ_CONTROL, 0,
                                NULL, OPEN_EXISTING,
@@ -1513,10 +1550,22 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdGetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
-      owner = NULL;
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdGetOwnerOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        err_info = FILE_ERROR;
+        owner = NULL;
+      } else
+#endif
+      {
+        logError(printf("cmdGetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        owner = NULL;
+      }
     } else {
       if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
                    INVALID_FILE_ATTRIBUTES)) {
