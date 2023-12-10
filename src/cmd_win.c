@@ -855,23 +855,23 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
 
 
 
-#if defined DEFINE_WCHMOD_EXT && !defined HAS_GET_FILE_INFORMATION_BY_HANDLE_EX
-static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowed);
+const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed);
 
 
 
-static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteName,
-    USHORT substituteNameByteLen, int pmode, int numberOfFollowsAllowed)
+static const wchar_t *followSymlinkRecursive (const wchar_t *osSymlinkPath,
+    const wchar_t *substituteName, USHORT substituteNameByteLen,
+    int numberOfFollowsAllowed)
 
   {
     USHORT substituteNameLength;
     wchar_t *lastBackslashPos;
     memSizeType directoryPathLength;
     wchar_t *destination;
-    int result;
+    const wchar_t *result;
 
-  /* wchmodExt3 */
-    logFunction(printf("wchmodExt3(\"%ls\", \"%.*ls\", %hu, 0%o, %d)\n",
+  /* followSymlinkRecursive */
+    logFunction(printf("followSymlinkRecursive(\"%ls\", \"%.*ls\", %hu, 0%o, %d)\n",
                        osSymlinkPath, (int) substituteNameByteLen / sizeof(wchar_t),
                        substituteName, substituteNameByteLen, pmode,
                        numberOfFollowsAllowed););
@@ -897,26 +897,30 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
         if (unlikely(!ALLOC_OS_STRI(destination,
                       (memSizeType) DRIVE_PREFIX_LENGTH + substituteNameLength))) {
           errno = EACCES;
-          result = -1;
+          result = NULL;
         } else {
           memcpy(destination, osSymlinkPath, DRIVE_PREFIX_LENGTH * sizeof(wchar_t));
           memcpy(&destination[DRIVE_PREFIX_LENGTH],
                  substituteName, substituteNameByteLen);
           destination[DRIVE_PREFIX_LENGTH + substituteNameLength] = '\0';
-          result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
-          FREE_OS_STRI(destination);
+          result = winFollowSymlink(destination, numberOfFollowsAllowed - 1);
+          if (result != destination) {
+            FREE_OS_STRI(destination);
+          } /* if */
         } /* if */
       } else if (unlikely(!ALLOC_OS_STRI(destination, (memSizeType) substituteNameLength))) {
         errno = EACCES;
-        result = -1;
+        result = NULL;
       } else {
         memcpy(destination, substituteName, substituteNameByteLen);
         /* Overwrite the substitute prefix \??\      */
         /* with the extended length path prefix \\?\ */
         memcpy(destination, PATH_PREFIX, PREFIX_LEN * sizeof(wchar_t));
         destination[substituteNameLength] = '\0';
-        result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
-        FREE_OS_STRI(destination);
+        result = winFollowSymlink(destination, numberOfFollowsAllowed - 1);
+        if (result != destination) {
+          FREE_OS_STRI(destination);
+        } /* if */
       } /* if */
     } else {
       /* A relative substitute name is relative to the    */
@@ -927,34 +931,36 @@ static int wchmodExt3 (const wchar_t *osSymlinkPath, const wchar_t *substituteNa
       /* symlink).                                        */
       lastBackslashPos = os_stri_strrchr(osSymlinkPath, (wchar_t) '\\');
       if (unlikely(lastBackslashPos == NULL)) {
-        logError(printf("wchmodExt3(\"%ls\", ...): "
+        logError(printf("followSymlinkRecursive(\"%ls\", ...): "
                         "Absolute path does not contain a backslash.\n",
                         osSymlinkPath););
         errno = EACCES;
-        result = -1;
+        result = NULL;
       } else {
         directoryPathLength = (memSizeType) (lastBackslashPos - osSymlinkPath) + 1;
         if (unlikely(!ALLOC_OS_STRI(destination,
                       directoryPathLength + substituteNameLength))) {
           errno = EACCES;
-          result = -1;
+          result = NULL;
         } else {
           memcpy(destination, osSymlinkPath, directoryPathLength * sizeof(wchar_t));
           memcpy(&destination[directoryPathLength],
                  substituteName, substituteNameByteLen);
           destination[directoryPathLength + substituteNameLength] = '\0';
-          result = wchmodExt2(destination, pmode, numberOfFollowsAllowed - 1);
-          FREE_OS_STRI(destination);
+          result = winFollowSymlink(destination, numberOfFollowsAllowed - 1);
+          if (result != destination) {
+            FREE_OS_STRI(destination);
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("wchmodExt3 --> %d\n", result););
+    logFunction(printf("followSymlinkRecursive --> \"%ls\"\n", result););
     return result;
-  } /* wchmodExt3 */
+  } /* followSymlinkRecursive */
 
 
 
-static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowed)
+const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed)
 
   {
     DWORD fileAttributes;
@@ -969,10 +975,10 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
     DWORD bytesReturned;
     DWORD lastError;
     WCHAR *pathBuffer;
-    int result;
+    const wchar_t *result;
 
-  /* wchmodExt2 */
-    logFunction(printf("wchmodExt2(\"%ls\", 0%o, %d)\n",
+  /* winFollowSymlink */
+    logFunction(printf("winFollowSymlink(\"%ls\", 0%o, %d)\n",
                        path, pmode, numberOfFollowsAllowed););
     if (numberOfFollowsAllowed == 0) {
 #ifdef ELOOP
@@ -980,15 +986,15 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
 #else
       errno = ENOENT;
 #endif
-      result = -1;
+      result = NULL;
     } else if (unlikely((fileAttributes = GetFileAttributesW(path)) ==
                         INVALID_FILE_ATTRIBUTES)) {
-      logError(printf("wchmodExt2(\"%ls\", 0%o): "
+      logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                       "GetFileAttributesW(\"%ls\") failed:\n"
                       "GetLastError=" FMT_U32 "\n",
                       path, pmode, path, (uint32Type) GetLastError()););
       errno = ENOENT;
-      result = -1;
+      result = NULL;
     } else {
       if ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
         fileHandle = CreateFileW(path, 0,
@@ -996,12 +1002,12 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
                                  OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-          logError(printf("wchmodExt2(\"%ls\", 0%o): "
+          logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                           "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
                           "lastError=" FMT_U32 "\n",
                           path, pmode, path, (uint32Type) GetLastError()););
           errno = ENOENT;
-          result = -1;
+          result = NULL;
         } else {
           if (unlikely(DeviceIoControl(fileHandle,
                                        FSCTL_GET_REPARSE_POINT,
@@ -1009,24 +1015,24 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
                                        &bytesReturned, NULL) == 0)) {
             lastError = GetLastError();
             if (lastError != ERROR_MORE_DATA) {
-              logError(printf("wchmodExt2(\"%ls\", 0%o): "
+              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                               "DeviceIoControl() failed:\n"
                               "lastError=" FMT_U32 "%s\n",
                               path, pmode, (uint32Type) lastError,
                               lastError == ERROR_NOT_A_REPARSE_POINT ?
                                   " (ERROR_NOT_A_REPARSE_POINT)" : ""););
               errno = EACCES;
-              result = -1;
+              result = NULL;
             } else if (unlikely(info.reparseData.ReparseTag !=
                                 IO_REPARSE_TAG_SYMLINK &&
                                 info.reparseData.ReparseTag !=
                                 IO_REPARSE_TAG_MOUNT_POINT)) {
-              logError(printf("wchmodExt2(\"%ls\", 0%o): "
+              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                               path, pmode,
                               (uint32Type) info.reparseData.ReparseTag););
               errno = EACCES;
-              result = -1;
+              result = NULL;
             } else {
               dataBufferHeadLength = (memSizeType)
                   ((char *) &info.reparseData.Destination -
@@ -1036,38 +1042,38 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
               reparseData = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
               if (unlikely(reparseData == NULL)) {
                 errno = EACCES;
-                result = -1;
+                result = NULL;
               } else {
                 if (unlikely(DeviceIoControl(fileHandle,
                                              FSCTL_GET_REPARSE_POINT, NULL, 0,
                                              reparseData, (DWORD) dataBufferLength,
                                              &bytesReturned, NULL) == 0)) {
-                  logError(printf("wchmodExt2(\"%ls\", 0%o): "
+                  logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                                   "DeviceIoControl() failed:\n"
                                   "lastError=" FMT_U32 "%\n",
                                   path, pmode, (uint32Type) GetLastError()););
                   errno = EACCES;
-                  result = -1;
+                  result = NULL;
                 } else {
                   if (reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
                     pathBuffer = reparseData->Destination.Data.SymbolicLink.PathBuffer;
                   } else if (reparseData->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
                     pathBuffer = reparseData->Destination.Data.MountPoint.PathBuffer;
                   } else {
-                    logError(printf("wchmodExt2(\"%ls\", 0%o): "
+                    logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                                     "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                                     path, pmode,
                                     (uint32Type) reparseData->ReparseTag););
                     pathBuffer = NULL;
                     errno = EACCES;
-                    result = -1;
+                    result = NULL;
                   } /* if */
                   if (likely(pathBuffer != NULL)) {
-                    result = wchmodExt3(path,
+                    result = followSymlinkRecursive(path,
                         &pathBuffer[reparseData->Destination.SubstituteNameOffset /
                             sizeof(wchar_t)],
                         reparseData->Destination.SubstituteNameLength,
-                        pmode, numberOfFollowsAllowed);
+                        numberOfFollowsAllowed);
                   } /* if */
                 } /* if */
                 free(reparseData);
@@ -1079,42 +1085,52 @@ static int wchmodExt2 (const wchar_t *path, int pmode, int numberOfFollowsAllowe
             } else if (info.reparseData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
               pathBuffer = info.reparseData.Destination.Data.MountPoint.PathBuffer;
             } else {
-              logError(printf("wchmodExt2(\"%ls\", 0%o): "
+              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
                               path, pmode,
                               (uint32Type) info.reparseData.ReparseTag););
               pathBuffer = NULL;
               errno = EACCES;
-              result = -1;
+              result = NULL;
             } /* if */
             if (likely(pathBuffer != NULL)) {
-              result = wchmodExt3(path,
+              result = followSymlinkRecursive(path,
                   &pathBuffer[info.reparseData.Destination.SubstituteNameOffset /
                       sizeof(wchar_t)],
                   info.reparseData.Destination.SubstituteNameLength,
-                  pmode, numberOfFollowsAllowed);
+                  numberOfFollowsAllowed);
             } /* if */
           } /* if */
           CloseHandle(fileHandle);
         } /* if */
       } else {
-        result = os_chmod_orig(path, pmode);
+        result = path;
       } /* if */
     } /* if */
-    logFunction(printf("wchmodExt2 --> %d\n", result););
+    logFunction(printf("winFollowSymlink --> \"%ls\"\n", result););
     return result;
-  } /* wchmodExt2 */
+  } /* winFollowSymlink */
 
 
 
+#if defined DEFINE_WCHMOD_EXT && !defined HAS_GET_FILE_INFORMATION_BY_HANDLE_EX
 int wchmodExt (const wchar_t *path, int pmode)
 
   {
+    const wchar_t *destination;
     int result = 0;
 
   /* wchmodExt */
     logFunction(printf("wchmodExt(\"%ls\", 0%o)\n", path, pmode););
-    result = wchmodExt2(path, pmode, 5);
+    destination = winFollowSymlink(path, 5);
+    if (unlikely(destination == NULL)) {
+      result = -1;
+    } else {
+      result = os_chmod_orig(destination, pmode);
+      if (destination != path) {
+        FREE_OS_STRI((wchar_t *) destination);
+      } /* if */
+    } /* if */
     logFunction(printf("wchmodExt --> %d\n", result););
     return result;
   } /* wchmodExt */
