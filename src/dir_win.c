@@ -56,6 +56,10 @@
 
 
 #ifdef OS_STRI_WCHAR
+const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed);
+
+
+
 /**
  *  Opens a directory stream corresponding to the directory dirName.
  *  The stream is positioned at the first entry in the directory.
@@ -63,24 +67,24 @@
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-WDIR *wopendir (const wchar_t *dirName)
+static WDIR *wOpenDir (const wchar_t *dirName)
 
   {
     memSizeType nameLen;
     wchar_t fileNameBuffer[260];
     wchar_t *fileNamePattern = fileNameBuffer;
-    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    DWORD fileAttributes;
     WDIR *directory;
 
-  /* wopendir */
-    logFunction(printf("wopendir(\"%ls\")\n", dirName););
+  /* wOpenDir */
+    logFunction(printf("wOpenDir(\"%ls\")\n", dirName););
     nameLen = wcslen(dirName);
     if (nameLen == 0) {
-      logError(printf("wopendir(\"%ls\"): Name empty.\n", dirName););
+      logError(printf("wOpenDir(\"%ls\"): Name empty.\n", dirName););
       directory = NULL;
       errno = ENOENT;
     } else if (wcspbrk(&dirName[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], L"?*") != NULL) {
-      logError(printf("wopendir(\"%ls\"): Wildcards in path.\n", dirName););
+      logError(printf("wOpenDir(\"%ls\"): Wildcards in path.\n", dirName););
       directory = NULL;
       errno = ENOENT;
     } else {
@@ -102,7 +106,7 @@ WDIR *wopendir (const wchar_t *dirName)
           } /* if */
           fileNamePattern[nameLen++] = '*';
           fileNamePattern[nameLen] = '\0';
-          logMessage(printf("wopendir: before FindFirstFileW(\"%ls\", *)\n",
+          logMessage(printf("wOpenDir: before FindFirstFileW(\"%ls\", *)\n",
                             fileNamePattern););
           directory->dirHandle = FindFirstFileW(fileNamePattern,
                                                 &directory->findData);
@@ -111,6 +115,11 @@ WDIR *wopendir (const wchar_t *dirName)
             printf(">%ls<\n", directory->findData.cFileName); */
             directory->firstElement = 1;
           } else {
+            logMessage(printf("wOpenDir(\"%ls\"): "
+                              "FindFirstFileW(\"%ls\", *) failed:\n"
+                              "lastError=" FMT_U32 "\n",
+                              dirName, fileNamePattern,
+                              (uint32Type) GetLastError()););
             /* The file referred by dirName does not exist, or */
             /* it is not a directory, or it is an empty volume */
             /* respectively directory. All these cases are     */
@@ -127,12 +136,12 @@ WDIR *wopendir (const wchar_t *dirName)
               /* A normal path is not allowed to have a trailing backslash. */
               fileNamePattern[nameLen - 2] = '\0';
             } /* if */
-            logMessage(printf("wopendir: "
-                              "before GetFileAttributesExW(\"%ls\", *)\n",
-                              fileNamePattern););
-            if (GetFileAttributesExW(fileNamePattern, GetFileExInfoStandard,
-                                     &fileInfo) != 0) {
-              if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            logMessage(printf("wOpenDir(\"%ls\"): "
+                              "before GetFileAttributesW(\"%ls\", *)\n",
+                              dirName, fileNamePattern););
+            if (likely((fileAttributes = GetFileAttributesW(fileNamePattern)) !=
+                       INVALID_FILE_ATTRIBUTES)) {
+              if (fileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 /* This is an empty directory. Probably an empty    */
                 /* volume. For nonempty directories FindFirstFileW  */
                 /* would have succeeded, because normal directories */
@@ -142,8 +151,8 @@ WDIR *wopendir (const wchar_t *dirName)
                 /* INVALID_HANDLE_VALUE.                            */
                 directory->firstElement = 0;
               } else {
-                logError(printf("wopendir(\"%ls\"): "
-                                "GetFileAttributesExW(\"%ls\", *) shows: "
+                logError(printf("wOpenDir(\"%ls\"): "
+                                "GetFileAttributesW(\"%ls\") shows: "
                                 "The file is not a directory.\n",
                                 dirName, fileNamePattern););
                 free(directory);
@@ -151,8 +160,8 @@ WDIR *wopendir (const wchar_t *dirName)
                 errno = ENOTDIR;
               } /* if */
             } else {
-              logError(printf("wopendir(\"%ls\"): "
-                              "GetFileAttributesExW(\"%ls\", *) failed:\n"
+              logError(printf("wOpenDir(\"%ls\"): "
+                              "GetFileAttributesW(\"%ls\") failed:\n"
                               "GetLastError=" FMT_U32 "\n",
                               dirName, fileNamePattern, (uint32Type)
                               GetLastError()););
@@ -165,6 +174,50 @@ WDIR *wopendir (const wchar_t *dirName)
         if (unlikely(fileNamePattern != fileNameBuffer)) {
           free(fileNamePattern);
         } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("wOpenDir(\"%ls\") --> " FMT_X_MEM,
+                       dirName, (memSizeType) directory);
+                if (directory != NULL) {
+                  printf(" {%d, " FMT_X_MEM ", ... }",
+                         directory->firstElement,
+                        (memSizeType) directory->dirHandle);
+                } else {
+                  printf(" (errno=%d, error=%s)", errno, strerror(errno));
+                }
+                printf("\n"););
+    return directory;
+  } /* wOpenDir */
+
+
+
+/**
+ *  Opens a directory stream corresponding to the directory dirName.
+ *  The function follows symbolic links.
+ *  The stream is positioned at the first entry in the directory.
+ *  @param dirName Name of the directory to be opened.
+ *  @return a pointer to the directory stream or NULL if the
+ *          directory stream could not be opened.
+ */
+WDIR *wopendir (const wchar_t *dirName)
+
+  {
+    const wchar_t *destination;
+    WDIR *directory;
+
+  /* wopendir */
+    logFunction(printf("wopendir(\"%ls\")\n", dirName););
+    destination = winFollowSymlink(dirName, 5);
+    if (unlikely(destination == NULL)) {
+      logError(printf("wopendir: "
+                      "winFollowSymlink(\"%ls\", ...) failed.\n",
+                      dirName););
+      directory = NULL;
+      errno = ENOENT;
+    } else {
+      directory = wOpenDir(destination);
+      if (destination != dirName) {
+        FREE_OS_STRI((wchar_t *) destination);
       } /* if */
     } /* if */
     logFunction(printf("wopendir(\"%ls\") --> " FMT_X_MEM,
