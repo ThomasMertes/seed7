@@ -36,6 +36,7 @@
 
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #include "sys/stat.h"
 #include "sys/types.h"
 #include "windows.h"
@@ -95,64 +96,6 @@ static time_t fileTime2UnixTime (const FILETIME *fileTime)
 
 
 
-#ifdef os_stat_orig
-/**
- *  Undo the time adjustments done by a windows stat() function.
- *  The windows stat() functions (_wstati64, ...) return adjusted
- *  access, modification and status change times of a file. E.g.:
- *  During summer time a modification time from summer is returned
- *  unchanged. During winter time the same modification time is
- *  returned, without daylight saving adjustment, in winter time.
- *  So for the same file you get different modification times in
- *  summer and in winter. The same applies for a modification time
- *  from winter. This adjustments of Daylight Saving Time can be
- *  switched on and off in the Time Zone settings of Windows. But
- *  getting access, modification and status change times of a file
- *  should neither depend on the time when the request is done, nor
- *  on some strange settings. This function corrects this Daylight
- *  Saving Timetime adjustments.
- */
-static time_t correctAdjustedUnixTime (time_t aTime)
-
-  {
-#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
-    struct tm tmResult;
-#endif
-    struct tm *localTime;
-    SYSTEMTIME systemTime;
-    FILETIME localFileTime;
-    FILETIME fileTime;
-
-  /* correctAdjustedUnixTime */
-#if defined USE_LOCALTIME_R
-    localTime = localtime_r(&aTime, &tmResult);
-#elif defined USE_LOCALTIME_S
-    if (localtime_s(&tmResult, &aTime) != 0) {
-      localTime = NULL;
-    } else {
-      localTime = &tmResult;
-    } /* if */
-#else
-    localTime = localtime(&aTime);
-#endif
-    systemTime.wYear =      (WORD) (localTime->tm_year + 1900);
-    systemTime.wMonth =     (WORD) (localTime->tm_mon + 1);
-    systemTime.wDayOfWeek = (WORD) localTime->tm_wday;
-    systemTime.wDay =       (WORD) localTime->tm_mday;
-    systemTime.wHour =      (WORD) localTime->tm_hour;
-    systemTime.wMinute =    (WORD) localTime->tm_min;
-    systemTime.wSecond =    (WORD) localTime->tm_sec;
-    systemTime.wMilliseconds = 0;
-    if (SystemTimeToFileTime(&systemTime, &localFileTime) == 0 ||
-        LocalFileTimeToFileTime(&localFileTime, &fileTime) == 0) {
-      return 0;
-    } /* if */
-    return fileTime2UnixTime(&fileTime);
-  } /* correctAdjustedUnixTime */
-#endif
-
-
-
 /**
  *  Determine a Unix file mode from Windows attributes and file name.
  */
@@ -192,6 +135,54 @@ static short unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
 
 #ifdef DEFINE_WSTATI64_EXT
+static int wstati64FollowSymlink (const wchar_t *path, os_stat_struct *statBuf)
+
+  {
+    HANDLE fileHandle;
+    BY_HANDLE_FILE_INFORMATION handleFileInfo;
+    int result = 0;
+
+  /* wstati64FollowSymlink */
+    fileHandle = CreateFileW(path, 0, FILE_SHARE_READ,
+                             NULL, OPEN_EXISTING,
+                             FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+      logError(printf("wstati64Ext: "
+                      "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                      "GetLastError=" FMT_U32 "\n",
+                      path, (uint32Type) GetLastError()););
+      errno = ENOENT;
+      result = -1;
+    } else {
+      if (unlikely(GetFileInformationByHandle(fileHandle, &handleFileInfo) == 0)) {
+        logError(printf("wstati64Ext(\"%ls\", *): "
+                        "GetFileInformationByHandle(" FMT_U_MEM ", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (memSizeType) fileHandle,
+                        (uint32Type) GetLastError()););
+        errno = EACCES;
+        result = -1;
+      } else {
+        memset(statBuf, 0, sizeof(os_fstat_struct));
+        statBuf->st_mode = fileAttr2UnixMode(handleFileInfo.dwFileAttributes, NULL);
+        statBuf->st_nlink =             handleFileInfo.nNumberOfLinks < SHRT_MAX ?
+                                            (short) handleFileInfo.nNumberOfLinks :
+                                            SHRT_MAX;
+        statBuf->st_dev   =             0; /* Not assigned */
+        statBuf->st_rdev  =             0; /* Not assigned */
+        statBuf->st_size = ((int64Type) handleFileInfo.nFileSizeHigh << 32) |
+                                        handleFileInfo.nFileSizeLow;
+        statBuf->st_atime = fileTime2UnixTime(&handleFileInfo.ftLastAccessTime);
+        statBuf->st_mtime = fileTime2UnixTime(&handleFileInfo.ftLastWriteTime);
+        statBuf->st_ctime = fileTime2UnixTime(&handleFileInfo.ftCreationTime);
+      } /* if */
+      CloseHandle(fileHandle);
+    } /* if */
+    return result;
+  } /* wstati64FollowSymlink */
+
+
+
 /**
  *  Stat() function for a wide character path and a 64 bit file size.
  *  The windows stat() functions (_wstati64, ...) have a lot of issues:
@@ -204,8 +195,8 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
 
   {
     WIN32_FILE_ATTRIBUTE_DATA fileInfo;
-    HANDLE fileHandle;
-    BY_HANDLE_FILE_INFORMATION handleFileInfo;
+    HANDLE findFirstHandle;
+    WIN32_FIND_DATAW findFileData;
     int result = 0;
 
   /* wstati64Ext */
@@ -216,47 +207,11 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       /* an extended length path, is used.                                 */
       if ((fileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
         /* Follow the symbolic link and get the data from the destination. */
-        fileHandle = CreateFileW(path, 0, FILE_SHARE_READ,
-                                 NULL, OPEN_EXISTING,
-                                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
-        if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-          logError(printf("wstati64Ext: "
-                          "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
-                          "GetLastError=" FMT_U32 "\n",
-                          path, (uint32Type) GetLastError()););
-          errno = ENOENT;
-          result = -1;
-        } else {
-          if (unlikely(GetFileInformationByHandle(fileHandle, &handleFileInfo) == 0)) {
-            logError(printf("wstati64Ext(\"%ls\", *): "
-                            "GetFileInformationByHandle(" FMT_U_MEM ", *) failed:\n"
-                            "GetLastError=" FMT_U32 "\n",
-                            path, (memSizeType) fileHandle,
-                            (uint32Type) GetLastError()););
-            errno = EACCES;
-            result = -1;
-          } else {
-            memset(statBuf, 0, sizeof(os_fstat_struct));
-            statBuf->st_mode = fileAttr2UnixMode(handleFileInfo.dwFileAttributes, NULL);
-            statBuf->st_nlink =             handleFileInfo.nNumberOfLinks;
-            statBuf->st_dev   =             0; /* Not assigned */
-            statBuf->st_rdev  =             0; /* Not assigned */
-            statBuf->st_size = ((int64Type) handleFileInfo.nFileSizeHigh << 32) |
-                                            handleFileInfo.nFileSizeLow;
-            statBuf->st_atime = fileTime2UnixTime(&handleFileInfo.ftLastAccessTime);
-            statBuf->st_mtime = fileTime2UnixTime(&handleFileInfo.ftLastWriteTime);
-            statBuf->st_ctime = fileTime2UnixTime(&handleFileInfo.ftCreationTime);
-          } /* if */
-          CloseHandle(fileHandle);
-        } /* if */
+        result = wstati64FollowSymlink(path, statBuf);
       } else {
         memset(statBuf, 0, sizeof(os_stat_struct));
         statBuf->st_nlink = 1;
         statBuf->st_mode = fileAttr2UnixMode(fileInfo.dwFileAttributes, path);
-        /* For devices os_stat_orig() sets all times to 1980-01-01 00:00:00. */
-        /* For daylight saving time os_stat_orig() returns adjusted times.   */
-        /* To get correct times the times from GetFileAttributesExW() are    */
-        /* used instead of the times from os_stat_orig().                    */
         statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
         statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
         statBuf->st_ctime = fileTime2UnixTime(&fileInfo.ftCreationTime);
@@ -272,43 +227,45 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
         statBuf->st_rdev = statBuf->st_dev;
       } /* if */
     } else {
-      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
-      /* file is currently in use, by some other program. This happens   */
-      /* e.g. with c:\swapfile.sys or c:\hiberfil.sys. Interestingly     */
-      /* os_stat_orig() succeeds for these files.                        */
-#ifdef os_stat_orig
-      DWORD lastError = GetLastError();
       logMessage(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
                         "GetLastError=" FMT_U32 "\n",
-                        path, (uint32Type) lastError););
-      if (lastError == ERROR_FILE_NOT_FOUND || lastError == ERROR_PATH_NOT_FOUND) {
-        logError(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        path, (uint32Type) GetLastError()););
+      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
+      /* file is currently in use, by some other program. This happens   */
+      /* e.g. with c:\pagefile.sys, c:\swapfile.sys or c:\hiberfil.sys.  */
+      /* Interestingly FindFirstFileW() succeeds for these files.        */
+      findFirstHandle = FindFirstFileW(path, &findFileData);
+      if (unlikely(findFirstHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("wstati64Ext: "
+                        "FindFirstFileW(\"%ls\", *) failed:\n"
                         "GetLastError=" FMT_U32 "\n",
-                        path, (uint32Type) lastError););
+                        path, (uint32Type) GetLastError()););
         errno = ENOENT;
         result = -1;
-      } else if (os_stat_orig(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], statBuf) == 0) {
-        /* Os_stat_orig does not work with an extended length path. */
-        /* printf("os_stat_orig(\"%ls\", *) succeeded.\n",
-            &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN]); */
-        /* Undo the effect of time adjustments done by os_stat_orig(). */
-        statBuf->st_atime = correctAdjustedUnixTime(statBuf->st_atime);
-        statBuf->st_mtime = correctAdjustedUnixTime(statBuf->st_mtime);
-        statBuf->st_ctime = correctAdjustedUnixTime(statBuf->st_ctime);
       } else {
-        logError(printf("wstati64Ext: os_stat_orig(\"%ls\", *) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN],
-                        errno, strerror(errno)););
-        result = -1;
+        FindClose(findFirstHandle);
+        if ((findFileData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) {
+          /* Follow the symbolic link and get the data from the destination. */
+          result = wstati64FollowSymlink(path, statBuf);
+        } else {
+          memset(statBuf, 0, sizeof(os_stat_struct));
+          statBuf->st_nlink = 1;
+          statBuf->st_mode = fileAttr2UnixMode(findFileData.dwFileAttributes, path);
+          if (!S_ISDIR(statBuf->st_mode)) {
+            statBuf->st_size = ((int64Type) findFileData.nFileSizeHigh << 32) |
+                                            findFileData.nFileSizeLow;
+          } /* if */
+          statBuf->st_atime = fileTime2UnixTime(&findFileData.ftLastAccessTime);
+          statBuf->st_mtime = fileTime2UnixTime(&findFileData.ftLastWriteTime);
+          statBuf->st_ctime = fileTime2UnixTime(&findFileData.ftCreationTime);
+          if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
+            statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'a');
+          } else if (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z') {
+            statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'A');
+          } /* if */
+          statBuf->st_rdev = statBuf->st_dev;
+        } /* if */
       } /* if */
-#else
-      logError(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
-                      "GetLastError=" FMT_U32 "\n",
-                      path, (uint32Type) GetLastError()););
-      errno = ENOENT;
-      result = -1;
-#endif
     } /* if */
     logFunction(printf("wstati64Ext --> %d\n", result););
     return result;
@@ -358,6 +315,9 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       statBuf->st_rdev = statBuf->st_dev;
       result = 0;
     } else {
+      logMessage(printf("lstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (uint32Type) GetLastError()););
       /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
       /* file is currently in use, by some other program. This happens   */
       /* e.g. with c:\pagefile.sys, c:\swapfile.sys or c:\hiberfil.sys.  */
