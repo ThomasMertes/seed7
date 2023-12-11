@@ -1741,9 +1741,20 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
                 printf("\"%s\")\n", striAsUnquotedCStri(group)));
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdSetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdSetGroupOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        err_info = FILE_ERROR;
+      } else
+#endif
+      {
+        logError(printf("cmdSetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+      }
     } else {
       if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
                    INVALID_FILE_ATTRIBUTES)) {
@@ -1824,9 +1835,20 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
                        day, hour, min, sec, micro_sec, time_zone););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdSetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdSetMTimeOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        err_info = FILE_ERROR;
+      } else
+#endif
+      {
+        logError(printf("cmdSetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+      }
     } else {
       if (unlikely(GetFileAttributesExW(os_path, GetFileExInfoStandard, &fileInfo) == 0)) {
         logError(printf("cmdSetMTimeOfSymlink(\"%s\", ...): "
@@ -1992,9 +2014,20 @@ void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType o
                 printf("\"%s\")\n", striAsUnquotedCStri(owner)));
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-      logError(printf("cmdSetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdSetOwnerOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        err_info = FILE_ERROR;
+      } else
+#endif
+      {
+        logError(printf("cmdSetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+      }
     } else {
       if (unlikely((fileAttributes = GetFileAttributesW(os_path)) ==
                    INVALID_FILE_ATTRIBUTES)) {
