@@ -3530,7 +3530,9 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
  *  @exception RANGE_ERROR 'dirPath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'dirPath' does not
+ *             exist, or it is not a directory, or a system function
+ *             returns an error.
  */
 rtlArrayType cmdReadDir (const const_striType dirPath)
 

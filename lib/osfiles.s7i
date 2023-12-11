@@ -78,7 +78,9 @@ const proc: SET_MTIME_OF_SYMLINK (in string: filePath, in integer: year, in inte
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''dirPath'' does not
+ *             exist, or it is not a directory, or a system function
+ *             returns an error.
  *)
 const func array string: readDir (in string: dirPath)        is action "CMD_READ_DIR";
 
