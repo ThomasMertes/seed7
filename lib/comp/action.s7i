@@ -482,8 +482,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_COPY_FILE, function, params, c_expr);
       when {"CMD_ENVIRONMENT"}:
         process(CMD_ENVIRONMENT, function, params, c_expr);
-      when {"CMD_FILEMODE"}:
-        process(CMD_FILEMODE, function, params, c_expr);
       when {"CMD_FILESIZE"}:
         process(CMD_FILESIZE, function, params, c_expr);
       when {"CMD_FILETYPE"}:
@@ -500,6 +498,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_GET_ATIME, function, params, c_expr);
       when {"CMD_GET_CTIME"}:
         process(CMD_GET_CTIME, function, params, c_expr);
+      when {"CMD_GET_FILE_MODE"}:
+        process(CMD_GET_FILE_MODE, function, params, c_expr);
       when {"CMD_GET_GROUP"}:
         process(CMD_GET_GROUP, function, params, c_expr);
       when {"CMD_GET_GROUP_OF_SYMLINK"}:
@@ -534,8 +534,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SETENV, function, params, c_expr);
       when {"CMD_SET_ATIME"}:
         process(CMD_SET_ATIME, function, params, c_expr);
-      when {"CMD_SET_FILEMODE"}:
-        process(CMD_SET_FILEMODE, function, params, c_expr);
+      when {"CMD_SET_FILE_MODE"}:
+        process(CMD_SET_FILE_MODE, function, params, c_expr);
       when {"CMD_SET_GROUP"}:
         process(CMD_SET_GROUP, function, params, c_expr);
       when {"CMD_SET_GROUP_OF_SYMLINK"}:

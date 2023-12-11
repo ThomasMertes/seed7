@@ -2545,77 +2545,6 @@ rtlArrayType cmdEnvironment (void)
 
 
 /**
- *  Determine the file mode (permissions) of a file.
- *  The function follows symbolic links.
- *  @return the file mode.
- *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
- *             to the system path type.
- *  @exception RANGE_ERROR 'filePath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-setType cmdFileMode (const const_striType filePath)
-
-  {
-    os_striType os_path;
-    os_stat_struct stat_buf;
-    int stat_result;
-    int path_info = PATH_IS_NORMAL;
-    errInfoType err_info = OKAY_NO_ERROR;
-    setType file_mode;
-
-  /* cmdFileMode */
-    logFunction(printf("cmdFileMode(\"%s\")\n", striAsUnquotedCStri(filePath)););
-    os_path = cp_to_os_path(filePath, &path_info, &err_info);
-    if (unlikely(os_path == NULL)) {
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
-        file_mode = setIConv(0444);
-      } else
-#endif
-      {
-        logError(printf("cmdFileMode: cp_to_os_path(\"%s\", *, *) failed:\n"
-                        "path_info=%d, err_info=%d\n",
-                        striAsUnquotedCStri(filePath), path_info, err_info););
-        raise_error(err_info);
-        file_mode = NULL;
-      }
-    } else {
-      stat_result = os_stat(os_path, &stat_buf);
-      if (unlikely(stat_result != 0)) {
-        logError(printf("cmdFileMode: os_stat(\"" FMT_S_OS "\") failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        os_path, errno, strerror(errno)););
-        os_stri_free(os_path);
-        raise_error(FILE_ERROR);
-        file_mode = NULL;
-      } else {
-        os_stri_free(os_path);
-        /* printf("cmdFileMode: st_mode=0%o\n", stat_buf.st_mode); */
-#if MODE_BITS_NORMAL
-        file_mode = setIConv(0777 & stat_buf.st_mode);
-#else
-        /* Force the bits to the standard sequence */
-        file_mode = setIConv(
-            (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
-            (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
-            (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
-            (stat_buf.st_mode & S_IRGRP ? 0040 : 0) |
-            (stat_buf.st_mode & S_IWGRP ? 0020 : 0) |
-            (stat_buf.st_mode & S_IXGRP ? 0010 : 0) |
-            (stat_buf.st_mode & S_IROTH ? 0004 : 0) |
-            (stat_buf.st_mode & S_IWOTH ? 0002 : 0) |
-            (stat_buf.st_mode & S_IXOTH ? 0001 : 0));
-#endif
-      } /* if */
-    } /* if */
-    return file_mode;
-  } /* cmdFileMode */
-
-
-
-/**
  *  Determine the size of a file.
  *  The function follows symbolic links. The file size is measured in bytes.
  *  For directories, fifos and sockets a size of 0 is returned.
@@ -3101,6 +3030,77 @@ void cmdGetCTime (const const_striType filePath,
                        *year, *month, *day, *hour, *min, *sec,
                        *micro_sec, *time_zone, *is_dst););
   } /* cmdGetCTime */
+
+
+
+/**
+ *  Determine the file mode (permissions) of a file.
+ *  The function follows symbolic links.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+setType cmdGetFileMode (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    setType file_mode;
+
+  /* cmdGetFileMode */
+    logFunction(printf("cmdGetFileMode(\"%s\")\n", striAsUnquotedCStri(filePath)););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        file_mode = setIConv(0555);
+      } else
+#endif
+      {
+        logError(printf("cmdGetFileMode: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+        file_mode = NULL;
+      }
+    } else {
+      stat_result = os_stat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetFileMode: os_stat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        os_stri_free(os_path);
+        raise_error(FILE_ERROR);
+        file_mode = NULL;
+      } else {
+        os_stri_free(os_path);
+        /* printf("cmdGetFileMode: st_mode=0%o\n", stat_buf.st_mode); */
+#if MODE_BITS_NORMAL
+        file_mode = setIConv(0777 & stat_buf.st_mode);
+#else
+        /* Force the bits to the standard sequence */
+        file_mode = setIConv(
+            (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
+            (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
+            (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
+            (stat_buf.st_mode & S_IRGRP ? 0040 : 0) |
+            (stat_buf.st_mode & S_IWGRP ? 0020 : 0) |
+            (stat_buf.st_mode & S_IXGRP ? 0010 : 0) |
+            (stat_buf.st_mode & S_IROTH ? 0004 : 0) |
+            (stat_buf.st_mode & S_IWOTH ? 0002 : 0) |
+            (stat_buf.st_mode & S_IXOTH ? 0001 : 0));
+#endif
+      } /* if */
+    } /* if */
+    return file_mode;
+  } /* cmdGetFileMode */
 
 
 

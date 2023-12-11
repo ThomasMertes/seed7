@@ -60,7 +60,6 @@ void cmdCloneFile (const const_striType source_name, const const_striType dest_n
 striType cmdConfigValue (const const_striType name);
 void cmdCopyFile (const const_striType source_name, const const_striType dest_name);
 rtlArrayType cmdEnvironment (void);
-setType cmdFileMode (const const_striType file_name);
 intType cmdFileSize (const const_striType file_name);
 intType cmdFileType (const const_striType file_name);
 intType cmdFileTypeSL (const const_striType file_name);
@@ -75,6 +74,7 @@ void cmdGetCTime (const const_striType file_name,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
     boolType *is_dst);
+setType cmdGetFileMode (const const_striType file_name);
 void cmdGetMTime (const const_striType filePath,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,

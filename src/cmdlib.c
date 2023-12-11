@@ -242,27 +242,6 @@ objectType cmd_environment (listType arguments)
 
 
 /**
- *  Determine the file mode (permissions) of a file.
- *  The function follows symbolic links.
- *  @return the file mode.
- *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
- *             to the system path type.
- *  @exception RANGE_ERROR 'filePath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-objectType cmd_filemode (listType arguments)
-
-  { /* cmd_filemode */
-    isit_stri(arg_1(arguments));
-    return bld_set_temp(
-        cmdFileMode(take_stri(arg_1(arguments))));
-  } /* cmd_filemode */
-
-
-
-/**
  *  Determine the size of a file.
  *  The function follows symbolic links. The file size is measured in bytes.
  *  For directories, fifos and sockets a size of 0 is returned.
@@ -488,6 +467,27 @@ objectType cmd_get_ctime (listType arguments)
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_ctime */
+
+
+
+/**
+ *  Determine the file mode (permissions) of a file.
+ *  The function follows symbolic links.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType cmd_get_file_mode (listType arguments)
+
+  { /* cmd_get_file_mode */
+    isit_stri(arg_1(arguments));
+    return bld_set_temp(
+        cmdGetFileMode(take_stri(arg_1(arguments))));
+  } /* cmd_get_file_mode */
 
 
 
@@ -947,7 +947,7 @@ objectType cmd_set_atime (listType arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objectType cmd_set_filemode (listType arguments)
+objectType cmd_set_file_mode (listType arguments)
 
   { /* cmd_set_filemode */
     isit_stri(arg_1(arguments));
@@ -955,7 +955,7 @@ objectType cmd_set_filemode (listType arguments)
     cmdSetFileMode(take_stri(arg_1(arguments)),
                    take_set(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* cmd_set_filemode */
+  } /* cmd_set_file_mode */
 
 
 
