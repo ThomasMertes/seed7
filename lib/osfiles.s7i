@@ -395,13 +395,13 @@ const func fileMode: getFileMode (in string: filePath, SYMLINK) is action "CMD_G
  *)
 const func time: getATime (in string: filePath, SYMLINK) is func
   result
-    var time: modificationTime is time.value;
+    var time: accessTime is time.value;
   begin
     GET_ATIME_OF_SYMLINK(filePath,
-        modificationTime.year, modificationTime.month, modificationTime.day,
-        modificationTime.hour, modificationTime.minute, modificationTime.second,
-        modificationTime.micro_second, modificationTime.timeZone,
-        modificationTime.daylightSavingTime);
+        accessTime.year, accessTime.month, accessTime.day,
+        accessTime.hour, accessTime.minute, accessTime.second,
+        accessTime.micro_second, accessTime.timeZone,
+        accessTime.daylightSavingTime);
   end func;
 
 
