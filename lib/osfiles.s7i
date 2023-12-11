@@ -159,9 +159,10 @@ const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
-const func fileMode: getFileMode (in string: filePath)       is action "CMD_FILEMODE";
+const func fileMode: getFileMode (in string: filePath)       is action "CMD_GET_FILE_MODE";
 
 
 # The function fileMode() is deprecated. Use getFileMode() instead.
@@ -177,9 +178,10 @@ const func fileMode: fileMode (in string: filePath) is
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  *)
-const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_SET_FILEMODE";
+const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_SET_FILE_MODE";
 
 
 (**
