@@ -762,9 +762,10 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
           lastError = GetLastError();
           if (lastError != ERROR_MORE_DATA) {
             logError(printf("winReadLink(\"%s\", *): "
-                            "DeviceIoControl() failed:\n"
+                            "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
                             "lastError=" FMT_U32 "%s\n",
                             striAsUnquotedCStri(filePath),
+                            (memSizeType) fileHandle,
                             (uint32Type) lastError,
                             lastError == ERROR_NOT_A_REPARSE_POINT ?
                                 " (ERROR_NOT_A_REPARSE_POINT)" : ""););
@@ -793,9 +794,10 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info)
                                            reparseData, (DWORD) dataBufferLength,
                                            &bytesReturned, NULL) == 0)) {
                 logError(printf("winReadLink(\"%s\", *): "
-                                "DeviceIoControl() failed:\n"
+                                "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
                                 "lastError=" FMT_U32 "\n",
                                 striAsUnquotedCStri(filePath),
+                                (memSizeType) fileHandle,
                                 (uint32Type) GetLastError()););
                 *err_info = FILE_ERROR;
               } else {
@@ -871,9 +873,10 @@ static const wchar_t *followSymlinkRecursive (const wchar_t *osSymlinkPath,
     const wchar_t *result;
 
   /* followSymlinkRecursive */
-    logFunction(printf("followSymlinkRecursive(\"%ls\", \"%.*ls\", %hu, 0%o, %d)\n",
-                       osSymlinkPath, (int) substituteNameByteLen / sizeof(wchar_t),
-                       substituteName, substituteNameByteLen, pmode,
+    logFunction(printf("followSymlinkRecursive(\"%ls\", \"%.*ls\", %hu, %d)\n",
+                       osSymlinkPath,
+                       (int) (substituteNameByteLen / sizeof(wchar_t)),
+                       substituteName, substituteNameByteLen,
                        numberOfFollowsAllowed););
     substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
     if (substituteNameLength >= 1 && substituteName[0] == (wchar_t) '\\') {
@@ -978,8 +981,8 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
     const wchar_t *result;
 
   /* winFollowSymlink */
-    logFunction(printf("winFollowSymlink(\"%ls\", 0%o, %d)\n",
-                       path, pmode, numberOfFollowsAllowed););
+    logFunction(printf("winFollowSymlink(\"%ls\", %d)\n",
+                       path, numberOfFollowsAllowed););
     if (numberOfFollowsAllowed == 0) {
 #ifdef ELOOP
       errno = ELOOP;
@@ -989,10 +992,10 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
       result = NULL;
     } else if (unlikely((fileAttributes = GetFileAttributesW(path)) ==
                         INVALID_FILE_ATTRIBUTES)) {
-      logError(printf("winFollowSymlink(\"%ls\", 0%o): "
+      logError(printf("winFollowSymlink(\"%ls\", ...): "
                       "GetFileAttributesW(\"%ls\") failed:\n"
                       "GetLastError=" FMT_U32 "\n",
-                      path, pmode, path, (uint32Type) GetLastError()););
+                      path, path, (uint32Type) GetLastError()););
       errno = ENOENT;
       result = NULL;
     } else {
@@ -1002,10 +1005,10 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                                  OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
                                  FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-          logError(printf("winFollowSymlink(\"%ls\", 0%o): "
+          logError(printf("winFollowSymlink(\"%ls\", ...): "
                           "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
                           "lastError=" FMT_U32 "\n",
-                          path, pmode, path, (uint32Type) GetLastError()););
+                          path, path, (uint32Type) GetLastError()););
           errno = ENOENT;
           result = NULL;
         } else {
@@ -1015,10 +1018,11 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                                        &bytesReturned, NULL) == 0)) {
             lastError = GetLastError();
             if (lastError != ERROR_MORE_DATA) {
-              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
-                              "DeviceIoControl() failed:\n"
+              logError(printf("winFollowSymlink(\"%ls\", ...): "
+                              "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
                               "lastError=" FMT_U32 "%s\n",
-                              path, pmode, (uint32Type) lastError,
+                              path, (memSizeType) fileHandle,
+                              (uint32Type) lastError,
                               lastError == ERROR_NOT_A_REPARSE_POINT ?
                                   " (ERROR_NOT_A_REPARSE_POINT)" : ""););
               errno = EACCES;
@@ -1027,9 +1031,9 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                                 IO_REPARSE_TAG_SYMLINK &&
                                 info.reparseData.ReparseTag !=
                                 IO_REPARSE_TAG_MOUNT_POINT)) {
-              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
+              logError(printf("winFollowSymlink(\"%ls\", ...): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
-                              path, pmode,
+                              path,
                               (uint32Type) info.reparseData.ReparseTag););
               errno = EACCES;
               result = NULL;
@@ -1048,10 +1052,11 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                                              FSCTL_GET_REPARSE_POINT, NULL, 0,
                                              reparseData, (DWORD) dataBufferLength,
                                              &bytesReturned, NULL) == 0)) {
-                  logError(printf("winFollowSymlink(\"%ls\", 0%o): "
-                                  "DeviceIoControl() failed:\n"
+                  logError(printf("winFollowSymlink(\"%ls\", ...): "
+                                  "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
                                   "lastError=" FMT_U32 "%\n",
-                                  path, pmode, (uint32Type) GetLastError()););
+                                  path, (memSizeType) fileHandle,
+                                  (uint32Type) GetLastError()););
                   errno = EACCES;
                   result = NULL;
                 } else {
@@ -1060,9 +1065,9 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                   } else if (reparseData->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
                     pathBuffer = reparseData->Destination.Data.MountPoint.PathBuffer;
                   } else {
-                    logError(printf("winFollowSymlink(\"%ls\", 0%o): "
+                    logError(printf("winFollowSymlink(\"%ls\", ...): "
                                     "Unexpected ReparseTag: 0x" FMT_X32 "\n",
-                                    path, pmode,
+                                    path,
                                     (uint32Type) reparseData->ReparseTag););
                     pathBuffer = NULL;
                     errno = EACCES;
@@ -1085,9 +1090,9 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
             } else if (info.reparseData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
               pathBuffer = info.reparseData.Destination.Data.MountPoint.PathBuffer;
             } else {
-              logError(printf("winFollowSymlink(\"%ls\", 0%o): "
+              logError(printf("winFollowSymlink(\"%ls\", ...): "
                               "Unexpected ReparseTag: 0x" FMT_X32 "\n",
-                              path, pmode,
+                              path,
                               (uint32Type) info.reparseData.ReparseTag););
               pathBuffer = NULL;
               errno = EACCES;
