@@ -570,6 +570,8 @@ static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
  *  Determine the name of the group (GID) to which a file belongs.
  *  The function follows symbolic links.
  *  @return the name of the file group.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -623,6 +625,8 @@ striType cmdGetGroup (const const_striType filePath)
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file group.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -682,6 +686,8 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
  *  Determine the name of the owner (UID) of a file.
  *  The function follows symbolic links.
  *  @return the name of the file owner.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -735,6 +741,8 @@ striType cmdGetOwner (const const_striType filePath)
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file owner.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -791,6 +799,17 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
 
 
 
+/**
+ *  Set the group of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 void cmdSetGroup (const const_striType filePath, const const_striType group)
 
   {
@@ -829,6 +848,19 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
 
 
 
+/**
+ *  Set the group of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType group)
 
   {
@@ -877,6 +909,21 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
 
 
 
+/**
+ *  Set the modification time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 void cmdSetMTimeOfSymlink (const const_striType filePath,
     intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
@@ -956,6 +1003,17 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
 
 
 
+/**
+ *  Set the owner of a file.
+ *  The function follows symbolic links.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
+ */
 void cmdSetOwner (const const_striType filePath, const const_striType owner)
 
   {
@@ -994,6 +1052,19 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
 
 
 
+/**
+ *  Set the owner of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
 void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType owner)
 
   {

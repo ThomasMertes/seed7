@@ -522,6 +522,8 @@ objectType cmd_get_file_mode_of_symlink (listType arguments)
  *  Determine the name of the group (GID) to which a file belongs.
  *  The function follows symbolic links.
  *  @return the name of the file group.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -543,6 +545,8 @@ objectType cmd_get_group (listType arguments)
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file group.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -662,6 +666,8 @@ objectType cmd_get_mtime_of_symlink (listType arguments)
  *  Determine the name of the owner (UID) of a file.
  *  The function follows symbolic links.
  *  @return the name of the file owner.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
@@ -683,6 +689,8 @@ objectType cmd_get_owner (listType arguments)
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file owner.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
