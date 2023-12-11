@@ -266,6 +266,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_GET_ATIME",                cmd_get_atime,                },
     { "CMD_GET_CTIME",                cmd_get_ctime,                },
     { "CMD_GET_FILE_MODE",            cmd_get_file_mode,            },
+    { "CMD_GET_FILE_MODE_OF_SYMLINK", cmd_get_file_mode_of_symlink, },
     { "CMD_GET_GROUP",                cmd_get_group,                },
     { "CMD_GET_GROUP_OF_SYMLINK",     cmd_get_group_of_symlink,     },
     { "CMD_GET_MTIME",                cmd_get_mtime,                },

@@ -178,7 +178,7 @@ const func fileMode: fileMode (in string: filePath) is
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with 'filePath' does not
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
  *             exist, or a system function returns an error.
  *)
 const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_SET_FILE_MODE";
@@ -193,7 +193,8 @@ const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const func time: getATime (in string: filePath) is func
   result
@@ -216,7 +217,8 @@ const func time: getATime (in string: filePath) is func
  *             path type.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const proc: setATime (in string: filePath, in time: aTime) is func
   begin
@@ -235,7 +237,8 @@ const proc: setATime (in string: filePath, in time: aTime) is func
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or a system function returns an error.
  *)
 const func time: getCTime (in string: filePath) is func
   result
@@ -345,6 +348,23 @@ const func string: getGroup (in string: filePath)            is action "CMD_GET_
  *             exist, or a system function returns an error.
  *)
 const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_GROUP";
+
+
+(**
+ *  Determine the file mode (permissions) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ *)
+const func fileMode: getFileMode (in string: filePath, SYMLINK) is action "CMD_GET_FILE_MODE_OF_SYMLINK";
 
 
 (**
@@ -760,14 +780,14 @@ const func string: parentDir (in string: path) is func
 
 
 (**
- *  Create the parent directories of the given 'filePath'.
+ *  Create the parent directories of the given ''filePath''.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath'' to
  *             the system path type.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR A system function returns an error, or
- *             a component of 'filePath' is not a directory.
+ *             a component of ''filePath'' is not a directory.
  *)
 const proc: makeParentDirs (in string: filePath) is func
   local

@@ -40,6 +40,7 @@ objectType cmd_getenv                   (listType arguments);
 objectType cmd_get_atime                (listType arguments);
 objectType cmd_get_ctime                (listType arguments);
 objectType cmd_get_file_mode            (listType arguments);
+objectType cmd_get_file_mode_of_symlink (listType arguments);
 objectType cmd_get_group                (listType arguments);
 objectType cmd_get_group_of_symlink     (listType arguments);
 objectType cmd_get_mtime                (listType arguments);

@@ -2910,7 +2910,8 @@ striType cmdGetenv (const const_striType name)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 void cmdGetATime (const const_striType filePath,
     intType *year, intType *month, intType *day, intType *hour,
@@ -2976,7 +2977,8 @@ void cmdGetATime (const const_striType filePath,
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 void cmdGetCTime (const const_striType filePath,
     intType *year, intType *month, intType *day, intType *hour,
@@ -3042,7 +3044,8 @@ void cmdGetCTime (const const_striType filePath,
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 setType cmdGetFileMode (const const_striType filePath)
 
@@ -3105,6 +3108,90 @@ setType cmdGetFileMode (const const_striType filePath)
 
 
 /**
+ *  Determine the file mode (permissions) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+setType cmdGetFileModeOfSymlink (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    setType file_mode;
+
+  /* cmdGetFileModeOfSymlink */
+    logFunction(printf("cmdGetFileModeOfSymlink(\"%s\")\n", striAsUnquotedCStri(filePath)););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        raise_error(FILE_ERROR);
+        file_mode = NULL;
+      } else
+#endif
+      {
+        logError(printf("cmdGetFileModeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+        file_mode = NULL;
+      }
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
+                        "os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        striAsUnquotedCStri(filePath), os_path,
+                        errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+      } else {
+        os_stri_free(os_path);
+        /* printf("cmdGetFileModeOfSymlink: st_mode=0%o\n", stat_buf.st_mode); */
+#if MODE_BITS_NORMAL
+        file_mode = setIConv(0777 & stat_buf.st_mode);
+#else
+        /* Force the bits to the standard sequence */
+        file_mode = setIConv(
+            (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
+            (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
+            (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
+            (stat_buf.st_mode & S_IRGRP ? 0040 : 0) |
+            (stat_buf.st_mode & S_IWGRP ? 0020 : 0) |
+            (stat_buf.st_mode & S_IXGRP ? 0010 : 0) |
+            (stat_buf.st_mode & S_IROTH ? 0004 : 0) |
+            (stat_buf.st_mode & S_IWOTH ? 0002 : 0) |
+            (stat_buf.st_mode & S_IXOTH ? 0001 : 0));
+#endif
+      } /* if */
+    } /* if */
+    return file_mode;
+  } /* cmdGetFileModeOfSymlink */
+
+
+
+/**
  *  Determine the modification time of a file.
  *  The function follows symbolic links.
  *  @return the modification time of the file.
@@ -3113,7 +3200,7 @@ setType cmdGetFileMode (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or a system function returns an error.
  */
 void cmdGetMTime (const const_striType filePath,
@@ -3183,7 +3270,7 @@ void cmdGetMTime (const const_striType filePath,
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or it is not a symbolic link, or a system function
  *             returns an error.
  */
@@ -3226,7 +3313,7 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
                         errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
-        logError(printf("cmdGetGroupOfSymlink(\"%s\"): "
+        logError(printf("cmdGetMTimeOfSymlink(\"%s\"): "
                         "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
@@ -3849,7 +3936,8 @@ void cmdSetenv (const const_striType name, const const_striType value)
  *             path type.
  *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 void cmdSetATime (const const_striType filePath,
     intType year, intType month, intType day, intType hour,
@@ -3912,7 +4000,8 @@ void cmdSetATime (const const_striType filePath,
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 void cmdSetFileMode (const const_striType filePath, const const_setType mode)
 
@@ -3984,7 +4073,8 @@ void cmdSetFileMode (const const_striType filePath, const const_setType mode)
  *             path type.
  *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 void cmdSetMTime (const const_striType filePath,
     intType year, intType month, intType day, intType hour,

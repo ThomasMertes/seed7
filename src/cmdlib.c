@@ -385,7 +385,8 @@ objectType cmd_getenv (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_get_atime (listType arguments)
 
@@ -432,7 +433,8 @@ objectType cmd_get_atime (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_get_ctime (listType arguments)
 
@@ -479,7 +481,8 @@ objectType cmd_get_ctime (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_get_file_mode (listType arguments)
 
@@ -488,6 +491,30 @@ objectType cmd_get_file_mode (listType arguments)
     return bld_set_temp(
         cmdGetFileMode(take_stri(arg_1(arguments))));
   } /* cmd_get_file_mode */
+
+
+
+/**
+ *  Determine the file mode (permissions) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+objectType cmd_get_file_mode_of_symlink (listType arguments)
+
+  { /* cmd_get_file_mode_of_symlink */
+    isit_stri(arg_1(arguments));
+    return bld_set_temp(
+        cmdGetFileModeOfSymlink(take_stri(arg_1(arguments))));
+  } /* cmd_get_file_mode_of_symlink */
 
 
 
@@ -909,7 +936,8 @@ objectType cmd_setenv (listType arguments)
  *             path type.
  *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_set_atime (listType arguments)
 
@@ -945,7 +973,8 @@ objectType cmd_set_atime (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or a system function returns an error.
  */
 objectType cmd_set_file_mode (listType arguments)
 

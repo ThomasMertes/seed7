@@ -75,6 +75,7 @@ void cmdGetCTime (const const_striType file_name,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
     boolType *is_dst);
 setType cmdGetFileMode (const const_striType file_name);
+setType cmdGetFileModeOfSymlink (const const_striType filePath);
 void cmdGetMTime (const const_striType filePath,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
