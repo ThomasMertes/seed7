@@ -67,6 +67,7 @@ const proc: SET_MTIME_OF_SYMLINK (in string: filePath, in integer: year, in inte
 
 (**
  *  Determine the filenames in a directory.
+ *  The function does follow symbolic links.
  *  The files "." and ".." are left out from the result.
  *  Note that the function returns only the filenames.
  *  Additional information must be obtained with other calls.
@@ -79,7 +80,7 @@ const proc: SET_MTIME_OF_SYMLINK (in string: filePath, in integer: year, in inte
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func array string: readDir (in string: dirPath)        is action "CMD_LS";
+const func array string: readDir (in string: dirPath)        is action "CMD_READ_DIR";
 
 
 (**

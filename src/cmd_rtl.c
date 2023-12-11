@@ -3423,50 +3423,6 @@ striType cmdHomeDir (void)
 
 
 /**
- *  Determine the filenames in a directory.
- *  The files "." and ".." are left out from the result.
- *  Note that the function returns only the filenames.
- *  Additional information must be obtained with other calls.
- *  @return a string-array containing the filenames in the directory.
- *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
- *             to the system path type or not enough memory to
- *             represent the result 'string array'.
- *  @exception RANGE_ERROR 'dirPath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-rtlArrayType cmdLs (const const_striType dirPath)
-
-  {
-    errInfoType err_info = OKAY_NO_ERROR;
-    rtlArrayType result;
-
-  /* cmdLs */
-    logFunction(printf("cmdLs(\"%s\")\n", striAsUnquotedCStri(dirPath)););
-    result = read_dir(dirPath, &err_info);
-    if (unlikely(result == NULL)) {
-      logError(printf("cmdLs: read_dir(\"%s\", *) failed:\n"
-                      "err_info=%d\n",
-                      striAsUnquotedCStri(dirPath), err_info););
-      raise_error(err_info);
-    } else {
-      qsort((void *) result->arr,
-          (size_t) (result->max_position - result->min_position + 1),
-          sizeof(rtlObjectType), &cmp_mem);
-    } /* if */
-    logFunction(if (result == NULL) {
-                  printf("cmdLs --> NULL\n");
-                } else {
-                  printf("cmdLs --> array[size = " FMT_U_MEM "]\n",
-                         arraySize(result));
-                });
-    return result;
-  } /* cmdLs */
-
-
-
-/**
  *  Creates a new directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
  *             the system path type.
@@ -3558,6 +3514,51 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
       raise_error(err_info);
     } /* if */
   } /* cmdMove */
+
+
+
+/**
+ *  Determine the filenames in a directory.
+ *  The function does follow symbolic links.
+ *  The files "." and ".." are left out from the result.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls.
+ *  @return a string-array containing the filenames in the directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
+ *             to the system path type or not enough memory to
+ *             represent the result 'string array'.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+rtlArrayType cmdReadDir (const const_striType dirPath)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlArrayType result;
+
+  /* cmdReadDir */
+    logFunction(printf("cmdReadDir(\"%s\")\n", striAsUnquotedCStri(dirPath)););
+    result = read_dir(dirPath, &err_info);
+    if (unlikely(result == NULL)) {
+      logError(printf("cmdReadDir: read_dir(\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(dirPath), err_info););
+      raise_error(err_info);
+    } else {
+      qsort((void *) result->arr,
+          (size_t) (result->max_position - result->min_position + 1),
+          sizeof(rtlObjectType), &cmp_mem);
+    } /* if */
+    logFunction(if (result == NULL) {
+                  printf("cmdReadDir --> NULL\n");
+                } else {
+                  printf("cmdReadDir --> array[size = " FMT_U_MEM "]\n",
+                         arraySize(result));
+                });
+    return result;
+  } /* cmdReadDir */
 
 
 

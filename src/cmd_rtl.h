@@ -86,9 +86,9 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
     boolType *is_dst);
 rtlArrayType cmdGetSearchPath (void);
 striType cmdHomeDir (void);
-rtlArrayType cmdLs (const const_striType dirPath);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
+rtlArrayType cmdReadDir (const const_striType dirPath);
 striType cmdReadLink (const const_striType link_name);
 striType cmdReadLinkAbsolute (const const_striType filePath);
 void cmdRemoveFile (const const_striType file_name);

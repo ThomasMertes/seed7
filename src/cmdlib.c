@@ -741,33 +741,6 @@ objectType cmd_home_dir (listType arguments)
 
 
 /**
- *  Determine the filenames in a directory.
- *  The files "." and ".." are left out from the result.
- *  Note that the function returns only the filenames.
- *  Additional information must be obtained with other calls.
- *  @return a string-array containing the filenames in the directory.
- *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
- *             to the system path type or not enough memory to
- *             represent the result 'string array'.
- *  @exception RANGE_ERROR 'dirPath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-objectType cmd_ls (listType arguments)
-
-  {
-    striType dirPath;
-
-  /* cmd_ls */
-    isit_stri(arg_1(arguments));
-    dirPath = take_stri(arg_1(arguments));
-    return toArrayType(cmdLs(dirPath));
-  } /* cmd_ls */
-
-
-
-/**
  *  Creates a new directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
  *             the system path type.
@@ -812,6 +785,34 @@ objectType cmd_move (listType arguments)
     cmdMove(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* cmd_move */
+
+
+
+/**
+ *  Determine the filenames in a directory.
+ *  The function does follow symbolic links.
+ *  The files "." and ".." are left out from the result.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls.
+ *  @return a string-array containing the filenames in the directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
+ *             to the system path type or not enough memory to
+ *             represent the result 'string array'.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType cmd_read_dir (listType arguments)
+
+  {
+    striType dirPath;
+
+  /* cmd_read_dir */
+    isit_stri(arg_1(arguments));
+    dirPath = take_stri(arg_1(arguments));
+    return toArrayType(cmdReadDir(dirPath));
+  } /* cmd_read_dir */
 
 
 
