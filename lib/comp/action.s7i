@@ -496,6 +496,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_GETENV, function, params, c_expr);
       when {"CMD_GET_ATIME"}:
         process(CMD_GET_ATIME, function, params, c_expr);
+      when {"CMD_GET_ATIME_OF_SYMLINK"}:
+        process(CMD_GET_ATIME_OF_SYMLINK, function, params, c_expr);
       when {"CMD_GET_CTIME"}:
         process(CMD_GET_CTIME, function, params, c_expr);
       when {"CMD_GET_FILE_MODE"}:

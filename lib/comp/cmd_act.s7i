@@ -37,6 +37,7 @@ const ACTION: CMD_FINAL_PATH               is action "CMD_FINAL_PATH";
 const ACTION: CMD_GETCWD                   is action "CMD_GETCWD";
 const ACTION: CMD_GETENV                   is action "CMD_GETENV";
 const ACTION: CMD_GET_ATIME                is action "CMD_GET_ATIME";
+const ACTION: CMD_GET_ATIME_OF_SYMLINK     is action "CMD_GET_ATIME_OF_SYMLINK";
 const ACTION: CMD_GET_CTIME                is action "CMD_GET_CTIME";
 const ACTION: CMD_GET_FILE_MODE            is action "CMD_GET_FILE_MODE";
 const ACTION: CMD_GET_FILE_MODE_OF_SYMLINK is action "CMD_GET_FILE_MODE_OF_SYMLINK";
@@ -88,6 +89,7 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    cmdGetcwd (void);");
     declareExtern(c_prog, "striType    cmdGetenv (const const_striType);");
     declareExtern(c_prog, "void        cmdGetATime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "void        cmdGetATimeOfSymlink (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
     declareExtern(c_prog, "void        cmdGetCTime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
     declareExtern(c_prog, "setType     cmdGetFileMode (const const_striType);");
     declareExtern(c_prog, "setType     cmdGetFileModeOfSymlink (const const_striType);");
@@ -261,6 +263,35 @@ const proc: process (CMD_GET_ATIME, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdGetATime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_GET_ATIME_OF_SYMLINK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdGetATimeOfSymlink(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
     process_expr(params[2], c_expr);

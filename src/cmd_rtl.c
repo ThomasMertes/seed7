@@ -2969,6 +2969,84 @@ void cmdGetATime (const const_striType filePath,
 
 
 /**
+ *  Determine the access time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the access time of the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with 'filePath' does not
+ *             exist, or it is not a symbolic link, or a system function
+ *             returns an error.
+ */
+void cmdGetATimeOfSymlink (const const_striType filePath,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
+
+  {
+    os_striType os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdGetATimeOfSymlink */
+    logFunction(printf("cmdGetATimeOfSymlink(\"%s\")\n", striAsUnquotedCStri(filePath)););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdGetATimeOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        raise_error(FILE_ERROR);
+      } else
+#endif
+      {
+        logError(printf("cmdGetATimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      if (unlikely(stat_result != 0)) {
+        logError(printf("cmdGetATimeOfSymlink(\"%s\"): "
+                        "os_lstat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        striAsUnquotedCStri(filePath), os_path,
+                        errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
+        logError(printf("cmdGetATimeOfSymlink(\"%s\"): "
+                        "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath), os_path););
+        err_info = FILE_ERROR;
+      } else {
+        /* printf("cmdGetATimeOfSymlink: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
+        timFromTimestamp(stat_buf.st_atime,
+            year, month, day, hour,
+            min, sec, micro_sec, time_zone, is_dst);
+      } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    logFunction(printf("cmdGetATimeOfSymlink(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
+                       *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
+  } /* cmdGetATimeOfSymlink */
+
+
+
+/**
  *  Determine the change time of a file.
  *  The function follows symbolic links.
  *  @return the change time of the file.
@@ -3111,7 +3189,7 @@ setType cmdGetFileMode (const const_striType filePath)
  *  Determine the file mode (permissions) of a symbolic link.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
- *  @return the file mode.
+ *  @return the file mode of the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
