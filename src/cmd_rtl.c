@@ -3136,7 +3136,7 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+      if (path_info == PATH_IS_EMULATED_ROOT) {
         /* The emulated root is not a symbolic link. */
         logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
                         "The emulated root is not a symbolic link.\n",
@@ -3291,10 +3291,12 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
-        timFromTimestamp(0,
-            year, month, day, hour,
-            min, sec, micro_sec, time_zone, is_dst);
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        /* The emulated root is not a symbolic link. */
+        logError(printf("cmdGetMTimeOfSymlink(\"%s\"): "
+                        "The emulated root is not a symbolic link.\n",
+                        striAsUnquotedCStri(filePath)););
+        raise_error(FILE_ERROR);
       } else
 #endif
       {
