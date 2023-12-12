@@ -56,7 +56,7 @@
 
 
 #ifdef OS_STRI_WCHAR
-const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed);
+extern const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed);
 
 
 

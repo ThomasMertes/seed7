@@ -1117,31 +1117,6 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
     logFunction(printf("winFollowSymlink --> \"%ls\"\n", result););
     return result;
   } /* winFollowSymlink */
-
-
-
-#if defined DEFINE_WCHMOD_EXT && !defined HAS_GET_FILE_INFORMATION_BY_HANDLE_EX
-int wchmodExt (const wchar_t *path, int pmode)
-
-  {
-    const wchar_t *destination;
-    int result = 0;
-
-  /* wchmodExt */
-    logFunction(printf("wchmodExt(\"%ls\", 0%o)\n", path, pmode););
-    destination = winFollowSymlink(path, 5);
-    if (unlikely(destination == NULL)) {
-      result = -1;
-    } else {
-      result = os_chmod_orig(destination, pmode);
-      if (destination != path) {
-        FREE_OS_STRI((wchar_t *) destination);
-      } /* if */
-    } /* if */
-    logFunction(printf("wchmodExt --> %d\n", result););
-    return result;
-  } /* wchmodExt */
-#endif
 #endif
 
 

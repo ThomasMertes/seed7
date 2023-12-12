@@ -3088,7 +3088,11 @@ void cmdGetCTime (const const_striType filePath,
         raise_error(err_info);
       }
     } else {
+#ifdef HAS_WSTAT_CHANGE_TIME
+      stat_result = wstatChangeTime(os_path, &stat_buf);
+#else
       stat_result = os_stat(os_path, &stat_buf);
+#endif
       if (unlikely(stat_result != 0)) {
         logError(printf("cmdGetCTime: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",

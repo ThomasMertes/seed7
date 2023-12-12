@@ -219,6 +219,8 @@ struct stati64Ext {
 
 #ifdef DEFINE_WSTATI64_EXT
 int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
+int wstatChangeTime (const wchar_t *path, os_stat_struct *statBuf);
+#define HAS_WSTAT_CHANGE_TIME
 #endif
 #ifdef DEFINE_LSTATI64_EXT
 int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
