@@ -80,6 +80,8 @@ DWORD SetNamedSecurityInfoW (LPWSTR pObjectName,
 
 static SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
 static PSID administratorSid = NULL;
+static SID_IDENTIFIER_AUTHORITY worldSidAuthority = SECURITY_WORLD_SID_AUTHORITY;
+static PSID worldSid = NULL;
 
 #ifdef HAS_SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
 #define SYMBOLIC_LINK_FLAG SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
@@ -1144,6 +1146,27 @@ int wchmodExt (const wchar_t *path, int pmode)
 
 
 
+static boolType setupWellKnownSids (void)
+
+  { /* setupWellKnownSids */
+    if (unlikely(administratorSid == NULL)) {
+      AllocateAndInitializeSid(&ntAuthority, 2,
+                               SECURITY_BUILTIN_DOMAIN_RID,
+                               DOMAIN_ALIAS_RID_ADMINS,
+                               0, 0, 0, 0, 0, 0,
+                               &administratorSid);
+    } /* if */
+    if (unlikely(worldSid == NULL)) {
+      AllocateAndInitializeSid(&worldSidAuthority, 1,
+                               SECURITY_WORLD_RID,
+                               0, 0, 0, 0, 0, 0, 0,
+                               &worldSid);
+    } /* if */
+    return administratorSid != NULL && worldSid != NULL;
+  } /* setupWellKnownSids */
+
+
+
 static striType getNameFromSid (PSID sid, errInfoType *err_info)
 
   {
@@ -1155,18 +1178,16 @@ static striType getNameFromSid (PSID sid, errInfoType *err_info)
     striType name;
 
   /* getNameFromSid */
-    if (unlikely(administratorSid == NULL)) {
-      AllocateAndInitializeSid(&ntAuthority, 2,
-                               SECURITY_BUILTIN_DOMAIN_RID,
-                               DOMAIN_ALIAS_RID_ADMINS,
-                               0, 0, 0, 0, 0, 0,
-                               &administratorSid);
-    } /* if */
-    if (unlikely(administratorSid == NULL)) {
+    if (unlikely(!setupWellKnownSids())) {
       *err_info = MEMORY_ERROR;
       name = NULL;
     } else if (memcmp(sid, administratorSid, sizeof(SID)) == 0) {
       name = cstri_to_stri("root");
+      if (unlikely(name == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+    } else if (memcmp(sid, worldSid, sizeof(SID)) == 0) {
+      name = cstri_to_stri("world");
       if (unlikely(name == NULL)) {
         *err_info = MEMORY_ERROR;
       } /* if */
@@ -1222,24 +1243,23 @@ static PSID getSidFromName (const const_striType name, errInfoType *err_info)
                        striAsUnquotedCStri(name), *err_info););
     accountName = stri_to_os_stri(name, err_info);
     if (likely(accountName != NULL)) {
-      if (memcmp(accountName, L"root\0", 5 * sizeof(os_charType)) == 0) {
-        if (unlikely(administratorSid == NULL)) {
-          AllocateAndInitializeSid(&ntAuthority, 2,
-                                   SECURITY_BUILTIN_DOMAIN_RID,
-                                   DOMAIN_ALIAS_RID_ADMINS,
-                                   0, 0, 0, 0, 0, 0,
-                                   &administratorSid);
-        } /* if */
-        if (unlikely(administratorSid == NULL)) {
+      if (unlikely(!setupWellKnownSids())) {
+        *err_info = MEMORY_ERROR;
+      } else if (memcmp(accountName, L"root\0", 5 * sizeof(os_charType)) == 0) {
+        numberOfBytesForSid = GetLengthSid(administratorSid);
+        sid = (PSID) malloc(numberOfBytesForSid);
+        if (unlikely(sid == NULL)) {
           *err_info = MEMORY_ERROR;
         } else {
-          numberOfBytesForSid = GetLengthSid(administratorSid);
-          sid = (PSID) malloc(numberOfBytesForSid);
-          if (unlikely(sid == NULL)) {
-            *err_info = MEMORY_ERROR;
-          } else {
-            memcpy(sid, administratorSid, numberOfBytesForSid);
-          } /* if */
+          memcpy(sid, administratorSid, numberOfBytesForSid);
+        } /* if */
+      } else if (memcmp(accountName, L"world\0", 6 * sizeof(os_charType)) == 0) {
+        numberOfBytesForSid = GetLengthSid(worldSid);
+        sid = (PSID) malloc(numberOfBytesForSid);
+        if (unlikely(sid == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          memcpy(sid, worldSid, numberOfBytesForSid);
         } /* if */
       } else {
         LookupAccountNameW(NULL, accountName, NULL, &numberOfBytesForSid,
