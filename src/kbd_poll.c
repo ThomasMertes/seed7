@@ -722,7 +722,7 @@ charType kbdGetc (void)
         conFlush();
       } /* if */
       if (key_buffer_size == 0) {
-        read_result = (memSizeType) read(os_fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
+        read_result = (memSizeType) read(os_fileno(stdin), key_buffer, KEY_BUFFER_SIZE);
         /* printf("kbdGetc: read_result=%ld", read_result); */
         if (read_result == 0 || read_result == (memSizeType) (-1)) {
           logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", EOF););

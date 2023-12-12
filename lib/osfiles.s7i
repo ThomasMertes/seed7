@@ -291,16 +291,16 @@ const func time: getMTime (in string: filePath) is func
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception RANGE_ERROR ''aTime'' is invalid or it cannot be
+ *  @exception RANGE_ERROR ''mTime'' is invalid or it cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR The file described with ''filePath'' does not
  *             exist, or a system function returns an error.
  *)
-const proc: setMTime (in string: filePath, in time: aTime) is func
+const proc: setMTime (in string: filePath, in time: mTime) is func
   begin
-    SET_MTIME(filePath, aTime.year, aTime.month, aTime.day,
-        aTime.hour, aTime.minute, aTime.second,
-        aTime.micro_second, aTime.timeZone);
+    SET_MTIME(filePath, mTime.year, mTime.month, mTime.day,
+        mTime.hour, mTime.minute, mTime.second,
+        mTime.micro_second, mTime.timeZone);
   end func;
 
 
@@ -440,17 +440,17 @@ const func time: getMTime (in string: filePath, SYMLINK) is func
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception RANGE_ERROR ''aTime'' is invalid or it cannot be
+ *  @exception RANGE_ERROR ''mTime'' is invalid or it cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR The file described with ''filePath'' does not
  *             exist, or it is not a symbolic link, or a system function
  *             returns an error.
  *)
-const proc: setMTime (in string: filePath, in time: aTime, SYMLINK) is func
+const proc: setMTime (in string: filePath, in time: mTime, SYMLINK) is func
   begin
-    SET_MTIME_OF_SYMLINK(filePath, aTime.year, aTime.month, aTime.day,
-        aTime.hour, aTime.minute, aTime.second,
-        aTime.micro_second, aTime.timeZone);
+    SET_MTIME_OF_SYMLINK(filePath, mTime.year, mTime.month, mTime.day,
+        mTime.hour, mTime.minute, mTime.second,
+        mTime.micro_second, mTime.timeZone);
   end func;
 
 

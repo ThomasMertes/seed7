@@ -3028,7 +3028,7 @@ void cmdGetATimeOfSymlink (const const_striType filePath,
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetATimeOfSymlink: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
+        /* printf("cmdGetATimeOfSymlink: st_atime=" FMT_T "\n", stat_buf.st_atime); */
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);

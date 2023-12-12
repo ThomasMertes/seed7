@@ -995,8 +995,8 @@ objectType cmd_setenv (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
- *             converted to the system file time.
+ *  @exception RANGE_ERROR The time is invalid or cannot be
+ *             converted to the system time.
  *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or a system function returns an error.
  */
@@ -1105,8 +1105,8 @@ objectType cmd_set_group_of_symlink (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
- *             converted to the system file time.
+ *  @exception RANGE_ERROR The time is invalid or cannot be
+ *             converted to the system time.
  *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or a system function returns an error.
  */
@@ -1145,8 +1145,8 @@ objectType cmd_set_mtime (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
- *             converted to the system file time.
+ *  @exception RANGE_ERROR The time is invalid or cannot be
+ *             converted to the system time.
  *  @exception FILE_ERROR The file described with 'filePath' does not
  *             exist, or it is not a symbolic link, or a system function
  *             returns an error.

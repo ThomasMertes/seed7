@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -64,8 +67,13 @@
  */
 objectType kbd_getc (listType arguments)
 
-  { /* kbd_getc */
-    return bld_char_temp(kbdGetc());
+  {
+    charType ch;
+
+  /* kbd_getc */
+    ch = kbdGetc();
+    logFunction(printf("kbd_getc() --> '\\" FMT_U32 ";'\n", ch););
+    return bld_char_temp(ch);
   } /* kbd_getc */
 
 
@@ -93,8 +101,13 @@ objectType kbd_gets (listType arguments)
  */
 objectType kbd_input_ready (listType arguments)
 
-  { /* kbd_input_ready */
-    if (kbdInputReady()) {
+  {
+    boolType inputReady;
+
+  /* kbd_input_ready */
+    inputReady = kbdInputReady();
+    logFunction(printf("kbd_input_ready() --> %d\n", inputReady););
+    if (inputReady) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;

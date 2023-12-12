@@ -928,7 +928,7 @@ charType kbdGetc (void)
       } /* if */
     } /* if */
     result = read_f_key(result);
-    logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", result););
+    logFunction(printf("kbdGetc() --> '\\" FMT_U32 ";'\n", result););
     return result;
   } /* kbdGetc */
 
