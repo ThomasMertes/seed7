@@ -3004,14 +3004,13 @@ void cmdGetATimeOfSymlink (const const_striType filePath,
         logError(printf("cmdGetATimeOfSymlink(\"%s\"): "
                         "The emulated root is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
       } else
 #endif
       {
         logError(printf("cmdGetATimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(filePath), path_info, err_info););
-        raise_error(err_info);
       }
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
@@ -3034,9 +3033,9 @@ void cmdGetATimeOfSymlink (const const_striType filePath,
             min, sec, micro_sec, time_zone, is_dst);
       } /* if */
       os_stri_free(os_path);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-      } /* if */
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunction(printf("cmdGetATimeOfSymlink(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                        F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
@@ -3223,7 +3222,7 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
         logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
                         "The emulated root is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
         file_mode = NULL;
       } else
 #endif
@@ -3231,7 +3230,6 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
         logError(printf("cmdGetFileModeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(filePath), path_info, err_info););
-        raise_error(err_info);
         file_mode = NULL;
       }
     } else {
@@ -3243,13 +3241,14 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
                         striAsUnquotedCStri(filePath), os_path,
                         errno, strerror(errno)););
         err_info = FILE_ERROR;
+        file_mode = NULL;
       } else if (unlikely(!S_ISLNK(stat_buf.st_mode))) {
         logError(printf("cmdGetFileModeOfSymlink(\"%s\"): "
                         "The file \"" FMT_S_OS "\" is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
+        file_mode = NULL;
       } else {
-        os_stri_free(os_path);
         /* printf("cmdGetFileModeOfSymlink: st_mode=0%o\n", stat_buf.st_mode); */
 #if MODE_BITS_NORMAL
         file_mode = setIConv(0777 & stat_buf.st_mode);
@@ -3267,6 +3266,10 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
             (stat_buf.st_mode & S_IXOTH ? 0001 : 0));
 #endif
       } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     return file_mode;
   } /* cmdGetFileModeOfSymlink */
@@ -3378,14 +3381,13 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
         logError(printf("cmdGetMTimeOfSymlink(\"%s\"): "
                         "The emulated root is not a symbolic link.\n",
                         striAsUnquotedCStri(filePath)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
       } else
 #endif
       {
         logError(printf("cmdGetMTimeOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(filePath), path_info, err_info););
-        raise_error(err_info);
       }
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
@@ -3408,9 +3410,9 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
             min, sec, micro_sec, time_zone, is_dst);
       } /* if */
       os_stri_free(os_path);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-      } /* if */
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunction(printf("cmdGetMTimeOfSymlink(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                        F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",

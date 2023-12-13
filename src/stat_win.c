@@ -284,6 +284,7 @@ int wstatChangeTime (const wchar_t *path, os_stat_struct *statBuf)
   {
     HANDLE fileHandle;
     FILE_BASIC_INFO fileBasicInfoData;
+    int64Type changeTime;
     int result;
 
   /* wstatChangeTime */
@@ -311,7 +312,13 @@ int wstatChangeTime (const wchar_t *path, os_stat_struct *statBuf)
         errno = EACCES;
         result = -1;
       } else {
-        statBuf->st_ctime = fileTime2UnixTime(&fileBasicInfoData.ChangeTime);
+        changeTime =
+            fileBasicInfoData.ChangeTime.QuadPart / (int64Type) WINDOWS_TICK -
+            SECONDS_1601_1970;
+        if (!inTimeTRange(changeTime)) {
+          changeTime = 0;
+        } /* if */
+        statBuf->st_ctime = changeTime;
         result = 0;
       } /* if */
       CloseHandle(fileHandle);
