@@ -137,6 +137,68 @@ const func string: refRaiseError (in string: exceptionName) is func
   end func;
 
 
+const proc: writeLine (in string: fileName, in integer: fileLine) is func
+
+  local
+    const integer: bufferSize is 4096;
+    var file: sourceFile is STD_NULL;
+    var string: buffer is "";
+    var integer: lineNumber is 1;
+    var integer: startPos is 1;
+    var integer: endPos is 0;
+    var integer: pos is 1;
+  begin
+    sourceFile := open(fileName, "r");
+    if sourceFile <> STD_NULL then
+      repeat
+        buffer := gets(sourceFile, bufferSize);
+        pos := pos(buffer, '\n');
+        while pos <> 0 and lineNumber < fileLine do
+          incr(lineNumber);
+          startPos := succ(pos);
+          pos := pos(buffer, '\n', startPos);
+        end while;
+      until lineNumber = fileLine or buffer = "";
+      if lineNumber = fileLine then
+        if pos <> 0 then
+          if pos > 1 and buffer[pred(pos)] = '\r' then
+            writeln(buffer[startPos .. pos - 2]);
+          else
+            writeln(buffer[startPos .. pred(pos)]);
+          end if;
+        else
+          if length(buffer) > 1 and
+              buffer[length(buffer)] = '\r' then
+            write(buffer[startPos .. pred(length(buffer))]);
+          else
+            write(buffer[startPos ..]);
+	  end if;
+          repeat
+            buffer := gets(sourceFile, bufferSize);
+            pos := pos(buffer, '\n');
+            if pos = 0 then
+              if length(buffer) > 1 and
+                  buffer[length(buffer)] = '\r' then
+                write(buffer[startPos .. pred(length(buffer))]);
+              else
+                write(buffer[startPos ..]);
+	      end if;
+            end if;
+	  until pos <> 0 or buffer = "";
+          if pos <> 0 then
+            if pos > 1 and buffer[pred(pos)] = '\r' then
+              writeln(buffer[.. pos - 2]);
+            else
+              writeln(buffer[.. pred(pos)]);
+            end if;
+          end if;
+        end if;
+      end if;
+      close(sourceFile);
+    end if;
+  end func;
+
+
 const proc: warning (COMPARISON_RESULT_CONSTANT, in string: comparisonName,
     in boolean: comparisonResult, in expr_type: c_expr) is func
   begin
@@ -243,6 +305,8 @@ const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: current
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): The variable " <& literal(str(currentVariable)) <&
               " is used for two or more inout-parameters (" <& str(inoutParam) <& ").");
+      writeLine(c_expr.currentFile, c_expr.currentLine);
+      writeln;
     end if;
   end func;
 
@@ -255,6 +319,8 @@ const proc: error (VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER, in reference: curre
               "): The variable " <& literal(str(currentVariable)) <&
               " is used as inout-parameter (" <& str(inoutParam) <&
               ") and ref-parameter (" <& str(refParam) <& ").");
+      writeLine(c_expr.currentFile, c_expr.currentLine);
+      writeln;
     end if;
   end func;
 
