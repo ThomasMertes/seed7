@@ -683,6 +683,7 @@ const func intRange: getStrLenRange (in reference: stri) is func
     var intRange: valueRange is intRange.value;
   local
     var reference: evaluatedParam is NIL;
+    var intRange: argumentRange is intRange.value;
     var integer: length is 0;
   begin
     if getConstant(stri, STRIOBJECT, evaluatedParam) then
@@ -705,13 +706,36 @@ const func intRange: getStrLenRange (in reference: stri) is func
       valueRange.minValue := 1;
       valueRange.maxValue := 1;
       valueRange.mayRaiseException := FALSE;
+    elsif isActionExpression(stri, "INT_STR") then
+      argumentRange := getIntRange(getActionParameter(stri, 1));
+      valueRange.minValue := 1;
+      valueRange.maxValue := max(length(str(argumentRange.minValue)),
+                                 length(str(argumentRange.maxValue)));
+    elsif isActionExpression(stri, "INT_N_BYTES_BE_SIGNED") or
+          isActionExpression(stri, "INT_N_BYTES_BE_UNSIGNED") or
+          isActionExpression(stri, "INT_N_BYTES_LE_SIGNED") or
+          isActionExpression(stri, "INT_N_BYTES_LE_UNSIGNED") then
+      argumentRange := getIntRange(getActionParameter(stri, 4));
+      valueRange.minValue := max(1, argumentRange.minValue);
+      valueRange.maxValue := max(1, argumentRange.maxValue);
+    elsif isActionExpression(stri, "INT_BYTES_BE_SIGNED") or
+        isActionExpression(stri, "INT_BYTES_BE_UNSIGNED") or
+        isActionExpression(stri, "INT_BYTES_LE_SIGNED") or
+        isActionExpression(stri, "INT_BYTES_LE_UNSIGNED") then
+      valueRange.minValue := 1;
+      valueRange.maxValue := 8;
+    elsif isActionExpression(stri, "BIN_N_BYTES_BE") or
+          isActionExpression(stri, "BIN_N_BYTES_LE") then
+      argumentRange := getIntRange(getActionParameter(stri, 3));
+      valueRange.minValue := max(1, argumentRange.minValue);
+      valueRange.maxValue := max(1, argumentRange.maxValue);
     elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
       valueRange.minValue := 0;
       valueRange.maxValue := integer.last;
     else
       valueRange.minValue := 0;
       # Because of UTF-32 the available bytes are divided by four.
-      valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
+      valueRange.maxValue := pred(2 ** (ccConf.POINTER_SIZE - 2));
     end if;
   end func;
 

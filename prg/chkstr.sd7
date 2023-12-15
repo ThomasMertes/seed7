@@ -26,6 +26,7 @@
 $ include "seed7_05.s7i";
   include "unicode.s7i";
   include "strifile.s7i";
+  include "bytedata.s7i";
   include "stdio.s7i";
 
 
@@ -2954,6 +2955,81 @@ const proc: check_string_index is func
         "1234567890" [succ(intExpr(pred( 9)) mod 10)] <> '9' or
         "1234567890" [succ(intExpr(pred(10)) mod 10)] <> '0' then
       writeln(" ***** STRING [ INDEX ] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if    str(intExpr(   1234) mod 100)[1]                               <> '3' or
+        bytes(intExpr(7895418), UNSIGNED, BE)[1]                         <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE)[1]                         <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, LE)[1]                         <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE)[1]                         <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[1]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[3]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[1]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[3]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[1]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[3]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[1]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[3]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[1] <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[3] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[1] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[3] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[1] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[3] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[1] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[3] <> 'x' then
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if    str(intExpr(   1234) mod 100)[intExpr(1)]                               <> '3' or
+        bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(1)]                         <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE)[intExpr(1)]                         <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(1)]                         <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE)[intExpr(1)]                         <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(1)]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(3)]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[intExpr(1)]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[intExpr(3)]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[intExpr(1)]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[intExpr(3)]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[intExpr(1)]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[intExpr(3)]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[intExpr(1)] <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[intExpr(3)] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[intExpr(1)] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[intExpr(3)] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[intExpr(1)] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[intExpr(3)] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[intExpr(1)] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[intExpr(3)] <> 'x' then
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if    str(intExpr(   1234) mod 100)[succ(intExpr(0) mod 3)]                               <> '3' or
+        bytes(intExpr(7895418), UNSIGNED, BE)[succ(intExpr(0) mod 3)]                         <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE)[succ(intExpr(0) mod 3)]                         <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, LE)[succ(intExpr(0) mod 3)]                         <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE)[succ(intExpr(0) mod 3)]                         <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[succ(intExpr(0) mod 3)]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, 3)[succ(intExpr(2) mod 3)]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[succ(intExpr(0) mod 3)]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, 3)[succ(intExpr(2) mod 3)]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[succ(intExpr(0) mod 3)]                      <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, 3)[succ(intExpr(2) mod 3)]                      <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[succ(intExpr(0) mod 3)]                      <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, 3)[succ(intExpr(2) mod 3)]                      <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[succ(intExpr(0) mod 3)] <> 'x' or
+        bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[succ(intExpr(2) mod 3)] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[succ(intExpr(0) mod 3)] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[succ(intExpr(2) mod 3)] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(0) mod 3)] <> 'z' or
+        bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(2) mod 3)] <> 'x' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(0) mod 3)] <> 'z' or
+        bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(2) mod 3)] <> 'x' then
+      writeln(" ***** STRING [ INDEX ] does not work correctly. (8)");
       okay := FALSE;
     end if;
 

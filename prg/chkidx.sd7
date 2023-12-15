@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "bytedata.s7i";
   include "stdio.s7i";
 
 
@@ -100,20 +101,28 @@ const proc: check_string_index is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesIndexError("" [integer.first]) or
-        not raisesIndexError("" [           -2]) or
-        not raisesIndexError("" [           -1]) or
-        not raisesIndexError("" [            0]) or
-        not raisesIndexError("" [            1]) or
-        not raisesIndexError("" [            2]) or
-        not raisesIndexError("" [ integer.last]) or
-        not raisesIndexError(striExpr("") [integer.first]) or
-        not raisesIndexError(striExpr("") [           -2]) or
-        not raisesIndexError(striExpr("") [           -1]) or
-        not raisesIndexError(striExpr("") [            0]) or
-        not raisesIndexError(striExpr("") [            1]) or
-        not raisesIndexError(striExpr("") [            2]) or
-        not raisesIndexError(striExpr("") [ integer.last]) or
+    if  not raisesIndexError("" [      integer.first]) or
+        not raisesIndexError("" [                 -2]) or
+        not raisesIndexError("" [                 -1]) or
+        not raisesIndexError("" [                  0]) or
+        not raisesIndexError("" [                  1]) or
+        not raisesIndexError("" [                  2]) or
+        not raisesIndexError("" [         1000000000]) or
+        not raisesIndexError("" [         1073741824]) or
+        not raisesIndexError("" [4000000000000000000]) or
+        not raisesIndexError("" [4611686018427387904]) or
+        not raisesIndexError("" [       integer.last]) or
+        not raisesIndexError(striExpr("") [      integer.first]) or
+        not raisesIndexError(striExpr("") [                 -2]) or
+        not raisesIndexError(striExpr("") [                 -1]) or
+        not raisesIndexError(striExpr("") [                  0]) or
+        not raisesIndexError(striExpr("") [                  1]) or
+        not raisesIndexError(striExpr("") [                  2]) or
+        not raisesIndexError(striExpr("") [         1000000000]) or
+        not raisesIndexError(striExpr("") [         1073741824]) or
+        not raisesIndexError(striExpr("") [4000000000000000000]) or
+        not raisesIndexError(striExpr("") [4611686018427387904]) or
+        not raisesIndexError(striExpr("") [       integer.last]) or
         not raisesIndexError("" [intExpr(integer.first)]) or
         not raisesIndexError("" [intExpr(           -2)]) or
         not raisesIndexError("" [intExpr(           -1)]) or
@@ -132,20 +141,28 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError("1" [integer.first]) or
-        not raisesIndexError("1" [           -2]) or
-        not raisesIndexError("1" [           -1]) or
-        not raisesIndexError("1" [            0]) or
-        not raisesIndexError("1" [            2]) or
-        not raisesIndexError("1" [            3]) or
-        not raisesIndexError("1" [ integer.last]) or
-        not raisesIndexError(striExpr("1") [integer.first]) or
-        not raisesIndexError(striExpr("1") [           -2]) or
-        not raisesIndexError(striExpr("1") [           -1]) or
-        not raisesIndexError(striExpr("1") [            0]) or
-        not raisesIndexError(striExpr("1") [            2]) or
-        not raisesIndexError(striExpr("1") [            3]) or
-        not raisesIndexError(striExpr("1") [ integer.last]) or
+    if  not raisesIndexError("1" [      integer.first]) or
+        not raisesIndexError("1" [                 -2]) or
+        not raisesIndexError("1" [                 -1]) or
+        not raisesIndexError("1" [                  0]) or
+        not raisesIndexError("1" [                  2]) or
+        not raisesIndexError("1" [                  3]) or
+        not raisesIndexError("1" [         1000000000]) or
+        not raisesIndexError("1" [         1073741824]) or
+        not raisesIndexError("1" [4000000000000000000]) or
+        not raisesIndexError("1" [4611686018427387904]) or
+        not raisesIndexError("1" [       integer.last]) or
+        not raisesIndexError(striExpr("1") [      integer.first]) or
+        not raisesIndexError(striExpr("1") [                 -2]) or
+        not raisesIndexError(striExpr("1") [                 -1]) or
+        not raisesIndexError(striExpr("1") [                  0]) or
+        not raisesIndexError(striExpr("1") [                  2]) or
+        not raisesIndexError(striExpr("1") [                  3]) or
+        not raisesIndexError(striExpr("1") [         1000000000]) or
+        not raisesIndexError(striExpr("1") [         1073741824]) or
+        not raisesIndexError(striExpr("1") [4000000000000000000]) or
+        not raisesIndexError(striExpr("1") [4611686018427387904]) or
+        not raisesIndexError(striExpr("1") [       integer.last]) or
         not raisesIndexError("1" [intExpr(integer.first)]) or
         not raisesIndexError("1" [intExpr(           -2)]) or
         not raisesIndexError("1" [intExpr(           -1)]) or
@@ -164,20 +181,28 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError("1234567890" [integer.first]) or
-        not raisesIndexError("1234567890" [           -2]) or
-        not raisesIndexError("1234567890" [           -1]) or
-        not raisesIndexError("1234567890" [            0]) or
-        not raisesIndexError("1234567890" [           11]) or
-        not raisesIndexError("1234567890" [           12]) or
-        not raisesIndexError("1234567890" [ integer.last]) or
-        not raisesIndexError(striExpr("1234567890") [integer.first]) or
-        not raisesIndexError(striExpr("1234567890") [           -2]) or
-        not raisesIndexError(striExpr("1234567890") [           -1]) or
-        not raisesIndexError(striExpr("1234567890") [            0]) or
-        not raisesIndexError(striExpr("1234567890") [           11]) or
-        not raisesIndexError(striExpr("1234567890") [           12]) or
-        not raisesIndexError(striExpr("1234567890") [ integer.last]) or
+    if  not raisesIndexError("1234567890" [      integer.first]) or
+        not raisesIndexError("1234567890" [                 -2]) or
+        not raisesIndexError("1234567890" [                 -1]) or
+        not raisesIndexError("1234567890" [                  0]) or
+        not raisesIndexError("1234567890" [                 11]) or
+        not raisesIndexError("1234567890" [                 12]) or
+        not raisesIndexError("1234567890" [         1000000000]) or
+        not raisesIndexError("1234567890" [         1073741824]) or
+        not raisesIndexError("1234567890" [4000000000000000000]) or
+        not raisesIndexError("1234567890" [4611686018427387904]) or
+        not raisesIndexError("1234567890" [       integer.last]) or
+        not raisesIndexError(striExpr("1234567890") [      integer.first]) or
+        not raisesIndexError(striExpr("1234567890") [                 -2]) or
+        not raisesIndexError(striExpr("1234567890") [                 -1]) or
+        not raisesIndexError(striExpr("1234567890") [                  0]) or
+        not raisesIndexError(striExpr("1234567890") [                 11]) or
+        not raisesIndexError(striExpr("1234567890") [                 12]) or
+        not raisesIndexError(striExpr("1234567890") [         1000000000]) or
+        not raisesIndexError(striExpr("1234567890") [         1073741824]) or
+        not raisesIndexError(striExpr("1234567890") [4000000000000000000]) or
+        not raisesIndexError(striExpr("1234567890") [4611686018427387904]) or
+        not raisesIndexError(striExpr("1234567890") [       integer.last]) or
         not raisesIndexError("1234567890" [intExpr(integer.first)]) or
         not raisesIndexError("1234567890" [intExpr(           -2)]) or
         not raisesIndexError("1234567890" [intExpr(           -1)]) or
@@ -193,6 +218,93 @@ const proc: check_string_index is func
         not raisesIndexError(striExpr("1234567890") [intExpr(           12)]) or
         not raisesIndexError(striExpr("1234567890") [intExpr( integer.last)]) then
       writeln(" ***** String indexing outside of string does not raise INDEX_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[ 0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[21]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[ 0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[21]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[ 0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[21]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[ 0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[21]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[4]) then
+      writeln(" ***** String indexing outside of string does not raise INDEX_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr( 0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(21)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr( 0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr(21)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr( 0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(21)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr( 0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr(21)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[intExpr(4)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[intExpr(4)]) then
+      writeln(" ***** String indexing outside of string does not raise INDEX_ERROR. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[-abs(intExpr(0))]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[ abs(intExpr(0)) + 21]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[ abs(intExpr(0)) + 21]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[ abs(intExpr(0)) + 21]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[ abs(intExpr(0)) + 21]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, 3)[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, 3)[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, succ(intExpr(2) mod 3))[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, succ(intExpr(2) mod 3))[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE, succ(intExpr(2) mod 3))[ abs(intExpr(0)) + 4]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[ abs(intExpr(0)) + 4]) then
+      writeln(" ***** String indexing outside of string does not raise INDEX_ERROR. (6)");
       okay := FALSE;
     end if;
 

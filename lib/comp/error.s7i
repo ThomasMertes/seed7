@@ -172,7 +172,7 @@ const proc: writeLine (in string: fileName, in integer: fileLine) is func
             write(buffer[startPos .. pred(length(buffer))]);
           else
             write(buffer[startPos ..]);
-	  end if;
+          end if;
           repeat
             buffer := gets(sourceFile, bufferSize);
             pos := pos(buffer, '\n');
@@ -182,9 +182,9 @@ const proc: writeLine (in string: fileName, in integer: fileLine) is func
                 write(buffer[startPos .. pred(length(buffer))]);
               else
                 write(buffer[startPos ..]);
-	      end if;
+              end if;
             end if;
-	  until pos <> 0 or buffer = "";
+          until pos <> 0 or buffer = "";
           if pos <> 0 then
             if pos > 1 and buffer[pred(pos)] = '\r' then
               writeln(buffer[.. pos - 2]);
