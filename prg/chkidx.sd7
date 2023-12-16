@@ -221,15 +221,22 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[0]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[ 0]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[21]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[ 0]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[21]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[ 0]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[21]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[ 0]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[21]) or
+    if  not raisesIndexError(  str(intExpr(   1234)        )[ 0]) or
+        not raisesIndexError(  str(intExpr(   1234)        )[21]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[ 0]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[ 3]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[ 0]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[18]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[ 0]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[ 3]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[9]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[9]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[9]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[0]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[9]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[0]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[4]) or
         not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[0]) or
@@ -250,15 +257,22 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[intExpr(0)]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr( 0)]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(21)]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr( 0)]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr(21)]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr( 0)]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(21)]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr( 0)]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr(21)]) or
+    if  not raisesIndexError(  str(intExpr(   1234)        )[intExpr( 0)]) or
+        not raisesIndexError(  str(intExpr(   1234)        )[intExpr(21)]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[intExpr( 0)]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[intExpr( 3)]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[intExpr( 0)]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[intExpr(18)]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[intExpr( 0)]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[intExpr( 3)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(9)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[intExpr(9)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(9)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr(0)]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[intExpr(9)]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(0)]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[intExpr(4)]) or
         not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[intExpr(0)]) or
@@ -279,15 +293,22 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError(  str(intExpr(   1234) mod 100)[-abs(intExpr(0))]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[-abs(intExpr(0))     ]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[ abs(intExpr(0)) + 21]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[-abs(intExpr(0))     ]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[ abs(intExpr(0)) + 21]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[-abs(intExpr(0))     ]) or
-        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[ abs(intExpr(0)) + 21]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[-abs(intExpr(0))     ]) or
-        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[ abs(intExpr(0)) + 21]) or
+    if  not raisesIndexError(  str(intExpr(   1234)        )[-abs(intExpr(0))     ]) or
+        not raisesIndexError(  str(intExpr(   1234)        )[ abs(intExpr(0)) + 21]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(  str(intExpr(   1234) mod 100)[ abs(intExpr(0)) +  3]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(     (intExpr(   1234)         radix 16)[ abs(intExpr(0)) + 18]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[-abs(intExpr(0))     ]) or
+        not raisesIndexError(     (intExpr(   1234) mod 256 radix 16)[ abs(intExpr(0)) +  3]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE)[ abs(intExpr(0)) + 9]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE)[ abs(intExpr(0)) + 9]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, LE)[ abs(intExpr(0)) + 9]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[-abs(intExpr(0))    ]) or
+        not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE)[ abs(intExpr(0)) + 9]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[-abs(intExpr(0))    ]) or
         not raisesIndexError(bytes(intExpr(7895418), UNSIGNED, BE, 3)[ abs(intExpr(0)) + 4]) or
         not raisesIndexError(bytes(intExpr(7895418),   SIGNED, BE, 3)[-abs(intExpr(0))    ]) or

@@ -2958,7 +2958,10 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if    str(intExpr(   1234) mod 100)[1]                               <> '3' or
+    if    str(intExpr(   1234)        )[1]                               <> '1' or
+          str(intExpr(   1234) mod 100)[1]                               <> '3' or
+             (intExpr(   1234)         radix 16)[1]                      <> '4' or
+             (intExpr(   1234) mod 256 radix 16)[1]                      <> 'd' or
         bytes(intExpr(7895418), UNSIGNED, BE)[1]                         <> 'x' or
         bytes(intExpr(7895418),   SIGNED, BE)[1]                         <> 'x' or
         bytes(intExpr(7895418), UNSIGNED, LE)[1]                         <> 'z' or
@@ -2983,7 +2986,10 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if    str(intExpr(   1234) mod 100)[intExpr(1)]                               <> '3' or
+    if    str(intExpr(   1234)        )[intExpr(1)]                               <> '1' or
+          str(intExpr(   1234) mod 100)[intExpr(1)]                               <> '3' or
+             (intExpr(   1234)         radix 16)[intExpr(1)]                      <> '4' or
+             (intExpr(   1234) mod 256 radix 16)[intExpr(1)]                      <> 'd' or
         bytes(intExpr(7895418), UNSIGNED, BE)[intExpr(1)]                         <> 'x' or
         bytes(intExpr(7895418),   SIGNED, BE)[intExpr(1)]                         <> 'x' or
         bytes(intExpr(7895418), UNSIGNED, LE)[intExpr(1)]                         <> 'z' or
@@ -3008,7 +3014,10 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if    str(intExpr(   1234) mod 100)[succ(intExpr(0) mod 3)]                               <> '3' or
+    if    str(intExpr(   1234)        )[succ(intExpr(0) mod 3)]                               <> '1' or
+          str(intExpr(   1234) mod 100)[succ(intExpr(0) mod 3)]                               <> '3' or
+             (intExpr(   1234)         radix 16)[succ(intExpr(0) mod 3)]                      <> '4' or
+             (intExpr(   1234) mod 256 radix 16)[succ(intExpr(0) mod 3)]                      <> 'd' or
         bytes(intExpr(7895418), UNSIGNED, BE)[succ(intExpr(0) mod 3)]                         <> 'x' or
         bytes(intExpr(7895418),   SIGNED, BE)[succ(intExpr(0) mod 3)]                         <> 'x' or
         bytes(intExpr(7895418), UNSIGNED, LE)[succ(intExpr(0) mod 3)]                         <> 'z' or
