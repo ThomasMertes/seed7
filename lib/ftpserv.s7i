@@ -141,7 +141,8 @@ const proc: listOneFile (inout file: data, in string: fileName,
     currFileType := fileTypeSL(backendSys, filePath);
     line := fileTypeIndicator[ord(currFileType) len 1];
     if currFileType = FILE_SYMLINK then
-      line &:= "rwxrwxrwx 1 user users ";
+      line &:= str(getFileMode(backendSys, filePath, SYMLINK));
+      line &:= " 1 user users ";
       line &:= length(readLink(backendSys, filePath)) lpad 10 <& " ";
       modificationTime := getMTime(backendSys, filePath, SYMLINK);
     else

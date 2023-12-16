@@ -135,7 +135,7 @@ const proc: directoryListing (inout ftpFileSys: ftp, in string: directory) is fu
         continue := FALSE;
       end if;
       if continue then
-        writeln(line);
+        writeln(noCtrlChars(line));
       end if;
     end for;
   end func;
