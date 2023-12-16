@@ -960,9 +960,6 @@ const func bigInteger: bigFileSize (inout osFileSys: fileSystem, in string: file
 const func time: getMTime (inout osFileSys: fileSystem, in string: filePath) is
   return getMTime(filePath);
 
-const func time: getMTime (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
-  return getMTime(filePath, SYMLINK);
-
 const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
     in time: modificationTime) is func
   begin
@@ -971,9 +968,6 @@ const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
 
 const func string: getOwner (inout osFileSys: fileSystem, in string: filePath) is
   return getOwner(filePath);
-
-const func string: getOwner (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
-  return getOwner(filePath, SYMLINK);
 
 const proc: setOwner (inout osFileSys: fileSystem, in string: filePath,
     in string: owner) is func
@@ -984,14 +978,23 @@ const proc: setOwner (inout osFileSys: fileSystem, in string: filePath,
 const func string: getGroup (inout osFileSys: fileSystem, in string: filePath) is
   return getGroup(filePath);
 
-const func string: getGroup (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
-  return getGroup(filePath, SYMLINK);
-
 const proc: setGroup (inout osFileSys: fileSystem, in string: filePath,
     in string: group) is func
   begin
     setGroup(filePath, group);
   end func;
+
+const func fileMode: getFileMode (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
+  return getFileMode(filePath, SYMLINK);
+
+const func time: getMTime (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
+  return getMTime(filePath, SYMLINK);
+
+const func string: getOwner (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
+  return getOwner(filePath, SYMLINK);
+
+const func string: getGroup (inout osFileSys: fileSystem, in string: filePath, SYMLINK) is
+  return getGroup(filePath, SYMLINK);
 
 const func file: open (inout osFileSys: fileSystem, in string: filePath, in string: mode) is
   return open(filePath, mode);

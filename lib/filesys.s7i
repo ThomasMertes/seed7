@@ -225,15 +225,6 @@ const func time: getMTime (inout fileSys: fileSystem, in string: filePath) is DY
 
 
 (**
- *  Determine the modification time of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the modification time of the symbolic link.
- *)
-const func time: getMTime (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
-
-
-(**
  *  Set the modification time of a file.
  *  The function follows symbolic links.
  *)
@@ -247,15 +238,6 @@ const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
  *  @return the name of the file owner.
  *)
 const func string: getOwner (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
-
-
-(**
- *  Determine the name of the owner (UID) of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file owner.
- *)
-const func string: getOwner (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
 
 
 (**
@@ -275,20 +257,47 @@ const func string: getGroup (inout fileSys: fileSystem, in string: filePath) is 
 
 
 (**
+ *  Set the group of a file.
+ *  The function follows symbolic links.
+ *)
+const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
+    in string: group) is DYNAMIC;
+
+
+(**
+ *  Determine the file mode (permissions) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *)
+const func fileMode: getFileMode (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
+
+
+(**
+ *  Determine the modification time of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the modification time of the symbolic link.
+ *)
+const func time: getMTime (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
+
+
+(**
+ *  Determine the name of the owner (UID) of a symbolic link.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *)
+const func string: getOwner (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
+
+
+(**
  *  Determine the name of the group (GID) to which a symbolic link belongs.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file group.
  *)
 const func string: getGroup (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
-
-
-(**
- *  Set the group of a file.
- *  The function follows symbolic links.
- *)
-const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
-    in string: group) is DYNAMIC;
 
 
 (**
