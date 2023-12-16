@@ -1128,9 +1128,9 @@ boolType socHasNext (socketType inSocket)
 bstriType socInetAddr (const const_striType hostName, intType port)
 
   {
-    cstriType name;
+    cstriType os_hostName;
 #if HAS_GETADDRINFO
-    char servicename[10];
+    char serviceName[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1153,8 +1153,8 @@ bstriType socInetAddr (const const_striType hostName, intType port)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      name = stri_to_cstri8(hostName, &err_info);
-      if (unlikely(name == NULL)) {
+      os_hostName = stri_to_cstri8(hostName, &err_info);
+      if (unlikely(os_hostName == NULL)) {
         logError(printf("socInetAddr: stri_to_cstri8(\"%s\", *) failed:\n"
                         "err_info=%d\n",
                         striAsUnquotedCStri(hostName), err_info););
@@ -1162,19 +1162,29 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         result = NULL;
       } else {
 #if HAS_GETADDRINFO
-        sprintf(servicename, "%u", (unsigned int) port);
+        sprintf(serviceName, "%u", (unsigned int) port);
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
-        getaddrinfo_result = getaddrinfo(name, servicename, &hints, &addrinfo_list);
+        getaddrinfo_result = getaddrinfo(os_hostName, serviceName, &hints, &addrinfo_list);
+        if (unlikely(getaddrinfo_result == EAI_NONAME)) {
+          /* Check if the host name is the name of the local host */
+          char localHostName[MAX_HOSTNAME_LENGTH];
+          if (gethostname(localHostName, MAX_HOSTNAME_LENGTH) == 0 &&
+              strcmp(os_hostName, localHostName) == 0) {
+            getaddrinfo_result = getaddrinfo("localhost", serviceName, &hints,
+                                             &addrinfo_list);
+          } /* if */
+        } /* if */
         if (unlikely(getaddrinfo_result != 0)) {
-          /* printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result); */
+          logMessage(printf("getaddrinfo(\"%s\", \"%s\") -> %d\n",
+                            os_hostName, serviceName, getaddrinfo_result));
           if (getaddrinfo_result == EAI_NONAME || getaddrinfo_result == EAI_AGAIN
 #ifdef EAI_NODATA
               || getaddrinfo_result == EAI_NODATA
 #endif
           ) {
-            free_cstri8(name, hostName);
+            free_cstri8(os_hostName, hostName);
             /* Return empty address */
             if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
               raise_error(MEMORY_ERROR);
@@ -1187,7 +1197,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
                             "strerror: %s\n"
                             "%s=%d\nerror: %s\n",
                             striAsUnquotedCStri(hostName), port,
-                            name, servicename, getaddrinfo_result,
+                            os_hostName, serviceName, getaddrinfo_result,
                             gai_strerror(getaddrinfo_result),
                             ERROR_INFORMATION););
             /*
@@ -1200,7 +1210,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
                 EAI_SYSTEM, EAI_OVERFLOW); */
             /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
                 EAI_ADDRFAMILY, EAI_NODATA); */
-            free_cstri8(name, hostName);
+            free_cstri8(os_hostName, hostName);
             raise_error(FILE_ERROR);
             result = NULL;
           } /* if */
@@ -1210,7 +1220,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                        !ALLOC_BSTRI_SIZE_OK(result,
                            (memSizeType) result_addrinfo->ai_addrlen))) {
-            free_cstri8(name, hostName);
+            free_cstri8(os_hostName, hostName);
             freeaddrinfo(addrinfo_list);
             raise_error(MEMORY_ERROR);
             result = NULL;
@@ -1218,26 +1228,26 @@ bstriType socInetAddr (const const_striType hostName, intType port)
             result->size = (memSizeType) result_addrinfo->ai_addrlen;
             memcpy(result->mem, result_addrinfo->ai_addr,
                    (memSizeType) result_addrinfo->ai_addrlen);
-            free_cstri8(name, hostName);
+            free_cstri8(os_hostName, hostName);
             freeaddrinfo(addrinfo_list);
           } /* if */
         } /* if */
 #else
-        host_ent = gethostbyname(name);
+        host_ent = gethostbyname(os_hostName);
         if (host_ent == NULL && h_errno == TRY_AGAIN) {
           /*
           printf("***** h_errno=%d\n", h_errno);
-          printf("***** name=\"%s\"\n", name);
+          printf("***** os_hostName=\"%s\"\n", os_hostName);
           printf("***** port=%d\n", port);
           printf("***** hostName=%s\n", striAsUnquotedCStri(hostName));
           */
-          host_ent = gethostbyname(name);
+          host_ent = gethostbyname(os_hostName);
         } /* if */
         if (unlikely(host_ent == NULL)) {
-          /* printf("***** gethostbyname(\"%s\"): h_errno=%d\n", name, h_errno);
+          /* printf("***** gethostbyname(\"%s\"): h_errno=%d\n", os_hostName, h_errno);
              printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
                  HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
-          free_cstri8(name, hostName);
+          free_cstri8(os_hostName, hostName);
           /* Return empty address */
           if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
             raise_error(MEMORY_ERROR);
@@ -1254,7 +1264,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           printf("Address length: %d\n", sizeof(struct sockaddr_in));
           printf("IP Address:     %s\n", inet_ntoa(*((struct in_addr *)host_ent->h_addr)));
           */
-          free_cstri8(name, hostName);
+          free_cstri8(os_hostName, hostName);
           if (host_ent->h_addrtype == AF_INET &&
               host_ent->h_length == sizeof(inet_address->sin_addr.s_addr)) {
             if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in)))) {
@@ -1310,7 +1320,7 @@ bstriType socInetLocalAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char servicename[10];
+    char serviceName[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1331,17 +1341,17 @@ bstriType socInetLocalAddr (intType port)
       result = NULL;
     } else {
 #if HAS_GETADDRINFO
-      sprintf(servicename, "%u", (unsigned int) port);
+      sprintf(serviceName, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
-      getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
+      getaddrinfo_result = getaddrinfo(NULL, serviceName, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
         logError(printf("socInetLocalAddr" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
                         "%s=%d\nerror: %s\n",
-                        port, servicename, getaddrinfo_result,
+                        port, serviceName, getaddrinfo_result,
                         gai_strerror(getaddrinfo_result),
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
@@ -1393,7 +1403,7 @@ bstriType socInetServAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char servicename[10];
+    char serviceName[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1418,18 +1428,18 @@ bstriType socInetServAddr (intType port)
       result = NULL;
     } else {
 #if HAS_GETADDRINFO
-      sprintf(servicename, "%u", (unsigned int) port);
+      sprintf(serviceName, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
       hints.ai_flags = AI_PASSIVE;
-      getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
+      getaddrinfo_result = getaddrinfo(NULL, serviceName, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
         logError(printf("socInetServAddr" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
                         "%s=%d\nerror: %s\n",
-                        port, servicename, getaddrinfo_result,
+                        port, serviceName, getaddrinfo_result,
                         gai_strerror(getaddrinfo_result),
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
