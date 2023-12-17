@@ -206,6 +206,8 @@ const proc: warning (COMPARISON_RESULT_CONSTANT, in string: comparisonName,
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): Comparison with " <& comparisonName <&
               " always evaluates to " <& comparisonResult <& ".");
+      writeLine(c_expr.currentFile, c_expr.currentLine);
+      writeln;
     end if;
   end func;
 
@@ -215,6 +217,8 @@ const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr)
     if warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): Expression raises " <& exceptionName <& ".");
+      writeLine(c_expr.currentFile, c_expr.currentLine);
+      writeln;
     end if;
   end func;
 
@@ -228,6 +232,8 @@ const proc: checkWarning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName,
          (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR")) then
       writeln("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
               "): Catch of " <& exceptionName <& " although the checks are suppressed.");
+      writeLine(file(place), line(place));
+      writeln;
     end if;
   end func;
 
@@ -264,6 +270,8 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
         end if;
         write(exceptionNameList[length(exceptionNameList)]);
         writeln(" are suppressed.");
+        writeLine(file(place), line(place));
+        writeln;
       end if;
     end if;
   end func;
@@ -275,6 +283,8 @@ const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
     if warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Duplicate when values " <& overlappingWhenValues <& ".");
+      writeLine(file(current_expression), line(current_expression));
+      writeln;
     end if;
   end func;
 
@@ -285,6 +295,19 @@ const proc: error (WHEN_PREVIOUS, in bitset: overlappingWhenValues,
     if warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Previous usage of " <& overlappingWhenValues <& ".");
+      writeLine(file(current_expression), line(current_expression));
+      writeln;
+    end if;
+  end func;
+
+
+const proc: error (EMPTY_WHEN_SET, in reference: current_expression) is func
+  begin
+    if warning_level >= 1 then
+      writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+              "): When set is empty.");
+      writeLine(file(current_expression), line(current_expression));
+      writeln;
     end if;
   end func;
 
@@ -294,6 +317,8 @@ const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
     if warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): When value must be constant.");
+      writeLine(file(current_expression), line(current_expression));
+      writeln;
     end if;
   end func;
 
@@ -301,7 +326,7 @@ const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
 const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: currentVariable,
     in reference: inoutParam, in expr_type: c_expr) is func
   begin
-    if warning_level >= 1 then
+    if warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): The variable " <& literal(str(currentVariable)) <&
               " is used for two or more inout-parameters (" <& str(inoutParam) <& ").");
@@ -314,7 +339,7 @@ const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: current
 const proc: error (VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER, in reference: currentVariable,
     in reference: inoutParam, in reference: refParam, in expr_type: c_expr) is func
   begin
-    if warning_level >= 1 then
+    if warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): The variable " <& literal(str(currentVariable)) <&
               " is used as inout-parameter (" <& str(inoutParam) <&
@@ -331,8 +356,12 @@ const proc: error (FORWARD_CALLED, in reference: current_expression,
     if warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Forward defined function called.");
+      writeLine(file(current_expression), line(current_expression));
+      writeln;
       writeln("*** " <& file(function) <& "(" <& line(function) <&
               "): Forward definition of the called function.");
+      writeLine(file(function), line(function));
+      writeln;
     end if;
   end func;
 
