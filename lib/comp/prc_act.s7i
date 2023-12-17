@@ -718,33 +718,29 @@ const proc: process_case_labels (in reference: whenExpression,
     var reference: whenReference is NIL;
     var bitset: whenValues is bitset.EMPTY_SET;
   begin
-    if not isConstant(caseLabelExpression) then
-      error(VARIABLE_WHEN, whenExpression);
-    else
-      caseLabels := evaluate(prog, caseLabelExpression);
-      labelCategory := category(caseLabels);
-      if labelCategory = SETOBJECT then
-        currentWhenValues := getValue(caseLabels, bitset);
-        if currentWhenValues = bitset.EMPTY_SET then
-          error(EMPTY_WHEN_SET, whenExpression);
-        else
-          for whenValues key whenReference range allWhenValues do
-            if whenValues & currentWhenValues <> bitset.EMPTY_SET then
-              error(WHEN_OVERLAPPING, whenValues & currentWhenValues,
-                    whenExpression);
-              error(WHEN_PREVIOUS, whenValues & currentWhenValues,
-                    whenReference);
-            end if;
-          end for;
-        end if;
-        process_bitset(currentWhenValues,
-            diagnosticLine(whenExpression), c_expr);
-        allWhenValues @:= [whenExpression] currentWhenValues;
+    caseLabels := evaluate(prog, caseLabelExpression);
+    labelCategory := category(caseLabels);
+    if labelCategory = SETOBJECT then
+      currentWhenValues := getValue(caseLabels, bitset);
+      if currentWhenValues = bitset.EMPTY_SET then
+        error(EMPTY_WHEN_SET, whenExpression);
       else
-        c_expr.expr &:= "/* case ";
-        c_expr.expr &:= str(labelCategory);
-        c_expr.expr &:= " */";
+        for whenValues key whenReference range allWhenValues do
+          if whenValues & currentWhenValues <> bitset.EMPTY_SET then
+            error(WHEN_OVERLAPPING, whenValues & currentWhenValues,
+                  whenExpression);
+            error(WHEN_PREVIOUS, whenValues & currentWhenValues,
+                  whenReference);
+          end if;
+        end for;
       end if;
+      process_bitset(currentWhenValues,
+          diagnosticLine(whenExpression), c_expr);
+      allWhenValues @:= [whenExpression] currentWhenValues;
+    else
+      c_expr.expr &:= "/* case ";
+      c_expr.expr &:= str(labelCategory);
+      c_expr.expr &:= " */";
     end if;
   end func;
 
