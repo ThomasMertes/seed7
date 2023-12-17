@@ -942,6 +942,12 @@ const func fileType: fileType (inout osFileSys: fileSystem, in string: filePath)
 const func fileType: fileTypeSL (inout osFileSys: fileSystem, in string: filePath) is
   return fileTypeSL(filePath);
 
+const func integer: fileSize (inout osFileSys: fileSystem, in string: filePath) is
+  return fileSize(filePath);
+
+const func bigInteger: bigFileSize (inout osFileSys: fileSystem, in string: filePath) is
+  return bigFileSize(filePath);
+
 const func fileMode: getFileMode (inout osFileSys: fileSystem, in string: filePath) is
   return getFileMode(filePath);
 
@@ -950,12 +956,6 @@ const proc: setFileMode (inout osFileSys: fileSystem, in string: filePath,
   begin
     setFileMode(filePath, mode);
   end func;
-
-const func integer: fileSize (inout osFileSys: fileSystem, in string: filePath) is
-  return fileSize(filePath);
-
-const func bigInteger: bigFileSize (inout osFileSys: fileSystem, in string: filePath) is
-  return bigFileSize(filePath);
 
 const func time: getMTime (inout osFileSys: fileSystem, in string: filePath) is
   return getMTime(filePath);

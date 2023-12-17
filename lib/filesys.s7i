@@ -177,6 +177,24 @@ const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath)
 
 
 (**
+ *  Determine the file size of a file.
+ *  The function follows symbolic links. The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *)
+const func integer: fileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Determine the file size of a file.
+ *  The function follows symbolic links. The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *)
+const func bigInteger: bigFileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
  *  Determine the file mode (permissions) of a file.
  *  The function follows symbolic links.
  *  @return the file mode.
@@ -196,24 +214,6 @@ const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) i
  *)
 const proc: setFileMode (inout fileSys: fileSystem, in string: filePath,
     in fileMode: mode) is DYNAMIC;
-
-
-(**
- *  Determine the file size of a file.
- *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories a size of 0 is returned.
- *  @return the size of the file.
- *)
-const func integer: fileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
-
-
-(**
- *  Determine the file size of a file.
- *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories a size of 0 is returned.
- *  @return the size of the file.
- *)
-const func bigInteger: bigFileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
 (**
