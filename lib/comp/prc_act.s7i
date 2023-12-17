@@ -707,35 +707,44 @@ const proc: process_bitset (in bitset: currentSet, in string: diagnosticLine,
 const type: allWhenValuesType is hash [reference] bitset;
 
 
-const proc: process_case_labels (in reference: current_expression,
-    inout allWhenValuesType: allWhenValues, inout expr_type: c_expr) is func
+const proc: process_case_labels (in reference: whenExpression,
+    in reference: caseLabelExpression, inout allWhenValuesType: allWhenValues,
+    inout expr_type: c_expr) is func
 
   local
-    var reference: case_labels is NIL;
+    var reference: caseLabels is NIL;
     var category: labelCategory is category.value;
     var bitset: currentWhenValues is bitset.EMPTY_SET;
     var reference: whenReference is NIL;
     var bitset: whenValues is bitset.EMPTY_SET;
   begin
-    case_labels := evaluate(prog, current_expression);
-    labelCategory := category(case_labels);
-    if labelCategory = SETOBJECT then
-      currentWhenValues := getValue(case_labels, bitset);
-      for whenValues key whenReference range allWhenValues do
-        if whenValues & currentWhenValues <> bitset.EMPTY_SET then
-          error(WHEN_OVERLAPPING, whenValues & currentWhenValues,
-                current_expression);
-          error(WHEN_PREVIOUS, whenValues & currentWhenValues,
-                whenReference);
-        end if;
-      end for;
-      process_bitset(currentWhenValues,
-          diagnosticLine(current_expression), c_expr);
-      allWhenValues @:= [current_expression] currentWhenValues;
+    if not isConstant(caseLabelExpression) then
+      error(VARIABLE_WHEN, whenExpression);
     else
-      c_expr.expr &:= "/* case ";
-      c_expr.expr &:= str(labelCategory);
-      c_expr.expr &:= " */";
+      caseLabels := evaluate(prog, caseLabelExpression);
+      labelCategory := category(caseLabels);
+      if labelCategory = SETOBJECT then
+        currentWhenValues := getValue(caseLabels, bitset);
+        if currentWhenValues = bitset.EMPTY_SET then
+          error(EMPTY_WHEN_SET, whenExpression);
+        else
+          for whenValues key whenReference range allWhenValues do
+            if whenValues & currentWhenValues <> bitset.EMPTY_SET then
+              error(WHEN_OVERLAPPING, whenValues & currentWhenValues,
+                    whenExpression);
+              error(WHEN_PREVIOUS, whenValues & currentWhenValues,
+                    whenReference);
+            end if;
+          end for;
+        end if;
+        process_bitset(currentWhenValues,
+            diagnosticLine(whenExpression), c_expr);
+        allWhenValues @:= [whenExpression] currentWhenValues;
+      else
+        c_expr.expr &:= "/* case ";
+        c_expr.expr &:= str(labelCategory);
+        c_expr.expr &:= " */";
+      end if;
     end if;
   end func;
 
@@ -748,7 +757,7 @@ const proc: process_when (in reference: when_expr,
   begin
     params := getValue(when_expr, ref_list);
     params := params[2 ..];
-    process_case_labels(params[2], allWhenValues, c_expr);
+    process_case_labels(when_expr, params[2], allWhenValues, c_expr);
     process_call_by_name_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
@@ -836,18 +845,19 @@ const func reference: compareObj (in reference: current_object) is func
 
 
 const proc: process_case_labels (in integer: numOfCaseStmt, in integer: numOfWhenPart,
-    in reference: current_expression, inout expr_type: c_expr) is func
+    in reference: whenExpression, in reference: caseLabelExpression,
+    inout expr_type: c_expr) is func
 
   local
-    var reference: case_labels is NIL;
+    var reference: caseLabels is NIL;
     var category: labelCategory is category.value;
     var bitset: currentWhenValues is bitset.EMPTY_SET;
   begin
-    case_labels := evaluate(prog, current_expression);
-    labelCategory := category(case_labels);
+    caseLabels := evaluate(prog, caseLabelExpression);
+    labelCategory := category(caseLabels);
     if labelCategory = HASHOBJECT then
-      case_table[numOfCaseStmt] &:= case_labels;
-      c_expr.expr &:= diagnosticLine(current_expression);
+      case_table[numOfCaseStmt] &:= caseLabels;
+      c_expr.expr &:= diagnosticLine(whenExpression);
       c_expr.expr &:= "case ";
       c_expr.expr &:= str(numOfWhenPart);
       c_expr.expr &:= ":\n";
@@ -867,7 +877,7 @@ const proc: process_when (in integer: numOfCaseStmt, in integer: numOfWhenPart,
   begin
     params := getValue(when_expr, ref_list);
     params := params[2 ..];  # Skip function reference
-    process_case_labels(numOfCaseStmt, numOfWhenPart, params[2], c_expr);
+    process_case_labels(numOfCaseStmt, numOfWhenPart, when_expr, params[2], c_expr);
     process_call_by_name_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
