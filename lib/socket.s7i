@@ -313,3 +313,13 @@ const func boolean: eof (in socket: inSocket) is
  *)
 const func boolean: hasNext (in socket: inSocket) is
   return hasNext(inSocket.sock);
+
+
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
+const func boolean: inputReady (in socket: inSocket) is
+  return inputReady(inSocket.sock, 0, 0);
