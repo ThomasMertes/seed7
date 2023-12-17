@@ -1,3 +1,185 @@
+20231217:
+- The FAQ has been improved. Many thanks to Liam O'Brien for creating
+  a list suggested changes. Thanks for helping to improve Seed7
+  in general.
+- Support for symbolic links under Windows has been added:
+  - Symbolic link reparse points and mount reparse points are both
+    treated as symbolic links.
+  - The interface does not distinguish between directory symbolic
+    links and normal symbolic links. A normal symbolic link may refer
+    to a directory and readDir(symlink) reads the directory contents
+    (like it does under Linux/Unix/BSD).
+  - The functions fileType() and fileTypeSL() have been improved to
+    work under Windows like they do under Linux/Unix/BSD:
+    - fileType() follows symbolic links and returns the file type of
+      the final destination.
+    - fileTypeSL() returns FILE_SYMLINK for symbolic links. For
+      all other file types fileTypeSL() works like fileType().
+    - fileTypeSL() does return FILE_SYMLINK only if readLink() works
+      correctly.
+    - fileTypeSL() has been fixed to return FILE_DIR for the emulated
+      root directory and FILE_ABSENT if the file path cannot be
+      mapped to a system path.
+  - The functions readLink(path) and readLink(path, ABSOLUTE) have
+    been improved to read the symbolic links of Windows. The function
+    readLink(path) can read relative and absolute symbolic links.
+    Both functions can read dangling symlinks. The functions are
+    implemented with DeviceIoControl(). If DeviceIoControl() is not
+    available (HAS_DEVICE_IO_CONTROL is not defined), they raise
+    FILE_ERROR.
+  - The functions getFileMode(path), setFileMode(path),
+    getOwner(path), setOwner(path), getGroup(path), setGroup(path)
+    and readDir(path) have been improved to follow symlinks under
+    Windows (like they do under Linux/Unix/BSD).
+  - Owner and group of the emulated root directory is "root".
+  - The function moveFile() has been improved to avoid following
+    symlinks under Windows (like it does under Linux/Unix/BSD).
+  - The function symlink() has been improved to allow the creation
+    of relative and absolute symbolic links under Windows. Under
+    Windows administrator rights or the developer mode are necessary
+    to create symbolic links.
+- Several file functions have been improved:
+  - The function getCTime(path) has been improved to return the
+    change time instead of the creation time in Windows (like it
+    does in Linux/Unix/BSD).
+  - The file owner and group functions have been improved to avoid
+    localized user and group names under Windows.
+  - The function finalPath(path), which follows a symbolic link
+    chain, has been added to the osfiles.s7i library.
+  - The functions getFileMode(path, SYMLINK),
+    getATime(path, SYMLINK), getMTime(path, SYMLINK),
+    setMTime(path, time, SYMLINK), getOwner(path, SYMLINK),
+    setOwner(path, owner, SYMLINK), getGroup(path, SYMLINK) and
+    setGroup(path, group, SYMLINK) have been added to the
+    osfiles.s7i library. These functions work only for symbolic
+    links and get or set symbolic link data.
+    They raise FILE_ERROR if 'path' does not refer to a symbolic
+    link.
+  - The functions getFileMode(fileSys, path, SYMLINK),
+    getMTime(fileSys, path, SYMLINK),
+    getOwner(fileSys, path, SYMLINK) and
+    getGroup(fileSys, path, SYMLINK) have been added to the
+    filesys.s7i library.
+  - The functions copyFile(), cloneFile() and moveFile() have been
+    improved to prohibit that a dangling symlink is overwritten.
+  - In osfiles.s7i and filesys.s7i the function fileMode(path) is
+    deprecated now. The function getFileMode(path) should be used
+    instead.
+  - The files ar.s7i, cpio.s7i, ftpserv.s7i, process.s7i, rpm.s7i,
+    tar_cmds.s7i, tar.s7i and zip.s7i have been altered to use
+    getFileMode(path) instead of the deprecated fileMode(path).
+- The Seed7 build system has been improved:
+  - The makefiles mk_msys.mak, mk_nmake.mak, mk_mingw.mak and
+    mk_mingc.mak have been improved to support 32-bit and 64-bit
+    C compilers.
+  - Now, definitions of the library names LIBINTL_DLL, LIBEAY32_DLL,
+    LIBCRYPTO_DLL and LIBSSL_DLL are written to version.h only under
+    Windows.
+  - The build tries to load dynamic/shared libraries and logs if
+    they are present or not.
+  - For dynamic/shared libraries with an absolute path the build
+    logs, if they are 32-bit or 64-bit.
+  - The functionality of setpaths.c has been moved to chkccomp.c.
+  - The file setpaths.c has been removed.
+  - The files makefile, mk_bcc32.mak, mk_bccv5.mak, mk_clang.mak,
+    mk_clangw.mak, mk_cygw.mak, mk_djgp2.mak, mk_djgpp.mak,
+    mk_emccl.mak, mk_emccw.mak, mk_freebsd.mk, mk_icc.mak,
+    mk_linux.mak, mk_mingc.mak, mk_mingw.mak, mk_msvc.mak,
+    mk_msys.mak, mk_nmake.mak, mk_osxcl.mak, mk_osx.mak,
+    mk_tcc_l.mak and mk_tcc_w.mak have been changed to work without
+    setpaths.c and to call chkccomp with the parameters of setpaths
+    (S7_LIB_DIR, SEED7_LIBRARY and CC_ENVIRONMENT_INI).
+  - The search for the SQLite include file in chkccomp.c has been
+    improved to continue if the include file is not in C:/sqlite.
+  - The directory seed7/bin has been added as possible place of the
+    sqlite3.dll (or .so).
+  - Tests for the presence of the functions CreateSymbolicLinkW(),
+    GetFinalPathNameByHandleW(), DeviceIoControl(),
+    GetFileInformationByHandleEx() and lutimes() have been added to
+    chkccomp.c.
+  - In chkccomp.c global variables for buildDirectory, s7LibDir and
+    seed7Library have been introduced.
+  - The functions testOutputToBuffer(),
+    determineCurrentWorkingDirectory(), mapCodePageToUtf8(),
+    mapToUtf8(), canLoadDynamicLibrary(),
+    pointerSizeOfDynamicLibrary(), getCodePage(), setS7LibDir(),
+    setSeed7Library() and setPaths() have been added to chkccomp.c.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - Now, it writes warnings if parameter aliasing can happen.
+    A function triggers parameter aliasing if two reference
+    parameters refer to the same value and one of them is changed
+    in the function. In this case the other reference parameter
+    changes as well. The Seed7 compiler checks if a function call
+    uses the same actual parameter twice and at least one of the
+    parameters is modified in the function.
+  - Now, it writes the line that triggers a compilation error.
+  - The error messages for case statements have been improved.
+  - The string index access optimizations have been improved.
+  - The estimation of possible string length results has been
+    improved.
+  - Now, the range of possible integer results of BIN_AND is
+    computed.
+- Tests for integer +:=, -:= and *:= with itself have been added to
+  chkint.sd7 and chkovf.sd7.
+- Tests for bigInteger *:= with itself have been added to
+  chkbig.sd7.
+- The function open() has been improved such that opening a
+  non-existing absolute path under Windows (a path that cannot be
+  mapped to a system path) returns STD_NULL.
+- In aes_gcm.s7i the run-time of gcmMult has been reduced by 7%
+  (measured with gcc and valgrind).
+- The function inputReady(socket) has been added to the socket.s7i
+  library.
+- The library ftpserv.s7i has been improved to use the function
+  getFileMode(fileSys, path, SYMLINK).
+- In bas7.sd7 an error, found by parameter aliasing checks, has
+  been fixed.
+- The program err.sd7, which triggers most parsing errors, has been
+  updated.
+- In sql_lite.c an initialization of the SQLite connection has been
+  added. This way the connection can be safely checked if
+  sqlite3_open() fails.
+- The file stat_drv.h has been improved to redefine all S_IS...
+  macros if S_IFLNK is not defined.
+- In striutl.c the function stri_to_standard_path() has been
+  improved to avoid a use after free if realloc changes the pointer.
+- In soc_rtl.c the function socInetAddr() has been improved to check
+  if the host name is the name of the local host.
+- Logging functions have been added or improved in cmd_rtl.c,
+  kbd_inf.c, kbdlib.c, sql_lite.c, stat_win.c and striutl.c.
+- In cmd_win.c logging has been changed to log the return code of
+  security functions.
+- Documentation comments have been added or improved in filesys.s7i,
+  osfiles.s7i, cmdlib.c, cmd_rtl.c, cmd_unx.c and cmd_win.c.
+- Macro arguments have been enclosed with parentheses in big_rtl.c,
+  cmd_rtl.c, drw_emc.c, drw_win.c drw_x11.c, int_rtl.c, levelup.c,
+  numutl.c pcs_unx.c, pol_unx.c, str_rtl.c, strlib.c and tracutul.c.
+- In stat_win.c calls of os_stat_orig() have been replaced with
+  calls of FindFirstFileW().
+- The functions wstati64FollowSymlink(), wstatChangeTime(),
+  lstati64Ext() and wchmodExt() have been added to stat_win.c. The
+  function correctAdjustedUnixTime() has been removed from
+  stat_win.c (it was necessary to correct the times of
+  os_stat_orig() that is not used anymore).
+- The functions winRename(), wSymlink(), winSymlink(),
+  getSymlinkDestination(), winReadLink(), followSymlinkRecursive(),
+  winFollowSymlink(), setupWellKnownSids(), cmdGetGroupOfSymlink(),
+  cmdGetOwnerOfSymlink(), cmdSetGroupOfSymlink(),
+  cmdSetMTimeOfSymlink() and cmdSetOwnerOfSymlink() have been added
+  to cmd_win.c.
+- Non-ascii characters in con_wat.c have been replaced with
+  escape sequences.
+- The function wOpenDir() has been added to dir_win.c.
+- The function cp_from_os_path_buffer() has been added to stritul.c.
+- The actions CMD_LS, CMD_FILEMODE and CMD_SET_FILEMODE have been
+  renamed to CMD_READ_DIR, CMD_GET_FILE_MODE and CMD_SET_FILE_MODE
+  respectively.
+- The actions CMD_FINAL_PATH, CMD_GET_ATIME_OF_SYMLINK,
+  CMD_GET_FILE_MODE_OF_SYMLINK, CMD_GET_GROUP_OF_SYMLINK,
+  CMD_GET_MTIME_OF_SYMLINK, CMD_GET_OWNER_OF_SYMLINK,
+  CMD_SET_GROUP_OF_SYMLINK, CMD_SET_MTIME_OF_SYMLINK and
+  CMD_SET_OWNER_OF_SYMLINK have been added.
+
 20231104:
 - In tim_rtl.c the function timFromIntTimestamp() has been fixed to
   work with negative timestamps under Windows. Many thanks to Liam
@@ -1601,7 +1783,7 @@
 - The search for the X11 Xrender extension has been improved. In
   chkccomp.c the function determineX11Defines() has been improved.
   Declarations have been moved from x11_x.h to the new file
-  x11_rend.h. Adjustements have been made in drw_x11.c and fwd_x11.c. 
+  x11_rend.h. Adjustements have been made in drw_x11.c and fwd_x11.c.
 - Two code pages for APL symbol encoding have been added to
   charsets.s7i. The graphic representation of the character '\a'
   (bell) has been changed from '\16#25cf;' to '\16#2022;' in all
@@ -1685,7 +1867,7 @@
 - Several improvements in chkccomp.c have been done:
   - Now SYSTEM_MATH_LIBS and LINKER_OPT_DYN_LINK_LIBS are
     considered. This helps to avoid linking unused libraries.
-  - ADDITIONAL_SYSTEM_LIBS has been renamed to SYSTEM_BIGINT_LIBS. 
+  - ADDITIONAL_SYSTEM_LIBS has been renamed to SYSTEM_BIGINT_LIBS.
   - Now, it checks if fileno() succeeds after a successful
     call of popen() (this fixes a problem with Emscripten).
   - The function appendOption() has been improved.
@@ -3035,7 +3217,7 @@
   This driver allows the connection to a SQL Server database from
   Linux.
 - The new library db_prop.s7i has been added. This library provides a
-  collection of database properties. 
+  collection of database properties.
 - The example program chkdb.sd7 has been improved:
   - Tests with comments in sql statements have been added.
   - Tests that fetch boolean values from numeric fields have been
@@ -3756,7 +3938,7 @@
   - The function setupDll has been improved to open the dll
     libeay32.dll, when necessary.
   - In the function sqlBindStri() the binding of a field with the type
-    BYTEAOID (used for BLOB data) has been improved, to work correctly,  
+    BYTEAOID (used for BLOB data) has been improved, to work correctly,
     when the string contains a zero byte ('\0;').
   - The function sqlColumnBigRat() has been improved to process fields
     with the type FLOAT8OID as double instead of float.
@@ -3881,7 +4063,7 @@
 - Calls of logFunction have been added in ref_data.c and typ_data.c.
 - In sql_my.c the function sqlBindDuration() has been improved.
 - In sql_odbc.c the function getNumericAsCStri() has been added.
-- In sql_odbc.c the function getNumericFloat() has been improved to 
+- In sql_odbc.c the function getNumericFloat() has been improved to
   convert a SQL_NUMERIC_STRUCT to a double via the decimal
   representation.
 - In sql_post.c the functions getNumericAsCStri(), getNumericAsStri()
@@ -4597,7 +4779,7 @@
   expressions.
 - Several discrepancies between s7 and s7c have been fixed. Many
   thanks go to "tipd bmp" who sent a example programs to show the
-  discrepancies. Thanks also for finding a bug in the manual. 
+  discrepancies. Thanks also for finding a bug in the manual.
 - The following type conversion functions from integer have been
   introduced: bigInteger(), bigRational(), bitset(), boolean(),
   char(), float(), rational() and complex(). This fits to the
@@ -4842,7 +5024,7 @@
   the handling of the bigInteger multiplication with a negated power
   of two has been improved. Now a temporary result is freed.
 - The functions generateAddSubParamList and evaluateConstants have
-  been added to comp/big_act.s7i. 
+  been added to comp/big_act.s7i.
 - The function optimize_bin_binary_of_big_mod has been added to the
   compiler (in bin_act.s7i). This function optimizes the expression
   bin64(aBigNumber mod aPowerOfTwo) to

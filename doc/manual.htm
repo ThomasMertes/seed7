@@ -371,14 +371,18 @@ pre.indent {
 <li><a class="link" href="#os_mkdir"><b>mkdir</b></a></li>
 <li><a class="link" href="#os_homeDir"><b>homeDir</b></a></li>
 <li><a class="link" href="#os_fileType"><b>fileType</b></a></li>
-<li><a class="link" href="#os_fileMode"><b>fileMode</b></a></li>
-<li><a class="link" href="#os_setFileMode"><b>setFileMode</b></a></li>
 <li><a class="link" href="#os_fileSize"><b>fileSize</b></a></li>
+<li><a class="link" href="#os_getFileMode"><b>getFileMode</b></a></li>
+<li><a class="link" href="#os_setFileMode"><b>setFileMode</b></a></li>
 <li><a class="link" href="#os_getATime"><b>getATime</b></a></li>
+<li><a class="link" href="#os_setATime"><b>setATime</b></a></li>
 <li><a class="link" href="#os_getCTime"><b>getCTime</b></a></li>
 <li><a class="link" href="#os_getMTime"><b>getMTime</b></a></li>
-<li><a class="link" href="#os_setATime"><b>setATime</b></a></li>
 <li><a class="link" href="#os_setMTime"><b>setMTime</b></a></li>
+<li><a class="link" href="#os_getOwner"><b>getOwner</b></a></li>
+<li><a class="link" href="#os_setOwner"><b>setOwner</b></a></li>
+<li><a class="link" href="#os_getGroup"><b>getGroup</b></a></li>
+<li><a class="link" href="#os_setGroup"><b>setGroup</b></a></li>
 <li><a class="link" href="#os_readLink"><b>readLink</b></a></li>
 <li><a class="link" href="#os_symlink"><b>symlink</b></a></li>
 <li><a class="link" href="#os_removeFile"><b>removeFile</b></a></li>
@@ -396,7 +400,13 @@ pre.indent {
 <li><a class="link" href="#os_unsetenv"><b>unsetenv</b></a></li>
 <li><a class="link" href="#os_environment"><b>environment</b></a></li></ol></li>
 <li><a class="link" href="#database_file_start"><big><b>DATABASE ABSTRACTION API</b></big></a><ol>
-<li><a class="link" href="#database_Opening_a_database_connection"><b>Opening a database connection</b></a></li>
+<li><a class="link" href="#database_Opening_a_database_connection"><b>Opening a database connection</b></a><ol>
+<li><a class="link" href="#database_Opening_an_Oracle_database_connection"><b><i>Opening an Oracle database connection</i></b></a></li>
+<li><a class="link" href="#database_Opening_a_Db2_database_connection"><b><i>Opening a Db2 database connection</i></b></a></li>
+<li><a class="link" href="#database_Opening_a_SQL_Server_database_connection"><b><i>Opening a SQL Server database connection</i></b></a></li>
+<li><a class="link" href="#database_Opening_a_SQLite_database_connection"><b><i>Opening a SQLite database connection</i></b></a></li>
+<li><a class="link" href="#database_Opening_an_Informix_database_connection"><b><i>Opening an Informix database connection</i></b></a></li>
+<li><a class="link" href="#database_Opening_an_ODBC_database_connection"><b><i>Opening an ODBC database connection</i></b></a></li></ol></li>
 <li><a class="link" href="#database_Other_ways_to_open_a_database_connection"><b>Other ways to open a database connection</b></a></li>
 <li><a class="link" href="#database_Prepared_statements"><b>Prepared statements</b></a></li>
 <li><a class="link" href="#database_Bind_values_to_placeholders"><b>Bind values to placeholders</b></a></li>
@@ -6408,7 +6418,7 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">fileTypeSL</span>(aFileSys, path)  Get the type of a file (do not follow symbolic links)
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of result: <span class="type">fileType</span> )
-      <span class="func">fileMode</span>(aFileSys, path)  Get the file mode (permissions) of a file
+      <span class="func">getFileMode</span>(aFileSys, path)  Get the file mode (permissions) of a file
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of result: <span class="type">fileMode</span> )
       <span class="func">fileSize</span>(aFileSys, path)  Get the size of a file
@@ -11827,12 +11837,42 @@ my_dir := homeDir;
         ENOTDIR, ENAMETOOLONG or EACCES.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_fileMode"><h3>12.9 fileMode</h3></a>
+<a name="os_fileSize"><h3>12.9 fileSize</h3></a>
 <p>
-    The permissions of a file can determined with <tt><span class="func">fileMode</span></tt>:
+    The size of a file can be determined with <tt><span class="func">fileSize</span></tt> and <tt><span class="func">bigFileSize</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">fileMode</span>: fileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: bigFileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    For directories a size of 0 is returned. For other file types
+    the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
+    used to determine the size of a file. The functions <tt><span class="func">fileSize</span></tt>
+    and <tt><span class="func">bigFileSize</span></tt> succeed when at least one strategy to determine
+    the file size succeeds.
+</p></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd>The file size is not representable as <tt><a class="type" href="#types_integer">integer</a></tt>
+        (this exception is not raised by <tt><span class="func">bigFileSize</span></tt>).</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>It was not possible to determine the file size.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getFileMode"><h3>12.10 getFileMode</h3></a>
+<p>
+    The permissions of a file can determined with <tt><span class="func">getFileMode</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">fileMode</span>: getFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
+  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
+</p>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The <tt><span class="type">fileMode</span></tt> which is defined as <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span></tt>.
 </p></dd></dl></div>
@@ -11860,19 +11900,21 @@ my_dir := homeDir;
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,,
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setFileMode"><h3>12.10 setFileMode</h3></a>
+<a name="os_setFileMode"><h3>12.11 setFileMode</h3></a>
 <p>
-    The permissions of a file can changed with <tt><span class="func">setFileMode</span></tt>:
+    The permissions of a file can be changed with <tt><span class="func">setFileMode</span></tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <span class="type">fileMode</span>: newFileMode) <span class="keywd">is</span> ...
 </pre><p>
-  The type <tt><span class="type">fileMode</span></tt> is defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
+  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
+  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
 </p>
   <div><dl><dt><p>The literal values of <tt><span class="type">filePermission</span></tt> are:</p></dt><dd><dl>
     <dt>EXEC_OTHER</dt>
@@ -11901,34 +11943,8 @@ my_dir := homeDir;
         <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_fileSize"><h3>12.11 fileSize</h3></a>
-<p>
-    The size of a file can be determined with <tt><span class="func">fileSize</span></tt> and <tt><span class="func">bigFileSize</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: bigFileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Returns:</p></dt><dd><p>
-    For directories a size of 0 is returned. For other file types
-    the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
-    used to determine the size of a file. The functions <tt><span class="func">fileSize</span></tt>
-    and <tt><span class="func">bigFileSize</span></tt> succeed when at least one strategy to determine
-    the file size succeeds.
-</p></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd>The file size is not representable as <tt><a class="type" href="#types_integer">integer</a></tt>
-        (this exception is not raised by <tt><span class="func">bigFileSize</span></tt>).</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>It was not possible to determine the file size.</dd>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="os_getATime"><h3>12.12 getATime</h3></a>
@@ -11936,7 +11952,9 @@ my_dir := homeDir;
     The access time of a file is returned by the function <tt><span class="func">getATime</span></tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
+</pre><p>
+  The function follows symbolic links.
+</p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
@@ -11944,56 +11962,66 @@ my_dir := homeDir;
         <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_getCTime"><h3>12.13 getCTime</h3></a>
-<p>
-    The change time of a file is returned by the function <tt><span class="func">getCTime</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getCTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getMTime"><h3>12.14 getMTime</h3></a>
-<p>
-    The modification time of a file is returned by the function <tt><span class="func">getMTime</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setATime"><h3>12.15 setATime</h3></a>
+<a name="os_setATime"><h3>12.13 setATime</h3></a>
 <p>
     The function <tt><span class="func">setATime</span></tt> sets the access time of a file:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
-</pre>
+</pre><p>
+  The function follows symbolic links.
+</p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
         <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type or <tt>'aTime'</tt>
-        is invalid or cannot be converted to the system file time.</dd>
+        or it cannot be converted to the system path type, or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getCTime"><h3>12.14 getCTime</h3></a>
+<p>
+    The change time of a file is returned by the function <tt><span class="func">getCTime</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getCTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getMTime"><h3>12.15 getMTime</h3></a>
+<p>
+    The modification time of a file is returned by the function <tt><span class="func">getMTime</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="os_setMTime"><h3>12.16 setMTime</h3></a>
@@ -12001,19 +12029,100 @@ my_dir := homeDir;
     The function <tt><span class="func">setMTime</span></tt> sets the modification time of a file:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
-</pre>
+</pre><p>
+  The function follows symbolic links.
+</p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
         <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
         or it cannot be converted to the system path type or <tt>'aTime'</tt>
-        is invalid or cannot be converted to the system file time.</dd>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_readLink"><h3>12.17 readLink</h3></a>
+<a name="os_getOwner"><h3>12.17 getOwner</h3></a>
+<p>
+    The owner of a file is returned by the function <tt><span class="func">getOwner</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setOwner"><h3>12.18 setOwner</h3></a>
+<p>
+    The function <tt><span class="func">setOwner</span></tt> sets the owner of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: owner) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getGroup"><h3>12.19 getGroup</h3></a>
+<p>
+    The group of a file is returned by the function <tt><span class="func">getGroup</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setGroup"><h3>12.20 setGroup</h3></a>
+<p>
+    The function <tt><span class="func">setGroup</span></tt> sets the group of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: group) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_readLink"><h3>12.21 readLink</h3></a>
 <p>
     The function <tt><span class="func">readLink</span></tt> reads the destination of a symbolic link:
 </p><pre class="indent">
@@ -12033,7 +12142,7 @@ my_dir := homeDir;
         <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_symlink"><h3>12.18 symlink</h3></a>
+<a name="os_symlink"><h3>12.22 symlink</h3></a>
 <p>
     The function <tt><span class="func">symlink</span></tt> creates a symbolic link called <tt>'dest'</tt>
   that contains the string referred by <tt>'source'</tt>:
@@ -12052,13 +12161,13 @@ my_dir := homeDir;
         to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
         <dd><tt>'source'</tt> or <tt>'dest'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
-        representation</a> or one of them cannot be converted to the
+        representation</a>, or one of them cannot be converted to the
         system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeFile"><h3>12.19 removeFile</h3></a>
+<a name="os_removeFile"><h3>12.23 removeFile</h3></a>
 <p>
     The function <tt><span class="func">removeFile</span></tt> removes a file of any type unless it
   is a directory that is not empty. An attempt to remove a directory
@@ -12070,13 +12179,13 @@ my_dir := homeDir;
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,,
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeTree"><h3>12.20 removeTree</h3></a>
+<a name="os_removeTree"><h3>12.24 removeTree</h3></a>
 <p>
     The function <tt><span class="func">removeTree</span></tt> removes a file of any type inclusive
   a directory tree:
@@ -12093,7 +12202,7 @@ my_dir := homeDir;
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div>
 
-<a name="os_copyFile"><h3>12.21 copyFile</h3></a>
+<a name="os_copyFile"><h3>12.25 copyFile</h3></a>
 <p>
     The function <tt><span class="func">copyFile</span></tt> copies a file or directory tree:
 </p><pre class="indent">
@@ -12121,7 +12230,7 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_cloneFile"><h3>12.22 cloneFile</h3></a>
+<a name="os_cloneFile"><h3>12.26 cloneFile</h3></a>
 <p>
     The function <tt><span class="func">cloneFile</span></tt> clones a file or directory tree:
 </p><pre class="indent">
@@ -12145,7 +12254,7 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_moveFile"><h3>12.23 moveFile</h3></a>
+<a name="os_moveFile"><h3>12.27 moveFile</h3></a>
 <p>
     The function <tt><span class="func">moveFile</span></tt> moves and/or renames a file or
   directory tree:
@@ -12174,7 +12283,7 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_argv_PROGRAM"><h3>12.24 argv(PROGRAM)</h3></a>
+<a name="os_argv_PROGRAM"><h3>12.28 argv(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">argv(PROGRAM)</span></tt> returns the argument vector of
   the program as array of strings. The name of the program is
@@ -12186,7 +12295,7 @@ my_dir := homeDir;
     An array of strings containing the argument vector.
 </p></dd></dl></div><p></p>
 
-<a name="os_name_PROGRAM"><h3>12.25 name(PROGRAM)</h3></a>
+<a name="os_name_PROGRAM"><h3>12.29 name(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">name(PROGRAM)</span></tt> returns the name of the program
   without path and extension. The name returned by <tt><span class="func">name(PROGRAM)</span></tt>
@@ -12202,7 +12311,7 @@ my_dir := homeDir;
     The name of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_path_PROGRAM"><h3>12.26 path(PROGRAM)</h3></a>
+<a name="os_path_PROGRAM"><h3>12.30 path(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">path(PROGRAM)</span></tt> returns the absolute path
   of the program. For an interpreted program this is the
@@ -12216,7 +12325,7 @@ my_dir := homeDir;
     The absolute path of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_dir_PROGRAM"><h3>12.27 dir(PROGRAM)</h3></a>
+<a name="os_dir_PROGRAM"><h3>12.31 dir(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">dir(PROGRAM)</span></tt> returns the absolute path of the
   directory containing the program. The function <tt><span class="func">dir(PROGRAM)</span></tt>
@@ -12229,7 +12338,7 @@ my_dir := homeDir;
     The absolute path of the directory containing the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_file_PROGRAM"><h3>12.28 file(PROGRAM)</h3></a>
+<a name="os_file_PROGRAM"><h3>12.32 file(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">file(PROGRAM)</span></tt> returns the filename of the
   program without path. <tt><span class="func">file(PROGRAM)</span></tt> is based on <tt><a class="func" href="#os_path_PROGRAM">path(PROGRAM)</a></tt>.
@@ -12240,7 +12349,7 @@ my_dir := homeDir;
     The filename of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_getenv"><h3>12.29 getenv</h3></a>
+<a name="os_getenv"><h3>12.33 getenv</h3></a>
 <p>
     The function <tt><span class="func">getenv</span></tt> determines the value of an
   environment variable.
@@ -12265,7 +12374,7 @@ my_dir := homeDir;
         type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setenv"><h3>12.30 setenv</h3></a>
+<a name="os_setenv"><h3>12.34 setenv</h3></a>
 <p>
     The function <tt><span class="func">setenv</span></tt> adds or changes an environment
   variable.
@@ -12288,7 +12397,7 @@ my_dir := homeDir;
         system string type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_unsetenv"><h3>12.31 unsetenv</h3></a>
+<a name="os_unsetenv"><h3>12.35 unsetenv</h3></a>
 <p>
     The function <tt><span class="func">unsetenv</span></tt> removes an environment variable.
 </p><pre class="indent">
@@ -12309,7 +12418,7 @@ my_dir := homeDir;
         type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_environment"><h3>12.32 environment</h3></a>
+<a name="os_environment"><h3>12.36 environment</h3></a>
 <p>
     The function <tt><span class="func">environment</span></tt> returns the list of
   environment variable names as array of strings.
@@ -12446,11 +12555,11 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>
 
 <a name="database_Opening_a_SQL_Server_database_connection"><h4>13.1.3 Opening a SQL Server database connection</h4></a>
 <p>
-  When using the <tt><span class="var">DB_SQL_SERVER</span></tt> driver you can either supply a <tt>database name</tt>
-  from the local machine or a database that can be accessed via
-  TCP/IP. To access a database at the local machine the parameter
-  <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the parameter <tt>port</tt> must be 0.
-  If TCP/IP is used it must be enabled in the database.
+  When using the <tt><span class="var">DB_SQL_SERVER</span></tt> driver you can either supply a
+  <tt>database name</tt> from the local machine or a database that can be
+  accessed via TCP/IP. To access a database at the local machine
+  the parameter <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the parameter <tt>port</tt>
+  must be 0. If TCP/IP is used it must be enabled in the database.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER</span>, <span class="stri">""</span>, 0, <span class="stri">"localDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre>
@@ -12459,13 +12568,20 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER
 <p>
   A SQLite database can be opened with:
 </p><pre class="indent">
-currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"aDir/dbName.db"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"aDir/dbName"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
 
-currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"aDir/dbName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"aDir/dbName.db"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"/c/Users/JohnSmith/dbName"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
 </pre><p>
   The path to the database file (in the example above <tt><span class="stri">"aDir/dbName"</span></tt>)
-  can be specified with or without the extension <tt><span class="stri">".db"</span></tt>.
-  For a SQLite database <tt>host</tt> must be <tt><span class="stri">""</span></tt> and <tt>port</tt> must be 0.
+  must use the Seed7 <a class="link" href="#os_Standard_path_representation">standard path representation</a>. If the database
+  file is specified with a relative path it is searched relative
+  to the current working directory. The database file name can be
+  specified with or without the extension <tt><span class="stri">".db"</span></tt>. For a SQLite
+  database <tt>host</tt> must be <tt><span class="stri">""</span></tt> and <tt>port</tt> must be 0. Since SQLite
+  works without <tt>user</tt> and <tt>password</tt> the parameters <tt>user</tt> and
+  <tt>password</tt> are always ignored.
 </p>
 
 <a name="database_Opening_an_Informix_database_connection"><h4>13.1.5 Opening an Informix database connection</h4></a>
@@ -12581,9 +12697,17 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>
     <li>sqlitePath</li>
 </ul><p>
   The <tt>sqlitePath</tt> uses the Seed7 <a class="link" href="#os_Standard_path_representation">standard path representation</a>.
-  A SQLite database can be opened with:
+  If <tt>sqlitePath</tt> is a relative path the database file is
+  searched relative to the current working directory. The
+  database file name can be specified with or without the
+  extension <tt><span class="stri">".db"</span></tt>. The following statements each open a
+  SQLite database:
 </p><pre class="indent">
-currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">"aDir/dbName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">"aDir/dbName"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">"aDir/dbName.db"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">"/c/Users/JohnSmith/dbName"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
 </pre><p>
   It is also possible ot open a database with a connect string:
 </p><pre class="indent">

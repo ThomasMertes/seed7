@@ -160,32 +160,42 @@ CONTENTS
   12.6    mkdir
   12.7    homeDir
   12.8    fileType
-  12.9    fileMode
-  12.10   setFileMode
-  12.11   fileSize
+  12.9    fileSize
+  12.10   getFileMode
+  12.11   setFileMode
   12.12   getATime
-  12.13   getCTime
-  12.14   getMTime
-  12.15   setATime
+  12.13   setATime
+  12.14   getCTime
+  12.15   getMTime
   12.16   setMTime
-  12.17   readLink
-  12.18   symlink
-  12.19   removeFile
-  12.20   removeTree
-  12.21   copyFile
-  12.22   cloneFile
-  12.23   moveFile
-  12.24   argv(PROGRAM)
-  12.25   name(PROGRAM)
-  12.26   path(PROGRAM)
-  12.27   dir(PROGRAM)
-  12.28   file(PROGRAM)
-  12.29   getenv
-  12.30   setenv
-  12.31   unsetenv
-  12.32   environment
+  12.17   getOwner
+  12.18   setOwner
+  12.19   getGroup
+  12.20   setGroup
+  12.21   readLink
+  12.22   symlink
+  12.23   removeFile
+  12.24   removeTree
+  12.25   copyFile
+  12.26   cloneFile
+  12.27   moveFile
+  12.28   argv(PROGRAM)
+  12.29   name(PROGRAM)
+  12.30   path(PROGRAM)
+  12.31   dir(PROGRAM)
+  12.32   file(PROGRAM)
+  12.33   getenv
+  12.34   setenv
+  12.35   unsetenv
+  12.36   environment
   13.   DATABASE ABSTRACTION API
   13.1    Opening a database connection
+  13.1.1    Opening an Oracle database connection
+  13.1.2    Opening a Db2 database connection
+  13.1.3    Opening a SQL Server database connection
+  13.1.4    Opening a SQLite database connection
+  13.1.5    Opening an Informix database connection
+  13.1.6    Opening an ODBC database connection
   13.2    Other ways to open a database connection
   13.3    Prepared statements
   13.4    Bind values to placeholders
@@ -6197,7 +6207,7 @@ CONTENTS
       fileTypeSL(aFileSys, path)  Get the type of a file (do not follow symbolic links)
                   ( Type of argument path: string,
                     Type of result: fileType )
-      fileMode(aFileSys, path)  Get the file mode (permissions) of a file
+      getFileMode(aFileSys, path)  Get the file mode (permissions) of a file
                   ( Type of argument path: string,
                     Type of result: fileMode )
       fileSize(aFileSys, path)  Get the size of a file
@@ -11616,11 +11626,41 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         ENOTDIR, ENAMETOOLONG or EACCES.
 
 
-12.9 fileMode
+12.9 fileSize
 
-    The permissions of a file can determined with 'fileMode':
+    The size of a file can be determined with 'fileSize' and 'bigFileSize':
 
-    const func fileMode: fileMode (in string: filePath) is ...
+    const func integer: fileSize (in string: filePath) is ...
+    const func bigInteger: bigFileSize (in string: filePath) is ...
+
+  Returns:
+    For directories a size of 0 is returned. For other file types
+    the operating system functions 'stat()' and 'seek()' are
+    used to determine the size of a file. The functions 'fileSize'
+    and 'bigFileSize' succeed when at least one strategy to determine
+    the file size succeeds.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    RANGE_ERROR
+        The file size is not representable as 'integer'
+        (this exception is not raised by 'bigFileSize').
+    FILE_ERROR
+        It was not possible to determine the file size.
+
+
+12.10 getFileMode
+
+    The permissions of a file can determined with 'getFileMode':
+
+    const func fileMode: getFileMode (in string: filePath) is ...
+
+  The function follows symbolic links. The type 'fileMode' is
+  defined as 'set of filePermission'.
 
   Returns:
     The 'fileMode' which is defined as 'set of filePermission'.
@@ -11649,19 +11689,21 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' does not use the standard path representation
+        'filePath' does not use the standard path representation,,
         or it cannot be converted to the system path type.
     FILE_ERROR
-        A system function returns an error.
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
 
 
-12.10 setFileMode
+12.11 setFileMode
 
-    The permissions of a file can changed with 'setFileMode':
+    The permissions of a file can be changed with 'setFileMode':
 
     const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
 
-  The type 'fileMode' is defined as 'set of filePermission'.
+  The function follows symbolic links. The type 'fileMode' is
+  defined as 'set of filePermission'.
 
   The literal values of 'filePermission' are:
     EXEC_OTHER
@@ -11690,34 +11732,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         'filePath' does not use the standard path representation
         or it cannot be converted to the system path type.
     FILE_ERROR
-        A system function returns an error.
-
-
-12.11 fileSize
-
-    The size of a file can be determined with 'fileSize' and 'bigFileSize':
-
-    const func integer: fileSize (in string: filePath) is ...
-    const func bigInteger: bigFileSize (in string: filePath) is ...
-
-  Returns:
-    For directories a size of 0 is returned. For other file types
-    the operating system functions 'stat()' and 'seek()' are
-    used to determine the size of a file. The functions 'fileSize'
-    and 'bigFileSize' succeed when at least one strategy to determine
-    the file size succeeds.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    RANGE_ERROR
-        The file size is not representable as 'integer'
-        (this exception is not raised by 'bigFileSize').
-    FILE_ERROR
-        It was not possible to determine the file size.
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
 
 
 12.12 getATime
@@ -11726,21 +11742,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     const func time: getATime (in string: filePath) is ...
 
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        A system function returns an error.
-
-
-12.13 getCTime
-
-    The change time of a file is returned by the function 'getCTime':
-
-    const func time: getCTime (in string: filePath) is ...
+  The function follows symbolic links.
 
   Possible exceptions:
     MEMORY_ERROR
@@ -11749,40 +11751,66 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         'filePath' does not use the standard path representation
         or it cannot be converted to the system path type.
     FILE_ERROR
-        A system function returns an error.
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
 
 
-12.14 getMTime
-
-    The modification time of a file is returned by the function 'getMTime':
-
-    const func time: getMTime (in string: filePath) is ...
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        A system function returns an error.
-
-
-12.15 setATime
+12.13 setATime
 
     The function 'setATime' sets the access time of a file:
 
     const proc: setATime (in string: filePath, in time: aTime) is ...
 
+  The function follows symbolic links.
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
         'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type or 'aTime'
-        is invalid or cannot be converted to the system file time.
+        or it cannot be converted to the system path type, or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
     FILE_ERROR
-        A system function returns an error.
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.14 getCTime
+
+    The change time of a file is returned by the function 'getCTime':
+
+    const func time: getCTime (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.15 getMTime
+
+    The modification time of a file is returned by the function 'getMTime':
+
+    const func time: getMTime (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
 
 
 12.16 setMTime
@@ -11791,18 +11819,99 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     const proc: setMTime (in string: filePath, in time: aTime) is ...
 
+  The function follows symbolic links.
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
         'filePath' does not use the standard path representation
         or it cannot be converted to the system path type or 'aTime'
-        is invalid or cannot be converted to the system file time.
+        is invalid, or 'aTime' cannot be converted to the system file time.
     FILE_ERROR
-        A system function returns an error.
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
 
 
-12.17 readLink
+12.17 getOwner
+
+    The owner of a file is returned by the function 'getOwner':
+
+    const func string: getOwner (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.18 setOwner
+
+    The function 'setOwner' sets the owner of a file:
+
+    const proc: setOwner (in string: filePath, in string: owner) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.19 getGroup
+
+    The group of a file is returned by the function 'getGroup':
+
+    const func string: getGroup (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.20 setGroup
+
+    The function 'setGroup' sets the group of a file:
+
+    const proc: setGroup (in string: filePath, in string: group) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.21 readLink
 
     The function 'readLink' reads the destination of a symbolic link:
 
@@ -11822,7 +11931,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         The file described with 'filePath' does not exist or is not a symbolic link.
 
 
-12.18 symlink
+12.22 symlink
 
     The function 'symlink' creates a symbolic link called 'dest'
   that contains the string referred by 'source':
@@ -11841,13 +11950,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         to the system path type.
     RANGE_ERROR
         'source' or 'dest' does not use the standard path
-        representation or one of them cannot be converted to the
+        representation, or one of them cannot be converted to the
         system path type.
     FILE_ERROR
         A system function returns an error.
 
 
-12.19 removeFile
+12.23 removeFile
 
     The function 'removeFile' removes a file of any type unless it
   is a directory that is not empty. An attempt to remove a directory
@@ -11859,13 +11968,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' does not use the standard path representation
+        'filePath' does not use the standard path representation,,
         or it cannot be converted to the system path type.
     FILE_ERROR
         The file does not exist or a system function returns an error.
 
 
-12.20 removeTree
+12.24 removeTree
 
     The function 'removeTree' removes a file of any type inclusive
   a directory tree:
@@ -11882,7 +11991,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         The file does not exist or a system function returns an error.
 
 
-12.21 copyFile
+12.25 copyFile
 
     The function 'copyFile' copies a file or directory tree:
 
@@ -11910,7 +12019,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.22 cloneFile
+12.26 cloneFile
 
     The function 'cloneFile' clones a file or directory tree:
 
@@ -11934,7 +12043,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.23 moveFile
+12.27 moveFile
 
     The function 'moveFile' moves and/or renames a file or
   directory tree:
@@ -11963,7 +12072,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.24 argv(PROGRAM)
+12.28 argv(PROGRAM)
 
     The function 'argv(PROGRAM)' returns the argument vector of
   the program as array of strings. The name of the program is
@@ -11975,7 +12084,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     An array of strings containing the argument vector.
 
 
-12.25 name(PROGRAM)
+12.29 name(PROGRAM)
 
     The function 'name(PROGRAM)' returns the name of the program
   without path and extension. The name returned by 'name(PROGRAM)'
@@ -11991,7 +12100,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The name of the program.
 
 
-12.26 path(PROGRAM)
+12.30 path(PROGRAM)
 
     The function 'path(PROGRAM)' returns the absolute path
   of the program. For an interpreted program this is the
@@ -12005,7 +12114,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The absolute path of the program.
 
 
-12.27 dir(PROGRAM)
+12.31 dir(PROGRAM)
 
     The function 'dir(PROGRAM)' returns the absolute path of the
   directory containing the program. The function 'dir(PROGRAM)'
@@ -12018,7 +12127,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The absolute path of the directory containing the program.
 
 
-12.28 file(PROGRAM)
+12.32 file(PROGRAM)
 
     The function 'file(PROGRAM)' returns the filename of the
   program without path. 'file(PROGRAM)' is based on 'path(PROGRAM)'.
@@ -12029,7 +12138,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The filename of the program.
 
 
-12.29 getenv
+12.33 getenv
 
     The function 'getenv' determines the value of an
   environment variable.
@@ -12054,7 +12163,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         type or a system function returns an error.
 
 
-12.30 setenv
+12.34 setenv
 
     The function 'setenv' adds or changes an environment
   variable.
@@ -12077,7 +12186,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         system string type or a system function returns an error.
 
 
-12.31 unsetenv
+12.35 unsetenv
 
     The function 'unsetenv' removes an environment variable.
 
@@ -12098,7 +12207,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         type or a system function returns an error.
 
 
-12.32 environment
+12.36 environment
 
     The function 'environment' returns the list of
   environment variable names as array of strings.
@@ -12235,11 +12344,11 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
 13.1.3 Opening a SQL Server database connection
 
-  When using the 'DB_SQL_SERVER' driver you can either supply a database name
-  from the local machine or a database that can be accessed via
-  TCP/IP. To access a database at the local machine the parameter
-  'host' must be "" and the parameter 'port' must be 0.
-  If TCP/IP is used it must be enabled in the database.
+  When using the 'DB_SQL_SERVER' driver you can either supply a
+  database name from the local machine or a database that can be
+  accessed via TCP/IP. To access a database at the local machine
+  the parameter 'host' must be "" and the parameter 'port'
+  must be 0. If TCP/IP is used it must be enabled in the database.
 
     currDb := openDatabase(DB_SQL_SERVER, "", 0, "localDb", "testUser", "testPassword");
 
@@ -12248,13 +12357,20 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   A SQLite database can be opened with:
 
-    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName.db", "testUser", "testPassword");
+    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName", "", "");
 
-    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName", "testUser", "testPassword");
+    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName.db", "", "");
+
+    currDb := openDatabase(DB_SQLITE, "", 0, "/c/Users/JohnSmith/dbName", "", "");
 
   The path to the database file (in the example above "aDir/dbName")
-  can be specified with or without the extension ".db".
-  For a SQLite database 'host' must be "" and 'port' must be 0.
+  must use the Seed7 standard path representation. If the database
+  file is specified with a relative path it is searched relative
+  to the current working directory. The database file name can be
+  specified with or without the extension ".db". For a SQLite
+  database 'host' must be "" and 'port' must be 0. Since SQLite
+  works without 'user' and 'password' the parameters 'user' and
+  'password' are always ignored.
 
 
 13.1.5 Opening an Informix database connection
@@ -12370,9 +12486,17 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     - sqlitePath
 
   The 'sqlitePath' uses the Seed7 standard path representation.
-  A SQLite database can be opened with:
+  If 'sqlitePath' is a relative path the database file is
+  searched relative to the current working directory. The
+  database file name can be specified with or without the
+  extension ".db". The following statements each open a
+  SQLite database:
 
-    currDb := openDatabase(DB_SQLITE, "aDir/dbName", "testUser", "testPassword");
+    currDb := openDatabase(DB_SQLITE, "aDir/dbName", "", "");
+
+    currDb := openDatabase(DB_SQLITE, "aDir/dbName.db", "", "");
+
+    currDb := openDatabase(DB_SQLITE, "/c/Users/JohnSmith/dbName", "", "");
 
   It is also possible ot open a database with a connect string:
 

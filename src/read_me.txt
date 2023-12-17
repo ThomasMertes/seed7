@@ -824,6 +824,15 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
       return float values. Gcc has the opinion that only double
       parameters and double results should be used and warns about
       that.
+    - Warnings about conversion from double to float for isnan.
+
+        fltlib.c:1144:27: warning: conversion from 'floatType' {aka 'double'} to 'float' may change value [-Wfloat-conversion]
+         1144 |     if (unlikely(os_isnan(number) ||
+
+      The conversion from double to float keeps NaN values and
+      it does not convert a normal number into a NaN value. This
+      way it is always safe to check for NaN after a double has
+      been converted to float.
     - Warnings about unused parameter 'arguments'.
 
         actlib.c
@@ -875,7 +884,7 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
       The buffer size must be provided as additional parameter.
       For code that does not consider buffer sizes there is a
       high probability that the size parameter is also wrong. For
-      that reason these "safe" functions are unsupported by many
+      this reason these "safe" functions are not supported by many
       C libraries. So in portable C code they cannot be used.
     - Warnings about "deprecated" POSIX functions.
 
@@ -890,6 +899,22 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
       in the source files of Seed7. Depending on the operating
       system 'os_fileno' is defined as 'fileno' or '_fileno'.
       This avoids these strange warnings and a vendor lock-in.
+    - Warnings about array subscript partly outside array bounds.
+
+        s7.c:226:33: warning: array subscript 'struct rtlArrayStruct[0]' is partly outside array bounds of 'unsigned char[16]' [-Warray-bounds=]
+
+      The structs of arrays and strings are defined with one
+      element. When an array or string is created the actual
+      number of elements is allocated with malloc(). For empty
+      arrays and empty strings the allocated size is smaller
+      than the corresponding struct (that contains one element).
+      This is not a problem, because the non-existing element
+      in of an empty array or string will never be accessed.
+    - Warnings about unknown conversion type characters 'I' in
+      format strings. The MinGW gcc checks format strings and
+      warns about the type character 'I' format strings. These
+      warnings can be ignored, because the actual C run-time
+      library (msvcrt) accepts format strings with 'I'.
     - Warnings about passing argument with different width due to
       prototype: Some compilers write such warnings for formal
       boolean (boolType) parameters and actual boolean arguments.

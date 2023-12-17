@@ -573,7 +573,7 @@ bin/as.exe: cannot execute binary file
   /usr/i686-pc-cygwin/bin/as.exe is a small file with less than
   100 bytes and starts with
 </p><pre class="indent">
-!<symlink>
+!&lt;symlink&gt;
 </pre><p>
   it is some Cygwin symlink. To fix this error just copy the
   symlink destination over the file as.exe (after making a
@@ -1030,12 +1030,21 @@ error: identifier "_LIB_VERSION_TYPE" is undefined
   not part of -Wall. The warnings can be classified to the
   following cases:
 </p><ul>
-<li>Warnings about float used instead of double because of the
-      prototype: There are functions which use float parameters or
+<li><a name="build_warnings_about_float_used_instead_of_double">Warnings about float used instead of double because of the
+      prototype:</a> There are functions which use float parameters or
       return float values. Gcc has the opinion that only double
       parameters and double results should be used and warns about
       that.</li>
-<li>Warnings about unused parameter 'arguments'.
+<li><a name="build_warnings_about_conversion_from_double_to_float_for_isnan">Warnings about conversion from double to float for isnan.</a>
+<pre class="indent">
+fltlib.c:1144:27: warning: conversion from 'floatType' {aka 'double'} to 'float' may change value [-Wfloat-conversion]
+ 1144 |     if (unlikely(os_isnan(number) ||
+</pre>
+      The conversion from double to float keeps NaN values and
+      it does not convert a normal number into a NaN value. This
+      way it is always safe to check for NaN after a double has
+      been converted to float.</li>
+<li><a name="build_warnings_about_unused_parameter">Warnings about unused parameter 'arguments'.</a>
 <pre class="indent">
 actlib.c
 actlib.c(204): warning C4100: 'arguments': unreferenced formal parameter
@@ -1046,7 +1055,7 @@ actlib.c(204): warning C4100: 'arguments': unreferenced formal parameter
       'arguments' which causes this warning.</li>
 <li>Warnings about signed/unsigned instead of unsigned/signed
       because of the prototype.</li>
-<li>Warnings about 'variablename' may be used uninitialized.
+<li><a name="build_warnings_about_uninitialized_variables">Warnings about 'variablename' may be used uninitialized.</a>
 <pre class="indent">
 dcllib.c
 dcllib.c(512) : warning C4701: potentially uninitialized local variable 'created_object' used
@@ -1065,7 +1074,7 @@ dcllib.c(512) : warning C4701: potentially uninitialized local variable 'created
       in performance critical paths of the program. At places that
       are not performance critical I do some of this "unnecessary"
       initializations just to avoid such warnings.</li>
-<li>Warnings about unary minus operator applied to unsigned.
+<li><a name="build_warnings_about_unary_minus_operator_applied_to_unsigned">Warnings about unary minus operator applied to unsigned.</a>
 <pre class="indent">
 int_rtl.c
 int_rtl.c(662): warning C4146: unary minus operator applied to unsigned type, result still unsigned
@@ -1077,7 +1086,7 @@ int_rtl.c(662): warning C4146: unary minus operator applied to unsigned type, re
       behavior. For unsigned integers there is no undefined
       behavior. So an unsigned is negated to have well defined
       behavior.</li>
-<li>Warnings about unsafe functions that should be replaced.
+<li><a name="build_warnings_about_unsafe_functions">Warnings about unsafe functions that should be replaced.</a>
 <pre class="indent">
 scanner.c
 scanner.c(203): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
@@ -1086,9 +1095,9 @@ scanner.c(203): warning C4996: 'strcpy': This function or variable may be unsafe
       The buffer size must be provided as additional parameter.
       For code that does not consider buffer sizes there is a
       high probability that the size parameter is also wrong. For
-      that reason these "safe" functions are unsupported by many
+      this reason these "safe" functions are not supported by many
       C libraries. So in portable C code they cannot be used.</li>
-<li>Warnings about "deprecated" POSIX functions.
+<li><a name="build_warnings_about_deprecated_POSIX_functions">Warnings about "deprecated" POSIX functions.</a>
 <pre class="indent">
 traceutl.c
 traceutl.c(526): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _fileno.
@@ -1101,8 +1110,24 @@ traceutl.c(526): warning C4996: 'fileno': The POSIX name for this item is deprec
       in the source files of Seed7. Depending on the operating
       system <tt><span class="func">os_fileno</span></tt> is defined as <tt><span class="func">fileno</span></tt> or <tt><span class="func">_fileno</span></tt>.
       This avoids these strange warnings and a vendor lock-in.</li>
-<li>Warnings about passing argument with different width due to
-      prototype: Some compilers write such warnings for formal
+<li><a name="build_warnings_about_array_subscript_outside_array_bounds">Warnings about array subscript partly outside array bounds.</a>
+<pre class="indent">
+s7.c:226:33: warning: array subscript 'struct rtlArrayStruct[0]' is partly outside array bounds of 'unsigned char[16]' [-Warray-bounds=]
+</pre>
+      The structs of arrays and strings are defined with one
+      element. When an array or string is created the actual
+      number of elements is allocated with malloc(). For empty
+      arrays and empty strings the allocated size is smaller
+      than the corresponding struct (that contains one element).
+      This is not a problem, because the non-existing element
+      in of an empty array or string will never be accessed.</li>
+<li><a name="build_warnings_about_unknown_conversion_type_I">Warnings about unknown conversion type characters 'I' in
+      format strings.</a> The MinGW gcc checks format strings and
+      warns about the type character 'I' format strings. These
+      warnings can be ignored, because the actual C run-time
+      library (msvcrt) accepts format strings with 'I'.</li>
+<li><a name="build_warnings_about_passing_argument_with_different_width">Warnings about passing argument with different width due to
+      prototype:</a> Some compilers write such warnings for formal
       boolean (boolType) parameters and actual boolean arguments.
       Since the types of parameter and argument are identical and
       a prototype is specified this warning can be considered as
@@ -1877,7 +1902,7 @@ INT_REM_OVERFLOW as 0.</td></tr>
   files, linker, run-time library and operating systems. The result
   is written to version.h
 </p><table border="1" cellspacing="0" cellpadding="5">
-<tr><td valign="top">UNISTD_H_PRESENT: </td><td>TRUE if the include file <unistd.h> is present.</td></tr>
+<tr><td valign="top">UNISTD_H_PRESENT: </td><td>TRUE if the include file &lt;unistd.h&gt; is present.</td></tr>
 
 <tr><td valign="top">HAS_SIGNAL: </td><td>TRUE if the function signal() is present.</td></tr>
 
@@ -1933,11 +1958,11 @@ is present.</td></tr>
 
 <tr><td valign="top">DIRENT_DIRECTORY: </td><td>Defined as 1. The meaning is: The prototypes
 of opendir(), readdir() and closedir() are in
-the header file <dirent.h>.</td></tr>
+the header file &lt;dirent.h&gt;.</td></tr>
 
 <tr><td valign="top">DIRECT_DIRECTORY: </td><td>Defined as 2. The meaning is: The prototypes
 of opendir(), readdir() and closedir() are in
-the header file <direct.h>.</td></tr>
+the header file &lt;direct.h&gt;.</td></tr>
 
 <tr><td valign="top">DIRDOS_DIRECTORY: </td><td>Defined as 3. The meaning is: The opendir(),
 readdir() and closedir() functions from
@@ -2208,7 +2233,7 @@ return 0).</td></tr>
 the path of the home directory.</td></tr>
 
 <tr><td valign="top">INCLUDE_SYS_UTIME: </td><td>Defined if utime() respectively _wutime()
-is defined in <sys/utime.h>.</td></tr>
+is defined in &lt;sys/utime.h&gt;.</td></tr>
 
 <tr><td valign="top">USE_ALTERNATE_UTIME: </td><td>Defined if utime() is not able to change
 the access and modification times of a
@@ -2517,7 +2542,7 @@ with a low precision limit
 as string.</td></tr>
 
 <tr><td valign="top">ISNAN_WITH_UNDERLINE: </td><td>Defined if the macro/function _isnan() is
-defined in <float.h> respectively <math.h>
+defined in &lt;float.h&gt; respectively &lt;math.h&gt;
 instead of isnan().</td></tr>
 
 <tr><td valign="top">USE_ALTERNATE_LOCALTIME_R: </td><td>Defined if the function
@@ -2533,7 +2558,7 @@ localtime_s() should be used instead of
 localtime().</td></tr>
 
 <tr><td valign="top">DEFINE_OS_ENVIRON: </td><td>Defined if environ respectively _wenviron
-is not defined in <stdlib.h> or <unistd.h>.
+is not defined in &lt;stdlib.h&gt; or &lt;unistd.h&gt;.
 In this case environ respectively _wenviron
 must be defined.</td></tr>
 
