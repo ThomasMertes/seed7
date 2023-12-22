@@ -1416,8 +1416,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -1501,8 +1501,8 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -1566,8 +1566,8 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -1634,8 +1634,8 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BYTEAOID:
         case BPCHAROID:
@@ -1706,8 +1706,8 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -1767,8 +1767,8 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -1813,8 +1813,8 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
@@ -1899,8 +1899,8 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       preparedStmt->paramValues[pos - 1] = NULL;
       preparedStmt->executeSuccessful = FALSE;
       preparedStmt->fetchOkay = FALSE;
@@ -1932,8 +1932,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BPCHAROID:
         case VARCHAROID:
@@ -2032,8 +2032,8 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      /* printf("paramType: %s\n",
-         nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      logMessage(printf("paramType: %s\n",
+                        nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case DATEOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;

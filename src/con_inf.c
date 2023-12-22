@@ -451,7 +451,7 @@ int conWidth (void)
 void conFlush (void)
 
   { /* conFlush */
-    /* fprintf(stderr, "conFlush\n"); */
+    logFunction(fprintf(stderr, "conFlush\n"););
     if (console_initialized) {
       if (con->size_changed) {
         resize_console();
@@ -479,7 +479,7 @@ void conFlush (void)
 void conCursor (boolType on)
 
   { /* conCursor */
-    /* fprintf(stderr, "scrCursor(%d)\n", on); */
+    logFunction(fprintf(stderr, "scrCursor(%d)\n", on););
     cursor_on = on;
     if (on) {
       putctl(cursor_normal); /* cursor normal */
@@ -499,7 +499,7 @@ void conCursor (boolType on)
 void conSetCursor (intType line, intType column)
 
   { /* conSetCursor */
-    /* fprintf(stderr, "scrSetCursor(%d, %d)\n", line, column); */
+    logFunction(fprintf(stderr, "scrSetCursor(%d, %d)\n", line, column););
     if (line <= 0 || column <= 0) {
       raise_error(RANGE_ERROR);
     } else if (line <= INT_MAX && column <= INT_MAX) {
@@ -693,8 +693,8 @@ static void doClear (int startlin, int startcol,
     unsigned char *new_attr;
 
   /* doClear */
-    /* fprintf(stderr, "doClear(%ld, %ld, %ld, %ld)\n",
-       startlin, startcol, stoplin, stopcol); */
+    logFunction(fprintf(stderr, "doClear(%ld, %ld, %ld, %ld)\n",
+                        startlin, startcol, stoplin, stopcol););
     if (startlin == 1 && stoplin == con->height &&
         startcol == 1 && stopcol == con->width && clear_screen != NULL) {
       putctl(clear_screen); /* clear screen */
@@ -763,8 +763,8 @@ void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol)
 
   { /* conClear */
-    /* fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
-       startlin, startcol, stoplin, stopcol); */
+    logFunction(fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
+                        startlin, startcol, stoplin, stopcol););
     if (con->size_changed) {
       resize_console();
     } /* if */

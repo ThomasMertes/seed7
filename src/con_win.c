@@ -750,7 +750,8 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
     DWORD numchars;
 
   /* doWriteConsole */
-    /* fprintf(stderr, "doWriteConsole(%lx, ...)", (unsigned long) hConsole); */
+    logFunction(fprintf(stderr, "doWriteConsole(%lx, ...)",
+                        (unsigned long) hConsole););
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
       wstri_size = stri_to_utf16(wstri_buffer, stri->mem, stri->size, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {

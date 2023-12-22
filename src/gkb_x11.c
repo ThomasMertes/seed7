@@ -1090,13 +1090,14 @@ static boolType mouseButtonPressed (unsigned int button_mask)
     boolType result;
 
   /* mouseButtonPressed */
-    /* printf("mouseButtonPressed(%x)\n", button_mask); */
+    logFunction(printf("mouseButtonPressed(%x)\n", button_mask););
     XQueryPointer(mydisplay, DefaultRootWindow(mydisplay), &root, &child,
                   &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     result = (keys_buttons & button_mask) != 0;
-    /* printf("mouseButtonPressed(%d) --> %d\n", button_mask, result); */
+    logFunction(printf("mouseButtonPressed(%d) --> %d\n",
+                       button_mask, result););
     return result;
   } /* mouseButtonPressed */
 
