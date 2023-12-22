@@ -547,40 +547,6 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
 
 
-#ifdef OUT_OF_ORDER
-objectType hsh_contains_element (hashType aHashMap, objectType aKey,
-    intType hashcode, objectType cmp_func)
-
-  {
-    hashElemType hashelem;
-    objectType cmp_obj;
-    intType cmp;
-    objectType result;
-
-  /* hsh_contains_element */
-    result = SYS_FALSE_OBJECT;
-    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
-    while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
-      isit_not_null(cmp_obj);
-      isit_int(cmp_obj);
-      cmp = take_int(cmp_obj);
-      FREE_OBJECT(cmp_obj);
-      if (cmp < 0) {
-        hashelem = hashelem->next_less;
-      } else if (cmp == 0) {
-        result = SYS_TRUE_OBJECT;
-        hashelem = NULL;
-      } else {
-        hashelem = hashelem->next_greater;
-      } /* if */
-    } /* while */
-    return result;
-  } /* hsh_contains_element */
-#endif
-
-
-
 /**
  *  Hash membership test.
  *  Determine if 'aKey/arg_2' is a member of the hash map 'aHashMap/arg_1'.
@@ -627,43 +593,6 @@ objectType hsh_contains (listType arguments)
     } /* while */
     return result;
   } /* hsh_contains */
-
-
-
-#ifdef OUT_OF_ORDER
-objectType hsh_conv (listType arguments)
-
-  {
-    objectType hsh_arg;
-    hashType arr1;
-    memSizeType result_size;
-    hashType result_hash;
-    objectType result;
-
-  /* hsh_conv */
-    hsh_arg = arg_3(arguments);
-    isit_hash(hsh_arg);
-    if (TEMP_OBJECT(hsh_arg)) {
-      result = hsh_arg;
-      result->type_of = NULL;
-      arg_3(arguments) = NULL;
-    } else {
-      arr1 = take_hash(hsh_arg);
-      result_size = arr1->max_position - arr1->min_position + 1;
-      if (unlikely(!ALLOC_HASH(result_hash, result_size))) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } /* if */
-      result_hash->min_position = arr1->min_position;
-      result_hash->max_position = arr1->max_position;
-      if (!crea_hash(result_hash->arr, arr1->arr, result_size)) {
-        FREE_HASH(result_hash, result_size);
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } /* if */
-      result = bld_hash_temp(result_hash);
-    } /* if */
-    return result;
-  } /* hsh_conv */
-#endif
 
 
 
@@ -1155,89 +1084,6 @@ objectType hsh_idx2 (listType arguments)
                 printf("\n"););
     return result;
   } /* hsh_idx2 */
-
-
-
-#ifdef OUT_OF_ORDER
-objectType hsh_idx2 (listType arguments)
-
-  {
-    hashType aHashMap;
-    intType hashcode;
-    objectType aKey;
-    objectType data;
-    objectType cmp_func;
-    objectType key_create_func;
-    objectType data_create_func;
-    hashElemType hashelem;
-    hashElemType result_hashelem;
-    objectType cmp_obj;
-    intType cmp;
-    errInfoType err_info = OKAY_NO_ERROR;
-    objectType result;
-
-  /* hsh_idx2 */
-    isit_hash(arg_1(arguments));
-    isit_int(arg_4(arguments));
-    isit_reference(arg_5(arguments));
-    aHashMap         =      take_hash(arg_1(arguments));
-    aKey             =                arg_2(arguments);
-    data             =                arg_3(arguments);
-    hashcode         =       take_int(arg_4(arguments));
-    cmp_func         = take_reference(arg_5(arguments));
-    key_create_func  = take_reference(arg_6(arguments));
-    data_create_func = take_reference(arg_7(arguments));
-    isit_not_null(cmp_func);
-    isit_not_null(key_create_func);
-    isit_not_null(data_create_func);
-    result_hashelem = NULL;
-    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
-    while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
-      isit_not_null(cmp_obj);
-      isit_int(cmp_obj);
-      cmp = take_int(cmp_obj);
-      FREE_OBJECT(cmp_obj);
-      if (cmp < 0) {
-        if (hashelem->next_less == NULL) {
-          result_hashelem = new_helem(aKey, data,
-              key_create_func, data_create_func, &err_info);
-          aHashMap->size++;
-          hashelem->next_less = result_hashelem;
-          hashelem = NULL;
-        } else {
-          hashelem = hashelem->next_less;
-        } /* if */
-      } else if (cmp == 0) {
-        result_hashelem = hashelem;
-        hashelem = NULL;
-      } else {
-        if (hashelem->next_greater == NULL) {
-          result_hashelem = new_helem(aKey, data,
-              key_create_func, data_create_func, &err_info);
-          aHashMap->size++;
-          hashelem->next_greater = result_hashelem;
-          hashelem = NULL;
-        } else {
-          hashelem = hashelem->next_greater;
-        } /* if */
-      } /* if */
-    } /* while */
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      aHashMap->size--;
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-    } else {
-      result = &result_hashelem->data;
-      if (unlikely(TEMP_OBJECT(arg_1(arguments)))) {
-        /* The hash will be destroyed after indexing. */
-        /* Therefore it is necessary here to remove it */
-        /* from the hashtable to avoid a crash !!!!! */
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } /* if */
-    } /* if */
-    return result;
-  } /* hsh_idx2 */
-#endif
 
 
 
