@@ -1617,8 +1617,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBINT1:
 #if SYBINT1_IS_SIGNED
@@ -1691,8 +1691,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBINT1:
 #if SYBINT1_IS_SIGNED
@@ -1770,8 +1770,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBINT1:
 #if SYBINT1_IS_SIGNED
@@ -1852,8 +1852,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-      /* printf("buffer_type: %s\n",
-         nameOfBufferType(columnData->buffer_type)); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(columnData->buffer_type)););
       switch (columnData->buffer_type) {
         case SYBBINARY:
         case SYBVARBINARY:
@@ -1932,8 +1932,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           default:
             logError(printf("sqlColumnDuration: Column " FMT_D " has the unknown type %s.\n",
@@ -1991,8 +1991,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBINT1:
 #if SYBINT1_IS_SIGNED
@@ -2072,8 +2072,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBINT1:
 #if SYBINT1_IS_SIGNED
@@ -2156,8 +2156,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBCHAR:
             while (length > 0 && data[length - 1] == ' ') {
@@ -2251,8 +2251,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SYBMSDATE:
           case SYBMSTIME:

@@ -3410,8 +3410,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_NUM:
             columnValue = getBigInt(columnData->buffer, columnData->length);
@@ -3461,8 +3461,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                         column, columnData->indicator););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_NUM:
             *numerator = getBigRational(columnData->buffer,
@@ -3515,8 +3515,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_CHR: /* VARCHAR2 */
           case SQLT_VCS: /* VARCHAR */
@@ -3590,8 +3590,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_BIN: /* RAW */
           case SQLT_VBI: /* VARRAW */
@@ -3673,8 +3673,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                         column, columnData->indicator););
         err_info = DATABASE_ERROR;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_INTERVAL_YM:
             /* printf("SQLT_INTERVAL_YM\n"); */
@@ -3772,8 +3772,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0.0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_BFLOAT:
             columnValue = *(float *) columnData->buffer;
@@ -3830,8 +3830,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_NUM:
             columnValue = getInt(columnData->buffer, columnData->length);
@@ -3886,8 +3886,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_CHR: /* VARCHAR2 */
           case SQLT_VCS: /* VARCHAR */
@@ -4057,8 +4057,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                         column, columnData->indicator););
         err_info = DATABASE_ERROR;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case SQLT_DAT: /* DATE */
             sqltDat = (unsigned char *) columnData->buffer;

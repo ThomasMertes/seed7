@@ -2207,7 +2207,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           columnValue = NULL;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INT2OID:
               columnValue = bigFromInt32((int16Type) ntohs(*(const uint16Type *) buffer));
@@ -2282,7 +2282,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
           raise_error(DATABASE_ERROR);
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INT2OID:
               *numerator = bigFromInt32((int16Type) ntohs(*(const uint16Type *) buffer));
@@ -2371,7 +2371,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           columnValue = 0;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INT2OID:
               columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
@@ -2477,7 +2477,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           columnValue = NULL;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case BYTEAOID:
               length = PQgetlength(preparedStmt->execute_result,
@@ -2612,7 +2612,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
           raise_error(DATABASE_ERROR);
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INTERVALOID:
               /* The interval is either an int64Type representing       */
@@ -2729,7 +2729,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           columnValue = 0.0;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INT2OID:
               columnValue = (floatType) (int16Type) ntohs(*(const uint16Type *) buffer);
@@ -2813,7 +2813,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
           columnValue = 0;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case INT2OID:
               columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
@@ -2896,7 +2896,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           columnValue = NULL;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case NAMEOID:
             case CHAROID:
@@ -3032,7 +3032,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           raise_error(DATABASE_ERROR);
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
-          /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
+          logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
             case DATEOID:
               timestamp = (timeStampType) (int32Type) ntohl(*(const uint32Type *) buffer);

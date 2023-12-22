@@ -1510,8 +1510,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = bigZero();
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
             columnValue = bigFromInt32((int32Type)
@@ -1579,8 +1579,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         *numerator = bigZero();
         *denominator = bigFromInt32(1);
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
             *numerator = bigFromInt32((int32Type)
@@ -1674,8 +1674,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: FALSE\n"); */
         columnValue = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
             columnValue = *(int8Type *) columnData->buffer;
@@ -1753,8 +1753,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           columnValue->size = 0;
         } /* if */
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY_BLOB:
           case MYSQL_TYPE_BLOB:
@@ -1857,8 +1857,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         *second       = 0;
         *micro_second = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TIME:
           case MYSQL_TYPE_DATE:
@@ -1944,8 +1944,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0.0\n"); */
         columnValue = 0.0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
             columnValue = (floatType) *(int8Type *) columnData->buffer;
@@ -2027,8 +2027,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
             columnValue = *(int8Type *) columnData->buffer;
@@ -2093,8 +2093,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: \"\"\n"); */
         columnValue = strEmpty();
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_VAR_STRING:
           case MYSQL_TYPE_STRING:
@@ -2230,8 +2230,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         *time_zone    = 0;
         *is_dst       = 0;
       } else {
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(columnData->buffer_type)); */
+        logMessage(printf("buffer_type: %s\n",
+                          nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TIME:
           case MYSQL_TYPE_DATE:

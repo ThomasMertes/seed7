@@ -1216,8 +1216,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           columnValue = bigZero();
@@ -1277,8 +1278,9 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           *numerator = bigZero();
@@ -1342,8 +1344,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = 0;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           columnValue = 0;
@@ -1410,8 +1413,9 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
@@ -1528,8 +1532,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       *minute       = 0;
       *second       = 0;
       *micro_second = 0;
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       isoDuration = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
       /* printf("isoDuration: %lx\n", (unsigned long int) isoDuration); */
       if (isoDuration != NULL) {
@@ -1648,8 +1653,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = 0.0;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           columnValue = 0.0;
@@ -1709,8 +1715,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = 0;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           columnValue = 0;
@@ -1778,8 +1785,9 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
           columnValue = strEmpty();
@@ -1864,8 +1872,9 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
     } else {
-      /* printf("type: %s\n",
-         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
+                                                             (int) column - 1))););
       isoDate = (const_cstriType) sqlite3_column_text(preparedStmt->ppStmt,
                                                       (int) column - 1);
       /* printf("isoDate: %lx\n", (unsigned long int) isoDate); */
