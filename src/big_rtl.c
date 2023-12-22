@@ -3891,7 +3891,7 @@ void bigDecr (bigIntType *const big_variable)
 
   {
     bigIntType big1;
-    memSizeType pos;
+    memSizeType pos = 0;
     boolType negative;
     bigIntType resized_big1;
 
@@ -3899,7 +3899,6 @@ void bigDecr (bigIntType *const big_variable)
     logFunction(printf("bigDecr(%s)\n", bigHexCStri(*big_variable)););
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
-    pos = 0;
     if (big1->bigdigits[pos] == 0) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
