@@ -1416,8 +1416,6 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          /* pos = basicRadix2To36(unsigned_big, result, base,
-                                digitTable[upperCase], result_size - 1); */
           pos = binaryRadix2To36(unsigned_big, result, base,
                                  digitTable[upperCase], (unsigned int)
                                  memSizeMostSignificantBit(result_size) + 1,
@@ -1526,7 +1524,6 @@ static void uBigIncr (const bigIntType big1)
           big1->bigdigits[pos] = 0;
           pos++;
         } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
-        /* memset(big1->bigdigits, 0, pos * sizeof(bigDigitType)); */
       } /* if */
     } /* if */
     if (pos < big1->size) {
@@ -3912,7 +3909,6 @@ void bigDecr (bigIntType *const big_variable)
           big1->bigdigits[pos] = BIGDIGIT_MASK;
           pos++;
         } while (big1->bigdigits[pos] == 0);
-        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigDigitType)); */
       } /* if */
     } /* if */
     if (pos < big1->size) {
@@ -4822,7 +4818,6 @@ void bigIncr (bigIntType *const big_variable)
           big1->bigdigits[pos] = 0;
           pos++;
         } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
-        /* memset(big1->bigdigits, 0, pos * sizeof(bigDigitType)); */
       } /* if */
     } /* if */
     if (pos < big1->size) {
@@ -6435,7 +6430,6 @@ bigIntType bigPred (const const_bigIntType big1)
             predecessor->bigdigits[pos] = BIGDIGIT_MASK;
             pos++;
           } while (big1->bigdigits[pos] == 0);
-          /* memset(predecessor->bigdigits, 0xFF, pos * sizeof(bigDigitType)); */
         } /* if */
       } /* if */
       if (pos < big1->size) {
@@ -6504,7 +6498,6 @@ bigIntType bigPredTemp (bigIntType big1)
           big1->bigdigits[pos] = BIGDIGIT_MASK;
           pos++;
         } while (big1->bigdigits[pos] == 0);
-        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigDigitType)); */
       } /* if */
     } /* if */
     if (pos < big1->size) {
@@ -7350,7 +7343,6 @@ bigIntType bigSucc (const const_bigIntType big1)
             successor->bigdigits[pos] = 0;
             pos++;
           } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
-          /* memset(successor->bigdigits, 0, pos * sizeof(bigDigitType)); */
         } /* if */
       } /* if */
       if (pos < big1->size) {
@@ -7420,7 +7412,6 @@ bigIntType bigSuccTemp (bigIntType big1)
           big1->bigdigits[pos] = 0;
           pos++;
         } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
-        /* memset(big1->bigdigits, 0, pos * sizeof(bigDigitType)); */
       } /* if */
     } /* if */
     if (pos < big1->size) {
