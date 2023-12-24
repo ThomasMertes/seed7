@@ -447,6 +447,9 @@ objectType set_excl (listType arguments)
     intType position;
     memSizeType bitset_index;
     unsigned int bit_index;
+    intType min_position;
+    intType max_position;
+    setType resized_set;
 
   /* set_excl */
     set_to = arg_1(arguments);
@@ -460,11 +463,55 @@ objectType set_excl (listType arguments)
       bitset_index = bitsetIndex(set_dest, position);
       bit_index = ((unsigned int) number) & bitset_mask;
       set_dest->bitset[bitset_index] &= ~(((bitSetType) 1) << bit_index);
-#ifdef OUT_OF_ORDER
-      if (set_dest->bitset[bitset_index] == 0) {
-        if
+      if (set_dest->bitset[bitset_index] == 0 &&
+          set_dest->min_position != set_dest->max_position) {
+        if (position == set_dest->min_position) {
+          min_position = position + 1;
+          while (min_position <= set_dest->max_position &&
+                 set_dest->bitset[min_position - set_dest->min_position] == 0) {
+            min_position++;
+          } /* while */
+          if (min_position > set_dest->max_position) {
+            min_position = set_dest->max_position;
+          } else {
+            memmove(set_dest->bitset,
+                    &set_dest->bitset[min_position - set_dest->min_position],
+                    ((uintType) (set_dest->max_position - min_position + 1)) *
+                        sizeof(bitSetType));
+          } /* if */
+          resized_set = REALLOC_SET(set_dest, bitsetSize(set_dest),
+                                    bitsetSize2(min_position, set_dest->max_position));
+          if (unlikely(resized_set == NULL)) {
+            /* Strange case if a 'realloc', which shrinks memory, fails. */
+            /* Deliver the result in the original set (that is too big). */
+            set_dest->min_position = min_position;
+            return raise_exception(SYS_MEM_EXCEPTION);
+          } else {
+            set_dest = resized_set;
+            set_dest->min_position = min_position;
+          } /* if */
+        } else if (position == set_dest->max_position) {
+          max_position = position - 1;
+          while (max_position >= set_dest->min_position &&
+                 set_dest->bitset[max_position - set_dest->min_position] == 0) {
+            max_position--;
+          } /* while */
+          if (max_position < set_dest->min_position) {
+            max_position = set_dest->min_position;
+          } /* if */
+          resized_set = REALLOC_SET(set_dest, bitsetSize(set_dest),
+                                    bitsetSize2(set_dest->min_position, max_position));
+          if (unlikely(resized_set == NULL)) {
+            /* Strange case if a 'realloc', which shrinks memory, fails. */
+            /* Deliver the result in the original set (that is too big). */
+            set_dest->max_position = max_position;
+            return raise_exception(SYS_MEM_EXCEPTION);
+          } else {
+            set_dest = resized_set;
+            set_dest->max_position = max_position;
+          } /* if */
+        } /* if */
       } /* if */
-#endif
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* set_excl */
