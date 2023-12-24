@@ -29,7 +29,6 @@ objectType lst_cat    (listType arguments);
 objectType lst_cpy    (listType arguments);
 objectType lst_create (listType arguments);
 objectType lst_destr  (listType arguments);
-objectType lst_elem   (listType arguments);
 objectType lst_empty  (listType arguments);
 objectType lst_excl   (listType arguments);
 objectType lst_head   (listType arguments);

@@ -646,7 +646,6 @@ static const actEntryRecord actEntryTable[] = {
     { "LST_CPY",                      lst_cpy,                      },
     { "LST_CREATE",                   lst_create,                   },
     { "LST_DESTR",                    lst_destr,                    },
-    { "LST_ELEM",                     lst_elem,                     },
     { "LST_EMPTY",                    lst_empty,                    },
     { "LST_EXCL",                     lst_excl,                     },
     { "LST_HEAD",                     lst_head,                     },

@@ -207,37 +207,6 @@ objectType lst_destr (listType arguments)
 
 
 
-objectType lst_elem (listType arguments)
-
-  {
-#ifdef OUT_OF_ORDER
-    objectType searched_object;
-    listType list_element;
-#endif
-
-  /* lst_elem */
-#ifdef OUT_OF_ORDER
-    isit_list(arg_3(arguments));
-    searched_object = arg_1(arguments);
-    if (CATEGORY_OF_OBJ(searched_object) == VARENUMOBJECT ||
-        CATEGORY_OF_OBJ(searched_object) == CONSTENUMOBJECT) {
-      searched_object = take_reference(searched_object);
-    } /* if */
-    list_element = take_list(arg_3(arguments));
-    while (list_element != NULL && list_element->obj != searched_object) {
-      list_element = list_element->next;
-    } /* while */
-    if (list_element != NULL) {
-      return SYS_TRUE_OBJECT;
-    } else {
-      return SYS_FALSE_OBJECT;
-    } /* if */
-#endif
-    return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
-  } /* lst_elem */
-
-
-
 objectType lst_empty (listType arguments)
 
   { /* lst_empty */
