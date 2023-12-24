@@ -1933,29 +1933,6 @@ bstriType stri_to_bstriw (const const_striType stri, errInfoType *err_info)
 
 
 
-#ifdef OUT_OF_ORDER
-bstriType stri_to_os_bstri (const_striType stri)
-
-  {
-    bstriType bstri;
-
-  /* stri_to_os_bstri */
-    if (unlikely(stri->size > MAX_OS_BSTRI_SIZE)) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri, OS_BSTRI_SIZE(stri->size)))) {
-      *err_info = MEMORY_ERROR;
-    } else if (unlikely(!conv_to_os_stri((os_striType) bstri->mem, stri->mem,
-                                         stri->size, err_info))) {
-      FREE_BSTRI(bstri, OS_BSTRI_SIZE(stri->size));
-      result = NULL;
-    } /* if */
-    return bstri;
-  } /* stri_to_os_bstri */
-#endif
-
-
-
 /**
  *  Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
  *  The memory for the zero byte terminated wide string is allocated.
