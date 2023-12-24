@@ -44,34 +44,6 @@
 #include "con_drv.h"
 
 
-
-#ifdef OUT_OF_ORDER
-void *memmove (char *to, char *from, size_t num)
-
-  {
-    size_t i;
-
-  /* memmove */
-    if (to < from) {
-      for (i = 1; i <= num; i++) {
-        *to = *from;
-        to++;
-        from++;
-      } /* for */
-    } else {
-      to = to + (num - 1);
-      from = from + (num - 1);
-      for (i = 1; i <= num; i++) {
-        *to = *from;
-        to--;
-        from--;
-      } /* for */
-    } /* if */
-  } /* memmove */
-#endif
-
-
-
 #ifdef C_PLUS_PLUS
 
 extern "C" int tgetent (char *, char *);
