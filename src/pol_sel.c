@@ -169,46 +169,48 @@ size_t sizeof_pollRecord = sizeof(select_based_pollRecord);
 
 #define TABLE_START_SIZE  256
 #define TABLE_INCREMENT  1024
+#define DUMP_POLL 0
 
 
 
-#ifdef OUT_OF_ORDER
+#if DUMP_POLL
 static void dumpPoll (const const_pollType pollData)
-    {
-      memSizeType pos;
-/*
-      printf("readSize=%d\n", conv(pollData)->readTest.size);
-      printf("readCapacity=%d\n", conv(pollData)->readTest.capacity);
-      printf("readPos=%d\n", conv(pollData)->readTest.pos);
-      printf("writeSize=%d\n", conv(pollData)->writeTest.size);
-      printf("writeCapacity=%d\n", conv(pollData)->writeTest.capacity);
-      printf("writePos=%d\n", conv(pollData)->writeTest.pos);
-      printf("iteratorMode=%d\n", conv(pollData)->iteratorMode);
-      printf("iterEvents=%d\n", conv(pollData)->iterEvents);
-      printf("numOfEvents=%d\n", conv(pollData)->numOfEvents);
-      */
+
+  {
+    memSizeType pos;
+
+  /* dumpPoll */
+    printf("readSize=" FMT_U_MEM "\n", conv(pollData)->readTest.size);
+    printf("readCapacity=" FMT_U_MEM "\n", conv(pollData)->readTest.capacity);
+    printf("readPos=" FMT_U_MEM "\n", conv(pollData)->readTest.iterPos);
+    printf("writeSize=" FMT_U_MEM "\n", conv(pollData)->writeTest.size);
+    printf("writeCapacity=" FMT_U_MEM "\n", conv(pollData)->writeTest.capacity);
+    printf("writePos=" FMT_U_MEM "\n", conv(pollData)->writeTest.iterPos);
+    printf("iteratorMode=%d\n", conv(pollData)->iteratorMode);
+    printf("iterEvents=" FMT_U_MEM "\n", conv(pollData)->iterEvents);
+    printf("numOfEvents=" FMT_U_MEM "\n", conv(pollData)->numOfEvents);
 #if USE_PREPARED_FD_SET
-      //if (conv(pollData)->readTest.size <= 5) {
-      printf("readFds:");
-      for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
-        printf(" %d", conv(pollData)->readTest.files[pos].fd);
-        if (!FD_ISSET(conv(pollData)->readTest.files[pos].fd, to_read_inFdset(pollData))) {
-          printf("*");
-        }
-      }
-      printf("\n");
-      //}
-      /*
-      printf("writeFds:");
-      for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
-        printf(" %d", conv(pollData)->writeTest.files[pos].fd);
-        if (!FD_ISSET(conv(pollData)->writeTest.files[pos].fd, to_write_inFdset(pollData))) {
-          printf("*");
-        }
-      }
-      */
+    printf("readFds:");
+    for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+      printf(" %d", conv(pollData)->readTest.files[pos].fd);
+      if (!FD_ISSET(conv(pollData)->readTest.files[pos].fd, to_read_inFdset(pollData))) {
+        printf("*");
+      } /* if */
+    } /* if */
+    printf("\n");
+    printf("writeFds:");
+    for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      printf(" %d", conv(pollData)->writeTest.files[pos].fd);
+      if (!FD_ISSET(conv(pollData)->writeTest.files[pos].fd, to_write_inFdset(pollData))) {
+        printf("*");
+      } /* if */
+    } /* if */
+    printf("\n");
 #endif
-    }
+  } /* dumpPoll */
+
+#else
+#define dumpPoll(pollData)
 #endif
 
 
@@ -486,8 +488,8 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     int select_result;
 
   /* doPoll */
-    /* printf("doPoll\n");
-       dumpPoll(pollData); */
+    logFunction(printf("doPoll\n");
+                dumpPoll(pollData););
     readFds = to_var_read_outFdset(pollData);
 #if USE_PREPARED_FD_SET
     copyFdSet(readFds, to_read_inFdset(pollData),
@@ -902,8 +904,8 @@ void polCpy (const pollType dest, const const_pollType source)
         FREE_TABLE(oldWriteFiles, fdAndFileType, oldWriteFilesCapacity);
       } /* if */
     } /* if */
-    logFunction(printf("polCpy -->\n"););
-    /* dumpPoll(dest); */
+    logFunction(printf("polCpy -->\n");
+                dumpPoll(dest););
   } /* polCpy */
 
 
@@ -995,8 +997,8 @@ pollType polCreate (const const_pollType source)
         result->numOfEvents = conv(source)->numOfEvents;
       } /* if */
     } /* if */
-    logFunction(printf("polCreate -->\n"););
-    /* dumpPoll((pollType) result); */
+    logFunction(printf("polCreate -->\n");
+                dumpPoll((pollType) result););
     return (pollType) result;
   } /* polCreate */
 
@@ -1062,7 +1064,7 @@ pollType polEmpty (void)
     select_based_pollType result;
 
   /* polEmpty */
-    /* printf("polEmpty()\n"); */
+    logFunction(printf("polEmpty()\n"););
     newReadIndexHash = hshEmpty();
     newWriteIndexHash = hshEmpty();
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
@@ -1108,8 +1110,8 @@ pollType polEmpty (void)
         result->numOfEvents = 0;
       } /* if */
     } /* if */
-    /* printf("end polEmpty:\n");
-       dumpPoll((pollType) result); */
+    logFunction(printf("polEmpty -->\n");
+                dumpPoll((pollType) result););
     return (pollType) result;
   } /* polEmpty */
 

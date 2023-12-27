@@ -92,37 +92,42 @@ size_t sizeof_pollRecord = sizeof(poll_based_pollRecord);
 #define TABLE_INCREMENT    1024
 #define NUM_OF_EXTRA_ELEMS    1
 #define TERMINATING_REVENT   ~0
+#define DUMP_POLL 0
 
 
 
-#ifdef OUT_OF_ORDER
-void dumpPoll (const const_pollType pollData)
-    {
-      memSizeType pos;
-      genericType pollFile;
+#if DUMP_POLL
+static void dumpPoll (const const_pollType pollData)
+  {
+    memSizeType pos;
+    genericType pollFile;
 
-      printf("size=%d\n", conv(pollData)->size);
-      printf("capacity=%d\n", conv(pollData)->capacity);
-      printf("iteratorMode=%d\n", conv(pollData)->iteratorMode);
-      printf("iterPos=%d\n", conv(pollData)->iterPos);
-      printf("iterEvents=%d\n", conv(pollData)->iterEvents);
-      printf("numOfEvents=%d\n", conv(pollData)->numOfEvents);
-      for (pos = 0; pos < conv(pollData)->size; pos++) {
-        printf("pollfd[%d]: fd=%d, events=%o, revents=%o, pollFile=",
-               pos,
-               conv(pollData)->pollFds[pos].fd,
-               conv(pollData)->pollFds[pos].events,
-               conv(pollData)->pollFds[pos].revents);
-        pollFile = conv(pollData)->pollFiles[pos];
-        if (pollFile == NULL) {
-          printf("NULL\n");
-        } else {
-          /* trace1((objectType) pollFile); */
-          printf("struct[] usage_count=%lu", ((rtlStructType) pollFile)->usage_count);
-          printf("\n");
-        }
+  /* dumpPoll */
+    printf("size=" FMT_U_MEM "\n", conv(pollData)->size);
+    printf("capacity=" FMT_U_MEM "\n", conv(pollData)->capacity);
+    printf("iteratorMode=%d\n", conv(pollData)->iteratorMode);
+    printf("iterPos=" FMT_U_MEM "\n", conv(pollData)->iterPos);
+    printf("iterEvents=" FMT_U_MEM "\n", conv(pollData)->iterEvents);
+    printf("numOfEvents=" FMT_U_MEM "\n", conv(pollData)->numOfEvents);
+    for (pos = 0; pos < conv(pollData)->size; pos++) {
+      printf("pollfd[" FMT_U_MEM "]: fd=%d, events=%o, revents=%o, pollFile=",
+             pos,
+             conv(pollData)->pollFds[pos].fd,
+             conv(pollData)->pollFds[pos].events,
+             conv(pollData)->pollFds[pos].revents);
+      pollFile = conv(pollData)->pollFiles[pos];
+      if (pollFile == 0) {
+        printf("NULL\n");
+      } else {
+        /* trace1((objectType) pollFile); */
+        printf("struct[] usage_count=%lu", ((rtlStructType) pollFile)->usage_count);
+        printf("\n");
       }
     }
+  } /* dumpPoll */
+
+#else
+#define dumpPoll(pollData)
 #endif
 
 
@@ -183,8 +188,8 @@ static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
     } else {
       pollData->pollFds[pos].events |= eventsToCheck;
     } /* if */
-    /* printf("end addCheck:\n");
-       dumpPoll(pollData); */
+    logFunction(printf("addCheck -->\n");
+                dumpPoll((const_pollType) pollData););
   } /* addCheck */
 
 
@@ -300,8 +305,8 @@ static genericType nextCheck (const poll_based_pollType pollData,
       checkFile = nullFile;
     } /* if */
     pollData->iterPos = pos;
-    /* printf("end nextCheck -> %d:\n", checkFile);
-       dumpPoll(pollData); */
+    logFunction(printf("nextCheck -> " FMT_U64 "\n", (uint64Type) checkFile);
+                dumpPoll((const_pollType) pollData););
     return checkFile;
   } /* nextCheck */
 
@@ -315,8 +320,8 @@ static genericType nextFinding (const poll_based_pollType pollData,
     genericType resultFile;
 
   /* nextFinding */
-    /* printf("nextFinding\n");
-       dumpPoll(pollData); */
+    logFunction(printf("nextFinding\n");
+                dumpPoll((const_pollType) pollData););
     if (pollData->iterEvents == 0) {
       resultFile = nullFile;
       pollData->iterPos = pollData->size;
@@ -339,8 +344,8 @@ static genericType nextFinding (const poll_based_pollType pollData,
       } /* if */
       pollData->iterPos = pos;
     } /* if */
-    /* printf("end nextFinding -> %lx %ld\n", resultFile, pos - 1);
-       dumpPoll(pollData); */
+    logFunction(printf("nextFinding -> %lx %ld\n", resultFile, pos - 1);
+                dumpPoll((const_pollType) pollData););
     return resultFile;
   } /* nextFinding */
 
@@ -481,8 +486,8 @@ void polCpy (const pollType dest, const const_pollType source)
       } /* for */
       FREE_TABLE(oldPollFiles, genericType, oldPollFilesCapacity);
     } /* if */
-    logFunction(printf("polCpy -->\n"););
-    /* dumpPoll(dest); */
+    logFunction(printf("polCpy -->\n");
+                dumpPoll(dest););
   } /* polCpy */
 
 
@@ -536,8 +541,8 @@ pollType polCreate (const const_pollType source)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("polCreate -->\n"););
-    /* dumpPoll((pollType) result); */
+    logFunction(printf("polCreate -->\n");
+                dumpPoll((pollType) result););
     return (pollType) result;
   } /* polCreate */
 
@@ -605,8 +610,8 @@ pollType polEmpty (void)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("end polEmpty:\n");
-       dumpPoll((pollType) result); */
+    logFunction(printf("polEmpty -->\n");
+                dumpPoll((pollType) result););
     return (pollType) result;
   } /* polEmpty */
 
@@ -872,8 +877,8 @@ void polPoll (const pollType pollData)
     int poll_result;
 
   /* polPoll */
-    /* printf("begin polPoll:\n");
-       dumpPoll(pollData); */
+    logFunction(printf("polPoll\n");
+                dumpPoll(pollData););
     do {
       poll_result = os_poll(conv(pollData)->pollFds, conv(pollData)->size, -1); /* &timeout); */
     } while (unlikely(poll_result == -1 && errno == EINTR));
