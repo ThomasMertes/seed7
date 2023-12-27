@@ -148,6 +148,7 @@ static sqlFuncType sqlFunc = NULL;
 #define MANTISSA_LEN 40
 #define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
+#define DEBUG_LONG_CALLBACK 0
 
 #define SET_NUMBER_TO_POSITIVE_INFINITY(buffer, length) \
         length = 2; \
@@ -1369,7 +1370,7 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
 
   /* longCallback */
     resultData = (resultDataType) octxp;
-#if 0
+#if DEBUG_LONG_CALLBACK
     printf("iter: %u\n", iter);
     printf("longCallback: Field: %s, ind: %d, len %u, buf_len: " FMT_U_MEM "\n",
            nameOfBufferType(resultData->buffer_type),
@@ -1455,7 +1456,7 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     *alenp = &resultData->long_data_piece_size;
     *indp = &resultData->indicator;
     *rcodep = &resultData->long_data_return_code;
-#if 0
+#if DEBUG_LONG_CALLBACK
     printf("long_data_piece_size: %u\n", resultData->long_data_piece_size);
     printf("buffer_length: " FMT_U_MEM "\n", resultData->buffer_length);
     if (bufpp == NULL) {
