@@ -189,16 +189,6 @@ static boolType connectToServer (connectDataType connectData,
     stringLength += STRLEN(serverKey);
     memcpy(&inConnectionString[stringLength], server, serverLength * sizeof(SQLWCHAR));
     stringLength += serverLength;
-#if 0
-    if (connectData->serverW_length != 0) {
-      inConnectionString[stringLength] = ';';
-      stringLength++;
-      memcpy(&inConnectionString[stringLength], serverKey, STRLEN(serverKey) * sizeof(SQLWCHAR));
-      stringLength += STRLEN(serverKey);
-      memcpy(&inConnectionString[stringLength], connectData->serverW, connectData->serverW_length * sizeof(SQLWCHAR));
-      stringLength += connectData->serverW_length;
-    } /* if */
-#endif
     if (connectData->dbNameW_length != 0) {
       inConnectionString[stringLength] = ';';
       stringLength++;

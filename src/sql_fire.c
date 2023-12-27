@@ -3646,12 +3646,6 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         *dpb++ = (char) charset_length;
         memcpy(dpb, charset, charset_length);
         dpb += charset_length;
-#if 0
-        /* what does this? */
-        *dpb++ = isc_num_buffers;
-        *dpb++ = 1;
-        *dpb++ = 90;
-#endif
         /* Add (unnecessary) null byte, to be on the safe side. */
         *dpb = '\0';
         dpb_length = (short) (dpb - dpb_buffer);
