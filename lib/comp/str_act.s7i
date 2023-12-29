@@ -2403,6 +2403,15 @@ const proc: process_const_str_mult (in reference: stri, in integer: factor,
     elsif factor = 1 then
       incr(countOptimizations);
       process_expr(stri, c_expr);
+    elsif useSpecialCaseFunctions and
+        isActionExpression(stri, "CHR_STR") then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strChMult(";
+      getAnyParamToResultExpr(getActionParameter(stri, 1), c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(factor);
+      c_expr.result_expr &:= ")";
     else
       prepare_stri_result(c_expr);
       c_expr.result_expr := "strMult(";
