@@ -3245,8 +3245,12 @@ const func string: headFunction (in integer: stop) is
   return "1234567890"[ .. stop];
 
 
-const func string: headFunction (in string: stri) is
+const func string: headFunction1 (in string: stri) is
   return stri[ .. 1];
+
+
+const func string: headFunction2 (in string: stri) is
+  return striExpr(stri)[ .. 1];
 
 
 const func string: headFunction (in string: stri, in integer: stop) is
@@ -3323,13 +3327,23 @@ const func boolean: check_string_head_func is func
       okay := FALSE;
     end if;
 
-    if  headFunction(          "") <> "" or
-        headFunction(         "1") <> "1" or
-        headFunction("1234567890") <> "1" or
-        headFunction(striExpr(          "")) <> "" or
-        headFunction(striExpr(         "1")) <> "1" or
-        headFunction(striExpr("1234567890")) <> "1" then
+    if  headFunction1(          "") <> "" or
+        headFunction1(         "1") <> "1" or
+        headFunction1("1234567890") <> "1" or
+        headFunction1(striExpr(          "")) <> "" or
+        headFunction1(striExpr(         "1")) <> "1" or
+        headFunction1(striExpr("1234567890")) <> "1" then
       writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  headFunction2(          "") <> "" or
+        headFunction2(         "1") <> "1" or
+        headFunction2("1234567890") <> "1" or
+        headFunction2(striExpr(          "")) <> "" or
+        headFunction2(striExpr(         "1")) <> "1" or
+        headFunction2(striExpr("1234567890")) <> "1" then
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -3360,7 +3374,7 @@ const func boolean: check_string_head_func is func
         headFunction("1234567890",            11) <> "1234567890" or
         headFunction("1234567890",            15) <> "1234567890" or
         headFunction("1234567890",  integer.last) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (5)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -3391,7 +3405,7 @@ const func boolean: check_string_head_func is func
         headFunction("1234567890", intExpr(           11)) <> "1234567890" or
         headFunction("1234567890", intExpr(           15)) <> "1234567890" or
         headFunction("1234567890", intExpr( integer.last)) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (6)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -3422,7 +3436,7 @@ const func boolean: check_string_head_func is func
         headFunction(striExpr("1234567890"),            11) <> "1234567890" or
         headFunction(striExpr("1234567890"),            15) <> "1234567890" or
         headFunction(striExpr("1234567890"),  integer.last) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (7)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -3453,7 +3467,7 @@ const func boolean: check_string_head_func is func
         headFunction(striExpr("1234567890"), intExpr(           11)) <> "1234567890" or
         headFunction(striExpr("1234567890"), intExpr(           15)) <> "1234567890" or
         headFunction(striExpr("1234567890"), intExpr( integer.last)) <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (8)");
+      writeln(" ***** STRING [ .. STOP ] via a function does not work correctly. (9)");
       okay := FALSE;
     end if;
   end func;
@@ -12885,48 +12899,48 @@ const proc: check_string_mult is func
       okay := FALSE;
     end if;
 
-    if  striExpr(str('a')) mult 0 <> "" or
-        striExpr(str('a')) mult 1 <> "a" or
-        striExpr(str('a')) mult 2 <> "aa" or
-        striExpr(str('a')) mult 3 <> "aaa" or
-        striExpr(str('a')) mult 4 <> "aaaa" or
-        striExpr(str('a')) mult 5 <> "aaaaa" or
-        striExpr(str('a')) mult 6 <> "aaaaaa" or
-        striExpr(str('a')) mult 7 <> "aaaaaaa" or
-        striExpr(str('a')) mult 8 <> "aaaaaaaa" or
-        striExpr(str('a')) mult 9 <> "aaaaaaaaa" or
-        striExpr(str('a')) mult 10 <> "aaaaaaaaaa" or
-        striExpr(str('a')) mult 15 <> "aaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 16 <> "aaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 17 <> "aaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 25 <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 31 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 32 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 33 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 35 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 63 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 64 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 65 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 70 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 80 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 90 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    if  str(charExpr('a')) mult 0 <> "" or
+        str(charExpr('a')) mult 1 <> "a" or
+        str(charExpr('a')) mult 2 <> "aa" or
+        str(charExpr('a')) mult 3 <> "aaa" or
+        str(charExpr('a')) mult 4 <> "aaaa" or
+        str(charExpr('a')) mult 5 <> "aaaaa" or
+        str(charExpr('a')) mult 6 <> "aaaaaa" or
+        str(charExpr('a')) mult 7 <> "aaaaaaa" or
+        str(charExpr('a')) mult 8 <> "aaaaaaaa" or
+        str(charExpr('a')) mult 9 <> "aaaaaaaaa" or
+        str(charExpr('a')) mult 10 <> "aaaaaaaaaa" or
+        str(charExpr('a')) mult 15 <> "aaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 16 <> "aaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 17 <> "aaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 25 <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 31 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 32 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 33 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 35 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 63 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 64 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 65 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 70 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 80 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult 90 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                       \aaaaaaaaaa" or
-        striExpr(str('a')) mult 100 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 100 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 127 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 127 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 128 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 128 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 129 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 129 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 150 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 150 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
       writeln(" ***** str(CHAR) mult integer does not work correctly.");
@@ -12981,48 +12995,48 @@ const proc: check_string_mult is func
       okay := FALSE;
     end if;
 
-    if  striExpr(str('a')) mult intExpr(0) <> "" or
-        striExpr(str('a')) mult intExpr(1) <> "a" or
-        striExpr(str('a')) mult intExpr(2) <> "aa" or
-        striExpr(str('a')) mult intExpr(3) <> "aaa" or
-        striExpr(str('a')) mult intExpr(4) <> "aaaa" or
-        striExpr(str('a')) mult intExpr(5) <> "aaaaa" or
-        striExpr(str('a')) mult intExpr(6) <> "aaaaaa" or
-        striExpr(str('a')) mult intExpr(7) <> "aaaaaaa" or
-        striExpr(str('a')) mult intExpr(8) <> "aaaaaaaa" or
-        striExpr(str('a')) mult intExpr(9) <> "aaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(10) <> "aaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(15) <> "aaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(16) <> "aaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(17) <> "aaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(20) <> "aaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(25) <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(30) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(31) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(32) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(33) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(35) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(40) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(50) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(60) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(63) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(64) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(65) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(70) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(80) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(90) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    if  str(charExpr('a')) mult intExpr(0) <> "" or
+        str(charExpr('a')) mult intExpr(1) <> "a" or
+        str(charExpr('a')) mult intExpr(2) <> "aa" or
+        str(charExpr('a')) mult intExpr(3) <> "aaa" or
+        str(charExpr('a')) mult intExpr(4) <> "aaaa" or
+        str(charExpr('a')) mult intExpr(5) <> "aaaaa" or
+        str(charExpr('a')) mult intExpr(6) <> "aaaaaa" or
+        str(charExpr('a')) mult intExpr(7) <> "aaaaaaa" or
+        str(charExpr('a')) mult intExpr(8) <> "aaaaaaaa" or
+        str(charExpr('a')) mult intExpr(9) <> "aaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(10) <> "aaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(15) <> "aaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(16) <> "aaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(17) <> "aaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(20) <> "aaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(25) <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(30) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(31) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(32) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(33) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(35) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(40) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(50) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(60) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(63) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(64) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(65) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(70) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(80) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str(charExpr('a')) mult intExpr(90) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                \aaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(100) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(100) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(127) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(127) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(128) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(128) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(129) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(129) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(150) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(150) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
-        striExpr(str('a')) mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+        str(charExpr('a')) mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
       writeln(" ***** str(CHAR) mult integer does not work correctly.");
@@ -13052,6 +13066,11 @@ const proc: check_string_mult is func
         "\16#FECB;\16#1234;" mult 2 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 3 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;\16#FECB;\16#1234;" then
       writeln(" ***** STRING mult integer does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  "" mult abs(intExpr(0)) <> "" then
+      writeln(" ***** \"\" mult integer optimization does not work correctly.");
       okay := FALSE;
     end if;
 
