@@ -22676,6 +22676,7 @@ const proc: check_string_append is func
     var boolean: ok is TRUE;
     var string: stri is "";
     var array string: arr is []("");
+    var char: ch is '6';
   begin
     stri := "";  stri &:=          "";   ok := ok and stri = "";
     stri := "";  stri &:= striExpr("");  ok := ok and stri = "";
@@ -23036,11 +23037,13 @@ const proc: check_string_append is func
     stri := "ab"; stri &:=          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:= striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
 
+    stri := "12345"; stri &:=                   ch;    ok := ok and stri = "123456";
     stri := "12345"; stri &:=                  '6';    ok := ok and stri = "123456";
     stri := "12345"; stri &:=              chr( 48);   ok := ok and stri = "123450";
     stri := "12345"; stri &:=     charExpr(    '6' );  ok := ok and stri = "123456";
     stri := "12345"; stri &:=     charExpr(chr( 48));  ok := ok and stri = "123450";
 
+    stri := "12345"; stri &:= str(              ch  ); ok := ok and stri = "123456";
     stri := "12345"; stri &:= str(             '6'  ); ok := ok and stri = "123456";
     stri := "12345"; stri &:= str(         chr( 48) ); ok := ok and stri = "123450";
     stri := "12345"; stri &:= str(charExpr(    '6' )); ok := ok and stri = "123456";
@@ -23053,10 +23056,17 @@ const proc: check_string_append is func
     stri := "12345"; stri &:= str(chr(48))  & "456";        ok := ok and stri = "123450456";
     stri := "12345"; stri &:= str(chr(48))  & str(chr(48)); ok := ok and stri = "1234500";
 
-    arr[1] := "12345"; arr[1] &:= '6';          ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:= chr(48);      ok := ok and arr[1] = "123450";
-    arr[1] := "12345"; arr[1] &:= str('6');     ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:= str(chr(48)); ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:=                   ch;    ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=                  '6';    ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=              chr( 48);   ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:=     charExpr(    '6' );  ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=     charExpr(chr( 48));  ok := ok and arr[1] = "123450";
+
+    arr[1] := "12345"; arr[1] &:= str(              ch  ); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(             '6'  ); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(         chr( 48) ); ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:= str(charExpr(    '6' )); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(charExpr(chr( 48))); ok := ok and arr[1] = "123450";
 
     arr[1] := "12345"; arr[1] &:= "456"         & str('6');     ok := ok and arr[1] = "123454566";
     arr[1] := "12345"; arr[1] &:= str('6')      & "456";        ok := ok and arr[1] = "123456456";
