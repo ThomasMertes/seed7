@@ -23098,6 +23098,7 @@ const proc: check_string_assign_at is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
     var string: stri is "";
+    var array string: arr is []("");
     var integer: index is 0;
     var char: ch is 'X';
   begin
@@ -23111,7 +23112,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [2] 'X'; ok := ok and stri = "aXcd";
     stri := "abcd"; stri @:= [3] 'X'; ok := ok and stri = "abXd";
     stri := "abcd"; stri @:= [4] 'X'; ok := ok and stri = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (1)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "a";    stri @:= [1] ch; ok := ok and stri = "X";
     stri := "ab";   stri @:= [1] ch; ok := ok and stri = "Xb";
     stri := "ab";   stri @:= [2] ch; ok := ok and stri = "aX";
@@ -23122,7 +23128,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [2] ch; ok := ok and stri = "aXcd";
     stri := "abcd"; stri @:= [3] ch; ok := ok and stri = "abXd";
     stri := "abcd"; stri @:= [4] ch; ok := ok and stri = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (2)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "a";    index := 1; stri @:= [index] 'X'; ok := ok and stri = "X";
     stri := "ab";   index := 1; stri @:= [index] 'X'; ok := ok and stri = "Xb";
     stri := "ab";   index := 2; stri @:= [index] 'X'; ok := ok and stri = "aX";
@@ -23133,7 +23144,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 2; stri @:= [index] 'X'; ok := ok and stri = "aXcd";
     stri := "abcd"; index := 3; stri @:= [index] 'X'; ok := ok and stri = "abXd";
     stri := "abcd"; index := 4; stri @:= [index] 'X'; ok := ok and stri = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (3)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "a";    index := 1; stri @:= [index] ch; ok := ok and stri = "X";
     stri := "ab";   index := 1; stri @:= [index] ch; ok := ok and stri = "Xb";
     stri := "ab";   index := 2; stri @:= [index] ch; ok := ok and stri = "aX";
@@ -23144,7 +23160,76 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 2; stri @:= [index] ch; ok := ok and stri = "aXcd";
     stri := "abcd"; index := 3; stri @:= [index] ch; ok := ok and stri = "abXd";
     stri := "abcd"; index := 4; stri @:= [index] ch; ok := ok and stri = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (4)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] 'X'; ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] 'X'; ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] 'X'; ok := ok and arr[1] = "aX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] 'X'; ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] 'X'; ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] 'X'; ok := ok and arr[1] = "abX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] 'X'; ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] 'X'; ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] 'X'; ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] 'X'; ok := ok and arr[1] = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] ch; ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] ch; ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] ch; ok := ok and arr[1] = "aX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] ch; ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] ch; ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] ch; ok := ok and arr[1] = "abX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] ch; ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] ch; ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] ch; ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] ch; ok := ok and arr[1] = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "a";    index := 1; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "X";
+    arr[1] := "ab";   index := 1; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   index := 2; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "aX";
+    arr[1] := "abc";  index := 1; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  index := 2; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  index := 3; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "abX";
+    arr[1] := "abcd"; index := 1; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; index := 2; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; index := 3; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; index := 4; arr[integer(striExpr("1"))] @:= [index] 'X'; ok := ok and arr[1] = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "a";    index := 1; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "X";
+    arr[1] := "ab";   index := 1; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   index := 2; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "aX";
+    arr[1] := "abc";  index := 1; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  index := 2; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  index := 3; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "abX";
+    arr[1] := "abcd"; index := 1; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; index := 2; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; index := 3; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; index := 4; arr[integer(striExpr("1"))] @:= [index] ch; ok := ok and arr[1] = "abcX";
+    if not ok then
+      writeln(" ***** stri @:= [n] aChar; does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     stri := "";     stri @:= [1] "";     ok := ok and stri = "";
     stri := "a";    stri @:= [1] "";     ok := ok and stri = "a";
     stri := "a";    stri @:= [2] "";     ok := ok and stri = "a";
@@ -23180,7 +23265,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [1] "XYZ";  ok := ok and stri = "XYZd";
     stri := "abcd"; stri @:= [2] "XYZ";  ok := ok and stri = "aXYZ";
     stri := "abcd"; stri @:= [1] "XYZA"; ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (1)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     stri @:= [intExpr(1)] "";     ok := ok and stri = "";
     stri := "a";    stri @:= [intExpr(1)] "";     ok := ok and stri = "a";
     stri := "a";    stri @:= [intExpr(2)] "";     ok := ok and stri = "a";
@@ -23216,7 +23306,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [intExpr(1)] "XYZ";  ok := ok and stri = "XYZd";
     stri := "abcd"; stri @:= [intExpr(2)] "XYZ";  ok := ok and stri = "aXYZ";
     stri := "abcd"; stri @:= [intExpr(1)] "XYZA"; ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (2)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     stri @:= [1] striExpr("");     ok := ok and stri = "";
     stri := "a";    stri @:= [1] striExpr("");     ok := ok and stri = "a";
     stri := "a";    stri @:= [2] striExpr("");     ok := ok and stri = "a";
@@ -23252,7 +23347,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [1] striExpr("XYZ");  ok := ok and stri = "XYZd";
     stri := "abcd"; stri @:= [2] striExpr("XYZ");  ok := ok and stri = "aXYZ";
     stri := "abcd"; stri @:= [1] striExpr("XYZA"); ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (3)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "";
     stri := "a";    stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "a";
     stri := "a";    stri @:= [intExpr(2)] striExpr("");     ok := ok and stri = "a";
@@ -23288,7 +23388,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [intExpr(1)] striExpr("XYZ");  ok := ok and stri = "XYZd";
     stri := "abcd"; stri @:= [intExpr(2)] striExpr("XYZ");  ok := ok and stri = "aXYZ";
     stri := "abcd"; stri @:= [intExpr(1)] striExpr("XYZA"); ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (4)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     index := 1; stri @:= [index] "";     ok := ok and stri = "";
     stri := "a";    index := 1; stri @:= [index] "";     ok := ok and stri = "a";
     stri := "a";    index := 2; stri @:= [index] "";     ok := ok and stri = "a";
@@ -23324,7 +23429,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 1; stri @:= [index] "XYZ";  ok := ok and stri = "XYZd";
     stri := "abcd"; index := 2; stri @:= [index] "XYZ";  ok := ok and stri = "aXYZ";
     stri := "abcd"; index := 1; stri @:= [index] "XYZA"; ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (5)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "";
     stri := "a";    index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "a";
     stri := "a";    index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "a";
@@ -23360,7 +23470,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 1; stri @:= [index] striExpr("XYZ");  ok := ok and stri = "XYZd";
     stri := "abcd"; index := 2; stri @:= [index] striExpr("XYZ");  ok := ok and stri = "aXYZ";
     stri := "abcd"; index := 1; stri @:= [index] striExpr("XYZA"); ok := ok and stri = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (6)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     stri @:= [1] stri;          ok := ok and stri = "";
     stri := "a";    stri @:= [1] stri;          ok := ok and stri = "a";
     stri := "ab";   stri @:= [1] stri[1 len 1]; ok := ok and stri = "ab";
@@ -23413,7 +23528,12 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [2] stri[2 len 3]; ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [1] stri;          ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [2] stri[3 len 1] & stri[2 .. 2]; ok := ok and stri = "acbd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (7)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";     stri @:= [intExpr(1)] stri;          ok := ok and stri = "";
     stri := "a";    stri @:= [intExpr(1)] stri;          ok := ok and stri = "a";
     stri := "ab";   stri @:= [intExpr(1)] stri[1 len 1]; ok := ok and stri = "ab";
@@ -23466,11 +23586,180 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [intExpr(2)] stri[2 len 3]; ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [intExpr(1)] stri;          ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [intExpr(2)] stri[3 len 1] & stri[2 .. 2]; ok := ok and stri = "acbd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (8)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [ 7] stri [13 len 11]; ok := ok and stri = "abcdefmnopqrstuvwrstuvwxyz";
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [13] stri [ 7 len 11]; ok := ok and stri = "abcdefghijklghijklmnopqxyz";
     if not ok then
-      writeln(" ***** @:= for strings does not work correctly.");
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "";     arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [2] "";     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] "X";    ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [3] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] "X";    ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] "X";    ok := ok and arr[1] = "aX";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] "XY";   ok := ok and arr[1] = "XY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [4] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] "X";    ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] "X";    ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] "X";    ok := ok and arr[1] = "abX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] "XY";   ok := ok and arr[1] = "XYc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] "XY";   ok := ok and arr[1] = "aXY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] "XYZ";  ok := ok and arr[1] = "XYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [5] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] "X";    ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] "X";    ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] "X";    ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] "X";    ok := ok and arr[1] = "abcX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] "XY";   ok := ok and arr[1] = "XYcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] "XY";   ok := ok and arr[1] = "aXYd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] "XY";   ok := ok and arr[1] = "abXY";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] "XYZ";  ok := ok and arr[1] = "XYZd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] "XYZ";  ok := ok and arr[1] = "aXYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] "XYZA"; ok := ok and arr[1] = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "";     arr[integer(striExpr("1"))] @:= [intExpr(1)] "";     ok := ok and arr[1] = "";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(1)] "";     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(2)] "";     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(1)] "X";    ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(2)] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(3)] "";     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] "X";    ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(2)] "X";    ok := ok and arr[1] = "aX";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] "XY";   ok := ok and arr[1] = "XY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(3)] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(4)] "";     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] "X";    ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] "X";    ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(3)] "X";    ok := ok and arr[1] = "abX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] "XY";   ok := ok and arr[1] = "XYc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] "XY";   ok := ok and arr[1] = "aXY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] "XYZ";  ok := ok and arr[1] = "XYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(4)] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(5)] "";     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] "X";    ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] "X";    ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] "X";    ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(4)] "X";    ok := ok and arr[1] = "abcX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] "XY";   ok := ok and arr[1] = "XYcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] "XY";   ok := ok and arr[1] = "aXYd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] "XY";   ok := ok and arr[1] = "abXY";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] "XYZ";  ok := ok and arr[1] = "XYZd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] "XYZ";  ok := ok and arr[1] = "aXYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] "XYZA"; ok := ok and arr[1] = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "";     arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [2] striExpr("");     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] striExpr("X");    ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [3] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] striExpr("X");    ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [2] striExpr("X");    ok := ok and arr[1] = "aX";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [1] striExpr("XY");   ok := ok and arr[1] = "XY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [4] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] striExpr("X");    ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] striExpr("X");    ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [3] striExpr("X");    ok := ok and arr[1] = "abX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] striExpr("XY");   ok := ok and arr[1] = "XYc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [2] striExpr("XY");   ok := ok and arr[1] = "aXY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [1] striExpr("XYZ");  ok := ok and arr[1] = "XYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [5] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] striExpr("X");    ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] striExpr("X");    ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] striExpr("X");    ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [4] striExpr("X");    ok := ok and arr[1] = "abcX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] striExpr("XY");   ok := ok and arr[1] = "XYcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] striExpr("XY");   ok := ok and arr[1] = "aXYd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [3] striExpr("XY");   ok := ok and arr[1] = "abXY";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] striExpr("XYZ");  ok := ok and arr[1] = "XYZd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [2] striExpr("XYZ");  ok := ok and arr[1] = "aXYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [1] striExpr("XYZA"); ok := ok and arr[1] = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "";     arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("");     ok := ok and arr[1] = "";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("");     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("");     ok := ok and arr[1] = "a";
+    arr[1] := "a";    arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("X");    ok := ok and arr[1] = "X";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("");     ok := ok and arr[1] = "ab";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("X");    ok := ok and arr[1] = "Xb";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("X");    ok := ok and arr[1] = "aX";
+    arr[1] := "ab";   arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XY");   ok := ok and arr[1] = "XY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(4)] striExpr("");     ok := ok and arr[1] = "abc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("X");    ok := ok and arr[1] = "Xbc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("X");    ok := ok and arr[1] = "aXc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("X");    ok := ok and arr[1] = "abX";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XY");   ok := ok and arr[1] = "XYc";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("XY");   ok := ok and arr[1] = "aXY";
+    arr[1] := "abc";  arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XYZ");  ok := ok and arr[1] = "XYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(4)] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(5)] striExpr("");     ok := ok and arr[1] = "abcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("X");    ok := ok and arr[1] = "Xbcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("X");    ok := ok and arr[1] = "aXcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("X");    ok := ok and arr[1] = "abXd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(4)] striExpr("X");    ok := ok and arr[1] = "abcX";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XY");   ok := ok and arr[1] = "XYcd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("XY");   ok := ok and arr[1] = "aXYd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(3)] striExpr("XY");   ok := ok and arr[1] = "abXY";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XYZ");  ok := ok and arr[1] = "XYZd";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(2)] striExpr("XYZ");  ok := ok and arr[1] = "aXYZ";
+    arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XYZA"); ok := ok and arr[1] = "XYZA";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString; does not work correctly. (13)");
       okay := FALSE;
     end if;
 
