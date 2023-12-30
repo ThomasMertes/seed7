@@ -244,15 +244,15 @@ const proc: concatConstants (inout array reference: concatNParamList) is func
   end func;
 
 
-const proc: process_const_inline_str_push (in reference: param1, in char: ch,
+const proc: process_const_inline_str_push (in reference: stri, in char: ch,
     inout expr_type: c_expr) is func
 
   local
     var expr_type: statement is expr_type.value;
     var string: stri_name is "";
   begin
-    if isNormalVariable(param1) then
-      stri_name := normalVariable(param1, statement);
+    if isNormalVariable(stri) then
+      stri_name := normalVariable(stri, statement);
     else
       incr(statement.temp_num);
       stri_name := "tmp_" & str(statement.temp_num);
@@ -261,7 +261,7 @@ const proc: process_const_inline_str_push (in reference: param1, in char: ch,
       statement.temp_decls &:= ";\n";
       statement.expr &:= stri_name;
       statement.expr &:= "=&(";
-      process_expr(param1, statement);
+      process_expr(stri, statement);
       statement.expr &:= ");\n";
       stri_name := "*" & stri_name;
     end if;
@@ -291,19 +291,100 @@ const proc: process_const_inline_str_push (in reference: param1, in char: ch,
   end func;
 
 
-const proc: process_const_str_push (in reference: param1, in char: ch,
+const proc: process_const_str_push (in reference: stri, in char: ch,
     inout expr_type: c_expr) is func
 
   begin
     if inlineFunctions and ccConf.WITH_STRI_CAPACITY then
       incr(countInlinedFunctions);
-      process_const_inline_str_push(param1, ch, c_expr);
+      process_const_inline_str_push(stri, ch, c_expr);
     else
       c_expr.expr &:= "strPush(&(";
-      process_expr(param1, c_expr);
+      process_expr(stri, c_expr);
       c_expr.expr &:= "), ";
       c_expr.expr &:= charLiteral(ch);
       c_expr.expr &:= ");\n";
+    end if;
+  end func;
+
+
+const proc: process_inline_str_push (in reference: stri,
+    in reference: extension, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var string: stri_name is "";
+    var string: char_name is "";
+  begin
+    if isNormalVariable(stri) then
+      stri_name := normalVariable(stri, statement);
+    else
+      incr(statement.temp_num);
+      stri_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "striType *";
+      statement.temp_decls &:= stri_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= stri_name;
+      statement.expr &:= "=&(";
+      process_expr(stri, statement);
+      statement.expr &:= ");\n";
+      stri_name := "*" & stri_name;
+    end if;
+    if isNormalVariable(extension) then
+      char_name := normalVariable(extension, statement);
+    else
+      incr(statement.temp_num);
+      char_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "charType ";
+      statement.temp_decls &:= char_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= char_name;
+      statement.expr &:= "=";
+      process_expr(extension, statement);
+      statement.expr &:= ";\n";
+    end if;
+    statement.expr &:= "if ((";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size == (";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->capacity) {\n";
+    statement.expr &:= "strPush(&(";
+    statement.expr &:= stri_name;
+    statement.expr &:= "), ";
+    statement.expr &:= char_name;
+    statement.expr &:= ");\n";
+    statement.expr &:= "} else {\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->mem[(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size]=";
+    statement.expr &:= char_name;
+    statement.expr &:= ";\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size++;\n";
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process_str_push (in reference: stri,
+    in reference: extension, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    if inlineFunctions and ccConf.WITH_STRI_CAPACITY then
+      incr(countInlinedFunctions);
+      process_inline_str_push(stri, extension, c_expr);
+    else
+      statement.expr := "strPush(&(";
+      process_expr(stri, statement);
+      statement.expr &:= "), ";
+      process_expr(extension, statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -377,10 +458,8 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
       else
         if isActionExpression(appendExtensions[1], "CHR_STR") then
           incr(countOptimizations);
-          statement.expr &:= "strPush(&(";
-          process_expr(dest, statement);
-          statement.expr &:= "), ";
-          process_expr(getActionParameter(appendExtensions[1], 1), statement);
+          process_str_push(dest, getActionParameter(appendExtensions[1], 1),
+                           statement);
         else
           prepareAnyParamTemporarys(appendExtensions[1], c_extension, statement);
           if c_extension.result_expr <> "" then
@@ -394,8 +473,8 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
             statement.expr &:= "), ";
             statement.expr &:= c_extension.expr;
           end if;
+          statement.expr &:= ");\n";
         end if;
-        statement.expr &:= ");\n";
       end if;
     else
       incr(countOptimizations);
@@ -2925,86 +3004,16 @@ const proc: process (STR_POSCPY, in reference: function,
   end func;
 
 
-const proc: process_inline_str_push (in ref_list: params,
-    inout expr_type: c_expr) is func
-
-  local
-    var expr_type: statement is expr_type.value;
-    var string: stri_name is "";
-    var string: char_name is "";
-  begin
-    if isNormalVariable(params[1]) then
-      stri_name := normalVariable(params[1], statement);
-    else
-      incr(statement.temp_num);
-      stri_name := "tmp_" & str(statement.temp_num);
-      statement.temp_decls &:= "striType *";
-      statement.temp_decls &:= stri_name;
-      statement.temp_decls &:= ";\n";
-      statement.expr &:= stri_name;
-      statement.expr &:= "=&(";
-      process_expr(params[1], statement);
-      statement.expr &:= ");\n";
-      stri_name := "*" & stri_name;
-    end if;
-    if isNormalVariable(params[3]) then
-      char_name := normalVariable(params[3], statement);
-    else
-      incr(statement.temp_num);
-      char_name := "tmp_" & str(statement.temp_num);
-      statement.temp_decls &:= "charType ";
-      statement.temp_decls &:= char_name;
-      statement.temp_decls &:= ";\n";
-      statement.expr &:= char_name;
-      statement.expr &:= "=";
-      process_expr(params[3], statement);
-      statement.expr &:= ";\n";
-    end if;
-    statement.expr &:= "if ((";
-    statement.expr &:= stri_name;
-    statement.expr &:= ")->size == (";
-    statement.expr &:= stri_name;
-    statement.expr &:= ")->capacity) {\n";
-    statement.expr &:= "strPush(&(";
-    statement.expr &:= stri_name;
-    statement.expr &:= "), ";
-    statement.expr &:= char_name;
-    statement.expr &:= ");\n";
-    statement.expr &:= "} else {\n";
-    statement.expr &:= "(";
-    statement.expr &:= stri_name;
-    statement.expr &:= ")->mem[(";
-    statement.expr &:= stri_name;
-    statement.expr &:= ")->size]=";
-    statement.expr &:= char_name;
-    statement.expr &:= ";\n";
-    statement.expr &:= "(";
-    statement.expr &:= stri_name;
-    statement.expr &:= ")->size++;\n";
-    statement.expr &:= "}\n";
-    doLocalDeclsOfStatement(statement, c_expr);
-  end func;
-
-
 const proc: process (STR_PUSH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], CHAROBJECT, evaluatedParam) then
       process_const_str_push(params[1], getValue(evaluatedParam, char), c_expr);
-    elsif inlineFunctions and ccConf.WITH_STRI_CAPACITY then
-      incr(countInlinedFunctions);
-      process_inline_str_push(params, c_expr);
     else
-      statement.expr := "strPush(&(";
-      process_expr(params[1], statement);
-      statement.expr &:= "), ";
-      process_expr(params[3], statement);
-      statement.expr &:= ");\n";
-      doLocalDeclsOfStatement(statement, c_expr);
+      process_str_push(params[1], params[3], c_expr);
     end if;
   end func;
 
