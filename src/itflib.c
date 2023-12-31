@@ -174,7 +174,6 @@ objectType itf_cpy (listType arguments)
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
           destr_struct(old_struct->stru, old_struct->size);
-          /* printf("FREE_STRUCT 12 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
           if (old_value != NULL) {
             FREE_OBJECT(old_value);
@@ -257,7 +256,6 @@ objectType itf_cpy2 (listType arguments)
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
           destr_struct(old_struct->stru, old_struct->size);
-          /* printf("FREE_STRUCT 13 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
           if (old_value != NULL) {
             FREE_OBJECT(old_value);
@@ -414,7 +412,6 @@ objectType itf_destr (listType arguments)
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
             destr_struct(old_struct->stru, old_struct->size);
-            /* printf("FREE_STRUCT 14 %lu\n", old_struct); */
             FREE_STRUCT(old_struct, old_struct->size);
             arg_1(arguments)->value.objValue = NULL;
             /* The function close_stack leaves HAS_PROPERTY intact to    */
@@ -517,7 +514,6 @@ objectType itf_new (listType arguments)
       result_struct->usage_count = 1;
       result_struct->size = stru1->size;
       if (!crea_struct(result_struct->stru, stru1->stru, stru1->size)) {
-        /* printf("FREE_STRUCT 15 %lu\n", result_struct); */
         FREE_STRUCT(result_struct, stru1->size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */

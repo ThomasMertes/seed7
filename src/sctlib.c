@@ -80,7 +80,6 @@ objectType sct_alloc (listType arguments)
           if (!crea_struct(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
             FREE_OBJECT(result);
-            /* printf("FREE_STRUCT 1 %lu\n", new_stru); */
             FREE_STRUCT(new_stru, new_size);
             return raise_exception(SYS_MEM_EXCEPTION);
           } /* if */
@@ -139,7 +138,6 @@ objectType sct_cat (listType arguments)
       result->usage_count = 1;
       result->size = result_size;
       if (!crea_struct(result->stru, stru1->stru, stru1_size)) {
-        /* printf("FREE_STRUCT 2 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -147,14 +145,12 @@ objectType sct_cat (listType arguments)
     if (TEMP_OBJECT(arg_3(arguments))) {
       memcpy(&result->stru[stru1_size], stru2->stru,
           (size_t) (stru2->size * sizeof(objectRecord)));
-      /* printf("FREE_STRUCT 3 %lu\n", stru2); */
       FREE_STRUCT(stru2, stru2->size);
       arg_3(arguments)->value.structValue = NULL;
     } else {
       if (!crea_struct(&result->stru[stru1_size], stru2->stru,
           stru2->size)) {
         destr_struct(result->stru, stru1_size);
-        /* printf("FREE_STRUCT 4 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -190,7 +186,6 @@ objectType sct_conv (listType arguments)
       result_struct->usage_count = 1;
       result_struct->size = stru1->size;
       if (!crea_struct(result_struct->stru, stru1->stru, stru1->size)) {
-        /* printf("FREE_STRUCT 5 %lu\n", result_struct); */
         FREE_STRUCT(result_struct, stru1->size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -222,7 +217,6 @@ objectType sct_cpy (listType arguments)
     dest_struct = take_struct(dest);
     if (TEMP_OBJECT(source)) {
       destr_struct(dest_struct->stru, dest_struct->size);
-      /* printf("FREE_STRUCT 6 %lu\n", dest_struct); */
       FREE_STRUCT(dest_struct, dest_struct->size);
       dest->value.structValue = take_struct(source);
       source->value.structValue = NULL;
@@ -236,13 +230,11 @@ objectType sct_cpy (listType arguments)
           dest_struct->size = source_size;
           if (!crea_struct(dest_struct->stru,
               take_struct(source)->stru, source_size)) {
-            /* printf("FREE_STRUCT 7 %lu\n", dest_struct); */
             FREE_STRUCT(dest_struct, source_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
           destr_struct(take_struct(dest)->stru,
               take_struct(dest)->size);
-          /* printf("FREE_STRUCT 8 %lu\n", take_struct(dest)); */
           FREE_STRUCT(take_struct(dest),
               take_struct(dest)->size);
           dest->value.structValue = dest_struct;
@@ -302,7 +294,6 @@ printf("create: pointer assignment\n");
         dest->value.structValue = new_stru;
         if (!crea_struct(new_stru->stru,
             take_struct(source)->stru, new_size)) {
-          /* printf("FREE_STRUCT 9 %lu\n", new_stru); */
           FREE_STRUCT(new_stru, new_size);
           dest->value.structValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -337,7 +328,6 @@ objectType sct_destr (listType arguments)
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
           destr_struct(old_struct->stru, old_struct->size);
-          /* printf("FREE_STRUCT 10 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
           arg_1(arguments)->value.structValue = NULL;
           SET_UNUSED_FLAG(arg_1(arguments));
@@ -497,7 +487,6 @@ printf("\n");
                   (memSizeType) (struct_pointer - stru1->stru));
               destr_struct(&struct_pointer[1],
                   (stru1->size - (memSizeType) (struct_pointer - stru1->stru) - 1));
-              /* printf("FREE_STRUCT 11 %lu\n", stru1); */
               FREE_STRUCT(stru1, stru1->size);
               arg_1(arguments)->value.structValue = NULL;
             } /* if */

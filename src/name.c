@@ -528,7 +528,6 @@ static void close_current_stack (progType currentProg)
         trace1(list_element->obj);
         printf("\n"); */
         dump_temp_value(list_element->obj);
-        /* memset(&list_element->obj->value, 0, sizeof(valueUnion)); */
         pop_object(currentProg, list_element->obj);
       } /* if */
       list_element = list_element->next;
@@ -540,7 +539,6 @@ static void close_current_stack (progType currentProg)
         trace1(list_element->obj);
         printf("\n"); */
         dump_temp_value(list_element->obj);
-        /* memset(&list_element->obj->value, 0, sizeof(valueUnion)); */
         pop_object(currentProg, list_element->obj);
       } /* if */
       list_element = list_element->next;
@@ -914,9 +912,6 @@ objectType entername (nodeType declaration_base, objectType object_name,
       } /* if */
     } else {
       defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
-/* printf(" %s\n", defined_object->IDENT->NAME);
-   printf("o%d_%s declared \n", defined_object->NUMBER,
-       defined_object->IDENT->NAME); */
     } /* if */
     /* trace_nodes(); */
     logFunction(printf("entername(");
@@ -997,9 +992,6 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
     } else {
       defined_object = NULL;
     } /* if */
-/* printf(" %s\n", defined_object->IDENT->NAME);
-   printf("o%d_%s declared \n", defined_object->NUMBER,
-       defined_object->IDENT->NAME); */
     /* trace_nodes(); */
     logFunction(printf("find_name(");
                 trace1(object_name);
@@ -1079,9 +1071,6 @@ objectType search_name (const_nodeType declaration_base,
     } else {
       defined_object = NULL;
     } /* if */
-/* printf(" %s\n", defined_object->IDENT->NAME);
-   printf("o%d_%s declared \n", defined_object->NUMBER,
-       defined_object->IDENT->NAME); */
     /* trace_nodes(); */
     logFunction(printf("search_name(");
                 trace1(object_name);
@@ -1188,9 +1177,6 @@ objectType dollar_entername (nodeType declaration_base, objectType object_name,
       defined_object = dollar_inst_list(declaration_base, object_name, err_info);
     } else {
       defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
-/* printf(" %s\n", defined_object->IDENT->NAME);
-   printf("o%d_%s declared \n", defined_object->NUMBER,
-       defined_object->IDENT->NAME); */
     } /* if */
     /* trace_nodes(); */
     logFunction(printf("dollar_entername(");

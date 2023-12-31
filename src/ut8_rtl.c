@@ -75,28 +75,24 @@ static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_
   { /* bytes_to_strelements */
     if (bytes_in_buffer != 0) {
       bytes_in_buffer += state->bytes_remaining;
-      /* printf("#1# bytes_in_buffer=%d %X %X\n", bytes_in_buffer, buffer[0], buffer[1]); */
       state->bytes_remaining = utf8_to_stri(stri_dest, &state->chars_read, buffer,
                                             bytes_in_buffer);
       if (state->bytes_remaining != 0) {
-        /* printf("#2# bytes_remaining=%d %X\n", state->bytes_remaining,
-            buffer[bytes_in_buffer - state->bytes_remaining]); */
         state->bytes_missing = utf8_bytes_missing(
             &buffer[bytes_in_buffer - state->bytes_remaining],
             state->bytes_remaining);
-        /* printf("#3# bytes_missing=%d\n", state->bytes_missing); */
         if (state->bytes_missing != 0) {
           memmove(buffer, &buffer[bytes_in_buffer - state->bytes_remaining],
                   state->bytes_remaining);
-          /* printf("#4# %X %X\n", buffer[0], buffer[1]); */
           state->chars_there = 1;
         } else {
-          /* printf("#5# bytes_in_buffer=%d bytes_remaining=%d bytes_missing=%d "
-              "chars_requested=%d chars_missing=%d %X ftell=%ld\n",
-              bytes_in_buffer, state->bytes_remaining, state->bytes_missing,
-              chars_requested, chars_missing,
-              buffer[bytes_in_buffer - state->bytes_remaining],
-              ftell(aFile)); */
+          logError(printf("bytes_to_strelements:\n"
+                          "bytes_in_buffer=" FMT_U_MEM ", "
+                          "bytes_remaining=" FMT_U_MEM ", "
+                          "bytes_missing=" FMT_U_MEM ", %X\n",
+                          bytes_in_buffer, state->bytes_remaining,
+                          state->bytes_missing,
+                          buffer[bytes_in_buffer - state->bytes_remaining]););
           *err_info = RANGE_ERROR;
           return;
         } /* if */
@@ -107,7 +103,6 @@ static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_
     } else {
       state->chars_read = 0;
     } /* if */
-    /* printf("#6# chars_read=%d\n", state->chars_read); */
   } /* bytes_to_strelements */
 
 
@@ -144,8 +139,6 @@ static memSizeType read_utf8_string (cFileType inFile, striType stri, errInfoTyp
                         (memSizeType) BUFFER_SIZE, safe_fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
-        /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
-            bytes_in_buffer, stri_pos); */
         bytes_to_strelements(buffer, bytes_in_buffer, &stri->mem[stri_pos],
              &state, err_info);
       } /* if */
@@ -161,10 +154,6 @@ static memSizeType read_utf8_string (cFileType inFile, striType stri, errInfoTyp
                         safe_fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
-        /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d "
-            "chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
-            bytes_in_buffer, chars_missing, chars_read, chars_there,
-            state.bytes_missing, stri_pos); */
         bytes_to_strelements(buffer, bytes_in_buffer, &stri->mem[stri_pos],
              &state, err_info);
       } /* if */
@@ -219,8 +208,6 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
                           (memSizeType) LIST_BUFFER_SIZE, safe_fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
-          /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
-              bytes_in_buffer, result_pos); */
           if (result_pos + bytes_in_buffer > result->size) {
             new_size = result->size + GETS_STRI_SIZE_DELTA;
             REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);
@@ -249,10 +236,6 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
                           safe_fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
-          /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d "
-              "chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
-              bytes_in_buffer, chars_missing, chars_read, chars_there,
-              state.bytes_missing, result_pos); */
           if (result_pos + bytes_in_buffer > result->size) {
             new_size = result->size + GETS_STRI_SIZE_DELTA;
             REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);

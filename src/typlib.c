@@ -168,14 +168,12 @@ objectType typ_create (listType arguments)
  */
 objectType typ_destr (listType arguments)
 
-  {
-    /* typeType old_type; */
-
-  /* typ_destr */
+  { /* typ_destr */
     logFunction(printf("typ_destr\n"););
     isit_type(arg_1(arguments));
-    /* old_type = take_type(arg_1(arguments)); */
-    /* printf("typ_destr "); trace1(old_type->match_obj); printf("\n"); */
+    /* printf("typ_destr ");
+    trace1(take_type(arg_1(arguments))->match_obj);
+    printf("\n"); */
     SET_UNUSED_FLAG(arg_1(arguments));
     logFunction(printf("typ_destr -->\n"););
     return SYS_EMPTY_OBJECT;
