@@ -1061,33 +1061,32 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         positionName := "pos_" & str(statement.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
           statement.temp_decls &:= "uintType ";
-          statement.temp_decls &:= positionName;
-          statement.temp_decls &:= ";\n";
-          statement.expr &:= positionName;
-          statement.expr &:= "=(uintType)(";
+        else
+          statement.temp_decls &:= "intType ";
+        end if;
+        statement.temp_decls &:= positionName;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= positionName;
+        statement.expr &:= "=";
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          statement.expr &:= "(uintType)(";
           process_expr(position, statement);
           statement.expr &:= ")-1;\n";
           statement.expr &:= "if (idxChk(";
           statement.expr &:= positionName;
-          statement.expr &:= ">=(";
-          statement.expr &:= destStriName;
-          statement.expr &:= ")->size)) {\n";
+          statement.expr &:= ">=";
         else
-          statement.temp_decls &:= "intType ";
-          statement.temp_decls &:= positionName;
-          statement.temp_decls &:= ";\n";
-          statement.expr &:= positionName;
-          statement.expr &:= "=";
           process_expr(position, statement);
           statement.expr &:= ";\n";
           statement.expr &:= "if (idxChk(";
           statement.expr &:= positionName;
           statement.expr &:= "<=0 || ";
           statement.expr &:= positionName;
-          statement.expr &:= ">(";
-          statement.expr &:= destStriName;
-          statement.expr &:= ")->size)) {\n";
+          statement.expr &:= ">";
         end if;
+        statement.expr &:= "(";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->size)) {\n";
         statement.expr &:= "  ";
         statement.expr &:= raiseError("INDEX_ERROR");
         statement.expr &:= "} else {\n";
@@ -1152,33 +1151,32 @@ const proc: process (STR_ELEMCPY, in reference: function,
         positionName := "pos_" & str(statement.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
           statement.temp_decls &:= "uintType ";
-          statement.temp_decls &:= positionName;
-          statement.temp_decls &:= ";\n";
-          statement.expr &:= positionName;
-          statement.expr &:= "=(uintType)(";
+        else
+          statement.temp_decls &:= "intType ";
+        end if;
+        statement.temp_decls &:= positionName;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= positionName;
+        statement.expr &:= "=";
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          statement.expr &:= "(uintType)(";
           process_expr(params[4], statement);
           statement.expr &:= ")-1;\n";
           statement.expr &:= "if (idxChk(";
           statement.expr &:= positionName;
-          statement.expr &:= ">=(";
-          statement.expr &:= destStriName;
-          statement.expr &:= ")->size)) {\n";
+          statement.expr &:= ">=";
         else
-          statement.temp_decls &:= "intType ";
-          statement.temp_decls &:= positionName;
-          statement.temp_decls &:= ";\n";
-          statement.expr &:= positionName;
-          statement.expr &:= "=";
           process_expr(params[4], statement);
           statement.expr &:= ";\n";
           statement.expr &:= "if (idxChk(";
           statement.expr &:= positionName;
           statement.expr &:= "<=0 || ";
           statement.expr &:= positionName;
-          statement.expr &:= ">(";
-          statement.expr &:= destStriName;
-          statement.expr &:= ")->size)) {\n";
+          statement.expr &:= ">";
         end if;
+        statement.expr &:= "(";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->size)) {\n";
         statement.expr &:= "  ";
         statement.expr &:= raiseError("INDEX_ERROR");
         statement.expr &:= "} else {\n";
