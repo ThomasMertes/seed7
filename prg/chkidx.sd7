@@ -2773,6 +2773,108 @@ const func boolean: check_string_range_expr_2 is func
   end func;
 
 
+const func boolean: check_string_range_expr_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesIndexError("" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError("1" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..             5 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..             9 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..            10 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..            11 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) ..  integer.last ]) then
+      writeln(" ***** STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError("" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError("1" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError("1" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(            5) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(            9) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(           10) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(           11) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError("1234567890" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) then
+      writeln(" ***** STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..             5 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..             9 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..            10 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..            11 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) ..  integer.last ]) then
+      writeln(" ***** STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(striExpr("") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(striExpr("1") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            5) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            9) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           10) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           11) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) then
+      writeln(" ***** STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_string_range_assign_1 is func
   result
     var boolean: okay is TRUE;
@@ -4512,6 +4614,110 @@ const func boolean: check_string_range_assign_2 is func
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           15) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ intExpr( integer.last) .. intExpr(           20) ]) then
       writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_range_assign_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: stri is "";
+  begin
+    if  not raisesIndexError(stri := "" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..             5 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..             9 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..            10 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..            11 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) ..  integer.last ]) then
+      writeln(" ***** stri := STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := "" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := "" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := "1" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(            5) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(            9) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(           10) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(           11) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := "1234567890" [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) then
+      writeln(" ***** stri := STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) ..             2 ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) ..  integer.last ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..             0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..             1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..             5 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..             9 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..            10 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..            11 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..            15 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) ..  integer.last ]) then
+      writeln(" ***** stri := STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := striExpr("") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) .. intExpr(            2) ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := striExpr("1") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            0) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            1) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            5) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(            9) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           10) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           11) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) then
+      writeln(" ***** stri := STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -6273,11 +6479,19 @@ const proc: check_string_range is func
       okay := FALSE;
     end if;
 
+    if not check_string_range_expr_3 then
+      okay := FALSE;
+    end if;
+
     if not check_string_range_assign_1 then
       okay := FALSE;
     end if;
 
     if not check_string_range_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_range_assign_3 then
       okay := FALSE;
     end if;
 
