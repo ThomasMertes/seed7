@@ -912,7 +912,8 @@ const proc: process_const_str_elemcpy (in reference: destStri,
     in integer: position, in char: aChar, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_destStri is expr_type.value;
+    var expr_type: statement is expr_type.value;
+    var string: destStriName is "";
   begin
     incr(countOptimizations);
     if position < 1 then
@@ -920,49 +921,49 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
     else
-      process_expr(destStri, c_destStri);
-      if c_destStri.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "{\n";
-      end if;
-      if c_destStri.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_decls, c_expr);
-        appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
-      end if;
       if string_index_check then
         incr(countIndexChecks);
-        c_expr.expr &:= "striType destStri=";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (idxChk(destStri->size<=";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= ")) {\n";
-        c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "} else {\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  destStri->mem[";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= "] = (strElemType)(";
-        c_expr.expr &:= c_literal(aChar);
-        c_expr.expr &:= ");\n";
-        c_expr.expr &:= "}\n";
+        if isNormalVariable(destStri) then
+          destStriName := normalVariable(destStri, statement);
+        else
+          incr(statement.temp_num);
+          destStriName := "tmp_" & str(statement.temp_num);
+          statement.temp_decls &:= "striType *";
+          statement.temp_decls &:= destStriName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= destStriName;
+          statement.expr &:= "=&(";
+          process_expr(destStri, statement);
+          statement.expr &:= ");\n";
+          destStriName := "*" & destStriName;
+        end if;
+        statement.expr &:= "if (idxChk((";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->size<=";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= ")) {\n";
+        statement.expr &:= "  ";
+        statement.expr &:= raiseError("INDEX_ERROR");
+        statement.expr &:= "} else {\n";
+        statement.expr &:= "  (";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->mem[";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= "] = (strElemType)(";
+        statement.expr &:= c_literal(aChar);
+        statement.expr &:= ");\n";
+        statement.expr &:= "}\n";
       else
         incr(countSuppressedIndexChecks);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "(";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ")->mem[";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= "] = (strElemType)(";
-        c_expr.expr &:= c_literal(aChar);
-        c_expr.expr &:= ");\n";
+        statement.expr &:= "(";
+        process_expr(destStri, statement);
+        statement.expr &:= ")->mem[";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= "] = (strElemType)(";
+        statement.expr &:= c_literal(aChar);
+        statement.expr &:= ");\n";
       end if;
-      if c_destStri.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_frees, c_expr);
-      end if;
-      if c_destStri.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "}\n";
-      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -971,8 +972,8 @@ const proc: process_const_str_elemcpy (in reference: destStri,
     in integer: position, in reference: aChar, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_destStri is expr_type.value;
-    var expr_type: c_aChar is expr_type.value;
+    var expr_type: statement is expr_type.value;
+    var string: destStriName is "";
   begin
     incr(countOptimizations);
     if position < 1 then
@@ -980,54 +981,49 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
     else
-      process_expr(destStri, c_destStri);
-      c_aChar.temp_num := c_destStri.temp_num;
-      process_expr(aChar, c_aChar);
-      if c_aChar.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "{\n";
-      end if;
-      if c_aChar.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_decls, c_expr);
-        appendWithDiagnostic(c_aChar.temp_decls, c_expr);
-        appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
-        appendWithDiagnostic(c_aChar.temp_assigns, c_expr);
-      end if;
       if string_index_check then
         incr(countIndexChecks);
-        c_expr.expr &:= "striType destStri=";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (idxChk(destStri->size<=";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= ")) {\n";
-        c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "} else {\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  destStri->mem[";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= "] = (strElemType)(";
-        c_expr.expr &:= c_aChar.expr;
-        c_expr.expr &:= ");\n";
-        c_expr.expr &:= "}\n";
+        if isNormalVariable(destStri) then
+          destStriName := normalVariable(destStri, statement);
+        else
+          incr(statement.temp_num);
+          destStriName := "tmp_" & str(statement.temp_num);
+          statement.temp_decls &:= "striType *";
+          statement.temp_decls &:= destStriName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= destStriName;
+          statement.expr &:= "=&(";
+          process_expr(destStri, statement);
+          statement.expr &:= ");\n";
+          destStriName := "*" & destStriName;
+        end if;
+        statement.expr &:= "if (idxChk((";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->size<=";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= ")) {\n";
+        statement.expr &:= "  ";
+        statement.expr &:= raiseError("INDEX_ERROR");
+        statement.expr &:= "} else {\n";
+        statement.expr &:= "  (";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->mem[";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= "] = (strElemType)(";
+        process_expr(aChar, statement);
+        statement.expr &:= ");\n";
+        statement.expr &:= "}\n";
       else
         incr(countSuppressedIndexChecks);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "(";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ")->mem[";
-        c_expr.expr &:= integerLiteral(pred(position));
-        c_expr.expr &:= "] = (strElemType)(";
-        c_expr.expr &:= c_aChar.expr;
-        c_expr.expr &:= ");\n";
+        statement.expr &:= "(";
+        process_expr(destStri, statement);
+        statement.expr &:= ")->mem[";
+        statement.expr &:= integerLiteral(pred(position));
+        statement.expr &:= "] = (strElemType)(";
+        process_expr(aChar, statement);
+        statement.expr &:= ");\n";
       end if;
-      if c_aChar.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_frees, c_expr);
-        appendWithDiagnostic(c_aChar.temp_frees, c_expr);
-      end if;
-      if c_aChar.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "}\n";
-      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -1037,74 +1033,87 @@ const proc: process_const_str_elemcpy (in reference: destStri,
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_destStri is expr_type.value;
-    var expr_type: c_position is expr_type.value;
+    var expr_type: statement is expr_type.value;
+    var string: destStriName is "";
+    var string: positionName is "";
   begin
     if getConstant(position, INTOBJECT, evaluatedParam) then
       process_const_str_elemcpy(destStri, getValue(evaluatedParam, integer), aChar, c_expr);
     else
       incr(countOptimizations);
-      process_expr(destStri, c_destStri);
-      c_position.temp_num := c_destStri.temp_num;
-      process_expr(position, c_position);
-      if c_position.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "{\n";
-      end if;
-      if c_position.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_decls, c_expr);
-        appendWithDiagnostic(c_position.temp_decls, c_expr);
-        appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
-        appendWithDiagnostic(c_position.temp_assigns, c_expr);
-      end if;
       if string_index_check then
         incr(countIndexChecks);
-        c_expr.expr &:= "striType destStri=";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ";\n";
-        if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "uintType position=(uintType)(";
-          c_expr.expr &:= c_position.expr;
-          c_expr.expr &:= ")-1;\n";
-          c_expr.expr &:= "if (idxChk(";
-          c_expr.expr &:= "position>=destStri->size)) {\n";
+        if isNormalVariable(destStri) then
+          destStriName := normalVariable(destStri, statement);
         else
-          c_expr.expr &:= "intType position=";
-          c_expr.expr &:= c_position.expr;
-          c_expr.expr &:= ";\n";
-          c_expr.expr &:= "if (idxChk(";
-          c_expr.expr &:= "position<=0 || ";
-          c_expr.expr &:= "position>destStri->size)) {\n";
+          incr(statement.temp_num);
+          destStriName := "tmp_" & str(statement.temp_num);
+          statement.temp_decls &:= "striType *";
+          statement.temp_decls &:= destStriName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= destStriName;
+          statement.expr &:= "=&(";
+          process_expr(destStri, statement);
+          statement.expr &:= ");\n";
+          destStriName := "*" & destStriName;
         end if;
-        c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "} else {\n";
-        setDiagnosticLine(c_expr);
+        incr(statement.temp_num);
+        positionName := "pos_" & str(statement.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "  destStri->mem[position] = (strElemType)(";
+          statement.temp_decls &:= "uintType ";
+          statement.temp_decls &:= positionName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= positionName;
+          statement.expr &:= "=(uintType)(";
+          process_expr(position, statement);
+          statement.expr &:= ")-1;\n";
+          statement.expr &:= "if (idxChk(";
+          statement.expr &:= positionName;
+          statement.expr &:= ">=(";
+          statement.expr &:= destStriName;
+          statement.expr &:= ")->size)) {\n";
         else
-          c_expr.expr &:= "  destStri->mem[position-1] = (strElemType)(";
+          statement.temp_decls &:= "intType ";
+          statement.temp_decls &:= positionName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= positionName;
+          statement.expr &:= "=";
+          process_expr(position, statement);
+          statement.expr &:= ";\n";
+          statement.expr &:= "if (idxChk(";
+          statement.expr &:= positionName;
+          statement.expr &:= "<=0 || ";
+          statement.expr &:= positionName;
+          statement.expr &:= ">(";
+          statement.expr &:= destStriName;
+          statement.expr &:= ")->size)) {\n";
         end if;
-        c_expr.expr &:= c_literal(aChar);
-        c_expr.expr &:= ");\n";
-        c_expr.expr &:= "}\n";
+        statement.expr &:= "  ";
+        statement.expr &:= raiseError("INDEX_ERROR");
+        statement.expr &:= "} else {\n";
+        statement.expr &:= "  (";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->mem[";
+        statement.expr &:= positionName;
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          statement.expr &:= "] = (strElemType)(";
+        else
+          statement.expr &:= "-1] = (strElemType)(";
+        end if;
+        statement.expr &:= c_literal(aChar);
+        statement.expr &:= ");\n";
+        statement.expr &:= "}\n";
       else
         incr(countSuppressedIndexChecks);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "(";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ")->mem[(";
-        c_expr.expr &:= c_position.expr;
-        c_expr.expr &:= ")-1] = (strElemType)(";
-        c_expr.expr &:= c_literal(aChar);
-        c_expr.expr &:= ");\n";
+        statement.expr &:= "(";
+        process_expr(destStri, statement);
+        statement.expr &:= ")->mem[(";
+        process_expr(position, statement);
+        statement.expr &:= ")-1] = (strElemType)(";
+        statement.expr &:= c_literal(aChar);
+        statement.expr &:= ");\n";
       end if;
-      if c_position.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_frees, c_expr);
-        appendWithDiagnostic(c_position.temp_frees, c_expr);
-      end if;
-      if c_position.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "}\n";
-      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -1114,81 +1123,88 @@ const proc: process (STR_ELEMCPY, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_destStri is expr_type.value;
-    var expr_type: c_position is expr_type.value;
-    var expr_type: c_aChar is expr_type.value;
+    var expr_type: statement is expr_type.value;
+    var string: destStriName is "";
+    var string: positionName is "";
   begin
     if getConstant(params[6], CHAROBJECT, evaluatedParam) then
       process_const_str_elemcpy(params[1], params[4], getValue(evaluatedParam, char), c_expr);
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_elemcpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
-      process_expr(params[1], c_destStri);
-      c_position.temp_num := c_destStri.temp_num;
-      process_expr(params[4], c_position);
-      c_aChar.temp_num := c_position.temp_num;
-      process_expr(params[6], c_aChar);
-      if c_aChar.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "{\n";
-      end if;
-      if c_aChar.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_decls, c_expr);
-        appendWithDiagnostic(c_position.temp_decls, c_expr);
-        appendWithDiagnostic(c_aChar.temp_decls, c_expr);
-        appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
-        appendWithDiagnostic(c_position.temp_assigns, c_expr);
-        appendWithDiagnostic(c_aChar.temp_assigns, c_expr);
-      end if;
       if string_index_check then
         incr(countIndexChecks);
-        c_expr.expr &:= "striType destStri=";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ";\n";
-        if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "uintType position=(uintType)(";
-          c_expr.expr &:= c_position.expr;
-          c_expr.expr &:= ")-1;\n";
-          c_expr.expr &:= "if (idxChk(";
-          c_expr.expr &:= "position>=destStri->size)) {\n";
+        if isNormalVariable(params[1]) then
+          destStriName := normalVariable(params[1], statement);
         else
-          c_expr.expr &:= "intType position=";
-          c_expr.expr &:= c_position.expr;
-          c_expr.expr &:= ";\n";
-          c_expr.expr &:= "if (idxChk(";
-          c_expr.expr &:= "position<=0 || ";
-          c_expr.expr &:= "position>destStri->size)) {\n";
+          incr(statement.temp_num);
+          destStriName := "tmp_" & str(statement.temp_num);
+          statement.temp_decls &:= "striType *";
+          statement.temp_decls &:= destStriName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= destStriName;
+          statement.expr &:= "=&(";
+          process_expr(params[1], statement);
+          statement.expr &:= ");\n";
+          destStriName := "*" & destStriName;
         end if;
-        c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("INDEX_ERROR");
-        c_expr.expr &:= "} else {\n";
-        setDiagnosticLine(c_expr);
+        incr(statement.temp_num);
+        positionName := "pos_" & str(statement.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "  destStri->mem[position] = (strElemType)(";
+          statement.temp_decls &:= "uintType ";
+          statement.temp_decls &:= positionName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= positionName;
+          statement.expr &:= "=(uintType)(";
+          process_expr(params[4], statement);
+          statement.expr &:= ")-1;\n";
+          statement.expr &:= "if (idxChk(";
+          statement.expr &:= positionName;
+          statement.expr &:= ">=(";
+          statement.expr &:= destStriName;
+          statement.expr &:= ")->size)) {\n";
         else
-          c_expr.expr &:= "  destStri->mem[position-1] = (strElemType)(";
+          statement.temp_decls &:= "intType ";
+          statement.temp_decls &:= positionName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= positionName;
+          statement.expr &:= "=";
+          process_expr(params[4], statement);
+          statement.expr &:= ";\n";
+          statement.expr &:= "if (idxChk(";
+          statement.expr &:= positionName;
+          statement.expr &:= "<=0 || ";
+          statement.expr &:= positionName;
+          statement.expr &:= ">(";
+          statement.expr &:= destStriName;
+          statement.expr &:= ")->size)) {\n";
         end if;
-        c_expr.expr &:= c_aChar.expr;
-        c_expr.expr &:= ");\n";
-        c_expr.expr &:= "}\n";
+        statement.expr &:= "  ";
+        statement.expr &:= raiseError("INDEX_ERROR");
+        statement.expr &:= "} else {\n";
+        statement.expr &:= "  (";
+        statement.expr &:= destStriName;
+        statement.expr &:= ")->mem[";
+        statement.expr &:= positionName;
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          statement.expr &:= "] = (strElemType)(";
+        else
+          statement.expr &:= "-1] = (strElemType)(";
+        end if;
+        process_expr(params[6], statement);
+        statement.expr &:= ");\n";
+        statement.expr &:= "}\n";
       else
         incr(countSuppressedIndexChecks);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "(";
-        c_expr.expr &:= c_destStri.expr;
-        c_expr.expr &:= ")->mem[(";
-        c_expr.expr &:= c_position.expr;
-        c_expr.expr &:= ")-1] = (strElemType)(";
-        c_expr.expr &:= c_aChar.expr;
-        c_expr.expr &:= ");\n";
+        statement.expr &:= "(";
+        process_expr(params[1], statement);
+        statement.expr &:= ")->mem[(";
+        process_expr(params[4], statement);
+        statement.expr &:= ")-1] = (strElemType)(";
+        process_expr(params[6], statement);
+        statement.expr &:= ");\n";
       end if;
-      if c_aChar.temp_num <> 0 then
-        appendWithDiagnostic(c_destStri.temp_frees, c_expr);
-        appendWithDiagnostic(c_position.temp_frees, c_expr);
-        appendWithDiagnostic(c_aChar.temp_frees, c_expr);
-      end if;
-      if c_aChar.temp_num <> 0 or string_index_check then
-        c_expr.expr &:= "}\n";
-      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
