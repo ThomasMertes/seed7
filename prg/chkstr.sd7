@@ -5274,6 +5274,80 @@ const func boolean: check_string_range_expr_3 is func
       writeln(" ***** STRING [ START .. STOP ] does not work correctly. (12)");
       okay := FALSE;
     end if;
+
+    if  "" [             1 .. abs(intExpr(0)) +            0 ] <> "" or
+        "" [             1 .. abs(intExpr(0)) +            1 ] <> "" or
+        "" [             1 .. abs(intExpr(0)) +            2 ] <> "" or
+        "" [             1 .. abs(intExpr(0)) +           15 ] <> "" or
+        "" [             1 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "" [             4 .. abs(intExpr(0)) +            4 ] <> "" or
+        "" [             4 .. abs(intExpr(0)) +            5 ] <> "" or
+        "" [             4 .. abs(intExpr(0)) +            6 ] <> "" or
+        "" [             4 .. abs(intExpr(0)) +           15 ] <> "" or
+        "" [             4 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "" [  integer.last .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1" [             1 .. abs(intExpr(0)) +            0 ] <> "" or
+        "1" [             1 .. abs(intExpr(0)) +            1 ] <> "1" or
+        "1" [             1 .. abs(intExpr(0)) +            2 ] <> "1" or
+        "1" [             1 .. abs(intExpr(0)) +           15 ] <> "1" or
+        "1" [             1 .. abs(intExpr(0)) + integer.last ] <> "1" or
+
+        "1" [             2 .. abs(intExpr(0)) +            1 ] <> "" or
+        "1" [             2 .. abs(intExpr(0)) +            4 ] <> "" or
+        "1" [             2 .. abs(intExpr(0)) +            5 ] <> "" or
+        "1" [             2 .. abs(intExpr(0)) +            6 ] <> "" or
+        "1" [             2 .. abs(intExpr(0)) +           15 ] <> "" or
+        "1" [             2 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1" [             5 .. abs(intExpr(0)) +            4 ] <> "" or
+        "1" [             5 .. abs(intExpr(0)) +            5 ] <> "" or
+        "1" [             5 .. abs(intExpr(0)) +            6 ] <> "" or
+        "1" [             5 .. abs(intExpr(0)) +           15 ] <> "" or
+        "1" [             5 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1" [  integer.last .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1234567890" [             1 .. abs(intExpr(0)) +            0 ] <> "" or
+        "1234567890" [             1 .. abs(intExpr(0)) +            1 ] <> "1" or
+        "1234567890" [             1 .. abs(intExpr(0)) +            5 ] <> "12345" or
+        "1234567890" [             1 .. abs(intExpr(0)) +            9 ] <> "123456789" or
+        "1234567890" [             1 .. abs(intExpr(0)) +           10 ] <> "1234567890" or
+        "1234567890" [             1 .. abs(intExpr(0)) +           11 ] <> "1234567890" or
+        "1234567890" [             1 .. abs(intExpr(0)) +           15 ] <> "1234567890" or
+        "1234567890" [             1 .. abs(intExpr(0)) + integer.last ] <> "1234567890" or
+
+        "1234567890" [             5 .. abs(intExpr(0)) +            4 ] <> "" or
+        "1234567890" [             5 .. abs(intExpr(0)) +            5 ] <> "5" or
+        "1234567890" [             5 .. abs(intExpr(0)) +            6 ] <> "56" or
+        "1234567890" [             5 .. abs(intExpr(0)) +            9 ] <> "56789" or
+        "1234567890" [             5 .. abs(intExpr(0)) +           10 ] <> "567890" or
+        "1234567890" [             5 .. abs(intExpr(0)) +           11 ] <> "567890" or
+        "1234567890" [             5 .. abs(intExpr(0)) +           15 ] <> "567890" or
+        "1234567890" [             5 .. abs(intExpr(0)) + integer.last ] <> "567890" or
+
+        "1234567890" [            10 .. abs(intExpr(0)) +            9 ] <> "" or
+        "1234567890" [            10 .. abs(intExpr(0)) +           10 ] <> "0" or
+        "1234567890" [            10 .. abs(intExpr(0)) +           11 ] <> "0" or
+        "1234567890" [            10 .. abs(intExpr(0)) +           15 ] <> "0" or
+        "1234567890" [            10 .. abs(intExpr(0)) + integer.last ] <> "0" or
+
+        "1234567890" [            11 .. abs(intExpr(0)) +           10 ] <> "" or
+        "1234567890" [            11 .. abs(intExpr(0)) +           11 ] <> "" or
+        "1234567890" [            11 .. abs(intExpr(0)) +           15 ] <> "" or
+        "1234567890" [            11 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1234567890" [            15 .. abs(intExpr(0)) +           14 ] <> "" or
+        "1234567890" [            15 .. abs(intExpr(0)) +           15 ] <> "" or
+        "1234567890" [            15 .. abs(intExpr(0)) +           20 ] <> "" or
+        "1234567890" [            15 .. abs(intExpr(0)) + integer.last ] <> "" or
+
+        "1234567890" [  integer.last .. abs(intExpr(0)) + integer.last ] <> "" then
+      writeln(" ***** STRING [ START .. STOP ] does not work correctly. (13)");
+      okay := FALSE;
+    end if;
   end func;
 
 
@@ -6205,6 +6279,81 @@ const func boolean: check_string_range_assign_3 is func
     stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) .. intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    stri := "" [             1 .. abs(intExpr(0)) +            0 ]; ok := ok and stri = "";
+    stri := "" [             1 .. abs(intExpr(0)) +            1 ]; ok := ok and stri = "";
+    stri := "" [             1 .. abs(intExpr(0)) +            2 ]; ok := ok and stri = "";
+    stri := "" [             1 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "" [             1 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "" [             4 .. abs(intExpr(0)) +            4 ]; ok := ok and stri = "";
+    stri := "" [             4 .. abs(intExpr(0)) +            5 ]; ok := ok and stri = "";
+    stri := "" [             4 .. abs(intExpr(0)) +            6 ]; ok := ok and stri = "";
+    stri := "" [             4 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "" [             4 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "" [  integer.last .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1" [             1 .. abs(intExpr(0)) +            0 ]; ok := ok and stri = "";
+    stri := "1" [             1 .. abs(intExpr(0)) +            1 ]; ok := ok and stri = "1";
+    stri := "1" [             1 .. abs(intExpr(0)) +            2 ]; ok := ok and stri = "1";
+    stri := "1" [             1 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "1";
+    stri := "1" [             1 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "1";
+
+    stri := "1" [             2 .. abs(intExpr(0)) +            1 ]; ok := ok and stri = "";
+    stri := "1" [             2 .. abs(intExpr(0)) +            4 ]; ok := ok and stri = "";
+    stri := "1" [             2 .. abs(intExpr(0)) +            5 ]; ok := ok and stri = "";
+    stri := "1" [             2 .. abs(intExpr(0)) +            6 ]; ok := ok and stri = "";
+    stri := "1" [             2 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "1" [             2 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1" [             5 .. abs(intExpr(0)) +            4 ]; ok := ok and stri = "";
+    stri := "1" [             5 .. abs(intExpr(0)) +            5 ]; ok := ok and stri = "";
+    stri := "1" [             5 .. abs(intExpr(0)) +            6 ]; ok := ok and stri = "";
+    stri := "1" [             5 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "1" [             5 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1" [  integer.last .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +            0 ]; ok := ok and stri = "";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +            1 ]; ok := ok and stri = "1";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +            5 ]; ok := ok and stri = "12345";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +            9 ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +           10 ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +           11 ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [             1 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +            4 ]; ok := ok and stri = "";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +            5 ]; ok := ok and stri = "5";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +            6 ]; ok := ok and stri = "56";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +            9 ]; ok := ok and stri = "56789";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +           10 ]; ok := ok and stri = "567890";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +           11 ]; ok := ok and stri = "567890";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "567890";
+    stri := "1234567890" [             5 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "567890";
+
+    stri := "1234567890" [            10 .. abs(intExpr(0)) +            9 ]; ok := ok and stri = "";
+    stri := "1234567890" [            10 .. abs(intExpr(0)) +           10 ]; ok := ok and stri = "0";
+    stri := "1234567890" [            10 .. abs(intExpr(0)) +           11 ]; ok := ok and stri = "0";
+    stri := "1234567890" [            10 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "0";
+    stri := "1234567890" [            10 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "0";
+
+    stri := "1234567890" [            11 .. abs(intExpr(0)) +           10 ]; ok := ok and stri = "";
+    stri := "1234567890" [            11 .. abs(intExpr(0)) +           11 ]; ok := ok and stri = "";
+    stri := "1234567890" [            11 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "1234567890" [            11 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1234567890" [            15 .. abs(intExpr(0)) +           14 ]; ok := ok and stri = "";
+    stri := "1234567890" [            15 .. abs(intExpr(0)) +           15 ]; ok := ok and stri = "";
+    stri := "1234567890" [            15 .. abs(intExpr(0)) +           20 ]; ok := ok and stri = "";
+    stri := "1234567890" [            15 .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+
+    stri := "1234567890" [  integer.last .. abs(intExpr(0)) + integer.last ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (13)");
       okay := FALSE;
     end if;
   end func;
