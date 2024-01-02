@@ -1999,6 +1999,29 @@ const proc: process_const_str_idx (in reference: stri,
   end func;
 
 
+const proc: process_str_idx_last_char (in reference: stri,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: stri_name is "";
+  begin
+    incr(countOptimizations);
+    c_expr.expr &:= "/* stri(length[stri)] */ (";
+    stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+    if string_index_check then
+      c_expr.expr &:= "idxChk(";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size==0) ? ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
+    end if;
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->mem[";
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->size-1])";
+  end func;
+
+
 const proc: process_str_idx (in reference: stri,
     in reference: index, inout expr_type: c_expr) is func
 
@@ -2013,6 +2036,10 @@ const proc: process_str_idx (in reference: stri,
       process_const_str_idx(getValue(evaluatedParam, string), index, c_expr);
     elsif getConstant(index, INTOBJECT, evaluatedParam) then
       process_const_str_idx(stri, getValue(evaluatedParam, integer), c_expr);
+    elsif optimizeStringFunctions and
+        isActionExpression(index, "STR_LNG") and
+        getActionParameter(index, 1) = stri then
+      process_str_idx_last_char(stri, c_expr);
     elsif string_index_check then
       lengthRange := getStrLenRange(stri);
       indexRange := getIntRange(index);

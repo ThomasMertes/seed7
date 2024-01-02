@@ -100,6 +100,7 @@ const func boolean: raisesIndexError (in func boolean: expression) is func
 const proc: check_string_index is func
   local
     var boolean: okay is TRUE;
+    var string: stri is "";
   begin
     if  not raisesIndexError("" [      integer.first]) or
         not raisesIndexError("" [                 -2]) or
@@ -326,6 +327,11 @@ const proc: check_string_index is func
         not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[-abs(intExpr(0))    ]) or
         not raisesIndexError(bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[ abs(intExpr(0)) + 4]) then
       writeln(" ***** String indexing outside of string does not raise INDEX_ERROR. (6)");
+      okay := FALSE;
+    end if;
+
+    if not raisesIndexError(stri[length(stri)]) then
+      writeln(" ***** STRING [ length(STRING) ] with an empty string does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
 

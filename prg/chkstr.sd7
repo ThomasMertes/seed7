@@ -2886,6 +2886,8 @@ const proc: check_string_length is func
 const proc: check_string_index is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
   begin
     if  "1" [ 1 ] <> '1' or
         "1234567890" [  1 ] <> '1' or
@@ -3039,6 +3041,14 @@ const proc: check_string_index is func
         bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(0) mod 3)] <> 'z' or
         bytes(intExpr(7895418),   SIGNED, LE, succ(intExpr(2) mod 3))[succ(intExpr(2) mod 3)] <> 'x' then
       writeln(" ***** STRING [ INDEX ] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    stri := "1";                            ok := ok and stri[length(stri)] = '1';
+    stri := "12345";                        ok := ok and stri[length(stri)] = '5';
+    stri := "1234567890" mult 100000 & "x"; ok := ok and stri[length(stri)] = 'x';
+    if not ok then
+      writeln(" ***** STRING [ length(STRING) ] does not work correctly.");
       okay := FALSE;
     end if;
 
