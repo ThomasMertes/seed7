@@ -3062,7 +3062,6 @@ const proc: process_inline_str_range (in reference: stri,
       stri_size := stri_name & "->size";
     end if;
     start_range := getIntRange(start);
-    stop_range := getIntRange(stop);
     if getConstant(start, INTOBJECT, evaluatedParam) then
       start_is_variable := FALSE;
       start_value := getValue(evaluatedParam, integer);
@@ -3073,6 +3072,10 @@ const proc: process_inline_str_range (in reference: stri,
       else
         start_name := integerLiteral(start_value);
       end if;
+    elsif start_range.maxValue < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("INDEX_ERROR");
+      raisesIndexError := TRUE;
     else
       start_name := getTempVariable("intType", "start_", start, c_expr);
       if string_index_check then
@@ -3091,6 +3094,7 @@ const proc: process_inline_str_range (in reference: stri,
       end if;
     end if;
     if not raisesIndexError then
+      stop_range := getIntRange(stop);
       if getConstant(stop, INTOBJECT, evaluatedParam) then
         stop_is_variable := FALSE;
         stop_value := getValue(evaluatedParam, integer);
@@ -3110,17 +3114,12 @@ const proc: process_inline_str_range (in reference: stri,
             length(stri_value) < start_value then
           if stop_is_variable then
             if string_index_check then
-              if stop_range.minValue < start_range.maxValue then
+              if stop_range.minValue < pred(start_value) then
                 incr(countIndexChecks);
                 c_expr.expr &:= "idxChk(";
                 c_expr.expr &:= stop_name;
                 c_expr.expr &:= "<";
-                if start_is_variable then
-                  c_expr.expr &:= start_name;
-                  c_expr.expr &:= "-1";
-                else
-                  c_expr.expr &:= integerLiteral(pred(start_value));
-                end if;
+                c_expr.expr &:= integerLiteral(pred(start_value));
                 c_expr.expr &:= ")?";
                 c_expr.expr &:= intRaiseError("INDEX_ERROR");
                 c_expr.expr &:= " : ";
