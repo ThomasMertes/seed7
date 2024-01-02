@@ -20229,8 +20229,10 @@ const proc: check_string_replace is func
         replace(         "abcd",               "za",               "az")  <> "abcd" or
         replace(         "abcd",  str(         'b'),               "b")   <> "abcd" or
         replace(         "abcd",  str(         'b'),               "d")   <> "adcd" or
+        replace(         "abcd",  str(         'b'),               "pp")  <> "appcd" or
         replace(         "abcd",  str(charExpr('b')),              "b")   <> "abcd" or
         replace(         "abcd",  str(charExpr('b')),              "d")   <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')),              "pp")  <> "appcd" or
         replace(         "abcd",               "b",   str(         'b'))  <> "abcd" or
         replace(         "abcd",               "b",   str(         'd'))  <> "adcd" or
         replace(         "abcd",               "b",   str(charExpr('b'))) <> "abcd" or
@@ -20251,8 +20253,10 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"),              "za",               "az")  <> "abcd" or
         replace(striExpr("abcd"), str(         'b'),               "b")   <> "abcd" or
         replace(striExpr("abcd"), str(         'b'),               "d")   <> "adcd" or
+        replace(striExpr("abcd"), str(         'b'),               "pp")  <> "appcd" or
         replace(striExpr("abcd"), str(charExpr('b')),              "b")   <> "abcd" or
         replace(striExpr("abcd"), str(charExpr('b')),              "d")   <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')),              "pp")  <> "appcd" or
         replace(striExpr("abcd"),              "b",   str(         'b'))  <> "abcd" or
         replace(striExpr("abcd"),              "b",   str(         'd'))  <> "adcd" or
         replace(striExpr("abcd"),              "b",   str(charExpr('b'))) <> "abcd" or
@@ -20273,8 +20277,10 @@ const proc: check_string_replace is func
         replace(         "abcd",  striExpr(             "za"),               "az")  <> "abcd" or
         replace(         "abcd",  striExpr(str(         'b')),               "b")   <> "abcd" or
         replace(         "abcd",  striExpr(str(         'b')),               "d")   <> "adcd" or
+        replace(         "abcd",  striExpr(str(         'b')),               "pp")  <> "appcd" or
         replace(         "abcd",  striExpr(str(charExpr('b'))),              "b")   <> "abcd" or
         replace(         "abcd",  striExpr(str(charExpr('b'))),              "d")   <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))),              "pp")  <> "appcd" or
         replace(         "abcd",  striExpr(             "b"),   str(         'b'))  <> "abcd" or
         replace(         "abcd",  striExpr(             "b"),   str(         'd'))  <> "adcd" or
         replace(         "abcd",  striExpr(             "b"),   str(charExpr('b'))) <> "abcd" or
@@ -20295,8 +20301,10 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"), striExpr(             "za"),               "az")  <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(         'b')),               "b")   <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(         'b')),               "d")   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),               "pp")  <> "appcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))),              "b")   <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))),              "d")   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))),              "pp")  <> "appcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   str(         'b'))  <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   str(         'd'))  <> "adcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   str(charExpr('b'))) <> "abcd" or
@@ -20317,8 +20325,10 @@ const proc: check_string_replace is func
         replace(         "abcd",               "za",  striExpr(             "az"))  <> "abcd" or
         replace(         "abcd",  str(         'b'),  striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",  str(         'b'),  striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  str(         'b'),  striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",  str(charExpr('b')), striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",  str(charExpr('b')), striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')), striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",               "b",   striExpr(str(         'b')))  <> "abcd" or
         replace(         "abcd",               "b",   striExpr(str(         'd')))  <> "adcd" or
         replace(         "abcd",               "b",   striExpr(str(charExpr('b')))) <> "abcd" or
@@ -20339,8 +20349,10 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"),              "za",  striExpr(             "az"))  <> "abcd" or
         replace(striExpr("abcd"), str(         'b'),  striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"), str(         'b'),  striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), str(         'b'),  striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"), str(charExpr('b')), striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"), str(charExpr('b')), striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"),              "b",   striExpr(str(         'b')))  <> "abcd" or
         replace(striExpr("abcd"),              "b",   striExpr(str(         'd')))  <> "adcd" or
         replace(striExpr("abcd"),              "b",   striExpr(str(charExpr('b')))) <> "abcd" or
@@ -20361,8 +20373,10 @@ const proc: check_string_replace is func
         replace(         "abcd",  striExpr(             "za"),  striExpr(             "az"))  <> "abcd" or
         replace(         "abcd",  striExpr(str(         'b')),  striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",  striExpr(str(         'b')),  striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",  striExpr(             "b"),   striExpr(str(         'b')))  <> "abcd" or
         replace(         "abcd",  striExpr(             "b"),   striExpr(str(         'd')))  <> "adcd" or
         replace(         "abcd",  striExpr(             "b"),   striExpr(str(charExpr('b')))) <> "abcd" or
@@ -20383,8 +20397,10 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"), striExpr(             "za"),  striExpr(             "az"))  <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(         'b')))  <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(         'd')))  <> "adcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(charExpr('b')))) <> "abcd" or
