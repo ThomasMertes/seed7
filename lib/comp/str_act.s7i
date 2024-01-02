@@ -3106,6 +3106,12 @@ const proc: process_inline_str_range (in reference: stri,
         else
           stop_name := integerLiteral(stop_value);
         end if;
+      elsif stop_range.maxValue < 0 or
+          not start_is_variable and
+          stop_range.maxValue < pred(start_value) then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        raisesIndexError := TRUE;
       else
         stop_name := getParameterAsVariable("intType", "stop_", stop, c_expr);
       end if;
@@ -3143,10 +3149,6 @@ const proc: process_inline_str_range (in reference: stri,
                            (slice.size = (memSizeType)stop-(memSizeType)start+1))
                            : idxChk(stop<start-1)?INDEX_ERROR
                            : (slice.mem = NULL,slice.size = 0) *)
-          if ccConf.WITH_STRI_CAPACITY and FALSE then
-            c_expr.expr &:= slice_name;
-            c_expr.expr &:= ".capacity=0, ";
-          end if;
           c_expr.expr &:= stop_name;
           c_expr.expr &:= ">=";
           c_expr.expr &:= start_name;

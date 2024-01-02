@@ -2872,6 +2872,67 @@ const func boolean: check_string_range_expr_3 is func
       writeln(" ***** STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (4)");
       okay := FALSE;
     end if;
+
+    if  not raisesIndexError(striExpr("") [             1 .. -abs(intExpr(0)) + integer.first ]) or
+        not raisesIndexError(striExpr("") [             1 .. -abs(intExpr(0)) +            -1 ]) or
+
+        not raisesIndexError(striExpr("") [             5 .. -abs(intExpr(0)) + integer.first ]) or
+        not raisesIndexError(striExpr("") [             5 .. -abs(intExpr(0)) +            -1 ]) or
+        not raisesIndexError(striExpr("") [             5 .. -abs(intExpr(0)) +             0 ]) or
+        not raisesIndexError(striExpr("") [             5 .. -abs(intExpr(0)) +             3 ]) or
+
+        not raisesIndexError(striExpr("") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) or
+
+        not raisesIndexError(striExpr("1") [             1 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1") [             1 .. -abs(intExpr(0)) +                  -1 ]) or
+
+        not raisesIndexError(striExpr("1") [             2 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1") [             2 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1") [             2 .. -abs(intExpr(0)) +                   0 ]) or
+
+        not raisesIndexError(striExpr("1") [             5 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1") [             5 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1") [             5 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1") [             5 .. -abs(intExpr(0)) +                   3 ]) or
+
+        not raisesIndexError(striExpr("1") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [             1 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [             1 .. -abs(intExpr(0)) +                  -1 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [             5 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                   3 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [            10 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                   8 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [            11 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                   9 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [            15 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                  13 ]) or
+
+        not raisesIndexError(striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) then
+      writeln(" ***** STRING [ START .. STOP ] with stop < pred(START) does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
   end func;
 
 
@@ -4718,6 +4779,67 @@ const func boolean: check_string_range_assign_3 is func
         not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr(           15) ]) or
         not raisesIndexError(stri := striExpr("1234567890") [ -abs(intExpr(            0)) .. intExpr( integer.last) ]) then
       writeln(" ***** stri := STRING [ 0 .. STOP ] does not raise INDEX_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(stri := striExpr("") [             1 .. -abs(intExpr(0)) + integer.first ]) or
+        not raisesIndexError(stri := striExpr("") [             1 .. -abs(intExpr(0)) +            -1 ]) or
+
+        not raisesIndexError(stri := striExpr("") [             5 .. -abs(intExpr(0)) + integer.first ]) or
+        not raisesIndexError(stri := striExpr("") [             5 .. -abs(intExpr(0)) +            -1 ]) or
+        not raisesIndexError(stri := striExpr("") [             5 .. -abs(intExpr(0)) +             0 ]) or
+        not raisesIndexError(stri := striExpr("") [             5 .. -abs(intExpr(0)) +             3 ]) or
+
+        not raisesIndexError(stri := striExpr("") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) or
+
+        not raisesIndexError(stri := striExpr("1") [             1 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1") [             1 .. -abs(intExpr(0)) +                  -1 ]) or
+
+        not raisesIndexError(stri := striExpr("1") [             2 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1") [             2 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1") [             2 .. -abs(intExpr(0)) +                   0 ]) or
+
+        not raisesIndexError(stri := striExpr("1") [             5 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1") [             5 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1") [             5 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1") [             5 .. -abs(intExpr(0)) +                   3 ]) or
+
+        not raisesIndexError(stri := striExpr("1") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [             1 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [             1 .. -abs(intExpr(0)) +                  -1 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [             5 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [             5 .. -abs(intExpr(0)) +                   3 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [            10 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            10 .. -abs(intExpr(0)) +                   8 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [            11 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            11 .. -abs(intExpr(0)) +                   9 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [            15 .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [            15 .. -abs(intExpr(0)) +                  13 ]) or
+
+        not raisesIndexError(stri := striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +       integer.first ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +                  -1 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) +                   0 ]) or
+        not raisesIndexError(stri := striExpr("1234567890") [  integer.last .. -abs(intExpr(0)) + 9223372036854775805 ]) then
+      writeln(" ***** stri := STRING [ START .. STOP ] with stop < pred(START) does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
   end func;
