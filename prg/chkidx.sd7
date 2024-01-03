@@ -18880,6 +18880,13 @@ const proc: check_string_assign_at is func
       okay := FALSE;
     end if;
 
+    stri := "";
+    if  not raisesIndexError(stri @:= [length(stri)]          'X')  or
+        not raisesIndexError(stri @:= [length(stri)] charExpr('X')) then
+      writeln(" ***** stri @:= [length(stri)] aChar; with an empty string does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Index checking for string @:= works correctly.");
     end if;

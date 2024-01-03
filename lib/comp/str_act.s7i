@@ -1117,6 +1117,48 @@ const proc: process_const_str_elemcpy (in reference: destStri,
   end func;
 
 
+const proc: process_str_elemcpy_last_char (in reference: destStri,
+    in reference: aChar, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var string: destStriName is "";
+  begin
+    statement.expr &:= "/* stri @:= [length[stri)] ch; */\n";
+    if isNormalVariable(destStri) then
+      destStriName := normalVariable(destStri, statement);
+    else
+      incr(statement.temp_num);
+      destStriName := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "striType *";
+      statement.temp_decls &:= destStriName;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= destStriName;
+      statement.expr &:= "=&(";
+      process_expr(destStri, statement);
+      statement.expr &:= ");\n";
+      destStriName := "*" & destStriName;
+    end if;
+    if string_index_check then
+      statement.expr &:= "if (idxChk(";
+      statement.expr &:= destStriName;
+      statement.expr &:= "->size==0)) {\n";
+      statement.expr &:= raiseError("INDEX_ERROR");
+      statement.expr &:= "} else {\n";
+    end if;
+    statement.expr &:= destStriName;
+    statement.expr &:= "->mem[";
+    statement.expr &:= destStriName;
+    statement.expr &:= "->size-1] = (";
+    process_expr(aChar, statement);
+    statement.expr &:= ");\n";
+    if string_index_check then
+      statement.expr &:= "}\n";
+    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (STR_ELEMCPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1126,7 +1168,11 @@ const proc: process (STR_ELEMCPY, in reference: function,
     var string: destStriName is "";
     var string: positionName is "";
   begin
-    if getConstant(params[6], CHAROBJECT, evaluatedParam) then
+    if optimizeStringFunctions and
+        isActionExpression(params[4], "STR_LNG") and
+        getActionParameter(params[4], 1) = params[1] then
+      process_str_elemcpy_last_char(params[1], params[6], c_expr);
+    elsif getConstant(params[6], CHAROBJECT, evaluatedParam) then
       process_const_str_elemcpy(params[1], params[4], getValue(evaluatedParam, char), c_expr);
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_elemcpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
@@ -2006,7 +2052,7 @@ const proc: process_str_idx_last_char (in reference: stri,
     var string: stri_name is "";
   begin
     incr(countOptimizations);
-    c_expr.expr &:= "/* stri(length[stri)] */ (";
+    c_expr.expr &:= "/* stri[length[stri)] */ (";
     stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
     if string_index_check then
       c_expr.expr &:= "idxChk(";

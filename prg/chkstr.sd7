@@ -24024,6 +24024,26 @@ const proc: check_string_assign_at is func
     end if;
 
     ok := TRUE;
+    stri := "1";     stri @:= [length(stri)]          'X';  ok := ok and stri = "X";
+    stri := "12345"; stri @:= [length(stri)]          'X';  ok := ok and stri = "1234X";
+    stri := "1";     stri @:= [length(stri)] charExpr('X'); ok := ok and stri = "X";
+    stri := "12345"; stri @:= [length(stri)] charExpr('X'); ok := ok and stri = "1234X";
+    if not ok then
+      writeln(" ***** stri @:= [length(stri)] aChar; does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := "1";     arr[1] @:= [length(arr[1])]          'X';  ok := ok and arr[1] = "X";
+    arr[1] := "12345"; arr[1] @:= [length(arr[1])]          'X';  ok := ok and arr[1] = "1234X";
+    arr[1] := "1";     arr[1] @:= [length(arr[1])] charExpr('X'); ok := ok and arr[1] = "X";
+    arr[1] := "12345"; arr[1] @:= [length(arr[1])] charExpr('X'); ok := ok and arr[1] = "1234X";
+    if not ok then
+      writeln(" ***** stri @:= [length(stri)] aChar; does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     stri := "";     stri @:= [1] "";     ok := ok and stri = "";
     stri := "a";    stri @:= [1] "";     ok := ok and stri = "a";
     stri := "a";    stri @:= [2] "";     ok := ok and stri = "a";
