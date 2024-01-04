@@ -1507,7 +1507,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         columnValue = bigZero();
       } else {
         logMessage(printf("buffer_type: %s\n",
@@ -1575,7 +1575,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         *numerator = bigZero();
         *denominator = bigFromInt32(1);
       } else {
@@ -1671,7 +1671,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: FALSE\n"); */
+        logMessage(printf("Column is NULL -> Use default value: FALSE\n"););
         columnValue = 0;
       } else {
         logMessage(printf("buffer_type: %s\n",
@@ -1746,7 +1746,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
         if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -1848,7 +1848,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: P0D\n"); */
+        logMessage(printf("Column is NULL -> Use default value: P0D\n"););
         *year         = 0;
         *month        = 0;
         *day          = 0;
@@ -1941,7 +1941,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0.0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0.0\n"););
         columnValue = 0.0;
       } else {
         logMessage(printf("buffer_type: %s\n",
@@ -2024,7 +2024,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         columnValue = 0;
       } else {
         logMessage(printf("buffer_type: %s\n",
@@ -2090,7 +2090,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
         columnValue = strEmpty();
       } else {
         logMessage(printf("buffer_type: %s\n",
@@ -2219,7 +2219,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"););
         *year         = 0;
         *month        = 1;
         *day          = 1;

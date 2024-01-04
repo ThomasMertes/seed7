@@ -2326,7 +2326,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         columnValue = bigZero();
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnBigInt", "sqlind");
@@ -2408,7 +2408,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         *numerator = bigZero();
         *denominator = bigFromInt32(1);
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
@@ -2494,7 +2494,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: FALSE\n"); */
+        logMessage(printf("Column is NULL -> Use default value: FALSE\n"););
         columnValue = 0;
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnBool", "sqlind");
@@ -2595,7 +2595,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
         if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -2702,7 +2702,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: P0D\n"); */
+        logMessage(printf("Column is NULL -> Use default value: P0D\n"););
         *year         = 0;
         *month        = 0;
         *day          = 0;
@@ -2792,7 +2792,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: 0.0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0.0\n"););
         columnValue = 0.0;
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnFloat", "sqlind");
@@ -2873,7 +2873,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: 0\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0\n"););
         columnValue = 0;
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnInt", "sqlind");
@@ -2957,7 +2957,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
         columnValue = strEmpty();
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnStri", "sqlind");
@@ -3081,7 +3081,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
-        /* printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"); */
+        logMessage(printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"););
         *year         = 0;
         *month        = 1;
         *day          = 1;

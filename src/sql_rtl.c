@@ -857,7 +857,7 @@ void sqlCpyDb (databaseType *const dest, const databaseType source)
       if (db_dest->usage_count == 0 &&
           db_dest->sqlFunc != NULL &&
           db_dest->sqlFunc->freeDatabase != NULL) {
-        /* printf("FREE %lx\n", (long unsigned int) db_dest); */
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) db_dest););
         db_dest->sqlFunc->freeDatabase((databaseType) db_dest);
       } /* if */
     } /* if */
@@ -905,7 +905,7 @@ void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
       if (statement_dest->usage_count == 0 &&
           statement_dest->sqlFunc != NULL &&
           statement_dest->sqlFunc->freePreparedStmt != NULL) {
-        /* printf("FREE %lx\n", (long unsigned int) statement_dest); */
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) statement_dest););
         statement_dest->sqlFunc->freePreparedStmt((sqlStmtType) statement_dest);
       } /* if */
     } /* if */
@@ -1026,7 +1026,7 @@ void sqlDestrDb (const databaseType old_db)
       if (old_database->usage_count == 0 &&
           old_database->sqlFunc != NULL &&
           old_database->sqlFunc->freeDatabase != NULL) {
-        /* printf("FREE %lx\n", (long unsigned int) old_database); */
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) old_database););
         old_database->sqlFunc->freeDatabase((databaseType) old_database);
       } /* if */
     } /* if */
@@ -1067,7 +1067,7 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
       if (old_statement->usage_count == 0 &&
           old_statement->sqlFunc != NULL &&
           old_statement->sqlFunc->freePreparedStmt != NULL) {
-        /* printf("FREE %lx\n", (long unsigned int) old_statement); */
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) old_statement););
         old_statement->sqlFunc->freePreparedStmt((sqlStmtType) old_statement);
       } /* if */
     } /* if */

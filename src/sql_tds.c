@@ -1607,6 +1607,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = bigZero();
         } else {
           dbInconsistent("sqlColumnBigInt", "dbdatlen");
@@ -1681,6 +1682,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           *numerator = bigZero();
           *denominator = bigFromInt32(1);
         } else {
@@ -1760,6 +1762,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = 0;
         } else {
           dbInconsistent("sqlColumnBool", "dbdatlen");
@@ -1916,7 +1919,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         /* printf("length: " FMT_D32 "\n", length); */
         if (likely(length == 0)) {
-          /* printf("Column is NULL -> Use default value: P0D\n"); */
+          logMessage(printf("Column is NULL -> Use default value: P0D\n"););
           *year         = 0;
           *month        = 0;
           *day          = 0;
@@ -1981,6 +1984,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: 0.0\n"););
           columnValue = 0.0;
         } else {
           dbInconsistent("sqlColumnFloat", "dbdatlen");
@@ -2062,6 +2066,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = 0;
         } else {
           dbInconsistent("sqlColumnInt", "dbdatlen");
@@ -2146,6 +2151,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         columnValue = NULL;
       } else if (data == NULL) {
         if (likely(length == 0)) {
+          logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
           columnValue = strEmpty();
         } else {
           dbInconsistent("sqlColumnStri", "dbdatlen");
@@ -2233,7 +2239,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         /* printf("length: " FMT_D32 "\n", length); */
         if (likely(length == 0)) {
-          /* printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"); */
+          logMessage(printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"););
           *year         = 0;
           *month        = 1;
           *day          = 1;
