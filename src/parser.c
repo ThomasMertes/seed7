@@ -331,7 +331,6 @@ void decl_const (nodeType node_level, errInfoType *err_info)
 
   /* decl_const */
     logFunction(printf("decl_const\n"););
-/*    printf("decl_const\n"); */
     grow_stack(err_info);
     if (*err_info == OKAY_NO_ERROR) {
       typeof_object = decl_type(&is_dollar_type, err_info);

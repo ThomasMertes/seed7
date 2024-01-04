@@ -626,7 +626,6 @@ objectType prc_cpy (listType arguments)
   /* prc_cpy */
     dest = arg_1(arguments);
     isit_proc(dest);
-    /* is_variable(dest); */
     isit_proc(arg_3(arguments));
     source = arg_3(arguments);
     /* printf("\nprc_cpy src (" FMT_U_MEM "): ", (memSizeType) source);

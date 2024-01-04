@@ -962,7 +962,6 @@ static charType mapKeysymToUnicode (KeySym keysym)
         } /* if */
       } /* while */
     } else {
-      /* printf("1 undef key: %ld %lx\n", (long) keysym, (long) keysym); */
       result = K_UNDEF;
     } /* if */
     return result;
@@ -2822,7 +2821,6 @@ boolType gkbButtonPressed (charType button)
           } /* if */
         } else if (button <= 0x10FFFF) {
           sym1 = (KeySym) button + 0x01000000;
-          /* printf("2 button = %04x, keysym= %04x\n", button, sym1); */
         } else {
           result = FALSE;
           finished = TRUE;

@@ -82,7 +82,6 @@ static void scan_comment (void)
             character = in_file.character;
           } /* if */
         } else if (character == '\n') {
-/*        character = next_line(); */
           SKIP_CR_SP(character);
           INCR_LINE_COUNT(in_file.line);
           symbol.syNumberInLine = 0;
@@ -287,7 +286,6 @@ void scan_symbol (void)
     if (character == ' ' || character == '\t') {                /*  0.88%  0.73% */
       SKIP_SPACE(character);                                    /*  1.73%  1.93% */
     } else if (character == '\n') {                             /*  0.88%  0.44% */
-/*    character = next_line(); */
       SKIP_CR_SP(character);                                    /*  6.43%  8.02% */
       INCR_LINE_COUNT(in_file.line);                            /*  0.26%  0.28% */
       symbol.syNumberInLine = 0;

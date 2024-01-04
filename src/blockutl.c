@@ -318,9 +318,7 @@ locListType get_local_var_list (const_listType local_object_list,
         } /* if */
 #endif
         if (CATEGORY_OF_OBJ(local_var) == LOCALVOBJECT) {
-          /* printf("X "); trace1(local_var); printf("\n"); */
           init_value = local_var->value.objValue;
-          /* printf("Y "); trace1(init_value); printf("\n"); */
           create_call_obj = get_create_call_obj(init_value, err_info);
           destroy_call_obj = get_destroy_call_obj(init_value, err_info);
           append_to_loclist(&local_vars_insert_place,

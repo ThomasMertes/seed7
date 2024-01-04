@@ -1309,8 +1309,6 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
           do {
             while (digit_shift <= BIGDIGIT_SIZE - shift && pos > (memSizeType) negative) {
               pos--;
-              /* printf("A result->mem[" FMT_U_MEM "] = %c\n", pos,
-                  digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
               digit_shift += shift;
             } /* while */
@@ -1325,8 +1323,6 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
                     unsigned_big->bigdigits[digit_index] << (BIGDIGIT_SIZE - digit_shift);
                 if (pos > (memSizeType) negative) {
                   pos--;
-                  /* printf("B result->mem[" FMT_U_MEM "] = %c\n", pos,
-                      digits[unsigned_digit & mask]); */
                   result->mem[pos] = (strElemType) (digits[unsigned_digit & mask]);
                   unsigned_digit = unsigned_big->bigdigits[digit_index];
                   digit_shift += shift - BIGDIGIT_SIZE;
@@ -1334,8 +1330,6 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
               } /* if */
             } else if (digit_shift != BIGDIGIT_SIZE && pos > (memSizeType) negative) {
               pos--;
-              /* printf("C result->mem[" FMT_U_MEM "] = %c\n", pos,
-                  digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
             } /* if */
           } while (digit_index < unsigned_size && pos > (memSizeType) negative);

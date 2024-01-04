@@ -1029,7 +1029,6 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
           } /* if */
         } /* if */
       } /* if */
-      /* printf("getenv7(\"%s\"): \"%s\"\n", env_name, os_getenv(env_name)); */
       os_stri_free(env_name);
     } /* if */
     logFunction(printf("setEnvironmentVariable -->\n"););
