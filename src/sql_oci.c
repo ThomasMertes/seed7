@@ -4508,7 +4508,7 @@ static rtlTypeType sqlStmtColumnType (sqlStmtType sqlStatement, intType column)
 
   /* sqlStmtColumnType */
     logFunction(printf("sqlStmtColumnType(" FMT_U_MEM ", " FMT_D ")\n",
-                       (memSizeType) sqlStatement, column); */
+                       (memSizeType) sqlStatement, column));
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {

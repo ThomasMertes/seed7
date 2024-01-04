@@ -2705,13 +2705,12 @@ static rtlTypeType sqlStmtColumnType (sqlStmtType sqlStatement, intType column)
 
   {
     preparedStmtType preparedStmt;
-    const_cstriType col_name;
-    errInfoType err_info = OKAY_NO_ERROR;
+    MYSQL_BIND *columnData;
     rtlTypeType columnType;
 
   /* sqlStmtColumnType */
     logFunction(printf("sqlStmtColumnType(" FMT_U_MEM ", " FMT_D ")\n",
-                       (memSizeType) sqlStatement, column); */
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
