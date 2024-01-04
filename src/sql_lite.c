@@ -1221,6 +1221,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = bigZero();
           break;
         case SQLITE_INTEGER:
@@ -1283,6 +1284,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           *numerator = bigZero();
           *denominator = bigFromInt32(1);
           break;
@@ -1349,6 +1351,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = 0;
           break;
         case SQLITE_INTEGER:
@@ -1418,6 +1421,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
           if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
             raise_error(MEMORY_ERROR);
           } else {
@@ -1658,6 +1662,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: 0.0\n"););
           columnValue = 0.0;
           break;
         case SQLITE_INTEGER:
@@ -1720,6 +1725,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: 0\n"););
           columnValue = 0;
           break;
         case SQLITE_INTEGER:
@@ -1790,6 +1796,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
+          logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
           columnValue = strEmpty();
           break;
         case SQLITE_TEXT:
@@ -1879,6 +1886,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                                                       (int) column - 1);
       /* printf("isoDate: %lx\n", (unsigned long int) isoDate); */
       if (isoDate == NULL) {
+        logMessage(printf("Column is NULL -> Use default value: 0-01-01 00:00:00\n"););
         *year         = 0;
         *month        = 1;
         *day          = 1;
