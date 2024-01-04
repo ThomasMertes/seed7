@@ -419,6 +419,19 @@ objectType cmd_get_atime (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
+    logFunction(printf("cmd_get_atime(\"%s\") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_atime */
 
@@ -469,6 +482,19 @@ objectType cmd_get_atime_of_symlink (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
+    logFunction(printf("cmd_get_atime_of_symlink(\"%s\") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_atime_of_symlink */
 
@@ -517,6 +543,19 @@ objectType cmd_get_ctime (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
+    logFunction(printf("cmd_get_ctime(\"%s\") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_ctime */
 
@@ -657,6 +696,19 @@ objectType cmd_get_mtime (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
+    logFunction(printf("cmd_get_mtime(\"%s\") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
 
@@ -707,6 +759,19 @@ objectType cmd_get_mtime_of_symlink (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
+    logFunction(printf("cmd_get_mtime_of_symlink(\"%s\") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime_of_symlink */
 

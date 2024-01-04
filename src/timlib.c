@@ -127,15 +127,19 @@ objectType tim_from_timestamp (listType arguments)
     } else {
       arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
-/*  fprintf(stderr, "timestamp %10ld  %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
-        arg_1(arguments)->value.intValue,
-        arg_2(arguments)->value.intValue,
-        arg_3(arguments)->value.intValue,
-        arg_4(arguments)->value.intValue,
-        arg_5(arguments)->value.intValue,
-        arg_6(arguments)->value.intValue,
-        arg_7(arguments)->value.intValue,
-        arg_8(arguments)->value.intValue); */
+    logFunction(printf("tim_from_timestamp(" FMT_D ") --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       arg_1(arguments)->value.intValue,
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue,
+                       arg_9(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* tim_from_timestamp */
 
@@ -178,14 +182,18 @@ objectType tim_now (listType arguments)
     } else {
       arg_9(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
-/*  fprintf(stderr, "now      %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
-        arg_1(arguments)->value.intValue,
-        arg_2(arguments)->value.intValue,
-        arg_3(arguments)->value.intValue,
-        arg_4(arguments)->value.intValue,
-        arg_5(arguments)->value.intValue,
-        arg_6(arguments)->value.intValue,
-        arg_7(arguments)->value.intValue); */
+    logFunction(printf("tim_now() --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "."
+                       F_D(06) ", " FMT_D ", %d\n",
+                       arg_1(arguments)->value.intValue,
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue,
+                       arg_8(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* tim_now */
 
@@ -222,14 +230,16 @@ objectType tim_set_local_tz (listType arguments)
     } else {
       arg_8(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
-/*  fprintf(stderr, "tim_set_local_tz %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld %d\n",
-        take_int(arg_1(arguments)),
-        take_int(arg_2(arguments)),
-        take_int(arg_3(arguments)),
-        take_int(arg_4(arguments)),
-        take_int(arg_5(arguments)),
-        take_int(arg_6(arguments)),
-        take_int(arg_7(arguments)),
-        is_dst); */
+    logFunction(printf("tim_set_local_tz() --> "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) ", "
+                       FMT_D ", %d\n",
+                       arg_1(arguments)->value.intValue,
+                       arg_2(arguments)->value.intValue,
+                       arg_3(arguments)->value.intValue,
+                       arg_4(arguments)->value.intValue,
+                       arg_5(arguments)->value.intValue,
+                       arg_6(arguments)->value.intValue,
+                       arg_7(arguments)->value.intValue, is_dst););
     return SYS_EMPTY_OBJECT;
   } /* tim_set_local_tz */
