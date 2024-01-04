@@ -2949,7 +2949,8 @@ void cmdGetATime (const const_striType filePath,
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetATime: st_atime=" FMT_T "\n", stat_buf.st_atime); */
+        logMessage(printf("cmdGetATime: st_atime=" FMT_T "\n",
+                          stat_buf.st_atime););
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -3026,7 +3027,8 @@ void cmdGetATimeOfSymlink (const const_striType filePath,
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetATimeOfSymlink: st_atime=" FMT_T "\n", stat_buf.st_atime); */
+        logMessage(printf("cmdGetATimeOfSymlink: st_atime=" FMT_T "\n",
+                          stat_buf.st_atime););
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -3097,7 +3099,8 @@ void cmdGetCTime (const const_striType filePath,
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetCTime: st_ctime=" FMT_T "\n", stat_buf.st_ctime); */
+        logMessage(printf("cmdGetCTime: st_ctime=" FMT_T "\n",
+                          stat_buf.st_ctime););
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -3164,7 +3167,8 @@ setType cmdGetFileMode (const const_striType filePath)
         file_mode = NULL;
       } else {
         os_stri_free(os_path);
-        /* printf("cmdGetFileMode: st_mode=0%o\n", stat_buf.st_mode); */
+        logMessage(printf("cmdGetFileMode: st_mode=0%o\n",
+                          stat_buf.st_mode););
 #if MODE_BITS_NORMAL
         file_mode = setIConv(0777 & stat_buf.st_mode);
 #else
@@ -3248,7 +3252,8 @@ setType cmdGetFileModeOfSymlink (const const_striType filePath)
         err_info = FILE_ERROR;
         file_mode = NULL;
       } else {
-        /* printf("cmdGetFileModeOfSymlink: st_mode=0%o\n", stat_buf.st_mode); */
+        logMessage(printf("cmdGetFileModeOfSymlink: st_mode=0%o\n",
+                          stat_buf.st_mode););
 #if MODE_BITS_NORMAL
         file_mode = setIConv(0777 & stat_buf.st_mode);
 #else
@@ -3326,7 +3331,8 @@ void cmdGetMTime (const const_striType filePath,
                         errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetMTime: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
+        logMessage(printf("cmdGetMTime: st_mtime=" FMT_T "\n",
+                          stat_buf.st_mtime););
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -3403,7 +3409,8 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
                         striAsUnquotedCStri(filePath), os_path););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetMTimeOfSymlink: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
+        logMessage(printf("cmdGetMTimeOfSymlink: st_mtime=" FMT_T "\n",
+                          stat_buf.st_mtime););
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -4052,7 +4059,8 @@ void cmdSetATime (const const_striType filePath,
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToOsTimestamp(year, month, day, hour,
             min, sec, time_zone);
-        /* printf("cmdSetATime: actime=" FMT_T "\n", utime_buf.actime); */
+        logMessage(printf("cmdSetATime: actime=" FMT_T "\n",
+                          utime_buf.actime););
         utime_buf.modtime = stat_buf.st_mtime;
         if (unlikely(utime_buf.actime == (time_t) TIME_T_ERROR)) {
           logError(printf("cmdSetATime: timToOsTimestamp("
@@ -4114,7 +4122,7 @@ void cmdSetFileMode (const const_striType filePath, const const_setType mode)
       if (intType_mode >= 0 && intType_mode <= 0777) {
         /* Just the read, write and execute permissions are accepted */
         int_mode = (int) intType_mode;
-        /* printf("cmdSetFileMode: mode=0%o\n", int_mode); */
+        logMessage(printf("cmdSetFileMode: mode=0%o\n", int_mode););
 #if MODE_BITS_NORMAL
         chmod_result = os_chmod(os_path, int_mode);
 #else
@@ -4190,7 +4198,8 @@ void cmdSetMTime (const const_striType filePath,
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToOsTimestamp(year, month, day, hour,
             min, sec, time_zone);
-        /* printf("cmdSetMTime: modtime=" FMT_T "\n", utime_buf.modtime); */
+        logMessage(printf("cmdSetMTime: modtime=" FMT_T "\n",
+                          utime_buf.modtime););
         if (unlikely(utime_buf.modtime == (time_t) TIME_T_ERROR)) {
           logError(printf("cmdSetMTime: timToOsTimestamp("
                           F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
