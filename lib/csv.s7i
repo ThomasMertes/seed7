@@ -29,9 +29,8 @@
 (**
  *  Convert an array of [[string]]s to a CSV line.
  *  In a CSV line the fields are separated by the ''separator'' character.
- *  Fields that contain ''separator'' characters, linefeeds or carriage
- *  returns are enclosed in double quotes ("). Fields that start or end
- *  with double quotes are also enclosed in double quotes. Double quotes
+ *  Fields that contain ''separator'' characters, double quotes, linefeeds
+ *  or carriage returns are enclosed in double quotes ("). Double quotes
  *  inside a double quoted field are represented by doubling them
  *  (e.g.: The double quoted field "a""b" has the value a"b ).
  *  @param data String array to be converted.
@@ -49,7 +48,7 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
       if index <> 1 then
         csvLine &:= separator;
       end if;
-      if startsWith(field, "\"") or endsWith(field, "\"") or
+      if pos(field, "\"") <> 0 or
           pos(field, separator) <> 0 or pos(field, '\n') <> 0 or pos(field, '\r') <> 0 then
         csvLine &:= "\"" & replace(field, "\"", "\"\"") & "\"";
       else
