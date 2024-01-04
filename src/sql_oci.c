@@ -149,6 +149,7 @@ static sqlFuncType sqlFunc = NULL;
 #define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
 #define DEBUG_LONG_CALLBACK 0
+#define SHOW_DETAILS 0
 
 #define SET_NUMBER_TO_POSITIVE_INFINITY(buffer, length) \
         length = 2; \
@@ -1083,12 +1084,13 @@ static void ociNumberFromDecimalInt (OCINumber *ociNumber, const const_striType 
 
 
 
-static void dumpSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
+#if ANY_LOG_ACTIVE || SHOW_DETAILS
+static void showSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
 
   {
     memSizeType pos;
 
-  /* dumpSqltNumber */
+  /* showSqltNumber */
     printf("dataLen: " FMT_U_MEM ", \"", dataLen);
     for (pos = 0; pos < SIZEOF_SQLT_NUM; pos++) {
       printf("%02x", ociNumberData[pos]);
@@ -1120,11 +1122,12 @@ static void dumpSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
       } /* if */
       printf(", negative");
     } /* if */
-  } /* dumpSqltNumber */
+  } /* showSqltNumber */
+#endif
 
 
 
-#ifdef SHOW_DETAILS
+#if SHOW_DETAILS
 static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
 
   {
@@ -1143,7 +1146,7 @@ static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData
                                         &striBuffer.striBuf, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       /* printf(" *OCINumber conversion failed*"); */
-      dumpSqltNumber(dataLen, ociNumberData);
+      showSqltNumber(dataLen, ociNumberData);
     } else if (scale == -1) {
       /* For positive and negative infinite values the scale is -1. */
       if (striBuffer.striBuf.mem[0] == '-') {
@@ -1156,7 +1159,7 @@ static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData
       } /* if */
     } else {
       /* printf(" "); */
-      prot_stri_unquoted(&striBuffer.striBuf);
+      striAsUnquotedCStri(&striBuffer.striBuf);
       if (scale != 0) {
         printf("E%d", -scale);
       } /* if */
@@ -1208,7 +1211,7 @@ static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffe
 
 
 
-#if ANY_LOG_ACTIVE
+#if ANY_LOG_ACTIVE || SHOW_DETAILS
 static const char *nameOfBufferType (uint16Type buffer_type)
 
   {
@@ -1813,7 +1816,7 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 
 
 
-#ifdef SHOW_DETAILS
+#if SHOW_DETAILS
 static void showBindVars (preparedStmtType preparedStmt)
 
   {
@@ -1883,6 +1886,10 @@ static void showResultVars (preparedStmtType preparedStmt)
       printf("\n");
     } /* for */
   } /* showResultVars */
+
+#else
+#define showBindVars(preparedStmt)
+#define showResultVars(preparedStmt)
 #endif
 
 
@@ -1961,7 +1968,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
 
   /* getBigRational */
     logFunction(printf("getBigRational(");
-                dumpSqltNumber(length, (const uint8Type *) buffer);
+                showSqltNumber(length, (const uint8Type *) buffer);
                 printf(")\n"););
 #if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
@@ -2009,7 +2016,7 @@ static floatType getFloat (const void *buffer, memSizeType length)
 
   /* getFloat */
     logFunction(printf("getFloat(");
-                dumpSqltNumber(length, (const uint8Type *) buffer);
+                showSqltNumber(length, (const uint8Type *) buffer);
                 printf(")\n"););
 #if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
@@ -2382,7 +2389,7 @@ static int setBigRat (void *const buffer, const const_bigIntType numerator,
       } /* if */
     } /* if */
     logFunction(printf("setBigRat --> ");
-                dumpSqltNumber((memSizeType) length, (const uint8Type *) buffer);
+                showSqltNumber((memSizeType) length, (const uint8Type *) buffer);
                 printf("\n"););
     return length;
   } /* setBigRat */
@@ -2492,7 +2499,7 @@ static int setFloat (void *const buffer, const floatType floatValue,
       } /* if */
     } /* if */
     logFunction(printf("setFloat --> ");
-                dumpSqltNumber((memSizeType) length, (const uint8Type *) buffer);
+                showSqltNumber((memSizeType) length, (const uint8Type *) buffer);
                 printf("\n"););
     return length;
   } /* setFloat */
@@ -4175,8 +4182,8 @@ static void sqlExecute (sqlStmtType sqlStatement)
     } else {
       /* printf("ppStmt: " FMT_X_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
       preparedStmt->fetchOkay = FALSE;
-      /* showBindVars(preparedStmt); */
-      /* showResultVars(preparedStmt); */
+      showBindVars(preparedStmt);
+      showResultVars(preparedStmt);
       executeMode = preparedStmt->db->autoCommit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
       if (unlikely(OCIStmtExecute(preparedStmt->oci_service_context,
                                   preparedStmt->ppStmt,

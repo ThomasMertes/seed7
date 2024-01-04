@@ -127,6 +127,7 @@ static sqlFuncType sqlFunc = NULL;
 /* Seconds between 1970-01-01 and 2000-01-01 */
 #define SECONDS_FROM_1970_TO_2000 INT64_SUFFIX(946684800)
 #define DEFAULT_DECIMAL_SCALE 1000
+#define SHOW_DETAILS 0
 
 
 #ifdef POSTGRESQL_DLL
@@ -1038,13 +1039,14 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 
 
 #if ANY_LOG_ACTIVE
-static void dumpNumeric (const unsigned char *buffer)
+#if SHOW_DETAILS
+static void showNumeric (const unsigned char *buffer)
 
   {
     numeric numStruct;
     int idx;
 
-  /* dumpNumeric */
+  /* showNumeric */
     printf("NUMERICOID: %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7],
            buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[15], buffer[15]);
@@ -1062,8 +1064,12 @@ static void dumpNumeric (const unsigned char *buffer)
 
     for (idx = 0; idx < numStruct.ndigits; idx++) {
       printf("digit %d: %u\n", idx, 256 * buffer[8 + 2 * idx] + buffer[9 + 2 * idx]);
-    }
-  } /* dumpNumeric */
+    } /* for */
+  } /* showNumeric */
+
+#else
+#define showNumeric(buffer)
+#endif
 #endif
 
 
@@ -1175,7 +1181,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
 
   /* getNumericAsInt */
     logFunction(printf("getNumericAsInt()\n");
-                /* dumpNumeric(buffer); */);
+                showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
@@ -1246,7 +1252,7 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
 
   /* getNumericAsBigInt */
     logFunction(printf("getNumericAsBigInt()\n");
-                /* dumpNumeric(buffer); */);
+                showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
@@ -1294,7 +1300,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
 
   /* getNumericAsBigRat */
     logFunction(printf("getNumericAsBigRat()\n");
-                /* dumpNumeric(buffer); */);
+                showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
@@ -1345,7 +1351,7 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
 
   /* getNumericAsFloat */
     logFunction(printf("getNumericAsFloat()\n");
-                /* dumpNumeric(buffer); */);
+                showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
