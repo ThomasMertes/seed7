@@ -113,6 +113,7 @@ static boolType initialized = FALSE;
 #define MAX_ADDRESS_SIZE           1024
 #define MAX_HOSTNAME_LENGTH        1024
 #define ERROR_MESSAGE_BUFFER_SIZE  1024
+#define SHOW_ADDRINFO 0
 
 #define MAX_SOCK_ADDRESS_LEN \
     STRLEN("[01:23:45:67:89:ab:cd:ef]:65535") + NULL_TERMINATION_LEN
@@ -304,13 +305,13 @@ static struct addrinfo *select_addrinfo (struct addrinfo *addrinfo_list,
 
 
 
-#ifdef DUMP_ADDRINFO
-static void dump_addrinfo (struct addrinfo *addrinfo_list)
+#if SHOW_ADDRINFO
+static void showAddrinfo (struct addrinfo *addrinfo_list)
 
   {
     struct addrinfo *addr;
 
-  /* dump_addrinfo */
+  /* showAddrinfo */
     addr = addrinfo_list;
     do {
       printf("ai_flags=%d\n",    addr->ai_flags);
@@ -360,7 +361,10 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
                  });
       addr = addr->ai_next;
     } while (addr != NULL);
-  } /* dump_addrinfo */
+  } /* showAddrinfo */
+
+#else
+#define showAddrinfo(addrinfo_list)
 #endif
 
 
@@ -1215,7 +1219,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
             result = NULL;
           } /* if */
         } else {
-          /* dump_addrinfo(addrinfo_list); */
+          showAddrinfo(addrinfo_list);
           result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
           if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                        !ALLOC_BSTRI_SIZE_OK(result,
@@ -1357,7 +1361,7 @@ bstriType socInetLocalAddr (intType port)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        /* dump_addrinfo(addrinfo_list); */
+        showAddrinfo(addrinfo_list);
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
         if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                      !ALLOC_BSTRI_SIZE_OK(result,
@@ -1445,7 +1449,7 @@ bstriType socInetServAddr (intType port)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        /* dump_addrinfo(addrinfo_list); */
+        showAddrinfo(addrinfo_list);
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
         if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                      !ALLOC_BSTRI_SIZE_OK(result,
