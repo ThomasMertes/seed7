@@ -738,7 +738,10 @@ typedef mpz_srcptr  const_bigIntType;
 
 /* Logging */
 
-#if LOG_FUNCTIONS_EVERYWHERE || (defined LOG_FUNCTIONS && LOG_FUNCTIONS)
+#define LOG_FUNCTIONS_ACTIVE ((LOG_FUNCTIONS_EVERYWHERE && LOG_FUNCTIONS >= 0) || LOG_FUNCTIONS > 0)
+#define VERBOSE_EXCEPTIONS_ACTIVE ((VERBOSE_EXCEPTIONS_EVERYWHERE && VERBOSE_EXCEPTIONS >= 0) || VERBOSE_EXCEPTIONS > 0)
+
+#if LOG_FUNCTIONS_ACTIVE
 #if CHECK_STACK
 #define logFunction(logStatements) checkStack(TRUE); printf(__FILE__ ": "); logStatements
 #else
@@ -756,9 +759,13 @@ typedef mpz_srcptr  const_bigIntType;
 #define logSignalFunction(logStatements)
 #endif
 
+#if LOG_MESSAGES_EVERYWHERE
+#define logMessage(logStatements) logStatements
+#else
 #define logMessage(logStatements)
+#endif
 
-#if VERBOSE_EXCEPTIONS_EVERYWHERE || (defined VERBOSE_EXCEPTIONS && VERBOSE_EXCEPTIONS)
+#if VERBOSE_EXCEPTIONS_ACTIVE
 #define logError(logStatements) printf(" *** "); logStatements
 #define logErrorIfTrue(cond, logStatements) if (unlikely(cond)) { logError(logStatements) }
 #else
@@ -766,8 +773,7 @@ typedef mpz_srcptr  const_bigIntType;
 #define logErrorIfTrue(cond, logStatements)
 #endif
 
-#define ANY_LOG_ACTIVE (LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || \
-                        VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE)
+#define ANY_LOG_ACTIVE (LOG_FUNCTIONS_ACTIVE || LOG_MESSAGES_EVERYWHERE || VERBOSE_EXCEPTIONS_ACTIVE)
 
 /* Allow to activate selected logging functions by adding X. */
 

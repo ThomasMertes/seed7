@@ -1944,7 +1944,7 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
       } /* if */
     } /* if */
 #endif
-    logFunction(printf("strCompare --> %d\n", signumValue););
+    logFunction(printf("strCompare --> " FMT_D "\n", signumValue););
     return signumValue;
   } /* strCompare */
 
@@ -2552,7 +2552,7 @@ striType strHeadAssign (const striType stri, const intType stop)
 
   /* strHeadAssign */
     logFunction(printf("strHeadAssign(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start);
+                       striAsUnquotedCStri(stri), stop);
                 fflush(stdout););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadAssign: Stop negative."););
@@ -2627,7 +2627,7 @@ striType strHeadTemp (const striType stri, const intType stop)
 
   /* strHeadTemp */
     logFunction(printf("strHeadTemp(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start);
+                       striAsUnquotedCStri(stri), stop);
                 fflush(stdout););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadTemp: Stop negative."););

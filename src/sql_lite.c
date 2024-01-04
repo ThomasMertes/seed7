@@ -336,7 +336,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
-#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
+#if ANY_LOG_ACTIVE
 static const char *nameOfBufferType (int buffer_type)
 
   {

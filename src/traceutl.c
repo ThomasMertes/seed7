@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#define LOG_FUNCTIONS 0
+#define LOG_FUNCTIONS -1
 #define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"

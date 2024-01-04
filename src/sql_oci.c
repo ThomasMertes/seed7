@@ -1208,7 +1208,7 @@ static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffe
 
 
 
-#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
+#if ANY_LOG_ACTIVE
 static const char *nameOfBufferType (uint16Type buffer_type)
 
   {

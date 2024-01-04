@@ -403,7 +403,7 @@ static boolType driverConnect (connectDataType connectData, SQLHDBC sql_connecti
 
 
 
-#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
+#if ANY_LOG_ACTIVE
 static void listDrivers (connectDataType connectData, SQLHDBC sql_connection,
     SQLHENV sql_environment)
 
