@@ -738,6 +738,27 @@ typedef mpz_srcptr  const_bigIntType;
 
 /* Logging */
 
+/* The logging infrastructure uses the following definitions:
+     #define LOG_FUNCTIONS 0
+     #define VERBOSE_EXCEPTIONS 0
+   These values must be definied at the beginning of a source file.
+   Possible values are:
+     0 The logging is deactivated
+     1 The logging is activated
+    -1 The logging is deactivated even if EVERYWHERE is active
+   With these settings logging can be switched on and off in individual source files.
+   The actual logging is done with the macros:
+     logFunction
+     logMessage
+     logError
+   The file config.h contains the definitions:
+     #define LOG_FUNCTIONS_EVERYWHERE 0
+     #define LOG_MESSAGES_EVERYWHERE 0
+     #define VERBOSE_EXCEPTIONS_EVERYWHERE 0
+   These settings can be used to activate logging in (almost) every file.
+   Only the files with a log setting of -1 are excluded.
+*/
+
 #define LOG_FUNCTIONS_ACTIVE ((LOG_FUNCTIONS_EVERYWHERE && LOG_FUNCTIONS >= 0) || LOG_FUNCTIONS > 0)
 #define VERBOSE_EXCEPTIONS_ACTIVE ((VERBOSE_EXCEPTIONS_EVERYWHERE && VERBOSE_EXCEPTIONS >= 0) || VERBOSE_EXCEPTIONS > 0)
 
