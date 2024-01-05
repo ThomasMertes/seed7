@@ -7468,7 +7468,7 @@ const proc: pass_2 (in string: source, in program: prog,
         # The temp_marker is checked, before the file is overwritten.
         c_prog := open(temporaryFileName, "r");
         if c_prog <> STD_NULL then
-          if getln(c_prog) <> temp_marker then
+          if getln(c_prog) <> temp_marker and length(c_prog) <> 0 then
             write("*** The file ");
             write(literal(temporaryFileName));
             writeln(" was not created by the compiler.");
