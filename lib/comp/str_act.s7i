@@ -1821,10 +1821,6 @@ const proc: process_inline_str_head (in reference: stri, in reference: length,
           incr(countSuppressedIndexChecks);
         end if;
       end if;
-      if ccConf.WITH_STRI_CAPACITY and FALSE then
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".capacity=0, ";
-      end if;
       if not length_is_variable and length_value = 0 then
         c_expr.expr &:= slice_name;
         c_expr.expr &:= ".mem = NULL, ";
@@ -3996,10 +3992,6 @@ const proc: process_inline_str_substr (in reference: stri,
             incr(countSuppressedIndexChecks);
           end if;
         end if;
-        if ccConf.WITH_STRI_CAPACITY and FALSE then
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".capacity=0, ";
-        end if;
         if (not length_is_variable and length_value = 0) or
             (not stri_is_variable and not start_is_variable and
              length(stri_value) < start_value) then
@@ -4452,21 +4444,17 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
             else
               countIndexOptimizations(c_expr);
             end if;
-            if length_is_variable or stri_is_variable or start_is_variable then
-              c_expr.expr &:= logicalOr;
-              c_expr.expr &:= "(uintType)";
-              c_expr.expr &:= length_name;
-              c_expr.expr &:= ">";
-              if stri_is_variable or start_is_variable then
-                c_expr.expr &:= stri_size;
-                c_expr.expr &:= "-(memSizeType)";
-                c_expr.expr &:= start_name;
-                c_expr.expr &:= "+1";
-              else
-                c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
-              end if;
+            c_expr.expr &:= logicalOr;
+            c_expr.expr &:= "(uintType)";
+            c_expr.expr &:= length_name;
+            c_expr.expr &:= ">";
+            if stri_is_variable or start_is_variable then
+              c_expr.expr &:= stri_size;
+              c_expr.expr &:= "-(memSizeType)";
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= "+1";
             else
-              countIndexOptimizations(c_expr);
+              c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
             end if;
             c_expr.expr &:= ")?";
             c_expr.expr &:= intRaiseError("INDEX_ERROR");
@@ -4476,10 +4464,6 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
           end if;
         else
           incr(countSuppressedIndexChecks);
-        end if;
-        if ccConf.WITH_STRI_CAPACITY and FALSE then
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".capacity=0, ";
         end if;
         (* Formula used: slice.mem = &stri->mem[start - 1],
                          slice.size = (memSizeType)length *)
@@ -4620,10 +4604,6 @@ const proc: process_inline_str_tail (in reference: stri,
         else
           incr(countSuppressedIndexChecks);
         end if;
-      end if;
-      if ccConf.WITH_STRI_CAPACITY and FALSE then
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".capacity=0, ";
       end if;
       (* Formula used: slice.mem = &stri->mem[start-1],
                        (uintType)start <= stri->size && stri->size >= 1 ?
