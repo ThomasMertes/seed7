@@ -87,6 +87,21 @@ const func boolean: raisesRangeError (in func bin64: expression) is func
   end func;
 
 
+const func boolean: raisesRangeError (in func float: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var float: exprResult is 0.0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 const func boolean: raisesRangeError (in func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
@@ -2054,6 +2069,30 @@ const proc: checkBits2Float is func
         not isNaN(         float(bin32(intExpr(16#ffc00000) mod 2 ** 32))) or
         not isNaN(         float(bin32(intExpr(16#ffffffff) mod 2 ** 32))) then
       writeln(" ***** Converting bin32 to IEEE single precision float does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(float(bin32(integer.first))) or
+        not raisesRangeError(float(bin32(           -1))) or
+        not raisesRangeError(float(bin32(      2 ** 32))) or
+        not raisesRangeError(float(bin32( integer.last))) then
+      writeln(" ***** Converting bin32 to IEEE single precision float does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(float(bin32(intExpr(integer.first)))) or
+        not raisesRangeError(float(bin32(intExpr(           -1)))) or
+        not raisesRangeError(float(bin32(intExpr(      2 ** 32)))) or
+        not raisesRangeError(float(bin32(intExpr( integer.last)))) then
+      writeln(" ***** Converting bin32 to IEEE single precision float does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(float(bin32(pred(-abs(intExpr(       integer.last)))         ))) or
+        not raisesRangeError(float(bin32(pred(-abs(intExpr(                  0)))         ))) or
+        not raisesRangeError(float(bin32(      abs(intExpr(                  0)) + 2 ** 32))) or
+        not raisesRangeError(float(bin32(      abs(intExpr(9223372032559808511)) + 2 ** 32))) then
+      writeln(" ***** Converting bin32 to IEEE single precision float does not raise RANGE_ERROR. (3)");
       okay := FALSE;
     end if;
 
