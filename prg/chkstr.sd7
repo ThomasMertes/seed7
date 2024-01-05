@@ -7911,6 +7911,432 @@ const func boolean: check_string_substr_expr_2 is func
   end func;
 
 
+const func boolean: check_string_substr_expr_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  "" [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "" or
+
+        "" [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "" or
+
+        "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" or
+
+        "1" [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        "1" [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "1" or
+        "1" [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "1" or
+        "1" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "1" or
+
+        "1" [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "" or
+
+        "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" or
+
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "1" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "12" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            9) ] <> "123456789" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(           10) ] <> "1234567890" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(           11) ] <> "1234567890" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "1234567890" or
+
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "2" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "23" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            8) ] <> "23456789" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            9) ] <> "234567890" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(           10) ] <> "234567890" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "234567890" or
+
+        "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            1) ] <> "9" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            2) ] <> "90" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            3) ] <> "90" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len intExpr( integer.last) ] <> "90" or
+
+        "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            1) ] <> "0" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            2) ] <> "0" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len intExpr( integer.last) ] <> "0" or
+
+        "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            1) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            2) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len intExpr( integer.last) ] <> "" or
+
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  "" [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        "" [ intExpr(           1) len abs(intExpr(           1)) ] <> "" or
+        "" [ intExpr(           1) len abs(intExpr(           2)) ] <> "" or
+        "" [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "" or
+
+        "" [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        "" [ intExpr(           2) len abs(intExpr(           1)) ] <> "" or
+        "" [ intExpr(           2) len abs(intExpr(           2)) ] <> "" or
+        "" [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "" or
+
+        "" [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        "" [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        "" [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        "" [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1" [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        "1" [ intExpr(           1) len abs(intExpr(           1)) ] <> "1" or
+        "1" [ intExpr(           1) len abs(intExpr(           2)) ] <> "1" or
+        "1" [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "1" or
+
+        "1" [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        "1" [ intExpr(           2) len abs(intExpr(           1)) ] <> "" or
+        "1" [ intExpr(           2) len abs(intExpr(           2)) ] <> "" or
+        "1" [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1" [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        "1" [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        "1" [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        "1" [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1234567890" [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(           1)) ] <> "1" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(           2)) ] <> "12" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(           9)) ] <> "123456789" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(          10)) ] <> "1234567890" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(          11)) ] <> "1234567890" or
+        "1234567890" [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "1234567890" or
+
+        "1234567890" [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(           1)) ] <> "2" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(           2)) ] <> "23" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(           8)) ] <> "23456789" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(           9)) ] <> "234567890" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(          10)) ] <> "234567890" or
+        "1234567890" [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "234567890" or
+
+        "1234567890" [ intExpr(           9) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(           9) len abs(intExpr(           1)) ] <> "9" or
+        "1234567890" [ intExpr(           9) len abs(intExpr(           2)) ] <> "90" or
+        "1234567890" [ intExpr(           9) len abs(intExpr(           3)) ] <> "90" or
+        "1234567890" [ intExpr(           9) len abs(intExpr(integer.last)) ] <> "90" or
+
+        "1234567890" [ intExpr(          10) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(          10) len abs(intExpr(           1)) ] <> "0" or
+        "1234567890" [ intExpr(          10) len abs(intExpr(           2)) ] <> "0" or
+        "1234567890" [ intExpr(          10) len abs(intExpr(integer.last)) ] <> "0" or
+
+        "1234567890" [ intExpr(          11) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(          11) len abs(intExpr(           1)) ] <> "" or
+        "1234567890" [ intExpr(          11) len abs(intExpr(           2)) ] <> "" or
+        "1234567890" [ intExpr(          11) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1234567890" [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        "1234567890" [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        "1234567890" [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "" or
+        "" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "" or
+        "" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "1" or
+        "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "1" or
+        "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "1" or
+
+        "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "" or
+        "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "1" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "12" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           9)) ] <> "123456789" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(          10)) ] <> "1234567890" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(          11)) ] <> "1234567890" or
+        "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "1234567890" or
+
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "2" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "23" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           8)) ] <> "23456789" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           9)) ] <> "234567890" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(          10)) ] <> "234567890" or
+        "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "234567890" or
+
+        "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           1)) ] <> "9" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           2)) ] <> "90" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           3)) ] <> "90" or
+        "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(integer.last)) ] <> "90" or
+
+        "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           1)) ] <> "0" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           2)) ] <> "0" or
+        "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(integer.last)) ] <> "0" or
+
+        "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           1)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           2)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(integer.last)) ] <> "" or
+
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "1" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "1" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "1" or
+
+        striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            1) ] <> "1" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            2) ] <> "12" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            9) ] <> "123456789" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(           10) ] <> "1234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(           11) ] <> "1234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ] <> "1234567890" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            1) ] <> "2" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            2) ] <> "23" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            8) ] <> "23456789" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            9) ] <> "234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(           10) ] <> "234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ] <> "234567890" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            1) ] <> "9" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            2) ] <> "90" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            3) ] <> "90" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr( integer.last) ] <> "90" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            1) ] <> "0" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            2) ] <> "0" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr( integer.last) ] <> "0" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            1) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            2) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr( integer.last) ] <> "" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ intExpr(           1) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ intExpr(           1) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("") [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ intExpr(           2) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ intExpr(           2) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("") [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1") [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ intExpr(           1) len abs(intExpr(           1)) ] <> "1" or
+        striExpr("1") [ intExpr(           1) len abs(intExpr(           2)) ] <> "1" or
+        striExpr("1") [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "1" or
+
+        striExpr("1") [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ intExpr(           2) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1") [ intExpr(           2) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1") [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1") [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1") [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1") [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           1)) ] <> "1" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           2)) ] <> "12" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           9)) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(          10)) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(          11)) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(           1) len abs(intExpr(integer.last)) ] <> "1234567890" or
+
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           1)) ] <> "2" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           2)) ] <> "23" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           8)) ] <> "23456789" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           9)) ] <> "234567890" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(          10)) ] <> "234567890" or
+        striExpr("1234567890") [ intExpr(           2) len abs(intExpr(integer.last)) ] <> "234567890" or
+
+        striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           1)) ] <> "9" or
+        striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           2)) ] <> "90" or
+        striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           3)) ] <> "90" or
+        striExpr("1234567890") [ intExpr(           9) len abs(intExpr(integer.last)) ] <> "90" or
+
+        striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           1)) ] <> "0" or
+        striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           2)) ] <> "0" or
+        striExpr("1234567890") [ intExpr(          10) len abs(intExpr(integer.last)) ] <> "0" or
+
+        striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1234567890") [ intExpr(          11) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(integer.last)) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "1" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "1" or
+        striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "1" or
+
+        striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ] <> "1" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ] <> "12" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           9)) ] <> "123456789" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(          10)) ] <> "1234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(          11)) ] <> "1234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ] <> "1234567890" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ] <> "2" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ] <> "23" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           8)) ] <> "23456789" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           9)) ] <> "234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(          10)) ] <> "234567890" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ] <> "234567890" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           1)) ] <> "9" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           2)) ] <> "90" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           3)) ] <> "90" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(integer.last)) ] <> "90" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           1)) ] <> "0" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           2)) ] <> "0" or
+        striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(integer.last)) ] <> "0" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(integer.last)) ] <> "" or
+
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ] <> "" or
+        striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_string_substr_assign_1 is func
   result
     var boolean: okay is TRUE;
@@ -8818,6 +9244,446 @@ const func boolean: check_string_substr_assign_2 is func
     stri := striExpr("1234567890") [ intExpr( integer.last) len intExpr( integer.last) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_substr_assign_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := "" [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "" [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "1" [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "1";
+    stri := "1" [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "1";
+    stri := "1" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "1";
+
+    stri := "1" [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "1";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "12";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(           10) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr(           11) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "2";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "23";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(            9) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr(           10) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            1) ]; ok := ok and stri = "9";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            2) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len intExpr(            3) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len intExpr( integer.last) ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            1) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len intExpr(            2) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len intExpr( integer.last) ]; ok := ok and stri = "0";
+
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "" [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "" [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "" [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1" [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := "1" [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "1";
+    stri := "1" [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1";
+
+    stri := "1" [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1" [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "12";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(           9)) ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(          10)) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(          11)) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "2";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "23";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(           8)) ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(           9)) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(          10)) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [ intExpr(           9) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(           9) len abs(intExpr(           1)) ]; ok := ok and stri = "9";
+    stri := "1234567890" [ intExpr(           9) len abs(intExpr(           2)) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ intExpr(           9) len abs(intExpr(           3)) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ intExpr(           9) len abs(intExpr(integer.last)) ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [ intExpr(          10) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(          10) len abs(intExpr(           1)) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ intExpr(          10) len abs(intExpr(           2)) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ intExpr(          10) len abs(intExpr(integer.last)) ]; ok := ok and stri = "0";
+
+    stri := "1234567890" [ intExpr(          11) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(          11) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(          11) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(          11) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "1";
+    stri := "1" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1";
+
+    stri := "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "12";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(           9)) ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(          10)) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(          11)) ]; ok := ok and stri = "1234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "2";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "23";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           8)) ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(           9)) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(          10)) ]; ok := ok and stri = "234567890";
+    stri := "1234567890" [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           1)) ]; ok := ok and stri = "9";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           2)) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(           3)) ]; ok := ok and stri = "90";
+    stri := "1234567890" [ succ(abs(intExpr(                  8))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           1)) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(           2)) ]; ok := ok and stri = "0";
+    stri := "1234567890" [ succ(abs(intExpr(                  9))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "0";
+
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(                 10))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := "1234567890" [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "1";
+
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            1) ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            2) ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(           10) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr(           11) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len intExpr( integer.last) ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            1) ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            2) ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(            9) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr(           10) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len intExpr( integer.last) ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            1) ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            2) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr(            3) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len intExpr( integer.last) ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            1) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr(            2) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len intExpr( integer.last) ]; ok := ok and stri = "0";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len intExpr( integer.last) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            1) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr(            2) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len intExpr( integer.last) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("") [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1";
+
+    stri := striExpr("1") [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(           9)) ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(          10)) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(          11)) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ intExpr(           1) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           1)) ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           2)) ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           8)) ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(           9)) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(          10)) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ intExpr(           2) len abs(intExpr(integer.last)) ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           1)) ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           2)) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ intExpr(           9) len abs(intExpr(           3)) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ intExpr(           9) len abs(intExpr(integer.last)) ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           1)) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ intExpr(          10) len abs(intExpr(           2)) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ intExpr(          10) len abs(intExpr(integer.last)) ]; ok := ok and stri = "0";
+
+    stri := striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(          11) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(          11) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(integer.last) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "1";
+    stri := striExpr("1") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1";
+
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(           9)) ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(          10)) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(          11)) ]; ok := ok and stri = "1234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  0))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           1)) ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           2)) ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           8)) ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(           9)) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(          10)) ]; ok := ok and stri = "234567890";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  1))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           1)) ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           2)) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(           3)) ]; ok := ok and stri = "90";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  8))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           1)) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(           2)) ]; ok := ok and stri = "0";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                  9))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "0";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(                 10))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           0)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           1)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(           2)) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ succ(abs(intExpr(9223372036854775806))) len abs(intExpr(integer.last)) ]; ok := ok and stri = "";
+    if not ok then
+      writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (14)");
       okay := FALSE;
     end if;
   end func;
@@ -9815,11 +10681,19 @@ const proc: check_string_substr is func
       okay := FALSE;
     end if;
 
+    if not check_string_substr_expr_3 then
+      okay := FALSE;
+    end if;
+
     if not check_string_substr_assign_1 then
       okay := FALSE;
     end if;
 
     if not check_string_substr_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_3 then
       okay := FALSE;
     end if;
 
