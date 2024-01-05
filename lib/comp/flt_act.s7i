@@ -771,25 +771,14 @@ const proc: process_const_flt_ge (in float: number, in reference: param3,
     end if;
   end func;
 
+
 const proc: process_const_flt_ge (in reference: param1, in float: number,
     inout expr_type: c_expr) is func
 
-  local
-    var reference: evaluatedParam is NIL;
-    var float: number1 is 0.0;
   begin
     if isNaN(number) then
       incr(countOptimizations);
       c_expr.expr &:= "0/*anything >= NaN*/";
-    elsif getConstant(param1, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
-      number1 := getValue(evaluatedParam, float);
-      c_expr.expr &:= str(ord(number1 >= number));
-      c_expr.expr &:= "/*";
-      c_expr.expr &:= str(number1);
-      c_expr.expr &:= " >= ";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
       mathLibraryUsed := TRUE;
       c_expr.expr &:= "fltGe(";
@@ -804,6 +793,7 @@ const proc: process_const_flt_ge (in reference: param1, in float: number,
       c_expr.expr &:= floatLiteral(number);
     end if;
   end func;
+
 
 const proc: process (FLT_GE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
@@ -1323,22 +1313,10 @@ const proc: process_const_flt_le (in float: number, in reference: param3,
 const proc: process_const_flt_le (in reference: param1, in float: number,
     inout expr_type: c_expr) is func
 
-  local
-    var reference: evaluatedParam is NIL;
-    var float: number1 is 0.0;
   begin
     if isNaN(number) then
       incr(countOptimizations);
       c_expr.expr &:= "0/*anything <= NaN*/";
-    elsif getConstant(param1, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
-      number1 := getValue(evaluatedParam, float);
-      c_expr.expr &:= str(ord(number1 <= number));
-      c_expr.expr &:= "/*";
-      c_expr.expr &:= str(number1);
-      c_expr.expr &:= " <= ";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
       mathLibraryUsed := TRUE;
       c_expr.expr &:= "fltLe(";
