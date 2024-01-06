@@ -4295,7 +4295,8 @@ const proc: testChar1Field (in database: testDb, in dbCategory: databaseKind) is
     execute(state.statement);
 
     if state.okay then
-      writeln("Inserting and fetching char(1) fields works okay.");
+      writeln("Inserting and fetching char(1) fields works okay up to " <&
+              literal(maxChar1FieldCharacter(databaseKind)));
     else
       writeln(" *** Inserting and fetching char(1) fields does not work okay.");
     end if;
