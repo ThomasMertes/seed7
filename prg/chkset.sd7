@@ -462,7 +462,11 @@ const proc: check_card is func
     if  card(bitset(intExpr(0) mod 1))     <> 0 or
         card(bitset(intExpr(0) mod 1 + 1)) <> 1 or
         card(bitset(intExpr(0) mod 1 + 2)) <> 1 or
-        card(bitset(intExpr(0) mod 1 + 3)) <> 2 then
+        card(bitset(intExpr(0) mod 1 + 3)) <> 2 or
+        card(bitset conv (intExpr(0) mod 1))     <> 0 or
+        card(bitset conv (intExpr(0) mod 1 + 1)) <> 1 or
+        card(bitset conv (intExpr(0) mod 1 + 2)) <> 1 or
+        card(bitset conv (intExpr(0) mod 1 + 3)) <> 2 then
       writeln("card(bitset(n)) does not work correctly.");
       okay := FALSE;
     end if;
