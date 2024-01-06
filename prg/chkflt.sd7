@@ -9291,7 +9291,146 @@ const func boolean: check_mult_nan_with_ipower_base_4 is func
 const proc: check_mult is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var float: num is 0.0;
   begin
+    if            -Infinity * -Infinity <>     Infinity or
+                  -Infinity *  -12345.0 <>     Infinity or
+                  -Infinity *      -1.0 <>     Infinity or
+        not isNaN(-Infinity *       0.0)                or
+                  -Infinity *       1.0 <>    -Infinity or
+                  -Infinity *   12345.0 <>    -Infinity or
+                  -Infinity *  Infinity <>    -Infinity or
+        not isNaN(-Infinity *       NaN)                or
+                   -12345.0 * -Infinity <>     Infinity or
+                   -12345.0 *  -12345.0 <>  152399025.0 or
+                   -12345.0 *      -1.0 <>      12345.0 or
+                   -12345.0 *       0.0 <>          0.0 or
+                   -12345.0 *       1.0 <>     -12345.0 or
+                   -12345.0 *   12345.0 <> -152399025.0 or
+                   -12345.0 *  Infinity <>    -Infinity or
+        not isNaN( -12345.0 *       NaN)                or
+                       -1.0 * -Infinity <>     Infinity or
+                       -1.0 *  -12345.0 <>      12345.0 or
+                       -1.0 *      -1.0 <>          1.0 or
+                       -1.0 *       0.0 <>          0.0 or
+                       -1.0 *       1.0 <>         -1.0 or
+                       -1.0 *   12345.0 <>     -12345.0 or
+                       -1.0 *  Infinity <>    -Infinity or
+        not isNaN(     -1.0 *       NaN)                or
+        not isNaN(      0.0 * -Infinity)                or
+                        0.0 *  -12345.0 <>          0.0 or
+                        0.0 *      -1.0 <>          0.0 or
+                        0.0 *       0.0 <>          0.0 or
+                        0.0 *       1.0 <>          0.0 or
+                        0.0 *   12345.0 <>          0.0 or
+        not isNaN(      0.0 *  Infinity)                or
+        not isNaN(      0.0 *       NaN)                or
+                        1.0 * -Infinity <>    -Infinity or
+                        1.0 *  -12345.0 <>     -12345.0 or
+                        1.0 *      -1.0 <>         -1.0 or
+                        1.0 *       0.0 <>          0.0 or
+                        1.0 *       1.0 <>          1.0 or
+                        1.0 *   12345.0 <>      12345.0 or
+                        1.0 *  Infinity <>     Infinity or
+        not isNaN(      1.0 *       NaN)                or
+                    12345.0 * -Infinity <>    -Infinity or
+                    12345.0 *  -12345.0 <> -152399025.0 or
+                    12345.0 *      -1.0 <>     -12345.0 or
+                    12345.0 *       0.0 <>          0.0 or
+                    12345.0 *       1.0 <>      12345.0 or
+                    12345.0 *   12345.0 <>  152399025.0 or
+                    12345.0 *  Infinity <>     Infinity or
+        not isNaN(  12345.0 *       NaN)                or
+                   Infinity * -Infinity <>    -Infinity or
+                   Infinity *  -12345.0 <>    -Infinity or
+                   Infinity *      -1.0 <>    -Infinity or
+        not isNaN( Infinity *       0.0)                or
+                   Infinity *       1.0 <>     Infinity or
+                   Infinity *   12345.0 <>     Infinity or
+                   Infinity *  Infinity <>     Infinity or
+        not isNaN( Infinity *       NaN)                or
+        not isNaN(      NaN * -Infinity)                or
+        not isNaN(      NaN *  -12345.0)                or
+        not isNaN(      NaN *      -1.0)                or
+        not isNaN(      NaN *       0.0)                or
+        not isNaN(      NaN *       1.0)                or
+        not isNaN(      NaN *   12345.0)                or
+        not isNaN(      NaN *  Infinity)                or
+        not isNaN(      NaN *       NaN)                then
+      writeln(" ***** Multiplication with selected values does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    num := -Infinity; num *:= -Infinity; ok := ok and num =     Infinity;
+    num := -Infinity; num *:=  -12345.0; ok := ok and num =     Infinity;
+    num := -Infinity; num *:=      -1.0; ok := ok and num =     Infinity;
+    num := -Infinity; num *:=       0.0; ok := ok and isNaN(num);
+    num := -Infinity; num *:=       1.0; ok := ok and num =    -Infinity;
+    num := -Infinity; num *:=   12345.0; ok := ok and num =    -Infinity;
+    num := -Infinity; num *:=  Infinity; ok := ok and num =    -Infinity;
+    num := -Infinity; num *:=       NaN; ok := ok and isNaN(num);
+    num :=  -12345.0; num *:= -Infinity; ok := ok and num =     Infinity;
+    num :=  -12345.0; num *:=  -12345.0; ok := ok and num =  152399025.0;
+    num :=  -12345.0; num *:=      -1.0; ok := ok and num =      12345.0;
+    num :=  -12345.0; num *:=       0.0; ok := ok and num =          0.0;
+    num :=  -12345.0; num *:=       1.0; ok := ok and num =     -12345.0;
+    num :=  -12345.0; num *:=   12345.0; ok := ok and num = -152399025.0;
+    num :=  -12345.0; num *:=  Infinity; ok := ok and num =    -Infinity;
+    num :=  -12345.0; num *:=       NaN; ok := ok and isNaN(num);
+    num :=      -1.0; num *:= -Infinity; ok := ok and num =     Infinity;
+    num :=      -1.0; num *:=  -12345.0; ok := ok and num =      12345.0;
+    num :=      -1.0; num *:=      -1.0; ok := ok and num =          1.0;
+    num :=      -1.0; num *:=       0.0; ok := ok and num =          0.0;
+    num :=      -1.0; num *:=       1.0; ok := ok and num =         -1.0;
+    num :=      -1.0; num *:=   12345.0; ok := ok and num =     -12345.0;
+    num :=      -1.0; num *:=  Infinity; ok := ok and num =    -Infinity;
+    num :=      -1.0; num *:=       NaN; ok := ok and isNaN(num);
+    num :=       0.0; num *:= -Infinity; ok := ok and isNaN(num);
+    num :=       0.0; num *:=  -12345.0; ok := ok and num =          0.0;
+    num :=       0.0; num *:=      -1.0; ok := ok and num =          0.0;
+    num :=       0.0; num *:=       0.0; ok := ok and num =          0.0;
+    num :=       0.0; num *:=       1.0; ok := ok and num =          0.0;
+    num :=       0.0; num *:=   12345.0; ok := ok and num =          0.0;
+    num :=       0.0; num *:=  Infinity; ok := ok and isNaN(num);
+    num :=       0.0; num *:=       NaN; ok := ok and isNaN(num);
+    num :=       1.0; num *:= -Infinity; ok := ok and num =    -Infinity;
+    num :=       1.0; num *:=  -12345.0; ok := ok and num =     -12345.0;
+    num :=       1.0; num *:=      -1.0; ok := ok and num =         -1.0;
+    num :=       1.0; num *:=       0.0; ok := ok and num =          0.0;
+    num :=       1.0; num *:=       1.0; ok := ok and num =          1.0;
+    num :=       1.0; num *:=   12345.0; ok := ok and num =      12345.0;
+    num :=       1.0; num *:=  Infinity; ok := ok and num =     Infinity;
+    num :=       1.0; num *:=       NaN; ok := ok and isNaN(num);
+    num :=   12345.0; num *:= -Infinity; ok := ok and num =    -Infinity;
+    num :=   12345.0; num *:=  -12345.0; ok := ok and num = -152399025.0;
+    num :=   12345.0; num *:=      -1.0; ok := ok and num =     -12345.0;
+    num :=   12345.0; num *:=       0.0; ok := ok and num =          0.0;
+    num :=   12345.0; num *:=       1.0; ok := ok and num =      12345.0;
+    num :=   12345.0; num *:=   12345.0; ok := ok and num =  152399025.0;
+    num :=   12345.0; num *:=  Infinity; ok := ok and num =     Infinity;
+    num :=   12345.0; num *:=       NaN; ok := ok and isNaN(num);
+    num :=  Infinity; num *:= -Infinity; ok := ok and num =    -Infinity;
+    num :=  Infinity; num *:=  -12345.0; ok := ok and num =    -Infinity;
+    num :=  Infinity; num *:=      -1.0; ok := ok and num =    -Infinity;
+    num :=  Infinity; num *:=       0.0; ok := ok and isNaN(num);
+    num :=  Infinity; num *:=       1.0; ok := ok and num =     Infinity;
+    num :=  Infinity; num *:=   12345.0; ok := ok and num =     Infinity;
+    num :=  Infinity; num *:=  Infinity; ok := ok and num =     Infinity;
+    num :=  Infinity; num *:=       NaN; ok := ok and isNaN(num);
+    num :=       NaN; num *:= -Infinity; ok := ok and isNaN(num);
+    num :=       NaN; num *:=  -12345.0; ok := ok and isNaN(num);
+    num :=       NaN; num *:=      -1.0; ok := ok and isNaN(num);
+    num :=       NaN; num *:=       0.0; ok := ok and isNaN(num);
+    num :=       NaN; num *:=       1.0; ok := ok and isNaN(num);
+    num :=       NaN; num *:=   12345.0; ok := ok and isNaN(num);
+    num :=       NaN; num *:=  Infinity; ok := ok and isNaN(num);
+    num :=       NaN; num *:=       NaN; ok := ok and isNaN(num);
+    if not ok then
+      writeln(" ***** Multiplication assignment with selected values does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if not check_mult_with_ipower_base_minus_infinity then
       okay := FALSE;
     end if;
