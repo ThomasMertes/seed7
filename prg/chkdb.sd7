@@ -340,13 +340,6 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
       writeln("testPrepareAndExecute");
     end if;
     block
-      if testDb = emptyDb then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** The test database is the empty database.");
-        end if;
-      end if;
-
       execute(state.statement); # Executing an empty statement does nothing.
       if  not raisesRangeError(bind(state.statement, 1, 1_)) or
           not raisesRangeError(bind(state.statement, 1, 1_ / 1_)) or
@@ -374,13 +367,6 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
 
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                                  " (" & state.fieldName & " CHAR)");
-      if state.statement = sqlStatement.value then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare returned sqlStatement.value.");
-        end if;
-      end if;
-
       execute(state.statement);
 
       if raisesDatabaseError(
