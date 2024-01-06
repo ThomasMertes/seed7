@@ -2136,6 +2136,8 @@ const proc: process_const_flt_rand (in float: low, in float: high,
           c_expr.expr &:= floatLiteral(delta - low);
           c_expr.expr &:= ")";
         elsif justBelow1 * delta + low < high then
+          # The computed number is always in the range [low, high).
+          # No loop is necessary to repeat the computation.
           incr(countInlinedFunctions);
           union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
           c_expr.expr &:= "(";
@@ -2156,6 +2158,8 @@ const proc: process_const_flt_rand (in float: low, in float: high,
           end if;
           c_expr.expr &:= ")";
         elsif ccConf.STMT_BLOCK_IN_PARENTHESES_OK then
+          # The computation might result in a number >= high.
+          # Repeat the computation until the number is in the range [low, high).
           incr(countInlinedFunctions);
           incr(c_expr.temp_num);
           union_name := "conv_" <& c_expr.temp_num;

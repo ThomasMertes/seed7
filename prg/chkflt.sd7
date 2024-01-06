@@ -19247,9 +19247,21 @@ const proc: check_rand is func
     number := rand(     -1.0,  Infinity); ok := ok and number >= -1.0 and number <= Infinity;
     number := rand(      0.0,       1.0); ok := ok and number >= 0.0 and number < 1.0;
     number := rand(      0.0,       2.0); ok := ok and number >= 0.0 and number < 2.0;
+    number := rand(      0.0,       3.0); ok := ok and number >= 0.0 and number < 3.0;
     number := rand(      0.0,  Infinity); ok := ok and number >= 0.0 and number <= Infinity;
     number := rand(      1.0,       2.0); ok := ok and number >= 1.0 and number < 2.0;
+    number := rand(      1.0,       3.0); ok := ok and number >= 1.0 and number < 3.0;
+    number := rand(      1.0,       4.0); ok := ok and number >= 1.0 and number < 4.0;
+    number := rand(      1.0,       5.0); ok := ok and number >= 1.0 and number < 5.0;
+    number := rand(      1.0,       6.0); ok := ok and number >= 1.0 and number < 6.0;
     number := rand(      1.0,  Infinity); ok := ok and number >= 1.0 and number <= Infinity;
+    number := rand(      2.0,       3.0); ok := ok and number >= 2.0 and number < 3.0;
+    number := rand(      2.0,       4.0); ok := ok and number >= 2.0 and number < 4.0;
+    number := rand(      2.0,       5.0); ok := ok and number >= 2.0 and number < 5.0;
+    number := rand(      2.0,       6.0); ok := ok and number >= 2.0 and number < 6.0;
+    number := rand(      2.0,       7.0); ok := ok and number >= 2.0 and number < 7.0;
+    number := rand(      2.0,       8.0); ok := ok and number >= 2.0 and number < 8.0;
+    number := rand(      2.0,       9.0); ok := ok and number >= 2.0 and number < 9.0;
     number := rand(      2.0,  Infinity); ok := ok and number >= 2.0 and number <= Infinity;
     if not ok then
       writeln(" ***** rand(a, b) does not work correctly.");
