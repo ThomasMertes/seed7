@@ -4580,6 +4580,7 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "grpResult = getgrgid((gid_t) 0);\n"
                          "printf(\"%d\\n\", grpResult!=NULL);\n"
                          "return 0;}\n") && doTest() == 1);
+    group0Name[0] = '\0';
     if (compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
                          "#include <grp.h>\n"
                          "int main(int argc, char *argv[]){\n"
@@ -4590,8 +4591,6 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "}\n"
                          "printf(\"\\n\"); return 0;}\n")) {
       testOutputToBuffer(group0Name);
-    } else {
-      group0Name[0] = '\0';
     } /* if */
     fprintf(versionFile, "#define GROUP_0_NAME \"%s\"\n", group0Name);
     sprintf(buffer, "#include <stdio.h>\n#include <sys/types.h>\n"
@@ -4633,6 +4632,7 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "pwdResult = getpwuid((uid_t) 0);\n"
                          "printf(\"%d\\n\", pwdResult!=NULL && pwdResult->pw_uid != -1);\n"
                          "return 0;}\n") && doTest() == 1);
+    user0Name[0] = '\0';
     if (compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
                          "#include <pwd.h>\n"
                          "int main(int argc, char *argv[]){\n"
@@ -4643,8 +4643,6 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "}\n"
                          "printf(\"\\n\"); return 0;}\n")) {
       testOutputToBuffer(user0Name);
-    } else {
-      user0Name[0] = '\0';
     } /* if */
     fprintf(versionFile, "#define USER_0_NAME \"%s\"\n", user0Name);
     sprintf(buffer, "#include <stdio.h>\n#include <sys/types.h>\n"
