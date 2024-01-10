@@ -82,6 +82,18 @@
 #define PATH_MAX 2048
 #endif
 
+#if GID_T_SIZE == 32
+#define FMT_GID        FMT_U32
+#elif GID_T_SIZE == 64
+#define FMT_GID        FMT_U64
+#endif
+
+#if UID_T_SIZE == 32
+#define FMT_UID        FMT_U32
+#elif UID_T_SIZE == 64
+#define FMT_UID        FMT_U64
+#endif
+
 #ifdef EMULATE_ENVIRONMENT
 char **environ7 = NULL;
 
@@ -350,6 +362,10 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
     striType group;
 
   /* getGroupFromGid */
+    logFunction(printf("getGroupFromGid(%s" FMT_GID ", %d)\n",
+                       gid == (gid_t) -1 ? "-" : "",
+                       gid == (gid_t) -1 ? (gid_t) 1 : gid,
+                       *err_info););
 #if HAS_GETGRGID_R || HAS_GETGRGID
 #if HAS_GETGRGID_R
     getgrgid_result = getgrgid_r(gid, &grp, buffer,
@@ -380,6 +396,8 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
       *err_info = MEMORY_ERROR;
     } /* if */
 #endif
+    logFunction(printf("getGroupFromGid --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(group), *err_info););
     return group;
   } /* getGroupFromGid */
 
@@ -430,7 +448,7 @@ static gid_t getGidFromGroup (const const_striType group, errInfoType *err_info)
         gid = grpResult->gr_gid;
       } else
 #endif
-      if (os_group[0] >= 0 && os_group[0] <= '9') {
+      if (os_group[0] >= '0' && os_group[0] <= '9') {
         gidNum = strtoul(os_group, &endptr, 10);
         if (gidNum != ULONG_MAX && endptr[0] == '\0' &&
             (long) (gid_t) gidNum == gidNum) {
@@ -445,7 +463,10 @@ static gid_t getGidFromGroup (const const_striType group, errInfoType *err_info)
       } /* if */
       os_stri_free(os_group);
     } /* if */
-    logFunction(printf("getGidFromGroup --> %ld\n", (long) gid););
+    logFunction(printf("getGidFromGroup --> %s" FMT_GID " (err_info=%d)\n",
+                       gid == (gid_t) -1 ? "-" : "",
+                       gid == (gid_t) -1 ? (gid_t) 1 : gid,
+                       *err_info););
     return gid;
   } /* getGidFromGroup */
 
@@ -465,6 +486,10 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
     striType user;
 
   /* getUserFromUid */
+    logFunction(printf("getUserFromUid(%s" FMT_UID ", %d)\n",
+                       uid == (uid_t) -1 ? "-" : "",
+                       uid == (uid_t) -1 ? (uid_t) 1 : uid,
+                       *err_info););
 #if HAS_GETPWUID_R || HAS_GETPWUID
 #if HAS_GETPWUID_R
     getpwuid_result = getpwuid_r(uid, &pwd, buffer,
@@ -495,6 +520,8 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
       *err_info = MEMORY_ERROR;
     } /* if */
 #endif
+    logFunction(printf("getUserFromUid --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(user), *err_info););
     return user;
   } /* getUserFromUid */
 
@@ -545,7 +572,7 @@ static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
         uid = pwdResult->pw_uid;
       } else
 #endif
-      if (os_user[0] >= 0 && os_user[0] <= '9') {
+      if (os_user[0] >= '0' && os_user[0] <= '9') {
         uidNum = strtoul(os_user, &endptr, 10);
         if (uidNum != ULONG_MAX && endptr[0] == '\0' &&
             (long) (uid_t) uidNum == uidNum) {
@@ -560,7 +587,10 @@ static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
       } /* if */
       os_stri_free(os_user);
     } /* if */
-    logFunction(printf("getUidFromUser --> %ld\n", (long) uid););
+    logFunction(printf("getUidFromUser --> %s" FMT_UID " (err_info=%d)\n",
+                       uid == (uid_t) -1 ? "-" : "",
+                       uid == (uid_t) -1 ? (uid_t) 1 : uid,
+                       *err_info););
     return uid;
   } /* getUidFromUser */
 
@@ -589,8 +619,8 @@ striType cmdGetGroup (const const_striType filePath)
     striType group;
 
   /* cmdGetGroup */
-    logFunction(printf("cmdGetGroup(\"%s\")", striAsUnquotedCStri(filePath));
-                fflush(stdout););
+    logFunction(printf("cmdGetGroup(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
       logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -606,7 +636,6 @@ striType cmdGetGroup (const const_striType filePath)
         err_info = FILE_ERROR;
         group = NULL;
       } else {
-        /* printf("cmdGetGroup: st_gid=" FMT_U32 "\n", stat_buf.st_gid); */
         group = getGroupFromGid(stat_buf.st_gid, &err_info);
       } /* if */
       os_stri_free(os_path);
@@ -614,7 +643,8 @@ striType cmdGetGroup (const const_striType filePath)
     if (unlikely(group == NULL)) {
       raise_error(err_info);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
+    logFunction(printf("cmdGetGroup --> \"%s\"\n",
+                       striAsUnquotedCStri(group)););
     return group;
   } /* cmdGetGroup */
 
@@ -645,8 +675,8 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
     striType group;
 
   /* cmdGetGroupOfSymlink */
-    logFunction(printf("cmdGetGroupOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
-                fflush(stdout););
+    logFunction(printf("cmdGetGroupOfSymlink(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
       logError(printf("cmdGetGroupOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -668,7 +698,6 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
         err_info = FILE_ERROR;
         group = NULL;
       } else {
-        /* printf("cmdGetGroupOfSymlink: st_gid=" FMT_U32 "\n", stat_buf.st_gid); */
         group = getGroupFromGid(stat_buf.st_gid, &err_info);
       } /* if */
       os_stri_free(os_path);
@@ -676,7 +705,8 @@ striType cmdGetGroupOfSymlink (const const_striType filePath)
     if (unlikely(group == NULL)) {
       raise_error(err_info);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
+    logFunction(printf("cmdGetGroupOfSymlink --> \"%s\"\n",
+                       striAsUnquotedCStri(group)););
     return group;
   } /* cmdGetGroupOfSymlink */
 
@@ -705,8 +735,8 @@ striType cmdGetOwner (const const_striType filePath)
     striType owner;
 
   /* cmdGetOwner */
-    logFunction(printf("cmdGetOwner(\"%s\")", striAsUnquotedCStri(filePath));
-                fflush(stdout););
+    logFunction(printf("cmdGetOwner(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
       logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -722,7 +752,6 @@ striType cmdGetOwner (const const_striType filePath)
         err_info = FILE_ERROR;
         owner = NULL;
       } else {
-        /* printf("cmdGetOwner: st_uid=" FMT_U32 "\n", stat_buf.st_uid); */
         owner = getUserFromUid(stat_buf.st_uid, &err_info);
       } /* if */
       os_stri_free(os_path);
@@ -730,7 +759,8 @@ striType cmdGetOwner (const const_striType filePath)
     if (unlikely(owner == NULL)) {
       raise_error(err_info);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
+    logFunction(printf("cmdGetOwner --> \"%s\"\n",
+                       striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwner */
 
@@ -761,8 +791,8 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
     striType owner;
 
   /* cmdGetOwnerOfSymlink */
-    logFunction(printf("cmdGetOwnerOfSymlink(\"%s\")", striAsUnquotedCStri(filePath));
-                fflush(stdout););
+    logFunction(printf("cmdGetOwnerOfSymlink(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
       logError(printf("cmdGetOwnerOfSymlink: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -785,7 +815,6 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
         owner = NULL;
       } else {
         os_stri_free(os_path);
-        /* printf("cmdGetOwnerOfSymlink: st_uid=" FMT_U32 "\n", stat_buf.st_uid); */
         owner = getUserFromUid(stat_buf.st_uid, &err_info);
       } /* if */
       os_stri_free(os_path);
@@ -793,7 +822,8 @@ striType cmdGetOwnerOfSymlink (const const_striType filePath)
     if (unlikely(owner == NULL)) {
       raise_error(err_info);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
+    logFunction(printf("cmdGetOwnerOfSymlink --> \"%s\"\n",
+                       striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwnerOfSymlink */
 

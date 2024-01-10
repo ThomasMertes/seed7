@@ -2145,6 +2145,7 @@ static int isSignedType (const char *typeName)
     sprintf(buffer, "#include <stdio.h>\n"
                     "#include <stddef.h>\n"
                     "#include <time.h>\n"
+                    "#include <sys/types.h>\n"
                     "#include \"tst_vers.h\"\n"
                     "int main(int argc, char *argv[])"
                     "{printf(\"%%d\\n\",(%s)-1<0);return 0;}\n",
@@ -2203,7 +2204,11 @@ static void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * getSizeof("double"));
     fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     char_bit * getSizeof("wchar_t"));
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      char_bit * getSizeof("time_t"));
+    fprintf(versionFile, "#define GID_T_SIZE %d\n",       char_bit * getSizeof("gid_t"));
+    fprintf(versionFile, "#define UID_T_SIZE %d\n",       char_bit * getSizeof("uid_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
+    fprintf(versionFile, "#define GID_T_SIGNED %d\n",  isSignedType("gid_t"));
+    fprintf(versionFile, "#define UID_T_SIGNED %d\n",  isSignedType("uid_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
     fprintf(versionFile, "#define CHAR_SIGNED %d\n",   isSignedType("char"));
     /* The expression to check for BOOLTYPE below has been chosen, */
