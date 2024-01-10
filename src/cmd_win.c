@@ -516,7 +516,7 @@ int winRename (const const_os_striType oldPath, const const_os_striType newPath)
 
 
 #ifdef DEFINE_WIN_SYMLINK
-static int wSymlink(const const_os_striType targetPath, const const_os_striType symlinkPath)
+static int wSymlink (const const_os_striType targetPath, const const_os_striType symlinkPath)
 
   {
     int result;
@@ -646,6 +646,7 @@ typedef struct {
 
 #define DRIVE_NAME_LENGTH   2 /* Length of c: */
 #define DRIVE_PREFIX_LENGTH 6 /* Length of \\?\c: */
+#define DRIVE_LETTER_INDEX  4 /* Index of c in \\?\c: */
 
 
 
@@ -660,7 +661,8 @@ static striType getSymlinkDestination (const wchar_t *osSymlinkPath,
 
   /* getSymlinkDestination */
     logFunction(printf("getSymlinkDestination(\"%ls\", \"%.*ls\", %hu, %d)\n",
-                       osSymlinkPath, (int) substituteNameByteLen / sizeof(wchar_t),
+                       osSymlinkPath,
+                       (int) substituteNameByteLen / sizeof(wchar_t),
                        substituteName, substituteNameByteLen, *err_info););
     substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
     if (substituteNameLength >= 1 && substituteName[0] == (wchar_t) '\\') {
@@ -699,6 +701,7 @@ static striType getSymlinkDestination (const wchar_t *osSymlinkPath,
             substituteNameLength - PREFIX_LEN, err_info);
       } /* if */
     } else {
+      /* Relative substitute name */
       destination = cp_from_os_path_buffer(substituteName,
           substituteNameLength, err_info);
     } /* if */
@@ -1117,6 +1120,203 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
     logFunction(printf("winFollowSymlink --> \"%ls\"\n", result););
     return result;
   } /* winFollowSymlink */
+
+
+
+static void createSymlink (const wchar_t *osSymlinkPath,
+    const wchar_t *sourceSymlinkPath, const wchar_t *substituteName,
+    USHORT substituteNameByteLen, errInfoType *err_info)
+
+  {
+    USHORT substituteNameLength;
+    wchar_t *destination;
+
+  /* createSymlink */
+    logFunction(printf("createSymlink(\"%ls\", \"%.*ls\", %hu, %d)\n",
+                       osSymlinkPath,
+                       (int) (substituteNameByteLen / sizeof(wchar_t)),
+                       substituteName, substituteNameByteLen, *err_info););
+    substituteNameLength = substituteNameByteLen / sizeof(wchar_t);
+    if (substituteNameLength >= 1 && substituteName[0] == (wchar_t) '\\') {
+      /* An absolute substitute name starts with \??\c:\    */
+      /* (assuming that the drive letter of the path is c). */
+      /* Our check allows also variants of this prefix.     */
+      if (substituteNameLength < 7 ||
+          substituteName[2] != (wchar_t) '?'  ||
+          substituteName[3] != (wchar_t) '\\' ||
+          substituteName[5] != (wchar_t) ':'  ||
+          substituteName[6] != (wchar_t) '\\') {
+        /* This is a root relative symbolic link. It is relative */
+        /* to the drive of the symlink (and not relative to the  */
+        /* current working drive). A root relative symbolic link */
+        /* is converted to an absolute link. The root relative   */
+        /* substitute name is concatenated to the drive taken    */
+        /* from sourceSymlinkPath (=path of the source symlink). */
+        /* Only Windows has root relative symbolic links.        */
+        if (unlikely(!ALLOC_OS_STRI(destination,
+                      (memSizeType) DRIVE_NAME_LENGTH + substituteNameLength))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          memcpy(destination, &sourceSymlinkPath[DRIVE_LETTER_INDEX],
+                 DRIVE_NAME_LENGTH * sizeof(wchar_t));
+          memcpy(&destination[DRIVE_NAME_LENGTH],
+                 substituteName, substituteNameByteLen);
+          destination[DRIVE_NAME_LENGTH + substituteNameLength] = '\0';
+          wSymlink(destination, osSymlinkPath);
+          FREE_OS_STRI(destination);
+        } /* if */
+      } else if (unlikely(!ALLOC_OS_STRI(destination,
+                                         substituteNameLength - PREFIX_LEN))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        /* Omit the substitute prefix \??\ from the destination path. */
+        memcpy(destination, &substituteName[PREFIX_LEN],
+               substituteNameByteLen - PREFIX_LEN * sizeof(wchar_t));
+        destination[substituteNameLength - PREFIX_LEN] = '\0';
+        wSymlink(destination, osSymlinkPath);
+        FREE_OS_STRI(destination);
+      } /* if */
+    } else {
+      /* Relative substitute name */
+      if (unlikely(!ALLOC_OS_STRI(destination, substituteNameLength))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        memcpy(destination, substituteName, substituteNameByteLen);
+        destination[substituteNameLength] = '\0';
+        wSymlink(destination, osSymlinkPath);
+        FREE_OS_STRI(destination);
+      } /* if */
+    } /* if */
+    logFunction(printf("createSymlink --> (err_info=%d)\n", *err_info););
+  } /* createSymlink */
+
+
+
+void winCopySymlink (const const_os_striType sourcePath,
+    const const_os_striType destPath, errInfoType *err_info)
+
+  {
+    HANDLE fileHandle;
+    union info_t {
+      char buffer[100]; /* Arbitrary buffer size (must be >= 28) */
+      REPARSE_DATA_BUFFER7 reparseData;
+    } info;
+    memSizeType dataBufferHeadLength;
+    memSizeType dataBufferLength;
+    REPARSE_DATA_BUFFER7 *reparseData;
+    DWORD bytesReturned;
+    DWORD lastError;
+    WCHAR *pathBuffer;
+
+  /* winCopySymlink */
+    logFunction(printf("winCopySymlink(\"%ls\", \"%ls\", %d)\n",
+                       sourcePath, destPath, *err_info););
+    fileHandle = CreateFileW(sourcePath, 0,
+                             FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                             OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT |
+                             FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+      logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
+                      "CreateFileW(\"" FMT_S_OS "\", *) failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      sourcePath, destPath, *err_info, sourcePath,
+                      (uint32Type) GetLastError()););
+      *err_info = FILE_ERROR;
+    } else {
+      if (unlikely(DeviceIoControl(fileHandle,
+                                   FSCTL_GET_REPARSE_POINT,
+                                   NULL, 0, info.buffer, sizeof(info),
+                                   &bytesReturned, NULL) == 0)) {
+        lastError = GetLastError();
+        if (lastError != ERROR_MORE_DATA) {
+          logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
+                          "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
+                          "lastError=" FMT_U32 "%s\n",
+                          sourcePath, destPath, *err_info,
+                          (memSizeType) fileHandle, (uint32Type) lastError,
+                          lastError == ERROR_NOT_A_REPARSE_POINT ?
+                              " (ERROR_NOT_A_REPARSE_POINT)" : ""););
+          *err_info = FILE_ERROR;
+        } else if (unlikely(info.reparseData.ReparseTag !=
+                            IO_REPARSE_TAG_SYMLINK &&
+                            info.reparseData.ReparseTag !=
+                            IO_REPARSE_TAG_MOUNT_POINT)) {
+          logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
+                          "Unexpected ReparseTag: 0x" FMT_X32 "\n",
+                          sourcePath, destPath, *err_info,
+                          (uint32Type) info.reparseData.ReparseTag););
+          *err_info = FILE_ERROR;
+        } else {
+          dataBufferHeadLength = (memSizeType)
+              ((char *) &info.reparseData.Destination -
+               (char *) &info.reparseData);
+          dataBufferLength = dataBufferHeadLength +
+              info.reparseData.ReparseDataLength;
+          reparseData = (REPARSE_DATA_BUFFER7 *) malloc(dataBufferLength);
+          if (unlikely(reparseData == NULL)) {
+            *err_info = FILE_ERROR;
+          } else {
+            if (unlikely(DeviceIoControl(fileHandle,
+                                         FSCTL_GET_REPARSE_POINT, NULL, 0,
+                                         reparseData, (DWORD) dataBufferLength,
+                                         &bytesReturned, NULL) == 0)) {
+              logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
+                              "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
+                              "lastError=" FMT_U32 "%\n",
+                              sourcePath, destPath, *err_info,
+                              (memSizeType) fileHandle,
+                              (uint32Type) GetLastError()););
+              *err_info = FILE_ERROR;
+            } else {
+              if (reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+                pathBuffer = reparseData->Destination.Data.SymbolicLink.PathBuffer;
+              } else if (reparseData->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+                pathBuffer = reparseData->Destination.Data.MountPoint.PathBuffer;
+              } else {
+                logError(printf("winCopySymlink(\"%ls\", (\"%ls\", %d): "
+                                "Unexpected ReparseTag: 0x" FMT_X32 "\n",
+                                sourcePath, destPath, *err_info,
+                                (uint32Type) reparseData->ReparseTag););
+                pathBuffer = NULL;
+                *err_info = FILE_ERROR;
+              } /* if */
+              if (likely(pathBuffer != NULL)) {
+                createSymlink(destPath, sourcePath,
+                    &pathBuffer[reparseData->Destination.SubstituteNameOffset /
+                        sizeof(wchar_t)],
+                    reparseData->Destination.SubstituteNameLength,
+                    err_info);
+              } /* if */
+            } /* if */
+            free(reparseData);
+          } /* if */
+        } /* if */
+      } else {
+        if (info.reparseData.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+          pathBuffer = info.reparseData.Destination.Data.SymbolicLink.PathBuffer;
+        } else if (info.reparseData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+          pathBuffer = info.reparseData.Destination.Data.MountPoint.PathBuffer;
+        } else {
+          logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
+                          "Unexpected ReparseTag: 0x" FMT_X32 "\n",
+                          sourcePath, destPath, *err_info,
+                          (uint32Type) info.reparseData.ReparseTag););
+          pathBuffer = NULL;
+          *err_info = FILE_ERROR;
+        } /* if */
+        if (likely(pathBuffer != NULL)) {
+          createSymlink(destPath, sourcePath,
+              &pathBuffer[info.reparseData.Destination.SubstituteNameOffset /
+                  sizeof(wchar_t)],
+              info.reparseData.Destination.SubstituteNameLength,
+              err_info);
+        } /* if */
+      } /* if */
+      CloseHandle(fileHandle);
+    } /* if */
+    logFunction(printf("winCopySymlink(\"%ls\", \"%ls\", %d) -->\n",
+                       sourcePath, destPath, *err_info););
+  } /* winCopySymlink */
 #endif
 
 
