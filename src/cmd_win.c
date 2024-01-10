@@ -1157,12 +1157,20 @@ static void createSymlink (const wchar_t *osSymlinkPath,
                       (memSizeType) DRIVE_NAME_LENGTH + substituteNameLength))) {
           *err_info = MEMORY_ERROR;
         } else {
-          memcpy(destination, &sourceSymlinkPath[DRIVE_LETTER_INDEX],
-                 DRIVE_NAME_LENGTH * sizeof(wchar_t));
-          memcpy(&destination[DRIVE_NAME_LENGTH],
-                 substituteName, substituteNameByteLen);
-          destination[DRIVE_NAME_LENGTH + substituteNameLength] = '\0';
-          wSymlink(destination, osSymlinkPath);
+          if (osSymlinkPath[DRIVE_LETTER_INDEX] ==
+              sourceSymlinkPath[DRIVE_LETTER_INDEX]) {
+            memcpy(destination, substituteName, substituteNameByteLen);
+            destination[substituteNameLength] = '\0';
+          } else {
+            memcpy(destination, &sourceSymlinkPath[DRIVE_LETTER_INDEX],
+                   DRIVE_NAME_LENGTH * sizeof(wchar_t));
+            memcpy(&destination[DRIVE_NAME_LENGTH],
+                   substituteName, substituteNameByteLen);
+            destination[DRIVE_NAME_LENGTH + substituteNameLength] = '\0';
+          } /* if */
+          if (unlikely(wSymlink(destination, osSymlinkPath) != 0)) {
+            *err_info = FILE_ERROR;
+          } /* if */
           FREE_OS_STRI(destination);
         } /* if */
       } else if (unlikely(!ALLOC_OS_STRI(destination,
@@ -1173,7 +1181,9 @@ static void createSymlink (const wchar_t *osSymlinkPath,
         memcpy(destination, &substituteName[PREFIX_LEN],
                substituteNameByteLen - PREFIX_LEN * sizeof(wchar_t));
         destination[substituteNameLength - PREFIX_LEN] = '\0';
-        wSymlink(destination, osSymlinkPath);
+        if (unlikely(wSymlink(destination, osSymlinkPath) != 0)) {
+          *err_info = FILE_ERROR;
+        } /* if */
         FREE_OS_STRI(destination);
       } /* if */
     } else {
@@ -1183,7 +1193,9 @@ static void createSymlink (const wchar_t *osSymlinkPath,
       } else {
         memcpy(destination, substituteName, substituteNameByteLen);
         destination[substituteNameLength] = '\0';
-        wSymlink(destination, osSymlinkPath);
+        if (unlikely(wSymlink(destination, osSymlinkPath) != 0)) {
+          *err_info = FILE_ERROR;
+        } /* if */
         FREE_OS_STRI(destination);
       } /* if */
     } /* if */
