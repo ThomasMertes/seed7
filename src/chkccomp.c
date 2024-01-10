@@ -2171,6 +2171,8 @@ static void numericSizes (FILE *versionFile)
     int sizeof_long;
     int sizeof_long_long;
     int sizeof_int64;
+    int sizeof_gid_t;
+    int sizeof_uid_t;
 
   /* numericSizes */
     fprintf(logFile, "Numeric sizes: ");
@@ -2189,6 +2191,8 @@ static void numericSizes (FILE *versionFile)
     sizeof_long      = getSizeof("long");
     sizeof_long_long = getSizeof("long long");
     sizeof_int64     = getSizeof("__int64");
+    sizeof_gid_t     = getSizeof("gid_t");
+    sizeof_uid_t     = getSizeof("uid_t");
     fprintf(versionFile, "#define CHAR_SIZE %d\n",        char_bit * sizeof_char);
     fprintf(versionFile, "#define SHORT_SIZE %d\n",       char_bit * sizeof_short);
     fprintf(versionFile, "#define INT_SIZE %d\n",         char_bit * sizeof_int);
@@ -2204,11 +2208,15 @@ static void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * getSizeof("double"));
     fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     char_bit * getSizeof("wchar_t"));
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      char_bit * getSizeof("time_t"));
-    fprintf(versionFile, "#define GID_T_SIZE %d\n",       char_bit * getSizeof("gid_t"));
-    fprintf(versionFile, "#define UID_T_SIZE %d\n",       char_bit * getSizeof("uid_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
-    fprintf(versionFile, "#define GID_T_SIGNED %d\n",  isSignedType("gid_t"));
-    fprintf(versionFile, "#define UID_T_SIGNED %d\n",  isSignedType("uid_t"));
+    if (sizeof_gid_t > 0) {
+      fprintf(versionFile, "#define GID_T_SIZE %d\n",     char_bit * sizeof_gid_t);
+      fprintf(versionFile, "#define GID_T_SIGNED %d\n", isSignedType("gid_t"));
+    } /* if */
+    if (sizeof_uid_t > 0) {
+      fprintf(versionFile, "#define UID_T_SIZE %d\n",     char_bit * sizeof_uid_t);
+      fprintf(versionFile, "#define UID_T_SIGNED %d\n", isSignedType("uid_t"));
+    } /* if */
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
     fprintf(versionFile, "#define CHAR_SIGNED %d\n",   isSignedType("char"));
     /* The expression to check for BOOLTYPE below has been chosen, */
