@@ -7640,6 +7640,22 @@ const proc: chkBigOrdWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  ord(        bigintExpr(     aBig1)  mod powTwo63) + integer.first <> -5670419503621182411 or
+        ord(        bigintExpr(     aBig2)  mod powTwo63) + integer.first <> -4148752700928524566 or
+        ord(        bigintExpr(     aBig3)  mod powTwo63) + integer.first <> -5477561611521170848 or
+        ord(        bigintExpr(     aBig4)  mod powTwo63) + integer.first <> -7016252367565703435 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTwo63) + integer.first <> -5670419503621182411 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTwo63) + integer.first <> -4148752700928524566 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTwo63) + integer.first <> -5477561611521170848 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTwo63) + integer.first <> -7016252367565703435 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTwo63) + integer.first <> -5670419503621182411 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTwo63) + integer.first <> -4148752700928524566 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTwo63) + integer.first <> -5477561611521170848 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTwo63) + integer.first <> -7016252367565703435 then
+      writeln(" ***** ord(aBigInteger mod 2_**63) + number does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if  ord(           aBig1  mod powTwo60) <>   94188019413052469 or
         ord(           aBig2  mod powTwo60) <>  462933317498863338 or
         ord(           aBig3  mod powTwo60) <>  287045911513064032 or
@@ -7688,6 +7704,38 @@ const proc: chkBigOrdWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  ord(        bigintExpr(     aBig1)  mod powTwo60) + integer.first <> -9129184017441723339 or
+        ord(        bigintExpr(     aBig2)  mod powTwo60) + integer.first <> -8760438719355912470 or
+        ord(        bigintExpr(     aBig3)  mod powTwo60) + integer.first <> -8936326125341711776 or
+        ord(        bigintExpr(     aBig4)  mod powTwo60) + integer.first <> -8169173872172550411 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTwo60) + integer.first <> -9129184017441723339 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTwo60) + integer.first <> -8760438719355912470 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTwo60) + integer.first <> -8936326125341711776 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTwo60) + integer.first <> -8169173872172550411 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTwo60) + integer.first <> -9129184017441723339 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTwo60) + integer.first <> -8760438719355912470 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTwo60) + integer.first <> -8936326125341711776 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTwo60) + integer.first <> -8169173872172550411 then
+      writeln(" ***** ord(aBigInteger mod 2_**60) + number does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  ord(        bigintExpr(     aBig1)  mod powTwo60) + 8070450532247928832 <> 8164638551660981301 or
+        ord(        bigintExpr(     aBig2)  mod powTwo60) + 8070450532247928832 <> 8533383849746792170 or
+        ord(        bigintExpr(     aBig3)  mod powTwo60) + 8070450532247928832 <> 8357496443760992864 or
+        ord(        bigintExpr(     aBig4)  mod powTwo60) + 8070450532247928832 <> 9124648696930154229 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTwo60) + 8070450532247928832 <> 8164638551660981301 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTwo60) + 8070450532247928832 <> 8533383849746792170 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTwo60) + 8070450532247928832 <> 8357496443760992864 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTwo60) + 8070450532247928832 <> 9124648696930154229 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTwo60) + 8070450532247928832 <> 8164638551660981301 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTwo60) + 8070450532247928832 <> 8533383849746792170 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTwo60) + 8070450532247928832 <> 8357496443760992864 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTwo60) + 8070450532247928832 <> 9124648696930154229 then
+      writeln(" ***** ord(aBigInteger mod 2_**60) + number does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
     if  ord(           aBig1  mod powTen18) <> 456789012345678901 or
         ord(           aBig2  mod powTen18) <> 765432109876543210 or
         ord(           aBig3  mod powTen18) <> 415926535897932384 or
@@ -7733,6 +7781,38 @@ const proc: chkBigOrdWithBigMod is func
         ord(bigInteger conv intExpr(aNegative3) mod powTen18) <> 522438388478829152 or
         ord(bigInteger conv intExpr(aNegative4) mod powTen18) <> 983747632434296565 then
       writeln(" ***** ord(bigInteger conv number mod 10_**18) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ord(        bigintExpr(     aBig1)  mod powTen18) + integer.first <> -8766583024509096907 or
+        ord(        bigintExpr(     aBig2)  mod powTen18) + integer.first <> -8457939926978232598 or
+        ord(        bigintExpr(     aBig3)  mod powTen18) + integer.first <> -8807445500956843424 or
+        ord(        bigintExpr(     aBig4)  mod powTen18) + integer.first <> -8899392183291824395 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTen18) + integer.first <> -8670419503621182411 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTen18) + integer.first <> -9148752700928524566 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTen18) + integer.first <> -8477561611521170848 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTen18) + integer.first <> -9016252367565703435 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTen18) + integer.first <> -8893791540475958219 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTen18) + integer.first <> -8372124737783300374 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTen18) + integer.first <> -8700933648375946656 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTen18) + integer.first <> -8239624404420479243 then
+      writeln(" ***** ord(aBigInteger mod 10_**18) + number does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  ord(        bigintExpr(     aBig1)  mod powTen18) + 8223372036854775808 <> 8680161049200454709 or
+        ord(        bigintExpr(     aBig2)  mod powTen18) + 8223372036854775808 <> 8988804146731319018 or
+        ord(        bigintExpr(     aBig3)  mod powTen18) + 8223372036854775808 <> 8639298572752708192 or
+        ord(        bigintExpr(     aBig4)  mod powTen18) + 8223372036854775808 <> 8547351890417727221 or
+        ord(bigInteger(intExpr(aPositive1)) mod powTen18) + 8223372036854775808 <> 8776324570088369205 or
+        ord(bigInteger(intExpr(aPositive2)) mod powTen18) + 8223372036854775808 <> 8297991372781027050 or
+        ord(bigInteger(intExpr(aPositive3)) mod powTen18) + 8223372036854775808 <> 8969182462188380768 or
+        ord(bigInteger(intExpr(aPositive4)) mod powTen18) + 8223372036854775808 <> 8430491706143848181 or
+        ord(bigInteger(intExpr(aNegative1)) mod powTen18) + 8223372036854775808 <> 8552952533233593397 or
+        ord(bigInteger(intExpr(aNegative2)) mod powTen18) + 8223372036854775808 <> 9074619335926251242 or
+        ord(bigInteger(intExpr(aNegative3)) mod powTen18) + 8223372036854775808 <> 8745810425333604960 or
+        ord(bigInteger(intExpr(aNegative4)) mod powTen18) + 8223372036854775808 <> 9207119669289072373 then
+      writeln(" ***** ord(aBigInteger mod 10_**18) + number does not work correctly. (2)");
       okay := FALSE;
     end if;
 

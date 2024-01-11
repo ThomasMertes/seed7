@@ -1012,10 +1012,12 @@ const func intRange: getBigOrdOfBigModRange (in bigInteger: divisor) is func
   result
     var intRange: valueRange is intRange.value;
   begin
-    if divisor > 0_ and log2(divisor) <= 63_ and
-        2_ ** ord(log2(divisor)) = divisor then
+    if divisor > 0_ and divisor <= 2_ ** 63 then
       valueRange.minValue := 0;
       valueRange.maxValue := ord(pred(divisor));
+    elsif divisor < 0_ and divisor >= pred(-2_ ** 63) then
+      valueRange.minValue := ord(succ(divisor));
+      valueRange.maxValue := 0;
     end if;
   end func;
 
