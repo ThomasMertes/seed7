@@ -4117,6 +4117,10 @@ const proc: optimize_mod_dividend (in reference: dividend, inout expr_type: c_ex
       optimize_mod_of_sum(getValue(dividend, ref_list)[2], 1, c_expr);
     elsif isActionExpression(dividend, "INT_PRED") then
       optimize_mod_of_sum(getValue(dividend, ref_list)[2], -1, c_expr);
+    elsif isActionExpression(dividend, "INT_ICONV1") then
+      optimize_mod_dividend(getActionParameter(dividend, 1), c_expr);
+    elsif isActionExpression(dividend, "INT_ICONV3") then
+      optimize_mod_dividend(getActionParameter(dividend, 3), c_expr);
     else
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);

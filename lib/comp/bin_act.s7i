@@ -61,15 +61,52 @@ const proc: bin_prototypes (inout file: c_prog) is func
   end func;
 
 
+const proc: optimize_mod_dividend (in reference: dividend, inout expr_type: c_expr) is forward;
+
+
+const proc: process_const_bin_and (in reference: bits1, in integer: bits2,
+    inout expr_type: c_expr) is func
+
+  begin
+    if bits2 = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/*a & 0*/";
+      c_expr.expr &:= integerLiteral(bits2);
+    elsif modDividendOptimization then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      optimize_mod_dividend(bits1, c_expr);
+      c_expr.expr &:= ")";
+      if bits2 <> ord(~bin64(0)) then
+        c_expr.expr &:= " & ";
+        c_expr.expr &:= integerLiteral(bits2);
+      end if;
+    else
+      c_expr.expr &:= "(";
+      process_expr(bits1, c_expr);
+      c_expr.expr &:= ") & ";
+      c_expr.expr &:= integerLiteral(bits2);
+    end if;
+  end func;
+
+
 const proc: process (BIN_AND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") & (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_bin_and(params[3], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_and(params[1], getValue(evaluatedParam, integer), c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") & (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
