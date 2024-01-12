@@ -1721,27 +1721,35 @@ const proc: process (BIG_ODD, in reference: function,
   end func;
 
 
-const proc: optimize_big_ord_of_big_mod (in reference: param1,
-    in reference: dividend, in bigInteger: divisor,
-    inout expr_type: c_expr) is func
+const proc: optimize_big_mod_dividend (in reference: dividend,
+    in bigInteger: divisor, inout expr_type: c_expr) is func
 
   local
     var addSubBigListType: addSubParamList is addSubBigListType.value;
   begin
+    if evaluate_const_expr >= 2 then
+      generateAddSubParamList(addSubParamList, dividend);
+      evaluateConstants(addSubParamList);
+      c_expr.expr &:= "(";
+      optimizeAddSubList(addSubParamList, divisor, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "bigLowerBits64(";
+      getAnyParamToExpr(dividend, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: optimize_big_ord_of_big_mod (in reference: param1,
+    in reference: dividend, in bigInteger: divisor,
+    inout expr_type: c_expr) is func
+
+  begin
     if divisor > 0_ and log2(divisor) <= 63_ and
         2_ ** ord(log2(divisor)) = divisor then
       c_expr.expr &:= "(intType)(";
-      if evaluate_const_expr >= 2 then
-        generateAddSubParamList(addSubParamList, dividend);
-        evaluateConstants(addSubParamList);
-        c_expr.expr &:= "(";
-        optimizeAddSubList(addSubParamList, divisor, c_expr);
-        c_expr.expr &:= ")";
-      else
-        c_expr.expr &:= "bigLowerBits64(";
-        getAnyParamToExpr(dividend, c_expr);
-        c_expr.expr &:= ")";
-      end if;
+      optimize_big_mod_dividend(dividend, divisor, c_expr);
       c_expr.expr &:= "&";
       c_expr.expr &:= integerLiteral(ord(pred(divisor)));
       c_expr.expr &:= ")";
