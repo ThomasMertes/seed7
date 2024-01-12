@@ -3415,6 +3415,280 @@ const proc: checkRadix is func
   end func;
 
 
+const proc: checkBitLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bitLength(bin64(                   0 )) <>  0 or
+        bitLength(bin64(                   1 )) <>  1 or
+        bitLength(bin64(                   2 )) <>  2 or
+        bitLength(bin64(                   3 )) <>  2 or
+        bitLength(bin64(                   4 )) <>  3 or
+        bitLength(bin64(                   7 )) <>  3 or
+        bitLength(bin64(                   8 )) <>  4 or
+        bitLength(bin64(                  15 )) <>  4 or
+        bitLength(bin64(                  16 )) <>  5 or
+        bitLength(bin64(                  31 )) <>  5 or
+        bitLength(bin64(                  32 )) <>  6 or
+        bitLength(bin64(                  63 )) <>  6 or
+        bitLength(bin64(                  64 )) <>  7 or
+        bitLength(bin64(                 127 )) <>  7 or
+        bitLength(bin64(                 128 )) <>  8 or
+        bitLength(bin64(                 255 )) <>  8 or
+        bitLength(bin64(                 256 )) <>  9 or
+        bitLength(bin64(                 511 )) <>  9 or
+        bitLength(bin64(                 512 )) <> 10 or
+        bitLength(bin64(                1023 )) <> 10 or
+        bitLength(bin64(                1024 )) <> 11 or
+        bitLength(bin64(                2047 )) <> 11 or
+        bitLength(bin64(                2048 )) <> 12 or
+        bitLength(bin64(                4095 )) <> 12 or
+        bitLength(bin64(                4096 )) <> 13 or
+        bitLength(bin64(                8191 )) <> 13 or
+        bitLength(bin64(                8192 )) <> 14 or
+        bitLength(bin64(               16383 )) <> 14 or
+        bitLength(bin64(               16384 )) <> 15 or
+        bitLength(bin64(               32767 )) <> 15 or
+        bitLength(bin64(               32768 )) <> 16 or
+        bitLength(bin64(               65535 )) <> 16 or
+        bitLength(bin64(               65536 )) <> 17 or
+        bitLength(bin64(              131071 )) <> 17 or
+        bitLength(bin64(              131072 )) <> 18 or
+        bitLength(bin64(              262143 )) <> 18 or
+        bitLength(bin64(              262144 )) <> 19 or
+        bitLength(bin64(              524287 )) <> 19 or
+        bitLength(bin64(              524288 )) <> 20 or
+        bitLength(bin64(             1048575 )) <> 20 or
+        bitLength(bin64(             1048576 )) <> 21 or
+        bitLength(bin64(             2097151 )) <> 21 or
+        bitLength(bin64(             2097152 )) <> 22 or
+        bitLength(bin64(             4194303 )) <> 22 or
+        bitLength(bin64(             4194304 )) <> 23 or
+        bitLength(bin64(             8388607 )) <> 23 or
+        bitLength(bin64(             8388608 )) <> 24 or
+        bitLength(bin64(            16777215 )) <> 24 or
+        bitLength(bin64(            16777216 )) <> 25 or
+        bitLength(bin64(            33554431 )) <> 25 or
+        bitLength(bin64(            33554432 )) <> 26 or
+        bitLength(bin64(            67108863 )) <> 26 or
+        bitLength(bin64(            67108864 )) <> 27 or
+        bitLength(bin64(           134217727 )) <> 27 or
+        bitLength(bin64(           134217728 )) <> 28 or
+        bitLength(bin64(           268435455 )) <> 28 or
+        bitLength(bin64(           268435456 )) <> 29 or
+        bitLength(bin64(           536870911 )) <> 29 or
+        bitLength(bin64(           536870912 )) <> 30 or
+        bitLength(bin64(          1073741823 )) <> 30 or
+        bitLength(bin64(          1073741824 )) <> 31 or
+        bitLength(bin64(          2147483647 )) <> 31 or
+        bitLength(bin64(          2147483648 )) <> 32 or
+        bitLength(bin64(          4294967295 )) <> 32 or
+        bitLength(bin64(          4294967296 )) <> 33 or
+        bitLength(bin64(          8589934591 )) <> 33 or
+        bitLength(bin64(          8589934592 )) <> 34 or
+        bitLength(bin64(         17179869183 )) <> 34 or
+        bitLength(bin64(         17179869184 )) <> 35 or
+        bitLength(bin64(         34359738367 )) <> 35 or
+        bitLength(bin64(         34359738368 )) <> 36 or
+        bitLength(bin64(         68719476735 )) <> 36 or
+        bitLength(bin64(         68719476736 )) <> 37 or
+        bitLength(bin64(        137438953471 )) <> 37 or
+        bitLength(bin64(        137438953472 )) <> 38 or
+        bitLength(bin64(        274877906943 )) <> 38 or
+        bitLength(bin64(        274877906944 )) <> 39 or
+        bitLength(bin64(        549755813887 )) <> 39 or
+        bitLength(bin64(        549755813888 )) <> 40 or
+        bitLength(bin64(       1099511627775 )) <> 40 or
+        bitLength(bin64(       1099511627776 )) <> 41 or
+        bitLength(bin64(       2199023255551 )) <> 41 or
+        bitLength(bin64(       2199023255552 )) <> 42 or
+        bitLength(bin64(       4398046511103 )) <> 42 or
+        bitLength(bin64(       4398046511104 )) <> 43 or
+        bitLength(bin64(       8796093022207 )) <> 43 or
+        bitLength(bin64(       8796093022208 )) <> 44 or
+        bitLength(bin64(      17592186044415 )) <> 44 or
+        bitLength(bin64(      17592186044416 )) <> 45 or
+        bitLength(bin64(      35184372088831 )) <> 45 or
+        bitLength(bin64(      35184372088832 )) <> 46 or
+        bitLength(bin64(      70368744177663 )) <> 46 or
+        bitLength(bin64(      70368744177664 )) <> 47 or
+        bitLength(bin64(     140737488355327 )) <> 47 or
+        bitLength(bin64(     140737488355328 )) <> 48 or
+        bitLength(bin64(     281474976710655 )) <> 48 or
+        bitLength(bin64(     281474976710656 )) <> 49 or
+        bitLength(bin64(     562949953421311 )) <> 49 or
+        bitLength(bin64(     562949953421312 )) <> 50 or
+        bitLength(bin64(    1125899906842623 )) <> 50 or
+        bitLength(bin64(    1125899906842624 )) <> 51 or
+        bitLength(bin64(    2251799813685247 )) <> 51 or
+        bitLength(bin64(    2251799813685248 )) <> 52 or
+        bitLength(bin64(    4503599627370495 )) <> 52 or
+        bitLength(bin64(    4503599627370496 )) <> 53 or
+        bitLength(bin64(    9007199254740991 )) <> 53 or
+        bitLength(bin64(    9007199254740992 )) <> 54 or
+        bitLength(bin64(   18014398509481983 )) <> 54 or
+        bitLength(bin64(   18014398509481984 )) <> 55 or
+        bitLength(bin64(   36028797018963967 )) <> 55 or
+        bitLength(bin64(   36028797018963968 )) <> 56 or
+        bitLength(bin64(   72057594037927935 )) <> 56 or
+        bitLength(bin64(   72057594037927936 )) <> 57 or
+        bitLength(bin64(  144115188075855871 )) <> 57 or
+        bitLength(bin64(  144115188075855872 )) <> 58 or
+        bitLength(bin64(  288230376151711743 )) <> 58 or
+        bitLength(bin64(  288230376151711744 )) <> 59 or
+        bitLength(bin64(  576460752303423487 )) <> 59 or
+        bitLength(bin64(  576460752303423488 )) <> 60 or
+        bitLength(bin64( 1152921504606846975 )) <> 60 or
+        bitLength(bin64( 1152921504606846976 )) <> 61 or
+        bitLength(bin64( 2305843009213693951 )) <> 61 or
+        bitLength(bin64( 2305843009213693952 )) <> 62 or
+        bitLength(bin64( 4611686018427387903 )) <> 62 or
+        bitLength(bin64( 4611686018427387904 )) <> 63 or
+        bitLength(bin64( 9223372036854775807_)) <> 63 or
+        bitLength(bin64( 9223372036854775808_)) <> 64 or
+        bitLength(bin64(18446744073709551615_)) <> 64 then
+      writeln(" ***** Bin64 bitLength is not correctly computed. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bitLength(bin64Expr(bin64(                   0 ))) <>  0 or
+        bitLength(bin64Expr(bin64(                   1 ))) <>  1 or
+        bitLength(bin64Expr(bin64(                   2 ))) <>  2 or
+        bitLength(bin64Expr(bin64(                   3 ))) <>  2 or
+        bitLength(bin64Expr(bin64(                   4 ))) <>  3 or
+        bitLength(bin64Expr(bin64(                   7 ))) <>  3 or
+        bitLength(bin64Expr(bin64(                   8 ))) <>  4 or
+        bitLength(bin64Expr(bin64(                  15 ))) <>  4 or
+        bitLength(bin64Expr(bin64(                  16 ))) <>  5 or
+        bitLength(bin64Expr(bin64(                  31 ))) <>  5 or
+        bitLength(bin64Expr(bin64(                  32 ))) <>  6 or
+        bitLength(bin64Expr(bin64(                  63 ))) <>  6 or
+        bitLength(bin64Expr(bin64(                  64 ))) <>  7 or
+        bitLength(bin64Expr(bin64(                 127 ))) <>  7 or
+        bitLength(bin64Expr(bin64(                 128 ))) <>  8 or
+        bitLength(bin64Expr(bin64(                 255 ))) <>  8 or
+        bitLength(bin64Expr(bin64(                 256 ))) <>  9 or
+        bitLength(bin64Expr(bin64(                 511 ))) <>  9 or
+        bitLength(bin64Expr(bin64(                 512 ))) <> 10 or
+        bitLength(bin64Expr(bin64(                1023 ))) <> 10 or
+        bitLength(bin64Expr(bin64(                1024 ))) <> 11 or
+        bitLength(bin64Expr(bin64(                2047 ))) <> 11 or
+        bitLength(bin64Expr(bin64(                2048 ))) <> 12 or
+        bitLength(bin64Expr(bin64(                4095 ))) <> 12 or
+        bitLength(bin64Expr(bin64(                4096 ))) <> 13 or
+        bitLength(bin64Expr(bin64(                8191 ))) <> 13 or
+        bitLength(bin64Expr(bin64(                8192 ))) <> 14 or
+        bitLength(bin64Expr(bin64(               16383 ))) <> 14 or
+        bitLength(bin64Expr(bin64(               16384 ))) <> 15 or
+        bitLength(bin64Expr(bin64(               32767 ))) <> 15 or
+        bitLength(bin64Expr(bin64(               32768 ))) <> 16 or
+        bitLength(bin64Expr(bin64(               65535 ))) <> 16 or
+        bitLength(bin64Expr(bin64(               65536 ))) <> 17 or
+        bitLength(bin64Expr(bin64(              131071 ))) <> 17 or
+        bitLength(bin64Expr(bin64(              131072 ))) <> 18 or
+        bitLength(bin64Expr(bin64(              262143 ))) <> 18 or
+        bitLength(bin64Expr(bin64(              262144 ))) <> 19 or
+        bitLength(bin64Expr(bin64(              524287 ))) <> 19 or
+        bitLength(bin64Expr(bin64(              524288 ))) <> 20 or
+        bitLength(bin64Expr(bin64(             1048575 ))) <> 20 or
+        bitLength(bin64Expr(bin64(             1048576 ))) <> 21 or
+        bitLength(bin64Expr(bin64(             2097151 ))) <> 21 or
+        bitLength(bin64Expr(bin64(             2097152 ))) <> 22 or
+        bitLength(bin64Expr(bin64(             4194303 ))) <> 22 or
+        bitLength(bin64Expr(bin64(             4194304 ))) <> 23 or
+        bitLength(bin64Expr(bin64(             8388607 ))) <> 23 or
+        bitLength(bin64Expr(bin64(             8388608 ))) <> 24 or
+        bitLength(bin64Expr(bin64(            16777215 ))) <> 24 or
+        bitLength(bin64Expr(bin64(            16777216 ))) <> 25 or
+        bitLength(bin64Expr(bin64(            33554431 ))) <> 25 or
+        bitLength(bin64Expr(bin64(            33554432 ))) <> 26 or
+        bitLength(bin64Expr(bin64(            67108863 ))) <> 26 or
+        bitLength(bin64Expr(bin64(            67108864 ))) <> 27 or
+        bitLength(bin64Expr(bin64(           134217727 ))) <> 27 or
+        bitLength(bin64Expr(bin64(           134217728 ))) <> 28 or
+        bitLength(bin64Expr(bin64(           268435455 ))) <> 28 or
+        bitLength(bin64Expr(bin64(           268435456 ))) <> 29 or
+        bitLength(bin64Expr(bin64(           536870911 ))) <> 29 or
+        bitLength(bin64Expr(bin64(           536870912 ))) <> 30 or
+        bitLength(bin64Expr(bin64(          1073741823 ))) <> 30 or
+        bitLength(bin64Expr(bin64(          1073741824 ))) <> 31 or
+        bitLength(bin64Expr(bin64(          2147483647 ))) <> 31 or
+        bitLength(bin64Expr(bin64(          2147483648 ))) <> 32 or
+        bitLength(bin64Expr(bin64(          4294967295 ))) <> 32 or
+        bitLength(bin64Expr(bin64(          4294967296 ))) <> 33 or
+        bitLength(bin64Expr(bin64(          8589934591 ))) <> 33 or
+        bitLength(bin64Expr(bin64(          8589934592 ))) <> 34 or
+        bitLength(bin64Expr(bin64(         17179869183 ))) <> 34 or
+        bitLength(bin64Expr(bin64(         17179869184 ))) <> 35 or
+        bitLength(bin64Expr(bin64(         34359738367 ))) <> 35 or
+        bitLength(bin64Expr(bin64(         34359738368 ))) <> 36 or
+        bitLength(bin64Expr(bin64(         68719476735 ))) <> 36 or
+        bitLength(bin64Expr(bin64(         68719476736 ))) <> 37 or
+        bitLength(bin64Expr(bin64(        137438953471 ))) <> 37 or
+        bitLength(bin64Expr(bin64(        137438953472 ))) <> 38 or
+        bitLength(bin64Expr(bin64(        274877906943 ))) <> 38 or
+        bitLength(bin64Expr(bin64(        274877906944 ))) <> 39 or
+        bitLength(bin64Expr(bin64(        549755813887 ))) <> 39 or
+        bitLength(bin64Expr(bin64(        549755813888 ))) <> 40 or
+        bitLength(bin64Expr(bin64(       1099511627775 ))) <> 40 or
+        bitLength(bin64Expr(bin64(       1099511627776 ))) <> 41 or
+        bitLength(bin64Expr(bin64(       2199023255551 ))) <> 41 or
+        bitLength(bin64Expr(bin64(       2199023255552 ))) <> 42 or
+        bitLength(bin64Expr(bin64(       4398046511103 ))) <> 42 or
+        bitLength(bin64Expr(bin64(       4398046511104 ))) <> 43 or
+        bitLength(bin64Expr(bin64(       8796093022207 ))) <> 43 or
+        bitLength(bin64Expr(bin64(       8796093022208 ))) <> 44 or
+        bitLength(bin64Expr(bin64(      17592186044415 ))) <> 44 or
+        bitLength(bin64Expr(bin64(      17592186044416 ))) <> 45 or
+        bitLength(bin64Expr(bin64(      35184372088831 ))) <> 45 or
+        bitLength(bin64Expr(bin64(      35184372088832 ))) <> 46 or
+        bitLength(bin64Expr(bin64(      70368744177663 ))) <> 46 or
+        bitLength(bin64Expr(bin64(      70368744177664 ))) <> 47 or
+        bitLength(bin64Expr(bin64(     140737488355327 ))) <> 47 or
+        bitLength(bin64Expr(bin64(     140737488355328 ))) <> 48 or
+        bitLength(bin64Expr(bin64(     281474976710655 ))) <> 48 or
+        bitLength(bin64Expr(bin64(     281474976710656 ))) <> 49 or
+        bitLength(bin64Expr(bin64(     562949953421311 ))) <> 49 or
+        bitLength(bin64Expr(bin64(     562949953421312 ))) <> 50 or
+        bitLength(bin64Expr(bin64(    1125899906842623 ))) <> 50 or
+        bitLength(bin64Expr(bin64(    1125899906842624 ))) <> 51 or
+        bitLength(bin64Expr(bin64(    2251799813685247 ))) <> 51 or
+        bitLength(bin64Expr(bin64(    2251799813685248 ))) <> 52 or
+        bitLength(bin64Expr(bin64(    4503599627370495 ))) <> 52 or
+        bitLength(bin64Expr(bin64(    4503599627370496 ))) <> 53 or
+        bitLength(bin64Expr(bin64(    9007199254740991 ))) <> 53 or
+        bitLength(bin64Expr(bin64(    9007199254740992 ))) <> 54 or
+        bitLength(bin64Expr(bin64(   18014398509481983 ))) <> 54 or
+        bitLength(bin64Expr(bin64(   18014398509481984 ))) <> 55 or
+        bitLength(bin64Expr(bin64(   36028797018963967 ))) <> 55 or
+        bitLength(bin64Expr(bin64(   36028797018963968 ))) <> 56 or
+        bitLength(bin64Expr(bin64(   72057594037927935 ))) <> 56 or
+        bitLength(bin64Expr(bin64(   72057594037927936 ))) <> 57 or
+        bitLength(bin64Expr(bin64(  144115188075855871 ))) <> 57 or
+        bitLength(bin64Expr(bin64(  144115188075855872 ))) <> 58 or
+        bitLength(bin64Expr(bin64(  288230376151711743 ))) <> 58 or
+        bitLength(bin64Expr(bin64(  288230376151711744 ))) <> 59 or
+        bitLength(bin64Expr(bin64(  576460752303423487 ))) <> 59 or
+        bitLength(bin64Expr(bin64(  576460752303423488 ))) <> 60 or
+        bitLength(bin64Expr(bin64( 1152921504606846975 ))) <> 60 or
+        bitLength(bin64Expr(bin64( 1152921504606846976 ))) <> 61 or
+        bitLength(bin64Expr(bin64( 2305843009213693951 ))) <> 61 or
+        bitLength(bin64Expr(bin64( 2305843009213693952 ))) <> 62 or
+        bitLength(bin64Expr(bin64( 4611686018427387903 ))) <> 62 or
+        bitLength(bin64Expr(bin64( 4611686018427387904 ))) <> 63 or
+        bitLength(bin64Expr(bin64( 9223372036854775807_))) <> 63 or
+        bitLength(bin64Expr(bin64( 9223372036854775808_))) <> 64 or
+        bitLength(bin64Expr(bin64(18446744073709551615_))) <> 64 then
+      writeln(" ***** Bin64 bitLength is not correctly computed. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bin64 bitLength works correctly.");
+    end if;
+  end func;
+
+
 const proc: checkTernary is func
   local
     const bin32: thenValue32 is bin32(1);
@@ -3533,5 +3807,6 @@ const proc: main is func
     checkBinBinaryWithBigMod;
     checkStr;
     checkRadix;
+    checkBitLength;
     checkTernary;
   end func;

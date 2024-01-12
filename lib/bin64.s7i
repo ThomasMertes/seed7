@@ -168,6 +168,14 @@ const func bin64: rand (attr bin64) is
 
 
 (**
+ *  Number of bits in the minimum binary representation.
+ *  Leading zero bits are not part of the minimum binary representation.
+ *  @return the number of bits.
+ *)
+const func integer: bitLength (in bin64: bits)                 is action "BIN_BIT_LENGTH";
+
+
+(**
  *  Convert an ''bin64'' value to a [[string]].
  *  The values is converted to a string with decimal representation.
  *  The conversion interprets the ''bin64'' value as unsigned.

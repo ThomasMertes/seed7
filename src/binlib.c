@@ -107,6 +107,21 @@ objectType bin_binary (listType arguments)
 
 
 /**
+ *  Number of bits in the minimum binary representation.
+ *  Leading zero bits are not part of the minimum binary representation.
+ *  @return the number of bits.
+ */
+objectType bin_bit_length (listType arguments)
+
+  { /* bin_bit_length */
+    isit_int(arg_1(arguments));
+    return bld_int_temp((intType)
+        uint64MostSignificantBit((uintType) take_int(arg_1(arguments))) + 1);
+  } /* bin_bit_length */
+
+
+
+/**
  *  Determine the number of one bits in a binary value.
  *  @return the number of one bits.
  */

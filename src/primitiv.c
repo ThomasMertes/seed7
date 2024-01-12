@@ -174,6 +174,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BIN_AND_ASSIGN",               bin_and_assign,               },
     { "BIN_BIG",                      bin_big,                      },
     { "BIN_BINARY",                   bin_binary,                   },
+    { "BIN_BIT_LENGTH",               bin_bit_length,               },
     { "BIN_CARD",                     bin_card,                     },
     { "BIN_CMP",                      bin_cmp,                      },
     { "BIN_GET_BINARY_FROM_SET",      bin_get_binary_from_set,      },
