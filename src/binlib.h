@@ -33,6 +33,7 @@ objectType bin_bit_length          (listType arguments);
 objectType bin_card                (listType arguments);
 objectType bin_cmp                 (listType arguments);
 objectType bin_get_binary_from_set (listType arguments);
+objectType bin_lowest_set_bit      (listType arguments);
 objectType bin_lshift              (listType arguments);
 objectType bin_lshift_assign       (listType arguments);
 objectType bin_n_bytes_be          (listType arguments);

@@ -181,6 +181,25 @@ objectType bin_get_binary_from_set (listType arguments)
 
 
 /**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ */
+objectType bin_lowest_set_bit (listType arguments)
+
+  {
+    uintType number;
+
+  /* bin_lowest_set_bit */
+    isit_int(arg_1(arguments));
+    number = (uintType) take_int(arg_1(arguments));
+    return bld_int_temp((intType)
+        (number == 0 ? -1 : uint64LeastSignificantBit(number)));
+  } /* bin_lowest_set_bit */
+
+
+
+/**
  *  Shift a binary value left by lshift bits.
  *  Bits that are shifted beyond the size of a binary value
  *  are lost.

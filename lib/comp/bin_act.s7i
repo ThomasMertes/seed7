@@ -32,6 +32,7 @@ const ACTION: BIN_BIT_LENGTH          is action "BIN_BIT_LENGTH";
 const ACTION: BIN_CARD                is action "BIN_CARD";
 const ACTION: BIN_CMP                 is action "BIN_CMP";
 const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
+const ACTION: BIN_LOWEST_SET_BIT      is action "BIN_LOWEST_SET_BIT";
 const ACTION: BIN_LSHIFT              is action "BIN_LSHIFT";
 const ACTION: BIN_LSHIFT_ASSIGN       is action "BIN_LSHIFT_ASSIGN";
 const ACTION: BIN_N_BYTES_BE          is action "BIN_N_BYTES_BE";
@@ -59,6 +60,7 @@ const proc: bin_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
     declareExtern(c_prog, "striType    uintRadixPow2 (uintType, int, int, boolType);");
     declareExtern(c_prog, "striType    uintStr (uintType);");
+    declareExtern(c_prog, "int         uint64LeastSignificantBit (uintType);");
     declareExtern(c_prog, "int         uint64MostSignificantBit (uintType);");
   end func;
 
@@ -249,6 +251,21 @@ const proc: process (BIN_GET_BINARY_FROM_SET, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_LOWEST_SET_BIT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: numberName is "";
+  begin
+    c_expr.expr &:= "(intType)(";
+    numberName := getParameterAsVariable("uintType", "num1_", params[1], c_expr);
+    c_expr.expr &:= numberName;
+    c_expr.expr &:= " == 0 ? -1 : uint64LeastSignificantBit(";
+    c_expr.expr &:= numberName;
+    c_expr.expr &:= "))";
   end func;
 
 

@@ -3689,6 +3689,154 @@ const proc: checkBitLength is func
   end func;
 
 
+const proc: checkLowestSetBit is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  lowestSetBit(bin64(                  0 )) <> -1 or
+        lowestSetBit(bin64(4611686018427387905 )) <>  0 or
+        lowestSetBit(bin64(4611686018427387906 )) <>  1 or
+        lowestSetBit(bin64(4611686018427387908 )) <>  2 or
+        lowestSetBit(bin64(4611686018427387912 )) <>  3 or
+        lowestSetBit(bin64(4611686018427387920 )) <>  4 or
+        lowestSetBit(bin64(4611686018427387936 )) <>  5 or
+        lowestSetBit(bin64(4611686018427387968 )) <>  6 or
+        lowestSetBit(bin64(4611686018427388032 )) <>  7 or
+        lowestSetBit(bin64(4611686018427388160 )) <>  8 or
+        lowestSetBit(bin64(4611686018427388416 )) <>  9 or
+        lowestSetBit(bin64(4611686018427388928 )) <> 10 or
+        lowestSetBit(bin64(4611686018427389952 )) <> 11 or
+        lowestSetBit(bin64(4611686018427392000 )) <> 12 or
+        lowestSetBit(bin64(4611686018427396096 )) <> 13 or
+        lowestSetBit(bin64(4611686018427404288 )) <> 14 or
+        lowestSetBit(bin64(4611686018427420672 )) <> 15 or
+        lowestSetBit(bin64(4611686018427453440 )) <> 16 or
+        lowestSetBit(bin64(4611686018427518976 )) <> 17 or
+        lowestSetBit(bin64(4611686018427650048 )) <> 18 or
+        lowestSetBit(bin64(4611686018427912192 )) <> 19 or
+        lowestSetBit(bin64(4611686018428436480 )) <> 20 or
+        lowestSetBit(bin64(4611686018429485056 )) <> 21 or
+        lowestSetBit(bin64(4611686018431582208 )) <> 22 or
+        lowestSetBit(bin64(4611686018435776512 )) <> 23 or
+        lowestSetBit(bin64(4611686018444165120 )) <> 24 or
+        lowestSetBit(bin64(4611686018460942336 )) <> 25 or
+        lowestSetBit(bin64(4611686018494496768 )) <> 26 or
+        lowestSetBit(bin64(4611686018561605632 )) <> 27 or
+        lowestSetBit(bin64(4611686018695823360 )) <> 28 or
+        lowestSetBit(bin64(4611686018964258816 )) <> 29 or
+        lowestSetBit(bin64(4611686019501129728 )) <> 30 or
+        lowestSetBit(bin64(4611686020574871552 )) <> 31 or
+        lowestSetBit(bin64(4611686022722355200 )) <> 32 or
+        lowestSetBit(bin64(4611686027017322496 )) <> 33 or
+        lowestSetBit(bin64(4611686035607257088 )) <> 34 or
+        lowestSetBit(bin64(4611686052787126272 )) <> 35 or
+        lowestSetBit(bin64(4611686087146864640 )) <> 36 or
+        lowestSetBit(bin64(4611686155866341376 )) <> 37 or
+        lowestSetBit(bin64(4611686293305294848 )) <> 38 or
+        lowestSetBit(bin64(4611686568183201792 )) <> 39 or
+        lowestSetBit(bin64(4611687117939015680 )) <> 40 or
+        lowestSetBit(bin64(4611688217450643456 )) <> 41 or
+        lowestSetBit(bin64(4611690416473899008 )) <> 42 or
+        lowestSetBit(bin64(4611694814520410112 )) <> 43 or
+        lowestSetBit(bin64(4611703610613432320 )) <> 44 or
+        lowestSetBit(bin64(4611721202799476736 )) <> 45 or
+        lowestSetBit(bin64(4611756387171565568 )) <> 46 or
+        lowestSetBit(bin64(4611826755915743232 )) <> 47 or
+        lowestSetBit(bin64(4611967493404098560 )) <> 48 or
+        lowestSetBit(bin64(4612248968380809216 )) <> 49 or
+        lowestSetBit(bin64(4612811918334230528 )) <> 50 or
+        lowestSetBit(bin64(4613937818241073152 )) <> 51 or
+        lowestSetBit(bin64(4616189618054758400 )) <> 52 or
+        lowestSetBit(bin64(4620693217682128896 )) <> 53 or
+        lowestSetBit(bin64(4629700416936869888 )) <> 54 or
+        lowestSetBit(bin64(4647714815446351872 )) <> 55 or
+        lowestSetBit(bin64(4683743612465315840 )) <> 56 or
+        lowestSetBit(bin64(4755801206503243776 )) <> 57 or
+        lowestSetBit(bin64(4899916394579099648 )) <> 58 or
+        lowestSetBit(bin64(5188146770730811392 )) <> 59 or
+        lowestSetBit(bin64(5764607523034234880 )) <> 60 or
+        lowestSetBit(bin64(6917529027641081856 )) <> 61 or
+        lowestSetBit(bin64(4611686018427387904 )) <> 62 or
+        lowestSetBit(bin64(9223372036854775808_)) <> 63 then
+      writeln(" ***** The bin64 lowestSetBit function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  lowestSetBit(bin64Expr(bin64(                  0 ))) <> -1 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387905 ))) <>  0 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387906 ))) <>  1 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387908 ))) <>  2 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387912 ))) <>  3 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387920 ))) <>  4 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387936 ))) <>  5 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387968 ))) <>  6 or
+        lowestSetBit(bin64Expr(bin64(4611686018427388032 ))) <>  7 or
+        lowestSetBit(bin64Expr(bin64(4611686018427388160 ))) <>  8 or
+        lowestSetBit(bin64Expr(bin64(4611686018427388416 ))) <>  9 or
+        lowestSetBit(bin64Expr(bin64(4611686018427388928 ))) <> 10 or
+        lowestSetBit(bin64Expr(bin64(4611686018427389952 ))) <> 11 or
+        lowestSetBit(bin64Expr(bin64(4611686018427392000 ))) <> 12 or
+        lowestSetBit(bin64Expr(bin64(4611686018427396096 ))) <> 13 or
+        lowestSetBit(bin64Expr(bin64(4611686018427404288 ))) <> 14 or
+        lowestSetBit(bin64Expr(bin64(4611686018427420672 ))) <> 15 or
+        lowestSetBit(bin64Expr(bin64(4611686018427453440 ))) <> 16 or
+        lowestSetBit(bin64Expr(bin64(4611686018427518976 ))) <> 17 or
+        lowestSetBit(bin64Expr(bin64(4611686018427650048 ))) <> 18 or
+        lowestSetBit(bin64Expr(bin64(4611686018427912192 ))) <> 19 or
+        lowestSetBit(bin64Expr(bin64(4611686018428436480 ))) <> 20 or
+        lowestSetBit(bin64Expr(bin64(4611686018429485056 ))) <> 21 or
+        lowestSetBit(bin64Expr(bin64(4611686018431582208 ))) <> 22 or
+        lowestSetBit(bin64Expr(bin64(4611686018435776512 ))) <> 23 or
+        lowestSetBit(bin64Expr(bin64(4611686018444165120 ))) <> 24 or
+        lowestSetBit(bin64Expr(bin64(4611686018460942336 ))) <> 25 or
+        lowestSetBit(bin64Expr(bin64(4611686018494496768 ))) <> 26 or
+        lowestSetBit(bin64Expr(bin64(4611686018561605632 ))) <> 27 or
+        lowestSetBit(bin64Expr(bin64(4611686018695823360 ))) <> 28 or
+        lowestSetBit(bin64Expr(bin64(4611686018964258816 ))) <> 29 or
+        lowestSetBit(bin64Expr(bin64(4611686019501129728 ))) <> 30 or
+        lowestSetBit(bin64Expr(bin64(4611686020574871552 ))) <> 31 or
+        lowestSetBit(bin64Expr(bin64(4611686022722355200 ))) <> 32 or
+        lowestSetBit(bin64Expr(bin64(4611686027017322496 ))) <> 33 or
+        lowestSetBit(bin64Expr(bin64(4611686035607257088 ))) <> 34 or
+        lowestSetBit(bin64Expr(bin64(4611686052787126272 ))) <> 35 or
+        lowestSetBit(bin64Expr(bin64(4611686087146864640 ))) <> 36 or
+        lowestSetBit(bin64Expr(bin64(4611686155866341376 ))) <> 37 or
+        lowestSetBit(bin64Expr(bin64(4611686293305294848 ))) <> 38 or
+        lowestSetBit(bin64Expr(bin64(4611686568183201792 ))) <> 39 or
+        lowestSetBit(bin64Expr(bin64(4611687117939015680 ))) <> 40 or
+        lowestSetBit(bin64Expr(bin64(4611688217450643456 ))) <> 41 or
+        lowestSetBit(bin64Expr(bin64(4611690416473899008 ))) <> 42 or
+        lowestSetBit(bin64Expr(bin64(4611694814520410112 ))) <> 43 or
+        lowestSetBit(bin64Expr(bin64(4611703610613432320 ))) <> 44 or
+        lowestSetBit(bin64Expr(bin64(4611721202799476736 ))) <> 45 or
+        lowestSetBit(bin64Expr(bin64(4611756387171565568 ))) <> 46 or
+        lowestSetBit(bin64Expr(bin64(4611826755915743232 ))) <> 47 or
+        lowestSetBit(bin64Expr(bin64(4611967493404098560 ))) <> 48 or
+        lowestSetBit(bin64Expr(bin64(4612248968380809216 ))) <> 49 or
+        lowestSetBit(bin64Expr(bin64(4612811918334230528 ))) <> 50 or
+        lowestSetBit(bin64Expr(bin64(4613937818241073152 ))) <> 51 or
+        lowestSetBit(bin64Expr(bin64(4616189618054758400 ))) <> 52 or
+        lowestSetBit(bin64Expr(bin64(4620693217682128896 ))) <> 53 or
+        lowestSetBit(bin64Expr(bin64(4629700416936869888 ))) <> 54 or
+        lowestSetBit(bin64Expr(bin64(4647714815446351872 ))) <> 55 or
+        lowestSetBit(bin64Expr(bin64(4683743612465315840 ))) <> 56 or
+        lowestSetBit(bin64Expr(bin64(4755801206503243776 ))) <> 57 or
+        lowestSetBit(bin64Expr(bin64(4899916394579099648 ))) <> 58 or
+        lowestSetBit(bin64Expr(bin64(5188146770730811392 ))) <> 59 or
+        lowestSetBit(bin64Expr(bin64(5764607523034234880 ))) <> 60 or
+        lowestSetBit(bin64Expr(bin64(6917529027641081856 ))) <> 61 or
+        lowestSetBit(bin64Expr(bin64(4611686018427387904 ))) <> 62 or
+        lowestSetBit(bin64Expr(bin64(9223372036854775808_))) <> 63 then
+      writeln(" ***** The bin64 lowestSetBit function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bin64 lowestSetBit works correctly.");
+    end if;
+  end func;
+
+
 const proc: checkTernary is func
   local
     const bin32: thenValue32 is bin32(1);
@@ -3808,5 +3956,6 @@ const proc: main is func
     checkStr;
     checkRadix;
     checkBitLength;
+    checkLowestSetBit;
     checkTernary;
   end func;

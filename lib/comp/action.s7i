@@ -344,6 +344,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_CMP, function, params, c_expr);
       when {"BIN_GET_BINARY_FROM_SET"}:
         process(BIN_GET_BINARY_FROM_SET, function, params, c_expr);
+      when {"BIN_LOWEST_SET_BIT"}:
+        process(BIN_LOWEST_SET_BIT, function, params, c_expr);
       when {"BIN_LSHIFT"}:
         process(BIN_LSHIFT, function, params, c_expr);
       when {"BIN_LSHIFT_ASSIGN"}:

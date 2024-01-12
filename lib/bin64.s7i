@@ -176,6 +176,14 @@ const func integer: bitLength (in bin64: bits)                 is action "BIN_BI
 
 
 (**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(bin64(0)).
+ *)
+const func integer: lowestSetBit (in bin64: bits)              is action "BIN_LOWEST_SET_BIT";
+
+
+(**
  *  Convert an ''bin64'' value to a [[string]].
  *  The values is converted to a string with decimal representation.
  *  The conversion interprets the ''bin64'' value as unsigned.

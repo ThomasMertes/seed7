@@ -155,6 +155,7 @@ const string: chkbin_output is "\n\
   \Bin32 and bin64 str works correctly.\n\
   \Bin32 and bin64 radix does work correctly.\n\
   \Bin64 bitLength works correctly.\n\
+  \Bin64 lowestSetBit works correctly.\n\
   \The ternary operator ? : works correctly for bin32 and bin64.\n";
 
 const string: chkchr_output is "\n\

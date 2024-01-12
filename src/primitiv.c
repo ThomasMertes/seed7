@@ -178,6 +178,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BIN_CARD",                     bin_card,                     },
     { "BIN_CMP",                      bin_cmp,                      },
     { "BIN_GET_BINARY_FROM_SET",      bin_get_binary_from_set,      },
+    { "BIN_LOWEST_SET_BIT",           bin_lowest_set_bit,           },
     { "BIN_LSHIFT",                   bin_lshift,                   },
     { "BIN_LSHIFT_ASSIGN",            bin_lshift_assign,            },
     { "BIN_N_BYTES_BE",               bin_n_bytes_be,               },
