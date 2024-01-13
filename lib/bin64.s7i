@@ -205,6 +205,7 @@ const func string: str (in bin64: bits)                        is action "BIN_ST
  *  The conversion uses the numeral system with the given ''base''.
  *  Digit values from 10 upward are encoded with lower case letters.
  *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *   bin64(48879) radix 16   returns "beef"
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -217,6 +218,7 @@ const func string: (in bin64: bits) radix (in integer: base)   is action "BIN_ra
  *  The conversion uses the numeral system with the given ''base''.
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *   bin64(48879) radix 16   returns "BEEF"
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -228,6 +230,9 @@ const func string: (in bin64: bits) RADIX (in integer: base)   is action "BIN_RA
  *  Convert a ''bin64'' into a [[string]] of bytes with big-endian encoding.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(bin64(1413829460), BE, 5)  returns "\0;TEST"
+ *   bytes(bin64(1413829460), BE, 4)  returns "TEST"
+ *   bytes(bin64(1413829460), BE, 3)  raises RANGE_ERROR
  *  @param bits Bin64 to be converted.
  *  @param length Determines the length of the result string.
  *  @return a string of ''length'' bytes with the unsigned binary
@@ -243,6 +248,9 @@ const func string: bytes (in bin64: bits, BE, in integer: length) is action "BIN
  *  Convert a ''bin64'' into a [[string]] of bytes with little-endian encoding.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(bin64(1413829460), LE, 5)  returns "TEST\0;"
+ *   bytes(bin64(1413829460), LE, 4)  returns "TEST"
+ *   bytes(bin64(1413829460), LE, 3)  raises RANGE_ERROR
  *  @param bits Bin64 to be converted.
  *  @param length Determines the length of the result string.
  *  @return a string of ''length'' bytes with the unsigned binary
@@ -303,6 +311,7 @@ const func bin64: ~ (in bin64: bits) is
  *  Shift a bin64 value left by lshift bits.
  *  Bits shifted beyond the highest bit position are lost.
  *   bin64(16#1234567890abcde0) << 4  returns  bin64(16#234567890abcde00)
+ *   bin64(1) << 64                   raises OVERFLOW_ERROR
  *  @return the left shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
