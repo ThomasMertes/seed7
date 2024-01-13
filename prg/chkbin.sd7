@@ -211,27 +211,59 @@ const proc: checkAnd is func
     var boolean: ok is TRUE;
     var boolean: okay is TRUE;
   begin
-    if  bin64( 3689348814741910323 ) & bin64( 3074457345618258602 ) <> bin64(2459565876494606882 )  or
+    if  bin64( 3689348814741910323 ) & bin64( 3074457345618258602 ) <> bin64(2459565876494606882 ) or
         bin64(14757395258967641292_) & bin64(12297829382473034410_) <> bin64(9838263505978427528_) then
       writeln(" ***** Bin64 & operator does not work correctly. (1)");
       okay := FALSE;
     end if;
 
-    if  bin64Expr(bin64( 3689348814741910323 )) & bin64( 3074457345618258602 ) <> bin64(2459565876494606882 )  or
+    if  bin64Expr(bin64( 3689348814741910323 )) & bin64( 3074457345618258602 ) <> bin64(2459565876494606882 ) or
         bin64Expr(bin64(14757395258967641292_)) & bin64(12297829382473034410_) <> bin64(9838263505978427528_) then
       writeln(" ***** Bin64 & operator does not work correctly. (2)");
       okay := FALSE;
     end if;
 
-    if  bin64( 3689348814741910323 ) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(2459565876494606882 )  or
+    if  bin64( 3689348814741910323 ) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(2459565876494606882 ) or
         bin64(14757395258967641292_) & bin64Expr(bin64(12297829382473034410_)) <> bin64(9838263505978427528_) then
       writeln(" ***** Bin64 & operator does not work correctly. (3)");
       okay := FALSE;
     end if;
 
-    if  bin64Expr(bin64( 3689348814741910323 )) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(2459565876494606882 )  or
+    if  bin64Expr(bin64( 3689348814741910323 )) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(2459565876494606882 ) or
         bin64Expr(bin64(14757395258967641292_)) & bin64Expr(bin64(12297829382473034410_)) <> bin64(9838263505978427528_) then
       writeln(" ***** Bin64 & operator does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bin64( 3689348814741910323 ) & bin64(                   0 ) <> bin64(0) or
+        bin64(14757395258967641292_) & bin64(                   0 ) <> bin64(0) or
+        bin64(                   0 ) & bin64( 3074457345618258602 ) <> bin64(0) or
+        bin64(                   0 ) & bin64(12297829382473034410_) <> bin64(0) then
+      writeln(" ***** Bin64 & operator with zero argument does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin64Expr(bin64( 3689348814741910323 )) & bin64(                   0 ) <> bin64(0) or
+        bin64Expr(bin64(14757395258967641292_)) & bin64(                   0 ) <> bin64(0) or
+        bin64Expr(bin64(                   0 )) & bin64( 3074457345618258602 ) <> bin64(0) or
+        bin64Expr(bin64(                   0 )) & bin64(12297829382473034410_) <> bin64(0) then
+      writeln(" ***** Bin64 & operator with zero argument does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bin64( 3689348814741910323 ) & bin64Expr(bin64(                   0 )) <> bin64(0) or
+        bin64(14757395258967641292_) & bin64Expr(bin64(                   0 )) <> bin64(0) or
+        bin64(                   0 ) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(0) or
+        bin64(                   0 ) & bin64Expr(bin64(12297829382473034410_)) <> bin64(0) then
+      writeln(" ***** Bin64 & operator with zero argument does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bin64Expr(bin64( 3689348814741910323 )) & bin64Expr(bin64(                   0 )) <> bin64(0) or
+        bin64Expr(bin64(14757395258967641292_)) & bin64Expr(bin64(                   0 )) <> bin64(0) or
+        bin64Expr(bin64(                   0 )) & bin64Expr(bin64( 3074457345618258602 )) <> bin64(0) or
+        bin64Expr(bin64(                   0 )) & bin64Expr(bin64(12297829382473034410_)) <> bin64(0) then
+      writeln(" ***** Bin64 & operator with zero argument does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -263,7 +295,7 @@ const proc: checkAnd is func
           bin64(  757205073039370922) or
         bin64(1234567890123456789_ + bigintExpr(8765432109876543210_)) & bin64(        integer.last) <>
           bin64 ( 776627963145224191) then
-      writeln(" ***** Bin64 & operator does not work correctly. (5)");
+      writeln(" ***** Bin64 & operator with sum as argument does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -295,7 +327,7 @@ const proc: checkAnd is func
           bin64(  757205073039370922) or
         bin64(bigintExpr(1234567890123456789_) + 8765432109876543210_) & bin64(        integer.last) <>
           bin64(  776627963145224191) then
-      writeln(" ***** Bin64 & operator does not work correctly. (6)");
+      writeln(" ***** Bin64 & operator with sum as argument does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -327,7 +359,7 @@ const proc: checkAnd is func
           bin64(  757205073039370922) or
         bin64(bigintExpr(1234567890123456789_) + bigintExpr(8765432109876543210_)) & bin64(        integer.last) <>
           bin64(  776627963145224191) then
-      writeln(" ***** Bin64 & operator does not work correctly. (7)");
+      writeln(" ***** Bin64 & operator with sum as argument does not work correctly. (3)");
       okay := FALSE;
     end if;
 
