@@ -261,7 +261,7 @@ const func type: bitset (in type: baseType) is func
         return baseType conv rand(bitset(aSet));
 
       (**
-       *  Minimal element of a set.
+       *  Minimum element of a set.
        *  Delivers the element from ''aSet'' for which the following condition holds:
        *   element <= X
        *  for all X which are in the set.
@@ -273,19 +273,19 @@ const func type: bitset (in type: baseType) is func
         return baseType conv min(bitset(aSet));
 
       (**
-       *  Maximal element of a set.
+       *  Maximum element of a set.
        *  Delivers the element from ''aSet'' for which the following condition holds:
        *   element >= X
        *  for all X which are in the set.
        *   max({'a', 'b', 'c'})  returns  'c'
-       *  @return the maximal element of ''aSet''.
+       *  @return the maximum element of ''aSet''.
        *  @exception RANGE_ERROR If ''aSet'' is the empty set.
        *)
       const func baseType: max (in setType: aSet) is
         return baseType conv max(bitset(aSet));
 
       (**
-       *  Minimal element of ''aSet'' that is larger than ''number''.
+       *  Minimum element of ''aSet'' that is larger than ''number''.
        *  @return the minimum element of ''aSet'' that is larger than ''number''.
        *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
        *)

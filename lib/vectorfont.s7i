@@ -219,9 +219,9 @@ const proc: incl (inout fontVectorType: fontVectors, in char: ch, in integer: wi
 
 
 (**
- *  Determine the maximal column width of all chars in a ''fontVectorType''.
+ *  Determine the maximum column width of all chars in a ''fontVectorType''.
  *  This is used as helper function when a font is defined.
- *  @return the maximal column width of all chars in ''fontVectorType''.
+ *  @return the maximum column width of all chars in ''fontVectorType''.
  *)
 const func integer: columnWidth (in fontVectorType: fontVectors) is func
   result

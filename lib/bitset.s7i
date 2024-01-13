@@ -265,7 +265,7 @@ const func integer: rand (in bitset: aSet)                      is action "SET_R
 
 
 (**
- *  Minimal element of a set.
+ *  Minimum element of a set.
  *  Delivers the element from ''aSet'' for which the following condition holds:
  *   element <= X
  *  for all X which are in the set.
@@ -278,20 +278,20 @@ const func integer: min (in bitset: aSet)                       is action "SET_M
 
 
 (**
- *  Maximal element of a set.
+ *  Maximum element of a set.
  *  Delivers the element from ''aSet'' for which the following condition holds:
  *   element >= X
  *  for all X which are in the set.
  *   max({2, 3, 5, 7, 11})  returns  11
  *   max(EMPTY_SET)         raises   RANGE_ERROR
- *  @return the maximal element of ''aSet''.
+ *  @return the maximum element of ''aSet''.
  *  @exception RANGE_ERROR If ''aSet'' is the empty set.
  *)
 const func integer: max (in bitset: aSet)                       is action "SET_MAX";
 
 
 (**
- *  Minimal element of ''aSet'' that is larger than ''number''.
+ *  Minimum element of ''aSet'' that is larger than ''number''.
  *   next({2, 3, 5, 7, 11},  2)  returns  3
  *   next({2, 3, 5, 7, 11},  3)  returns  5
  *   next({2, 3, 5, 7, 11},  7)  returns  11

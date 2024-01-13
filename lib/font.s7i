@@ -81,10 +81,10 @@ const func integer: baseLineDelta (in font: aFont)           is DYNAMIC;
 
 
 (**
- *  Get the maximal column width of a font.
- *  The width of all chars in a font is checked to get the maximal
- *  column width. The maximal column width is measured in pixels.
- *  @return the maximal column width of ''aFont''.
+ *  Get the maximum column width of a font.
+ *  The width of all chars in a font is checked to get the maximum
+ *  column width. The maximum column width is measured in pixels.
+ *  @return the maximum column width of ''aFont''.
  *)
 const func integer: columnWidth (in font: aFont)             is DYNAMIC;
 

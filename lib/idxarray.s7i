@@ -78,16 +78,16 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const func integer: length (in arrayType: arr)                          is action "ARR_LNG";
 
       (**
-       *  Minimal index of array ''arr'' converted to [[integer]].
+       *  Minimum index of array ''arr'' converted to [[integer]].
        *   minIntIdx(['a'] (1, 2, 3))  returns  97
-       *  @return the minimal index of the array converted to [[integer]].
+       *  @return the minimum index of the array converted to [[integer]].
        *)
       const func integer: minIntIdx (in arrayType: arr)                       is action "ARR_MINIDX";
 
       (**
-       *  Maximal index of array ''arr'' converted to [[integer]].
+       *  Maximum index of array ''arr'' converted to [[integer]].
        *   maxIntIdx(['a'] (1, 2, 3))  returns  99
-       *  @return the maximal index of the array converted to [[integer]].
+       *  @return the maximum index of the array converted to [[integer]].
        *)
       const func integer: maxIntIdx (in arrayType: arr)                       is action "ARR_MAXIDX";
 
@@ -155,17 +155,17 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
         return arrayType conv (stdArrayType conv an_array[ord(start) len ord(stop)]);
 
       (**
-       *  Minimal index of array ''arr''.
+       *  Minimum index of array ''arr''.
        *   minIdx(['a'] (1, 2, 3))  returns  'a'
-       *  @return the minimal index of the array.
+       *  @return the minimum index of the array.
        *)
       const func indexType: minIdx (in arrayType: arr) is
         return indexType conv minIntIdx(arr);
 
       (**
-       *  Maximal index of array ''arr''.
+       *  Maximum index of array ''arr''.
        *   maxIdx(['a'] (1, 2, 3))  returns  'c'
-       *  @return the maximal index of the array.
+       *  @return the maximum index of the array.
        *)
       const func indexType: maxIdx (in arrayType: arr) is
         return indexType conv maxIntIdx(arr);

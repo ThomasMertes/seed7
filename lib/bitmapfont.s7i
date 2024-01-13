@@ -195,9 +195,9 @@ const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is fu
 
 
 (**
- *  Determine the maximal column width of all chars in a ''fontPicType''.
+ *  Determine the maximum column width of all chars in a ''fontPicType''.
  *  This is used as helper function when a font is defined.
- *  @return the maximal column width of all chars in ''fontPictures''.
+ *  @return the maximum column width of all chars in ''fontPictures''.
  *)
 const func integer: columnWidth (in fontPicType: fontPictures) is func
   result
