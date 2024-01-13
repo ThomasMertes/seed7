@@ -282,9 +282,9 @@ const func bin32: ~ (in bin32: bits) is
 
 (**
  *  Shift a bin32 value left by lshift bits.
- *  @return the left shifted value.
  *   bin32(16#abcdef) << 4  returns  bin32(16#abcdef0)
  *   bin32(1) << 64         raises OVERFLOW_ERROR
+ *  @return the left shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
