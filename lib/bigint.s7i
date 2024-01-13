@@ -525,6 +525,12 @@ const func bigInteger: rand (in bigInteger: low, in bigInteger: high)    is acti
  *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
  *  minimum two's-complement representation.
+ *   bitLength(0_)   returns 0
+ *   bitLength(1_)   returns 1
+ *   bitLength(4_)   returns 3
+ *   bitLength(-1_)  returns 0
+ *   bitLength(-2_)  returns 1
+ *   bitLength(-4_)  returns 2
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  *)
@@ -532,9 +538,16 @@ const func integer: bitLength (in bigInteger: number)                    is acti
 
 
 (**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
- *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (''number'' is 0_) the result is -1.
+ *   lowestSetBit(0_)   returns -1
+ *   lowestSetBit(1_)   returns  0
+ *   lowestSetBit(4_)   returns  2
+ *   lowestSetBit(-1_)  returns  0
+ *   lowestSetBit(-2_)  returns  1
+ *   lowestSetBit(-4_)  returns  2
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0_).
  *)
 const func integer: lowestSetBit (in bigInteger: number)                 is action "BIG_LOWEST_SET_BIT";
 

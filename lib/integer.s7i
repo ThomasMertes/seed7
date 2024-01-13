@@ -511,14 +511,27 @@ const func integer: rand (in integer: low, in integer: high)     is action "INT_
  *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
  *  minimum two's-complement representation.
+ *   bitLength(0)   returns 0
+ *   bitLength(1)   returns 1
+ *   bitLength(4)   returns 3
+ *   bitLength(-1)  returns 0
+ *   bitLength(-2)  returns 1
+ *   bitLength(-4)  returns 2
  *  @return the number of bits.
  *)
 const func integer: bitLength (in integer: number)               is action "INT_BIT_LENGTH";
 
 
 (**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (''number'' is 0) the result is -1.
+ *   lowestSetBit(0)   returns -1
+ *   lowestSetBit(1)   returns  0
+ *   lowestSetBit(4)   returns  2
+ *   lowestSetBit(-1)  returns  0
+ *   lowestSetBit(-2)  returns  1
+ *   lowestSetBit(-4)  returns  2
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  *)
 const func integer: lowestSetBit (in integer: number)            is action "INT_LOWEST_SET_BIT";

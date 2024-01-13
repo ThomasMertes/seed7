@@ -97,9 +97,9 @@ objectType big_add_assign (listType arguments)
 
 
 /**
- *  Number of bits in the minimal two's-complement representation.
+ *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
- *  minimal two's-complement representation.
+ *  minimum two's-complement representation.
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */
@@ -553,9 +553,10 @@ objectType big_log2 (listType arguments)
 
 
 /**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
- *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (number/arg_1 is 0_) the result is -1.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0_).
  */
 objectType big_lowest_set_bit (listType arguments)
 

@@ -1324,9 +1324,15 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
 
 
 /**
- *  Number of bits in the minimal two's-complement representation.
+ *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
- *  minimal two's-complement representation.
+ *  minimum two's-complement representation.
+ *   intBitLength(0)   returns 0
+ *   intBitLength(1)   returns 1
+ *   intBitLength(4)   returns 3
+ *   intBitLength(-1)  returns 0
+ *   intBitLength(-2)  returns 1
+ *   intBitLength(-4)  returns 2
  *  @return the number of bits.
  */
 intType intBitLength (intType number)
@@ -1848,9 +1854,16 @@ intType intLog2 (intType number)
 
 
 /**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
- *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits ('number' is 0) the result is -1.
+ *   intLowestSetBit(0)   returns -1
+ *   intLowestSetBit(1)   returns  0
+ *   intLowestSetBit(4)   returns  2
+ *   intLowestSetBit(-1)  returns  0
+ *   intLowestSetBit(-2)  returns  1
+ *   intLowestSetBit(-4)  returns  2
+ *  @return the number of lowest-order zero bits or -1 for intLowestSetBit(0).
  */
 intType intLowestSetBit (intType number)
 

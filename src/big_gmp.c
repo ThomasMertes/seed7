@@ -340,6 +340,12 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
  *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
  *  minimum two's-complement representation.
+ *   bigBitLength(0_)   returns 0
+ *   bigBitLength(1_)   returns 1
+ *   bigBitLength(4_)   returns 3
+ *   bigBitLength(-1_)  returns 0
+ *   bigBitLength(-2_)  returns 1
+ *   bigBitLength(-4_)  returns 2
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */
@@ -1152,9 +1158,16 @@ uint64Type bigLowerBits64 (const const_bigIntType big1)
 
 
 /**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
- *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits ('number' is 0_) the result is -1.
+ *   bigLowestSetBit(0_)   returns -1
+ *   bigLowestSetBit(1_)   returns  0
+ *   bigLowestSetBit(4_)   returns  2
+ *   bigLowestSetBit(-1_)  returns  0
+ *   bigLowestSetBit(-2_)  returns  1
+ *   bigLowestSetBit(-4_)  returns  2
+ *  @return the number of lowest-order zero bits or -1 for bigLowestSetBit(0_).
  */
 intType bigLowestSetBit (const const_bigIntType big1)
 

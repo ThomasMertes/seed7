@@ -720,8 +720,9 @@ objectType int_log2 (listType arguments)
 
 
 /**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  Number of lowest-order zero bits in the two's-complement representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (number/arg_1 is 0) the result is -1.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
 objectType int_lowest_set_bit (listType arguments)

@@ -170,14 +170,21 @@ const func bin64: rand (attr bin64) is
 (**
  *  Number of bits in the minimum binary representation.
  *  Leading zero bits are not part of the minimum binary representation.
+ *   bitLength(bin64(0))  returns 0
+ *   bitLength(bin64(1))  returns 1
+ *   bitLength(bin64(4))  returns 3
  *  @return the number of bits.
  *)
 const func integer: bitLength (in bin64: bits)                 is action "BIN_BIT_LENGTH";
 
 
 (**
- *  Index of the lowest-order one bit.
- *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  Number of lowest-order zero bits in the binary representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (''bits'' is bin64(0)) the result is -1.
+ *   lowestSetBit(bin64(0))  returns -1
+ *   lowestSetBit(bin64(1))  returns  0
+ *   lowestSetBit(bin64(4))  returns  2
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(bin64(0)).
  *)
 const func integer: lowestSetBit (in bin64: bits)              is action "BIN_LOWEST_SET_BIT";
