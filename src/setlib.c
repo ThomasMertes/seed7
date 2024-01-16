@@ -487,8 +487,8 @@ objectType set_excl (listType arguments)
             set_dest->min_position = min_position;
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
-            set_dest = resized_set;
-            set_dest->min_position = min_position;
+            set_to->value.setValue = resized_set;
+            resized_set->min_position = min_position;
           } /* if */
         } else if (position == set_dest->max_position) {
           max_position = position - 1;
@@ -507,8 +507,8 @@ objectType set_excl (listType arguments)
             set_dest->max_position = max_position;
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
-            set_dest = resized_set;
-            set_dest->max_position = max_position;
+            set_to->value.setValue = resized_set;
+            resized_set->max_position = max_position;
           } /* if */
         } /* if */
       } /* if */

@@ -838,6 +838,7 @@ void setExcl (setType *const set_to, const intType number)
     unsigned int bit_index;
     intType min_position;
     intType max_position;
+    setType resized_set;
 
   /* setExcl */
     logFunction(printf("setExcl(");
@@ -865,16 +866,16 @@ void setExcl (setType *const set_to, const intType number)
                     ((uintType) (set_dest->max_position - min_position + 1)) *
                         sizeof(bitSetType));
           } /* if */
-          set_dest = REALLOC_SET(set_dest, bitsetSize(set_dest),
-                                 bitsetSize2(min_position, set_dest->max_position));
-          if (unlikely(set_dest == NULL)) {
+          resized_set = REALLOC_SET(set_dest, bitsetSize(set_dest),
+                                    bitsetSize2(min_position, set_dest->max_position));
+          if (unlikely(resized_set == NULL)) {
             /* Strange case if a 'realloc', which shrinks memory, fails. */
             /* Deliver the result in the original set (that is too big). */
             set_dest->min_position = min_position;
             raise_error(MEMORY_ERROR);
           } else {
-            *set_to = set_dest;
-            set_dest->min_position = min_position;
+            *set_to = resized_set;
+            resized_set->min_position = min_position;
           } /* if */
         } else if (position == set_dest->max_position) {
           max_position = position - 1;
@@ -885,16 +886,16 @@ void setExcl (setType *const set_to, const intType number)
           if (max_position < set_dest->min_position) {
             max_position = set_dest->min_position;
           } /* if */
-          set_dest = REALLOC_SET(set_dest, bitsetSize(set_dest),
-                                 bitsetSize2(set_dest->min_position, max_position));
-          if (unlikely(set_dest == NULL)) {
+          resized_set = REALLOC_SET(set_dest, bitsetSize(set_dest),
+                                    bitsetSize2(set_dest->min_position, max_position));
+          if (unlikely(resized_set == NULL)) {
             /* Strange case if a 'realloc', which shrinks memory, fails. */
             /* Deliver the result in the original set (that is too big). */
             set_dest->max_position = max_position;
             raise_error(MEMORY_ERROR);
           } else {
-            *set_to = set_dest;
-            set_dest->max_position = max_position;
+            *set_to = resized_set;
+            resized_set->max_position = max_position;
           } /* if */
         } /* if */
       } /* if */
