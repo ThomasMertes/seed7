@@ -269,7 +269,7 @@ const func bin32: (in bin32: bits1) | (in bin32: bits2)        is action "BIN_OR
 
 (**
  *  Compute a bitwise exclusive or (''xor'') of two bin32 values.
- *  bin32(2#1100) >< bin32(2#1010)  returns  bin32(2#0110)
+ *   bin32(2#1100) >< bin32(2#1010)  returns  bin32(2#0110)
  *  @return the bitwise ''xor'' of the two values.
  *)
 const func bin32: (in bin32: bits1) >< (in bin32: bits2)       is action "BIN_XOR";
