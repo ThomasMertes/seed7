@@ -229,8 +229,6 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
     logFunction(printf("alternate_localtime_r(%ld)\n", *utc_seconds););
     if (time_zone_seconds == 1) {
       utc_time.nanosecs100 = (uint64Type) SECONDS_FROM_1601_TO_1970 * WINDOWS_TICK;
-      /* FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
-      time_zone_seconds = time_zone_delta.nanosecs100 / WINDOWS_TICK - SECONDS_FROM_1601_TO_1970; */
       if (unlikely(FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct) == 0)) {
         return NULL;
       } else if (unlikely(SystemTimeToTzSpecificLocalTime(

@@ -581,7 +581,6 @@ objectType str_create (listType arguments)
       dest->value.striValue = take_stri(source);
       source->value.striValue = NULL;
     } else {
-/*    printf("str_create %d !!!\n", in_file.line); */
       new_size = take_stri(source)->size;
       if (unlikely(!ALLOC_STRI_SIZE_OK(new_str, new_size))) {
         dest->value.striValue = NULL;
