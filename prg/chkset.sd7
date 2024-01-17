@@ -878,6 +878,41 @@ const proc: check_incl is func
   end func;
 
 
+const proc: check_excl is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var bitset: testSet is EMPTY_SET;
+    var bitset: testSet2 is EMPTY_SET;
+  begin
+    testSet := {-900, -1, 0, 900}; excl(testSet, -900); ok := ok and testSet = {-1, 0, 900};
+    testSet := {-900, -1, 0, 900}; excl(testSet,   -1); ok := ok and testSet = {-900, 0, 900};
+    testSet := {-900, -1, 0, 900}; excl(testSet,    0); ok := ok and testSet = {-900, -1, 900};
+    testSet := {-900, -1, 0, 900}; excl(testSet,  900); ok := ok and testSet = {-900, -1, 0};
+    if not ok then
+      writeln(" ***** excl(bitset, integer) does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    testSet := {-1000000, -1, 0, 1000000}; excl(testSet, -1000000); ok := ok and testSet = {-1, 0, 1000000};
+    testSet := {-1000000, -1, 0, 1000000}; excl(testSet,       -1); ok := ok and testSet = {-1000000, 0, 1000000};
+    testSet := {-1000000, -1, 0, 1000000}; excl(testSet,        0); ok := ok and testSet = {-1000000, -1, 1000000};
+    testSet := {-1000000, -1, 0, 1000000}; excl(testSet,  1000000); ok := ok and testSet = {-1000000, -1, 0};
+    if not ok then
+      writeln(" ***** excl(bitset, integer) does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("excl(bitset, integer) works correctly.");
+    else
+      writeln(" ***** excl(bitset, integer) does not work correctly");
+      writeln;
+    end if;
+  end func;
+
+
 const func boolean: compareTest (in bitset: set1, in bitset: set2,
     in integer: expectedResult) is
   return compare(set1, set2) <> expectedResult and
@@ -11391,6 +11426,7 @@ const proc: main is func
     check_card;
     check_rand;
     check_incl;
+    check_excl;
     check_compare;
     check_relations;
     check_union;

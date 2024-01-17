@@ -366,6 +366,7 @@ const string: chkset_output is "\n\
   \card(set) works correctly.\n\
   \rand(set) works correctly.\n\
   \incl(bitset, integer) works correctly.\n\
+  \excl(bitset, integer) works correctly.\n\
   \set compare works correctly.\n\
   \set relations work correctly.\n\
   \set union works correctly.\n\
