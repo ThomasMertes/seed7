@@ -286,6 +286,10 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Minimum element of ''aSet'' that is larger than ''number''.
+       *   next({'a', 'b', 'd', 'f', 'j'}, 'a')  returns  'b'
+       *   next({'a', 'b', 'd', 'f', 'j'}, 'b')  returns  'd'
+       *   next({'a', 'b', 'd', 'f', 'j'}, 'f')  returns  'j'
+       *   next({'a', 'b', 'd', 'f', 'j'}, 'j')  raises   RANGE_ERROR
        *  @return the minimum element of ''aSet'' that is larger than ''number''.
        *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
        *)

@@ -253,6 +253,7 @@ const func boolean: (in bin32: bits1) <> (in bin32: bits2)     is action "INT_NE
 
 (**
  *  Compute a bitwise ''and'' of two bin32 values.
+ *   bin32(2#1100) & bin32(2#1010)  returns  bin32(2#1000)
  *  @return the bitwise ''and'' of the two values.
  *)
 const func bin32: (in bin32: bits1) & (in bin32: bits2)        is action "BIN_AND";
@@ -260,6 +261,7 @@ const func bin32: (in bin32: bits1) & (in bin32: bits2)        is action "BIN_AN
 
 (**
  *  Compute a bitwise inclusive ''or'' of two bin32 values.
+ *   bin32(2#1100) | bin32(2#1010)  returns  bin32(2#1110)
  *  @return the bitwise inclusive ''or'' of the two values.
  *)
 const func bin32: (in bin32: bits1) | (in bin32: bits2)        is action "BIN_OR";
@@ -267,6 +269,7 @@ const func bin32: (in bin32: bits1) | (in bin32: bits2)        is action "BIN_OR
 
 (**
  *  Compute a bitwise exclusive or (''xor'') of two bin32 values.
+ *  bin32(2#1100) >< bin32(2#1010)  returns  bin32(2#0110)
  *  @return the bitwise ''xor'' of the two values.
  *)
 const func bin32: (in bin32: bits1) >< (in bin32: bits2)       is action "BIN_XOR";
@@ -274,6 +277,7 @@ const func bin32: (in bin32: bits1) >< (in bin32: bits2)       is action "BIN_XO
 
 (**
  *  Compute a bitwise ''not'' of a bin32 value.
+ *   ~bin32(2#1)  returns  bin32(16#fffffffe)
  *  @return the bitwise ''not'' of the value.
  *)
 const func bin32: ~ (in bin32: bits) is

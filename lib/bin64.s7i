@@ -280,6 +280,7 @@ const func boolean: (in bin64: bits1) <> (in bin64: bits2)     is action "INT_NE
 
 (**
  *  Compute a bitwise ''and'' of two bin64 values.
+ *   bin64(2#1100) & bin64(2#1010)  returns  bin64(2#1000)
  *  @return the bitwise ''and'' of the two values.
  *)
 const func bin64: (in bin64: bits1) & (in bin64: bits2)        is action "BIN_AND";
@@ -287,6 +288,7 @@ const func bin64: (in bin64: bits1) & (in bin64: bits2)        is action "BIN_AN
 
 (**
  *  Compute a bitwise inclusive ''or'' of two bin64 values.
+ *   bin64(2#1100) | bin64(2#1010)  returns  bin64(2#1110)
  *  @return the bitwise inclusive ''or'' of the two values.
  *)
 const func bin64: (in bin64: bits1) | (in bin64: bits2)        is action "BIN_OR";
@@ -294,6 +296,7 @@ const func bin64: (in bin64: bits1) | (in bin64: bits2)        is action "BIN_OR
 
 (**
  *  Compute a bitwise exclusive or (''xor'') of two bin64 values.
+ *   bin64(2#1100) >< bin64(2#1010)  returns  bin64(2#0110)
  *  @return the bitwise ''xor'' of the two values.
  *)
 const func bin64: (in bin64: bits1) >< (in bin64: bits2)       is action "BIN_XOR";
@@ -301,6 +304,7 @@ const func bin64: (in bin64: bits1) >< (in bin64: bits2)       is action "BIN_XO
 
 (**
  *  Compute a bitwise ''not'' of a bin64 value.
+ *   ~bin64(2#1)  returns  bin64(16#fffffffffffffffe_)
  *  @return the bitwise ''not'' of the value.
  *)
 const func bin64: ~ (in bin64: bits) is
