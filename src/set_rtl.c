@@ -636,6 +636,7 @@ void setDiffAssign (setType *const dest, const const_setType delta)
         /* The destination set stays unchanged. */
         raise_error(MEMORY_ERROR);
       } else {
+        COUNT3_SET(bitsetSize(new_set1), 1);
         new_set1->min_position = 0;
         new_set1->max_position = 0;
         new_set1->bitset[0] = (bitSetType) 0;
@@ -643,13 +644,16 @@ void setDiffAssign (setType *const dest, const const_setType delta)
       } /* if */
     } else if (min_position == set1->min_position) {
       if (max_position != set1->max_position) {
-        new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+        new_set1 = REALLOC_SET(set1, bitsetSize(set1),
+                               bitsetSize2(min_position, max_position));
         if (unlikely(new_set1 == NULL)) {
           /* Strange case if a 'realloc', which shrinks memory, fails. */
           /* The destination set stays unchanged. */
           raise_error(MEMORY_ERROR);
           return;
         } else {
+          COUNT3_SET(bitsetSize(new_set1),
+                     bitsetSize2(min_position, max_position));
           set1 = new_set1;
           set1->max_position = max_position;
           *dest = set1;
@@ -674,7 +678,8 @@ void setDiffAssign (setType *const dest, const const_setType delta)
               set1->bitset[position - set1->min_position];
         } /* if */
       } /* for */
-      new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1),
+                             bitsetSize2(min_position, max_position));
       if (unlikely(new_set1 == NULL)) {
         /* Strange case if a 'realloc', which shrinks memory, fails. */
         /* Deliver the result in the original set (that is too big). */
@@ -682,6 +687,8 @@ void setDiffAssign (setType *const dest, const const_setType delta)
         set1->max_position = max_position;
         raise_error(MEMORY_ERROR);
       } else {
+        COUNT3_SET(bitsetSize(new_set1),
+                   bitsetSize2(min_position, max_position));
         new_set1->min_position = min_position;
         new_set1->max_position = max_position;
         *dest = new_set1;
@@ -874,6 +881,8 @@ void setExcl (setType *const set_to, const intType number)
             set_dest->min_position = min_position;
             raise_error(MEMORY_ERROR);
           } else {
+            COUNT3_SET(bitsetSize(resized_set),
+                       bitsetSize2(min_position, resized_set->max_position));
             *set_to = resized_set;
             resized_set->min_position = min_position;
           } /* if */
@@ -894,6 +903,8 @@ void setExcl (setType *const set_to, const intType number)
             set_dest->max_position = max_position;
             raise_error(MEMORY_ERROR);
           } else {
+            COUNT3_SET(bitsetSize(resized_set),
+                       bitsetSize2(resized_set->min_position, max_position));
             *set_to = resized_set;
             resized_set->max_position = max_position;
           } /* if */
@@ -1158,6 +1169,7 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
         /* The destination set stays unchanged. */
         raise_error(MEMORY_ERROR);
       } else {
+        COUNT3_SET(bitsetSize(new_set1), 1);
         new_set1->min_position = 0;
         new_set1->max_position = 0;
         new_set1->bitset[0] = (bitSetType) 0;
@@ -1165,13 +1177,16 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
       } /* if */
     } else if (min_position == set1->min_position) {
       if (max_position != set1->max_position) {
-        new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+        new_set1 = REALLOC_SET(set1, bitsetSize(set1),
+                               bitsetSize2(min_position, max_position));
         if (unlikely(new_set1 == NULL)) {
           /* Strange case if a 'realloc', which shrinks memory, fails. */
           /* The destination set stays unchanged. */
           raise_error(MEMORY_ERROR);
           return;
         } else {
+          COUNT3_SET(bitsetSize(new_set1),
+                     bitsetSize2(min_position, max_position));
           set1 = new_set1;
           set1->max_position = max_position;
           *dest = set1;
@@ -1187,7 +1202,8 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
             set1->bitset[position - set1->min_position] &
             delta->bitset[position - delta->min_position];
       } /* for */
-      new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1),
+                             bitsetSize2(min_position, max_position));
       if (unlikely(new_set1 == NULL)) {
         /* Strange case if a 'realloc', which shrinks memory, fails. */
         /* Deliver the result in the original set (that is too big). */
@@ -1195,6 +1211,8 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
         set1->max_position = max_position;
         raise_error(MEMORY_ERROR);
       } else {
+        COUNT3_SET(bitsetSize(new_set1),
+                   bitsetSize2(min_position, max_position));
         new_set1->min_position = min_position;
         new_set1->max_position = max_position;
         *dest = new_set1;

@@ -487,6 +487,8 @@ objectType set_excl (listType arguments)
             set_dest->min_position = min_position;
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
+            COUNT3_SET(bitsetSize(resized_set),
+                       bitsetSize2(min_position, resized_set->max_position));
             set_to->value.setValue = resized_set;
             resized_set->min_position = min_position;
           } /* if */
@@ -507,6 +509,8 @@ objectType set_excl (listType arguments)
             set_dest->max_position = max_position;
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
+            COUNT3_SET(bitsetSize(resized_set),
+                       bitsetSize2(resized_set->min_position, max_position));
             set_to->value.setValue = resized_set;
             resized_set->max_position = max_position;
           } /* if */
