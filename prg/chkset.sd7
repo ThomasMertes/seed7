@@ -442,6 +442,208 @@ const proc: check_card is func
       okay := FALSE;
     end if;
 
+    if  card(bitset(                  0)) <>  0 or
+        card(bitset(                  1)) <>  1 or
+        card(bitset(         8589934592)) <>  1 or
+        card(bitset(4611686018427387904)) <>  1 or
+        card(bitset(                  3)) <>  2 or
+        card(bitset(      4398048608256)) <>  2 or
+        card(bitset(6917529027641081856)) <>  2 or
+        card(bitset(                  7)) <>  3 or
+        card(bitset(   1125908496908288)) <>  3 or
+        card(bitset(8070450532247928832)) <>  3 or
+        card(bitset(                 15)) <>  4 or
+        card(bitset(   2252074725150720)) <>  4 or
+        card(bitset(8646911284551352320)) <>  4 or
+        card(bitset(                 31)) <>  5 or
+        card(bitset(   1127000493261824)) <>  5 or
+        card(bitset(8935141660703064064)) <>  5 or
+        card(bitset(                 63)) <>  6 or
+        card(bitset(  18049651735527936)) <>  6 or
+        card(bitset(9079256848778919936)) <>  6 or
+        card(bitset(                127)) <>  7 or
+        card(bitset( 144680345676153344)) <>  7 or
+        card(bitset(9151314442816847872)) <>  7 or
+        card(bitset(                255)) <>  8 or
+        card(bitset(  72624976668147840)) <>  8 or
+        card(bitset(9187343239835811840)) <>  8 or
+        card(bitset(                511)) <>  9 or
+        card(bitset(  73201365371863296)) <>  9 or
+        card(bitset(9205357638345293824)) <>  9 or
+        card(bitset(               1023)) <> 10 or
+        card(bitset( 585610922974906400)) <> 10 or
+        card(bitset(9214364837600034816)) <> 10 or
+        card(bitset(               2047)) <> 11 or
+        card(bitset(1190112520884487168)) <> 11 or
+        card(bitset(9218868437227405312)) <> 11 or
+        card(bitset(               4095)) <> 12 or
+        card(bitset(1190112520884487200)) <> 12 or
+        card(bitset(9221120237041090560)) <> 12 or
+        card(bitset(               8191)) <> 13 or
+        card(bitset( 306844079503974928)) <> 13 or
+        card(bitset(9222246136947933184)) <> 13 or
+        card(bitset(              16383)) <> 14 or
+        card(bitset( 307445734561825856)) <> 14 or
+        card(bitset(9222809086901354496)) <> 14 or
+        card(bitset(              32767)) <> 15 or
+        card(bitset( 614891469123651720)) <> 15 or
+        card(bitset(9223090561878065152)) <> 15 or
+        card(bitset(              65535)) <> 16 or
+        card(bitset(4919131752989213764)) <> 16 or
+        card(bitset(9223231299366420480)) <> 16 or
+        card(bitset(             131071)) <> 17 or
+        card(bitset( 617312301679256648)) <> 17 or
+        card(bitset(9223301668110598144)) <> 17 or
+        card(bitset(             262143)) <> 18 or
+        card(bitset(4938498413434053188)) <> 18 or
+        card(bitset(9223336852482686976)) <> 18 or
+        card(bitset(             524287)) <> 19 or
+        card(bitset(2634927428392784456)) <> 19 or
+        card(bitset(9223354444668731392)) <> 19 or
+        card(bitset(            1048575)) <> 20 or
+        card(bitset( 658812288346769700)) <> 20 or
+        card(bitset(9223363240761753600)) <> 20 or
+        card(bitset(            2097151)) <> 21 or
+        card(bitset(2635329574809145936)) <> 21 or
+        card(bitset(9223367638808264704)) <> 21 or
+        card(bitset(            4194303)) <> 22 or
+        card(bitset(2635892839062063432)) <> 22 or
+        card(bitset(9223369837831520256)) <> 22 or
+        card(bitset(            8388607)) <> 23 or
+        card(bitset(2640416308589798564)) <> 23 or
+        card(bitset(9223370937343148032)) <> 23 or
+        card(bitset(           16777215)) <> 24 or
+        card(bitset(5949908846114017940)) <> 24 or
+        card(bitset(9223371487098961920)) <> 24 or
+        card(bitset(           33554431)) <> 25 or
+        card(bitset(5950562604422436004)) <> 25 or
+        card(bitset(9223371761976868864)) <> 25 or
+        card(bitset(           67108863)) <> 26 or
+        card(bitset(2687124136721470116)) <> 26 or
+        card(bitset(9223371899415822336)) <> 26 or
+        card(bitset(          134217727)) <> 27 or
+        card(bitset(6100498040124418644)) <> 27 or
+        card(bitset(9223371968135299072)) <> 27 or
+        card(bitset(          268435455)) <> 28 or
+        card(bitset(6100500260800075082)) <> 28 or
+        card(bitset(9223372002495037440)) <> 28 or
+        card(bitset(          536870911)) <> 29 or
+        card(bitset(6136899225299276458)) <> 29 or
+        card(bitset(9223372019674906624)) <> 29 or
+        card(bitset(         1073741823)) <> 30 or
+        card(bitset(6148164085571955370)) <> 30 or
+        card(bitset(9223372028264841216)) <> 30 or
+        card(bitset(         2147483647)) <> 31 or
+        card(bitset(6148914679783271082)) <> 31 or
+        card(bitset(9223372032559808512)) <> 31 or
+        card(bitset(         4294967295)) <> 32 or
+        card(bitset(6148914691236517205)) <> 32 or
+        card(bitset(9223372034707292160)) <> 32 then
+      writeln("card(bitset(number)) is not correctly computed. (1)");
+      okay := FALSE;
+    end if;
+
+    if  card(bitset(intExpr(                  0))) <>  0 or
+        card(bitset(intExpr(                  1))) <>  1 or
+        card(bitset(intExpr(         8589934592))) <>  1 or
+        card(bitset(intExpr(4611686018427387904))) <>  1 or
+        card(bitset(intExpr(                  3))) <>  2 or
+        card(bitset(intExpr(      4398048608256))) <>  2 or
+        card(bitset(intExpr(6917529027641081856))) <>  2 or
+        card(bitset(intExpr(                  7))) <>  3 or
+        card(bitset(intExpr(   1125908496908288))) <>  3 or
+        card(bitset(intExpr(8070450532247928832))) <>  3 or
+        card(bitset(intExpr(                 15))) <>  4 or
+        card(bitset(intExpr(   2252074725150720))) <>  4 or
+        card(bitset(intExpr(8646911284551352320))) <>  4 or
+        card(bitset(intExpr(                 31))) <>  5 or
+        card(bitset(intExpr(   1127000493261824))) <>  5 or
+        card(bitset(intExpr(8935141660703064064))) <>  5 or
+        card(bitset(intExpr(                 63))) <>  6 or
+        card(bitset(intExpr(  18049651735527936))) <>  6 or
+        card(bitset(intExpr(9079256848778919936))) <>  6 or
+        card(bitset(intExpr(                127))) <>  7 or
+        card(bitset(intExpr( 144680345676153344))) <>  7 or
+        card(bitset(intExpr(9151314442816847872))) <>  7 or
+        card(bitset(intExpr(                255))) <>  8 or
+        card(bitset(intExpr(  72624976668147840))) <>  8 or
+        card(bitset(intExpr(9187343239835811840))) <>  8 or
+        card(bitset(intExpr(                511))) <>  9 or
+        card(bitset(intExpr(  73201365371863296))) <>  9 or
+        card(bitset(intExpr(9205357638345293824))) <>  9 or
+        card(bitset(intExpr(               1023))) <> 10 or
+        card(bitset(intExpr( 585610922974906400))) <> 10 or
+        card(bitset(intExpr(9214364837600034816))) <> 10 or
+        card(bitset(intExpr(               2047))) <> 11 or
+        card(bitset(intExpr(1190112520884487168))) <> 11 or
+        card(bitset(intExpr(9218868437227405312))) <> 11 or
+        card(bitset(intExpr(               4095))) <> 12 or
+        card(bitset(intExpr(1190112520884487200))) <> 12 or
+        card(bitset(intExpr(9221120237041090560))) <> 12 or
+        card(bitset(intExpr(               8191))) <> 13 or
+        card(bitset(intExpr( 306844079503974928))) <> 13 or
+        card(bitset(intExpr(9222246136947933184))) <> 13 or
+        card(bitset(intExpr(              16383))) <> 14 or
+        card(bitset(intExpr( 307445734561825856))) <> 14 or
+        card(bitset(intExpr(9222809086901354496))) <> 14 or
+        card(bitset(intExpr(              32767))) <> 15 or
+        card(bitset(intExpr( 614891469123651720))) <> 15 or
+        card(bitset(intExpr(9223090561878065152))) <> 15 or
+        card(bitset(intExpr(              65535))) <> 16 or
+        card(bitset(intExpr(4919131752989213764))) <> 16 or
+        card(bitset(intExpr(9223231299366420480))) <> 16 or
+        card(bitset(intExpr(             131071))) <> 17 or
+        card(bitset(intExpr( 617312301679256648))) <> 17 or
+        card(bitset(intExpr(9223301668110598144))) <> 17 or
+        card(bitset(intExpr(             262143))) <> 18 or
+        card(bitset(intExpr(4938498413434053188))) <> 18 or
+        card(bitset(intExpr(9223336852482686976))) <> 18 or
+        card(bitset(intExpr(             524287))) <> 19 or
+        card(bitset(intExpr(2634927428392784456))) <> 19 or
+        card(bitset(intExpr(9223354444668731392))) <> 19 or
+        card(bitset(intExpr(            1048575))) <> 20 or
+        card(bitset(intExpr( 658812288346769700))) <> 20 or
+        card(bitset(intExpr(9223363240761753600))) <> 20 or
+        card(bitset(intExpr(            2097151))) <> 21 or
+        card(bitset(intExpr(2635329574809145936))) <> 21 or
+        card(bitset(intExpr(9223367638808264704))) <> 21 or
+        card(bitset(intExpr(            4194303))) <> 22 or
+        card(bitset(intExpr(2635892839062063432))) <> 22 or
+        card(bitset(intExpr(9223369837831520256))) <> 22 or
+        card(bitset(intExpr(            8388607))) <> 23 or
+        card(bitset(intExpr(2640416308589798564))) <> 23 or
+        card(bitset(intExpr(9223370937343148032))) <> 23 or
+        card(bitset(intExpr(           16777215))) <> 24 or
+        card(bitset(intExpr(5949908846114017940))) <> 24 or
+        card(bitset(intExpr(9223371487098961920))) <> 24 or
+        card(bitset(intExpr(           33554431))) <> 25 or
+        card(bitset(intExpr(5950562604422436004))) <> 25 or
+        card(bitset(intExpr(9223371761976868864))) <> 25 or
+        card(bitset(intExpr(           67108863))) <> 26 or
+        card(bitset(intExpr(2687124136721470116))) <> 26 or
+        card(bitset(intExpr(9223371899415822336))) <> 26 or
+        card(bitset(intExpr(          134217727))) <> 27 or
+        card(bitset(intExpr(6100498040124418644))) <> 27 or
+        card(bitset(intExpr(9223371968135299072))) <> 27 or
+        card(bitset(intExpr(          268435455))) <> 28 or
+        card(bitset(intExpr(6100500260800075082))) <> 28 or
+        card(bitset(intExpr(9223372002495037440))) <> 28 or
+        card(bitset(intExpr(          536870911))) <> 29 or
+        card(bitset(intExpr(6136899225299276458))) <> 29 or
+        card(bitset(intExpr(9223372019674906624))) <> 29 or
+        card(bitset(intExpr(         1073741823))) <> 30 or
+        card(bitset(intExpr(6148164085571955370))) <> 30 or
+        card(bitset(intExpr(9223372028264841216))) <> 30 or
+        card(bitset(intExpr(         2147483647))) <> 31 or
+        card(bitset(intExpr(6148914679783271082))) <> 31 or
+        card(bitset(intExpr(9223372032559808512))) <> 31 or
+        card(bitset(intExpr(         4294967295))) <> 32 or
+        card(bitset(intExpr(6148914691236517205))) <> 32 or
+        card(bitset(intExpr(9223372034707292160))) <> 32 then
+      writeln("card(bitset(number)) is not correctly computed. (2)");
+      okay := FALSE;
+    end if;
+
     number := -1;
     if  card(bitset(1)) <> 1 or
         card(bitset(10)) <> 2 or
@@ -455,7 +657,7 @@ const proc: check_card is func
         card(bitset conv intExpr(1)) <> 1 or
         card(bitset conv intExpr(10)) <> 2 or
         card(bitset conv intExpr(abs(number))) <> 1 then
-      writeln("card(bitset(1)) does not return 1.");
+      writeln("card(bitset(number)) is not correctly computed. (2)");
       okay := FALSE;
     end if;
 
@@ -467,7 +669,7 @@ const proc: check_card is func
         card(bitset conv (intExpr(0) mod 1 + 1)) <> 1 or
         card(bitset conv (intExpr(0) mod 1 + 2)) <> 1 or
         card(bitset conv (intExpr(0) mod 1 + 3)) <> 2 then
-      writeln("card(bitset(n)) does not work correctly.");
+      writeln("card(bitset(number)) is not correctly computed. (3)");
       okay := FALSE;
     end if;
 
