@@ -33018,6 +33018,15 @@ const proc: check_lowestSetBit is func
   end func;
 
 
+const func boolean: decrementAndCheck (inout integer: number) is func
+  result
+    var boolean: ok is FALSE;
+  begin
+    decr(number);
+    ok := number > 0;
+  end func;
+
+
 const proc: check_ternary is func
   local
     var boolean: okay is TRUE;
@@ -33066,6 +33075,7 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
+    ok := TRUE;
     argument := 255; number := argument < 255 ? argument : 255; ok := ok and number = 255;
     argument := 256; number := argument < 255 ? argument : 255; ok := ok and number = 255;
     argument := 127; number := argument < 128 ? 128 : argument; ok := ok and number = 128;
@@ -33107,6 +33117,7 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
+    ok := TRUE;
     argument := 255; number := (argument < 255 ? argument : 255) * 256; ok := ok and number = 65280;
     argument := 256; number := (argument < 255 ? argument : 255) * 256; ok := ok and number = 65280;
     argument := 127; number := (argument < 128 ? 128 : argument) * 256; ok := ok and number = 32768;
@@ -33148,6 +33159,7 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
+    ok := TRUE;
     argument := 127; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
     argument := 128; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
     argument := 255; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
@@ -33193,6 +33205,7 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
+    ok := TRUE;
     argument := 127; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
     argument := 128; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
     argument := 255; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
@@ -33235,6 +33248,16 @@ const proc: check_ternary is func
 
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    argument := 1; number := decrementAndCheck(argument) ? succ(argument) :      argument;  ok := ok and number = 0;
+    argument := 2; number := decrementAndCheck(argument) ?      argument  : succ(argument); ok := ok and number = 1;
+    argument := 3; number := decrementAndCheck(argument) ?      argument  :        number;  ok := ok and number = 2;
+
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correctly. (7)");
       okay := FALSE;
     end if;
 
