@@ -3576,7 +3576,7 @@ const proc: checkBitLength is func
         bitLength(bin64( 2305843009213693952 )) <> 62 or
         bitLength(bin64( 4611686018427387903 )) <> 62 or
         bitLength(bin64( 4611686018427387904 )) <> 63 or
-        bitLength(bin64( 9223372036854775807_)) <> 63 or
+        bitLength(bin64( 9223372036854775807 )) <> 63 or
         bitLength(bin64( 9223372036854775808_)) <> 64 or
         bitLength(bin64(18446744073709551615_)) <> 64 then
       writeln(" ***** Bin64 bitLength is not correctly computed. (1)");
@@ -3708,7 +3708,7 @@ const proc: checkBitLength is func
         bitLength(bin64Expr(bin64( 2305843009213693952 ))) <> 62 or
         bitLength(bin64Expr(bin64( 4611686018427387903 ))) <> 62 or
         bitLength(bin64Expr(bin64( 4611686018427387904 ))) <> 63 or
-        bitLength(bin64Expr(bin64( 9223372036854775807_))) <> 63 or
+        bitLength(bin64Expr(bin64( 9223372036854775807 ))) <> 63 or
         bitLength(bin64Expr(bin64( 9223372036854775808_))) <> 64 or
         bitLength(bin64Expr(bin64(18446744073709551615_))) <> 64 then
       writeln(" ***** Bin64 bitLength is not correctly computed. (2)");
