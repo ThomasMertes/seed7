@@ -6607,6 +6607,18 @@ static void determineOsFunctions (FILE *versionFile)
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } /* if */
     doRemove("ctstfile.txt");
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;size_t bytesRead;char buffer[1];\n"
+                         "if ((aFile = fopen(\"ctstfile.txt\", \"w\")) != NULL) {\n"
+                         "  printf(\"%d\\n\", fread(buffer, 1, 1, aFile) != 0 ||\n"
+                         "                    ferror(aFile) == 0);\n"
+                         "  fclose(aFile);\n"
+                         "} else { printf(\"0\\n\"); }\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define FERROR_WRONG_WHEN_READING_FROM_WRITE_ONLY_FILE %d\n", doTest() == 1);
+    } /* if */
+    doRemove("ctstfile.txt");
     sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n"
                     "#include <fcntl.h>\n"
                     "int main(int argc,char *argv[])\n"
