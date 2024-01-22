@@ -870,7 +870,7 @@ void setExcl (setType *const set_to, const intType number)
           } else {
             memmove(set_dest->bitset,
                     &set_dest->bitset[min_position - set_dest->min_position],
-                    ((uintType) (set_dest->max_position - min_position + 1)) *
+                    (size_t) (set_dest->max_position - min_position + 1) *
                         sizeof(bitSetType));
           } /* if */
           resized_set = REALLOC_SET(set_dest, bitsetSize(set_dest),
