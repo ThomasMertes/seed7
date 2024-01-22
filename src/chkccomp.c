@@ -6662,6 +6662,32 @@ static void determineOsFunctions (FILE *versionFile)
 
 
 
+static void toStandardPath (char *standardPath, const char *const aPath)
+
+  {
+    int position;
+
+  /* toStandardPath */
+    strncpy(standardPath, aPath, BUFFER_SIZE - 1);
+    standardPath[BUFFER_SIZE - 1] = '\0';
+    for (position = 0; standardPath[position] != '\0'; position++) {
+      if (standardPath[position] == '\\') {
+        standardPath[position] = '/';
+      } /* if */
+    } /* for */
+    if (position >= 2 && standardPath[position - 1] == '/') {
+      standardPath[position - 1] = '\0';
+    } /* if */
+    if (((standardPath[0] >= 'a' && standardPath[0] <= 'z') ||
+         (standardPath[0] >= 'A' && standardPath[0] <= 'Z')) &&
+        standardPath[1] == ':') {
+      standardPath[1] = tolower(standardPath[0]);
+      standardPath[0] = '/';
+    } /* if */
+  } /* toStandardPath */
+
+
+
 #if defined OS_STRI_WCHAR
 static void determineCurrentWorkingDirectory (char *cwd)
 
@@ -10367,6 +10393,7 @@ int main (int argc, char **argv)
     char *s7_lib_dir_arg = NULL;
     char *seed7_library_arg = NULL;
     char *cc_environment_ini_arg = NULL;
+    char *build_directory_arg = NULL;
     int codePage = 0;
     int driveLetters;
 
@@ -10386,6 +10413,9 @@ int main (int argc, char **argv)
         } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
                    (*curr_arg)[19] != '\0') {
           cc_environment_ini_arg = &(*curr_arg)[19];
+        } else if (memcmp(*curr_arg, "BUILD_DIRECTORY=", 16 * sizeof(char)) == 0 &&
+                   (*curr_arg)[16] != '\0') {
+          build_directory_arg = &(*curr_arg)[16];
         } /* if */
       } /* for */
       if (fileIsRegular(versionFileName)) {
@@ -10434,7 +10464,11 @@ int main (int argc, char **argv)
     codePage = getCodePage();
     fprintf(versionFile, "#define DEFAULT_CODE_PAGE %d\n", codePage);
 #endif
-    determineCurrentWorkingDirectory(buildDirectory);
+    if (build_directory_arg != NULL) {
+      toStandardPath(buildDirectory, build_directory_arg);
+    } else {
+      determineCurrentWorkingDirectory(buildDirectory);
+    } /* if */
 #ifdef OS_STRI_USES_CODE_PAGE
     mapToUtf8(codePage, buildDirectory);
 #endif
