@@ -1514,10 +1514,11 @@ static void testOutputToBuffer (char *buffer)
               doSleep(1);
               repeatCount++;
             } else {
-              do {
+              while (ch != EOF && ch != '\n' && pos < BUFFER_SIZE - 1) {
                 buffer[pos] = ch;
                 pos++;
-              } while ((ch = getc(outFile)) != '\n');
+                ch = getc(outFile);
+              } /* while */
               fclose(outFile);
               buffer[pos] = '\0';
             } /* if */
