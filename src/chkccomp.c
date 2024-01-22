@@ -6662,33 +6662,29 @@ static void determineOsFunctions (FILE *versionFile)
 
 
 
-static void toStandardPath (char *standardPath, const char *const aPath)
+#if defined MOUNT_NODEFS
+static void determineCurrentWorkingDirectory (char *cwd)
 
-  {
-    int position;
-
-  /* toStandardPath */
-    strncpy(standardPath, aPath, BUFFER_SIZE - 1);
-    standardPath[BUFFER_SIZE - 1] = '\0';
-    for (position = 0; standardPath[position] != '\0'; position++) {
-      if (standardPath[position] == '\\') {
-        standardPath[position] = '/';
-      } /* if */
-    } /* for */
-    if (position >= 2 && standardPath[position - 1] == '/') {
-      standardPath[position - 1] = '\0';
+  { /* determineCurrentWorkingDirectory */
+    cwd[0] = '\0';
+    if (compileAndLinkWithOptionsOk("#include \"stdio.h\"\n"
+                                    "#include \"emscripten.h\"\n"
+                                    "int main(int argc,char *argv[]) {\n"
+                                    "EM_ASM(\n"
+                                    "  let bslash = String.fromCharCode(92);\n"
+                                    "  let workDir = process.cwd().replace(new RegExp(bslash + bslash, 'g'), '/');\n"
+                                    "  if (workDir.charAt(1) === ':' && workDir.charAt(2) === '/') {\n"
+                                    "    workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);\n"
+                                    "  }\n"
+                                    "  console.log(workDir);\n"
+                                    "); return 0; }\n", "", "")) {
+      testOutputToBuffer(cwd);
     } /* if */
-    if (((standardPath[0] >= 'a' && standardPath[0] <= 'z') ||
-         (standardPath[0] >= 'A' && standardPath[0] <= 'Z')) &&
-        standardPath[1] == ':') {
-      standardPath[1] = tolower(standardPath[0]);
-      standardPath[0] = '/';
-    } /* if */
-  } /* toStandardPath */
+  } /* determineCurrentWorkingDirectory */
 
 
 
-#if defined OS_STRI_WCHAR
+#elif defined OS_STRI_WCHAR
 static void determineCurrentWorkingDirectory (char *cwd)
 
   { /* determineCurrentWorkingDirectory */
@@ -10393,7 +10389,6 @@ int main (int argc, char **argv)
     char *s7_lib_dir_arg = NULL;
     char *seed7_library_arg = NULL;
     char *cc_environment_ini_arg = NULL;
-    char *build_directory_arg = NULL;
     int codePage = 0;
     int driveLetters;
 
@@ -10413,9 +10408,6 @@ int main (int argc, char **argv)
         } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
                    (*curr_arg)[19] != '\0') {
           cc_environment_ini_arg = &(*curr_arg)[19];
-        } else if (memcmp(*curr_arg, "BUILD_DIRECTORY=", 16 * sizeof(char)) == 0 &&
-                   (*curr_arg)[16] != '\0') {
-          build_directory_arg = &(*curr_arg)[16];
         } /* if */
       } /* for */
       if (fileIsRegular(versionFileName)) {
@@ -10464,11 +10456,7 @@ int main (int argc, char **argv)
     codePage = getCodePage();
     fprintf(versionFile, "#define DEFAULT_CODE_PAGE %d\n", codePage);
 #endif
-    if (build_directory_arg != NULL) {
-      toStandardPath(buildDirectory, build_directory_arg);
-    } else {
-      determineCurrentWorkingDirectory(buildDirectory);
-    } /* if */
+    determineCurrentWorkingDirectory(buildDirectory);
 #ifdef OS_STRI_USES_CODE_PAGE
     mapToUtf8(codePage, buildDirectory);
 #endif

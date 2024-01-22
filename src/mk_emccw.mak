@@ -254,6 +254,7 @@ base.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
 	echo #define LINKED_PROGRAM_EXTENSION ".js" >> base.h
 	echo #define INTERPRETER_FOR_LINKED_PROGRAM "node" >> base.h
+	echo #define MOUNT_NODEFS >> base.h
 	echo #define EMULATE_ENVIRONMENT >> base.h
 	echo #define EMULATE_NODE_ENVIRONMENT >> base.h
 	echo #define DETERMINE_OS_PROPERTIES_AT_RUNTIME >> base.h
@@ -271,7 +272,6 @@ settings.h:
 	echo #define OS_STRI_UTF8 >> settings.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
 	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
-	echo #define MOUNT_NODEFS >> settings.h
 	echo #define DEFINE_SYSTEM_FUNCTION >> settings.h
 	echo #define USE_DO_EXIT >> settings.h
 	echo #define os_exit doExit >> settings.h
