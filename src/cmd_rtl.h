@@ -43,7 +43,7 @@
 #define FILE_SYMLINK  7
 #define FILE_SOCKET   8
 
-#if HAS_SYMBOLIC_LINKS
+#if HAS_READLINK || defined HAS_DEVICE_IO_CONTROL
 striType followLink (striType path, errInfoType *err_info);
 #endif
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH

@@ -663,7 +663,7 @@ static void copy_any_file (const const_os_striType from_name,
   {
     os_stat_struct from_stat;
     int from_stat_result;
-#if HAS_SYMBOLIC_LINKS
+#if HAS_READLINK && HAS_SYMLINK
     os_striType link_destination;
     ssize_t readlink_result;
 #endif
@@ -686,7 +686,7 @@ static void copy_any_file (const const_os_striType from_name,
       *err_info = FILE_ERROR;
     } else {
       if (S_ISLNK(from_stat.st_mode)) {
-#if HAS_SYMBOLIC_LINKS
+#if HAS_READLINK && HAS_SYMLINK
         /* printf("link size=%lu\n", from_stat.st_size); */
         if (unlikely(from_stat.st_size < 0 ||
                      (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN)) {
@@ -4535,7 +4535,7 @@ striType cmdShellEscape (const const_striType stri)
 void cmdSymlink (const const_striType targetPath, const const_striType symlinkPath)
 
   {
-#if HAS_SYMBOLIC_LINKS
+#if HAS_SYMLINK
     os_striType os_targetPath;
     os_striType os_symlinkPath;
     int path_info;
@@ -4545,7 +4545,7 @@ void cmdSymlink (const const_striType targetPath, const const_striType symlinkPa
   /* cmdSymlink */
     logFunction(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(targetPath));
                 printf("\"%s\")\n", striAsUnquotedCStri(symlinkPath)););
-#if HAS_SYMBOLIC_LINKS
+#if HAS_SYMLINK
     os_targetPath = cp_to_os_path(targetPath, &path_info, &err_info);
     if (likely(os_targetPath != NULL)) {
       os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, &err_info);

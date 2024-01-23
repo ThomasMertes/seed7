@@ -10764,6 +10764,15 @@ int main (int argc, char **argv)
                          "remove(\"test_symlink\");}\n"
                          "printf(\"%d\\n\", okay);\n"
                          "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_SYMLINK %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <string.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "char buf[256]; ssize_t link_len; int okay=0;\n"
+                         "if (symlink(\"qwertzuiop\",\"test_symlink\") == 0){;\n"
+                         "okay=1;\n"
+                         "remove(\"test_symlink\");}\n"
+                         "printf(\"%d\\n\", okay);\n"
+                         "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_READLINK %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
                          "#include <string.h>\n#include <errno.h>\n"
