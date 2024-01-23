@@ -4058,7 +4058,12 @@ void cmdSetATime (const const_striType filePath,
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
     } else {
-      if (os_stat(os_path, &stat_buf) == 0) {
+      if (unlikely(os_stat(os_path, &stat_buf) != 0)) {
+        logError(printf("cmdSetATime: os_stat(\"" FMT_S_OS "\", *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else {
         utime_buf.actime = timToOsTimestamp(year, month, day, hour,
             min, sec, time_zone);
         logMessage(printf("cmdSetATime: actime=" FMT_T "\n",
@@ -4077,8 +4082,6 @@ void cmdSetATime (const const_striType filePath,
                           os_path, errno, strerror(errno)););
           err_info = FILE_ERROR;
         } /* if */
-      } else {
-        err_info = FILE_ERROR;
       } /* if */
       os_stri_free(os_path);
     } /* if */
@@ -4196,7 +4199,12 @@ void cmdSetMTime (const const_striType filePath,
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
     } else {
-      if (os_stat(os_path, &stat_buf) == 0) {
+      if (unlikely(os_stat(os_path, &stat_buf) != 0)) {
+        logError(printf("cmdSetMTime: os_stat(\"" FMT_S_OS "\", *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else {
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToOsTimestamp(year, month, day, hour,
             min, sec, time_zone);
@@ -4215,8 +4223,6 @@ void cmdSetMTime (const const_striType filePath,
                           os_path, errno, strerror(errno)););
           err_info = FILE_ERROR;
         } /* if */
-      } else {
-        err_info = FILE_ERROR;
       } /* if */
       os_stri_free(os_path);
     } /* if */
@@ -4550,7 +4556,14 @@ void cmdSymlink (const const_striType targetPath, const const_striType symlinkPa
     if (likely(os_targetPath != NULL)) {
       os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, &err_info);
       if (likely(os_symlinkPath != NULL)) {
-        if (os_symlink(os_targetPath, os_symlinkPath) != 0) {
+        logMessage(printf("os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                          os_targetPath, os_symlinkPath););
+        if (unlikely(os_symlink(os_targetPath, os_symlinkPath) != 0)) {
+          logError(printf("cmdSymlink: "
+                          "os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_targetPath, os_symlinkPath,
+                          errno, strerror(errno)););
           err_info = FILE_ERROR;
         } /* if */
         os_stri_free(os_symlinkPath);
@@ -4560,6 +4573,9 @@ void cmdSymlink (const const_striType targetPath, const const_striType symlinkPa
 #elif defined DEFINE_WIN_SYMLINK
     winSymlink(targetPath, symlinkPath, &err_info);
 #else
+    logError(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(targetPath));
+             printf("\"%s\"): Creating symbolic links is not supported.\n",
+                    striAsUnquotedCStri(symlinkPath)););
     err_info = FILE_ERROR;
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
