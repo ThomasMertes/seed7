@@ -1415,6 +1415,8 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
         } else if (unlikely(!os_stri_alloc(link_destination, link_size))) {
           *err_info = MEMORY_ERROR;
         } /* if */
+        /* The link_destination is oversized by one character. */
+        /* This simplifies the check for a truncation below.   */
         if (likely(link_destination != NULL)) {
           readlink_result = readlink(os_filePath, link_destination,
                                      (size_t) (link_size + NULL_TERMINATION_LEN));
@@ -1426,14 +1428,16 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
           } else if (unlikely((memSizeType) readlink_result > link_size)) {
+            /* If the additional character in the link_destination */
+            /* has been used we assume that a truncation occurred. */
             logError(printf("doReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "Link destination possibly truncated.\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN););
             *err_info = FILE_ERROR;
           } else {
-            link_destination[readlink_result] = '\0';
-            destination = cp_from_os_path(link_destination, err_info);
+            destination = cp_from_os_path_buffer(link_destination,
+                (memSizeType) readlink_result, err_info);
             if (unlikely(destination == NULL)) {
               logError(printf("doReadLink: "
                               "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
