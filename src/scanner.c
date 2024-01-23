@@ -208,7 +208,7 @@ static inline void scan_eof (void)
         scan_symbol();
       } /* if */
     } /* if */
-    logFunction(printf("scan_eof -->\n"););
+    logFunction(printf("scan_eof --> %d\n", symbol.sycategory););
   } /* scan_eof */
 
 
@@ -421,5 +421,5 @@ void scan_symbol (void)
         } /* if */
         break;
     } /* switch */
-    logFunction(printf("scan_symbol -->\n"););
+    logFunction(printf("scan_symbol --> %d\n", symbol.sycategory););
   } /* scan_symbol */
