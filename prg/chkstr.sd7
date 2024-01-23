@@ -24761,9 +24761,10 @@ const proc: check_string_append is func
   end func;
 
 
-const proc: check_string_assign_at is func
-  local
+const func boolean: check_string_assign_at_with_char is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var string: stri is "";
     var array string: arr is []("");
@@ -24916,8 +24917,19 @@ const proc: check_string_assign_at is func
       writeln(" ***** stri @:= [length(stri)] aChar; does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_assign_at_with_string is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+    var array string: arr is []("");
+    var integer: index is 0;
+    var char: ch is 'X';
+  begin
     stri := "";     stri @:= [1] "";     ok := ok and stri = "";
     stri := "a";    stri @:= [1] "";     ok := ok and stri = "a";
     stri := "a";    stri @:= [2] "";     ok := ok and stri = "a";
@@ -25448,6 +25460,19 @@ const proc: check_string_assign_at is func
     arr[1] := "abcd"; arr[integer(striExpr("1"))] @:= [intExpr(1)] striExpr("XYZA"); ok := ok and arr[1] = "XYZA";
     if not ok then
       writeln(" ***** stri @:= [n] aString; does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_assign_at is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_assign_at_with_char then
+      okay := FALSE;
+    end if;
+    if not check_string_assign_at_with_string then
       okay := FALSE;
     end if;
 
