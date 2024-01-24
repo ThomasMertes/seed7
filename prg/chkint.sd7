@@ -1715,8 +1715,8 @@ const proc: check_bytesLe is func
   end func;
 
 
-const proc: check_bytesBeWithLength is func
-  local
+const func boolean: check_bytesSignedBeWithLength is func
+  result
     var boolean: okay is TRUE;
   begin
     if  bytes(                -128, SIGNED, BE, 1) <>                                         "\128;" or
@@ -1727,8 +1727,12 @@ const proc: check_bytesBeWithLength is func
         bytes(                   1, SIGNED, BE, 1) <>                                         "\001;" or
         bytes(                  10, SIGNED, BE, 1) <>                                         "\010;" or
         bytes(                 100, SIGNED, BE, 1) <>                                         "\100;" or
-        bytes(                 127, SIGNED, BE, 1) <>                                         "\127;" or
-        bytes(              -32768, SIGNED, BE, 2) <>                                    "\128;\000;" or
+        bytes(                 127, SIGNED, BE, 1) <>                                         "\127;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(              -32768, SIGNED, BE, 2) <>                                    "\128;\000;" or
         bytes(              -10000, SIGNED, BE, 2) <>                                    "\216;\240;" or
         bytes(               -1000, SIGNED, BE, 2) <>                                    "\252;\024;" or
         bytes(                -255, SIGNED, BE, 2) <>                                    "\255;\001;" or
@@ -1744,8 +1748,12 @@ const proc: check_bytesBeWithLength is func
         bytes(                 513, SIGNED, BE, 2) <>                                    "\002;\001;" or
         bytes(                1000, SIGNED, BE, 2) <>                                    "\003;\232;" or
         bytes(               10000, SIGNED, BE, 2) <>                                    "\039;\016;" or
-        bytes(               32767, SIGNED, BE, 2) <>                                    "\127;\255;" or
-        bytes(            -8388608, SIGNED, BE, 3) <>                               "\128;\000;\000;" or
+        bytes(               32767, SIGNED, BE, 2) <>                                    "\127;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(            -8388608, SIGNED, BE, 3) <>                               "\128;\000;\000;" or
         bytes(            -1000000, SIGNED, BE, 3) <>                               "\240;\189;\192;" or
         bytes(             -100000, SIGNED, BE, 3) <>                               "\254;\121;\096;" or
         bytes(              -65023, SIGNED, BE, 3) <>                               "\255;\002;\001;" or
@@ -1769,8 +1777,12 @@ const proc: check_bytesBeWithLength is func
         bytes(              100000, SIGNED, BE, 3) <>                               "\001;\134;\160;" or
         bytes(              197121, SIGNED, BE, 3) <>                               "\003;\002;\001;" or
         bytes(             1000000, SIGNED, BE, 3) <>                               "\015;\066;\064;" or
-        bytes(             8388607, SIGNED, BE, 3) <>                               "\127;\255;\255;" or
-        bytes(         -2147483648, SIGNED, BE, 4) <>                          "\128;\000;\000;\000;" or
+        bytes(             8388607, SIGNED, BE, 3) <>                               "\127;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(         -2147483648, SIGNED, BE, 4) <>                          "\128;\000;\000;\000;" or
         bytes(         -1000000000, SIGNED, BE, 4) <>                          "\196;\101;\054;\000;" or
         bytes(          -100000000, SIGNED, BE, 4) <>                          "\250;\010;\031;\000;" or
         bytes(           -16580095, SIGNED, BE, 4) <>                          "\255;\003;\002;\001;" or
@@ -1804,8 +1816,12 @@ const proc: check_bytesBeWithLength is func
         bytes(            67305985, SIGNED, BE, 4) <>                          "\004;\003;\002;\001;" or
         bytes(           100000000, SIGNED, BE, 4) <>                          "\005;\245;\225;\000;" or
         bytes(          1000000000, SIGNED, BE, 4) <>                          "\059;\154;\202;\000;" or
-        bytes(          2147483647, SIGNED, BE, 4) <>                          "\127;\255;\255;\255;" or
-        bytes(       -549755813888, SIGNED, BE, 5) <>                     "\128;\000;\000;\000;\000;" or
+        bytes(          2147483647, SIGNED, BE, 4) <>                          "\127;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(       -549755813888, SIGNED, BE, 5) <>                     "\128;\000;\000;\000;\000;" or
         bytes(       -100000000000, SIGNED, BE, 5) <>                     "\232;\183;\137;\024;\000;" or
         bytes(        -10000000000, SIGNED, BE, 5) <>                     "\253;\171;\244;\028;\000;" or
         bytes(         -4227661311, SIGNED, BE, 5) <>                     "\255;\004;\003;\002;\001;" or
@@ -1847,8 +1863,12 @@ const proc: check_bytesBeWithLength is func
         bytes(         10000000000, SIGNED, BE, 5) <>                     "\002;\084;\011;\228;\000;" or
         bytes(         21542142465, SIGNED, BE, 5) <>                     "\005;\004;\003;\002;\001;" or
         bytes(        100000000000, SIGNED, BE, 5) <>                     "\023;\072;\118;\232;\000;" or
-        bytes(        549755813887, SIGNED, BE, 5) <>                     "\127;\255;\255;\255;\255;" or
-        bytes(    -140737488355328, SIGNED, BE, 6) <>                "\128;\000;\000;\000;\000;\000;" or
+        bytes(        549755813887, SIGNED, BE, 5) <>                     "\127;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(    -140737488355328, SIGNED, BE, 6) <>                "\128;\000;\000;\000;\000;\000;" or
         bytes(    -100000000000000, SIGNED, BE, 6) <>                "\165;\012;\239;\133;\192;\000;" or
         bytes(     -10000000000000, SIGNED, BE, 6) <>                "\246;\231;\177;\141;\096;\000;" or
         bytes(      -1077969485311, SIGNED, BE, 6) <>                "\255;\005;\004;\003;\002;\001;" or
@@ -1900,8 +1920,12 @@ const proc: check_bytesBeWithLength is func
         bytes(       6618611909121, SIGNED, BE, 6) <>                "\006;\005;\004;\003;\002;\001;" or
         bytes(      10000000000000, SIGNED, BE, 6) <>                "\009;\024;\078;\114;\160;\000;" or
         bytes(     100000000000000, SIGNED, BE, 6) <>                "\090;\243;\016;\122;\064;\000;" or
-        bytes(     140737488355327, SIGNED, BE, 6) <>                "\127;\255;\255;\255;\255;\255;" or
-        bytes(  -36028797018963968, SIGNED, BE, 7) <>           "\128;\000;\000;\000;\000;\000;\000;" or
+        bytes(     140737488355327, SIGNED, BE, 6) <>                "\127;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(  -36028797018963968, SIGNED, BE, 7) <>           "\128;\000;\000;\000;\000;\000;\000;" or
         bytes(  -10000000000000000, SIGNED, BE, 7) <>           "\220;\121;\013;\144;\063;\000;\000;" or
         bytes(   -1000000000000000, SIGNED, BE, 7) <>           "\252;\114;\129;\091;\057;\128;\000;" or
         bytes(    -274856364801535, SIGNED, BE, 7) <>           "\255;\006;\005;\004;\003;\002;\001;" or
@@ -1961,8 +1985,12 @@ const proc: check_bytesBeWithLength is func
         bytes(    1000000000000000, SIGNED, BE, 7) <>           "\003;\141;\126;\164;\198;\128;\000;" or
         bytes(    1976943448883713, SIGNED, BE, 7) <>           "\007;\006;\005;\004;\003;\002;\001;" or
         bytes(   10000000000000000, SIGNED, BE, 7) <>           "\035;\134;\242;\111;\193;\000;\000;" or
-        bytes(   36028797018963967, SIGNED, BE, 7) <>           "\127;\255;\255;\255;\255;\255;\255;" or
-        bytes(           INT64_MIN, SIGNED, BE, 8) <>      "\128;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(   36028797018963967, SIGNED, BE, 7) <>           "\127;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(           INT64_MIN, SIGNED, BE, 8) <>      "\128;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(-1000000000000000000, SIGNED, BE, 8) <>      "\242;\031;\073;\076;\088;\156;\000;\000;" or
         bytes( -100000000000000000, SIGNED, BE, 8) <>      "\254;\156;\186;\135;\162;\118;\000;\000;" or
         bytes(  -70080650589044223, SIGNED, BE, 8) <>      "\255;\007;\006;\005;\004;\003;\002;\001;" or
@@ -2030,8 +2058,12 @@ const proc: check_bytesBeWithLength is func
         bytes(  100000000000000000, SIGNED, BE, 8) <>      "\001;\099;\069;\120;\093;\138;\000;\000;" or
         bytes(  578437695752307201, SIGNED, BE, 8) <>      "\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes( 1000000000000000000, SIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
-        bytes( 9223372036854775807, SIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
-        bytes(           INT64_MIN, SIGNED, BE, 9) <> "\255;\128;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes( 9223372036854775807, SIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(           INT64_MIN, SIGNED, BE, 9) <> "\255;\128;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(-1000000000000000000, SIGNED, BE, 9) <> "\255;\242;\031;\073;\076;\088;\156;\000;\000;" or
         bytes( -100000000000000000, SIGNED, BE, 9) <> "\255;\254;\156;\186;\135;\162;\118;\000;\000;" or
         bytes(  -70080650589044223, SIGNED, BE, 9) <> "\255;\255;\007;\006;\005;\004;\003;\002;\001;" or
@@ -2100,10 +2132,37 @@ const proc: check_bytesBeWithLength is func
         bytes(  578437695752307201, SIGNED, BE, 9) <> "\000;\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes( 1000000000000000000, SIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes( 9223372036854775807, SIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian signed byte string with length does not work correctly.");
+      writeln("Conversion of integer to big endian signed byte string with length does not work correctly. (9)");
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bytes(                 0, SIGNED, BE, integer.first)) or
+        not raisesRangeError(bytes(                 0, SIGNED, BE, -1)) or
+        not raisesRangeError(bytes(                 0, SIGNED, BE, 0)) or
+        not raisesRangeError(bytes(              -129, SIGNED, BE, 1)) or
+        not raisesRangeError(bytes(               128, SIGNED, BE, 1)) or
+        not raisesRangeError(bytes(            -32769, SIGNED, BE, 2)) or
+        not raisesRangeError(bytes(             32768, SIGNED, BE, 2)) or
+        not raisesRangeError(bytes(          -8388609, SIGNED, BE, 3)) or
+        not raisesRangeError(bytes(           8388608, SIGNED, BE, 3)) or
+        not raisesRangeError(bytes(       -2147483649, SIGNED, BE, 4)) or
+        not raisesRangeError(bytes(        2147483648, SIGNED, BE, 4)) or
+        not raisesRangeError(bytes(     -549755813889, SIGNED, BE, 5)) or
+        not raisesRangeError(bytes(      549755813888, SIGNED, BE, 5)) or
+        not raisesRangeError(bytes(  -140737488355329, SIGNED, BE, 6)) or
+        not raisesRangeError(bytes(   140737488355328, SIGNED, BE, 6)) or
+        not raisesRangeError(bytes(-36028797018963969, SIGNED, BE, 7)) or
+        not raisesRangeError(bytes( 36028797018963968, SIGNED, BE, 7)) then
+      writeln("Signed conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_bytesUnsignedBeWithLength_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(                  0, UNSIGNED, BE, 1) <>                                         "\000;" or
         bytes(                  1, UNSIGNED, BE, 1) <>                                         "\001;" or
         bytes(                 10, UNSIGNED, BE, 1) <>                                         "\010;" or
@@ -2111,8 +2170,12 @@ const proc: check_bytesBeWithLength is func
         bytes(                127, UNSIGNED, BE, 1) <>                                         "\127;" or
         bytes(                128, UNSIGNED, BE, 1) <>                                         "\128;" or
         bytes(                200, UNSIGNED, BE, 1) <>                                         "\200;" or
-        bytes(                255, UNSIGNED, BE, 1) <>                                         "\255;" or
-        bytes(                  0, UNSIGNED, BE, 2) <>                                    "\000;\000;" or
+        bytes(                255, UNSIGNED, BE, 1) <>                                         "\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 2) <>                                    "\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 2) <>                                    "\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 2) <>                                    "\000;\010;" or
         bytes(                100, UNSIGNED, BE, 2) <>                                    "\000;\100;" or
@@ -2127,8 +2190,12 @@ const proc: check_bytesBeWithLength is func
         bytes(              32767, UNSIGNED, BE, 2) <>                                    "\127;\255;" or
         bytes(              32768, UNSIGNED, BE, 2) <>                                    "\128;\000;" or
         bytes(              50000, UNSIGNED, BE, 2) <>                                    "\195;\080;" or
-        bytes(              65535, UNSIGNED, BE, 2) <>                                    "\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 3) <>                               "\000;\000;\000;" or
+        bytes(              65535, UNSIGNED, BE, 2) <>                                    "\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 3) <>                               "\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 3) <>                               "\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 3) <>                               "\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 3) <>                               "\000;\000;\100;" or
@@ -2151,8 +2218,12 @@ const proc: check_bytesBeWithLength is func
         bytes(            8388607, UNSIGNED, BE, 3) <>                               "\127;\255;\255;" or
         bytes(            8388608, UNSIGNED, BE, 3) <>                               "\128;\000;\000;" or
         bytes(           10000000, UNSIGNED, BE, 3) <>                               "\152;\150;\128;" or
-        bytes(           16777215, UNSIGNED, BE, 3) <>                               "\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 4) <>                          "\000;\000;\000;\000;" or
+        bytes(           16777215, UNSIGNED, BE, 3) <>                               "\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 4) <>                          "\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 4) <>                          "\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 4) <>                          "\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 4) <>                          "\000;\000;\000;\100;" or
@@ -2183,8 +2254,12 @@ const proc: check_bytesBeWithLength is func
         bytes(         2147483647, UNSIGNED, BE, 4) <>                          "\127;\255;\255;\255;" or
         bytes(         2147483648, UNSIGNED, BE, 4) <>                          "\128;\000;\000;\000;" or
         bytes(         2500000000, UNSIGNED, BE, 4) <>                          "\149;\002;\249;\000;" or
-        bytes(         4294967295, UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\000;" or
+        bytes(         4294967295, UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\100;" or
@@ -2222,8 +2297,12 @@ const proc: check_bytesBeWithLength is func
         bytes(       549755813887, UNSIGNED, BE, 5) <>                     "\127;\255;\255;\255;\255;" or
         bytes(       549755813888, UNSIGNED, BE, 5) <>                     "\128;\000;\000;\000;\000;" or
         bytes(      1000000000000, UNSIGNED, BE, 5) <>                     "\232;\212;\165;\016;\000;" or
-        bytes(      1099511627775, UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\000;" or
+        bytes(      1099511627775, UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\100;" or
@@ -2269,8 +2348,12 @@ const proc: check_bytesBeWithLength is func
         bytes(    140737488355327, UNSIGNED, BE, 6) <>                "\127;\255;\255;\255;\255;\255;" or
         bytes(    140737488355328, UNSIGNED, BE, 6) <>                "\128;\000;\000;\000;\000;\000;" or
         bytes(    250000000000000, UNSIGNED, BE, 6) <>                "\227;\095;\169;\049;\160;\000;" or
-        bytes(    281474976710655, UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(    281474976710655, UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\100;" or
@@ -2324,8 +2407,12 @@ const proc: check_bytesBeWithLength is func
         bytes(  36028797018963967, UNSIGNED, BE, 7) <>           "\127;\255;\255;\255;\255;\255;\255;" or
         bytes(  36028797018963968, UNSIGNED, BE, 7) <>           "\128;\000;\000;\000;\000;\000;\000;" or
         bytes(  50000000000000000, UNSIGNED, BE, 7) <>           "\177;\162;\188;\046;\197;\000;\000;" or
-        bytes(  72057594037927935, UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(  72057594037927935, UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\100;" or
@@ -2384,8 +2471,12 @@ const proc: check_bytesBeWithLength is func
         bytes( 100000000000000000, UNSIGNED, BE, 8) <>      "\001;\099;\069;\120;\093;\138;\000;\000;" or
         bytes( 578437695752307201, UNSIGNED, BE, 8) <>      "\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes(1000000000000000000, UNSIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
-        bytes(9223372036854775807, UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
-        bytes(                  0, UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(9223372036854775807, UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes(                 10, UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\010;" or
         bytes(                100, UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\100;" or
@@ -2445,10 +2536,16 @@ const proc: check_bytesBeWithLength is func
         bytes( 578437695752307201, UNSIGNED, BE, 9) <> "\000;\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes(1000000000000000000, UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes(9223372036854775807, UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (1)");
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (9)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_bytesUnsignedBeWithLength_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(intExpr(                  0), UNSIGNED, BE, 1) <>                                         "\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 1) <>                                         "\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 1) <>                                         "\010;" or
@@ -2456,8 +2553,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(                127), UNSIGNED, BE, 1) <>                                         "\127;" or
         bytes(intExpr(                128), UNSIGNED, BE, 1) <>                                         "\128;" or
         bytes(intExpr(                200), UNSIGNED, BE, 1) <>                                         "\200;" or
-        bytes(intExpr(                255), UNSIGNED, BE, 1) <>                                         "\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 2) <>                                    "\000;\000;" or
+        bytes(intExpr(                255), UNSIGNED, BE, 1) <>                                         "\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 2) <>                                    "\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 2) <>                                    "\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 2) <>                                    "\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 2) <>                                    "\000;\100;" or
@@ -2472,8 +2573,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(              32767), UNSIGNED, BE, 2) <>                                    "\127;\255;" or
         bytes(intExpr(              32768), UNSIGNED, BE, 2) <>                                    "\128;\000;" or
         bytes(intExpr(              50000), UNSIGNED, BE, 2) <>                                    "\195;\080;" or
-        bytes(intExpr(              65535), UNSIGNED, BE, 2) <>                                    "\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 3) <>                               "\000;\000;\000;" or
+        bytes(intExpr(              65535), UNSIGNED, BE, 2) <>                                    "\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 3) <>                               "\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 3) <>                               "\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 3) <>                               "\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 3) <>                               "\000;\000;\100;" or
@@ -2496,8 +2601,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(            8388607), UNSIGNED, BE, 3) <>                               "\127;\255;\255;" or
         bytes(intExpr(            8388608), UNSIGNED, BE, 3) <>                               "\128;\000;\000;" or
         bytes(intExpr(           10000000), UNSIGNED, BE, 3) <>                               "\152;\150;\128;" or
-        bytes(intExpr(           16777215), UNSIGNED, BE, 3) <>                               "\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 4) <>                          "\000;\000;\000;\000;" or
+        bytes(intExpr(           16777215), UNSIGNED, BE, 3) <>                               "\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 4) <>                          "\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 4) <>                          "\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 4) <>                          "\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 4) <>                          "\000;\000;\000;\100;" or
@@ -2528,8 +2637,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(         2147483647), UNSIGNED, BE, 4) <>                          "\127;\255;\255;\255;" or
         bytes(intExpr(         2147483648), UNSIGNED, BE, 4) <>                          "\128;\000;\000;\000;" or
         bytes(intExpr(         2500000000), UNSIGNED, BE, 4) <>                          "\149;\002;\249;\000;" or
-        bytes(intExpr(         4294967295), UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\000;" or
+        bytes(intExpr(         4294967295), UNSIGNED, BE, 4) <>                          "\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 5) <>                     "\000;\000;\000;\000;\100;" or
@@ -2567,8 +2680,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(       549755813887), UNSIGNED, BE, 5) <>                     "\127;\255;\255;\255;\255;" or
         bytes(intExpr(       549755813888), UNSIGNED, BE, 5) <>                     "\128;\000;\000;\000;\000;" or
         bytes(intExpr(      1000000000000), UNSIGNED, BE, 5) <>                     "\232;\212;\165;\016;\000;" or
-        bytes(intExpr(      1099511627775), UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(      1099511627775), UNSIGNED, BE, 5) <>                     "\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 6) <>                "\000;\000;\000;\000;\000;\100;" or
@@ -2614,8 +2731,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(    140737488355327), UNSIGNED, BE, 6) <>                "\127;\255;\255;\255;\255;\255;" or
         bytes(intExpr(    140737488355328), UNSIGNED, BE, 6) <>                "\128;\000;\000;\000;\000;\000;" or
         bytes(intExpr(    250000000000000), UNSIGNED, BE, 6) <>                "\227;\095;\169;\049;\160;\000;" or
-        bytes(intExpr(    281474976710655), UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(    281474976710655), UNSIGNED, BE, 6) <>                "\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (15)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 7) <>           "\000;\000;\000;\000;\000;\000;\100;" or
@@ -2669,8 +2790,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr(  36028797018963967), UNSIGNED, BE, 7) <>           "\127;\255;\255;\255;\255;\255;\255;" or
         bytes(intExpr(  36028797018963968), UNSIGNED, BE, 7) <>           "\128;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(  50000000000000000), UNSIGNED, BE, 7) <>           "\177;\162;\188;\046;\197;\000;\000;" or
-        bytes(intExpr(  72057594037927935), UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(  72057594037927935), UNSIGNED, BE, 7) <>           "\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (16)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 8) <>      "\000;\000;\000;\000;\000;\000;\000;\100;" or
@@ -2729,8 +2854,12 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr( 100000000000000000), UNSIGNED, BE, 8) <>      "\001;\099;\069;\120;\093;\138;\000;\000;" or
         bytes(intExpr( 578437695752307201), UNSIGNED, BE, 8) <>      "\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes(intExpr(1000000000000000000), UNSIGNED, BE, 8) <>      "\013;\224;\182;\179;\167;\100;\000;\000;" or
-        bytes(intExpr(9223372036854775807), UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
-        bytes(intExpr(                  0), UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(9223372036854775807), UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (17)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes(intExpr(                 10), UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\010;" or
         bytes(intExpr(                100), UNSIGNED, BE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\100;" or
@@ -2790,7 +2919,7 @@ const proc: check_bytesBeWithLength is func
         bytes(intExpr( 578437695752307201), UNSIGNED, BE, 9) <> "\000;\008;\007;\006;\005;\004;\003;\002;\001;" or
         bytes(intExpr(1000000000000000000), UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes(intExpr(9223372036854775807), UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (2)");
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (18)");
       okay := FALSE;
     end if;
 
@@ -2812,7 +2941,7 @@ const proc: check_bytesBeWithLength is func
         bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (3)");
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (19)");
       okay := FALSE;
     end if;
 
@@ -2834,7 +2963,7 @@ const proc: check_bytesBeWithLength is func
         bytes(abs(intExpr(9223372036854775807)), UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(abs(intExpr(1000000000000000000)), UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes(abs(intExpr(9223372036854775807)), UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (4)");
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (20)");
       okay := FALSE;
     end if;
 
@@ -2856,28 +2985,7 @@ const proc: check_bytesBeWithLength is func
         bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, BE, 8) <>      "\127;\255;\255;\255;\255;\255;\255;\254;" or
         bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, BE, 9) <> "\000;\013;\224;\182;\179;\167;\100;\000;\000;" or
         bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\254;" then
-      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (5)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesRangeError(bytes(                 0, SIGNED, BE, integer.first)) or
-        not raisesRangeError(bytes(                 0, SIGNED, BE, -1)) or
-        not raisesRangeError(bytes(                 0, SIGNED, BE, 0)) or
-        not raisesRangeError(bytes(              -129, SIGNED, BE, 1)) or
-        not raisesRangeError(bytes(               128, SIGNED, BE, 1)) or
-        not raisesRangeError(bytes(            -32769, SIGNED, BE, 2)) or
-        not raisesRangeError(bytes(             32768, SIGNED, BE, 2)) or
-        not raisesRangeError(bytes(          -8388609, SIGNED, BE, 3)) or
-        not raisesRangeError(bytes(           8388608, SIGNED, BE, 3)) or
-        not raisesRangeError(bytes(       -2147483649, SIGNED, BE, 4)) or
-        not raisesRangeError(bytes(        2147483648, SIGNED, BE, 4)) or
-        not raisesRangeError(bytes(     -549755813889, SIGNED, BE, 5)) or
-        not raisesRangeError(bytes(      549755813888, SIGNED, BE, 5)) or
-        not raisesRangeError(bytes(  -140737488355329, SIGNED, BE, 6)) or
-        not raisesRangeError(bytes(   140737488355328, SIGNED, BE, 6)) or
-        not raisesRangeError(bytes(-36028797018963969, SIGNED, BE, 7)) or
-        not raisesRangeError(bytes( 36028797018963968, SIGNED, BE, 7)) then
-      writeln("Signed conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      writeln("Conversion of integer to big endian unsigned byte string with length does not work correctly. (21)");
       okay := FALSE;
     end if;
 
@@ -2912,6 +3020,22 @@ const proc: check_bytesBeWithLength is func
       writeln("Conversion of negative integer to unsigned big endian byte string does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_bytesBeWithLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_bytesSignedBeWithLength then
+      okay := FALSE;
+    end if;
+    if not check_bytesUnsignedBeWithLength_1 then
+      okay := FALSE;
+    end if;
+    if not check_bytesUnsignedBeWithLength_2 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Conversion of integer to big endian byte string with length works correctly.");
@@ -2922,8 +3046,8 @@ const proc: check_bytesBeWithLength is func
   end func;
 
 
-const proc: check_bytesLeWithLength is func
-  local
+const func boolean: check_bytesSignedLeWithLength is func
+  result
     var boolean: okay is TRUE;
   begin
     if  bytes(                -128, SIGNED, LE, 1) <> "\128;"                                         or
@@ -2934,8 +3058,12 @@ const proc: check_bytesLeWithLength is func
         bytes(                   1, SIGNED, LE, 1) <> "\001;"                                         or
         bytes(                  10, SIGNED, LE, 1) <> "\010;"                                         or
         bytes(                 100, SIGNED, LE, 1) <> "\100;"                                         or
-        bytes(                 127, SIGNED, LE, 1) <> "\127;"                                         or
-        bytes(              -32768, SIGNED, LE, 2) <> "\000;\128;"                                    or
+        bytes(                 127, SIGNED, LE, 1) <> "\127;"                                         then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(              -32768, SIGNED, LE, 2) <> "\000;\128;"                                    or
         bytes(              -10000, SIGNED, LE, 2) <> "\240;\216;"                                    or
         bytes(               -1000, SIGNED, LE, 2) <> "\024;\252;"                                    or
         bytes(                -255, SIGNED, LE, 2) <> "\001;\255;"                                    or
@@ -2951,8 +3079,12 @@ const proc: check_bytesLeWithLength is func
         bytes(                 513, SIGNED, LE, 2) <> "\001;\002;"                                    or
         bytes(                1000, SIGNED, LE, 2) <> "\232;\003;"                                    or
         bytes(               10000, SIGNED, LE, 2) <> "\016;\039;"                                    or
-        bytes(               32767, SIGNED, LE, 2) <> "\255;\127;"                                    or
-        bytes(            -8388608, SIGNED, LE, 3) <> "\000;\000;\128;"                               or
+        bytes(               32767, SIGNED, LE, 2) <> "\255;\127;"                                    then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(            -8388608, SIGNED, LE, 3) <> "\000;\000;\128;"                               or
         bytes(            -1000000, SIGNED, LE, 3) <> "\192;\189;\240;"                               or
         bytes(             -100000, SIGNED, LE, 3) <> "\096;\121;\254;"                               or
         bytes(              -65023, SIGNED, LE, 3) <> "\001;\002;\255;"                               or
@@ -2976,8 +3108,12 @@ const proc: check_bytesLeWithLength is func
         bytes(              100000, SIGNED, LE, 3) <> "\160;\134;\001;"                               or
         bytes(              197121, SIGNED, LE, 3) <> "\001;\002;\003;"                               or
         bytes(             1000000, SIGNED, LE, 3) <> "\064;\066;\015;"                               or
-        bytes(             8388607, SIGNED, LE, 3) <> "\255;\255;\127;"                               or
-        bytes(         -2147483648, SIGNED, LE, 4) <> "\000;\000;\000;\128;"                          or
+        bytes(             8388607, SIGNED, LE, 3) <> "\255;\255;\127;"                               then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(         -2147483648, SIGNED, LE, 4) <> "\000;\000;\000;\128;"                          or
         bytes(         -1000000000, SIGNED, LE, 4) <> "\000;\054;\101;\196;"                          or
         bytes(          -100000000, SIGNED, LE, 4) <> "\000;\031;\010;\250;"                          or
         bytes(           -16580095, SIGNED, LE, 4) <> "\001;\002;\003;\255;"                          or
@@ -3011,8 +3147,12 @@ const proc: check_bytesLeWithLength is func
         bytes(            67305985, SIGNED, LE, 4) <> "\001;\002;\003;\004;"                          or
         bytes(           100000000, SIGNED, LE, 4) <> "\000;\225;\245;\005;"                          or
         bytes(          1000000000, SIGNED, LE, 4) <> "\000;\202;\154;\059;"                          or
-        bytes(          2147483647, SIGNED, LE, 4) <> "\255;\255;\255;\127;"                          or
-        bytes(       -549755813888, SIGNED, LE, 5) <> "\000;\000;\000;\000;\128;"                     or
+        bytes(          2147483647, SIGNED, LE, 4) <> "\255;\255;\255;\127;"                          then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(       -549755813888, SIGNED, LE, 5) <> "\000;\000;\000;\000;\128;"                     or
         bytes(       -100000000000, SIGNED, LE, 5) <> "\000;\024;\137;\183;\232;"                     or
         bytes(        -10000000000, SIGNED, LE, 5) <> "\000;\028;\244;\171;\253;"                     or
         bytes(         -4227661311, SIGNED, LE, 5) <> "\001;\002;\003;\004;\255;"                     or
@@ -3054,8 +3194,12 @@ const proc: check_bytesLeWithLength is func
         bytes(         10000000000, SIGNED, LE, 5) <> "\000;\228;\011;\084;\002;"                     or
         bytes(         21542142465, SIGNED, LE, 5) <> "\001;\002;\003;\004;\005;"                     or
         bytes(        100000000000, SIGNED, LE, 5) <> "\000;\232;\118;\072;\023;"                     or
-        bytes(        549755813887, SIGNED, LE, 5) <> "\255;\255;\255;\255;\127;"                     or
-        bytes(    -140737488355328, SIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\128;"                or
+        bytes(        549755813887, SIGNED, LE, 5) <> "\255;\255;\255;\255;\127;"                     then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(    -140737488355328, SIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\128;"                or
         bytes(    -100000000000000, SIGNED, LE, 6) <> "\000;\192;\133;\239;\012;\165;"                or
         bytes(     -10000000000000, SIGNED, LE, 6) <> "\000;\096;\141;\177;\231;\246;"                or
         bytes(      -1077969485311, SIGNED, LE, 6) <> "\001;\002;\003;\004;\005;\255;"                or
@@ -3107,8 +3251,12 @@ const proc: check_bytesLeWithLength is func
         bytes(       6618611909121, SIGNED, LE, 6) <> "\001;\002;\003;\004;\005;\006;"                or
         bytes(      10000000000000, SIGNED, LE, 6) <> "\000;\160;\114;\078;\024;\009;"                or
         bytes(     100000000000000, SIGNED, LE, 6) <> "\000;\064;\122;\016;\243;\090;"                or
-        bytes(     140737488355327, SIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\127;"                or
-        bytes(  -36028797018963968, SIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\128;"           or
+        bytes(     140737488355327, SIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\127;"                then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(  -36028797018963968, SIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\128;"           or
         bytes(  -10000000000000000, SIGNED, LE, 7) <> "\000;\000;\063;\144;\013;\121;\220;"           or
         bytes(   -1000000000000000, SIGNED, LE, 7) <> "\000;\128;\057;\091;\129;\114;\252;"           or
         bytes(    -274856364801535, SIGNED, LE, 7) <> "\001;\002;\003;\004;\005;\006;\255;"           or
@@ -3168,8 +3316,12 @@ const proc: check_bytesLeWithLength is func
         bytes(    1000000000000000, SIGNED, LE, 7) <> "\000;\128;\198;\164;\126;\141;\003;"           or
         bytes(    1976943448883713, SIGNED, LE, 7) <> "\001;\002;\003;\004;\005;\006;\007;"           or
         bytes(   10000000000000000, SIGNED, LE, 7) <> "\000;\000;\193;\111;\242;\134;\035;"           or
-        bytes(   36028797018963967, SIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\127;"           or
-        bytes(           INT64_MIN, SIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\128;"      or
+        bytes(   36028797018963967, SIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\127;"           then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(           INT64_MIN, SIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\128;"      or
         bytes(-1000000000000000000, SIGNED, LE, 8) <> "\000;\000;\156;\088;\076;\073;\031;\242;"      or
         bytes( -100000000000000000, SIGNED, LE, 8) <> "\000;\000;\118;\162;\135;\186;\156;\254;"      or
         bytes(  -70080650589044223, SIGNED, LE, 8) <> "\001;\002;\003;\004;\005;\006;\007;\255;"      or
@@ -3237,8 +3389,12 @@ const proc: check_bytesLeWithLength is func
         bytes(  100000000000000000, SIGNED, LE, 8) <> "\000;\000;\138;\093;\120;\069;\099;\001;"      or
         bytes(  578437695752307201, SIGNED, LE, 8) <> "\001;\002;\003;\004;\005;\006;\007;\008;"      or
         bytes( 1000000000000000000, SIGNED, LE, 8) <> "\000;\000;\100;\167;\179;\182;\224;\013;"      or
-        bytes( 9223372036854775807, SIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      or
-        bytes(           INT64_MIN, SIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\128;\255;" or
+        bytes( 9223372036854775807, SIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      then
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(           INT64_MIN, SIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\128;\255;" or
         bytes(-1000000000000000000, SIGNED, LE, 9) <> "\000;\000;\156;\088;\076;\073;\031;\242;\255;" or
         bytes( -100000000000000000, SIGNED, LE, 9) <> "\000;\000;\118;\162;\135;\186;\156;\254;\255;" or
         bytes(  -70080650589044223, SIGNED, LE, 9) <> "\001;\002;\003;\004;\005;\006;\007;\255;\255;" or
@@ -3307,10 +3463,37 @@ const proc: check_bytesLeWithLength is func
         bytes(  578437695752307201, SIGNED, LE, 9) <> "\001;\002;\003;\004;\005;\006;\007;\008;\000;" or
         bytes( 1000000000000000000, SIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes( 9223372036854775807, SIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian signed byte string with length does not work correctly.");
+      writeln("Conversion of integer to little endian signed byte string with length does not work correctly. (9)");
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bytes(                 0, SIGNED, LE, integer.first)) or
+        not raisesRangeError(bytes(                 0, SIGNED, LE, -1)) or
+        not raisesRangeError(bytes(                 0, SIGNED, LE, 0)) or
+        not raisesRangeError(bytes(              -129, SIGNED, LE, 1)) or
+        not raisesRangeError(bytes(               128, SIGNED, LE, 1)) or
+        not raisesRangeError(bytes(            -32769, SIGNED, LE, 2)) or
+        not raisesRangeError(bytes(             32768, SIGNED, LE, 2)) or
+        not raisesRangeError(bytes(          -8388609, SIGNED, LE, 3)) or
+        not raisesRangeError(bytes(           8388608, SIGNED, LE, 3)) or
+        not raisesRangeError(bytes(       -2147483649, SIGNED, LE, 4)) or
+        not raisesRangeError(bytes(        2147483648, SIGNED, LE, 4)) or
+        not raisesRangeError(bytes(     -549755813889, SIGNED, LE, 5)) or
+        not raisesRangeError(bytes(      549755813888, SIGNED, LE, 5)) or
+        not raisesRangeError(bytes(  -140737488355329, SIGNED, LE, 6)) or
+        not raisesRangeError(bytes(   140737488355328, SIGNED, LE, 6)) or
+        not raisesRangeError(bytes(-36028797018963969, SIGNED, LE, 7)) or
+        not raisesRangeError(bytes( 36028797018963968, SIGNED, LE, 7)) then
+      writeln("Signed conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_bytesUnsignedLeWithLength_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(                  0, UNSIGNED, LE, 1) <> "\000;"                                         or
         bytes(                  1, UNSIGNED, LE, 1) <> "\001;"                                         or
         bytes(                 10, UNSIGNED, LE, 1) <> "\010;"                                         or
@@ -3318,8 +3501,12 @@ const proc: check_bytesLeWithLength is func
         bytes(                127, UNSIGNED, LE, 1) <> "\127;"                                         or
         bytes(                128, UNSIGNED, LE, 1) <> "\128;"                                         or
         bytes(                200, UNSIGNED, LE, 1) <> "\200;"                                         or
-        bytes(                255, UNSIGNED, LE, 1) <> "\255;"                                         or
-        bytes(                  0, UNSIGNED, LE, 2) <> "\000;\000;"                                    or
+        bytes(                255, UNSIGNED, LE, 1) <> "\255;"                                         then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 2) <> "\000;\000;"                                    or
         bytes(                  1, UNSIGNED, LE, 2) <> "\001;\000;"                                    or
         bytes(                 10, UNSIGNED, LE, 2) <> "\010;\000;"                                    or
         bytes(                100, UNSIGNED, LE, 2) <> "\100;\000;"                                    or
@@ -3334,8 +3521,12 @@ const proc: check_bytesLeWithLength is func
         bytes(              32767, UNSIGNED, LE, 2) <> "\255;\127;"                                    or
         bytes(              32768, UNSIGNED, LE, 2) <> "\000;\128;"                                    or
         bytes(              50000, UNSIGNED, LE, 2) <> "\080;\195;"                                    or
-        bytes(              65535, UNSIGNED, LE, 2) <> "\255;\255;"                                    or
-        bytes(                  0, UNSIGNED, LE, 3) <> "\000;\000;\000;"                               or
+        bytes(              65535, UNSIGNED, LE, 2) <> "\255;\255;"                                    then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 3) <> "\000;\000;\000;"                               or
         bytes(                  1, UNSIGNED, LE, 3) <> "\001;\000;\000;"                               or
         bytes(                 10, UNSIGNED, LE, 3) <> "\010;\000;\000;"                               or
         bytes(                100, UNSIGNED, LE, 3) <> "\100;\000;\000;"                               or
@@ -3358,8 +3549,12 @@ const proc: check_bytesLeWithLength is func
         bytes(            8388607, UNSIGNED, LE, 3) <> "\255;\255;\127;"                               or
         bytes(            8388608, UNSIGNED, LE, 3) <> "\000;\000;\128;"                               or
         bytes(           10000000, UNSIGNED, LE, 3) <> "\128;\150;\152;"                               or
-        bytes(           16777215, UNSIGNED, LE, 3) <> "\255;\255;\255;"                               or
-        bytes(                  0, UNSIGNED, LE, 4) <> "\000;\000;\000;\000;"                          or
+        bytes(           16777215, UNSIGNED, LE, 3) <> "\255;\255;\255;"                               then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 4) <> "\000;\000;\000;\000;"                          or
         bytes(                  1, UNSIGNED, LE, 4) <> "\001;\000;\000;\000;"                          or
         bytes(                 10, UNSIGNED, LE, 4) <> "\010;\000;\000;\000;"                          or
         bytes(                100, UNSIGNED, LE, 4) <> "\100;\000;\000;\000;"                          or
@@ -3390,8 +3585,12 @@ const proc: check_bytesLeWithLength is func
         bytes(         2147483647, UNSIGNED, LE, 4) <> "\255;\255;\255;\127;"                          or
         bytes(         2147483648, UNSIGNED, LE, 4) <> "\000;\000;\000;\128;"                          or
         bytes(         2500000000, UNSIGNED, LE, 4) <> "\000;\249;\002;\149;"                          or
-        bytes(         4294967295, UNSIGNED, LE, 4) <> "\255;\255;\255;\255;"                          or
-        bytes(                  0, UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\000;"                     or
+        bytes(         4294967295, UNSIGNED, LE, 4) <> "\255;\255;\255;\255;"                          then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\000;"                     or
         bytes(                  1, UNSIGNED, LE, 5) <> "\001;\000;\000;\000;\000;"                     or
         bytes(                 10, UNSIGNED, LE, 5) <> "\010;\000;\000;\000;\000;"                     or
         bytes(                100, UNSIGNED, LE, 5) <> "\100;\000;\000;\000;\000;"                     or
@@ -3429,8 +3628,12 @@ const proc: check_bytesLeWithLength is func
         bytes(       549755813887, UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\127;"                     or
         bytes(       549755813888, UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\128;"                     or
         bytes(      1000000000000, UNSIGNED, LE, 5) <> "\000;\016;\165;\212;\232;"                     or
-        bytes(      1099511627775, UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\255;"                     or
-        bytes(                  0, UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\000;"                or
+        bytes(      1099511627775, UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\255;"                     then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\000;"                or
         bytes(                  1, UNSIGNED, LE, 6) <> "\001;\000;\000;\000;\000;\000;"                or
         bytes(                 10, UNSIGNED, LE, 6) <> "\010;\000;\000;\000;\000;\000;"                or
         bytes(                100, UNSIGNED, LE, 6) <> "\100;\000;\000;\000;\000;\000;"                or
@@ -3476,8 +3679,12 @@ const proc: check_bytesLeWithLength is func
         bytes(    140737488355327, UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\127;"                or
         bytes(    140737488355328, UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\128;"                or
         bytes(    250000000000000, UNSIGNED, LE, 6) <> "\000;\160;\049;\169;\095;\227;"                or
-        bytes(    281474976710655, UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\255;"                or
-        bytes(                  0, UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\000;"           or
+        bytes(    281474976710655, UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\255;"                then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\000;"           or
         bytes(                  1, UNSIGNED, LE, 7) <> "\001;\000;\000;\000;\000;\000;\000;"           or
         bytes(                 10, UNSIGNED, LE, 7) <> "\010;\000;\000;\000;\000;\000;\000;"           or
         bytes(                100, UNSIGNED, LE, 7) <> "\100;\000;\000;\000;\000;\000;\000;"           or
@@ -3531,8 +3738,12 @@ const proc: check_bytesLeWithLength is func
         bytes(  36028797018963967, UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\127;"           or
         bytes(  36028797018963968, UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\128;"           or
         bytes(  50000000000000000, UNSIGNED, LE, 7) <> "\000;\000;\197;\046;\188;\162;\177;"           or
-        bytes(  72057594037927935, UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\255;"           or
-        bytes(                  0, UNSIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\000;"      or
+        bytes(  72057594037927935, UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\255;"           then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(                  1, UNSIGNED, LE, 8) <> "\001;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(                 10, UNSIGNED, LE, 8) <> "\010;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(                100, UNSIGNED, LE, 8) <> "\100;\000;\000;\000;\000;\000;\000;\000;"      or
@@ -3591,8 +3802,12 @@ const proc: check_bytesLeWithLength is func
         bytes( 100000000000000000, UNSIGNED, LE, 8) <> "\000;\000;\138;\093;\120;\069;\099;\001;"      or
         bytes( 578437695752307201, UNSIGNED, LE, 8) <> "\001;\002;\003;\004;\005;\006;\007;\008;"      or
         bytes(1000000000000000000, UNSIGNED, LE, 8) <> "\000;\000;\100;\167;\179;\182;\224;\013;"      or
-        bytes(9223372036854775807, UNSIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      or
-        bytes(                  0, UNSIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(9223372036854775807, UNSIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(                  0, UNSIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                  1, UNSIGNED, LE, 9) <> "\001;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                 10, UNSIGNED, LE, 9) <> "\010;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(                100, UNSIGNED, LE, 9) <> "\100;\000;\000;\000;\000;\000;\000;\000;\000;" or
@@ -3652,10 +3867,16 @@ const proc: check_bytesLeWithLength is func
         bytes( 578437695752307201, UNSIGNED, LE, 9) <> "\001;\002;\003;\004;\005;\006;\007;\008;\000;" or
         bytes(1000000000000000000, UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(9223372036854775807, UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (1)");
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (9)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_bytesUnsignedLeWithLength_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(intExpr(                  0), UNSIGNED, LE, 1) <> "\000;"                                         or
         bytes(intExpr(                  1), UNSIGNED, LE, 1) <> "\001;"                                         or
         bytes(intExpr(                 10), UNSIGNED, LE, 1) <> "\010;"                                         or
@@ -3663,8 +3884,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(                127), UNSIGNED, LE, 1) <> "\127;"                                         or
         bytes(intExpr(                128), UNSIGNED, LE, 1) <> "\128;"                                         or
         bytes(intExpr(                200), UNSIGNED, LE, 1) <> "\200;"                                         or
-        bytes(intExpr(                255), UNSIGNED, LE, 1) <> "\255;"                                         or
-        bytes(intExpr(                  0), UNSIGNED, LE, 2) <> "\000;\000;"                                    or
+        bytes(intExpr(                255), UNSIGNED, LE, 1) <> "\255;"                                         then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 2) <> "\000;\000;"                                    or
         bytes(intExpr(                  1), UNSIGNED, LE, 2) <> "\001;\000;"                                    or
         bytes(intExpr(                 10), UNSIGNED, LE, 2) <> "\010;\000;"                                    or
         bytes(intExpr(                100), UNSIGNED, LE, 2) <> "\100;\000;"                                    or
@@ -3679,8 +3904,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(              32767), UNSIGNED, LE, 2) <> "\255;\127;"                                    or
         bytes(intExpr(              32768), UNSIGNED, LE, 2) <> "\000;\128;"                                    or
         bytes(intExpr(              50000), UNSIGNED, LE, 2) <> "\080;\195;"                                    or
-        bytes(intExpr(              65535), UNSIGNED, LE, 2) <> "\255;\255;"                                    or
-        bytes(intExpr(                  0), UNSIGNED, LE, 3) <> "\000;\000;\000;"                               or
+        bytes(intExpr(              65535), UNSIGNED, LE, 2) <> "\255;\255;"                                    then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 3) <> "\000;\000;\000;"                               or
         bytes(intExpr(                  1), UNSIGNED, LE, 3) <> "\001;\000;\000;"                               or
         bytes(intExpr(                 10), UNSIGNED, LE, 3) <> "\010;\000;\000;"                               or
         bytes(intExpr(                100), UNSIGNED, LE, 3) <> "\100;\000;\000;"                               or
@@ -3703,8 +3932,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(            8388607), UNSIGNED, LE, 3) <> "\255;\255;\127;"                               or
         bytes(intExpr(            8388608), UNSIGNED, LE, 3) <> "\000;\000;\128;"                               or
         bytes(intExpr(           10000000), UNSIGNED, LE, 3) <> "\128;\150;\152;"                               or
-        bytes(intExpr(           16777215), UNSIGNED, LE, 3) <> "\255;\255;\255;"                               or
-        bytes(intExpr(                  0), UNSIGNED, LE, 4) <> "\000;\000;\000;\000;"                          or
+        bytes(intExpr(           16777215), UNSIGNED, LE, 3) <> "\255;\255;\255;"                               then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 4) <> "\000;\000;\000;\000;"                          or
         bytes(intExpr(                  1), UNSIGNED, LE, 4) <> "\001;\000;\000;\000;"                          or
         bytes(intExpr(                 10), UNSIGNED, LE, 4) <> "\010;\000;\000;\000;"                          or
         bytes(intExpr(                100), UNSIGNED, LE, 4) <> "\100;\000;\000;\000;"                          or
@@ -3735,8 +3968,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(         2147483647), UNSIGNED, LE, 4) <> "\255;\255;\255;\127;"                          or
         bytes(intExpr(         2147483648), UNSIGNED, LE, 4) <> "\000;\000;\000;\128;"                          or
         bytes(intExpr(         2500000000), UNSIGNED, LE, 4) <> "\000;\249;\002;\149;"                          or
-        bytes(intExpr(         4294967295), UNSIGNED, LE, 4) <> "\255;\255;\255;\255;"                          or
-        bytes(intExpr(                  0), UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\000;"                     or
+        bytes(intExpr(         4294967295), UNSIGNED, LE, 4) <> "\255;\255;\255;\255;"                          then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\000;"                     or
         bytes(intExpr(                  1), UNSIGNED, LE, 5) <> "\001;\000;\000;\000;\000;"                     or
         bytes(intExpr(                 10), UNSIGNED, LE, 5) <> "\010;\000;\000;\000;\000;"                     or
         bytes(intExpr(                100), UNSIGNED, LE, 5) <> "\100;\000;\000;\000;\000;"                     or
@@ -3774,8 +4011,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(       549755813887), UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\127;"                     or
         bytes(intExpr(       549755813888), UNSIGNED, LE, 5) <> "\000;\000;\000;\000;\128;"                     or
         bytes(intExpr(      1000000000000), UNSIGNED, LE, 5) <> "\000;\016;\165;\212;\232;"                     or
-        bytes(intExpr(      1099511627775), UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\255;"                     or
-        bytes(intExpr(                  0), UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\000;"                or
+        bytes(intExpr(      1099511627775), UNSIGNED, LE, 5) <> "\255;\255;\255;\255;\255;"                     then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\000;"                or
         bytes(intExpr(                  1), UNSIGNED, LE, 6) <> "\001;\000;\000;\000;\000;\000;"                or
         bytes(intExpr(                 10), UNSIGNED, LE, 6) <> "\010;\000;\000;\000;\000;\000;"                or
         bytes(intExpr(                100), UNSIGNED, LE, 6) <> "\100;\000;\000;\000;\000;\000;"                or
@@ -3821,8 +4062,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(    140737488355327), UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\127;"                or
         bytes(intExpr(    140737488355328), UNSIGNED, LE, 6) <> "\000;\000;\000;\000;\000;\128;"                or
         bytes(intExpr(    250000000000000), UNSIGNED, LE, 6) <> "\000;\160;\049;\169;\095;\227;"                or
-        bytes(intExpr(    281474976710655), UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\255;"                or
-        bytes(intExpr(                  0), UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\000;"           or
+        bytes(intExpr(    281474976710655), UNSIGNED, LE, 6) <> "\255;\255;\255;\255;\255;\255;"                then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (15)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\000;"           or
         bytes(intExpr(                  1), UNSIGNED, LE, 7) <> "\001;\000;\000;\000;\000;\000;\000;"           or
         bytes(intExpr(                 10), UNSIGNED, LE, 7) <> "\010;\000;\000;\000;\000;\000;\000;"           or
         bytes(intExpr(                100), UNSIGNED, LE, 7) <> "\100;\000;\000;\000;\000;\000;\000;"           or
@@ -3876,8 +4121,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr(  36028797018963967), UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\127;"           or
         bytes(intExpr(  36028797018963968), UNSIGNED, LE, 7) <> "\000;\000;\000;\000;\000;\000;\128;"           or
         bytes(intExpr(  50000000000000000), UNSIGNED, LE, 7) <> "\000;\000;\197;\046;\188;\162;\177;"           or
-        bytes(intExpr(  72057594037927935), UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\255;"           or
-        bytes(intExpr(                  0), UNSIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\000;"      or
+        bytes(intExpr(  72057594037927935), UNSIGNED, LE, 7) <> "\255;\255;\255;\255;\255;\255;\255;"           then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (16)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 8) <> "\000;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(intExpr(                  1), UNSIGNED, LE, 8) <> "\001;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(intExpr(                 10), UNSIGNED, LE, 8) <> "\010;\000;\000;\000;\000;\000;\000;\000;"      or
         bytes(intExpr(                100), UNSIGNED, LE, 8) <> "\100;\000;\000;\000;\000;\000;\000;\000;"      or
@@ -3936,8 +4185,12 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr( 100000000000000000), UNSIGNED, LE, 8) <> "\000;\000;\138;\093;\120;\069;\099;\001;"      or
         bytes(intExpr( 578437695752307201), UNSIGNED, LE, 8) <> "\001;\002;\003;\004;\005;\006;\007;\008;"      or
         bytes(intExpr(1000000000000000000), UNSIGNED, LE, 8) <> "\000;\000;\100;\167;\179;\182;\224;\013;"      or
-        bytes(intExpr(9223372036854775807), UNSIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      or
-        bytes(intExpr(                  0), UNSIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(9223372036854775807), UNSIGNED, LE, 8) <> "\255;\255;\255;\255;\255;\255;\255;\127;"      then
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (17)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE, 9) <> "\000;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                  1), UNSIGNED, LE, 9) <> "\001;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                 10), UNSIGNED, LE, 9) <> "\010;\000;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(intExpr(                100), UNSIGNED, LE, 9) <> "\100;\000;\000;\000;\000;\000;\000;\000;\000;" or
@@ -3997,7 +4250,7 @@ const proc: check_bytesLeWithLength is func
         bytes(intExpr( 578437695752307201), UNSIGNED, LE, 9) <> "\001;\002;\003;\004;\005;\006;\007;\008;\000;" or
         bytes(intExpr(1000000000000000000), UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(intExpr(9223372036854775807), UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (2)");
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (18)");
       okay := FALSE;
     end if;
 
@@ -4019,7 +4272,7 @@ const proc: check_bytesLeWithLength is func
         bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, LE, 8) <>      "\255;\255;\255;\255;\255;\255;\255;\127;" or
         bytes(abs(intExpr(1000000000000000000)),                      UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(abs(intExpr(9223372036854775807)),                      UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (3)");
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (19)");
       okay := FALSE;
     end if;
 
@@ -4041,7 +4294,7 @@ const proc: check_bytesLeWithLength is func
         bytes(abs(intExpr(9223372036854775807)), UNSIGNED, LE, 8) <>      "\255;\255;\255;\255;\255;\255;\255;\127;" or
         bytes(abs(intExpr(1000000000000000000)), UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(abs(intExpr(9223372036854775807)), UNSIGNED, LE, 9) <> "\255;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (4)");
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (20)");
       okay := FALSE;
     end if;
 
@@ -4063,28 +4316,7 @@ const proc: check_bytesLeWithLength is func
         bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, LE, 8) <>      "\254;\255;\255;\255;\255;\255;\255;\127;" or
         bytes(pred(abs(intExpr(1000000000000000001))),                      UNSIGNED, LE, 9) <> "\000;\000;\100;\167;\179;\182;\224;\013;\000;" or
         bytes(pred(abs(intExpr(9223372036854775807))),                      UNSIGNED, LE, 9) <> "\254;\255;\255;\255;\255;\255;\255;\127;\000;" then
-      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (5)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesRangeError(bytes(                 0, SIGNED, LE, integer.first)) or
-        not raisesRangeError(bytes(                 0, SIGNED, LE, -1)) or
-        not raisesRangeError(bytes(                 0, SIGNED, LE, 0)) or
-        not raisesRangeError(bytes(              -129, SIGNED, LE, 1)) or
-        not raisesRangeError(bytes(               128, SIGNED, LE, 1)) or
-        not raisesRangeError(bytes(            -32769, SIGNED, LE, 2)) or
-        not raisesRangeError(bytes(             32768, SIGNED, LE, 2)) or
-        not raisesRangeError(bytes(          -8388609, SIGNED, LE, 3)) or
-        not raisesRangeError(bytes(           8388608, SIGNED, LE, 3)) or
-        not raisesRangeError(bytes(       -2147483649, SIGNED, LE, 4)) or
-        not raisesRangeError(bytes(        2147483648, SIGNED, LE, 4)) or
-        not raisesRangeError(bytes(     -549755813889, SIGNED, LE, 5)) or
-        not raisesRangeError(bytes(      549755813888, SIGNED, LE, 5)) or
-        not raisesRangeError(bytes(  -140737488355329, SIGNED, LE, 6)) or
-        not raisesRangeError(bytes(   140737488355328, SIGNED, LE, 6)) or
-        not raisesRangeError(bytes(-36028797018963969, SIGNED, LE, 7)) or
-        not raisesRangeError(bytes( 36028797018963968, SIGNED, LE, 7)) then
-      writeln("Signed conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      writeln("Conversion of integer to little endian unsigned byte string with length does not work correctly. (21)");
       okay := FALSE;
     end if;
 
@@ -4117,6 +4349,22 @@ const proc: check_bytesLeWithLength is func
         not raisesRangeError(bytes(intExpr(integer.first), UNSIGNED, LE, 8)) or
         not raisesRangeError(bytes(intExpr(           -1), UNSIGNED, LE, 8)) then
       writeln("Conversion of negative integer to unsigned little endian byte string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_bytesLeWithLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_bytesSignedLeWithLength then
+      okay := FALSE;
+    end if;
+    if not check_bytesUnsignedLeWithLength_1 then
+      okay := FALSE;
+    end if;
+    if not check_bytesUnsignedLeWithLength_2 then
       okay := FALSE;
     end if;
 
@@ -6795,7 +7043,7 @@ const proc: check_negation is func
  *  Tests for the compiler optimization to reduce overflow checking
  *  for addition and subtraction.
  *)
-const func boolean: check_reduced_overflow_checking_for_sums is func
+const func boolean: check_reduced_overflow_checking_for_sums_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -7198,7 +7446,13 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the dividend is known.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_reduced_overflow_checking_for_sums_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  2 * intExpr(-4611686018427387904)     <> integer.first or
         3 * intExpr(-3074457345618258602) - 2 <> integer.first or
         4 * intExpr(-2305843009213693952)     <> integer.first or
@@ -7443,7 +7697,13 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       writeln(" ***** Reduced overflow check for sums failed: Maximum shift result if the shift amount is known.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_reduced_overflow_checking_for_sums_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   abs(         intExpr(-integer.last)) +                    0 <>  integer.last or
          abs(         intExpr(            0)) +        integer.first <> integer.first or
          abs(         intExpr( integer.last)) +                    0 <>  integer.last or
@@ -8358,7 +8618,15 @@ const proc: check_add is func
       okay := FALSE;
     end if;
 
-    if not check_reduced_overflow_checking_for_sums then
+    if not check_reduced_overflow_checking_for_sums_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_sums_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_sums_3 then
       okay := FALSE;
     end if;
 
