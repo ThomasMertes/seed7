@@ -1378,6 +1378,7 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
     os_striType os_filePath;
     os_stat_struct link_stat;
     memSizeType link_size;
+    memSizeType dest_buffer_size;
     os_striType link_destination;
     os_charType buffer[PATH_MAX];
     ssize_t readlink_result;
@@ -1410,30 +1411,33 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
         link_size = (memSizeType) link_stat.st_size;
         /* printf("link size=" FMT_U_MEM "\n", link_size); */
         if (link_size < sizeof(buffer)) {
-          link_size = (memSizeType) sizeof(buffer) - NULL_TERMINATION_LEN;
+          dest_buffer_size = sizeof(buffer);
           link_destination = buffer;
-        } else if (unlikely(!os_stri_alloc(link_destination, link_size))) {
-          *err_info = MEMORY_ERROR;
+        } else {
+          dest_buffer_size = link_size + NULL_TERMINATION_LEN;
+          if (unlikely(!os_stri_alloc(link_destination, link_size))) {
+            *err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
-        /* The link_destination is oversized by one character. */
-        /* This simplifies the check for a truncation below.   */
+        /* The link_destination is oversized by at least one char. */
+        /* This simplifies the check for a truncation below.       */
         if (likely(link_destination != NULL)) {
           readlink_result = readlink(os_filePath, link_destination,
-                                     (size_t) (link_size + NULL_TERMINATION_LEN));
+                                     dest_buffer_size);
           if (unlikely(readlink_result < 0)) {
             logError(printf("doReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "errno=%d\nerror: %s\n",
-                            os_filePath, link_size + NULL_TERMINATION_LEN,
+                            os_filePath, dest_buffer_size,
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
-          } else if (unlikely((memSizeType) readlink_result > link_size)) {
+          } else if (unlikely((memSizeType) readlink_result >= dest_buffer_size)) {
             /* If the additional character in the link_destination */
             /* has been used we assume that a truncation occurred. */
             logError(printf("doReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "Link destination possibly truncated.\n",
-                            os_filePath, link_size + NULL_TERMINATION_LEN););
+                            os_filePath, dest_buffer_size););
             *err_info = FILE_ERROR;
           } else {
             destination = cp_from_os_path_buffer(link_destination,
