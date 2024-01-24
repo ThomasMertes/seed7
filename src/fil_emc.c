@@ -363,7 +363,7 @@ void setupFiles (void)
     EM_ASM(
       let bslash = String.fromCharCode(92);
       let setEnvironmentVar = Module.cwrap("setEnvironmentVar", "number", ["string", "string"]);
-      let setOsProperties = Module.cwrap("setOsProperties", "number", ["string", "string", "number"]);
+      let setOsProperties = Module.cwrap("setOsProperties", "number", ["string", "string", "number", "number"]);
       if (typeof require === "function") {
         let fs;
         let os;
@@ -417,7 +417,8 @@ void setupFiles (void)
           FS.chdir(workDir);
         }
 #ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
-        // Setup nullDevice, shellPathDelimiter and shellUsesDriveLetters variables.
+        // Setup nullDevice, shellPathDelimiter, shellUsesDriveLetters and
+        // environmentStrncmp variables.
         if (process.platform === "win32") {
           setOsProperties("NUL:", bslash, 1, 1);
         } else {
