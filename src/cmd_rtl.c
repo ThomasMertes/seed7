@@ -1435,9 +1435,12 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
             /* If the additional character in the link_destination */
             /* has been used we assume that a truncation occurred. */
             logError(printf("doReadLink: "
-                            "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
-                            "Link destination possibly truncated.\n",
-                            os_filePath, dest_buffer_size););
+                            "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") "
+                            "failed with " FMT_U_MEM ":\n"
+                            "Link destination possibly truncated "
+                            "(link_size=" FMT_U_MEM ").\n",
+                            os_filePath, dest_buffer_size,
+                            (memSizeType) readlink_result, link_size););
             *err_info = FILE_ERROR;
           } else {
             destination = cp_from_os_path_buffer(link_destination,
