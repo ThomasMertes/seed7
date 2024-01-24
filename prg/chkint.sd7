@@ -13464,7 +13464,7 @@ const proc: check_division is func
   end func;
 
 
-const func boolean: check_div_with_small_numbers is func
+const func boolean: check_div_with_small_numbers_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -13895,7 +13895,13 @@ const func boolean: check_div_with_small_numbers is func
       writeln(" ***** div with an expression and a constant does not work correctly");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   10 div intExpr( 5) <>  2 or
           9 div intExpr( 5) <>  1 or
           8 div intExpr( 5) <>  1 or
@@ -15738,7 +15744,11 @@ const proc: check_div is func
     var integer: one is 1;
     var integer: minusOne is -1;
   begin
-    if not check_div_with_small_numbers then
+    if not check_div_with_small_numbers_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_div_with_small_numbers_2 then
       okay := FALSE;
     end if;
 
@@ -15978,7 +15988,7 @@ const proc: check_div is func
   end func;
 
 
-const func boolean: check_rem_with_small_numbers is func
+const func boolean: check_rem_with_small_numbers_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -16409,7 +16419,13 @@ const func boolean: check_rem_with_small_numbers is func
       writeln(" ***** rem with an expression and a constant does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_rem_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   10 rem intExpr( 5) <>  0 or
           9 rem intExpr( 5) <>  4 or
           8 rem intExpr( 5) <>  3 or
@@ -17807,7 +17823,11 @@ const proc: check_rem is func
     var integer: one is 1;
     var integer: minusOne is -1;
   begin
-    if not check_rem_with_small_numbers then
+    if not check_rem_with_small_numbers_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_rem_with_small_numbers_2 then
       okay := FALSE;
     end if;
 
@@ -31217,8 +31237,8 @@ const proc: check_str is func
   end func;
 
 
-const proc: check_sci is func
-  local
+const func boolean: check_sci_negative is func
+  result
     var boolean: okay is TRUE;
   begin
     if  (-9223372036854775807 sci  0) <> "-9e+18" or
@@ -31494,7 +31514,13 @@ const proc: check_sci is func
       writeln(" ***** The sci operator does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_sci_positive is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  (                   0 sci  0) <> "0e+0" or
         (                   0 sci  1) <> "0.0e+0" or
         (                   0 sci  2) <> "0.00e+0" or
@@ -31775,6 +31801,20 @@ const proc: check_sci is func
         ( 9223372036854775807 sci 19) <> "9.2233720368547758070e+18" or
         ( 9223372036854775807 sci 30) <> "9.223372036854775807000000000000e+18" then
       writeln(" ***** The sci operator does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_sci is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_sci_negative then
+      okay := FALSE;
+    end if;
+
+    if not check_sci_positive then
       okay := FALSE;
     end if;
 
@@ -33127,8 +33167,8 @@ const proc: check_lpad0 is func
   end func;
 
 
-const proc: check_bitLength is func
-  local
+const func boolean: check_bitLength_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  bitLength(       integer.first) <> 63 or
@@ -33386,7 +33426,13 @@ const proc: check_bitLength is func
       writeln(" ***** Integer bitLength is not correctly computed. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_bitLength_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bitLength(intExpr(       integer.first)) <> 63 or
         bitLength(intExpr(-4611686018427387905)) <> 63 or
         bitLength(intExpr(-4611686018427387904)) <> 62 or
@@ -33640,6 +33686,20 @@ const proc: check_bitLength is func
         bitLength(intExpr( 4611686018427387904)) <> 63 or
         bitLength(intExpr( 9223372036854775807)) <> 63 then
       writeln(" ***** Integer bitLength is not correctly computed. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_bitLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_bitLength_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_bitLength_2 then
       okay := FALSE;
     end if;
 
