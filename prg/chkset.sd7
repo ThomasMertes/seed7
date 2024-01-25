@@ -228,7 +228,7 @@ const proc: check_conv is func
                                             26, 28, 29, 31, 33, 34, 37,  40, 41, 42, 44,
                                             45, 46, 48, 49, 50, 52, 53, 54, 55, 56, 60, 62} or
         bitset conv      (integer.last) <> {0 .. 62} then
-      writeln("Conversion of integer to bitset does not work correctly.");
+      writeln(" ***** Conversion of integer to bitset does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -254,7 +254,7 @@ const proc: check_conv is func
                       26, 28, 29, 31, 33, 34, 37,  40, 41, 42, 44,
                       45, 46, 48, 49, 50, 52, 53, 54, 55, 56, 60, 62} <> 5906320444445337516 or
         integer conv {0 .. 62}                                        <>        integer.last then
-      writeln("Conversion of bitset to integer does not work correctly.");
+      writeln(" ***** Conversion of bitset to integer does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -333,7 +333,7 @@ const proc: check_conv is func
         getBinary({0, 10, 30, 50, 62},  63) <> bin64(2#0000000000000000000000000000000000000000000000000000000000000000_) or
         getBinary({0, 10, 30, 50, 62},  64) <> bin64(2#0000000000000000000000000000000000000000000000000000000000000000_) or
         getBinary({0, 10, 30, 50, 62},  65) <> bin64(2#0000000000000000000000000000000000000000000000000000000000000000_) then
-      writeln("getBinary() of bitset does not work correctly.");
+      writeln(" ***** getBinary() of bitset does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -341,7 +341,7 @@ const proc: check_conv is func
         not raisesRangeError(integer({63})) or
         not raisesRangeError(integer conv {-1}) or
         not raisesRangeError(integer conv {63}) then
-      writeln("Conversion of bitset to integer for illegal set elements does not raise RANGE_ERROR.");
+      writeln(" ***** Conversion of bitset to integer for illegal set elements does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -376,7 +376,7 @@ const proc: check_card is func
         incl(test_set, random_num);
       end for;
       if card(test_set) <> size_of_set then
-        writeln("card(bitset) returns " <& card(test_set) <&
+        writeln(" ***** card(bitset) returns " <& card(test_set) <&
                 " instead of " <& size_of_set <& ".");
         okay := FALSE;
       end if;
@@ -391,7 +391,7 @@ const proc: check_card is func
         incl(test_set2, random_stri);
       end for;
       if card(test_set2) <> size_of_set then
-        writeln("card(hashset) returns " <& card(test_set2) <&
+        writeln(" ***** card(hashset) returns " <& card(test_set2) <&
                 " instead of " <& size_of_set <& ".");
         okay := FALSE;
       end if;
@@ -401,7 +401,7 @@ const proc: check_card is func
       number := rand(0, integer.last);
       if  card(bitset(number)) <> length(replace(number radix 2, "0", "")) or
           card(bitset conv number) <> length(replace(number radix 2, "0", "")) then
-        writeln("card(bitset(" <& number <& ")) returns " <& card(bitset(number)) <&
+        writeln(" ***** card(bitset(" <& number <& ")) returns " <& card(bitset(number)) <&
                 " instead of " <& length(replace(number radix 2, "0", "")) <& ".");
         okay := FALSE;
       end if;
@@ -539,7 +539,7 @@ const proc: check_card is func
         card(bitset(         4294967295)) <> 32 or
         card(bitset(6148914691236517205)) <> 32 or
         card(bitset(9223372034707292160)) <> 32 then
-      writeln("card(bitset(number)) is not correctly computed. (1)");
+      writeln(" ***** card(bitset(number)) is not correctly computed. (1)");
       okay := FALSE;
     end if;
 
@@ -640,7 +640,7 @@ const proc: check_card is func
         card(bitset(intExpr(         4294967295))) <> 32 or
         card(bitset(intExpr(6148914691236517205))) <> 32 or
         card(bitset(intExpr(9223372034707292160))) <> 32 then
-      writeln("card(bitset(number)) is not correctly computed. (2)");
+      writeln(" ***** card(bitset(number)) is not correctly computed. (2)");
       okay := FALSE;
     end if;
 
@@ -657,7 +657,7 @@ const proc: check_card is func
         card(bitset conv intExpr(1)) <> 1 or
         card(bitset conv intExpr(10)) <> 2 or
         card(bitset conv intExpr(abs(number))) <> 1 then
-      writeln("card(bitset(number)) is not correctly computed. (2)");
+      writeln(" ***** card(bitset(number)) is not correctly computed. (2)");
       okay := FALSE;
     end if;
 
@@ -669,7 +669,7 @@ const proc: check_card is func
         card(bitset conv (intExpr(0) mod 1 + 1)) <> 1 or
         card(bitset conv (intExpr(0) mod 1 + 2)) <> 1 or
         card(bitset conv (intExpr(0) mod 1 + 3)) <> 2 then
-      writeln("card(bitset(number)) is not correctly computed. (3)");
+      writeln(" ***** card(bitset(number)) is not correctly computed. (3)");
       okay := FALSE;
     end if;
 
@@ -681,7 +681,7 @@ const proc: check_card is func
         not raisesRangeError(bitset(intExpr(number))) or
         not raisesRangeError(bitset conv intExpr(-1)) or
         not raisesRangeError(bitset conv intExpr(number)) then
-      writeln("bitset(-1) does not raise RANGE_ERROR.");
+      writeln(" ***** bitset(-1) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -693,7 +693,7 @@ const proc: check_card is func
         not raisesRangeError(card(bitset(intExpr(number)))) or
         not raisesRangeError(card(bitset conv intExpr(-1))) or
         not raisesRangeError(card(bitset conv intExpr(number))) then
-      writeln("card(bitset(-1)) does not raise RANGE_ERROR.");
+      writeln(" ***** card(bitset(-1)) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -853,14 +853,14 @@ const proc: check_incl is func
       for number range -128 to 128 do
         if compare_set[number + 129] then
           if not number in test_set then
-            write("incl(bitset, ");
+            write(" ***** incl(bitset, ");
             write(number);
             writeln(") does not include element to bitset.");
             okay := FALSE;
           end if;
         else
           if number in test_set then
-            write("bit ");
+            write(" ***** bit ");
             write(number);
             writeln(" set by incl(bitset, integer) although not called with this number.");
             okay := FALSE;
@@ -949,7 +949,7 @@ const proc: check_compare is func
         compareTest(EMPTY_SET, {-1, 900, 901},  -1) or
         compareTest(EMPTY_SET, {0, 1, 900},     -1) or
         compareTest(EMPTY_SET, {0, 900, 901},   -1) then
-      writeln("Set compare does not work correctly. (1)");
+      writeln(" ***** Set compare does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -991,7 +991,7 @@ const proc: check_compare is func
         compareTest({-900}, {0, 1, 900},        -1) or
         compareTest({-900}, {0, 900, 901},      -1) or
         compareTest({-900}, {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (2)");
+      writeln(" ***** Set compare does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -1033,7 +1033,7 @@ const proc: check_compare is func
         compareTest({-2},   {0, 1, 900},        -1) or
         compareTest({-2},   {0, 900, 901},      -1) or
         compareTest({-2},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (3)");
+      writeln(" ***** Set compare does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -1075,7 +1075,7 @@ const proc: check_compare is func
         compareTest({-1},   {0, 1, 900},        -1) or
         compareTest({-1},   {0, 900, 901},      -1) or
         compareTest({-1},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (4)");
+      writeln(" ***** Set compare does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -1117,7 +1117,7 @@ const proc: check_compare is func
         compareTest({0},    {0, 1, 900},        -1) or
         compareTest({0},    {0, 900, 901},      -1) or
         compareTest({0},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (5)");
+      writeln(" ***** Set compare does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -1159,7 +1159,7 @@ const proc: check_compare is func
         compareTest({1},    {0, 1, 900},        -1) or
         compareTest({1},    {0, 900, 901},      -1) or
         compareTest({1},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (6)");
+      writeln(" ***** Set compare does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -1201,7 +1201,7 @@ const proc: check_compare is func
         compareTest({900},  {0, 1, 900},        -1) or
         compareTest({900},  {0, 900, 901},      -1) or
         compareTest({900},  {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (7)");
+      writeln(" ***** Set compare does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -1235,7 +1235,7 @@ const proc: check_compare is func
         compareTest({-901, -900}, {0, 1, 900},        -1) or
         compareTest({-901, -900}, {0, 900, 901},      -1) or
         compareTest({-901, -900}, {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (8)");
+      writeln(" ***** Set compare does not work correctly. (8)");
       okay := FALSE;
     end if;
 
@@ -1268,7 +1268,7 @@ const proc: check_compare is func
         compareTest({-900, -1},   {0, 1, 900},        -1) or
         compareTest({-900, -1},   {0, 900, 901},      -1) or
         compareTest({-900, -1},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (9)");
+      writeln(" ***** Set compare does not work correctly. (9)");
       okay := FALSE;
     end if;
 
@@ -1300,7 +1300,7 @@ const proc: check_compare is func
         compareTest({-900, 0},    {0, 1, 900},        -1) or
         compareTest({-900, 0},    {0, 900, 901},      -1) or
         compareTest({-900, 0},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (10)");
+      writeln(" ***** Set compare does not work correctly. (10)");
       okay := FALSE;
     end if;
 
@@ -1331,7 +1331,7 @@ const proc: check_compare is func
         compareTest({-900, 900},  {0, 1, 900},        -1) or
         compareTest({-900, 900},  {0, 900, 901},      -1) or
         compareTest({-900, 900},  {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (11)");
+      writeln(" ***** Set compare does not work correctly. (11)");
       okay := FALSE;
     end if;
 
@@ -1361,7 +1361,7 @@ const proc: check_compare is func
         compareTest({-2, -1},     {0, 1, 900},        -1) or
         compareTest({-2, -1},     {0, 900, 901},      -1) or
         compareTest({-2, -1},     {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (12)");
+      writeln(" ***** Set compare does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -1390,7 +1390,7 @@ const proc: check_compare is func
         compareTest({-1, 0},      {0, 1, 900},        -1) or
         compareTest({-1, 0},      {0, 900, 901},      -1) or
         compareTest({-1, 0},      {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (13)");
+      writeln(" ***** Set compare does not work correctly. (13)");
       okay := FALSE;
     end if;
 
@@ -1418,7 +1418,7 @@ const proc: check_compare is func
         compareTest({-1, 900},    {0, 1, 900},        -1) or
         compareTest({-1, 900},    {0, 900, 901},      -1) or
         compareTest({-1, 900},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (14)");
+      writeln(" ***** Set compare does not work correctly. (14)");
       okay := FALSE;
     end if;
 
@@ -1445,7 +1445,7 @@ const proc: check_compare is func
         compareTest({0, 1},       {0, 1, 900},        -1) or
         compareTest({0, 1},       {0, 900, 901},      -1) or
         compareTest({0, 1},       {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (15)");
+      writeln(" ***** Set compare does not work correctly. (15)");
       okay := FALSE;
     end if;
 
@@ -1471,7 +1471,7 @@ const proc: check_compare is func
         compareTest({0, 900},     {0, 1, 900},        -1) or
         compareTest({0, 900},     {0, 900, 901},      -1) or
         compareTest({0, 900},     {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (16)");
+      writeln(" ***** Set compare does not work correctly. (16)");
       okay := FALSE;
     end if;
 
@@ -1496,7 +1496,7 @@ const proc: check_compare is func
         compareTest({900, 901},   {0, 1, 900},         1) or
         compareTest({900, 901},   {0, 900, 901},      -1) or
         compareTest({900, 901},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (17)");
+      writeln(" ***** Set compare does not work correctly. (17)");
       okay := FALSE;
     end if;
 
@@ -1520,7 +1520,7 @@ const proc: check_compare is func
         compareTest({-902, -901, -900}, {0, 1, 900},        -1) or
         compareTest({-902, -901, -900}, {0, 900, 901},      -1) or
         compareTest({-902, -901, -900}, {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (18)");
+      writeln(" ***** Set compare does not work correctly. (18)");
       okay := FALSE;
     end if;
 
@@ -1543,7 +1543,7 @@ const proc: check_compare is func
         compareTest({-901, -900, -1},   {0, 1, 900},        -1) or
         compareTest({-901, -900, -1},   {0, 900, 901},      -1) or
         compareTest({-901, -900, -1},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (19)");
+      writeln(" ***** Set compare does not work correctly. (19)");
       okay := FALSE;
     end if;
 
@@ -1565,7 +1565,7 @@ const proc: check_compare is func
         compareTest({-901, -900, 0},    {0, 1, 900},        -1) or
         compareTest({-901, -900, 0},    {0, 900, 901},      -1) or
         compareTest({-901, -900, 0},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (20)");
+      writeln(" ***** Set compare does not work correctly. (20)");
       okay := FALSE;
     end if;
 
@@ -1586,7 +1586,7 @@ const proc: check_compare is func
         compareTest({-901, -900, 900},  {0, 1, 900},        -1) or
         compareTest({-901, -900, 900},  {0, 900, 901},      -1) or
         compareTest({-901, -900, 900},  {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (21)");
+      writeln(" ***** Set compare does not work correctly. (21)");
       okay := FALSE;
     end if;
 
@@ -1606,7 +1606,7 @@ const proc: check_compare is func
         compareTest({-900, -2, -1},     {0, 1, 900},        -1) or
         compareTest({-900, -2, -1},     {0, 900, 901},      -1) or
         compareTest({-900, -2, -1},     {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (22)");
+      writeln(" ***** Set compare does not work correctly. (22)");
       okay := FALSE;
     end if;
 
@@ -1625,7 +1625,7 @@ const proc: check_compare is func
         compareTest({-900, -1, 0},      {0, 1, 900},        -1) or
         compareTest({-900, -1, 0},      {0, 900, 901},      -1) or
         compareTest({-900, -1, 0},      {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (23)");
+      writeln(" ***** Set compare does not work correctly. (23)");
       okay := FALSE;
     end if;
 
@@ -1643,7 +1643,7 @@ const proc: check_compare is func
         compareTest({-900, -1, 900},    {0, 1, 900},        -1) or
         compareTest({-900, -1, 900},    {0, 900, 901},      -1) or
         compareTest({-900, -1, 900},    {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (24)");
+      writeln(" ***** Set compare does not work correctly. (24)");
       okay := FALSE;
     end if;
 
@@ -1660,7 +1660,7 @@ const proc: check_compare is func
         compareTest({-900, 0, 1},       {0, 1, 900},        -1) or
         compareTest({-900, 0, 1},       {0, 900, 901},      -1) or
         compareTest({-900, 0, 1},       {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (25)");
+      writeln(" ***** Set compare does not work correctly. (25)");
       okay := FALSE;
     end if;
 
@@ -1676,7 +1676,7 @@ const proc: check_compare is func
         compareTest({-900, 0, 900},     {0, 1, 900},        -1) or
         compareTest({-900, 0, 900},     {0, 900, 901},      -1) or
         compareTest({-900, 0, 900},     {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (26)");
+      writeln(" ***** Set compare does not work correctly. (26)");
       okay := FALSE;
     end if;
 
@@ -1691,7 +1691,7 @@ const proc: check_compare is func
         compareTest({-900, 900, 901},   {0, 1, 900},         1) or
         compareTest({-900, 900, 901},   {0, 900, 901},      -1) or
         compareTest({-900, 900, 901},   {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (27)");
+      writeln(" ***** Set compare does not work correctly. (27)");
       okay := FALSE;
     end if;
 
@@ -1705,7 +1705,7 @@ const proc: check_compare is func
         compareTest({-3, -2, -1},       {0, 1, 900},        -1) or
         compareTest({-3, -2, -1},       {0, 900, 901},      -1) or
         compareTest({-3, -2, -1},       {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (28)");
+      writeln(" ***** Set compare does not work correctly. (28)");
       okay := FALSE;
     end if;
 
@@ -1718,7 +1718,7 @@ const proc: check_compare is func
         compareTest({-2, -1, 0},        {0, 1, 900},        -1) or
         compareTest({-2, -1, 0},        {0, 900, 901},      -1) or
         compareTest({-2, -1, 0},        {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (29)");
+      writeln(" ***** Set compare does not work correctly. (29)");
       okay := FALSE;
     end if;
 
@@ -1730,7 +1730,7 @@ const proc: check_compare is func
         compareTest({-2, -1, 900},      {0, 1, 900},        -1) or
         compareTest({-2, -1, 900},      {0, 900, 901},      -1) or
         compareTest({-2, -1, 900},      {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (30)");
+      writeln(" ***** Set compare does not work correctly. (30)");
       okay := FALSE;
     end if;
 
@@ -1741,7 +1741,7 @@ const proc: check_compare is func
         compareTest({-1, 0, 1},         {0, 1, 900},        -1) or
         compareTest({-1, 0, 1},         {0, 900, 901},      -1) or
         compareTest({-1, 0, 1},         {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (31)");
+      writeln(" ***** Set compare does not work correctly. (31)");
       okay := FALSE;
     end if;
 
@@ -1751,7 +1751,7 @@ const proc: check_compare is func
         compareTest({-1, 0, 900},       {0, 1, 900},        -1) or
         compareTest({-1, 0, 900},       {0, 900, 901},      -1) or
         compareTest({-1, 0, 900},       {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (32)");
+      writeln(" ***** Set compare does not work correctly. (32)");
       okay := FALSE;
     end if;
 
@@ -1760,7 +1760,7 @@ const proc: check_compare is func
         compareTest({-1, 900, 901},     {0, 1, 900},         1) or
         compareTest({-1, 900, 901},     {0, 900, 901},      -1) or
         compareTest({-1, 900, 901},     {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (33)");
+      writeln(" ***** Set compare does not work correctly. (33)");
       okay := FALSE;
     end if;
 
@@ -1768,25 +1768,25 @@ const proc: check_compare is func
         compareTest({0, 1, 2},          {0, 1, 900},        -1) or
         compareTest({0, 1, 2},          {0, 900, 901},      -1) or
         compareTest({0, 1, 2},          {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (34)");
+      writeln(" ***** Set compare does not work correctly. (34)");
       okay := FALSE;
     end if;
 
     if  compareTest({0, 1, 900},        {0, 1, 900},         0) or
         compareTest({0, 1, 900},        {0, 900, 901},      -1) or
         compareTest({0, 1, 900},        {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (35)");
+      writeln(" ***** Set compare does not work correctly. (35)");
       okay := FALSE;
     end if;
 
     if  compareTest({0, 900, 901},      {0, 900, 901},       0) or
         compareTest({0, 900, 901},      {900, 901, 902},    -1) then
-      writeln("Set compare does not work correctly. (36)");
+      writeln(" ***** Set compare does not work correctly. (36)");
       okay := FALSE;
     end if;
 
     if  compareTest({900, 901, 902},    {900, 901, 902},     0) then
-      writeln("Set compare does not work correctly. (37)");
+      writeln(" ***** Set compare does not work correctly. (37)");
       okay := FALSE;
     end if;
 
@@ -3406,8 +3406,8 @@ const proc: check_relations is func
   end func;
 
 
-const proc: check_union is func
-  local
+const func boolean: check_union_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  EMPTY_SET          | EMPTY_SET          <> EMPTY_SET or
@@ -3605,10 +3605,16 @@ const proc: check_union is func
         {900}              | {-1, 0, 1}         <> {-1, 0, 1, 900} or
         {900}              | {-1, 0, 900}       <> {-1, 0, 900} or
         {900}              | {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln("Set union does not work correctly. (1)");
+      writeln(" ***** Set union does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_union_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1}         | EMPTY_SET          <> {-900, -1} or
         {-900, -1}         | {-900}             <> {-900, -1} or
         {-900, -1}         | {-2}               <> {-900, -1, -2} or
@@ -3917,10 +3923,16 @@ const proc: check_union is func
         {0, 900}           | {-1, 0, 1}         <> {-1, 0, 1, 900} or
         {0, 900}           | {-1, 0, 900}       <> {-1, 0, 900} or
         {0, 900}           | {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln("Set union does not work correctly. (2)");
+      writeln(" ***** Set union does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_union_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1, 0}      | EMPTY_SET          <> {-900, -1, 0} or
         {-900, -1, 0}      | {-900}             <> {-900, -1, 0} or
         {-900, -1, 0}      | {-2}               <> {-900, -2, -1, 0} or
@@ -4172,10 +4184,16 @@ const proc: check_union is func
         {-900, -1, 0, 900} | {-1, 0, 1}         <> {-900, -1, 0, 1, 900} or
         {-900, -1, 0, 900} | {-1, 0, 900}       <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} | {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln("Set union does not work correctly. (3)");
+      writeln(" ***** Set union does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_union_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striSet.EMPTY_SET  | striSet.EMPTY_SET  <> striSet.EMPTY_SET or
         striSet.EMPTY_SET  | {"1"}              <> {"1"} or
         striSet.EMPTY_SET  | {"1", "2"}         <> {"1", "2"} or
@@ -4232,7 +4250,29 @@ const proc: check_union is func
         {"3"}              | {"2"}              <> {"2", "3"} or
         {"3"}              | {"2", "3"}         <> {"2", "3"} or
         {"3"}              | {"3"}              <> {"3"} then
-      writeln("Set union does not work correctly. (4)");
+      writeln(" ***** Set union does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_union is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_union_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_4 then
       okay := FALSE;
     end if;
 
@@ -4447,7 +4487,7 @@ const func boolean: check_union_assign_1 is func
     set1 := {900};              set1 |:= {-1, 0, 900};       ok := ok and set1 = {-1, 0, 900};
     set1 := {900};              set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
-      writeln("Union assignment does not work correctly. (1)");
+      writeln(" ***** Union assignment does not work correctly. (1)");
     end if;
   end func;
 
@@ -4767,7 +4807,7 @@ const func boolean: check_union_assign_2 is func
     set1 := {0, 900};           set1 |:= {-1, 0, 900};       ok := ok and set1 = {-1, 0, 900};
     set1 := {0, 900};           set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
-      writeln("Union assignment does not work correctly. (2)");
+      writeln(" ***** Union assignment does not work correctly. (2)");
     end if;
   end func;
 
@@ -5030,7 +5070,7 @@ const func boolean: check_union_assign_3 is func
     set1 := {-900, -1, 0, 900}; set1 |:= {-1, 0, 900};       ok := ok and set1 = {-900, -1, 0, 900};
     set1 := {-900, -1, 0, 900}; set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
-      writeln("Union assignment does not work correctly. (3)");
+      writeln(" ***** Union assignment does not work correctly. (3)");
     end if;
   end func;
 
@@ -5098,17 +5138,32 @@ const func boolean: check_union_assign_4 is func
     set1 := {"3"};             set1 |:= {"2", "3"};        ok := ok and set1 = {"2", "3"};
     set1 := {"3"};             set1 |:= {"3"};             ok := ok and set1 = {"3"};
     if not ok then
-      writeln("Union assignment does not work correctly. (4)");
+      writeln(" ***** Union assignment does not work correctly. (4)");
     end if;
   end func;
 
 
 const proc: check_union_assign is func
+  local
+    var boolean: okay is TRUE;
   begin
-    if  check_union_assign_1 and
-        check_union_assign_2 and
-        check_union_assign_3 and
-        check_union_assign_4 then
+    if not check_union_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_assign_4 then
+      okay := FALSE;
+    end if;
+
+    if okay then
       writeln("set union assignment works correctly.");
     else
       writeln(" ***** set union assignment does not work correctly");
@@ -5117,8 +5172,8 @@ const proc: check_union_assign is func
   end func;
 
 
-const proc: check_symdiff is func
-  local
+const func boolean: check_symdiff_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  EMPTY_SET          >< EMPTY_SET          <> EMPTY_SET or
@@ -5316,10 +5371,16 @@ const proc: check_symdiff is func
         {900}              >< {-1, 0, 1}         <> {-1, 0, 1, 900} or
         {900}              >< {-1, 0, 900}       <> {-1, 0} or
         {900}              >< {-900, -1, 0, 900} <> {-900, -1, 0} then
-      writeln("Set symdiff does not work correctly. (1)");
+      writeln(" ***** Set symdiff does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_symdiff_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1}         >< EMPTY_SET          <> {-900, -1} or
         {-900, -1}         >< {-900}             <> {-1} or
         {-900, -1}         >< {-2}               <> {-900, -1, -2} or
@@ -5627,10 +5688,16 @@ const proc: check_symdiff is func
         {0, 900}           >< {-1, 0, 1}         <> {-1, 1, 900} or
         {0, 900}           >< {-1, 0, 900}       <> {-1} or
         {0, 900}           >< {-900, -1, 0, 900} <> {-900, -1} then
-      writeln("Set symdiff does not work correctly. (2)");
+      writeln(" ***** Set symdiff does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_symdiff_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1, 0}      >< EMPTY_SET          <> {-900, -1, 0} or
         {-900, -1, 0}      >< {-900}             <> {-1, 0} or
         {-900, -1, 0}      >< {-2}               <> {-900, -2, -1, 0} or
@@ -5882,7 +5949,25 @@ const proc: check_symdiff is func
         {-900, -1, 0, 900} >< {-1, 0, 1}         <> {-900, 1, 900} or
         {-900, -1, 0, 900} >< {-1, 0, 900}       <> {-900} or
         {-900, -1, 0, 900} >< {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln("Set symdiff does not work correctly. (3)");
+      writeln(" ***** Set symdiff does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_symdiff is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_symdiff_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_symdiff_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_symdiff_3 then
       okay := FALSE;
     end if;
 
@@ -5895,8 +5980,8 @@ const proc: check_symdiff is func
   end func;
 
 
-const proc: check_intersection is func
-  local
+const func boolean: check_intersection_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  EMPTY_SET          & EMPTY_SET          <> EMPTY_SET or
@@ -6094,10 +6179,16 @@ const proc: check_intersection is func
         {900}              & {-1, 0, 1}         <> EMPTY_SET or
         {900}              & {-1, 0, 900}       <> {900} or
         {900}              & {-900, -1, 0, 900} <> {900} then
-      writeln("Set intersection does not work correctly. (1)");
+      writeln(" ***** Set intersection does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_intersection_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1}         & EMPTY_SET          <> EMPTY_SET or
         {-900, -1}         & {-900}             <> {-900} or
         {-900, -1}         & {-2}               <> EMPTY_SET or
@@ -6405,10 +6496,16 @@ const proc: check_intersection is func
         {0, 900}           & {-1, 0, 1}         <> {0} or
         {0, 900}           & {-1, 0, 900}       <> {0, 900} or
         {0, 900}           & {-900, -1, 0, 900} <> {0, 900} then
-      writeln("Set intersection does not work correctly. (2)");
+      writeln(" ***** Set intersection does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_intersection_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1, 0}      & EMPTY_SET          <> EMPTY_SET or
         {-900, -1, 0}      & {-900}             <> {-900} or
         {-900, -1, 0}      & {-2}               <> EMPTY_SET or
@@ -6660,10 +6757,16 @@ const proc: check_intersection is func
         {-900, -1, 0, 900} & {-1, 0, 1}         <> {-1, 0} or
         {-900, -1, 0, 900} & {-1, 0, 900}       <> {-1, 0, 900} or
         {-900, -1, 0, 900} & {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln("Set intersection does not work correctly. (3)");
+      writeln(" ***** Set intersection does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_intersection_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striSet.EMPTY_SET  & striSet.EMPTY_SET  <> striSet.EMPTY_SET or
         striSet.EMPTY_SET  & {"1"}              <> striSet.EMPTY_SET or
         striSet.EMPTY_SET  & {"1", "2"}         <> striSet.EMPTY_SET or
@@ -6720,8 +6823,30 @@ const proc: check_intersection is func
         {"3"}              & {"2"}              <> striSet.EMPTY_SET or
         {"3"}              & {"2", "3"}         <> {"3"} or
         {"3"}              & {"3"}              <> {"3"} then
-      writeln("Set intersection does not work correctly. (4)");
+      writeln(" ***** Set intersection does not work correctly. (4)");
       okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_intersection is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_intersection_1 then
+      okay := TRUE;
+    end if;
+
+    if not check_intersection_2 then
+      okay := TRUE;
+    end if;
+
+    if not check_intersection_3 then
+      okay := TRUE;
+    end if;
+
+    if not check_intersection_4 then
+      okay := TRUE;
     end if;
 
     if okay then
@@ -6935,7 +7060,7 @@ const func boolean: check_intersection_assign_1 is func
     set1 := {900};              set1 &:= {-1, 0, 900};       ok := ok and set1 = {900};
     set1 := {900};              set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {900};
     if not ok then
-      writeln("Intersection assignment does not work correctly. (1)");
+      writeln(" ***** Intersection assignment does not work correctly. (1)");
     end if;
   end func;
 
@@ -7254,7 +7379,7 @@ const func boolean: check_intersection_assign_2 is func
     set1 := {0, 900};           set1 &:= {-1, 0, 900};       ok := ok and set1 = {0, 900};
     set1 := {0, 900};           set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {0, 900};
     if not ok then
-      writeln("Intersection assignment does not work correctly. (2)");
+      writeln(" ***** Intersection assignment does not work correctly. (2)");
     end if;
   end func;
 
@@ -7517,7 +7642,7 @@ const func boolean: check_intersection_assign_3 is func
     set1 := {-900, -1, 0, 900}; set1 &:= {-1, 0, 900};       ok := ok and set1 = {-1, 0, 900};
     set1 := {-900, -1, 0, 900}; set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
-      writeln("Intersection assignment does not work correctly. (3)");
+      writeln(" ***** Intersection assignment does not work correctly. (3)");
     end if;
   end func;
 
@@ -7585,17 +7710,32 @@ const func boolean: check_intersection_assign_4 is func
     set1 := {"3"};             set1 &:= {"2", "3"};        ok := ok and set1 = {"3"};
     set1 := {"3"};             set1 &:= {"3"};             ok := ok and set1 = {"3"};
     if not ok then
-      writeln("Intersection assignment does not work correctly. (4)");
+      writeln(" ***** Intersection assignment does not work correctly. (4)");
     end if;
   end func;
 
 
 const proc: check_intersection_assign is func
+  local
+    var boolean: okay is TRUE;
   begin
-    if  check_intersection_assign_1 and
-        check_intersection_assign_2 and
-        check_intersection_assign_3 and
-        check_intersection_assign_4 then
+    if not check_intersection_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_intersection_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_intersection_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_intersection_assign_4 then
+      okay := FALSE;
+    end if;
+
+    if okay then
       writeln("set intersection assignment works correctly.");
     else
       writeln(" ***** set intersection assignment does not work correctly");
@@ -7604,11 +7744,9 @@ const proc: check_intersection_assign is func
   end func;
 
 
-const proc: check_difference is func
-  local
+const func boolean: check_difference_1 is func
+  result
     var boolean: okay is TRUE;
-    var bitset: set_1 is {2, 3, 5, 7, 11, 13, 17};
-    const bitset: set_2_3_5_7_11_13_17 is {2, 3, 5, 7, 11, 13, 17};
   begin
     if  EMPTY_SET          - EMPTY_SET          <> EMPTY_SET or
         EMPTY_SET          - {-900}             <> EMPTY_SET or
@@ -7805,10 +7943,16 @@ const proc: check_difference is func
         {900}              - {-1, 0, 1}         <> {900} or
         {900}              - {-1, 0, 900}       <> EMPTY_SET or
         {900}              - {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln("Set difference does not work correctly. (1)");
+      writeln(" ***** Set difference does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_difference_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1}         - EMPTY_SET          <> {-900, -1} or
         {-900, -1}         - {-900}             <> {-1} or
         {-900, -1}         - {-2}               <> {-900, -1} or
@@ -8116,10 +8260,16 @@ const proc: check_difference is func
         {0, 900}           - {-1, 0, 1}         <> {900} or
         {0, 900}           - {-1, 0, 900}       <> EMPTY_SET or
         {0, 900}           - {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln("Set difference does not work correctly. (2)");
+      writeln(" ***** Set difference does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_difference_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  {-900, -1, 0}      - EMPTY_SET          <> {-900, -1, 0} or
         {-900, -1, 0}      - {-900}             <> {-1, 0} or
         {-900, -1, 0}      - {-2}               <> {-900, -1, 0} or
@@ -8371,10 +8521,16 @@ const proc: check_difference is func
         {-900, -1, 0, 900} - {-1, 0, 1}         <> {-900, 900} or
         {-900, -1, 0, 900} - {-1, 0, 900}       <> {-900} or
         {-900, -1, 0, 900} - {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln("Set difference does not work correctly. (3)");
+      writeln(" ***** Set difference does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_difference_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striSet.EMPTY_SET  - striSet.EMPTY_SET  <> striSet.EMPTY_SET or
         striSet.EMPTY_SET  - {"1"}              <> striSet.EMPTY_SET or
         striSet.EMPTY_SET  - {"1", "2"}         <> striSet.EMPTY_SET or
@@ -8431,10 +8587,19 @@ const proc: check_difference is func
         {"3"}              - {"2"}              <> {"3"} or
         {"3"}              - {"2", "3"}         <> striSet.EMPTY_SET or
         {"3"}              - {"3"}              <> striSet.EMPTY_SET then
-      writeln("Set difference does not work correctly. (4)");
+      writeln(" ***** Set difference does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_difference_5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var bitset: set_1 is {2, 3, 5, 7, 11, 13, 17};
+    const bitset: set_2_3_5_7_11_13_17 is {2, 3, 5, 7, 11, 13, 17};
+  begin
     if  {2, 3, 5, 7, 11, 13, 17} - EMPTY_SET  <> {2, 3, 5, 7, 11, 13, 17} or
         EMPTY_SET - {2, 3, 5, 7, 11, 13, 17}  <> EMPTY_SET or
         set_2_3_5_7_11_13_17 - EMPTY_SET      <> set_2_3_5_7_11_13_17 or
@@ -8442,6 +8607,33 @@ const proc: check_difference is func
         set_1 - EMPTY_SET                     <> set_1 or
         EMPTY_SET - set_1                     <> EMPTY_SET or
         letter_char - (set of char).EMPTY_SET <> letter_char then
+      writeln(" ***** Set difference does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_difference is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_difference_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_5 then
       okay := FALSE;
     end if;
 
@@ -8656,7 +8848,7 @@ const func boolean: check_difference_assign_1 is func
     set1 := {900};              set1 -:= {-1, 0, 900};       ok := ok and set1 = EMPTY_SET;
     set1 := {900};              set1 -:= {-900, -1, 0, 900}; ok := ok and set1 = EMPTY_SET;
     if not ok then
-      writeln("Difference assignment does not work correctly. (1)");
+      writeln(" ***** Difference assignment does not work correctly. (1)");
     end if;
   end func;
 
@@ -8975,7 +9167,7 @@ const func boolean: check_difference_assign_2 is func
     set1 := {0, 900};           set1 -:= {-1, 0, 900};       ok := ok and set1 = EMPTY_SET;
     set1 := {0, 900};           set1 -:= {-900, -1, 0, 900}; ok := ok and set1 = EMPTY_SET;
     if not ok then
-      writeln("Difference assignment does not work correctly. (2)");
+      writeln(" ***** Difference assignment does not work correctly. (2)");
     end if;
   end func;
 
@@ -9238,7 +9430,7 @@ const func boolean: check_difference_assign_3 is func
     set1 := {-900, -1, 0, 900}; set1 -:= {-1, 0, 900};       ok := ok and set1 = {-900};
     set1 := {-900, -1, 0, 900}; set1 -:= {-900, -1, 0, 900}; ok := ok and set1 = EMPTY_SET;
     if not ok then
-      writeln("Difference assignment does not work correctly. (3)");
+      writeln(" ***** Difference assignment does not work correctly. (3)");
     end if;
   end func;
 
@@ -9306,17 +9498,32 @@ const func boolean: check_difference_assign_4 is func
     set1 := {"3"};             set1 -:= {"2", "3"};        ok := ok and set1 = striSet.EMPTY_SET;
     set1 := {"3"};             set1 -:= {"3"};             ok := ok and set1 = striSet.EMPTY_SET;
     if not ok then
-      writeln("Difference assignment does not work correctly. (4)");
+      writeln(" ***** Difference assignment does not work correctly. (4)");
     end if;
   end func;
 
 
 const proc: check_difference_assign is func
+  local
+    var boolean: okay is TRUE;
   begin
-    if  check_difference_assign_1 and
-        check_difference_assign_2 and
-        check_difference_assign_3 and
-        check_difference_assign_4 then
+    if not check_difference_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_assign_4 then
+      okay := FALSE;
+    end if;
+
+    if okay then
       writeln("set difference assignment works correctly.");
     else
       writeln(" ***** set difference assignment does not work correctly");
@@ -10388,7 +10595,7 @@ const proc: check_elem_char is func
        not ('1' not in {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) or
             '1' not in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}  or
        not ('1'     in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) then
-      writeln("set membership test for char fails. (1)");
+      writeln(" ***** set membership test for char fails. (1)");
       okay := FALSE;
     end if;
 
@@ -10446,7 +10653,7 @@ const proc: check_elem_char is func
        not ('1' not in set_2_unicode) or
             '1' not in set_1_unicode  or
        not ('1'     in set_1_unicode) then
-      writeln("set membership test for char fails. (2)");
+      writeln(" ***** set membership test for char fails. (2)");
       okay := FALSE;
     end if;
 
@@ -10488,7 +10695,7 @@ const proc: check_elem_char is func
        not (ch not in {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'}) or
             ch not in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}  or
        not (ch     in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}) then
-      writeln("set membership test for char fails. (3)");
+      writeln(" ***** set membership test for char fails. (3)");
       okay := FALSE;
     end if;
 
@@ -10530,7 +10737,7 @@ const proc: check_elem_char is func
        not (ch not in set_b_unicode) or
             ch not in set_a_unicode  or
        not (ch     in set_a_unicode) then
-      writeln("set membership test for char fails. (4)");
+      writeln(" ***** set membership test for char fails. (4)");
       okay := FALSE;
     end if;
 
@@ -10567,31 +10774,33 @@ const proc: check_elem_char is func
        not (ch not in set_2_unicode) or
             ch not in set_1_unicode  or
        not (ch     in set_1_unicode) then
-      writeln("set membership test for char fails. (5)");
+      writeln(" ***** set membership test for char fails. (5)");
       okay := FALSE;
     end if;
 
     if  '\1000000;' not in {'\1000000;'}        or
               '\0;' not in {'\0;', '\1000000;'} or
         '\1000000;' not in {'\0;', '\1000000;'} then
-      writeln("set membership test for char fails. (6)");
+      writeln(" ***** set membership test for char fails. (6)");
       okay := FALSE;
     end if;
 
     if  ch     in {'\1000000;'}          or
         ch     in {'\0;', '\1000000;'}   or
         ch not in {'\0;' .. '\1000000;'} then
-      writeln("set membership test for char fails. (7)");
+      writeln(" ***** set membership test for char fails. (7)");
       okay := FALSE;
     end if;
 
     if  not (         'A'  in genSet('A')) or
         not (charExpr('A') in genSet('A')) then
+      writeln(" ***** set membership test for char fails. (8)");
       okay := FALSE;
     end if;
 
     if           'A'  not in genSet('A') or
         charExpr('A') not in genSet('A') then
+      writeln(" ***** set membership test for char fails. (9)");
       okay := FALSE;
     end if;
 
@@ -10689,7 +10898,7 @@ const proc: check_elem_string is func
        not ("1" not in {"2", "Ǝ", "ʘ", "Γ", "Ш"}) or
             "1" not in {"1", "Ǝ", "ʘ", "Γ", "Ш"}  or
        not ("1"     in {"1", "Ǝ", "ʘ", "Γ", "Ш"}) then
-      writeln("set membership test for string fails. (1)");
+      writeln(" ***** set membership test for string fails. (1)");
       okay := FALSE;
     end if;
 
@@ -10747,7 +10956,7 @@ const proc: check_elem_string is func
        not ("1" not in set_2_unicode) or
             "1" not in set_1_unicode  or
        not ("1"     in set_1_unicode) then
-      writeln("set membership test for string fails. (2)");
+      writeln(" ***** set membership test for string fails. (2)");
       okay := FALSE;
     end if;
 
@@ -10789,7 +10998,7 @@ const proc: check_elem_string is func
        not (stri not in {"b", "ä", "Ǝ", "ʘ", "Γ"}) or
             stri not in {"a", "ä", "Ǝ", "ʘ", "Γ"}  or
        not (stri     in {"a", "ä", "Ǝ", "ʘ", "Γ"}) then
-      writeln("set membership test for string fails. (3)");
+      writeln(" ***** set membership test for string fails. (3)");
       okay := FALSE;
     end if;
 
@@ -10831,7 +11040,7 @@ const proc: check_elem_string is func
        not (stri not in set_b_unicode) or
             stri not in set_a_unicode  or
        not (stri     in set_a_unicode) then
-      writeln("set membership test for string fails. (4)");
+      writeln(" ***** set membership test for string fails. (4)");
       okay := FALSE;
     end if;
 
@@ -10868,30 +11077,32 @@ const proc: check_elem_string is func
        not (stri not in set_2_unicode) or
             stri not in set_1_unicode  or
        not (stri     in set_1_unicode) then
-      writeln("set membership test for string fails. (5)");
+      writeln(" ***** set membership test for string fails. (5)");
       okay := FALSE;
     end if;
 
     if  "\1000000;" not in {"\1000000;"}        or
               "\0;" not in {"\0;", "\1000000;"} or
         "\1000000;" not in {"\0;", "\1000000;"} then
-      writeln("set membership test for string fails. (6)");
+      writeln(" ***** set membership test for string fails. (6)");
       okay := FALSE;
     end if;
 
     if  stri     in {"\1000000;"}          or
         stri     in {"\0;", "\1000000;"}   then
-      writeln("set membership test for string fails. (7)");
+      writeln(" ***** set membership test for string fails. (7)");
       okay := FALSE;
     end if;
 
     if  not (         "A"  in genSet("A")) or
         not (striExpr("A") in genSet("A")) then
+      writeln(" ***** set membership test for string fails. (8)");
       okay := FALSE;
     end if;
 
     if           "A"  not in genSet("A") or
         striExpr("A") not in genSet("A") then
+      writeln(" ***** set membership test for string fails. (9)");
       okay := FALSE;
     end if;
 
@@ -10950,7 +11161,7 @@ const proc: check_min is func
         min({                  63}) <>                   63 or
         min({                  64}) <>                   64 or
         min({        integer.last}) <>         integer.last then
-      writeln("min for bitset does not work correctly.");
+      writeln(" ***** min for bitset does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -10962,13 +11173,13 @@ const proc: check_min is func
         incl(test_set, random_num);
       end for;
       if min(test_set)    <> number then
-        writeln("min(bitset) returns " <& min(test_set) <& " instead of " <& number <& ".");
+        writeln(" ***** min(bitset) returns " <& min(test_set) <& " instead of " <& number <& ".");
         okay := FALSE;
       end if;
     end for;
 
     if not raisesRangeError(min(EMPTY_SET)) then
-      writeln("min(EMPTY_SET) does not raise RANGE_ERROR.");
+      writeln(" ***** min(EMPTY_SET) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -11001,7 +11212,7 @@ const proc: check_max is func
         max({                  63}) <>                   63 or
         max({                  64}) <>                   64 or
         max({        integer.last}) <>         integer.last then
-      writeln("max for bitset does not work correctly.");
+      writeln(" ***** max for bitset does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -11013,13 +11224,13 @@ const proc: check_max is func
         incl(test_set, random_num);
       end for;
       if max(test_set) <> number then
-        writeln("max(bitset) returns " <& max(test_set) <& " instead of " <& number <& ".");
+        writeln(" ***** max(bitset) returns " <& max(test_set) <& " instead of " <& number <& ".");
         okay := FALSE;
       end if;
     end for;
 
     if not raisesRangeError(max(EMPTY_SET)) then
-      writeln("max(EMPTY_SET) does not raise RANGE_ERROR.");
+      writeln(" ***** max(EMPTY_SET) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -11063,7 +11274,7 @@ const proc: check_next is func
         next({                  64},                   63) <>                   64 or
         next({        integer.last},        integer.first) <>         integer.last or
         next({        integer.last},  9223372036854775806) <>         integer.last then
-      writeln("next for bitset does not work correctly.");
+      writeln(" ***** next for bitset does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -11075,7 +11286,7 @@ const proc: check_next is func
         incl(test_set, random_num);
       end for;
       if next(test_set, pred(number)) <> number then
-        writeln("next(bitset) returns " <& next(test_set, pred(number)) <&
+        writeln(" ***** next(bitset) returns " <& next(test_set, pred(number)) <&
                 " instead of " <& number <& ".");
         okay := FALSE;
       end if;
@@ -11087,7 +11298,7 @@ const proc: check_next is func
         not raisesRangeError(next({            0},             0)) or
         not raisesRangeError(next({            1},             1)) or
         not raisesRangeError(next({ integer.last},  integer.last)) then
-      writeln("next(EMPTY_SET) and next() with a wrong start value does not raise RANGE_ERROR.");
+      writeln(" ***** next(EMPTY_SET) and next() with a wrong start value does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -11208,7 +11419,7 @@ const proc: check_charset is func
               ch not in name_start_char  or
          not (ch     in name_char)       or
               ch not in name_char        then
-        writeln("character sets do not work for upper case characters.");
+        writeln(" ***** character sets do not work for upper case characters.");
         okay := FALSE;
       end if;
     end for;
@@ -11230,7 +11441,7 @@ const proc: check_charset is func
               ch not in name_start_char  or
          not (ch     in name_char)       or
               ch not in name_char        then
-        writeln("character sets do not work for lower case characters.");
+        writeln(" ***** character sets do not work for lower case characters.");
         okay := FALSE;
       end if;
     end for;
@@ -11252,7 +11463,7 @@ const proc: check_charset is func
          not (ch not in name_start_char) or
          not (ch     in name_char)       or
               ch not in name_char        then
-        writeln("character sets do not work for digits.");
+        writeln(" ***** character sets do not work for digits.");
         okay := FALSE;
       end if;
     end for;
@@ -11274,7 +11485,7 @@ const proc: check_charset is func
             ch not in name_start_char  or
        not (ch     in name_char)       or
             ch not in name_char        then
-      writeln("character sets do not work for the underline character.");
+      writeln(" ***** character sets do not work for the underline character.");
       okay := FALSE;
     end if;
 
@@ -11295,7 +11506,7 @@ const proc: check_charset is func
          not (ch not in name_start_char) or
               ch     in name_char        or
          not (ch not in name_char)       then
-        writeln("character sets do not work for special characters.");
+        writeln(" ***** character sets do not work for special characters.");
         okay := FALSE;
       end if;
     end for;
@@ -11316,7 +11527,7 @@ const proc: check_charset is func
             'X' not in name_start_char  or
        not ('X'     in name_char)       or
             'X' not in name_char        then
-      writeln("character sets do not work for 'X'.");
+      writeln(" ***** character sets do not work for 'X'.");
       okay := FALSE;
     end if;
 
@@ -11336,7 +11547,7 @@ const proc: check_charset is func
             'i' not in name_start_char  or
        not ('i'     in name_char)       or
             'i' not in name_char        then
-      writeln("character sets do not work for 'i'.");
+      writeln(" ***** character sets do not work for 'i'.");
       okay := FALSE;
     end if;
 
@@ -11356,7 +11567,7 @@ const proc: check_charset is func
        not ('7' not in name_start_char) or
        not ('7'     in name_char)       or
             '7' not in name_char        then
-      writeln("character sets do not work for '7'.");
+      writeln(" ***** character sets do not work for '7'.");
       okay := FALSE;
     end if;
 
@@ -11376,7 +11587,7 @@ const proc: check_charset is func
             '_' not in name_start_char  or
        not ('_'     in name_char)       or
             '_' not in name_char        then
-      writeln("character sets do not work for '_'.");
+      writeln(" ***** character sets do not work for '_'.");
       okay := FALSE;
     end if;
 
@@ -11396,12 +11607,12 @@ const proc: check_charset is func
        not ('@' not in name_start_char) or
             '@'     in name_char        or
        not ('@' not in name_char)       then
-      writeln("character sets do not work for '@'.");
+      writeln(" ***** character sets do not work for '@'.");
       okay := FALSE;
     end if;
 
     if bitset(alphanum_char) <> bitset(letter_char | digit_char) then
-      writeln("Conversion of character set to integer set does not work correctly.");
+      writeln(" ***** Conversion of character set to integer set does not work correctly.");
       okay := FALSE;
     end if;
 
