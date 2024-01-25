@@ -14344,6 +14344,243 @@ const func boolean: check_div_with_small_numbers_4 is func
   end func;
 
 
+const func boolean: check_div_min_max is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  INT64_MIN div           INT64_MIN <>                    1 or
+        INT64_MIN div         -8589934592 <>           1073741824 or
+        INT64_MIN div         -4294967296 <>           2147483648 or
+        INT64_MIN div         -2147483649 <>           4294967294 or
+        INT64_MIN div           INT32_MIN <>           4294967296 or
+        INT64_MIN div         -2147483648 <>           4294967296 or
+        INT64_MIN div         -1073741824 <>           8589934592 or
+        INT64_MIN div               -1025 <>     8998411743272952 or
+        INT64_MIN div               -1024 <>     9007199254740992 or
+        INT64_MIN div               -1023 <>     9016003946094600 or
+        INT64_MIN div                  -2 <>  4611686018427387904 or
+        INT64_MIN div           INT32_MAX <>          -4294967298 or
+        INT64_MIN div          2147483648 <>          -4294967296 or
+        INT64_MIN div          2147483649 <>          -4294967294 or
+        INT64_MIN div          4294967296 <>          -2147483648 or
+        INT64_MIN div          4294967297 <>          -2147483647 or
+        INT64_MIN div     140737488355327 <>               -65536 or
+        INT64_MIN div     140737488355328 <>               -65536 or
+        INT64_MIN div     140737488355329 <>               -65535 or
+        INT64_MIN div 4611686018427387903 <>                   -2 or
+        INT64_MIN div 4611686018427387904 <>                   -2 or
+        INT64_MIN div 4611686018427387905 <>                   -1 or
+        INT64_MIN div           INT64_MAX <>                   -1 or
+        INT64_MAX div           INT64_MIN <>                    0 or
+        INT64_MAX div           INT32_MIN <>          -4294967295 or
+        INT64_MAX div           INT32_MAX <>           4294967298 or
+        INT64_MAX div          2147483648 <>           4294967295 or
+        INT64_MAX div          2147483649 <>           4294967294 or
+        INT64_MAX div          4294967295 <>           2147483648 or
+        INT64_MAX div          4294967296 <>           2147483647 or
+        INT64_MAX div     140737488355327 <>                65536 or
+        INT64_MAX div     140737488355328 <>                65535 or
+        INT64_MAX div     140737488355329 <>                65535 or
+        INT64_MAX div 4611686018427387903 <>                    2 or
+        INT64_MAX div 4611686018427387904 <>                    1 or
+        INT64_MAX div 4611686018427387905 <>                    1 or
+        INT64_MAX div           INT64_MAX <>                    1 then
+      writeln(" ***** div with maximum values does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) div           INT64_MIN <>                    1 or
+        intExpr(INT64_MIN) div         -8589934592 <>           1073741824 or
+        intExpr(INT64_MIN) div         -4294967296 <>           2147483648 or
+        intExpr(INT64_MIN) div         -2147483649 <>           4294967294 or
+        intExpr(INT64_MIN) div           INT32_MIN <>           4294967296 or
+        intExpr(INT64_MIN) div         -2147483648 <>           4294967296 or
+        intExpr(INT64_MIN) div         -1073741824 <>           8589934592 or
+        intExpr(INT64_MIN) div               -1025 <>     8998411743272952 or
+        intExpr(INT64_MIN) div               -1024 <>     9007199254740992 or
+        intExpr(INT64_MIN) div               -1023 <>     9016003946094600 or
+        intExpr(INT64_MIN) div                  -2 <>  4611686018427387904 or
+        intExpr(INT64_MIN) div           INT32_MAX <>          -4294967298 or
+        intExpr(INT64_MIN) div          2147483648 <>          -4294967296 or
+        intExpr(INT64_MIN) div          2147483649 <>          -4294967294 or
+        intExpr(INT64_MIN) div          4294967296 <>          -2147483648 or
+        intExpr(INT64_MIN) div          4294967297 <>          -2147483647 or
+        intExpr(INT64_MIN) div     140737488355327 <>               -65536 or
+        intExpr(INT64_MIN) div     140737488355328 <>               -65536 or
+        intExpr(INT64_MIN) div     140737488355329 <>               -65535 or
+        intExpr(INT64_MIN) div 4611686018427387903 <>                   -2 or
+        intExpr(INT64_MIN) div 4611686018427387904 <>                   -2 or
+        intExpr(INT64_MIN) div 4611686018427387905 <>                   -1 or
+        intExpr(INT64_MIN) div           INT64_MAX <>                   -1 or
+        intExpr(INT64_MAX) div           INT64_MIN <>                    0 or
+        intExpr(INT64_MAX) div           INT32_MIN <>          -4294967295 or
+        intExpr(INT64_MAX) div           INT32_MAX <>           4294967298 or
+        intExpr(INT64_MAX) div          2147483648 <>           4294967295 or
+        intExpr(INT64_MAX) div          2147483649 <>           4294967294 or
+        intExpr(INT64_MAX) div          4294967295 <>           2147483648 or
+        intExpr(INT64_MAX) div          4294967296 <>           2147483647 or
+        intExpr(INT64_MAX) div     140737488355327 <>                65536 or
+        intExpr(INT64_MAX) div     140737488355328 <>                65535 or
+        intExpr(INT64_MAX) div     140737488355329 <>                65535 or
+        intExpr(INT64_MAX) div 4611686018427387903 <>                    2 or
+        intExpr(INT64_MAX) div 4611686018427387904 <>                    1 or
+        intExpr(INT64_MAX) div 4611686018427387905 <>                    1 or
+        intExpr(INT64_MAX) div           INT64_MAX <>                    1 then
+      writeln(" ***** div with maximum values does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN div intExpr(          INT64_MIN) <>                    1 or
+        INT64_MIN div intExpr(        -8589934592) <>           1073741824 or
+        INT64_MIN div intExpr(        -4294967296) <>           2147483648 or
+        INT64_MIN div intExpr(        -2147483649) <>           4294967294 or
+        INT64_MIN div intExpr(          INT32_MIN) <>           4294967296 or
+        INT64_MIN div intExpr(        -2147483648) <>           4294967296 or
+        INT64_MIN div intExpr(        -1073741824) <>           8589934592 or
+        INT64_MIN div intExpr(              -1025) <>     8998411743272952 or
+        INT64_MIN div intExpr(              -1024) <>     9007199254740992 or
+        INT64_MIN div intExpr(              -1023) <>     9016003946094600 or
+        INT64_MIN div intExpr(                 -2) <>  4611686018427387904 or
+        INT64_MIN div intExpr(          INT32_MAX) <>          -4294967298 or
+        INT64_MIN div intExpr(         2147483648) <>          -4294967296 or
+        INT64_MIN div intExpr(         2147483649) <>          -4294967294 or
+        INT64_MIN div intExpr(         4294967296) <>          -2147483648 or
+        INT64_MIN div intExpr(         4294967297) <>          -2147483647 or
+        INT64_MIN div intExpr(    140737488355327) <>               -65536 or
+        INT64_MIN div intExpr(    140737488355328) <>               -65536 or
+        INT64_MIN div intExpr(    140737488355329) <>               -65535 or
+        INT64_MIN div intExpr(4611686018427387903) <>                   -2 or
+        INT64_MIN div intExpr(4611686018427387904) <>                   -2 or
+        INT64_MIN div intExpr(4611686018427387905) <>                   -1 or
+        INT64_MIN div intExpr(          INT64_MAX) <>                   -1 or
+        INT64_MAX div intExpr(          INT64_MIN) <>                    0 or
+        INT64_MAX div intExpr(          INT32_MIN) <>          -4294967295 or
+        INT64_MAX div intExpr(          INT32_MAX) <>           4294967298 or
+        INT64_MAX div intExpr(         2147483648) <>           4294967295 or
+        INT64_MAX div intExpr(         2147483649) <>           4294967294 or
+        INT64_MAX div intExpr(         4294967295) <>           2147483648 or
+        INT64_MAX div intExpr(         4294967296) <>           2147483647 or
+        INT64_MAX div intExpr(    140737488355327) <>                65536 or
+        INT64_MAX div intExpr(    140737488355328) <>                65535 or
+        INT64_MAX div intExpr(    140737488355329) <>                65535 or
+        INT64_MAX div intExpr(4611686018427387903) <>                    2 or
+        INT64_MAX div intExpr(4611686018427387904) <>                    1 or
+        INT64_MAX div intExpr(4611686018427387905) <>                    1 or
+        INT64_MAX div intExpr(          INT64_MAX) <>                    1 then
+      writeln(" ***** div with maximum values does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) div intExpr(          INT64_MIN) <>                    1 or
+        intExpr(INT64_MIN) div intExpr(        -8589934592) <>           1073741824 or
+        intExpr(INT64_MIN) div intExpr(        -4294967296) <>           2147483648 or
+        intExpr(INT64_MIN) div intExpr(        -2147483649) <>           4294967294 or
+        intExpr(INT64_MIN) div intExpr(          INT32_MIN) <>           4294967296 or
+        intExpr(INT64_MIN) div intExpr(        -2147483648) <>           4294967296 or
+        intExpr(INT64_MIN) div intExpr(        -1073741824) <>           8589934592 or
+        intExpr(INT64_MIN) div intExpr(              -1025) <>     8998411743272952 or
+        intExpr(INT64_MIN) div intExpr(              -1024) <>     9007199254740992 or
+        intExpr(INT64_MIN) div intExpr(              -1023) <>     9016003946094600 or
+        intExpr(INT64_MIN) div intExpr(                 -2) <>  4611686018427387904 or
+        intExpr(INT64_MIN) div intExpr(          INT32_MAX) <>          -4294967298 or
+        intExpr(INT64_MIN) div intExpr(         2147483648) <>          -4294967296 or
+        intExpr(INT64_MIN) div intExpr(         2147483649) <>          -4294967294 or
+        intExpr(INT64_MIN) div intExpr(         4294967296) <>          -2147483648 or
+        intExpr(INT64_MIN) div intExpr(         4294967297) <>          -2147483647 or
+        intExpr(INT64_MIN) div intExpr(    140737488355327) <>               -65536 or
+        intExpr(INT64_MIN) div intExpr(    140737488355328) <>               -65536 or
+        intExpr(INT64_MIN) div intExpr(    140737488355329) <>               -65535 or
+        intExpr(INT64_MIN) div intExpr(4611686018427387903) <>                   -2 or
+        intExpr(INT64_MIN) div intExpr(4611686018427387904) <>                   -2 or
+        intExpr(INT64_MIN) div intExpr(4611686018427387905) <>                   -1 or
+        intExpr(INT64_MIN) div intExpr(          INT64_MAX) <>                   -1 or
+        intExpr(INT64_MAX) div intExpr(          INT64_MIN) <>                    0 or
+        intExpr(INT64_MAX) div intExpr(          INT32_MIN) <>          -4294967295 or
+        intExpr(INT64_MAX) div intExpr(          INT32_MAX) <>           4294967298 or
+        intExpr(INT64_MAX) div intExpr(         2147483648) <>           4294967295 or
+        intExpr(INT64_MAX) div intExpr(         2147483649) <>           4294967294 or
+        intExpr(INT64_MAX) div intExpr(         4294967295) <>           2147483648 or
+        intExpr(INT64_MAX) div intExpr(         4294967296) <>           2147483647 or
+        intExpr(INT64_MAX) div intExpr(    140737488355327) <>                65536 or
+        intExpr(INT64_MAX) div intExpr(    140737488355328) <>                65535 or
+        intExpr(INT64_MAX) div intExpr(    140737488355329) <>                65535 or
+        intExpr(INT64_MAX) div intExpr(4611686018427387903) <>                    2 or
+        intExpr(INT64_MAX) div intExpr(4611686018427387904) <>                    1 or
+        intExpr(INT64_MAX) div intExpr(4611686018427387905) <>                    1 or
+        intExpr(INT64_MAX) div intExpr(          INT64_MAX) <>                    1 then
+      writeln(" ***** div with maximum values does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_div_by_zero is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
+  begin
+    if  not raisesNumericError(          INT64_MIN  div         0 ) or
+        not raisesNumericError(        -2147483648  div         0 ) or
+        not raisesNumericError(                 -1  div         0 ) or
+        not raisesNumericError(           minusOne  div         0 ) or
+        not raisesNumericError(                  0  div         0 ) or
+        not raisesNumericError(              zero2  div         0 ) or
+        not raisesNumericError(                  1  div         0 ) or
+        not raisesNumericError(                one  div         0 ) or
+        not raisesNumericError(         2147483647  div         0 ) or
+        not raisesNumericError(          INT64_MAX  div         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) div         0 ) or
+        not raisesNumericError(intExpr(-2147483648) div         0 ) or
+        not raisesNumericError(intExpr(         -1) div         0 ) or
+        not raisesNumericError(intExpr(          0) div         0 ) or
+        not raisesNumericError(intExpr(          1) div         0 ) or
+        not raisesNumericError(intExpr( 2147483647) div         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) div         0 ) or
+        not raisesNumericError(          INT64_MIN  div      zero ) or
+        not raisesNumericError(        -2147483648  div      zero ) or
+        not raisesNumericError(                 -1  div      zero ) or
+        not raisesNumericError(           minusOne  div      zero ) or
+        not raisesNumericError(                  0  div      zero ) or
+        not raisesNumericError(               zero  div      zero ) or
+        not raisesNumericError(              zero2  div      zero ) or
+        not raisesNumericError(                  1  div      zero ) or
+        not raisesNumericError(                one  div      zero ) or
+        not raisesNumericError(         2147483647  div      zero ) or
+        not raisesNumericError(          INT64_MAX  div      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) div      zero ) or
+        not raisesNumericError(intExpr(-2147483648) div      zero ) or
+        not raisesNumericError(intExpr(         -1) div      zero ) or
+        not raisesNumericError(intExpr(          0) div      zero ) or
+        not raisesNumericError(intExpr(          1) div      zero ) or
+        not raisesNumericError(intExpr( 2147483647) div      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) div      zero ) or
+        not raisesNumericError(          INT64_MIN  div intExpr(0)) or
+        not raisesNumericError(        -2147483648  div intExpr(0)) or
+        not raisesNumericError(                 -1  div intExpr(0)) or
+        not raisesNumericError(           minusOne  div intExpr(0)) or
+        not raisesNumericError(                  0  div intExpr(0)) or
+        not raisesNumericError(              zero2  div intExpr(0)) or
+        not raisesNumericError(                  1  div intExpr(0)) or
+        not raisesNumericError(                one  div intExpr(0)) or
+        not raisesNumericError(         2147483647  div intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  div intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) div intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) div intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) div intExpr(0)) or
+        not raisesNumericError(intExpr(          0) div intExpr(0)) or
+        not raisesNumericError(intExpr(          1) div intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) div intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) div intExpr(0)) then
+      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_div_optimization_1 is func
   result
     var boolean: okay is TRUE;
@@ -15751,10 +15988,6 @@ const func boolean: check_div_division_check_optimization is func
 const proc: check_div is func
   local
     var boolean: okay is TRUE;
-    var integer: zero is 0;
-    var integer: zero2 is 0;
-    var integer: one is 1;
-    var integer: minusOne is -1;
   begin
     if not check_div_with_small_numbers_1 then
       okay := FALSE;
@@ -15772,211 +16005,11 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
-    if  INT64_MIN div           INT64_MIN <>                    1 or
-        INT64_MIN div         -8589934592 <>           1073741824 or
-        INT64_MIN div         -4294967296 <>           2147483648 or
-        INT64_MIN div         -2147483649 <>           4294967294 or
-        INT64_MIN div           INT32_MIN <>           4294967296 or
-        INT64_MIN div         -2147483648 <>           4294967296 or
-        INT64_MIN div         -1073741824 <>           8589934592 or
-        INT64_MIN div               -1025 <>     8998411743272952 or
-        INT64_MIN div               -1024 <>     9007199254740992 or
-        INT64_MIN div               -1023 <>     9016003946094600 or
-        INT64_MIN div                  -2 <>  4611686018427387904 or
-        INT64_MIN div           INT32_MAX <>          -4294967298 or
-        INT64_MIN div          2147483648 <>          -4294967296 or
-        INT64_MIN div          2147483649 <>          -4294967294 or
-        INT64_MIN div          4294967296 <>          -2147483648 or
-        INT64_MIN div          4294967297 <>          -2147483647 or
-        INT64_MIN div     140737488355327 <>               -65536 or
-        INT64_MIN div     140737488355328 <>               -65536 or
-        INT64_MIN div     140737488355329 <>               -65535 or
-        INT64_MIN div 4611686018427387903 <>                   -2 or
-        INT64_MIN div 4611686018427387904 <>                   -2 or
-        INT64_MIN div 4611686018427387905 <>                   -1 or
-        INT64_MIN div           INT64_MAX <>                   -1 or
-        INT64_MAX div           INT64_MIN <>                    0 or
-        INT64_MAX div           INT32_MIN <>          -4294967295 or
-        INT64_MAX div           INT32_MAX <>           4294967298 or
-        INT64_MAX div          2147483648 <>           4294967295 or
-        INT64_MAX div          2147483649 <>           4294967294 or
-        INT64_MAX div          4294967295 <>           2147483648 or
-        INT64_MAX div          4294967296 <>           2147483647 or
-        INT64_MAX div     140737488355327 <>                65536 or
-        INT64_MAX div     140737488355328 <>                65535 or
-        INT64_MAX div     140737488355329 <>                65535 or
-        INT64_MAX div 4611686018427387903 <>                    2 or
-        INT64_MAX div 4611686018427387904 <>                    1 or
-        INT64_MAX div 4611686018427387905 <>                    1 or
-        INT64_MAX div           INT64_MAX <>                    1 or
-        intExpr(INT64_MIN) div           INT64_MIN <>                    1 or
-        intExpr(INT64_MIN) div         -8589934592 <>           1073741824 or
-        intExpr(INT64_MIN) div         -4294967296 <>           2147483648 or
-        intExpr(INT64_MIN) div         -2147483649 <>           4294967294 or
-        intExpr(INT64_MIN) div           INT32_MIN <>           4294967296 or
-        intExpr(INT64_MIN) div         -2147483648 <>           4294967296 or
-        intExpr(INT64_MIN) div         -1073741824 <>           8589934592 or
-        intExpr(INT64_MIN) div               -1025 <>     8998411743272952 or
-        intExpr(INT64_MIN) div               -1024 <>     9007199254740992 or
-        intExpr(INT64_MIN) div               -1023 <>     9016003946094600 or
-        intExpr(INT64_MIN) div                  -2 <>  4611686018427387904 or
-        intExpr(INT64_MIN) div           INT32_MAX <>          -4294967298 or
-        intExpr(INT64_MIN) div          2147483648 <>          -4294967296 or
-        intExpr(INT64_MIN) div          2147483649 <>          -4294967294 or
-        intExpr(INT64_MIN) div          4294967296 <>          -2147483648 or
-        intExpr(INT64_MIN) div          4294967297 <>          -2147483647 or
-        intExpr(INT64_MIN) div     140737488355327 <>               -65536 or
-        intExpr(INT64_MIN) div     140737488355328 <>               -65536 or
-        intExpr(INT64_MIN) div     140737488355329 <>               -65535 or
-        intExpr(INT64_MIN) div 4611686018427387903 <>                   -2 or
-        intExpr(INT64_MIN) div 4611686018427387904 <>                   -2 or
-        intExpr(INT64_MIN) div 4611686018427387905 <>                   -1 or
-        intExpr(INT64_MIN) div           INT64_MAX <>                   -1 or
-        intExpr(INT64_MAX) div           INT64_MIN <>                    0 or
-        intExpr(INT64_MAX) div           INT32_MIN <>          -4294967295 or
-        intExpr(INT64_MAX) div           INT32_MAX <>           4294967298 or
-        intExpr(INT64_MAX) div          2147483648 <>           4294967295 or
-        intExpr(INT64_MAX) div          2147483649 <>           4294967294 or
-        intExpr(INT64_MAX) div          4294967295 <>           2147483648 or
-        intExpr(INT64_MAX) div          4294967296 <>           2147483647 or
-        intExpr(INT64_MAX) div     140737488355327 <>                65536 or
-        intExpr(INT64_MAX) div     140737488355328 <>                65535 or
-        intExpr(INT64_MAX) div     140737488355329 <>                65535 or
-        intExpr(INT64_MAX) div 4611686018427387903 <>                    2 or
-        intExpr(INT64_MAX) div 4611686018427387904 <>                    1 or
-        intExpr(INT64_MAX) div 4611686018427387905 <>                    1 or
-        intExpr(INT64_MAX) div           INT64_MAX <>                    1 or
-        INT64_MIN div intExpr(          INT64_MIN) <>                    1 or
-        INT64_MIN div intExpr(        -8589934592) <>           1073741824 or
-        INT64_MIN div intExpr(        -4294967296) <>           2147483648 or
-        INT64_MIN div intExpr(        -2147483649) <>           4294967294 or
-        INT64_MIN div intExpr(          INT32_MIN) <>           4294967296 or
-        INT64_MIN div intExpr(        -2147483648) <>           4294967296 or
-        INT64_MIN div intExpr(        -1073741824) <>           8589934592 or
-        INT64_MIN div intExpr(              -1025) <>     8998411743272952 or
-        INT64_MIN div intExpr(              -1024) <>     9007199254740992 or
-        INT64_MIN div intExpr(              -1023) <>     9016003946094600 or
-        INT64_MIN div intExpr(                 -2) <>  4611686018427387904 or
-        INT64_MIN div intExpr(          INT32_MAX) <>          -4294967298 or
-        INT64_MIN div intExpr(         2147483648) <>          -4294967296 or
-        INT64_MIN div intExpr(         2147483649) <>          -4294967294 or
-        INT64_MIN div intExpr(         4294967296) <>          -2147483648 or
-        INT64_MIN div intExpr(         4294967297) <>          -2147483647 or
-        INT64_MIN div intExpr(    140737488355327) <>               -65536 or
-        INT64_MIN div intExpr(    140737488355328) <>               -65536 or
-        INT64_MIN div intExpr(    140737488355329) <>               -65535 or
-        INT64_MIN div intExpr(4611686018427387903) <>                   -2 or
-        INT64_MIN div intExpr(4611686018427387904) <>                   -2 or
-        INT64_MIN div intExpr(4611686018427387905) <>                   -1 or
-        INT64_MIN div intExpr(          INT64_MAX) <>                   -1 or
-        INT64_MAX div intExpr(          INT64_MIN) <>                    0 or
-        INT64_MAX div intExpr(          INT32_MIN) <>          -4294967295 or
-        INT64_MAX div intExpr(          INT32_MAX) <>           4294967298 or
-        INT64_MAX div intExpr(         2147483648) <>           4294967295 or
-        INT64_MAX div intExpr(         2147483649) <>           4294967294 or
-        INT64_MAX div intExpr(         4294967295) <>           2147483648 or
-        INT64_MAX div intExpr(         4294967296) <>           2147483647 or
-        INT64_MAX div intExpr(    140737488355327) <>                65536 or
-        INT64_MAX div intExpr(    140737488355328) <>                65535 or
-        INT64_MAX div intExpr(    140737488355329) <>                65535 or
-        INT64_MAX div intExpr(4611686018427387903) <>                    2 or
-        INT64_MAX div intExpr(4611686018427387904) <>                    1 or
-        INT64_MAX div intExpr(4611686018427387905) <>                    1 or
-        INT64_MAX div intExpr(          INT64_MAX) <>                    1 or
-        intExpr(INT64_MIN) div intExpr(          INT64_MIN) <>                    1 or
-        intExpr(INT64_MIN) div intExpr(        -8589934592) <>           1073741824 or
-        intExpr(INT64_MIN) div intExpr(        -4294967296) <>           2147483648 or
-        intExpr(INT64_MIN) div intExpr(        -2147483649) <>           4294967294 or
-        intExpr(INT64_MIN) div intExpr(          INT32_MIN) <>           4294967296 or
-        intExpr(INT64_MIN) div intExpr(        -2147483648) <>           4294967296 or
-        intExpr(INT64_MIN) div intExpr(        -1073741824) <>           8589934592 or
-        intExpr(INT64_MIN) div intExpr(              -1025) <>     8998411743272952 or
-        intExpr(INT64_MIN) div intExpr(              -1024) <>     9007199254740992 or
-        intExpr(INT64_MIN) div intExpr(              -1023) <>     9016003946094600 or
-        intExpr(INT64_MIN) div intExpr(                 -2) <>  4611686018427387904 or
-        intExpr(INT64_MIN) div intExpr(          INT32_MAX) <>          -4294967298 or
-        intExpr(INT64_MIN) div intExpr(         2147483648) <>          -4294967296 or
-        intExpr(INT64_MIN) div intExpr(         2147483649) <>          -4294967294 or
-        intExpr(INT64_MIN) div intExpr(         4294967296) <>          -2147483648 or
-        intExpr(INT64_MIN) div intExpr(         4294967297) <>          -2147483647 or
-        intExpr(INT64_MIN) div intExpr(    140737488355327) <>               -65536 or
-        intExpr(INT64_MIN) div intExpr(    140737488355328) <>               -65536 or
-        intExpr(INT64_MIN) div intExpr(    140737488355329) <>               -65535 or
-        intExpr(INT64_MIN) div intExpr(4611686018427387903) <>                   -2 or
-        intExpr(INT64_MIN) div intExpr(4611686018427387904) <>                   -2 or
-        intExpr(INT64_MIN) div intExpr(4611686018427387905) <>                   -1 or
-        intExpr(INT64_MIN) div intExpr(          INT64_MAX) <>                   -1 or
-        intExpr(INT64_MAX) div intExpr(          INT64_MIN) <>                    0 or
-        intExpr(INT64_MAX) div intExpr(          INT32_MIN) <>          -4294967295 or
-        intExpr(INT64_MAX) div intExpr(          INT32_MAX) <>           4294967298 or
-        intExpr(INT64_MAX) div intExpr(         2147483648) <>           4294967295 or
-        intExpr(INT64_MAX) div intExpr(         2147483649) <>           4294967294 or
-        intExpr(INT64_MAX) div intExpr(         4294967295) <>           2147483648 or
-        intExpr(INT64_MAX) div intExpr(         4294967296) <>           2147483647 or
-        intExpr(INT64_MAX) div intExpr(    140737488355327) <>                65536 or
-        intExpr(INT64_MAX) div intExpr(    140737488355328) <>                65535 or
-        intExpr(INT64_MAX) div intExpr(    140737488355329) <>                65535 or
-        intExpr(INT64_MAX) div intExpr(4611686018427387903) <>                    2 or
-        intExpr(INT64_MAX) div intExpr(4611686018427387904) <>                    1 or
-        intExpr(INT64_MAX) div intExpr(4611686018427387905) <>                    1 or
-        intExpr(INT64_MAX) div intExpr(          INT64_MAX) <>                    1 then
-      writeln(" ***** div with maximum values does not work correctly.");
+    if not check_div_min_max then
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(          INT64_MIN  div         0 ) or
-        not raisesNumericError(        -2147483648  div         0 ) or
-        not raisesNumericError(                 -1  div         0 ) or
-        not raisesNumericError(           minusOne  div         0 ) or
-        not raisesNumericError(                  0  div         0 ) or
-        not raisesNumericError(              zero2  div         0 ) or
-        not raisesNumericError(                  1  div         0 ) or
-        not raisesNumericError(                one  div         0 ) or
-        not raisesNumericError(         2147483647  div         0 ) or
-        not raisesNumericError(          INT64_MAX  div         0 ) or
-        not raisesNumericError(intExpr(  INT64_MIN) div         0 ) or
-        not raisesNumericError(intExpr(-2147483648) div         0 ) or
-        not raisesNumericError(intExpr(         -1) div         0 ) or
-        not raisesNumericError(intExpr(          0) div         0 ) or
-        not raisesNumericError(intExpr(          1) div         0 ) or
-        not raisesNumericError(intExpr( 2147483647) div         0 ) or
-        not raisesNumericError(intExpr(  INT64_MAX) div         0 ) or
-        not raisesNumericError(          INT64_MIN  div      zero ) or
-        not raisesNumericError(        -2147483648  div      zero ) or
-        not raisesNumericError(                 -1  div      zero ) or
-        not raisesNumericError(           minusOne  div      zero ) or
-        not raisesNumericError(                  0  div      zero ) or
-        not raisesNumericError(               zero  div      zero ) or
-        not raisesNumericError(              zero2  div      zero ) or
-        not raisesNumericError(                  1  div      zero ) or
-        not raisesNumericError(                one  div      zero ) or
-        not raisesNumericError(         2147483647  div      zero ) or
-        not raisesNumericError(          INT64_MAX  div      zero ) or
-        not raisesNumericError(intExpr(  INT64_MIN) div      zero ) or
-        not raisesNumericError(intExpr(-2147483648) div      zero ) or
-        not raisesNumericError(intExpr(         -1) div      zero ) or
-        not raisesNumericError(intExpr(          0) div      zero ) or
-        not raisesNumericError(intExpr(          1) div      zero ) or
-        not raisesNumericError(intExpr( 2147483647) div      zero ) or
-        not raisesNumericError(intExpr(  INT64_MAX) div      zero ) or
-        not raisesNumericError(          INT64_MIN  div intExpr(0)) or
-        not raisesNumericError(        -2147483648  div intExpr(0)) or
-        not raisesNumericError(                 -1  div intExpr(0)) or
-        not raisesNumericError(           minusOne  div intExpr(0)) or
-        not raisesNumericError(                  0  div intExpr(0)) or
-        not raisesNumericError(              zero2  div intExpr(0)) or
-        not raisesNumericError(                  1  div intExpr(0)) or
-        not raisesNumericError(                one  div intExpr(0)) or
-        not raisesNumericError(         2147483647  div intExpr(0)) or
-        not raisesNumericError(          INT64_MAX  div intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MIN) div intExpr(0)) or
-        not raisesNumericError(intExpr(-2147483648) div intExpr(0)) or
-        not raisesNumericError(intExpr(         -1) div intExpr(0)) or
-        not raisesNumericError(intExpr(          0) div intExpr(0)) or
-        not raisesNumericError(intExpr(          1) div intExpr(0)) or
-        not raisesNumericError(intExpr( 2147483647) div intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MAX) div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR.");
+    if not check_div_by_zero then
       okay := FALSE;
     end if;
 
@@ -16883,6 +16916,251 @@ const func boolean: check_rem_with_small_numbers_4 is func
         intExpr( -9) rem intExpr(-5) <> -4 or
         intExpr(-10) rem intExpr(-5) <>  0 then
       writeln(" ***** rem with two expressions does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_rem_min_max is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  INT64_MIN rem           INT64_MIN <>                    0 or
+        INT64_MIN rem         -8589934592 <>                    0 or
+        INT64_MIN rem         -4294967296 <>                    0 or
+        INT64_MIN rem         -2147483649 <>                   -2 or
+        INT64_MIN rem           INT32_MIN <>                    0 or
+        INT64_MIN rem         -2147483648 <>                    0 or
+        INT64_MIN rem         -1073741824 <>                    0 or
+        INT64_MIN rem               -1025 <>                   -8 or
+        INT64_MIN rem               -1024 <>                    0 or
+        INT64_MIN rem               -1023 <>                   -8 or
+        INT64_MIN rem                  -2 <>                    0 or
+        INT64_MIN rem           INT32_MAX <>                   -2 or
+        INT64_MIN rem          2147483648 <>                    0 or
+        INT64_MIN rem          2147483649 <>                   -2 or
+        INT64_MIN rem          4294967296 <>                    0 or
+        INT64_MIN rem          4294967297 <>          -2147483649 or
+        INT64_MIN rem     140737488355327 <>               -65536 or
+        INT64_MIN rem     140737488355328 <>                    0 or
+        INT64_MIN rem     140737488355329 <>     -140737488289793 or
+        INT64_MIN rem 4611686018427387903 <>                   -2 or
+        INT64_MIN rem 4611686018427387904 <>                    0 or
+        INT64_MIN rem 4611686018427387905 <> -4611686018427387903 or
+        INT64_MIN rem           INT64_MAX <>                   -1 or
+        INT64_MAX rem           INT64_MIN <>  9223372036854775807 or
+        INT64_MAX rem           INT32_MIN <>           2147483647 or
+        INT64_MAX rem           INT32_MAX <>                    1 or
+        INT64_MAX rem          2147483648 <>           2147483647 or
+        INT64_MAX rem          2147483649 <>                    1 or
+        INT64_MAX rem          4294967295 <>           2147483647 or
+        INT64_MAX rem          4294967296 <>           4294967295 or
+        INT64_MAX rem     140737488355327 <>                65535 or
+        INT64_MAX rem     140737488355328 <>      140737488355327 or
+        INT64_MAX rem     140737488355329 <>      140737488289792 or
+        INT64_MAX rem 4611686018427387903 <>                    1 or
+        INT64_MAX rem 4611686018427387904 <>  4611686018427387903 or
+        INT64_MAX rem 4611686018427387905 <>  4611686018427387902 or
+        INT64_MAX rem           INT64_MAX <>                    0 then
+      writeln(" ***** rem with maximum values does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) rem           INT64_MIN <>                    0 or
+        intExpr(INT64_MIN) rem         -8589934592 <>                    0 or
+        intExpr(INT64_MIN) rem         -4294967296 <>                    0 or
+        intExpr(INT64_MIN) rem         -2147483649 <>                   -2 or
+        intExpr(INT64_MIN) rem           INT32_MIN <>                    0 or
+        intExpr(INT64_MIN) rem         -2147483648 <>                    0 or
+        intExpr(INT64_MIN) rem         -1073741824 <>                    0 or
+        intExpr(INT64_MIN) rem               -1025 <>                   -8 or
+        intExpr(INT64_MIN) rem               -1024 <>                    0 or
+        intExpr(INT64_MIN) rem               -1023 <>                   -8 or
+        intExpr(INT64_MIN) rem                  -2 <>                    0 or
+        intExpr(INT64_MIN) rem           INT32_MAX <>                   -2 or
+        intExpr(INT64_MIN) rem          2147483648 <>                    0 or
+        intExpr(INT64_MIN) rem          2147483649 <>                   -2 or
+        intExpr(INT64_MIN) rem          4294967296 <>                    0 or
+        intExpr(INT64_MIN) rem          4294967297 <>          -2147483649 or
+        intExpr(INT64_MIN) rem     140737488355327 <>               -65536 or
+        intExpr(INT64_MIN) rem     140737488355328 <>                    0 or
+        intExpr(INT64_MIN) rem     140737488355329 <>     -140737488289793 or
+        intExpr(INT64_MIN) rem 4611686018427387903 <>                   -2 or
+        intExpr(INT64_MIN) rem 4611686018427387904 <>                    0 or
+        intExpr(INT64_MIN) rem 4611686018427387905 <> -4611686018427387903 or
+        intExpr(INT64_MIN) rem           INT64_MAX <>                   -1 or
+        intExpr(INT64_MAX) rem           INT64_MIN <>  9223372036854775807 or
+        intExpr(INT64_MAX) rem           INT32_MIN <>           2147483647 or
+        intExpr(INT64_MAX) rem           INT32_MAX <>                    1 or
+        intExpr(INT64_MAX) rem          2147483648 <>           2147483647 or
+        intExpr(INT64_MAX) rem          2147483649 <>                    1 or
+        intExpr(INT64_MAX) rem          4294967295 <>           2147483647 or
+        intExpr(INT64_MAX) rem          4294967296 <>           4294967295 or
+        intExpr(INT64_MAX) rem     140737488355327 <>                65535 or
+        intExpr(INT64_MAX) rem     140737488355328 <>      140737488355327 or
+        intExpr(INT64_MAX) rem     140737488355329 <>      140737488289792 or
+        intExpr(INT64_MAX) rem 4611686018427387903 <>                    1 or
+        intExpr(INT64_MAX) rem 4611686018427387904 <>  4611686018427387903 or
+        intExpr(INT64_MAX) rem 4611686018427387905 <>  4611686018427387902 or
+        intExpr(INT64_MAX) rem           INT64_MAX <>                    0 then
+      writeln(" ***** rem with maximum values does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN rem intExpr(          INT64_MIN) <>                    0 or
+        INT64_MIN rem intExpr(        -8589934592) <>                    0 or
+        INT64_MIN rem intExpr(        -4294967296) <>                    0 or
+        INT64_MIN rem intExpr(        -2147483649) <>                   -2 or
+        INT64_MIN rem intExpr(          INT32_MIN) <>                    0 or
+        INT64_MIN rem intExpr(        -2147483648) <>                    0 or
+        INT64_MIN rem intExpr(        -1073741824) <>                    0 or
+        INT64_MIN rem intExpr(              -1025) <>                   -8 or
+        INT64_MIN rem intExpr(              -1024) <>                    0 or
+        INT64_MIN rem intExpr(              -1023) <>                   -8 or
+        INT64_MIN rem intExpr(                 -2) <>                    0 or
+        INT64_MIN rem intExpr(          INT32_MAX) <>                   -2 or
+        INT64_MIN rem intExpr(         2147483648) <>                    0 or
+        INT64_MIN rem intExpr(         2147483649) <>                   -2 or
+        INT64_MIN rem intExpr(         4294967296) <>                    0 or
+        INT64_MIN rem intExpr(         4294967297) <>          -2147483649 or
+        INT64_MIN rem intExpr(    140737488355327) <>               -65536 or
+        INT64_MIN rem intExpr(    140737488355328) <>                    0 or
+        INT64_MIN rem intExpr(    140737488355329) <>     -140737488289793 or
+        INT64_MIN rem intExpr(4611686018427387903) <>                   -2 or
+        INT64_MIN rem intExpr(4611686018427387904) <>                    0 or
+        INT64_MIN rem intExpr(4611686018427387905) <> -4611686018427387903 or
+        INT64_MIN rem intExpr(          INT64_MAX) <>                   -1 or
+        INT64_MAX rem intExpr(          INT64_MIN) <>  9223372036854775807 or
+        INT64_MAX rem intExpr(          INT32_MIN) <>           2147483647 or
+        INT64_MAX rem intExpr(          INT32_MAX) <>                    1 or
+        INT64_MAX rem intExpr(         2147483648) <>           2147483647 or
+        INT64_MAX rem intExpr(         2147483649) <>                    1 or
+        INT64_MAX rem intExpr(         4294967295) <>           2147483647 or
+        INT64_MAX rem intExpr(         4294967296) <>           4294967295 or
+        INT64_MAX rem intExpr(    140737488355327) <>                65535 or
+        INT64_MAX rem intExpr(    140737488355328) <>      140737488355327 or
+        INT64_MAX rem intExpr(    140737488355329) <>      140737488289792 or
+        INT64_MAX rem intExpr(4611686018427387903) <>                    1 or
+        INT64_MAX rem intExpr(4611686018427387904) <>  4611686018427387903 or
+        INT64_MAX rem intExpr(4611686018427387905) <>  4611686018427387902 or
+        INT64_MAX rem intExpr(          INT64_MAX) <>                    0 then
+      writeln(" ***** rem with maximum values does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) rem intExpr(          INT64_MIN) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(        -8589934592) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(        -4294967296) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(        -2147483649) <>                   -2 or
+        intExpr(INT64_MIN) rem intExpr(          INT32_MIN) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(        -2147483648) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(        -1073741824) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(              -1025) <>                   -8 or
+        intExpr(INT64_MIN) rem intExpr(              -1024) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(              -1023) <>                   -8 or
+        intExpr(INT64_MIN) rem intExpr(                 -2) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(          INT32_MAX) <>                   -2 or
+        intExpr(INT64_MIN) rem intExpr(         2147483648) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(         2147483649) <>                   -2 or
+        intExpr(INT64_MIN) rem intExpr(         4294967296) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(         4294967297) <>          -2147483649 or
+        intExpr(INT64_MIN) rem intExpr(    140737488355327) <>               -65536 or
+        intExpr(INT64_MIN) rem intExpr(    140737488355328) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(    140737488355329) <>     -140737488289793 or
+        intExpr(INT64_MIN) rem intExpr(4611686018427387903) <>                   -2 or
+        intExpr(INT64_MIN) rem intExpr(4611686018427387904) <>                    0 or
+        intExpr(INT64_MIN) rem intExpr(4611686018427387905) <> -4611686018427387903 or
+        intExpr(INT64_MIN) rem intExpr(          INT64_MAX) <>                   -1 or
+        intExpr(INT64_MAX) rem intExpr(          INT64_MIN) <>  9223372036854775807 or
+        intExpr(INT64_MAX) rem intExpr(          INT32_MIN) <>           2147483647 or
+        intExpr(INT64_MAX) rem intExpr(          INT32_MAX) <>                    1 or
+        intExpr(INT64_MAX) rem intExpr(         2147483648) <>           2147483647 or
+        intExpr(INT64_MAX) rem intExpr(         2147483649) <>                    1 or
+        intExpr(INT64_MAX) rem intExpr(         4294967295) <>           2147483647 or
+        intExpr(INT64_MAX) rem intExpr(         4294967296) <>           4294967295 or
+        intExpr(INT64_MAX) rem intExpr(    140737488355327) <>                65535 or
+        intExpr(INT64_MAX) rem intExpr(    140737488355328) <>      140737488355327 or
+        intExpr(INT64_MAX) rem intExpr(    140737488355329) <>      140737488289792 or
+        intExpr(INT64_MAX) rem intExpr(4611686018427387903) <>                    1 or
+        intExpr(INT64_MAX) rem intExpr(4611686018427387904) <>  4611686018427387903 or
+        intExpr(INT64_MAX) rem intExpr(4611686018427387905) <>  4611686018427387902 or
+        intExpr(INT64_MAX) rem intExpr(          INT64_MAX) <>                    0 then
+      writeln(" ***** rem with maximum values does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_rem_by_zero is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
+  begin
+    if  not raisesNumericError(          INT64_MIN  rem         0 ) or
+        not raisesNumericError(        -2147483648  rem         0 ) or
+        not raisesNumericError(                 -1  rem         0 ) or
+        not raisesNumericError(           minusOne  rem         0 ) or
+        not raisesNumericError(                  0  rem         0 ) or
+        not raisesNumericError(              zero2  rem         0 ) or
+        not raisesNumericError(                  1  rem         0 ) or
+        not raisesNumericError(                one  rem         0 ) or
+        not raisesNumericError(         2147483647  rem         0 ) or
+        not raisesNumericError(          INT64_MAX  rem         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem         0 ) or
+        not raisesNumericError(intExpr(-2147483648) rem         0 ) or
+        not raisesNumericError(intExpr(         -1) rem         0 ) or
+        not raisesNumericError(intExpr(          0) rem         0 ) or
+        not raisesNumericError(intExpr(          1) rem         0 ) or
+        not raisesNumericError(intExpr( 2147483647) rem         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem         0 ) or
+        not raisesNumericError(          INT64_MIN  rem      zero ) or
+        not raisesNumericError(        -2147483648  rem      zero ) or
+        not raisesNumericError(                 -1  rem      zero ) or
+        not raisesNumericError(           minusOne  rem      zero ) or
+        not raisesNumericError(                  0  rem      zero ) or
+        not raisesNumericError(               zero  rem      zero ) or
+        not raisesNumericError(              zero2  rem      zero ) or
+        not raisesNumericError(                  1  rem      zero ) or
+        not raisesNumericError(                one  rem      zero ) or
+        not raisesNumericError(         2147483647  rem      zero ) or
+        not raisesNumericError(          INT64_MAX  rem      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem      zero ) or
+        not raisesNumericError(intExpr(-2147483648) rem      zero ) or
+        not raisesNumericError(intExpr(         -1) rem      zero ) or
+        not raisesNumericError(intExpr(          0) rem      zero ) or
+        not raisesNumericError(intExpr(          1) rem      zero ) or
+        not raisesNumericError(intExpr( 2147483647) rem      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem      zero ) or
+        not raisesNumericError(          INT64_MIN  rem intExpr(0)) or
+        not raisesNumericError(        -2147483648  rem intExpr(0)) or
+        not raisesNumericError(                 -1  rem intExpr(0)) or
+        not raisesNumericError(           minusOne  rem intExpr(0)) or
+        not raisesNumericError(                  0  rem intExpr(0)) or
+        not raisesNumericError(              zero2  rem intExpr(0)) or
+        not raisesNumericError(                  1  rem intExpr(0)) or
+        not raisesNumericError(                one  rem intExpr(0)) or
+        not raisesNumericError(         2147483647  rem intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  rem intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) rem intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          0) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          1) rem intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) rem intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem intExpr(0)) then
+      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  raisesNumericError(        integer.first  rem rand(integer.first,           -2)) or
+        raisesNumericError(        integer.first  rem rand(            1, integer.last)) or
+        raisesNumericError(intExpr(integer.first) rem rand(integer.first,           -2)) or
+        raisesNumericError(intExpr(integer.first) rem rand(            1, integer.last)) then
+      writeln(" ***** Legal division with the rem operator does raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -17856,10 +18134,6 @@ const func boolean: check_rem_division_check_optimization is func
 const proc: check_rem is func
   local
     var boolean: okay is TRUE;
-    var integer: zero is 0;
-    var integer: zero2 is 0;
-    var integer: one is 1;
-    var integer: minusOne is -1;
   begin
     if not check_rem_with_small_numbers_1 then
       okay := FALSE;
@@ -17877,219 +18151,11 @@ const proc: check_rem is func
       okay := FALSE;
     end if;
 
-    if  INT64_MIN rem           INT64_MIN <>                    0 or
-        INT64_MIN rem         -8589934592 <>                    0 or
-        INT64_MIN rem         -4294967296 <>                    0 or
-        INT64_MIN rem         -2147483649 <>                   -2 or
-        INT64_MIN rem           INT32_MIN <>                    0 or
-        INT64_MIN rem         -2147483648 <>                    0 or
-        INT64_MIN rem         -1073741824 <>                    0 or
-        INT64_MIN rem               -1025 <>                   -8 or
-        INT64_MIN rem               -1024 <>                    0 or
-        INT64_MIN rem               -1023 <>                   -8 or
-        INT64_MIN rem                  -2 <>                    0 or
-        INT64_MIN rem           INT32_MAX <>                   -2 or
-        INT64_MIN rem          2147483648 <>                    0 or
-        INT64_MIN rem          2147483649 <>                   -2 or
-        INT64_MIN rem          4294967296 <>                    0 or
-        INT64_MIN rem          4294967297 <>          -2147483649 or
-        INT64_MIN rem     140737488355327 <>               -65536 or
-        INT64_MIN rem     140737488355328 <>                    0 or
-        INT64_MIN rem     140737488355329 <>     -140737488289793 or
-        INT64_MIN rem 4611686018427387903 <>                   -2 or
-        INT64_MIN rem 4611686018427387904 <>                    0 or
-        INT64_MIN rem 4611686018427387905 <> -4611686018427387903 or
-        INT64_MIN rem           INT64_MAX <>                   -1 or
-        INT64_MAX rem           INT64_MIN <>  9223372036854775807 or
-        INT64_MAX rem           INT32_MIN <>           2147483647 or
-        INT64_MAX rem           INT32_MAX <>                    1 or
-        INT64_MAX rem          2147483648 <>           2147483647 or
-        INT64_MAX rem          2147483649 <>                    1 or
-        INT64_MAX rem          4294967295 <>           2147483647 or
-        INT64_MAX rem          4294967296 <>           4294967295 or
-        INT64_MAX rem     140737488355327 <>                65535 or
-        INT64_MAX rem     140737488355328 <>      140737488355327 or
-        INT64_MAX rem     140737488355329 <>      140737488289792 or
-        INT64_MAX rem 4611686018427387903 <>                    1 or
-        INT64_MAX rem 4611686018427387904 <>  4611686018427387903 or
-        INT64_MAX rem 4611686018427387905 <>  4611686018427387902 or
-        INT64_MAX rem           INT64_MAX <>                    0 or
-        intExpr(INT64_MIN) rem           INT64_MIN <>                    0 or
-        intExpr(INT64_MIN) rem         -8589934592 <>                    0 or
-        intExpr(INT64_MIN) rem         -4294967296 <>                    0 or
-        intExpr(INT64_MIN) rem         -2147483649 <>                   -2 or
-        intExpr(INT64_MIN) rem           INT32_MIN <>                    0 or
-        intExpr(INT64_MIN) rem         -2147483648 <>                    0 or
-        intExpr(INT64_MIN) rem         -1073741824 <>                    0 or
-        intExpr(INT64_MIN) rem               -1025 <>                   -8 or
-        intExpr(INT64_MIN) rem               -1024 <>                    0 or
-        intExpr(INT64_MIN) rem               -1023 <>                   -8 or
-        intExpr(INT64_MIN) rem                  -2 <>                    0 or
-        intExpr(INT64_MIN) rem           INT32_MAX <>                   -2 or
-        intExpr(INT64_MIN) rem          2147483648 <>                    0 or
-        intExpr(INT64_MIN) rem          2147483649 <>                   -2 or
-        intExpr(INT64_MIN) rem          4294967296 <>                    0 or
-        intExpr(INT64_MIN) rem          4294967297 <>          -2147483649 or
-        intExpr(INT64_MIN) rem     140737488355327 <>               -65536 or
-        intExpr(INT64_MIN) rem     140737488355328 <>                    0 or
-        intExpr(INT64_MIN) rem     140737488355329 <>     -140737488289793 or
-        intExpr(INT64_MIN) rem 4611686018427387903 <>                   -2 or
-        intExpr(INT64_MIN) rem 4611686018427387904 <>                    0 or
-        intExpr(INT64_MIN) rem 4611686018427387905 <> -4611686018427387903 or
-        intExpr(INT64_MIN) rem           INT64_MAX <>                   -1 or
-        intExpr(INT64_MAX) rem           INT64_MIN <>  9223372036854775807 or
-        intExpr(INT64_MAX) rem           INT32_MIN <>           2147483647 or
-        intExpr(INT64_MAX) rem           INT32_MAX <>                    1 or
-        intExpr(INT64_MAX) rem          2147483648 <>           2147483647 or
-        intExpr(INT64_MAX) rem          2147483649 <>                    1 or
-        intExpr(INT64_MAX) rem          4294967295 <>           2147483647 or
-        intExpr(INT64_MAX) rem          4294967296 <>           4294967295 or
-        intExpr(INT64_MAX) rem     140737488355327 <>                65535 or
-        intExpr(INT64_MAX) rem     140737488355328 <>      140737488355327 or
-        intExpr(INT64_MAX) rem     140737488355329 <>      140737488289792 or
-        intExpr(INT64_MAX) rem 4611686018427387903 <>                    1 or
-        intExpr(INT64_MAX) rem 4611686018427387904 <>  4611686018427387903 or
-        intExpr(INT64_MAX) rem 4611686018427387905 <>  4611686018427387902 or
-        intExpr(INT64_MAX) rem           INT64_MAX <>                    0 or
-        INT64_MIN rem intExpr(          INT64_MIN) <>                    0 or
-        INT64_MIN rem intExpr(        -8589934592) <>                    0 or
-        INT64_MIN rem intExpr(        -4294967296) <>                    0 or
-        INT64_MIN rem intExpr(        -2147483649) <>                   -2 or
-        INT64_MIN rem intExpr(          INT32_MIN) <>                    0 or
-        INT64_MIN rem intExpr(        -2147483648) <>                    0 or
-        INT64_MIN rem intExpr(        -1073741824) <>                    0 or
-        INT64_MIN rem intExpr(              -1025) <>                   -8 or
-        INT64_MIN rem intExpr(              -1024) <>                    0 or
-        INT64_MIN rem intExpr(              -1023) <>                   -8 or
-        INT64_MIN rem intExpr(                 -2) <>                    0 or
-        INT64_MIN rem intExpr(          INT32_MAX) <>                   -2 or
-        INT64_MIN rem intExpr(         2147483648) <>                    0 or
-        INT64_MIN rem intExpr(         2147483649) <>                   -2 or
-        INT64_MIN rem intExpr(         4294967296) <>                    0 or
-        INT64_MIN rem intExpr(         4294967297) <>          -2147483649 or
-        INT64_MIN rem intExpr(    140737488355327) <>               -65536 or
-        INT64_MIN rem intExpr(    140737488355328) <>                    0 or
-        INT64_MIN rem intExpr(    140737488355329) <>     -140737488289793 or
-        INT64_MIN rem intExpr(4611686018427387903) <>                   -2 or
-        INT64_MIN rem intExpr(4611686018427387904) <>                    0 or
-        INT64_MIN rem intExpr(4611686018427387905) <> -4611686018427387903 or
-        INT64_MIN rem intExpr(          INT64_MAX) <>                   -1 or
-        INT64_MAX rem intExpr(          INT64_MIN) <>  9223372036854775807 or
-        INT64_MAX rem intExpr(          INT32_MIN) <>           2147483647 or
-        INT64_MAX rem intExpr(          INT32_MAX) <>                    1 or
-        INT64_MAX rem intExpr(         2147483648) <>           2147483647 or
-        INT64_MAX rem intExpr(         2147483649) <>                    1 or
-        INT64_MAX rem intExpr(         4294967295) <>           2147483647 or
-        INT64_MAX rem intExpr(         4294967296) <>           4294967295 or
-        INT64_MAX rem intExpr(    140737488355327) <>                65535 or
-        INT64_MAX rem intExpr(    140737488355328) <>      140737488355327 or
-        INT64_MAX rem intExpr(    140737488355329) <>      140737488289792 or
-        INT64_MAX rem intExpr(4611686018427387903) <>                    1 or
-        INT64_MAX rem intExpr(4611686018427387904) <>  4611686018427387903 or
-        INT64_MAX rem intExpr(4611686018427387905) <>  4611686018427387902 or
-        INT64_MAX rem intExpr(          INT64_MAX) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(          INT64_MIN) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(        -8589934592) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(        -4294967296) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(        -2147483649) <>                   -2 or
-        intExpr(INT64_MIN) rem intExpr(          INT32_MIN) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(        -2147483648) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(        -1073741824) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(              -1025) <>                   -8 or
-        intExpr(INT64_MIN) rem intExpr(              -1024) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(              -1023) <>                   -8 or
-        intExpr(INT64_MIN) rem intExpr(                 -2) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(          INT32_MAX) <>                   -2 or
-        intExpr(INT64_MIN) rem intExpr(         2147483648) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(         2147483649) <>                   -2 or
-        intExpr(INT64_MIN) rem intExpr(         4294967296) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(         4294967297) <>          -2147483649 or
-        intExpr(INT64_MIN) rem intExpr(    140737488355327) <>               -65536 or
-        intExpr(INT64_MIN) rem intExpr(    140737488355328) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(    140737488355329) <>     -140737488289793 or
-        intExpr(INT64_MIN) rem intExpr(4611686018427387903) <>                   -2 or
-        intExpr(INT64_MIN) rem intExpr(4611686018427387904) <>                    0 or
-        intExpr(INT64_MIN) rem intExpr(4611686018427387905) <> -4611686018427387903 or
-        intExpr(INT64_MIN) rem intExpr(          INT64_MAX) <>                   -1 or
-        intExpr(INT64_MAX) rem intExpr(          INT64_MIN) <>  9223372036854775807 or
-        intExpr(INT64_MAX) rem intExpr(          INT32_MIN) <>           2147483647 or
-        intExpr(INT64_MAX) rem intExpr(          INT32_MAX) <>                    1 or
-        intExpr(INT64_MAX) rem intExpr(         2147483648) <>           2147483647 or
-        intExpr(INT64_MAX) rem intExpr(         2147483649) <>                    1 or
-        intExpr(INT64_MAX) rem intExpr(         4294967295) <>           2147483647 or
-        intExpr(INT64_MAX) rem intExpr(         4294967296) <>           4294967295 or
-        intExpr(INT64_MAX) rem intExpr(    140737488355327) <>                65535 or
-        intExpr(INT64_MAX) rem intExpr(    140737488355328) <>      140737488355327 or
-        intExpr(INT64_MAX) rem intExpr(    140737488355329) <>      140737488289792 or
-        intExpr(INT64_MAX) rem intExpr(4611686018427387903) <>                    1 or
-        intExpr(INT64_MAX) rem intExpr(4611686018427387904) <>  4611686018427387903 or
-        intExpr(INT64_MAX) rem intExpr(4611686018427387905) <>  4611686018427387902 or
-        intExpr(INT64_MAX) rem intExpr(          INT64_MAX) <>                    0 then
-      writeln(" ***** rem with maximum values does not work correctly.");
+    if not check_rem_min_max then
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(          INT64_MIN  rem         0 ) or
-        not raisesNumericError(        -2147483648  rem         0 ) or
-        not raisesNumericError(                 -1  rem         0 ) or
-        not raisesNumericError(           minusOne  rem         0 ) or
-        not raisesNumericError(                  0  rem         0 ) or
-        not raisesNumericError(              zero2  rem         0 ) or
-        not raisesNumericError(                  1  rem         0 ) or
-        not raisesNumericError(                one  rem         0 ) or
-        not raisesNumericError(         2147483647  rem         0 ) or
-        not raisesNumericError(          INT64_MAX  rem         0 ) or
-        not raisesNumericError(intExpr(  INT64_MIN) rem         0 ) or
-        not raisesNumericError(intExpr(-2147483648) rem         0 ) or
-        not raisesNumericError(intExpr(         -1) rem         0 ) or
-        not raisesNumericError(intExpr(          0) rem         0 ) or
-        not raisesNumericError(intExpr(          1) rem         0 ) or
-        not raisesNumericError(intExpr( 2147483647) rem         0 ) or
-        not raisesNumericError(intExpr(  INT64_MAX) rem         0 ) or
-        not raisesNumericError(          INT64_MIN  rem      zero ) or
-        not raisesNumericError(        -2147483648  rem      zero ) or
-        not raisesNumericError(                 -1  rem      zero ) or
-        not raisesNumericError(           minusOne  rem      zero ) or
-        not raisesNumericError(                  0  rem      zero ) or
-        not raisesNumericError(               zero  rem      zero ) or
-        not raisesNumericError(              zero2  rem      zero ) or
-        not raisesNumericError(                  1  rem      zero ) or
-        not raisesNumericError(                one  rem      zero ) or
-        not raisesNumericError(         2147483647  rem      zero ) or
-        not raisesNumericError(          INT64_MAX  rem      zero ) or
-        not raisesNumericError(intExpr(  INT64_MIN) rem      zero ) or
-        not raisesNumericError(intExpr(-2147483648) rem      zero ) or
-        not raisesNumericError(intExpr(         -1) rem      zero ) or
-        not raisesNumericError(intExpr(          0) rem      zero ) or
-        not raisesNumericError(intExpr(          1) rem      zero ) or
-        not raisesNumericError(intExpr( 2147483647) rem      zero ) or
-        not raisesNumericError(intExpr(  INT64_MAX) rem      zero ) or
-        not raisesNumericError(          INT64_MIN  rem intExpr(0)) or
-        not raisesNumericError(        -2147483648  rem intExpr(0)) or
-        not raisesNumericError(                 -1  rem intExpr(0)) or
-        not raisesNumericError(           minusOne  rem intExpr(0)) or
-        not raisesNumericError(                  0  rem intExpr(0)) or
-        not raisesNumericError(              zero2  rem intExpr(0)) or
-        not raisesNumericError(                  1  rem intExpr(0)) or
-        not raisesNumericError(                one  rem intExpr(0)) or
-        not raisesNumericError(         2147483647  rem intExpr(0)) or
-        not raisesNumericError(          INT64_MAX  rem intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MIN) rem intExpr(0)) or
-        not raisesNumericError(intExpr(-2147483648) rem intExpr(0)) or
-        not raisesNumericError(intExpr(         -1) rem intExpr(0)) or
-        not raisesNumericError(intExpr(          0) rem intExpr(0)) or
-        not raisesNumericError(intExpr(          1) rem intExpr(0)) or
-        not raisesNumericError(intExpr( 2147483647) rem intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MAX) rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR.");
-      okay := FALSE;
-    end if;
-
-    if  raisesNumericError(        integer.first  rem rand(integer.first,           -2)) or
-        raisesNumericError(        integer.first  rem rand(            1, integer.last)) or
-        raisesNumericError(intExpr(integer.first) rem rand(integer.first,           -2)) or
-        raisesNumericError(intExpr(integer.first) rem rand(            1, integer.last)) then
-      writeln(" ***** Legal division with the rem operator does raise NUMERIC_ERROR.");
+    if not check_rem_by_zero then
       okay := FALSE;
     end if;
 
@@ -22388,8 +22454,12 @@ const func boolean: check_mod_min_max is func
         INT64_MAX mod 4611686018427387903 <>                   1 or
         INT64_MAX mod 4611686018427387904 <> 4611686018427387903 or
         INT64_MAX mod 4611686018427387905 <> 4611686018427387902 or
-        INT64_MAX mod           INT64_MAX <>                   0 or
-        intExpr(INT64_MIN) mod           INT64_MIN <>                   0 or
+        INT64_MAX mod           INT64_MAX <>                   0 then
+      writeln(" ***** mod with maximum values does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) mod           INT64_MIN <>                   0 or
         intExpr(INT64_MIN) mod         -8589934592 <>                   0 or
         intExpr(INT64_MIN) mod         -4294967296 <>                   0 or
         intExpr(INT64_MIN) mod         -2147483649 <>                  -2 or
@@ -22425,8 +22495,12 @@ const func boolean: check_mod_min_max is func
         intExpr(INT64_MAX) mod 4611686018427387903 <>                   1 or
         intExpr(INT64_MAX) mod 4611686018427387904 <> 4611686018427387903 or
         intExpr(INT64_MAX) mod 4611686018427387905 <> 4611686018427387902 or
-        intExpr(INT64_MAX) mod           INT64_MAX <>                   0 or
-        INT64_MIN mod intExpr(          INT64_MIN) <>                   0 or
+        intExpr(INT64_MAX) mod           INT64_MAX <>                   0 then
+      writeln(" ***** mod with maximum values does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN mod intExpr(          INT64_MIN) <>                   0 or
         INT64_MIN mod intExpr(        -8589934592) <>                   0 or
         INT64_MIN mod intExpr(        -4294967296) <>                   0 or
         INT64_MIN mod intExpr(        -2147483649) <>                  -2 or
@@ -22462,8 +22536,12 @@ const func boolean: check_mod_min_max is func
         INT64_MAX mod intExpr(4611686018427387903) <>                   1 or
         INT64_MAX mod intExpr(4611686018427387904) <> 4611686018427387903 or
         INT64_MAX mod intExpr(4611686018427387905) <> 4611686018427387902 or
-        INT64_MAX mod intExpr(          INT64_MAX) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(          INT64_MIN) <>                   0 or
+        INT64_MAX mod intExpr(          INT64_MAX) <>                   0 then
+      writeln(" ***** mod with maximum values does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) mod intExpr(          INT64_MIN) <>                   0 or
         intExpr(INT64_MIN) mod intExpr(        -8589934592) <>                   0 or
         intExpr(INT64_MIN) mod intExpr(        -4294967296) <>                   0 or
         intExpr(INT64_MIN) mod intExpr(        -2147483649) <>                  -2 or
@@ -22500,7 +22578,7 @@ const func boolean: check_mod_min_max is func
         intExpr(INT64_MAX) mod intExpr(4611686018427387904) <> 4611686018427387903 or
         intExpr(INT64_MAX) mod intExpr(4611686018427387905) <> 4611686018427387902 or
         intExpr(INT64_MAX) mod intExpr(          INT64_MAX) <>                   0 then
-      writeln(" ***** mod with maximum values does not work correctly.");
+      writeln(" ***** mod with maximum values does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
