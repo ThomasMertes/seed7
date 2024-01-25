@@ -3502,8 +3502,8 @@ const proc: check_parse is func
   end func;
 
 
-const proc: check_str is func
-  local
+const func boolean: check_str_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  str(                0.0)  <>       "0.0" or
@@ -4004,7 +4004,13 @@ const proc: check_str is func
         float(str(floatExpr(1.0e308)))  <> 1.0e308  then
       writeln(" ***** Convert float to string and parse back to float does not work correctly. (4)");
     end if;
+  end func;
 
+
+const func boolean: check_digits is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  (          0.012345   digits 4)      <> "0.0123"     or
         (          1.2468     digits 2)      <> "1.25"       or
         (          3.1415     digits 0)      <> "3"          or
@@ -4112,7 +4118,13 @@ const proc: check_str is func
       writeln(" ***** Digits operator for float with negative precision does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_sci is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  (          0.012345   sci 4)         <> "1.2345e-2"  or
         (          1.2468     sci 2)         <> "1.25e+0"    or
         (          3.1415     sci 0)         <> "3e+0"       or
@@ -4340,6 +4352,24 @@ const proc: check_str is func
         not raisesRangeError(          3.1415     sci    intExpr(-1)) or
         not raisesRangeError(floatExpr(3.1415   ) sci    intExpr(-1)) then
       writeln(" ***** Sci operator for float with negative precision does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_str is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_str_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_digits then
+      okay := FALSE;
+    end if;
+
+    if not check_sci then
       okay := FALSE;
     end if;
 
@@ -5009,8 +5039,8 @@ const proc: check_trunc is func
   end func;
 
 
-const proc: check_round is func
-  local
+const func boolean: check_round_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  not raisesRangeError(round(           -Infinity  )) or
@@ -5171,7 +5201,13 @@ const proc: check_round is func
       writeln(" ***** Rounding of float does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_round_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not raisesRangeError(round(floatExpr(           -Infinity  ))) or
         not raisesRangeError(round(floatExpr(          -FLOAT_MAX  ))) or
         not raisesRangeError(round(floatExpr(             -1.0e37  ))) or
@@ -5328,6 +5364,20 @@ const proc: check_round is func
         not raisesRangeError(round(floatExpr(            Infinity  ))) or
         not raisesRangeError(round(floatExpr(                 NaN  ))) then
       writeln(" ***** Rounding of float does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_round is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_round_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_round_2 then
       okay := FALSE;
     end if;
 

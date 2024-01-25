@@ -309,16 +309,11 @@ const proc: check_string_literal is func
   end func;
 
 
-const proc: check_string_comparisons is func
-  local
-    const array string: arr1 is [] ("a", "ab", "abc", "abcd", "b", "bb", "bbb", "bbbb");
-    var array string: arr2 is 0 times "";
-    var string: name is "";
-    var integer: index is 0;
-    var boolean: ok is TRUE;
+const func boolean: check_string_eq is func
+  result
     var boolean: okay is TRUE;
   begin
-    if not ("" = "") or
+    if  not ("" = "") or
         not ("a" = "a") or
         not ("b" = "b") or
         not ("aa" = "aa") or
@@ -485,8 +480,14 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING = STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
-    if "" <> "" or
+
+const func boolean: check_string_ne is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  "" <> "" or
         "a" <> "a" or
         "b" <> "b" or
         "aa" <> "aa" or
@@ -653,7 +654,13 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING <> STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_gt is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not (
         not (""      > ""      ) and
         not (""      > "0"     ) and
@@ -1061,7 +1068,13 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING > STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_ge is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not (
              ""      >= ""        and
         not (""      >= "0"     ) and
@@ -1469,7 +1482,13 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING >= STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_lt is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not (
         not (""      < ""      ) and
         not ("0"     < ""      ) and
@@ -1877,7 +1896,13 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING < STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_le is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not (
              ""      <= ""        and
         not ("0"     <= ""      ) and
@@ -2285,7 +2310,13 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING <= STRING does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_comparisons_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  "\2050;" < "\1152;" or
         "\1152;" > "\2050;" then
       writeln(" ***** \"\\4096;\" < \"\\1152;\" does not work correctly.");
@@ -2306,6 +2337,19 @@ const proc: check_string_comparisons is func
       writeln(" ***** \"\\16#04030201;\" < \"\\16#01020304;\" does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const func boolean: check_string_compare is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const array string: arr1 is [] ("a", "ab", "abc", "abcd", "b", "bb", "bbb", "bbbb");
+    var array string: arr2 is 0 times "";
+    var string: name is "";
+    var integer: index is 0;
+    var boolean: ok is TRUE;
+  begin
     if  compare("",       "")       <>  0 or
         compare("",       "0")      <> -1 or
         compare("",       "00")     <> -1 or
@@ -2423,6 +2467,45 @@ const proc: check_string_comparisons is func
       writeln(" ***** Sorting with compare(STRING, STRING) does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_string_comparisons is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_eq then
+      okay := FALSE;
+    end if;
+
+    if not check_string_ne then
+      okay := FALSE;
+    end if;
+
+    if not check_string_gt then
+      okay := FALSE;
+    end if;
+
+    if not check_string_ge then
+      okay := FALSE;
+    end if;
+
+    if not check_string_lt then
+      okay := FALSE;
+    end if;
+
+    if not check_string_le then
+      okay := FALSE;
+    end if;
+
+    if not check_string_comparisons_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_compare then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String comparisons work correctly.");
     end if;
@@ -6291,7 +6374,16 @@ const func boolean: check_string_range_assign_3 is func
       writeln(" ***** stri := STRING [ START .. STOP ] does not work correctly. (12)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_range_assign_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := "" [             1 .. abs(intExpr(0)) +            0 ]; ok := ok and stri = "";
     stri := "" [             1 .. abs(intExpr(0)) +            1 ]; ok := ok and stri = "";
     stri := "" [             1 .. abs(intExpr(0)) +            2 ]; ok := ok and stri = "";
@@ -7002,6 +7094,10 @@ const proc: check_string_range is func
     end if;
 
     if not check_string_range_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_range_assign_4 then
       okay := FALSE;
     end if;
 
@@ -8194,7 +8290,13 @@ const func boolean: check_string_substr_expr_3 is func
       writeln(" ***** STRING [ START len LENGTH ] does not work correctly. (12)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_expr_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striExpr("") [ intExpr(           1) len abs(intExpr(           0)) ] <> "" or
         striExpr("") [ intExpr(           1) len abs(intExpr(           1)) ] <> "" or
         striExpr("") [ intExpr(           1) len abs(intExpr(           2)) ] <> "" or
@@ -9542,8 +9644,16 @@ const func boolean: check_string_substr_assign_3 is func
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (12)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_substr_assign_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := striExpr("") [ intExpr(           1) len abs(intExpr(           0)) ]; ok := ok and stri = "";
     stri := striExpr("") [ intExpr(           1) len abs(intExpr(           1)) ]; ok := ok and stri = "";
     stri := striExpr("") [ intExpr(           1) len abs(intExpr(           2)) ]; ok := ok and stri = "";
@@ -10685,6 +10795,10 @@ const proc: check_string_substr is func
       okay := FALSE;
     end if;
 
+    if not check_string_substr_expr_4 then
+      okay := FALSE;
+    end if;
+
     if not check_string_substr_assign_1 then
       okay := FALSE;
     end if;
@@ -10694,6 +10808,10 @@ const proc: check_string_substr is func
     end if;
 
     if not check_string_substr_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_4 then
       okay := FALSE;
     end if;
 
@@ -12555,8 +12673,8 @@ const proc: check_string_concat is func
   end func;
 
 
-const proc: check_string_mult is func
-  local
+const func boolean: check_string_mult_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  "" mult 0 <> "" or
@@ -13030,10 +13148,16 @@ const proc: check_string_mult is func
         "abcdefghij" mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 10 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correctly.");
+      writeln(" ***** STRING mult integer does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_mult_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striExpr("") mult 0 <> "" or
         striExpr("") mult 1 <> "" or
         striExpr("") mult 2 <> "" or
@@ -13505,10 +13629,16 @@ const proc: check_string_mult is func
         striExpr("abcdefghij") mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult 10 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correctly.");
+      writeln(" ***** STRING mult integer does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_mult_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  "" mult intExpr(0) <> "" or
         "" mult intExpr(1) <> "" or
         "" mult intExpr(2) <> "" or
@@ -13980,10 +14110,16 @@ const proc: check_string_mult is func
         "abcdefghij" mult intExpr(5) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult intExpr(6) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult intExpr(10) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correctly.");
+      writeln(" ***** STRING mult integer does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_mult_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  striExpr("") mult intExpr(0) <> "" or
         striExpr("") mult intExpr(1) <> "" or
         striExpr("") mult intExpr(2) <> "" or
@@ -14455,10 +14591,16 @@ const proc: check_string_mult is func
         striExpr("abcdefghij") mult intExpr(5) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult intExpr(6) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         striExpr("abcdefghij") mult intExpr(10) <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" then
-      writeln(" ***** STRING mult integer does not work correctly.");
+      writeln(" ***** STRING mult integer does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_mult_5 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  "\0;" mult   0 <> "" or
         "\0;" mult   1 <> "\0;" or
         "\0;" mult   2 <> "\0;\0;" or
@@ -14547,7 +14689,7 @@ const proc: check_string_mult is func
         str('a') mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                              \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                              \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correctly.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly. (1)");
       okay := FALSE;
     end if;
 
@@ -14595,7 +14737,7 @@ const proc: check_string_mult is func
         str(charExpr('a')) mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correctly.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -14643,7 +14785,7 @@ const proc: check_string_mult is func
         str('a') mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                       \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                       \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correctly.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -14691,10 +14833,16 @@ const proc: check_string_mult is func
         str(charExpr('a')) mult intExpr(200) <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                                                 \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" then
-      writeln(" ***** str(CHAR) mult integer does not work correctly.");
+      writeln(" ***** str(CHAR) mult integer does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_mult_6 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  "\16#1234;" mult 0 <> "" or
         "\16#1234;" mult 1 <> "\16#1234;" or
         "\16#1234;" mult 2 <> "\16#1234;\16#1234;" or
@@ -14717,7 +14865,7 @@ const proc: check_string_mult is func
         "\16#FECB;\16#1234;" mult 1 <> "\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 2 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 3 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;\16#FECB;\16#1234;" then
-      writeln(" ***** STRING mult integer does not work correctly.");
+      writeln(" ***** STRING mult integer with unicode characters does not work correctly.");
       okay := FALSE;
     end if;
 
@@ -14765,6 +14913,36 @@ const proc: check_string_mult is func
       writeln(" ***** String multiplication with negative multiplicator does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_string_mult is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_mult_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_mult_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_mult_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_mult_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_mult_5 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_mult_6 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("String multiplication works correctly.");
@@ -14772,8 +14950,8 @@ const proc: check_string_mult is func
   end func;
 
 
-const proc: check_string_ops is func
-  local
+const func boolean: check_string_lpad is func
+  result
     var boolean: okay is TRUE;
   begin
     if  ("" lpad -10) <> "" or
@@ -14941,7 +15119,13 @@ const proc: check_string_ops is func
       writeln(" ***** string lpad integer does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_lpad0 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  ("" lpad0 -10) <> "" or
         ("" lpad0 -5) <> "" or
         ("" lpad0 -2) <> "" or
@@ -15291,7 +15475,13 @@ const proc: check_string_ops is func
       writeln(" ***** string lpad0 integer with sign does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_rpad is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  ("" rpad -10) <> "" or
         ("" rpad -5) <> "" or
         ("" rpad -2) <> "" or
@@ -15455,6 +15645,24 @@ const proc: check_string_ops is func
         (striExpr("abcdefghijk") rpad 5) <> "abcdefghijk" or
         (striExpr("abcdefghijk") rpad 10) <> "abcdefghijk" then
       writeln(" ***** string rpad integer does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_ops is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_lpad then
+      okay := FALSE;
+    end if;
+
+    if not check_string_lpad0 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_rpad then
       okay := FALSE;
     end if;
 
@@ -16868,23 +17076,10 @@ const func boolean: check_string_pos_4 is func
   end func;
 
 
-const proc: check_string_pos is func
-  local
+const func boolean: check_string_pos_5 is func
+  result
     var boolean: okay is TRUE;
   begin
-    if not check_string_pos_1 then
-      okay := FALSE;
-    end if;
-    if not check_string_pos_2 then
-      okay := FALSE;
-    end if;
-    if not check_string_pos_3 then
-      okay := FALSE;
-    end if;
-    if not check_string_pos_4 then
-      okay := FALSE;
-    end if;
-
     if  pos("",       str('a')) <> 0 or
         pos("b",      str('a')) <> 0 or
         pos("a",      str('a')) <> 1 or
@@ -17362,6 +17557,32 @@ const proc: check_string_pos is func
       writeln(" ***** pos(string) with Boyer-Moore string search does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_string_pos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_pos_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_pos_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_pos_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_pos_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_pos_5 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("pos(string) works correctly.");
@@ -17369,8 +17590,8 @@ const proc: check_string_pos is func
   end func;
 
 
-const proc: check_string_char_pos is func
-  local
+const func boolean: check_string_char_pos_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  pos("",       '\0;') <> 0 or
@@ -17476,7 +17697,13 @@ const proc: check_string_char_pos is func
       writeln(" ***** pos(STRING, 'a') does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_char_pos_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos(striExpr(""),       '\0;') <> 0 or
         pos(striExpr("a"),      '\0;') <> 0 or
         pos(striExpr("ab"),     '\0;') <> 0 or
@@ -17580,7 +17807,13 @@ const proc: check_string_char_pos is func
       writeln(" ***** pos(STRING, 'a') does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_char_pos_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos("",       charExpr('\0;')) <> 0 or
         pos("a",      charExpr('\0;')) <> 0 or
         pos("ab",     charExpr('\0;')) <> 0 or
@@ -17684,7 +17917,13 @@ const proc: check_string_char_pos is func
       writeln(" ***** pos(STRING, 'a') does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_char_pos_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos(striExpr(""),       charExpr('\0;')) <> 0 or
         pos(striExpr("a"),      charExpr('\0;')) <> 0 or
         pos(striExpr("ab"),     charExpr('\0;')) <> 0 or
@@ -17788,7 +18027,13 @@ const proc: check_string_char_pos is func
       writeln(" ***** pos(STRING, 'a') does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_char_pos_5 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  pos("",       'a', 1) <> 0 or
         pos("",       'a', 2) <> 0 or
         pos("",       'a', 9) <> 0 or
@@ -17945,6 +18190,32 @@ const proc: check_string_char_pos is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
       writeln(" ***** pos(STRING, 'a', start) does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_char_pos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_char_pos_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_char_pos_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_char_pos_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_char_pos_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_char_pos_5 then
       okay := FALSE;
     end if;
 
@@ -24143,8 +24414,9 @@ const proc: do_append (inout string: dest, ref string: source) is func
 
 const func boolean: check_string_append_self_ref1 is func
   result
-    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
   local
+    var boolean: ok is TRUE;
     var string: stri1 is "1234567890";
     var string: stri2 is "1234567890";
     var string: stri3 is "1234567890";
@@ -24166,6 +24438,7 @@ const func boolean: check_string_append_self_ref1 is func
     do_append(stri9, stri9);     ok := ok and stri9 = "12345678901234567890";
     if not ok then
       writeln(" ***** String append with one self reference does not work correctly.");
+      okay := FALSE;
     end if;
   end func;
 
@@ -24182,8 +24455,9 @@ const proc: do_append (inout string: dest, ref string: source1, ref string: sour
 
 const func boolean: check_string_append_self_ref2_short is func
   result
-    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
   local
+    var boolean: ok is TRUE;
     var string: stri1  is "123456";
     var string: stri2  is "123456";
     var string: stri3  is "123456";
@@ -24229,14 +24503,16 @@ const func boolean: check_string_append_self_ref2_short is func
     do_append(stri21, stri21, stri21); ok := ok and stri21 = "123456123456123456";
     if not ok then
       writeln(" ***** String append with two self references does not work correctly.");
+      okay := FALSE;
     end if;
   end func;
 
 
 const func boolean: check_string_append_self_ref2_long is func
   result
-    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
   local
+    var boolean: ok is TRUE;
     var string: stri1  is "1234567890abcdef";
     var string: stri2  is "1234567890abcdef";
     var string: stri3  is "1234567890abcdef";
@@ -24282,14 +24558,16 @@ const func boolean: check_string_append_self_ref2_long is func
     do_append(stri21, stri21, stri21); ok := ok and stri21 = "1234567890abcdef1234567890abcdef1234567890abcdef";
     if not ok then
       writeln(" ***** String append with two self references does not work correctly.");
+      okay := FALSE;
     end if;
   end func;
 
 
 const func boolean: check_string_append_to_empty is func
   result
-    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
   local
+    var boolean: ok is TRUE;
     var string: stri1  is "";
     var string: stri2  is "";
     var string: stri3  is "";
@@ -24325,26 +24603,17 @@ const func boolean: check_string_append_to_empty is func
     stri16 &:= striExpr("b") & striExpr("c"); ok := ok and stri16 = "bc";
     if not ok then
       writeln(" ***** String append to an empty string does not work correctly.");
+      okay := FALSE;
     end if;
   end func;
 
 
-const func string: returnStringWithCapacity (in string: stri, in integer: capacity) is func
+const func boolean: check_string_append_1 is func
   result
-    var string: stringWithCapacity is "";
-  begin
-    stringWithCapacity := "x" mult capacity;
-    stringWithCapacity := stri;
-  end func;
-
-
-const proc: check_string_append is func
-  local
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var string: stri is "";
-    var array string: arr is []("");
-    var char: ch is '6';
   begin
     stri := "";  stri &:=          "";   ok := ok and stri = "";
     stri := "";  stri &:= striExpr("");  ok := ok and stri = "";
@@ -24354,7 +24623,12 @@ const proc: check_string_append is func
     stri := "a"; stri &:= striExpr("");  ok := ok and stri = "a";
     stri := "a"; stri &:=          "b";  ok := ok and stri = "ab";
     stri := "a"; stri &:= striExpr("b"); ok := ok and stri = "ab";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (1)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";  stri &:=          ""   &          "";   ok := ok and stri = "";
     stri := "";  stri &:= striExpr("")  &          "";   ok := ok and stri = "";
     stri := "";  stri &:=          ""   & striExpr("");  ok := ok and stri = "";
@@ -24387,7 +24661,12 @@ const proc: check_string_append is func
     stri := "a"; stri &:= striExpr("b") &          "c";  ok := ok and stri = "abc";
     stri := "a"; stri &:=          "b"  & striExpr("c"); ok := ok and stri = "abc";
     stri := "a"; stri &:= striExpr("b") & striExpr("c"); ok := ok and stri = "abc";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (2)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";  stri &:=          ""   &          ""   &          "";   ok := ok and stri = "";
     stri := "";  stri &:= striExpr("")  &          ""   &          "";   ok := ok and stri = "";
     stri := "";  stri &:=          ""   & striExpr("")  &          "";   ok := ok and stri = "";
@@ -24516,7 +24795,20 @@ const proc: check_string_append is func
     stri := "a"; stri &:= striExpr("b") &          "c"  & striExpr("d"); ok := ok and stri = "abcd";
     stri := "a"; stri &:=          "b"  & striExpr("c") & striExpr("d"); ok := ok and stri = "abcd";
     stri := "a"; stri &:= striExpr("b") & striExpr("c") & striExpr("d"); ok := ok and stri = "abcd";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
+
+const func boolean: check_string_append_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := "";   stri &:=          "";    ok := ok and stri = "";
     stri := "";   stri &:= striExpr("");   ok := ok and stri = "";
     stri := "";   stri &:=          "cd";  ok := ok and stri = "cd";
@@ -24525,7 +24817,12 @@ const proc: check_string_append is func
     stri := "ab"; stri &:= striExpr("");   ok := ok and stri = "ab";
     stri := "ab"; stri &:=          "cd";  ok := ok and stri = "abcd";
     stri := "ab"; stri &:= striExpr("cd"); ok := ok and stri = "abcd";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (4)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";   stri &:=          ""    &          "";    ok := ok and stri = "";
     stri := "";   stri &:= striExpr("")   &          "";    ok := ok and stri = "";
     stri := "";   stri &:=          ""    & striExpr("");   ok := ok and stri = "";
@@ -24558,7 +24855,12 @@ const proc: check_string_append is func
     stri := "ab"; stri &:= striExpr("cd") &          "ef";  ok := ok and stri = "abcdef";
     stri := "ab"; stri &:=          "cd"  & striExpr("ef"); ok := ok and stri = "abcdef";
     stri := "ab"; stri &:= striExpr("cd") & striExpr("ef"); ok := ok and stri = "abcdef";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (5)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "";   stri &:=          ""    &          ""    &          "";    ok := ok and stri = "";
     stri := "";   stri &:= striExpr("")   &          ""    &          "";    ok := ok and stri = "";
     stri := "";   stri &:=          ""    & striExpr("")   &          "";    ok := ok and stri = "";
@@ -24687,7 +24989,12 @@ const proc: check_string_append is func
     stri := "ab"; stri &:= striExpr("cd") &          "ef"  & striExpr("gh"); ok := ok and stri = "abcdefgh";
     stri := "ab"; stri &:=          "cd"  & striExpr("ef") & striExpr("gh"); ok := ok and stri = "abcdefgh";
     stri := "ab"; stri &:= striExpr("cd") & striExpr("ef") & striExpr("gh"); ok := ok and stri = "abcdefgh";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (6)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     stri := "ab"; stri &:=          "cd"  &          "ef"  &          "gh"  &          "ij";  ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:= striExpr("cd") &          "ef"  &          "gh"  &          "ij";  ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:=          "cd"  & striExpr("ef") &          "gh"  &          "ij";  ok := ok and stri = "abcdefghij";
@@ -24704,7 +25011,31 @@ const proc: check_string_append is func
     stri := "ab"; stri &:= striExpr("cd") &          "ef"  & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:=          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
     stri := "ab"; stri &:= striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij"); ok := ok and stri = "abcdefghij";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+  end func;
 
+
+const func string: returnStringWithCapacity (in string: stri, in integer: capacity) is func
+  result
+    var string: stringWithCapacity is "";
+  begin
+    stringWithCapacity := "x" mult capacity;
+    stringWithCapacity := stri;
+  end func;
+
+
+const func boolean: check_string_append_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+    var array string: arr is []("");
+    var char: ch is '6';
+  begin
     stri := "12345"; stri &:=                   ch;    ok := ok and stri = "123456";
     stri := "12345"; stri &:=                  '6';    ok := ok and stri = "123456";
     stri := "12345"; stri &:=              chr( 48);   ok := ok and stri = "123450";
@@ -24723,7 +25054,12 @@ const proc: check_string_append is func
     stri := "12345"; stri &:= "456"         & str(chr(48)); ok := ok and stri = "123454560";
     stri := "12345"; stri &:= str(chr(48))  & "456";        ok := ok and stri = "123450456";
     stri := "12345"; stri &:= str(chr(48))  & str(chr(48)); ok := ok and stri = "1234500";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (8)");
+      okay := FALSE;
+    end if;
 
+    ok := TRUE;
     arr[1] := "12345"; arr[1] &:=                   ch;    ok := ok and arr[1] = "123456";
     arr[1] := "12345"; arr[1] &:=                  '6';    ok := ok and arr[1] = "123456";
     arr[1] := "12345"; arr[1] &:=              chr( 48);   ok := ok and arr[1] = "123450";
@@ -24742,19 +25078,53 @@ const proc: check_string_append is func
     arr[1] := "12345"; arr[1] &:= "456"         & str(chr(48)); ok := ok and arr[1] = "123454560";
     arr[1] := "12345"; arr[1] &:= str(chr(48))  & "456";        ok := ok and arr[1] = "123450456";
     arr[1] := "12345"; arr[1] &:= str(chr(48))  & str(chr(48)); ok := ok and arr[1] = "1234500";
-
-    stri := "1";  stri &:= returnStringWithCapacity("234", 4); ok := ok and stri = "1234";
-    stri := "12"; stri &:= returnStringWithCapacity("345", 4); ok := ok and stri = "12345";
-
-    ok := ok and check_string_append_self_ref1;
-    ok := ok and check_string_append_self_ref2_short;
-    ok := ok and check_string_append_self_ref2_long;
-    ok := ok and check_string_append_to_empty;
-
     if not ok then
-      writeln(" ***** String append does not work correctly.");
+      writeln(" ***** String append does not work correctly. (9)");
       okay := FALSE;
     end if;
+
+    ok := TRUE;
+    stri := "1";  stri &:= returnStringWithCapacity("234", 4); ok := ok and stri = "1234";
+    stri := "12"; stri &:= returnStringWithCapacity("345", 4); ok := ok and stri = "12345";
+    if not ok then
+      writeln(" ***** String append does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_append is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_append_self_ref1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_self_ref2_short then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_self_ref2_long then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_to_empty then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_3 then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String append works correctly.");
     end if;
@@ -24920,15 +25290,12 @@ const func boolean: check_string_assign_at_with_char is func
   end func;
 
 
-const func boolean: check_string_assign_at_with_string is func
+const func boolean: check_string_assign_at_with_string_1 is func
   result
     var boolean: okay is TRUE;
   local
     var boolean: ok is TRUE;
     var string: stri is "";
-    var array string: arr is []("");
-    var integer: index is 0;
-    var char: ch is 'X';
   begin
     stri := "";     stri @:= [1] "";     ok := ok and stri = "";
     stri := "a";    stri @:= [1] "";     ok := ok and stri = "a";
@@ -25092,8 +25459,17 @@ const func boolean: check_string_assign_at_with_string is func
       writeln(" ***** stri @:= [n] aString; does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_assign_at_with_string_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+    var integer: index is 0;
+  begin
     stri := "";     index := 1; stri @:= [index] "";     ok := ok and stri = "";
     stri := "a";    index := 1; stri @:= [index] "";     ok := ok and stri = "a";
     stri := "a";    index := 2; stri @:= [index] "";     ok := ok and stri = "a";
@@ -25298,8 +25674,16 @@ const func boolean: check_string_assign_at_with_string is func
       writeln(" ***** stri @:= [n] aString; does not work correctly. (9)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_assign_at_with_string_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array string: arr is []("");
+  begin
     arr[1] := "";     arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "";
     arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] "";     ok := ok and arr[1] = "a";
     arr[1] := "a";    arr[integer(striExpr("1"))] @:= [2] "";     ok := ok and arr[1] = "a";
@@ -25380,8 +25764,16 @@ const func boolean: check_string_assign_at_with_string is func
       writeln(" ***** stri @:= [n] aString; does not work correctly. (11)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_assign_at_with_string_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array string: arr is []("");
+  begin
     arr[1] := "";     arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "";
     arr[1] := "a";    arr[integer(striExpr("1"))] @:= [1] striExpr("");     ok := ok and arr[1] = "a";
     arr[1] := "a";    arr[integer(striExpr("1"))] @:= [2] striExpr("");     ok := ok and arr[1] = "a";
@@ -25472,7 +25864,20 @@ const proc: check_string_assign_at is func
     if not check_string_assign_at_with_char then
       okay := FALSE;
     end if;
-    if not check_string_assign_at_with_string then
+
+    if not check_string_assign_at_with_string_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_4 then
       okay := FALSE;
     end if;
 

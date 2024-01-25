@@ -13681,7 +13681,13 @@ const func boolean: check_div_with_small_numbers_1 is func
       writeln(" ***** div with two constants does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) div  5 <>  2 or
         intExpr(  9) div  5 <>  1 or
         intExpr(  8) div  5 <>  1 or
@@ -13898,7 +13904,7 @@ const func boolean: check_div_with_small_numbers_1 is func
   end func;
 
 
-const func boolean: check_div_with_small_numbers_2 is func
+const func boolean: check_div_with_small_numbers_3 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -14115,7 +14121,13 @@ const func boolean: check_div_with_small_numbers_2 is func
       writeln(" ***** div with a constant and an expression does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_with_small_numbers_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) div intExpr( 5) <>  2 or
         intExpr(  9) div intExpr( 5) <>  1 or
         intExpr(  8) div intExpr( 5) <>  1 or
@@ -15752,6 +15764,14 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
+    if not check_div_with_small_numbers_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_div_with_small_numbers_4 then
+      okay := FALSE;
+    end if;
+
     if  INT64_MIN div           INT64_MIN <>                    1 or
         INT64_MIN div         -8589934592 <>           1073741824 or
         INT64_MIN div         -4294967296 <>           2147483648 or
@@ -16205,7 +16225,13 @@ const func boolean: check_rem_with_small_numbers_1 is func
       writeln(" ***** rem with two constants does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_rem_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) rem  5 <>  0 or
         intExpr(  9) rem  5 <>  4 or
         intExpr(  8) rem  5 <>  3 or
@@ -16422,7 +16448,7 @@ const func boolean: check_rem_with_small_numbers_1 is func
   end func;
 
 
-const func boolean: check_rem_with_small_numbers_2 is func
+const func boolean: check_rem_with_small_numbers_3 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -16639,7 +16665,13 @@ const func boolean: check_rem_with_small_numbers_2 is func
       writeln(" ***** rem with a constant and an expression does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_rem_with_small_numbers_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) rem intExpr( 5) <>  0 or
         intExpr(  9) rem intExpr( 5) <>  4 or
         intExpr(  8) rem intExpr( 5) <>  3 or
@@ -17520,7 +17552,13 @@ const func boolean: check_rem_optimization_3 is func
       writeln(" ***** rem optimization with dividend <= 0 and divisor > 0 does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_rem_optimization_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if        abs(intExpr(        integer.last))  rem (-abs(intExpr( 9223372036854775806)) - 2) <>  9223372036854775807 or
               abs(intExpr(        integer.last))  rem (-abs(intExpr(            12345651)) - 2) <>              9740018 or
               abs(intExpr(        integer.last))  rem (-abs(intExpr(                   0)) - 2) <>                    1 or
@@ -17831,6 +17869,14 @@ const proc: check_rem is func
       okay := FALSE;
     end if;
 
+    if not check_rem_with_small_numbers_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_rem_with_small_numbers_4 then
+      okay := FALSE;
+    end if;
+
     if  INT64_MIN rem           INT64_MIN <>                    0 or
         INT64_MIN rem         -8589934592 <>                    0 or
         INT64_MIN rem         -4294967296 <>                    0 or
@@ -18059,6 +18105,10 @@ const proc: check_rem is func
       okay := FALSE;
     end if;
 
+    if not check_rem_optimization_4 then
+      okay := FALSE;
+    end if;
+
     if not check_rem_division_check_optimization then
       okay := FALSE;
     end if;
@@ -18071,7 +18121,7 @@ const proc: check_rem is func
   end func;
 
 
-const func boolean: check_mdiv_with_small_numbers is func
+const func boolean: check_mdiv_with_small_numbers_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -18288,7 +18338,13 @@ const func boolean: check_mdiv_with_small_numbers is func
       writeln(" ***** mdiv with two constants does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) mdiv  5 <>  2 or
         intExpr(  9) mdiv  5 <>  1 or
         intExpr(  8) mdiv  5 <>  1 or
@@ -18502,7 +18558,13 @@ const func boolean: check_mdiv_with_small_numbers is func
       writeln(" ***** mdiv with an expression and a constant does not work correctly");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_with_small_numbers_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   10 mdiv intExpr( 5) <>  2 or
           9 mdiv intExpr( 5) <>  1 or
           8 mdiv intExpr( 5) <>  1 or
@@ -18716,7 +18778,13 @@ const func boolean: check_mdiv_with_small_numbers is func
       writeln(" ***** mdiv with a constant and an expression does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_with_small_numbers_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) mdiv intExpr( 5) <>  2 or
         intExpr(  9) mdiv intExpr( 5) <>  1 or
         intExpr(  8) mdiv intExpr( 5) <>  1 or
@@ -21096,7 +21164,19 @@ const proc: check_mdiv is func
   local
     var boolean: okay is TRUE;
   begin
-    if not check_mdiv_with_small_numbers then
+    if not check_mdiv_with_small_numbers_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_with_small_numbers_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_with_small_numbers_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_with_small_numbers_4 then
       okay := FALSE;
     end if;
 
@@ -21140,7 +21220,7 @@ const proc: check_mdiv is func
   end func;
 
 
-const func boolean: check_mod_with_small_numbers is func
+const func boolean: check_mod_with_small_numbers_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -21357,7 +21437,13 @@ const func boolean: check_mod_with_small_numbers is func
       writeln(" ***** mod with two constants does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mod_with_small_numbers_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) mod  5 <>  0 or
         intExpr(  9) mod  5 <>  4 or
         intExpr(  8) mod  5 <>  3 or
@@ -21571,7 +21657,13 @@ const func boolean: check_mod_with_small_numbers is func
       writeln(" ***** mod with an expression and a constant does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mod_with_small_numbers_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   10 mod intExpr( 5) <>  0 or
           9 mod intExpr( 5) <>  4 or
           8 mod intExpr( 5) <>  3 or
@@ -21785,7 +21877,13 @@ const func boolean: check_mod_with_small_numbers is func
       writeln(" ***** mod with a constant and an expression does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mod_with_small_numbers_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  intExpr( 10) mod intExpr( 5) <>  0 or
         intExpr(  9) mod intExpr( 5) <>  4 or
         intExpr(  8) mod intExpr( 5) <>  3 or
@@ -24678,7 +24776,19 @@ const proc: check_mod is func
   local
     var boolean: okay is TRUE;
   begin
-    if not check_mod_with_small_numbers then
+    if not check_mod_with_small_numbers_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_with_small_numbers_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_with_small_numbers_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_with_small_numbers_4 then
       okay := FALSE;
     end if;
 

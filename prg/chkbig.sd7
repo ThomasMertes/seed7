@@ -113,9 +113,6 @@ const func boolean: raisesNumericError (in func quotRem: quotRemExpr) is func
   end func;
 
 
-var bigInteger: number is bigInteger parse "0";
-
-
 const proc: chkLiteral is func
   local
     var boolean: okay is TRUE;
@@ -20363,9 +20360,8 @@ const proc: chkDivRem is func
   end func;
 
 
-const proc: chkModDivision is func
-  local
-    var bigInteger: number is 0_;
+const func boolean: chkModDivision_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if                          32766_ mdiv                     1_ <>            32766_ or
@@ -20719,7 +20715,13 @@ const proc: chkModDivision is func
       writeln("Modulo division of bigInteger does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModDivision_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if            -9223372036854775808_  mdiv            9223372036854775808_  <> -1_ or
                   -9223372036854775808_  mdiv            9223372036854775809_  <> -1_ or
                   -9223372036854775807_  mdiv            9223372036854775808_  <> -1_ or
@@ -20795,7 +20797,13 @@ const proc: chkModDivision is func
       writeln("Modulo division of bigInteger does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModDivision_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  0_ mdiv -170141183460469231731687303715884105729_ <> 0_ or
         0_ mdiv -170141183460469231731687303715884105728_ <> 0_ or
         0_ mdiv                     -9223372036854775809_ <> 0_ or
@@ -20887,7 +20895,15 @@ const proc: chkModDivision is func
       writeln("Modulo division of bigInteger does not work correctly. (7)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModDivision_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var bigInteger: number is 0_;
+  begin
     if   280223983525050_ mdiv              1_ <>  280223983525050_ or
          280223983525050_ mdiv              2_ <>  140111991762525_ or
          280223983525050_ mdiv              4_ <>   70055995881262_ or
@@ -21129,6 +21145,28 @@ const proc: chkModDivision is func
       writeln(" ***** Modulo division of bigInteger by zero does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: chkModDivision is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not chkModDivision_1 then
+      okay := FALSE;
+    end if;
+
+    if not chkModDivision_2 then
+      okay := FALSE;
+    end if;
+
+    if not chkModDivision_3 then
+      okay := FALSE;
+    end if;
+
+    if not chkModDivision_4 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Modulo division of bigInteger works correctly.");
@@ -21139,9 +21177,8 @@ const proc: chkModDivision is func
   end func;
 
 
-const proc: chkModulo is func
-  local
-    var bigInteger: number is 0_;
+const func boolean: chkModulo_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if                          32766_ mod                     1_ <>                     0_ or
@@ -21495,7 +21532,13 @@ const proc: chkModulo is func
       writeln("Modulo of bigInteger division does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModulo_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if            -9223372036854775808_  mod            9223372036854775808_  <> 0_ or
                   -9223372036854775808_  mod            9223372036854775809_  <> 1_ or
                   -9223372036854775807_  mod            9223372036854775808_  <> 1_ or
@@ -21663,7 +21706,13 @@ const proc: chkModulo is func
       writeln("Modulo of bigInteger division does not work correctly. (7)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModulo_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   280223983525050_ mod              1_ <>                0_ or
          280223983525050_ mod              2_ <>                0_ or
          280223983525050_ mod              4_ <>                2_ or
@@ -21839,7 +21888,13 @@ const proc: chkModulo is func
       writeln("Modulo of bigInteger division by power of two does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModulo_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if   11259375_ mod                       2147483648_ <>                         11259375_ or
          11259375_ mod                       4294967296_ <>                         11259375_ or
          11259375_ mod                       8589934592_ <>                         11259375_ or
@@ -22079,7 +22134,15 @@ const proc: chkModulo is func
       writeln("Modulo of bigInteger division by power of two does not work correctly. (8)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkModulo_5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var bigInteger: number is 0_;
+  begin
     number := 1000000000000000000000000000100000001000_;
     if  number mod -170141183460469231731687303715884105728_ <> -20847100762815390390123822195304633368_ or
         number mod         -1267650600228229401496703205376_ <>         -987484852440527046506015429656_ or
@@ -22150,6 +22213,32 @@ const proc: chkModulo is func
       writeln(" ***** Modulo of bigInteger division by zero does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: chkModulo is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not chkModulo_1 then
+      okay := FALSE;
+    end if;
+
+    if not chkModulo_2 then
+      okay := FALSE;
+    end if;
+
+    if not chkModulo_3 then
+      okay := FALSE;
+    end if;
+
+    if not chkModulo_4 then
+      okay := FALSE;
+    end if;
+
+    if not chkModulo_5 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Modulo of bigInteger division works correctly.");
@@ -22160,8 +22249,8 @@ const proc: chkModulo is func
   end func;
 
 
-const proc: chkPower is func
-  local
+const func boolean: chkPower_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if       0_ **            0 <>                                     1_ or
@@ -22377,9 +22466,18 @@ const proc: chkPower is func
          18446744073709551615_ ** 0 <>                                                          1_ or
          18446744073709551615_ ** 1 <>                                       18446744073709551615_ or
          18446744073709551615_ ** 2 <>                    340282366920938463426481119284349108225_ or
-         18446744073709551615_ ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ or
+         18446744073709551615_ ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ then
+      writeln("Power of bigInteger does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        (-1_) **   0 <>  1_ or
+
+const func boolean: chkPower_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  (-1_) **   0 <>  1_ or
         (-1_) **   1 <> -1_ or
         (-1_) **   2 <>  1_ or
         (-1_) **   3 <> -1_ or
@@ -22454,10 +22552,16 @@ const proc: chkPower is func
         (-18446744073709551615_) ** 1 <>                                       -18446744073709551615_ or
         (-18446744073709551615_) ** 2 <>                     340282366920938463426481119284349108225_ or
         (-18446744073709551615_) ** 3 <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correctly.");
+      writeln("Power of bigInteger does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkPower_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bigintExpr(     0_) **            0 <>                                     1_ or
         bigintExpr(     0_) **            1 <>                                     0_ or
         bigintExpr(     0_) **            2 <>                                     0_ or
@@ -22657,9 +22761,18 @@ const proc: chkPower is func
         bigintExpr(18446744073709551615_) ** 0 <>                                                          1_ or
         bigintExpr(18446744073709551615_) ** 1 <>                                       18446744073709551615_ or
         bigintExpr(18446744073709551615_) ** 2 <>                    340282366920938463426481119284349108225_ or
-        bigintExpr(18446744073709551615_) ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ or
+        bigintExpr(18446744073709551615_) ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ then
+      writeln("Power of bigInteger does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        bigintExpr(-1_) **   0 <>  1_ or
+
+const func boolean: chkPower_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bigintExpr(-1_) **   0 <>  1_ or
         bigintExpr(-1_) **   1 <> -1_ or
         bigintExpr(-1_) **   2 <>  1_ or
         bigintExpr(-1_) **   3 <> -1_ or
@@ -22685,10 +22798,16 @@ const proc: chkPower is func
         bigintExpr(-18446744073709551615_) ** 1 <>                                       -18446744073709551615_ or
         bigintExpr(-18446744073709551615_) ** 2 <>                     340282366920938463426481119284349108225_ or
         bigintExpr(-18446744073709551615_) ** 3 <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correctly.");
+      writeln("Power of bigInteger does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkPower_5 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if       0_ ** intExpr(           0) <>                                     1_ or
              0_ ** intExpr(           1) <>                                     0_ or
              0_ ** intExpr(           2) <>                                     0_ or
@@ -22888,9 +23007,18 @@ const proc: chkPower is func
          18446744073709551615_ ** intExpr(0) <>                                                          1_ or
          18446744073709551615_ ** intExpr(1) <>                                       18446744073709551615_ or
          18446744073709551615_ ** intExpr(2) <>                    340282366920938463426481119284349108225_ or
-         18446744073709551615_ ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ or
+         18446744073709551615_ ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ then
+      writeln("Power of bigInteger does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        (-1_) ** intExpr(  0) <>  1_ or
+
+const func boolean: chkPower_6 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  (-1_) ** intExpr(  0) <>  1_ or
         (-1_) ** intExpr(  1) <> -1_ or
         (-1_) ** intExpr(  2) <>  1_ or
         (-1_) ** intExpr(  3) <> -1_ or
@@ -22916,10 +23044,16 @@ const proc: chkPower is func
         (-18446744073709551615_) ** intExpr(1) <>                                       -18446744073709551615_ or
         (-18446744073709551615_) ** intExpr(2) <>                     340282366920938463426481119284349108225_ or
         (-18446744073709551615_) ** intExpr(3) <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correctly.");
+      writeln("Power of bigInteger does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkPower_7 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bigintExpr(     0_) ** intExpr(           0) <>                                     1_ or
         bigintExpr(     0_) ** intExpr(           1) <>                                     0_ or
         bigintExpr(     0_) ** intExpr(           2) <>                                     0_ or
@@ -23119,9 +23253,18 @@ const proc: chkPower is func
         bigintExpr(18446744073709551615_) ** intExpr(0) <>                                                          1_ or
         bigintExpr(18446744073709551615_) ** intExpr(1) <>                                       18446744073709551615_ or
         bigintExpr(18446744073709551615_) ** intExpr(2) <>                    340282366920938463426481119284349108225_ or
-        bigintExpr(18446744073709551615_) ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ or
+        bigintExpr(18446744073709551615_) ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ then
+      writeln("Power of bigInteger does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        bigintExpr(-1_) ** intExpr(  0) <>  1_ or
+
+const func boolean: chkPower_8 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bigintExpr(-1_) ** intExpr(  0) <>  1_ or
         bigintExpr(-1_) ** intExpr(  1) <> -1_ or
         bigintExpr(-1_) ** intExpr(  2) <>  1_ or
         bigintExpr(-1_) ** intExpr(  3) <> -1_ or
@@ -23147,10 +23290,16 @@ const proc: chkPower is func
         bigintExpr(-18446744073709551615_) ** intExpr(1) <>                                       -18446744073709551615_ or
         bigintExpr(-18446744073709551615_) ** intExpr(2) <>                     340282366920938463426481119284349108225_ or
         bigintExpr(-18446744073709551615_) ** intExpr(3) <> -6277101735386680762814942322444851025767571854389858533375_ then
-      writeln("Power of bigInteger does not work correctly.");
+      writeln("Power of bigInteger does not work correctly. (8)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkPower_9 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bigintExpr(1_ << 130) ** 2 <> 1_ << 260 or
         bigintExpr(1161340369873035520884048730253466326445886201751996434653427479399910802323027371849057109924586786533938250296147516920378236884141048435357879035639099561834934534337128154577044653202227250618254396894666559478446007380050375364076575603570861069426238825466394537444725481657494563677908582686749_) ** 2 <> 1348711454696838949709367737938366380793371449834458063877697348222391774977144371407384587024336878467697734883495079072103632910975405446082232033634456681533151057781302140222614328986715577027592004926238814520604379703759025578659856593360050133231502185826106407050868269555537614536754415635556514317385077905369966428459006363946017239007406317918928226210391247415201675939445253650842845608903996723367734524459073868885521558748499558821917343696265089415948377085664473742290811050679918760860288180556961216408577721995769912156811281633388366260180065214826817244845771730806031460189001_ or
         120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ ** intExpr(2) <> 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ * 120256867586748271047375168293728188324494460045600223705147481157539604179964325824446322498693765719156959910820231808463252500979648599536176905375364505254626629487913624517673513613473819155708806903701436591000021551553601591419092198226350722039795751813672774400815896751057461490306899970107333221607517459076348054504157442046802577756143528369925293859873375809726628219074358628939830831246233898189044339346108440400446861489787905114112568596592239218265784818224240837410605233432775241193694755125187116283819563387652711175869673133503443763180480390421707661270752_ or
@@ -23204,8 +23353,12 @@ const proc: chkPower is func
         not raisesNumericError(  18446744073709551617_  **          (-2)) or
         not raisesNumericError(  18446744073709551617_  **         (-23)) or
         not raisesNumericError(  18446744073709551617_  ** (-2147483648)) or
-        not raisesNumericError(  18446744073709551617_  ** integer.first) or
-        not raisesNumericError(bigintExpr(-18446744073709551617_) **          (-1)) or
+        not raisesNumericError(  18446744073709551617_  ** integer.first) then
+      writeln(" ***** Power of bigInteger with negative exponent does not raise NUMERIC_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(bigintExpr(-18446744073709551617_) **          (-1)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) **          (-2)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) **         (-23)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) ** (-2147483648)) or
@@ -23249,8 +23402,12 @@ const proc: chkPower is func
         not raisesNumericError(bigintExpr( 18446744073709551617_) **          (-2)) or
         not raisesNumericError(bigintExpr( 18446744073709551617_) **         (-23)) or
         not raisesNumericError(bigintExpr( 18446744073709551617_) ** (-2147483648)) or
-        not raisesNumericError(bigintExpr( 18446744073709551617_) ** integer.first) or
-        not raisesNumericError((-18446744073709551617_) ** intExpr(           -1)) or
+        not raisesNumericError(bigintExpr( 18446744073709551617_) ** integer.first) then
+      writeln(" ***** Power of bigInteger with negative exponent does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError((-18446744073709551617_) ** intExpr(           -1)) or
         not raisesNumericError((-18446744073709551617_) ** intExpr(           -2)) or
         not raisesNumericError((-18446744073709551617_) ** intExpr(          -23)) or
         not raisesNumericError((-18446744073709551617_) ** intExpr(  -2147483648)) or
@@ -23294,8 +23451,12 @@ const proc: chkPower is func
         not raisesNumericError(  18446744073709551617_  ** intExpr(           -2)) or
         not raisesNumericError(  18446744073709551617_  ** intExpr(          -23)) or
         not raisesNumericError(  18446744073709551617_  ** intExpr(  -2147483648)) or
-        not raisesNumericError(  18446744073709551617_  ** intExpr(integer.first)) or
-        not raisesNumericError(bigintExpr(-18446744073709551617_) ** intExpr(           -1)) or
+        not raisesNumericError(  18446744073709551617_  ** intExpr(integer.first)) then
+      writeln(" ***** Power of bigInteger with negative exponent does not raise NUMERIC_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(bigintExpr(-18446744073709551617_) ** intExpr(           -1)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) ** intExpr(           -2)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) ** intExpr(          -23)) or
         not raisesNumericError(bigintExpr(-18446744073709551617_) ** intExpr(  -2147483648)) or
@@ -23340,7 +23501,49 @@ const proc: chkPower is func
         not raisesNumericError(bigintExpr( 18446744073709551617_) ** intExpr(          -23)) or
         not raisesNumericError(bigintExpr( 18446744073709551617_) ** intExpr(  -2147483648)) or
         not raisesNumericError(bigintExpr( 18446744073709551617_) ** intExpr(integer.first)) then
-      writeln(" ***** Power of bigInteger with negative exponent does not raise NUMERIC_ERROR.");
+      writeln(" ***** Power of bigInteger with negative exponent does not raise NUMERIC_ERROR. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: chkPower is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not chkPower_1 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_2 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_3 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_4 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_5 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_6 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_7 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_8 then
+      okay := FALSE;
+    end if;
+
+    if not chkPower_9 then
       okay := FALSE;
     end if;
 
@@ -23436,8 +23639,8 @@ const proc: chkBinom is func
   end func;
 
 
-const proc: chkCompare is func
-  local
+const func boolean: chkCompare_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  compare(-2147483650_, -2147483650_) <>  0 or
@@ -23639,7 +23842,13 @@ const proc: chkCompare is func
       writeln("The bigInteger compare does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkCompare_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  compare(bigintExpr(-2147483650_), -2147483650_) <>  0 or
         compare(bigintExpr(-2147483650_), -2147483649_) <> -1 or
         compare(bigintExpr(-2147483650_), -2147483648_) <> -1 or
@@ -23839,7 +24048,13 @@ const proc: chkCompare is func
       writeln("The bigInteger compare does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkCompare_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  compare(-2147483650_, bigintExpr(-2147483650_)) <>  0 or
         compare(-2147483650_, bigintExpr(-2147483649_)) <> -1 or
         compare(-2147483650_, bigintExpr(-2147483648_)) <> -1 or
@@ -24039,7 +24254,13 @@ const proc: chkCompare is func
       writeln("The bigInteger compare does not work correctly. (3)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkCompare_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  compare(bigintExpr(-2147483650_), bigintExpr(-2147483650_)) <>  0 or
         compare(bigintExpr(-2147483650_), bigintExpr(-2147483649_)) <> -1 or
         compare(bigintExpr(-2147483650_), bigintExpr(-2147483648_)) <> -1 or
@@ -24237,6 +24458,28 @@ const proc: chkCompare is func
         compare(bigintExpr( 2147483649_), bigintExpr( 2147483648_)) <>  1 or
         compare(bigintExpr( 2147483649_), bigintExpr( 2147483649_)) <>  0 then
       writeln("The bigInteger compare does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: chkCompare is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not chkCompare_1 then
+      okay := FALSE;
+    end if;
+
+    if not chkCompare_2 then
+      okay := FALSE;
+    end if;
+
+    if not chkCompare_3 then
+      okay := FALSE;
+    end if;
+
+    if not chkCompare_4 then
       okay := FALSE;
     end if;
 
