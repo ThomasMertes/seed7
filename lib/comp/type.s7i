@@ -228,7 +228,7 @@ const func boolean: valueIsAtHeap (in type: aType) is func
     const set of category: heapCategories is {
         BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, WINOBJECT,
         PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
-        ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT};
+        ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT, REFLISTOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in heapCategories then
       isAtHeap := TRUE;
