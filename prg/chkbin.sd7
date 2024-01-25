@@ -462,8 +462,8 @@ const proc: checkXor is func
   end func;
 
 
-const proc: checkBytesBeWithLength is func
-  local
+const func boolean: checkBytesBeWithLength_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  bytes(bin64(                   0 ), BE, 1) <>                                         "\000;" or
@@ -811,10 +811,16 @@ const proc: checkBytesBeWithLength is func
         bytes(bin64( 9223372036854775807 ), BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(bin64(10000000000000000000_), BE, 9) <> "\000;\138;\199;\035;\004;\137;\232;\000;\000;" or
         bytes(bin64(18446744073709551615_), BE, 9) <> "\000;\255;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (1)");
+      writeln(" ***** Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkBytesBeWithLength_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(bin64Expr(bin64(                   0 )), BE, 1) <>                                         "\000;" or
         bytes(bin64Expr(bin64(                   1 )), BE, 1) <>                                         "\001;" or
         bytes(bin64Expr(bin64(                  10 )), BE, 1) <>                                         "\010;" or
@@ -1160,10 +1166,16 @@ const proc: checkBytesBeWithLength is func
         bytes(bin64Expr(bin64( 9223372036854775807 )), BE, 9) <> "\000;\127;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(bin64Expr(bin64(10000000000000000000_)), BE, 9) <> "\000;\138;\199;\035;\004;\137;\232;\000;\000;" or
         bytes(bin64Expr(bin64(18446744073709551615_)), BE, 9) <> "\000;\255;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (2)");
+      writeln(" ***** Conversion of bin64 to big endian unsigned byte string with length does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkBytesBeWithLength_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not raisesRangeError(bytes(bin64(                0), BE, integer.first)) or
         not raisesRangeError(bytes(bin64(                0), BE, -1)) or
         not raisesRangeError(bytes(bin64(                0), BE, 0)) or
@@ -1184,7 +1196,25 @@ const proc: checkBytesBeWithLength is func
         not raisesRangeError(bytes(bin64Expr(bin64(    1099511627776)), BE, 5)) or
         not raisesRangeError(bytes(bin64Expr(bin64(  281474976710656)), BE, 6)) or
         not raisesRangeError(bytes(bin64Expr(bin64(72057594037927936)), BE, 7)) then
-      writeln("Unsigned conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      writeln(" ***** Unsigned conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: checkBytesBeWithLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not checkBytesBeWithLength_1 then
+      okay := FALSE;
+    end if;
+
+    if not checkBytesBeWithLength_2 then
+      okay := FALSE;
+    end if;
+
+    if not checkBytesBeWithLength_3 then
       okay := FALSE;
     end if;
 
@@ -1197,8 +1227,8 @@ const proc: checkBytesBeWithLength is func
   end func;
 
 
-const proc: checkBytesLeWithLength is func
-  local
+const func boolean: checkBytesLeWithLength_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  bytes(bin64(                   0 ), LE, 1) <> "\000;"                                         or
@@ -1549,7 +1579,13 @@ const proc: checkBytesLeWithLength is func
       writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correctly. (1)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkBytesLeWithLength_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  bytes(bin64Expr(bin64(                   0 )), LE, 1) <> "\000;"                                         or
         bytes(bin64Expr(bin64(                   1 )), LE, 1) <> "\001;"                                         or
         bytes(bin64Expr(bin64(                  10 )), LE, 1) <> "\010;"                                         or
@@ -1898,7 +1934,13 @@ const proc: checkBytesLeWithLength is func
       writeln("Conversion of bin64 to little endian unsigned byte string with length does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkBytesLeWithLength_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not raisesRangeError(bytes(bin64(                0), LE, integer.first)) or
         not raisesRangeError(bytes(bin64(                0), LE, -1)) or
         not raisesRangeError(bytes(bin64(                0), LE, 0)) or
@@ -1920,6 +1962,24 @@ const proc: checkBytesLeWithLength is func
         not raisesRangeError(bytes(bin64Expr(bin64(  281474976710656)), LE, 6)) or
         not raisesRangeError(bytes(bin64Expr(bin64(72057594037927936)), LE, 7)) then
       writeln("Unsigned conversion that does not fit into the byte length does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: checkBytesLeWithLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not checkBytesLeWithLength_1 then
+      okay := FALSE;
+    end if;
+
+    if not checkBytesLeWithLength_2 then
+      okay := FALSE;
+    end if;
+
+    if not checkBytesLeWithLength_3 then
       okay := FALSE;
     end if;
 

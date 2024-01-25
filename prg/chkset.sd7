@@ -4155,9 +4155,18 @@ const func boolean: check_union_3 is func
         {-1, 0, 900}       | {-2, 0, 1}         <> {-2, -1, 0, 1, 900} or
         {-1, 0, 900}       | {-1, 0, 1}         <> {-1, 0, 1, 900} or
         {-1, 0, 900}       | {-1, 0, 900}       <> {-1, 0, 900} or
-        {-1, 0, 900}       | {-900, -1, 0, 900} <> {-900, -1, 0, 900} or
+        {-1, 0, 900}       | {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
+      writeln(" ***** Set union does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        {-900, -1, 0, 900} | EMPTY_SET          <> {-900, -1, 0, 900} or
+
+const func boolean: check_union_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  {-900, -1, 0, 900} | EMPTY_SET          <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} | {-900}             <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} | {-2}               <> {-900, -2, -1, 0, 900} or
         {-900, -1, 0, 900} | {-1}               <> {-900, -1, 0, 900} or
@@ -4184,13 +4193,13 @@ const func boolean: check_union_3 is func
         {-900, -1, 0, 900} | {-1, 0, 1}         <> {-900, -1, 0, 1, 900} or
         {-900, -1, 0, 900} | {-1, 0, 900}       <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} | {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln(" ***** Set union does not work correctly. (3)");
+      writeln(" ***** Set union does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
 
 
-const func boolean: check_union_4 is func
+const func boolean: check_union_5 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -4250,7 +4259,7 @@ const func boolean: check_union_4 is func
         {"3"}              | {"2"}              <> {"2", "3"} or
         {"3"}              | {"2", "3"}         <> {"2", "3"} or
         {"3"}              | {"3"}              <> {"3"} then
-      writeln(" ***** Set union does not work correctly. (4)");
+      writeln(" ***** Set union does not work correctly. (5)");
       okay := FALSE;
     end if;
   end func;
@@ -4273,6 +4282,10 @@ const proc: check_union is func
     end if;
 
     if not check_union_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_union_5 then
       okay := FALSE;
     end if;
 
@@ -5920,9 +5933,18 @@ const func boolean: check_symdiff_3 is func
         {-1, 0, 900}       >< {-2, 0, 1}         <> {-2, -1, 1, 900} or
         {-1, 0, 900}       >< {-1, 0, 1}         <> {1, 900} or
         {-1, 0, 900}       >< {-1, 0, 900}       <> EMPTY_SET or
-        {-1, 0, 900}       >< {-900, -1, 0, 900} <> {-900} or
+        {-1, 0, 900}       >< {-900, -1, 0, 900} <> {-900} then
+      writeln(" ***** Set symdiff does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        {-900, -1, 0, 900} >< EMPTY_SET          <> {-900, -1, 0, 900} or
+
+const func boolean: check_symdiff_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  {-900, -1, 0, 900} >< EMPTY_SET          <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} >< {-900}             <> {-1, 0, 900} or
         {-900, -1, 0, 900} >< {-2}               <> {-900, -2, -1, 0, 900} or
         {-900, -1, 0, 900} >< {-1}               <> {-900, 0, 900} or
@@ -5949,7 +5971,7 @@ const func boolean: check_symdiff_3 is func
         {-900, -1, 0, 900} >< {-1, 0, 1}         <> {-900, 1, 900} or
         {-900, -1, 0, 900} >< {-1, 0, 900}       <> {-900} or
         {-900, -1, 0, 900} >< {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln(" ***** Set symdiff does not work correctly. (3)");
+      writeln(" ***** Set symdiff does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -5968,6 +5990,10 @@ const proc: check_symdiff is func
     end if;
 
     if not check_symdiff_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_symdiff_4 then
       okay := FALSE;
     end if;
 
@@ -6728,9 +6754,18 @@ const func boolean: check_intersection_3 is func
         {-1, 0, 900}       & {-2, 0, 1}         <> {0} or
         {-1, 0, 900}       & {-1, 0, 1}         <> {-1, 0} or
         {-1, 0, 900}       & {-1, 0, 900}       <> {-1, 0, 900} or
-        {-1, 0, 900}       & {-900, -1, 0, 900} <> {-1, 0, 900} or
+        {-1, 0, 900}       & {-900, -1, 0, 900} <> {-1, 0, 900} then
+      writeln(" ***** Set intersection does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        {-900, -1, 0, 900} & EMPTY_SET          <> EMPTY_SET or
+
+const func boolean: check_intersection_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  {-900, -1, 0, 900} & EMPTY_SET          <> EMPTY_SET or
         {-900, -1, 0, 900} & {-900}             <> {-900} or
         {-900, -1, 0, 900} & {-2}               <> EMPTY_SET or
         {-900, -1, 0, 900} & {-1}               <> {-1} or
@@ -6757,13 +6792,13 @@ const func boolean: check_intersection_3 is func
         {-900, -1, 0, 900} & {-1, 0, 1}         <> {-1, 0} or
         {-900, -1, 0, 900} & {-1, 0, 900}       <> {-1, 0, 900} or
         {-900, -1, 0, 900} & {-900, -1, 0, 900} <> {-900, -1, 0, 900} then
-      writeln(" ***** Set intersection does not work correctly. (3)");
+      writeln(" ***** Set intersection does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
 
 
-const func boolean: check_intersection_4 is func
+const func boolean: check_intersection_5 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -6823,7 +6858,7 @@ const func boolean: check_intersection_4 is func
         {"3"}              & {"2"}              <> striSet.EMPTY_SET or
         {"3"}              & {"2", "3"}         <> {"3"} or
         {"3"}              & {"3"}              <> {"3"} then
-      writeln(" ***** Set intersection does not work correctly. (4)");
+      writeln(" ***** Set intersection does not work correctly. (5)");
       okay := FALSE;
     end if;
   end func;
@@ -6846,6 +6881,10 @@ const proc: check_intersection is func
     end if;
 
     if not check_intersection_4 then
+      okay := TRUE;
+    end if;
+
+    if not check_intersection_5 then
       okay := TRUE;
     end if;
 
@@ -8492,9 +8531,18 @@ const func boolean: check_difference_3 is func
         {-1, 0, 900}       - {-2, 0, 1}         <> {-1, 900} or
         {-1, 0, 900}       - {-1, 0, 1}         <> {900} or
         {-1, 0, 900}       - {-1, 0, 900}       <> EMPTY_SET or
-        {-1, 0, 900}       - {-900, -1, 0, 900} <> EMPTY_SET or
+        {-1, 0, 900}       - {-900, -1, 0, 900} <> EMPTY_SET then
+      writeln(" ***** Set difference does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
 
-        {-900, -1, 0, 900} - EMPTY_SET          <> {-900, -1, 0, 900} or
+
+const func boolean: check_difference_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  {-900, -1, 0, 900} - EMPTY_SET          <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} - {-900}             <> {-1, 0, 900} or
         {-900, -1, 0, 900} - {-2}               <> {-900, -1, 0, 900} or
         {-900, -1, 0, 900} - {-1}               <> {-900, 0, 900} or
@@ -8521,13 +8569,13 @@ const func boolean: check_difference_3 is func
         {-900, -1, 0, 900} - {-1, 0, 1}         <> {-900, 900} or
         {-900, -1, 0, 900} - {-1, 0, 900}       <> {-900} or
         {-900, -1, 0, 900} - {-900, -1, 0, 900} <> EMPTY_SET then
-      writeln(" ***** Set difference does not work correctly. (3)");
+      writeln(" ***** Set difference does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
 
 
-const func boolean: check_difference_4 is func
+const func boolean: check_difference_5 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -8587,13 +8635,13 @@ const func boolean: check_difference_4 is func
         {"3"}              - {"2"}              <> {"3"} or
         {"3"}              - {"2", "3"}         <> striSet.EMPTY_SET or
         {"3"}              - {"3"}              <> striSet.EMPTY_SET then
-      writeln(" ***** Set difference does not work correctly. (4)");
+      writeln(" ***** Set difference does not work correctly. (5)");
       okay := FALSE;
     end if;
   end func;
 
 
-const func boolean: check_difference_5 is func
+const func boolean: check_difference_6 is func
   result
     var boolean: okay is TRUE;
   local
@@ -8607,7 +8655,7 @@ const func boolean: check_difference_5 is func
         set_1 - EMPTY_SET                     <> set_1 or
         EMPTY_SET - set_1                     <> EMPTY_SET or
         letter_char - (set of char).EMPTY_SET <> letter_char then
-      writeln(" ***** Set difference does not work correctly. (5)");
+      writeln(" ***** Set difference does not work correctly. (6)");
       okay := FALSE;
     end if;
   end func;
@@ -8634,6 +8682,10 @@ const proc: check_difference is func
     end if;
 
     if not check_difference_5 then
+      okay := FALSE;
+    end if;
+
+    if not check_difference_6 then
       okay := FALSE;
     end if;
 
