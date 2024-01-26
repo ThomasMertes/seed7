@@ -6485,11 +6485,11 @@ const proc: chkStringConv is func
   end func;
 
 
-const proc: chkRadix is func
+const func boolean: chkRadix_1 is func
+  result
+    var boolean: okay is TRUE;
   local
     var integer: base is 0;
-    var bigInteger: bigNum is 0_;
-    var boolean: okay is TRUE;
   begin
     for base range 2 to 36 do
       if  (0_                          radix base) <> "0" or
@@ -6503,7 +6503,13 @@ const proc: chkRadix is func
         okay := FALSE;
       end if;
     end for;
+  end func;
 
+
+const func boolean: chkRadix_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  (32767_ radix  2) <> "111111111111111" or
         (59048_ radix  3) <> "2222222222" or
         (16383_ radix  4) <> "3333333" or
@@ -6538,8 +6544,12 @@ const proc: chkRadix is func
         (35936_ radix 33) <> "www" or
         (39303_ radix 34) <> "xxx" or
         (42874_ radix 35) <> "yyy" or
-        (46655_ radix 36) <> "zzz" or
-        (32768_ radix  2) <> "1000000000000000" or
+        (46655_ radix 36) <> "zzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (1)");
+      okay := FALSE;
+    end if;
+
+    if  (32768_ radix  2) <> "1000000000000000" or
         (59049_ radix  3) <> "10000000000" or
         (16384_ radix  4) <> "10000000" or
         (15625_ radix  5) <> "1000000" or
@@ -6573,8 +6583,12 @@ const proc: chkRadix is func
         (35937_ radix 33) <> "1000" or
         (39304_ radix 34) <> "1000" or
         (42875_ radix 35) <> "1000" or
-        (46656_ radix 36) <> "1000" or
-        (2147483647_ radix  2) <> "1111111111111111111111111111111" or
+        (46656_ radix 36) <> "1000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (2147483647_ radix  2) <> "1111111111111111111111111111111" or
         (3486784400_ radix  3) <> "22222222222222222222" or
         (1073741823_ radix  4) <> "333333333333333" or
         (1220703124_ radix  5) <> "4444444444444" or
@@ -6608,8 +6622,12 @@ const proc: chkRadix is func
         (1291467968_ radix 33) <> "wwwwww" or
         (1544804415_ radix 34) <> "xxxxxx" or
         (1838265624_ radix 35) <> "yyyyyy" or
-        (2176782335_ radix 36) <> "zzzzzz" or
-        (2147483648_ radix  2) <> "10000000000000000000000000000000" or
+        (2176782335_ radix 36) <> "zzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (3)");
+      okay := FALSE;
+    end if;
+
+    if  (2147483648_ radix  2) <> "10000000000000000000000000000000" or
         (3486784401_ radix  3) <> "100000000000000000000" or
         (1073741824_ radix  4) <> "1000000000000000" or
         (1220703125_ radix  5) <> "10000000000000" or
@@ -6643,8 +6661,12 @@ const proc: chkRadix is func
         (1291467969_ radix 33) <> "1000000" or
         (1544804416_ radix 34) <> "1000000" or
         (1838265625_ radix 35) <> "1000000" or
-        (2176782336_ radix 36) <> "1000000" or
-        ( 4611686016279904256_ radix  2) <> "11111111111111111111111111111110000000000000000000000000000000" or
+        (2176782336_ radix 36) <> "1000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (4)");
+      okay := FALSE;
+    end if;
+
+    if  ( 4611686016279904256_ radix  2) <> "11111111111111111111111111111110000000000000000000000000000000" or
         (12157665455570144400_ radix  3) <> "2222222222222222222200000000000000000000" or
         ( 1152921503533105152_ radix  4) <> "333333333333333000000000000000" or
         ( 1490116118164062500_ radix  5) <> "44444444444440000000000000" or
@@ -6678,8 +6700,12 @@ const proc: chkRadix is func
         ( 1667889513661516992_ radix 33) <> "wwwwww000000" or
         ( 2386420682148296640_ radix 34) <> "xxxxxx000000" or
         ( 3379220506218375000_ radix 35) <> "yyyyyy000000" or
-        ( 4738381336144834560_ radix 36) <> "zzzzzz000000" or
-        ( 4611686018427387903_ radix  2) <> "11111111111111111111111111111111111111111111111111111111111111" or
+        ( 4738381336144834560_ radix 36) <> "zzzzzz000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (5)");
+      okay := FALSE;
+    end if;
+
+    if  ( 4611686018427387903_ radix  2) <> "11111111111111111111111111111111111111111111111111111111111111" or
         (12157665459056928800_ radix  3) <> "2222222222222222222222222222222222222222" or
         ( 1152921504606846975_ radix  4) <> "333333333333333333333333333333" or
         ( 1490116119384765624_ radix  5) <> "44444444444444444444444444" or
@@ -6713,8 +6739,12 @@ const proc: chkRadix is func
         ( 1667889514952984960_ radix 33) <> "wwwwwwwwwwww" or
         ( 2386420683693101055_ radix 34) <> "xxxxxxxxxxxx" or
         ( 3379220508056640624_ radix 35) <> "yyyyyyyyyyyy" or
-        ( 4738381338321616895_ radix 36) <> "zzzzzzzzzzzz" or
-        ( 4611686018427387904_ radix  2) <> "100000000000000000000000000000000000000000000000000000000000000" or
+        ( 4738381338321616895_ radix 36) <> "zzzzzzzzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (6)");
+      okay := FALSE;
+    end if;
+
+    if  ( 4611686018427387904_ radix  2) <> "100000000000000000000000000000000000000000000000000000000000000" or
         (12157665459056928801_ radix  3) <> "10000000000000000000000000000000000000000" or
         ( 1152921504606846976_ radix  4) <> "1000000000000000000000000000000" or
         ( 1490116119384765625_ radix  5) <> "100000000000000000000000000" or
@@ -6748,8 +6778,12 @@ const proc: chkRadix is func
         ( 1667889514952984961_ radix 33) <> "1000000000000" or
         ( 2386420683693101056_ radix 34) <> "1000000000000" or
         ( 3379220508056640625_ radix 35) <> "1000000000000" or
-        ( 4738381338321616896_ radix 36) <> "1000000000000" or
-        ( 4611686020574871551_ radix  2) <> "100000000000000000000000000000001111111111111111111111111111111" or
+        ( 4738381338321616896_ radix 36) <> "1000000000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (7)");
+      okay := FALSE;
+    end if;
+
+    if  ( 4611686020574871551_ radix  2) <> "100000000000000000000000000000001111111111111111111111111111111" or
         (12157665462543713201_ radix  3) <> "10000000000000000000022222222222222222222" or
         ( 1152921505680588799_ radix  4) <> "1000000000000000333333333333333" or
         ( 1490116120605468749_ radix  5) <> "100000000000004444444444444" or
@@ -6783,8 +6817,12 @@ const proc: chkRadix is func
         ( 1667889516244452929_ radix 33) <> "1000000wwwwww" or
         ( 2386420685237905471_ radix 34) <> "1000000xxxxxx" or
         ( 3379220509894906249_ radix 35) <> "1000000yyyyyy" or
-        ( 4738381340498399231_ radix 36) <> "1000000zzzzzz" or
-        ( 4611686020574871552_ radix  2) <> "100000000000000000000000000000010000000000000000000000000000000" or
+        ( 4738381340498399231_ radix 36) <> "1000000zzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (8)");
+      okay := FALSE;
+    end if;
+
+    if  ( 4611686020574871552_ radix  2) <> "100000000000000000000000000000010000000000000000000000000000000" or
         (12157665462543713202_ radix  3) <> "10000000000000000000100000000000000000000" or
         ( 1152921505680588800_ radix  4) <> "1000000000000001000000000000000" or
         ( 1490116120605468750_ radix  5) <> "100000000000010000000000000" or
@@ -6818,8 +6856,12 @@ const proc: chkRadix is func
         ( 1667889516244452930_ radix 33) <> "1000001000000" or
         ( 2386420685237905472_ radix 34) <> "1000001000000" or
         ( 3379220509894906250_ radix 35) <> "1000001000000" or
-        ( 4738381340498399232_ radix 36) <> "1000001000000" or
-        (100000000000000000000000000319_ radix  2) <> "1010000110001111000001111101011100110110101110010000101111100101010100000000000000000000100111111" or
+        ( 4738381340498399232_ radix 36) <> "1000001000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (9)");
+      okay := FALSE;
+    end if;
+
+    if  (100000000000000000000000000319_ radix  2) <> "1010000110001111000001111101011100110110101110010000101111100101010100000000000000000000100111111" or
         (100000000000000000000000000319_ radix  3) <> "2100200200212000022212220120022010001221202000002022000220112" or
         (100000000000000000000000000319_ radix  4) <> "1100301320033223212311302011330222200000000010333" or
         (100000000000000000000000000319_ radix  5) <> "204441433212200000000000000000000000002234" or
@@ -6854,10 +6896,16 @@ const proc: chkRadix is func
         (100000000000000000000000000319_ radix 34) <> "r496vggek1grfuv3wo7" or
         (100000000000000000000000000319_ radix 35) <> "g3f6xlpcxahu7f49rl9" or
         (100000000000000000000000000319_ radix 36) <> "9p0xe2cuwj7x1co1a2n" then
-      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for positive values. (10)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkRadix_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  (-32767_ radix  2) <> "-111111111111111" or
         (-59048_ radix  3) <> "-2222222222" or
         (-16383_ radix  4) <> "-3333333" or
@@ -6892,8 +6940,12 @@ const proc: chkRadix is func
         (-35936_ radix 33) <> "-www" or
         (-39303_ radix 34) <> "-xxx" or
         (-42874_ radix 35) <> "-yyy" or
-        (-46655_ radix 36) <> "-zzz" or
-        (-32768_ radix  2) <> "-1000000000000000" or
+        (-46655_ radix 36) <> "-zzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (1)");
+      okay := FALSE;
+    end if;
+
+    if  (-32768_ radix  2) <> "-1000000000000000" or
         (-59049_ radix  3) <> "-10000000000" or
         (-16384_ radix  4) <> "-10000000" or
         (-15625_ radix  5) <> "-1000000" or
@@ -6927,8 +6979,12 @@ const proc: chkRadix is func
         (-35937_ radix 33) <> "-1000" or
         (-39304_ radix 34) <> "-1000" or
         (-42875_ radix 35) <> "-1000" or
-        (-46656_ radix 36) <> "-1000" or
-        (-2147483647_ radix  2) <> "-1111111111111111111111111111111" or
+        (-46656_ radix 36) <> "-1000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (-2147483647_ radix  2) <> "-1111111111111111111111111111111" or
         (-3486784400_ radix  3) <> "-22222222222222222222" or
         (-1073741823_ radix  4) <> "-333333333333333" or
         (-1220703124_ radix  5) <> "-4444444444444" or
@@ -6962,8 +7018,12 @@ const proc: chkRadix is func
         (-1291467968_ radix 33) <> "-wwwwww" or
         (-1544804415_ radix 34) <> "-xxxxxx" or
         (-1838265624_ radix 35) <> "-yyyyyy" or
-        (-2176782335_ radix 36) <> "-zzzzzz" or
-        (-2147483648_ radix  2) <> "-10000000000000000000000000000000" or
+        (-2176782335_ radix 36) <> "-zzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (3)");
+      okay := FALSE;
+    end if;
+
+    if  (-2147483648_ radix  2) <> "-10000000000000000000000000000000" or
         (-3486784401_ radix  3) <> "-100000000000000000000" or
         (-1073741824_ radix  4) <> "-1000000000000000" or
         (-1220703125_ radix  5) <> "-10000000000000" or
@@ -6997,8 +7057,12 @@ const proc: chkRadix is func
         (-1291467969_ radix 33) <> "-1000000" or
         (-1544804416_ radix 34) <> "-1000000" or
         (-1838265625_ radix 35) <> "-1000000" or
-        (-2176782336_ radix 36) <> "-1000000" or
-        ( -4611686016279904256_ radix  2) <> "-11111111111111111111111111111110000000000000000000000000000000" or
+        (-2176782336_ radix 36) <> "-1000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (4)");
+      okay := FALSE;
+    end if;
+
+    if  ( -4611686016279904256_ radix  2) <> "-11111111111111111111111111111110000000000000000000000000000000" or
         (-12157665455570144400_ radix  3) <> "-2222222222222222222200000000000000000000" or
         ( -1152921503533105152_ radix  4) <> "-333333333333333000000000000000" or
         ( -1490116118164062500_ radix  5) <> "-44444444444440000000000000" or
@@ -7032,8 +7096,12 @@ const proc: chkRadix is func
         ( -1667889513661516992_ radix 33) <> "-wwwwww000000" or
         ( -2386420682148296640_ radix 34) <> "-xxxxxx000000" or
         ( -3379220506218375000_ radix 35) <> "-yyyyyy000000" or
-        ( -4738381336144834560_ radix 36) <> "-zzzzzz000000" or
-        ( -4611686018427387903_ radix  2) <> "-11111111111111111111111111111111111111111111111111111111111111" or
+        ( -4738381336144834560_ radix 36) <> "-zzzzzz000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (5)");
+      okay := FALSE;
+    end if;
+
+    if  ( -4611686018427387903_ radix  2) <> "-11111111111111111111111111111111111111111111111111111111111111" or
         (-12157665459056928800_ radix  3) <> "-2222222222222222222222222222222222222222" or
         ( -1152921504606846975_ radix  4) <> "-333333333333333333333333333333" or
         ( -1490116119384765624_ radix  5) <> "-44444444444444444444444444" or
@@ -7067,8 +7135,12 @@ const proc: chkRadix is func
         ( -1667889514952984960_ radix 33) <> "-wwwwwwwwwwww" or
         ( -2386420683693101055_ radix 34) <> "-xxxxxxxxxxxx" or
         ( -3379220508056640624_ radix 35) <> "-yyyyyyyyyyyy" or
-        ( -4738381338321616895_ radix 36) <> "-zzzzzzzzzzzz" or
-        ( -4611686018427387904_ radix  2) <> "-100000000000000000000000000000000000000000000000000000000000000" or
+        ( -4738381338321616895_ radix 36) <> "-zzzzzzzzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (6)");
+      okay := FALSE;
+    end if;
+
+    if  ( -4611686018427387904_ radix  2) <> "-100000000000000000000000000000000000000000000000000000000000000" or
         (-12157665459056928801_ radix  3) <> "-10000000000000000000000000000000000000000" or
         ( -1152921504606846976_ radix  4) <> "-1000000000000000000000000000000" or
         ( -1490116119384765625_ radix  5) <> "-100000000000000000000000000" or
@@ -7102,8 +7174,12 @@ const proc: chkRadix is func
         ( -1667889514952984961_ radix 33) <> "-1000000000000" or
         ( -2386420683693101056_ radix 34) <> "-1000000000000" or
         ( -3379220508056640625_ radix 35) <> "-1000000000000" or
-        ( -4738381338321616896_ radix 36) <> "-1000000000000" or
-        ( -4611686020574871551_ radix  2) <> "-100000000000000000000000000000001111111111111111111111111111111" or
+        ( -4738381338321616896_ radix 36) <> "-1000000000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (7)");
+      okay := FALSE;
+    end if;
+
+    if  ( -4611686020574871551_ radix  2) <> "-100000000000000000000000000000001111111111111111111111111111111" or
         (-12157665462543713201_ radix  3) <> "-10000000000000000000022222222222222222222" or
         ( -1152921505680588799_ radix  4) <> "-1000000000000000333333333333333" or
         ( -1490116120605468749_ radix  5) <> "-100000000000004444444444444" or
@@ -7137,8 +7213,12 @@ const proc: chkRadix is func
         ( -1667889516244452929_ radix 33) <> "-1000000wwwwww" or
         ( -2386420685237905471_ radix 34) <> "-1000000xxxxxx" or
         ( -3379220509894906249_ radix 35) <> "-1000000yyyyyy" or
-        ( -4738381340498399231_ radix 36) <> "-1000000zzzzzz" or
-        ( -4611686020574871552_ radix  2) <> "-100000000000000000000000000000010000000000000000000000000000000" or
+        ( -4738381340498399231_ radix 36) <> "-1000000zzzzzz" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (8)");
+      okay := FALSE;
+    end if;
+
+    if  ( -4611686020574871552_ radix  2) <> "-100000000000000000000000000000010000000000000000000000000000000" or
         (-12157665462543713202_ radix  3) <> "-10000000000000000000100000000000000000000" or
         ( -1152921505680588800_ radix  4) <> "-1000000000000001000000000000000" or
         ( -1490116120605468750_ radix  5) <> "-100000000000010000000000000" or
@@ -7172,8 +7252,12 @@ const proc: chkRadix is func
         ( -1667889516244452930_ radix 33) <> "-1000001000000" or
         ( -2386420685237905472_ radix 34) <> "-1000001000000" or
         ( -3379220509894906250_ radix 35) <> "-1000001000000" or
-        ( -4738381340498399232_ radix 36) <> "-1000001000000" or
-        (-100000000000000000000000000319_ radix  2) <> "-1010000110001111000001111101011100110110101110010000101111100101010100000000000000000000100111111" or
+        ( -4738381340498399232_ radix 36) <> "-1000001000000" then
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (9)");
+      okay := FALSE;
+    end if;
+
+    if  (-100000000000000000000000000319_ radix  2) <> "-1010000110001111000001111101011100110110101110010000101111100101010100000000000000000000100111111" or
         (-100000000000000000000000000319_ radix  3) <> "-2100200200212000022212220120022010001221202000002022000220112" or
         (-100000000000000000000000000319_ radix  4) <> "-1100301320033223212311302011330222200000000010333" or
         (-100000000000000000000000000319_ radix  5) <> "-204441433212200000000000000000000000002234" or
@@ -7208,7 +7292,7 @@ const proc: chkRadix is func
         (-100000000000000000000000000319_ radix 34) <> "-r496vggek1grfuv3wo7" or
         (-100000000000000000000000000319_ radix 35) <> "-g3f6xlpcxahu7f49rl9" or
         (-100000000000000000000000000319_ radix 36) <> "-9p0xe2cuwj7x1co1a2n" then
-      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (10)");
       okay := FALSE;
     end if;
 
@@ -7217,10 +7301,19 @@ const proc: chkRadix is func
         (-18446744069414584320_ radix  8) <> "-1777777777740000000000" or
         (-18446744069414584320_ radix 16) <> "-ffffffff00000000" or
         (-18446744069414584320_ radix 32) <> "-fvvvvvs000000" then
-      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values.");
+      writeln(" ***** The radix operator for bigInteger does not work correctly for negative values. (11)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: chkRadix_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: base is 0;
+    var bigInteger: bigNum is 0_;
+  begin
     if  (                                                        2_ RADIX  2) <>                                   "10" or
         (                                                       21_ RADIX  3) <>                                  "210" or
         (                                                      228_ RADIX  4) <>                                 "3210" or
@@ -7375,6 +7468,28 @@ const proc: chkRadix is func
         not raisesRangeError(bigintExpr(123_) RADIX intExpr(           38 )) or
         not raisesRangeError(bigintExpr(123_) RADIX intExpr( integer.last )) then
       writeln(" ***** The RADIX operator does not raise RANGE_ERROR for an illegal base.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: chkRadix is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not chkRadix_1 then
+      okay := FALSE;
+    end if;
+
+    if not chkRadix_2 then
+      okay := FALSE;
+    end if;
+
+    if not chkRadix_3 then
+      okay := FALSE;
+    end if;
+
+    if not chkRadix_4 then
       okay := FALSE;
     end if;
 
