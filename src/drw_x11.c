@@ -1508,14 +1508,16 @@ intType drwHeight (const_winType actual_window)
 
 
 
-winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
+winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
+    boolType hasAlphaChannel)
 
   {
     XImage *image;
     x11_winType pixmap;
 
   /* drwImage */
-    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
+    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       width, height, hasAlphaChannel););
     if (unlikely(width < 1 || width > UINT_MAX ||
                  height < 1 || height > UINT_MAX)) {
       raise_error(RANGE_ERROR);
@@ -1685,8 +1687,9 @@ winType drwOpen (intType xPos, intType yPos,
     x11_winType result = NULL;
 
   /* drwOpen */
-    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       xPos, yPos, width, height););
+    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", \"%s\")\n", xPos, yPos, width, height,
+                       striAsUnquotedCStri(windowName)););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {

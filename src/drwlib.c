@@ -926,7 +926,7 @@ objectType drw_get_pixmap_from_pixels (listType arguments)
               pixel_elem++;
             } /* for */
           } /* for */
-          result = drwImage(image_data, width, height);
+          result = drwImage(image_data, width, height, TRUE);
           free(image_data);
         } /* if */
       } /* if */

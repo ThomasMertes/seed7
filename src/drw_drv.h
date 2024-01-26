@@ -87,7 +87,8 @@ winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
     intType width, intType height);
 void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight);
 intType drwHeight (const_winType actual_window);
-winType drwImage (int32Type *image_data, memSizeType width, memSizeType height);
+winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
+    boolType hasAlphaChannel);
 void drwLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2);
 void drwPLine (const_winType actual_window,

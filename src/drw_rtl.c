@@ -430,7 +430,7 @@ winType drwGetPixmapFromPixels (const const_rtlArrayType image)
             memcpy_to_pixel(pixel_elem, (intType *) arr_line->arr, width);
             pixel_elem += width;
           } /* for */
-          result = drwImage(image_data, width, height);
+          result = drwImage(image_data, width, height, TRUE);
           free(image_data);
         } /* if */
       } /* if */

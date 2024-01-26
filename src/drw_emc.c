@@ -931,14 +931,16 @@ intType drwHeight (const_winType actual_window)
 
 
 
-winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
+winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
+    boolType hasAlphaChannel)
 
   {
     int windowId;
     emc_winType pixmap = NULL;
 
   /* drwImage */
-    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
+    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       width, height, hasAlphaChannel););
     if (unlikely(width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
       raise_error(RANGE_ERROR);
@@ -957,11 +959,20 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
           let data = imageData.data;
           let len = width * height * 4;
           // copy img byte-per-byte into our ImageData
-          for (let i = 0; i < len; i += 4) {
-            data[i] = HEAPU8[$0 + i + 2];
-            data[i + 1] = HEAPU8[$0 + i + 1];
-            data[i + 2] = HEAPU8[$0 + i];
-            data[i + 3] = HEAPU8[$0 + i + 3];
+          if ($3) {
+            for (let i = 0; i < len; i += 4) {
+              data[i] = HEAPU8[$0 + i + 2];
+              data[i + 1] = HEAPU8[$0 + i + 1];
+              data[i + 2] = HEAPU8[$0 + i];
+              data[i + 3] = HEAPU8[$0 + i + 3];
+            }
+          } else {
+            for (let i = 0; i < len; i += 4) {
+              data[i] = HEAPU8[$0 + i + 2];
+              data[i + 1] = HEAPU8[$0 + i + 1];
+              data[i + 2] = HEAPU8[$0 + i];
+              data[i + 3] = 0xff;
+            }
           }
           context.putImageData(imageData, 0, 0);
           currentWindowId++;
@@ -971,7 +982,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         } else {
           return 0;
         }
-      }, (int *) image_data, (int) width, (int) height);
+      }, (int *) image_data, (int) width, (int) height, (int) hasAlphaChannel);
 
       if (unlikely(windowId == 0)) {
         logError(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM
@@ -992,7 +1003,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         maxWindowId = pixmap->window;
       } /* if */
     } /* if */
-    logFunction(printf("drwGetPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
                        pixmap != NULL ? pixmap->usage_count : (uintType) 0););
     return (winType) pixmap;
@@ -1111,8 +1122,9 @@ winType drwOpen (intType xPos, intType yPos,
     emc_winType result = NULL;
 
   /* drwOpen */
-    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", \"%s\")\n",
-                        xPos, yPos, width, height, striAsUnquotedCStri(windowName)););
+    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", \"%s\")\n", xPos, yPos, width, height,
+                       striAsUnquotedCStri(windowName)););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {

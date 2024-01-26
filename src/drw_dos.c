@@ -340,7 +340,8 @@ intType drwHeight (const_winType actual_window)
 
 
 
-winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
+winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
+    boolType hasAlphaChannel)
 
   { /* drwImage */
     return NULL;

@@ -6141,7 +6141,7 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= str(width(win1));
           c_expr.expr &:= ", ";
           c_expr.expr &:= str(height(win1));
-          c_expr.expr &:= ");\n";
+          c_expr.expr &:= ", 0);\n";
         end if;
       end for;
     end if;

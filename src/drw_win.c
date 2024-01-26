@@ -1366,7 +1366,8 @@ intType drwHeight (const_winType actual_window)
 
 
 
-winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
+winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
+    boolType hasAlphaChannel)
 
   {
     memSizeType pos;
@@ -1375,7 +1376,8 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
     win_winType pixmap;
 
   /* drwImage */
-    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
+    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       width, height, hasAlphaChannel););
     if (unlikely(width < 1 || width > INTTYPE_MAX ||
                  height < 1 || height > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
