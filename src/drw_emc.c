@@ -1565,21 +1565,39 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
                        destWindow != NULL ? to_window(destWindow) : 0,
                        xDest, yDest, (memSizeType) pixmap,
                        pixmap != NULL ? to_window(pixmap) : 0););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined" &&
-                                           typeof mapIdToCanvas[$1] !== "undefined") {
-        mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3);
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(destWindow), to_window(pixmap), castToInt(xDest), castToInt(yDest));
-    if (unlikely(successInfo != 0)) {
-      logError(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap,
-                      to_window(destWindow)););
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(!inIntRange(xDest) || !inIntRange(yDest))) {
+      raise_error(RANGE_ERROR);
+    } else if (pixmap != NULL && to_window(pixmap) != 0) {
+      /* A pixmap value of NULL or a pixmap with a window of 0 */
+      /* is used to describe an empty pixmap. In this case     */
+      /* nothing should be done.                               */
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined") {
+          if (typeof mapIdToContext[$0] === "undefined") {
+            return 2;
+          } else if (typeof mapIdToCanvas[$1] === "undefined") {
+            return 3;
+          } else {
+            mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3);
+            return 0;
+          }
+        } else {
+          return 1;
+        }
+      }, to_window(destWindow), to_window(pixmap), (int) xDest, (int) yDest);
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPut(" FMT_U_MEM " (window=%d), "
+                        FMT_D ", " FMT_D ", " FMT_U_MEM " (window=%d)): "
+                        "windowId not found: %d\n",
+                        (memSizeType) destWindow,
+                        destWindow != NULL ? to_window(destWindow) : 0,
+                        xDest, yDest, (memSizeType) pixmap,
+                        pixmap != NULL ? to_window(pixmap) : 0,
+                        successInfo == 3 ?
+                        (pixmap != NULL ? to_window(pixmap) : 0) :
+                        (destWindow != NULL ? to_window(destWindow) : 0)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPut */
 
@@ -1592,28 +1610,52 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
     int successInfo;
 
   /* drwPutScaled */
-    logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
-                       FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
-                       (memSizeType) destWindow, xDest, yDest,
-                       width, height, (memSizeType) pixmap););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined" &&
-                                           typeof mapIdToCanvas[$1] !== "undefined") {
-        mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3, $4, $5);
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(destWindow), to_window(pixmap), castToInt(xDest), castToInt(yDest),
-        castToInt(width), castToInt(height));
-    if (unlikely(successInfo != 0)) {
-      logError(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
-                      FMT_D ", " FMT_D ", " FMT_U_MEM "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) destWindow, xDest, yDest,
-                      width, height, (memSizeType) pixmap,
-                      to_window(destWindow)););
-      raise_error(GRAPHIC_ERROR);
+    logFunction(printf("drwPutScaled(" FMT_U_MEM " (window=%d), "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", "
+                       FMT_U_MEM " (window=%d))\n",
+                       (memSizeType) destWindow,
+                       destWindow != NULL ? to_window(destWindow) : 0,
+                       xDest, yDest, width, height,
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? to_window(pixmap) : 0););
+    if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
+                 !inIntRange(width) || width < 0 ||
+                 !inIntRange(height) || height < 0)) {
+      raise_error(RANGE_ERROR);
+    } else if (pixmap != NULL && to_window(pixmap) != 0) {
+      /* A pixmap value of NULL or a pixmap with a window of 0 */
+      /* is used to describe an empty pixmap. In this case     */
+      /* nothing should be done.                               */
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined") {
+          if (typeof mapIdToContext[$0] === "undefined") {
+            return 2;
+          } else if (typeof mapIdToCanvas[$1] === "undefined") {
+            return 3;
+          } else {
+            mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3, $4, $5);
+            return 0;
+          }
+        } else {
+          return 1;
+        }
+      }, to_window(destWindow), to_window(pixmap), (int) xDest, (int) yDest,
+          (int) width, (int) height);
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPutScaled(" FMT_U_MEM " (window=%d), "
+                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", "
+                        FMT_U_MEM " (window=%d)): "
+                        "windowId not found: %d\n",
+                        (memSizeType) destWindow,
+                        destWindow != NULL ? to_window(destWindow) : 0,
+                        xDest, yDest, width, height,
+                        (memSizeType) pixmap,
+                        pixmap != NULL ? to_window(pixmap) : 0,
+                        successInfo == 3 ?
+                        (pixmap != NULL ? to_window(pixmap) : 0) :
+                        (destWindow != NULL ? to_window(destWindow) : 0)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPutScaled */
 

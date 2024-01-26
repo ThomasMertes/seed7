@@ -2195,7 +2195,7 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
       /* nothing should be done.                               */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
-        XSetClipOrigin(mydisplay, mygc, castToInt(xDest), castToInt(yDest));
+        XSetClipOrigin(mydisplay, mygc, (int) xDest, (int) yDest);
       } /* if */
       XCopyArea(mydisplay, to_window(pixmap), to_window(destWindow),
                 mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) xDest, (int) yDest);
