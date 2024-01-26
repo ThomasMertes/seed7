@@ -747,8 +747,9 @@ winType drwEmpty (void)
       emptyWindow->width = 0;
       emptyWindow->height = 0;
     } /* if */
-    logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwEmpty --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) emptyWindow,
+                       emptyWindow != NULL ? emptyWindow->window : 0,
                        emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
     return (winType) emptyWindow;
   } /* drwEmpty */
@@ -769,14 +770,22 @@ void drwFree (winType old_window)
       }, to_window(old_window));
     } else {
       EM_ASM({
-        let canvas = mapIdToCanvas[$0];
-        mapCanvasToId.delete(canvas);
-        mapIdToCanvas[$0] = null;
-        mapIdToContext[$0] = null;
-        let windowObject = mapIdToWindow[$0];
-        mapWindowToId.delete(windowObject);
-        mapIdToWindow[$0] = null;
-        windowObject.close();
+        if (typeof window !== "undefined") {
+          if (typeof mapIdToCanvas[$0] !== "undefined") {
+            let canvas = mapIdToCanvas[$0];
+            mapCanvasToId.delete(canvas);
+            mapIdToCanvas[$0] = null;
+            mapIdToContext[$0] = null;
+            let parent = canvas.parentNode;
+            parent.removeChild(canvas);
+          }
+          if (typeof mapIdToWindow[$0] !== "undefined") {
+            let windowObject = mapIdToWindow[$0];
+            mapWindowToId.delete(windowObject);
+            mapIdToWindow[$0] = null;
+            windowObject.close();
+          }
+        }
       }, to_window(old_window));
       remove_window(to_window(old_window));
     } /* if */
@@ -1003,8 +1012,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
         maxWindowId = pixmap->window;
       } /* if */
     } /* if */
-    logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwImage --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->window : 0,
                        pixmap != NULL ? pixmap->usage_count : (uintType) 0););
     return (winType) pixmap;
   } /* drwImage */
@@ -1253,7 +1263,10 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     emc_winType result = NULL;
 
   /* drwOpenSubWindow */
-    logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwOpenSubWindow(" FMT_U_MEM " (window=%d), "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) parent_window,
+                       parent_window != NULL ? to_window(parent_window) : 0,
                        xPos, yPos, width, height););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
@@ -1546,8 +1559,12 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
     int successInfo;
 
   /* drwPut */
-    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
-                       (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap););
+    logFunction(printf("drwPut(" FMT_U_MEM " (window=%d), "
+                       FMT_D ", " FMT_D ", " FMT_U_MEM " (window=%d))\n",
+                       (memSizeType) destWindow,
+                       destWindow != NULL ? to_window(destWindow) : 0,
+                       xDest, yDest, (memSizeType) pixmap,
+                       pixmap != NULL ? to_window(pixmap) : 0););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined" &&
                                            typeof mapIdToCanvas[$1] !== "undefined") {
