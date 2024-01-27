@@ -343,8 +343,8 @@ const proc: checkISO8601ToTimeConversion is func
   end func;
 
 
-const proc: checkTimeToStringConversion is func
-  local
+const func boolean: checkTimeToStringConversion_1 is func
+  result
     var boolean: okay is TRUE;
   begin
     if  str(date(-4711,  1,  1)) <> "-4711-01-01 00:00:00 UTC" or
@@ -491,7 +491,13 @@ const proc: checkTimeToStringConversion is func
       writeln(" ***** Conversion to a string in ISO 8601 date format fails. (5)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkTimeToStringConversion_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  strDate(date(-4711,  1,  1)) <> "-4711-01-01" or
         strDate(date(-4711, 12, 31)) <> "-4711-12-31" or
         strDate(date( -999, 12, 31)) <> "-999-12-31"  or
@@ -636,7 +642,13 @@ const proc: checkTimeToStringConversion is func
       writeln(" ***** Conversion to a string in ISO 8601 date format fails. (10)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: checkTimeToStringConversion_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  str_yyyy_mm_dd(date(-4711,  1,  1), "/") <> "-4711/01/01" or
         str_yyyy_mm_dd(date(-4711, 12, 31), "/") <> "-4711/12/31" or
         str_yyyy_mm_dd(date( -999, 12, 31), "/") <> "-999/12/31"  or
@@ -935,6 +947,24 @@ const proc: checkTimeToStringConversion is func
         str_hh_mm_ss(time(0, 1, 1, 12,  0,  0), ":") <> "12:00:00" or
         str_hh_mm_ss(time(0, 1, 1, 23, 59, 59), ":") <> "23:59:59" then
       writeln(" ***** Conversion to a string in HH:MM:SS format fails.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: checkTimeToStringConversion is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if checkTimeToStringConversion_1 then
+      okay := FALSE;
+    end if;
+
+    if checkTimeToStringConversion_2 then
+      okay := FALSE;
+    end if;
+
+    if checkTimeToStringConversion_3 then
       okay := FALSE;
     end if;
 

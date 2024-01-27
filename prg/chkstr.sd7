@@ -22776,8 +22776,8 @@ const proc: check_string_case_conversions is func
   end func;
 
 
-const proc: check_string_funcs is func
-  local
+const func boolean: check_string_trim is func
+  result
     var boolean: okay is TRUE;
   begin
     if  trim(""          ) <> "" or
@@ -22985,7 +22985,13 @@ const proc: check_string_funcs is func
       writeln(" ***** trim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_ltrim is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  ltrim(""          ) <> "" or
         ltrim(" "         ) <> "" or
         ltrim("  "        ) <> "" or
@@ -23193,7 +23199,13 @@ const proc: check_string_funcs is func
       writeln(" ***** ltrim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_rtrim is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rtrim(""          ) <> "" or
         rtrim(" "         ) <> "" or
         rtrim("  "        ) <> "" or
@@ -23401,10 +23413,38 @@ const proc: check_string_funcs is func
       writeln(" ***** rtrim(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_str is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  str("") <> "" or
         str(striExpr("")) <> "" then
       writeln(" ***** str(STRING) does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_funcs is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_trim then
+      okay := FALSE;
+    end if;
+
+    if not check_string_ltrim then
+      okay := FALSE;
+    end if;
+
+    if not check_string_rtrim then
+      okay := FALSE;
+    end if;
+
+    if not check_string_str then
       okay := FALSE;
     end if;
 
