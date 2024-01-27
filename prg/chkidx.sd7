@@ -11481,7 +11481,13 @@ const func boolean: check_string_substr_func_2 is func
       writeln(" ***** \"1234567890\" [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_func_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  not raisesIndexError(substrFunction(striExpr(""), intExpr(integer.first), integer.first)) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr(integer.first),            -9)) or
         not raisesIndexError(substrFunction(striExpr(""), intExpr(integer.first),            -5)) or
@@ -11910,6 +11916,10 @@ const proc: check_string_substr is func
     end if;
 
     if not check_string_substr_func_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_func_3 then
       okay := FALSE;
     end if;
 

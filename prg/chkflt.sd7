@@ -17194,17 +17194,14 @@ const proc: check_negative_zero is func
   end func;
 
 
-const proc: check_inf is func
+const func boolean: check_inf_1 is func
+  result
+    var boolean: okay is TRUE;
   local
     const float: minusZero is -0.0;
     const float: minusOne is -1.0;
-    const float: minusTwo is -2.0;
-    const float: minusInf is -Infinity;
     const float: minusBig is -1.0E37;
     const float: minusSmall is -1.0E-37;
-    var float: floatVar is 0.0;
-    var boolean: divAssignOkay is TRUE;
-    var boolean: okay is TRUE;
   begin
     if             -1.0E37  /                -0.0  <>  Infinity or
                    -1.0E37  /           minusZero  <>  Infinity or
@@ -17281,7 +17278,20 @@ const proc: check_inf is func
       writeln(" ***** Division by 0.0 does not return Infinity.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_inf_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const float: minusZero is -0.0;
+    const float: minusOne is -1.0;
+    const float: minusBig is -1.0E37;
+    const float: minusSmall is -1.0E-37;
+    var float: floatVar is 0.0;
+    var boolean: divAssignOkay is TRUE;
+  begin
     floatVar :=  -1.0E37; floatVar /:=                -0.0;  divAssignOkay := divAssignOkay and floatVar =  Infinity;
     floatVar :=  -1.0E37; floatVar /:=           minusZero;  divAssignOkay := divAssignOkay and floatVar =  Infinity;
     floatVar :=  -1.0E37; floatVar /:=                 0.0;  divAssignOkay := divAssignOkay and floatVar = -Infinity;
@@ -17322,7 +17332,15 @@ const proc: check_inf is func
       writeln(" ***** Assignment division by 0.0 does not assign Infinity.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_inf_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const float: minusZero is -0.0;
+  begin
     if  log(                 -0.0)  <> -Infinity or
         log(            minusZero)  <> -Infinity or
         log(                  0.0)  <> -Infinity or
@@ -17358,7 +17376,20 @@ const proc: check_inf is func
       writeln(" ***** log10(0.0) does not return -Infinity.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_inf_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const float: minusZero is -0.0;
+    const float: minusOne is -1.0;
+    const float: minusInf is -Infinity;
+    const float: minusBig is -1.0E37;
+    const float: minusSmall is -1.0E-37;
+    var float: floatVar is 0.0;
+  begin
     if            Infinity  +             -1.0E37  <> Infinity or
                   Infinity  +            minusBig  <> Infinity or
                   Infinity  +             -1000.0  <> Infinity or
@@ -17594,7 +17625,20 @@ const proc: check_inf is func
       writeln(" ***** Adding a finite value to -Infinity does not return -Infinity.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_inf_5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const float: minusZero is -0.0;
+    const float: minusOne is -1.0;
+    const float: minusInf is -Infinity;
+    const float: minusBig is -1.0E37;
+    const float: minusSmall is -1.0E-37;
+    var float: floatVar is 0.0;
+  begin
     if              Infinity  *            -Infinity  <> -Infinity or
                     Infinity  *             minusInf  <> -Infinity or
                     Infinity  *              -1.0E37  <> -Infinity or
@@ -17622,8 +17666,12 @@ const proc: check_inf is func
                          1.0  *             Infinity  <>  Infinity or
                       1000.0  *             Infinity  <>  Infinity or
                       1.0E37  *             Infinity  <>  Infinity or
-                    Infinity  *             Infinity  <>  Infinity or
-        floatExpr(  Infinity) *            -Infinity  <> -Infinity or
+                    Infinity  *             Infinity  <>  Infinity then
+      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(  Infinity) *            -Infinity  <> -Infinity or
         floatExpr(  Infinity) *             minusInf  <> -Infinity or
         floatExpr(  Infinity) *              -1.0E37  <> -Infinity or
         floatExpr(  Infinity) *             minusBig  <> -Infinity or
@@ -17650,8 +17698,12 @@ const proc: check_inf is func
         floatExpr(       1.0) *             Infinity  <>  Infinity or
         floatExpr(    1000.0) *             Infinity  <>  Infinity or
         floatExpr(    1.0E37) *             Infinity  <>  Infinity or
-        floatExpr(  Infinity) *             Infinity  <>  Infinity or
-                    Infinity  * floatExpr( -Infinity) <> -Infinity or
+        floatExpr(  Infinity) *             Infinity  <>  Infinity then
+      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity. (2)");
+      okay := FALSE;
+    end if;
+
+    if              Infinity  * floatExpr( -Infinity) <> -Infinity or
                     Infinity  * floatExpr(  minusInf) <> -Infinity or
                     Infinity  * floatExpr(   -1.0E37) <> -Infinity or
                     Infinity  * floatExpr(  minusBig) <> -Infinity or
@@ -17678,8 +17730,12 @@ const proc: check_inf is func
                          1.0  * floatExpr(  Infinity) <>  Infinity or
                       1000.0  * floatExpr(  Infinity) <>  Infinity or
                       1.0E37  * floatExpr(  Infinity) <>  Infinity or
-                    Infinity  * floatExpr(  Infinity) <>  Infinity or
-        floatExpr(  Infinity) * floatExpr( -Infinity) <> -Infinity or
+                    Infinity  * floatExpr(  Infinity) <>  Infinity then
+      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr(  Infinity) * floatExpr( -Infinity) <> -Infinity or
         floatExpr(  Infinity) * floatExpr(  minusInf) <> -Infinity or
         floatExpr(  Infinity) * floatExpr(   -1.0E37) <> -Infinity or
         floatExpr(  Infinity) * floatExpr(  minusBig) <> -Infinity or
@@ -17707,7 +17763,7 @@ const proc: check_inf is func
         floatExpr(    1000.0) * floatExpr(  Infinity) <>  Infinity or
         floatExpr(    1.0E37) * floatExpr(  Infinity) <>  Infinity or
         floatExpr(  Infinity) * floatExpr(  Infinity) <>  Infinity then
-      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity.");
+      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity. (4)");
       okay := FALSE;
     end if;
 
@@ -17766,8 +17822,12 @@ const proc: check_inf is func
                          1.0  *             minusInf  <> -Infinity or
                       1000.0  *             minusInf  <> -Infinity or
                       1.0E37  *             minusInf  <> -Infinity or
-                    Infinity  *             minusInf  <> -Infinity or
-        floatExpr( -Infinity) *            -Infinity  <>  Infinity or
+                    Infinity  *             minusInf  <> -Infinity then
+      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity. (1)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr( -Infinity) *            -Infinity  <>  Infinity or
         floatExpr( -Infinity) *             minusInf  <>  Infinity or
         floatExpr( -Infinity) *              -1.0E37  <>  Infinity or
         floatExpr( -Infinity) *             minusBig  <>  Infinity or
@@ -17822,8 +17882,12 @@ const proc: check_inf is func
         floatExpr(       1.0) *             minusInf  <> -Infinity or
         floatExpr(    1000.0) *             minusInf  <> -Infinity or
         floatExpr(    1.0E37) *             minusInf  <> -Infinity or
-        floatExpr(  Infinity) *             minusInf  <> -Infinity or
-                   -Infinity  * floatExpr( -Infinity) <>  Infinity or
+        floatExpr(  Infinity) *             minusInf  <> -Infinity then
+      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity. (2)");
+      okay := FALSE;
+    end if;
+
+    if             -Infinity  * floatExpr( -Infinity) <>  Infinity or
                    -Infinity  * floatExpr(  minusInf) <>  Infinity or
                    -Infinity  * floatExpr(   -1.0E37) <>  Infinity or
                    -Infinity  * floatExpr(  minusBig) <>  Infinity or
@@ -17878,8 +17942,12 @@ const proc: check_inf is func
                          1.0  * floatExpr(  minusInf) <> -Infinity or
                       1000.0  * floatExpr(  minusInf) <> -Infinity or
                       1.0E37  * floatExpr(  minusInf) <> -Infinity or
-                    Infinity  * floatExpr(  minusInf) <> -Infinity or
-        floatExpr( -Infinity) * floatExpr( -Infinity) <>  Infinity or
+                    Infinity  * floatExpr(  minusInf) <> -Infinity then
+      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity. (3)");
+      okay := FALSE;
+    end if;
+
+    if  floatExpr( -Infinity) * floatExpr( -Infinity) <>  Infinity or
         floatExpr( -Infinity) * floatExpr(  minusInf) <>  Infinity or
         floatExpr( -Infinity) * floatExpr(   -1.0E37) <>  Infinity or
         floatExpr( -Infinity) * floatExpr(  minusBig) <>  Infinity or
@@ -17935,7 +18003,7 @@ const proc: check_inf is func
         floatExpr(    1000.0) * floatExpr(  minusInf) <> -Infinity or
         floatExpr(    1.0E37) * floatExpr(  minusInf) <> -Infinity or
         floatExpr(  Infinity) * floatExpr(  minusInf) <> -Infinity then
-      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity.");
+      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity. (4)");
       okay := FALSE;
     end if;
 
@@ -17946,6 +18014,32 @@ const proc: check_inf is func
         floatExpr(abs( minusInf)) <> Infinity or
         floatExpr(abs( Infinity)) <> Infinity then
       writeln(" ***** Absolute value of Infinity does not work correctly.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_inf is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_inf_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_inf_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_inf_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_inf_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_inf_5 then
       okay := FALSE;
     end if;
 
