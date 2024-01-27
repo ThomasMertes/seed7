@@ -1691,8 +1691,12 @@ winType drwOpen (intType xPos, intType yPos,
                        ", \"%s\")\n", xPos, yPos, width, height,
                        striAsUnquotedCStri(windowName)););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
+      logError(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", \"%s\"): Illegal window dimensions\n",
+                      xPos, yPos, width, height,
+                      striAsUnquotedCStri(windowName)););
       raise_error(RANGE_ERROR);
     } else {
       if (!init_called) {
@@ -1848,8 +1852,11 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                        xPos, yPos, width, height););
     result = NULL;
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
+      logError(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
+                      "Illegal window dimensions\n",
+                      xPos, yPos, width, height););
       raise_error(RANGE_ERROR);
     } else {
       if (!init_called) {
