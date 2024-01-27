@@ -1934,9 +1934,13 @@ void drwText (const_winType actual_window, intType x, intType y,
         successInfo = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
             let context = mapIdToContext[$0];
-            context.fillStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
+            let text = Module.UTF8ToString($3);
+            context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
             context.font = "10px Courier New";
-            context.fillText(Module.UTF8ToString($3), $1, $2);
+            let width = context.measureText(text).width;
+            context.fillRect($1, $2 - 11, width, 13);
+            context.fillStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
+            context.fillText(text, $1, $2);
             return 0;
           } else {
             return 1;
