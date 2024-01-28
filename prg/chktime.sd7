@@ -956,15 +956,15 @@ const proc: checkTimeToStringConversion is func
   local
     var boolean: okay is TRUE;
   begin
-    if checkTimeToStringConversion_1 then
+    if not checkTimeToStringConversion_1 then
       okay := FALSE;
     end if;
 
-    if checkTimeToStringConversion_2 then
+    if not checkTimeToStringConversion_2 then
       okay := FALSE;
     end if;
 
-    if checkTimeToStringConversion_3 then
+    if not checkTimeToStringConversion_3 then
       okay := FALSE;
     end if;
 
