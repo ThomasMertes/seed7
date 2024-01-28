@@ -284,7 +284,7 @@ depend: version.h wrdepend
 	cp pre_js.js ../bin/$(SPECIAL_LIB)
 
 ../bin/%.js: ../prg/%.sd7 ../bin/s7c.js
-	node ../bin/s7c.js -l ../lib -b ../bin -O3 -oc3 $<
+	node --stack-size=8192 ../bin/s7c.js -l ../lib -b ../bin -O3 -oc3 $<
 	mv $(<:.sd7=.js) ../bin
 	mv $(<:.sd7=.wasm) ../bin
 

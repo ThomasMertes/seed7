@@ -346,37 +346,37 @@ depend: version.h setwpath.exe wrdepend.exe sudo.exe
 	copy pre_js.js ..\bin\$(SPECIAL_LIB)
 
 ..\bin\bas7.js: ..\prg\bas7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bas7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bas7
 	copy ..\prg\bas7.js ..\bin /Y
 	del ..\prg\bas7.js
 
 ..\bin\bigfiles.js: ..\prg\bigfiles.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bigfiles
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bigfiles
 	copy ..\prg\bigfiles.js ..\bin /Y
 	del ..\prg\bigfiles.js
 
 ..\bin\calc7.js: ..\prg\calc7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\calc7
 	copy ..\prg\calc7.js ..\bin /Y
 	del ..\prg\calc7.js
 
 ..\bin\cat.js: ..\prg\cat.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\cat
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\cat
 	copy ..\prg\cat.js ..\bin /Y
 	del ..\prg\cat.js
 
 ..\bin\comanche.js: ..\prg\comanche.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\comanche
 	copy ..\prg\comanche.js ..\bin /Y
 	del ..\prg\comanche.js
 
 ..\bin\db7.js: ..\prg\db7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\db7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\db7
 	copy ..\prg\db7.js ..\bin /Y
 	del ..\prg\db7.js
 
 ..\bin\diff7.js: ..\prg\diff7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\diff7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\diff7
 	copy ..\prg\diff7.js ..\bin /Y
 	del ..\prg\diff7.js
 
@@ -386,67 +386,67 @@ depend: version.h setwpath.exe wrdepend.exe sudo.exe
 	del ..\prg\find7.js
 
 ..\bin\findchar.js: ..\prg\findchar.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\findchar
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\findchar
 	copy ..\prg\findchar.js ..\bin /Y
 	del ..\prg\findchar.js
 
 ..\bin\ftp7.js: ..\prg\ftp7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftp7
 	copy ..\prg\ftp7.js ..\bin /Y
 	del ..\prg\ftp7.js
 
 ..\bin\ftpserv.js: ..\prg\ftpserv.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
 	copy ..\prg\ftpserv.js ..\bin /Y
 	del ..\prg\ftpserv.js
 
 ..\bin\hd.js: ..\prg\hd.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\hd
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\hd
 	copy ..\prg\hd.js ..\bin /Y
 	del ..\prg\hd.js
 
 ..\bin\ide7.js: ..\prg\ide7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ide7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ide7
 	copy ..\prg\ide7.js ..\bin /Y
 	del ..\prg\ide7.js
 
 ..\bin\make7.js: ..\prg\make7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\make7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.js ..\bin /Y
 	del ..\prg\make7.js
 
 ..\bin\portfwd7.js: ..\prg\portfwd7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\portfwd7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\portfwd7
 	copy ..\prg\portfwd7.js ..\bin /Y
 	del ..\prg\portfwd7.js
 
 ..\bin\pv7.js: ..\prg\pv7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\pv7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\pv7
 	copy ..\prg\pv7.js ..\bin /Y
 	del ..\prg\pv7.js
 
 ..\bin\sql7.js: ..\prg\sql7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sql7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sql7
 	copy ..\prg\sql7.js ..\bin /Y
 	del ..\prg\sql7.js
 
 ..\bin\sydir7.js: ..\prg\sydir7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sydir7
 	copy ..\prg\sydir7.js ..\bin /Y
 	del ..\prg\sydir7.js
 
 ..\bin\tar7.js: ..\prg\tar7.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\tar7
 	copy ..\prg\tar7.js ..\bin /Y
 	del ..\prg\tar7.js
 
 ..\bin\toutf8.js: ..\prg\toutf8.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\toutf8
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\toutf8
 	copy ..\prg\toutf8.js ..\bin /Y
 	del ..\prg\toutf8.js
 
 ..\bin\which.js: ..\prg\which.sd7 ..\bin\s7c.js
-	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\which
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\which
 	copy ..\prg\which.js ..\bin /Y
 	del ..\prg\which.js
 
