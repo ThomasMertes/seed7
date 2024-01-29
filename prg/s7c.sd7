@@ -33,6 +33,7 @@ $ include "seed7_05.s7i";
   include "math.s7i";
   include "bytedata.s7i";
   include "bin64.s7i";
+  include "draw.s7i";
   include "keybd.s7i";
   include "progs.s7i";
   include "shell.s7i";
@@ -6086,26 +6087,142 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
   end func;
 
 
+const func boolean: pixelEncodingIdentical is
+  return ord(colorPixel(color(65535,     0,     0))) =
+             ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK and
+         ord(colorPixel(color(    0, 65535,     0))) =
+             ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
+         ord(colorPixel(color(    0,     0, 65535))) =
+             ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK;
+
+
+const func boolean: pixelEncodingWithoutAlphaChannel is
+  return ccConf.PIXEL_ALPHA_MASK <> 0 and
+         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_RED_MASK   and
+         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_BLUE_MASK;
+
+
+const func boolean: pixelEncodingWithRedAndBlueSwapped is
+  return ord(colorPixel(color(65535,     0,     0))) =
+             ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK and
+         ord(colorPixel(color(    0, 65535,     0))) =
+             ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
+         ord(colorPixel(color(    0,     0, 65535))) =
+             ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK;
+
+
+const func boolean: pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel is
+  return ccConf.PIXEL_ALPHA_MASK <> 0 and
+         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_BLUE_MASK  and
+         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_RED_MASK;
+
+
+const func bstring: swapRedAndBlue (in bstring: bImage) is func
+  result
+    var bstring: swappedImage is bstring.value;
+  local
+    var string: image is "";
+    var integer: index is 0;
+    var char: aByte is ' ';
+  begin
+    image := string(bImage);
+    if ccConf.LITTLE_ENDIAN_INTTYPE then
+      for index range 1 to length(image) step 4 do
+        aByte := image[index];
+        image @:= [index] image[index + 2];
+        image @:= [index + 2] aByte;
+      end for;
+    else
+      for index range 1 to length(image) step 4 do
+        aByte := image[index + 1];
+        image @:= [index + 1] image[index + 3];
+        image @:= [index + 3] aByte;
+      end for;
+    end if;
+    swappedImage := bstring(image);
+  end func;
+
+
+const func bstring: fixPixels (in var array array pixel: pixelArray) is func
+  result
+    var bstring: swappedImageData is bstring.value;
+  local
+    var integer: redRightShift is 0;
+    var integer: greenRightShift is 0;
+    var integer: blueRightShift is 0;
+    var integer: redLeftShift is 0;
+    var integer: greenLeftShift is 0;
+    var integer: blueLeftShift is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: pixelColor is color.value;
+    var integer: pixelData is 0;
+  begin
+    redRightShift := 16 - (bitLength(ccConf.PIXEL_RED_MASK) - lowestSetBit(ccConf.PIXEL_RED_MASK));
+    redLeftShift := lowestSetBit(ccConf.PIXEL_RED_MASK);
+    greenRightShift := 16 - (bitLength(ccConf.PIXEL_GREEN_MASK) - lowestSetBit(ccConf.PIXEL_GREEN_MASK));
+    greenLeftShift := lowestSetBit(ccConf.PIXEL_GREEN_MASK);
+    blueRightShift := 16 - (bitLength(ccConf.PIXEL_BLUE_MASK) - lowestSetBit(ccConf.PIXEL_BLUE_MASK));
+    blueLeftShift := lowestSetBit(ccConf.PIXEL_BLUE_MASK);
+    for key line range pixelArray do
+      for column range 1 to length(pixelArray[line]) do
+        pixelColor := pixelToColor(pixelArray[line][column]);
+        pixelData := (pixelColor.redLight   >> redRightShift   << redLeftShift) +
+                     (pixelColor.greenLight >> greenRightShift << greenLeftShift) +
+                     (pixelColor.blueLight  >> blueRightShift  << blueLeftShift);
+        pixelArray[line][column] := pixel(pixelData);
+      end for;
+    end for;
+    swappedImageData := getPixelData(pixelArray);
+  end func;
+
+
 const proc: init_win_constants is func
 
   local
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
     var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
     var integer: number is 0;
-    var string: image is "";
     var bstring: bImage is bstring.value;
   begin
     win_index := flip(win_const_table);
-    for number range sort(keys(win_index)) do
-      win1 := win_index[number][1];
-      if width(win1) <> 0 or height(win1) <> 0 then
-        bImage := getPixelData(win1);
-        if bImage not in bstri_const_table then
-          bstri_const_table @:= [bImage] length(bstri_const_table);
+    if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel then
+      for number range sort(keys(win_index)) do
+        win1 := win_index[number][1];
+        if width(win1) <> 0 or height(win1) <> 0 then
+          bImage := getPixelData(win1);
+          if bImage not in bstri_const_table then
+            bstri_const_table @:= [bImage] length(bstri_const_table);
+          end if;
+          win_bstri_table @:= [number] bstri_const_table[bImage];
         end if;
-        win_bstri_table @:= [number] bstri_const_table[bImage];
-      end if;
-    end for;
+      end for;
+    elsif pixelEncodingWithRedAndBlueSwapped or
+        pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel then
+      for number range sort(keys(win_index)) do
+        win1 := win_index[number][1];
+        if width(win1) <> 0 or height(win1) <> 0 then
+          bImage := swapRedAndBlue(getPixelData(win1));
+          if bImage not in bstri_const_table then
+            bstri_const_table @:= [bImage] length(bstri_const_table);
+          end if;
+          win_bstri_table @:= [number] bstri_const_table[bImage];
+        end if;
+      end for;
+    else
+      for number range sort(keys(win_index)) do
+        win1 := win_index[number][1];
+        if width(win1) <> 0 or height(win1) <> 0 then
+          bImage := fixPixels(getPixelArray(win1));
+          if bImage not in bstri_const_table then
+            bstri_const_table @:= [bImage] length(bstri_const_table);
+          end if;
+          win_bstri_table @:= [number] bstri_const_table[bImage];
+        end if;
+      end for;
+    end if;
   end func;
 
 
