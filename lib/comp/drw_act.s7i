@@ -129,6 +129,9 @@ const func string: defineRgbMacroBody is func
     constructRgbMacroPart("red",   ccConf.PIXEL_RED_MASK,   macroBody);
     constructRgbMacroPart("green", ccConf.PIXEL_GREEN_MASK, macroBody);
     constructRgbMacroPart("blue",  ccConf.PIXEL_BLUE_MASK,  macroBody);
+    if ccConf.PIXEL_ALPHA_MASK <> 0 then
+      macroBody := "(" <& macroBody <& ") | 0x" <& ccConf.PIXEL_ALPHA_MASK radix 16;
+    end if;
   end func;
 
 

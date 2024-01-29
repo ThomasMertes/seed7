@@ -167,6 +167,9 @@
 #ifndef SYSTEM_MATH_LIBS
 #define SYSTEM_MATH_LIBS ""
 #endif
+#ifndef PIXEL_ALPHA_MASK
+#define PIXEL_ALPHA_MASK "0"
+#endif
 #ifndef PIXEL_RED_MASK
 #define PIXEL_RED_MASK "0"
 #endif
@@ -2287,6 +2290,8 @@ striType cmdConfigValue (const const_striType name)
 #else
       opt = "";
 #endif
+    } else if (strcmp(opt_name, "PIXEL_ALPHA_MASK") == 0) {
+      opt = PIXEL_ALPHA_MASK;
     } else if (strcmp(opt_name, "PIXEL_RED_MASK") == 0) {
       opt = PIXEL_RED_MASK;
     } else if (strcmp(opt_name, "PIXEL_GREEN_MASK") == 0) {

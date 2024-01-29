@@ -10103,19 +10103,29 @@ static void determineIncludesAndLibs (FILE *versionFile)
 #ifdef SYSTEM_DRAW_LIBS
     replaceUnquotedSpacesWithNl(system_draw_libs, SYSTEM_DRAW_LIBS);
 #endif
-#if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
-    determineConsoleDefines(versionFile, include_options, system_console_libs);
-    determineX11Defines(versionFile, include_options, system_draw_libs);
-#elif defined OS_STRI_WCHAR
-    fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
-    fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
-    fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
+#if defined MOUNT_NODEFS
     fputs("#define PIXEL_ALPHA_MASK \"ff000000\"\n", versionFile);
+    fputs("#define PIXEL_RED_MASK \"ff0000\"\n", versionFile);
+    fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
+    fputs("#define PIXEL_BLUE_MASK \"ff\"\n", versionFile);
     fputs("#define createARGB(alpha, red, green, blue) "
               "(ARGB) ((((DWORD) alpha) << 24) | "
                       "(((DWORD) red) << 16) | "
                       "(((DWORD) green) << 8) | "
                        "((DWORD) blue))\n", versionFile);
+#elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
+    determineConsoleDefines(versionFile, include_options, system_console_libs);
+    determineX11Defines(versionFile, include_options, system_draw_libs);
+#elif defined OS_STRI_WCHAR
+    /* fputs("#define PIXEL_ALPHA_MASK \"ff000000\"\n", versionFile); */
+    fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
+    fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
+    fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
+    fputs("#define createARGB(alpha, red, green, blue) "
+              "(ARGB) ((((DWORD) alpha) << 24) | "
+                      "(((DWORD) red)) | "
+                      "(((DWORD) green) << 8) | "
+                       "((DWORD) blue) << 16)\n", versionFile);
 #endif
     determineMySqlDefines(versionFile, include_options, system_database_libs);
     determineSqliteDefines(versionFile, include_options, system_database_libs);

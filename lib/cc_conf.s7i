@@ -381,6 +381,12 @@ const type: ccConfigType is new struct
     var integer: MAXIMUM_TRUNC_ARGUMENT       is 0;
 
     (**
+     *  Mask for the alpha channel in a pixel.
+     *  0 if there is no alpha channel.
+     *)
+    var integer: PIXEL_ALPHA_MASK             is 0;
+
+    (**
      *  Mask for the red color in a pixel.
      *  0 if there is no mapping and drwRgbColor() should be used.
      *)
@@ -912,6 +918,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.INT_RANGE_IN_FLOATTYPE_MAX    := integer(configValue("INT_RANGE_IN_FLOATTYPE_MAX"));
     conf.MINIMUM_TRUNC_ARGUMENT        := integer(configValue("MINIMUM_TRUNC_ARGUMENT"));
     conf.MAXIMUM_TRUNC_ARGUMENT        := integer(configValue("MAXIMUM_TRUNC_ARGUMENT"));
+    conf.PIXEL_ALPHA_MASK              := integer(configValue("PIXEL_ALPHA_MASK"), 16);
     conf.PIXEL_RED_MASK                := integer(configValue("PIXEL_RED_MASK"), 16);
     conf.PIXEL_GREEN_MASK              := integer(configValue("PIXEL_GREEN_MASK"), 16);
     conf.PIXEL_BLUE_MASK               := integer(configValue("PIXEL_BLUE_MASK"), 16);
@@ -1066,6 +1073,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"INT_RANGE_IN_FLOATTYPE_MAX"}:    conf.INT_RANGE_IN_FLOATTYPE_MAX    := integer(value);
       when {"MINIMUM_TRUNC_ARGUMENT"}:        conf.MINIMUM_TRUNC_ARGUMENT        := integer(value);
       when {"MAXIMUM_TRUNC_ARGUMENT"}:        conf.MAXIMUM_TRUNC_ARGUMENT        := integer(value);
+      when {"PIXEL_ALPHA_MASK"}:              conf.PIXEL_ALPHA_MASK              := integer(value, 16);
       when {"PIXEL_RED_MASK"}:                conf.PIXEL_RED_MASK                := integer(value, 16);
       when {"PIXEL_GREEN_MASK"}:              conf.PIXEL_GREEN_MASK              := integer(value, 16);
       when {"PIXEL_BLUE_MASK"}:               conf.PIXEL_BLUE_MASK               := integer(value, 16);
