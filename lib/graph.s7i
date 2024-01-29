@@ -53,6 +53,7 @@ const proc: (inout pixel: dest) := (in pixel: source)      is action "INT_CPY";
 const func boolean: (in pixel: pix1) = (in pixel: pix2)    is action "INT_EQ";
 const func boolean: (in pixel: pix1) <> (in pixel: pix2)   is action "INT_NE";
 const func pixel: (attr pixel) conv (in integer: num)      is action "INT_ICONV3";
+const func pixel: pixel (in integer: num)                  is action "INT_ICONV1";
 const func integer: (attr integer) conv (in pixel: aPixel) is action "INT_ICONV3";
 const func integer: ord (in pixel: aPixel)                 is action "INT_ICONV1";
 const pixel: (attr pixel) . value                          is pixel conv 0;
@@ -201,6 +202,8 @@ const func PRIMITIVE_WINDOW: capturePixmap (
 
 const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
+const func bstring: getPixelData (
+    ref array array pixel: image)                   is action "DRW_GET_PIXEL_DATA_FROM_ARRAY";
 const func pixel: getPixel (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y)                 is action "DRW_GET_PIXEL";

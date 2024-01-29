@@ -851,6 +851,63 @@ objectType drw_get_pixel_data (listType arguments)
 
 
 
+objectType drw_get_pixel_data_from_array (listType arguments)
+
+  {
+    arrayType arr_image;
+    objectType curr_line;
+    arrayType arr_line;
+    objectType curr_column;
+    int32Type *pixel_elem;
+    memSizeType height;
+    memSizeType width;
+    memSizeType line;
+    memSizeType column;
+    bstriType result;
+
+  /* drw_get_pixel_data_from_array */
+    isit_array(arg_1(arguments));
+    arr_image = take_array(arg_1(arguments));
+    height = arraySize(arr_image);
+    if (height == 0) {
+      logError(printf("drw_get_pixel_data_from_array(arr1 (height=" FMT_U_MEM "): "
+                      "Height zero.", height););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      curr_line = &arr_image->arr[0];
+      isit_array(curr_line);
+      arr_line = take_array(curr_line);
+      width = arraySize(arr_line);
+      if (width == 0) {
+        logError(printf("drw_get_pixel_data_from_array(arr1 (height=" FMT_U_MEM "): "
+                        "Width zero.", height););
+        return raise_exception(SYS_RNG_EXCEPTION);
+      } else {
+        curr_column = &arr_line->arr[0];
+        isit_int(curr_column);
+        if (unlikely(height > MAX_MEMSIZETYPE / sizeof(int32Type) / width ||
+                     !ALLOC_BSTRI_SIZE_OK(result, height * width *
+                                          sizeof(int32Type)))) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->size = height * width * sizeof(int32Type);
+          pixel_elem = (int32Type *) result->mem;
+          for (line = height; line > 0; line--, curr_line++) {
+            arr_line = take_array(curr_line);
+            curr_column = &arr_line->arr[0];
+            for (column = width; column > 0; column--, curr_column++) {
+              *pixel_elem = (int32Type) take_int(curr_column);
+              pixel_elem++;
+            } /* for */
+          } /* for */
+        } /* if */
+      } /* if */
+    } /* if */
+    return bld_bstri_temp(result);
+  } /* drw_get_pixel_data_from_array */
+
+
+
 objectType drw_get_pixmap (listType arguments)
 
   {
@@ -912,9 +969,9 @@ objectType drw_get_pixmap_from_pixels (listType arguments)
       } else {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        if (height > MAX_MEMSIZETYPE / sizeof(int32Type) / (memSizeType) width ||
-            (image_data = (int32Type *) malloc((memSizeType) height * (memSizeType) width *
-                                               sizeof(int32Type))) == NULL) {
+        if (unlikely(height > MAX_MEMSIZETYPE / sizeof(int32Type) / width ||
+                     (image_data = (int32Type *) malloc(height * width *
+                                                        sizeof(int32Type))) == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           pixel_elem = image_data;

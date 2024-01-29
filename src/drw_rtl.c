@@ -391,6 +391,53 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
 
 
 
+bstriType drwGetPixelDataFromArray (const const_rtlArrayType image)
+
+  {
+    const_rtlObjectType *curr_line;
+    rtlArrayType arr_line;
+    int32Type *pixel_elem;
+    memSizeType height;
+    memSizeType width;
+    memSizeType line;
+    bstriType result;
+
+  /* drwGetPixelDataFromArray */
+    height = arraySize(image);
+    /* printf("drwGetPixelDataFromArray: height=" FMT_U_MEM "\n", height); */
+    if (height == 0) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      curr_line = &image->arr[0];
+      arr_line = curr_line->value.arrayValue;
+      width = arraySize(arr_line);
+      /* printf("drwGetPixelDataFromArray: width=" FMT_U_MEM "\n", width); */
+      if (width == 0) {
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        if (unlikely(height > MAX_MEMSIZETYPE / sizeof(int32Type) / width ||
+            !ALLOC_BSTRI_SIZE_OK(result, height * width *
+                                 sizeof(int32Type)))) {
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result->size = height * width * sizeof(int32Type);
+          pixel_elem = (int32Type *) result->mem;
+          for (line = height; line > 0; line--, curr_line++) {
+            arr_line = curr_line->value.arrayValue;
+            memcpy_to_pixel(pixel_elem, (intType *) arr_line->arr, width);
+            pixel_elem += width;
+          } /* for */
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* drwGetPixelDataFromArray */
+
+
+
 winType drwGetPixmapFromPixels (const const_rtlArrayType image)
 
   {
@@ -418,9 +465,9 @@ winType drwGetPixmapFromPixels (const const_rtlArrayType image)
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        if (height > MAX_MEMSIZETYPE / sizeof(int32Type) / (memSizeType) width ||
-            (image_data = (int32Type *) malloc((memSizeType) height * (memSizeType) width *
-                                               sizeof(int32Type))) == NULL) {
+        if (unlikely(height > MAX_MEMSIZETYPE / sizeof(int32Type) / width ||
+            (image_data = (int32Type *) malloc(height * width *
+                                               sizeof(int32Type))) == NULL)) {
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
