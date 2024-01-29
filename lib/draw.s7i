@@ -36,8 +36,6 @@ include "math.s7i";
 
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 
-const type: pixelArray2d is array array pixel;
-
 
 (**
  *  Convert a [[color]] to a pixel.

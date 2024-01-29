@@ -200,6 +200,8 @@ const func PRIMITIVE_WINDOW: capturePixmap (
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_CAPTURE";
 
+const type: pixelArray2d is array array pixel;
+
 const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
 const func bstring: getPixelData (
