@@ -3085,6 +3085,14 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&pcsCreateGeneric";
     elsif action_name = "PCS_DESTR" then
       c_expr.expr &:= "&pcsDestrGeneric";
+    elsif action_name = "PLT_CMP" then
+      c_expr.expr &:= "&bstCmpGeneric";
+    elsif action_name = "PLT_CPY" then
+      c_expr.expr &:= "&bstCpyGeneric";
+    elsif action_name = "PLT_CREATE" then
+      c_expr.expr &:= "&bstCreateGeneric";
+    elsif action_name = "PLT_DESTR" then
+      c_expr.expr &:= "&bstDestrGeneric";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
     elsif action_name = "REF_CMP" then
