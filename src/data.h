@@ -64,6 +64,7 @@ typedef enum {
     LISTOBJECT,          /* listValue -   list                      */
     FLOATOBJECT,         /* floatValue -  float                     */
     WINOBJECT,           /* winValue -    Window                    */
+    POINTLISTOBJECT,     /* bstriValue -  Points of a polyline      */
     PROCESSOBJECT,       /* processValue - Process                  */
     ENUMLITERALOBJECT,   /* objValue -    Enumeration literal       */
     CONSTENUMOBJECT,     /* objValue -    Constant enumeration obj  */
@@ -201,7 +202,7 @@ typedef union {
     bigIntType   bigIntValue;   /* BIGINTOBJECT */
     charType     charValue;     /* CHAROBJECT */
     striType     striValue;     /* STRIOBJECT */
-    bstriType    bstriValue;    /* BSTRIOBJECT */
+    bstriType    bstriValue;    /* BSTRIOBJECT, POINTLISTOBJECT */
     arrayType    arrayValue;    /* ARRAYOBJECT */
     hashType     hashValue;     /* HASHOBJECT */
     setType      setValue;      /* SETOBJECT */

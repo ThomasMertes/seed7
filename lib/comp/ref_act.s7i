@@ -718,6 +718,8 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "printf(\" window [%lu] %lu\", win->usage_count, win);\n";
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
+        when {POINTLISTOBJECT}:
+          c_expr.expr &:= "printf(\"<POINTLISTOBJECT>\")";
         when {PROCESSOBJECT}:
           c_expr.expr &:= "{\n";
           c_expr.expr &:= "processType process=";

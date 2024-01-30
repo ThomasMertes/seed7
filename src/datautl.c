@@ -78,6 +78,7 @@ static const const_cstriType category_name[] = {
     "LISTOBJECT",        /* listValue -   list                      */
     "FLOATOBJECT",       /* floatValue -  float                     */
     "WINOBJECT",         /* winValue -    Window                    */
+    "POINTLISTOBJECT",   /* bstriValue -  Points of a polyline      */
     "PROCESSOBJECT",     /* processValue - Process                  */
     "ENUMLITERALOBJECT", /* objValue -    Enumeration literal       */
     "CONSTENUMOBJECT",   /* objValue -    Constant enumeration obj  */

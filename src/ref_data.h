@@ -69,6 +69,7 @@ fileType filValue (const const_objectType aReference);
 floatType fltValue (const const_objectType aReference);
 intType intValue (const const_objectType aReference);
 processType pcsValue (const const_objectType aReference);
+bstriType pltValue (const const_objectType aReference);
 pollType polValue (const const_objectType aReference);
 progType prgValue (const const_objectType aReference);
 objectType refValue (const const_objectType aReference);

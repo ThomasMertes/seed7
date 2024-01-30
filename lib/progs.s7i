@@ -463,6 +463,7 @@ const func float: getValue (in reference: aReference, attr float)            is 
 const func reference: getValue (in reference: aReference, attr reference)    is action "REF_VALUE";
 const func PRIMITIVE_WINDOW: getValue (in reference: aReference,
                                        attr PRIMITIVE_WINDOW)                is action "DRW_VALUE";
+const func pointList: getValue (in reference: aReference, attr pointList)    is action "PLT_VALUE";
 const func process: getValue (in reference: aReference, attr process)        is action "PCS_VALUE";
 # const func type: getValue (in reference: aReference, attr type)            is action "TYP_VALUE";
 

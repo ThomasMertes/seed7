@@ -131,6 +131,7 @@ objectType exec_object (register objectType object)
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
+      case POINTLISTOBJECT:
       case REFOBJECT:
       case REFLISTOBJECT:
       case EXPROBJECT:
@@ -774,6 +775,7 @@ objectType exec_call (objectType object)
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
+      case POINTLISTOBJECT:
       case PROCESSOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
@@ -902,6 +904,7 @@ objectType evaluate (objectType object)
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
+      case POINTLISTOBJECT:
       case REFOBJECT:
       case REFLISTOBJECT:
       case ENUMLITERALOBJECT:

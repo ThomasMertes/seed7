@@ -69,6 +69,13 @@ const type: win_bstri_hash is hash [integer] integer;
 var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
 var win_bstri_hash: win_bstri_table is win_bstri_hash.EMPTY_HASH;
 
+const type: plist_table_hash is hash [pointList] integer;
+const type: plist_index_hash is hash [integer] array pointList;
+const type: plist_bstri_hash is hash [integer] integer;
+
+var plist_table_hash: plist_const_table is plist_table_hash.EMPTY_HASH;
+var plist_bstri_hash: plist_bstri_table is plist_bstri_hash.EMPTY_HASH;
+
 const type: const_table_hash is hash [reference] integer;
 const type: const_index_hash is hash [integer] array reference;
 
@@ -282,5 +289,19 @@ const func string: windowLiteral (in PRIMITIVE_WINDOW: aWindow) is func
     end if;
     expr := "win[";
     expr &:= str(win_const_table[aWindow]);
+    expr &:= "]";
+  end func;
+
+
+const func string: pointListLiteral (in pointList: aPointList) is func
+
+  result
+    var string: expr is "";
+  begin
+    if aPointList not in plist_const_table then
+      plist_const_table @:= [aPointList] length(plist_const_table);
+    end if;
+    expr &:= "plist[";
+    expr &:= str(plist_const_table[aPointList]);
     expr &:= "]";
   end func;

@@ -605,6 +605,25 @@ objectType bld_win_temp (winType temp_win)
 
 
 
+objectType bld_pointlist_temp (bstriType temp_pointlist)
+
+  {
+    register objectType result;
+
+  /* bld_pointlist_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, POINTLISTOBJECT);
+      result->value.bstriValue = temp_pointlist;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_pointlist_temp */
+
+
+
 objectType bld_process_temp (processType temp_process)
 
   {
@@ -680,6 +699,7 @@ void dump_temp_value (objectType object)
         SET_UNUSED_FLAG(object);
         break;
       case BSTRIOBJECT:
+      case POINTLISTOBJECT:
         if (object->value.bstriValue != NULL) {
           FREE_BSTRI(object->value.bstriValue, object->value.bstriValue->size);
         } /* if */

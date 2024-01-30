@@ -134,6 +134,7 @@ const category: POLLOBJECT        is category("POLLOBJECT");
 const category: LISTOBJECT        is category("LISTOBJECT");
 const category: FLOATOBJECT       is category("FLOATOBJECT");
 const category: WINOBJECT         is category("WINOBJECT");
+const category: POINTLISTOBJECT   is category("POINTLISTOBJECT");
 const category: PROCESSOBJECT     is category("PROCESSOBJECT");
 const category: ENUMLITERALOBJECT is category("ENUMLITERALOBJECT");
 const category: CONSTENUMOBJECT   is category("CONSTENUMOBJECT");

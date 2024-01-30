@@ -1316,6 +1316,20 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PCS_VALUE, function, params, c_expr);
       when {"PCS_WAIT_FOR"}:
         process(PCS_WAIT_FOR, function, params, c_expr);
+      when {"PLT_BSTRING"}:
+        process(PLT_BSTRING, function, params, c_expr);
+      when {"PLT_CMP"}:
+        process(PLT_CMP, function, params, c_expr);
+      when {"PLT_CPY"}:
+        process(PLT_CPY, function, params, c_expr);
+      when {"PLT_EQ"}:
+        process(PLT_EQ, function, params, c_expr);
+      when {"PLT_HASHCODE"}:
+        process(PLT_HASHCODE, function, params, c_expr);
+      when {"PLT_NE"}:
+        process(PLT_NE, function, params, c_expr);
+      when {"PLT_VALUE"}:
+        process(PLT_VALUE, function, params, c_expr);
       when {"POL_ADD_CHECK"}:
         process(POL_ADD_CHECK, function, params, c_expr);
       when {"POL_CLEAR"}:

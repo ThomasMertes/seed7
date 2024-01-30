@@ -86,6 +86,7 @@ const func string: raw_type_name (in type: object_type) is func
         when {POLLOBJECT}:      typeName := "pollType";
         when {SETOBJECT}:       typeName := "setType";
         when {WINOBJECT}:       typeName := "winType";
+        when {POINTLISTOBJECT}: typeName := "bstriType";
         when {PROCESSOBJECT}:   typeName := "processType";
         when {PROGOBJECT}:      typeName := "progType";
         when {DATABASEOBJECT}:  typeName := "databaseType";
@@ -192,6 +193,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {POLLOBJECT}:      valueName := "pollValue";
         when {SETOBJECT}:       valueName := "setValue";
         when {WINOBJECT}:       valueName := "winValue";
+        when {POINTLISTOBJECT}: valueName := "bstriValue";
         when {PROCESSOBJECT}:   valueName := "processValue";
         when {PROGOBJECT}:      valueName := "progValue";
         when {DATABASEOBJECT}:  valueName := "databaseValue";
@@ -227,8 +229,9 @@ const func boolean: valueIsAtHeap (in type: aType) is func
   local
     const set of category: heapCategories is {
         BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, WINOBJECT,
-        PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
-        ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT, REFLISTOBJECT};
+        POINTLISTOBJECT, PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT,
+        SQLSTMTOBJECT, SETOBJECT, ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT,
+        INTERFACEOBJECT, REFLISTOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in heapCategories then
       isAtHeap := TRUE;

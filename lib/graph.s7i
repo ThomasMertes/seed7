@@ -398,12 +398,21 @@ const type: pointList is newtype;
 
 IN_PARAM_IS_REFERENCE(pointList);
 
-const proc: destroy (ref pointList: aValue)                       is action "BST_DESTR";
-const proc: (ref pointList: dest) ::= (ref pointList: source)     is action "BST_CREATE";
-const proc: (inout pointList: dest) := (ref pointList: source)    is action "BST_CPY";
+const proc: destroy (ref pointList: aValue)                       is action "PLT_DESTR";
+const proc: (ref pointList: dest) ::= (in pointList: source)      is action "PLT_CREATE";
+const proc: (inout pointList: dest) := (in pointList: source)     is action "PLT_CPY";
 
-const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "BST_EMPTY";
+const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "PLT_EMPTY";
 const pointList: (attr pointList) . value                         is _GENERATE_EMPTY_POINT_LIST;
+
+const func bstring: bstring (in pointList: aPointList)            is action "PLT_BSTRING";
+
+const func boolean: (in pointList: pointList1) = (in pointList: pointList2)   is action "PLT_EQ";
+const func boolean: (in pointList: pointList1) <> (in pointList: pointList2)  is action "PLT_NE";
+
+const func integer: hashCode (in pointList: aPointList)           is action "PLT_HASHCODE";
+const func integer: compare (in pointList: pointList1,
+                             in pointList: pointList2)            is action "PLT_CMP";
 
 (**
  *  The function 'genPointList' creates a 'pointList'.

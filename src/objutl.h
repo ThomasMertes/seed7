@@ -67,6 +67,7 @@
 #define take_struct(arg)    (arg)->value.structValue
 #define take_type(arg)      (arg)->value.typeValue
 #define take_win(arg)       (arg)->value.winValue
+#define take_pointlist(arg) (arg)->value.bstriValue
 #define take_process(arg)   (arg)->value.processValue
 
 #if WITH_TYPE_CHECK
@@ -119,6 +120,8 @@
 #define isit_struct_ok(arg) if (unlikely(take_struct(arg) == NULL))     { empty_value(arg); return NULL; }
 #define isit_type(arg)      hasCategory(arg, TYPEOBJECT)
 #define isit_win(arg)       hasCategory(arg, WINOBJECT)
+#define isit_pointlist(arg) hasCategory(arg, POINTLISTOBJECT); \
+                            if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return NULL; }
 #define isit_process(arg)   hasCategory(arg, PROCESSOBJECT)
 #define is_variable(arg)    if (unlikely(!VAR_OBJECT(arg)))             { var_required(arg); return NULL; }
 #define isit_int2(arg)      if (unlikely(CATEGORY_OF_OBJ(arg) != INTOBJECT)) run_error(INTOBJECT, arg)
@@ -155,6 +158,7 @@
 #define isit_struct_ok(arg)
 #define isit_type(arg)
 #define isit_win(arg)
+#define isit_pointlist(arg)
 #define isit_process(arg)
 #define is_variable(arg)
 #define isit_int2(arg)
@@ -189,6 +193,7 @@ void isit_list (objectType argument);
 /* void isit_struct (objectType argument); */
 /* void isit_type (objectType argument); */
 /* void isit_win (objectType argument); */
+/* void isit_pointlist (objectType argument); */
 /* void isit_process (objectType argument); */
 #endif
 objectType bld_action_temp (actType temp_action);
@@ -217,6 +222,7 @@ objectType bld_stri_temp (striType temp_stri);
 objectType bld_struct_temp (structType temp_struct);
 objectType bld_type_temp (typeType temp_type);
 objectType bld_win_temp (winType temp_win);
+objectType bld_pointlist_temp (bstriType temp_pointlist);
 objectType bld_process_temp (processType temp_win);
 void dump_temp_value (objectType object);
 void dump_any_temp (objectType object);

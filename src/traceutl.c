@@ -508,6 +508,7 @@ static void print_real_value (const_objectType anyobject)
         prot_stri(anyobject->value.striValue);
         break;
       case BSTRIOBJECT:
+      case POINTLISTOBJECT:
         prot_bstri(anyobject->value.bstriValue);
         break;
       case FILEOBJECT:
@@ -736,6 +737,7 @@ void printobject (const_objectType anyobject)
         case SETOBJECT:
         case BLOCKOBJECT:
         case WINOBJECT:
+        case POINTLISTOBJECT:
         case PROCESSOBJECT:
         case PROGOBJECT:
           printvalue(anyobject);
@@ -945,6 +947,7 @@ void prot_list_limited (const_listType list, int depthLimit)
           case ACTOBJECT:
           case BLOCKOBJECT:
           case WINOBJECT:
+          case POINTLISTOBJECT:
           case PROCESSOBJECT:
             printvalue(list->obj);
             break;
@@ -1559,6 +1562,7 @@ void trace1 (const_objectType traceobject)
         case ACTOBJECT:
         case BLOCKOBJECT:
         case WINOBJECT:
+        case POINTLISTOBJECT:
         case PROCESSOBJECT:
           print_real_value(traceobject);
           break;

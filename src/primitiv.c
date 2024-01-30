@@ -679,6 +679,19 @@ static const actEntryRecord actEntryTable[] = {
     { "PCS_VALUE",                    pcs_value,                    },
     { "PCS_WAIT_FOR",                 pcs_wait_for,                 },
 
+#if WITH_DRAW
+    { "PLT_BSTRING",                  plt_bstring                   },
+    { "PLT_CMP",                      plt_cmp,                      },
+    { "PLT_CPY",                      plt_cpy,                      },
+    { "PLT_CREATE",                   plt_create,                   },
+    { "PLT_DESTR",                    plt_destr,                    },
+    { "PLT_EMPTY",                    plt_empty,                    },
+    { "PLT_EQ",                       plt_eq,                       },
+    { "PLT_HASHCODE",                 plt_hashcode,                 },
+    { "PLT_NE",                       plt_ne,                       },
+    { "PLT_VALUE",                    plt_value,                    },
+#endif
+
     { "POL_ADD_CHECK",                pol_add_check,                },
     { "POL_CLEAR",                    pol_clear,                    },
     { "POL_CPY",                      pol_cpy,                      },

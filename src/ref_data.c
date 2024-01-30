@@ -1236,6 +1236,40 @@ processType pcsValue (const const_objectType aReference)
 
 
 /**
+ *  Get 'pointList' value of the object referenced by 'aReference'.
+ *  @return the 'pointList' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             category(aReference) <> POINTLISTOBJECT holds.
+ */
+bstriType pltValue (const const_objectType aReference)
+
+  {
+    bstriType plist;
+    bstriType result;
+
+  /* pltValue */
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != POINTLISTOBJECT ||
+                 (plist = take_pointlist(aReference)) == NULL)) {
+      logError(printf("pltValue(");
+               trace1(aReference);
+               printf("): Category is not POINTLISTOBJECT.\n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, plist->size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = plist->size;
+        memcpy(result->mem, plist->mem, (size_t) (result->size));
+      } /* if */
+    } /* if */
+    return result;
+  } /* pltValue */
+
+
+
+/**
  *  Get 'pollData' value of the object referenced by 'aReference'.
  *  @return the 'pollData' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference' is NIL or

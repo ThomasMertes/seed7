@@ -378,8 +378,8 @@ const proc: declare_missing_destr_declarations (inout expr_type: c_expr) is func
 
 const set of category: destrNecessary is {
     BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, SETOBJECT,
-    REFLISTOBJECT, WINOBJECT, PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT,
-    SQLSTMTOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT};
+    REFLISTOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT, PROGOBJECT,
+    DATABASEOBJECT, SQLSTMTOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT};
 
 
 const proc: process_destr_call (in type: object_type,
@@ -397,6 +397,7 @@ const proc: process_destr_call (in type: object_type,
         when {POLLOBJECT}:      expr &:= "polDestr(" & param_b & ");\n";
         when {REFLISTOBJECT}:   expr &:= "rflDestr(" & param_b & ");\n";
         when {WINOBJECT}:       expr &:= "drwDestr(" & param_b & ");\n";
+        when {POINTLISTOBJECT}: expr &:= "bstDestr(" & param_b & ");\n";
         when {PROCESSOBJECT}:   expr &:= "pcsDestr(" & param_b & ");\n";
         when {PROGOBJECT}:      expr &:= "prgDestr(" & param_b & ");\n";
         when {DATABASEOBJECT}:  expr &:= "sqlDestrDb(" & param_b & ");\n";

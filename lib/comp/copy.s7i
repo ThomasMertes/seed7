@@ -312,6 +312,7 @@ const proc: process_cpy_call (in type: object_type,
         when {POLLOBJECT}:      expr &:= "polCpy(" & param_a & ", " & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCpy(&(" & param_a & "), " & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
+        when {POINTLISTOBJECT}: expr &:= "bstCpy(&(" & param_a & "), " & param_b & ")";
         when {PROCESSOBJECT}:   expr &:= "pcsCpy(&(" & param_a & "), " & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCpy(&(" & param_a & "), " & param_b & ")";
         when {DATABASEOBJECT}:  expr &:= "sqlCpyDb(&(" & param_a & "), " & param_b & ")";

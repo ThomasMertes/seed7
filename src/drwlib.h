@@ -110,3 +110,14 @@ objectType drw_value                     (listType arguments);
 objectType drw_width                     (listType arguments);
 objectType drw_xpos                      (listType arguments);
 objectType drw_ypos                      (listType arguments);
+
+objectType plt_bstring                   (listType arguments);
+objectType plt_cmp                       (listType arguments);
+objectType plt_cpy                       (listType arguments);
+objectType plt_create                    (listType arguments);
+objectType plt_destr                     (listType arguments);
+objectType plt_empty                     (listType arguments);
+objectType plt_eq                        (listType arguments);
+objectType plt_hashcode                  (listType arguments);
+objectType plt_ne                        (listType arguments);
+objectType plt_value                     (listType arguments);

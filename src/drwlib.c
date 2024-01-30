@@ -415,8 +415,8 @@ objectType drw_color (listType arguments)
 objectType drw_conv_point_list (listType arguments)
 
   { /* drw_conv_point_list */
-    isit_bstri(arg_1(arguments));
-    return toIntArray(drwConvPointList(take_bstri(arg_1(arguments))));
+    isit_pointlist(arg_1(arguments));
+    return toIntArray(drwConvPointList(take_pointlist(arg_1(arguments))));
   } /* drw_conv_point_list */
 
 
@@ -671,12 +671,12 @@ objectType drw_fpoly_line (listType arguments)
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    isit_bstri(arg_4(arguments));
+    isit_pointlist(arg_4(arguments));
     isit_int(arg_5(arguments));
     actual_window = take_win(arg_1(arguments));
     x = take_int(arg_2(arguments));
     y = take_int(arg_3(arguments));
-    point_list = take_bstri(arg_4(arguments));
+    point_list = take_pointlist(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwFPolyLine(actual_window, x, y, point_list, col);
     return SYS_EMPTY_OBJECT;
@@ -719,7 +719,7 @@ objectType drw_gen_point_list (listType arguments)
         FREE_RTL_ARRAY(xyArray, len);
       } /* if */
     } /* if */
-    return bld_bstri_temp(result);
+    return bld_pointlist_temp(result);
   } /* drw_gen_point_list */
 
 
@@ -1426,12 +1426,12 @@ objectType drw_poly_line (listType arguments)
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    isit_bstri(arg_4(arguments));
+    isit_pointlist(arg_4(arguments));
     isit_int(arg_5(arguments));
     actual_window = take_win(arg_1(arguments));
     x = take_int(arg_2(arguments));
     y = take_int(arg_3(arguments));
-    point_list = take_bstri(arg_4(arguments));
+    point_list = take_pointlist(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwPolyLine(actual_window, x, y, point_list, col);
     return SYS_EMPTY_OBJECT;
@@ -1831,3 +1831,286 @@ objectType drw_ypos (listType arguments)
     return bld_int_temp(
         drwYPos(take_win(arg_1(arguments))));
   } /* drw_ypos */
+
+
+
+objectType plt_bstring (listType arguments)
+
+  {
+    objectType argument1;
+    bstriType plist;
+    bstriType result;
+
+  /* plt_bstring */
+    argument1 = arg_1(arguments);
+    isit_pointlist(argument1);
+    plist = take_pointlist(argument1);
+    logFunction(printf("plt_bstring(\"%s\")\n",
+                       bstriAsUnquotedCStri(plist)););
+    if (TEMP_OBJECT(argument1)) {
+      result = plist;
+      argument1->value.bstriValue = NULL;
+    } else {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, plist->size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->size = plist->size;
+        memcpy(result->mem, plist->mem, plist->size);
+      } /* if */
+    } /* if */
+    logFunction(printf("plt_bstring --> \"%s\"\n",
+                       bstriAsUnquotedCStri(result)););
+    return bld_bstri_temp(result);
+  } /* plt_bstring */
+
+
+
+objectType plt_cmp (listType arguments)
+
+  { /* plt_cmp */
+    isit_pointlist(arg_1(arguments));
+    isit_pointlist(arg_2(arguments));
+    return bld_int_temp(
+        bstCmp(take_pointlist(arg_1(arguments)),
+               take_pointlist(arg_2(arguments))));
+  } /* plt_cmp */
+
+
+
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+objectType plt_cpy (listType arguments)
+
+  {
+    objectType dest;
+    objectType source;
+    memSizeType new_size;
+    bstriType plist_dest;
+
+  /* plt_cpy */
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_pointlist(dest);
+    isit_pointlist(source);
+    is_variable(dest);
+    plist_dest = take_pointlist(dest);
+    if (TEMP_OBJECT(source)) {
+      FREE_BSTRI(plist_dest, plist_dest->size);
+      dest->value.bstriValue = take_pointlist(source);
+      source->value.bstriValue = NULL;
+    } else {
+      new_size = take_pointlist(source)->size;
+      if (plist_dest->size == new_size) {
+        if (plist_dest != take_pointlist(source)) {
+          /* It is possible that dest == source holds. The   */
+          /* behavior of memcpy() is undefined if source and */
+          /* destination areas overlap (or are identical).   */
+          /* Therefore a check for this case is necessary.   */
+          memcpy(plist_dest->mem, take_pointlist(source)->mem, new_size);
+        } /* if */
+      } else {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(plist_dest, new_size))) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          FREE_BSTRI(take_pointlist(dest), take_pointlist(dest)->size);
+          dest->value.bstriValue = plist_dest;
+          plist_dest->size = new_size;
+        } /* if */
+        memcpy(plist_dest->mem, take_pointlist(source)->mem, new_size);
+      } /* if */
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* plt_cpy */
+
+
+
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType plt_create (listType arguments)
+
+  {
+    objectType dest;
+    objectType source;
+    memSizeType new_size;
+    bstriType new_plist;
+
+  /* plt_create */
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_pointlist(source);
+    SET_CATEGORY_OF_OBJ(dest, POINTLISTOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.bstriValue = take_pointlist(source);
+      source->value.bstriValue = NULL;
+    } else {
+      new_size = take_pointlist(source)->size;
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(new_plist, new_size))) {
+        dest->value.bstriValue = NULL;
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+      dest->value.bstriValue = new_plist;
+      new_plist->size = new_size;
+      memcpy(new_plist->mem, take_pointlist(source)->mem, new_size);
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* plt_create */
+
+
+
+/**
+ *  Free the memory referred by 'old_plist/arg_1'.
+ *  After plt_destr is left 'old_plist/arg_1' is NULL.
+ *  The memory where 'old_plist/arg_1' is stored can be
+ *  freed afterwards.
+ */
+objectType plt_destr (listType arguments)
+
+  {
+    bstriType old_plist;
+
+  /* plt_destr */
+    isit_pointlist(arg_1(arguments));
+    old_plist = take_pointlist(arg_1(arguments));
+    if (old_plist != NULL) {
+      FREE_BSTRI(old_plist, old_plist->size);
+      arg_1(arguments)->value.bstriValue = NULL;
+    } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* plt_destr */
+
+
+
+objectType plt_empty (listType arguments)
+
+  {
+    bstriType result;
+
+  /* plt_empty */
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of the struct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
+      result->size = 0;
+      return bld_pointlist_temp(result);
+    } /* if */
+  } /* plt_empty */
+
+
+
+/**
+ *  Check if two pointLists are equal.
+ *  @return TRUE if both pointLists are equal,
+ *          FALSE otherwise.
+ */
+objectType plt_eq (listType arguments)
+
+  {
+    bstriType plist1;
+    bstriType plist2;
+
+  /* plt_eq */
+    isit_pointlist(arg_1(arguments));
+    isit_pointlist(arg_3(arguments));
+    plist1 = take_pointlist(arg_1(arguments));
+    plist2 = take_pointlist(arg_3(arguments));
+    if (plist1->size == plist2->size &&
+        memcmp(plist1->mem, plist2->mem, plist1->size) == 0) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* plt_eq */
+
+
+
+objectType plt_hashcode (listType arguments)
+
+  {
+    bstriType plist;
+    intType result;
+
+  /* plt_hashcode */
+    isit_pointlist(arg_1(arguments));
+    plist = take_pointlist(arg_1(arguments));
+    if (plist->size == 0) {
+      result = 0;
+    } else {
+      result = (intType) ((memSizeType) plist->mem[0] << 5 ^
+          plist->size << 3 ^ plist->mem[plist->size - 1]);
+    } /* if */
+    return bld_int_temp(result);
+  } /* plt_hashcode */
+
+
+
+/**
+ *  Check if two pointLists are not equal.
+ *  @return FALSE if both pointLists are equal,
+ *          TRUE otherwise.
+ */
+objectType plt_ne (listType arguments)
+
+  {
+    bstriType plist1;
+    bstriType plist2;
+
+  /* plt_ne */
+    isit_pointlist(arg_1(arguments));
+    isit_pointlist(arg_3(arguments));
+    plist1 = take_pointlist(arg_1(arguments));
+    plist2 = take_pointlist(arg_3(arguments));
+    if (plist1->size != plist2->size ||
+        memcmp(plist1->mem, plist2->mem, plist1->size) != 0) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* plt_ne */
+
+
+
+/**
+ *  Get 'pointList' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'pointList' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
+ *             category(aReference) <> POINTLISTOBJECT holds.
+ */
+objectType plt_value (listType arguments)
+
+  {
+    objectType aReference;
+    bstriType plist;
+    bstriType result;
+
+  /* plt_value */
+    isit_reference(arg_1(arguments));
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != POINTLISTOBJECT ||
+                 take_pointlist(aReference) == NULL)) {
+      logError(printf("plt_value(");
+               trace1(aReference);
+               printf("): Category is not POINTLISTOBJECT.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      plist = take_pointlist(aReference);
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, plist->size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->size = plist->size;
+        memcpy(result->mem, plist->mem, result->size);
+        return bld_pointlist_temp(result);
+      } /* if */
+    } /* if */
+  } /* plt_value */

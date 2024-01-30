@@ -302,7 +302,8 @@ const proc: getAnyParamToTempAssigns (in reference: aParam, inout expr_type: c_e
            exprCategory = FLOATOBJECT or
            exprCategory = CHAROBJECT or
            exprCategory = STRIOBJECT or
-           exprCategory = BSTRIOBJECT) then
+           exprCategory = BSTRIOBJECT or
+           exprCategory = POINTLISTOBJECT) then
         incr(c_expr.temp_num);
         variableName := "tmp_" & str(c_expr.temp_num);
         c_expr.temp_decls &:= type_name(getType(paramValue));
@@ -564,6 +565,8 @@ const func boolean: identical_values (in reference: object1, in reference: objec
         isIdentical := getValue(object1, reference) = getValue(object2, reference);
       when {FILEOBJECT}:
         isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
+      when {POINTLISTOBJECT}:
+        isIdentical := getValue(object1, pointList) = getValue(object2, pointList);
       when {CONSTENUMOBJECT, VARENUMOBJECT}:
         isIdentical := getValue(object1, reference) = getValue(object2, reference);
       when {ARRAYOBJECT}:
@@ -937,6 +940,16 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
       c_declaration.temp_assigns &:= ");\n";
       c_declaration.temp_frees &:= "drwDestr(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
+    elsif valueCategory = POINTLISTOBJECT then
+      c_declaration.temp_assigns &:= diagnosticLine(current_object);
+      c_declaration.temp_assigns &:= "o_";
+      create_name(current_object, c_declaration.temp_assigns);
+      c_declaration.temp_assigns &:= "=bstCreate(";
+      c_declaration.temp_assigns &:= pointListLiteral(getValue(object_value, pointList));
+      c_declaration.temp_assigns &:= ");\n";
+      c_declaration.temp_frees &:= "bstDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = PROCESSOBJECT then
@@ -1604,6 +1617,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = INTERFACEOBJECT or
           functionCategory = FILEOBJECT or
           functionCategory = WINOBJECT or
+          functionCategory = POINTLISTOBJECT or
           functionCategory = PROCESSOBJECT or
           functionCategory = PROGOBJECT or
           functionCategory = DATABASEOBJECT or
@@ -1960,6 +1974,13 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= windowLiteral(getValue(current_expression, PRIMITIVE_WINDOW));
+      end if;
+    elsif exprCategory = POINTLISTOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        c_expr.expr &:= pointListLiteral(getValue(current_expression, pointList));
       end if;
     elsif exprCategory = PROCESSOBJECT then
       if isVar(current_expression) then
@@ -3503,6 +3524,25 @@ const proc: process_win_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_plist_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    if isVar(current_object) then
+      c_expr.expr &:= "bstriType o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=bstCreate(";
+      global_init.expr &:= pointListLiteral(getValue(current_object, pointList));
+      global_init.expr &:= ");\n";
+      count_declarations(c_expr);
+    end if;
+  end func;
+
+
 const proc: process_process_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -3822,6 +3862,7 @@ const proc: process_dynamic_call (in reference: function,
           objectCategory = STRUCTOBJECT or
           objectCategory = SETOBJECT or
           objectCategory = WINOBJECT or
+          objectCategory = POINTLISTOBJECT or
           objectCategory = PROCESSOBJECT or
           objectCategory = CONSTENUMOBJECT then
         c_expr.expr &:= "return ";
@@ -4782,6 +4823,9 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "DRW_CPY" or action_name = "DRW_CREATE" then
         defineParam1TypeCategory(current_object, WINOBJECT);
         count_declarations(c_expr);
+      elsif action_name = "PLT_CPY" or action_name = "PLT_CREATE" then
+        defineParam1TypeCategory(current_object, POINTLISTOBJECT);
+        count_declarations(c_expr);
       elsif action_name = "PCS_CPY" or action_name = "PCS_CREATE" then
         defineParam1TypeCategory(current_object, PROCESSOBJECT);
         count_declarations(c_expr);
@@ -4916,6 +4960,8 @@ const proc: process_object_declaration (in reference: current_object,
       process_interface_declaration(current_object, c_expr);
     elsif objectCategory = WINOBJECT then
       process_win_declaration(current_object, c_expr);
+    elsif objectCategory = POINTLISTOBJECT then
+      process_plist_declaration(current_object, c_expr);
     elsif objectCategory = PROCESSOBJECT then
       process_process_declaration(current_object, c_expr);
     elsif objectCategory = PROGOBJECT then
@@ -5487,6 +5533,7 @@ const proc: write_file_head is func
     writeln(c_prog, "extern double2BitsUnion nanValue[];");
     writeln(c_prog, "bigIntType             *big;");
     writeln(c_prog, "winType                *win;");
+    writeln(c_prog, "bstriType              *plist;");
     writeln(c_prog, "arrayType              *arr;");
     writeln(c_prog, "structType             *sct;");
     writeln(c_prog, "hashType               *hsh;");
@@ -5813,6 +5860,10 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if getValue(current_object, PRIMITIVE_WINDOW) not in win_const_table then
           win_const_table @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(win_const_table);
         end if;
+      elsif objectCategory = POINTLISTOBJECT then
+        if getValue(current_object, pointList) not in plist_const_table then
+          plist_const_table @:= [getValue(current_object, pointList)] length(plist_const_table);
+        end if;
       elsif objectCategory = ARRAYOBJECT then
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);
@@ -5943,6 +5994,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= ".value.winValue=drwCreate(";
       c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
       c_expr.expr &:= ")";
+    elsif objectCategory = POINTLISTOBJECT then
+      c_expr.expr &:= ".value.bstriValue=";
+      c_expr.expr &:= pointListLiteral(getValue(current_object, pointList));
     elsif objectCategory = PROCESSOBJECT then
       c_expr.expr &:= ".value.processValue=";
       c_expr.expr &:= "NULL";
@@ -6260,6 +6314,56 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= str(height(win1));
           c_expr.expr &:= ", 0);\n";
         end if;
+      end for;
+    end if;
+  end func;
+
+
+const proc: init_plist_constants is func
+
+  local
+    var plist_index_hash: plist_index is plist_index_hash.EMPTY_HASH;
+    var pointList: plist is pointList.value;
+    var integer: number is 0;
+    var bstring: bstri is bstring.value;
+  begin
+    plist_index := flip(plist_const_table);
+    for number range sort(keys(plist_index)) do
+      plist := plist_index[number][1];
+      bstri := bstring(plist);
+      if bstri not in bstri_const_table then
+        bstri_const_table @:= [bstri] length(bstri_const_table);
+      end if;
+      plist_bstri_table @:= [number] bstri_const_table[bstri];
+    end for;
+  end func;
+
+
+const proc: assign_plist_constants (inout expr_type: c_expr) is func
+
+  local
+    var plist_index_hash: plist_index is plist_index_hash.EMPTY_HASH;
+    var pointList: plist is pointList.value;
+    var integer: number is 0;
+  begin
+    if length(win_const_table) = 0 then
+      c_expr.expr &:= "plist = NULL;\n";
+    else
+      c_expr.expr &:= "plist = (bstriType *)(malloc(";
+      c_expr.expr &:= str(length(plist_const_table));
+      c_expr.expr &:= " * sizeof(bstriType)));\n";
+      plist_index := flip(plist_const_table);
+      for number range sort(keys(plist_index)) do
+        plist := plist_index[number][1];
+        c_expr.expr &:= "plist[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]=";
+        if ccConf.ALLOW_BSTRITYPE_SLICES then
+          c_expr.expr &:= "&";
+        end if;
+        c_expr.expr &:= "bst[";
+        c_expr.expr &:= str(plist_bstri_table[number]);
+        c_expr.expr &:= "];\n";
       end for;
     end if;
   end func;
@@ -7124,6 +7228,7 @@ const proc: init_values (inout expr_type: c_expr) is func
 
     init_bigint_constants;
     init_win_constants;
+    init_plist_constants;
     init_string_constants(c_expr);
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);
@@ -7135,6 +7240,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     initPollOperations(c_expr);
     assign_bigint_constants(c_expr);
     assign_win_constants(c_expr);
+    assign_plist_constants(c_expr);
     c_expr.expr &:= "arr = (arrayType *)(malloc(";
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arrayType)));\n";

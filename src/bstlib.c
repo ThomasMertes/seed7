@@ -250,7 +250,6 @@ objectType bst_create (listType arguments)
       dest->value.bstriValue = take_bstri(source);
       source->value.bstriValue = NULL;
     } else {
-/*    printf("bstri_create %d !!!\n", in_file.line); */
       new_size = take_bstri(source)->size;
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(new_bstri, new_size))) {
         dest->value.bstriValue = NULL;
@@ -329,8 +328,8 @@ objectType bst_eq (listType arguments)
     isit_bstri(arg_3(arguments));
     bstri1 = take_bstri(arg_1(arguments));
     bstri2 = take_bstri(arg_3(arguments));
-    if (bstri1->size == bstri2->size && memcmp(bstri1->mem, bstri2->mem,
-        bstri1->size) == 0) {
+    if (bstri1->size == bstri2->size &&
+        memcmp(bstri1->mem, bstri2->mem, bstri1->size) == 0) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -433,8 +432,8 @@ objectType bst_ne (listType arguments)
     isit_bstri(arg_3(arguments));
     bstri1 = take_bstri(arg_1(arguments));
     bstri2 = take_bstri(arg_3(arguments));
-    if (bstri1->size != bstri2->size || memcmp(bstri1->mem, bstri2->mem,
-        bstri1->size) != 0) {
+    if (bstri1->size != bstri2->size ||
+        memcmp(bstri1->mem, bstri2->mem, bstri1->size) != 0) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;

@@ -94,6 +94,14 @@ const ACTION: DRW_WIDTH                     is action "DRW_WIDTH";
 const ACTION: DRW_XPOS                      is action "DRW_XPOS";
 const ACTION: DRW_YPOS                      is action "DRW_YPOS";
 
+const ACTION: PLT_BSTRING                   is action "PLT_BSTRING";
+const ACTION: PLT_CMP                       is action "PLT_CMP";
+const ACTION: PLT_CPY                       is action "PLT_CPY";
+const ACTION: PLT_EQ                        is action "PLT_EQ";
+const ACTION: PLT_HASHCODE                  is action "PLT_HASHCODE";
+const ACTION: PLT_NE                        is action "PLT_NE";
+const ACTION: PLT_VALUE                     is action "PLT_VALUE";
+
 
 const proc: constructRgbMacroPart (in string: colorName, in integer: colorMask,
     inout string: macroBody) is func
@@ -227,6 +235,8 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     drwWidth (const_winType);");
     declareExtern(c_prog, "intType     drwXPos (const_winType);");
     declareExtern(c_prog, "intType     drwYPos (const_winType);");
+
+    declareExtern(c_prog, "bstriType   pltValue (const const_objRefType);");
   end func;
 
 
@@ -1415,4 +1425,137 @@ const proc: process (DRW_YPOS, in reference: function,
     c_expr.expr &:= "drwYPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PLT_BSTRING, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PLT_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bstCmp(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PLT_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(params[1], c_param1, statement);
+    c_param3.demand := ASSIGN_RESULT;
+    prepareAnyParamTemporarys(params[3], c_param3, statement);
+    if c_param3.result_expr <> "" then
+      if isNormalVariable(params[1]) then
+        statement.temp_decls &:= "bstriType old_bstri=";
+        statement.temp_decls &:= c_param1.expr;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=";
+      else
+        statement.temp_decls &:= "bstriType *bstri_ptr=&(";
+        statement.temp_decls &:= c_param1.expr;
+        statement.temp_decls &:= ");\n";
+        statement.temp_decls &:= "bstriType old_bstri=*bstri_ptr;\n";
+        statement.expr &:= "*bstri_ptr=";
+      end if;
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
+      statement.expr &:= "bstDestr(old_bstri);\n";
+    else
+      statement.expr &:= "bstCpy(&(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "), ";
+      statement.expr &:= c_param3.expr;
+      statement.expr &:= ");\n";
+    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (PLT_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: bstri_a_name is "";
+    var string: bstri_b_name is "";
+  begin
+    c_expr.expr &:= "(";
+    bstri_a_name := getParameterAsVariable("const_bstriType", "tmp_a_", params[1], c_expr);
+    bstri_b_name := getParameterAsVariable("const_bstriType", "tmp_b_", params[3], c_expr);
+    (* Formula used: (a->size==b->size&&memcmp(a->mem,b->mem,
+                     a->size*sizeof(unsigned char))==0) *)
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->size==";
+    c_expr.expr &:= bstri_b_name;
+    c_expr.expr &:= "->size&&memcmp(";
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->mem,";
+    c_expr.expr &:= bstri_b_name;
+    c_expr.expr &:= "->mem,";
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->size*sizeof(unsigned char))==0)";
+  end func;
+
+
+const proc: process (PLT_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bstHashCode(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PLT_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: bstri_a_name is "";
+    var string: bstri_b_name is "";
+  begin
+    c_expr.expr &:= "(";
+    bstri_a_name := getParameterAsVariable("const_bstriType", "tmp_a_", params[1], c_expr);
+    bstri_b_name := getParameterAsVariable("const_bstriType", "tmp_b_", params[3], c_expr);
+    (* Formula used: (a->size!=b->size||memcmp(a->mem,b->mem,
+                     a->size*sizeof(unsigned char))!=0) *)
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->size!=";
+    c_expr.expr &:= bstri_b_name;
+    c_expr.expr &:= "->size||memcmp(";
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->mem,";
+    c_expr.expr &:= bstri_b_name;
+    c_expr.expr &:= "->mem,";
+    c_expr.expr &:= bstri_a_name;
+    c_expr.expr &:= "->size*sizeof(unsigned char))!=0)";
+  end func;
+
+
+const proc: process (PLT_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "pltValue(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;

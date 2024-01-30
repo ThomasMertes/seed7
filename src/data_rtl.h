@@ -104,7 +104,7 @@ typedef union {
     bigIntType       bigIntValue;    /* BIGINTOBJECT */
     charType         charValue;      /* CHAROBJECT */
     striType         striValue;      /* STRIOBJECT */
-    bstriType        bstriValue;     /* BSTRIOBJECT */
+    bstriType        bstriValue;     /* BSTRIOBJECT, POINTLISTOBJECT */
     rtlArrayType     arrayValue;     /* ARRAYOBJECT */
     rtlHashType      hashValue;      /* HASHOBJECT */
     setType          setValue;       /* SETOBJECT */
