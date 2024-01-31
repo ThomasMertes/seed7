@@ -8276,6 +8276,9 @@ const proc: main is func
                 writeln("*** Option " <& currArg[.. 2] <& " specified twice.");
               end if;
               okay := FALSE;
+            elsif currArg[.. 2] in {"-?", "-e", "-p"} and currArg[3 ..] <> "" then
+              writeln("*** Unsupported option: " <& currArg);
+              okay := FALSE;
             else
               compilerOptions @:= [currArg[.. 2]] currArg[3 ..];
             end if;
