@@ -766,6 +766,7 @@ const func string: toAbsPath (in string: basePath, in string: path) is func
     else
       absolutePath := getcwd & "/" & basePath & "/" & path;
     end if;
+    absolutePath := replace(absolutePath, "/./", "/");
     dotdotPos := pos(absolutePath, "/..");
     while dotdotPos <> 0 do
       slashPos := rpos(absolutePath, '/', pred(dotdotPos));
@@ -787,7 +788,6 @@ const func string: toAbsPath (in string: basePath, in string: path) is func
         dotdotPos := pos(absolutePath, "/..", succ(dotdotPos));
       end if;
     end while;
-    absolutePath := replace(absolutePath, "/./", "/");
     if endsWith(absolutePath, "/.") then
       if absolutePath = "/." then
         absolutePath := "/";
