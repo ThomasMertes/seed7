@@ -345,16 +345,12 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
     } else {
       do {
         current_entry = os_readdir(directory);
-/*      printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
-        fflush(stdout); */
       } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
                (current_entry->d_name[1] == '\0' ||
                 (current_entry->d_name[1] == '.' &&
                  current_entry->d_name[2] == '\0')));
       dir_name_size = os_stri_strlen(dir_name);
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
-/*      printf("!" FMT_S_OS "!\n", current_entry->d_name);
-        fflush(stdout); */
         d_name_size = os_stri_strlen(current_entry->d_name);
         new_size = dir_name_size + 1 + d_name_size;
         if (new_size > dir_path_capacity) {
@@ -382,8 +378,6 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
         } /* if */
         do {
           current_entry = os_readdir(directory);
-/*        printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
-          fflush(stdout); */
         } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
                  (current_entry->d_name[1] == '\0' ||
                   (current_entry->d_name[1] == '.' &&
@@ -581,8 +575,6 @@ static void copy_dir (const const_os_striType from_name,
       } else {
         do {
           current_entry = os_readdir(directory);
-          /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
-             fflush(stdout); */
         } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
                  (current_entry->d_name[1] == '\0' ||
                   (current_entry->d_name[1] == '.' &&
@@ -590,8 +582,6 @@ static void copy_dir (const const_os_striType from_name,
         from_name_size = os_stri_strlen(from_name);
         to_name_size = os_stri_strlen(to_name);
         while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
-          /* printf("!" FMT_S_OS "!\n", current_entry->d_name);
-             fflush(stdout); */
           d_name_size = os_stri_strlen(current_entry->d_name);
           new_size = from_name_size + 1 + d_name_size;
           if (new_size > from_path_capacity) {
@@ -635,8 +625,6 @@ static void copy_dir (const const_os_striType from_name,
           } /* if */
           do {
             current_entry = os_readdir(directory);
-            /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
-               fflush(stdout); */
           } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
                    (current_entry->d_name[1] == '\0' ||
                     (current_entry->d_name[1] == '.' &&
