@@ -10113,9 +10113,13 @@ static void determineIncludesAndLibs (FILE *versionFile)
                       "(((DWORD) red) << 16) | "
                       "(((DWORD) green) << 8) | "
                        "((DWORD) blue))\n", versionFile);
+    fputs("#define POINT_LIST_INT_SIZE 32\n", versionFile);
+    fputs("#define POINT_LIST_ABSOLUTE 1\n", versionFile);
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineConsoleDefines(versionFile, include_options, system_console_libs);
     determineX11Defines(versionFile, include_options, system_draw_libs);
+    fputs("#define POINT_LIST_INT_SIZE 16\n", versionFile);
+    fputs("#define POINT_LIST_ABSOLUTE 0\n", versionFile);
 #elif defined OS_STRI_WCHAR
     /* fputs("#define PIXEL_ALPHA_MASK \"ff000000\"\n", versionFile); */
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
@@ -10126,6 +10130,8 @@ static void determineIncludesAndLibs (FILE *versionFile)
                       "(((DWORD) red)) | "
                       "(((DWORD) green) << 8) | "
                        "((DWORD) blue) << 16)\n", versionFile);
+    fputs("#define POINT_LIST_INT_SIZE 32\n", versionFile);
+    fputs("#define POINT_LIST_ABSOLUTE 1\n", versionFile);
 #endif
     determineMySqlDefines(versionFile, include_options, system_database_libs);
     determineSqliteDefines(versionFile, include_options, system_database_libs);

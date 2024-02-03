@@ -411,6 +411,21 @@ const type: ccConfigType is new struct
     var string: RGB_TO_PIXEL_FLAG_NAME        is "";
 
     (**
+     *  Size of an integer in a ''pointList'' object.
+     *  A ''pointList'' consists of (x, y) coordinate pairs where
+     *  each x and y has the size POINT_LIST_INT_SIZE.
+     *)
+    var integer: POINT_LIST_INT_SIZE          is 0;
+
+    (**
+     *  TRUE if a ''pointList'' uses absolute coordinates.
+     *  If it is FALSE the first (x, y) coordinate pair is absolute
+     *  and the remaining (x, y) coordinates are relative to the
+     *  previous coordinate pair.
+     *)
+    var boolean: POINT_LIST_ABSOLUTE          is FALSE;
+
+    (**
      *  Multiplier for the linear congruential generator.
      *  A well known pseudorandom number generator algorithm.
      *)
@@ -923,6 +938,8 @@ const func ccConfigType: getBuiltInConfig is func
     conf.PIXEL_GREEN_MASK              := integer(configValue("PIXEL_GREEN_MASK"), 16);
     conf.PIXEL_BLUE_MASK               := integer(configValue("PIXEL_BLUE_MASK"), 16);
     conf.RGB_TO_PIXEL_FLAG_NAME        := configValue("RGB_TO_PIXEL_FLAG_NAME");
+    conf.POINT_LIST_INT_SIZE           := integer(configValue("POINT_LIST_INT_SIZE"));
+    conf.POINT_LIST_ABSOLUTE           := boolean(configValue("POINT_LIST_ABSOLUTE"));
     conf.RAND_MULTIPLIER               := integer(configValue("RAND_MULTIPLIER"));
     conf.RAND_INCREMENT                := integer(configValue("RAND_INCREMENT"));
     conf.BOOLTYPE                      := configValue("BOOLTYPE");
@@ -1078,6 +1095,8 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"PIXEL_GREEN_MASK"}:              conf.PIXEL_GREEN_MASK              := integer(value, 16);
       when {"PIXEL_BLUE_MASK"}:               conf.PIXEL_BLUE_MASK               := integer(value, 16);
       when {"RGB_TO_PIXEL_FLAG_NAME"}:        conf.RGB_TO_PIXEL_FLAG_NAME        := value;
+      when {"POINT_LIST_INT_SIZE"}:           conf.POINT_LIST_INT_SIZE           := integer(value);
+      when {"POINT_LIST_ABSOLUTE"}:           conf.POINT_LIST_ABSOLUTE           := boolean(value);
       when {"RAND_MULTIPLIER"}:               conf.RAND_MULTIPLIER               := integer(value);
       when {"RAND_INCREMENT"}:                conf.RAND_INCREMENT                := integer(value);
       when {"BOOLTYPE"}:                      conf.BOOLTYPE                      := value;

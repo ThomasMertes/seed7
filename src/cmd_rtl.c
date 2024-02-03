@@ -182,6 +182,12 @@
 #ifndef RGB_TO_PIXEL_FLAG_NAME
 #define RGB_TO_PIXEL_FLAG_NAME ""
 #endif
+#ifndef POINT_LIST_INT_SIZE
+#define POINT_LIST_INT_SIZE 0
+#endif
+#ifndef POINT_LIST_INT_ABSOLUTE
+#define POINT_LIST_INT_ABSOLUTE 0
+#endif
 
 
 #if HAS_BUILTIN_OVERFLOW_OPERATIONS
@@ -2288,6 +2294,10 @@ striType cmdConfigValue (const const_striType name)
       opt = PIXEL_BLUE_MASK;
     } else if (strcmp(opt_name, "RGB_TO_PIXEL_FLAG_NAME") == 0) {
       opt = RGB_TO_PIXEL_FLAG_NAME;
+    } else if (strcmp(opt_name, "POINT_LIST_INT_SIZE") == 0) {
+      opt = STRINGIFY(POINT_LIST_INT_SIZE);
+    } else if (strcmp(opt_name, "POINT_LIST_ABSOLUTE") == 0) {
+      opt = POINT_LIST_ABSOLUTE ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "RAND_MULTIPLIER") == 0) {
       opt = STRINGIFY(RAND_MULTIPLIER);
     } else if (strcmp(opt_name, "RAND_INCREMENT") == 0) {

@@ -90,7 +90,7 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7.js ../prg/s7.js
 	node ../bin/s7.js -l ../lib level
-	node ../bin/s7.js -l ../lib -q ../prg/confval > ../bin/cc_conf_emcc.prop
+	node --stack-size=8192 ../bin/s7.js -l ../lib -q ../prg/confval > ../bin/cc_conf_emcc.prop
 	@echo
 	@echo "  Use 'make s7c' (with your make command) to create the compiler."
 	@echo

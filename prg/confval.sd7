@@ -93,6 +93,8 @@ const proc: main is func
     writeln("PIXEL_GREEN_MASK:              " <& ccConf.PIXEL_GREEN_MASK radix 16);
     writeln("PIXEL_BLUE_MASK:               " <& ccConf.PIXEL_BLUE_MASK radix 16);
     writeln("RGB_TO_PIXEL_FLAG_NAME:        " <& ccConf.RGB_TO_PIXEL_FLAG_NAME);
+    writeln("POINT_LIST_INT_SIZE:           " <& ccConf.POINT_LIST_INT_SIZE);
+    writeln("POINT_LIST_ABSOLUTE:           " <& ccConf.POINT_LIST_ABSOLUTE);
     writeln("RAND_MULTIPLIER:               " <& ccConf.RAND_MULTIPLIER);
     writeln("RAND_INCREMENT:                " <& ccConf.RAND_INCREMENT);
     writeln("BOOLTYPE:                      " <& ccConf.BOOLTYPE);
