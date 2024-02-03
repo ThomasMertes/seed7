@@ -1839,6 +1839,8 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
     rtlArrayType xyArray;
 
   /* drwConvPointList */
+    logFunction(printf("drwConvPointList(\"%s\")\n",
+                       bstriAsUnquotedCStri(pointList)););
     len = pointList->size / sizeof(POINT);
     if (unlikely(!ALLOC_RTL_ARRAY(xyArray, len << 1))) {
       raise_error(MEMORY_ERROR);
@@ -1851,6 +1853,8 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
         xyArray->arr[(pos << 1) + 1].value.intValue = (intType) points[pos].y;
       } /* for */
     } /* if */
+    logFunction(printf("drwConvPointList --> arr (size=" FMT_U_MEM ")\n",
+                       arraySize(xyArray)););
     return xyArray;
   } /* drwConvPointList */
 

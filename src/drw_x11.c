@@ -2030,24 +2030,30 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
     rtlArrayType xyArray;
 
   /* drwConvPointList */
+    logFunction(printf("drwConvPointList(\"%s\")\n",
+                       bstriAsUnquotedCStri(pointList)););
     len = pointList->size / sizeof(XPoint);
     if (unlikely(!ALLOC_RTL_ARRAY(xyArray, len << 1))) {
       raise_error(MEMORY_ERROR);
     } else {
       xyArray->min_position = 1;
       xyArray->max_position = (intType) (len << 1);
-      points = (XPoint *) pointList->mem;
-      xyArray->arr[0].value.intValue = (intType) points[0].x;
-      xyArray->arr[1].value.intValue = (intType) points[0].y;
-      for (pos = 1; pos < len; pos ++) {
-        xyArray->arr[ pos << 1     ].value.intValue =
-            xyArray->arr[(pos << 1) - 2].value.intValue +
-            (intType) points[pos].x;
-        xyArray->arr[(pos << 1) + 1].value.intValue =
-            xyArray->arr[(pos << 1) - 1].value.intValue +
-            (intType) points[pos].y;
-      } /* for */
+      if (len != 0) {
+        points = (XPoint *) pointList->mem;
+        xyArray->arr[0].value.intValue = (intType) points[0].x;
+        xyArray->arr[1].value.intValue = (intType) points[0].y;
+        for (pos = 1; pos < len; pos ++) {
+          xyArray->arr[ pos << 1     ].value.intValue =
+              xyArray->arr[(pos << 1) - 2].value.intValue +
+              (intType) points[pos].x;
+          xyArray->arr[(pos << 1) + 1].value.intValue =
+              xyArray->arr[(pos << 1) - 1].value.intValue +
+              (intType) points[pos].y;
+        } /* for */
+      } /* if */
     } /* if */
+    logFunction(printf("drwConvPointList --> arr (size=" FMT_U_MEM ")\n",
+                       arraySize(xyArray)););
     return xyArray;
   } /* drwConvPointList */
 
