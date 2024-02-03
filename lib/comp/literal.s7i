@@ -69,13 +69,6 @@ const type: win_bstri_hash is hash [integer] integer;
 var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
 var win_bstri_hash: win_bstri_table is win_bstri_hash.EMPTY_HASH;
 
-const type: plist_table_hash is hash [pointList] integer;
-const type: plist_index_hash is hash [integer] array pointList;
-const type: plist_bstri_hash is hash [integer] integer;
-
-var plist_table_hash: plist_const_table is plist_table_hash.EMPTY_HASH;
-var plist_bstri_hash: plist_bstri_table is plist_bstri_hash.EMPTY_HASH;
-
 const type: const_table_hash is hash [reference] integer;
 const type: const_index_hash is hash [integer] array reference;
 
@@ -293,15 +286,144 @@ const func string: windowLiteral (in PRIMITIVE_WINDOW: aWindow) is func
   end func;
 
 
-const func string: pointListLiteral (in pointList: aPointList) is func
+const func boolean: pointListEncodingIdentical is
+  return (ccConf.POINT_LIST_INT_SIZE = 16 and not ccConf.POINT_LIST_ABSOLUTE and
+          bstring(genPointList([] (597, 362, 219, 205))) =
+              bstring("U\2;j\1;\134;\254;c\255;")) or
+         (ccConf.POINT_LIST_INT_SIZE = 32 and ccConf.POINT_LIST_ABSOLUTE and
+	  bstring(genPointList([] (597, 362, 219, 205))) =
+              bstring("U\2;\0;\0;j\1;\0;\0;\219;\0;\0;\0;\205;\0;\0;\0;"));
+
+
+const func bstring: toPointListAbsolute (in pointList: aPointList) is func
 
   result
-    var string: expr is "";
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
   begin
-    if aPointList not in plist_const_table then
-      plist_const_table @:= [aPointList] length(plist_const_table);
+    xyArray := xyArray(aPointList);
+    if ccConf.POINT_LIST_INT_SIZE = 16 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, LE, 2);
+        end for;
+      else
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, BE, 2);
+        end for;
+      end if;
+    elsif ccConf.POINT_LIST_INT_SIZE = 32 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, LE, 4);
+        end for;
+      else
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, BE, 4);
+        end for;
+      end if;
+    else
+      raise RANGE_ERROR;
     end if;
-    expr &:= "plist[";
-    expr &:= str(plist_const_table[aPointList]);
-    expr &:= "]";
+    bstri := bstring(pointListData);
   end func;
+
+
+const func bstring: toPointListRelative16 (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: index is 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
+  begin
+    xyArray := xyArray(aPointList);
+    if length(xyArray) <> 0 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        pointListData &:= bytes(xyArray[1], SIGNED, LE, 2);
+        pointListData &:= bytes(xyArray[2], SIGNED, LE, 2);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, LE, 2);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, LE, 2);
+        end for;
+      else
+        pointListData &:= bytes(xyArray[1], SIGNED, BE, 2);
+        pointListData &:= bytes(xyArray[2], SIGNED, BE, 2);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, BE, 2);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, BE, 2);
+        end for;
+      end if;
+    end if;
+    bstri := bstring(pointListData);
+  end func;
+
+
+const func bstring: toPointListRelative32 (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: index is 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
+  begin
+    xyArray := xyArray(aPointList);
+    if length(xyArray) <> 0 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        pointListData &:= bytes(xyArray[1], SIGNED, LE, 4);
+        pointListData &:= bytes(xyArray[2], SIGNED, LE, 4);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, LE, 4);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, LE, 4);
+        end for;
+      else
+        pointListData &:= bytes(xyArray[1], SIGNED, BE, 4);
+        pointListData &:= bytes(xyArray[2], SIGNED, BE, 4);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, BE, 4);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, BE, 4);
+        end for;
+      end if;
+    end if;
+    bstri := bstring(pointListData);
+  end func;
+
+
+const func bstring: toTargetPointListBstring (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  begin
+    if pointListEncodingIdentical then
+      bstri := bstring(aPointList);
+    elsif ccConf.POINT_LIST_ABSOLUTE then
+      bstri := toPointListAbsolute(aPointList);
+    else
+      if ccConf.POINT_LIST_INT_SIZE = 16 then
+        bstri := toPointListRelative16(aPointList);
+      elsif ccConf.POINT_LIST_INT_SIZE = 32 then
+        bstri := toPointListRelative32(aPointList);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+const func string: pointListLiteral (in pointList: aPointList) is
+  return bstriLiteral(toTargetPointListBstring(aPointList));
