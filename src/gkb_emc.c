@@ -41,6 +41,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "hsh_rtl.h"
 #include "heaputl.h"
 #include "emc_utl.h"
@@ -89,9 +90,11 @@ static boolType codeIdPressed[54];
 static rtlHashType charPressed;
 static boolType mouseKeyPressed[5];
 
+extern int getCloseAction (winType actual_window);
 extern boolType ignoreResize (winType aWindow, int width, int height);
 extern boolType resize (winType resizeWindow, int width, int height);
 extern void setResizeReturnsKey (winType resizeWindow, boolType active);
+extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern int maxWindowId;
 
 
@@ -164,6 +167,7 @@ static void addEventPromiseForWindowId (int windowId)
           currentWindow.removeEventListener("wheel", handler);
           currentWindow.removeEventListener("resize", handler);
           currentWindow.removeEventListener("mousemove", handler);
+          currentWindow.removeEventListener("beforeunload", handler);
           resolve(event);
         }
         currentWindow.addEventListener("keydown", handler);
@@ -173,6 +177,7 @@ static void addEventPromiseForWindowId (int windowId)
         currentWindow.addEventListener("wheel", handler);
         currentWindow.addEventListener("resize", handler);
         currentWindow.addEventListener("mousemove", handler);
+        currentWindow.addEventListener("beforeunload", handler);
         registerCallback(handler);
       }));
     }, windowId);
@@ -785,6 +790,40 @@ EMSCRIPTEN_KEEPALIVE int decodeResizeEvent (int windowId, int width, int height)
 
 
 
+EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
+
+  {
+    winType window;
+    int result;
+
+  /* decodeBeforeunloadEvent */
+    logFunction(printf("decodeBeforeunloadEvent(%d)\n",
+                       windowId););
+    window = find_window(windowId);
+    switch (getCloseAction(window)) {
+      case CLOSE_BUTTON_CLOSES_PROGRAM:
+        os_exit(0);
+        /* The function os_exit() terminates the program. The  */
+        /* line below os_exit() is never reached. A value is   */
+        /* assigned to result to silence a C compiler warning. */
+        result = 0;
+        break;
+      case CLOSE_BUTTON_RETURNS_KEY:
+        result = K_CLOSE;
+        lastKey.buttonWindow = windowId;
+        break;
+      case CLOSE_BUTTON_RAISES_EXCEPTION:
+        raise_error(GRAPHIC_ERROR);
+        result = K_CLOSE;
+        break;
+    } /* switch */
+    logFunction(printf("decodeBeforeunloadEvent(%d) --> %d\n",
+                       windowId, result););
+    return result;
+  } /* decodeBeforeunloadEvent */
+
+
+
 EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
     // console.log("asyncGkbdGetc");
     const event = await Promise.any(eventPromises);
@@ -870,6 +909,14 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       return Module.ccall("decodeResizeEvent", "number",
                           ["number", "number", "number"],
                           [mapWindowToId.get(event.target), event.target.innerWidth, event.target.innerHeight]);
+    } else if (event.type === "beforeunload") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      event.preventDefault();
+      return Module.ccall("decodeBeforeunloadEvent", "number",
+                          ["number"],
+                          [mapCanvasToId.get(event.target.activeElement.firstChild)]);
     } else {
       return event;
     }
@@ -1223,7 +1270,13 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active)
   { /* gkbSelectInput */
     if (aKey == K_RESIZE) {
       setResizeReturnsKey(aWindow, active);
-    } else if (aKey != K_CLOSE) {
+    } else if (aKey == K_CLOSE) {
+      if (active) {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_RETURNS_KEY);
+      } else {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_CLOSES_PROGRAM);
+      } /* if */
+    } else {
       raise_error(RANGE_ERROR);
     } /* if */
   } /* gkbSelectInput */

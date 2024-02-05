@@ -67,6 +67,7 @@ typedef struct {
     int height;
     intType clear_col;
     boolType resizeReturnsKey;
+    int close_action;
   } emc_winRecord, *emc_winType;
 
 typedef const emc_winRecord *const_emc_winType;
@@ -80,6 +81,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define to_height(win)            (((const_emc_winType) (win))->height)
 #define to_clear_col(win)         (((const_emc_winType) (win))->clear_col)
 #define to_resizeReturnsKey(win)  (((const_emc_winType) (win))->resizeReturnsKey)
+#define to_close_action(win)      (((const_emc_winType) (win))->close_action)
 
 #define to_var_window(win)            (((emc_winType) (win))->window)
 #define is_var_pixmap(win)            (((emc_winType) (win))->is_pixmap)
@@ -90,6 +92,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define to_var_height(win)            (((emc_winType) (win))->height)
 #define to_var_clear_col(win)         (((emc_winType) (win))->clear_col)
 #define to_var_resizeReturnsKey(win)  (((emc_winType) (win))->resizeReturnsKey)
+#define to_var_close_action(win)      (((emc_winType) (win))->close_action)
 
 int maxWindowId = 0;
 
@@ -102,6 +105,14 @@ void gkbInitKeyboard (void);
 void synchronizeTimAwaitWithGraphicKeyboard (void);
 extern intType pointerX;
 extern intType pointerY;
+
+
+
+int getCloseAction (winType actual_window)
+
+  { /* getCloseAction */
+    return to_close_action(actual_window);
+  } /* getCloseAction */
 
 
 
@@ -1341,6 +1352,13 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 void drwSetCloseAction (winType actual_window, intType closeAction)
 
   { /* drwSetCloseAction */
+    logFunction(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) actual_window, closeAction););
+    if (closeAction < 0 || closeAction > 2) {
+      raise_error(RANGE_ERROR);
+    } else {
+      to_var_close_action(actual_window) = (int) closeAction;
+    } /* if */
   } /* drwSetCloseAction */
 
 
