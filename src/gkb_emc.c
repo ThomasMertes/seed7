@@ -168,6 +168,7 @@ static void addEventPromiseForWindowId (int windowId)
           currentWindow.removeEventListener("resize", handler);
           currentWindow.removeEventListener("mousemove", handler);
           currentWindow.removeEventListener("beforeunload", handler);
+          currentWindow.removeEventListener("unload", handler);
           resolve(event);
         }
         currentWindow.addEventListener("keydown", handler);
@@ -178,6 +179,7 @@ static void addEventPromiseForWindowId (int windowId)
         currentWindow.addEventListener("resize", handler);
         currentWindow.addEventListener("mousemove", handler);
         currentWindow.addEventListener("beforeunload", handler);
+        currentWindow.addEventListener("unload", handler);
         registerCallback(handler);
       }));
     }, windowId);
@@ -824,6 +826,16 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
 
 
 
+EMSCRIPTEN_KEEPALIVE int decodeUnloadEvent (void)
+
+  { /* decodeUnloadEvent */
+    logFunction(printf("decodeUnloadEvent()\n"););
+    os_exit(0);
+    return K_NONE;
+  } /* decodeUnloadEvent */
+
+
+
 EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
     // console.log("asyncGkbdGetc");
     const event = await Promise.any(eventPromises);
@@ -917,6 +929,11 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       return Module.ccall("decodeBeforeunloadEvent", "number",
                           ["number"],
                           [mapCanvasToId.get(event.target.activeElement.firstChild)]);
+    } else if (event.type === "unload") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      return Module.ccall("decodeUnloadEvent", "number", [], []);
     } else {
       return event;
     }

@@ -94,6 +94,11 @@ void doExit (int returnCode)
       atExitElement = atExitElement->next;
     } /* if */
     logFunction(printf("doExit() -->\n"););
+    EM_ASM({
+      if (reloadPageFunction !== null) {
+        reloadPageFunction();
+      }
+    });
     emscripten_force_exit(returnCode);
   } /* doExit */
 

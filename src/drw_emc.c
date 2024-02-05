@@ -1210,6 +1210,11 @@ winType drwOpen (intType xPos, intType yPos,
               mapIdToCanvas[currentWindowId] = canvas;
               mapCanvasToId.set(canvas, currentWindowId);
               mapIdToContext[currentWindowId] = context;
+              if (reloadPageFunction === null) {
+                if (typeof windowObject.opener.reloadPage !== "undefined") {
+                  reloadPageFunction = windowObject.opener.reloadPage;
+                }
+              }
               return (currentWindowId << 2) | ignoreFirstResize;
             }
           } else {
