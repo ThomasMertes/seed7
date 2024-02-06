@@ -525,6 +525,19 @@ const func type: array (in type: baseType) is func
 
         const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
 
+        (**
+         *  Sort an array with the compare function of the element type.
+         *   sort([] (2, 4, 6, 5, 3, 1))             returns  [] (1, 2, 3, 4, 5, 6)
+         *   sort([] ('o', 'r', 'g', 'y', 'l'))      returns  [] ('g', 'l', 'o', 'r', 'y')
+         *   sort([] ("bravo", "charlie", "alpha"))  returns  [] ("alpha", "bravo", "charlie")
+         *   sort([] (pred(2_**107), pred(2_**89)))  returns  [] (pred(2_**89), pred(2_**107))
+         *   sort([] (E, sqrt(2.0), PI, 1.0))        returns  [] (1.0, sqrt(2.0), E, PI)
+         *  For a user defined element type the following approach can be used:
+         *   const type: myType is ...
+         *   const func integer: compare (in myType: a, in myType: b) is ...
+         *   const type: myArrayType is array myType;
+         *  Afterwards ''myArrayType'' arrays can be sorted.
+         *)
         const func arrayType: sort (in arrayType: arr_obj) is
           return SORT(arr_obj, arrayType.dataCompare);
 
@@ -539,6 +552,16 @@ const type: TEST_2 is array integer;
 const type: TEST_3 is array string;
 
 
+(**
+ *  Define a sort function for an existing array type.
+ *  This template can be used if the array type has been
+ *  defined and the compare function is defined afterwards:
+ *   const type: myType is ...
+ *   const type: myArrayType is array myType;
+ *   const func integer: compare (in myType: a, in myType: b) is ...
+ *   ENABLE_SORT(myArrayType);
+ *  Afterwards ''myArrayType'' arrays can be sorted.
+ *)
 const proc: ENABLE_SORT (in type: arrayType) is func
   begin
     const reference: (attr arrayType) . dataCompare  is getobj(compare(in base_type(arrayType): element1, in base_type(arrayType): element2));
