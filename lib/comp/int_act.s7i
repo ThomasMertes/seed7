@@ -2457,14 +2457,48 @@ const proc: process (INT_DECR, in reference: function,
   end func;
 
 
+const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_const_int_div (in reference: dividend, in integer: divisor,
+    inout expr_type: c_expr) is forward;
+
+
+const func boolean: optimize_div_of_product (in reference: number, in integer: factor,
+    in integer: divisor, inout expr_type: c_expr) is func
+
+  result
+    var boolean: done is TRUE;
+  begin
+    if factor = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "0";
+    elsif factor = divisor then
+      incr(countOptimizations);
+      process_expr(number, c_expr);
+    elsif factor rem divisor = 0 then
+      incr(countOptimizations);
+      process_const_int_mult(number, factor div divisor, c_expr);
+    elsif divisor rem factor = 0 then
+      incr(countOptimizations);
+      process_const_int_div(number, divisor div factor, c_expr);
+    else
+      done := FALSE;
+    end if;
+  end func;
+
+
 const proc: process_const_int_div (in reference: dividend, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedDividend is NIL;
+    var reference: evaluatedFactor is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
     var intRange: dividend_range is intRange.value;
+    var boolean: done is TRUE;
   begin
     if divisor = 0 then
       incr(countOptimizations);
@@ -2484,26 +2518,64 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")";
-    elsif divisor = -1 then
-      # Dividing by -1 is equal to changing the sign.
-      # integer.first / -1 causes an integer overflow.
-      incr(countOptimizations);
-      negate(dividend, c_expr);
-    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
-      # Divisor is a power of two.
-      dividend_range := getIntRange(dividend);
-      if dividend_range.minValue >= 0 then
+    elsif isActionExpression(dividend, "INT_MULT") and
+        getConstant(getActionParameter(dividend, 3), INTOBJECT, evaluatedFactor) then
+      done := optimize_div_of_product(getActionParameter(dividend, 1),
+            getValue(evaluatedFactor, integer), divisor, c_expr);
+    elsif isActionExpression(dividend, "INT_MULT") and
+        getConstant(getActionParameter(dividend, 1), INTOBJECT, evaluatedFactor) then
+      done := optimize_div_of_product(getActionParameter(dividend, 3),
+            getValue(evaluatedFactor, integer), divisor, c_expr);
+    else
+      done := FALSE;
+    end if;
+    if not done then
+      if divisor = -1 then
+        # Dividing by -1 is equal to changing the sign.
+        # integer.first / -1 causes an integer overflow.
         incr(countOptimizations);
-        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-          c_expr.expr &:= "(";
-          process_expr(dividend, c_expr);
-          c_expr.expr &:= ") >> ";
-          c_expr.expr &:= integerLiteral(log2(divisor));
+        negate(dividend, c_expr);
+      elsif divisor > 0 and 2 ** log2(divisor) = divisor then
+        # Divisor is a power of two.
+        dividend_range := getIntRange(dividend);
+        if dividend_range.minValue >= 0 then
+          incr(countOptimizations);
+          if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+            c_expr.expr &:= "(";
+            process_expr(dividend, c_expr);
+            c_expr.expr &:= ") >> ";
+            c_expr.expr &:= integerLiteral(log2(divisor));
+          else
+            c_expr.expr &:= "(";
+            dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+            doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
+            c_expr.expr &:= ")";
+          end if;
         else
           c_expr.expr &:= "(";
-          dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-          doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ") / ";
+          c_expr.expr &:= integerLiteral(divisor);
+        end if;
+      elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
+        # Divisor is a negative power of two.
+        # The check above is (almost) equivalent to:
+        #   divisor < 0 and 2 ** log2(-divisor) = -divisor
+        # The check with bitLength is used to avoid negating the divisor.
+        # Negating the divisor would fail for the most negative integer.
+        dividend_range := getIntRange(dividend);
+        if dividend_range.maxValue <= 0 then
+          incr(countOptimizations);
+          c_expr.expr &:= "(intType)(-(uintType)(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ") >> ";
+          c_expr.expr &:= integerLiteral(bitLength(divisor));
           c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= "(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ") / ";
+          c_expr.expr &:= integerLiteral(divisor);
         end if;
       else
         c_expr.expr &:= "(";
@@ -2511,11 +2583,6 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
         c_expr.expr &:= ") / ";
         c_expr.expr &:= integerLiteral(divisor);
       end if;
-    else
-      c_expr.expr &:= "(";
-      process_expr(dividend, c_expr);
-      c_expr.expr &:= ") / ";
-      c_expr.expr &:= integerLiteral(divisor);
     end if;
   end func;
 
