@@ -14585,16 +14585,19 @@ const func boolean: check_div_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
-    if  pred(-abs(intExpr(        integer.last))) div -9223372036854775807 <>                    1 or
+    if  pred(-abs(intExpr(        integer.last))) div        integer.first <>                    1 or
+        pred(-abs(intExpr(        integer.last))) div -9223372036854775807 <>                    1 or
         pred(-abs(intExpr(        integer.last))) div            -12345653 <>         747094709113 or
         pred(-abs(intExpr(        integer.last))) div                   -3 <>  3074457345618258602 or
         pred(-abs(intExpr(        integer.last))) div                   -2 <>  4611686018427387904 or
         pred(-abs(intExpr( 9223372036854775806))) div                   -1 <>  9223372036854775807 or
+        pred(-abs(intExpr(            12345652))) div        integer.first <>                    0 or
         pred(-abs(intExpr(            12345652))) div -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(            12345652))) div            -12345653 <>                    1 or
         pred(-abs(intExpr(            12345652))) div                   -3 <>              4115217 or
         pred(-abs(intExpr(            12345652))) div                   -2 <>              6172826 or
         pred(-abs(intExpr(            12345652))) div                   -1 <>             12345653 or
+        pred(-abs(intExpr(                   0))) div        integer.first <>                    0 or
         pred(-abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(                   0))) div            -12345653 <>                    0 or
         pred(-abs(intExpr(                   0))) div                   -3 <>                    0 or
@@ -14623,21 +14626,25 @@ const func boolean: check_div_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if       -abs(intExpr(        integer.last))  div -9223372036854775807 <>                    1 or
+    if       -abs(intExpr(        integer.last))  div        integer.first <>                    0 or
+             -abs(intExpr(        integer.last))  div -9223372036854775807 <>                    1 or
              -abs(intExpr(        integer.last))  div            -12345653 <>         747094709113 or
              -abs(intExpr(        integer.last))  div                   -3 <>  3074457345618258602 or
              -abs(intExpr(        integer.last))  div                   -2 <>  4611686018427387903 or
              -abs(intExpr(        integer.last))  div                   -1 <>         integer.last or
+             -abs(intExpr(            12345653))  div        integer.first <>                    0 or
              -abs(intExpr(            12345653))  div -9223372036854775807 <>                    0 or
              -abs(intExpr(            12345653))  div            -12345653 <>                    1 or
              -abs(intExpr(            12345653))  div                   -3 <>              4115217 or
              -abs(intExpr(            12345653))  div                   -2 <>              6172826 or
              -abs(intExpr(            12345653))  div                   -1 <>             12345653 or
+             -abs(intExpr(                   1))  div        integer.first <>                    0 or
              -abs(intExpr(                   1))  div -9223372036854775807 <>                    0 or
              -abs(intExpr(                   1))  div            -12345653 <>                    0 or
              -abs(intExpr(                   1))  div                   -3 <>                    0 or
              -abs(intExpr(                   1))  div                   -2 <>                    0 or
              -abs(intExpr(                   1))  div                   -1 <>                    1 or
+             -abs(intExpr(                   0))  div        integer.first <>                    0 or
              -abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
              -abs(intExpr(                   0))  div            -12345653 <>                    0 or
              -abs(intExpr(                   0))  div                   -3 <>                    0 or
@@ -14671,21 +14678,25 @@ const func boolean: check_div_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if        abs(intExpr(        integer.last))  div -9223372036854775807 <>                   -1 or
+    if        abs(intExpr(        integer.last))  div        integer.first <>                    0 or
+              abs(intExpr(        integer.last))  div -9223372036854775807 <>                   -1 or
               abs(intExpr(        integer.last))  div            -12345653 <>        -747094709113 or
               abs(intExpr(        integer.last))  div                   -3 <> -3074457345618258602 or
               abs(intExpr(        integer.last))  div                   -2 <> -4611686018427387903 or
               abs(intExpr(        integer.last))  div                   -1 <> -9223372036854775807 or
+              abs(intExpr(            12345653))  div        integer.first <>                    0 or
               abs(intExpr(            12345653))  div -9223372036854775807 <>                    0 or
               abs(intExpr(            12345653))  div            -12345653 <>                   -1 or
               abs(intExpr(            12345653))  div                   -3 <>             -4115217 or
               abs(intExpr(            12345653))  div                   -2 <>             -6172826 or
               abs(intExpr(            12345653))  div                   -1 <>            -12345653 or
+              abs(intExpr(                   1))  div        integer.first <>                    0 or
               abs(intExpr(                   1))  div -9223372036854775807 <>                    0 or
               abs(intExpr(                   1))  div            -12345653 <>                    0 or
               abs(intExpr(                   1))  div                   -3 <>                    0 or
               abs(intExpr(                   1))  div                   -2 <>                    0 or
               abs(intExpr(                   1))  div                   -1 <>                   -1 or
+              abs(intExpr(                   0))  div        integer.first <>                    0 or
               abs(intExpr(                   0))  div -9223372036854775807 <>                    0 or
               abs(intExpr(                   0))  div            -12345653 <>                    0 or
               abs(intExpr(                   0))  div                   -3 <>                    0 or
@@ -14719,16 +14730,19 @@ const func boolean: check_div_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if  succ( abs(intExpr( 9223372036854775806))) div -9223372036854775807 <>                   -1 or
+    if  succ( abs(intExpr( 9223372036854775806))) div        integer.first <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) div -9223372036854775807 <>                   -1 or
         succ( abs(intExpr( 9223372036854775806))) div            -12345653 <>        -747094709113 or
         succ( abs(intExpr( 9223372036854775806))) div                   -3 <> -3074457345618258602 or
         succ( abs(intExpr( 9223372036854775806))) div                   -2 <> -4611686018427387903 or
         succ( abs(intExpr( 9223372036854775806))) div                   -1 <> -9223372036854775807 or
+        succ( abs(intExpr(            12345652))) div        integer.first <>                    0 or
         succ( abs(intExpr(            12345652))) div -9223372036854775807 <>                    0 or
         succ( abs(intExpr(            12345652))) div            -12345653 <>                   -1 or
         succ( abs(intExpr(            12345652))) div                   -3 <>             -4115217 or
         succ( abs(intExpr(            12345652))) div                   -2 <>             -6172826 or
         succ( abs(intExpr(            12345652))) div                   -1 <>            -12345653 or
+        succ( abs(intExpr(                   0))) div        integer.first <>                    0 or
         succ( abs(intExpr(                   0))) div -9223372036854775807 <>                    0 or
         succ( abs(intExpr(                   0))) div            -12345653 <>                    0 or
         succ( abs(intExpr(                   0))) div                   -3 <>                    0 or
@@ -17170,16 +17184,19 @@ const func boolean: check_rem_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
-    if  pred(-abs(intExpr(        integer.last))) rem -9223372036854775807 <>                   -1 or
+    if  pred(-abs(intExpr(        integer.last))) rem        integer.first <>                    0 or
+        pred(-abs(intExpr(        integer.last))) rem -9223372036854775807 <>                   -1 or
         pred(-abs(intExpr(        integer.last))) rem            -12345653 <>             -9740019 or
         pred(-abs(intExpr(        integer.last))) rem                   -3 <>                   -2 or
         pred(-abs(intExpr(        integer.last))) rem                   -2 <>                    0 or
         pred(-abs(intExpr( 9223372036854775806))) rem                   -1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) rem        integer.first <>            -12345653 or
         pred(-abs(intExpr(            12345652))) rem -9223372036854775807 <>            -12345653 or
         pred(-abs(intExpr(            12345652))) rem            -12345653 <>                    0 or
         pred(-abs(intExpr(            12345652))) rem                   -3 <>                   -2 or
         pred(-abs(intExpr(            12345652))) rem                   -2 <>                   -1 or
         pred(-abs(intExpr(            12345652))) rem                   -1 <>                    0 or
+        pred(-abs(intExpr(                   0))) rem        integer.first <>                   -1 or
         pred(-abs(intExpr(                   0))) rem -9223372036854775807 <>                   -1 or
         pred(-abs(intExpr(                   0))) rem            -12345653 <>                   -1 or
         pred(-abs(intExpr(                   0))) rem                   -3 <>                   -1 or
@@ -17208,21 +17225,25 @@ const func boolean: check_rem_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if       -abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
+    if       -abs(intExpr(        integer.last))  rem        integer.first <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
              -abs(intExpr(        integer.last))  rem            -12345653 <>             -9740018 or
              -abs(intExpr(        integer.last))  rem                   -3 <>                   -1 or
              -abs(intExpr(        integer.last))  rem                   -2 <>                   -1 or
              -abs(intExpr(        integer.last))  rem                   -1 <>                    0 or
+             -abs(intExpr(            12345653))  rem        integer.first <>            -12345653 or
              -abs(intExpr(            12345653))  rem -9223372036854775807 <>            -12345653 or
              -abs(intExpr(            12345653))  rem            -12345653 <>                    0 or
              -abs(intExpr(            12345653))  rem                   -3 <>                   -2 or
              -abs(intExpr(            12345653))  rem                   -2 <>                   -1 or
              -abs(intExpr(            12345653))  rem                   -1 <>                    0 or
+             -abs(intExpr(                   1))  rem        integer.first <>                   -1 or
              -abs(intExpr(                   1))  rem -9223372036854775807 <>                   -1 or
              -abs(intExpr(                   1))  rem            -12345653 <>                   -1 or
              -abs(intExpr(                   1))  rem                   -3 <>                   -1 or
              -abs(intExpr(                   1))  rem                   -2 <>                   -1 or
              -abs(intExpr(                   1))  rem                   -1 <>                    0 or
+             -abs(intExpr(                   0))  rem        integer.first <>                    0 or
              -abs(intExpr(                   0))  rem -9223372036854775807 <>                    0 or
              -abs(intExpr(                   0))  rem            -12345653 <>                    0 or
              -abs(intExpr(                   0))  rem                   -3 <>                    0 or
@@ -17256,21 +17277,25 @@ const func boolean: check_rem_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if        abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
+    if        abs(intExpr(        integer.last))  rem        integer.first <>  9223372036854775807 or
+              abs(intExpr(        integer.last))  rem -9223372036854775807 <>                    0 or
               abs(intExpr(        integer.last))  rem            -12345653 <>              9740018 or
               abs(intExpr(        integer.last))  rem                   -3 <>                    1 or
               abs(intExpr(        integer.last))  rem                   -2 <>                    1 or
               abs(intExpr(        integer.last))  rem                   -1 <>                    0 or
+              abs(intExpr(            12345653))  rem        integer.first <>             12345653 or
               abs(intExpr(            12345653))  rem -9223372036854775807 <>             12345653 or
               abs(intExpr(            12345653))  rem            -12345653 <>                    0 or
               abs(intExpr(            12345653))  rem                   -3 <>                    2 or
               abs(intExpr(            12345653))  rem                   -2 <>                    1 or
               abs(intExpr(            12345653))  rem                   -1 <>                    0 or
+              abs(intExpr(                   1))  rem        integer.first <>                    1 or
               abs(intExpr(                   1))  rem -9223372036854775807 <>                    1 or
               abs(intExpr(                   1))  rem            -12345653 <>                    1 or
               abs(intExpr(                   1))  rem                   -3 <>                    1 or
               abs(intExpr(                   1))  rem                   -2 <>                    1 or
               abs(intExpr(                   1))  rem                   -1 <>                    0 or
+              abs(intExpr(                   0))  rem        integer.first <>                    0 or
               abs(intExpr(                   0))  rem -9223372036854775807 <>                    0 or
               abs(intExpr(                   0))  rem            -12345653 <>                    0 or
               abs(intExpr(                   0))  rem                   -3 <>                    0 or
@@ -17304,16 +17329,19 @@ const func boolean: check_rem_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if  succ( abs(intExpr( 9223372036854775806))) rem -9223372036854775807 <>                    0 or
+    if  succ( abs(intExpr( 9223372036854775806))) rem        integer.first <>  9223372036854775807 or
+        succ( abs(intExpr( 9223372036854775806))) rem -9223372036854775807 <>                    0 or
         succ( abs(intExpr( 9223372036854775806))) rem            -12345653 <>              9740018 or
         succ( abs(intExpr( 9223372036854775806))) rem                   -3 <>                    1 or
         succ( abs(intExpr( 9223372036854775806))) rem                   -2 <>                    1 or
         succ( abs(intExpr( 9223372036854775806))) rem                   -1 <>                    0 or
+        succ( abs(intExpr(            12345652))) rem        integer.first <>             12345653 or
         succ( abs(intExpr(            12345652))) rem -9223372036854775807 <>             12345653 or
         succ( abs(intExpr(            12345652))) rem            -12345653 <>                    0 or
         succ( abs(intExpr(            12345652))) rem                   -3 <>                    2 or
         succ( abs(intExpr(            12345652))) rem                   -2 <>                    1 or
         succ( abs(intExpr(            12345652))) rem                   -1 <>                    0 or
+        succ( abs(intExpr(                   0))) rem        integer.first <>                    1 or
         succ( abs(intExpr(                   0))) rem -9223372036854775807 <>                    1 or
         succ( abs(intExpr(                   0))) rem            -12345653 <>                    1 or
         succ( abs(intExpr(                   0))) rem                   -3 <>                    1 or
@@ -19590,16 +19618,19 @@ const func boolean: check_mdiv_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
-    if  pred(-abs(intExpr(        integer.last))) mdiv -9223372036854775807 <>                    1 or
+    if  pred(-abs(intExpr(        integer.last))) mdiv        integer.first <>                    1 or
+        pred(-abs(intExpr(        integer.last))) mdiv -9223372036854775807 <>                    1 or
         pred(-abs(intExpr(        integer.last))) mdiv            -12345653 <>         747094709113 or
         pred(-abs(intExpr(        integer.last))) mdiv                   -3 <>  3074457345618258602 or
         pred(-abs(intExpr(        integer.last))) mdiv                   -2 <>  4611686018427387904 or
         pred(-abs(intExpr( 9223372036854775806))) mdiv                   -1 <>  9223372036854775807 or
+        pred(-abs(intExpr(            12345652))) mdiv        integer.first <>                    0 or
         pred(-abs(intExpr(            12345652))) mdiv -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(            12345652))) mdiv            -12345653 <>                    1 or
         pred(-abs(intExpr(            12345652))) mdiv                   -3 <>              4115217 or
         pred(-abs(intExpr(            12345652))) mdiv                   -2 <>              6172826 or
         pred(-abs(intExpr(            12345652))) mdiv                   -1 <>             12345653 or
+        pred(-abs(intExpr(                   0))) mdiv        integer.first <>                    0 or
         pred(-abs(intExpr(                   0))) mdiv -9223372036854775807 <>                    0 or
         pred(-abs(intExpr(                   0))) mdiv            -12345653 <>                    0 or
         pred(-abs(intExpr(                   0))) mdiv                   -3 <>                    0 or
@@ -19628,21 +19659,25 @@ const func boolean: check_mdiv_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if       -abs(intExpr(        integer.last))  mdiv -9223372036854775807 <>                    1 or
+    if       -abs(intExpr(        integer.last))  mdiv        integer.first <>                    0 or
+             -abs(intExpr(        integer.last))  mdiv -9223372036854775807 <>                    1 or
              -abs(intExpr(        integer.last))  mdiv            -12345653 <>         747094709113 or
              -abs(intExpr(        integer.last))  mdiv                   -3 <>  3074457345618258602 or
              -abs(intExpr(        integer.last))  mdiv                   -2 <>  4611686018427387903 or
              -abs(intExpr(        integer.last))  mdiv                   -1 <>         integer.last or
+             -abs(intExpr(            12345653))  mdiv        integer.first <>                    0 or
              -abs(intExpr(            12345653))  mdiv -9223372036854775807 <>                    0 or
              -abs(intExpr(            12345653))  mdiv            -12345653 <>                    1 or
              -abs(intExpr(            12345653))  mdiv                   -3 <>              4115217 or
              -abs(intExpr(            12345653))  mdiv                   -2 <>              6172826 or
              -abs(intExpr(            12345653))  mdiv                   -1 <>             12345653 or
+             -abs(intExpr(                   1))  mdiv        integer.first <>                    0 or
              -abs(intExpr(                   1))  mdiv -9223372036854775807 <>                    0 or
              -abs(intExpr(                   1))  mdiv            -12345653 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -3 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -2 <>                    0 or
              -abs(intExpr(                   1))  mdiv                   -1 <>                    1 or
+             -abs(intExpr(                   0))  mdiv        integer.first <>                    0 or
              -abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
              -abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
              -abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
@@ -19676,21 +19711,25 @@ const func boolean: check_mdiv_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if        abs(intExpr(        integer.last))  mdiv -9223372036854775807 <>                   -1 or
+    if        abs(intExpr(        integer.last))  mdiv        integer.first <>                   -1 or
+              abs(intExpr(        integer.last))  mdiv -9223372036854775807 <>                   -1 or
               abs(intExpr(        integer.last))  mdiv            -12345653 <>        -747094709114 or
               abs(intExpr(        integer.last))  mdiv                   -3 <> -3074457345618258603 or
               abs(intExpr(        integer.last))  mdiv                   -2 <> -4611686018427387904 or
               abs(intExpr(        integer.last))  mdiv                   -1 <> -9223372036854775807 or
+              abs(intExpr(            12345653))  mdiv        integer.first <>                   -1 or
               abs(intExpr(            12345653))  mdiv -9223372036854775807 <>                   -1 or
               abs(intExpr(            12345653))  mdiv            -12345653 <>                   -1 or
               abs(intExpr(            12345653))  mdiv                   -3 <>             -4115218 or
               abs(intExpr(            12345653))  mdiv                   -2 <>             -6172827 or
               abs(intExpr(            12345653))  mdiv                   -1 <>            -12345653 or
+              abs(intExpr(                   1))  mdiv        integer.first <>                   -1 or
               abs(intExpr(                   1))  mdiv -9223372036854775807 <>                   -1 or
               abs(intExpr(                   1))  mdiv            -12345653 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -3 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -2 <>                   -1 or
               abs(intExpr(                   1))  mdiv                   -1 <>                   -1 or
+              abs(intExpr(                   0))  mdiv        integer.first <>                    0 or
               abs(intExpr(                   0))  mdiv -9223372036854775807 <>                    0 or
               abs(intExpr(                   0))  mdiv            -12345653 <>                    0 or
               abs(intExpr(                   0))  mdiv                   -3 <>                    0 or
@@ -19724,16 +19763,19 @@ const func boolean: check_mdiv_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if  succ( abs(intExpr( 9223372036854775806))) mdiv -9223372036854775807 <>                   -1 or
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv        integer.first <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv -9223372036854775807 <>                   -1 or
         succ( abs(intExpr( 9223372036854775806))) mdiv            -12345653 <>        -747094709114 or
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -3 <> -3074457345618258603 or
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -2 <> -4611686018427387904 or
         succ( abs(intExpr( 9223372036854775806))) mdiv                   -1 <> -9223372036854775807 or
+        succ( abs(intExpr(            12345652))) mdiv        integer.first <>                   -1 or
         succ( abs(intExpr(            12345652))) mdiv -9223372036854775807 <>                   -1 or
         succ( abs(intExpr(            12345652))) mdiv            -12345653 <>                   -1 or
         succ( abs(intExpr(            12345652))) mdiv                   -3 <>             -4115218 or
         succ( abs(intExpr(            12345652))) mdiv                   -2 <>             -6172827 or
         succ( abs(intExpr(            12345652))) mdiv                   -1 <>            -12345653 or
+        succ( abs(intExpr(                   0))) mdiv        integer.first <>                   -1 or
         succ( abs(intExpr(                   0))) mdiv -9223372036854775807 <>                   -1 or
         succ( abs(intExpr(                   0))) mdiv            -12345653 <>                   -1 or
         succ( abs(intExpr(                   0))) mdiv                   -3 <>                   -1 or
@@ -23433,16 +23475,19 @@ const func boolean: check_mod_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
-    if  pred(-abs(intExpr(        integer.last))) mod -9223372036854775807 <>                   -1 or
+    if  pred(-abs(intExpr(        integer.last))) mod        integer.first <>                    0 or
+        pred(-abs(intExpr(        integer.last))) mod -9223372036854775807 <>                   -1 or
         pred(-abs(intExpr(        integer.last))) mod            -12345653 <>             -9740019 or
         pred(-abs(intExpr(        integer.last))) mod                   -3 <>                   -2 or
         pred(-abs(intExpr(        integer.last))) mod                   -2 <>                    0 or
         pred(-abs(intExpr( 9223372036854775806))) mod                   -1 <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod        integer.first <>            -12345653 or
         pred(-abs(intExpr(            12345652))) mod -9223372036854775807 <>            -12345653 or
         pred(-abs(intExpr(            12345652))) mod            -12345653 <>                    0 or
         pred(-abs(intExpr(            12345652))) mod                   -3 <>                   -2 or
         pred(-abs(intExpr(            12345652))) mod                   -2 <>                   -1 or
         pred(-abs(intExpr(            12345652))) mod                   -1 <>                    0 or
+        pred(-abs(intExpr(                   0))) mod        integer.first <>                   -1 or
         pred(-abs(intExpr(                   0))) mod -9223372036854775807 <>                   -1 or
         pred(-abs(intExpr(                   0))) mod            -12345653 <>                   -1 or
         pred(-abs(intExpr(                   0))) mod                   -3 <>                   -1 or
@@ -23471,21 +23516,25 @@ const func boolean: check_mod_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if       -abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
+    if       -abs(intExpr(        integer.last))  mod        integer.first <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
              -abs(intExpr(        integer.last))  mod            -12345653 <>             -9740018 or
              -abs(intExpr(        integer.last))  mod                   -3 <>                   -1 or
              -abs(intExpr(        integer.last))  mod                   -2 <>                   -1 or
              -abs(intExpr(        integer.last))  mod                   -1 <>                    0 or
+             -abs(intExpr(            12345653))  mod        integer.first <>            -12345653 or
              -abs(intExpr(            12345653))  mod -9223372036854775807 <>            -12345653 or
              -abs(intExpr(            12345653))  mod            -12345653 <>                    0 or
              -abs(intExpr(            12345653))  mod                   -3 <>                   -2 or
              -abs(intExpr(            12345653))  mod                   -2 <>                   -1 or
              -abs(intExpr(            12345653))  mod                   -1 <>                    0 or
+             -abs(intExpr(                   1))  mod        integer.first <>                   -1 or
              -abs(intExpr(                   1))  mod -9223372036854775807 <>                   -1 or
              -abs(intExpr(                   1))  mod            -12345653 <>                   -1 or
              -abs(intExpr(                   1))  mod                   -3 <>                   -1 or
              -abs(intExpr(                   1))  mod                   -2 <>                   -1 or
              -abs(intExpr(                   1))  mod                   -1 <>                    0 or
+             -abs(intExpr(                   0))  mod        integer.first <>                    0 or
              -abs(intExpr(                   0))  mod -9223372036854775807 <>                    0 or
              -abs(intExpr(                   0))  mod            -12345653 <>                    0 or
              -abs(intExpr(                   0))  mod                   -3 <>                    0 or
@@ -23519,21 +23568,25 @@ const func boolean: check_mod_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if        abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
+    if        abs(intExpr(        integer.last))  mod        integer.first <>                   -1 or
+              abs(intExpr(        integer.last))  mod -9223372036854775807 <>                    0 or
               abs(intExpr(        integer.last))  mod            -12345653 <>             -2605635 or
               abs(intExpr(        integer.last))  mod                   -3 <>                   -2 or
               abs(intExpr(        integer.last))  mod                   -2 <>                   -1 or
               abs(intExpr(        integer.last))  mod                   -1 <>                    0 or
+              abs(intExpr(            12345653))  mod        integer.first <> -9223372036842430155 or
               abs(intExpr(            12345653))  mod -9223372036854775807 <> -9223372036842430154 or
               abs(intExpr(            12345653))  mod            -12345653 <>                    0 or
               abs(intExpr(            12345653))  mod                   -3 <>                   -1 or
               abs(intExpr(            12345653))  mod                   -2 <>                   -1 or
               abs(intExpr(            12345653))  mod                   -1 <>                    0 or
+              abs(intExpr(                   1))  mod        integer.first <> -9223372036854775807 or
               abs(intExpr(                   1))  mod -9223372036854775807 <> -9223372036854775806 or
               abs(intExpr(                   1))  mod            -12345653 <>            -12345652 or
               abs(intExpr(                   1))  mod                   -3 <>                   -2 or
               abs(intExpr(                   1))  mod                   -2 <>                   -1 or
               abs(intExpr(                   1))  mod                   -1 <>                    0 or
+              abs(intExpr(                   0))  mod        integer.first <>                    0 or
               abs(intExpr(                   0))  mod -9223372036854775807 <>                    0 or
               abs(intExpr(                   0))  mod            -12345653 <>                    0 or
               abs(intExpr(                   0))  mod                   -3 <>                    0 or
@@ -23567,16 +23620,19 @@ const func boolean: check_mod_optimization_1 is func
       okay := FALSE;
     end if;
 
-    if  succ( abs(intExpr( 9223372036854775806))) mod -9223372036854775807 <>                    0 or
+    if  succ( abs(intExpr( 9223372036854775806))) mod        integer.first <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mod -9223372036854775807 <>                    0 or
         succ( abs(intExpr( 9223372036854775806))) mod            -12345653 <>             -2605635 or
         succ( abs(intExpr( 9223372036854775806))) mod                   -3 <>                   -2 or
         succ( abs(intExpr( 9223372036854775806))) mod                   -2 <>                   -1 or
         succ( abs(intExpr( 9223372036854775806))) mod                   -1 <>                    0 or
+        succ( abs(intExpr(            12345652))) mod        integer.first <> -9223372036842430155 or
         succ( abs(intExpr(            12345652))) mod -9223372036854775807 <> -9223372036842430154 or
         succ( abs(intExpr(            12345652))) mod            -12345653 <>                    0 or
         succ( abs(intExpr(            12345652))) mod                   -3 <>                   -1 or
         succ( abs(intExpr(            12345652))) mod                   -2 <>                   -1 or
         succ( abs(intExpr(            12345652))) mod                   -1 <>                    0 or
+        succ( abs(intExpr(                   0))) mod        integer.first <> -9223372036854775807 or
         succ( abs(intExpr(                   0))) mod -9223372036854775807 <> -9223372036854775806 or
         succ( abs(intExpr(                   0))) mod            -12345653 <>            -12345652 or
         succ( abs(intExpr(                   0))) mod                   -3 <>                   -2 or
