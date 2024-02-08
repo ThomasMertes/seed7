@@ -61,6 +61,8 @@
 #endif
 #define traceEventX(traceStatements) traceStatements
 
+#define TRACE_SET_WINDOW_POS 0
+
 static intType button_x = 0;
 static intType button_y = 0;
 static HWND button_window = 0;
@@ -156,6 +158,7 @@ extern intType drwWidth (const_winType actual_window);
 #endif
 
 
+
 winType find_window (HWND sys_window)
 
   {
@@ -217,6 +220,9 @@ static void resizeBottomAndRight (MSG *msg)
     RECT rect;
 
   /* resizeBottomAndRight */
+    logFunction(printf("resizeBottomAndRight(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) msg->hwnd,
+                       GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam)););
     resizeMode = msg->wParam;
     point.x = GET_X_LPARAM(msg->lParam);
     point.y = GET_Y_LPARAM(msg->lParam);
@@ -242,6 +248,9 @@ static void resizeTopAndLeft (MSG *msg)
     RECT rect;
 
   /* resizeTopAndLeft */
+    logFunction(printf("resizeTopAndLeft(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) msg->hwnd,
+                       GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam)););
     resizeMode = msg->wParam;
     point.x = GET_X_LPARAM(msg->lParam);
     point.y = GET_Y_LPARAM(msg->lParam);
@@ -267,6 +276,9 @@ static void startMoveWindow (MSG *msg)
     RECT rect;
 
   /* startMoveWindow */
+    logFunction(printf("startMoveWindow(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) msg->hwnd,
+                       GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam)););
     resizeMode = msg->wParam;
     point.x = GET_X_LPARAM(msg->lParam);
     point.y = GET_Y_LPARAM(msg->lParam);
@@ -321,9 +333,28 @@ static void systemMoveCommand (MSG *msg)
 
 
 
+#if TRACE_SET_WINDOW_POS
+static BOOL mySetWindowPos (HWND hWnd, HWND hWndInsertAfter, int X, int Y,
+    int cx, int cy, UINT uFlags)
+
+  { /* mySetWindowPos */
+    printf("SetWindowPos(" FMT_U_MEM ", " FMT_U_MEM ", %d, %d, %d, %d, %x)\n",
+           (memSizeType) hWnd, (memSizeType) hWndInsertAfter,
+           X, Y, cx, cy, uFlags);
+    return SetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
+  } /* mySetWindowPos */
+
+#define SetWindowPos mySetWindowPos
+#endif
+
+
+
 static void processMouseMove (MSG *msg)
 
   { /* processMouseMove */
+    logFunction(printf("processMouseMove(" FMT_U_MEM ", "
+                       "(resizeMode=" FMT_U_MEM "))\n",
+                       (memSizeType) msg->hwnd, (memSizeType) resizeMode););
     switch (resizeMode) {
       case HTBOTTOMRIGHT:
         SetWindowPos(msg->hwnd, 0, 0, 0,
@@ -1539,6 +1570,7 @@ boolType gkbInputReady (void)
     BOOL msg_present;
     BOOL bRet;
     MSG msg;
+    MSG mouseMoveMsg;
     boolType result;
 
   /* gkbInputReady */
@@ -1713,18 +1745,36 @@ boolType gkbInputReady (void)
           traceEvent(printf("gkbInputReady: WM_MOUSEMOVE hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
                             (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
-          bRet = GetMessageW(&msg, NULL, 0, 0);
+          bRet = GetMessageW(&mouseMoveMsg, NULL, 0, 0);
           if (bRet == 0 || bRet == -1) {
             logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } else if (mouseMoveMsg.message == WM_MOUSEMOVE) {
+            if (resizeMode != 0) {
+              processMouseMove(&mouseMoveMsg);
+            } else {
+              TranslateMessage(&mouseMoveMsg);
+              DispatchMessage(&mouseMoveMsg);
+            } /* if */
+            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
+            /* GetMessageW() did not read a WM_MOUSEMOVE message. */
+            /* Process the WM_MOUSEMOVE message returned by       */
+            /* PeekMessageW() instead. The loop is not left and   */
+            /* the message read by GetMessageW() is processed in  */
+            /* the next loop pass.                                */
             if (resizeMode != 0) {
               processMouseMove(&msg);
             } else {
               TranslateMessage(&msg);
               DispatchMessage(&msg);
             } /* if */
+            traceEvent(printf("gkbInputReady: WM_MOUSEMOVE GetMessageW: message=%d, hwnd="
+                              FMT_U_MEM ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                              mouseMoveMsg.message, (memSizeType) mouseMoveMsg.hwnd,
+                              mouseMoveMsg.wParam, mouseMoveMsg.lParam););
+            memcpy(&msg, &mouseMoveMsg, sizeof(MSG));
           } /* if */
-          msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_LBUTTONUP:
           traceEvent(printf("gkbInputReady: WM_LBUTTONUP hwnd=" FMT_U_MEM
