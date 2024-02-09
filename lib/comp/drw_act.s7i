@@ -237,6 +237,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     drwXPos (const_winType);");
     declareExtern(c_prog, "intType     drwYPos (const_winType);");
 
+    declareExtern(c_prog, "bstriType   pltAlign (const const_bstriType);");
     declareExtern(c_prog, "bstriType   pltValue (const const_objRefType);");
   end func;
 

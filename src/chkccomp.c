@@ -10115,6 +10115,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
                        "((DWORD) blue))\n", versionFile);
     fputs("#define POINT_LIST_INT_SIZE 32\n", versionFile);
     fputs("#define POINT_LIST_ABSOLUTE 1\n", versionFile);
+    fputs("#define POINT_LIST_ALIGNMENT 2\n", versionFile);
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineConsoleDefines(versionFile, include_options, system_console_libs);
     determineX11Defines(versionFile, include_options, system_draw_libs);

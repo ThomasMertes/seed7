@@ -484,3 +484,30 @@ winType drwGetPixmapFromPixels (const const_rtlArrayType image)
     } /* if */
     return result;
   } /* drwGetPixmapFromPixels */
+
+
+
+const_bstriType pltAlign (const const_bstriType pointList)
+
+  {
+#ifdef POINT_LIST_ALIGNMENT
+    bstriType alignedPointList;
+#endif
+
+  /* pltAlign */
+    logFunction(printf("pltAlign(\"%s\")\n",
+                       bstriAsUnquotedCStri(pointList)););
+#ifdef POINT_LIST_ALIGNMENT
+    if (((memSizeType) pointList->mem & (((memSizeType) 1 << POINT_LIST_ALIGNMENT) - 1)) == 0) {
+      return pointList;
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(alignedPointList, pointList->size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      alignedPointList->size = pointList->size;
+      memcpy(alignedPointList->mem, pointList->mem, pointList->size);
+    } /* if */
+    return alignedPointList;
+#else
+    return pointList;
+#endif
+  } /* pltAlign */

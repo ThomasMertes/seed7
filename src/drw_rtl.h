@@ -35,3 +35,4 @@ void drwDestr (const winType old_win);
 intType drwGetImagePixel (const_bstriType image, intType width,
     intType height, intType x, intType y);
 winType drwGetPixmapFromPixels (const const_rtlArrayType image);
+const_bstriType pltAlign (const const_bstriType pointList);

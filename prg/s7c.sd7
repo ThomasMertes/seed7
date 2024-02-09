@@ -5845,7 +5845,7 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
     var reference: struct_of_interface is NIL;
     var category: objectCategory is category.value;
     var ref_list: elements_to_walk is ref_list.EMPTY;
-    var bstring: targetPointListBstring is bstring("");
+    var pointList: aPointList is pointList.value;
   begin
     for current_object range const_list do
       objectCategory := category(current_object);
@@ -5870,9 +5870,9 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
           win_const_table @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(win_const_table);
         end if;
       elsif objectCategory = POINTLISTOBJECT then
-        targetPointListBstring := toTargetPointListBstring(getValue(current_object, pointList));
-        if targetPointListBstring not in bstri_const_table then
-          bstri_const_table @:= [targetPointListBstring] length(bstri_const_table);
+        aPointList := getValue(current_object, pointList);
+        if aPointList not in plist_const_table then
+          plist_const_table @:= [aPointList] length(plist_const_table);
         end if;
       elsif objectCategory = ARRAYOBJECT then
         if current_object not in const_table then
@@ -6324,6 +6324,195 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= str(height(win1));
           c_expr.expr &:= ", 0);\n";
         end if;
+      end for;
+    end if;
+  end func;
+
+
+const func boolean: pointListEncodingIdentical is
+  return (ccConf.POINT_LIST_INT_SIZE = 16 and not ccConf.POINT_LIST_ABSOLUTE and
+          bstring(genPointList([] (597, 362, 219, 205))) =
+              bstring("U\2;j\1;\134;\254;c\255;")) or
+         (ccConf.POINT_LIST_INT_SIZE = 32 and ccConf.POINT_LIST_ABSOLUTE and
+	  bstring(genPointList([] (597, 362, 219, 205))) =
+              bstring("U\2;\0;\0;j\1;\0;\0;\219;\0;\0;\0;\205;\0;\0;\0;"));
+
+
+const func bstring: toPointListAbsolute (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
+  begin
+    xyArray := xyArray(aPointList);
+    if ccConf.POINT_LIST_INT_SIZE = 16 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, LE, 2);
+        end for;
+      else
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, BE, 2);
+        end for;
+      end if;
+    elsif ccConf.POINT_LIST_INT_SIZE = 32 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, LE, 4);
+        end for;
+      else
+        for xOrY range xyArray do
+          pointListData &:= bytes(xOrY, SIGNED, BE, 4);
+        end for;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    bstri := bstring(pointListData);
+  end func;
+
+
+const func bstring: toPointListRelative16 (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: index is 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
+  begin
+    xyArray := xyArray(aPointList);
+    if length(xyArray) <> 0 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        pointListData &:= bytes(xyArray[1], SIGNED, LE, 2);
+        pointListData &:= bytes(xyArray[2], SIGNED, LE, 2);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, LE, 2);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, LE, 2);
+        end for;
+      else
+        pointListData &:= bytes(xyArray[1], SIGNED, BE, 2);
+        pointListData &:= bytes(xyArray[2], SIGNED, BE, 2);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, BE, 2);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, BE, 2);
+        end for;
+      end if;
+    end if;
+    bstri := bstring(pointListData);
+  end func;
+
+
+const func bstring: toPointListRelative32 (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  local
+    var array integer: xyArray is 0 times 0;
+    var integer: index is 0;
+    var integer: xOrY is 0;
+    var string: pointListData is "";
+  begin
+    xyArray := xyArray(aPointList);
+    if length(xyArray) <> 0 then
+      if ccConf.LITTLE_ENDIAN_INTTYPE then
+        pointListData &:= bytes(xyArray[1], SIGNED, LE, 4);
+        pointListData &:= bytes(xyArray[2], SIGNED, LE, 4);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, LE, 4);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, LE, 4);
+        end for;
+      else
+        pointListData &:= bytes(xyArray[1], SIGNED, BE, 4);
+        pointListData &:= bytes(xyArray[2], SIGNED, BE, 4);
+        for index range 3 to length(xyArray) step 2 do
+          pointListData &:= bytes(xyArray[index    ] -
+                                  xyArray[index - 2], SIGNED, BE, 4);
+          pointListData &:= bytes(xyArray[index + 1] -
+                                  xyArray[index - 1], SIGNED, BE, 4);
+        end for;
+      end if;
+    end if;
+    bstri := bstring(pointListData);
+  end func;
+
+
+const func bstring: toTargetPointListBstring (in pointList: aPointList) is func
+
+  result
+    var bstring: bstri is bstring("");
+  begin
+    if pointListEncodingIdentical then
+      bstri := bstring(aPointList);
+    elsif ccConf.POINT_LIST_ABSOLUTE then
+      bstri := toPointListAbsolute(aPointList);
+    else
+      if ccConf.POINT_LIST_INT_SIZE = 16 then
+        bstri := toPointListRelative16(aPointList);
+      elsif ccConf.POINT_LIST_INT_SIZE = 32 then
+        bstri := toPointListRelative32(aPointList);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+const proc: init_plist_constants is func
+
+  local
+    var plist_index_hash: plist_index is plist_index_hash.EMPTY_HASH;
+    var pointList: plist is pointList.value;
+    var integer: number is 0;
+    var bstring: bstri is bstring.value;
+  begin
+    plist_index := flip(plist_const_table);
+    for number range sort(keys(plist_index)) do
+      plist := plist_index[number][1];
+      bstri := toTargetPointListBstring(plist);
+      if bstri not in bstri_const_table then
+        bstri_const_table @:= [bstri] length(bstri_const_table);
+      end if;
+      plist_bstri_table @:= [number] bstri_const_table[bstri];
+    end for;
+  end func;
+
+
+const proc: assign_plist_constants (inout expr_type: c_expr) is func
+
+  local
+    var plist_index_hash: plist_index is plist_index_hash.EMPTY_HASH;
+    var pointList: plist is pointList.value;
+    var integer: number is 0;
+  begin
+    if length(win_const_table) = 0 then
+      c_expr.expr &:= "plist = NULL;\n";
+    else
+      c_expr.expr &:= "plist = (bstriType *)(malloc(";
+      c_expr.expr &:= str(length(plist_const_table));
+      c_expr.expr &:= " * sizeof(bstriType)));\n";
+      plist_index := flip(plist_const_table);
+      for number range sort(keys(plist_index)) do
+        plist := plist_index[number][1];
+        c_expr.expr &:= "plist[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]=pltAlign(";
+        if ccConf.ALLOW_BSTRITYPE_SLICES then
+          c_expr.expr &:= "&";
+        end if;
+        c_expr.expr &:= "bst[";
+        c_expr.expr &:= str(plist_bstri_table[number]);
+        c_expr.expr &:= "]);\n";
       end for;
     end if;
   end func;
@@ -7188,6 +7377,7 @@ const proc: init_values (inout expr_type: c_expr) is func
 
     init_bigint_constants;
     init_win_constants;
+    init_plist_constants;
     init_string_constants(c_expr);
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);
@@ -7199,6 +7389,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     initPollOperations(c_expr);
     assign_bigint_constants(c_expr);
     assign_win_constants(c_expr);
+    assign_plist_constants(c_expr);
     c_expr.expr &:= "arr = (arrayType *)(malloc(";
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arrayType)));\n";
