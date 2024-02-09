@@ -100,6 +100,7 @@ const ACTION: PLT_CPY                       is action "PLT_CPY";
 const ACTION: PLT_EQ                        is action "PLT_EQ";
 const ACTION: PLT_HASHCODE                  is action "PLT_HASHCODE";
 const ACTION: PLT_NE                        is action "PLT_NE";
+const ACTION: PLT_POINT_LIST                is action "PLT_POINT_LIST";
 const ACTION: PLT_VALUE                     is action "PLT_VALUE";
 
 
@@ -1545,6 +1546,14 @@ const proc: process (PLT_NE, in reference: function,
     c_expr.expr &:= "->mem,";
     c_expr.expr &:= bstri_a_name;
     c_expr.expr &:= "->size*sizeof(unsigned char))!=0)";
+  end func;
+
+
+const proc: process (PLT_POINT_LIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[1], c_expr);
   end func;
 
 

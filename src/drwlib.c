@@ -2080,6 +2080,37 @@ objectType plt_ne (listType arguments)
 
 
 
+objectType plt_point_list (listType arguments)
+
+  {
+    objectType argument1;
+    bstriType bstri;
+    bstriType result;
+
+  /* plt_point_list */
+    argument1 = arg_1(arguments);
+    isit_bstri(argument1);
+    bstri = take_bstri(argument1);
+    logFunction(printf("plt_point_list(\"%s\")\n",
+                       bstriAsUnquotedCStri(bstri)););
+    if (TEMP_OBJECT(argument1)) {
+      result = bstri;
+      argument1->value.bstriValue = NULL;
+    } else {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->size = bstri->size;
+        memcpy(result->mem, bstri->mem, bstri->size);
+      } /* if */
+    } /* if */
+    logFunction(printf("plt_point_list --> \"%s\"\n",
+                       bstriAsUnquotedCStri(result)););
+    return bld_pointlist_temp(result);
+  } /* plt_point_list */
+
+
+
 /**
  *  Get 'pointList' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'pointList' value of the referenced object.

@@ -406,6 +406,7 @@ const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "PLT
 const pointList: (attr pointList) . value                         is _GENERATE_EMPTY_POINT_LIST;
 
 const func bstring: bstring (in pointList: aPointList)            is action "PLT_BSTRING";
+const func pointList: pointList (in bstring: bstri)               is action "PLT_POINT_LIST";
 
 const func boolean: (in pointList: pointList1) = (in pointList: pointList2)   is action "PLT_EQ";
 const func boolean: (in pointList: pointList1) <> (in pointList: pointList2)  is action "PLT_NE";

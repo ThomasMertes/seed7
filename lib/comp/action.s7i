@@ -1328,6 +1328,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PLT_HASHCODE, function, params, c_expr);
       when {"PLT_NE"}:
         process(PLT_NE, function, params, c_expr);
+      when {"PLT_POINT_LIST"}:
+        process(PLT_POINT_LIST, function, params, c_expr);
       when {"PLT_VALUE"}:
         process(PLT_VALUE, function, params, c_expr);
       when {"POL_ADD_CHECK"}:

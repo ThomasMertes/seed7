@@ -689,6 +689,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PLT_EQ",                       plt_eq,                       },
     { "PLT_HASHCODE",                 plt_hashcode,                 },
     { "PLT_NE",                       plt_ne,                       },
+    { "PLT_POINT_LIST",               plt_point_list,               },
     { "PLT_VALUE",                    plt_value,                    },
 #endif
 

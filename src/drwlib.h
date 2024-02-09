@@ -120,4 +120,5 @@ objectType plt_empty                     (listType arguments);
 objectType plt_eq                        (listType arguments);
 objectType plt_hashcode                  (listType arguments);
 objectType plt_ne                        (listType arguments);
+objectType plt_point_list                (listType arguments);
 objectType plt_value                     (listType arguments);
