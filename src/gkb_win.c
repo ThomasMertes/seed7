@@ -1671,15 +1671,19 @@ boolType gkbInputReady (void)
               bRet = GetMessageW(&msg, NULL, 0, 0);
               if (bRet == 0 || bRet == -1) {
                 logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+              } else if (msg.message == WM_MOUSEWHEEL) {
+                msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
               } /* if */
-              msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
             } /* if */
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+              msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+            } else if (msg.message == WM_MOUSEWHEEL) {
+              msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
             } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
           break;
         case WM_NCLBUTTONDOWN:
@@ -1698,6 +1702,11 @@ boolType gkbInputReady (void)
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } else if (msg.message != WM_NCLBUTTONDOWN) {
+              logError(printf("Expected WM_NCLBUTTONDOWN but GetMessageW() returned %d\n",
+                              msg.message););
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
             } else {
               if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
                 resizeBottomAndRight(&msg);
@@ -1726,6 +1735,11 @@ boolType gkbInputReady (void)
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } else if (msg.message != WM_SYSCOMMAND) {
+              logError(printf("Expected WM_SYSCOMMAND but GetMessageW() returned %d\n",
+                              msg.message););
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
             } else {
               if ((msg.wParam & 0xfff0) == SC_SIZE) {
                 /* printf("SC_SIZE\n"); */
