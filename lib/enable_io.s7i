@@ -45,6 +45,9 @@ var file: OUT is forward;
  *  [[file]] argument and without [[file]] argument. The
  *  functions without [[file]] argument use the standard
  *  input file [[stdio#IN|IN]].
+ *   const type: myType is ...
+ *   const func myType is (attr myType) parse (in string: stri) is ...
+ *   enable_input(myType);
  *)
 const proc: enable_input (in type: aType) is func
   begin
@@ -200,6 +203,9 @@ const proc: enable_input (in type: aType) is func
  *  and [[#writeln(inout_file,in_aType)|writeln]] are defined with [[file]]
  *  argument and without [[file]] argument. The functions without [[file]]
  *  argument write to the standard output file [[stdio#OUT|OUT]].
+ *   const type: myType is ...
+ *   const func string: (in myType: myTypeValue) is ...
+ *   enable_output(myType);
  *)
 const proc: enable_output (in type: aType) is func
   begin
@@ -281,6 +287,10 @@ const proc: enable_output (in type: aType) is func
  *  and [[#(in_string)<&(in_aType)|<&]]. To do this it
  *  calls the templates [[#enable_input(in_type)|enable_input]] and
  *  [[#enable_output(in_type)|enable_output]].
+ *   const type: myType is ...
+ *   const func myType is (attr myType) parse (in string: stri) is ...
+ *   const func string: (in myType: myTypeValue) is ...
+ *   enable_io(myType);
  *)
 const proc: enable_io (in type: aType) is func
   begin
