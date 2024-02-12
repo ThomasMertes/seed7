@@ -346,6 +346,13 @@ static char buildDirectory[BUFFER_SIZE];
 static char s7LibDir[BUFFER_SIZE];
 static char seed7Library[BUFFER_SIZE];
 
+static int sizeof_int;
+static int sizeof_long;
+static int sizeof_long_long;
+static int sizeof_pointer;
+static int sizeof_float;
+static int sizeof_double;
+
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
 static const char *int32TypeStri = NULL;
@@ -2168,9 +2175,6 @@ static void numericSizes (FILE *versionFile)
     int char_bit;
     int sizeof_char;
     int sizeof_short;
-    int sizeof_int;
-    int sizeof_long;
-    int sizeof_long_long;
     int sizeof_int64;
     int sizeof_gid_t;
     int sizeof_uid_t;
@@ -2192,8 +2196,12 @@ static void numericSizes (FILE *versionFile)
     sizeof_long      = getSizeof("long");
     sizeof_long_long = getSizeof("long long");
     sizeof_int64     = getSizeof("__int64");
+    sizeof_pointer   = getSizeof("char *");
+    sizeof_float     = getSizeof("float");
+    sizeof_double    = getSizeof("double");
     sizeof_gid_t     = getSizeof("gid_t");
     sizeof_uid_t     = getSizeof("uid_t");
+
     fprintf(versionFile, "#define CHAR_SIZE %d\n",        char_bit * sizeof_char);
     fprintf(versionFile, "#define SHORT_SIZE %d\n",       char_bit * sizeof_short);
     fprintf(versionFile, "#define INT_SIZE %d\n",         char_bit * sizeof_int);
@@ -2204,9 +2212,9 @@ static void numericSizes (FILE *versionFile)
     if (sizeof_int64 != -1) {
       fprintf(versionFile, "#define INT64_SIZE %d\n",     char_bit * sizeof_int64);
     } /* if */
-    fprintf(versionFile, "#define POINTER_SIZE %d\n",     char_bit * getSizeof("char *"));
-    fprintf(versionFile, "#define FLOAT_SIZE %d\n",       char_bit * getSizeof("float"));
-    fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * getSizeof("double"));
+    fprintf(versionFile, "#define POINTER_SIZE %d\n",     char_bit * sizeof_pointer);
+    fprintf(versionFile, "#define FLOAT_SIZE %d\n",       char_bit * sizeof_float);
+    fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * sizeof_double);
     fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     char_bit * getSizeof("wchar_t"));
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      char_bit * getSizeof("time_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
@@ -2680,6 +2688,92 @@ static void checkIntDivisions (FILE *versionFile)
 
 
 
+static void checkOverflowSignal (FILE *versionFile)
+
+  {
+    char buffer[BUFFER_SIZE];
+
+  /* checkOverflowSignal */
+    sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
+                    "#include<signal.h>\n"
+                    "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
+                    "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
+                    "void handleSigtrap(int sig){puts(\"4\");exit(0);}\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "%s a=0x7fffffffffffffff,b=1,c=2;\n"
+                    "signal(SIGILL,handleSigill);\n"
+                    "signal(SIGABRT,handleSigabrt);\n"
+                    "#ifdef SIGTRAP\n"
+                    "signal(SIGTRAP,handleSigtrap);\n"
+                    "#endif\n"
+                    "printf(\"%%d\\n\",a+b==0x8000000000000000 && a*c== -2);return 0;}\n",
+                    int64TypeStri);
+    if (compileAndLinkWithOptionsOk(buffer, CC_OPT_TRAP_OVERFLOW, "")) {
+      switch (doTest()) {
+        case 2:
+          fputs("#define OVERFLOW_SIGNAL SIGILL\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGILL\"\n", versionFile);
+          break;
+        case 3:
+          fputs("#define OVERFLOW_SIGNAL SIGABRT\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGABRT\"\n", versionFile);
+          break;
+        case 4:
+          fputs("#define OVERFLOW_SIGNAL SIGTRAP\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGTRAP\"\n", versionFile);
+          break;
+        default:
+          fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
+          break;
+      } /* switch */
+    } else {
+      fputs("#define INT_MULT64_COMPILE_ERROR\n", versionFile);
+      fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
+      fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
+    } /* if */
+  } /* checkOverflowSignal */
+
+
+
+static int timeLShiftOverflowCheck (const char *lshift5)
+
+  {
+    char buffer[BUFFER_SIZE];
+    int clockCycles = 0;
+
+  /* timeLShiftOverflowCheck */
+    sprintf(buffer, "#include<stdio.h>\n#include<time.h>\n"
+                    "#define FMT_D \"%%%sd\"\n"
+                    "typedef %s intType;\n"
+                    "typedef %s uintType;\n"
+                    "%s"
+                    "int main(int argc,char *argv[]){\n"
+                    "intType number = -12345678;\n"
+                    "intType increment = 1;\n"
+                    "uintType sum = 0;\n"
+                    "clock_t startClock;\n"
+                    "int count;\n"
+                    "if (argc >= 3) {\n"
+                    "sscanf(argv[1], FMT_D, &number);\n"
+                    "sscanf(argv[2], FMT_D, &increment);}\n"
+                    "startClock = clock();\n"
+                    "for (count = 0; count < 100000000; count++) {\n"
+                    "sum += (uintType) lshift5(number) ^ (uintType) number;\n"
+                    "number += increment;}\n"
+                    "printf(\"%%lu \" FMT_D \"\\n\",\n"
+                    "(unsigned long) (clock() - startClock),sum);\n"
+                    "return 0;}\n",
+                    int64TypeFormat, int64TypeStri, uint64TypeStri, lshift5);
+    /* printf("%s\n", buffer); */
+    if (compileAndLinkWithOptionsOk(buffer, CC_OPT_OPTIMIZE_3, "")) {
+      clockCycles = doTest();
+    } /* if */
+    return clockCycles;
+  } /* timeLShiftOverflowCheck */
+
+
+
 static void checkIntDivisionOverflow (FILE *versionFile)
 
   {
@@ -2795,7 +2889,7 @@ static void defineTransferUnions (char * buffer)
     strcat(buffer,
            "union {\n"
            "  ");
-    switch (getSizeof("float")) {
+    switch (sizeof_float) {
       case 2: strcat(buffer, uint16TypeStri); break;
       case 4: strcat(buffer, uint32TypeStri); break;
       case 8: strcat(buffer, uint64TypeStri); break;
@@ -2807,7 +2901,7 @@ static void defineTransferUnions (char * buffer)
     strcat(buffer,
            "union {\n"
            "  ");
-    switch (getSizeof("double")) {
+    switch (sizeof_double) {
       case 2: strcat(buffer, uint16TypeStri); break;
       case 4: strcat(buffer, uint32TypeStri); break;
       case 8: strcat(buffer, uint64TypeStri); break;
@@ -2827,6 +2921,7 @@ static void numericProperties (FILE *versionFile)
     char buffer[10240];
     char computeValues[BUFFER_SIZE];
     const char *builtin_add_overflow = "nonexistent_function";
+    const char *builtin_mul_overflow = "nonexistent_function";
     int has_log2;
     const char *os_isnan_definition = NULL;
 
@@ -2855,50 +2950,16 @@ static void numericProperties (FILE *versionFile)
       fprintf(versionFile, "#define BIG_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     checkIntDivisions(versionFile);
-    sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
-                    "#include<signal.h>\n"
-                    "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
-                    "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
-                    "void handleSigtrap(int sig){puts(\"4\");exit(0);}\n"
-                    "int main(int argc,char *argv[]){\n"
-                    "%s a=0x7fffffffffffffff,b=1,c=2;\n"
-                    "signal(SIGILL,handleSigill);\n"
-                    "signal(SIGABRT,handleSigabrt);\n"
-                    "#ifdef SIGTRAP\n"
-                    "signal(SIGTRAP,handleSigtrap);\n"
-                    "#endif\n"
-                    "printf(\"%%d\\n\",a+b==0x8000000000000000 && a*c== -2);return 0;}\n",
-                    int64TypeStri);
-    if (compileAndLinkWithOptionsOk(buffer, CC_OPT_TRAP_OVERFLOW, "")) {
-      switch (doTest()) {
-        case 2:
-          fputs("#define OVERFLOW_SIGNAL SIGILL\n", versionFile);
-          fputs("#define OVERFLOW_SIGNAL_STR \"SIGILL\"\n", versionFile);
-          break;
-        case 3:
-          fputs("#define OVERFLOW_SIGNAL SIGABRT\n", versionFile);
-          fputs("#define OVERFLOW_SIGNAL_STR \"SIGABRT\"\n", versionFile);
-          break;
-        case 4:
-          fputs("#define OVERFLOW_SIGNAL SIGTRAP\n", versionFile);
-          fputs("#define OVERFLOW_SIGNAL_STR \"SIGTRAP\"\n", versionFile);
-          break;
-        default:
-          fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
-          fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
-          break;
-      } /* switch */
-    } else {
-      fputs("#define INT_MULT64_COMPILE_ERROR\n", versionFile);
-      fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
-      fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
-    } /* if */
-    if (getSizeof("int") == 8) {
+    checkOverflowSignal(versionFile);
+    if (sizeof_int == 8) {
       builtin_add_overflow = "__builtin_sadd_overflow";
-    } else if (getSizeof("long") == 8) {
+      builtin_mul_overflow = "__builtin_smul_overflow";
+    } else if (sizeof_long == 8) {
       builtin_add_overflow = "__builtin_saddl_overflow";
-    } else if (getSizeof("long long") == 8) {
+      builtin_mul_overflow = "__builtin_smull_overflow";
+    } else if (sizeof_long_long == 8) {
       builtin_add_overflow = "__builtin_saddll_overflow";
+      builtin_mul_overflow = "__builtin_smulll_overflow";
     } /* if */
     sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
                     "#include<signal.h>\n"
@@ -2911,6 +2972,38 @@ static void numericProperties (FILE *versionFile)
                     int64TypeStri, builtin_add_overflow);
     fprintf(versionFile, "#define HAS_BUILTIN_OVERFLOW_OPERATIONS %d\n",
             compileAndLinkOk(buffer) && doTest() == 1);
+    sprintf(buffer, "intType lshift5 (intType number)\n"
+                    "{intType result;\n"
+                    "if (%s(number, (intType) 32, &result)) {\n"
+                    "printf(\"overflow\\n\"); return 0;}\n"
+                    "return result;}\n",
+                    builtin_mul_overflow);
+    fprintf(versionFile, "#define LSHIFT_BUILTIN_MUL_TIME %d\n",
+            timeLShiftOverflowCheck(buffer));
+    sprintf(buffer, "intType lshift5 (intType number)\n"
+                    "{if ((uintType) number + (uintType) 288230376151711744 > (uintType) 576460752303423487) {\n"
+                    "printf(\"overflow\\n\"); return 0;}\n"
+                    "return number << 5;}\n");
+    fprintf(versionFile, "#define LSHIFT_TWO_ARG_CHECKS_TIME %d\n",
+            timeLShiftOverflowCheck(buffer));
+    sprintf(buffer, "intType lshift5 (intType number)\n"
+                    "{if (number > (intType) 288230376151711743) {\n"
+                    "printf(\"overflow\\n\"); return 0;}\n"
+                    "return number << 5;}\n");
+    fprintf(versionFile, "#define LSHIFT_ONE_ARG_CHECK_TIME %d\n",
+            timeLShiftOverflowCheck(buffer));
+    sprintf(buffer, "intType lshift5 (intType number)\n"
+                    "{intType result;\n"
+                    "result = (intType) ((uintType) number << 5);\n"
+                    "if (result >> 5 != number) {\n"
+                    "printf(\"overflow\\n\"); return 0;}\n"
+                    "return result;}\n");
+    fprintf(versionFile, "#define LSHIFT_RESULT_CHECK_TIME %d\n",
+            timeLShiftOverflowCheck(buffer));
+    sprintf(buffer, "intType lshift5 (intType number)\n"
+                    "{return number << 5;}\n");
+    fprintf(versionFile, "#define LSHIFT_NO_CHECK_TIME %d\n",
+            timeLShiftOverflowCheck(buffer));
     checkIntDivisionOverflow(versionFile);
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
@@ -4803,7 +4896,6 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
 
   {
     int sizeof_off_t;
-    int sizeof_long;
     int os_off_t_size;
     const char *os_off_t_stri = NULL;
     const char *os_fseek_stri = NULL;
@@ -5076,7 +5168,6 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
                          "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
                          "       memcmp(buffer1, buffer2, 10) == 0);\n"
                          "return 0;}\n") && doTest() == 1) {
-      sizeof_long = getSizeof("long");
       if (compileAndLinkOk("#include <stdio.h>\n"
                            "int main (int argc, char *argv[])\n"
                            "{printf(\"%d\\n\", sizeof(ftell(NULL)));\n"
@@ -5326,7 +5417,7 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
                       "return 0;}\n", fileno);
       if (compileAndLinkOk(buffer) && doTest() == 1) {
         os_ftruncate_stri = "_chsize";
-        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        sprintf(size_buffer, "%d", sizeof_long * 8);
         ftruncate_size_in_bits = size_buffer;
         fputs("#define FTRUNCATE_INCLUDE_IO_H\n", versionFile);
       } /* if */
@@ -5354,7 +5445,7 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
                       "return 0;}\n", fileno);
       if (compileAndLinkOk(buffer) && doTest() == 1) {
         os_ftruncate_stri = "chsize";
-        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        sprintf(size_buffer, "%d", sizeof_long * 8);
         ftruncate_size_in_bits = size_buffer;
         fputs("#define FTRUNCATE_INCLUDE_IO_H\n", versionFile);
       } /* if */
@@ -5383,7 +5474,7 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
                       "return 0;}\n", fileno);
       if (compileAndLinkOk(buffer) && doTest() == 1) {
         os_ftruncate_stri = "_chsize";
-        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        sprintf(size_buffer, "%d", sizeof_long * 8);
         ftruncate_size_in_bits = size_buffer;
         fputs("#define DEFINE_CHSIZE_PROTOTYPE\n", versionFile);
       } /* if */
@@ -8029,7 +8120,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                                system_draw_libs)) {
             fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
             searchForLib = 0;
-          } else if (getSizeof("char *") == 4) {
+          } else if (sizeof_pointer == 4) {
             if (findStaticLib("Xrender", testProgram, includeOption, system_draw_libs, "",
                               usrLib, sizeof(usrLib) / sizeof(char *),
                               xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
@@ -10447,7 +10538,7 @@ int main (int argc, char **argv)
     fflush(logFile);
     prepareCompileCommand();
 #ifdef CC_FLAGS64
-    if (getSizeof("char *") == 8) {
+    if (sizeof_pointer == 8) {
       fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS " " CC_FLAGS64);
     } else {
       fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS);
