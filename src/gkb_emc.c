@@ -60,6 +60,7 @@ static keyQueueType keyQueue = {NULL, NULL};
 static rtlHashType window_hash = NULL;
 intType pointerX = 0;
 intType pointerY = 0;
+boolType leavePageDialogActive = FALSE;
 
 /* The state of a modifier key is TRUE, if the key is currently pressed. */
 /* The keyboard state is in capsLockOn, numLockOn and scrollLockOn. */
@@ -168,6 +169,7 @@ static void addEventPromiseForWindowId (int windowId)
           currentWindow.removeEventListener("resize", handler);
           currentWindow.removeEventListener("mousemove", handler);
           currentWindow.removeEventListener("beforeunload", handler);
+          currentWindow.removeEventListener("visibilitychange", handler);
           currentWindow.removeEventListener("unload", handler);
           resolve(event);
         }
@@ -179,6 +181,7 @@ static void addEventPromiseForWindowId (int windowId)
         currentWindow.addEventListener("resize", handler);
         currentWindow.addEventListener("mousemove", handler);
         currentWindow.addEventListener("beforeunload", handler);
+        currentWindow.addEventListener("visibilitychange", handler);
         currentWindow.addEventListener("unload", handler);
         registerCallback(handler);
       }));
@@ -499,6 +502,7 @@ EMSCRIPTEN_KEEPALIVE int decodeMousemoveEvent (int clientX, int clientY)
                        clientX, clientY););
     pointerX = clientX;
     pointerY = clientY;
+    leavePageDialogActive = FALSE;
     logFunction(printf("decodeMousemoveEvent(%d, %d) --> %d\n",
                        clientX, clientY, result););
     return result;
@@ -811,10 +815,12 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
         result = 0;
         break;
       case CLOSE_BUTTON_RETURNS_KEY:
+        leavePageDialogActive = TRUE;
         result = K_CLOSE;
         lastKey.buttonWindow = windowId;
         break;
       case CLOSE_BUTTON_RAISES_EXCEPTION:
+        leavePageDialogActive = TRUE;
         raise_error(GRAPHIC_ERROR);
         result = K_CLOSE;
         break;
@@ -823,6 +829,19 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
                        windowId, result););
     return result;
   } /* decodeBeforeunloadEvent */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
+
+  { /* decodeVisibilitychange */
+    logFunction(printf("decodeVisibilitychange(%d)\n",
+                       windowId););
+    if (leavePageDialogActive) {
+      os_exit(0);
+    } /* if */
+    return K_NONE;
+  } /* decodeVisibilitychange */
 
 
 
@@ -839,8 +858,10 @@ EMSCRIPTEN_KEEPALIVE int decodeUnloadEvent (void)
 EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
     // console.log("asyncGkbdGetc");
     const event = await Promise.any(eventPromises);
-    // console.log("after await");
-    // console.log(event);
+    // if (event !== 1114511) {
+    //   console.log("after await");
+    //   console.log(event);
+    // }
     if (event.type === "mousemove") {
 #if TRACE_EVENTS
       console.log(event);
@@ -927,6 +948,13 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
 #endif
       event.preventDefault();
       return Module.ccall("decodeBeforeunloadEvent", "number",
+                          ["number"],
+                          [mapCanvasToId.get(event.target.activeElement.firstChild)]);
+    } else if (event.type === "visibilitychange") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      return Module.ccall("decodeVisibilitychange", "number",
                           ["number"],
                           [mapCanvasToId.get(event.target.activeElement.firstChild)]);
     } else if (event.type === "unload") {
