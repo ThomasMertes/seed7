@@ -96,7 +96,7 @@ static void writeHelp (void)
   { /* writeHelp */
     printf("usage: s7 [options] sourcefile [parameters]\n\n");
     printf("Options:\n");
-    printf("  -?   Write Seed7 interpreter usage.\n");
+    printf("  -? or -h  Write Seed7 interpreter usage.\n");
     printf("  -a   Analyze only and suppress the execution phase.\n");
     printf("  -dx  Set compile time trace level to x. Where x is a string consisting of:\n");
     printf("         a Trace primitive actions\n");
