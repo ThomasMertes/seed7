@@ -193,6 +193,7 @@ static boolType includeFile (void)
                 err_stri(FILENOTFOUND, includeFileName);
               } /* if */
               if (SYS_MAIN_OBJECT == NULL) {
+                prog->error_count++;
                 printf("\n*** Failed to include essential file. Parsing terminated.\n");
                 okay = FALSE;
               } /* if */
