@@ -158,12 +158,13 @@ static inline void systemVar (void)
 
 
 
-static void includeFile (void)
+static boolType includeFile (void)
 
   {
     striType includeFileName;
     includeResultType includeResult;
     errInfoType err_info = OKAY_NO_ERROR;
+    boolType okay = TRUE;
 
   /* includeFile */
     logFunction(printf("includeFile\n"););
@@ -191,6 +192,10 @@ static void includeFile (void)
                 /* FILE_ERROR or RANGE_ERROR */
                 err_stri(FILENOTFOUND, includeFileName);
               } /* if */
+              if (SYS_MAIN_OBJECT == NULL) {
+                printf("\n*** Failed to include essential file. Parsing terminated.\n");
+                okay = FALSE;
+              } /* if */
             } else if (includeResult == INCLUDE_SUCCESS) {
               scan_byte_order_mark();
             } /* if */
@@ -210,7 +215,8 @@ static void includeFile (void)
         scan_symbol();
       } /* if */
     } /* if */
-    logFunction(printf("includeFile -->\n"););
+    logFunction(printf("includeFile --> %d\n", okay););
+    return okay;
   } /* includeFile */
 
 
@@ -315,11 +321,12 @@ static inline void declAny (nodeType objects)
   {
     objectType declExpression;
     errInfoType err_info = OKAY_NO_ERROR;
+    boolType okay = TRUE;
 
   /* declAny */
     logFunction(printf("declAny\n"););
     scan_symbol();
-    while (symbol.sycategory != STOPSYMBOL) {
+    while (symbol.sycategory != STOPSYMBOL && okay) {
       if (current_ident == prog->id_for.dollar) {
         err_info = OKAY_NO_ERROR;
         scan_symbol();
@@ -330,7 +337,7 @@ static inline void declAny (nodeType objects)
         } else if (current_ident == prog->id_for.system) {
           systemVar();
         } else if (current_ident == prog->id_for.include) {
-          includeFile();
+          okay = includeFile();
         } else {
           processPragma();
           scan_symbol();
