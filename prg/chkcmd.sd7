@@ -28,41 +28,156 @@ $ include "seed7_05.s7i";
   include "utf8.s7i";
 
 
-const proc: check_removeFile is func
+const func boolean: raisesFileError (in func integer: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  local
+    var integer: exprResult is 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesFileError (in func bigInteger: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  local
+    var bigInteger: exprResult is 0_;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesFileError (in func fileMode: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  local
+    var fileMode: exprResult is fileMode.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesFileError (in func time: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  local
+    var time: exprResult is time.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesFileError (in func string: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  local
+    var string: exprResult is "";
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesFileError (in proc: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  begin
+    block
+      expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
+const type: fileProperties is new struct
+    var integer:  size  is 0;
+    var fileMode: mode  is fileMode.value;
+    var time:     aTime is time.value;
+    var time:     mTime is time.value;
+    var string:   owner is "";
+    var string:   group is "";
+  end struct;
+
+
+const func boolean: (in fileProperties: properties1) = (in fileProperties: properties2) is
+  return properties1.size  = properties2.size and
+         properties1.mode  = properties2.mode and
+         properties1.aTime = properties2.aTime and
+         properties1.mTime = properties2.mTime and
+         properties1.owner = properties2.owner and
+         properties1.group = properties2.group;
+
+
+const func boolean: (in fileProperties: properties1) <> (in fileProperties: properties2) is
+  return properties1.size  <> properties2.size or
+         properties1.mode  <> properties2.mode or
+         properties1.aTime <> properties2.aTime or
+         properties1.mTime <> properties2.mTime or
+         properties1.owner <> properties2.owner or
+         properties1.group <> properties2.group;
+
+
+const func fileProperties: getFileProperties (in string: filePath) is func
+  result
+    var fileProperties: properties is fileProperties.value;
+  begin
+    properties.size  := fileSize(filePath);
+    properties.mode  := getFileMode(filePath);
+    properties.aTime := getATime(filePath);
+    properties.mTime := getMTime(filePath);
+    properties.owner := getOwner(filePath);
+    properties.group := getGroup(filePath);
+  end func;
+
+
+const proc: checkRemoveFile is func
   local
     const string: fileName is "remove_file_test";
     var boolean: okay is TRUE;
-    var boolean: fileErrorRaised is FALSE;
   begin
     mkdir(fileName);
-    putf(fileName & "/" & fileName, "File content check_removeFile 1");
-    fileErrorRaised := FALSE;
-    block
-      removeFile(fileName);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
+    putf(fileName & "/" & fileName, "File content checkRemoveFile 1");
+    if not raisesFileError(removeFile(fileName)) then
       writeln(" ***** removeFile with nonempty directory does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
 
-    block
-      removeFile(fileName & "/" & fileName);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** removeFile with a regular file raises FILE_ERROR");
-        okay := FALSE;
-    end block;
+    if raisesFileError(removeFile(fileName & "/" & fileName)) then
+      writeln(" ***** removeFile with a regular file raises FILE_ERROR");
+      okay := FALSE;
+    elsif fileType(fileName & "/" & fileName) <> FILE_ABSENT then
+      writeln(" ***** removeFile does not remove a regular file.");
+      okay := FALSE;
+    end if;
 
-    block
-      removeFile(fileName);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** removeFile with an empty directory raises FILE_ERROR");
-        okay := FALSE;
-    end block;
+    if raisesFileError(removeFile(fileName)) then
+      writeln(" ***** removeFile with an empty directory raises FILE_ERROR");
+      okay := FALSE;
+    elsif fileType(fileName) <> FILE_ABSENT then
+      writeln(" ***** removeFile does not remove an empty directory.");
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Removing regular files and empty directories with removeFile works correctly.");
@@ -73,38 +188,38 @@ const proc: check_removeFile is func
   end func;
 
 
-const proc: check_removeTree is func
+const proc: checkRemoveTree is func
   local
     const string: fileName is "remove_tree_test";
     var boolean: okay is TRUE;
   begin
-    putf(fileName, "File content check_removeTree 1");
-    block
-      removeTree(fileName);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** removeTree with a regular file raises FILE_ERROR");
-        okay := FALSE;
-    end block;
+    putf(fileName, "File content checkRemoveTree 1");
+    if raisesFileError(removeTree(fileName)) then
+      writeln(" ***** removeTree with a regular file raises FILE_ERROR");
+      okay := FALSE;
+    elsif fileType(fileName) <> FILE_ABSENT then
+      writeln(" ***** removeTree does not remove a regular file.");
+      okay := FALSE;
+    end if;
 
     mkdir(fileName);
-    block
-      removeTree(fileName);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** removeTree with an empty directory raises FILE_ERROR");
-        okay := FALSE;
-    end block;
+    if raisesFileError(removeTree(fileName)) then
+      writeln(" ***** removeTree with an empty directory raises FILE_ERROR");
+      okay := FALSE;
+    elsif fileType(fileName) <> FILE_ABSENT then
+      writeln(" ***** removeFile does not remove an empty directory.");
+      okay := FALSE;
+    end if;
 
     mkdir(fileName);
     putf(fileName & "/" & fileName, "File content check_removeTree 2");
-    block
-      removeTree(fileName);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** removeTree a directory tree raises FILE_ERROR");
-        okay := FALSE;
-    end block;
+    if raisesFileError(removeTree(fileName)) then
+      writeln(" ***** removeTree a directory tree raises FILE_ERROR");
+      okay := FALSE;
+    elsif fileType(fileName) <> FILE_ABSENT then
+      writeln(" ***** removeFile does not remove a directory tree.");
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Removing regular files and directories with removeTree works correctly.");
@@ -115,56 +230,34 @@ const proc: check_removeTree is func
   end func;
 
 
-const proc: check_copyFile is func
+const proc: checkCopyFile is func
   local
     const string: fileName1 is "asdf_file_test";
     const string: fileName2 is "jkl_file_test";
     var boolean: okay is TRUE;
-    var boolean: fileErrorRaised is FALSE;
   begin
-    putf(fileName1, "File content check_copyFile 1");
-    putf(fileName2, "File content check_copyFile 2");
-    fileErrorRaised := FALSE;
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
+    putf(fileName1, "File content checkCopyFile 1");
+    putf(fileName2, "File content checkCopyFile 2");
+    if not raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile to existing file does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
-    putf(fileName1, "File content check_copyFile 3");
+    putf(fileName1, "File content checkCopyFile 3");
     mkdir(fileName2);
-    fileErrorRaised := FALSE;
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** copyFile to existing file does not raise FILE_ERROR.");
+    if not raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
     mkdir(fileName1);
-    putf(fileName2, "File content check_copyFile 4");
-    fileErrorRaised := FALSE;
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** copyFile to existing file does not raise FILE_ERROR.");
+    putf(fileName2, "File content checkCopyFile 4");
+    if not raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile of directory to existing file does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
@@ -172,29 +265,18 @@ const proc: check_copyFile is func
 
     mkdir(fileName1);
     mkdir(fileName2);
-    fileErrorRaised := FALSE;
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** copyFile to existing file does not raise FILE_ERROR.");
+    if not raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile of directory to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
-    putf(fileName1, "File content check_copyFile 5");
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** copyFile with a regular file raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1) = FILE_ABSENT then
+    putf(fileName1, "File content checkCopyFile 5");
+    if raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile with a regular file raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName1) = FILE_ABSENT then
       writeln(" ***** copyFile does remove the old file.");
       okay := FALSE;
     else
@@ -208,7 +290,7 @@ const proc: check_copyFile is func
       okay := FALSE;
       removeFile(fileName2);
     else
-      if getf(fileName2) <> "File content check_copyFile 5" then
+      if getf(fileName2) <> "File content checkCopyFile 5" then
         writeln(" ***** copyFile creates destination with wrong content.");
         okay := FALSE;
       end if;
@@ -216,14 +298,10 @@ const proc: check_copyFile is func
     end if;
 
     mkdir(fileName1);
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1) = FILE_ABSENT then
+    if raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName1) = FILE_ABSENT then
       writeln(" ***** copyFile does remove the old file.");
       okay := FALSE;
     else
@@ -245,15 +323,11 @@ const proc: check_copyFile is func
     end if;
 
     mkdir(fileName1);
-    putf(fileName1 & "/" & fileName1, "File content check_copyFile 6");
-    block
-      copyFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** copyFile with a directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1) = FILE_ABSENT then
+    putf(fileName1 & "/" & fileName1, "File content checkCopyFile 6");
+    if raisesFileError(copyFile(fileName1, fileName2)) then
+      writeln(" ***** copyFile with a directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName1) = FILE_ABSENT then
       writeln(" ***** copyFile does remove the old file.");
       okay := FALSE;
     else
@@ -271,7 +345,7 @@ const proc: check_copyFile is func
           readDir(fileName2)[1] <> fileName1 then
         writeln(" ***** copyFile creates destination directory with wrong content.");
         okay := FALSE;
-      elsif getf(fileName2 & "/" & fileName1) <> "File content check_copyFile 6" then
+      elsif getf(fileName2 & "/" & fileName1) <> "File content checkCopyFile 6" then
         writeln(" ***** copyFile creates destination file with wrong content.");
         okay := FALSE;
       end if;
@@ -280,15 +354,11 @@ const proc: check_copyFile is func
 
     mkdir(fileName1);
     mkdir(fileName2);
-    putf(fileName1 & "/" & fileName1, "File content check_copyFile 7");
-    block
-      copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
+    putf(fileName1 & "/" & fileName1, "File content checkCopyFile 7");
+    if raisesFileError(copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
       writeln(" ***** copyFile does remove the old file.");
       okay := FALSE;
     else
@@ -302,7 +372,7 @@ const proc: check_copyFile is func
       okay := FALSE;
       removeFile(fileName2 & "/" & fileName2);
     else
-      if getf(fileName2 & "/" & fileName2) <> "File content check_copyFile 7" then
+      if getf(fileName2 & "/" & fileName2) <> "File content checkCopyFile 7" then
         writeln(" ***** copyFile creates destination file with wrong content.");
         okay := FALSE;
       end if;
@@ -314,14 +384,10 @@ const proc: check_copyFile is func
     mkdir(fileName1);
     mkdir(fileName2);
     mkdir(fileName1 & "/" & fileName1);
-    block
-      copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
+    if raisesFileError(copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
       writeln(" ***** copyFile does remove the old file.");
       okay := FALSE;
     else
@@ -353,56 +419,34 @@ const proc: check_copyFile is func
   end func;
 
 
-const proc: check_moveFile is func
+const proc: checkCloneFile is func
   local
     const string: fileName1 is "asdf_file_test";
     const string: fileName2 is "jkl_file_test";
     var boolean: okay is TRUE;
-    var boolean: fileErrorRaised is FALSE;
   begin
-    putf(fileName1, "File content check_moveFile 1");
-    putf(fileName2, "File content check_moveFile 2");
-    fileErrorRaised := FALSE;
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+    putf(fileName1, "File content checkCloneFile 1");
+    putf(fileName2, "File content checkCloneFile 2");
+    if not raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile to existing file does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
-    putf(fileName1, "File content check_moveFile 3");
+    putf(fileName1, "File content checkCloneFile 3");
     mkdir(fileName2);
-    fileErrorRaised := FALSE;
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+    if not raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
     mkdir(fileName1);
-    putf(fileName2, "File content check_moveFile 4");
-    fileErrorRaised := FALSE;
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+    putf(fileName2, "File content checkCloneFile 4");
+    if not raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile of directory to existing file does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
@@ -410,137 +454,160 @@ const proc: check_moveFile is func
 
     mkdir(fileName1);
     mkdir(fileName2);
-    fileErrorRaised := FALSE;
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        fileErrorRaised := TRUE;
-    end block;
-    if not fileErrorRaised then
-      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+    if not raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile of directory to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     removeFile(fileName1);
     removeFile(fileName2);
 
-    putf(fileName1, "File content check_moveFile 5");
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** moveFile with a regular file raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1) <> FILE_ABSENT then
-      writeln(" ***** moveFile does not remove the old file.");
+    putf(fileName1, "File content checkCloneFile 5");
+    if raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile with a regular file raises FILE_ERROR.");
       okay := FALSE;
       removeFile(fileName1);
-    end if;
-    if fileType(fileName2) = FILE_ABSENT then
-      writeln(" ***** moveFile does not create the destination.");
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** cloneFile does not create the destination.");
       okay := FALSE;
-    elsif fileType(fileName2) <> FILE_REGULAR then
-      writeln(" ***** moveFile creates destination with wrong file type.");
-      okay := FALSE;
-      removeFile(fileName2);
     else
-      if getf(fileName2) <> "File content check_moveFile 5" then
-        writeln(" ***** moveFile creates destination with wrong content.");
+      if fileType(fileName1) = FILE_ABSENT then
+        writeln(" ***** cloneFile does remove the old file.");
+        okay := FALSE;
+      elsif fileType(fileName2) <> FILE_REGULAR then
+        writeln(" ***** cloneFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif getf(fileName2) <> "File content checkCloneFile 5" then
+        writeln(" ***** cloneFile creates destination with wrong content.");
+        okay := FALSE;
+      elsif fileSize(fileName1) <> fileSize(fileName2) or
+          bigFileSize(fileName1) <> bigFileSize(fileName2) or
+          getFileMode(fileName1) <> getFileMode(fileName2) or
+          getATime(fileName1) <> getATime(fileName2) or
+          getMTime(fileName1) <> getMTime(fileName2) or
+          getOwner(fileName1) <> getOwner(fileName2) or
+          getGroup(fileName1) <> getGroup(fileName2) then
+        writeln(" ***** cloneFile creates destination with wrong properties.");
         okay := FALSE;
       end if;
       removeFile(fileName2);
     end if;
-
-    mkdir(fileName1);
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
     if fileType(fileName1) <> FILE_ABSENT then
-      writeln(" ***** moveFile does not remove the old file.");
-      okay := FALSE;
       removeFile(fileName1);
     end if;
-    if fileType(fileName2) = FILE_ABSENT then
-      writeln(" ***** moveFile does not create the destination.");
+
+    mkdir(fileName1);
+    if raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
-    elsif fileType(fileName2) <> FILE_DIR then
-      writeln(" ***** moveFile creates destination with wrong file type.");
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** cloneFile does not create the destination.");
       okay := FALSE;
-      removeFile(fileName2);
     else
-      if readDir(fileName2) <> 0 times "" then
-        writeln(" ***** moveFile creates destination directory with wrong content.");
+      if fileType(fileName1) = FILE_ABSENT then
+        writeln(" ***** cloneFile does remove the old file.");
+        okay := FALSE;
+      elsif fileType(fileName2) <> FILE_DIR then
+        writeln(" ***** cloneFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif readDir(fileName2) <> 0 times "" then
+        writeln(" ***** cloneFile creates destination directory with wrong content.");
+        okay := FALSE;
+      elsif fileSize(fileName1) <> fileSize(fileName2) or
+          bigFileSize(fileName1) <> bigFileSize(fileName2) or
+          getFileMode(fileName1) <> getFileMode(fileName2) or
+          getATime(fileName1) <> getATime(fileName2) or
+          getMTime(fileName1) <> getMTime(fileName2) or
+          getOwner(fileName1) <> getOwner(fileName2) or
+          getGroup(fileName1) <> getGroup(fileName2) then
+        writeln(" ***** cloneFile creates destination with wrong properties.");
         okay := FALSE;
       end if;
       removeFile(fileName2);
     end if;
-
-    mkdir(fileName1);
-    putf(fileName1 & "/" & fileName1, "File content check_moveFile 6");
-    block
-      moveFile(fileName1, fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** moveFile with a directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
     if fileType(fileName1) <> FILE_ABSENT then
-      writeln(" ***** moveFile does not remove the old file.");
-      okay := FALSE;
       removeFile(fileName1);
     end if;
-    if fileType(fileName2) = FILE_ABSENT then
-      writeln(" ***** moveFile does not create the destination.");
+
+    mkdir(fileName1);
+    putf(fileName1 & "/" & fileName1, "File content checkCloneFile 6");
+    if raisesFileError(cloneFile(fileName1, fileName2)) then
+      writeln(" ***** cloneFile with a directory raises FILE_ERROR.");
       okay := FALSE;
-    elsif fileType(fileName2) <> FILE_DIR then
-      writeln(" ***** moveFile creates destination with wrong file type.");
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** cloneFile does not create the destination.");
       okay := FALSE;
-      removeFile(fileName2);
     else
-      if length(readDir(fileName2)) <> 1 or
+      if fileType(fileName1) = FILE_ABSENT then
+        writeln(" ***** cloneFile does remove the old file.");
+        okay := FALSE;
+      elsif fileType(fileName2) <> FILE_DIR then
+        writeln(" ***** cloneFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif length(readDir(fileName2)) <> 1 or
           readDir(fileName2)[1] <> fileName1 then
-        writeln(" ***** moveFile creates destination directory with wrong content.");
+        writeln(" ***** cloneFile creates destination directory with wrong content.");
         okay := FALSE;
-      elsif getf(fileName2 & "/" & fileName1) <> "File content check_moveFile 6" then
-        writeln(" ***** moveFile creates destination file with wrong content.");
+      elsif fileSize(fileName1) <> fileSize(fileName2) or
+          bigFileSize(fileName1) <> bigFileSize(fileName2) or
+          getFileMode(fileName1) <> getFileMode(fileName2) or
+          getATime(fileName1) <> getATime(fileName2) or
+          getMTime(fileName1) <> getMTime(fileName2) or
+          getOwner(fileName1) <> getOwner(fileName2) or
+          getGroup(fileName1) <> getGroup(fileName2) then
+        writeln(" ***** cloneFile creates destination directory with wrong properties.");
+        okay := FALSE;
+      elsif getf(fileName2 & "/" & fileName1) <> "File content checkCloneFile 6" then
+        writeln(" ***** cloneFile creates destination file with wrong content.");
+        okay := FALSE;
+      elsif fileSize(fileName1 & "/" & fileName1) <> fileSize(fileName2 & "/" & fileName1) or
+          bigFileSize(fileName1 & "/" & fileName1) <> bigFileSize(fileName2 & "/" & fileName1) or
+          getFileMode(fileName1 & "/" & fileName1) <> getFileMode(fileName2 & "/" & fileName1) or
+          getATime(fileName1 & "/" & fileName1) <> getATime(fileName2 & "/" & fileName1) or
+          getMTime(fileName1 & "/" & fileName1) <> getMTime(fileName2 & "/" & fileName1) or
+          getOwner(fileName1 & "/" & fileName1) <> getOwner(fileName2 & "/" & fileName1) or
+          getGroup(fileName1 & "/" & fileName1) <> getGroup(fileName2 & "/" & fileName1) then
+        writeln(" ***** cloneFile creates destination directory with wrong properties.");
         okay := FALSE;
       end if;
       removeTree(fileName2);
     end if;
+    if fileType(fileName1) <> FILE_ABSENT then
+      removeTree(fileName1);
+    end if;
 
     mkdir(fileName1);
     mkdir(fileName2);
-    putf(fileName1 & "/" & fileName1, "File content check_moveFile 7");
-    block
-      moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
-        okay := FALSE;
-    end block;
-    if fileType(fileName1 & "/" & fileName1) <> FILE_ABSENT then
-      writeln(" ***** moveFile does not remove the old file.");
+    putf(fileName1 & "/" & fileName1, "File content checkCloneFile 7");
+    if raisesFileError(cloneFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
-      removeFile(fileName1 & "/" & fileName1);
-    end if;
-    if fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
-      writeln(" ***** moveFile does not create the destination.");
+    elsif fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
+      writeln(" ***** cloneFile does not create the destination.");
       okay := FALSE;
-    elsif fileType(fileName2 & "/" & fileName2) <> FILE_REGULAR then
-      writeln(" ***** moveFile creates destination with wrong file type.");
-      okay := FALSE;
-      removeFile(fileName2 & "/" & fileName2);
     else
-      if getf(fileName2 & "/" & fileName2) <> "File content check_moveFile 7" then
-        writeln(" ***** moveFile creates destination file with wrong content.");
+      if fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
+        writeln(" ***** cloneFile does remove the old file.");
+        okay := FALSE;
+      elsif fileType(fileName2 & "/" & fileName2) <> FILE_REGULAR then
+        writeln(" ***** cloneFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif getf(fileName2 & "/" & fileName2) <> "File content checkCloneFile 7" then
+        writeln(" ***** cloneFile creates destination file with wrong content.");
+        okay := FALSE;
+      elsif fileSize(fileName1 & "/" & fileName1) <> fileSize(fileName2 & "/" & fileName2) or
+          bigFileSize(fileName1 & "/" & fileName1) <> bigFileSize(fileName2 & "/" & fileName2) or
+          getFileMode(fileName1 & "/" & fileName1) <> getFileMode(fileName2 & "/" & fileName2) or
+          getATime(fileName1 & "/" & fileName1) <> getATime(fileName2 & "/" & fileName2) or
+          getMTime(fileName1 & "/" & fileName1) <> getMTime(fileName2 & "/" & fileName2) or
+          getOwner(fileName1 & "/" & fileName1) <> getOwner(fileName2 & "/" & fileName2) or
+          getGroup(fileName1 & "/" & fileName1) <> getGroup(fileName2 & "/" & fileName2) then
+        writeln(" ***** cloneFile creates destination directory with wrong properties.");
         okay := FALSE;
       end if;
       removeFile(fileName2 & "/" & fileName2);
+    end if;
+    if fileType(fileName1 & "/" & fileName1) <> FILE_ABSENT then
+      removeFile(fileName1 & "/" & fileName1);
     end if;
     removeTree(fileName1);
     removeTree(fileName2);
@@ -548,31 +615,236 @@ const proc: check_moveFile is func
     mkdir(fileName1);
     mkdir(fileName2);
     mkdir(fileName1 & "/" & fileName1);
-    block
-      moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2);
-    exception
-      catch FILE_ERROR:
-        writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
+    if raisesFileError(cloneFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
+      writeln(" ***** cloneFile does not create the destination.");
+      okay := FALSE;
+    else
+      if fileType(fileName1 & "/" & fileName1) = FILE_ABSENT then
+        writeln(" ***** cloneFile does remove the old file.");
         okay := FALSE;
-    end block;
+      elsif fileType(fileName2 & "/" & fileName2) <> FILE_DIR then
+        writeln(" ***** cloneFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif readDir(fileName2 & "/" & fileName2) <> 0 times "" then
+        writeln(" ***** cloneFile creates destination directory with wrong content.");
+        okay := FALSE;
+      elsif fileSize(fileName1 & "/" & fileName1) <> fileSize(fileName2 & "/" & fileName2) or
+          bigFileSize(fileName1 & "/" & fileName1) <> bigFileSize(fileName2 & "/" & fileName2) or
+          getFileMode(fileName1 & "/" & fileName1) <> getFileMode(fileName2 & "/" & fileName2) or
+          getATime(fileName1 & "/" & fileName1) <> getATime(fileName2 & "/" & fileName2) or
+          getMTime(fileName1 & "/" & fileName1) <> getMTime(fileName2 & "/" & fileName2) or
+          getOwner(fileName1 & "/" & fileName1) <> getOwner(fileName2 & "/" & fileName2) or
+          getGroup(fileName1 & "/" & fileName1) <> getGroup(fileName2 & "/" & fileName2) then
+        writeln(" ***** cloneFile creates destination directory with wrong properties.");
+        okay := FALSE;
+      end if;
+      removeFile(fileName2 & "/" & fileName2);
+    end if;
+    if fileType(fileName1 & "/" & fileName1) <> FILE_ABSENT then
+      removeFile(fileName1 & "/" & fileName1);
+    end if;
+    removeTree(fileName1);
+    removeTree(fileName2);
+
+    if okay then
+      writeln("Copying files with cloneFile works correctly.");
+    else
+      writeln(" ***** Copying files with cloneFile does not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: checkMoveFile is func
+  local
+    const string: fileName1 is "asdf_file_test";
+    const string: fileName2 is "jkl_file_test";
+    var fileProperties: sourceProperties is fileProperties.value;
+    var boolean: okay is TRUE;
+  begin
+    putf(fileName1, "File content checkMoveFile 1");
+    putf(fileName2, "File content checkMoveFile 2");
+    if not raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+    removeFile(fileName1);
+    removeFile(fileName2);
+
+    putf(fileName1, "File content checkMoveFile 3");
+    mkdir(fileName2);
+    if not raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+    removeFile(fileName1);
+    removeFile(fileName2);
+
+    mkdir(fileName1);
+    putf(fileName2, "File content checkMoveFile 4");
+    if not raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+    removeFile(fileName1);
+    removeFile(fileName2);
+
+    mkdir(fileName1);
+    mkdir(fileName2);
+    if not raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+    removeFile(fileName1);
+    removeFile(fileName2);
+
+    putf(fileName1, "File content checkMoveFile 5");
+    sourceProperties := getFileProperties(fileName1);
+    if raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile with a regular file raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** moveFile does not create the destination.");
+      okay := FALSE;
+    else
+      if fileType(fileName2) <> FILE_REGULAR then
+        writeln(" ***** moveFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif getf(fileName2) <> "File content checkMoveFile 5" then
+        writeln(" ***** moveFile creates destination file with wrong content.");
+        okay := FALSE;
+      elsif getFileProperties(fileName2) <> sourceProperties then
+        writeln(" ***** moveFile creates destination file with wrong properties.");
+        okay := FALSE;
+      end if;
+      removeFile(fileName2);
+    end if;
+    if fileType(fileName1) <> FILE_ABSENT then
+      writeln(" ***** moveFile does not remove the old file.");
+      okay := FALSE;
+      removeFile(fileName1);
+    end if;
+
+    mkdir(fileName1);
+    sourceProperties := getFileProperties(fileName1);
+    if raisesFileError(moveFile(fileName1, fileName2)) then
+      writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** moveFile does not create the destination.");
+      okay := FALSE;
+    else
+      if fileType(fileName2) <> FILE_DIR then
+        writeln(" ***** moveFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif readDir(fileName2) <> 0 times "" then
+        writeln(" ***** moveFile creates destination directory with wrong content.");
+        okay := FALSE;
+      elsif getFileProperties(fileName2) <> sourceProperties then
+        writeln(" ***** moveFile creates destination directory with wrong properties.");
+        okay := FALSE;
+      end if;
+      removeFile(fileName2);
+    end if;
+    if fileType(fileName1) <> FILE_ABSENT then
+      writeln(" ***** moveFile does not remove the old file.");
+      okay := FALSE;
+      removeFile(fileName1);
+    end if;
+
+    mkdir(fileName1);
+    putf(fileName1 & "/" & fileName1, "File content checkMoveFile 6");
+    sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
+    if raisesFileError(moveFile(fileName1, fileName2)) then
+        writeln(" ***** moveFile with a directory raises FILE_ERROR.");
+        okay := FALSE;
+    elsif fileType(fileName2) = FILE_ABSENT then
+      writeln(" ***** moveFile does not create the destination.");
+      okay := FALSE;
+    else
+      if fileType(fileName2) <> FILE_DIR then
+        writeln(" ***** moveFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif length(readDir(fileName2)) <> 1 or
+          readDir(fileName2)[1] <> fileName1 then
+        writeln(" ***** moveFile creates destination directory with wrong content.");
+        okay := FALSE;
+      elsif getf(fileName2 & "/" & fileName1) <> "File content checkMoveFile 6" then
+        writeln(" ***** moveFile creates destination file with wrong content.");
+        okay := FALSE;
+      elsif getFileProperties(fileName2 & "/" & fileName1) <> sourceProperties then
+        writeln(" ***** moveFile creates destination file with wrong properties.");
+        okay := FALSE;
+      end if;
+      removeTree(fileName2);
+    end if;
+    if fileType(fileName1) <> FILE_ABSENT then
+      writeln(" ***** moveFile does not remove the old file.");
+      okay := FALSE;
+      removeFile(fileName1);
+    end if;
+
+    mkdir(fileName1);
+    mkdir(fileName2);
+    putf(fileName1 & "/" & fileName1, "File content checkMoveFile 7");
+    sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
+    if raisesFileError(moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
+      writeln(" ***** moveFile does not create the destination.");
+      okay := FALSE;
+    else
+      if fileType(fileName2 & "/" & fileName2) <> FILE_REGULAR then
+        writeln(" ***** moveFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif getf(fileName2 & "/" & fileName2) <> "File content checkMoveFile 7" then
+        writeln(" ***** moveFile creates destination file with wrong content.");
+        okay := FALSE;
+      elsif getFileProperties(fileName2 & "/" & fileName2) <> sourceProperties then
+        writeln(" ***** moveFile creates destination file with wrong properties.");
+        okay := FALSE;
+      end if;
+      removeFile(fileName2 & "/" & fileName2);
+    end if;
     if fileType(fileName1 & "/" & fileName1) <> FILE_ABSENT then
       writeln(" ***** moveFile does not remove the old file.");
       okay := FALSE;
       removeFile(fileName1 & "/" & fileName1);
     end if;
-    if fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
+    removeTree(fileName1);
+    removeTree(fileName2);
+
+    mkdir(fileName1);
+    mkdir(fileName2);
+    mkdir(fileName1 & "/" & fileName1);
+    sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
+    if raisesFileError(moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
+      writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileType(fileName2 & "/" & fileName2) = FILE_ABSENT then
       writeln(" ***** moveFile does not create the destination.");
       okay := FALSE;
-    elsif fileType(fileName2 & "/" & fileName2) <> FILE_DIR then
-      writeln(" ***** moveFile creates destination with wrong file type.");
-      okay := FALSE;
-      removeFile(fileName2 & "/" & fileName2);
     else
-      if readDir(fileName2 & "/" & fileName2) <> 0 times "" then
+      if fileType(fileName2 & "/" & fileName2) <> FILE_DIR then
+        writeln(" ***** moveFile creates destination with wrong file type.");
+        okay := FALSE;
+      elsif readDir(fileName2 & "/" & fileName2) <> 0 times "" then
         writeln(" ***** moveFile creates destination directory with wrong content.");
+        okay := FALSE;
+      elsif getFileProperties(fileName2 & "/" & fileName2) <> sourceProperties then
+        writeln(" ***** moveFile creates destination directory with wrong properties.");
         okay := FALSE;
       end if;
       removeFile(fileName2 & "/" & fileName2);
+    end if;
+    if fileType(fileName1 & "/" & fileName1) <> FILE_ABSENT then
+      writeln(" ***** moveFile does not remove the old file.");
+      okay := FALSE;
+      removeFile(fileName1 & "/" & fileName1);
     end if;
     removeTree(fileName1);
     removeTree(fileName2);
@@ -581,6 +853,169 @@ const proc: check_moveFile is func
       writeln("Moving files with moveFile works correctly.");
     else
       writeln(" ***** Moving files with moveFile does not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
+const func boolean: checkDanglingSymlink (in string: symlinkName) is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if not raisesFileError(fileSize(symlinkName)) then
+      writeln(" ***** Getting the file size of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(bigFileSize(symlinkName)) then
+      writeln(" ***** Getting the bigInteger file size of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getFileMode(symlinkName)) then
+      writeln(" ***** Getting the file mode of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(setFileMode(symlinkName, {READ_USER, WRITE_USER})) then
+      writeln(" ***** Setting the file mode of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getATime(symlinkName)) then
+      writeln(" ***** Getting the access time of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(setATime(symlinkName, time("2000-1-1"))) then
+      writeln(" ***** Setting the access time of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getCTime(symlinkName)) then
+      writeln(" ***** Getting the change time of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getMTime(symlinkName)) then
+      writeln(" ***** Getting the modification time of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(setMTime(symlinkName, time("2000-1-1"))) then
+      writeln(" ***** Setting the modification time of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getOwner(symlinkName)) then
+      writeln(" ***** Getting the owner of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(setOwner(symlinkName, getOwner(symlinkName, SYMLINK))) then
+      writeln(" ***** Setting the owner of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(getGroup(symlinkName)) then
+      writeln(" ***** Getting the group of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(setGroup(symlinkName, getGroup(symlinkName, SYMLINK))) then
+      writeln(" ***** Setting the group of a danging symlink does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkSymlinkToRegularFile is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const string: symlinkName is "asdf_symlink_test";
+    const string: targetName is "jkl_target_test";
+  begin
+    # Assure that neither symlink nor target exist.
+    if fileTypeSL(symlinkName) <> FILE_ABSENT then
+      removeFile(symlinkName);
+    end if;
+    if fileTypeSL(targetName) <> FILE_ABSENT then
+      removeFile(targetName);
+    end if;
+
+    if not raisesFileError(symlink(targetName, "")) then
+      writeln(" ***** symlink() with empty symlink name does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not raisesFileError(symlink("", symlinkName)) then
+      writeln(" ***** symlink() with empty target name does not raise FILE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if raisesFileError(symlink(targetName, symlinkName)) then
+      writeln(" ***** symlink() to a non-existing target raises FILE_ERROR.");
+      okay := FALSE;
+    elsif fileTypeSL(symlinkName) <> FILE_SYMLINK then
+      writeln(" ***** symlink() failed to create a symbolic link.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      if not raisesFileError(symlink(targetName, symlinkName)) then
+        writeln(" ***** symlink() when a file with the symlink name exists does not raise FILE_ERROR.");
+        okay := FALSE;
+      end if;
+
+      if readLink(symlinkName) <> targetName then
+        writeln(" ***** The created symlink does not refer to the target.");
+        writeln(literal(readLink(symlinkName)));
+        writeln(literal(targetName));
+        okay := FALSE;
+      end if;
+
+      if readLink(symlinkName, ABSOLUTE) <> toAbsPath(getcwd, targetName) then
+        writeln(" ***** The created symlink does not refer to the target.");
+        writeln(literal(readLink(symlinkName, ABSOLUTE)));
+        writeln(literal(toAbsPath(getcwd, targetName)));
+        okay := FALSE;
+      end if;
+
+      if finalPath(symlinkName) <> toAbsPath(getcwd, targetName) then
+        writeln(" ***** The created symlink does not refer to the target.");
+        writeln(literal(finalPath(symlinkName)));
+        writeln(literal(toAbsPath(getcwd, targetName)));
+        okay := FALSE;
+      end if;
+
+      setMTime(symlinkName, time("2000-1-1"), SYMLINK);
+      if getMTime(symlinkName, SYMLINK) <> toLocalTZ(time("2000-1-1")) then
+        writeln(" ***** Setting and getting the modification time of a symlink does not work correctly.");
+        okay := FALSE;
+      end if;
+
+      if not checkDanglingSymlink(symlinkName) then
+        okay := FALSE;
+      end if;
+
+      removeFile(symlinkName);
+    end if;
+  end func;
+
+
+const proc: checkSymlink is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not checkSymlinkToRegularFile then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Symbolic links work correctly.");
+    else
+      writeln(" ***** Symbolic links do not work correctly.");
       writeln;
     end if;
   end func;
@@ -673,6 +1108,22 @@ const proc: check_environment is func
       okay := FALSE;
     end if;
 
+    unsetenv(randomName);
+    if getenv(randomName) <> "" then
+      writeln(" ***** Deleting an environment variable does not work correctly.");
+      okay := FALSE;
+    end if;
+    found := FALSE;
+    for name range environment do
+      if randomName = name then
+        found := TRUE;
+      end if;
+    end for;
+    if found then
+      writeln(" ***** The environment variable still exist in the environment after being deleted.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Getting and setting environment variables works correctly.");
     else
@@ -688,9 +1139,11 @@ const proc: main is func
     writeln("Note that windows has race conditions if files");
     writeln("are copied, moved and removed quickly in succession.");
     writeln("This bug of windows cannot be fixed in a runtime library.");
-    check_removeFile;
-    check_removeTree;
-    check_copyFile;
-    check_moveFile;
+    checkRemoveFile;
+    checkRemoveTree;
+    checkCopyFile;
+    checkCloneFile;
+    checkMoveFile;
+    checkSymlink;
     check_environment;
   end func;
