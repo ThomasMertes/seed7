@@ -10537,15 +10537,15 @@ int main (int argc, char **argv)
     fprintf(logFile, "Prepare compile command: ");
     fflush(logFile);
     prepareCompileCommand();
+    determineCompilerVersion(versionFile);
+    prepareDoSleep();
 #ifdef CC_FLAGS64
-    if (sizeof_pointer == 8) {
+    if (getSizeof("char *") == 8) {
       fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS " " CC_FLAGS64);
     } else {
       fprintf(versionFile, "#define CC_FLAGS \"%s\"\n", CC_FLAGS);
     } /* if */
 #endif
-    determineCompilerVersion(versionFile);
-    prepareDoSleep();
     if (assertCompAndLnk("#include <stdio.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "#if defined(__STDC__)\n"
