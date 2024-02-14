@@ -999,7 +999,62 @@ const func boolean: checkSymlinkToRegularFile is func
         okay := FALSE;
       end if;
 
+      putf(targetName, "File content checkSymlinkToRegularFile 1");
+
+      if fileType(symlinkName) <> FILE_REGULAR or
+          fileType(targetName) <> FILE_REGULAR then
+        writeln(" ***** The file types of symlink and target are not FILE_REGULAR.");
+        okay := FALSE;
+      end if;
+
+      if fileSize(symlinkName) <> fileSize(targetName) then
+        writeln(" ***** The file sizes of symlink and target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if bigFileSize(symlinkName) <> bigFileSize(targetName) then
+        writeln(" ***** The bigInteger file sizes of symlink and target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if getFileMode(symlinkName) <> getFileMode(targetName) then
+        writeln(" ***** The file modes of symlink and target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if getATime(symlinkName) <> getATime(targetName) then
+        writeln(" ***** The access times symlink and target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if getCTime(symlinkName) <> getCTime(targetName) then
+        writeln(" ***** the change times of symlink and target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if getMTime(symlinkName) <> getMTime(targetName) then
+        writeln(" ***** The modification times of symlink target are not identical.");
+        okay := FALSE;
+      end if;
+
+      if getOwner(symlinkName) <> getOwner(targetName) then
+        writeln(" ***** The owner of symlink and target is not the same.");
+        okay := FALSE;
+      end if;
+
+      if getGroup(symlinkName) <> getGroup(targetName) then
+        writeln(" ***** The group of symlink and target is not the same.");
+        okay := FALSE;
+      end if;
+
       removeFile(symlinkName);
+
+      if fileType(targetName) <> FILE_REGULAR then
+        writeln(" ***** Removing the symling removes the target as well.");
+        okay := FALSE;
+      end if;
+
+      removeFile(targetName);
     end if;
   end func;
 
