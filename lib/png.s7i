@@ -124,11 +124,11 @@ const proc: computeBytesPerPixel (inout pngHeader: header) is func
 const proc: computeBytesPerScanline (inout pngHeader: header) is func
   begin
     if header.bitDepth = 1 then
-      header.bytesPerScanline := succ((header.width + 7) div 8);
+      header.bytesPerScanline := succ((header.width + 7) mdiv 8);
     elsif header.bitDepth = 2 then
-      header.bytesPerScanline := succ((header.width + 3) div 4);
+      header.bytesPerScanline := succ((header.width + 3) mdiv 4);
     elsif header.bitDepth = 4 then
-      header.bytesPerScanline := succ(succ(header.width) div 2);
+      header.bytesPerScanline := succ(succ(header.width) mdiv 2);
     else
       header.bytesPerScanline := succ(header.width * header.bytesPerPixel);
     end if;
@@ -219,17 +219,17 @@ const proc: filterPngData (in pngHeader: header, inout string: uncompressed) is 
           if line = 0 then
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
               uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             ord(uncompressed[column - header.bytesPerPixel]) div 2) mod 256);
+                                             ord(uncompressed[column - header.bytesPerPixel]) mdiv 2) mod 256);
             end for;
           else
             for column range byteIndex to byteIndex + header.bytesPerPixel - 1 do
               uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             ord(uncompressed[column - header.bytesPerScanline]) div 2) mod 256);
+                                             ord(uncompressed[column - header.bytesPerScanline]) mdiv 2) mod 256);
             end for;
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
               uncompressed @:= [column] chr((ord(uncompressed[column]) +
                                             (ord(uncompressed[column - header.bytesPerPixel]) +
-                                             ord(uncompressed[column - header.bytesPerScanline])) div 2) mod 256);
+                                             ord(uncompressed[column - header.bytesPerScanline])) mdiv 2) mod 256);
             end for;
           end if;
         when {4}:
