@@ -914,7 +914,7 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
-        positionIncrement := header.bitsPerSample[1] div 8;
+        positionIncrement := header.bitsPerSample[1] mdiv 8;
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
           for column range 1 to header.width do
@@ -952,7 +952,7 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
-        positionIncrement := header.bitsPerSample[1] div 8;
+        positionIncrement := header.bitsPerSample[1] mdiv 8;
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
           for column range 1 to header.width do
@@ -990,8 +990,8 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
-        positionIncrement := header.bitsPerSample[1] div 4;
-        positionDelta := header.bitsPerSample[1] div 8 - 2;
+        positionIncrement := header.bitsPerSample[1] mdiv 4;
+        positionDelta := header.bitsPerSample[1] mdiv 8 - 2;
         if header.littleEndian then
           for column range 1 to header.width do
             grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
@@ -1028,8 +1028,8 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
-        positionIncrement := header.bitsPerSample[1] div 4;
-        positionDelta := header.bitsPerSample[1] div 8 - 2;
+        positionIncrement := header.bitsPerSample[1] mdiv 4;
+        positionDelta := header.bitsPerSample[1] mdiv 8 - 2;
         if header.littleEndian then
           for column range 1 to header.width do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
@@ -1068,11 +1068,11 @@ const proc: processRowWithRGB (in tiffHeader: header,
           currPosition +:= 3;
         end for;
       when {16, 24, 32, 64}:
-        positionIncrement := header.bitsPerSample[1] div 8 * 3;
+        positionIncrement := header.bitsPerSample[1] mdiv 8 * 3;
         if header.littleEndian then
-          deltaRed := header.bitsPerSample[1] div 8 - 2;
-          deltaGreen := deltaRed + header.bitsPerSample[1] div 8;
-          deltaBlue := deltaGreen + header.bitsPerSample[1] div 8;
+          deltaRed := header.bitsPerSample[1] mdiv 8 - 2;
+          deltaGreen := deltaRed + header.bitsPerSample[1] mdiv 8;
+          deltaBlue := deltaGreen + header.bitsPerSample[1] mdiv 8;
           for column range 1 to header.width do
             image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
                                             bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
@@ -1080,7 +1080,7 @@ const proc: processRowWithRGB (in tiffHeader: header,
             currPosition +:= positionIncrement;
           end for;
         else
-          deltaGreen := header.bitsPerSample[1] div 8;
+          deltaGreen := header.bitsPerSample[1] mdiv 8;
           deltaBlue := 2 * deltaGreen;
           for column range 1 to header.width do
             image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
@@ -1314,7 +1314,7 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
             incr(currPosition);
           end for;
         when {16, 24, 32, 64}:
-          positionIncrement := header.bitsPerSample[1] div 8;
+          positionIncrement := header.bitsPerSample[1] mdiv 8;
           positionDelta := positionIncrement - 2;
           if header.littleEndian then
             for column range 1 to header.width do
@@ -1441,7 +1441,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
           # Calculate value of the missing required stripByteCounts field.
           header.stripByteCounts := [] (header.width * header.height *
                                         header.samplesPerPixel *
-                                        (header.bitsPerSample[1] div 8));
+                                        (header.bitsPerSample[1] mdiv 8));
           # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
         end if;
         case header.compression of
