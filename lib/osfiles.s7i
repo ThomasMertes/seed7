@@ -740,6 +740,7 @@ const func string: homeDir                                   is action "CMD_HOME
 
 (**
  *  Determine the absolute path for a given ''path''.
+ *  The examples assume that the current working directory is "/home/myuser".
  *   toAbsPath(getcwd, "aFile")    returns e.g. "/home/myuser/aFile"
  *   toAbsPath(".", "aFile")       returns e.g. "/home/myuser/aFile"
  *   toAbsPath(".", "..")          returns e.g. "/home"
