@@ -83,13 +83,13 @@ striType winReadLink (const const_striType filePath, errInfoType *err_info);
 #define HAS_DO_READ_LINK
 #endif
 #endif
+#ifdef DEFINE_WIN_SYMLINK
+void winSymlink (const const_striType targetPath,
+    const const_striType symlinkPath, errInfoType *err_info);
 #ifdef HAS_DEVICE_IO_CONTROL
 void winCopySymlink (const const_os_striType sourcePath,
     const const_os_striType destPath, errInfoType *err_info);
 #endif
-#ifdef DEFINE_WIN_SYMLINK
-void winSymlink (const const_striType targetPath,
-    const const_striType symlinkPath, errInfoType *err_info);
 #endif
 striType cmdGetGroup (const const_striType filePath);
 striType cmdGetGroupOfSymlink (const const_striType filePath);

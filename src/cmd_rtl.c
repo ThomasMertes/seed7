@@ -708,7 +708,7 @@ static void copy_any_file (const const_os_striType from_name,
             os_stri_free(link_destination);
           } /* if */
         } /* if */
-#elif defined HAS_DEVICE_IO_CONTROL
+#elif defined DEFINE_WIN_SYMLINK && defined HAS_DEVICE_IO_CONTROL
         winCopySymlink(from_name, to_name, err_info);
 #else
         *err_info = FILE_ERROR;

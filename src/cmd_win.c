@@ -1123,6 +1123,7 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
 
 
 
+#ifdef DEFINE_WIN_SYMLINK
 static void createSymlink (const wchar_t *osSymlinkPath,
     const wchar_t *sourceSymlinkPath, const wchar_t *substituteName,
     USHORT substituteNameByteLen, errInfoType *err_info)
@@ -1329,6 +1330,7 @@ void winCopySymlink (const const_os_striType sourcePath,
     logFunction(printf("winCopySymlink(\"%ls\", \"%ls\", %d) -->\n",
                        sourcePath, destPath, *err_info););
   } /* winCopySymlink */
+#endif
 #endif
 
 
