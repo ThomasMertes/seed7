@@ -122,12 +122,12 @@ const proc: drawPattern (inout PRIMITIVE_WINDOW: win, in integer: xPos,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    for lin range 1 to height div 2 do
+    for lin range 1 to height mdiv 2 do
       xPosition := xPos;
-      yPosition1 := yPos + (height div 2 - lin) * scale;
-      yPosition2 := yPos + pred(height div 2 + lin) * scale;
-      line1 := succ(height div 2 - lin);
-      line2 := height div 2 + lin;
+      yPosition1 := yPos + (height mdiv 2 - lin) * scale;
+      yPosition2 := yPos + pred(height mdiv 2 + lin) * scale;
+      line1 := succ(height mdiv 2 - lin);
+      line2 := height mdiv 2 + lin;
       for col range 1 to width do
         rect(win, xPosition,
             yPosition1,
