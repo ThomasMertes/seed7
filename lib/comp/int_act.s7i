@@ -2476,12 +2476,14 @@ const func boolean: optimize_div_of_product (in reference: number, in integer: f
       c_expr.expr &:= "0";
     elsif factor = divisor then
       incr(countOptimizations);
+      countOverflowOptimizations(c_expr);
       process_expr(number, c_expr);
     elsif factor rem divisor = 0 then
       incr(countOptimizations);
       process_const_int_mult(number, factor div divisor, c_expr);
     elsif divisor rem factor = 0 then
       incr(countOptimizations);
+      countOverflowOptimizations(c_expr);
       process_const_int_div(number, divisor div factor, c_expr);
     else
       done := FALSE;
