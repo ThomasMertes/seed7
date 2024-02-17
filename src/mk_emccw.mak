@@ -273,6 +273,7 @@ settings.h:
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
 	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
 	echo #define DEFINE_SYSTEM_FUNCTION >> settings.h
+	echo #define USE_START_MAIN >> settings.h
 	echo #define USE_DO_EXIT >> settings.h
 	echo #define os_exit doExit >> settings.h
 	echo #define os_atexit registerExitFunction >> settings.h

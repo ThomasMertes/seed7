@@ -293,9 +293,17 @@ const type: ccConfigType is new struct
     var boolean: USE_WINMAIN                  is FALSE;
 
     (**
+     *  TRUE if the main function invokes startMain after a button click.
+     *  If a start button exists the main function will wait for
+     *  a click on this button. Afterwards startMain is invoked.
+     *  If no start button exists startMain is invoked immediately.
+     *)
+    var boolean: USE_START_MAIN               is FALSE;
+
+    (**
      *  TRUE if the main function must be terminated with doExit().
      *)
-    var boolean: USE_DO_EXIT               is FALSE;
+    var boolean: USE_DO_EXIT                  is FALSE;
 
     (**
      *  TRUE if the type ''floatType'' is ''double''.
@@ -920,6 +928,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CC_SOURCE_UTF8                := boolean(configValue("CC_SOURCE_UTF8"));
     conf.USE_WMAIN                     := boolean(configValue("USE_WMAIN"));
     conf.USE_WINMAIN                   := boolean(configValue("USE_WINMAIN"));
+    conf.USE_START_MAIN                := boolean(configValue("USE_START_MAIN"));
     conf.USE_DO_EXIT                   := boolean(configValue("USE_DO_EXIT"));
     conf.FLOATTYPE_DOUBLE              := boolean(configValue("FLOATTYPE_DOUBLE"));
     conf.INTTYPE_SIZE                  := integer(configValue("INTTYPE_SIZE"));
@@ -1077,6 +1086,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"CC_SOURCE_UTF8"}:                conf.CC_SOURCE_UTF8                := boolean(value);
       when {"USE_WMAIN"}:                     conf.USE_WMAIN                     := boolean(value);
       when {"USE_WINMAIN"}:                   conf.USE_WINMAIN                   := boolean(value);
+      when {"USE_START_MAIN"}:                conf.USE_START_MAIN                := boolean(value);
       when {"USE_DO_EXIT"}:                   conf.USE_DO_EXIT                   := boolean(value);
       when {"FLOATTYPE_DOUBLE"}:              conf.FLOATTYPE_DOUBLE              := boolean(value);
       when {"INTTYPE_SIZE"}:                  conf.INTTYPE_SIZE                  := integer(value);

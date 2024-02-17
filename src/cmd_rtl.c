@@ -2399,6 +2399,12 @@ striType cmdConfigValue (const const_striType name)
 #else
       opt = "FALSE";
 #endif
+    } else if (strcmp(opt_name, "USE_START_MAIN") == 0) {
+#ifdef USE_START_MAIN
+      opt = "TRUE";
+#else
+      opt = "FALSE";
+#endif
     } else if (strcmp(opt_name, "USE_DO_EXIT") == 0) {
 #ifdef USE_DO_EXIT
       opt = "TRUE";

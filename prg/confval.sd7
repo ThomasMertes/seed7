@@ -75,6 +75,7 @@ const proc: main is func
     writeln("CC_SOURCE_UTF8:                " <& ccConf.CC_SOURCE_UTF8);
     writeln("USE_WMAIN:                     " <& ccConf.USE_WMAIN);
     writeln("USE_WINMAIN:                   " <& ccConf.USE_WINMAIN);
+    writeln("USE_START_MAIN:                " <& ccConf.USE_START_MAIN);
     writeln("USE_DO_EXIT:                   " <& ccConf.USE_DO_EXIT);
     writeln("FLOATTYPE_DOUBLE:              " <& ccConf.FLOATTYPE_DOUBLE);
     writeln("INTTYPE_SIZE:                  " <& ccConf.INTTYPE_SIZE);
