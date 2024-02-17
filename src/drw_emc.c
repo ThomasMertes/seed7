@@ -288,6 +288,10 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
+    if (sweepAngle < 0.0) {
+      startAngle += sweepAngle;
+      sweepAngle = -sweepAngle;
+    } /* if */
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
@@ -326,6 +330,10 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, width, col););
+    if (sweepAngle < 0.0) {
+      startAngle += sweepAngle;
+      sweepAngle = -sweepAngle;
+    } /* if */
     if ((width & 1) != 0) {
       radius -= width / 2;
     } else {
@@ -380,6 +388,10 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
+    if (sweepAngle < 0.0) {
+      startAngle += sweepAngle;
+      sweepAngle = -sweepAngle;
+    } /* if */
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
@@ -425,6 +437,10 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
+    if (sweepAngle < 0.0) {
+      startAngle += sweepAngle;
+      sweepAngle = -sweepAngle;
+    } /* if */
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
