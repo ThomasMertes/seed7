@@ -2596,6 +2596,16 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog := "int wmain (int argc, wchar_t **argv)\n";
     elsif ccConf.USE_WINMAIN then
       main_prolog := "int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)\n";
+    elsif ccConf.USE_START_MAIN then
+      main_prolog := "typedef int (*tp_startMain) (int argc, char **argv);\n";
+      main_prolog &:= "int executeStartMainOnButtonClick (tp_startMain startMain, int argc, char **argv);\n";
+      main_prolog &:= "int startMain (int argc, char **argv);\n\n";
+      main_prolog &:= "int main (int argc, char **argv)\n";
+      main_prolog &:= "\n";
+      main_prolog &:= "{\n";
+      main_prolog &:= "  return executeStartMainOnButtonClick(startMain, argc, argv);\n";
+      main_prolog &:= "}\n\n";
+      main_prolog &:= "int startMain (int argc, char **argv)\n";
     else
       main_prolog := "int main (int argc, char **argv)\n";
     end if;

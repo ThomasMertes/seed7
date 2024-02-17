@@ -59,6 +59,8 @@ static atExitDataType *atExitLifoStack = NULL;
 /* provide a doWaitOrPushKey() function.                            */
 tp_DoWaitOrPushKey doWaitOrPushKey = NULL;
 
+typedef int (*tp_startMain) (int argc, char **argv);
+
 
 
 int registerExitFunction (tp_atExitFunction function)
@@ -101,6 +103,116 @@ void doExit (int returnCode)
     });
     emscripten_force_exit(returnCode);
   } /* doExit */
+
+
+
+static boolType startMainButtonPresent (void)
+
+  {
+    boolType buttonPresent;
+
+  /* startMainButtonPresent */
+    logFunction(printf("startMainButtonPresent\n"););
+    buttonPresent = EM_ASM_INT({
+      let buttonPresent = 0;
+      if (typeof document !== "undefined") {
+        let elements = document.getElementsByName("startMain");
+	if (typeof elements !== "undefined") {
+          let currentButton = elements[0];
+          if (typeof currentButton !== "undefined") {
+            buttonPresent = 1;
+          }
+        }
+      }
+      return buttonPresent;
+    });
+    logFunction(printf("startMainButtonPresent --> %d\n", buttonPresent););
+    return buttonPresent;
+  } /* startMainButtonPresent */
+
+
+
+static void addEventPromiseForStartButton (void)
+
+  { /* addEventPromiseForStartButton */
+    logFunction(printf("addEventPromiseForStartButton\n"););
+    EM_ASM({
+      let elements = document.getElementsByName("startMain");
+      let currentButton = elements[0];
+      eventPromises.push(new Promise(resolve => {
+        function handler (event) {
+          currentButton.removeEventListener("click", handler);
+	  resolve(event);
+	}
+        currentButton.addEventListener("click", handler);
+        registerCallback(handler);
+      }));
+    });
+    logFunction(printf("addEventPromiseForStartButton -->\n"););
+  } /* addEventPromiseForStartButton */
+
+
+
+static void setupEventPromises (void)
+
+  { /* setupEventPromises */
+    logFunction(printf("setupEventPromises()\n"););
+    EM_ASM({
+      eventPromises = [];
+    });
+    addEventPromiseForStartButton();
+  } /* setupEventPromises */
+
+
+
+static void freeEventPromises (void)
+
+  { /* freeEventPromises */
+    logFunction(printf("freeEventPromises()\n"););
+    EM_ASM({
+      executeCallbacks();
+      eventPromises = [];
+    });
+  } /* freeEventPromises */
+
+
+
+EM_ASYNC_JS(void, asyncButtonClick, (void), {
+    // console.log("asyncButtonClick");
+    const event = await Promise.any(eventPromises);
+    // console.log("after await");
+    // console.log(event);
+    if (event.type === "click") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+    }
+  }); /* asyncButtonClick */
+
+
+
+static void awaitButtonClick (void)
+
+  { /* awaitButtonClick */
+    logFunction(printf("awaitButtonClick\n"););
+    setupEventPromises();
+    asyncButtonClick();
+    freeEventPromises();
+    logFunction(printf("awaitButtonClick -->\n"););
+  } /* awaitButtonClick */
+
+
+
+int executeStartMainOnButtonClick (tp_startMain startMain,
+    int argc, char **argv)
+
+  { /* executeStartMainOnButtonClick */
+    logFunction(printf("executeStartMainOnButtonClick\n"););
+    if (startMainButtonPresent()) {
+      awaitButtonClick();
+    } /* if */
+    return startMain(argc, argv);
+  } /* executeStartMainOnButtonClick */
 
 
 
