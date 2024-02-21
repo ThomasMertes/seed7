@@ -2042,7 +2042,7 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
         points = (XPoint *) pointList->mem;
         xyArray->arr[0].value.intValue = (intType) points[0].x;
         xyArray->arr[1].value.intValue = (intType) points[0].y;
-        for (pos = 1; pos < len; pos ++) {
+        for (pos = 1; pos < len; pos++) {
           xyArray->arr[ pos << 1     ].value.intValue =
               xyArray->arr[(pos << 1) - 2].value.intValue +
               (intType) points[pos].x;
@@ -2098,7 +2098,7 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
               points[0].x = (short) x;
               points[0].y = (short) y;
             } /* if */
-            for (pos = 1; pos < len; pos ++) {
+            for (pos = 1; pos < len; pos++) {
               x = xyArray->arr[ pos << 1     ].value.intValue -
                   xyArray->arr[(pos << 1) - 2].value.intValue;
               y = xyArray->arr[(pos << 1) + 1].value.intValue -

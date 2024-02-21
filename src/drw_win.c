@@ -1848,7 +1848,7 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
       xyArray->min_position = 1;
       xyArray->max_position = (intType) (len << 1);
       points = (POINT *) pointList->mem;
-      for (pos = 0; pos < len; pos ++) {
+      for (pos = 0; pos < len; pos++) {
         xyArray->arr[ pos << 1     ].value.intValue = (intType) points[pos].x;
         xyArray->arr[(pos << 1) + 1].value.intValue = (intType) points[pos].y;
       } /* for */
@@ -1888,7 +1888,7 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
           result->size = len * sizeof(POINT);
           if (len > 0) {
             points = (POINT *) result->mem;
-            for (pos = 0; pos < len; pos ++) {
+            for (pos = 0; pos < len; pos++) {
               points[pos].x = castToLong(xyArray->arr[ pos << 1     ].value.intValue);
               points[pos].y = castToLong(xyArray->arr[(pos << 1) + 1].value.intValue);
             } /* for */
@@ -1931,7 +1931,7 @@ void drwPolyLine (const_winType actual_window,
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
         MoveToEx(to_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
-        for (pos = 1; pos < numPoints; pos ++) {
+        for (pos = 1; pos < numPoints; pos++) {
           LineTo(to_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
         } /* for */
         SetPixel(to_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
@@ -1939,7 +1939,7 @@ void drwPolyLine (const_winType actual_window,
         if (to_backup_hdc(actual_window) != 0) {
           old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
           MoveToEx(to_backup_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
-          for (pos = 1; pos < numPoints; pos ++) {
+          for (pos = 1; pos < numPoints; pos++) {
             LineTo(to_backup_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
           } /* for */
           SetPixel(to_backup_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
@@ -1969,7 +1969,7 @@ void drwFPolyLine (const_winType actual_window,
                        (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
     points = (POINT *) point_list->mem;
     numPoints = point_list->size / sizeof(POINT);
-    for (pos = 0; pos < numPoints; pos ++) {
+    for (pos = 0; pos < numPoints; pos++) {
       points[pos].x += (int) x;
       points[pos].y += (int) y;
     } /* for */
@@ -1993,7 +1993,7 @@ void drwFPolyLine (const_winType actual_window,
       DeleteObject(current_pen);
       DeleteObject(current_brush);
     } /* if */
-    for (pos = 0; pos < numPoints; pos ++) {
+    for (pos = 0; pos < numPoints; pos++) {
       points[pos].x -= (int) x;
       points[pos].y -= (int) y;
     } /* for */
