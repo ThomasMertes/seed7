@@ -1845,12 +1845,11 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     Window parent;
     XSizeHints myhint;
     XSetWindowAttributes attributes;
-    x11_winType result;
+    x11_winType result = NULL;
 
   /* drwOpenSubWindow */
     logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
-    result = NULL;
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
@@ -1899,7 +1898,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           if (to_window(parent_window) == 0) {
             /* The parent of this window is the empty window (root window). */
             omitWindowDecorationsAndTaskbarEntry(result);
-        } /* if */
+          } /* if */
 
           setupBackup(result);
 
