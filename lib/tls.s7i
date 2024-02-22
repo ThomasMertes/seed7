@@ -1616,7 +1616,7 @@ const func boolean: tlsDecryptRecord (inout tlsParameters: parameters, inout tls
       # writeln("mac: " <& hex(mac));
       if parameters.bulk_cipher_algorithm = AES_GCM then
         mac := getMac(parameters.readCipherState);
-	verify := getComputedMac(parameters.readCipherState);
+        verify := getComputedMac(parameters.readCipherState);
       else
         if version = SSL_3_0 then
           verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &

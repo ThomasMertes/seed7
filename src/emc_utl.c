@@ -117,7 +117,7 @@ static boolType startMainButtonPresent (void)
       let buttonPresent = 0;
       if (typeof document !== "undefined") {
         let elements = document.getElementsByName("startMain");
-	if (typeof elements !== "undefined") {
+        if (typeof elements !== "undefined") {
           let currentButton = elements[0];
           if (typeof currentButton !== "undefined") {
             buttonPresent = 1;
@@ -142,8 +142,8 @@ static void addEventPromiseForStartButton (void)
       eventPromises.push(new Promise(resolve => {
         function handler (event) {
           currentButton.removeEventListener("click", handler);
-	  resolve(event);
-	}
+          resolve(event);
+        }
         currentButton.addEventListener("click", handler);
         registerCallback(handler);
       }));

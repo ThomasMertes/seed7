@@ -649,7 +649,7 @@ void conCursor (boolType on)
           } /* if */
         } else {
           logMessage(printf("conCursor: GetConsoleCursorInfo(" FMT_U_MEM ", *) "
-	                    "--> Error " FMT_U32 "\n",
+                            "--> Error " FMT_U32 "\n",
                             (memSizeType) hConsole, (uint32Type) GetLastError()););
         } /* if */
       } else {
