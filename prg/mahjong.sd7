@@ -577,8 +577,22 @@ const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPo
  *)
 const proc: putFrame (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
+    const pointList: leftFrame is genPointList([] (
+        -TILE_BORDER,                       -TILE_BORDER + 2,
+        -TILE_BORDER,                       PIXMAP_HEIGHT + TILE_BORDER - 2,
+        -TILE_BORDER + FRAME_THICKNESS - 1, PIXMAP_HEIGHT + TILE_BORDER - FRAME_THICKNESS - 1,
+        -TILE_BORDER + FRAME_THICKNESS - 1, -TILE_BORDER + FRAME_THICKNESS + 1,
+        -TILE_BORDER,                       -TILE_BORDER + 2));
+    const pointList: nearFrame is genPointList([] (
+        -TILE_BORDER + 1,                                 PIXMAP_HEIGHT + TILE_BORDER - 1,
+        PIXMAP_WIDTH + TILE_BORDER - 3,                   PIXMAP_HEIGHT + TILE_BORDER - 1,
+        PIXMAP_WIDTH + TILE_BORDER - FRAME_THICKNESS - 2, PIXMAP_HEIGHT + TILE_BORDER - FRAME_THICKNESS,
+        -TILE_BORDER + FRAME_THICKNESS,                   PIXMAP_HEIGHT + TILE_BORDER - FRAME_THICKNESS,
+        -TILE_BORDER + 1,                                 PIXMAP_HEIGHT + TILE_BORDER - 1));
     var integer: shift is 0;
   begin
+    fpolyLine(win, xPos, yPos, leftFrame, leftFrameColor[1]);
+    fpolyLine(win, xPos, yPos, nearFrame, nearFrameColor[1]);
     for shift range 1 to FRAME_THICKNESS do
       line(win, xPos - TILE_BORDER + shift,
           yPos - TILE_BORDER + shift - 1,
@@ -590,13 +604,13 @@ const proc: putFrame (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer:
           0, TILE_HEIGHT -  2 * shift - 1, leftFrameColor[shift]);
     end for;
     for shift range 1 to FRAME_THICKNESS do
-      line(win, xPos - TILE_BORDER + TILE_WIDTH - shift,
+      line(win, xPos + PIXMAP_WIDTH + TILE_BORDER - shift,
           yPos - TILE_BORDER + shift,
           0, TILE_HEIGHT -  2 * shift - 1, rightFrameColor[shift]);
     end for;
     for shift range 1 to FRAME_THICKNESS do
       line(win, xPos - TILE_BORDER + shift,
-          yPos - TILE_BORDER + TILE_HEIGHT - shift,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER - shift,
           TILE_WIDTH -  2 * shift - 1, 0, nearFrameColor[shift]);
     end for;
   end func;
@@ -607,14 +621,15 @@ const proc: putFrame (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer:
  *)
 const proc: drawLeftSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
+    const pointList: leftPolygon is genPointList([] (
+        -TILE_BORDER,           -TILE_BORDER + 1,
+        -TILE_BORDER,           PIXMAP_HEIGHT + TILE_BORDER - 3,
+        -TILE_BORDER - SHIFT_X, PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 3,
+        -TILE_BORDER - SHIFT_X, -TILE_BORDER + SHIFT_X + 1,
+        -TILE_BORDER,           -TILE_BORDER + 1));
     var integer: shift is 0;
   begin
-    for shift range 1 to pred(SHIFT_X) do
-      lineTo(win, xPos - TILE_BORDER - shift,
-          yPos - TILE_BORDER + shift + 2,
-          xPos - TILE_BORDER - shift,
-          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 3, leftSideColor);
-    end for;
+    fpolyLine(win, xPos, yPos, leftPolygon, leftSideColor);
     lineTo(win, xPos - TILE_BORDER - SHIFT_X,
         yPos - TILE_BORDER + SHIFT_X + 1,
         xPos - TILE_BORDER - SHIFT_X,
@@ -629,14 +644,15 @@ const proc: drawLeftSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in inte
  *)
 const proc: drawNearSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
+    const pointList: nearPolygon is genPointList([] (
+        -TILE_BORDER + 2,                         PIXMAP_HEIGHT + TILE_BORDER - 1,
+        PIXMAP_WIDTH + TILE_BORDER - 2,           PIXMAP_HEIGHT + TILE_BORDER - 1,
+        PIXMAP_WIDTH + TILE_BORDER - SHIFT_X - 2, PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        -TILE_BORDER - SHIFT_X + 2,               PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        -TILE_BORDER + 2,                         PIXMAP_HEIGHT + TILE_BORDER - 1));
     var integer: shift is 0;
   begin
-    for shift range 1 to pred(SHIFT_X) do
-      lineTo(win, xPos - TILE_BORDER - shift + 2,
-          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1,
-          xPos + PIXMAP_WIDTH + TILE_BORDER - shift - 3,
-          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1, nearSideColor);
-    end for;
+    fpolyLine(win, xPos, yPos, nearPolygon, nearSideColor);
     lineTo(win, xPos - TILE_BORDER - SHIFT_X + 1,
         yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
         xPos + PIXMAP_WIDTH + TILE_BORDER - SHIFT_X - 2,
@@ -657,11 +673,22 @@ const proc: drawNearSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in inte
 const proc: drawTile (inout PRIMITIVE_WINDOW: win, in integer: level,
     in integer: line, in integer: column) is func
   local
+    const pointList: nearLeftEdgePolygon is genPointList([] (
+        -TILE_BORDER + 3,           PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -TILE_BORDER - SHIFT_X + 3, PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        -TILE_BORDER - SHIFT_X,     PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        -TILE_BORDER - SHIFT_X,     PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 4,
+        -TILE_BORDER,               PIXMAP_HEIGHT + TILE_BORDER - 4,
+        -TILE_BORDER,               PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -TILE_BORDER + 3,           PIXMAP_HEIGHT + TILE_BORDER - 1));
     var integer: xPos is 0;
     var integer: yPos is 0;
   begin
     xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(column) + SHIFT_X * level;
     yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(line) - SHIFT_Y * level;
+    rect(win, xPos - TILE_BORDER, yPos - TILE_BORDER,
+        TILE_WIDTH - 1, TILE_HEIGHT - 1, white);
+    fpolyLine(win, xPos, yPos, nearLeftEdgePolygon, nearLeftEdgeColor[2]);
     drawLeftSide(win, xPos, yPos);
     drawNearSide(win, xPos, yPos);
     line(win, xPos - TILE_BORDER + 1, yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
@@ -670,8 +697,6 @@ const proc: drawTile (inout PRIMITIVE_WINDOW: win, in integer: level,
         -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[2]);
     line(win, xPos - TILE_BORDER, yPos + PIXMAP_HEIGHT + TILE_BORDER - 2,
         -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[3]);
-    rect(win, xPos - TILE_BORDER + 1, yPos - TILE_BORDER + 1,
-        TILE_WIDTH - 2, TILE_HEIGHT - 2, white);
     putFrame(win, xPos, yPos);
     draw(win, xPos, yPos, tiles[field[level][line][column].tileNumber]);
   end func;
