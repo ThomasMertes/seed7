@@ -3820,15 +3820,19 @@ void cmdRemoveFile (const const_striType filePath)
           } else {
             if (S_ISDIR(file_stat.st_mode)) {
               if (os_rmdir(temp_name) != 0) {
-                logError(printf("cmdRemoveFile: os_rmdir(\"" FMT_S_OS "\") failed:\n"
+                logError(printf("cmdRemoveFile(\"%s\"): "
+                                "os_rmdir(\"" FMT_S_OS "\") failed:\n"
                                 "errno=%d\nerror: %s\n",
+                                striAsUnquotedCStri(filePath),
                                 temp_name, errno, strerror(errno)););
                 err_info = FILE_ERROR;
               } /* if */
             } else {
               if (os_remove(temp_name) != 0) {
-                logError(printf("cmdRemoveFile: os_remove(\"" FMT_S_OS "\") failed:\n"
+                logError(printf("cmdRemoveFile(\"%s\"): "
+                                "os_remove(\"" FMT_S_OS "\") failed:\n"
                                 "errno=%d\nerror: %s\n",
+                                striAsUnquotedCStri(filePath),
                                 temp_name, errno, strerror(errno)););
                 err_info = FILE_ERROR;
               } /* if */
@@ -3836,10 +3840,11 @@ void cmdRemoveFile (const const_striType filePath)
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               /* Rename back to the original name. */
               if (os_rename(temp_name, os_path) != 0) {
-                logError(printf("cmdRemoveFile: "
+                logError(printf("cmdRemoveFile(\"%s\"): "
                                 "os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                                 "errno=%d\nerror: %s\n",
-                                temp_name, os_path, errno, strerror(errno)););
+                                striAsUnquotedCStri(filePath), temp_name,
+                                os_path, errno, strerror(errno)););
               } /* if */
             } /* if */
           } /* if */
@@ -3877,15 +3882,19 @@ void cmdRemoveFile (const const_striType filePath)
           err_info = FILE_ERROR;
         } else {
           if (os_remove(temp_name) != 0) {
-            logError(printf("cmdRemoveFile: os_remove(\"" FMT_S_OS "\") failed:\n"
+            logError(printf("cmdRemoveFile(\"%s\"): "
+                            "os_remove(\"" FMT_S_OS "\") failed:\n"
                             "errno=%d\nerror: %s\n",
+                            striAsUnquotedCStri(filePath),
                             temp_name, errno, strerror(errno)););
             if (os_rename(temp_name, os_path) != 0) {
               /* Rename back to the original name. */
-              logError(printf("cmdRemoveFile: "
+              logError(printf("cmdRemoveFile(\"%s\"): "
                               "os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                               "errno=%d\nerror: %s\n",
-                              temp_name, os_path, errno, strerror(errno)););
+                              striAsUnquotedCStri(filePath),
+                              temp_name, os_path,
+                              errno, strerror(errno)););
             } /* if */
             err_info = FILE_ERROR;
           } /* if */
