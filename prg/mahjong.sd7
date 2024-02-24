@@ -930,9 +930,9 @@ const proc: refresh (in positionType: pos) is func
     end for;
     xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
     yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
-    win := getPixmap(win, xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER,
-        TILE_WIDTH + SHIFT_X, TILE_HEIGHT + SHIFT_Y);
-    put(xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER, win);
+    win := getPixmap(win, xPos - TILE_BORDER - SHIFT_X - 1, yPos - TILE_BORDER - 1,
+        TILE_WIDTH + SHIFT_X + 2, TILE_HEIGHT + SHIFT_Y + 2);
+    put(xPos - TILE_BORDER - SHIFT_X - 1, yPos - TILE_BORDER - 1, win);
   end func;
 
 
