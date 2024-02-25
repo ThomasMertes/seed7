@@ -285,7 +285,7 @@ typedef int64Type timeStampType;
 #else
 #define inShortRange(num) ((intType) (short int) (num) == (num))
 #endif
-#define castToShort(num)  (inShortRange(num) ? (short int) (num) : (raise_error(RANGE_ERROR), (short int) 0))
+#define castToShort(num)  (short int) (inShortRange(num) ? (num) : (raise_error(RANGE_ERROR), 0))
 #else
 #define inShortRange(num) 1
 #define castToShort(num)  ((short int) (num))
