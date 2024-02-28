@@ -842,7 +842,7 @@ static void cleanUpCompilation (const char *programName, int testNumberToClean)
 
   {
     char baseFileName[NAME_SIZE];
-    char fileName[NAME_SIZE];
+    char fileName[NAME_SIZE + 6];
 
   /* cleanUpCompilation */
     if (testNumberToClean == 0) {
@@ -1462,7 +1462,7 @@ static int expectTestResult (const char *content, int expected)
 
 
 
-static void testOutputToBuffer (char *buffer)
+static void testOutputToBuffer (char *buffer, size_t bufferSize)
 
   {
     char command[COMMAND_SIZE];
@@ -1521,7 +1521,7 @@ static void testOutputToBuffer (char *buffer)
               doSleep(1);
               repeatCount++;
             } else {
-              while (ch != EOF && ch != '\n' && pos < BUFFER_SIZE - 1) {
+              while (ch != EOF && ch != '\n' && pos < bufferSize - 1) {
                 buffer[pos] = ch;
                 pos++;
                 ch = getc(outFile);
@@ -2918,7 +2918,7 @@ static void numericProperties (FILE *versionFile)
 
   {
     int testResult;
-    char buffer[10240];
+    char buffer[11150];
     char computeValues[BUFFER_SIZE];
     const char *builtin_add_overflow = "nonexistent_function";
     const char *builtin_mul_overflow = "nonexistent_function";
@@ -4664,8 +4664,8 @@ static void determineGetaddrlimit (FILE *versionFile)
 static void determineGrpAndPwFunctions (FILE *versionFile)
 
   {
-    char group0Name[BUFFER_SIZE];
-    char user0Name[BUFFER_SIZE];
+    char group0Name[NAME_SIZE];
+    char user0Name[NAME_SIZE];
     char buffer[BUFFER_SIZE];
 
   /* determineGrpAndPwFunctions */
@@ -4697,7 +4697,7 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "  printf(\"%s\", grpResult->gr_name);\n"
                          "}\n"
                          "printf(\"\\n\"); return 0;}\n")) {
-      testOutputToBuffer(group0Name);
+      testOutputToBuffer(group0Name, sizeof(group0Name));
     } /* if */
     fprintf(versionFile, "#define GROUP_0_NAME \"%s\"\n", group0Name);
     sprintf(buffer, "#include <stdio.h>\n#include <sys/types.h>\n"
@@ -4749,7 +4749,7 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
                          "  printf(\"%s\", pwdResult->pw_name);\n"
                          "}\n"
                          "printf(\"\\n\"); return 0;}\n")) {
-      testOutputToBuffer(user0Name);
+      testOutputToBuffer(user0Name, sizeof(user0Name));
     } /* if */
     fprintf(versionFile, "#define USER_0_NAME \"%s\"\n", user0Name);
     sprintf(buffer, "#include <stdio.h>\n#include <sys/types.h>\n"
@@ -6754,7 +6754,7 @@ static void determineOsFunctions (FILE *versionFile)
 
 
 #if defined MOUNT_NODEFS
-static void determineCurrentWorkingDirectory (char *cwd)
+static void determineCurrentWorkingDirectory (char *cwd, size_t bufferSize)
 
   { /* determineCurrentWorkingDirectory */
     cwd[0] = '\0';
@@ -6769,14 +6769,14 @@ static void determineCurrentWorkingDirectory (char *cwd)
                                     "  }\n"
                                     "  console.log(workDir);\n"
                                     "); return 0; }\n", "", "")) {
-      testOutputToBuffer(cwd);
+      testOutputToBuffer(cwd, bufferSize);
     } /* if */
   } /* determineCurrentWorkingDirectory */
 
 
 
 #elif defined OS_STRI_WCHAR
-static void determineCurrentWorkingDirectory (char *cwd)
+static void determineCurrentWorkingDirectory (char *cwd, size_t bufferSize)
 
   { /* determineCurrentWorkingDirectory */
     cwd[0] = '\0';
@@ -6818,7 +6818,7 @@ static void determineCurrentWorkingDirectory (char *cwd)
                                     "  }\n"
                                     "}\n"
                                     "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
-      testOutputToBuffer(cwd);
+      testOutputToBuffer(cwd, bufferSize);
     } /* if */
   } /* determineCurrentWorkingDirectory */
 
@@ -6826,7 +6826,7 @@ static void determineCurrentWorkingDirectory (char *cwd)
 
 
 
-static void determineCurrentWorkingDirectory (char *cwd)
+static void determineCurrentWorkingDirectory (char *cwd, size_t bufferSize)
 
   { /* determineCurrentWorkingDirectory */
     cwd[0] = '\0';
@@ -6848,7 +6848,7 @@ static void determineCurrentWorkingDirectory (char *cwd)
                                     "  printf(\"%s\", buffer);\n"
                                     "}\n"
                                     "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
-      testOutputToBuffer(cwd);
+      testOutputToBuffer(cwd, BUFFER_SIZE);
     } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
                                            "#include <ctype.h>\n"
                                            "int main(int argc,char *argv[])\n"
@@ -6867,7 +6867,7 @@ static void determineCurrentWorkingDirectory (char *cwd)
                                            "  printf(\"%s\", buffer);\n"
                                            "}\n"
                                            "printf(\"\\n\"); return 0;}\n", "", SYSTEM_LIBS)) {
-      testOutputToBuffer(cwd);
+      testOutputToBuffer(cwd, bufferSize);
     } /* if */
   } /* determineCurrentWorkingDirectory */
 #endif
@@ -10209,7 +10209,13 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fputs("#define POINT_LIST_ALIGNMENT 2\n", versionFile);
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineConsoleDefines(versionFile, include_options, system_console_libs);
+#ifdef USE_GLX
+    fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
+    fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
+    fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
+#else
     determineX11Defines(versionFile, include_options, system_draw_libs);
+#endif
     fputs("#define POINT_LIST_INT_SIZE 16\n", versionFile);
     fputs("#define POINT_LIST_ABSOLUTE 0\n", versionFile);
 #elif defined OS_STRI_WCHAR
@@ -10564,7 +10570,7 @@ int main (int argc, char **argv)
     codePage = getCodePage();
     fprintf(versionFile, "#define DEFAULT_CODE_PAGE %d\n", codePage);
 #endif
-    determineCurrentWorkingDirectory(buildDirectory);
+    determineCurrentWorkingDirectory(buildDirectory, sizeof(buildDirectory));
 #ifdef OS_STRI_USES_CODE_PAGE
     mapToUtf8(codePage, buildDirectory);
 #endif
