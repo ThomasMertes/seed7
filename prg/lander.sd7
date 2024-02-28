@@ -62,6 +62,7 @@ const type: rocket_type is new struct
     var integer: old_thrust is 0;
     var integer: fuel is 0;
     var integer: height is 0;
+    var PRIMITIVE_WINDOW: background is PRIMITIVE_WINDOW.value;
   end struct;
 
 var rocket_type: rocket is rocket_type.value;
@@ -892,6 +893,7 @@ const proc: setup is func
       rocket.fuel := 1500;
     end if;
     rocket.height := 200;
+    rocket.background := PRIMITIVE_WINDOW.value;
     fuel_max := rocket.fuel;
     gravity := 10.0 + flt(score) / 100.0;
     if gravity > 15.0 then
@@ -943,17 +945,13 @@ const proc: ship_picture is func
   local
     var integer: number is 0;
   begin (* ship_picture *)
-    for number range 1 to length(ship) do
-      drawLine(ship[number], black);
-    end for;
-    for number range 1 to length(flames[succ(rocket.old_thrust)]) do
-      drawLine(flames[succ(rocket.old_thrust)][number], black);
-    end for;
+    put(round(rocket.old_x_pos) - 22, round(rocket.old_y_pos) - 22, rocket.background);
     rocket.old_x_pos := rocket.x_pos;
     rocket.old_y_pos := rocket.y_pos;
     rocket.old_tilt := rocket.tilt;
     rocket.old_thrust := rocket.thrust;
-    rect(leftOfLandingPad + 5, Y_MAXIMUM - PODEST_HEIGHT, 21, PODEST_HEIGHT, dark_cyan);
+    rocket.background := getPixmap(round(rocket.old_x_pos) - 22,
+                                   round(rocket.old_y_pos) - 22, 45, 45);
     for number range 1 to length(ship) do
       drawLine(ship[number], light_cyan);
     end for;
@@ -1500,8 +1498,8 @@ const proc: crash_test is func
   begin (* crash_test *)
     calculate_height;
     if rocket.height <= 0 then
-      if  rocket.x_pos > flt(leftOfLandingPad - 5) and
-          rocket.x_pos < flt(leftOfLandingPad + 35) then
+      if  rocket.x_pos > flt(leftOfLandingPad + 5) and
+          rocket.x_pos < flt(leftOfLandingPad + 26) then
         ground_contact;
       else
         crash_landing;
@@ -1510,7 +1508,7 @@ const proc: crash_test is func
     if flying and score >= ADLAND and not advancedLander then
       if  rocket.y_pos > flt(Y_MAXIMUM - 26) and
           rocket.x_pos > flt(leftOfLandingPad - 5) and
-          rocket.x_pos < flt(leftOfLandingPad + 35) and
+          rocket.x_pos < flt(leftOfLandingPad + 36) and
           round(rocket.y_speed) <= 10 then
         setupAdvancedLander;
       end if;
