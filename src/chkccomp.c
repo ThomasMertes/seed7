@@ -10170,7 +10170,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     char system_draw_libs[BUFFER_SIZE];
     char rpath_buffer[BUFFER_SIZE];
     char *rpath = NULL;
-    char rpathOption[BUFFER_SIZE];
+    char rpathOption[2 * BUFFER_SIZE];
 
   /* determineIncludesAndLibs */
 #if LIBRARY_TYPE == UNIX_LIBRARIES
@@ -10273,7 +10273,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     const char *define_read_buffer_empty;
     int offset_to_count;
     char macro_buffer[BUFFER_SIZE];
-    char buffer[BUFFER_SIZE];
+    char buffer[2 * BUFFER_SIZE];
 
   /* writeReadBufferEmptyMacro */
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
