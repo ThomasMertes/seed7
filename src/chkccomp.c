@@ -331,6 +331,7 @@
 #endif
 
 #define NAME_SIZE    1024
+#define PATH_SIZE    4096
 #define COMMAND_SIZE 1024
 #define BUFFER_SIZE  4096
 
@@ -342,9 +343,9 @@ static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
 static unsigned long numberOfSuccessfulTestsAfterRestart = 0;
 
-static char buildDirectory[BUFFER_SIZE];
-static char s7LibDir[BUFFER_SIZE];
-static char seed7Library[BUFFER_SIZE];
+static char buildDirectory[PATH_SIZE];
+static char s7LibDir[PATH_SIZE];
+static char seed7Library[PATH_SIZE];
 
 static int sizeof_int;
 static int sizeof_long;
@@ -900,7 +901,7 @@ static int fileIsPresentPossiblyAfterDelay (const char *fileName)
 static int doCompile (const char *compilerOptions, int testNumberToCompile)
 
   {
-    char command[COMMAND_SIZE];
+    char command[COMMAND_SIZE + NAME_SIZE];
     int len;
     char fileName[NAME_SIZE];
     int returncode;
@@ -989,7 +990,7 @@ static int compileWithOptionsOk (const char *content, const char *compilerOption
 static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
 
   {
-    char command[COMMAND_SIZE];
+    char command[COMMAND_SIZE + NAME_SIZE];
     int len;
     char fileName[NAME_SIZE];
     int returncode;
@@ -1063,7 +1064,7 @@ static int doCompileAndLink (const char *programName, const char *compilerOption
     const char *linkerOptions, int testNumberToCompileAndLink)
 
   {
-    char command[COMMAND_SIZE];
+    char command[COMMAND_SIZE + 2 * NAME_SIZE];
     int len;
     char baseFileName[NAME_SIZE];
     char fileName[NAME_SIZE];
@@ -5496,7 +5497,7 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
 static void determineEnvironDefines (FILE *versionFile)
 
   {
-    char buffer[BUFFER_SIZE];
+    char buffer[3 * BUFFER_SIZE];
     char getenv_definition[BUFFER_SIZE];
     char setenv_definition[BUFFER_SIZE];
     const char *os_environ_stri = NULL;
@@ -7337,9 +7338,9 @@ static const char *findIncludeFile (const char *scopeName, char *testProgram,
 
   {
     unsigned int dirIndex;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
-    char inclOption[BUFFER_SIZE];
+    char dirPath[PATH_SIZE];
+    char filePath[PATH_SIZE + 1 + NAME_SIZE];
+    char inclOption[PATH_SIZE + 4];
     const char *includeFileName = NULL;
 
   /* findIncludeFile */
@@ -7382,10 +7383,10 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
   {
     unsigned int dirIndex;
     unsigned int nameIndex;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
-    char linkParam[BUFFER_SIZE];
-    char linkOption[BUFFER_SIZE];
+    char dirPath[PATH_SIZE];
+    char filePath[PATH_SIZE + 1 + NAME_SIZE];
+    char linkParam[PATH_SIZE + 3 + NAME_SIZE];
+    char linkOption[PATH_SIZE + 4 + 2 * NAME_SIZE];
     int libFound = 0;
 
   /* findStaticLib */
@@ -7462,7 +7463,7 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
 
   {
     unsigned int nameIndex;
-    char linkParam[BUFFER_SIZE];
+    char linkParam[PATH_SIZE];
     int libFound = 0;
 
   /* findLinkerOption */
@@ -7492,7 +7493,7 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
 static int canLoadDynamicLibrary (const char *dllName)
 
   {
-    char dllPath[BUFFER_SIZE];
+    char dllPath[PATH_SIZE];
     char testProgram[BUFFER_SIZE];
     const char *srcChar;
     char *destChar;
@@ -7600,8 +7601,8 @@ static void listDynamicLibs (const char *scopeName, const char *baseDir,
     unsigned int dirIndex;
     unsigned int nameIndex;
     int dllPointerSize;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
+    char dirPath[PATH_SIZE];
+    char filePath[PATH_SIZE + 1 + NAME_SIZE];
 
   /* listDynamicLibs */
     for (dirIndex = 0;
@@ -7646,8 +7647,8 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
     const char *dirPathEnd;
     unsigned int nameIndex;
     int dllPointerSize;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
+    char dirPath[PATH_SIZE];
+    char filePath[PATH_SIZE + 1 + NAME_SIZE];
 
   /* listDynamicLibsInSameDir */
     slashPos = strrchr(baseDllPath, '/');
@@ -7736,8 +7737,8 @@ static void addDynamicLibToDllListWithRpath (const char *scopeName, const char *
     unsigned int dirIndex;
     unsigned int nameIndex;
     int dllPointerSize;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
+    char dirPath[PATH_SIZE];
+    char filePath[PATH_SIZE + 1 + NAME_SIZE];
     int found = 0;
 
   /* addDynamicLibToDllListWithRpath */
@@ -7980,7 +7981,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
     const char *dllNameList[] = {"x11.dll"};
     const char *xRenderDllNameList[] = {"xrender.dll"};
 #endif
-    char includeOption[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
     const char *x11Include = NULL;
     const char *x11IncludeCommand;
     const char *x11XrenderInclude = NULL;
@@ -8341,8 +8342,8 @@ static void determineMySqlDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
-    char dbHome[BUFFER_SIZE];
-    char includeOption[BUFFER_SIZE];
+    char dbHome[PATH_SIZE];
+    char includeOption[PATH_SIZE];
     const char *mySqlInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -8502,11 +8503,11 @@ static void determineSqliteDefines (FILE *versionFile,
     unsigned int dirIndex;
     unsigned int nameIndex;
     int searchForLib = 1;
-    char dbHome[BUFFER_SIZE];
-    char includeOption[BUFFER_SIZE];
+    char dbHome[PATH_SIZE];
+    char includeOption[PATH_SIZE + 4];
     const char *sqliteInclude = NULL;
     char testProgram[BUFFER_SIZE];
-    char dllPath[BUFFER_SIZE];
+    char dllPath[PATH_SIZE + 1 + NAME_SIZE];
     int dllPointerSize;
     int dbHomeExists = 0;
 
@@ -8730,8 +8731,8 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
     const char *optionPos;
     const char *optionEnd;
     size_t optionLen;
-    char includeDir[BUFFER_SIZE];
-    char pgTypeFileName[BUFFER_SIZE];
+    char includeDir[PATH_SIZE];
+    char pgTypeFileName[PATH_SIZE + 1 + NAME_SIZE];
     int found = 0;
 
   /* findPgTypeInclude */
@@ -8893,12 +8894,12 @@ static void determinePostgresDefines (FILE *versionFile,
     unsigned int dirIndex;
     unsigned int nameIndex;
     int searchForLib = 1;
-    char filePath[BUFFER_SIZE];
+    char filePath[PATH_SIZE + 1 + PATH_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
-    char dbHome[BUFFER_SIZE];
-    char includeOption[BUFFER_SIZE];
-    char serverIncludeOption[BUFFER_SIZE];
+    char dbHome[PATH_SIZE];
+    char includeOption[PATH_SIZE + 5 + PATH_SIZE];
+    char serverIncludeOption[PATH_SIZE + 5 + PATH_SIZE];
     const char *postgresqlInclude = NULL;
     const char *pgTypeInclude = NULL;
     char testProgram[BUFFER_SIZE];
@@ -9083,7 +9084,7 @@ static void determineOdbcDefines (FILE *versionFile,
 #endif
     unsigned int nameIndex;
     int searchForLib = 1;
-    char includeOption[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
     int includeWindows = 0;
     int includeSqlext = 0;
     const char *odbcInclude = NULL;
@@ -9216,7 +9217,7 @@ static void determineOciDefines (FILE *versionFile,
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib", "/bin", ""};
     int searchForLib = 1;
-    char includeOption[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
     const char *ociInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -9341,8 +9342,8 @@ static void determineFireDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
-    char dbHome[BUFFER_SIZE];
-    char includeOption[BUFFER_SIZE];
+    char dbHome[PATH_SIZE];
+    char includeOption[PATH_SIZE];
     const char *fireInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -9512,8 +9513,8 @@ static void determineDb2Defines (FILE *versionFile,
     unsigned int driverDirIndex;
     unsigned int nameIndex;
     int searchForLib = 1;
-    char includeOption[BUFFER_SIZE];
-    char makeDefinition[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
+    char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
     const char *db2Include = NULL;
     char testProgram[BUFFER_SIZE];
     char db2_libs[BUFFER_SIZE];
@@ -9676,9 +9677,9 @@ static void determineInformixDefines (FILE *versionFile,
     const char *informixDir = NULL;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
-    char dbHome[BUFFER_SIZE];
-    char includeOption[BUFFER_SIZE];
-    char makeDefinition[BUFFER_SIZE];
+    char dbHome[PATH_SIZE];
+    char includeOption[PATH_SIZE];
+    char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
     int includeWindows = 0;
     int includeSqlext = 0;
     const char *informixInclude = NULL;
@@ -9890,8 +9891,8 @@ static void determineSqlServerDefines (FILE *versionFile,
 #endif
     unsigned int nameIndex;
     int searchForLib = 1;
-    char includeOption[BUFFER_SIZE];
-    char makeDefinition[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
+    char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
     int freeTdsLibrary = 0;
     int includeWindows = 0;
     int includeSqlext = 0;
@@ -10036,7 +10037,7 @@ static void determineTdsDefines (FILE *versionFile,
 #endif
     unsigned int nameIndex;
     int searchForLib = 1;
-    char includeOption[BUFFER_SIZE];
+    char includeOption[PATH_SIZE];
     int includeSybfront = 0;
     const char *tdsInclude = NULL;
     char testProgram[BUFFER_SIZE];
