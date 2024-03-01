@@ -880,12 +880,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2023-11-04 the number of lines is:
+than 400000 lines of Seed7. For version 2024-03-01 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">177376</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13200</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">247492</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">178983</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">181780</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13321</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">255464</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">180325</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -921,7 +921,7 @@ Seed7 runs on the following operating systems:
 <li>tcc</li>
 <li>BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
 <li>DOS (uses DJGPP. Sockets, graphics, processes and databases are currently not supported)</li>
-<li>Mac OS X is supported with the following compilers:<ul>
+<li>macOS is supported with the following compilers:<ul>
 <li>gcc</li>
 <li>clang</li></ul></li>
 </ul><p>
@@ -1060,8 +1060,8 @@ operating system, make utility, C compiler and shell:
   <tr><td>mk_clangw.mak</td><td> Windows (clang) </td><td> (g)make      </td><td> clang      </td><td> cmd.exe</td></tr>
   <tr><td>mk_tcc_w.mak </td><td> Windows (tcc)   </td><td> (g)make      </td><td> tcc        </td><td> cmd.exe</td></tr>
   <tr><td>mk_djgpp.mak </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
-  <tr><td>mk_osx.mak   </td><td> Mac OS X        </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
-  <tr><td>mk_osxcl.mak </td><td> Mac OS X        </td><td> make         </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_osx.mak   </td><td> macOS           </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_osxcl.mak </td><td> macOS           </td><td> make         </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
   <tr><td>mk_emccl.mak </td><td> Linux/Unix/BSD  </td><td> make         </td><td> emcc + gcc </td><td> sh</td></tr>
   <tr><td>mk_emccw.mak </td><td> Windows (emcc)  </td><td> mingw32-make </td><td> emcc + gcc </td><td> cmd.exe</td></tr>
@@ -1266,7 +1266,7 @@ and searched for that file.
 </p><p>
 The following options are recognized by s7:
 </p><ul>
-  <li><b>-?</b>   Write Seed7 interpreter usage.</li>
+  <li><b>-?</b> or <b>-h</b>  Write Seed7 interpreter usage.</li>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
   <li><a name="faq_interpreter_option-d"><b>-d</b><span class="keywd">x</span></a>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
@@ -1844,19 +1844,24 @@ more often read than written.
 <div><br /><a name="faq_local_type_declaration"><h3>Why does a local type declaration trigger an error?
 </h3></a><hr />
 <p>
-  A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
-  This causes that <tt><span class="type">type</span></tt> declarations inside of a <tt><span class="keywd">local</span></tt> declaration block
-  are not defined during the parsing. If the locally defined type is used in
-  the same declaration block an error like
+  A function declaration like:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
+    <span class="keywd">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
+  ...
+</pre><p>
+  triggers the error:
 </p><pre class="indent">
 *** tst249.sd7(6):52: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
     var intArrayType: arr is [](1, 2);
 </pre><p>
-  will be triggered. This errors are avoided, if all <tt><span class="type">type</span></tt> declarations are
-  made at the top level. E.g.:
+  A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
+  This causes that <tt><span class="type">type</span></tt> declarations inside of a <tt><span class="keywd">local</span></tt> declaration block
+  are not defined during the parsing. This errors are avoided, if <tt><span class="type">type</span></tt>
+  declarations are made at the top level. E.g.:
 </p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
-
 <span class="keywd">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
 
 <span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
@@ -4000,8 +4005,9 @@ POSTGRESQL_DLL, ODBC_DLL, OCI_DLL, FIRE_DLL, DB2_DLL, INFORMIX_DLL,
 SQL_SERVER_DLL and TDS_DLL to the file <tt>src/version.h</tt>. These macros
 contain lists of DLLs / shared libraries with absolute paths or just
 DLL / shared library names. If a library is needed at run-time the list
-is processed until loading a library succeeds. If all attempts to load
-a library fail you get the error <tt><span class="stri">"Searching dynamic libraries failed"</span></tt>.
+of the corresponding macro is processed until loading a library succeeds.
+If all attempts to load a library fail you get the error:
+<tt><span class="stri">"Searching dynamic libraries failed"</span></tt>.
 </p><p>
 The PostgreSQL library (defined with POSTGRESQL_DLL) might depend on
 other libraries. If this is the case the libraries defined by the macros

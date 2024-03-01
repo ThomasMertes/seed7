@@ -39,8 +39,8 @@ THE MAKEFILES
   mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
   mk_tcc_w.mak | Windows (tcc)   | (g)make      | tcc        | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
-  mk_osx.mak   | Mac OS          | make         | gcc        | sh
-  mk_osxcl.mak | Mac OS          | make         | clang      | sh
+  mk_osx.mak   | macOS           | make         | gcc        | sh
+  mk_osxcl.mak | macOS           | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
   mk_emccl.mak | Linux/Unix/BSD  | make         | emcc + gcc | sh
   mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
@@ -376,7 +376,11 @@ COMPILING UNDER WINDOWS WITH CYGWIN
 
 COMPILING WITH EMCC FROM EMSCRIPTEN
 
-    The makefiles mk_emccl.mak and mk_emccw.mak are provided
+    Emscripten provides a C compiler (emcc) that targets
+  JavaScript and WebAssembly. How to download and install
+  Emscripten is described here.
+
+  The makefiles mk_emccl.mak and mk_emccw.mak are provided
   for compiling with emcc under Linux and Windows. Besides emcc
   you need also gcc (under Windows use gcc from MinGW) and
   node.js. When you download emsdk you get also a version of
@@ -499,13 +503,13 @@ COMPILING UNDER DOS WITH DJGPP
 
 COMPILING UNDER MAC OS
 
-    To compile under Mac OS make sure that the command line
-  tools for Mac OS are installed. They can be obtained from Xcode
+    To compile under macOS make sure that the command line
+  tools for macOS are installed. They can be obtained from Xcode
   (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
   the command line tools can be downloaded directly. The tools
   contain the C compilers clang and gcc. They also provide a
-  'make' utility. Depending on the version of Mac OS it might be
-  necessary to install also XQuartz (the X11 support of Mac OS).
+  'make' utility. Depending on the version of macOS it might be
+  necessary to install also XQuartz (the X11 support of macOS).
   If the x11 lib is not found it can be installed using brew:
 
     brew install libx11
@@ -515,7 +519,7 @@ COMPILING UNDER MAC OS
 
     sudo ln -s /opt/homebrew/include/X11 /usr/local/include/X11
 
-  In newer versions of Mac OS gcc is based on clang. You can use
+  In newer versions of macOS gcc is based on clang. You can use
   this gcc, but it is not the original gcc. To obtain the
   original gcc you have to download it from a repository like
   Homebrew. To compile Seed7 with gcc (the clang based gcc or
@@ -536,8 +540,8 @@ COMPILING UNDER MAC OS
   in the 'bin' directory and the 'prg' directory will contain a
   link to the executable.
 
-  Under Mac OS the X11 library is usually found in
-  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS)
+  Under macOS the X11 library is usually found in
+  '/usr/X11R6/lib'. For unknown reasons the Xcode (macOS)
   linker normally does not search libraries in '/usr/X11R6/lib'.
   Therefore 'mk_osx.mak' defines the following linker flag:
 
@@ -1283,6 +1287,7 @@ DRIVERS
     sql_post.c Database access functions for PostgreSQL.
     sql_srv.c  Database access functions for MS SQL-Server.
     sql_tds.c  Database access functions for Tabular Data Stream.
+    stat_win.c Define functions used by os_stat macros.
     trm_cap.c  Driver for termcap screen access.
     trm_inf.c  Driver for terminfo screen access.
     tim_dos.c  Time functions which call the Dos API.
@@ -1319,7 +1324,6 @@ PROGRAMS USED BY THE MAKEFILES
   linked to the interpreter or to the runtime library.
 
     chkccomp.c  Check properties of C compiler and runtime.
-    setpaths.c  Write definitions for Seed7 specific paths.
     setwpath.c  Set the search path (PATH variable) under Windows.
     sudo.c      Execute command as administrator under Windows.
 
@@ -1494,7 +1498,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
               stand-alone compiler/linker). If the C compiler is
               called via a script C_COMPILER_SCRIPT is defined and
               C_COMPILER is not defined by a makefile. In that
-              case C_COMPILER is defined by setpaths.c together
+              case C_COMPILER is defined by chkccomp.c together
               with the flag CALL_C_COMPILER_FROM_SHELL.
 
   CPLUSPLUS_COMPILER: Contains the command to call the stand-alone
@@ -1974,6 +1978,45 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
       Values above MAXIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
       if trunc() or round() is applied to them.
 
+  PIXEL_ALPHA_MASK
+      Mask for the alpha channel in a pixel.
+      0 if there is no alpha channel.
+
+  PIXEL_RED_MASK
+      Mask for the red color in a pixel.
+      0 if there is no mapping and drwRgbColor() should be used.
+
+  PIXEL_GREEN_MASK
+      Mask for the green color in a pixel.
+      0 if there is no mapping and drwRgbColor() should be used.
+
+  PIXEL_BLUE_MASK
+      Mask for the blue color in a pixel.
+      0 if there is no mapping and drwRgbColor() should be used.
+
+  RGB_TO_PIXEL_FLAG_NAME
+      Name of the variable deciding between macro and drwRgbColor().
+      "" if no variable needs to be checked.
+
+  POINT_LIST_INT_SIZE
+      Size of an integer in a ''pointList'' object.
+      A ''pointList'' consists of (x, y) coordinate pairs where
+      each x and y has the size POINT_LIST_INT_SIZE.
+
+  POINT_LIST_ABSOLUTE
+      TRUE if a ''pointList'' uses absolute coordinates.
+      If it is FALSE the first (x, y) coordinate pair is absolute
+      and the remaining (x, y) coordinates are relative to the
+      previous coordinate pair.
+
+  POINT_LIST_ALIGNMENT
+      Defined if ''pointList'' data (plist->mem) needs to be
+      aligned. In this case it contains the number of zero bits
+      (counting from the least significant bit) in the address
+      of ''pointList'' data. The function pltAlign() checks
+      if ''pointList'' data is aligned and returns an aligned
+      copy if the original ''pointList'' data is not aligned.
+
   NULL_DEVICE: Name of the NULL device.
                Under Linux/Unix/BSD this is "/dev/null".
                Under Windows this is "NUL:".
@@ -2226,27 +2269,93 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                               Comparison refers to comparisons with
                               ==  <  >  <=  or  >= .
 
-  POW_OF_NAN_OKAY: TRUE if pow(NaN, 0.0) returns 1.0 and
-                   pow(NaN, anyOtherExponent) returns NaN.
+  SQRT_OF_NAN_OKAY:
+      TRUE if sqrt(NaN) returns NaN.
 
-  POW_OF_ZERO_OKAY: TRUE if the pow() function works correct
-                    for a base of zero (0.0 or -0.0) and a negative
-                    exponent.
+  SQRT_OF_NEGATIVE_OKAY:
+      TRUE if sqrt(x) returns NaN for every x < 0.0.
 
-  POW_OF_NEGATIVE_OKAY: TRUE if the pow() function works
-                        correct, if the base is negative.
+  EXP_OF_NAN_OKAY:
+      TRUE if exp(NaN) returns NaN.
 
-  POW_OF_ONE_OKAY: TRUE if the pow() function always returns
-                   1.0 if the base is 1.0 (Even for an exponent
-                   of NaN).
+  LDEXP_OF_NAN_OKAY:
+      TRUE if ldexp(NaN, n) returns NaN.
 
-  POW_EXP_NAN_OKAY: TRUE if the pow() function always returns
-                    NaN if the exponent is NaN and the base is
-                    not 1.0 (pow(1.0, NaN) should return 1.0).
+  LDEXP_OF_INFINITY_OKAY:
+      TRUE if ldexp(Infinity, n) returns Infinity and
+      ldexp(-Infinity, n) returns -Infinity.
 
-  POW_EXP_MINUS_INFINITY_OKAY: TRUE if the pow() function works
-                               correct for an exponent of minus
-                               infinity.
+  LDEXP_SUBNORMAL_OKAY:
+      TRUE if ldexp(x, n) works correctly for subnormal numbers.
+
+  FREXP_INFINITY_NAN_OKAY:
+      TRUE if frexp(Infinity, &n) returns Infinity and
+      frexp(-Infinity, &n) returns -Infinity and
+      frexp(NaN, &n) returns NaN.
+
+  FREXP_SUBNORMAL_OKAY:
+      TRUE if frexp(x, &n) works correctly for subnormal numbers.
+
+  FMOD_DIVIDEND_NAN_OKAY:
+      TRUE if fmod(NaN, y) returns NaN.
+
+  FMOD_DIVISOR_NAN_OKAY:
+      TRUE if fmod(x, NaN) returns NaN.
+
+  FMOD_DIVIDEND_INFINITY_OKAY:
+      TRUE if both fmod(Infinity, y) and fmod(-Infinity, y) return NaN.
+
+  FMOD_DIVISOR_INFINITY_OKAY:
+      TRUE if both fmod(x, Infinity) and fmod(x, -Infinity) return x and
+      all of fmod(Infinity, Infinity), fmod(Infinity, -Infinity),
+      fmod(-Infinity, Infinity) and fmod(-Infinity, -Infinity) return NaN.
+
+  FMOD_DIVISOR_ZERO_OKAY:
+      TRUE if fmod(x, 0.0) returns NaN.
+
+  FLOAT_ZERO_TIMES_INFINITE_OKAY:
+      TRUE if all of 0.0 * Infinity, 0.0 * -Infinity,
+      Infinity * 0.0 and -Infinity * 0 return NaN.
+
+  NAN_MULTIPLICATION_OKAY:
+      TRUE if both x * NaN and NaN * y return NaN.
+
+  NAN_DIVISION_OKAY:
+      TRUE if both x / NaN and NaN / y return NaN.
+
+  MAX_ODD_FLOAT:
+      Maximum float value that is odd. All larger float values are even.
+
+  MAX_ODD_DOUBLE:
+      Maximum double value that is odd. All larger double values are even.
+
+  POW_OF_NAN_OKAY:
+      TRUE if pow(NaN, 0.0) returns 1.0 and
+      pow(NaN, anyOtherExponent) returns NaN.
+
+  POW_OF_ZERO_OKAY:
+      TRUE if the pow() function works correct
+      for a base of zero (0.0 or -0.0) and a negative
+      exponent.
+
+  POW_OF_NEGATIVE_OKAY:
+      TRUE if the pow() function works
+      correct, if the base is negative.
+
+  POW_OF_ONE_OKAY:
+      TRUE if the pow() function always returns
+      1.0 if the base is 1.0 (Even for an exponent
+      of NaN).
+
+  POW_EXP_NAN_OKAY:
+      TRUE if the pow() function always returns
+      NaN if the exponent is NaN and the base is
+      not 1.0 (pow(1.0, NaN) should return 1.0).
+
+  POW_EXP_MINUS_INFINITY_OKAY:
+      TRUE if the pow() function works
+      correct for an exponent of minus
+      infinity.
 
   STRTOD_ACCEPTS_INF: TRUE if strtod() accepts "INF"
                       disregarding case and returns Infinity.
@@ -2406,8 +2515,23 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   SEED7_LIB: Contains the name of the Seed7 runtime library.
 
-  DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB, COMPILER_LIB:
-               Contain names of other Seed7 runtime libraries.
+  DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB and COMPILER_LIB:
+      Contain names of other Seed7 runtime libraries.
+
+  MYSQL_DLL, SQLITE_DLL, POSTGRESQL_DLL, ODBC_DLL, OCI_DLL,
+                                FIRE_DLL, DB2_DLL, INFORMIX_DLL, SQL_SERVER_DLL and TDS_DLL:
+      These macros contain lists of DLLs / shared libraries with
+      absolute paths or just DLL / shared library names. If a
+      library is needed at run-time the list of the corresponding
+      macro is processed until loading a library succeeds.
+      If all attempts to load a library fail you get the error:
+      Searching dynamic libraries failed.
+
+  LIBINTL_DLL, LIBEAY32_DLL, LIBCRYPTO_DLL and LIBSSL_DLL:
+      The PostgreSQL library (defined with POSTGRESQL_DLL) might
+      depend on other libraries. If this is the case these macros
+      are defined. The libraries defined by these macros are
+      loaded  before loading POSTGRESQL_DLL.
 
   CC_ENVIRONMENT_INI: Path to an INI file with the environment for
                       the C compiler. If it is "" the C compiler

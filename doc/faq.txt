@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2023-11-04 the number of lines is:
+than 400000 lines of Seed7. For version 2024-03-01 the number of lines is:
 
-  177376  C source files (*.c)
-   13200  C header files (*.h)
-  247492  Seed7 source files (*.sd7)
-  178983  Seed7 library/include files (*.s7i)
+  181780  C source files (*.c)
+   13321  C header files (*.h)
+  255464  Seed7 source files (*.sd7)
+  180325  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -387,7 +387,7 @@ Seed7 runs on the following operating systems:
     - tcc
     - BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)
  - DOS (uses DJGPP. Sockets, graphics, processes and databases are currently not supported)
- - Mac OS X is supported with the following compilers:
+ - macOS is supported with the following compilers:
     - gcc
     - clang
 
@@ -526,8 +526,8 @@ operating system, make utility, C compiler and shell:
   mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
   mk_tcc_w.mak | Windows (tcc)   | (g)make      | tcc        | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
-  mk_osx.mak   | Mac OS X        | make         | gcc        | sh
-  mk_osxcl.mak | Mac OS X        | make         | clang      | sh
+  mk_osx.mak   | macOS           | make         | gcc        | sh
+  mk_osxcl.mak | macOS           | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
   mk_emccl.mak | Linux/Unix/BSD  | make         | emcc + gcc | sh
   mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
@@ -732,7 +732,7 @@ and searched for that file.
 
 The following options are recognized by s7:
 
-  -?   Write Seed7 interpreter usage.
+  -? or -h  Write Seed7 interpreter usage.
   -a   Analyze only and suppress the execution phase.
   -dx  Set compile time trace level to x. Where x is a string consisting
        of the following characters:
@@ -1311,18 +1311,23 @@ more often read than written.
 Why does a local type declaration trigger an error?
 ===================================================
 
-  A 'local' declaration block is parsed completely before it is executed.
-  This causes that 'type' declarations inside of a 'local' declaration block
-  are not defined during the parsing. If the locally defined type is used in
-  the same declaration block an error like
+  A function declaration like:
+
+    const proc: main is func
+      local
+        const type: intArrayType is array integer;
+        var intArrayType: arr is [](1, 2);
+      ...
+
+  triggers the error:
 
     *** tst249.sd7(6):52: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
         var intArrayType: arr is [](1, 2);
 
-  will be triggered. This errors are avoided, if all 'type' declarations are
-  made at the top level. E.g.:
-
-    $ include "seed7_05.s7i";
+  A 'local' declaration block is parsed completely before it is executed.
+  This causes that 'type' declarations inside of a 'local' declaration block
+  are not defined during the parsing. This errors are avoided, if 'type'
+  declarations are made at the top level. E.g.:
 
     const type: intArrayType is array integer;
 
@@ -3467,8 +3472,9 @@ POSTGRESQL_DLL, ODBC_DLL, OCI_DLL, FIRE_DLL, DB2_DLL, INFORMIX_DLL,
 SQL_SERVER_DLL and TDS_DLL to the file 'src/version.h'. These macros
 contain lists of DLLs / shared libraries with absolute paths or just
 DLL / shared library names. If a library is needed at run-time the list
-is processed until loading a library succeeds. If all attempts to load
-a library fail you get the error "Searching dynamic libraries failed".
+of the corresponding macro is processed until loading a library succeeds.
+If all attempts to load a library fail you get the error:
+"Searching dynamic libraries failed".
 
 The PostgreSQL library (defined with POSTGRESQL_DLL) might depend on
 other libraries. If this is the case the libraries defined by the macros

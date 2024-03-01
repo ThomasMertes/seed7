@@ -38,10 +38,18 @@ CONTENTS
   2.11    Declare a statement
   2.12    Template declaring a statement
   3.    DECLARATIONS
-  3.1     Normal declarations
-  3.2     Syntax declarations
-  3.3     System declarations
-  3.4     Pragmas
+  3.1     Variable declarations
+  3.2     Constant declarations
+  3.2.1     Type declarations
+  3.2.2     Procedure declarations
+  3.2.3     Function declarations
+  3.2.4     Abstract data type
+  3.2.5     Template
+  3.3     Initialization
+  3.3.1     How the initialization works
+  3.4     Syntax declarations
+  3.5     System declarations
+  3.6     Pragmas
   4.    PREDEFINED STATEMENTS
   4.1     Assignment
   4.2     Ignoring values
@@ -100,8 +108,9 @@ CONTENTS
   6.3     'in' parameter
   6.4     'in var' parameter
   6.5     'inout' parameter
-  6.6     Symbol parameter
-  6.7     'attr' parameter
+  6.6     Call-by-name parameter
+  6.7     Symbol parameter
+  6.8     'attr' parameter
   7.    OBJECT ORIENTATION
   7.1     Interface and implementation
   7.2     Dynamic dispatch
@@ -139,7 +148,7 @@ CONTENTS
   10.2    Identifiers
   10.2.1    Name identifiers
   10.2.2    Special identifiers
-  10.2.3    Parentheses
+  10.2.3    Brackets
   10.3    Literals
   10.3.1    Integer literals
   10.3.2    BigInteger literals
@@ -153,41 +162,55 @@ CONTENTS
   11.3    Dot expressions
   12.   OPERATING SYSTEM ACCESS
   12.1    Standard path representation
-  12.2    readDir
-  12.3    openDir
-  12.4    getcwd
-  12.5    chdir
-  12.6    mkdir
-  12.7    homeDir
-  12.8    fileType
-  12.9    fileSize
-  12.10   getFileMode
-  12.11   setFileMode
-  12.12   getATime
-  12.13   setATime
-  12.14   getCTime
-  12.15   getMTime
-  12.16   setMTime
-  12.17   getOwner
-  12.18   setOwner
-  12.19   getGroup
-  12.20   setGroup
-  12.21   readLink
-  12.22   symlink
-  12.23   removeFile
-  12.24   removeTree
-  12.25   copyFile
-  12.26   cloneFile
-  12.27   moveFile
-  12.28   argv(PROGRAM)
-  12.29   name(PROGRAM)
-  12.30   path(PROGRAM)
-  12.31   dir(PROGRAM)
-  12.32   file(PROGRAM)
-  12.33   getenv
-  12.34   setenv
-  12.35   unsetenv
-  12.36   environment
+  12.2    File properties
+  12.2.1    fileType
+  12.2.2    fileSize
+  12.2.3    getFileMode
+  12.2.4    setFileMode
+  12.2.5    getATime
+  12.2.6    setATime
+  12.2.7    getCTime
+  12.2.8    getMTime
+  12.2.9    setMTime
+  12.2.10   getOwner
+  12.2.11   setOwner
+  12.2.12   getGroup
+  12.2.13   setGroup
+  12.3    Symbolic links
+  12.3.1    readLink
+  12.3.2    finalPath
+  12.3.3    symlink
+  12.3.4    Symbolic link getFileMode
+  12.3.5    Symbolic link getATime
+  12.3.6    Symbolic link getMTime
+  12.3.7    Symbolic link setMTime
+  12.3.8    Symbolic link getOwner
+  12.3.9    Symbolic link setOwner
+  12.3.10   Symbolic link getGroup
+  12.3.11   Symbolic link setGroup
+  12.4    Directory functions
+  12.4.1    readDir
+  12.4.2    openDir
+  12.4.3    getcwd
+  12.4.4    chdir
+  12.4.5    mkdir
+  12.4.6    homeDir
+  12.5    Maintenance functions
+  12.5.1    removeFile
+  12.5.2    removeTree
+  12.5.3    copyFile
+  12.5.4    cloneFile
+  12.5.5    moveFile
+  12.6    Environment
+  12.6.1    argv(PROGRAM)
+  12.6.2    name(PROGRAM)
+  12.6.3    path(PROGRAM)
+  12.6.4    dir(PROGRAM)
+  12.6.5    file(PROGRAM)
+  12.6.6    getenv
+  12.6.7    setenv
+  12.6.8    unsetenv
+  12.6.9    environment
   13.   DATABASE ABSTRACTION API
   13.1    Opening a database connection
   13.1.1    Opening an Oracle database connection
@@ -1025,6 +1048,12 @@ CONTENTS
         writeln;
       end func;
 
+  The example above uses the array literal
+
+    ['0'] ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+
+  This array literal has the type 'array [char] string'. The minimum index of this array is the character '0'.
+
 
 2.7 For loop and containers
 
@@ -1518,88 +1547,248 @@ CONTENTS
 3. DECLARATIONS
 ===============
 
-    A declaration specifies the identifier, type, and other
-  aspects of language elements such as variables, constants
-  and functions. In Seed7 everything must be declared before
-  it is used. Seed7 uses three kinds of declarations:
+    A declaration specifies the identifier, type, and other aspects
+  of language elements such as variables, constants and functions.
+  In Seed7 everything must be declared before it is used. All
+  declarations are introduced with a specific keyword and follow a
+  common pattern. The keyword is followed by a type. In the table
+  below 'aType' is a placeholder for any type.
 
-    - Normal declarations
-    - Syntax declarations
-    - System declarations
+  +------------------------------------------+-----------------------------------------+
+  | Declaration                              | Comment                                 |
+  +------------------------------------------+-----------------------------------------+
+  | var aType: name is ...                   | A variable declaration                  |
+  | const aType: name is ...                 | A constant declaration                  |
+  | val aType: name                          | Declaration of a value-parameter        |
+  | ref aType: name                          | Declaration of a reference-parameter    |
+  | in aType: name                           | Declaration of an in-parameter          |
+  | in var aType: name                       | Declaration of an in-var-parameter      |
+  | inout aType: name                        | Declaration of an inout-parameter       |
+  | in func aType: name                      | Declaration of a call-by-name parameter |
+  | const type: name is ...                  | A type declaration                      |
+  | const proc: name is ...                  | A procedure declaration                 |
+  | const func aType: name is ...            | A function declaration                  |
+  | const func type: name is ...             | Declaration of an abstract data type    |
+  | const proc: name (in type: aType) is ... | Declaration of a template               |
+  | syntax expr: pattern is ...              | A syntax declaration                    |
+  +------------------------------------------+-----------------------------------------+
 
-  which are described in detail in the following sub-chapters.
 
+3.1 Variable declarations
 
-3.1 Normal declarations
-
-    Normal declarations are the most commonly used form of
-  declarations. To contrast them to the syntax declarations normal
-  declarations are sometimes called semantic declarations. Seed7
-  uses uniform looking declaration constructs to declare variables,
-  constants, types, functions and parameters. For example:
-
-    const integer: ONE is 1;
-
-  declares the 'integer' constant 'ONE' which is initialized with the
-  value 1. Variable declarations are also possible. For example:
+    A variable is a named place for a value. The value of a variable
+  can be changed with an assignment. Variables must be declared
+  before they can be used. E.g.:
 
     var integer: number is 0;
 
-  declares the 'integer' variable 'number' which is initialized with
-  the value 0. Type declarations are done as constant declarations
-  where the type of the declared constant is 'type':
+  This declares the 'integer' variable 'number'. The variable is
+  initialized with the value 0. Later the value of the variable can
+  be changed with e.g.:
+
+    number := 1;
+
+  Variables can only hold values of their type. An attempt to
+  assign a value with the wrong type results in a compile error:
+
+    *** tst545.sd7(7):52: Match for {number := "hello" } failed
+        number := "hello";
+
+
+3.2 Constant declarations
+
+    A constant is a named value that cannot change during run-time.
+  Constants must be declared before they can be used. E.g.:
+
+    const integer: ONE is 1;
+
+  This declares the 'integer' constant 'ONE' with the value 1.
+  An attempt to change a constant results in an compile error:
+
+    *** tst544.sd7(7):53: Variable expected in {ONE := 2 } found constant integer: ONE
+        ONE := 2;
+
+
+3.2.1 Type declarations
+
+    Type declarations define a name for a type. Type declarations
+  are done as constant declarations where the type of the declared
+  constant is 'type'. E.g.:
 
     const type: myChar is char;
 
-  Function declarations are also a form of constant declaration:
+  Afterwards the new type can be used in other declarations. E.g.:
+
+    var myChar: aChar is 'x';
+
+
+3.2.2 Procedure declarations
+
+    The code of a procedure does not change at run-time.
+  Thus procedures are declared with a constant declaration:
+
+    const proc: helloWorld is func
+      begin
+        writeln("hello world");
+      end func;
+
+  Local declarations can be added to a procedure with the
+  keyword 'local'. E.g.:
+
+    const proc: helloWorld is func
+      local
+        const string: greeting is "hello world";
+      begin
+        writeln(greeting);
+      end func;
+
+  A procedure with a parameter ('greeting') is defined with:
+
+    const proc: hello (in string: greeting) is func
+      begin
+        writeln(greeting);
+      end func;
+
+  Procedure and function parameters are explained in chapter 6
+  (PARAMETERS).
+
+
+3.2.3 Function declarations
+
+    Like with procedures the code of a function does not change
+  at run-time. Thus functions are also declared with a constant
+  declaration:
 
     const func boolean: flipCoin is
       return rand(FALSE, TRUE);
 
-  Each object declared with a 'const' or 'var' declaration obtains
-  an initial value. It is not possible to use 'const' or 'var'
-  declarations without initial value. Declarations with
-  initialization expressions are also possible. For example
+  Note that 'return' is not a statement. Instead 'return' is a
+  shortcut for a function declaration with a result variable:
 
-    var string: fileName is NAME & ".txt";
-
-  The expression is evaluated and the result is assigned to
-  the new object. This is done in the analyze phase of the
-  interpreter or compiler, before the execution of the program
-  starts. The initialization expressions may contain any
-  function (or operator) call. That way user defined functions
-  can also be used to initialize a constant or variable:
-
-    const boolean: maybe is flipCoin;
-
-  Constant and variable declarations can be global or local.
-  The mechanism to define a parameter like 'x' is similar to the
-  'const' or 'var' declarations:
-
-    const func float: inverse (in float: x) is
-      return 1/x;
-
-  Function parameters, such as the parameter 'statement' in
-  the example below, act as call-by-name parameters:
-
-    const proc: possiblyDo (in proc: statement) is func
+    const func boolean: flipCoin is func
+      result
+        var boolean: coinState is FALSE;
       begin
-        if flipCoin then
-          statement;
-        end if;
+        coinState := rand(FALSE, TRUE);
       end func;
 
-  Abstract data types such as 'subtype', 'struct', 'subrange', 'array', 'hash', 'set',
-  'interface' and 'enum' are realized as
-  functions which return a type. E.g.: The type 'array' is defined in the
-  "seed7_05.s7i" library with the following header:
+  The keyword 'local' allows the introduction of local
+  declarations:
 
-    const func type: array (in type: baseType) is func
+    const func string: alphabet is func
+      result
+        var string: abc is "";
+      local
+        var char: ch is ' ';
+      begin
+        for ch range 'a' to 'z' do
+          abc &:= ch;
+        end for;
+      end func;
+
+  A function with a parameter ('number') is defined with:
+
+    const func float: inverse (in float: number) is
+      return 1 / number;
+
+  Procedure and function parameters are explained in chapter 6
+  (PARAMETERS).
+
+
+3.2.4 Abstract data type
+
+    An abstract data type is a type that requires additional
+  information. E.g.: The abstract data type 'array' requires
+  the type of the array elements as additional information.
+  Predefined abstract data types are 'array', 'subtype', 'struct',
+  'subrange', 'hash', 'set', 'interface' and 'enum'. The
+  definition of the predefined abstract data type 'array' in the
+  library array.s7i starts with:
+
+    const func type: array (in type: baseType) is ...
+
+  The parameter 'baseType' specifies the type of the 'array'
+  elements. The abstract data type 'array' can be used in
+  declarations:
+
+    var array integer: numbers is [] (1);
+
+  Other abstract data types are declared similar to the
+  declaration of 'array'.
 
   User defined abstract data types are also possible.
 
-  The initialization uses the creation operation ( ::= ).
-  Explicit calls of the create operation are not needed.
+
+3.2.5 Template
+
+    Templates do declarations for a given type. Templates are
+  executed at compile-time. The function 'FOR_ENUM_DECLS' from
+  the library forloop.s7i defines a for-loop that loops over
+  all values of a given enumeration type:
+
+    const proc: FOR_ENUM_DECLS (in type: aType) is func
+      begin
+
+        const proc: for (inout aType: variable) range (attr aType) do
+            (in proc: statements) end for is func
+          begin
+            for variable range aType.first to aType.last do
+              statements;
+            end for;
+          end func;
+
+      end func;
+
+  The template 'FOR_ENUM_DECLS' is invoked in the library
+  enumeration.s7i with:
+
+    FOR_ENUM_DECLS(enumType);
+
+
+3.3 Initialization
+
+    Each object declared with a 'const' or 'var' declaration obtains
+  an initial value. It is not possible to use 'const' or 'var'
+  declarations without initial value. The type of the initial value
+  must fit to the type of the variable or constant. A compile error
+  is triggered if this is not the case:
+
+    *** tst546.sd7(3):52: Match for {number ::= ' ' } failed
+    var integer: number is ' ';
+    ---------------------------^
+    *** tst546.sd7(3):32: Declaration of "number" failed
+    var integer: number is ' ';
+
+  Expressions can be used as initial value. E.g.:
+
+    var string: fileName is NAME & ".txt";
+
+  The expression is evaluated and the result is assigned to the
+  new object. This is done at compile-time by the interpreter or
+  compiler. The initialization expressions may contain any function
+  (or operator) call. That way user defined functions can also be
+  used to initialize a constant or variable:
+
+    const boolean: maybe is flipCoin;
+
+
+3.3.1 How the initialization works
+
+    The initialization of variables and constants is done at
+  compile-time. The initialization uses the create statement
+  ( ::= ). Note that ::= is used internally by the interpreter
+  and compiler. Explicit calls of ::= in user programs are not
+  needed. A create statement is similar to an assignment ( := ),
+  but with two important differences:
+
+  1. Assignments can assume that the destination has a legal value.
+     Create statements assume that the destination has an undefined
+     value. A create statement needs to do all the initializations
+     necessary.
+
+  2. Assignments can only be used to assign a value to a variable.
+     Create statements are not restricted to variables. Interpreter
+     and compiler use ::= to initialize constants.
 
   The lifetime of an object goes like this:
 
@@ -1610,48 +1799,59 @@ CONTENTS
      garbage), therefore a create statement is necessary instead of
      an assignment.
 
-  3. The create statements copies the right expression to the left
-     expression taking into account that the left expression is
-     undefined.
+  3. The create statement ( ::= ) copies the right expression
+     to the left expression taking into account that the left
+     expression is undefined.
 
-  4. If the object is variable other values can be assigned using
-     the assign statement ( := ). The assignment can assume that the
-     left expression contains a legal value. This allows that for
-     strings (and some other types which are just references to a
-     memory area) the memory containing the old string value (and
-     not the memory of the object itself) can be freed when
-     necessary.
+  4. If the object is a variable other values can be assigned using
+     the assignment statement ( := ). The assignment can assume that
+     the destination contains a legal value.
 
-  5. At the end of the lifetime of an object the destroy statement
+  5. Strings (and some other types) are just references to a memory
+     area where the data resides. These references are the sole
+     owner of the memory area. This allows that an assignment
+     can reallocate the memory area.
+
+  6. At the end of the lifetime of an object the destroy statement
      is executed. For strings (and some other types which are just
-     references to a memory area) the memory containing the string
-     value (and not the memory of the object itself) is freed.
+     references to a memory area) the referenced memory is freed.
 
-  6. The memory of the object is freed.
+  7. The memory of the object is freed.
 
   The first three steps are usually hidden in the declaration
-  statement. The expression
+  statement. The declaration statement executes
 
-    ONE . ::= . 1
+    ONE ::= 1
 
-  is executed to assign 1 to the object ONE. There are two
-  reasons to use ::= instead of := to assign the initialization
-  value.
+  to assign 1 to the object 'ONE'. The destroy statement is the
+  opposite of the create statement. It is automatically executed
+  at the end of the lifetime of an object. The run-time library
+  executes
 
-  1. The assignment ( := ) can only be used to assign a value
-    to a variable and initialization is also needed for
-    constants.
+    destroy(fileName)
 
-  2. Sometimes some initializations are needed for the new
-    object in addition to the pure assignment.
+  to free the memory referred by the 'string' variable 'fileName'.
+  For simple types such as 'integer' the destroy statement does
+  nothing.
 
-  For all predefined types the creation operator ( ::= )
-  is already defined. To allow the declaration of objects of a
-  new user defined type the constructor operation for this type
-  must be defined.
+  The mechanism with create and destroy is also used for
+  call-by-value parameters ('val', 'in var' and 'in' if it uses
+  call-by-value). When a function is called the call-by-value
+  parameters are initialized with a create statement:
+
+    formalParameter ::= actualParameter
+
+  At the end of the function the destroy statement is executed:
+
+    destroy(formalParameter)
+
+  For all predefined types the create statement ( ::= ) and the
+  destroy statement are already defined. To allow the declaration
+  of objects of a new user defined type the create and destroy
+  statements for this type must be defined.
 
 
-3.2 Syntax declarations
+3.4 Syntax declarations
 
     Syntax declarations are used to specify the syntax, priority
   and associativity of operators, statements, declarations and
@@ -1670,7 +1870,7 @@ CONTENTS
   Here we use a more complex syntax description:
 
 
-3.3 System declarations
+3.5 System declarations
 
     With system declarations the analyzer and the interpreter
   are informed about which objects should be used for various system
@@ -1735,7 +1935,7 @@ CONTENTS
     $ system "main" is main;
 
 
-3.4 Pragmas
+3.6 Pragmas
 
     Pragmas specify how a program is processed. Like
   system declarations pragmas are introduced with a dollar
@@ -3122,7 +3322,7 @@ CONTENTS
                     log2(1) => 0,
                     log2(0) => -1,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
-      bitLength(A) Number of bits in the minimal two's-complement
+      bitLength(A) Number of bits in the minimum two's-complement
                    representation, excluding the sign bit.
                   ( bitLength(A) => succ(log2(A)) for A >= 0,
                     bitLength(A) => bitLength(pred(-A)) for A < 0,
@@ -3470,7 +3670,7 @@ CONTENTS
                   ( gcd(A, B) = gcd(B, A),
                     gcd(A, B) = gcd(-A, B),
                     gcd(A, 0) = abs(A) )
-      bitLength(A) Number of bits in the minimal two's-complement
+      bitLength(A) Number of bits in the minimum two's-complement
                    representation, excluding the sign bit.
                   ( Type of result: integer,
                     bitLength(A) => ord(succ(log2(A))) for A >= 0_,
@@ -4698,10 +4898,10 @@ CONTENTS
     var structArrayType: structArr3 is [42 .. 365] times aStructType.value;
 
   An element of an array can be accessed with an 'integer' index.
-  The minimal and maximal indices of an array are part of the value
+  The minimum and maximum indices of an array are part of the value
   and can be obtained with the functions 'minIdx' and 'maxIdx'.
-  There are functions which generate arrays with the default minimal
-  index of 1 and other functions which generate arrays with the minimal
+  There are functions which generate arrays with the default minimum
+  index of 1 and other functions which generate arrays with the minimum
   index taken from a parameter. The 'array' functions are defined
   in the library "array.s7i".
 
@@ -4797,7 +4997,7 @@ CONTENTS
                     length(['a'] (1, 2, 3)) => 3
                     length(0 times TRUE) => 0,
                     length(5 times TRUE) => 5 )
-      minIdx(A) Minimal index of array
+      minIdx(A) Minimum index of array
                   ( Type of result: integer,
                     minIdx([] (2, 3, 5))  => 1,
                     minIdx([0] (2, 3, 5)) => 0,
@@ -4805,7 +5005,7 @@ CONTENTS
                     minIdx(['a'] (1, 2, 3)) => 'a',
                     minIdx(3 times TRUE) => 1,
                     minIdx([-1 .. 4] times TRUE) => -1 )
-      maxIdx(A) Maximal index of array
+      maxIdx(A) Maximum index of array
                   ( Type of result: integer,
                     maxIdx([] (2, 3, 5))  => 3,
                     maxIdx([0] (2, 3, 5)) => 2,
@@ -5085,7 +5285,7 @@ CONTENTS
                     card({'a', 'b', 'c'}) => 3,
                     card({"one", "two", "three"}) => 3
                     card(setType.EMPTY_SET) => 0 )
-      min(A)    Minimal element
+      min(A)    Minimum element
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
@@ -5103,7 +5303,7 @@ CONTENTS
                     max({2, 3, 5, 7, 11}) => 11,
                     max({'a', 'b', 'c'}) => 'c',
                     max(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
-      next(A, B) Minimal element of set A that is larger than B
+      next(A, B) Minimum element of set A that is larger than B
                   ( Type of argument B: baseType,
                     Type of result: baseType,
                     next({2, 3, 5, 7, 11}, 2) => 3,
@@ -5361,6 +5561,17 @@ CONTENTS
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
+      bitLength(A) Number of bits in the minimum binary representation.
+                  ( Type of result: integer,
+                    bitLength(bin64(0)) => 0,
+                    bitLength(bin64(1)) => 1,
+                    bitLength(bin64(4)) => 3 )
+      lowestSetBit(A) Number of lowest-order zero bits in the binary representation.
+                  ( Type of result: integer,
+                    A >> B << B = A for A <> bin64(0) and B = lowestSetBit(A),
+                    lowestSetBit(bin64(0)) => -1,
+                    lowestSetBit(bin64(1)) => 0,
+                    lowestSetBit(bin64(2)) => 1 )
       rand(bin64) Random bin64 value
                  The random values are uniform distributed.
                   ( rand(bin64) => bin64(rand(integer.first, integer.last)) )
@@ -5468,6 +5679,17 @@ CONTENTS
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
+      bitLength(A) Number of bits in the minimum binary representation.
+                  ( Type of result: integer,
+                    bitLength(bin32(0)) => 0,
+                    bitLength(bin32(1)) => 1,
+                    bitLength(bin32(4)) => 3 )
+      lowestSetBit(A) Number of lowest-order zero bits in the binary representation.
+                  ( Type of result: integer,
+                    A >> B << B = A for A <> bin32(0) and B = lowestSetBit(A),
+                    lowestSetBit(bin32(0)) => -1,
+                    lowestSetBit(bin32(1)) => 0,
+                    lowestSetBit(bin32(2)) => 1 )
       rand(bin32) Random bin32 value
                  The random values are uniform distributed.
                   ( rand(bin32) => bin32(rand(0, 4294967295)) )
@@ -6558,11 +6780,11 @@ CONTENTS
                   ( Type of result: ref_list,
                     arrayToList(NIL) => EXCEPTION RANGE_ERROR,
                     arrayToList(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
-      arrayMinIdx(A) Return the minimal index of an array
+      arrayMinIdx(A) Return the minimum index of an array
                   ( Type of result: integer,
                     arrayMinIdx(NIL) => EXCEPTION RANGE_ERROR,
                     arrayMinIdx(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
-      arrayMaxIdx(A) Return the maximal index of an array
+      arrayMaxIdx(A) Return the maximum index of an array
                   ( Type of result: integer,
                     arrayMaxIdx(NIL) => EXCEPTION RANGE_ERROR,
                     arrayMaxIdx(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
@@ -7114,16 +7336,27 @@ CONTENTS
     The following sub-chapters introduce the parameter types of
   Seed7.
 
+  +---------------------+---------------------+-----------------------------------------+
+  | Parameter           | Evaluation strategy | Assignment to formal parameter          |
+  +---------------------+---------------------+-----------------------------------------+
+  | val aType: name     |    call-by-value    | forbidden                               |
+  | ref aType: name     |  call-by-reference  | forbidden                               |
+  | in aType: name      | depends on the type | forbidden                               |
+  | in var aType: name  |    call-by-value    | allowed (no effect on actual parameter) |
+  | inout aType: name   |  call-by-reference  | allowed (changes actual parameter)      |
+  | in func aType: name |    call-by-name     | forbidden                               |
+  +---------------------+---------------------+-----------------------------------------+
+
 
 6.1 'val' parameter
 
-  Value parameters are marked with the keyword 'val'.
-  A value parameter copies the value of the actual parameter.
-  The formal 'val' parameter cannot be changed inside the function.
-  Value parameters are used, when copying is cheap or
-  when copying  is necessary for the correct behavior.
-  The function below appends a comma and a string to the
-  variable 'globalStri':
+  Value parameters are introduced with the keyword 'val'
+  (e.g.: val string: stri). A value parameter copies the value
+  of the actual parameter. The formal 'val' parameter cannot be
+  changed inside the function. Value parameters are used, when
+  copying is cheap or when copying  is necessary for the
+  correct behavior. The function below appends a comma and a
+  string to the variable 'globalStri':
 
     const proc: appendStri (val string: stri) is func
       begin
@@ -7184,13 +7417,13 @@ CONTENTS
 
 6.2 'ref' parameter
 
-  Reference parameters are marked with the keyword 'ref'.
-  A reference parameter refers to the value of the actual parameter.
-  The formal 'ref' parameter cannot be changed inside the function.
-  Reference parameters are used, when copying is expensive and
-  referring to the value does not change the correct behavior.
-  The function below defines the primitive action for the
-  semicolon operator:
+  Reference parameters are introduced with the keyword 'ref'
+  (e.g.: ref array string: arr). A reference parameter refers to
+  the value of the actual parameter. The formal 'ref' parameter
+  cannot be changed inside the function. Reference parameters are
+  used, when copying is expensive and referring to the value does
+  not change the correct behavior. The function below defines the
+  primitive action for the semicolon operator:
 
     const proc: (ref void: statement1) ; (ref void: statement2) is noop;
 
@@ -7245,11 +7478,11 @@ CONTENTS
 
 6.3 'in' parameter
 
-  Input parameters are marked with the keyword 'in'.
-  Depending on the type an input parameter is either a
-  value or a reference parameter. The formal 'in' parameter
-  cannot be changed inside the function. The function below
-  checks if a given number is a prime number:
+  Input parameters are introduced with the keyword 'in'
+  (e.g.: in integer: number). Depending on the type an input
+  parameter is either a value or a reference parameter. The
+  formal 'in' parameter cannot be changed inside the function.
+  The function below checks if a given number is a prime number:
 
     const func boolean: is_prime (in integer: number) is func
       result
@@ -7320,8 +7553,8 @@ CONTENTS
 
 6.4 'in var' parameter
 
-  Value parameters that can be changed inside the function are marked
-  with the keywords 'in var'.
+  Value parameters that can be changed inside the function are
+  introduced with the keywords 'in var' (e.g.: in var integer: a).
   The value of the actual parameter is copied. Changes to the
   formal 'in var' parameter have no effect outside the function.
   The function below computes the greatest common divisor:
@@ -7368,11 +7601,12 @@ CONTENTS
 
 6.5 'inout' parameter
 
-  Reference parameters, that can be changed inside the function, are marked
-  with the keyword 'inout'. A reference parameter
-  refers to the value of the actual parameter. Changes to
-  the formal 'inout' parameter effect also the actual parameter.
-  The procedure below doubles the given parameter 'number':
+  Reference parameters, that can be changed inside the function, are
+  introduced with the keyword 'inout' (e.g.: inout integer: number).
+  A reference parameter refers to the value of the actual parameter.
+  Changes to the formal 'inout' parameter effect also the actual
+  parameter. The procedure below doubles the given parameter
+  'number':
 
     const proc: double (inout integer: number) is func
       begin
@@ -7403,7 +7637,86 @@ CONTENTS
     const func f_param: inout (ref type param) : (ref expr param)  is action "DCL_INOUT2";
 
 
-6.6 Symbol parameter
+6.6 Call-by-name parameter
+
+  Call-by-name is an evaluation strategy for parameters.
+  Call-by-name parameters are not introduced with a keyword.
+  All parameters with a function type like 'func boolean' or 'proc'
+  are a call-by-name parameters. The actual call-by-name parameter
+  is not evaluated before the function is called. When the
+  function is executed the call-by-name parameter might be executed
+  once, many times or not at all.
+
+  For normal (not call-by-name) parameters the following holds:
+  When the function is called the actual parameter expressions
+  are evaluated and the results of the evaluation are forwarded
+  to the function. Assume 'number' has the value 12 and the
+  following statement is executed:
+
+    seek(aFile, number + 5);
+
+  The expression number + 5 is evaluated to 17 before 'seek' is
+  called. The statement actually executed is:
+
+    seek(aFile, 17);
+
+  The definition of 'seek' requests that its 2nd parameter must
+  be an 'integer' and not an integer expression:
+
+    const proc: seek (inout file: aFile, in integer: position) is ...
+
+  This triggers the evaluation of number + 5. Compare this to:
+
+    while number > 0 do
+      number -:= 5;
+    end while;
+
+  The while-statement is not called with the result of number > 0.
+  This would not work for the loop condition. The while-statement
+  receives the expression number > 0 instead. This way the
+  while-statement can decide how often number > 0 is evaluated.
+  This contradicts the claim from above that actual parameter
+  expressions are evaluated before the function is called.
+  Obviously the condition parameter behaves different. This
+  behavior is triggered by the declaration of the while-statement:
+
+    const proc: while (in func boolean: condition) do (in proc: statement) end while is ...
+
+  The parameter 'condition' has the type 'func boolean' which
+  is exactly the type of the expression number > 0. For this
+  reason number > 0 is forwarded to the while-statement without
+  evaluating it. All parameters with a 'func' type have this
+  behavior. The common name for all of them is call-by-name
+  parameter. All call-by-name parameters are not evaluated before
+  the function is called.
+
+  Examples of normal and call-by-name parameters:
+
+  +------------------+------------------------+
+  | Normal parameter | Call-by-name parameter |
+  +------------------+------------------------+
+  | in boolean: name | in func boolean: name  |
+  | in integer: name | in func integer: name  |
+  | in string: name  | in func string: name   |
+  +------------------+------------------------+
+
+  The type 'proc' can also be used to define a call-by-name
+  parameter:
+
+    const proc: possiblyDo (in proc: statement) is func
+      begin
+        if flipCoin then
+          statement;
+        end if;
+      end func;
+
+  The function 'possiblyDo' can be called with any statement
+  (procedure):
+
+    possiblyDo(writeln("hello world"));
+
+
+6.7 Symbol parameter
 
   Some functions need symbols at fixed places in the parameter
   list. The following IF-statement requests the keywords 'THEN',
@@ -7450,7 +7763,7 @@ CONTENTS
       name_identifier | special_identifier .
 
 
-6.7 'attr' parameter
+6.8 'attr' parameter
 
   This declaration associates a name to the type 'char':
 
@@ -9580,8 +9893,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   Lexical scanners read symbols from a file and use the concept of
   a current character. A symbol can be a name, a number, a string,
-  an operator, a parenthesis or something else. The current
-  character is the first character to be processed when scanning a
+  an operator, a bracket or something else. The current character
+  is the first character to be processed when scanning a
   symbol. After a scanner has read a symbol the current character
   contains the character just after the symbol. This character
   could be the first character of the next symbol or some
@@ -10858,7 +11171,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     name identifiers
     special identifiers
-    parenthesis
+    bracket
 
   Identifiers can be written adjacent except that between two
   name identifiers and between two special identifiers white space
@@ -10867,7 +11180,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   Syntax:
 
     identifier ::=
-      name_identifier | special_identifier | parenthesis .
+      name_identifier | special_identifier | bracket .
 
 
 10.2.1 Name identifiers
@@ -10936,19 +11249,19 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       '|' | '~' .
 
 
-10.2.3 Parentheses
+10.2.3 Brackets
 
-    A parenthesis is one of the following characters:
+    A bracket is one of the following characters:
 
     ( ) [ ] { }
 
-  Note that a parenthesis consists of only one character. Except
+  Note that a bracket consists of only one character. Except
   for the character sequence (* (which introduces a comment)
-  a parenthesis is terminated with the next character.
+  a bracket is terminated with the next character.
 
   Syntax:
 
-    parenthesis ::=
+    bracket ::=
       '(' | ')' | '[' | ']' | '{' | '}' .
 
 
@@ -11115,7 +11428,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       simple_literal_character | escape_sequence | apostrophe .
 
     simple_literal_character ::=
-      letter | digit | parenthesis | special_literal_character |
+      letter | digit | bracket | special_literal_character |
       utf8_encoded_character .
 
     special_literal_character ::=
@@ -11391,14 +11704,681 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   in a portable way, an absolute path will usually not be portable.
 
 
-12.2 readDir
+12.2 File properties
 
-    The function 'readDir' provides a portable access to the
+    Files have properties like type, size, mode (permissions),
+  several timestamps, owner and group. Properties like type and
+  size cannot be changed directly. Other properties may be
+  changed. For these properties getters and setters are provided.
+
+  +-----------+-------------+-------------+-------------------------------------------------------------+
+  | Property  | Getter      | Setter      | Comment                                                     |
+  +-----------+-------------+-------------+-------------------------------------------------------------+
+  | file type | fileType    |             | For possible values see function 'fileType'                 |
+  |           | fileTypeSL  |             | Among others FILE_REGULAR and FILE_DIR are file types       |
+  | size      | fileSize    |             | The size of a file in bytes                                 |
+  |           | bigFileSize |             |                                                             |
+  | mode      | getFileMode | setFileMode | Permissions. For possible values see function 'getFileMode' |
+  | aTime     | getATime    | setATime    | Time of last access                                         |
+  | cTime     | getCTime    |             | Time of last status change                                  |
+  | mTime     | getMTime    | setMTime    | Time of last modification of content                        |
+  | owner     | getOwner    | setOwner    | The user name of the file owner                             |
+  | group     | getGroup    | setGroup    | The name of the group the file belongs to                   |
+  +-----------+-------------+-------------+-------------------------------------------------------------+
+
+
+12.2.1 fileType
+
+  The type of a file can determined with 'fileType' or 'fileTypeSL':
+
+    const func integer: fileType (in string: filePath) is ...
+    const func integer: fileTypeSL (in string: filePath) is ...
+
+  The function 'fileType' does follow symbolic links. The function
+  'fileTypeSL' does not follow symbolic links. A return value of
+  'FILE_ABSENT' does not imply that a file with this name can be
+  created, since missing directories and invalid file names will
+  also cause 'FILE_ABSENT'.
+
+  Returns:
+    FILE_ABSENT
+        A component of path does not exist.
+    FILE_UNKNOWN
+        The file exists but has an unknown type.
+    FILE_REGULAR
+        The file is a regular file.
+    FILE_DIR
+        The file is a directory.
+    FILE_CHAR
+        The file is a character special file.
+    FILE_BLOCK
+        The file is a block special file.
+    FILE_FIFO
+        The file is a pipe or FIFO special file.
+    FILE_SYMLINK
+        The file is a symbolic link.
+    FILE_SOCKET
+        The file is a socket.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation.
+    FILE_ERROR
+        The system function returns an error other than ENOENT,
+        ENOTDIR, ENAMETOOLONG or EACCES.
+
+
+12.2.2 fileSize
+
+  The size of a file can be determined with 'fileSize' and 'bigFileSize':
+
+    const func integer: fileSize (in string: filePath) is ...
+    const func bigInteger: bigFileSize (in string: filePath) is ...
+
+  The functions follow symbolic links.
+
+  Returns:
+    For directories a size of 0 is returned. For other file types
+    the operating system functions 'stat()' and 'seek()' are
+    used to determine the size of a file. The functions 'fileSize'
+    and 'bigFileSize' succeed when at least one strategy to determine
+    the file size succeeds.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    RANGE_ERROR
+        The file size is not representable as 'integer'
+        (this exception is not raised by 'bigFileSize').
+    FILE_ERROR
+        It was not possible to determine the file size.
+
+
+12.2.3 getFileMode
+
+  The file mode (permissions) of a file can determined with 'getFileMode':
+
+    const func fileMode: getFileMode (in string: filePath) is ...
+
+  The function follows symbolic links. The type 'fileMode' is
+  defined as 'set of filePermission'.
+
+  Returns:
+    The 'fileMode' which is defined as 'set of filePermission'.
+
+  The literal values of 'filePermission' are:
+    EXEC_OTHER
+        others have execute permission
+    WRITE_OTHER
+        others have write permission
+    READ_OTHER
+        others have read permission
+    EXEC_GROUP
+        group has execute permission
+    WRITE_GROUP
+        group has write permission
+    READ_GROUP
+        group has read permission
+    EXEC_USER
+        owner has execute permission
+    WRITE_USER
+        owner has write permission
+    READ_USER
+        owner has read permission
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation,
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.4 setFileMode
+
+  The permissions of a file can be changed with 'setFileMode':
+
+    const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
+
+  The function follows symbolic links. The type 'fileMode' is
+  defined as 'set of filePermission'.
+
+  The literal values of 'filePermission' are:
+    EXEC_OTHER
+        others have execute permission
+    WRITE_OTHER
+        others have write permission
+    READ_OTHER
+        others have read permission
+    EXEC_GROUP
+        group has execute permission
+    WRITE_GROUP
+        group has write permission
+    READ_GROUP
+        group has read permission
+    EXEC_USER
+        owner has execute permission
+    WRITE_USER
+        owner has write permission
+    READ_USER
+        owner has read permission
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.5 getATime
+
+  The access time of a file is returned by the function 'getATime':
+
+    const func time: getATime (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.6 setATime
+
+  The function 'setATime' sets the access time of a file:
+
+    const proc: setATime (in string: filePath, in time: aTime) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type, or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.7 getCTime
+
+  The status change time of a file is returned by the function 'getCTime':
+
+    const func time: getCTime (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.8 getMTime
+
+  The modification time of a file is returned by the function 'getMTime':
+
+    const func time: getMTime (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.9 setMTime
+
+  The function 'setMTime' sets the modification time of a file:
+
+    const proc: setMTime (in string: filePath, in time: aTime) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.10 getOwner
+
+  The owner of a file is returned by the function 'getOwner':
+
+    const func string: getOwner (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.11 setOwner
+
+  The function 'setOwner' sets the owner of a file:
+
+    const proc: setOwner (in string: filePath, in string: owner) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.12 getGroup
+
+  The group of a file is returned by the function 'getGroup':
+
+    const func string: getGroup (in string: filePath) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.2.13 setGroup
+
+  The function 'setGroup' sets the group of a file:
+
+    const proc: setGroup (in string: filePath, in string: group) is ...
+
+  The function follows symbolic links.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or a system function returns an error.
+
+
+12.3 Symbolic links
+
+    Symbolic links (symlinks) are files pointing to a target file
+  or directory. They specify a relative or absolute path to the
+  target (destination). Relative symbolic links are relative to
+  their location in the file system and not relative to the current
+  working directory. The target of a symbolic link may not exist.
+  In this case it is a dangling symbolic link. Many file functions
+  follow symbolic links. Following means: For a symbolic link the
+  function follows the symbolic link chain until the path is not
+  a symbolic link again. Afterwards the function is applied to
+  this final path.
+
+  +---------------------------------------------+------------------------------------------------------------+
+  | Functions that follow symlinks              | Functions that work only on symlinks and don't follow them |
+  | A dangling symlink raises FILE_ERROR.       | FILE_ERROR is raised if 'path' is not a symlink.            |
+  +-------------------+-------------------------+----------------------------+-------------------------------+
+  | fileSize(path)    |                         |                            |                               |
+  | bigFileSize(path) |                         |                            |                               |
+  | getFileMode(path) | setFileMode(path, mode) | getFileMode(path, SYMLINK) |                               |
+  | getATime(path)    | setATime(path, time)    | getATime(path, SYMLINK)    |                               |
+  | getCTime(path)    |                         |                            |                               |
+  | getMTime(path)    | setMTime(path, time)    | getMTime(path, SYMLINK)    | setMTime(path, time, SYMLINK) |
+  | getOwner(path)    | setOwner(path, name)    | getOwner(path, SYMLINK)    | setOwner(path, name, SYMLINK) |
+  | getGroup(path)    | setGroup(path, name)    | getGroup(path, SYMLINK)    | setGroup(path, name, SYMLINK) |
+  |                   |                         | readLink(path)             |                               |
+  |                   |                         | readLink(path, ABSOLUTE)   |                               |
+  +-------------------+-------------------------+----------------------------+-------------------------------+
+
+  Functions that do not follow symbolic links:
+
+  +-------------------------+---------------------------------------+
+  | Function                | Comment                               |
+  +-------------------------+---------------------------------------+
+  | removeFile(path)        | Can be used to remove a symbolic link |
+  | removeTree(path)        | Can be used to remove a symbolic link |
+  | cloneFile(source, dest) | Can be used to copy a symbolic link   |
+  | moveFile(source, dest)  | Can be used to rename a symbolic link |
+  +-------------------------+---------------------------------------+
+
+
+12.3.1 readLink
+
+  The functions 'readLink(path)' and 'readLink(path, ABSOLUTE)'
+  read the destination of a symbolic link:
+
+    const func string: readLink (in string: filePath) is ...
+    const func string: readLink (in string: filePath, ABSOLUTE) is ...
+
+  The function 'readLink(path)' reads the link destination stored in
+  the file system. Symbolic links can be relative or absolute.
+  Relative symbolic links are relative to their location in the
+  file system and not relative to the current working directory.
+  The function 'readLink(path, ABSOLUTE)' always returns an
+  absolute path. It leaves absolute symbolic links unchanged and
+  converts relative symbolic links to an absolute path.
+
+  Returns:
+    The symbolic link referred by 'filePath'.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type or not
+        enough memory to represent the result 'string'.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.2 finalPath
+
+  The function 'finalPath' returns the final path that functions
+  like 'getMTime' and 'open' would use. If 'filePath' is not a
+  symbolic link it is returned. For a symbolic link the function
+  follows the symbolic link chain until the path is not a symbolic
+  link again. The final path may refer to a non-existing file.
+
+    const func string: finalPath (in string: filePath) is ...
+
+  Parameters:
+    filePath
+        Relative or absolute path.
+
+  Returns:
+    The final path after possibly following a symbolic link chain.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type or not
+        enough memory to represent the result 'string'.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not exist or a system function returns an error.
+
+
+12.3.3 symlink
+
+  The function 'symlink' creates a symbolic link called 'dest'
+  that contains the string referred by 'source':
+
+    const proc: symlink (in string: source, in string: dest) is ...
+
+  Parameters:
+    source
+        String to be contained in the symbolic link.
+    dest
+        Name of the symbolic link to be created.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'source' or 'dest'
+        to the system path type.
+    RANGE_ERROR
+        'source' or 'dest' does not use the standard path
+        representation, or one of them cannot be converted to the
+        system path type.
+    FILE_ERROR
+        A system function returns an error.
+
+
+12.3.4 Symbolic link getFileMode
+
+  The file mode (permissions) of a symbolic link can determined with
+  'getFileMode(path, SYMLINK)':
+
+    const func fileMode: getFileMode (in string: filePath, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation,
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.5 Symbolic link getATime
+
+  The access time of a symbolic link is returned by the function
+  'getATime(path, SYMLINK)':
+
+    const func time: getATime (in string: filePath, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation,
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.6 Symbolic link getMTime
+
+  The modification time of a symbolic link is returned by the function
+  'getMTime(path, SYMLINK)':
+
+    const func time: getMTime (in string: filePath, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation,
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.7 Symbolic link setMTime
+
+  The function 'setMTime(path, time, SYMLINK)' sets the modification time of
+  a symbolic link:
+
+    const proc: setMTime (in string: filePath, in time: aTime, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.8 Symbolic link getOwner
+
+  The owner of a symbolic link is returned by the function
+  'getOwner(path, SYMLINK)':
+
+    const func string: getOwner (in string: filePath, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.9 Symbolic link setOwner
+
+  The function 'setOwner(path, owner, SYMLINK)' sets the owner of
+  a symbolic link:
+
+    const proc: setOwner (in string: filePath, in string: owner, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.10 Symbolic link getGroup
+
+  The group of a symbolic link is returned by the function
+  'getGroup(path, SYMLINK)':
+
+    const func string: getGroup (in string: filePath, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.3.11 Symbolic link setGroup
+
+  The function 'setGroup(path, group, SYMLINK)' sets the group of
+  a symbolic link:
+
+    const proc: setGroup (in string: filePath, in string: group, SYMLINK) is ...
+
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid, or 'aTime' cannot be converted to the system file time.
+    FILE_ERROR
+        The file described with 'filePath' does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.
+
+
+12.4 Directory functions
+
+    Directories are a special kind of file. They contain references
+  to other files. Some functions work only on directories (e.g.:
+  'readDir') while other functions (e.g.: 'getMTime') will work on any
+  kind of file. Since directories are files they are not mentioned
+  specifically in the description of such generic functions.
+
+
+12.4.1 readDir
+
+  The function 'readDir' provides a portable access to the
   contents of directories in the file system. It reads the
   specified directory and the filenames are stored in the
-  string-array result. The files "." and ".." are left out from
+  string-array result. The files "." and ".." are excluded from
   the result. Note that the strings contain only the filenames.
-  Additional information must be obtained with other calls.
+  Additional information must be obtained using other calls.
 
     const func array string: readDir (in string: dirPath) is ...
 
@@ -11415,7 +12395,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         'dirPath' does not use the standard path representation
         or it cannot be converted to the system path type.
     FILE_ERROR
-        A system function returns an error.
+        The file described with 'dirPath' does not
+        exist, or it is not a directory, or a system function
+        returns an error.
 
   Examples:
     After the declaration
@@ -11435,9 +12417,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       end for;
 
 
-12.3 openDir
+12.4.2 openDir
 
-    The function 'openDir' opens the specified directory as file.
+  The function 'openDir' opens the specified directory as file.
   Each line in this directory file contains the filename of a
   file present in the directory. The files "." and ".." are
   left out from the directory file. Note that only filenames can
@@ -11478,9 +12460,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       end while;
 
 
-12.4 getcwd
+12.4.3 getcwd
 
-    The function 'getcwd' returns the current working directory
+  The function 'getcwd' returns the current working directory
   of the calling process as absolute path.
 
     const func string: getcwd is ...
@@ -11503,9 +12485,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     the 'string' variable 'my_dir'.
 
 
-12.5 chdir
+12.4.4 chdir
 
-    The function 'chdir' changes the current working directory
+  The function 'chdir' changes the current working directory
   of the calling process to the specified directory.
 
     const proc: chdir (in string: name) is ...
@@ -11527,9 +12509,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     changes the current working directory to "/usr/bin".
 
 
-12.6 mkdir
+12.4.5 mkdir
 
-    The function 'mkdir' creates a new directory.
+  The function 'mkdir' creates a new directory.
 
     const proc: mkdir (in string: name) is ...
 
@@ -11550,9 +12532,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     creates the directory "my_dir".
 
 
-12.7 homeDir
+12.4.6 homeDir
 
-    The function 'homeDir' returns the home directory of the user
+  The function 'homeDir' returns the home directory of the user
   as absolute path.
 
     const func string: homeDir is ...
@@ -11580,385 +12562,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     'string' variable 'my_dir'.
 
 
-12.8 fileType
+12.5 Maintenance functions
 
-    The type of a file can determined with 'fileType' or 'fileTypeSL':
 
-    const func integer: fileType (in string: filePath) is ...
-    const func integer: fileTypeSL (in string: filePath) is ...
 
-  The function 'fileType' does follow symbolic links. Therefore
-  'fileType' never returns 'FILE_SYMLINK'. The function 'fileTypeSL'
-  can also return 'FILE_SYMLINK', because it does not follow symbolic
-  links. All functions which use a file path, except 'fileTypeSL'
-  and 'readLink' follow symbolic links.  A return value of
-  'FILE_ABSENT' does not imply that a file with this name can be
-  created, since missing directories and invalid file names cause
-  also 'FILE_ABSENT'.
+12.5.1 removeFile
 
-  Returns:
-    FILE_ABSENT
-        A component of path does not exist.
-    FILE_UNKNOWN
-        The file exists but has an unknown type.
-    FILE_REGULAR
-        The file is a regular file.
-    FILE_DIR
-        The file is a directory.
-    FILE_CHAR
-        The file is a character special file.
-    FILE_BLOCK
-        The file is a block special file.
-    FILE_FIFO
-        The file is a pipe or FIFO special file.
-    FILE_SYMLINK
-        The file is a symbolic link.
-    FILE_SOCKET
-        The file is a socket.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation.
-    FILE_ERROR
-        The system function returns an error other than ENOENT,
-        ENOTDIR, ENAMETOOLONG or EACCES.
-
-
-12.9 fileSize
-
-    The size of a file can be determined with 'fileSize' and 'bigFileSize':
-
-    const func integer: fileSize (in string: filePath) is ...
-    const func bigInteger: bigFileSize (in string: filePath) is ...
-
-  Returns:
-    For directories a size of 0 is returned. For other file types
-    the operating system functions 'stat()' and 'seek()' are
-    used to determine the size of a file. The functions 'fileSize'
-    and 'bigFileSize' succeed when at least one strategy to determine
-    the file size succeeds.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    RANGE_ERROR
-        The file size is not representable as 'integer'
-        (this exception is not raised by 'bigFileSize').
-    FILE_ERROR
-        It was not possible to determine the file size.
-
-
-12.10 getFileMode
-
-    The permissions of a file can determined with 'getFileMode':
-
-    const func fileMode: getFileMode (in string: filePath) is ...
-
-  The function follows symbolic links. The type 'fileMode' is
-  defined as 'set of filePermission'.
-
-  Returns:
-    The 'fileMode' which is defined as 'set of filePermission'.
-
-  The literal values of 'filePermission' are:
-    EXEC_OTHER
-        others have execute permission
-    WRITE_OTHER
-        others have write permission
-    READ_OTHER
-        others have read permission
-    EXEC_GROUP
-        group has execute permission
-    WRITE_GROUP
-        group has write permission
-    READ_GROUP
-        group has read permission
-    EXEC_USER
-        owner has execute permission
-    WRITE_USER
-        owner has write permission
-    READ_USER
-        owner has read permission
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation,,
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.11 setFileMode
-
-    The permissions of a file can be changed with 'setFileMode':
-
-    const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
-
-  The function follows symbolic links. The type 'fileMode' is
-  defined as 'set of filePermission'.
-
-  The literal values of 'filePermission' are:
-    EXEC_OTHER
-        others have execute permission
-    WRITE_OTHER
-        others have write permission
-    READ_OTHER
-        others have read permission
-    EXEC_GROUP
-        group has execute permission
-    WRITE_GROUP
-        group has write permission
-    READ_GROUP
-        group has read permission
-    EXEC_USER
-        owner has execute permission
-    WRITE_USER
-        owner has write permission
-    READ_USER
-        owner has read permission
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.12 getATime
-
-    The access time of a file is returned by the function 'getATime':
-
-    const func time: getATime (in string: filePath) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.13 setATime
-
-    The function 'setATime' sets the access time of a file:
-
-    const proc: setATime (in string: filePath, in time: aTime) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type, or 'aTime'
-        is invalid, or 'aTime' cannot be converted to the system file time.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.14 getCTime
-
-    The change time of a file is returned by the function 'getCTime':
-
-    const func time: getCTime (in string: filePath) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.15 getMTime
-
-    The modification time of a file is returned by the function 'getMTime':
-
-    const func time: getMTime (in string: filePath) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.16 setMTime
-
-    The function 'setMTime' sets the modification time of a file:
-
-    const proc: setMTime (in string: filePath, in time: aTime) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type or 'aTime'
-        is invalid, or 'aTime' cannot be converted to the system file time.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.17 getOwner
-
-    The owner of a file is returned by the function 'getOwner':
-
-    const func string: getOwner (in string: filePath) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.18 setOwner
-
-    The function 'setOwner' sets the owner of a file:
-
-    const proc: setOwner (in string: filePath, in string: owner) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type or 'aTime'
-        is invalid, or 'aTime' cannot be converted to the system file time.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.19 getGroup
-
-    The group of a file is returned by the function 'getGroup':
-
-    const func string: getGroup (in string: filePath) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.20 setGroup
-
-    The function 'setGroup' sets the group of a file:
-
-    const proc: setGroup (in string: filePath, in string: group) is ...
-
-  The function follows symbolic links.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type or 'aTime'
-        is invalid, or 'aTime' cannot be converted to the system file time.
-    FILE_ERROR
-        The file described with 'filePath' does not
-        exist, or a system function returns an error.
-
-
-12.21 readLink
-
-    The function 'readLink' reads the destination of a symbolic link:
-
-    const func string: readLink (in string: filePath) is ...
-
-  Returns:
-    The symbolic link referred by 'filePath'.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'filePath' to the system path type or not
-        enough memory to represent the result 'string'.
-    RANGE_ERROR
-        'filePath' does not use the standard path representation
-        or it cannot be converted to the system path type.
-    FILE_ERROR
-        The file described with 'filePath' does not exist or is not a symbolic link.
-
-
-12.22 symlink
-
-    The function 'symlink' creates a symbolic link called 'dest'
-  that contains the string referred by 'source':
-
-    const proc: symlink (in string: source, in string: dest) is ...
-
-  Parameters:
-    source
-        String to be contained in the symbolic link.
-    dest
-        Name of the symbolic link to be created.
-
-  Possible exceptions:
-    MEMORY_ERROR
-        Not enough memory to convert 'source' or 'dest'
-        to the system path type.
-    RANGE_ERROR
-        'source' or 'dest' does not use the standard path
-        representation, or one of them cannot be converted to the
-        system path type.
-    FILE_ERROR
-        A system function returns an error.
-
-
-12.23 removeFile
-
-    The function 'removeFile' removes a file of any type unless it
+  The function 'removeFile' removes a file of any type unless it
   is a directory that is not empty. An attempt to remove a directory
   that is not empty triggers FILE_ERROR.
 
@@ -11968,15 +12578,15 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' does not use the standard path representation,,
+        'filePath' does not use the standard path representation,
         or it cannot be converted to the system path type.
     FILE_ERROR
         The file does not exist or a system function returns an error.
 
 
-12.24 removeTree
+12.5.2 removeTree
 
-    The function 'removeTree' removes a file of any type inclusive
+  The function 'removeTree' removes a file of any type inclusive
   a directory tree:
 
     const proc: removeTree (in string: filePath) is ...
@@ -11991,9 +12601,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         The file does not exist or a system function returns an error.
 
 
-12.25 copyFile
+12.5.3 copyFile
 
-    The function 'copyFile' copies a file or directory tree:
+  The function 'copyFile' copies a file or directory tree:
 
     const proc: copyFile (in string: sourcePath, in string: destPath) is ...
 
@@ -12019,9 +12629,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.26 cloneFile
+12.5.4 cloneFile
 
-    The function 'cloneFile' clones a file or directory tree:
+  The function 'cloneFile' clones a file or directory tree:
 
     const proc: cloneFile (in string: sourcePath, in string: destPath) is ...
 
@@ -12043,9 +12653,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.27 moveFile
+12.5.5 moveFile
 
-    The function 'moveFile' moves and/or renames a file or
+  The function 'moveFile' moves and/or renames a file or
   directory tree:
 
     const proc: moveFile (in string: sourcePath, in string: destPath) is ...
@@ -12072,9 +12682,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         a system function returns an error.
 
 
-12.28 argv(PROGRAM)
+12.6 Environment
 
-    The function 'argv(PROGRAM)' returns the argument vector of
+
+
+12.6.1 argv(PROGRAM)
+
+  The function 'argv(PROGRAM)' returns the argument vector of
   the program as array of strings. The name of the program is
   not part of the argument vector.
 
@@ -12084,9 +12698,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     An array of strings containing the argument vector.
 
 
-12.29 name(PROGRAM)
+12.6.2 name(PROGRAM)
 
-    The function 'name(PROGRAM)' returns the name of the program
+  The function 'name(PROGRAM)' returns the name of the program
   without path and extension. The name returned by 'name(PROGRAM)'
   is the same for interpreted and compiled programs. The function
   'name(PROGRAM)' does not follow symbolic links. It determines,
@@ -12100,9 +12714,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The name of the program.
 
 
-12.30 path(PROGRAM)
+12.6.3 path(PROGRAM)
 
-    The function 'path(PROGRAM)' returns the absolute path
+  The function 'path(PROGRAM)' returns the absolute path
   of the program. For an interpreted program this is the
   absolute path of the source file. For a compiled program
   this is the absolute path of the executable. The function
@@ -12114,9 +12728,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The absolute path of the program.
 
 
-12.31 dir(PROGRAM)
+12.6.4 dir(PROGRAM)
 
-    The function 'dir(PROGRAM)' returns the absolute path of the
+  The function 'dir(PROGRAM)' returns the absolute path of the
   directory containing the program. The function 'dir(PROGRAM)'
   allows placing configuration data in the directory of the program.
   'dir(PROGRAM)' is based on 'path(PROGRAM)'.
@@ -12127,9 +12741,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The absolute path of the directory containing the program.
 
 
-12.32 file(PROGRAM)
+12.6.5 file(PROGRAM)
 
-    The function 'file(PROGRAM)' returns the filename of the
+  The function 'file(PROGRAM)' returns the filename of the
   program without path. 'file(PROGRAM)' is based on 'path(PROGRAM)'.
 
     const func string: file (PROGRAM) is ...
@@ -12138,9 +12752,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     The filename of the program.
 
 
-12.33 getenv
+12.6.6 getenv
 
-    The function 'getenv' determines the value of an
+  The function 'getenv' determines the value of an
   environment variable.
 
     const func string: getenv (in string: name) is ...
@@ -12163,9 +12777,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         type or a system function returns an error.
 
 
-12.34 setenv
+12.6.7 setenv
 
-    The function 'setenv' adds or changes an environment
+  The function 'setenv' adds or changes an environment
   variable.
 
     const proc: setenv (in string: name, in string: value) is ...
@@ -12186,9 +12800,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         system string type or a system function returns an error.
 
 
-12.35 unsetenv
+12.6.8 unsetenv
 
-    The function 'unsetenv' removes an environment variable.
+  The function 'unsetenv' removes an environment variable.
 
     const proc: unsetenv (in string: name) is ...
 
@@ -12207,9 +12821,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         type or a system function returns an error.
 
 
-12.36 environment
+12.6.9 environment
 
-    The function 'environment' returns the list of
+  The function 'environment' returns the list of
   environment variable names as array of strings.
 
     const func array string: environment is ...
@@ -12855,6 +13469,44 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   The function 'color' creates a 'color' from red, green and blue lights
   in the additive color model. The red, green and blue lights are
   specified by integer values in the range 0 .. 65535.
+
+  Below is a "hello world" program that uses a Seed7 font:
+
+    $ include "seed7_05.s7i";
+      include "draw.s7i";
+      include "keybd.s7i";
+      include "text.s7i";
+      include "stdfont24.s7i";
+
+    const proc: main is func
+      local
+        var text: textWindow is text.value;
+      begin
+        screen(203, 45);
+        textWindow := openPixmapFontFile(curr_win);
+        setFont(textWindow, stdFont24);
+        writeln(textWindow, " hello world");
+        ignore(getc(GRAPH_KEYBOARD));
+      end func;
+
+  The function 'screen' opens a window with a width of 203 pixels and
+  a height of 45 pixels. The window is stored in the global variable
+  'curr_win'. The function 'openPixmapFontFile' opens a 'pixmapFontFile'
+  for 'curr_win'. Everything written to 'textWindow' is displayed in
+  the current window. The function 'setFont' defines which font should
+  be used. The font 'stdfont24.s7i' is a 'bitmapFont' with a cap-height
+  of 24 pixels. The function 'writeln' displays hello world to the
+  current window with the specified font.
+
+  Seed7 fonts are not as perfect as professional fonts. They have the
+  following properties:
+
+    - They are open source.
+    - They are implemented in Seed7.
+    - No external library is needed.
+    - Seed7 programs can use them always.
+    - There are bitmap and vector fonts.
+
 
 
 
@@ -13779,7 +14431,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     LST_CPY             lst_cpy
     LST_CREATE          lst_create
     LST_DESTR           lst_destr
-    LST_ELEM            lst_elem
     LST_EMPTY           lst_empty
     LST_EXCL            lst_excl
     LST_HEAD            lst_head
@@ -15855,9 +16506,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   A FILE_ERROR occurs if an illegal operation with a file is done.
 
     It may be raised by the following functions:
-        fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-        readDir, removeFile, removeTree, moveFile, cloneFile, copyFile,
-        readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
+        fileType, fileTypeSL, fileSize, bigFileSize, getFileMode, setFileMode,
+        getATime, setATime, getCTime, getMTime, setMTime, getOwner, setOwner,
+        getGroup, setGroup, readDir, removeFile, removeTree, moveFile, cloneFile,
+        copyFile, readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 

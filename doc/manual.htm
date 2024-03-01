@@ -249,7 +249,15 @@ pre.indent {
 <li><a class="link" href="#tutorial_Declare_a_statement"><b>Declare a statement</b></a></li>
 <li><a class="link" href="#tutorial_Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol></li>
 <li><a class="link" href="#decls_file_start"><big><b>DECLARATIONS</b></big></a><ol>
-<li><a class="link" href="#decls_Normal_declarations"><b>Normal declarations</b></a></li>
+<li><a class="link" href="#decls_Variable_declarations"><b>Variable declarations</b></a></li>
+<li><a class="link" href="#decls_Constant_declarations"><b>Constant declarations</b></a><ol>
+<li><a class="link" href="#decls_Type_declarations"><b><i>Type declarations</i></b></a></li>
+<li><a class="link" href="#decls_Procedure_declarations"><b><i>Procedure declarations</i></b></a></li>
+<li><a class="link" href="#decls_Function_declarations"><b><i>Function declarations</i></b></a></li>
+<li><a class="link" href="#decls_Abstract_data_type"><b><i>Abstract data type</i></b></a></li>
+<li><a class="link" href="#decls_Template"><b><i>Template</i></b></a></li></ol></li>
+<li><a class="link" href="#decls_Initialization"><b>Initialization</b></a><ol>
+<li><a class="link" href="#decls_How_the_initialization_works"><b><i>How the initialization works</i></b></a></li></ol></li>
 <li><a class="link" href="#decls_Syntax_declarations"><b>Syntax declarations</b></a></li>
 <li><a class="link" href="#decls_System_declarations"><b>System declarations</b></a></li>
 <li><a class="link" href="#decls_Pragmas"><b>Pragmas</b></a></li></ol></li>
@@ -311,6 +319,7 @@ pre.indent {
 <li><a class="link" href="#params_in_parameter"><b>'in' parameter</b></a></li>
 <li><a class="link" href="#params_in_var_parameter"><b>'in var' parameter</b></a></li>
 <li><a class="link" href="#params_inout_parameter"><b>'inout' parameter</b></a></li>
+<li><a class="link" href="#params_call_by_name_parameter"><b>Call-by-name parameter</b></a></li>
 <li><a class="link" href="#params_Symbol_parameter"><b>Symbol parameter</b></a></li>
 <li><a class="link" href="#params_attr_parameter"><b>'attr' parameter</b></a></li></ol></li>
 <li><a class="link" href="#objects_file_start"><big><b>OBJECT ORIENTATION</b></big></a><ol>
@@ -350,7 +359,7 @@ pre.indent {
 <li><a class="link" href="#tokens_Identifiers"><b>Identifiers</b></a><ol>
 <li><a class="link" href="#tokens_Name_identifiers"><b><i>Name identifiers</i></b></a></li>
 <li><a class="link" href="#tokens_Special_identifiers"><b><i>Special identifiers</i></b></a></li>
-<li><a class="link" href="#tokens_Parentheses"><b><i>Parentheses</i></b></a></li></ol></li>
+<li><a class="link" href="#tokens_Brackets"><b><i>Brackets</i></b></a></li></ol></li>
 <li><a class="link" href="#tokens_Literals"><b>Literals</b></a><ol>
 <li><a class="link" href="#tokens_Integer_literals"><b><i>Integer literals</i></b></a></li>
 <li><a class="link" href="#tokens_BigInteger_literals"><b><i>BigInteger literals</i></b></a></li>
@@ -364,41 +373,55 @@ pre.indent {
 <li><a class="link" href="#expr_Dot_expressions"><b>Dot expressions</b></a></li></ol></li>
 <li><a class="link" href="#os_file_start"><big><b>OPERATING SYSTEM ACCESS</b></big></a><ol>
 <li><a class="link" href="#os_Standard_path_representation"><b>Standard path representation</b></a></li>
-<li><a class="link" href="#os_readDir"><b>readDir</b></a></li>
-<li><a class="link" href="#os_openDir"><b>openDir</b></a></li>
-<li><a class="link" href="#os_getcwd"><b>getcwd</b></a></li>
-<li><a class="link" href="#os_chdir"><b>chdir</b></a></li>
-<li><a class="link" href="#os_mkdir"><b>mkdir</b></a></li>
-<li><a class="link" href="#os_homeDir"><b>homeDir</b></a></li>
-<li><a class="link" href="#os_fileType"><b>fileType</b></a></li>
-<li><a class="link" href="#os_fileSize"><b>fileSize</b></a></li>
-<li><a class="link" href="#os_getFileMode"><b>getFileMode</b></a></li>
-<li><a class="link" href="#os_setFileMode"><b>setFileMode</b></a></li>
-<li><a class="link" href="#os_getATime"><b>getATime</b></a></li>
-<li><a class="link" href="#os_setATime"><b>setATime</b></a></li>
-<li><a class="link" href="#os_getCTime"><b>getCTime</b></a></li>
-<li><a class="link" href="#os_getMTime"><b>getMTime</b></a></li>
-<li><a class="link" href="#os_setMTime"><b>setMTime</b></a></li>
-<li><a class="link" href="#os_getOwner"><b>getOwner</b></a></li>
-<li><a class="link" href="#os_setOwner"><b>setOwner</b></a></li>
-<li><a class="link" href="#os_getGroup"><b>getGroup</b></a></li>
-<li><a class="link" href="#os_setGroup"><b>setGroup</b></a></li>
-<li><a class="link" href="#os_readLink"><b>readLink</b></a></li>
-<li><a class="link" href="#os_symlink"><b>symlink</b></a></li>
-<li><a class="link" href="#os_removeFile"><b>removeFile</b></a></li>
-<li><a class="link" href="#os_removeTree"><b>removeTree</b></a></li>
-<li><a class="link" href="#os_copyFile"><b>copyFile</b></a></li>
-<li><a class="link" href="#os_cloneFile"><b>cloneFile</b></a></li>
-<li><a class="link" href="#os_moveFile"><b>moveFile</b></a></li>
-<li><a class="link" href="#os_argv_PROGRAM"><b>argv(PROGRAM)</b></a></li>
-<li><a class="link" href="#os_name_PROGRAM"><b>name(PROGRAM)</b></a></li>
-<li><a class="link" href="#os_path_PROGRAM"><b>path(PROGRAM)</b></a></li>
-<li><a class="link" href="#os_dir_PROGRAM"><b>dir(PROGRAM)</b></a></li>
-<li><a class="link" href="#os_file_PROGRAM"><b>file(PROGRAM)</b></a></li>
-<li><a class="link" href="#os_getenv"><b>getenv</b></a></li>
-<li><a class="link" href="#os_setenv"><b>setenv</b></a></li>
-<li><a class="link" href="#os_unsetenv"><b>unsetenv</b></a></li>
-<li><a class="link" href="#os_environment"><b>environment</b></a></li></ol></li>
+<li><a class="link" href="#os_File_properties"><b>File properties</b></a><ol>
+<li><a class="link" href="#os_fileType"><b><i>fileType</i></b></a></li>
+<li><a class="link" href="#os_fileSize"><b><i>fileSize</i></b></a></li>
+<li><a class="link" href="#os_getFileMode"><b><i>getFileMode</i></b></a></li>
+<li><a class="link" href="#os_setFileMode"><b><i>setFileMode</i></b></a></li>
+<li><a class="link" href="#os_getATime"><b><i>getATime</i></b></a></li>
+<li><a class="link" href="#os_setATime"><b><i>setATime</i></b></a></li>
+<li><a class="link" href="#os_getCTime"><b><i>getCTime</i></b></a></li>
+<li><a class="link" href="#os_getMTime"><b><i>getMTime</i></b></a></li>
+<li><a class="link" href="#os_setMTime"><b><i>setMTime</i></b></a></li>
+<li><a class="link" href="#os_getOwner"><b><i>getOwner</i></b></a></li>
+<li><a class="link" href="#os_setOwner"><b><i>setOwner</i></b></a></li>
+<li><a class="link" href="#os_getGroup"><b><i>getGroup</i></b></a></li>
+<li><a class="link" href="#os_setGroup"><b><i>setGroup</i></b></a></li></ol></li>
+<li><a class="link" href="#os_Symbolic_links"><b>Symbolic links</b></a><ol>
+<li><a class="link" href="#os_readLink"><b><i>readLink</i></b></a></li>
+<li><a class="link" href="#os_finalPath"><b><i>finalPath</i></b></a></li>
+<li><a class="link" href="#os_symlink"><b><i>symlink</i></b></a></li>
+<li><a class="link" href="#os_getFileMode_SYMLINK"><b><i>Symbolic link getFileMode</i></b></a></li>
+<li><a class="link" href="#os_getATime_SYMLINK"><b><i>Symbolic link getATime</i></b></a></li>
+<li><a class="link" href="#os_getMTime_SYMLINK"><b><i>Symbolic link getMTime</i></b></a></li>
+<li><a class="link" href="#os_setMTime_SYMLINK"><b><i>Symbolic link setMTime</i></b></a></li>
+<li><a class="link" href="#os_getOwner_SYMLINK"><b><i>Symbolic link getOwner</i></b></a></li>
+<li><a class="link" href="#os_setOwner_SYMLINK"><b><i>Symbolic link setOwner</i></b></a></li>
+<li><a class="link" href="#os_getGroup_SYMLINK"><b><i>Symbolic link getGroup</i></b></a></li>
+<li><a class="link" href="#os_setGroup_SYMLINK"><b><i>Symbolic link setGroup</i></b></a></li></ol></li>
+<li><a class="link" href="#os_Directory_functions"><b>Directory functions</b></a><ol>
+<li><a class="link" href="#os_readDir"><b><i>readDir</i></b></a></li>
+<li><a class="link" href="#os_openDir"><b><i>openDir</i></b></a></li>
+<li><a class="link" href="#os_getcwd"><b><i>getcwd</i></b></a></li>
+<li><a class="link" href="#os_chdir"><b><i>chdir</i></b></a></li>
+<li><a class="link" href="#os_mkdir"><b><i>mkdir</i></b></a></li>
+<li><a class="link" href="#os_homeDir"><b><i>homeDir</i></b></a></li></ol></li>
+<li><a class="link" href="#os_Maintenance functions"><b>Maintenance functions</b></a><ol>
+<li><a class="link" href="#os_removeFile"><b><i>removeFile</i></b></a></li>
+<li><a class="link" href="#os_removeTree"><b><i>removeTree</i></b></a></li>
+<li><a class="link" href="#os_copyFile"><b><i>copyFile</i></b></a></li>
+<li><a class="link" href="#os_cloneFile"><b><i>cloneFile</i></b></a></li>
+<li><a class="link" href="#os_moveFile"><b><i>moveFile</i></b></a></li></ol></li>
+<li><a class="link" href="#os_Environment"><b>Environment</b></a><ol>
+<li><a class="link" href="#os_argv_PROGRAM"><b><i>argv(PROGRAM)</i></b></a></li>
+<li><a class="link" href="#os_name_PROGRAM"><b><i>name(PROGRAM)</i></b></a></li>
+<li><a class="link" href="#os_path_PROGRAM"><b><i>path(PROGRAM)</i></b></a></li>
+<li><a class="link" href="#os_dir_PROGRAM"><b><i>dir(PROGRAM)</i></b></a></li>
+<li><a class="link" href="#os_file_PROGRAM"><b><i>file(PROGRAM)</i></b></a></li>
+<li><a class="link" href="#os_getenv"><b><i>getenv</i></b></a></li>
+<li><a class="link" href="#os_setenv"><b><i>setenv</i></b></a></li>
+<li><a class="link" href="#os_unsetenv"><b><i>unsetenv</i></b></a></li>
+<li><a class="link" href="#os_environment"><b><i>environment</i></b></a></li></ol></li></ol></li>
 <li><a class="link" href="#database_file_start"><big><b>DATABASE ABSTRACTION API</b></big></a><ol>
 <li><a class="link" href="#database_Opening_a_database_connection"><b>Opening a database connection</b></a><ol>
 <li><a class="link" href="#database_Opening_an_Oracle_database_connection"><b><i>Opening an Oracle database connection</i></b></a></li>
@@ -1235,7 +1258,13 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd_no_ul">end for</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
-</pre><p></p>
+</pre><p>
+  The example above uses the array literal
+</p><pre class="indent">
+[<a class="stri" href="#tokens_Character_literals">'0'</a>] (<a class="stri" href="#tokens_String_literals">"zero"</a>, <a class="stri" href="#tokens_String_literals">"one"</a>, <a class="stri" href="#tokens_String_literals">"two"</a>, <a class="stri" href="#tokens_String_literals">"three"</a>, <a class="stri" href="#tokens_String_literals">"four"</a>, <a class="stri" href="#tokens_String_literals">"five"</a>, <a class="stri" href="#tokens_String_literals">"six"</a>, <a class="stri" href="#tokens_String_literals">"seven"</a>, <a class="stri" href="#tokens_String_literals">"eight"</a>, <a class="stri" href="#tokens_String_literals">"nine"</a>)
+</pre><p>
+  This array literal has the type <tt><a class="type_no_ul" href="#types_array">array</a> [<a class="type_no_ul" href="#types_char">char</a>] <a class="type_no_ul" href="#types_string">string</a></tt>. The minimum index of this array is the character <tt><a class="stri" href="#tokens_Character_literals">'0'</a></tt>.
+</p>
 
 <a name="tutorial_For_loop_and_containers"><h3>2.7 For loop and containers</h3></a>
 <p>
@@ -1729,89 +1758,249 @@ FOR_DECLS(<span class="type">boolean</span>);
 <a name="decls_DECLARATIONS"><h2>3. DECLARATIONS</h2></a>
 
 <p>
-    A declaration specifies the identifier, type, and other
-  aspects of language elements such as variables, constants
-  and functions. In Seed7 everything must be declared before
-  it is used. Seed7 uses three kinds of declarations:
-</p><ul>
-    <li>Normal declarations</li>
-    <li>Syntax declarations</li>
-    <li>System declarations</li>
-</ul><p>
-  which are described in detail in the following sub-chapters.
-</p>
+    A declaration specifies the identifier, type, and other aspects
+  of language elements such as variables, constants and functions.
+  In Seed7 everything must be declared before it is used. All
+  declarations are introduced with a specific keyword and follow a
+  common pattern. The keyword is followed by a type<!--(*--> (in example code <span class="type">red</span> is used for types)<!--*)-->. In the table
+  below <tt><span class="type"><b><i>aType</i></b></span></tt> is a placeholder for any <a class="link" href="#types_file_start">type</a>.
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Declaration                              </th><th> Comment                                 </th></tr>
+  
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>                   </td><td> A <a class="link" href="#decls_Variable_declarations">variable declaration</a>                  </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>                 </td><td> A <a class="link" href="#decls_Constant_declarations">constant declaration</a>                  </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                          </td><td> Declaration of a <a class="link" href="#params_val_parameter">value-parameter</a>        </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                          </td><td> Declaration of a <a class="link" href="#params_ref_parameter">reference-parameter</a>    </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                           </td><td> Declaration of an <a class="link" href="#params_in_parameter">in-parameter</a>          </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                       </td><td> Declaration of an <a class="link" href="#params_in_var_parameter">in-var-parameter</a>      </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                        </td><td> Declaration of an <a class="link" href="#params_inout_parameter">inout-parameter</a>       </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                      </td><td> Declaration of a <a class="link" href="#params_call_by_name_parameter">call-by-name parameter</a> </td></tr>
+  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Type_declarations">type declaration</a>                      </td></tr>
+  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Procedure_declarations">procedure declaration</a>                 </td></tr>
+  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>            </td><td> A <a class="link" href="#decls_Function_declarations">function declaration</a>                  </td></tr>
+  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>             </td><td> Declaration of an <a class="link" href="#decls_Abstract_data_type">abstract data type</a>    </td></tr>
+  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: name (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type"><b><i>aType</i></b></span>) <span class="keywd">is</span> ...</tt> </td><td> Declaration of a <a class="link" href="#decls_Template">template</a>               </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Syntax_declarations">syntax</a> <a class="type_no_ul" href="#types_expr">expr</a>: pattern <span class="keywd">is</span> ...</tt>              </td><td> A <a class="link" href="#decls_Syntax_declarations">syntax declaration</a>                    </td></tr>
+  
+</table></dd></dl><p></p>
 
-<a name="decls_Normal_declarations"><h3>3.1 Normal declarations</h3></a>
+<a name="decls_Variable_declarations"><h3>3.1 Variable declarations</h3></a>
 <p>
-    Normal declarations are the most commonly used form of
-  declarations. To contrast them to the syntax declarations normal
-  declarations are sometimes called semantic declarations. Seed7
-  uses uniform looking declaration constructs to declare variables,
-  constants, types, functions and parameters. For example:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: ONE <span class="keywd">is</span> 1;
-</pre><p>
-  declares the <tt><a class="type" href="#types_integer">integer</a></tt> constant <tt>'ONE'</tt> which is initialized with the
-  value 1. Variable declarations are also possible. For example:
+    A variable is a named place for a value. The value of a variable
+  can be changed with an <a class="link" href="#stats_Assignment">assignment</a>. Variables must be declared
+  before they can be used. E.g.:
 </p><pre class="indent">
 <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
 </pre><p>
-  declares the <tt><a class="type" href="#types_integer">integer</a></tt> variable <tt>'number'</tt> which is initialized with
-  the value 0. Type declarations are done as constant declarations
-  where the type of the declared constant is <tt><a class="type" href="#types_type">type</a></tt>:
+  This declares the <tt><a class="type" href="#types_integer">integer</a></tt> variable <tt>'number'</tt>. The variable is
+  initialized with the value 0. Later the value of the variable can
+  be changed with e.g.:
+</p><pre class="indent">
+number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
+</pre><p>
+  Variables can only hold values of their type. An attempt to
+  assign a value with the wrong type results in a compile error:
+</p><pre class="indent">
+*** tst545.sd7(7):52: <a name="decls_NO_MATCH_example"></a><a class="link" href="#errors_NO_MATCH">Match for {number := "hello" } failed</a>
+    number := "hello";
+</pre><p></p>
+
+<a name="decls_Constant_declarations"><h3>3.2 Constant declarations</h3></a>
+<p>
+    A constant is a named value that cannot change during run-time.
+  Constants must be declared before they can be used. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: ONE <span class="keywd">is</span> 1;
+</pre><p>
+  This declares the <tt><a class="type" href="#types_integer">integer</a></tt> constant <tt>'ONE'</tt> with the value 1.
+  An attempt to change a constant results in an compile error:
+</p><pre class="indent">
+*** tst544.sd7(7):53: <a class="link" href="#errors_WRONGACCESSRIGHT">Variable expected in {ONE := 2 } found constant integer: ONE</a>
+    ONE := 2;
+</pre><p></p>
+
+<a name="decls_Type_declarations"><h4>3.2.1 Type declarations</h4></a>
+<p>
+    Type declarations define a name for a type. Type declarations
+  are done as constant declarations where the type of the declared
+  constant is <tt><a class="type" href="#types_type">type</a></tt>. E.g.:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: myChar <span class="keywd">is</span> <a class="type_no_ul" href="#types_char">char</a>;
 </pre><p>
-  Function declarations are also a form of constant declaration:
+  Afterwards the new type can be used in other declarations. E.g.:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">myChar</span>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Char_literals">'x'</a>;
+</pre><p></p>
+
+<a name="decls_Procedure_declarations"><h4>3.2.2 Procedure declarations</h4></a>
+<p>
+    The code of a procedure does not change at run-time.
+  Thus procedures are declared with a constant declaration:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: helloWorld <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"hello world"</a>);
+  <span class="keywd">end func</span>;
+</pre><p>
+  Local declarations can be added to a procedure with the
+  keyword <tt><span class="keywd">local</span></tt>. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: helloWorld <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_string">string</a>: greeting <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">"hello world"</a>;
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(greeting);
+  <span class="keywd">end func</span>;
+</pre><p>
+  A procedure with a parameter (<tt>greeting</tt>) is defined with:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: hello (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: greeting) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(greeting);
+  <span class="keywd">end func</span>;
+</pre><p>
+  Procedure and function parameters are explained in <a class="link" href="#params_file_start">chapter 6
+  (PARAMETERS)</a>.
+</p>
+
+<a name="decls_Function_declarations"><h4>3.2.3 Function declarations</h4></a>
+<p>
+    Like with procedures the code of a function does not change
+  at run-time. Thus functions are also declared with a constant
+  declaration:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
   <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 </pre><p>
-  Each object declared with a <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declaration obtains
+  Note that <tt>return</tt> is not a statement. Instead <tt>return</tt> is a
+  shortcut for a function declaration with a result variable:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+  <span class="keywd">begin</span>
+    coinState <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  The keyword <tt>local</tt> allows the introduction of local
+  declarations:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: alphabet <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: abc <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Char_literals">' '</a>;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_for-statement">for</a> ch <a class="keywd_no_ul" href="#stats_for-statement">range</a> <a class="stri" href="#tokens_Char_literals">'a'</a> <a class="keywd_no_ul" href="#stats_for-statement">to</a> <a class="stri" href="#tokens_Char_literals">'z'</a> <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+      abc <span class="op_no_ul">&:=</span> ch;
+    <a class="keywd_no_ul" href="#stats_for-statement">end</a> <a class="keywd_no_ul" href="#stats_for-statement">for</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  A function with a parameter (<tt>number</tt>) is defined with:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: inverse (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> 1 <span class="op_no_ul">/</span> number;
+</pre>
+  Procedure and function parameters are explained in <a class="link" href="#params_file_start">chapter 6
+  (PARAMETERS)</a>.
+</p>
+
+<a name="decls_Abstract_data_type"><h4>3.2.4 Abstract data type</h4></a>
+<p>
+    An abstract data type is a type that requires additional
+  information. E.g.: The abstract data type <tt><a class="type" href="#types_array">array</a></tt> requires
+  the type of the array elements as additional information.
+  Predefined abstract data types are <tt><a class="type" href="#types_array">array</a></tt>, <tt><span class="type">subtype</span></tt>, <tt><a class="type" href="#types_struct">struct</a></tt>,
+  <tt><span class="type">subrange</span></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_set">set</a></tt>, <tt><span class="type">interface</span></tt> and <tt><span class="type">enum</span></tt>. The
+  definition of the predefined abstract data type <tt><a class="type" href="#types_array">array</a></tt> in the
+  library <span class="lib">array.s7i</span> starts with:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: array (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: baseType) <span class="keywd">is</span> ...
+</pre><p>
+  The parameter <tt><span class="type">baseType</span></tt> specifies the type of the <tt><a class="type" href="#types_array">array</a></tt>
+  elements. The abstract data type <tt><a class="type" href="#types_array">array</a></tt> can be used in
+  declarations:
+</p><pre class="indent">
+<span class="keywd">var</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_integer">integer</a>: numbers <span class="keywd">is</span> [] (1);
+</pre><p>
+  Other abstract data types are declared similar to the
+  declaration of <tt><a class="type" href="#types_array">array</a></tt>.
+</p><p>
+  User defined abstract data types are also possible.
+</p>
+
+<a name="decls_Template"><h4>3.2.5 Template</h4></a>
+<p>
+    Templates do declarations for a given type. Templates are
+  executed at compile-time. The function <tt>FOR_ENUM_DECLS</tt> from
+  the library <span class="lib">forloop.s7i</span> defines a for-loop that loops over
+  all values of a given enumeration type:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_ENUM_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type">aType</span>) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<span class="keywd">attr</span> <span class="type">aType</span>) do
+        (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">begin</span>
+        <span class="keywd">for</span> variable <span class="keywd">range</span> aType.first <span class="keywd">to</span> aType.last <span class="keywd">do</span>
+          statements;
+        <span class="keywd">end for</span>;
+      <span class="keywd">end func</span>;
+
+  <span class="keywd">end func</span>;
+</pre><p>
+  The template <tt>FOR_ENUM_DECLS</tt> is invoked in the library
+  <span class="lib">enumeration.s7i</span> with:
+</p><pre class="indent">
+FOR_ENUM_DECLS(enumType);
+</pre><p></p>
+
+<a name="decls_Initialization"><h3>3.3 Initialization</h3></a>
+<p>
+    Each object declared with a <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declaration obtains
   an initial value. It is not possible to use <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt>
-  declarations without initial value. Declarations with
-  initialization expressions are also possible. For example
+  declarations without initial value. The type of the initial value
+  must fit to the type of the variable or constant. A compile error
+  is triggered if this is not the case:
+</p><pre class="indent">
+*** tst546.sd7(3):52: <a class="link" href="#errors_NO_MATCH">Match for {number ::= ' ' } failed</a>
+var integer: number is ' ';
+---------------------------^
+*** tst546.sd7(3):32: <a name="decls_DECL_FAILED_example"></a><a class="link" href="#errors_DECL_FAILED">Declaration of "number" failed</a>
+var integer: number is ' ';
+</pre><p>
+  Expressions can be used as initial value. E.g.:
 </p><pre class="indent">
 <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: fileName <span class="keywd">is</span> NAME <span class="op_no_ul">&amp;</span> <span class="stri">".txt"</span>;
 </pre><p>
-  The expression is evaluated and the result is assigned to
-  the new object. This is done in the analyze phase of the
-  interpreter or compiler, before the execution of the program
-  starts. The initialization expressions may contain any
-  function (or operator) call. That way user defined functions
-  can also be used to initialize a constant or variable:
+  The expression is evaluated and the result is assigned to the
+  new object. This is done at compile-time by the interpreter or
+  compiler. The initialization expressions may contain any function
+  (or operator) call. That way user defined functions can also be
+  used to initialize a constant or variable:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: maybe <span class="keywd">is</span> flipCoin;
-</pre><p>
-  Constant and variable declarations can be global or local.
-  The mechanism to define a parameter like <tt>'x'</tt> is similar to the
-  <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declarations:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: inverse (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: x) <span class="keywd">is</span>
-  <span class="keywd">return</span> 1<span class="op_no_ul">/</span>x;
-</pre><p>
-  Function parameters, such as the parameter <tt>'statement'</tt> in
-  the example below, act as call-by-name parameters:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: possiblyDo (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statement) <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    <span class="keywd">if</span> flipCoin <span class="keywd">then</span>
-      statement;
-    <span class="keywd">end if</span>;
-  <span class="keywd">end func</span>;
-</pre><p>
-  Abstract data types such as <tt><span class="type">subtype</span></tt>, <tt><a class="type" href="#types_struct">struct</a></tt>, <tt><span class="type">subrange</span></tt>, <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_set">set</a></tt>,
-  <tt><span class="type">interface</span></tt> and <tt><span class="type">enum</span></tt> are realized as
-  functions which return a type. E.g.: The type <tt><a class="type" href="#types_array">array</a></tt> is defined in the
-  <tt><span class="lib">seed7_05.s7i</span></tt> library with the following header:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: array (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: baseType) <span class="keywd">is func</span>
-</pre><p>
-  User defined abstract data types are also possible.
-</p><p>
-  The initialization uses the creation operation ( ::= ).
-  Explicit calls of the create operation are not needed.
-</p><p>
+</pre><p></p>
+
+<a name="decls_How_the_initialization_works"><h4>3.3.1 How the initialization works</h4></a>
+<p>
+    The initialization of variables and constants is done at
+  compile-time. The initialization uses the create statement
+  ( <tt><span class="op">::=</span></tt> ). Note that <tt><span class="op">::=</span></tt> is used internally by the interpreter
+  and compiler. Explicit calls of <tt><span class="op">::=</span></tt> in user programs are not
+  needed. A create statement is similar to an assignment ( <tt><span class="op">:=</span></tt> ),
+  but with two important differences:
+</p><ol><li>
+  Assignments can assume that the destination has a legal value.
+     Create statements assume that the destination has an undefined
+     value. A create statement needs to do all the initializations
+     necessary.
+</li><li>
+  Assignments can only be used to assign a value to a variable.
+     Create statements are not restricted to variables. Interpreter
+     and compiler use <tt><span class="op">::=</span></tt> to initialize constants.
+</li></ol><p>
   The lifetime of an object goes like this:
 </p><ol><li>
   Memory is reserved for the new object (stack or heap memory
@@ -1821,48 +2010,59 @@ FOR_DECLS(<span class="type">boolean</span>);
      garbage), therefore a create statement is necessary instead of
      an assignment.
 </li><li>
-  The create statements copies the right expression to the left
-     expression taking into account that the left expression is
-     undefined.
+  The create statement ( <tt><span class="op">::=</span></tt> ) copies the right expression
+     to the left expression taking into account that the left
+     expression is undefined.
 </li><li>
-  If the object is variable other values can be assigned using
-     the assign statement ( := ). The assignment can assume that the
-     left expression contains a legal value. This allows that for
-     strings (and some other types which are just references to a
-     memory area) the memory containing the old string value (and
-     not the memory of the object itself) can be freed when
-     necessary.
+  If the object is a variable other values can be assigned using
+     the assignment statement ( <tt><span class="op">:=</span></tt> ). The assignment can assume that
+     the destination contains a legal value.
+</li><li>
+  Strings (and some other types) are just references to a memory
+     area where the data resides. These references are the sole
+     owner of the memory area. This allows that an assignment
+     can reallocate the memory area.
 </li><li>
   At the end of the lifetime of an object the destroy statement
      is executed. For strings (and some other types which are just
-     references to a memory area) the memory containing the string
-     value (and not the memory of the object itself) is freed.
+     references to a memory area) the referenced memory is freed.
 </li><li>
   The memory of the object is freed.
 </li></ol><p>
   The first three steps are usually hidden in the declaration
-  statement. The expression
+  statement. The declaration statement executes
 </p><pre class="indent">
-ONE . ::= . 1
+ONE ::= 1
 </pre><p>
-  is executed to assign 1 to the object ONE. There are two
-  reasons to use ::= instead of := to assign the initialization
-  value.
-</p><ol><li>
-  The assignment ( := ) can only be used to assign a value
-    to a variable and initialization is also needed for
-    constants.
-</li><li>
-  Sometimes some initializations are needed for the new
-    object in addition to the pure assignment.
-</li></ol><p>
-  For all predefined types the creation operator ( ::= )
-  is already defined. To allow the declaration of objects of a
-  new user defined type the constructor operation for this type
-  must be defined.
+  to assign <tt>1</tt> to the object <tt>ONE</tt>. The destroy statement is the
+  opposite of the create statement. It is automatically executed
+  at the end of the lifetime of an object. The run-time library
+  executes
+</p><pre class="indent">
+destroy(fileName)
+</pre><p>
+  to free the memory referred by the <tt><a class="type_no_ul" href="#types_string">string</a></tt> variable <tt>fileName</tt>.
+  For simple types such as <tt><a class="type_no_ul" href="#types_integer">integer</a></tt> the destroy statement does
+  nothing.
+</p><p>
+  The mechanism with create and destroy is also used for
+  call-by-value parameters (<tt><a class="keywd_no_ul" href="#params_val_parameter">val</a></tt>, <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a></tt> and <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a></tt> if it uses
+  call-by-value). When a function is called the call-by-value
+  parameters are initialized with a create statement:
+</p><pre class="indent">
+formalParameter ::= actualParameter
+</pre><p>
+  At the end of the function the destroy statement is executed:
+</p><pre class="indent">
+destroy(formalParameter)
+</pre><p>
+  For all predefined types the create statement ( <tt><span class="op">::=</span></tt> ) and the
+  destroy statement are already defined. To allow the declaration
+  of objects of a new user defined type the create and destroy
+  statements for this type must be defined.
 </p>
 
-<a name="decls_Syntax_declarations"><h3>3.2 Syntax declarations</h3></a>
+<a name="decls_Syntax_declarations"><h3>3.4 Syntax declarations</h3></a>
 <p>
     Syntax declarations are used to specify the syntax, priority
   and associativity of operators, statements, declarations and
@@ -1881,7 +2081,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   Here we use a more complex syntax description:
 </p>
 
-<a name="decls_System_declarations"><h3>3.3 System declarations</h3></a>
+<a name="decls_System_declarations"><h3>3.5 System declarations</h3></a>
 <p>
     With system declarations the analyzer and the interpreter
   are informed about which objects should be used for various system
@@ -1946,7 +2146,7 @@ $ <span class="keywd">system</span> <span class="stri">"writeln"</span> <span cl
 $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class="keywd">is</span> main;
 </pre>
 
-<a name="decls_Pragmas"><h3>3.4 Pragmas</h3></a>
+<a name="decls_Pragmas"><h3>3.6 Pragmas</h3></a>
 <p>
     Pragmas specify how a program is processed. Like
   <a class="link" href="#decls_System_declarations">system declarations</a> pragmas are introduced with a dollar
@@ -3333,7 +3533,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     log2(1) <b>&rArr;</b> 0,
                     log2(0) <b>&rArr;</b> -1,
                     log2(-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
-      <span class="func">bitLength</span>(A) Number of bits in the minimal two's-complement
+      <span class="func">bitLength</span>(A) Number of bits in the minimum two's-complement
                    representation, excluding the sign bit.
                   ( bitLength(A) <b>&rArr;</b> succ(log2(A)) for A >= 0,
                     bitLength(A) <b>&rArr;</b> bitLength(pred(-A)) for A &lt; 0,
@@ -3681,7 +3881,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( gcd(A, B) = gcd(B, A),
                     gcd(A, B) = gcd(-A, B),
                     gcd(A, 0) = abs(A) )
-      <span class="func">bitLength</span>(A) Number of bits in the minimal two's-complement
+      <span class="func">bitLength</span>(A) Number of bits in the minimum two's-complement
                    representation, excluding the sign bit.
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     bitLength(A) <b>&rArr;</b> ord(succ(log2(A))) for A >= 0_,
@@ -4909,10 +5109,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr3 <span class="keywd">is</span> [42 .. 365] <span class="op">times</span> <span class="type">aStructType</span>.value;
 </pre><p>
   An element of an array can be accessed with an <tt><a class="type" href="#types_integer">integer</a></tt> index.
-  The minimal and maximal indices of an array are part of the value
+  The minimum and maximum indices of an array are part of the value
   and can be obtained with the functions <tt><span class="func">minIdx</span></tt> and <tt><span class="func">maxIdx</span></tt>.
-  There are functions which generate arrays with the default minimal
-  index of 1 and other functions which generate arrays with the minimal
+  There are functions which generate arrays with the default minimum
+  index of 1 and other functions which generate arrays with the minimum
   index taken from a parameter. The <tt><span class="type">array</span></tt> functions are defined
   in the library <span class="stri">"<span class="lib">array.s7i</span>"</span>.
 </p><p>
@@ -5008,7 +5208,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">length</span>([<span class="stri">'a'</span>] (1, 2, 3)) <b>&rArr;</b> 3
                     <span class="func">length</span>(0 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 0,
                     <span class="func">length</span>(5 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 5 )
-      <span class="func">minIdx</span>(A) Minimal index of array
+      <span class="func">minIdx</span>(A) Minimum index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     <span class="func">minIdx</span>([] (2, 3, 5))  <b>&rArr;</b> 1,
                     <span class="func">minIdx</span>([0] (2, 3, 5)) <b>&rArr;</b> 0,
@@ -5016,7 +5216,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">minIdx</span>([<span class="stri">'a'</span>] (1, 2, 3)) <b>&rArr;</b> <span class="stri">'a'</span>,
                     <span class="func">minIdx</span>(3 <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> 1,
                     <span class="func">minIdx</span>([-1 .. 4] <span class="op_no_ul">times</span> <span class="var">TRUE</span>) <b>&rArr;</b> -1 )
-      <span class="func">maxIdx</span>(A) Maximal index of array
+      <span class="func">maxIdx</span>(A) Maximum index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     <span class="func">maxIdx</span>([] (2, 3, 5))  <b>&rArr;</b> 3,
                     <span class="func">maxIdx</span>([0] (2, 3, 5)) <b>&rArr;</b> 2,
@@ -5042,7 +5242,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">remove</span>(anArray, 0, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">minIdx</span>(anArray) = 1,
                     <span class="func">remove</span>(anArray, 6, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4,
                     <span class="func">remove</span>(anArray, 1, -1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
-      <a class="func" href="#types_..">sort</a>(A)   Sort array using the compare(<span class="type">baseType</span>, <span class="type">baseType</span>) function
+      <span class="func">sort</span>(A)   Sort array using the compare(<span class="type">baseType</span>, <span class="type">baseType</span>) function
     Statements:
       A <span class="op">&amp;:=</span> B   Append B to A
                   ( A &amp;:= B <b>&rArr;</b> A := A &amp; B )
@@ -5296,7 +5496,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">card</span>({<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}) <b>&rArr;</b> 3,
                     <span class="func">card</span>({<span class="stri">"one"</span>, <span class="stri">"two"</span>, <span class="stri">"three"</span>}) <b>&rArr;</b> 3
                     <span class="func">card</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> 0 )
-      <span class="func">min</span>(A)    Minimal element
+      <span class="func">min</span>(A)    Minimum element
                   ( Type of result: <span class="type">baseType</span>,
                     Delivers the element from the set for
                     which the following condition holds:
@@ -5314,7 +5514,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">max</span>({2, 3, 5, 7, 11}) <b>&rArr;</b> 11,
                     <span class="func">max</span>({<span class="stri">'a'</span>, <span class="stri">'b'</span>, <span class="stri">'c'</span>}) <b>&rArr;</b> <span class="stri">'c'</span>,
                     <span class="func">max</span>(<span class="type">setType</span>.EMPTY_SET) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      <span class="func">next</span>(A, B) Minimal element of set A that is larger than B
+      <span class="func">next</span>(A, B) Minimum element of set A that is larger than B
                   ( Type of argument B: <span class="type">baseType</span>,
                     Type of result: <span class="type">baseType</span>,
                     <span class="func">next</span>({2, 3, 5, 7, 11}, 2) <b>&rArr;</b> 3,
@@ -5572,6 +5772,17 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">bitLength</span>(A) Number of bits in the minimum binary representation.
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    bitLength(bin64(0)) <b>&rArr;</b> 0,
+                    bitLength(bin64(1)) <b>&rArr;</b> 1,
+                    bitLength(bin64(4)) <b>&rArr;</b> 3 )
+      <span class="func">lowestSetBit</span>(A) Number of lowest-order zero bits in the binary representation.
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    A >> B &lt;&lt; B = A for A &lt;> bin64(0) and B = lowestSetBit(A),
+                    lowestSetBit(bin64(0)) <b>&rArr;</b> -1,
+                    lowestSetBit(bin64(1)) <b>&rArr;</b> 0,
+                    lowestSetBit(bin64(2)) <b>&rArr;</b> 1 )
       <span class="func">rand</span>(<span class="type">bin64</span>) Random <span class="type">bin64</span> value
                  The random values are uniform distributed.
                   ( <span class="func">rand</span>(<span class="type">bin64</span>) <b>&rArr;</b> <span class="func">bin64</span>(<span class="func">rand</span>(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>, <a class="type" href="#types_integer">integer</a>.<span class="var">last</span>)) )
@@ -5679,6 +5890,17 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">bitLength</span>(A) Number of bits in the minimum binary representation.
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    bitLength(bin32(0)) <b>&rArr;</b> 0,
+                    bitLength(bin32(1)) <b>&rArr;</b> 1,
+                    bitLength(bin32(4)) <b>&rArr;</b> 3 )
+      <span class="func">lowestSetBit</span>(A) Number of lowest-order zero bits in the binary representation.
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    A >> B &lt;&lt; B = A for A &lt;> bin32(0) and B = lowestSetBit(A),
+                    lowestSetBit(bin32(0)) <b>&rArr;</b> -1,
+                    lowestSetBit(bin32(1)) <b>&rArr;</b> 0,
+                    lowestSetBit(bin32(2)) <b>&rArr;</b> 1 )
       <span class="func">rand</span>(<span class="type">bin32</span>) Random <span class="type">bin32</span> value
                  The random values are uniform distributed.
                   ( <span class="func">rand</span>(<span class="type">bin32</span>) <b>&rArr;</b> <span class="func">bin32</span>(<span class="func">rand</span>(0, 4294967295)) )
@@ -6769,11 +6991,11 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of result: <a class="type" href="#types_ref_list">ref_list</a>,
                     arrayToList(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     arrayToList(A) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> ARRAYOBJECT )
-      <span class="func">arrayMinIdx</span>(A) Return the minimal index of an array
+      <span class="func">arrayMinIdx</span>(A) Return the minimum index of an array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     arrayMinIdx(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     arrayMinIdx(A) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> ARRAYOBJECT )
-      <span class="func">arrayMaxIdx</span>(A) Return the maximal index of an array
+      <span class="func">arrayMaxIdx</span>(A) Return the maximum index of an array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     arrayMaxIdx(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     arrayMaxIdx(A) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> ARRAYOBJECT )
@@ -7324,17 +7546,28 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <p>
     The following sub-chapters introduce the parameter types of
   Seed7.
-</p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Parameter           </th><th> Evaluation strategy </th><th> Assignment to formal parameter          </th></tr>
+  
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a> <span class="type"><b><i>aType</i></b></span>: name</tt>     </td><td align="center">    call-by-value    </td><td> forbidden                               </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <span class="type"><b><i>aType</i></b></span>: name</tt>     </td><td align="center">  call-by-reference  </td><td> forbidden                               </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type"><b><i>aType</i></b></span>: name</tt>      </td><td align="center"> depends on the type </td><td> forbidden                               </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <span class="type"><b><i>aType</i></b></span>: name</tt>  </td><td align="center">    call-by-value    </td><td> allowed (no effect on actual parameter) </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type"><b><i>aType</i></b></span>: name</tt>   </td><td align="center">  call-by-reference  </td><td> allowed (changes actual parameter)      </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name</tt> </td><td align="center">    <a class="link" href="#params_call_by_name_parameter">call-by-name</a>     </td><td> forbidden                               </td></tr>
+  
+</table></dd></dl><p></p>
 
 <a name="params_val_parameter"><h3>6.1 'val' parameter</h3></a>
 <p>
-  Value parameters are marked with the keyword <tt>'<span class="keywd">val</span>'</tt>.
-  A value parameter copies the value of the actual parameter.
-  The formal <tt>'<span class="keywd">val</span>'</tt> parameter cannot be changed inside the function.
-  Value parameters are used, when copying is cheap or
-  when copying  is necessary for the correct behavior.
-  The function below appends a comma and a string to the
-  variable <tt>'globalStri'</tt>:
+  Value parameters are introduced with the keyword <tt>'<span class="keywd">val</span>'</tt>
+  (e.g.: <tt><span class="keywd">val</span> <a class="type" href="#types_string">string</a>: stri</tt>). A value parameter copies the value
+  of the actual parameter. The formal <tt>'<span class="keywd">val</span>'</tt> parameter cannot be
+  changed inside the function. Value parameters are used, when
+  copying is cheap or when copying  is necessary for the
+  correct behavior. The function below appends a comma and a
+  string to the variable <tt>'globalStri'</tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: appendStri (<span class="keywd">val</span> <a class="type" href="#types_string">string</a>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -7395,13 +7628,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_ref_parameter"><h3>6.2 'ref' parameter</h3></a>
 <p>
-  Reference parameters are marked with the keyword <tt>'<span class="keywd">ref</span>'</tt>.
-  A reference parameter refers to the value of the actual parameter.
-  The formal <tt>'<span class="keywd">ref</span>'</tt> parameter cannot be changed inside the function.
-  Reference parameters are used, when copying is expensive and
-  referring to the value does not change the correct behavior.
-  The function below defines the primitive action for the
-  semicolon operator:
+  Reference parameters are introduced with the keyword <tt>'<span class="keywd">ref</span>'</tt>
+  (e.g.: <tt><span class="keywd">ref</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: arr</tt>). A reference parameter refers to
+  the value of the actual parameter. The formal <tt>'<span class="keywd">ref</span>'</tt> parameter
+  cannot be changed inside the function. Reference parameters are
+  used, when copying is expensive and referring to the value does
+  not change the correct behavior. The function below defines the
+  primitive action for the semicolon operator:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement1) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement2) <span class="keywd">is</span> noop;
 </pre><p>
@@ -7456,11 +7689,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_in_parameter"><h3>6.3 'in' parameter</h3></a>
 <p>
-  Input parameters are marked with the keyword <tt>'<span class="keywd">in</span>'</tt>.
-  Depending on the type an input parameter is either a
-  value or a reference parameter. The formal <tt>'<span class="keywd">in</span>'</tt> parameter
-  cannot be changed inside the function. The function below
-  checks if a given number is a prime number:
+  Input parameters are introduced with the keyword <tt>'<span class="keywd">in</span>'</tt>
+  (e.g.: <tt><span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: number</tt>). Depending on the type an input
+  parameter is either a value or a reference parameter. The
+  formal <tt>'<span class="keywd">in</span>'</tt> parameter cannot be changed inside the function.
+  The function below checks if a given number is a prime number:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: is_prime (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">result</span>
@@ -7531,8 +7764,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_in_var_parameter"><h3>6.4 'in var' parameter</h3></a>
 <p>
-  Value parameters that can be changed inside the function are marked
-  with the keywords <tt>'<span class="keywd">in var</span>'</tt>.
+  Value parameters that can be changed inside the function are
+  introduced with the keywords <tt>'<span class="keywd">in var</span>'</tt> (e.g.: <tt><span class="keywd">in var</span> <a class="type" href="#types_integer">integer</a>: a</tt>).
   The value of the actual parameter is copied. Changes to the
   formal <tt>'<span class="keywd">in var</span>'</tt> parameter have no effect outside the function.
   The function below computes the greatest common divisor:
@@ -7579,11 +7812,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <a name="params_inout_parameter"><h3>6.5 'inout' parameter</h3></a>
 <p>
-  Reference parameters, that can be changed inside the function, are marked
-  with the keyword <tt>'<span class="keywd">inout</span>'</tt>. A reference parameter
-  refers to the value of the actual parameter. Changes to
-  the formal <tt>'<span class="keywd">inout</span>'</tt> parameter effect also the actual parameter.
-  The procedure below doubles the given parameter 'number':
+  Reference parameters, that can be changed inside the function, are
+  introduced with the keyword <tt>'<span class="keywd">inout</span>'</tt> (e.g.: <tt><span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: number</tt>).
+  A reference parameter refers to the value of the actual parameter.
+  Changes to the formal <tt>'<span class="keywd">inout</span>'</tt> parameter effect also the actual
+  parameter. The procedure below doubles the given parameter
+  'number':
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: double (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -7614,7 +7848,86 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: inout (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a> <span class="keywd">param</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_expr">expr</a> <span class="keywd">param</span>)  <span class="keywd">is action</span> <span class="stri">"DCL_INOUT2"</span>;
 </pre><p></p>
 
-<a name="params_Symbol_parameter"><h3>6.6 Symbol parameter</h3></a>
+<a name="params_call_by_name_parameter"><h3>6.6 Call-by-name parameter</h3></a>
+<p>
+  Call-by-name is an evaluation strategy for parameters.
+  Call-by-name parameters are not introduced with a keyword.
+  All parameters with a function type like <tt><a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a></tt> or <tt><a class="type_no_ul" href="#types_proc">proc</a></tt>
+  are a call-by-name parameters. The actual call-by-name parameter
+  is not evaluated before the function is called. When the
+  function is executed the call-by-name parameter might be executed
+  once, many times or not at all. 
+</p><p>
+  For normal (not call-by-name) parameters the following holds:
+  When the function is called the actual parameter expressions
+  are evaluated and the results of the evaluation are forwarded
+  to the function. Assume <tt>number</tt> has the value <tt>12</tt> and the
+  following statement is executed:
+</p><pre class="indent">
+<span class="func_no_ul">seek</span>(aFile, number <span class="op_no_ul">+</span> 5);
+</pre><p>
+  The expression <tt>number <span class="op_no_ul">+</span> 5</tt> is evaluated to <tt>17</tt> before <tt><span class="func_no_ul">seek</span></tt> is
+  called. The statement actually executed is:
+</p><pre class="indent">
+<span class="func_no_ul">seek</span>(aFile, 17);
+</pre><p>
+  The definition of <tt><span class="func_no_ul">seek</span></tt> requests that its 2nd parameter must
+  be an <tt><a class="type" href="#types_integer">integer</a></tt> and not an integer expression:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: seek (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type_no_ul" href="#types_file">file</a>: aFile, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: position) <span class="keywd">is</span> ...
+</pre><p>
+  This triggers the evaluation of <tt>number <span class="op_no_ul">+</span> 5</tt>. Compare this to:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#stats_while-statement">while</a> number <span class="op_no_ul">&gt;</span> 0 <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+  number <span class="op_no_ul">-:=</span> 5;
+<a class="keywd_no_ul" href="#stats_while-statement">end</a> <a class="keywd_no_ul" href="#stats_while-statement">while</a>;
+</pre><p>
+  The <a class="link" href="#stats_while-statement">while-statement</a> is not called with the result of <tt>number <span class="op_no_ul">&gt;</span> 0</tt>.
+  This would not work for the loop condition. The <a class="link" href="#stats_while-statement">while-statement</a>
+  receives the expression <tt>number <span class="op_no_ul">&gt;</span> 0</tt> instead. This way the
+  <a class="link" href="#stats_while-statement">while-statement</a> can decide how often <tt>number <span class="op_no_ul">&gt;</span> 0</tt> is evaluated.
+  This contradicts the claim from above that actual parameter
+  expressions are evaluated before the function is called.
+  Obviously the condition parameter behaves different. This
+  behavior is triggered by the declaration of the <a class="link" href="#stats_while-statement">while-statement</a>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: while (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: condition) do (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statement) end while <span class="keywd">is</span> ...
+</pre><p>
+  The parameter <tt>condition</tt> has the type <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a></tt> which
+  is exactly the type of the expression <tt>number <span class="op_no_ul">&gt;</span> 0</tt>. For this
+  reason <tt>number <span class="op_no_ul">&gt;</span> 0</tt> is forwarded to the <a class="link" href="#stats_while-statement">while-statement</a> without
+  evaluating it. All parameters with a <tt><a class="type" href="#types_func">func</a></tt> type have this
+  behavior. The common name for all of them is call-by-name
+  parameter. All call-by-name parameters are not evaluated before
+  the function is called.
+</p><p>
+  Examples of normal and call-by-name parameters:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Normal parameter </th><th> Call-by-name parameter </th></tr>
+  
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: name</tt> </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: name</tt>  </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: name</tt> </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: name</tt>  </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: name</tt>  </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: name</tt>   </td></tr>
+  
+</table></dd></dl><p>
+  The type <tt><a class="type_no_ul" href="#types_proc">proc</a></tt> can also be used to define a call-by-name
+  parameter:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: possiblyDo (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statement) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> flipCoin <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      statement;
+    <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  The function <tt>possiblyDo</tt> can be called with any statement
+  (procedure):
+</p><pre class="indent">
+possiblyDo(<span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"hello world"</a>));
+</pre></p>
+
+<a name="params_Symbol_parameter"><h3>6.7 Symbol parameter</h3></a>
 <p>
   Some functions need symbols at fixed places in the parameter
   list. The following IF-statement requests the keywords <tt>'<span class="keywd">THEN</span>'</tt>,
@@ -7661,7 +7974,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       name_identifier | special_identifier .</dd>
 </dl></tt></dd></dl><p></p>
 
-<a name="params_attr_parameter"><h3>6.7 'attr' parameter</h3></a>
+<a name="params_attr_parameter"><h3>6.8 'attr' parameter</h3></a>
 <p>
   This declaration associates a name to the type <tt>'<a class="type" href="#types_char">char</a>'</tt>:
 </p><pre class="indent">
@@ -9791,8 +10104,8 @@ type_implements_interface(<span class="type">my_file_type</span>, <a class="type
 </p><p>
   Lexical scanners read symbols from a file and use the concept of
   a current character. A symbol can be a name, a number, a string,
-  an operator, a parenthesis or something else. The current
-  character is the first character to be processed when scanning a
+  an operator, a bracket or something else. The current character
+  is the first character to be processed when scanning a
   symbol. After a scanner has read a symbol the current character
   contains the character just after the symbol. This character
   could be the first character of the next symbol or some
@@ -11069,7 +11382,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><dl>
     <dd><a class="ebnf" href="#tokens_ebnf_name_identifier">name identifier</a>s</dd>
     <dd><a class="ebnf" href="#tokens_ebnf_special_identifier">special identifier</a>s</dd>
-    <dd><a class="ebnf" href="#tokens_ebnf_parenthesis">parenthesis</a></dd>
+    <dd><a class="ebnf" href="#tokens_ebnf_bracket">bracket</a></dd>
 </dl><p>
   Identifiers can be written adjacent except that between two
   name identifiers and between two special identifiers white space
@@ -11078,7 +11391,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="tokens_ebnf_identifier">identifier</a> ::=</dt><dd>
-      <a class="ebnf" href="#tokens_ebnf_name_identifier">name_identifier</a> | <a class="ebnf" href="#tokens_ebnf_special_identifier">special_identifier</a> | <a class="ebnf" href="#tokens_ebnf_parenthesis">parenthesis</a> .</dd>
+      <a class="ebnf" href="#tokens_ebnf_name_identifier">name_identifier</a> | <a class="ebnf" href="#tokens_ebnf_special_identifier">special_identifier</a> | <a class="ebnf" href="#tokens_ebnf_bracket">bracket</a> .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="tokens_Name_identifiers"><h4>10.2.1 Name identifiers</h4></a>
@@ -11147,19 +11460,19 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       '|' | '~' .</dd>
 </dl></tt></dd></dl><p></p>
 
-<a name="tokens_Parentheses"><h4>10.2.3 Parentheses</h4></a>
+<a name="tokens_Brackets"><h4>10.2.3 Brackets</h4></a>
 <p>
-    A parenthesis is one of the following characters:
+    A bracket is one of the following characters:
 </p><pre class="indent">
 ( ) [ ] { }
 </pre><p>
-  Note that a parenthesis consists of only one character. Except
+  Note that a bracket consists of only one character. Except
   for the character sequence (* (which introduces a comment)
-  a parenthesis is terminated with the next character.
+  a bracket is terminated with the next character.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
-    <dt><a name="tokens_ebnf_parenthesis">parenthesis</a> ::=</dt><dd>
+    <dt><a name="tokens_ebnf_bracket">bracket</a> ::=</dt><dd>
       '(' | ')' | '[' | ']' | '{' | '}' .</dd>
 </dl></tt></dd></dl><p></p>
 
@@ -11326,7 +11639,7 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
       <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_simple_literal_character">simple_literal_character</a> ::=</dt><dd>
-      <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> | <a class="ebnf" href="#tokens_ebnf_parenthesis">parenthesis</a> | <a class="ebnf" href="#tokens_ebnf_special_literal_character">special_literal_character</a> |<br />
+      <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> | <a class="ebnf" href="#tokens_ebnf_bracket">bracket</a> | <a class="ebnf" href="#tokens_ebnf_special_literal_character">special_literal_character</a> |<br />
       utf8_encoded_character .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_special_literal_character">special_literal_character</a> ::=</dt><dd>
@@ -11602,14 +11915,681 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
   in a portable way, an absolute path will usually not be portable.
 </p>
 
-<a name="os_readDir"><h3>12.2 readDir</h3></a>
+<a name="os_File_properties"><h3>12.2 File properties</h3></a>
 <p>
-    The function <tt><span class="func">readDir</span></tt> provides a portable access to the
+    Files have properties like type, size, mode (permissions),
+  several timestamps, owner and group. Properties like type and
+  size cannot be changed directly. Other properties may be
+  changed. For these properties getters and setters are provided.
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Property  </th><th> Getter      </th><th> Setter      </th><th> Comment                                                     </th></tr>
+  
+  <tr><td> file type </td><td> <tt><a class="func" href="#os_fileType">fileType</a></tt><br />    
+   <tt><a class="func" href="#os_fileType">fileTypeSL</a></tt>  </td><td>             </td><td> <!--(*-->For possible values see function <tt><a class="func" href="#os_fileType">fileType</a></tt><br /><!--*)-->Among others <tt><a href="#os_FILE_REGULAR">FILE_REGULAR</a></tt> and <tt><a href="#os_FILE_DIR">FILE_DIR</a></tt> are file types       </td></tr>
+  <tr><td> size      </td><td> <tt><a class="func" href="#os_fileSize">fileSize</a></tt><br />    
+   <tt><a class="func" href="#os_fileSize">bigFileSize</a></tt> </td><td>             </td><td> <!--(*-->The size of a file in bytes<!--*)-->                                                            </td></tr>
+  <tr><td> mode      </td><td> <tt><a class="func" href="#os_getFileMode">getFileMode</a></tt> </td><td> <tt><a class="func" href="#os_setFileMode">setFileMode</a></tt> </td><td> Permissions. For possible values see function <tt><a class="func" href="#os_getFileMode">getFileMode</a></tt> </td></tr>
+  <tr><td> aTime     </td><td> <tt><a class="func" href="#os_getATime">getATime</a></tt>    </td><td> <tt><a class="func" href="#os_setATime">setATime</a></tt>    </td><td> Time of last access                                         </td></tr>
+  <tr><td> cTime     </td><td> <tt><a class="func" href="#os_getCTime">getCTime</a></tt>    </td><td>             </td><td> Time of last status change                                  </td></tr>
+  <tr><td> mTime     </td><td> <tt><a class="func" href="#os_getMTime">getMTime</a></tt>    </td><td> <tt><a class="func" href="#os_setMTime">setMTime</a></tt>    </td><td> Time of last modification of content                        </td></tr>
+  <tr><td> owner     </td><td> <tt><a class="func" href="#os_getOwner">getOwner</a></tt>    </td><td> <tt><a class="func" href="#os_setOwner">setOwner</a></tt>    </td><td> The user name of the file owner                             </td></tr>
+  <tr><td> group     </td><td> <tt><a class="func" href="#os_getGroup">getGroup</a></tt>    </td><td> <tt><a class="func" href="#os_setGroup">setGroup</a></tt>    </td><td> The name of the group the file belongs to                   </td></tr>
+  
+</table></dd></dl><p></p>
+
+<a name="os_fileType"><h4>12.2.1 fileType</h4></a>
+<p>
+  The type of a file can determined with <tt><span class="func">fileType</span></tt> or <tt><span class="func">fileTypeSL</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileType (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileTypeSL (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function <tt><span class="func">fileType</span></tt> does follow symbolic links. The function
+  <tt><span class="func">fileTypeSL</span></tt> does not follow symbolic links. A return value of
+  <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt> does not imply that a file with this name can be
+  created, since missing directories and invalid file names will
+  also cause <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt>.
+</p>
+  <div><dl><dt><p>Returns:</p></dt><dd><dl>
+    <dt><a name="os_FILE_ABSENT">FILE_ABSENT</a></dt>
+        <dd>A component of path does not exist.</dd>
+    <dt><a name="os_FILE_UNKNOWN">FILE_UNKNOWN</a></dt>
+        <dd>The file exists but has an unknown type.</dd>
+    <dt><a name="os_FILE_REGULAR">FILE_REGULAR</a></dt>
+        <dd>The file is a regular file.</dd>
+    <dt><a name="os_FILE_DIR">FILE_DIR</a></dt>
+        <dd>The file is a directory.</dd>
+    <dt><a name="os_FILE_CHAR">FILE_CHAR</a></dt>
+        <dd>The file is a character special file.</dd>
+    <dt><a name="os_FILE_BLOCK">FILE_BLOCK</a></dt>
+        <dd>The file is a block special file.</dd>
+    <dt><a name="os_FILE_FIFO">FILE_FIFO</a></dt>
+        <dd>The file is a pipe or FIFO special file.</dd>
+    <dt><a name="os_FILE_SYMLINK">FILE_SYMLINK</a></dt>
+        <dd>The file is a symbolic link.</dd>
+    <dt><a name="os_FILE_SOCKET">FILE_SOCKET</a></dt>
+        <dd>The file is a socket.</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The system function returns an error other than ENOENT,
+        ENOTDIR, ENAMETOOLONG or EACCES.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_fileSize"><h4>12.2.2 fileSize</h4></a>
+<p>
+  The size of a file can be determined with <tt><span class="func">fileSize</span></tt> and <tt><span class="func">bigFileSize</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: bigFileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The functions follow symbolic links.
+</p>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    For directories a size of 0 is returned. For other file types
+    the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
+    used to determine the size of a file. The functions <tt><span class="func">fileSize</span></tt>
+    and <tt><span class="func">bigFileSize</span></tt> succeed when at least one strategy to determine
+    the file size succeeds.
+</p></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd>The file size is not representable as <tt><a class="type" href="#types_integer">integer</a></tt>
+        (this exception is not raised by <tt><span class="func">bigFileSize</span></tt>).</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>It was not possible to determine the file size.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getFileMode"><h4>12.2.3 getFileMode</h4></a>
+<p>
+  The file mode (permissions) of a file can determined with <tt><span class="func">getFileMode</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">fileMode</span>: getFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
+  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
+</p>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The <tt><span class="type">fileMode</span></tt> which is defined as <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span></tt>.
+</p></dd></dl></div>
+  <div><dl><dt><p>The literal values of <tt><span class="type">filePermission</span></tt> are:</p></dt><dd><dl>
+    <dt>EXEC_OTHER</dt>
+        <dd>others have execute permission</dd>
+    <dt>WRITE_OTHER</dt>
+        <dd>others have write permission</dd>
+    <dt>READ_OTHER</dt>
+        <dd>others have read permission</dd>
+    <dt>EXEC_GROUP</dt>
+        <dd>group has execute permission</dd>
+    <dt>WRITE_GROUP</dt>
+        <dd>group has write permission</dd>
+    <dt>READ_GROUP</dt>
+        <dd>group has read permission</dd>
+    <dt>EXEC_USER</dt>
+        <dd>owner has execute permission</dd>
+    <dt>WRITE_USER</dt>
+        <dd>owner has write permission</dd>
+    <dt>READ_USER</dt>
+        <dd>owner has read permission</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setFileMode"><h4>12.2.4 setFileMode</h4></a>
+<p>
+  The permissions of a file can be changed with <tt><span class="func">setFileMode</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <span class="type">fileMode</span>: newFileMode) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
+  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
+</p>
+  <div><dl><dt><p>The literal values of <tt><span class="type">filePermission</span></tt> are:</p></dt><dd><dl>
+    <dt>EXEC_OTHER</dt>
+        <dd>others have execute permission</dd>
+    <dt>WRITE_OTHER</dt>
+        <dd>others have write permission</dd>
+    <dt>READ_OTHER</dt>
+        <dd>others have read permission</dd>
+    <dt>EXEC_GROUP</dt>
+        <dd>group has execute permission</dd>
+    <dt>WRITE_GROUP</dt>
+        <dd>group has write permission</dd>
+    <dt>READ_GROUP</dt>
+        <dd>group has read permission</dd>
+    <dt>EXEC_USER</dt>
+        <dd>owner has execute permission</dd>
+    <dt>WRITE_USER</dt>
+        <dd>owner has write permission</dd>
+    <dt>READ_USER</dt>
+        <dd>owner has read permission</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getATime"><h4>12.2.5 getATime</h4></a>
+<p>
+  The access time of a file is returned by the function <tt><span class="func">getATime</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setATime"><h4>12.2.6 setATime</h4></a>
+<p>
+  The function <tt><span class="func">setATime</span></tt> sets the access time of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type, or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getCTime"><h4>12.2.7 getCTime</h4></a>
+<p>
+  The status change time of a file is returned by the function <tt><span class="func">getCTime</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getCTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getMTime"><h4>12.2.8 getMTime</h4></a>
+<p>
+  The modification time of a file is returned by the function <tt><span class="func">getMTime</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setMTime"><h4>12.2.9 setMTime</h4></a>
+<p>
+  The function <tt><span class="func">setMTime</span></tt> sets the modification time of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getOwner"><h4>12.2.10 getOwner</h4></a>
+<p>
+  The owner of a file is returned by the function <tt><span class="func">getOwner</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setOwner"><h4>12.2.11 setOwner</h4></a>
+<p>
+  The function <tt><span class="func">setOwner</span></tt> sets the owner of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: owner) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getGroup"><h4>12.2.12 getGroup</h4></a>
+<p>
+  The group of a file is returned by the function <tt><span class="func">getGroup</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setGroup"><h4>12.2.13 setGroup</h4></a>
+<p>
+  The function <tt><span class="func">setGroup</span></tt> sets the group of a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: group) <span class="keywd">is</span> ...
+</pre><p>
+  The function follows symbolic links.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_Symbolic_links"><h3>12.3 Symbolic links</h3></a>
+<p>
+    Symbolic links (symlinks) are files pointing to a target file
+  or directory. They specify a relative or absolute path to the
+  target (destination). Relative symbolic links are relative to
+  their location in the file system and not relative to the current
+  working directory. The target of a symbolic link may not exist.
+  In this case it is a dangling symbolic link. Many file functions
+  follow symbolic links. Following means: For a symbolic link the
+  function follows the symbolic link chain until the path is not
+  a symbolic link again. Afterwards the function is applied to
+  this final path.
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th align="center" colspan="2"> Functions that follow symlinks              </th><th align="center" colspan="2"> Functions that work only on symlinks and don't follow them </th></tr>
+  <tr><td colspan="2"> A dangling symlink raises <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt>.       </td><td colspan="2"> <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt> is raised if 'path' is not a symlink.            </td></tr>
+  
+  <tr><td> <tt><a class="func" href="#os_fileSize">fileSize</a>(path)</tt>    </td><td>                         </td><td>                            </td><td>                               </td></tr>
+  <tr><td> <tt><a class="func" href="#os_fileSize">bigFileSize</a>(path)</tt> </td><td>                         </td><td>                            </td><td>                               </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getFileMode">getFileMode</a>(path)</tt> </td><td> <tt><a class="func" href="#os_setFileMode">setFileMode</a>(path, mode)</tt> </td><td> <tt><a class="func" href="#os_getFileMode_SYMLINK">getFileMode</a>(path, SYMLINK)</tt> </td><td>                               </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getATime">getATime</a>(path)</tt>    </td><td> <tt><a class="func" href="#os_setATime">setATime</a>(path, time)</tt>    </td><td> <tt><a class="func" href="#os_getATime_SYMLINK">getATime</a>(path, SYMLINK)</tt>    </td><td>                               </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getCTime">getCTime</a>(path)</tt>    </td><td>                         </td><td>                            </td><td>                               </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getMTime">getMTime</a>(path)</tt>    </td><td> <tt><a class="func" href="#os_setMTime">setMTime</a>(path, time)</tt>    </td><td> <tt><a class="func" href="#os_getMTime_SYMLINK">getMTime</a>(path, SYMLINK)</tt>    </td><td> <tt><a class="func" href="#os_setMTime_SYMLINK">setMTime</a>(path, time, SYMLINK)</tt> </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getOwner">getOwner</a>(path)</tt>    </td><td> <tt><a class="func" href="#os_setOwner">setOwner</a>(path, name)</tt>    </td><td> <tt><a class="func" href="#os_getOwner_SYMLINK">getOwner</a>(path, SYMLINK)</tt>    </td><td> <tt><a class="func" href="#os_setOwner_SYMLINK">setOwner</a>(path, name, SYMLINK)</tt> </td></tr>
+  <tr><td> <tt><a class="func" href="#os_getGroup">getGroup</a>(path)</tt>    </td><td> <tt><a class="func" href="#os_setGroup">setGroup</a>(path, name)</tt>    </td><td> <tt><a class="func" href="#os_getGroup_SYMLINK">getGroup</a>(path, SYMLINK)</tt>    </td><td> <tt><a class="func" href="#os_setGroup_SYMLINK">setGroup</a>(path, name, SYMLINK)</tt> </td></tr>
+  <tr><td>                   </td><td>                         </td><td> <tt><a class="func" href="#os_readLink">readLink</a>(path)</tt>             </td><td>                               </td></tr>
+  <tr><td>                   </td><td>                         </td><td> <tt><a class="func" href="#os_readLink">readLink</a>(path, ABSOLUTE)</tt>   </td><td>                               </td></tr>
+  
+</table></dd></dl><p>
+  Functions that do not follow symbolic links:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Function                </th><th> Comment                               </th></tr>
+  
+  <tr><td> <tt><a class="func" href="#os_removeFile">removeFile</a>(path)</tt>        </td><td> Can be used to remove a symbolic link </td></tr>
+  <tr><td> <tt><a class="func" href="#os_removeTree">removeTree</a>(path)</tt>        </td><td> Can be used to remove a symbolic link </td></tr>
+  <tr><td> <tt><a class="func" href="#os_cloneFile">cloneFile</a>(source, dest)</tt> </td><td> Can be used to copy a symbolic link   </td></tr>
+  <tr><td> <tt><a class="func" href="#os_moveFile">moveFile</a>(source, dest)</tt>  </td><td> Can be used to rename a symbolic link </td></tr>
+  
+</table></dd></dl><p></p>
+
+<a name="os_readLink"><h4>12.3.1 readLink</h4></a>
+<p>
+  The functions <tt><span class="func">readLink</span>(path)</tt> and <tt><span class="func">readLink</span>(path, ABSOLUTE)</tt>
+  read the destination of a symbolic link:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: readLink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: readLink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, ABSOLUTE) <span class="keywd">is</span> ...
+</pre><p>
+  The function <tt><span class="func">readLink</span>(path)</tt> reads the link destination stored in
+  the file system. Symbolic links can be relative or absolute.
+  Relative symbolic links are relative to their location in the
+  file system and not relative to the current working directory.
+  The function <tt><span class="func">readLink</span>(path, ABSOLUTE)</tt> always returns an
+  absolute path. It leaves absolute symbolic links unchanged and
+  converts relative symbolic links to an absolute path.
+</p>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The symbolic link referred by <tt>'filePath'</tt>.
+</p></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
+        enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_finalPath"><h4>12.3.2 finalPath</h4></a>
+<p>
+  The function <tt><span class="func">finalPath</span></tt> returns the final path that functions
+  like <tt><span class="func">getMTime</span></tt> and <tt><span class="func">open</span></tt> would use. If <tt>filePath</tt> is not a
+  symbolic link it is returned. For a symbolic link the function
+  follows the symbolic link chain until the path is not a symbolic
+  link again. The final path may refer to a non-existing file.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: finalPath (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Parameters:</p></dt><dd><dl>
+    <dt>filePath</dt>
+        <dd>Relative or absolute path.</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The final path after possibly following a symbolic link chain.
+</dl></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
+        enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not exist or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_symlink"><h4>12.3.3 symlink</h4></a>
+<p>
+  The function <tt><span class="func">symlink</span></tt> creates a symbolic link called <tt>'dest'</tt>
+  that contains the string referred by <tt>'source'</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: symlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dest) <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Parameters:</p></dt><dd><dl>
+    <dt>source</dt>
+        <dd>String to be contained in the symbolic link.</dd>
+    <dt>dest</dt>
+        <dd>Name of the symbolic link to be created.</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
+        to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'source'</tt> or <tt>'dest'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        representation</a>, or one of them cannot be converted to the
+        system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>A system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getFileMode_SYMLINK"><h4>12.3.4 Symbolic link getFileMode</h4></a>
+<p>
+  The file mode (permissions) of a symbolic link can determined with
+  <tt><span class="func">getFileMode</span>(path, SYMLINK)</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">fileMode</span>: getFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getATime_SYMLINK"><h4>12.3.5 Symbolic link getATime</h4></a>
+<p>
+  The access time of a symbolic link is returned by the function
+  <tt><span class="func">getATime</span>(path, SYMLINK)</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getMTime_SYMLINK"><h4>12.3.6 Symbolic link getMTime</h4></a>
+<p>
+  The modification time of a symbolic link is returned by the function
+  <tt><span class="func">getMTime</span>(path, SYMLINK)</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setMTime_SYMLINK"><h4>12.3.7 Symbolic link setMTime</h4></a>
+<p>
+  The function <tt><span class="func">setMTime</span>(path, time, SYMLINK)</tt> sets the modification time of
+  a symbolic link:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getOwner_SYMLINK"><h4>12.3.8 Symbolic link getOwner</h4></a>
+<p>
+  The owner of a symbolic link is returned by the function
+  <tt><span class="func">getOwner</span>(path, SYMLINK)</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setOwner_SYMLINK"><h4>12.3.9 Symbolic link setOwner</h4></a>
+<p>
+  The function <tt><span class="func">setOwner</span>(path, owner, SYMLINK)</tt> sets the owner of
+  a symbolic link:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: owner, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_getGroup_SYMLINK"><h4>12.3.10 Symbolic link getGroup</h4></a>
+<p>
+  The group of a symbolic link is returned by the function
+  <tt><span class="func">getGroup</span>(path, SYMLINK)</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_setGroup_SYMLINK"><h4>12.3.11 Symbolic link setGroup</h4></a>
+<p>
+  The function <tt><span class="func">setGroup</span>(path, group, SYMLINK)</tt> sets the group of
+  a symbolic link:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: group, SYMLINK) <span class="keywd">is</span> ...
+</pre><p>
+  The function only works for symbolic links and does not follow the
+  symbolic link.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>The file described with <tt>'filePath'</tt> does not
+        exist, or it is not a symbolic link, or a system function
+        returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_Directory_functions"><h3>12.4 Directory functions</h3></a>
+<p>
+    Directories are a special kind of file. They contain references
+  to other files. Some functions work only on directories (e.g.:
+  <tt><a class="func" href="#os_readDir">readDir</a></tt>) while other functions (e.g.: <tt><a class="func" href="#os_getMTime">getMTime</a></tt>) will work on any
+  kind of file. Since directories are files they are not mentioned
+  specifically in the description of such generic functions.
+</p>
+
+<a name="os_readDir"><h4>12.4.1 readDir</h4></a>
+<p>
+  The function <tt><span class="func">readDir</span></tt> provides a portable access to the
   contents of directories in the file system. It reads the
   specified directory and the filenames are stored in the
-  string-array result. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are left out from
+  string-array result. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are excluded from
   the result. Note that the strings contain only the filenames.
-  Additional information must be obtained with other calls.
+  Additional information must be obtained using other calls.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: readDir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dirPath) <span class="keywd">is</span> ...
 </pre>
@@ -11626,7 +12606,9 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
         <dd><tt>'dirPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file described with <tt>'dirPath'</tt> does not
+        exist, or it is not a directory, or a system function
+        returns an error.</dd>
 </dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     After the declaration
@@ -11646,9 +12628,9 @@ dir_array := readDir(<span class="stri">"."</span>);
 <span class="keywd">end for</span>;
 </pre><p></p></dd></dl></div><p></p>
 
-<a name="os_openDir"><h3>12.3 openDir</h3></a>
+<a name="os_openDir"><h4>12.4.2 openDir</h4></a>
 <p>
-    The function <tt><span class="func">openDir</span></tt> opens the specified directory as file.
+  The function <tt><span class="func">openDir</span></tt> opens the specified directory as file.
   Each line in this directory file contains the filename of a
   file present in the directory. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are
   left out from the directory file. Note that only filenames can
@@ -11689,9 +12671,9 @@ fileName := getln(aDirFile);
 <span class="keywd">end while</span>;
 </pre><p></p></dd></dl></div><p></p>
 
-<a name="os_getcwd"><h3>12.4 getcwd</h3></a>
+<a name="os_getcwd"><h4>12.4.3 getcwd</h4></a>
 <p>
-    The function <tt><span class="func">getcwd</span></tt> returns the current working directory
+  The function <tt><span class="func">getcwd</span></tt> returns the current working directory
   of the calling process as absolute path.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getcwd <span class="keywd">is</span> ...
@@ -11714,9 +12696,9 @@ my_dir := getcwd;
     the <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'my_dir'</tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_chdir"><h3>12.5 chdir</h3></a>
+<a name="os_chdir"><h4>12.4.4 chdir</h4></a>
 <p>
-    The function <tt><span class="func">chdir</span></tt> changes the current working directory
+  The function <tt><span class="func">chdir</span></tt> changes the current working directory
   of the calling process to the specified directory.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: chdir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
@@ -11738,9 +12720,9 @@ chdir(<span class="stri">"/usr/bin"</span>);
     changes the current working directory to <tt><span class="stri">"/usr/bin"</span></tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_mkdir"><h3>12.6 mkdir</h3></a>
+<a name="os_mkdir"><h4>12.4.5 mkdir</h4></a>
 <p>
-    The function <tt><span class="func">mkdir</span></tt> creates a new directory.
+  The function <tt><span class="func">mkdir</span></tt> creates a new directory.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: mkdir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
 </pre>
@@ -11761,9 +12743,9 @@ mkdir(<span class="stri">"my_dir"</span>);
     creates the directory <tt><span class="stri">"my_dir"</span></tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_homeDir"><h3>12.7 homeDir</h3></a>
+<a name="os_homeDir"><h4>12.4.6 homeDir</h4></a>
 <p>
-    The function <tt><span class="func">homeDir</span></tt> returns the home directory of the user
+  The function <tt><span class="func">homeDir</span></tt> returns the home directory of the user
   as absolute path.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: homeDir <span class="keywd">is</span> ...
@@ -11791,385 +12773,13 @@ my_dir := homeDir;
     <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'my_dir'</tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_fileType"><h3>12.8 fileType</h3></a>
+<a name="os_Maintenance_functions"><h3>12.5 Maintenance functions</h3></a>
 <p>
-    The type of a file can determined with <tt><span class="func">fileType</span></tt> or <tt><span class="func">fileTypeSL</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileType (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileTypeSL (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function <tt><span class="func">fileType</span></tt> does follow symbolic links. Therefore
-  <tt><span class="func">fileType</span></tt> never returns <tt><a class="var" href="#os_FILE_SYMLINK">FILE_SYMLINK</a></tt>. The function <tt><span class="func">fileTypeSL</span></tt>
-  can also return <tt><a class="var" href="#os_FILE_SYMLINK">FILE_SYMLINK</a></tt>, because it does not follow symbolic
-  links. All functions which use a file path, except <tt><span class="func">fileTypeSL</span></tt>
-  and <tt><span class="func">readLink</span></tt> follow symbolic links.  A return value of
-  <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt> does not imply that a file with this name can be
-  created, since missing directories and invalid file names cause
-  also <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt>.
 </p>
-  <div><dl><dt><p>Returns:</p></dt><dd><dl>
-    <dt><a name="os_FILE_ABSENT">FILE_ABSENT</a></dt>
-        <dd>A component of path does not exist.</dd>
-    <dt><a name="os_FILE_UNKNOWN">FILE_UNKNOWN</a></dt>
-        <dd>The file exists but has an unknown type.</dd>
-    <dt><a name="os_FILE_REGULAR">FILE_REGULAR</a></dt>
-        <dd>The file is a regular file.</dd>
-    <dt><a name="os_FILE_DIR">FILE_DIR</a></dt>
-        <dd>The file is a directory.</dd>
-    <dt><a name="os_FILE_CHAR">FILE_CHAR</a></dt>
-        <dd>The file is a character special file.</dd>
-    <dt><a name="os_FILE_BLOCK">FILE_BLOCK</a></dt>
-        <dd>The file is a block special file.</dd>
-    <dt><a name="os_FILE_FIFO">FILE_FIFO</a></dt>
-        <dd>The file is a pipe or FIFO special file.</dd>
-    <dt><a name="os_FILE_SYMLINK">FILE_SYMLINK</a></dt>
-        <dd>The file is a symbolic link.</dd>
-    <dt><a name="os_FILE_SOCKET">FILE_SOCKET</a></dt>
-        <dd>The file is a socket.</dd>
-</dl></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The system function returns an error other than ENOENT,
-        ENOTDIR, ENAMETOOLONG or EACCES.</dd>
-</dl></dd></dl></div><p></p>
 
-<a name="os_fileSize"><h3>12.9 fileSize</h3></a>
+<a name="os_removeFile"><h4>12.5.1 removeFile</h4></a>
 <p>
-    The size of a file can be determined with <tt><span class="func">fileSize</span></tt> and <tt><span class="func">bigFileSize</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: bigFileSize (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Returns:</p></dt><dd><p>
-    For directories a size of 0 is returned. For other file types
-    the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
-    used to determine the size of a file. The functions <tt><span class="func">fileSize</span></tt>
-    and <tt><span class="func">bigFileSize</span></tt> succeed when at least one strategy to determine
-    the file size succeeds.
-</p></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd>The file size is not representable as <tt><a class="type" href="#types_integer">integer</a></tt>
-        (this exception is not raised by <tt><span class="func">bigFileSize</span></tt>).</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>It was not possible to determine the file size.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getFileMode"><h3>12.10 getFileMode</h3></a>
-<p>
-    The permissions of a file can determined with <tt><span class="func">getFileMode</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">fileMode</span>: getFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
-  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
-</p>
-  <div><dl><dt><p>Returns:</p></dt><dd><p>
-    The <tt><span class="type">fileMode</span></tt> which is defined as <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span></tt>.
-</p></dd></dl></div>
-  <div><dl><dt><p>The literal values of <tt><span class="type">filePermission</span></tt> are:</p></dt><dd><dl>
-    <dt>EXEC_OTHER</dt>
-        <dd>others have execute permission</dd>
-    <dt>WRITE_OTHER</dt>
-        <dd>others have write permission</dd>
-    <dt>READ_OTHER</dt>
-        <dd>others have read permission</dd>
-    <dt>EXEC_GROUP</dt>
-        <dd>group has execute permission</dd>
-    <dt>WRITE_GROUP</dt>
-        <dd>group has write permission</dd>
-    <dt>READ_GROUP</dt>
-        <dd>group has read permission</dd>
-    <dt>EXEC_USER</dt>
-        <dd>owner has execute permission</dd>
-    <dt>WRITE_USER</dt>
-        <dd>owner has write permission</dd>
-    <dt>READ_USER</dt>
-        <dd>owner has read permission</dd>
-</dl></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,,
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setFileMode"><h3>12.11 setFileMode</h3></a>
-<p>
-    The permissions of a file can be changed with <tt><span class="func">setFileMode</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setFileMode (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <span class="type">fileMode</span>: newFileMode) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links. The type <tt><span class="type">fileMode</span></tt> is
-  defined as <tt>'<a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span>'</tt>.
-</p>
-  <div><dl><dt><p>The literal values of <tt><span class="type">filePermission</span></tt> are:</p></dt><dd><dl>
-    <dt>EXEC_OTHER</dt>
-        <dd>others have execute permission</dd>
-    <dt>WRITE_OTHER</dt>
-        <dd>others have write permission</dd>
-    <dt>READ_OTHER</dt>
-        <dd>others have read permission</dd>
-    <dt>EXEC_GROUP</dt>
-        <dd>group has execute permission</dd>
-    <dt>WRITE_GROUP</dt>
-        <dd>group has write permission</dd>
-    <dt>READ_GROUP</dt>
-        <dd>group has read permission</dd>
-    <dt>EXEC_USER</dt>
-        <dd>owner has execute permission</dd>
-    <dt>WRITE_USER</dt>
-        <dd>owner has write permission</dd>
-    <dt>READ_USER</dt>
-        <dd>owner has read permission</dd>
-</dl></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getATime"><h3>12.12 getATime</h3></a>
-<p>
-    The access time of a file is returned by the function <tt><span class="func">getATime</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setATime"><h3>12.13 setATime</h3></a>
-<p>
-    The function <tt><span class="func">setATime</span></tt> sets the access time of a file:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setATime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type, or <tt>'aTime'</tt>
-        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getCTime"><h3>12.14 getCTime</h3></a>
-<p>
-    The change time of a file is returned by the function <tt><span class="func">getCTime</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getCTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getMTime"><h3>12.15 getMTime</h3></a>
-<p>
-    The modification time of a file is returned by the function <tt><span class="func">getMTime</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: getMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setMTime"><h3>12.16 setMTime</h3></a>
-<p>
-    The function <tt><span class="func">setMTime</span></tt> sets the modification time of a file:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setMTime (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_time">time</a>: aTime) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type or <tt>'aTime'</tt>
-        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getOwner"><h3>12.17 getOwner</h3></a>
-<p>
-    The owner of a file is returned by the function <tt><span class="func">getOwner</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setOwner"><h3>12.18 setOwner</h3></a>
-<p>
-    The function <tt><span class="func">setOwner</span></tt> sets the owner of a file:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setOwner (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: owner) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type or <tt>'aTime'</tt>
-        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_getGroup"><h3>12.19 getGroup</h3></a>
-<p>
-    The group of a file is returned by the function <tt><span class="func">getGroup</span></tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_setGroup"><h3>12.20 setGroup</h3></a>
-<p>
-    The function <tt><span class="func">setGroup</span></tt> sets the group of a file:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setGroup (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: group) <span class="keywd">is</span> ...
-</pre><p>
-  The function follows symbolic links.
-</p>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type or <tt>'aTime'</tt>
-        is invalid, or <tt>'aTime'</tt> cannot be converted to the system file time.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not
-        exist, or a system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_readLink"><h3>12.21 readLink</h3></a>
-<p>
-    The function <tt><span class="func">readLink</span></tt> reads the destination of a symbolic link:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: readLink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Returns:</p></dt><dd><p>
-    The symbolic link referred by <tt>'filePath'</tt>.
-</p></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
-        enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
-        or it cannot be converted to the system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_symlink"><h3>12.22 symlink</h3></a>
-<p>
-    The function <tt><span class="func">symlink</span></tt> creates a symbolic link called <tt>'dest'</tt>
-  that contains the string referred by <tt>'source'</tt>:
-</p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: symlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dest) <span class="keywd">is</span> ...
-</pre>
-  <div><dl><dt><p>Parameters:</p></dt><dd><dl>
-    <dt>source</dt>
-        <dd>String to be contained in the symbolic link.</dd>
-    <dt>dest</dt>
-        <dd>Name of the symbolic link to be created.</dd>
-</dl></dd></dl></div>
-  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
-    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
-        to the system path type.</dd>
-    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'source'</tt> or <tt>'dest'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
-        representation</a>, or one of them cannot be converted to the
-        system path type.</dd>
-    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
-</dl></dd></dl></div><p></p>
-
-<a name="os_removeFile"><h3>12.23 removeFile</h3></a>
-<p>
-    The function <tt><span class="func">removeFile</span></tt> removes a file of any type unless it
+  The function <tt><span class="func">removeFile</span></tt> removes a file of any type unless it
   is a directory that is not empty. An attempt to remove a directory
   that is not empty triggers <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>.
 </p><pre class="indent">
@@ -12179,15 +12789,15 @@ my_dir := homeDir;
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,,
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>,
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeTree"><h3>12.24 removeTree</h3></a>
+<a name="os_removeTree"><h4>12.5.2 removeTree</h4></a>
 <p>
-    The function <tt><span class="func">removeTree</span></tt> removes a file of any type inclusive
+  The function <tt><span class="func">removeTree</span></tt> removes a file of any type inclusive
   a directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeTree (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
@@ -12202,9 +12812,9 @@ my_dir := homeDir;
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div>
 
-<a name="os_copyFile"><h3>12.25 copyFile</h3></a>
+<a name="os_copyFile"><h4>12.5.3 copyFile</h4></a>
 <p>
-    The function <tt><span class="func">copyFile</span></tt> copies a file or directory tree:
+  The function <tt><span class="func">copyFile</span></tt> copies a file or directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: copyFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
@@ -12230,9 +12840,9 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_cloneFile"><h3>12.26 cloneFile</h3></a>
+<a name="os_cloneFile"><h4>12.5.4 cloneFile</h4></a>
 <p>
-    The function <tt><span class="func">cloneFile</span></tt> clones a file or directory tree:
+  The function <tt><span class="func">cloneFile</span></tt> clones a file or directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: cloneFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
@@ -12254,9 +12864,9 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_moveFile"><h3>12.27 moveFile</h3></a>
+<a name="os_moveFile"><h4>12.5.5 moveFile</h4></a>
 <p>
-    The function <tt><span class="func">moveFile</span></tt> moves and/or renames a file or
+  The function <tt><span class="func">moveFile</span></tt> moves and/or renames a file or
   directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: moveFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
@@ -12283,9 +12893,13 @@ my_dir := homeDir;
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_argv_PROGRAM"><h3>12.28 argv(PROGRAM)</h3></a>
+<a name="os_Environment"><h3>12.6 Environment</h3></a>
 <p>
-    The function <tt><span class="func">argv(PROGRAM)</span></tt> returns the argument vector of
+</p>
+
+<a name="os_argv_PROGRAM"><h4>12.6.1 argv(PROGRAM)</h4></a>
+<p>
+  The function <tt><span class="func">argv(PROGRAM)</span></tt> returns the argument vector of
   the program as array of strings. The name of the program is
   not part of the argument vector.
 </p><pre class="indent">
@@ -12295,9 +12909,9 @@ my_dir := homeDir;
     An array of strings containing the argument vector.
 </p></dd></dl></div><p></p>
 
-<a name="os_name_PROGRAM"><h3>12.29 name(PROGRAM)</h3></a>
+<a name="os_name_PROGRAM"><h4>12.6.2 name(PROGRAM)</h4></a>
 <p>
-    The function <tt><span class="func">name(PROGRAM)</span></tt> returns the name of the program
+  The function <tt><span class="func">name(PROGRAM)</span></tt> returns the name of the program
   without path and extension. The name returned by <tt><span class="func">name(PROGRAM)</span></tt>
   is the same for interpreted and compiled programs. The function
   <tt><span class="func">name(PROGRAM)</span></tt> does not follow symbolic links. It determines,
@@ -12311,9 +12925,9 @@ my_dir := homeDir;
     The name of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_path_PROGRAM"><h3>12.30 path(PROGRAM)</h3></a>
+<a name="os_path_PROGRAM"><h4>12.6.3 path(PROGRAM)</h4></a>
 <p>
-    The function <tt><span class="func">path(PROGRAM)</span></tt> returns the absolute path
+  The function <tt><span class="func">path(PROGRAM)</span></tt> returns the absolute path
   of the program. For an interpreted program this is the
   absolute path of the source file. For a compiled program
   this is the absolute path of the executable. The function
@@ -12325,9 +12939,9 @@ my_dir := homeDir;
     The absolute path of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_dir_PROGRAM"><h3>12.31 dir(PROGRAM)</h3></a>
+<a name="os_dir_PROGRAM"><h4>12.6.4 dir(PROGRAM)</h4></a>
 <p>
-    The function <tt><span class="func">dir(PROGRAM)</span></tt> returns the absolute path of the
+  The function <tt><span class="func">dir(PROGRAM)</span></tt> returns the absolute path of the
   directory containing the program. The function <tt><span class="func">dir(PROGRAM)</span></tt>
   allows placing configuration data in the directory of the program.
   <tt><span class="func">dir(PROGRAM)</span></tt> is based on <tt><a class="func" href="#os_path_PROGRAM">path(PROGRAM)</a></tt>.
@@ -12338,9 +12952,9 @@ my_dir := homeDir;
     The absolute path of the directory containing the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_file_PROGRAM"><h3>12.32 file(PROGRAM)</h3></a>
+<a name="os_file_PROGRAM"><h4>12.6.5 file(PROGRAM)</h4></a>
 <p>
-    The function <tt><span class="func">file(PROGRAM)</span></tt> returns the filename of the
+  The function <tt><span class="func">file(PROGRAM)</span></tt> returns the filename of the
   program without path. <tt><span class="func">file(PROGRAM)</span></tt> is based on <tt><a class="func" href="#os_path_PROGRAM">path(PROGRAM)</a></tt>.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: file (PROGRAM) <span class="keywd">is</span> ...
@@ -12349,9 +12963,9 @@ my_dir := homeDir;
     The filename of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_getenv"><h3>12.33 getenv</h3></a>
+<a name="os_getenv"><h4>12.6.6 getenv</h4></a>
 <p>
-    The function <tt><span class="func">getenv</span></tt> determines the value of an
+  The function <tt><span class="func">getenv</span></tt> determines the value of an
   environment variable.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
@@ -12374,9 +12988,9 @@ my_dir := homeDir;
         type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setenv"><h3>12.34 setenv</h3></a>
+<a name="os_setenv"><h4>12.6.7 setenv</h4></a>
 <p>
-    The function <tt><span class="func">setenv</span></tt> adds or changes an environment
+  The function <tt><span class="func">setenv</span></tt> adds or changes an environment
   variable.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: value) <span class="keywd">is</span> ...
@@ -12397,9 +13011,9 @@ my_dir := homeDir;
         system string type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_unsetenv"><h3>12.35 unsetenv</h3></a>
+<a name="os_unsetenv"><h4>12.6.8 unsetenv</h4></a>
 <p>
-    The function <tt><span class="func">unsetenv</span></tt> removes an environment variable.
+  The function <tt><span class="func">unsetenv</span></tt> removes an environment variable.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: unsetenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
 </pre><p>
@@ -12418,9 +13032,9 @@ my_dir := homeDir;
         type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_environment"><h3>12.36 environment</h3></a>
+<a name="os_environment"><h4>12.6.9 environment</h4></a>
 <p>
-    The function <tt><span class="func">environment</span></tt> returns the list of
+  The function <tt><span class="func">environment</span></tt> returns the list of
   environment variable names as array of strings.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: environment <span class="keywd">is</span> ...
@@ -12989,8 +13603,8 @@ end while;
 <a name="graphic_GRAPHIC_LIBRARY"><h2>14. GRAPHIC LIBRARY</h2></a>
 
 <p>
-    Seed7 provides a portable graphics library. Below is the graphic
-  "hello world" program:
+    Seed7 provides a portable graphics library. <a name="graphic_hello_world">Below is the graphic
+  "hello world" program</a>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">dialog.s7i</span>"</span>;
@@ -13066,6 +13680,44 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   The function <tt><span class="func">color</span></tt> creates a <tt><a class="type" href="#types_color">color</a></tt> from red, green and blue lights
   in the additive color model. The red, green and blue lights are
   specified by integer values in the range 0 .. 65535.
+</p><p>
+  <a name="graphic_hello_world_with_font">Below is a "hello world" program that uses a Seed7 font</a>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">text.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"stdfont24.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">text</span>: textWindow <span class="keywd">is</span> <span class="type">text</span>.value;
+  <span class="keywd">begin</span>
+    <span class="func">screen</span>(203, 45);
+    textWindow := <span class="func">openPixmapFontFile</span>(curr_win);
+    <span class="func">setFont</span>(textWindow, stdFont24);
+    <span class="func">writeln</span>(textWindow, " hello world");
+    <a class="func" href="#stats_Ignoring_values">ignore</a>(<span class="func">getc</span>(<span class="var">GRAPH_KEYBOARD</span>));
+  <span class="keywd">end func</span>;
+</pre><p>
+  The function <tt><span class="func">screen</span></tt> opens a window with a width of 203 pixels and
+  a height of 45 pixels. The window is stored in the global variable
+  <tt>curr_win</tt>. The function <tt><span class="func">openPixmapFontFile</span></tt> opens a <tt><span class="type">pixmapFontFile</span></tt>
+  for <tt>curr_win</tt>. Everything written to <tt>textWindow</tt> is displayed in
+  the current window. The function <tt><span class="func">setFont</span></tt> defines which font should
+  be used. The font <tt>stdfont24.s7i</tt> is a <tt><span class="type">bitmapFont</span></tt> with a cap-height
+  of 24 pixels. The function <tt><span class="func">writeln</span></tt> displays hello world to the
+  current window with the specified font.
+</p><p>
+  Seed7 fonts are not as perfect as professional fonts. They have the
+  following properties:
+</p><ul>
+    <li>They are open source.</li>
+    <li>They are implemented in Seed7.</li>
+    <li>No external library is needed.</li>
+    <li>Seed7 programs can use them always.</li>
+    <li>There are bitmap and vector fonts.</li>
+</ul><p>
 </p>
 
 <a name="actions_file_start"></a><p></p>
@@ -13990,7 +14642,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>LST_CPY</td>             <td>lst_cpy</td></tr>
     <tr><td>LST_CREATE</td>          <td>lst_create</td></tr>
     <tr><td>LST_DESTR</td>           <td>lst_destr</td></tr>
-    <tr><td>LST_ELEM</td>            <td>lst_elem</td></tr>
     <tr><td>LST_EMPTY</td>           <td>lst_empty</td></tr>
     <tr><td>LST_EXCL</td>            <td>lst_excl</td></tr>
     <tr><td>LST_HEAD</td>            <td>lst_head</td></tr>
@@ -15801,7 +16452,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">29:</td> <td width="10"></td><td><a name="errors_IDENT_EXPECTED"                   >Identifier expected found "%s"</a></td></tr>
     <tr><td align="right">30:</td> <td width="10"></td><td><a name="errors_EXPR_EXPECTED"                    >Expression expected found "%s"</a></td></tr>
     <tr><td align="right">31:</td> <td width="10"></td><td><a name="errors_PARAM_DECL_FAILED"                >Declaration of parameter %s failed</a></td></tr>
-    <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_DECL_FAILED"                      >Declaration of "%s" failed</a></td></tr>
+    <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_DECL_FAILED"                      ></a><a class="link" href="#decls_DECL_FAILED_example"                       >Declaration of "%s" failed</a></td></tr>
     <tr><td align="right">33:</td> <td width="10"></td><td><a name="errors_EXCEPTION_RAISED"                 >Exception "%s" raised</a></td></tr>
     <tr><td align="right">34:</td> <td width="10"></td><td><a name="errors_OBJTWICEDECLARED"                 ></a><span class="link">Redeclaration of "%s"</span></td></tr>
     <tr><td align="right">35:</td> <td width="10"></td><td><a name="errors_PREVIOUS_DECLARATION"             ></a><span class="link">Previous declaration of "%s"</span></td></tr>
@@ -15821,7 +16472,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">49:</td> <td width="10"></td><td><a name="errors_KIND_OF_IN_PARAM_UNDEFINED"       >Kind of in-parameter (val or ref) unspecified for type "%s"</a></td></tr>
     <tr><td align="right">50:</td> <td width="10"></td><td><a name="errors_DOLLAR_VALUE_WRONG"               >"newtype", "subtype", "func", "enumlit" or "action" expected found "%s"</a></td></tr>
     <tr><td align="right">51:</td> <td width="10"></td><td><a name="errors_DOLLAR_TYPE_WRONG"                >"func" or "type" expected found "%s"</a></td></tr>
-    <tr><td align="right">52:</td> <td width="10"></td><td><a name="errors_NO_MATCH"                         >Match for %s failed</a></td></tr>
+    <tr><td align="right">52:</td> <td width="10"></td><td><a name="errors_NO_MATCH"                         ></a><a class="link" href="#decls_NO_MATCH_example"                          >Match for %s failed</a></td></tr>
     <tr><td align="right">53:</td> <td width="10"></td><td><a name="errors_WRONGACCESSRIGHT"                 ></a><a class="link" href="#tutorial_WRONGACCESSRIGHT_example"               >Variable expected in %s found %s</a></td></tr>
     <tr><td align="right">54:</td> <td width="10"></td><td><a name="errors_TYPE_EXPECTED"                    >Type expected found %s</a></td></tr>
     <tr><td align="right">55:</td> <td width="10"></td><td><a name="errors_PROC_EXPECTED"                    >Procedure expected found %s expression</a></td></tr>
@@ -16066,9 +16717,10 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   A <tt><span class="exception">FILE_ERROR</span></tt> occurs if an illegal operation with a file is done.
 </p><dl><dt>
     It may be raised by the following functions:</dt><dd>
-        <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileMode">fileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
-        <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeTree">removeTree</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
-        <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
+        <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_getFileMode">getFileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
+        <a class="func" href="#os_getATime">getATime</a>, <a class="func" href="#os_setATime">setATime</a>, <a class="func" href="#os_getCTime">getCTime</a>, <a class="func" href="#os_getMTime">getMTime</a>, <a class="func" href="#os_setMTime">setMTime</a>, <a class="func" href="#os_getOwner">getOwner</a>, <a class="func" href="#os_setOwner">setOwner</a>,
+        <a class="func" href="#os_getGroup">getGroup</a>, <a class="func" href="#os_setGroup">setGroup</a>, <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeTree">removeTree</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>,
+        <a class="func" href="#os_copyFile">copyFile</a>, <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
         <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
 <p></p>
 

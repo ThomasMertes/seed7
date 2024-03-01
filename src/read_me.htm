@@ -250,8 +250,8 @@ pre.indent {
   <tr><td>mk_clangw.mak</td><td> Windows (clang) </td><td> (g)make      </td><td> clang      </td><td> cmd.exe</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_TCC">mk_tcc_w.mak</a> </td><td> Windows (tcc)   </td><td> (g)make      </td><td> tcc        </td><td> cmd.exe</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_DOS_WITH_DJGPP">mk_djgpp.mak</a> </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
-  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osx.mak</a>   </td><td> Mac OS          </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
-  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osxcl.mak</a> </td><td> Mac OS          </td><td> make         </td><td> clang      </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osx.mak</a>   </td><td> macOS           </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osxcl.mak</a> </td><td> macOS           </td><td> make         </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN">mk_emccl.mak</a> </td><td> Linux/Unix/BSD  </td><td> make         </td><td> emcc + gcc </td><td> sh</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN">mk_emccw.mak</a> </td><td> Windows (emcc)  </td><td> mingw32-make </td><td> emcc + gcc </td><td> cmd.exe</td></tr>
@@ -587,7 +587,11 @@ bin/as.exe: cannot execute binary file
 
 <div><br /><a name="build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN"><h3>COMPILING WITH EMCC FROM EMSCRIPTEN
 </h3></a><p>
-    The makefiles mk_emccl.mak and mk_emccw.mak are provided
+    Emscripten provides a C compiler (emcc) that targets
+  JavaScript and WebAssembly. How to download and install
+  Emscripten is described <span class="link">here</span>.
+</p><p>
+  The makefiles mk_emccl.mak and mk_emccw.mak are provided
   for compiling with emcc under Linux and Windows. Besides emcc
   you need also gcc (under Windows use gcc from MinGW) and
   node.js. When you download emsdk you get also a version of
@@ -710,13 +714,13 @@ copy graph_file.s7i GRAPH_~1.S7I
 
 <div><br /><a name="build_COMPILING_UNDER_MAC_OS"><h3>COMPILING UNDER MAC OS
 </h3></a><p>
-    To compile under Mac OS make sure that the command line
-  tools for Mac OS are installed. They can be obtained from Xcode
+    To compile under macOS make sure that the command line
+  tools for macOS are installed. They can be obtained from Xcode
   (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
   the command line tools can be downloaded directly. The tools
   contain the C compilers clang and gcc. They also provide a
-  'make' utility. Depending on the version of Mac OS it might be
-  necessary to install also XQuartz (the X11 support of Mac OS).
+  'make' utility. Depending on the version of macOS it might be
+  necessary to install also XQuartz (the X11 support of macOS).
   If the x11 lib is not found it can be installed using brew:
 </p><pre class="indent">
 brew install libx11
@@ -726,7 +730,7 @@ brew install libx11
 </p><pre class="indent">
 sudo ln -s /opt/homebrew/include/X11 /usr/local/include/X11
 </pre><p>
-  In newer versions of Mac OS gcc is based on clang. You can use
+  In newer versions of macOS gcc is based on clang. You can use
   this gcc, but it is not the original gcc. To obtain the
   original gcc you have to download it from a repository like
   Homebrew. To compile Seed7 with gcc (the clang based gcc or
@@ -747,8 +751,8 @@ make
   in the 'bin' directory and the 'prg' directory will contain a
   link to the executable.
 </p><p>
-  Under Mac OS the X11 library is usually found in
-  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS)
+  Under macOS the X11 library is usually found in
+  '/usr/X11R6/lib'. For unknown reasons the Xcode (macOS)
   linker normally does not search libraries in '/usr/X11R6/lib'.
   Therefore 'mk_osx.mak' defines the following linker flag:
 </p><pre class="indent">
@@ -1494,6 +1498,7 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>sql_post.c<td>&nbsp;</td><td>Database access functions for PostgreSQL.</td></tr>
 <tr><td>sql_srv.c <td>&nbsp;</td><td>Database access functions for MS SQL-Server.</td></tr>
 <tr><td>sql_tds.c <td>&nbsp;</td><td>Database access functions for Tabular Data Stream.</td></tr>
+<tr><td>stat_win.c<td>&nbsp;</td><td>Define functions used by os_stat macros.</td></tr>
 <tr><td>trm_cap.c <td>&nbsp;</td><td>Driver for termcap screen access.</td></tr>
 <tr><td>trm_inf.c <td>&nbsp;</td><td>Driver for terminfo screen access.</td></tr>
 <tr><td>tim_dos.c <td>&nbsp;</td><td>Time functions which call the Dos API.</td></tr>
@@ -1530,7 +1535,6 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
   linked to the interpreter or to the runtime library.
 </p><table border="0" cellspacing="0">
 <tr><td>chkccomp.c <td>&nbsp;</td><td>Check properties of C compiler and runtime.</td></tr>
-<tr><td>setpaths.c <td>&nbsp;</td><td>Write definitions for Seed7 specific paths.</td></tr>
 <tr><td>setwpath.c <td>&nbsp;</td><td>Set the search path (PATH variable) under Windows.</td></tr>
 <tr><td>sudo.c     <td>&nbsp;</td><td>Execute command as administrator under Windows.</td></tr>
 </table><p>
@@ -1705,7 +1709,7 @@ compiler and linker (Most IDEs provide also a
 stand-alone compiler/linker). If the C compiler is
 called via a script C_COMPILER_SCRIPT is defined and
 C_COMPILER is not defined by a makefile. In that
-case C_COMPILER is defined by setpaths.c together
+case C_COMPILER is defined by chkccomp.c together
 with the flag CALL_C_COMPILER_FROM_SHELL.</td></tr>
 
 <tr><td valign="top">CPLUSPLUS_COMPILER: </td><td>Contains the command to call the stand-alone
@@ -2185,6 +2189,45 @@ Maximum value that trunc() or round() can convert.
 Values above MAXIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
 if trunc() or round() is applied to them.</td></tr>
 
+<tr><td valign="top">PIXEL_ALPHA_MASK</td><td>
+Mask for the alpha channel in a pixel.
+0 if there is no alpha channel.</td></tr>
+
+<tr><td valign="top">PIXEL_RED_MASK</td><td>
+Mask for the red color in a pixel.
+0 if there is no mapping and drwRgbColor() should be used.</td></tr>
+
+<tr><td valign="top">PIXEL_GREEN_MASK</td><td>
+Mask for the green color in a pixel.
+0 if there is no mapping and drwRgbColor() should be used.</td></tr>
+
+<tr><td valign="top">PIXEL_BLUE_MASK</td><td>
+Mask for the blue color in a pixel.
+0 if there is no mapping and drwRgbColor() should be used.</td></tr>
+
+<tr><td valign="top">RGB_TO_PIXEL_FLAG_NAME</td><td>
+Name of the variable deciding between macro and drwRgbColor().
+"" if no variable needs to be checked.</td></tr>
+
+<tr><td valign="top">POINT_LIST_INT_SIZE</td><td>
+Size of an integer in a ''pointList'' object.
+A ''pointList'' consists of (x, y) coordinate pairs where
+each x and y has the size POINT_LIST_INT_SIZE.</td></tr>
+
+<tr><td valign="top">POINT_LIST_ABSOLUTE</td><td>
+TRUE if a ''pointList'' uses absolute coordinates.
+If it is FALSE the first (x, y) coordinate pair is absolute
+and the remaining (x, y) coordinates are relative to the
+previous coordinate pair.</td></tr>
+
+<tr><td valign="top">POINT_LIST_ALIGNMENT</td><td>
+Defined if ''pointList'' data (plist->mem) needs to be
+aligned. In this case it contains the number of zero bits
+(counting from the least significant bit) in the address
+of ''pointList'' data. The function pltAlign() checks
+if ''pointList'' data is aligned and returns an aligned
+copy if the original ''pointList'' data is not aligned.</td></tr>
+
 <tr><td valign="top">NULL_DEVICE: </td><td>Name of the NULL device.
 Under Linux/Unix/BSD this is "/dev/null".
 Under Windows this is "NUL:".</td></tr>
@@ -2437,25 +2480,91 @@ FALSE if this is not the case.
 Comparison refers to comparisons with
 ==  <  >  <=  or  >= .</td></tr>
 
-<tr><td valign="top">POW_OF_NAN_OKAY: </td><td>TRUE if pow(NaN, 0.0) returns 1.0 and
+<tr><td valign="top">SQRT_OF_NAN_OKAY:</td><td>
+TRUE if sqrt(NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">SQRT_OF_NEGATIVE_OKAY:</td><td>
+TRUE if sqrt(x) returns NaN for every x < 0.0.</td></tr>
+
+<tr><td valign="top">EXP_OF_NAN_OKAY:</td><td>
+TRUE if exp(NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">LDEXP_OF_NAN_OKAY:</td><td>
+TRUE if ldexp(NaN, n) returns NaN.</td></tr>
+
+<tr><td valign="top">LDEXP_OF_INFINITY_OKAY:</td><td>
+TRUE if ldexp(Infinity, n) returns Infinity and
+ldexp(-Infinity, n) returns -Infinity.</td></tr>
+
+<tr><td valign="top">LDEXP_SUBNORMAL_OKAY:</td><td>
+TRUE if ldexp(x, n) works correctly for subnormal numbers.</td></tr>
+
+<tr><td valign="top">FREXP_INFINITY_NAN_OKAY:</td><td>
+TRUE if frexp(Infinity, &n) returns Infinity and
+frexp(-Infinity, &n) returns -Infinity and
+frexp(NaN, &n) returns NaN.</td></tr>
+
+<tr><td valign="top">FREXP_SUBNORMAL_OKAY:</td><td>
+TRUE if frexp(x, &n) works correctly for subnormal numbers.</td></tr>
+
+<tr><td valign="top">FMOD_DIVIDEND_NAN_OKAY:</td><td>
+TRUE if fmod(NaN, y) returns NaN.</td></tr>
+
+<tr><td valign="top">FMOD_DIVISOR_NAN_OKAY:</td><td>
+TRUE if fmod(x, NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">FMOD_DIVIDEND_INFINITY_OKAY:</td><td>
+TRUE if both fmod(Infinity, y) and fmod(-Infinity, y) return NaN.</td></tr>
+
+<tr><td valign="top">FMOD_DIVISOR_INFINITY_OKAY:</td><td>
+TRUE if both fmod(x, Infinity) and fmod(x, -Infinity) return x and
+all of fmod(Infinity, Infinity), fmod(Infinity, -Infinity),
+fmod(-Infinity, Infinity) and fmod(-Infinity, -Infinity) return NaN.</td></tr>
+
+<tr><td valign="top">FMOD_DIVISOR_ZERO_OKAY:</td><td>
+TRUE if fmod(x, 0.0) returns NaN.</td></tr>
+
+<tr><td valign="top">FLOAT_ZERO_TIMES_INFINITE_OKAY:</td><td>
+TRUE if all of 0.0 * Infinity, 0.0 * -Infinity,
+Infinity * 0.0 and -Infinity * 0 return NaN.</td></tr>
+
+<tr><td valign="top">NAN_MULTIPLICATION_OKAY:</td><td>
+TRUE if both x * NaN and NaN * y return NaN.</td></tr>
+
+<tr><td valign="top">NAN_DIVISION_OKAY:</td><td>
+TRUE if both x / NaN and NaN / y return NaN.</td></tr>
+
+<tr><td valign="top">MAX_ODD_FLOAT:</td><td>
+Maximum float value that is odd. All larger float values are even.</td></tr>
+
+<tr><td valign="top">MAX_ODD_DOUBLE:</td><td>
+Maximum double value that is odd. All larger double values are even.</td></tr>
+
+<tr><td valign="top">POW_OF_NAN_OKAY:</td><td>
+TRUE if pow(NaN, 0.0) returns 1.0 and
 pow(NaN, anyOtherExponent) returns NaN.</td></tr>
 
-<tr><td valign="top">POW_OF_ZERO_OKAY: </td><td>TRUE if the pow() function works correct
+<tr><td valign="top">POW_OF_ZERO_OKAY:</td><td>
+TRUE if the pow() function works correct
 for a base of zero (0.0 or -0.0) and a negative
 exponent.</td></tr>
 
-<tr><td valign="top">POW_OF_NEGATIVE_OKAY: </td><td>TRUE if the pow() function works
+<tr><td valign="top">POW_OF_NEGATIVE_OKAY:</td><td>
+TRUE if the pow() function works
 correct, if the base is negative.</td></tr>
 
-<tr><td valign="top">POW_OF_ONE_OKAY: </td><td>TRUE if the pow() function always returns
+<tr><td valign="top">POW_OF_ONE_OKAY:</td><td>
+TRUE if the pow() function always returns
 1.0 if the base is 1.0 (Even for an exponent
 of NaN).</td></tr>
 
-<tr><td valign="top">POW_EXP_NAN_OKAY: </td><td>TRUE if the pow() function always returns
+<tr><td valign="top">POW_EXP_NAN_OKAY:</td><td>
+TRUE if the pow() function always returns
 NaN if the exponent is NaN and the base is
 not 1.0 (pow(1.0, NaN) should return 1.0).</td></tr>
 
-<tr><td valign="top">POW_EXP_MINUS_INFINITY_OKAY: </td><td>TRUE if the pow() function works
+<tr><td valign="top">POW_EXP_MINUS_INFINITY_OKAY:</td><td>
+TRUE if the pow() function works
 correct for an exponent of minus
 infinity.</td></tr>
 
@@ -2617,8 +2726,23 @@ LINKER_OPT_OUTPUT_FILE.</td></tr>
 
 <tr><td valign="top">SEED7_LIB: </td><td>Contains the name of the Seed7 runtime library.</td></tr>
 
-<tr><td valign="top">DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB, COMPILER_LIB:</td><td>
+<tr><td valign="top">DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB and COMPILER_LIB:</td><td>
 Contain names of other Seed7 runtime libraries.</td></tr>
+
+<tr><td valign="top">MYSQL_DLL, SQLITE_DLL, POSTGRESQL_DLL, ODBC_DLL, OCI_DLL,
+                                FIRE_DLL, DB2_DLL, INFORMIX_DLL, SQL_SERVER_DLL and TDS_DLL:</td><td>
+These macros contain lists of DLLs / shared libraries with
+absolute paths or just DLL / shared library names. If a
+library is needed at run-time the list of the corresponding
+macro is processed until loading a library succeeds.
+If all attempts to load a library fail you get the error:
+<tt><a class="link" href="#faq_searching_dynamic_libraries_failed">Searching dynamic libraries failed</a></tt>.</td></tr>
+
+<tr><td valign="top">LIBINTL_DLL, LIBEAY32_DLL, LIBCRYPTO_DLL and LIBSSL_DLL:</td><td>
+The PostgreSQL library (defined with POSTGRESQL_DLL) might
+depend on other libraries. If this is the case these macros
+are defined. The libraries defined by these macros are
+loaded  before loading POSTGRESQL_DLL.</td></tr>
 
 <tr><td valign="top">CC_ENVIRONMENT_INI: </td><td>Path to an INI file with the environment for
 the C compiler. If it is "" the C compiler

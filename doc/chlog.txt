@@ -1,3 +1,253 @@
+20240301:
+- Many thanks to Neal Collins for correcting the handling of double
+  quotes in toCsvLine and for fixing /./../ sequences in toAbsPath.
+- Many thanks to Jules Amonith for fixing a typo (Respose was used
+  instead of response).
+- Many thanks to Federico Ercole for helping with JavaScript issues.
+  Now clicks on the close button of a browser window can be
+  processed in the program (as KEY_CLOSE). Starting programs
+  from HTML has been improved as well. A terminating program now
+  calls the JavaScript function reloadPage (defined in the HTML
+  document).
+- The parser has been improved to stop parsing if the include of an
+  essential file (seed7_05.s7i) fails. Many thanks to Dominik Dorn
+  for reporting that a misspelled seed7_05.s7i triggered many
+  errors.
+- The build of Seed7 has been fixed to work if CreateSymbolicLinkW()
+  is missing. Many thanks to Cheap-Ad9743 for pointing out that the
+  build with tcc under Windows failed.
+- The chapters about declarations, parameters, operating system
+  access and graphics in the manual have been improved.
+- In mahjong.sd7 the drawing of mahjong tiles has been improved.
+  Now the tiles are correctly displayed in the browser as well.
+- In lander.sd7 the drawing of the rocket has been improved.
+  Now the rocket is correctly displayed in the browser as well.
+- In osfiles.s7i the function cloneFile has been improved to copy
+  symbolic links under Windows. FILE_ERROR is raised if cloneFile
+  cannot create a symbolic link.
+- The functions bitLength and lowestSetBit have been added to
+  bin32.s7i and bin64.s7i. Tests for bitLength and lowestSetBit have
+  been added to chkbin.sd7.
+- The libraries pic_util.s7i, tiff.s7i and png.s7i have been
+  improved to use mdiv instead of div if the divisor is a power of
+  two.
+- Functions for the type pointList have been refactored in graph.s7i
+  and progs.s7i. Before pointList used bstring (BST_...) actions.
+  Now pointList uses PTL_... actions.
+- Conversion functions to convert between pointList and bstring have
+  been added to graph.s7i.
+- Definitions of PIXEL_ALPHA_MASK, POINT_LIST_INT_SIZE,
+  POINT_LIST_ABSOLUTE and USE_START_MAIN have been added to
+  cc_conf.s7i. The file cmd_rtl.c and the program confval.sd7
+  have been adjusted accordingly.
+- In chkstr.sd7 the checking of stri := aString[start .. stop]
+  has been refactored.
+- The tests of file manipulating functions in chkcmd.sd7 have been
+  refactored.
+- Tests in chkbig.sd7, chkbin.sd7, chkchr.sd7, chkflt.sd7,
+  chkidx.sd7, chkint.sd7, chkset.sd7, chkstr.sd7 and chktime.sd7
+  have been refactored to reduce the size of the functions.
+- Tests have been added to chkbig.sd7, chkbin.sd7, chkchr.sd7,
+  chkcmd.sd7, chkdb.sd7, chkflt.sd7, chkidx.sd7, chkint.sd7,
+  chkset.sd7 and chkstr.sd7 to improve the code coverage of the
+  compiler.
+- Several improvements have been made for Emscripten (running Seed7
+  programs in the browser):
+  - In drw_emc.c the function drwText() has been improved to draw
+    text with the specified background color.
+  - In drw_emc.c the functions drwPArc(), drwPFArc(), drwPFArcChord()
+    and drwPFArcPieSlice have been fixed to correctly draw arcs in
+    the browser if the sweep angle is negative.
+  - In drw_emc.c the function drwPut() has been improved to do
+    nothing if the source is an empty pixmap.
+  - In drw_emc.c the function drwFree() has been improved to remove
+    the canvas of a sub-window.
+  - The function getCloseAction has been added to drw_emc.c.
+  - In fil_emc.c the call of setOsProperties has been fixed.
+  - The file gkb_emc.c has been improved to allow reading KEY_CLOSE
+    in the browser.
+  - The event handling in gkb_emc.c has been improved. Now the
+    events visibilitychange and unload are used for program
+    termination. Upon program termination the JavaScript function
+    reloadPage (defined in the HTML document) is called.
+  - The functions decodeBeforeunloadEvent, decodeVisibilitychange and
+    decodeUnloadEvent have been added to gkb_emc.c.
+  - The functions startMainButtonPresent,
+    addEventPromiseForStartButton, setupEventPromises,
+    freeEventPromises, asyncButtonClick and
+    executeStartMainOnButtonClick have been added to emc_utl.c
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - Now unsupported options trigger an error.
+  - Now empty temporary files (tmp_*.c) are overwritten.
+  - An optimization for bin32(a+b) & constBin32 has been added. The
+    generated code works without overflow checks. Tests for this
+    case have been added to chkbin.sd7.
+  - An optimization for bin32(a+b) & constBin32 with bigInteger a
+    and b has been added. The generated code works with integers
+    and without overflow checks.
+  - The optimization for ord(aBigInteger mod number1) + number2
+    has been improved.
+  - An optimization for aString[length(aString)] has been added.
+  - An optimization that recognizes if aString[start .. stop] always
+    raises an INDEX_ERROR has been added.
+  - The code generation for aString[start .. stop] has been
+    improved.
+  - An optimization for aString @:= [length(aString)] aChar; has
+    been added
+  - The code generated for aString @:= [pos] aChar; has been
+    improved.
+  - The optimization of aString &:= str(charExpression); has been
+    improved.
+  - An optimization for the string multiplication
+    str(aChar) mult aConstantInteger
+    has been added.
+  - An optimization for the division of a product has been added.
+  - The code generation of card(bitset(anInteger)) has been
+    refactored. Tests for this case have been added to chkset.sd7.
+  - The conversion from a bin32 to a single-precision
+    floating-point number has been optimized. Tests for this case
+    have been added to chkbin.sd7.
+  - Image constants are now stored in the target pixel encoding. The
+    compiler will convert the pixels of an image if necessary. The
+    target pixel encoding is specified with the configuration values
+    RED_MASK, GREEN_MASK, BLUE_MASK and ALPHA_MASK.
+  - The actions PLT_BSTRING, PLT_CMP, PLT_EQ, PLT_HASHCODE, PLT_NE,
+    PLT_POINT_LIST and PLT_VALUE are listed as pure functions.
+  - The code generation for the actions STR_ELEMCPY, SQL_CPY_DB and
+    SQL_CPY_STMT has been refactored.
+  - The configuration value USE_START_MAIN is used to produce code
+    for the browser. In this case, main() will check if a startMain
+    button exists in the HTML page. If no startMain button exists,
+    the program will start. If a startMain button exists, the program
+    will wait until it is pressed. After the button is pressed, the
+    function startMain() will be invoked (which executes the rest of
+    the program).
+  - The pointList data is now stored in the target encoding. The
+    compiler will convert a pointList if necessary. The target
+    encoding is specified with the configuration values
+    POINT_LIST_INT_SIZE and POINT_LIST_ABSOLUTE.
+  - The pointList coordinates are now aligned for Emscripten HEAP32
+    access. If the macro POINT_LIST_ALIGNMENT is defined, an
+    alignment is necessary. In this case, the function pltAlign()
+    will carry out the alignment. If POINT_LIST_ALIGNMENT is not
+    defined, pltAlign() will just forward its parameter.
+  - In type.s7i POINTLISTOBJECT and REFLISTOBJECT have been added to
+    the heapCategories set.
+  - Unused code has been removed from flt_act.s7i and str_act.s7i.
+  - The functions optimize_big_mod_dividend, process_const_bin_and,
+    optimize_div_of_product, pointListLiteral, process_str_push,
+    process_str_elemcpy_last_char, process_str_idx_last_char,
+    process_plist_declaration, pixelEncodingIdentical,
+    pixelEncodingWithoutAlphaChannel, swapRedAndBlue, fixPixels,
+    pointListEncodingIdentical, toPointListAbsolute,
+    toPointListRelative16, toPointListRelative32,
+    toTargetPointListBstring, init_plist_constants and
+    assign_plist_constants have been added.
+- The functions createSymlink and winCopySymlink have been added to
+  cmd_win.c. Tests for symlinks have been added to chkcmd.sd7.
+- The functions set_excl (in setlib.c) and setExcl (in set_rtl.c)
+  have been improved to resize the set. Tests for
+  excl(bitset, integer) have been added to chkset.sd7.
+- In set_rtl.c and setlib.c the heap statistic has been fixed for
+  several operations.
+- The logging infrastructure has been improved. Now the macros
+  LOG_FUNCTIONS and VERBOSE_EXCEPTIONS can be set to -1. With -1
+  logging is deactivated even if LOG_FUNCTIONS_EVERYWHERE
+  respectively VERBOSE_EXCEPTIONS_EVERYWHERE is active. Support
+  to activate the function logMessage in every file with
+  LOG_MESSAGES_EVERYWHERE has been added as well.
+- An explanation of the logging infrastructure has been added to
+  common.h.
+- Interpreter and compiler have been improved to support the actions
+  BIN_BIT_LENGTH, BIN_LOWEST_SET_BIT, DRW_GET_PIXEL_DATA_FROM_ARRAY,
+  PLT_BSTRING, PLT_CMP, PLT_CPY, PLT_EQ, PLT_HASHCODE, PLT_NE,
+  PLT_POINT_LIST and PLT_VALUE.
+- The unused action LST_ELEM has been removed form interpreter and
+  compiler.
+- Support for the category POINTLISTOBJECT has been added to
+  interpreter and compiler.
+- The functions drwGetPixelDataFromArray and pltAlign have been
+  added to drw_rtl.c.
+- In gkb_win.c the function gkbInputReady() has been improved to
+  work correctly if GetMessageW() does not return the message
+  promised by PeekMessageW(). Now it is generally assured that only
+  fields of the correct message are accessed.
+- In drw_x11.c the function drwConvPointList has been fixed to work
+  for an empty pointList.
+- In drw_dos.c, drw_emc.c, drw_win.c, drw_x11.c and drw_drv.h the
+  function drwImage has been improved to consider an alpha channel.
+- In cmd_rtl.c the function doReadLink has been refactored to
+  distinguish between link_size (from link_stat.st_size) and
+  dest_buffer_size. This simplifies the check for a truncation.
+- Instances of the words minimal and maximal have been replaced
+  with minimum and maximum in several files.
+- The Seed7 build system has been improved:
+  - The build with emcc under Linux and Windows has been fixed.
+    The makefiles mk_emccl.mak and mk_emccw.mak and the program
+    chkccomp.c have been adjusted. Now a stack-size is specified
+    for 'make utils'.
+  - Now chkccomp.c uses a better way to determine group and user
+    functions.
+  - Now size and signedness of gid_t and uid_t are determined in
+    chkccomp.c. The macros GID_T_SIZE, GID_T_SIGNED, UID_T_SIZE and
+    UID_T_SIGNED are defined accordingly.
+  - In chkccomp.c global variables for sizeof_int, sizeof_long,
+    sizeof_long_long, sizeof_pointer, sizeof_float and sizeof_double
+    have been introduced.
+  - In chkccomp.c the function testOutputToBuffer() has been improved
+    to work correctly if the first character read is a newline. A
+    check for the buffer size has been added to testOutputToBuffer()
+    as well.
+  - Now chkccomp.c determines if the function symlink() is present
+    and sets the macro HAS_SYMLINK accordingly.
+  - Performance measurements for left shift have been added to
+    chkccomp.c. The macros LSHIFT_BUILTIN_MUL_TIME,
+    LSHIFT_TWO_ARG_CHECKS_TIME, LSHIFT_ONE_ARG_CHECK_TIME,
+    LSHIFT_RESULT_CHECK_TIME and LSHIFT_NO_CHECK_TIME are defined
+    accordingly.
+  - In chkccomp.c check if ferror() returns true after reading from
+    write only file (FERROR_WRONG_WHEN_READING_FROM_WRITE_ONLY_FILE).
+  - The number of C compiler warnings in chkccomp.c has been reduced.
+  - The functions checkOverflowSignal, timeLShiftOverflowCheck,
+    determineGrpAndPwFunctions and determineCurrentWorkingDirectory
+    have been added to chkccomp.c.
+  - The program chkccomp.c has been improved to define the macros
+    GID_T_SIZE, GID_T_SIGNED, UID_T_SIZE, UID_T_SIGNED, GROUP_0_NAME,
+    USER_0_NAME, FERROR_WRONG_WHEN_READING_FROM_WRITE_ONLY_FILE,
+    HAS_SYMLINK, POINT_LIST_INT_SIZE, POINT_LIST_ABSOLUTE,
+    POINT_LIST_ALIGNMENT, LSHIFT_BUILTIN_MUL_TIME,
+    LSHIFT_TWO_ARG_CHECKS_TIME, LSHIFT_ONE_ARG_CHECK_TIME,
+    LSHIFT_RESULT_CHECK_TIME and LSHIFT_NO_CHECK_TIME.
+- In several files flag macros for logging have been introduced:
+  - In pol_sel.c and pol_unx.c the flag macro DUMP_POLL has been
+    introduced. This macro decides if detailed information about
+    pollData should be written.
+  - In soc_rtl.c the flag macro SHOW_ADDRINFO has been introduced.
+    This macro decides if detailed information about the address info
+    should be written.
+  - In sql_oci.c and sql_post.c the flag macro SHOW_DETAILS has been
+    introduced. This macro decides if detailed information should be
+    written.
+  - In sql_oci.c the flag macro DEBUG_LONG_CALLBACK has been
+    introduced. This macro decides if detailed information about a
+    long callback should be written.
+- Logging functions have been added or improved in cmdlib.c,
+  cmd_rtl.c, cmd_unx.c, cmd_win.c, con_inf.c, con_win.c, drw_emc.c,
+  drw_win.c, drw_x11.c, gkb_x11.c, pol_sel.c, pol_unx.c, scanner.c,
+  set_rtl.c, sql_cli.c, sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_post.c, sql_rtl.c, sql_tds.c, str_rtl.c and timlib.c.
+- Deactivated code has been removed from big_rtl.c, blockutl.c,
+  cmd_rtl.c, con_cap.c, con_inf.c, con_win.c, gkb_x11.c, hshlib.c,
+  itflib.c, lstlib.c, name.c,  parser.c, pol_sel.c, pol_unx.c,
+  prclib.c,  reflib.c, scanner.c, sctlib.c, setlib.c, set_rtl.c,
+  sql_fire.c, sql_odbc.c, striutl.c, strlib.c, str_rtl.c, tim_win.c,
+  typlib.c and ut8_rtl.c.
+- Documentation comments have been improved in array.s7i,
+  bigint.s7i, bin32.s7i, bin64.s7i, bitsetof.s7i, bitset.s7i,
+  csv.s7i, enable_io.s7i, font.s7i, http_response.s7i, idxarray.s7i,
+  integer.s7i, osfiles.s7i, vectorfont.s7i, big_gmp.c, big_rtl.c,
+  biglib.c, binlig.c, intlib.c and int_rtl.c.
+
 20231217:
 - The FAQ has been improved. Many thanks to Liam O'Brien for creating
   a list suggested changes. Thanks for helping to improve Seed7
