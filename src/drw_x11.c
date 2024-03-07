@@ -2373,7 +2373,9 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
       printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
           redLight, greenLight, blueLight, col.pixel);
       */
-      /* printf("drwRgbColor(%ld, %ld, %ld) --> %lx\n", redLight, greenLight, blueLight, (intType) col.pixel); */
+      logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ") --> " F_X(08) "\n",
+                         redLight, greenLight, blueLight,
+                         (intType) col.pixel););
       return (intType) col.pixel;
     } /* if */
     if (color_hash == NULL) {
@@ -2418,8 +2420,9 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
         insert_place = &entry->blue_greater;
         entry = entry->blue_greater;
       } else {
-/*        printf("found [%ld, %ld, %ld] color = %08lx\n",
-            redLight, greenLight, blueLight, entry->pixel); */
+        logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ") --> found " F_X(08) "\n",
+                           redLight, greenLight, blueLight,
+                           (intType) entry->pixel););
         return (intType) entry->pixel;
       } /* if */
     } /* while */
@@ -2709,8 +2712,6 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
     logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, xPos, yPos););
     XMoveWindow(mydisplay, to_window(actual_window), castToInt(xPos), castToInt(yPos));
-    /* printf("end drwSetPos(%lu, %ld, %ld)\n",
-        to_window(actual_window), xPos, yPos); */
   } /* drwSetPos */
 
 

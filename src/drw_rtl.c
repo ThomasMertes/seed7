@@ -41,6 +41,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "bst_rtl.h"
 #include "rtl_err.h"
 #include "drw_drv.h"
@@ -352,6 +353,8 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
     rtlArrayType imageArray;
 
   /* drwGetPixelArray */
+    logFunction(printf("drwGetPixelArray(" FMT_U_MEM ")\n",
+                       (memSizeType) sourceWindow););
     height = (memSizeType) drwHeight(sourceWindow);
     width = (memSizeType) drwWidth(sourceWindow);
     pixelData = drwGetPixelData(sourceWindow);
@@ -386,6 +389,9 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("drwGetPixelArray --> " FMT_U_MEM
+                       " (height=" FMT_U_MEM ")\n",
+                       (memSizeType) imageArray, arraySize(imageArray)););
     return imageArray;
   } /* drwGetPixelArray */
 
@@ -403,8 +409,10 @@ bstriType drwGetPixelDataFromArray (const const_rtlArrayType image)
     bstriType result;
 
   /* drwGetPixelDataFromArray */
+    logFunction(printf("drwGetPixelDataFromArray(" FMT_U_MEM
+                       " (height=" FMT_U_MEM "))\n",
+                       (memSizeType) image, arraySize(image)););
     height = arraySize(image);
-    /* printf("drwGetPixelDataFromArray: height=" FMT_U_MEM "\n", height); */
     if (height == 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -433,6 +441,8 @@ bstriType drwGetPixelDataFromArray (const const_rtlArrayType image)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("drwGetPixelDataFromArray --> \"%s\"\n",
+                       bstriAsUnquotedCStri(result)););
     return result;
   } /* drwGetPixelDataFromArray */
 
@@ -451,8 +461,10 @@ winType drwGetPixmapFromPixels (const const_rtlArrayType image)
     winType result;
 
   /* drwGetPixmapFromPixels */
+    logFunction(printf("drwGetPixmapFromPixels(" FMT_U_MEM
+                       " (height=" FMT_U_MEM "))\n",
+                       (memSizeType) image, arraySize(image)););
     height = arraySize(image);
-    /* printf("drwGetPixmapFromPixels: height=" FMT_U_MEM "\n", height); */
     if (height == 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -482,6 +494,8 @@ winType drwGetPixmapFromPixels (const const_rtlArrayType image)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("drwGetPixmapFromPixels --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* drwGetPixmapFromPixels */
 
