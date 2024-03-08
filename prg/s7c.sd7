@@ -6262,40 +6262,45 @@ const proc: init_win_constants is func
     var bstring: bImage is bstring.value;
   begin
     win_index := flip(win_const_table);
-    if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel then
-      for number range sort(keys(win_index)) do
-        win1 := win_index[number][1];
-        if width(win1) <> 0 or height(win1) <> 0 then
-          bImage := getPixelData(win1);
-          if bImage not in bstri_const_table then
-            bstri_const_table @:= [bImage] length(bstri_const_table);
+    if length(win_const_table) <> 1 or length(win_index) <> 1 or
+        width(win_index[keys(win_index)[1]][1]) <> 0 or
+        height(win_index[keys(win_index)[1]][1]) <> 0 then
+      # There is at least one non-empty window.
+      if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel then
+        for number range sort(keys(win_index)) do
+          win1 := win_index[number][1];
+          if width(win1) <> 0 or height(win1) <> 0 then
+            bImage := getPixelData(win1);
+            if bImage not in bstri_const_table then
+              bstri_const_table @:= [bImage] length(bstri_const_table);
+            end if;
+            win_bstri_table @:= [number] bstri_const_table[bImage];
           end if;
-          win_bstri_table @:= [number] bstri_const_table[bImage];
-        end if;
-      end for;
-    elsif pixelEncodingWithRedAndBlueSwapped or
-        pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel then
-      for number range sort(keys(win_index)) do
-        win1 := win_index[number][1];
-        if width(win1) <> 0 or height(win1) <> 0 then
-          bImage := swapRedAndBlue(getPixelData(win1));
-          if bImage not in bstri_const_table then
-            bstri_const_table @:= [bImage] length(bstri_const_table);
+        end for;
+      elsif pixelEncodingWithRedAndBlueSwapped or
+          pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel then
+        for number range sort(keys(win_index)) do
+          win1 := win_index[number][1];
+          if width(win1) <> 0 or height(win1) <> 0 then
+            bImage := swapRedAndBlue(getPixelData(win1));
+            if bImage not in bstri_const_table then
+              bstri_const_table @:= [bImage] length(bstri_const_table);
+            end if;
+            win_bstri_table @:= [number] bstri_const_table[bImage];
           end if;
-          win_bstri_table @:= [number] bstri_const_table[bImage];
-        end if;
-      end for;
-    else
-      for number range sort(keys(win_index)) do
-        win1 := win_index[number][1];
-        if width(win1) <> 0 or height(win1) <> 0 then
-          bImage := fixPixels(getPixelArray(win1));
-          if bImage not in bstri_const_table then
-            bstri_const_table @:= [bImage] length(bstri_const_table);
+        end for;
+      else
+        for number range sort(keys(win_index)) do
+          win1 := win_index[number][1];
+          if width(win1) <> 0 or height(win1) <> 0 then
+            bImage := fixPixels(getPixelArray(win1));
+            if bImage not in bstri_const_table then
+              bstri_const_table @:= [bImage] length(bstri_const_table);
+            end if;
+            win_bstri_table @:= [number] bstri_const_table[bImage];
           end if;
-          win_bstri_table @:= [number] bstri_const_table[bImage];
-        end if;
-      end for;
+        end for;
+      end if;
     end if;
   end func;
 

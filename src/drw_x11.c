@@ -492,7 +492,10 @@ void drawInit (void)
       printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
 #endif
 #ifdef rgbToPixel
-      useRgbToPixel = default_visual->c_class == TrueColor;
+      useRgbToPixel = default_visual->c_class == TrueColor &&
+                      rgbToPixel(0xffff, 0, 0) == default_visual->red_mask &&
+                      rgbToPixel(0, 0xffff, 0) == default_visual->green_mask &&
+                      rgbToPixel(0, 0, 0xffff) == default_visual->blue_mask;
 #endif
       lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
       rshift_red   = -lshift_red;
@@ -531,6 +534,10 @@ void drawInit (void)
       XFreePixmap(mydisplay, blankPixmap);
       gkbInitKeyboard();
       init_called = TRUE;
+    } else {
+#ifdef rgbToPixel
+      useRgbToPixel = 1;
+#endif
     } /* if */
     logFunction(printf("drawInit -->\n"););
   } /* drawInit */
