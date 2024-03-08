@@ -31,6 +31,7 @@ $ include "seed7_05.s7i";
   include "complex.s7i";
   include "bstring.s7i";
   include "time.s7i";
+  include "graph.s7i";
 
 enable_output(type);
 
@@ -3451,6 +3452,26 @@ const proc: chkAssignmentToItself is func
   end func;
 
 
+const type: win_table_hash is hash [PRIMITIVE_WINDOW] integer;
+const type: win_index_hash is hash [integer] array PRIMITIVE_WINDOW;
+
+const proc: chkInlineHashKeys is func
+  local
+    var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
+    var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
+    var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
+    var boolean: okay is FALSE:
+  begin
+    # The code below is a regression test for the compiler.
+    # It uses inlining and a result expression with a name.
+    if length(win_const_table) <> 1 or length(win_index) <> 1 or
+        width(win_index[keys(win_index)[1]][1]) <> 0 or
+        height(win_index[keys(win_index)[1]][1]) <> 0 then
+      okay := TRUE;
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -3471,4 +3492,5 @@ const proc: main is func
     chkValuesFunction;
     chkForLoop;
     chkAssignmentToItself;
+    chkInlineHashKeys;
   end func;
