@@ -1013,12 +1013,14 @@ void remove_window (Window sys_window)
   { /* remove_window */
     logFunction(printf("remove_window(" FMT_X_MEM ")\n",
                        (memSizeType) sys_window););
-    hshExcl(window_hash,
-            (genericType) (memSizeType) sys_window,
-            (intType) ((memSizeType) sys_window) >> 6,
-            (compareType) &genericCmp,
-            (destrFuncType) &genericDestr,
-            (destrFuncType) &genericDestr);
+    if (window_hash != NULL) {
+      hshExcl(window_hash,
+              (genericType) (memSizeType) sys_window,
+              (intType) ((memSizeType) sys_window) >> 6,
+              (compareType) &genericCmp,
+              (destrFuncType) &genericDestr,
+              (destrFuncType) &genericDestr);
+    } /* if */
   } /* remove_window */
 
 
