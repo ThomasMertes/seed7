@@ -3460,7 +3460,7 @@ const proc: chkInlineHashKeys is func
     var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
     var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
-    var boolean: okay is FALSE:
+    var boolean: okay is FALSE;
   begin
     # The code below is a regression test for the compiler.
     # It uses inlining and a result expression with a name.
