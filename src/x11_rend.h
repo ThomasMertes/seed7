@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifndef X11_REND_H
+#define X11_REND_H
+
 #define PictOpOver  3
 
 #define CPSubwindowMode    (1 << 8)
@@ -62,6 +65,12 @@ typedef struct {
 } XRenderPictureAttributes;
 
 
+#if FORWARD_X11_CALLS && defined FORWARD_X11_FUNCTION_POINTERS
+
+#include "fwd_x11.h"
+
+#else
+
 extern void XRenderComposite (Display *display, int op, Picture src,
                               Picture mask, Picture dst, int src_x, int src_y,
                               int mask_x, int mask_y, int dst_x, int dst_y,
@@ -80,3 +89,7 @@ extern Bool XRenderQueryExtension (Display *dpy,
 extern void XRenderSetPictureTransform (Display *display,
                                         Picture picture,
                                         XTransform *transform);
+
+#endif
+
+#endif

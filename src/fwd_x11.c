@@ -55,6 +55,8 @@
 #include "common.h"
 #include "dll_drv.h"
 
+#include "fwd_x11.h"
+
 
 #if XID_SIZE == 32
 #define FMT_D_XID  FMT_D32
@@ -76,267 +78,96 @@
 #define FMT_X_ATOM  FMT_X64
 #endif
 
-
-typedef Status (*tp_XAllocColor) (Display *display, Colormap colormap, XColor *screen_in_out);
-typedef Status (*tp_XAllocColorCells) (Display *display, Colormap colormap, Bool contig,
-                                       unsigned long *plane_masks_return,
-                                       unsigned int nplanes, unsigned long *pixels_return,
-                                       unsigned int npixels);
-typedef unsigned long (*tp_XBlackPixel) (Display *display,
-                                         int screen_number);
-typedef int (*tp_XChangeProperty) (Display *display, Window window, Atom property,
-                                   Atom type, int format, int mode,
-                                   const unsigned char *data, int nelements);
-typedef int (*tp_XChangeWindowAttributes) (Display *display, Window window,
-                                           unsigned long valuemask,
-                                           XSetWindowAttributes *attributes);
-typedef int (*tp_XCloseDisplay) (Display *display);
-typedef int (*tp_XConvertSelection) (Display *display, Atom selection, Atom target,
-                                     Atom property, Window requestor, Time time);
-typedef int (*tp_XCopyArea) (Display *display, Drawable src, Drawable dest, GC gc,
-                             int src_x, int src_y, unsigned int width, unsigned height,
-                             int dest_x, int dest_y);
-typedef int (*tp_XCopyPlane) (Display *display, Drawable src, Drawable dest,
-                              GC gc, int src_x, int src_y, unsigned int width,
-                              unsigned int height, int dest_x, int dest_y,
-                              unsigned long plane);
-typedef Pixmap (*tp_XCreateBitmapFromData) (Display *display, Drawable drawable,
-                                            const char *data, unsigned int width,
-                                            unsigned int height);
-typedef GC (*tp_XCreateGC) (Display *display, Drawable drawable, unsigned long valuemask,
-                            XGCValues *values);
-typedef XImage *(*tp_XCreateImage) (Display *display, Visual *visual,
-                                    unsigned int depth, int format, int offset, char *data,
-                                    unsigned int width, unsigned int height,
-                                    int bitmap_pad, int bytes_per_line);
-typedef Pixmap (*tp_XCreatePixmap) (Display *display, Drawable drawable, unsigned int width,
-                                    unsigned int height, unsigned int depth);
-typedef Cursor (*tp_XCreatePixmapCursor) (Display *display, Pixmap source, Pixmap mask,
-                                          XColor *foreground_color, XColor *background_color,
-                                          unsigned int x, unsigned int y);
-typedef Window (*tp_XCreateSimpleWindow) (Display *display, Window parent, int x, int y,
-                                          unsigned int width, unsigned int height,
-                                          unsigned int border_width,
-                                          unsigned long border,
-                                          unsigned long background);
-typedef Colormap (*tp_XDefaultColormap) (Display *display,
-                                         int screen_number);
-typedef int (*tp_XDefaultDepth) (Display *display,
-                                 int screen_number);
-typedef Window (*tp_XDefaultRootWindow) (Display *display);
-typedef int (*tp_XDefaultScreen) (Display *display);
-typedef Visual *(*tp_XDefaultVisual) (Display *display, int screen_number);
-typedef int (*tp_XDefineCursor) (Display *display, Window window, Cursor cursor);
-typedef int (*tp_XDestroyImage) (XImage *ximage);
-typedef int (*tp_XDestroyWindow) (Display *display, Window window);
-typedef int (*tp_XDoesBackingStore) (Screen *screen);
-typedef int (*tp_XDrawArc) (Display *display, Drawable drawable, GC gc, int x, int y,
-                            unsigned int width, unsigned int height, int angle1,
-                            int angle2);
-typedef int (*tp_XDrawImageString16) (Display *display, Drawable drawable, GC gc, int x,
-                                      int y, const XChar2b *string, int length);
-typedef int (*tp_XDrawLine) (Display *display, Drawable drawable, GC gc, int x1, int y1,
-                             int x2, int y2);
-typedef int (*tp_XDrawLines) (Display *display, Drawable drawable, GC gc, XPoint *points,
-                              int npoints, int mode);
-typedef int (*tp_XDrawPoint) (Display *display, Drawable drawable, GC gc, int x, int y);
-typedef int (*tp_XEventsQueued) (Display *display, int mode);
-typedef int (*tp_XFillArc) (Display *display, Drawable drawable, GC gc, int x, int y,
-                            unsigned int width, unsigned int height, int angle1,
-                            int angle2);
-typedef int (*tp_XFillPolygon) (Display *display, Drawable drawable, GC gc,
-                                XPoint *points, int npoints, int shape, int mode);
-typedef int (*tp_XFillRectangle) (Display *display, Drawable drawable, GC gc, int x, int y,
-                                  unsigned int width, unsigned int height);
-typedef int (*tp_XFlush) (Display *display);
-typedef int (*tp_XFree) (void *data);
-typedef int (*tp_XFreeGC) (Display *display, GC gc);
-typedef int (*tp_XFreePixmap) (Display *display, Pixmap pixmap);
-typedef Status (*tp_XGetGeometry) (Display *display, Drawable drawable,
-                                   Window *root_return, int *x_return, int *y_return,
-                                   unsigned int *width_return,
-                                   unsigned int *height_return,
-                                   unsigned int *border_width_return,
-                                   unsigned int *depth_return);
-typedef XImage *(*tp_XGetImage) (Display *display, Drawable drawable, int x, int y,
-                                 unsigned int width, unsigned int height,
-                                 unsigned long plane_mask, int format);
-typedef int (*tp_XGetKeyboardControl) (Display *display,
-                                       XKeyboardState *values_return);
-typedef unsigned long (*tp_XGetPixel) (XImage *ximage, int x, int y);
-typedef Status (*tp_XGetWindowAttributes) (Display *display, Window window,
-                                           XWindowAttributes *window_attributes_return);
-typedef int (*tp_XGetWindowProperty) (Display  *display, Window window, Atom property,
-                                      long long_offset, long long_length, Bool delete,
-                                      Atom req_type, Atom *actual_type_return,
-                                      int *actual_format_return,
-                                      unsigned long *nitems_return,
-                                      unsigned long *bytes_after_return,
-                                      unsigned char **prop_return);
-typedef Atom (*tp_XInternAtom) (Display *display, const char *atom_name, Bool only_if_exists);
-typedef KeyCode (*tp_XKeysymToKeycode) (Display *display, KeySym keysym);
-typedef int (*tp_XLookupString) (XKeyEvent *event_struct, char *buffer_return,
-                                 int bytes_buffer, KeySym *keysym_return,
-                                 XComposeStatus *status_in_out);
-typedef int (*tp_XLowerWindow) (Display *display, Window window);
-typedef int (*tp_XMapRaised) (Display *display, Window window);
-typedef int (*tp_XMapWindow) (Display *display, Window window);
-typedef int (*tp_XMoveWindow) (Display *display, Window window, int x, int y);
-typedef int (*tp_XNextEvent) (Display *display, XEvent *event_return);
-typedef Display *(*tp_XOpenDisplay) (const char *display_name);
-typedef int (*tp_XPutImage) (Display *display, Drawable drawable, GC gc,
-                             XImage *image, int src_x, int src_y,
-                             int dest_x, int dest_y, unsigned int width,
-                             unsigned int height);
-typedef int (*tp_XQueryColor) (Display *display, Colormap colormap,
-                               XColor *def_in_out);
-typedef int (*tp_XQueryKeymap) (Display *display, char keys_return[32]);
-typedef Bool (*tp_XQueryPointer) (Display *display, Window window,
-                                  Window *root_return, Window *child_return,
-                                  int *root_x_return, int *root_y_return,
-                                  int *win_x_return, int *win_y_return,
-                                  unsigned int *mask_return);
-typedef Status (*tp_XQueryTree) (Display *display, Window window,
-                                 Window *root_return, Window *parent_return,
-                                 Window **children_return,
-                                 unsigned int *nchildren_return);
-typedef int (*tp_XRaiseWindow) (Display *display, Window window);
-typedef int (*tp_XRefreshKeyboardMapping) (XMappingEvent *event_map);
-typedef Screen *(*tp_XScreenOfDisplay) (Display *display, int screen_number);
-typedef int (*tp_XSelectInput) (Display *display, Window window,
-                                long event_mask);
-typedef int (*tp_XSetArcMode) (Display *display, GC gc, int arc_mode);
-typedef int (*tp_XSetBackground) (Display *display, GC gc, unsigned long background);
-typedef int (*tp_XSetClipMask) (Display *display, GC gc, Pixmap pixmap);
-typedef int (*tp_XSetClipOrigin) (Display *display, GC gc, int clip_x_origin,
-                                  int clip_y_origin);
-typedef int (*tp_XSetForeground) (Display *display, GC gc, unsigned long foreground);
-typedef int (*tp_XSetFunction) (Display *display, GC gc, int function);
-typedef int (*tp_XSetLineAttributes) (Display *display, GC gc,
-                                      unsigned int line_width,
-                                      int line_style,
-                                      int cap_style,
-                                      int join_style);
-typedef int (*tp_XSetStandardProperties) (Display *display, Window window,
-                                          const char *window_name,
-                                          const char *icon_name,
-                                          Pixmap icon_pixmap, char **argv,
-                                          int argc, XSizeHints *hints);
-typedef int (*tp_XSetWMHints) (Display *display, Window window, XWMHints *wm_hints);
-typedef Status (*tp_XSetWMProtocols) (Display *display, Window window,
-                                      Atom *protocols, int count);
-typedef int (*tp_XStoreColor) (Display *display, Colormap colormap, XColor *color);
-typedef int (*tp_XStoreName) (Display *display, Window window, const char *window_name);
-typedef int (*tp_XSync) (Display *display, Bool discard);
-typedef int (*tp_XUndefineCursor) (Display *display, Window window);
-typedef int (*tp_XWarpPointer) (Display *display, Window src_w, Window dest_w,
-                                int src_x, int src_y, unsigned int src_width,
-                                unsigned int src_height, int dest_x, int dest_y);
-typedef unsigned long (*tp_XWhitePixel) (Display *display,
-                                         int screen_number);
-
-#ifdef HAS_XRENDER_EXTENSION
-typedef void (*tp_XRenderComposite) (Display *display, int op, Picture src,
-                                     Picture mask, Picture dst, int src_x, int src_y,
-                                     int mask_x, int mask_y, int dst_x, int dst_y,
-                                     unsigned int width, unsigned int height);
-typedef Picture (*tp_XRenderCreatePicture) (Display *display,
-                                            Drawable drawable,
-                                            const XRenderPictFormat *format,
-                                            unsigned long valuemask,
-                                            const XRenderPictureAttributes *attributes);
-typedef XRenderPictFormat *(*tp_XRenderFindVisualFormat) (Display *display,
-                                                          const Visual *visual);
-typedef void (*tp_XRenderFreePicture) (Display *display, Picture picture);
-typedef void (*tp_XRenderSetPictureTransform) (Display *display,
-                                               Picture picture,
-                                               XTransform *transform);
+#ifdef FORWARD_X11_FUNCTION_POINTERS
+#define DEFINE_FUNCTION_POINTER
+#else
+#define DEFINE_FUNCTION_POINTER static
 #endif
 
-static tp_XAllocColor             ptr_XAllocColor;
-static tp_XAllocColorCells        ptr_XAllocColorCells;
-static tp_XBlackPixel             ptr_XBlackPixel;
-static tp_XChangeProperty         ptr_XChangeProperty;
-static tp_XChangeWindowAttributes ptr_XChangeWindowAttributes;
-static tp_XCloseDisplay           ptr_XCloseDisplay;
-static tp_XConvertSelection       ptr_XConvertSelection;
-static tp_XCopyArea               ptr_XCopyArea;
-static tp_XCopyPlane              ptr_XCopyPlane;
-static tp_XCreateBitmapFromData   ptr_XCreateBitmapFromData;
-static tp_XCreateGC               ptr_XCreateGC;
-static tp_XCreateImage            ptr_XCreateImage;
-static tp_XCreatePixmap           ptr_XCreatePixmap;
-static tp_XCreatePixmapCursor     ptr_XCreatePixmapCursor;
-static tp_XCreateSimpleWindow     ptr_XCreateSimpleWindow;
-static tp_XDefaultColormap        ptr_XDefaultColormap;
-static tp_XDefaultDepth           ptr_XDefaultDepth;
-static tp_XDefaultRootWindow      ptr_XDefaultRootWindow;
-static tp_XDefaultScreen          ptr_XDefaultScreen;
-static tp_XDefaultVisual          ptr_XDefaultVisual;
-static tp_XDefineCursor           ptr_XDefineCursor;
-static tp_XDestroyImage           ptr_XDestroyImage;
-static tp_XDestroyWindow          ptr_XDestroyWindow;
-static tp_XDoesBackingStore       ptr_XDoesBackingStore;
-static tp_XDrawArc                ptr_XDrawArc;
-static tp_XDrawImageString16      ptr_XDrawImageString16;
-static tp_XDrawLine               ptr_XDrawLine;
-static tp_XDrawLines              ptr_XDrawLines;
-static tp_XDrawPoint              ptr_XDrawPoint;
-static tp_XEventsQueued           ptr_XEventsQueued;
-static tp_XFillArc                ptr_XFillArc;
-static tp_XFillPolygon            ptr_XFillPolygon;
-static tp_XFillRectangle          ptr_XFillRectangle;
-static tp_XFlush                  ptr_XFlush;
-static tp_XFree                   ptr_XFree;
-static tp_XFreeGC                 ptr_XFreeGC;
-static tp_XFreePixmap             ptr_XFreePixmap;
-static tp_XGetGeometry            ptr_XGetGeometry;
-static tp_XGetImage               ptr_XGetImage;
-static tp_XGetKeyboardControl     ptr_XGetKeyboardControl;
-static tp_XGetPixel               ptr_XGetPixel;
-static tp_XGetWindowAttributes    ptr_XGetWindowAttributes;
-static tp_XGetWindowProperty      ptr_XGetWindowProperty;
-static tp_XInternAtom             ptr_XInternAtom;
-static tp_XKeysymToKeycode        ptr_XKeysymToKeycode;
-static tp_XLookupString           ptr_XLookupString;
-static tp_XLowerWindow            ptr_XLowerWindow;
-static tp_XMapRaised              ptr_XMapRaised;
-static tp_XMapWindow              ptr_XMapWindow;
-static tp_XMoveWindow             ptr_XMoveWindow;
-static tp_XNextEvent              ptr_XNextEvent;
-static tp_XOpenDisplay            ptr_XOpenDisplay;
-static tp_XPutImage               ptr_XPutImage;
-static tp_XQueryColor             ptr_XQueryColor;
-static tp_XQueryKeymap            ptr_XQueryKeymap;
-static tp_XQueryPointer           ptr_XQueryPointer;
-static tp_XQueryTree              ptr_XQueryTree;
-static tp_XRaiseWindow            ptr_XRaiseWindow;
-static tp_XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping;
-static tp_XScreenOfDisplay        ptr_XScreenOfDisplay;
-static tp_XSelectInput            ptr_XSelectInput;
-static tp_XSetArcMode             ptr_XSetArcMode;
-static tp_XSetBackground          ptr_XSetBackground;
-static tp_XSetClipMask            ptr_XSetClipMask;
-static tp_XSetClipOrigin          ptr_XSetClipOrigin;
-static tp_XSetForeground          ptr_XSetForeground;
-static tp_XSetFunction            ptr_XSetFunction;
-static tp_XSetLineAttributes      ptr_XSetLineAttributes;
-static tp_XSetStandardProperties  ptr_XSetStandardProperties;
-static tp_XSetWMHints             ptr_XSetWMHints;
-static tp_XSetWMProtocols         ptr_XSetWMProtocols;
-static tp_XStoreColor             ptr_XStoreColor;
-static tp_XStoreName              ptr_XStoreName;
-static tp_XSync                   ptr_XSync;
-static tp_XUndefineCursor         ptr_XUndefineCursor;
-static tp_XWarpPointer            ptr_XWarpPointer;
-static tp_XWhitePixel             ptr_XWhitePixel;
+DEFINE_FUNCTION_POINTER tp_XAllocColor             ptr_XAllocColor;
+DEFINE_FUNCTION_POINTER tp_XAllocColorCells        ptr_XAllocColorCells;
+DEFINE_FUNCTION_POINTER tp_XBlackPixel             ptr_XBlackPixel;
+DEFINE_FUNCTION_POINTER tp_XChangeProperty         ptr_XChangeProperty;
+DEFINE_FUNCTION_POINTER tp_XChangeWindowAttributes ptr_XChangeWindowAttributes;
+DEFINE_FUNCTION_POINTER tp_XCloseDisplay           ptr_XCloseDisplay;
+DEFINE_FUNCTION_POINTER tp_XConvertSelection       ptr_XConvertSelection;
+DEFINE_FUNCTION_POINTER tp_XCopyArea               ptr_XCopyArea;
+DEFINE_FUNCTION_POINTER tp_XCopyPlane              ptr_XCopyPlane;
+DEFINE_FUNCTION_POINTER tp_XCreateBitmapFromData   ptr_XCreateBitmapFromData;
+DEFINE_FUNCTION_POINTER tp_XCreateGC               ptr_XCreateGC;
+DEFINE_FUNCTION_POINTER tp_XCreateImage            ptr_XCreateImage;
+DEFINE_FUNCTION_POINTER tp_XCreatePixmap           ptr_XCreatePixmap;
+DEFINE_FUNCTION_POINTER tp_XCreatePixmapCursor     ptr_XCreatePixmapCursor;
+DEFINE_FUNCTION_POINTER tp_XCreateSimpleWindow     ptr_XCreateSimpleWindow;
+DEFINE_FUNCTION_POINTER tp_XDefaultColormap        ptr_XDefaultColormap;
+DEFINE_FUNCTION_POINTER tp_XDefaultDepth           ptr_XDefaultDepth;
+DEFINE_FUNCTION_POINTER tp_XDefaultRootWindow      ptr_XDefaultRootWindow;
+DEFINE_FUNCTION_POINTER tp_XDefaultScreen          ptr_XDefaultScreen;
+DEFINE_FUNCTION_POINTER tp_XDefaultVisual          ptr_XDefaultVisual;
+DEFINE_FUNCTION_POINTER tp_XDefineCursor           ptr_XDefineCursor;
+DEFINE_FUNCTION_POINTER tp_XDestroyImage           ptr_XDestroyImage;
+DEFINE_FUNCTION_POINTER tp_XDestroyWindow          ptr_XDestroyWindow;
+DEFINE_FUNCTION_POINTER tp_XDoesBackingStore       ptr_XDoesBackingStore;
+DEFINE_FUNCTION_POINTER tp_XDrawArc                ptr_XDrawArc;
+DEFINE_FUNCTION_POINTER tp_XDrawImageString16      ptr_XDrawImageString16;
+DEFINE_FUNCTION_POINTER tp_XDrawLine               ptr_XDrawLine;
+DEFINE_FUNCTION_POINTER tp_XDrawLines              ptr_XDrawLines;
+DEFINE_FUNCTION_POINTER tp_XDrawPoint              ptr_XDrawPoint;
+DEFINE_FUNCTION_POINTER tp_XEventsQueued           ptr_XEventsQueued;
+DEFINE_FUNCTION_POINTER tp_XFillArc                ptr_XFillArc;
+DEFINE_FUNCTION_POINTER tp_XFillPolygon            ptr_XFillPolygon;
+DEFINE_FUNCTION_POINTER tp_XFillRectangle          ptr_XFillRectangle;
+DEFINE_FUNCTION_POINTER tp_XFlush                  ptr_XFlush;
+DEFINE_FUNCTION_POINTER tp_XFree                   ptr_XFree;
+DEFINE_FUNCTION_POINTER tp_XFreeGC                 ptr_XFreeGC;
+DEFINE_FUNCTION_POINTER tp_XFreePixmap             ptr_XFreePixmap;
+DEFINE_FUNCTION_POINTER tp_XGetGeometry            ptr_XGetGeometry;
+DEFINE_FUNCTION_POINTER tp_XGetImage               ptr_XGetImage;
+DEFINE_FUNCTION_POINTER tp_XGetKeyboardControl     ptr_XGetKeyboardControl;
+DEFINE_FUNCTION_POINTER tp_XGetPixel               ptr_XGetPixel;
+DEFINE_FUNCTION_POINTER tp_XGetWindowAttributes    ptr_XGetWindowAttributes;
+DEFINE_FUNCTION_POINTER tp_XGetWindowProperty      ptr_XGetWindowProperty;
+DEFINE_FUNCTION_POINTER tp_XInternAtom             ptr_XInternAtom;
+DEFINE_FUNCTION_POINTER tp_XKeysymToKeycode        ptr_XKeysymToKeycode;
+DEFINE_FUNCTION_POINTER tp_XLookupString           ptr_XLookupString;
+DEFINE_FUNCTION_POINTER tp_XLowerWindow            ptr_XLowerWindow;
+DEFINE_FUNCTION_POINTER tp_XMapRaised              ptr_XMapRaised;
+DEFINE_FUNCTION_POINTER tp_XMapWindow              ptr_XMapWindow;
+DEFINE_FUNCTION_POINTER tp_XMoveWindow             ptr_XMoveWindow;
+DEFINE_FUNCTION_POINTER tp_XNextEvent              ptr_XNextEvent;
+DEFINE_FUNCTION_POINTER tp_XOpenDisplay            ptr_XOpenDisplay;
+DEFINE_FUNCTION_POINTER tp_XPutImage               ptr_XPutImage;
+DEFINE_FUNCTION_POINTER tp_XQueryColor             ptr_XQueryColor;
+DEFINE_FUNCTION_POINTER tp_XQueryKeymap            ptr_XQueryKeymap;
+DEFINE_FUNCTION_POINTER tp_XQueryPointer           ptr_XQueryPointer;
+DEFINE_FUNCTION_POINTER tp_XQueryTree              ptr_XQueryTree;
+DEFINE_FUNCTION_POINTER tp_XRaiseWindow            ptr_XRaiseWindow;
+DEFINE_FUNCTION_POINTER tp_XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping;
+DEFINE_FUNCTION_POINTER tp_XScreenOfDisplay        ptr_XScreenOfDisplay;
+DEFINE_FUNCTION_POINTER tp_XSelectInput            ptr_XSelectInput;
+DEFINE_FUNCTION_POINTER tp_XSetArcMode             ptr_XSetArcMode;
+DEFINE_FUNCTION_POINTER tp_XSetBackground          ptr_XSetBackground;
+DEFINE_FUNCTION_POINTER tp_XSetClipMask            ptr_XSetClipMask;
+DEFINE_FUNCTION_POINTER tp_XSetClipOrigin          ptr_XSetClipOrigin;
+DEFINE_FUNCTION_POINTER tp_XSetForeground          ptr_XSetForeground;
+DEFINE_FUNCTION_POINTER tp_XSetFunction            ptr_XSetFunction;
+DEFINE_FUNCTION_POINTER tp_XSetLineAttributes      ptr_XSetLineAttributes;
+DEFINE_FUNCTION_POINTER tp_XSetStandardProperties  ptr_XSetStandardProperties;
+DEFINE_FUNCTION_POINTER tp_XSetWMHints             ptr_XSetWMHints;
+DEFINE_FUNCTION_POINTER tp_XSetWMProtocols         ptr_XSetWMProtocols;
+DEFINE_FUNCTION_POINTER tp_XStoreColor             ptr_XStoreColor;
+DEFINE_FUNCTION_POINTER tp_XStoreName              ptr_XStoreName;
+DEFINE_FUNCTION_POINTER tp_XSync                   ptr_XSync;
+DEFINE_FUNCTION_POINTER tp_XUndefineCursor         ptr_XUndefineCursor;
+DEFINE_FUNCTION_POINTER tp_XWarpPointer            ptr_XWarpPointer;
+DEFINE_FUNCTION_POINTER tp_XWhitePixel             ptr_XWhitePixel;
 
 #ifdef HAS_XRENDER_EXTENSION
-static tp_XRenderComposite           ptr_XRenderComposite;
-static tp_XRenderCreatePicture       ptr_XRenderCreatePicture;
-static tp_XRenderFindVisualFormat    ptr_XRenderFindVisualFormat;
-static tp_XRenderFreePicture         ptr_XRenderFreePicture;
-static tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
+DEFINE_FUNCTION_POINTER tp_XRenderComposite           ptr_XRenderComposite;
+DEFINE_FUNCTION_POINTER tp_XRenderCreatePicture       ptr_XRenderCreatePicture;
+DEFINE_FUNCTION_POINTER tp_XRenderFindVisualFormat    ptr_XRenderFindVisualFormat;
+DEFINE_FUNCTION_POINTER tp_XRenderFreePicture         ptr_XRenderFreePicture;
+DEFINE_FUNCTION_POINTER tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
 #endif
 
 
@@ -493,6 +324,8 @@ boolType findX11Dll (void)
   } /* findX11Dll */
 
 
+
+#ifndef FORWARD_X11_FUNCTION_POINTERS
 
 Status XAllocColor (Display *display, Colormap colormap, XColor *screen_in_out)
 
@@ -1947,6 +1780,8 @@ void XRenderSetPictureTransform (Display *display,
     ptr_XRenderSetPictureTransform(display, picture, transform);
     logFunction(printf("XRenderSetPictureTransform -->\n"););
   } /* XRenderSetPictureTransform */
+#endif
+
 #endif
 
 #endif

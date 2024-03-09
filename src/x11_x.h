@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifndef X11_X_H
+#define X11_X_H
+
 #define Bool int
 #define True   1
 #define False  0
@@ -637,6 +640,12 @@ typedef struct {
 #define WhitePixel(dpy, scr)      XWhitePixel(dpy, scr)
 
 
+#if FORWARD_X11_CALLS && defined FORWARD_X11_FUNCTION_POINTERS
+
+#include "fwd_x11.h"
+
+#else
+
 extern Status XAllocColor (Display *display,
                            Colormap colormap,
                            XColor *screen_in_out);
@@ -952,3 +961,7 @@ extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
                          unsigned int src_height, int dest_x, int dest_y);
 extern unsigned long XWhitePixel (Display *display,
                                   int screen_number);
+
+#endif
+
+#endif
