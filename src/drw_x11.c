@@ -182,7 +182,10 @@ void gkbInitKeyboard (void);
 int getCloseAction (winType actual_window)
 
   { /* getCloseAction */
-    return to_close_action(actual_window);
+    logFunction(printf("getCloseAction(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    return actual_window != NULL ? to_close_action(actual_window)
+                                 : CLOSE_BUTTON_RAISES_EXCEPTION;
   } /* getCloseAction */
 
 
@@ -1942,6 +1945,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 void drwSetCloseAction (winType actual_window, intType closeAction)
 
   { /* drwSetCloseAction */
+    logFunction(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) actual_window, closeAction););
     if (closeAction < 0 || closeAction > 2) {
       raise_error(RANGE_ERROR);
     } else {

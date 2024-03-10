@@ -143,12 +143,14 @@ void remove_window (int windowId)
   { /* remove_window */
     logFunction(printf("remove_window(%d)\n", windowId););
     /* printf("remove_window(%lx)\n", (unsigned long) windowId); */
-    hshExcl(window_hash,
-            (genericType) (memSizeType) windowId,
-            (intType) windowId,
-            (compareType) &genericCmp,
-            (destrFuncType) &genericDestr,
-            (destrFuncType) &genericDestr);
+    if (window_hash != NULL) {
+      hshExcl(window_hash,
+              (genericType) (memSizeType) windowId,
+              (intType) windowId,
+              (compareType) &genericCmp,
+              (destrFuncType) &genericDestr,
+              (destrFuncType) &genericDestr);
+    } /* if */
   } /* remove_window */
 
 

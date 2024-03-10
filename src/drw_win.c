@@ -144,7 +144,10 @@ void gkbInitKeyboard (void);
 int getCloseAction (winType actual_window)
 
   { /* getCloseAction */
-    return to_close_action(actual_window);
+    logFunction(printf("getCloseAction(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    return actual_window != NULL ? to_close_action(actual_window)
+                                 : CLOSE_BUTTON_RAISES_EXCEPTION;
   } /* getCloseAction */
 
 
@@ -1739,6 +1742,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 void drwSetCloseAction (winType actual_window, intType closeAction)
 
   { /* drwSetCloseAction */
+    logFunction(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) actual_window, closeAction););
     if (closeAction < 0 || closeAction > 2) {
       raise_error(RANGE_ERROR);
     } else {
@@ -2265,13 +2270,11 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
   { /* drwSetPos */
-    /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
-        to_hwnd(actual_window), xPos, yPos); */
+    logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, xPos, yPos););
     SetWindowPos(to_hwnd(actual_window), 0, castToInt(xPos), castToInt(yPos), 0, 0,
         /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
     gkbInputReady();
-    /* printf("end drwSetPos(%lu, %ld, %ld)\n",
-        to_hwnd(actual_window), xPos, yPos); */
   } /* drwSetPos */
 
 

@@ -111,7 +111,10 @@ extern intType pointerY;
 int getCloseAction (winType actual_window)
 
   { /* getCloseAction */
-    return to_close_action(actual_window);
+    logFunction(printf("getCloseAction(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    return actual_window != NULL ? to_close_action(actual_window)
+                                 : CLOSE_BUTTON_RAISES_EXCEPTION;
   } /* getCloseAction */
 
 
