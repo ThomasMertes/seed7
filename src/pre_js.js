@@ -60,8 +60,12 @@ function executeCallbacks2 () {
 }
 if (typeof document !== "undefined") {
   let scripts = document.getElementsByTagName('script');
-  let index = scripts.length - 1;
-  let myScript = scripts[index];
+  let myScript = null;
+  for (let index = 0; index < scripts.length; index++) {
+    if (scripts[index].src !== "undefined" && scripts[index].src !== "") {
+      myScript = scripts[index];
+    }
+  }
   let src = myScript.src;
   let bslash = String.fromCharCode(92);
   let questionMarkPos = src.search(bslash + '?');
