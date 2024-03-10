@@ -34,6 +34,8 @@ ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) 
 # CC = em++
 CC = emcc
 CC_ENVIRONMENT_INI = emcc_env.ini
+# Some make tools terminate with the error "make: node: Permission denied" if node is called directly.
+NODE = `which node`
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -89,8 +91,8 @@ COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeut
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7.js ../prg/s7.js
-	node ../bin/s7.js -l ../lib level
-	node --stack-size=8192 ../bin/s7.js -l ../lib -q ../prg/confval > ../bin/cc_conf_emcc.prop
+	$(NODE) ../bin/s7.js -l ../lib level
+	$(NODE) --stack-size=8192 ../bin/s7.js -l ../lib -q ../prg/confval > ../bin/cc_conf_emcc.prop
 	@echo
 	@echo "  Use 'make s7c' (with your make command) to create the compiler."
 	@echo
@@ -113,7 +115,7 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	cp -p ../prg/s7c.wasm ../bin
 
 ../prg/s7c.js: ../prg/s7c.sd7 $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
-	node --stack-size=8192 ../bin/s7.js -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
+	$(NODE) --stack-size=8192 ../bin/s7.js -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
 
 levelup: levelup.c
 	gcc levelup.c -o levelup
@@ -162,7 +164,7 @@ distclean: clean clean_utils
 	rm -f vers_emccl.h
 
 test:
-	node ../bin/s7.js -l ../lib ../prg/chk_all build
+	$(NODE) ../bin/s7.js -l ../lib ../prg/chk_all build
 	@echo
 	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
 	@echo
@@ -285,7 +287,7 @@ depend: version.h wrdepend
 	cp pre_js.js ../bin/$(SPECIAL_LIB)
 
 ../bin/%.js: ../prg/%.sd7 ../bin/s7c.js
-	node --stack-size=8192 ../bin/s7c.js -l ../lib -b ../bin -O3 -oc3 $<
+	$(NODE) --stack-size=8192 ../bin/s7c.js -l ../lib -b ../bin -O3 -oc3 $<
 	mv $(<:.sd7=.js) ../bin
 	mv $(<:.sd7=.wasm) ../bin
 
