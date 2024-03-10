@@ -1234,6 +1234,9 @@ winType drwOpen (intType xPos, intType yPos,
                   reloadPageFunction = windowObject.opener.reloadPage;
                 }
               }
+              if (typeof windowObject.opener.registerWindow !== "undefined") {
+                windowObject.opener.registerWindow(windowObject);
+              }
               return (currentWindowId << 2) | ignoreFirstResize;
             }
           } else {
@@ -1546,7 +1549,7 @@ void drwPolyLine (const_winType actual_window,
           } else {
             return 1;
           }
-        }, to_window(actual_window), (int) x, (int) y, numCoords, coords,
+        }, to_window(actual_window), (int) x, (int) y, numCoords, (int) coords,
             (int) (col & 0xffffff));
         if (unlikely(successInfo != 0)) {
           logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
@@ -1593,7 +1596,7 @@ void drwFPolyLine (const_winType actual_window,
           } else {
             return 1;
           }
-        }, to_window(actual_window), (int) x, (int) y, numCoords, coords,
+        }, to_window(actual_window), (int) x, (int) y, numCoords, (int) coords,
             (int) (col & 0xffffff));
         if (unlikely(successInfo != 0)) {
           logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
