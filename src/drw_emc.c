@@ -46,6 +46,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "tim_drv.h"
+#include "kbd_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
