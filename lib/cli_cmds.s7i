@@ -1116,6 +1116,7 @@ const func integer: processCommand (in var string: command) is func
     var string: rawFileName is "";
     var string: fileName is "";
     var file: aFile is STD_NULL;
+    var string: backtickCommand is "";
     var string: commandOutput is "";
   begin
     # writeln("process command: " <& command);
@@ -1141,6 +1142,9 @@ const func integer: processCommand (in var string: command) is func
       if doRedirect or doAppend then
         if startsWith(fullCommand, "\"") then
           command := getQuotedText(fullCommand);
+        elsif startsWith(fullCommand, "`") then
+          backtickCommand := getQuotedText(fullCommand);
+          command := execCommand(backtickCommand);
         else
           command := getWord(fullCommand);
         end if;
@@ -1161,6 +1165,9 @@ const func integer: processCommand (in var string: command) is func
       else
         if startsWith(fullCommand, "\"") then
           command := getQuotedText(fullCommand);
+        elsif startsWith(fullCommand, "`") then
+          backtickCommand := getQuotedText(fullCommand);
+          command := execCommand(backtickCommand);
         else
           command := getWord(fullCommand);
         end if;
