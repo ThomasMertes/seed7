@@ -28694,6 +28694,7 @@ const func bigInteger: peelLowestByte (inout bigInteger: dividend) is func
     var bigInteger: remainder is 0_;
   begin
     remainder := dividend rem 256_;
+    # To check the implementation this must change the address of 'dividend':
     dividend := dividend div 256_;
   end func;
 

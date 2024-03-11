@@ -196,6 +196,7 @@ const func bstring: peelFirstChar (inout bstring: bstri) is func
     var bstring: part is bstring.value;
   begin
     part := bstring(string(bstri)[.. 1]);
+    # To check the implementation this must change the address of 'bstri':
     bstri := bstring(string(bstri)[2 ..]);
   end func;
 

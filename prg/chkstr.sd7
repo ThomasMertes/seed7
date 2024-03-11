@@ -24370,6 +24370,7 @@ const func string: peelFirstChar (inout string: stri) is func
     var string: part is "";
   begin
     part := stri[.. 1];
+    # To check the implementation this must change the address of 'stri':
     stri := stri[2 ..];
   end func;
 
