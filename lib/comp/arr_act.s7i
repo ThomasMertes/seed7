@@ -276,24 +276,24 @@ const proc: process (ARR_CPY, in reference: function,
       c_param3.demand := ASSIGN_RESULT;
       prepareAnyParamTemporarys(params[3], c_param3, statement);
       if c_param3.result_expr <> "" then
+        statement.temp_decls &:= "arrayType new_array;\n";
+        statement.expr &:= "new_array=";
+        statement.expr &:= c_param3.result_expr;
+        statement.expr &:= ";\n";
+        process_destr_declaration(getExprResultType(params[1]), global_c_expr);
         if isNormalVariable(params[1]) then
-          statement.temp_decls &:= "arrayType old_array=";
-          statement.temp_decls &:= c_param1.expr;
-          statement.temp_decls &:= ";\n";
+          process_destr_call(getExprResultType(params[1]),
+              c_param1.expr, statement.expr);
           statement.expr &:= c_param1.expr;
-          statement.expr &:= "=";
+          statement.expr &:= "=new_array;\n";
         else
           statement.temp_decls &:= "arrayType *array_ptr=&(";
           statement.temp_decls &:= c_param1.expr;
           statement.temp_decls &:= ");\n";
-          statement.temp_decls &:= "arrayType old_array=*array_ptr;\n";
-          statement.expr &:= "*array_ptr=";
+          process_destr_call(getExprResultType(params[1]),
+              "*array_ptr", statement.expr);
+          statement.expr &:= "*array_ptr=new_array;\n";
         end if;
-        statement.expr &:= c_param3.result_expr;
-        statement.expr &:= ";\n";
-        process_destr_declaration(getExprResultType(params[1]), global_c_expr);
-        process_destr_call(getExprResultType(params[1]),
-            "old_array", statement.expr);
       else
         process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
         process_cpy_call(getExprResultType(params[1]),
