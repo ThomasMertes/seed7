@@ -24355,6 +24355,16 @@ const func string: stringFromChar (in char: ch) is
   return str(charExpr(ch));
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   stri := peelFirstChar(stri);
+ *  This triggers two changes of 'stri'. One change is in
+ *  peelFirstChar() and another change is done by the assignment.
+ *  In this case the change of 'stri' in peelFirstChar() is
+ *  overwritten by the assignment. The variable 'stri' obtains
+ *  its new value from the result of peelFirstChar().
+ *)
 const func string: peelFirstChar (inout string: stri) is func
   result
     var string: part is "";

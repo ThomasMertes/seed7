@@ -181,6 +181,16 @@ const proc: do_assign (inout bstring: dest, ref bstring: source) is func
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   bstri := peelFirstChar(bstri);
+ *  This triggers two changes of 'bstri'. One change is in
+ *  peelFirstChar() and another change is done by the assignment.
+ *  In this case the change of 'bstri' in peelFirstChar() is
+ *  overwritten by the assignment. The variable 'bstri' obtains
+ *  its new value from the result of peelFirstChar().
+ *)
 const func bstring: peelFirstChar (inout bstring: bstri) is func
   result
     var bstring: part is bstring.value;
@@ -202,7 +212,7 @@ const proc: check_bstring_assign is func
     do_assign(bstri, bstri);                   ok := ok and bstri = bstring("asdf");
     bstri := peelFirstChar(bstri);             ok := ok and bstri = bstring("a");
     bstriArr[1] := bstring parse "asdf";       ok := ok and bstriArr[1] = bstring("asdf");
-    bstriArr[1] := peelFirstChar(bstriArr[1]); ok := ok and bstri = bstring("a");
+    bstriArr[1] := peelFirstChar(bstriArr[1]); ok := ok and bstriArr[1] = bstring("a");
     if not ok then
       writeln(" ***** BString assignment does not work correctly.");
       okay := FALSE;
