@@ -114,22 +114,23 @@ const proc: process (BST_CPY, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "bstriType new_bstri;\n";
+      statement.expr &:= "new_bstri=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "bstriType old_bstri=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "strDestr(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_bstri;\n";
       else
         statement.temp_decls &:= "bstriType *bstri_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "bstriType old_bstri=*bstri_ptr;\n";
-        statement.expr &:= "*bstri_ptr=";
+        statement.expr &:= "strDestr(*bstri_ptr);\n";
+        statement.expr &:= "*bstri_ptr=new_bstri;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "bstDestr(old_bstri);\n";
     else
       statement.expr &:= "bstCpy(&(";
       statement.expr &:= c_param1.expr;

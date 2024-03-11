@@ -181,6 +181,15 @@ const proc: do_assign (inout bstring: dest, ref bstring: source) is func
   end func;
 
 
+const func bstring: peelFirstChar (inout bstring: bstri) is func
+  result
+    var bstring: part is bstring.value;
+  begin
+    part := bstring(string(bstri)[.. 1]);
+    bstri := bstring(string(bstri)[2 ..]);
+  end func;
+
+
 const proc: check_bstring_assign is func
   local
     var boolean: okay is TRUE;
@@ -188,10 +197,12 @@ const proc: check_bstring_assign is func
     var bstring: bstri is bstring.value;
     var array bstring: bstriArr is 1 times bstring.value;
   begin
-    bstri := bstring parse "asdf";        ok := ok and bstri = bstring("asdf");
-    bstri := bstri;                       ok := ok and bstri = bstring("asdf");
-    do_assign(bstri, bstri);              ok := ok and bstri = bstring("asdf");
-    bstriArr[1] := bstring parse "asdf";  ok := ok and bstriArr[1] = bstring("asdf");
+    bstri := bstring parse "asdf";             ok := ok and bstri = bstring("asdf");
+    bstri := bstri;                            ok := ok and bstri = bstring("asdf");
+    do_assign(bstri, bstri);                   ok := ok and bstri = bstring("asdf");
+    bstri := peelFirstChar(bstri);             ok := ok and bstri = bstring("a");
+    bstriArr[1] := bstring parse "asdf";       ok := ok and bstriArr[1] = bstring("asdf");
+    bstriArr[1] := peelFirstChar(bstriArr[1]); ok := ok and bstri = bstring("a");
     if not ok then
       writeln(" ***** BString assignment does not work correctly.");
       okay := FALSE;
