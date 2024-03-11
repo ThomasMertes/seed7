@@ -119,7 +119,7 @@ const proc: process (BST_CPY, in reference: function,
       statement.expr &:= c_param3.result_expr;
       statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.expr &:= "strDestr(";
+        statement.expr &:= "bstDestr(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
         statement.expr &:= c_param1.expr;
@@ -128,7 +128,7 @@ const proc: process (BST_CPY, in reference: function,
         statement.temp_decls &:= "bstriType *bstri_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.expr &:= "strDestr(*bstri_ptr);\n";
+        statement.expr &:= "bstDestr(*bstri_ptr);\n";
         statement.expr &:= "*bstri_ptr=new_bstri;\n";
       end if;
     else
