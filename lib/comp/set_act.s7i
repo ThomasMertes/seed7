@@ -257,22 +257,23 @@ const proc: process (SET_CPY, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "setType new_set;\n";
+      statement.expr &:= "new_set=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "setType old_set=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "setDestr(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_set;\n";
       else
         statement.temp_decls &:= "setType *set_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "setType old_set=*set_ptr;\n";
-        statement.expr &:= "*set_ptr=";
+        statement.expr &:= "setDestr(*set_ptr);\n";
+        statement.expr &:= "*set_ptr=new_set;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "setDestr(old_set);\n";
     else
       statement.expr &:= "setCpy(&(";
       statement.expr &:= c_param1.expr;

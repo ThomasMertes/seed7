@@ -11404,6 +11404,29 @@ const proc: check_str is func
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   aSet := peelMinimum(aSet);
+ *  This triggers two changes of 'aSet'. One change is in
+ *  peelMinimum() and another change is done by the assignment.
+ *  In this case the change of 'aSet' in peelMinimum() is
+ *  overwritten by the assignment. The variable 'aSet' obtains
+ *  its new value from the result of peelMinimum().
+ *)
+const func bitset: peelMinimum (inout bitset: aSet) is func
+  result
+    var bitset: minimumSet is {};
+  local
+    var integer: minimum is 0;
+  begin
+    minimum := min(aSet);
+    incl(minimumSet, minimum);
+    # To check the implementation this must change the address of 'aSet':
+    aSet := aSet - minimumSet;
+  end func;
+
+
 const proc: check_assign is func
   local
     var boolean: okay is TRUE;
@@ -11420,6 +11443,11 @@ const proc: check_assign is func
       okay := FALSE;
     end if;
 
+    set_1 := peelMinimum(set_1);
+    if set_1 <> {2} then
+      okay := FALSE;
+    end if;
+
     set_1 := {2, 3, 5, 7, 11, 13};
     arr_1[1] := set_1;
     if arr_1[1] <> {2, 3, 5, 7, 11, 13} then
@@ -11433,6 +11461,11 @@ const proc: check_assign is func
 
     arr_1[1] := set_1 | {4, 6, 8, 9, 10, 12};
     if arr_1[1] <> {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13} then
+      okay := FALSE;
+    end if;
+
+    arr_1[1] := peelMinimum(arr_1[1]);
+    if arr_1[1] <> {2} then
       okay := FALSE;
     end if;
 
