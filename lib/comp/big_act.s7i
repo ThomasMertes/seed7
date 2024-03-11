@@ -706,22 +706,23 @@ const proc: process (BIG_CPY, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "bigIntType new_big;\n";
+      statement.expr &:= "new_big=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "bigIntType old_big=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "bigDestr(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_big;\n";
       else
         statement.temp_decls &:= "bigIntType *big_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "bigIntType old_big=*big_ptr;\n";
-        statement.expr &:= "*big_ptr=";
+        statement.expr &:= "bigDestr(*big_ptr);\n";
+        statement.expr &:= "*big_ptr=new_big;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "bigDestr(old_big);\n";
     else
       statement.expr &:= "bigCpy(&(";
       statement.expr &:= c_param1.expr;

@@ -28679,25 +28679,46 @@ const proc: do_assign (inout bigInteger: dest, ref bigInteger: source) is func
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   number := peelLowestByte(number);
+ *  This triggers two changes of 'number'. One change is in
+ *  peelLowestByte() and another change is done by the assignment.
+ *  In this case the change of 'number' in peelLowestByte() is
+ *  overwritten by the assignment. The variable 'number' obtains
+ *  its new value from the result of peelLowestByte().
+ *)
+const func bigInteger: peelLowestByte (inout bigInteger: dividend) is func
+  result
+    var bigInteger: remainder is 0_;
+  begin
+    remainder := dividend rem 256_;
+    dividend := dividend div 256_;
+  end func;
+
+
 const proc: chkAssign is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
     var bigInteger: number is 1_;
+    var array bigInteger: bigNumArr is 1 times 0_;
   begin
-    okay := TRUE;
-    number := 2_;
-    if number <> 2_ then
-      writeln(" ***** 'number := 2_' does not work correctly.");
-      okay := FALSE;
-    end if;
-    number := number;
-    if number <> 2_ then
-      writeln(" ***** bigInteger 'number := number' does not work correctly.");
-      okay := FALSE;
-    end if;
-    do_assign(number, number);
-    if number <> 2_ then
-      writeln(" ***** bigInteger 'number := number' does not work correctly.");
+    number := 2_;                     ok := ok and number = 2_;
+    number := number;                 ok := ok and number = 2_;
+    do_assign(number, number);        ok := ok and number = 2_;
+    number := 12345678_;              ok := ok and number = 12345678_;
+    number := 100_ * number + 90_;    ok := ok and number = 1234567890_;
+    number := peelLowestByte(number); ok := ok and number = 210_;
+    bigNumArr[1] := 2_;                           ok := ok and bigNumArr[1] = 2_;
+    bigNumArr[1] := bigNumArr[1];                 ok := ok and bigNumArr[1] = 2_;
+    do_assign(bigNumArr[1], bigNumArr[1]);        ok := ok and bigNumArr[1] = 2_;
+    bigNumArr[1] := 12345678_;                    ok := ok and bigNumArr[1] = 12345678_;
+    bigNumArr[1] := 100_ * bigNumArr[1] + 90_;    ok := ok and bigNumArr[1] = 1234567890_;
+    bigNumArr[1] := peelLowestByte(bigNumArr[1]); ok := ok and bigNumArr[1] = 210_;
+    if not ok then
+      writeln(" ***** bigInteger assignment does not work correctly.");
       okay := FALSE;
     end if;
     if okay then
