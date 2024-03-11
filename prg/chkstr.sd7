@@ -24355,6 +24355,15 @@ const func string: stringFromChar (in char: ch) is
   return str(charExpr(ch));
 
 
+const func string: peelFirstChar (inout string: stri) is func
+  result
+    var string: part is "";
+  begin
+    part := stri[.. 1];
+    stri := stri[2 ..];
+  end func;
+
+
 const proc: check_string_assign is func
   local
     var boolean: okay is TRUE;
@@ -24396,6 +24405,8 @@ const proc: check_string_assign is func
     stri := str('X');             ok := ok and stri = "X";
     stri := str(charExpr('Y'));   ok := ok and stri = "Y";
     stri := stringFromChar('Z');  ok := ok and stri = "Z";
+    stri := "ab";                 ok := ok and stri = "ab";
+    stri := peelFirstChar(stri);  ok := ok and stri = "a";
     striArr[1] := "asdfghjkl";               ok := ok and striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1];                ok := ok and striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1][1 ..];          ok := ok and striArr[1] = "asdfghjkl";
@@ -24414,6 +24425,7 @@ const proc: check_string_assign is func
     striArr[1] := striArr[intExpr(1)][.. 7];          ok := ok and striArr[1] = "sdfghjk";
     striArr[1] := striArr[intExpr(1)][2 .. 6];        ok := ok and striArr[1] = "dfghj";
     striArr[1] := striArr[intExpr(1)][2 len 3];       ok := ok and striArr[1] = "fgh";
+    striArr[1] := peelFirstChar(striArr[1]);          ok := ok and striArr[1] = "f";
     striArr[intExpr(1)] := "asdfghjkl";               ok := ok and striArr[1] = "asdfghjkl";
     striArr[intExpr(1)] := striArr[1];                ok := ok and striArr[1] = "asdfghjkl";
     striArr[intExpr(1)] := striArr[1][1 ..];          ok := ok and striArr[1] = "asdfghjkl";
@@ -24432,6 +24444,7 @@ const proc: check_string_assign is func
     striArr[intExpr(1)] := striArr[intExpr(1)][.. 7];          ok := ok and striArr[1] = "sdfghjk";
     striArr[intExpr(1)] := striArr[intExpr(1)][2 .. 6];        ok := ok and striArr[1] = "dfghj";
     striArr[intExpr(1)] := striArr[intExpr(1)][2 len 3];       ok := ok and striArr[1] = "fgh";
+    striArr[intExpr(1)] := peelFirstChar(striArr[intExpr(1)]); ok := ok and striArr[1] = "f";
     if not ok then
       writeln(" ***** String assignment does not work correctly.");
       okay := FALSE;
