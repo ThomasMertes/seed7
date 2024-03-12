@@ -62,6 +62,8 @@ typedef struct {
     int window;
     boolType is_pixmap;
     boolType is_subwindow;
+    boolType is_substitute;
+    winType parentWindow;
     int ignoreFirstResize;
     intType creationTimestamp;
     int width;
@@ -76,6 +78,8 @@ typedef const emc_winRecord *const_emc_winType;
 #define to_window(win)            (((const_emc_winType) (win))->window)
 #define is_pixmap(win)            (((const_emc_winType) (win))->is_pixmap)
 #define is_subwindow(win)         (((const_emc_winType) (win))->is_subwindow)
+#define is_substitute(win)        (((const_emc_winType) (win))->is_substitute)
+#define to_parentWindow(win)      (((const_emc_winType) (win))->parentWindow)
 #define to_ignoreFirstResize(win) (((const_emc_winType) (win))->ignoreFirstResize)
 #define to_creationTimestamp(win) (((const_emc_winType) (win))->creationTimestamp)
 #define to_width(win)             (((const_emc_winType) (win))->width)
@@ -87,6 +91,8 @@ typedef const emc_winRecord *const_emc_winType;
 #define to_var_window(win)            (((emc_winType) (win))->window)
 #define is_var_pixmap(win)            (((emc_winType) (win))->is_pixmap)
 #define is_var_subwindow(win)         (((emc_winType) (win))->is_subwindow)
+#define is_var_substitute(win)        (((emc_winType) (win))->is_substitute)
+#define to_var_parentWindow(win)      (((emc_winType) (win))->parentWindow)
 #define to_var_ignoreFirstResize(win) (((emc_winType) (win))->ignoreFirstResize)
 #define to_var_creationTimestamp(win) (((emc_winType) (win))->creationTimestamp)
 #define to_var_width(win)             (((emc_winType) (win))->width)
@@ -773,6 +779,8 @@ winType drwEmpty (void)
       emptyWindow->window = 0;
       emptyWindow->is_pixmap = TRUE;
       emptyWindow->is_subwindow = FALSE;
+      emptyWindow->is_substitute = FALSE;
+      emptyWindow->parentWindow = NULL;
       emptyWindow->ignoreFirstResize = 0;
       emptyWindow->creationTimestamp = 0;
       emptyWindow->width = 0;
@@ -940,6 +948,8 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
+        pixmap->is_substitute = FALSE;
+        pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
@@ -1036,6 +1046,8 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
+        pixmap->is_substitute = FALSE;
+        pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
@@ -1138,6 +1150,8 @@ winType drwNewPixmap (intType width, intType height)
         pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
+        pixmap->is_substitute = FALSE;
+        pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
         pixmap->width = (int) width;
@@ -1150,6 +1164,56 @@ winType drwNewPixmap (intType width, intType height)
                        pixmap != NULL ? pixmap->usage_count : (uintType) 0););
     return (winType) pixmap;
   } /* drwNewPixmap */
+
+
+
+static winType openSubstituteWindow (intType xPos, intType yPos,
+    intType width, intType height)
+
+  {
+    int windowId;
+    winType window;
+    winType parentWindow = NULL;
+    intType parentWinXPos;
+    intType parentWinYPos;
+    emc_winType newWindow;
+
+  /* openSubstituteWindow */
+    logFunction(printf("openSubstituteWindow(" FMT_D ", " FMT_D ", "
+                       FMT_D ", " FMT_D ")\n",
+                       xPos, yPos, width, height););
+    for (windowId = 1; windowId <= maxWindowId && parentWindow == NULL; windowId++) {
+      window = find_window(windowId);
+      if (window != NULL) {
+        parentWinXPos = drwXPos(window);
+        parentWinYPos = drwYPos(window);
+        if (parentWinXPos <= xPos && parentWinYPos <= yPos &&
+            parentWinXPos + to_width(window) >= xPos + width &&
+            parentWinYPos + to_height(window) >= yPos + height) {
+          parentWindow = window;
+        } /* if */
+      } /* if */
+    } /* for */
+    if (unlikely(parentWindow == NULL)) {
+      logError(printf("openSubstituteWindow(" FMT_D ", " FMT_D ", "
+                      FMT_D ", " FMT_D "): Cannot find parent window.\n",
+                      xPos, yPos, width, height););
+      raise_error(GRAPHIC_ERROR);
+      newWindow = NULL;
+    } else {
+      newWindow = (emc_winType) drwOpenSubWindow(parentWindow,
+          xPos - parentWinXPos, yPos - parentWinYPos, width, height);
+      if (newWindow != NULL) {
+        newWindow->is_substitute = TRUE;
+      } /* if */
+    } /* if */
+    logFunction(printf("openSubstituteWindow --> " FMT_U_MEM
+                       " (window=%d, usage=" FMT_U ")\n",
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->window : 0,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
+  } /* openSubstituteWindow */
 
 
 
@@ -1247,11 +1311,9 @@ winType drwOpen (intType xPos, intType yPos,
 
         free_cstri8(winName8, windowName);
         if (unlikely(windowIdAndFlags == 0)) {
-          logError(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
-                          ", \"%s\"): Failed to open window.\n",
-                          xPos, yPos, width, height,
-                          striAsUnquotedCStri(windowName)););
-          raise_error(GRAPHIC_ERROR);
+          /* This might be triggered by the error: */
+          /* Opening multiple popups was blocked due to lack of user activation. */
+          result = (emc_winType) openSubstituteWindow(xPos, yPos, width, height);
         } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
                                            count.win_bytes))) {
           raise_error(MEMORY_ERROR);
@@ -1261,6 +1323,8 @@ winType drwOpen (intType xPos, intType yPos,
           result->window = windowIdAndFlags >> 2;
           result->is_pixmap = FALSE;
           result->is_subwindow = FALSE;
+          result->is_substitute = FALSE;
+          result->parentWindow = NULL;
           result->ignoreFirstResize = windowIdAndFlags & 3;
           result->creationTimestamp = timMicroSec() / 1000000;
           result->width = (int) width;
@@ -1359,6 +1423,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         result->window = windowId;
         result->is_pixmap = FALSE;
         result->is_subwindow = TRUE;
+        result->is_substitute = FALSE;
+        result->parentWindow = parent_window;
         result->ignoreFirstResize = 0;
         result->creationTimestamp = 0;
         result->width = (int) width;
@@ -2098,6 +2164,9 @@ intType drwXPos (const_winType actual_window)
             return -2147483648;
           }
         }, to_window(actual_window));
+        if (is_substitute(actual_window)) {
+          xPos += drwXPos(to_parentWindow(actual_window));
+        } /* if */
       } else {
         xPos = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
@@ -2155,6 +2224,9 @@ intType drwYPos (const_winType actual_window)
             return -2147483648;
           }
         }, to_window(actual_window));
+        if (is_substitute(actual_window)) {
+          yPos += drwYPos(to_parentWindow(actual_window));
+        } /* if */
       } else {
         yPos = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
