@@ -161,23 +161,23 @@ const proc: process (FIL_CPY, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "fileType new_file;\n";
+      statement.expr &:= "new_file=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "fileType old_file=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "filDestr(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_file;\n";
       else
-        statement.temp_decls &:= "fileType old_file;\n";
         statement.temp_decls &:= "fileType *file_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.expr &:= "old_file=*file_ptr;\n";
-        statement.expr &:= "*file_ptr=";
+        statement.expr &:= "filDestr(*file_ptr);\n";
+        statement.expr &:= "*file_ptr=new_file;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "filDestr(old_file);\n";
     else
       statement.expr &:= "filCpy(&(";
       statement.expr &:= c_param1.expr;

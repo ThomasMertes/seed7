@@ -92,6 +92,18 @@ const func boolean: raisesRangeError (in proc: expression) is func
   end func;
 
 
+const func boolean: raisesFileError (in proc: expression) is func
+  result
+    var boolean: raisesFileError is FALSE;
+  begin
+    block
+      expression;
+    exception
+      catch FILE_ERROR: raisesFileError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_clib_file is func
   local
     var boolean: okay is TRUE;
@@ -100,6 +112,10 @@ const proc: check_clib_file is func
   begin
     if clib_file.value <> CLIB_NULL_FILE then
       writeln(" ***** Default value of clib_file is not CLIB_NULL_FILE.");
+      okay := FALSE;
+    end if;
+    if not raisesFileError(close(CLIB_NULL_FILE)) then
+      writeln(" ***** Closing CLIB_NULL_FILE does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
     if raisesRangeError(aFile := openClibFile("asdf", "r+")) then
@@ -122,6 +138,51 @@ const proc: check_clib_file is func
       writeln("Literal of clib_file does not work correctly.");
       okay := FALSE;
     end if;
+  end func;
+
+
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   aFile := changeParameter(aFile, testFileName);
+ *  This triggers two changes of 'aFile'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'aFile' in changeParameter() is
+ *  overwritten by the assignment. The variable 'aFile' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func clib_file: changeParameter (inout clib_file: aFile,
+    in string: testFileName) is func
+  result
+    var clib_file: fileResult is clib_file.value;
+  begin
+    fileResult := openClibFile(testFileName, "r+");
+    # To check the implementation this must change the address of 'aFile':
+    aFile := openClibFile(testFileName, "r+");
+  end func;
+
+
+const proc: check_clib_file_assign is func
+  local
+    var boolean: okay is TRUE;
+    var string: testFileName is "";
+    var clib_file: aFile is clib_file.value;
+    var array clib_file: fileArr is 1 times clib_file.value;
+  begin
+    repeat
+      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+    until fileType(testFileName) = FILE_ABSENT;
+    aFile := openClibFile(testFileName, "w");
+    write(aFile, testFileName);
+    close(aFile);
+
+    aFile := openClibFile(testFileName, "r+");
+    aFile := changeParameter(aFile, testFileName);
+    close(aFile);
+    fileArr[1] := openClibFile(testFileName, "r+");
+    fileArr[1] := changeParameter(fileArr[1], testFileName);
+    close(fileArr[1]);
+    removeFile(testFileName);
   end func;
 
 
@@ -1544,6 +1605,7 @@ const proc: main is func
   begin
     writeln;
     check_clib_file;
+    check_clib_file_assign;
     check_file_open;
     check_file_io;
     check_file_seek;
