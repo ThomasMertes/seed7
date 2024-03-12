@@ -581,22 +581,23 @@ const proc: process (SQL_CPY_STMT, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "sqlStmtType new_stmt;\n";
+      statement.expr &:= "new_stmt=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "sqlStmtType old_stmt=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "sqlDestrStmt(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_stmt;\n";
       else
         statement.temp_decls &:= "sqlStmtType *stmt_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "sqlStmtType old_stmt=*stmt_ptr;\n";
-        statement.expr &:= "*stmt_ptr=";
+        statement.expr &:= "sqlDestrStmt(*stmt_ptr);\n";
+        statement.expr &:= "*stmt_ptr=new_stmt;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "sqlDestrStmt(old_stmt);\n";
     else
       statement.expr &:= "sqlCpyStmt(&(";
       statement.expr &:= c_param1.expr;

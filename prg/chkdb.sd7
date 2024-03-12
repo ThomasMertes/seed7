@@ -661,6 +661,39 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   statement := changeParameter(statement);
+ *  This triggers two changes of 'statement'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'statement' in changeParameter() is
+ *  overwritten by the assignment. The variable 'statement' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func sqlStatement: changeParameter (inout sqlStatement: statement,
+    in database: testDb) is func
+  result
+    var sqlStatement: statementResult is sqlStatement.value;
+  begin
+    statementResult := prepare(testDb, "CREATE TABLE testAssignment (field2 CHAR)");
+    # To check the implementation this must change the address of 'statement':
+    statement := prepare(testDb, "CREATE TABLE testAssignment (field3 CHAR)");
+  end func;
+
+
+const proc: testAssignStatement (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var sqlStatement: statement is sqlStatement.value;
+    var array sqlStatement: statementArr is 1 times sqlStatement.value;
+  begin
+    statement := prepare(testDb, "CREATE TABLE testAssignment (field1 CHAR)");
+    statement := changeParameter(statement, testDb);
+    statementArr[1] := prepare(testDb, "CREATE TABLE testAssignment (field1 CHAR)");
+    statementArr[1] := changeParameter(statementArr[1], testDb);
+  end func;
+
+
 const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("testTable", "unused", FALSE);
@@ -6348,6 +6381,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
   begin
     databaseKind := dbConnectData.databaseKind;
     testPrepareAndExecute(testDb, databaseKind);
+    testAssignStatement(testDb, databaseKind);
     testFieldNames(testDb, databaseKind);
     testAutoCommit(testDb, dbConnectData);
     testTransactions(testDb, dbConnectData);
