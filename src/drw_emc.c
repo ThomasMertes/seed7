@@ -2247,3 +2247,83 @@ intType drwYPos (const_winType actual_window)
                        (memSizeType) actual_window, yPos););
     return (intType) yPos;
   } /* drwYPos */
+
+
+
+intType leftButtonXPos (winType aWindow)
+
+  {
+    int xPos;
+
+  /* leftButtonXPos */
+    logFunction(printf("leftButtonXPos(" FMT_U_MEM ")\n",
+                       (memSizeType) aWindow););
+    if (is_pixmap(aWindow)) {
+      raise_error(RANGE_ERROR);
+      xPos = 0;
+    } else if (is_subwindow(aWindow)) {
+      xPos = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+          let left = mapIdToCanvas[$0].style.left;
+          if (left.endsWith("px")) {
+            return left.substring(0, left.length - 2);
+          } else {
+            return left;
+          }
+        } else {
+          return -2147483648;
+        }
+      }, to_window(aWindow));
+      if (unlikely(xPos == -2147483648)) {
+        logError(printf("leftButtonXPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) aWindow, to_window(aWindow)););
+        raise_error(GRAPHIC_ERROR);
+        xPos = 0;
+      } /* if */
+    } else {
+      xPos = 0;
+    } /* if */
+    logFunction(printf("leftButtonXPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) aWindow, xPos););
+    return (intType) xPos;
+  } /* leftButtonXPos */
+
+
+
+intType topButtonYPos (winType aWindow)
+
+  {
+    int yPos;
+
+  /* topButtonYPos */
+    logFunction(printf("topButtonYPos(" FMT_U_MEM ")\n",
+                       (memSizeType) aWindow););
+    if (is_pixmap(aWindow)) {
+      raise_error(RANGE_ERROR);
+      yPos = 0;
+    } else if (is_subwindow(aWindow)) {
+      yPos = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+          let top = mapIdToCanvas[$0].style.top;
+          if (top.endsWith("px")) {
+            return top.substring(0, top.length - 2);
+          } else {
+            return top;
+          }
+        } else {
+          return -2147483648;
+        }
+      }, to_window(aWindow));
+      if (unlikely(yPos == -2147483648)) {
+        logError(printf("topButtonYPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) aWindow, to_window(aWindow)););
+        raise_error(GRAPHIC_ERROR);
+        yPos = 0;
+      } /* if */
+    } else {
+      yPos = 0;
+    } /* if */
+    logFunction(printf("topButtonYPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) aWindow, yPos););
+    return (intType) yPos;
+  } /* topButtonYPos */

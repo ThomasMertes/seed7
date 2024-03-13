@@ -96,6 +96,8 @@ extern boolType ignoreResize (winType aWindow, int width, int height);
 extern boolType resize (winType resizeWindow, int width, int height);
 extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
+extern intType leftButtonXPos (winType aWindow);
+extern intType topButtonYPos (winType aWindow);
 extern int maxWindowId;
 
 
@@ -1330,6 +1332,44 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active)
 
 
 
+intType gkbButtonXpos (void)
+
+  {
+    winType window;
+    intType xPos
+
+  /* gkbButtonXpos */
+    logFunction(printf("gkbButtonXpos\n"););
+    xPos = lastKey.buttonX;
+    window = find_window(lastKey.buttonWindow);
+    if (window != NULL) {
+      xPos -= leftButtonXPos(window);
+    } /* if */
+    logFunction(printf("gkbButtonXpos -> " FMT_D "\n", xPos););
+    return xPos;
+  } /* gkbButtonXpos */
+
+
+
+intType gkbButtonYpos (void)
+
+  {
+    winType window;
+    intType yPos
+
+  /* gkbButtonYpos */
+    logFunction(printf("gkbButtonYpos\n"););
+    yPos = lastKey.buttonY;
+    window = find_window(lastKey.buttonWindow);
+    if (window != NULL) {
+      yPos -= topButtonYPos(window);
+    } /* if */
+    logFunction(printf("gkbButtonYpos -> " FMT_D "\n", yPos););
+    return yPos;
+  } /* gkbButtonYpos */
+
+
+
 winType gkbWindow (void)
 
   {
@@ -1344,21 +1384,3 @@ winType gkbWindow (void)
     logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* gkbWindow */
-
-
-
-intType gkbButtonXpos (void)
-
-  { /* gkbButtonXpos */
-    logFunction(printf("gkbButtonXpos -> " FMT_D "\n", lastKey.buttonX););
-    return lastKey.buttonX;
-  } /* gkbButtonXpos */
-
-
-
-intType gkbButtonYpos (void)
-
-  { /* gkbButtonYpos */
-    logFunction(printf("gkbButtonYpos -> " FMT_D "\n", lastKey.buttonY););
-    return lastKey.buttonY;
-  } /* gkbButtonYpos */
