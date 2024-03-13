@@ -6022,6 +6022,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = PROCESSOBJECT then
       c_expr.expr &:= ".value.processValue=";
       c_expr.expr &:= "NULL";
+    elsif objectCategory = PROGOBJECT then
+      c_expr.expr &:= ".value.progValue=";
+      c_expr.expr &:= "NULL";
     elsif objectCategory = TYPEOBJECT then
       c_expr.expr &:= ".value.typeValue=";
       c_expr.expr &:= typeLiteral(getValue(current_object, type));
