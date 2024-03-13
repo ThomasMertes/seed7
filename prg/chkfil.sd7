@@ -178,9 +178,11 @@ const proc: check_clib_file_assign is func
 
     aFile := openClibFile(testFileName, "r+");
     aFile := changeParameter(aFile, testFileName);
+    aFile := aFile;
     close(aFile);
     fileArr[1] := openClibFile(testFileName, "r+");
     fileArr[1] := changeParameter(fileArr[1], testFileName);
+    fileArr[1] := fileArr[1];
     close(fileArr[1]);
     aFile := clib_file.value;
     fileArr[1] := clib_file.value;
@@ -225,9 +227,11 @@ const proc: check_file_assign is func
 
     aFile := open(testFileName, "r+");
     aFile := changeParameter(aFile, testFileName);
+    aFile := aFile;
     close(aFile);
     fileArr[1] := open(testFileName, "r+");
     fileArr[1] := changeParameter(fileArr[1], testFileName);
+    fileArr[1] := fileArr[1];
     close(fileArr[1]);
     aFile := STD_NULL;
     fileArr[1] := STD_NULL;
