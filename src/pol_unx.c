@@ -371,6 +371,10 @@ void polAddCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck, const genericType fileObj)
 
   { /* polAddCheck */
+    logFunction(printf("polAddCheck(" FMT_U_MEM ", %d, " FMT_X ", "
+                       FMT_U_GEN ")\n",
+                       (memSizeType) pollData, aSocket, eventsToCheck,
+                       fileObj););
     switch (eventsToCheck) {
       case POLL_IN:
         addCheck(var_conv(pollData), POLLIN, aSocket, fileObj);
@@ -541,7 +545,8 @@ pollType polCreate (const const_pollType source)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("polCreate -->\n");
+    logFunction(printf("polCreate --> " FMT_U_MEM "\n",
+                       (memSizeType) result);
                 dumpPoll((pollType) result););
     return (pollType) result;
   } /* polCreate */
@@ -610,7 +615,8 @@ pollType polEmpty (void)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("polEmpty -->\n");
+    logFunction(printf("polEmpty --> " FMT_U_MEM "\n",
+                       (memSizeType) result);
                 dumpPoll((pollType) result););
     return (pollType) result;
   } /* polEmpty */
@@ -913,6 +919,8 @@ void polRemoveCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck)
 
   { /* polRemoveCheck */
+    logFunction(printf("polRemoveCheck(" FMT_U_MEM ", %d, " FMT_X ")\n",
+                       (memSizeType) pollData, aSocket, eventsToCheck););
     switch (eventsToCheck) {
       case POLL_IN:
         removeCheck(var_conv(pollData), POLLIN, aSocket);

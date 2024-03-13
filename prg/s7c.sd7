@@ -860,7 +860,13 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     elsif valueCategory = SOCKETOBJECT then
       c_declaration.temp_decls &:= "=-1";
     elsif valueCategory = POLLOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
+      c_declaration.temp_assigns &:= diagnosticLine(current_object);
+      c_declaration.temp_assigns &:= "o_";
+      create_name(current_object, c_declaration.temp_assigns);
+      c_declaration.temp_assigns &:= "=polEmpty();\n";
+      c_declaration.temp_frees &:= "polDestr(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = ARRAYOBJECT then
       c_declaration.temp_assigns &:= diagnosticLine(current_object);
       c_declaration.temp_assigns &:= "o_";
@@ -1616,6 +1622,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = STRUCTOBJECT or
           functionCategory = INTERFACEOBJECT or
           functionCategory = FILEOBJECT or
+          functionCategory = POLLOBJECT or
           functionCategory = WINOBJECT or
           functionCategory = POINTLISTOBJECT or
           functionCategory = PROCESSOBJECT or
@@ -3367,6 +3374,10 @@ const proc: process_poll_declaration (in reference: current_object,
     c_expr.expr &:= "pollType o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
+    global_init.expr &:= diagnosticLine(current_object);
+    global_init.expr &:= "o_";
+    create_name(current_object, global_init.expr);
+    global_init.expr &:= "=polEmpty();\n";
     count_declarations(c_expr);
   end func;
 
