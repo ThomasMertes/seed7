@@ -182,6 +182,55 @@ const proc: check_clib_file_assign is func
     fileArr[1] := openClibFile(testFileName, "r+");
     fileArr[1] := changeParameter(fileArr[1], testFileName);
     close(fileArr[1]);
+    aFile := clib_file.value;
+    fileArr[1] := clib_file.value;
+    removeFile(testFileName);
+  end func;
+
+
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   aFile := changeParameter(aFile, testFileName);
+ *  This triggers two changes of 'aFile'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'aFile' in changeParameter() is
+ *  overwritten by the assignment. The variable 'aFile' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func file: changeParameter (inout file: aFile,
+    in string: testFileName) is func
+  result
+    var file: fileResult is STD_NULL;
+  begin
+    fileResult := open(testFileName, "r+");
+    # To check the implementation this must change the address of 'aFile':
+    aFile := open(testFileName, "r+");
+  end func;
+
+
+const proc: check_file_assign is func
+  local
+    var boolean: okay is TRUE;
+    var string: testFileName is "";
+    var file: aFile is STD_NULL;
+    var array file: fileArr is 1 times STD_NULL;
+  begin
+    repeat
+      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+    until fileType(testFileName) = FILE_ABSENT;
+    aFile := open(testFileName, "w");
+    write(aFile, testFileName);
+    close(aFile);
+
+    aFile := open(testFileName, "r+");
+    aFile := changeParameter(aFile, testFileName);
+    close(aFile);
+    fileArr[1] := open(testFileName, "r+");
+    fileArr[1] := changeParameter(fileArr[1], testFileName);
+    close(fileArr[1]);
+    aFile := STD_NULL;
+    fileArr[1] := STD_NULL;
     removeFile(testFileName);
   end func;
 
@@ -1606,6 +1655,7 @@ const proc: main is func
     writeln;
     check_clib_file;
     check_clib_file_assign;
+    check_file_assign;
     check_file_open;
     check_file_io;
     check_file_seek;
