@@ -6000,6 +6000,8 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
         process_expr(getValue(current_object, reference), c_expr);
         c_expr.expr &:= "))";
       end if;
+    elsif objectCategory = REFLISTOBJECT then
+      c_expr.expr &:= ".value.listValue=NULL";
     elsif objectCategory = FILEOBJECT then
       c_expr.expr &:= ".value.fileValue=&";
       c_expr.expr &:= lower(literal(getValue(current_object, clib_file)));

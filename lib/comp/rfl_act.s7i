@@ -135,22 +135,23 @@ const proc: process (RFL_CPY, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "listType new_rfl;\n";
+      statement.expr &:= "new_rfl=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "listType old_rfl=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "rflDestr(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_rfl;\n";
       else
         statement.temp_decls &:= "listType *rfl_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "listType old_rfl=*rfl_ptr;\n";
-        statement.expr &:= "*rfl_ptr=";
+        statement.expr &:= "rflDestr(*rfl_ptr);\n";
+        statement.expr &:= "*rfl_ptr=new_rfl;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "rflDestr(old_rfl);\n";
     else
       statement.expr &:= "rflCpy(&(";
       statement.expr &:= c_param1.expr;
