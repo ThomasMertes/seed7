@@ -7006,6 +7006,48 @@ const proc: check_leb128 is func
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   number := changeParameter(number);
+ *  This triggers two changes of 'number'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'number' in changeParameter() is
+ *  overwritten by the assignment. The variable 'number' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func integer: changeParameter (inout integer: number) is func
+  result
+    var integer: integerResult is 0;
+  begin
+    integerResult := 2;
+    number := 3;
+  end func;
+
+
+const proc: check_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var integer: number is 0;
+    var array integer: intArr is [] (0);
+  begin
+    number := 1;                       ok := ok and number = 1;
+    number := changeParameter(number); ok := ok and number = 2;
+    number := number;                  ok := ok and number = 2;
+    intArr[1] := 1;                          ok := ok and intArr[1] = 1;
+    intArr[1] := changeParameter(intArr[1]); ok := ok and intArr[1] = 2;
+    intArr[1] := intArr[1];                  ok := ok and intArr[1] = 2;
+    if not ok then
+      writeln(" ***** Integer assignment does not work correctly.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Integer assignment works correctly.");
+    end if;
+  end func;
+
+
 const proc: check_negation is func
   local
     var boolean: okay is TRUE;
@@ -34534,6 +34576,7 @@ const proc: main is func
     check_bytes2IntBe;
     check_bytes2IntLe;
     check_leb128;
+    check_assign;
     check_negation;
     check_add;
     check_add_assign;

@@ -48,6 +48,7 @@ const string: chkint_output is "\n\
   \Conversion of big endian byte string to integer works correctly.\n\
   \Conversion of little endian byte string to integer works correctly.\n\
   \Conversion to and from LEB128 encoding works correctly.\n\
+  \Integer assignment works correctly.\n\
   \-i is correctly computed in the range -10 to 10.\n\
   \Addition works correctly for selected values.\n\
   \Addition assignment works correctly for selected values.\n\
