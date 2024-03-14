@@ -1,0 +1,105 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  readjson.s7i  Support functions to read JSON files              *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanfile.s7i";
+include "osfiles.s7i";
+include "utf8.s7i";
+
+
+const proc: readJsonObjectLiteral (inout file: jsonFile, inout string: symbol) is forward;
+
+
+const proc: readJsonValue (inout file: jsonFile, inout string: symbol) is func
+  begin
+    symbol := getSymbol(jsonFile);
+    writeln(symbol);
+    if symbol ="{" then
+      readJsonObjectLiteral(jsonFile, symbol);
+    elsif symbol = "[" then
+      symbol := getSymbol(jsonFile);
+      while symbol <> "]" do
+        readJsonValue(jsonFile, symbol);
+        symbol := getSymbol(jsonFile);
+        if symbol <> "," and symbol <> "]" then
+          writeln("***** Unexpected symbol " <& symbol);
+        end if;
+      end while;
+    end if;
+  end func;
+
+
+const proc: readJsonKeyValuePair (inout file: jsonFile, inout string: symbol) is func
+  local
+    var string: keySymbol is "";
+  begin
+    keySymbol := getSymbol(jsonFile);
+    if startsWith(keySymbol, "\"") then
+      symbol := getSymbol(jsonFile);
+      if symbol = ":" then
+        writeln("key: " <& keySymbol);
+        readJsonValue(jsonFile, symbol);
+      else
+        writeln("***** Colon (:) expected after the key not: " <& symbol);
+      end if;
+    else
+      writeln("***** Key " <& keySymbol <& " is not a string.");
+    end if;
+  end func;
+
+
+const proc: readJsonObjectLiteral (inout file: jsonFile, inout string: symbol) is func
+  begin
+    repeat
+      readJsonKeyValuePair(jsonFile, symbol);
+      symbol := getSymbol(jsonFile);
+    until symbol <> ",";
+  end func;
+
+
+const proc: readJson (inout file: jsonFile) is func
+  local
+    var string: symbol is "";
+  begin
+    jsonFile.bufferChar := getc(jsonFile);
+    symbol := getSymbol(jsonFile);
+    if symbol = "{" then
+      readJsonObjectLiteral(jsonFile, symbol);
+    end if;
+  end func;
+
+
+const proc: readJson (in string: jsonFileName) is func
+  local
+    var file: jsonFile is STD_NULL;
+  begin
+    jsonFile := openUtf8(jsonFileName, "r");
+    if jsonFile <> STD_NULL then
+      readJson(jsonFile);
+      close(jsonFile);
+    end if;
+  end func;
