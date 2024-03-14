@@ -117,7 +117,7 @@ winType find_window (int windowId)
                          (intType) windowId,
                          (compareType) &genericCmp);
     } /* if */
-    logFunction(printf("find_window(%d) --> " FMT_X_MEM "\n",
+    logFunction0(printf("find_window(%d) --> " FMT_X_MEM "\n",
                        windowId, (memSizeType) window););
     return window;
   } /* find_window */
@@ -1336,7 +1336,7 @@ intType gkbButtonXpos (void)
 
   {
     winType window;
-    intType xPos
+    intType xPos;
 
   /* gkbButtonXpos */
     logFunction(printf("gkbButtonXpos\n"););
@@ -1355,7 +1355,7 @@ intType gkbButtonYpos (void)
 
   {
     winType window;
-    intType yPos
+    intType yPos;
 
   /* gkbButtonYpos */
     logFunction(printf("gkbButtonYpos\n"););
