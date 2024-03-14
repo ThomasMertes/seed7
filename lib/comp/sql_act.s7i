@@ -541,22 +541,23 @@ const proc: process (SQL_CPY_DB, in reference: function,
     c_param3.demand := ASSIGN_RESULT;
     prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "databaseType new_db;\n";
+      statement.expr &:= "new_db=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
       if isNormalVariable(params[1]) then
-        statement.temp_decls &:= "databaseType old_db=";
-        statement.temp_decls &:= c_param1.expr;
-        statement.temp_decls &:= ";\n";
+        statement.expr &:= "sqlDestrDb(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_db;\n";
       else
         statement.temp_decls &:= "databaseType *db_ptr=&(";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ");\n";
-        statement.temp_decls &:= "databaseType old_db=*db_ptr;\n";
-        statement.expr &:= "*db_ptr=";
+        statement.expr &:= "sqlDestrDb(*db_ptr);\n";
+        statement.expr &:= "*db_ptr=new_db;\n";
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "sqlDestrDb(old_db);\n";
     else
       statement.expr &:= "sqlCpyDb(&(";
       statement.expr &:= c_param1.expr;

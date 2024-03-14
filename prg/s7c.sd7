@@ -6072,6 +6072,8 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
         objectCategory = BLOCKOBJECT then
       c_expr.expr &:= ".value.genericValue=";
       process_func_literal(current_object, c_expr);
+    elsif objectCategory = DATABASEOBJECT then
+      c_expr.expr &:= ".value.databaseValue=NULL";
     elsif objectCategory = SQLSTMTOBJECT then
       c_expr.expr &:= ".value.sqlStmtValue=NULL";
     else

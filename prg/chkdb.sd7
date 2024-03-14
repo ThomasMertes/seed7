@@ -664,6 +664,55 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
 (*
  *  Test the case where a function changes its parameter.
  *  Assume the function is called with:
+ *   db := changeParameter(db);
+ *  This triggers two changes of 'db'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'db' in changeParameter() is
+ *  overwritten by the assignment. The variable 'db' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func database: changeParameter (inout database: db,
+    in connectData: dbConnectData) is func
+  result
+    var database: dbResult is database.value;
+  begin
+    dbResult := openDatabase(dbConnectData.driver,
+                             dbConnectData.dbName,
+                             dbConnectData.user,
+                             dbConnectData.password);
+    # To check the implementation this must change the address of 'db':
+    db := openDatabase(dbConnectData.driver,
+                       dbConnectData.dbName,
+                       dbConnectData.user,
+                       dbConnectData.password);
+  end func;
+
+
+const proc: testAssignDatabase (in connectData: dbConnectData) is func
+  local
+    var database: db is database.value;
+    var array database: dbArr is 1 times database.value;
+  begin
+    db := openDatabase(dbConnectData.driver,
+                       dbConnectData.dbName,
+                       dbConnectData.user,
+                       dbConnectData.password);
+    db := changeParameter(db, dbConnectData);
+    db := db;
+    close(db);
+    dbArr[1] := openDatabase(dbConnectData.driver,
+                       dbConnectData.dbName,
+                       dbConnectData.user,
+                       dbConnectData.password);
+    dbArr[1] := changeParameter(dbArr[1], dbConnectData);
+    dbArr[1] := dbArr[1];
+    close(dbArr[1]);
+  end func;
+
+
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
  *   statement := changeParameter(statement);
  *  This triggers two changes of 'statement'. One change is in
  *  changeParameter() and another change is done by the assignment.
@@ -689,8 +738,10 @@ const proc: testAssignStatement (in database: testDb, in dbCategory: databaseKin
   begin
     statement := prepare(testDb, "CREATE TABLE testAssignment (field1 CHAR)");
     statement := changeParameter(statement, testDb);
+    statement := statement;
     statementArr[1] := prepare(testDb, "CREATE TABLE testAssignment (field1 CHAR)");
     statementArr[1] := changeParameter(statementArr[1], testDb);
+    statementArr[1] := statementArr[1];
   end func;
 
 
@@ -6381,6 +6432,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
   begin
     databaseKind := dbConnectData.databaseKind;
     testPrepareAndExecute(testDb, databaseKind);
+    testAssignDatabase(dbConnectData);
     testAssignStatement(testDb, databaseKind);
     testFieldNames(testDb, databaseKind);
     testAutoCommit(testDb, dbConnectData);
