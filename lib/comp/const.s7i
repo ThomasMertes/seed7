@@ -31,6 +31,12 @@ const set of category: constantExpressionCategories is {
     POINTLISTOBJECT, PROCESSOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT,
     SYMBOLOBJECT};
 
+(**
+ *  Special actions are used for function inlining. It is checked if
+ *  the top level action of a function body is a special action.
+ *  In this case code for the function is not generated. Instead of
+ *  calling this function the code of the special action is inlined.
+ *)
 const set of string: specialActions is
     {"BIG_PARSE1", "BIN_AND", "BIN_OR", "BIN_XOR", "BLN_ICONV1",
      "BLN_ICONV3", "BLN_ORD", "BLN_TERNARY", "BST_PARSE1", "CHR_ICONV1",
@@ -475,8 +481,8 @@ const func boolean: getConstant (in var reference: currExpr,
         okay := TRUE;
       elsif currExpr in inlineParam and
             inlineParam[currExpr][1].paramValue <> NIL then
-         evaluatedExpr := inlineParam[currExpr][1].paramValue;
-         okay := TRUE;
+        evaluatedExpr := inlineParam[currExpr][1].paramValue;
+        okay := TRUE;
       elsif category(currExpr) in constantExpressionCategories and
           not isVar(currExpr) then
         evaluatedExpr := currExpr;
