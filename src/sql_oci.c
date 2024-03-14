@@ -648,10 +648,12 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
     } /* if */
     OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
-    preparedStmt->db->usage_count--;
-    if (preparedStmt->db->usage_count == 0) {
-      /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
-      freeDatabase((databaseType) preparedStmt->db);
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                  count.prepared_stmt, count.prepared_stmt_bytes);
@@ -4367,7 +4369,9 @@ static sqlStmtType sqlPrepare (databaseType database,
             preparedStmt->fetchOkay = FALSE;
             preparedStmt->fetchFinished = TRUE;
             preparedStmt->db = db;
-            db->usage_count++;
+            if (db->usage_count != 0) {
+              db->usage_count++;
+            } /* if */
             err_info = setupParameters(preparedStmt, numBindParameters);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               preparedStmt->result_array = NULL;

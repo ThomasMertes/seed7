@@ -419,8 +419,9 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 void sqlClose (databaseType database)
 
   { /* sqlClose */
-    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
-                       (memSizeType) database););
+    logFunction(printf("sqlClose(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) database,
+                       database != NULL ? database->usage_count : (uintType) 0););
     if (unlikely(database == NULL ||
                  ((dbType) database)->sqlFunc == NULL ||
                  ((dbType) database)->sqlFunc->sqlClose == NULL)) {
@@ -845,14 +846,20 @@ void sqlCpyDb (databaseType *const dest, const databaseType source)
     dbType db_source;
 
   /* sqlCpyDb */
-    logFunction(printf("sqlCpyDb(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) dest, (memSizeType) source););
+    logFunction(printf("sqlCpyDb(%s" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
+                       dest != NULL ? "" : "NULL ",
+                       (memSizeType) (dest != NULL ? *dest : NULL),
+                       dest != NULL && *dest != NULL ?
+                           (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     db_dest = (dbType) *dest;
     db_source = (dbType) source;
-    if (db_source != NULL) {
+    if (db_source != NULL && db_source->usage_count != 0) {
       db_source->usage_count++;
     } /* if */
-    if (db_dest != NULL) {
+    if (db_dest != NULL && db_dest->usage_count != 0) {
       db_dest->usage_count--;
       if (db_dest->usage_count == 0 &&
           db_dest->sqlFunc != NULL &&
@@ -862,6 +869,12 @@ void sqlCpyDb (databaseType *const dest, const databaseType source)
       } /* if */
     } /* if */
     *dest = (databaseType) db_source;
+    logFunction(printf("sqlCpyDb(" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
   } /* sqlCpyDb */
 
 
@@ -893,14 +906,20 @@ void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
     preparedStmtType statement_source;
 
   /* sqlCpyStmt */
-    logFunction(printf("sqlCpyStmt(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) dest, (memSizeType) source););
+    logFunction(printf("sqlCpyStmt(%s" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
+                       dest != NULL ? "" : "NULL ",
+                       (memSizeType) (dest != NULL ? *dest : NULL),
+                       dest != NULL && *dest != NULL ?
+                           (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     statement_dest = (preparedStmtType) *dest;
     statement_source = (preparedStmtType) source;
-    if (statement_source != NULL) {
+    if (statement_source != NULL && statement_source->usage_count != 0) {
       statement_source->usage_count++;
     } /* if */
-    if (statement_dest != NULL) {
+    if (statement_dest != NULL && statement_dest->usage_count != 0) {
       statement_dest->usage_count--;
       if (statement_dest->usage_count == 0 &&
           statement_dest->sqlFunc != NULL &&
@@ -910,6 +929,12 @@ void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
       } /* if */
     } /* if */
     *dest = (sqlStmtType) statement_source;
+    logFunction(printf("sqlCpyStmt(" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
   } /* sqlCpyStmt */
 
 
@@ -938,11 +963,15 @@ void sqlCpyStmtGeneric (genericType *const dest, const genericType source)
 databaseType sqlCreateDb (const databaseType source)
 
   { /* sqlCreateDb */
-    logFunction(printf("sqlCreateDb(" FMT_U_MEM ")\n",
-                       (memSizeType) source););
-    if (source != NULL) {
-      ((dbType) source)->usage_count++;
+    logFunction(printf("sqlCreateDb(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
     } /* if */
+    logFunction(printf("sqlCreateDb --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     return source;
   } /* sqlCreateDb */
 
@@ -977,11 +1006,15 @@ genericType sqlCreateDbGeneric (const genericType from_value)
 sqlStmtType sqlCreateStmt (const sqlStmtType source)
 
   { /* sqlCreateStmt */
-    logFunction(printf("sqlCreateStmt(" FMT_U_MEM ")\n",
-                       (memSizeType) source););
-    if (source != NULL) {
-      ((preparedStmtType) source)->usage_count++;
+    logFunction(printf("sqlCreateStmt(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
     } /* if */
+    logFunction(printf("sqlCreateStmt --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     return source;
   } /* sqlCreateStmt */
 
@@ -1018,18 +1051,24 @@ void sqlDestrDb (const databaseType old_db)
     dbType old_database;
 
   /* sqlDestrDb */
-    logFunction(printf("sqlDestrDb(" FMT_U_MEM ")\n",
-                       (memSizeType) old_db););
+    logFunction(printf("sqlDestrDb(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) old_db,
+                       old_db != NULL ? old_db->usage_count : (uintType) 0););
     old_database = (dbType) old_db;
-    if (old_database != NULL) {
+    if (old_database != NULL && old_database->usage_count != 0) {
       old_database->usage_count--;
       if (old_database->usage_count == 0 &&
           old_database->sqlFunc != NULL &&
           old_database->sqlFunc->freeDatabase != NULL) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) old_database););
         old_database->sqlFunc->freeDatabase((databaseType) old_database);
+        old_database = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("sqlDestrDb(" FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) old_database,
+                       old_database != NULL ?
+                           old_database->usage_count : (uintType) 0););
   } /* sqlDestrDb */
 
 
@@ -1059,18 +1098,24 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
     preparedStmtType old_statement;
 
   /* sqlDestrStmt */
-    logFunction(printf("sqlDestrStmt(" FMT_U_MEM ")\n",
-                       (memSizeType) old_stmt););
+    logFunction(printf("sqlDestrStmt(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) old_stmt,
+                       old_stmt != NULL ? old_stmt->usage_count : (uintType) 0););
     old_statement = (preparedStmtType) old_stmt;
-    if (old_statement != NULL) {
+    if (old_statement != NULL && old_statement->usage_count != 0) {
       old_statement->usage_count--;
       if (old_statement->usage_count == 0 &&
           old_statement->sqlFunc != NULL &&
           old_statement->sqlFunc->freePreparedStmt != NULL) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) old_statement););
         old_statement->sqlFunc->freePreparedStmt((sqlStmtType) old_statement);
+        old_statement = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("sqlDestrStmt(" FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) old_statement,
+                       old_statement != NULL ?
+                           old_statement->usage_count : (uintType) 0););
   } /* sqlDestrStmt */
 
 

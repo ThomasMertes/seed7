@@ -581,10 +581,12 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       /* Ignore possible errors. */
       PQclear(deallocate_result);
     } /* if */
-    preparedStmt->db->usage_count--;
-    if (preparedStmt->db->usage_count == 0) {
-      /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
-      freeDatabase((databaseType) preparedStmt->db);
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
                  count.prepared_stmt, count.prepared_stmt_bytes);
@@ -3408,7 +3410,9 @@ static sqlStmtType sqlPrepare (databaseType database,
                 preparedStmt->execute_result = NULL;
                 preparedStmt->fetchOkay = FALSE;
                 preparedStmt->db = db;
-                db->usage_count++;
+                if (db->usage_count != 0) {
+                  db->usage_count++;
+                } /* if */
                 err_info = setupParametersAndResult(preparedStmt);
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   freePreparedStmt((sqlStmtType) preparedStmt);
