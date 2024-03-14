@@ -5389,6 +5389,48 @@ const proc: check_round is func
   end func;
 
 
+(*
+ *  Test the case where a function changes its parameter.
+ *  Assume the function is called with:
+ *   number := changeParameter(number);
+ *  This triggers two changes of 'number'. One change is in
+ *  changeParameter() and another change is done by the assignment.
+ *  In this case the change of 'number' in changeParameter() is
+ *  overwritten by the assignment. The variable 'number' obtains
+ *  its new value from the result of changeParameter().
+ *)
+const func float: changeParameter (inout float: number) is func
+  result
+    var float: floatResult is 0.0;
+  begin
+    floatResult := 2.0;
+    number := 3.0;
+  end func;
+
+
+const proc: check_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var float: number is 0.0;
+    var array float: intArr is [] (0.0);
+  begin
+    number := 1.0;                     ok := ok and number = 1.0;
+    number := changeParameter(number); ok := ok and number = 2.0;
+    number := number;                  ok := ok and number = 2.0;
+    intArr[1] := 1.0;                        ok := ok and intArr[1] = 1.0;
+    intArr[1] := changeParameter(intArr[1]); ok := ok and intArr[1] = 2.0;
+    intArr[1] := intArr[1];                  ok := ok and intArr[1] = 2.0;
+    if not ok then
+      writeln(" ***** Float assignment does not work correctly.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Float assignment works correctly.");
+    end if;
+  end func;
+
+
 const proc: check_add is func
   local
     var boolean: okay is TRUE;
@@ -19647,6 +19689,7 @@ const proc: main is func
     check_conversion;
     check_trunc;
     check_round;
+    check_assign;
     check_add;
     check_mult;
     check_division;

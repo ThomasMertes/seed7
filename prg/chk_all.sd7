@@ -125,6 +125,7 @@ const string: chkflt_output is "\n\
   \Conversion from integer to float works correctly.\n\
   \Truncation of float works correctly.\n\
   \Rounding of float works correctly.\n\
+  \Float assignment works correctly.\n\
   \Addition works correctly for selected values.\n\
   \Multiplication works correctly for selected values.\n\
   \Division works correctly for selected values.\n\
