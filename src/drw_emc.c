@@ -63,7 +63,7 @@ typedef struct {
     boolType is_pixmap;
     boolType is_subwindow;
     boolType is_substitute;
-    winType parentWindow;
+    const_winType parentWindow;
     int ignoreFirstResize;
     intType creationTimestamp;
     int width;
@@ -107,6 +107,7 @@ int maxWindowId = 0;
 winType find_window (int windowId);
 void enter_window (winType curr_window, int windowId);
 void remove_window (int windowId);
+void setLeavePageState (int windowId, int state);
 void setupEventCallbacksForWindow (int windowId);
 void gkbInitKeyboard (void);
 void synchronizeTimAwaitWithGraphicKeyboard (void);
@@ -115,14 +116,45 @@ extern intType pointerY;
 
 
 
-int getCloseAction (winType actual_window)
+int getCloseAction (winType aWindow)
 
-  { /* getCloseAction */
-    logFunction(printf("getCloseAction(" FMT_U_MEM ")\n",
-                       (memSizeType) actual_window););
-    return actual_window != NULL ? to_close_action(actual_window)
-                                 : CLOSE_BUTTON_RAISES_EXCEPTION;
+  {
+    int closeAction;
+
+  /* getCloseAction */
+    closeAction = aWindow != NULL ?
+        to_close_action(aWindow) :
+        CLOSE_BUTTON_RAISES_EXCEPTION;
+    logFunction(printf("getCloseAction(" FMT_U_MEM ") --> %d\n",
+                        (memSizeType) aWindow, closeAction););
+    return closeAction;
   } /* getCloseAction */
+
+
+
+boolType windowExists (int windowId)
+
+  {
+    int exists;
+
+  /* windowExists */
+    logFunction(printf("windowExists(%d)\n", windowId););
+    exists = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
+        let windowObject = mapIdToWindow[$0];
+        if (windowObject.closed) {
+          return 0;
+        } else {
+          return 1;
+        }
+      } else {
+        return 0;
+      }
+    }, windowId);
+    logFunction(printf("windowExists(%d) --> %d\n",
+                       windowId, exists););
+    return (boolType) exists;
+  } /* windowExists */
 
 
 
@@ -804,8 +836,8 @@ void drwFree (winType old_window)
                        old_window != NULL ? old_window->usage_count : (uintType) 0););
     if (is_pixmap(old_window)) {
       EM_ASM({
-        mapIdToCanvas[$0] = null;
-        mapIdToContext[$0] = null;
+        mapIdToCanvas[$0] = undefined;
+        mapIdToContext[$0] = undefined;
       }, to_window(old_window));
     } else {
       EM_ASM({
@@ -813,23 +845,25 @@ void drwFree (winType old_window)
           if (typeof mapIdToCanvas[$0] !== "undefined") {
             let canvas = mapIdToCanvas[$0];
             mapCanvasToId.delete(canvas);
-            mapIdToCanvas[$0] = null;
-            mapIdToContext[$0] = null;
+            mapIdToCanvas[$0] = undefined;
+            mapIdToContext[$0] = undefined;
             let parent = canvas.parentNode;
             parent.removeChild(canvas);
           }
           if (typeof mapIdToWindow[$0] !== "undefined") {
             let windowObject = mapIdToWindow[$0];
             mapWindowToId.delete(windowObject);
-            mapIdToWindow[$0] = null;
+            mapIdToWindow[$0] = undefined;
             windowObject.close();
           }
         }
       }, to_window(old_window));
       remove_window(to_window(old_window));
+      setLeavePageState(to_window(old_window), 0);
     } /* if */
     FREE_RECORD2(old_window, emc_winRecord, count.win, count.win_bytes);
-    logFunction(printf("drwFree -->\n"););
+    logFunction(printf("drwFree(" FMT_U_MEM ") -->\n",
+                       (memSizeType) old_window););
   } /* drwFree */
 
 
@@ -2106,6 +2140,13 @@ void drwToTop (const_winType actual_window)
         let parent = canvas.parentNode;
         parent.removeChild(canvas);
         parent.appendChild(canvas);
+      }, to_window(actual_window));
+    } else {
+      EM_ASM({
+        if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
+          let windowObject = mapIdToWindow[$0];
+          windowObject.focus();
+        }
       }, to_window(actual_window));
     } /* if */
     logFunction(printf("drwToTop(" FMT_U_MEM ") -->\n",

@@ -54,13 +54,26 @@
 
 #define TRACE_EVENTS 0
 
+/* KEY_CLOSE can be sent earlier or later. There are two posibilities: */
+/* Immediately following the X button has been pressed: */
+#define AT_X_BUTTON_PRESS  1
+/* After pressing the confirmation button "Stay on page": */
+#define AFTER_CONFIRMATION 2
+
+/* The moment to send KEY_CLOSE can be 1 or 2 as explained above. */
+#define MOMENT_TO_SEND_KEY_CLOSE 2
+
+/* Values used by the leavePageState: */
+#define NO_LEAVE_PAGE_DIALOG_ACTIVE 0
+#define LEAVE_PAGE_DIALOG_ACTIVE    1
+#define LEAVE_PAGE_DIALOG_CLOSED    2
+
 static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
 static keyQueueType keyQueue = {NULL, NULL};
 
 static rtlHashType window_hash = NULL;
 intType pointerX = 0;
 intType pointerY = 0;
-boolType leavePageDialogActive = FALSE;
 
 /* The state of a modifier key is TRUE, if the key is currently pressed. */
 /* The keyboard state is in capsLockOn, numLockOn and scrollLockOn. */
@@ -90,12 +103,24 @@ static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
 static boolType codeIdPressed[54];
 static rtlHashType charPressed;
 static boolType mouseKeyPressed[5];
+static boolType leavePageDialogActive = FALSE;
+
+typedef struct stateElementStruct *stateElementType;
+
+typedef struct stateElementStruct {
+    int windowId;
+    int leavePageState;
+    stateElementType next;
+  } stateElementRecord;
+
+static stateElementType leavePageStateList = NULL;
 
 extern int getCloseAction (winType actual_window);
 extern boolType ignoreResize (winType aWindow, int width, int height);
 extern boolType resize (winType resizeWindow, int width, int height);
 extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
+extern boolType windowExists (int windowId);
 extern intType leftButtonXPos (winType aWindow);
 extern intType topButtonYPos (winType aWindow);
 extern int maxWindowId;
@@ -157,6 +182,127 @@ void remove_window (int windowId)
 
 
 
+static int getLeavePageState (int windowId)
+
+  {
+    stateElementType stateElement;
+    int state = NO_LEAVE_PAGE_DIALOG_ACTIVE;
+
+  /* getLeavePageState */
+    logFunction(printf("getLeavePageState(%d)\n", windowId););
+    stateElement = leavePageStateList;
+    while (stateElement != NULL && stateElement->windowId != windowId) {
+      stateElement = stateElement->next;
+    } /* while */
+    if (stateElement != NULL) {
+      state = stateElement->leavePageState;
+    } /* if */
+    logFunction(printf("getLeavePageState(%d) --> %d\n",
+                       windowId, state););
+    return state;
+  } /* getLeavePageState */
+
+
+
+void setLeavePageState (int windowId, int state)
+
+  {
+    stateElementType stateElement;
+    stateElementType *stateElementAddr;
+
+  /* setLeavePageState */
+    logFunction(printf("setLeavePageState(%d, %d)\n", windowId, state););
+    if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+      stateElement = leavePageStateList;
+      while (stateElement != NULL && stateElement->windowId != windowId) {
+        stateElement = stateElement->next;
+      } /* while */
+      if (stateElement != NULL) {
+        stateElement->leavePageState = state;
+      } else {
+        stateElement = (stateElementType) malloc(sizeof(stateElementRecord));
+        if (stateElement != NULL) {
+          stateElement->windowId = windowId;
+          stateElement->leavePageState = state;
+          stateElement->next = leavePageStateList;
+          leavePageStateList = stateElement;
+        } /* if */
+      } /* if */
+    } else {
+      stateElementAddr = &leavePageStateList;
+      while (*stateElementAddr != NULL && (*stateElementAddr)->windowId != windowId) {
+        stateElementAddr = &(*stateElementAddr)->next;
+      } /* while */
+      if (*stateElementAddr != NULL) {
+        stateElement = *stateElementAddr;
+        *stateElementAddr = stateElement->next;
+        free(stateElement);
+      } /* if */
+    } /* if */
+    logFunction(printf("setLeavePageState(%d, %d) -->\n",
+                       windowId, state););
+  } /* setLeavePageState */
+
+
+
+boolType isLeavePageDialogActive (int actualWindowId)
+
+  {
+    stateElementType stateElement;
+    int state;
+    boolType hasLeaveDialog = TRUE;
+    boolType isActive = FALSE;
+
+  /* isLeavePageDialogActive */
+    logFunction(printf("isLeavePageDialogActive(%d)\n",
+                       actualWindowId););
+    stateElement = leavePageStateList;
+    while (stateElement != NULL) {
+      state = stateElement->leavePageState;
+      /* printf("window %d: %d\n", stateElement->windowId, state); */
+      if (stateElement->windowId == actualWindowId) {
+        if (state == LEAVE_PAGE_DIALOG_CLOSED) {
+          hasLeaveDialog = FALSE;
+        } else if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+          isActive = TRUE;
+        } /* if */
+      } else if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+        isActive = TRUE;
+      } /* if */
+      stateElement = stateElement->next;
+    } /* while */
+    if (!hasLeaveDialog) {
+      setLeavePageState(actualWindowId, NO_LEAVE_PAGE_DIALOG_ACTIVE);
+    } /* if */
+    logFunction(printf("isLeavePageDialogActive --> %d\n", isActive););
+    return isActive;
+  } /* isLeavePageDialogActive */
+
+
+
+boolType exitIfLeavePageWasPressed (void)
+
+  {
+    stateElementType stateElement;
+    boolType okay = FALSE;
+
+  /* exitIfLeavePageWasPressed */
+    logFunction(printf("exitIfLeavePageWasPressed()\n"););
+    stateElement = leavePageStateList;
+    while (stateElement != NULL) {
+      /* printf("window %d: %d\n", stateElement->windowId,
+          stateElement->leavePageState); */
+      if (!windowExists(stateElement->windowId)) {
+        okay = TRUE;
+      } /* if */
+      stateElement = stateElement->next;
+    } /* while */
+    logFunction(printf("exitIfLeavePageWasPressed --> %d\n", okay););
+    return okay;
+  } /* exitIfLeavePageWasPressed */
+
+
+
 static void addEventPromiseForWindowId (int windowId)
 
   { /* addEventPromiseForWindowId */
@@ -173,6 +319,7 @@ static void addEventPromiseForWindowId (int windowId)
           currentWindow.removeEventListener("resize", handler);
           currentWindow.removeEventListener("mousemove", handler);
           currentWindow.removeEventListener("beforeunload", handler);
+          currentWindow.removeEventListener("focus", handler);
           currentWindow.removeEventListener("visibilitychange", handler);
           currentWindow.removeEventListener("unload", handler);
           resolve(event);
@@ -185,6 +332,7 @@ static void addEventPromiseForWindowId (int windowId)
         currentWindow.addEventListener("resize", handler);
         currentWindow.addEventListener("mousemove", handler);
         currentWindow.addEventListener("beforeunload", handler);
+        currentWindow.addEventListener("focus", handler);
         currentWindow.addEventListener("visibilitychange", handler);
         currentWindow.addEventListener("unload", handler);
         registerCallback(handler);
@@ -496,7 +644,8 @@ EMSCRIPTEN_KEEPALIVE void setModifierState (int modifierNum,
 
 
 
-EMSCRIPTEN_KEEPALIVE int decodeMousemoveEvent (int clientX, int clientY)
+EMSCRIPTEN_KEEPALIVE int decodeMousemoveEvent (int windowId,
+    int clientX, int clientY)
 
   {
     int result = K_NONE;
@@ -506,7 +655,9 @@ EMSCRIPTEN_KEEPALIVE int decodeMousemoveEvent (int clientX, int clientY)
                        clientX, clientY););
     pointerX = clientX;
     pointerY = clientY;
-    leavePageDialogActive = FALSE;
+    if (leavePageDialogActive) {
+      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    } /* if */
     logFunction(printf("decodeMousemoveEvent(%d, %d) --> %d\n",
                        clientX, clientY, result););
     return result;
@@ -706,6 +857,9 @@ EMSCRIPTEN_KEEPALIVE int decodeMousedownEvent (int windowId, int button,
         result = K_UNDEF;
         break;
     } /* switch */
+    if (leavePageDialogActive) {
+      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    } /* if */
     logFunction(printf("decodeMousedownEvent(%d, %d, %d, %d, %d, %d, %d) --> %d\n",
                        windowId, button, clientX, clientY,
                        shiftKey, ctrlKey, altKey, result););
@@ -765,6 +919,9 @@ EMSCRIPTEN_KEEPALIVE int decodeWheelEvent (int windowId, int deltaY,
     } else {
       result = K_NONE;
     } /* if */
+    if (leavePageDialogActive) {
+      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    } /* if */
     logFunction(printf("decodeWheelEvent(%d, %d, %d, %d, %d, %d, %d) --> %d\n",
                        windowId, deltaY, clientX, clientY,
                        shiftKey, ctrlKey, altKey, result););
@@ -820,19 +977,54 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
         break;
       case CLOSE_BUTTON_RETURNS_KEY:
         leavePageDialogActive = TRUE;
+        setLeavePageState(windowId, LEAVE_PAGE_DIALOG_ACTIVE);
+#if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
         result = K_CLOSE;
+#else
+        result = K_NONE;
+#endif
         lastKey.buttonWindow = windowId;
         break;
       case CLOSE_BUTTON_RAISES_EXCEPTION:
         leavePageDialogActive = TRUE;
+        setLeavePageState(windowId, LEAVE_PAGE_DIALOG_ACTIVE);
         raise_error(GRAPHIC_ERROR);
+#if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
         result = K_CLOSE;
+#else
+        result = K_NONE;
+#endif
         break;
     } /* switch */
     logFunction(printf("decodeBeforeunloadEvent(%d) --> %d\n",
                        windowId, result););
     return result;
   } /* decodeBeforeunloadEvent */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
+
+  {
+    int result = K_NONE;
+
+  /* decodeFocusEvent */
+    logFunction(printf("decodeFocusEvent(%d)\n",
+                       windowId););
+    if (getLeavePageState(windowId) == LEAVE_PAGE_DIALOG_ACTIVE) {
+      setLeavePageState(windowId, LEAVE_PAGE_DIALOG_CLOSED);
+#if MOMENT_TO_SEND_KEY_CLOSE == AFTER_CONFIRMATION
+      result = K_CLOSE;
+#endif
+    } else if (leavePageDialogActive) {
+      if (exitIfLeavePageWasPressed()) {
+        os_exit(0);
+      } /* if */
+    } /* if */
+    logFunction(printf("decodeFocusEvent() --> %d\n",
+                       result););
+    return result;
+  } /* decodeFocusEvent */
 
 
 
@@ -871,7 +1063,8 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       console.log(event);
 #endif
       return Module.ccall("decodeMousemoveEvent", "number",
-                          ["number", "number"], [event.clientX, event.clientY]);
+                          ["number", "number", "number"],
+                          [mapCanvasToId.get(event.target), event.clientX, event.clientY]);
     } else if (event.type === "keydown") {
 #if TRACE_EVENTS
       console.log(event);
@@ -954,6 +1147,13 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       return Module.ccall("decodeBeforeunloadEvent", "number",
                           ["number"],
                           [mapCanvasToId.get(event.target.activeElement.firstChild)]);
+    } else if (event.type === "focus") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      return Module.ccall("decodeFocusEvent", "number",
+                          ["number"],
+                          [mapWindowToId.get(event.target)]);
     } else if (event.type === "visibilitychange") {
 #if TRACE_EVENTS
       console.log(event);
