@@ -55,18 +55,49 @@
 #define TRACE_EVENTS 0
 
 /* KEY_CLOSE can be sent earlier or later. There are two posibilities: */
-/* Immediately following the X button has been pressed: */
+/* Immediately after clicking the close button (X) of a window: */
 #define AT_X_BUTTON_PRESS  1
-/* After pressing the confirmation button "Stay on page": */
+/* After clicking the confirmation button "Stay on page": */
 #define AFTER_CONFIRMATION 2
 
 /* The moment to send KEY_CLOSE can be 1 or 2 as explained above. */
 #define MOMENT_TO_SEND_KEY_CLOSE 2
 
-/* Values used by the leavePageState: */
-#define NO_LEAVE_PAGE_DIALOG_ACTIVE 0
-#define LEAVE_PAGE_DIALOG_ACTIVE    1
-#define LEAVE_PAGE_DIALOG_CLOSED    2
+/* Clicking the close button (X) of a browser window closes the window */
+/* or triggers a popup. The popup is created by the browser and cannot */
+/* be avoided. The popup offers the choice between "Stay on page" and  */
+/* "Leave page". The state of a window regarding the close button (X)  */
+/* and the popup is maintained with the leavePageState. The window can */
+/* be in three states:                                                 */
+/* 0: The close button has not been pressed hence no popup is active.  */
+/* 1: The popup is active and the user has not decided yet.            */
+/* 2: The user has chosen an unknown decision and the popup is closed. */
+#define NO_LEAVE_PAGE_POPUP_ACTIVE 0
+#define LEAVE_PAGE_POPUP_ACTIVE    1
+#define LEAVE_PAGE_POPUP_CLOSED    2
+/* Unfortunately there is no straightforward way to identify the users */
+/* decision ("Stay on page" or "Leave page"). Some indicators are used */
+/* to identify the users decision:                                     */
+/* 1. An input event for a window in the LEAVE_PAGE_POPUP_CLOSED       */
+/*    state indicates that the window still exists. In this case the   */
+/*    choice must have been "Stay on page". The input events           */
+/*    "mousemove", "mousedown" and "wheel" are checked for this.       */
+/* 2. If a window receives the focus (event "focus") all windows in    */
+/*    state LEAVE_PAGE_POPUP_CLOSED are checked if they still exist.   */
+/*    If any such window does not exist the users choice must have     */
+/*    been "Leave page".                                               */
+/* 3. If a window in the LEAVE_PAGE_POPUP_CLOSED state is closed the   */
+/*    choice must have been "Leave page". The "visibilitychange" event */
+/*    is triggered if a window closes. Note that "visibilitychange" is */
+/*    sent in all situations where the visibility of a window changes  */
+/*    (e.g. for minimize as well).                                     */
+/* 4. The deprecated "unload" event might be sent if the window is     */
+/*    being unloaded. This indicates the choice "Leave page" as well.  */
+/* If the choice was "Stay on page" the function setLeavePageState     */
+/* switches the window state from LEAVE_PAGE_POPUP_CLOSED to           */
+/* NO_LEAVE_PAGE_POPUP_ACTIVE.                                         */
+/* If the choice was "Leave page" the program is terminated with       */
+/* os_exit().                                                          */
 
 static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
 static keyQueueType keyQueue = {NULL, NULL};
@@ -103,7 +134,7 @@ static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
 static boolType codeIdPressed[54];
 static rtlHashType charPressed;
 static boolType mouseKeyPressed[5];
-static boolType leavePageDialogActive = FALSE;
+static boolType leavePagePopupActive = FALSE;
 
 typedef struct stateElementStruct *stateElementType;
 
@@ -182,11 +213,17 @@ void remove_window (int windowId)
 
 
 
+/**
+ *  Get the leavePageState of a window.
+ *  Note that the leavePageStateList does not include windows in the
+ *  state NO_LEAVE_PAGE_POPUP_ACTIVE. This way non existing windows
+ *  are also in the state NO_LEAVE_PAGE_POPUP_ACTIVE.
+ */
 static int getLeavePageState (int windowId)
 
   {
     stateElementType stateElement;
-    int state = NO_LEAVE_PAGE_DIALOG_ACTIVE;
+    int state = NO_LEAVE_PAGE_POPUP_ACTIVE;
 
   /* getLeavePageState */
     logFunction(printf("getLeavePageState(%d)\n", windowId););
@@ -204,6 +241,12 @@ static int getLeavePageState (int windowId)
 
 
 
+/**
+ *  Set the leavePageState of a window.
+ *  Note that the leavePageStateList does not include windows in the
+ *  state NO_LEAVE_PAGE_POPUP_ACTIVE. As soon as a window is set to
+ *  NO_LEAVE_PAGE_POPUP_ACTIVE it is removed from the list.
+ */
 void setLeavePageState (int windowId, int state)
 
   {
@@ -212,7 +255,7 @@ void setLeavePageState (int windowId, int state)
 
   /* setLeavePageState */
     logFunction(printf("setLeavePageState(%d, %d)\n", windowId, state););
-    if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+    if (state != NO_LEAVE_PAGE_POPUP_ACTIVE) {
       stateElement = leavePageStateList;
       while (stateElement != NULL && stateElement->windowId != windowId) {
         stateElement = stateElement->next;
@@ -245,61 +288,78 @@ void setLeavePageState (int windowId, int state)
 
 
 
-boolType isLeavePageDialogActive (int actualWindowId)
+/**
+ *  Determines if there is still any leave page popup active.
+ *  This function is called upon receiving a windows input event
+ *  ("mousemove", "mousedown" and "wheel"). After the user decided on
+ *  the leave page popup (the window state is LEAVE_PAGE_POPUP_CLOSED)
+ *  the users decision is still unknown. An input event indicates that
+ *  this window still exists and the user decided for "Stay on page".
+ *  In this case the window state is set to NO_LEAVE_PAGE_POPUP_ACTIVE.
+ *  @return TRUE if there is any leave page popup active.
+ */
+boolType isLeavePagePopupActive (int actualWindowId)
 
   {
     stateElementType stateElement;
     int state;
-    boolType hasLeaveDialog = TRUE;
+    boolType decidedForStayOnPage = FALSE;
     boolType isActive = FALSE;
 
-  /* isLeavePageDialogActive */
-    logFunction(printf("isLeavePageDialogActive(%d)\n",
+  /* isLeavePagePopupActive */
+    logFunction(printf("isLeavePagePopupActive(%d)\n",
                        actualWindowId););
     stateElement = leavePageStateList;
     while (stateElement != NULL) {
       state = stateElement->leavePageState;
       /* printf("window %d: %d\n", stateElement->windowId, state); */
       if (stateElement->windowId == actualWindowId) {
-        if (state == LEAVE_PAGE_DIALOG_CLOSED) {
-          hasLeaveDialog = FALSE;
-        } else if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+        if (state == LEAVE_PAGE_POPUP_CLOSED) {
+          decidedForStayOnPage = TRUE;
+        } else if (state != NO_LEAVE_PAGE_POPUP_ACTIVE) {
           isActive = TRUE;
         } /* if */
-      } else if (state != NO_LEAVE_PAGE_DIALOG_ACTIVE) {
+      } else if (state != NO_LEAVE_PAGE_POPUP_ACTIVE) {
         isActive = TRUE;
       } /* if */
       stateElement = stateElement->next;
     } /* while */
-    if (!hasLeaveDialog) {
-      setLeavePageState(actualWindowId, NO_LEAVE_PAGE_DIALOG_ACTIVE);
+    if (decidedForStayOnPage) {
+      setLeavePageState(actualWindowId, NO_LEAVE_PAGE_POPUP_ACTIVE);
     } /* if */
-    logFunction(printf("isLeavePageDialogActive --> %d\n", isActive););
+    logFunction(printf("isLeavePagePopupActive --> %d\n", isActive););
     return isActive;
-  } /* isLeavePageDialogActive */
+  } /* isLeavePagePopupActive */
 
 
 
-boolType exitIfLeavePageWasPressed (void)
+/**
+ *  Checks if any window in the LEAVE_PAGE_POPUP_CLOSED state does not exist.
+ *  In this case the users decision on the leave page poput was "Leave page".
+ *  @return TRUE if "Leave page" has been decided on a window.
+ */
+boolType leavePageWasPressed (void)
 
   {
     stateElementType stateElement;
+    int state;
     boolType okay = FALSE;
 
-  /* exitIfLeavePageWasPressed */
-    logFunction(printf("exitIfLeavePageWasPressed()\n"););
+  /* leavePageWasPressed */
+    logFunction(printf("leavePageWasPressed()\n"););
     stateElement = leavePageStateList;
     while (stateElement != NULL) {
-      /* printf("window %d: %d\n", stateElement->windowId,
-          stateElement->leavePageState); */
-      if (!windowExists(stateElement->windowId)) {
+      state = stateElement->leavePageState;
+      /* printf("window %d: %d\n", stateElement->windowId, state); */
+      if (state == LEAVE_PAGE_POPUP_CLOSED &&
+          !windowExists(stateElement->windowId)) {
         okay = TRUE;
       } /* if */
       stateElement = stateElement->next;
     } /* while */
-    logFunction(printf("exitIfLeavePageWasPressed --> %d\n", okay););
+    logFunction(printf("leavePageWasPressed --> %d\n", okay););
     return okay;
-  } /* exitIfLeavePageWasPressed */
+  } /* leavePageWasPressed */
 
 
 
@@ -655,8 +715,8 @@ EMSCRIPTEN_KEEPALIVE int decodeMousemoveEvent (int windowId,
                        clientX, clientY););
     pointerX = clientX;
     pointerY = clientY;
-    if (leavePageDialogActive) {
-      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    if (leavePagePopupActive) {
+      leavePagePopupActive = isLeavePagePopupActive(windowId);
     } /* if */
     logFunction(printf("decodeMousemoveEvent(%d, %d) --> %d\n",
                        clientX, clientY, result););
@@ -857,8 +917,8 @@ EMSCRIPTEN_KEEPALIVE int decodeMousedownEvent (int windowId, int button,
         result = K_UNDEF;
         break;
     } /* switch */
-    if (leavePageDialogActive) {
-      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    if (leavePagePopupActive) {
+      leavePagePopupActive = isLeavePagePopupActive(windowId);
     } /* if */
     logFunction(printf("decodeMousedownEvent(%d, %d, %d, %d, %d, %d, %d) --> %d\n",
                        windowId, button, clientX, clientY,
@@ -919,8 +979,8 @@ EMSCRIPTEN_KEEPALIVE int decodeWheelEvent (int windowId, int deltaY,
     } else {
       result = K_NONE;
     } /* if */
-    if (leavePageDialogActive) {
-      leavePageDialogActive = isLeavePageDialogActive(windowId);
+    if (leavePagePopupActive) {
+      leavePagePopupActive = isLeavePagePopupActive(windowId);
     } /* if */
     logFunction(printf("decodeWheelEvent(%d, %d, %d, %d, %d, %d, %d) --> %d\n",
                        windowId, deltaY, clientX, clientY,
@@ -976,8 +1036,8 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
         result = 0;
         break;
       case CLOSE_BUTTON_RETURNS_KEY:
-        leavePageDialogActive = TRUE;
-        setLeavePageState(windowId, LEAVE_PAGE_DIALOG_ACTIVE);
+        leavePagePopupActive = TRUE;
+        setLeavePageState(windowId, LEAVE_PAGE_POPUP_ACTIVE);
 #if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
         result = K_CLOSE;
 #else
@@ -986,8 +1046,8 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId)
         lastKey.buttonWindow = windowId;
         break;
       case CLOSE_BUTTON_RAISES_EXCEPTION:
-        leavePageDialogActive = TRUE;
-        setLeavePageState(windowId, LEAVE_PAGE_DIALOG_ACTIVE);
+        leavePagePopupActive = TRUE;
+        setLeavePageState(windowId, LEAVE_PAGE_POPUP_ACTIVE);
         raise_error(GRAPHIC_ERROR);
 #if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
         result = K_CLOSE;
@@ -1009,16 +1069,16 @@ EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
     int result = K_NONE;
 
   /* decodeFocusEvent */
-    logFunction(printf("decodeFocusEvent(%d)\n",
-                       windowId););
-    if (getLeavePageState(windowId) == LEAVE_PAGE_DIALOG_ACTIVE) {
-      setLeavePageState(windowId, LEAVE_PAGE_DIALOG_CLOSED);
-#if MOMENT_TO_SEND_KEY_CLOSE == AFTER_CONFIRMATION
-      result = K_CLOSE;
-#endif
-    } else if (leavePageDialogActive) {
-      if (exitIfLeavePageWasPressed()) {
+    logFunction(printf("decodeFocusEvent(%d)\n", windowId););
+    if (leavePagePopupActive) {
+      if (leavePageWasPressed()) {
         os_exit(0);
+      } /* if */
+      if (getLeavePageState(windowId) == LEAVE_PAGE_POPUP_ACTIVE) {
+        setLeavePageState(windowId, LEAVE_PAGE_POPUP_CLOSED);
+#if MOMENT_TO_SEND_KEY_CLOSE == AFTER_CONFIRMATION
+        result = K_CLOSE;
+#endif
       } /* if */
     } /* if */
     logFunction(printf("decodeFocusEvent() --> %d\n",
@@ -1031,9 +1091,9 @@ EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
 EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
 
   { /* decodeVisibilitychange */
-    logFunction(printf("decodeVisibilitychange(%d)\n",
-                       windowId););
-    if (leavePageDialogActive) {
+    logFunction(printf("decodeVisibilitychange(%d)\n", windowId););
+    if (leavePagePopupActive &&
+        getLeavePageState(windowId) == LEAVE_PAGE_POPUP_CLOSED) {
       os_exit(0);
     } /* if */
     return K_NONE;
@@ -1144,6 +1204,7 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       console.log(event);
 #endif
       event.preventDefault();
+      event.returnValue = true;
       return Module.ccall("decodeBeforeunloadEvent", "number",
                           ["number"],
                           [mapCanvasToId.get(event.target.activeElement.firstChild)]);
