@@ -1330,7 +1330,8 @@ charType gkbGetc (void)
         case ClientMessage:
           traceEvent(printf("gkbGetc: ClientMessage\n"););
           if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
-            /* printf("wm_delete_window\n"); */
+            logMessage(printf("wm_delete_window " FMT_X_MEM "\n",
+                              (memSizeType) currentEvent.xclient.window););
             switch (getCloseAction(find_window(currentEvent.xclient.window))) {
               case CLOSE_BUTTON_CLOSES_PROGRAM:
                 os_exit(0);
@@ -2205,7 +2206,8 @@ static boolType processEvents (void)
           case ClientMessage:
             traceEvent(printf("processEvents: ClientMessage\n"););
             if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
-              /* printf("wm_delete_window\n"); */
+              logMessage(printf("wm_delete_window " FMT_X_MEM "\n",
+                                (memSizeType) currentEvent.xclient.window););
               if (getCloseAction(find_window(currentEvent.xclient.window)) ==
                   CLOSE_BUTTON_CLOSES_PROGRAM) {
                 os_exit(0);
@@ -2910,7 +2912,9 @@ winType gkbWindow (void)
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-    logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
+    logFunction(printf("gkbWindow -> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return result;
   } /* gkbWindow */
 

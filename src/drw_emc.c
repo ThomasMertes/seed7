@@ -1005,8 +1005,10 @@ intType drwHeight (const_winType actual_window)
     int height;
 
   /* drwHeight */
-    logFunction(printf("drwHeight(" FMT_U_MEM ")\n",
-                       (memSizeType) actual_window););
+    logFunction(printf("drwHeight(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) actual_window,
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     height = to_height(actual_window);
     logFunction(printf("drwHeight(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, height););
@@ -2265,8 +2267,10 @@ intType drwWidth (const_winType actual_window)
     int width;
 
   /* drwWidth */
-    logFunction(printf("drwWidth(" FMT_U_MEM ")\n",
-                       (memSizeType) actual_window););
+    logFunction(printf("drwWidth(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) actual_window,
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     width = to_width(actual_window);
     logFunction(printf("drwWidth(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, width););

@@ -40,6 +40,7 @@
 #include "data.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
 #include "traceutl.h"
@@ -460,6 +461,14 @@ objectType drw_cpy (listType arguments)
     isit_win(source);
     is_variable(dest);
     win_source = take_win(source);
+    logFunction(printf("drw_cpy(" FMT_U_MEM " (usage=" FMT_U "), "
+                                FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) take_win(dest),
+                       take_win(dest) != NULL ? take_win(dest)->usage_count
+                                              : (uintType) 0,
+                       (memSizeType) win_source,
+                       win_source != NULL ? win_source->usage_count
+                                          : (uintType) 0););
     if (TEMP_OBJECT(source)) {
       source->value.winValue = NULL;
     } else {
@@ -475,6 +484,14 @@ objectType drw_cpy (listType arguments)
       } /* if */
     } /* if */
     dest->value.winValue = win_source;
+    logFunction(printf("drw_cpy(" FMT_U_MEM " (usage=" FMT_U "), "
+                                FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) take_win(dest),
+                       take_win(dest) != NULL ? take_win(dest)->usage_count
+                                              : (uintType) 0,
+                       (memSizeType) win_source,
+                       win_source != NULL ? win_source->usage_count
+                                          : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* drw_cpy */
 
@@ -495,6 +512,10 @@ objectType drw_create (listType arguments)
   /* drw_create */
     source = arg_3(arguments);
     isit_win(source);
+    logFunction(printf("drw_create(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) take_win(source),
+                       take_win(source) != NULL ? take_win(source)->usage_count
+	                                        : (uintType) 0););
     SET_CATEGORY_OF_OBJ(arg_1(arguments), WINOBJECT);
     win_value = take_win(source);
     arg_1(arguments)->value.winValue = win_value;
@@ -505,6 +526,10 @@ objectType drw_create (listType arguments)
         win_value->usage_count++;
       } /* if */
     } /* if */
+    logFunction(printf("drw_create --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) win_value,
+                       win_value != NULL ? win_value->usage_count
+	                                 : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* drw_create */
 
@@ -518,6 +543,10 @@ objectType drw_destr (listType arguments)
   /* drw_destr */
     isit_win(arg_1(arguments));
     old_win = take_win(arg_1(arguments));
+    logFunction(printf("drw_destr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_win,
+                       old_win != NULL ? old_win->usage_count
+                                       : (uintType) 0););
     if (old_win != NULL && old_win->usage_count != 0) {
       old_win->usage_count--;
       if (old_win->usage_count == 0) {
@@ -1772,6 +1801,10 @@ objectType drw_value (listType arguments)
   /* drw_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
+    logFunction(printf("drw_value(" FMT_U_MEM " (category=%d))\n",
+                       (memSizeType) obj_arg,
+                       obj_arg != NULL ? CATEGORY_OF_OBJ(obj_arg)
+                                       : 0););
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
       logError(printf("drw_value(");
@@ -1783,6 +1816,10 @@ objectType drw_value (listType arguments)
       if (win_value != NULL && win_value->usage_count != 0) {
         win_value->usage_count++;
       } /* if */
+      logFunction(printf("drw_value --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                         (memSizeType) win_value,
+                         win_value != NULL ? win_value->usage_count
+                                           : (uintType) 0););
       return bld_win_temp(win_value);
     } /* if */
   } /* drw_value */

@@ -1353,9 +1353,10 @@ intType drwHeight (const_winType actual_window)
     intType height;
 
   /* drwHeight */
-    logFunction(printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
+    logFunction(printf("drwHeight(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) actual_window,
-                       actual_window != 0 ? actual_window->usage_count: 0););
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     if (is_pixmap(actual_window) ||
         GetClientRect(to_hwnd(actual_window), &rect) == 0) {
       height = to_height(actual_window);
@@ -2439,9 +2440,10 @@ intType drwWidth (const_winType actual_window)
     intType width;
 
   /* drwWidth */
-    logFunction(printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
+    logFunction(printf("drwWidth(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) actual_window,
-                       actual_window != 0 ? actual_window->usage_count: 0););
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     if (is_pixmap(actual_window) ||
         GetClientRect(to_hwnd(actual_window), &rect) == 0) {
       width = to_width(actual_window);

@@ -994,6 +994,10 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
   /* arrIdxTemp */
     arr1 = *arr_temp;
+    logFunction(printf("arrIdxTemp(" FMT_U_MEM " (min_position=" FMT_D
+                                   ", max_position= " FMT_D "), " FMT_D ")\n",
+                       (memSizeType) arr1, arr1->min_position,
+                       arr1->max_position, position););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position)) {
       logError(printf("arrIdxTemp(arr1, " FMT_D "): "
@@ -1017,6 +1021,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
         *arr_temp = resized_arr1;
       } /* if */
     } /* if */
+    logFunction(printf("arrIdxTemp --> " FMT_U_GEN "\n", result););
     return result;
   } /* arrIdxTemp */
 

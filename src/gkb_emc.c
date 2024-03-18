@@ -1672,6 +1672,8 @@ winType gkbWindow (void)
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-    logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
+    logFunction(printf("gkbWindow -> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return result;
   } /* gkbWindow */

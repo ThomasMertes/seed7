@@ -1503,8 +1503,10 @@ intType drwHeight (const_winType actual_window)
     unsigned int depth;
 
   /* drwHeight */
-    /* printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
+    logFunction(printf("drwHeight(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) actual_window,
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     if (is_pixmap(actual_window)) {
       height = to_height(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
@@ -2907,8 +2909,10 @@ intType drwWidth (const_winType actual_window)
     unsigned int depth;
 
   /* drwWidth */
-    /* printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
+    logFunction(printf("drwWidth(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) actual_window,
+                       actual_window != NULL ? actual_window->usage_count
+                                             : (uintType) 0););
     if (is_pixmap(actual_window)) {
       width = to_width(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,

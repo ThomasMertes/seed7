@@ -1118,6 +1118,10 @@ winType drwValue (const const_objectType aReference)
     winType win_value;
 
   /* drwValue */
+    logFunction(printf("drwValue(" FMT_U_MEM " (category=%d))\n",
+                       (memSizeType) aReference,
+                       aReference != NULL ? CATEGORY_OF_OBJ(aReference)
+                                          : 0););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != WINOBJECT)) {
       logError(printf("drwValue(");
@@ -1130,6 +1134,10 @@ winType drwValue (const const_objectType aReference)
       if (win_value != NULL) {
         win_value->usage_count++;
       } /* if */
+      logFunction(printf("drwValue --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                         (memSizeType) win_value,
+                         win_value != NULL ? win_value->usage_count
+                                           : (uintType) 0););
       return win_value;
     } /* if */
   } /* drwValue */
