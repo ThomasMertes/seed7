@@ -141,6 +141,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_var_close_action(win)     (((x11_winType) (win))->close_action)
 
 static Visual *default_visual;
+static int default_visual_class = 0;
 
 #ifdef rgbToPixel
 int useRgbToPixel = 0;
@@ -465,6 +466,7 @@ void drawInit (void)
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
       default_visual = XDefaultVisual(mydisplay, myscreen);
+      default_visual_class = default_visual->c_class;
 #ifdef OUT_OF_ORDER
       if (default_visual->c_class == PseudoColor) {
         class_text = "PseudoColor";
@@ -2361,7 +2363,7 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
       return (intType) rgbToPixel(redLight, greenLight, blueLight);
     } else
 #endif
-    if (default_visual->c_class == TrueColor) {
+    if (default_visual_class == TrueColor) {
       col.pixel =
           ((((unsigned long) redLight)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
           ((((unsigned long) greenLight) << lshift_green >> rshift_green) & default_visual->green_mask) |
@@ -2393,14 +2395,25 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
                          (intType) col.pixel););
       return (intType) col.pixel;
     } /* if */
-    if (color_hash == NULL) {
-      color_hash = (colorEntryType *) malloc(4096 * sizeof(colorEntryType));
-      if (color_hash == NULL) {
-        printf("malloc color_hash failed for (%lu, %lu, %lu)\n",
-            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight);
+    if (unlikely(color_hash == NULL)) {
+      if (unlikely(!init_called)) {
+        logError(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D "): "
+                        "drawInit() failed to open a display.\n",
+                        redLight, greenLight, blueLight););
+        raise_error(GRAPHIC_ERROR);
         return 0;
+      } else {
+        color_hash = (colorEntryType *) malloc(4096 * sizeof(colorEntryType));
+        if (unlikely(color_hash == NULL)) {
+          logError(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D "): "
+                          "malloc() color_hash failed.\n",
+                          redLight, greenLight, blueLight););
+          raise_error(MEMORY_ERROR);
+          return 0;
+        } else {
+          memset(color_hash, 0, 4096 * sizeof(colorEntryType));
+        } /* if */
       } /* if */
-      memset(color_hash, 0, 4096 * sizeof(colorEntryType));
     } /* if */
     col.red   = (short unsigned int) redLight;
     col.green = (short unsigned int) greenLight;
