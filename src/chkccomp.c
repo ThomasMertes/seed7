@@ -10214,11 +10214,13 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
     fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
     fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
+    fputs("#define POINT_LIST_INT_SIZE 16\n", versionFile);
+    fputs("#define POINT_LIST_ABSOLUTE 1\n", versionFile);
 #else
     determineX11Defines(versionFile, include_options, system_draw_libs);
-#endif
     fputs("#define POINT_LIST_INT_SIZE 16\n", versionFile);
     fputs("#define POINT_LIST_ABSOLUTE 0\n", versionFile);
+#endif
 #elif defined OS_STRI_WCHAR
     /* fputs("#define PIXEL_ALPHA_MASK \"ff000000\"\n", versionFile); */
     fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
