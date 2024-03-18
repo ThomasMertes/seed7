@@ -2208,7 +2208,7 @@ winType gkbWindow (void)
   /* gkbWindow */
     logFunction(printf("gkbWindow\n"););
     result = find_window(button_window);
-    if (result != NULL) {
+    if (result != NULL && result->usage_count != 0) {
       result->usage_count++;
     } /* if */
     logFunction(printf("gkbWindow -> " FMT_U_MEM " (usage=" FMT_U ")\n",

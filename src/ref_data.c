@@ -1131,7 +1131,7 @@ winType drwValue (const const_objectType aReference)
       return NULL;
     } else {
       win_value = take_win(aReference);
-      if (win_value != NULL) {
+      if (win_value != NULL && win_value->usage_count != 0) {
         win_value->usage_count++;
       } /* if */
       logFunction(printf("drwValue --> " FMT_U_MEM " (usage=" FMT_U ")\n",
