@@ -6282,9 +6282,9 @@ const proc: init_win_constants is func
     var bstring: bImage is bstring.value;
   begin
     win_index := flip(win_const_table);
-    if length(win_const_table) <> 1 or length(win_index) <> 1 or
-        width(win_index[keys(win_index)[1]][1]) <> 0 or
-        height(win_index[keys(win_index)[1]][1]) <> 0 then
+    if length(win_index) >= 1 and
+        (width(win_index[keys(win_index)[1]][1]) <> 0 or
+         height(win_index[keys(win_index)[1]][1]) <> 0) then
       # There is at least one non-empty window.
       if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel then
         for number range sort(keys(win_index)) do
