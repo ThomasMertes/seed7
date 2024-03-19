@@ -721,6 +721,7 @@ charType kbdGetc (void)
       if (changes) {
         conFlush();
       } /* if */
+      fflush(stdout);
       if (key_buffer_size == 0) {
         read_result = (memSizeType) read(os_fileno(stdin), key_buffer, KEY_BUFFER_SIZE);
         /* printf("kbdGetc: read_result=%ld", read_result); */

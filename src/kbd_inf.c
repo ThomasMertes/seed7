@@ -921,6 +921,7 @@ charType kbdGetc (void)
       if (changes) {
         conFlush();
       } /* if */
+      fflush(stdout);
       if (read(os_fileno(stdin), &ch, 1) != 1) {
         result = (charType) EOF;
       } else {
