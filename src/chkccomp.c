@@ -6551,6 +6551,37 @@ static void determineOsWCharFunctions (FILE *versionFile)
       fputs("#define HAS_GET_FILE_INFORMATION_BY_HANDLE_EX\n", versionFile);
     } /* if */
   } /* determineOsWCharFunctions */
+
+
+
+static void determineTimeFunctionProperties (FILE *versionFile)
+
+  { /* determineTimeFunctionProperties */
+    fprintf(versionFile, "#define asdf\n");
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "#include <windows.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "SYSTEMTIME await_time_struct;\n"
+                         "FILETIME filetime;\n"
+                         "int test_28;\n"
+                         "int test_29;\n"
+                         "await_time_struct.wYear = 2001;\n"
+                         "await_time_struct.wMonth = 2;\n"
+                         "await_time_struct.wDay = 28;\n"
+                         "await_time_struct.wHour = 0;\n"
+                         "await_time_struct.wMinute = 0;\n"
+                         "await_time_struct.wSecond = 0;\n"
+                         "await_time_struct.wMilliseconds = 0;\n"
+                         "test_28 = SystemTimeToFileTime(\n"
+                         "    &await_time_struct, &filetime);\n"
+                         "await_time_struct.wDay = 29;\n"
+                         "test_29 = SystemTimeToFileTime(\n"
+                         "    &await_time_struct, &filetime);\n"
+                         "printf(\"%d\\n\", test_28 == 1 && test_29 == 0);\n"
+                         "return 0;}\n") && doTest() != 1) {
+      fprintf(versionFile, "#define CHECK_LEAP_YEAR_FEBRURARY_29\n");
+    } /* if */
+  } /* determineTimeFunctionProperties */
 #endif
 
 
@@ -6653,6 +6684,7 @@ static void determineOsFunctions (FILE *versionFile)
     determineFtruncate(versionFile, fileno);
 #if defined OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
+    determineTimeFunctionProperties(versionFile);
 #elif PATH_DELIMITER == '\\'
     if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                          "#include <string.h>\n"

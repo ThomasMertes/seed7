@@ -95,6 +95,15 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_time_struct.wMinute       = (WORD) min;
     await_time_struct.wSecond       = (WORD) sec;
     await_time_struct.wMilliseconds = 0;
+#ifdef CHECK_LEAP_YEAR_FEBRURARY_29
+    if (unlikely(((year % 4 != 0 || year % 100 == 0) && year % 400 != 0) &&
+                 month == 2 && day == 29)) {
+      /* February 29th in a year that is not a leap year. */
+      logError(printf("timAwait: " F_D(04) "-" F_D(02) "-" F_D(02)
+                      ": Does not exist.\n", year, month, day););
+      raise_error(RANGE_ERROR);
+    } else
+#endif
     if (unlikely(SystemTimeToFileTime(
         &await_time_struct, &await_file_time.filetime) == 0)) {
       logError(printf("timAwait: SystemTimeToFileTime() failed.\n"););
