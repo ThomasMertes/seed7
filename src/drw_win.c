@@ -423,13 +423,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-winType generateEmptyWindow (void)
+static winType generateEmptyWindow (void)
 
   {
     HDC screenDC;
     win_winType newWindow;
 
-  /* drwEmpty */
+  /* generateEmptyWindow */
     logFunction(printf("generateEmptyWindow()\n"););
     if (unlikely(!ALLOC_RECORD2(newWindow, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);

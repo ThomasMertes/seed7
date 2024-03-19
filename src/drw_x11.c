@@ -140,6 +140,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_var_resizeReturnsKey(win) (((x11_winType) (win))->resizeReturnsKey)
 #define to_var_close_action(win)     (((x11_winType) (win))->close_action)
 
+static winType emptyWindow;
 static Visual *default_visual;
 static boolType usesTrueColor = FALSE;
 
@@ -442,6 +443,34 @@ static int get_highest_bit (unsigned long number)
 
 
 
+static winType generateEmptyWindow (void)
+
+  {
+    x11_winType newWindow;
+
+  /* generateEmptyWindow */
+    logFunction(printf("generateEmptyWindow()\n"););
+    if (unlikely(!ALLOC_RECORD2(newWindow, x11_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(newWindow, 0, sizeof(x11_winRecord));
+      newWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+      newWindow->window = 0;
+      newWindow->backup = 0;
+      newWindow->clip_mask = 0;
+      newWindow->is_pixmap = TRUE;
+      newWindow->is_managed = FALSE;
+      newWindow->width = 0;
+      newWindow->height = 0;
+    } /* if */
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
+  } /* generateEmptyWindow */
+
+
+
 void drawInit (void)
 
   {
@@ -454,6 +483,7 @@ void drawInit (void)
 
   /* drawInit */
     logFunction(printf("drawInit()\n"););
+    emptyWindow = generateEmptyWindow();
     if (findX11Dll()) {
       /* If linking with a profiling standard library XOpenDisplay */
       /* deadlocked. Be careful to avoid this situation.           */
@@ -1218,28 +1248,15 @@ void drwPFEllipse (const_winType actual_window,
 
 winType drwEmpty (void)
 
-  {
-    x11_winType emptyWindow;
-
-  /* drwEmpty */
+  { /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (unlikely(!ALLOC_RECORD2(emptyWindow, x11_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memset(emptyWindow, 0, sizeof(x11_winRecord));
-      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
-      emptyWindow->window = 0;
-      emptyWindow->backup = 0;
-      emptyWindow->clip_mask = 0;
-      emptyWindow->is_pixmap = TRUE;
-      emptyWindow->is_managed = FALSE;
-      emptyWindow->width = 0;
-      emptyWindow->height = 0;
+    if (!init_called) {
+      drawInit();
     } /* if */
     logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) emptyWindow,
                        emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
-    return (winType) emptyWindow;
+    return emptyWindow;
   } /* drwEmpty */
 
 
