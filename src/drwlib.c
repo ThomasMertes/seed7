@@ -105,19 +105,19 @@ objectType gkb_button_pressed (listType arguments)
 
 
 
-objectType gkb_button_xpos (listType arguments)
+objectType gkb_clicked_xpos (listType arguments)
 
-  { /* gkb_button_xpos */
-    return bld_int_temp(gkbButtonXpos());
-  } /* gkb_button_xpos */
+  { /* gkb_clicked_xpos */
+    return bld_int_temp(gkbClickedXpos());
+  } /* gkb_clicked_xpos */
 
 
 
-objectType gkb_button_ypos (listType arguments)
+objectType gkb_clicked_ypos (listType arguments)
 
-  { /* gkb_button_ypos */
-    return bld_int_temp(gkbButtonYpos());
-  } /* gkb_button_ypos */
+  { /* gkb_clicked_ypos */
+    return bld_int_temp(gkbClickedYpos());
+  } /* gkb_clicked_ypos */
 
 
 

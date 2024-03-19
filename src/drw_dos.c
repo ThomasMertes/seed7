@@ -92,19 +92,19 @@ winType gkbWindow (void)
 
 
 
-intType gkbButtonXpos (void)
+intType gkbClickedXpos (void)
 
-  { /* gkbButtonXpos */
+  { /* gkbClickedXpos */
     return 0;
-  } /* gkbButtonXpos */
+  } /* gkbClickedXpos */
 
 
 
-intType gkbButtonYpos (void)
+intType gkbClickedYpos (void)
 
-  { /* gkbButtonYpos */
+  { /* gkbClickedYpos */
     return 0;
-  } /* gkbButtonYpos */
+  } /* gkbClickedYpos */
 
 
 

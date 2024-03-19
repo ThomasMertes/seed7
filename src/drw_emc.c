@@ -2399,13 +2399,13 @@ intType drwYPos (const_winType actual_window)
 
 
 
-intType leftButtonXPos (winType aWindow)
+intType clickedWindowLeftPos (winType aWindow)
 
   {
     int xPos;
 
-  /* leftButtonXPos */
-    logFunction(printf("leftButtonXPos(" FMT_U_MEM ")\n",
+  /* clickedWindowLeftPos */
+    logFunction(printf("clickedWindowLeftPos(" FMT_U_MEM ")\n",
                        (memSizeType) aWindow););
     if (is_pixmap(aWindow)) {
       raise_error(RANGE_ERROR);
@@ -2424,7 +2424,7 @@ intType leftButtonXPos (winType aWindow)
         }
       }, to_window(aWindow));
       if (unlikely(xPos == -2147483648)) {
-        logError(printf("leftButtonXPos(" FMT_U_MEM "): windowId not found: %d\n",
+        logError(printf("clickedWindowLeftPos(" FMT_U_MEM "): windowId not found: %d\n",
                         (memSizeType) aWindow, to_window(aWindow)););
         raise_error(GRAPHIC_ERROR);
         xPos = 0;
@@ -2432,20 +2432,20 @@ intType leftButtonXPos (winType aWindow)
     } else {
       xPos = 0;
     } /* if */
-    logFunction(printf("leftButtonXPos(" FMT_U_MEM ") --> %d\n",
+    logFunction(printf("clickedWindowLeftPos(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) aWindow, xPos););
     return (intType) xPos;
-  } /* leftButtonXPos */
+  } /* clickedWindowLeftPos */
 
 
 
-intType topButtonYPos (winType aWindow)
+intType clickedWindowTopPos (winType aWindow)
 
   {
     int yPos;
 
-  /* topButtonYPos */
-    logFunction(printf("topButtonYPos(" FMT_U_MEM ")\n",
+  /* clickedWindowTopPos */
+    logFunction(printf("clickedWindowTopPos(" FMT_U_MEM ")\n",
                        (memSizeType) aWindow););
     if (is_pixmap(aWindow)) {
       raise_error(RANGE_ERROR);
@@ -2464,7 +2464,7 @@ intType topButtonYPos (winType aWindow)
         }
       }, to_window(aWindow));
       if (unlikely(yPos == -2147483648)) {
-        logError(printf("topButtonYPos(" FMT_U_MEM "): windowId not found: %d\n",
+        logError(printf("clickedWindowTopPos(" FMT_U_MEM "): windowId not found: %d\n",
                         (memSizeType) aWindow, to_window(aWindow)););
         raise_error(GRAPHIC_ERROR);
         yPos = 0;
@@ -2472,7 +2472,7 @@ intType topButtonYPos (winType aWindow)
     } else {
       yPos = 0;
     } /* if */
-    logFunction(printf("topButtonYPos(" FMT_U_MEM ") --> %d\n",
+    logFunction(printf("clickedWindowTopPos(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) aWindow, yPos););
     return (intType) yPos;
-  } /* topButtonYPos */
+  } /* clickedWindowTopPos */

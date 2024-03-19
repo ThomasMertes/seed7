@@ -249,8 +249,8 @@ void dequeue (keyQueueType *queue, keyDataType *key)
   /* dequeue */
     logFunction(printf("dequeue\n"););
     key->key = queue->queueOut->key;
-    key->buttonX = queue->queueOut->buttonX;
-    key->buttonY = queue->queueOut->buttonY;
+    key->clickedX = queue->queueOut->clickedX;
+    key->clickedY = queue->queueOut->clickedY;
     key->buttonWindow = queue->queueOut->buttonWindow;
     nextElement = queue->queueOut->next;
     free(queue->queueOut);

@@ -153,8 +153,8 @@ extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern boolType windowExists (int windowId);
 extern int copyWindow (int windowId);
-extern intType leftButtonXPos (winType aWindow);
-extern intType topButtonYPos (winType aWindow);
+extern intType clickedWindowLeftPos (winType aWindow);
+extern intType clickedWindowTopPos (winType aWindow);
 extern int maxWindowId;
 
 
@@ -852,8 +852,8 @@ EMSCRIPTEN_KEEPALIVE int decodeMousedownEvent (int windowId, int button,
     logFunction(printf("decodeMousedownEvent(%d, %d, %d, %d, %d, %d, %d)\n",
                        windowId, button, clientX, clientY,
                        shiftKey, ctrlKey, altKey););
-    lastKey.buttonX = clientX;
-    lastKey.buttonY = clientY;
+    lastKey.clickedX = clientX;
+    lastKey.clickedY = clientY;
     lastKey.buttonWindow = windowId;
     if (button < 5) {
       mouseKeyPressed[button] = TRUE;
@@ -954,8 +954,8 @@ EMSCRIPTEN_KEEPALIVE int decodeWheelEvent (int windowId, int deltaY,
     logFunction(printf("decodeWheelEvent(%d, %d, %d, %d, %d, %d, %d)\n",
                        windowId, deltaY, clientX, clientY,
                        shiftKey, ctrlKey, altKey););
-    lastKey.buttonX = clientX;
-    lastKey.buttonY = clientY;
+    lastKey.clickedX = clientX;
+    lastKey.clickedY = clientY;
     lastKey.buttonWindow = windowId;
     if (deltaY < 0) {
       if (shiftKey) {
@@ -1623,41 +1623,41 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active)
 
 
 
-intType gkbButtonXpos (void)
+intType gkbClickedXpos (void)
 
   {
     winType window;
     intType xPos;
 
-  /* gkbButtonXpos */
-    logFunction(printf("gkbButtonXpos\n"););
-    xPos = lastKey.buttonX;
+  /* gkbClickedXpos */
+    logFunction(printf("gkbClickedXpos\n"););
+    xPos = lastKey.clickedX;
     window = find_window(lastKey.buttonWindow);
     if (window != NULL) {
-      xPos -= leftButtonXPos(window);
+      xPos -= clickedWindowLeftPos(window);
     } /* if */
-    logFunction(printf("gkbButtonXpos -> " FMT_D "\n", xPos););
+    logFunction(printf("gkbClickedXpos -> " FMT_D "\n", xPos););
     return xPos;
-  } /* gkbButtonXpos */
+  } /* gkbClickedXpos */
 
 
 
-intType gkbButtonYpos (void)
+intType gkbClickedYpos (void)
 
   {
     winType window;
     intType yPos;
 
-  /* gkbButtonYpos */
-    logFunction(printf("gkbButtonYpos\n"););
-    yPos = lastKey.buttonY;
+  /* gkbClickedYpos */
+    logFunction(printf("gkbClickedYpos\n"););
+    yPos = lastKey.clickedY;
     window = find_window(lastKey.buttonWindow);
     if (window != NULL) {
-      yPos -= topButtonYPos(window);
+      yPos -= clickedWindowTopPos(window);
     } /* if */
-    logFunction(printf("gkbButtonYpos -> " FMT_D "\n", yPos););
+    logFunction(printf("gkbClickedYpos -> " FMT_D "\n", yPos););
     return yPos;
-  } /* gkbButtonYpos */
+  } /* gkbClickedYpos */
 
 
 

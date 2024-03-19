@@ -33,16 +33,16 @@ const ACTION: GKB_SELECT_INPUT    is action "GKB_SELECT_INPUT";
 const ACTION: GKB_WINDOW          is action "GKB_WINDOW";
 const ACTION: GKB_WORD_READ       is action "GKB_WORD_READ";
 const ACTION: GKB_BUTTON_PRESSED  is action "GKB_BUTTON_PRESSED";
-const ACTION: GKB_BUTTON_XPOS     is action "GKB_BUTTON_XPOS";
-const ACTION: GKB_BUTTON_YPOS     is action "GKB_BUTTON_YPOS";
+const ACTION: GKB_CLICKED_XPOS    is action "GKB_CLICKED_XPOS";
+const ACTION: GKB_CLICKED_YPOS    is action "GKB_CLICKED_YPOS";
 
 
 const proc: gkb_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "boolType    gkbButtonPressed (charType);");
-    declareExtern(c_prog, "intType     gkbButtonXpos (void);");
-    declareExtern(c_prog, "intType     gkbButtonYpos (void);");
+    declareExtern(c_prog, "intType     gkbClickedXpos (void);");
+    declareExtern(c_prog, "intType     gkbClickedYpos (void);");
     declareExtern(c_prog, "charType    gkbGetc (void);");
     declareExtern(c_prog, "striType    gkbGets (intType);");
     declareExtern(c_prog, "boolType    gkbInputReady (void);");
@@ -145,17 +145,17 @@ const proc: process (GKB_BUTTON_PRESSED, in reference: function,
   end func;
 
 
-const proc: process (GKB_BUTTON_XPOS, in reference: function,
+const proc: process (GKB_CLICKED_XPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "gkbButtonXpos()";
+    c_expr.expr &:= "gkbClickedXpos()";
   end func;
 
 
-const proc: process (GKB_BUTTON_YPOS, in reference: function,
+const proc: process (GKB_CLICKED_YPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "gkbButtonYpos()";
+    c_expr.expr &:= "gkbClickedYpos()";
   end func;

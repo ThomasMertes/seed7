@@ -74,8 +74,8 @@ extern Display *mydisplay;
 extern Atom wm_delete_window;
 static boolType eventPresent = FALSE;
 static XEvent currentEvent;
-static intType button_x = 0;
-static intType button_y = 0;
+static intType clicked_x = 0;
+static intType clicked_y = 0;
 static Window button_window = 0;
 static rtlHashType window_hash = NULL;
 static boolType hasFocus = FALSE;
@@ -1353,8 +1353,8 @@ charType gkbGetc (void)
                             currentEvent.xbutton.x, currentEvent.xbutton.y,
                             currentEvent.xbutton.button,
                             (unsigned long) currentEvent.xbutton.window););
-          button_x = currentEvent.xbutton.x;
-          button_y = currentEvent.xbutton.y;
+          clicked_x = currentEvent.xbutton.x;
+          clicked_y = currentEvent.xbutton.y;
           button_window = currentEvent.xbutton.window;
           if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
             result = currentEvent.xbutton.button + K_MOUSE1 - 1;
@@ -2883,21 +2883,21 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active)
 
 
 
-intType gkbButtonXpos (void)
+intType gkbClickedXpos (void)
 
-  { /* gkbButtonXpos */
-    logFunction(printf("gkbButtonXpos -> " FMT_D "\n", button_x););
-    return button_x;
-  } /* gkbButtonXpos */
+  { /* gkbClickedXpos */
+    logFunction(printf("gkbClickedXpos -> " FMT_D "\n", clicked_x););
+    return clicked_x;
+  } /* gkbClickedXpos */
 
 
 
-intType gkbButtonYpos (void)
+intType gkbClickedYpos (void)
 
-  { /* gkbButtonYpos */
-    logFunction(printf("gkbButtonYpos -> " FMT_D "\n", button_y););
-    return button_y;
-  } /* gkbButtonYpos */
+  { /* gkbClickedYpos */
+    logFunction(printf("gkbClickedYpos -> " FMT_D "\n", clicked_y););
+    return clicked_y;
+  } /* gkbClickedYpos */
 
 
 

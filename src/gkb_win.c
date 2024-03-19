@@ -63,8 +63,8 @@
 
 #define TRACE_SET_WINDOW_POS 0
 
-static intType button_x = 0;
-static intType button_y = 0;
+static intType clicked_x = 0;
+static intType clicked_y = 0;
 static HWND button_window = 0;
 static rtlHashType window_hash = NULL;
 static WPARAM resizeMode = 0;
@@ -1073,8 +1073,8 @@ charType gkbGetc (void)
             traceEvent(printf("gkbGetc: WM_LBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
-            button_x = GET_X_LPARAM(msg.lParam);
-            button_y = GET_Y_LPARAM(msg.lParam);
+            clicked_x = GET_X_LPARAM(msg.lParam);
+            clicked_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE1;
@@ -1096,8 +1096,8 @@ charType gkbGetc (void)
             traceEvent(printf("gkbGetc: WM_MBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
-            button_x = GET_X_LPARAM(msg.lParam);
-            button_y = GET_Y_LPARAM(msg.lParam);
+            clicked_x = GET_X_LPARAM(msg.lParam);
+            clicked_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE2;
@@ -1119,8 +1119,8 @@ charType gkbGetc (void)
             traceEvent(printf("gkbGetc: WM_RBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
-            button_x = GET_X_LPARAM(msg.lParam);
-            button_y = GET_Y_LPARAM(msg.lParam);
+            clicked_x = GET_X_LPARAM(msg.lParam);
+            clicked_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE3;
@@ -1142,8 +1142,8 @@ charType gkbGetc (void)
             traceEvent(printf("gkbGetc: WM_XBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
-            button_x = GET_X_LPARAM(msg.lParam);
-            button_y = GET_Y_LPARAM(msg.lParam);
+            clicked_x = GET_X_LPARAM(msg.lParam);
+            clicked_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
               if (msg.wParam & 0x04) {
@@ -1195,8 +1195,8 @@ charType gkbGetc (void)
               win = find_window(msg.hwnd);
               if (point.x >= 0 && point.x < drwWidth(win) &&
                   point.y >= 0 && point.y < drwHeight(win)) {
-                button_x = point.x;
-                button_y = point.y;
+                clicked_x = point.x;
+                clicked_y = point.y;
                 button_window = msg.hwnd;
                 if (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) {
                   if (msg.wParam & 0x04) {
@@ -2184,19 +2184,21 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active)
 
 
 
-intType gkbButtonXpos (void)
+intType gkbClickedXpos (void)
 
-  { /* gkbButtonXpos */
-    return button_x;
-  } /* gkbButtonXpos */
+  { /* gkbClickedXpos */
+    logFunction(printf("gkbClickedXpos -> " FMT_D "\n", clicked_x););
+    return clicked_x;
+  } /* gkbClickedXpos */
 
 
 
-intType gkbButtonYpos (void)
+intType gkbClickedYpos (void)
 
-  { /* gkbButtonYpos */
-    return button_y;
-  } /* gkbButtonYpos */
+  { /* gkbClickedYpos */
+    logFunction(printf("gkbClickedYpos -> " FMT_D "\n", clicked_y););
+    return clicked_y;
+  } /* gkbClickedYpos */
 
 
 

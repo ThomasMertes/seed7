@@ -284,11 +284,11 @@ const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button) 
  *  @return the X position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
-const func integer: clickedXPos (in graph_keybd_file: keybd)                   is action "GKB_BUTTON_XPOS";
+const func integer: clickedXPos (in graph_keybd_file: keybd)                   is action "GKB_CLICKED_XPOS";
 
 
 # The function getxpos() is deprecated. Use clickedXPos() instead.
-const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_XPOS";
+const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_CLICKED_XPOS";
 
 
 (**
@@ -298,11 +298,11 @@ const func integer: getxpos (in graph_keybd_file: keybd)                       i
  *  @return the Y position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
-const func integer: clickedYPos (in graph_keybd_file: keybd)                   is action "GKB_BUTTON_YPOS";
+const func integer: clickedYPos (in graph_keybd_file: keybd)                   is action "GKB_CLICKED_YPOS";
 
 
 # The function getypos() is deprecated. Use clickedYPos() instead.
-const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_YPOS";
+const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_CLICKED_YPOS";
 
 
 const func char: raw_getc (in graph_keybd_file: keybd)                         is action "GKB_RAW_GETC";

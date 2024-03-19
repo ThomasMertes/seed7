@@ -31,8 +31,8 @@
 
 void drawInit (void);
 boolType gkbButtonPressed (charType button);
-intType gkbButtonXpos (void);
-intType gkbButtonYpos (void);
+intType gkbClickedXpos (void);
+intType gkbClickedYpos (void);
 charType gkbGetc (void);
 boolType gkbInputReady (void);
 charType gkbRawGetc (void);

@@ -26,8 +26,8 @@
 /********************************************************************/
 
 objectType gkb_button_pressed            (listType arguments);
-objectType gkb_button_xpos               (listType arguments);
-objectType gkb_button_ypos               (listType arguments);
+objectType gkb_clicked_xpos              (listType arguments);
+objectType gkb_clicked_ypos              (listType arguments);
 objectType gkb_getc                      (listType arguments);
 objectType gkb_gets                      (listType arguments);
 objectType gkb_input_ready               (listType arguments);

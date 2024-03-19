@@ -1090,12 +1090,12 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"GKB_BUTTON_PRESSED"}:
         drawLibraryUsed := TRUE;
         process(GKB_BUTTON_PRESSED, function, params, c_expr);
-      when {"GKB_BUTTON_XPOS"}:
+      when {"GKB_CLICKED_XPOS"}:
         drawLibraryUsed := TRUE;
-        process(GKB_BUTTON_XPOS, function, params, c_expr);
-      when {"GKB_BUTTON_YPOS"}:
+        process(GKB_CLICKED_XPOS, function, params, c_expr);
+      when {"GKB_CLICKED_YPOS"}:
         drawLibraryUsed := TRUE;
-        process(GKB_BUTTON_YPOS, function, params, c_expr);
+        process(GKB_CLICKED_YPOS, function, params, c_expr);
       when {"HSH_CONTAINS"}:
         process(HSH_CONTAINS, function, params, c_expr);
       when {"HSH_CPY"}:

@@ -532,8 +532,8 @@ static const actEntryRecord actEntryTable[] = {
 
 #if WITH_DRAW
     { "GKB_BUTTON_PRESSED",           gkb_button_pressed,           },
-    { "GKB_BUTTON_XPOS",              gkb_button_xpos,              },
-    { "GKB_BUTTON_YPOS",              gkb_button_ypos,              },
+    { "GKB_CLICKED_XPOS",             gkb_clicked_xpos,             },
+    { "GKB_CLICKED_YPOS",             gkb_clicked_ypos,             },
     { "GKB_GETC",                     gkb_getc,                     },
     { "GKB_GETS",                     gkb_gets,                     },
     { "GKB_INPUT_READY",              gkb_input_ready,              },

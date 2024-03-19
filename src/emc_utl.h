@@ -31,8 +31,8 @@
 
 typedef struct keyData {
     charType key;
-    intType buttonX;
-    intType buttonY;
+    intType clickedX;
+    intType clickedY;
     int buttonWindow;
     struct keyData *next;
   } keyDataType;
