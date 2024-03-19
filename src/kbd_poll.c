@@ -679,6 +679,7 @@ boolType kbdInputReady (void)
       if (changes) {
         conFlush();
       } /* if */
+      fflush(stdout);
       poll_fds[0].fd = os_fileno(stdin);
       poll_fds[0].events = POLLIN | POLLPRI;
       do {

@@ -873,6 +873,7 @@ boolType kbdInputReady (void)
       if (changes) {
         conFlush();
       } /* if */
+      fflush(stdout);
       file_no = os_fileno(stdin);
       if (!tcset_vmin_vtime(file_no, 0, 0)) {
         printf("kbdInputReady: tcsetattr(%d, VMIN=0) failed:\n"
