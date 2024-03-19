@@ -141,7 +141,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_var_close_action(win)     (((x11_winType) (win))->close_action)
 
 static Visual *default_visual;
-static int default_visual_class = 0;
+static boolType usesTrueColor = FALSE;
 
 #ifdef rgbToPixel
 int useRgbToPixel = 0;
@@ -466,7 +466,7 @@ void drawInit (void)
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
       default_visual = XDefaultVisual(mydisplay, myscreen);
-      default_visual_class = default_visual->c_class;
+      usesTrueColor = default_visual->c_class == TrueColor;
 #ifdef OUT_OF_ORDER
       if (default_visual->c_class == PseudoColor) {
         class_text = "PseudoColor";
@@ -498,7 +498,7 @@ void drawInit (void)
       printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
 #endif
 #ifdef rgbToPixel
-      useRgbToPixel = default_visual->c_class == TrueColor &&
+      useRgbToPixel = usesTrueColor &&
                       rgbToPixel(0xffff, 0, 0) == default_visual->red_mask &&
                       rgbToPixel(0, 0xffff, 0) == default_visual->green_mask &&
                       rgbToPixel(0, 0, 0xffff) == default_visual->blue_mask;
@@ -2363,7 +2363,7 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
       return (intType) rgbToPixel(redLight, greenLight, blueLight);
     } else
 #endif
-    if (default_visual_class == TrueColor) {
+    if (usesTrueColor) {
       col.pixel =
           ((((unsigned long) redLight)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
           ((((unsigned long) greenLight) << lshift_green >> rshift_green) & default_visual->green_mask) |
@@ -2609,7 +2609,7 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
     XColor color;
 
   /* drwPixelToRgb */
-    if (default_visual->c_class == TrueColor) {
+    if (usesTrueColor) {
       *redLight   = (intType)(((unsigned long) col & default_visual->red_mask)   << rshift_red   >> lshift_red);
       *greenLight = (intType)(((unsigned long) col & default_visual->green_mask) << rshift_green >> lshift_green);
       *blueLight  = (intType)(((unsigned long) col & default_visual->blue_mask)  << rshift_blue  >> lshift_blue);
