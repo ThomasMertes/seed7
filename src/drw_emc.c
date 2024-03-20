@@ -1207,102 +1207,104 @@ int copyWindow (int windowId)
 
   {
     int windowIdAndFlags;
-    emc_winType result = NULL;
+    emc_winType aWindow;
 
   /* copyWindow */
     logFunction(printf("copyWindow(%d)\n", windowId););
-    windowIdAndFlags = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined" &&
-                                           typeof mapIdToCanvas[$0] !== "undefined") {
-        let sourceWindow = mapIdToWindow[$0];
-        let sourceCanvas = mapIdToCanvas[$0];
-        let left = 10; // sourceWindow.screenX;
-        let top = 20; // sourceWindow.screenY;
-        let width = sourceCanvas.width;
-        let height = sourceCanvas.height;
-        // The new window name must differ from the original window name.
-        let windowName = sourceWindow.document.title;
-        if (windowName.endsWith("\0\0")) {
-          windowName = windowName.substring(0, windowName.length - 2);
-        } else {
-          windowName = windowName + "\0";
-        }
-        let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
-                             ",left=" + left + ",top=" + top +
-                             ",width=" + width + ",height=" + height;
-        let windowObject = window.open("", windowName, windowFeatures);
-        if (windowObject === null) {
-          return 0;
-        } else {
-          const title = windowObject.document.createElement("title");
-          const titleText = windowObject.document.createTextNode(windowName);
-          title.appendChild(titleText);
-          windowObject.document.head.appendChild(title);
-          windowObject.document.body.style.margin = 0;
-          windowObject.document.body.style.overflowX = "hidden";
-          windowObject.document.body.style.overflowY = "hidden";
-          currentWindowId++;
-          mapIdToWindow[currentWindowId] = windowObject;
-          mapWindowToId.set(windowObject, currentWindowId);
-          let canvas = windowObject.document.createElement("canvas");
-          let ignoreFirstResize = 0;
-          if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
-            canvas.width  = width ;
-            canvas.height = height;
-            ignoreFirstResize = 1;
-          } else {
-            if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
-              windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
-                                    height + (windowObject.outerHeight - windowObject.innerHeight));
-              ignoreFirstResize = 2;
-              windowObject.moveTo(left, top);
-            }
-            canvas.width  = windowObject.innerWidth;
-            canvas.height = windowObject.innerHeight;
-          }
-          let context = canvas.getContext("2d");
-          // Copy the content of the old window:
-          context.drawImage(sourceCanvas, 0, 0);
-          windowObject.document.body.appendChild(canvas);
-          mapIdToCanvas[currentWindowId] = canvas;
-          mapCanvasToId.set(canvas, currentWindowId);
-          mapIdToContext[currentWindowId] = context;
-          if (typeof windowObject.opener.registerWindow !== "undefined") {
-            windowObject.opener.registerWindow(windowObject);
-          }
-          return (currentWindowId << 2) | ignoreFirstResize;
-        }
-      } else {
-        return 0;
-      }
-    }, windowId);
-    if (unlikely(windowIdAndFlags == 0)) {
-      logError(printf("copyWindow(%d): Failed to open window.\n",
+    aWindow = (emc_winType) find_window(windowId);
+    if (unlikely(aWindow == NULL)) {
+      logError(printf("copyWindow(%d): Cannot find old window.\n",
                       windowId););
       raise_error(GRAPHIC_ERROR);
-      result = NULL;
     } else {
-      result = (emc_winType) find_window(windowId);
-      if (unlikely(result == NULL)) {
-        logError(printf("copyWindow(%d): Cannot find old window.\n",
+      windowIdAndFlags = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined" &&
+                                             typeof mapIdToCanvas[$0] !== "undefined") {
+          let sourceWindow = mapIdToWindow[$0];
+          let sourceCanvas = mapIdToCanvas[$0];
+          let rightBottomLeftBorder = sourceWindow.outerWidth - sourceWindow.innerWidth;
+          let topBorder = sourceWindow.outerHeight - sourceWindow.innerHeight - rightBottomLeftBorder;
+          let left = sourceWindow.screenX; // - rightBottomLeftBorder;
+          let top = sourceWindow.screenY; // - topBorder;
+          let width = $1;
+          let height = $2;
+          // The new window name must differ from the original window name.
+          let windowName = sourceWindow.document.title;
+          if (windowName.endsWith("\0\0")) {
+            windowName = windowName.substring(0, windowName.length - 2);
+          } else {
+            windowName = windowName + "\0";
+          }
+          let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
+                               ",left=" + left + ",top=" + top +
+                               ",width=" + width + ",height=" + height;
+          let windowObject = window.open("", windowName, windowFeatures);
+          if (windowObject === null) {
+            return 0;
+          } else {
+            const title = windowObject.document.createElement("title");
+            const titleText = windowObject.document.createTextNode(windowName);
+            title.appendChild(titleText);
+            windowObject.document.head.appendChild(title);
+            windowObject.document.body.style.margin = 0;
+            windowObject.document.body.style.overflowX = "hidden";
+            windowObject.document.body.style.overflowY = "hidden";
+            currentWindowId++;
+            mapIdToWindow[currentWindowId] = windowObject;
+            mapWindowToId.set(windowObject, currentWindowId);
+            let canvas = windowObject.document.createElement("canvas");
+            let ignoreFirstResize = 0;
+            if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
+              canvas.width  = width ;
+              canvas.height = height;
+              ignoreFirstResize = 1;
+            } else {
+              windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
+                                    height + (windowObject.outerHeight - windowObject.innerHeight));
+              if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
+                ignoreFirstResize = 2;
+              }
+              windowObject.moveTo(left, top);
+              canvas.width  = windowObject.innerWidth;
+              canvas.height = windowObject.innerHeight;
+            }
+            let context = canvas.getContext("2d");
+            // Copy the content of the old window:
+            context.drawImage(sourceCanvas, 0, 0);
+            windowObject.document.body.appendChild(canvas);
+            mapIdToCanvas[currentWindowId] = canvas;
+            mapCanvasToId.set(canvas, currentWindowId);
+            mapIdToContext[currentWindowId] = context;
+            if (typeof windowObject.opener.registerWindow !== "undefined") {
+              windowObject.opener.registerWindow(windowObject);
+            }
+            return (currentWindowId << 2) | ignoreFirstResize;
+          }
+        } else {
+          return 0;
+        }
+      }, windowId, aWindow->width, aWindow->height);
+      if (unlikely(windowIdAndFlags == 0)) {
+        logError(printf("copyWindow(%d): Failed to open window.\n",
                         windowId););
         raise_error(GRAPHIC_ERROR);
+        aWindow = NULL;
       } else {
-        result->window = windowIdAndFlags >> 2;
-        result->ignoreFirstResize = windowIdAndFlags & 3;
-        result->creationTimestamp = timMicroSec() / 1000000;
-        maxWindowId = result->window;
-        setupEventCallbacksForWindow(result->window);
+        aWindow->window = windowIdAndFlags >> 2;
+        aWindow->ignoreFirstResize = windowIdAndFlags & 3;
+        aWindow->creationTimestamp = timMicroSec() / 1000000;
+        maxWindowId = aWindow->window;
+        setupEventCallbacksForWindow(aWindow->window);
         remove_window(windowId);
         setClosePopupState(windowId, 0);
-        enter_window((winType) result, result->window);
+        enter_window((winType) aWindow, aWindow->window);
       } /* if */
     } /* if */
     logFunction(printf("copyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
-                   (memSizeType) result,
-                   result != NULL ? result->window : 0,
-                   result != NULL ? result->usage_count : (uintType) 0););
-    return result != NULL ? result->window : 0;
+                   (memSizeType) aWindow,
+                   aWindow != NULL ? aWindow->window : 0,
+                   aWindow != NULL ? aWindow->usage_count : (uintType) 0););
+    return aWindow != NULL ? aWindow->window : 0;
   } /* copyWindow */
 
 
@@ -1418,12 +1420,12 @@ winType drwOpen (intType xPos, intType yPos,
                 canvas.height = height;
                 ignoreFirstResize = 1;
               } else {
+                windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
+                                      height + (windowObject.outerHeight - windowObject.innerHeight));
                 if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
-                  windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
-                                        height + (windowObject.outerHeight - windowObject.innerHeight));
                   ignoreFirstResize = 2;
-                  windowObject.moveTo(left, top);
                 }
+                windowObject.moveTo(left, top);
                 canvas.width  = windowObject.innerWidth;
                 canvas.height = windowObject.innerHeight;
               }
