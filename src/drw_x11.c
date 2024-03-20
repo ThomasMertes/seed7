@@ -491,7 +491,7 @@ void drawInit (void)
       /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
       /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */
     } /* if */
-    if (mydisplay != NULL) {
+    if (emptyWindow != NULL && mydisplay != NULL) {
       myscreen = DefaultScreen(mydisplay);
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
@@ -2679,8 +2679,11 @@ intType drwScreenHeight (void)
     if (!init_called) {
       drawInit();
     } /* if */
-    if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
-                              &x, &y, &width, &height, &border_width, &depth) == 0)) {
+    if (unlikely(!init_called ||
+                 XGetGeometry(mydisplay, DefaultRootWindow(mydisplay),
+                              &root, &x, &y, &width, &height,
+                              &border_width, &depth) == 0)) {
+      logError(printf("drwScreenHeight: drawInit() or XGetGeometry() failed.\n"););
       raise_error(GRAPHIC_ERROR);
       height = 0;
     } /* if */
@@ -2707,8 +2710,11 @@ intType drwScreenWidth (void)
     if (!init_called) {
       drawInit();
     } /* if */
-    if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
-                              &x, &y, &width, &height, &border_width, &depth) == 0)) {
+    if (unlikely(!init_called ||
+                 XGetGeometry(mydisplay, DefaultRootWindow(mydisplay),
+                              &root, &x, &y, &width, &height,
+                              &border_width, &depth) == 0)) {
+      logError(printf("drwScreenWidth: drawInit() or XGetGeometry() failed.\n"););
       raise_error(GRAPHIC_ERROR);
       width = 0;
     } /* if */
