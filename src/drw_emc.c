@@ -102,6 +102,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define to_var_close_action(win)      (((emc_winType) (win))->close_action)
 
 int maxWindowId = 0;
+static winType emptyWindow;
 
 
 winType find_window (int windowId);
@@ -254,6 +255,37 @@ boolType resize (winType resizeWindow, int width, int height)
 
 
 
+winType generateEmptyWindow (void)
+
+  {
+    emc_winType newWindow;
+
+  /* generateEmptyWindow */
+    logFunction(printf("generateEmptyWindow()\n"););
+    if (unlikely(!ALLOC_RECORD2(newWindow, emc_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(newWindow, 0, sizeof(emc_winRecord));
+      newWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+      newWindow->window = 0;
+      newWindow->is_pixmap = TRUE;
+      newWindow->is_subwindow = FALSE;
+      newWindow->is_substitute = FALSE;
+      newWindow->parentWindow = NULL;
+      newWindow->ignoreFirstResize = 0;
+      newWindow->creationTimestamp = 0;
+      newWindow->width = 0;
+      newWindow->height = 0;
+    } /* if */
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->window : 0,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
+  } /* generateEmptyWindow */
+
+
+
 void drawShut (void)
 
   {
@@ -282,6 +314,7 @@ void drawInit (void)
       mapWindowToId = new Map();
       mapCanvasToId = new Map();
     });
+    emptyWindow = generateEmptyWindow();
     gkbInitKeyboard();
     os_atexit(drawShut);
     logFunction(printf("drawInit -->\n"););
@@ -798,31 +831,11 @@ void drwFlush (void)
 
 winType drwEmpty (void)
 
-  {
-    emc_winType emptyWindow;
-
-  /* drwEmpty */
-    logFunction(printf("drwEmpty()\n"););
-    if (unlikely(!ALLOC_RECORD2(emptyWindow, emc_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memset(emptyWindow, 0, sizeof(emc_winRecord));
-      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
-      emptyWindow->window = 0;
-      emptyWindow->is_pixmap = TRUE;
-      emptyWindow->is_subwindow = FALSE;
-      emptyWindow->is_substitute = FALSE;
-      emptyWindow->parentWindow = NULL;
-      emptyWindow->ignoreFirstResize = 0;
-      emptyWindow->creationTimestamp = 0;
-      emptyWindow->width = 0;
-      emptyWindow->height = 0;
-    } /* if */
-    logFunction(printf("drwEmpty --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+  { /* drwEmpty */
+    logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) emptyWindow,
-                       emptyWindow != NULL ? emptyWindow->window : 0,
                        emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
-    return (winType) emptyWindow;
+    return emptyWindow;
   } /* drwEmpty */
 
 
