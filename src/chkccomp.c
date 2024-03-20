@@ -6579,7 +6579,7 @@ static void determineTimeFunctionProperties (FILE *versionFile)
                          "    &await_time_struct, &filetime);\n"
                          "printf(\"%d\\n\", test_28 == 1 && test_29 == 0);\n"
                          "return 0;}\n") && doTest() != 1) {
-      fprintf(versionFile, "#define CHECK_LEAP_YEAR_FEBRURARY_29\n");
+      fprintf(versionFile, "#define CHECK_NON_LEAP_YEAR_FEBRURARY_29\n");
     } /* if */
   } /* determineTimeFunctionProperties */
 #endif
