@@ -6286,7 +6286,12 @@ const proc: init_win_constants is func
         width(win_index[keys(win_index)[1]][1]) <> 0 or
         height(win_index[keys(win_index)[1]][1]) <> 0) then
       # There is at least one non-empty window.
-      if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel then
+      if pixelEncodingIdentical or pixelEncodingWithoutAlphaChannel or
+          ccConf.PIXEL_RED_MASK = 0 or
+          ccConf.PIXEL_GREEN_MASK = 0 or
+          ccConf.PIXEL_BLUE_MASK = 0 then
+        # For an identical encoding no changes are necessary.
+        # For zero pixel masks an identical encoding is assumed.
         for number range sort(keys(win_index)) do
           win1 := win_index[number][1];
           if width(win1) <> 0 or height(win1) <> 0 then
