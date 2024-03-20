@@ -8173,11 +8173,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         } /* if */
       } /* if */
 #endif
-      if (!searchForLib) {
-        fprintf(versionFile, "#define VISUAL_DEPTH_OF_32_BITS_SUPPORTED %d\n",
-                visualDepthOf32BitsSupported(x11IncludeCommand, includeOption, system_draw_libs));
-        defineX11rgbToPixelMacro(versionFile, x11IncludeCommand, includeOption, system_draw_libs);
-      } /* if */
+      fprintf(versionFile, "#define VISUAL_DEPTH_OF_32_BITS_SUPPORTED %d\n",
+              visualDepthOf32BitsSupported(x11IncludeCommand, includeOption, system_draw_libs));
+      defineX11rgbToPixelMacro(versionFile, x11IncludeCommand, includeOption, system_draw_libs);
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
       if (searchForLib) {
         fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
