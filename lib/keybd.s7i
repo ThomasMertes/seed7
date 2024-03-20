@@ -88,10 +88,6 @@ const func boolean: buttonPressed (in keyboard_file: keybd, in char: button) is 
 const func integer: clickedXPos (in keyboard_file: keybd) is DYNAMIC;
 
 
-# The function getxpos() is deprecated. Use clickedXPos() instead.
-const func integer: getxpos (in keyboard_file: keybd) is DYNAMIC;
-
-
 (**
  *  Y position of the mouse cursor when a button was pressed.
  *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
@@ -100,10 +96,6 @@ const func integer: getxpos (in keyboard_file: keybd) is DYNAMIC;
  *          the last button was pressed.
  *)
 const func integer: clickedYPos (in keyboard_file: keybd) is DYNAMIC;
-
-
-# The function getypos() is deprecated. Use clickedYPos() instead.
-const func integer: getypos (in keyboard_file: keybd) is DYNAMIC;
 
 
 const type: console_keybd_file is sub null_file struct
@@ -287,10 +279,6 @@ const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button) 
 const func integer: clickedXPos (in graph_keybd_file: keybd)                   is action "GKB_CLICKED_XPOS";
 
 
-# The function getxpos() is deprecated. Use clickedXPos() instead.
-const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_CLICKED_XPOS";
-
-
 (**
  *  Y position of the mouse cursor when a button was pressed.
  *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
@@ -299,10 +287,6 @@ const func integer: getxpos (in graph_keybd_file: keybd)                       i
  *          the last button was pressed.
  *)
 const func integer: clickedYPos (in graph_keybd_file: keybd)                   is action "GKB_CLICKED_YPOS";
-
-
-# The function getypos() is deprecated. Use clickedYPos() instead.
-const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_CLICKED_YPOS";
 
 
 const func char: raw_getc (in graph_keybd_file: keybd)                         is action "GKB_RAW_GETC";

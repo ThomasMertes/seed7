@@ -106,11 +106,6 @@ const func string: toUtf16Be (in string: stri) is func
   end func;
 
 
-# The function striToUtf16be() is deprecated. Use toUtf16Be() instead.
-const func string: striToUtf16be (in string: stri) is
-  return toUtf16Be(stri);
-
-
 (**
  *  Convert an UTF-16BE encoded [[string]] of bytes to UTF-32.
  *  @param utf16Be String of bytes encoded with UTF-16 in
@@ -167,11 +162,6 @@ const func string: fromUtf16Be (in string: utf16Be) is func
   end func;
 
 
-# The function utf16beToStri() is deprecated. Use fromUtf16Be() instead.
-const func string: utf16beToStri (in string: utf16Be) is
-  return fromUtf16Be(utf16Be);
-
-
 (**
  *  Convert a [[string]] to an UTF-16LE encoded string of bytes.
  *  @param stri Normal (UTF-32) string to be converted to UTF-16LE.
@@ -207,11 +197,6 @@ const func string: toUtf16Le (in string: stri) is func
       end if;
     end for;
   end func;
-
-
-# The function striToUtf16le() is deprecated. Use toUtf16Le() instead.
-const func string: striToUtf16le (in string: stri) is
-  return toUtf16Le(stri);
 
 
 (**
@@ -268,11 +253,6 @@ const func string: fromUtf16Le (in string: utf16Le) is func
       end if;
     end for;
   end func;
-
-
-# The function utf16leToStri() is deprecated. Use fromUtf16Le() instead.
-const func string: utf16leToStri (in string: utf16Le) is
-  return fromUtf16Le(utf16Le);
 
 
 (**
@@ -600,8 +580,3 @@ const func string: fromUtf7 (in string: stri7) is func
     end while;
     resultStri &:= stri7[startPos ..];
   end func;
-
-
-# The function utf7ToStri() is deprecated. Use fromUtf7() instead.
-const func string: utf7ToStri (in string: stri7) is
-  return fromUtf7(stri7);
