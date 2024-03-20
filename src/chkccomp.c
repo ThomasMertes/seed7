@@ -6557,7 +6557,6 @@ static void determineOsWCharFunctions (FILE *versionFile)
 static void determineTimeFunctionProperties (FILE *versionFile)
 
   { /* determineTimeFunctionProperties */
-    fprintf(versionFile, "#define asdf\n");
     if (compileAndLinkOk("#include <stdio.h>\n"
                          "#include <windows.h>\n"
                          "int main(int argc,char *argv[]){\n"
