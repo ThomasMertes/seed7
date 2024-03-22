@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  readjson.s7i  Support functions to read JSON files              *)
+(*  readjson.s7i  Experimental functions to read JSON files         *)
 (*  Copyright (C) 2024  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

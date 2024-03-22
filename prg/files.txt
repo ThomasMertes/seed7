@@ -251,6 +251,7 @@ process.s7i  Support for creating processes
 progs.s7i    Program handling support library
 propertyfile.s7i Read key-value pairs from a property file
 rational.s7i Rational number support library
+readjson.s7i Experimental functions to read JSON files
 ref_list.s7i Reference list support library
 reference.s7i Reference to object support library
 reverse.s7i  Filter file which writes right to left on output

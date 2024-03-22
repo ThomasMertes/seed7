@@ -1,3 +1,145 @@
+20240322:
+- The compiler has been fixed to be able to compile itself without
+  using the X11 library. Many thanks to Pietro Cerutti for pointing
+  out that compiling s7c.sd7 under FreeBSD failed. Now the function
+  colorPixel() is only used if there is at least one non-empty
+  window object.
+- In drw_x11.c the function drwRgbColor() has been improved to raise
+  GRAPHIC_ERROR if it is called without a successful drawInit().
+  Many thanks to Zachary Menzies for pointing out that the
+  compilation of the Seed7 compiler on AlmaLinux 9 triggered a
+  segmentation fault.
+- In tim_win.c the function timAwait has been improved to always
+  raise RANGE_ERROR on february 29th of a non-leap-year. Many thanks
+  to Joe Thompson for pointing out that the chktime.sd7 test failed
+  with MinGW (gcc 8.1). The program chkccomp.c has been improved to
+  define the macro CHECK_NON_LEAP_YEAR_FEBRURARY_29 in version.h if
+  SystemTimeToFileTime() allows february 29th of a non-leap-year.
+- The file readjson.s7i with experimental functions to read JSON
+  files has been added. Thanks to Bruce Axtens for driving the
+  attention towards reading JSON.
+- The program make7 hase been improved to support commands enclosed
+  in backticks. The change has been made in cli_cmds.s7i.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - A heap corruption is avoided if the RHS (right hand side) of an
+    assignment changes the target variable. E.g.:
+      aVariable := changeParameter(aVariable);
+    This has been fixed for the types string, bstring, bigInteger,
+    bitset, array, clib_file, struct, window, pointList,
+    sqlStatement, interface, ref_list, process, program, and
+    database.
+  - The generated code to handle assignments has been improved in
+    arr_act.s7i, big_act.s7i, bst_act.s7i, drw_act.s7i, fil_act.s7i,
+    itf_act.s7i, pcs_act.s7i, pol_act.s7i, prg_act.s7i, rfl_act.s7i,
+    sct_act.s7i, set_act.s7i, sql_act.s7i and str_act.s7i.
+  - In inline.s7i the function process_inline_func() has been fixed
+    to define the result name. Now the inlining of a result
+    expression works correctly. A test for this has been added to
+    chkhsh.sd7 (function chkInlineHashKeys).
+  - Now the initialization of window constants assumes an identical
+    pixel encoding if the pixel masks are zero.
+  - The initialization of POLLOBJECT, REFLISTOBJECT, PROGOBJECT,
+    DATABASEOBJECT, SQLSTMTOBJECT objects has been improved.
+  - An explanation about the use of special actions for inlining
+    has been added to lib/comp/const.s7i.
+- Tests for an assignment where the RHS (right hand side) changes
+  the variable have been added to chkarr.sd7, chkbig.sd7,
+  chkbst.sd7, chkdb.sd7, chkfil.sd7, chkflt.sd7, chkint.sd7,
+  chkset.sd7 and chkstr.sd7. The program chk_all.sd7 has been
+  adjusted for these tests.
+- The graphic driver for the browser in drw_emc.c and gkb_emc.c has
+  been improved:
+  - The handling of the close button of a browser window (X) has
+    been improved. In case the browser decides to delete the window
+    immediately (without asking) the contents of the old window is
+    copied to a new window at the same location and KEY_CLOSE is
+    submitted to the program.
+  - In gkb_emc.c the variable closePopupStateList and the functions
+    getClosePopupState(), setClosePopupState(), isClosePopupActive()
+    and leavePageWasPressed() have been added. The functions
+    maintain the state after the close button (X) has been clicked
+    (the closePopupState).
+  - Documentation about the closePopupState has been added to
+    gkb_emc.c.
+  - The function decodeFocusEvent() has been added to gkb_emc.c.
+  - Now drwOpen and copyWindow search for the presence of the
+    JavaScript function registerWindow. If it is present, it is
+    invoked with the new window as parameter. The HTML page can
+    define registerWindow to maintain open windows. This way, the
+    HTML page can delete open windows.
+  - Now a local substitute window is opened if the browser does not
+    allow a new window (popup). This is done in the function
+    openSubstituteWindow().
+  - The elements is_substitute and parentWindow have been added to
+    the emc_winRecord struct.
+  - The functions windowExists, copyWindow, clickedWindowLeftPos
+    and clickedWindowTopPos have been added to drw_emc.c.
+  - The functions clickedXPos and clickedYPos have been improved to
+    work correctly in the browser.
+  - Freeing a window object in drwFree() now sets the entries in
+    mapIdToWindow, mapIdToCanvas and mapIdToContext to undefined
+    (before, they were set to null).
+  - In pre_js.js the strategy to determine the program name when
+    a program runs in the browser has been improved.
+- In keybd.s7i the deprecated functions getxpos() and getypos() have
+  been removed. The function clickedXPos() and clickedYPos() should
+  be used instead.
+- In unicode.s7i the deprecated functions striToUtf16be(),
+  striToUtf16le(), utf16beToStri(), utf16leToStri() and utf7ToStri()
+  have been removed. The functions toUtf16Be(), toUtf16Le(),
+  fromUtf16Be(), fromUtf16Le() and fromUtf7() should be used
+  instead.
+- The actions GKB_BUTTON_XPOS and GKB_BUTTON_YPOS have been renamed
+  to GKB_CLICKED_XPOS respectively GKB_CLICKED_YPOS. Changes have
+  been made in keybd.s7i, comp/action.s7i, comp/gkb_act.s7i,
+  primitiv.c, drwlib.h, drwlib.c, drw_drv.h, drw_dos.c, emc_utl.h,
+  emc_utl.c, gkb_emc.c, gkb_win.c and gkb_x11.c.
+- In kbd_inf.c and kbd_poll.c the functions kbdGetc() and
+  kbdInputReady() have been improved to call fflush(stdout).
+- The X11 function forwarding has been improved to allow direct use
+  of function pointers. Function forwarding is only used if the X11
+  libraries were missing at build time. The direct use of function
+  pointers can be activated by defining the macro
+  FORWARD_X11_FUNCTION_POINTERS. In this case, logging of X11
+  functions (that intermediate functions can do) is not possible.
+  These changes introduce the file fwd_x11.h.
+- In gkb_emc.c, gkb_win.c and gkb_x11.c the function
+  remove_window() has been improved to call hshExcl only if the
+  window_hash is not NULL.
+- In drw_emc.c, drw_win.c and drw_x11.c the function
+  getCloseAction() has been improved to check that actual_window
+  is not NULL.
+- In drw_win.c the function drwPut() has been improved to check for
+  RANGE_ERROR at one place.
+- Now the empty window is always a singleton. The function
+  generateEmptyWindow() has been introduced in drw_x11.c and
+  drw_emc.c. In drawInit() the singelton is generated with a call
+  of generateEmptyWindow().
+- The management of the usage counter (usage_count) for windows,
+  databases and sqlStatements has been improved. Now they are
+  permanent if the usage_count is 0. A usage_count of 0 will neither
+  increase nor decrease. Currently only the empty window is
+  permanent. The changes took place in gkb_emc.c, gkb_win.c,
+  gkb_x11.c, ref_data.c, sql_cli.c, sql_oci.c, sql_post.c and
+  sql_rtl.c.
+- The function determineTimeFunctionProperties() has been added to
+  chkccomp.c. This function checks if SystemTimeToFileTime() accepts
+  2001-02-29 (which does not exist).
+- The program chkccomp.c has been changed to always call
+  defineX11rgbToPixelMacro() if X11 is used. This function
+  determines the X11 pixel masks.
+- Now the program chkccomp.c defines in version.h that GLX uses an
+  absolute point list with an int size of 16-bits.
+- The makefile mk_emccl.mak has been improved to call node.js with
+  `which node`. Some make utilities trigger a "Permission denied"
+  error if node is called directly.
+- The logging in graphic drivers has been improved. Changes have
+  been made in drw_emc.c, drw_rtl.c, drw_win.c, drw_x11.c, drwlib.c,
+  gkb_emc.c, gkb_win.c and gkb_x11.c.
+- Logging functions have been added in arr_rtl.c, drwlib.c,
+  drw_rtl.c, drw_emc.c, drw_win.c, drw_x11.c, gkb_emc.c, gkb_win.c,
+  gkb_x11.c, pol_unx.c, ref_data.c and sql_rtl.c.
+
 20240301:
 - Many thanks to Neal Collins for correcting the handling of double
   quotes in toCsvLine and for fixing /./../ sequences in toAbsPath.
