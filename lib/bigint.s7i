@@ -796,40 +796,9 @@ const func bigInteger: modPow (in var bigInteger: base,
   end func;
 
 
-(**
- *  Determine the minimum of two ''bigInteger'' numbers.
- *  @return the minimum of the two numbers.
- *)
-const func bigInteger: min (in bigInteger: value1, in bigInteger: value2) is func
-  result
-    var bigInteger: minimum is 0_;
-  begin
-    if value1 < value2 then
-      minimum := value1;
-    else
-      minimum := value2;
-    end if;
-  end func;
-
-
-(**
- *  Determine the maximum of two ''bigInteger'' numbers.
- *  @return the maximum of the two numbers.
- *)
-const func bigInteger: max (in bigInteger: value1, in bigInteger: value2) is func
-  result
-    var bigInteger: maximum is 0_;
-  begin
-    if value1 > value2 then
-      maximum := value1;
-    else
-      maximum := value2;
-    end if;
-  end func;
-
-
 # Allows 'array bigInteger' everywhere without extra type definition.
 const type: _bigIntegerArray is array bigInteger;
 
 
 DECLARE_TERNARY(bigInteger);
+DECLARE_MIN_MAX(bigInteger);

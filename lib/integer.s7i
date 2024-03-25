@@ -615,20 +615,25 @@ const func integer: integer (in string: stri, in integer: base)  is forward;
 const func string: (in integer: number) sci (in integer: precision)  is forward;
 
 
+const proc: DECLARE_MIN_MAX (in type: aType) is func
+  begin
+
+    (**
+     *  Determine the minimum of two values.
+     *  @return the minimum of the two values.
+     *)
+    const func aType: min (in aType: value1, in aType: value2) is
+        return value1 < value2 ? value1 : value2;
+
+    (**
+     *  Determine the maximum of two values.
+     *  @return the maximum of the two values.
+     *)
+    const func aType: max (in aType: value1, in aType: value2) is
+        return value1 > value2 ? value1 : value2;
+
+  end func;
+
+
 DECLARE_TERNARY(integer);
-
-
-(**
- *  Determine the minimum of two ''integer'' numbers.
- *  @return the minimum of the two numbers.
- *)
-const func integer: min (in integer: value1, in integer: value2) is
-    return value1 < value2 ? value1 : value2;
-
-
-(**
- *  Determine the maximum of two ''integer'' numbers.
- *  @return the maximum of the two numbers.
- *)
-const func integer: max (in integer: value1, in integer: value2) is
-    return value1 > value2 ? value1 : value2;
+DECLARE_MIN_MAX(integer);

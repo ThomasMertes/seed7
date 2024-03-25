@@ -476,38 +476,6 @@ const func rational: round10 (in rational: number, in integer: precision) is fun
   end func;
 
 
-(**
- *  Determine the minimum of two ''rational'' numbers.
- *  @return the minimum of the two numbers.
- *)
-const func rational: min (in rational: value1, in rational: value2) is func
-  result
-    var rational: minimum is rational.value;
-  begin
-    if value1 < value2 then
-      minimum := value1;
-    else
-      minimum := value2;
-    end if;
-  end func;
-
-
-(**
- *  Determine the maximum of two ''rational'' numbers.
- *  @return the maximum of the two numbers.
- *)
-const func rational: max (in rational: value1, in rational: value2) is func
-  result
-    var rational: maximum is rational.value;
-  begin
-    if value1 > value2 then
-      maximum := value1;
-    else
-      maximum := value2;
-    end if;
-  end func;
-
-
 const type: INT_REMAINDER_HASH_TYPE is hash [integer] integer;
 
 
@@ -814,6 +782,7 @@ const func rational: (attr rational) parse (in string: stri) is
 
 enable_io(rational);
 DECLARE_TERNARY(rational);
+DECLARE_MIN_MAX(rational);
 
 
 # Allows 'array rational' everywhere without extra type definition.

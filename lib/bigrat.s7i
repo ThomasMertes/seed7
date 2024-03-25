@@ -461,38 +461,6 @@ const func bigRational: round10 (in bigRational: number, in integer: precision) 
   end func;
 
 
-(**
- *  Determine the minimum of two ''bigRational'' numbers.
- *  @return the minimum of the two numbers.
- *)
-const func bigRational: min (in bigRational: value1, in bigRational: value2) is func
-  result
-    var bigRational: minimum is bigRational.value;
-  begin
-    if value1 < value2 then
-      minimum := value1;
-    else
-      minimum := value2;
-    end if;
-  end func;
-
-
-(**
- *  Determine the maximum of two ''bigRational'' numbers.
- *  @return the maximum of the two numbers.
- *)
-const func bigRational: max (in bigRational: value1, in bigRational: value2) is func
-  result
-    var bigRational: maximum is bigRational.value;
-  begin
-    if value1 > value2 then
-      maximum := value1;
-    else
-      maximum := value2;
-    end if;
-  end func;
-
-
 const type: BIG_REMAINDER_HASH_TYPE is hash [bigInteger] integer;
 
 
@@ -807,6 +775,7 @@ const func bigRational: (attr bigRational) parse (in string: stri) is
 
 enable_io(bigRational);
 DECLARE_TERNARY(bigRational);
+DECLARE_MIN_MAX(bigRational);
 
 
 # Allows 'array bigRational' everywhere without extra type definition.
