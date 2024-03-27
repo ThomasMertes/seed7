@@ -2363,8 +2363,10 @@ void drwText (const_winType actual_window, intType x, intType y,
     memSizeType len;
 
   /* drwText */
-    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", ...)\n",
-                       (memSizeType) actual_window, x, y););
+    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", \"%s\", "
+                       F_X(08) ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       striAsUnquotedCStri(stri), col, bkcol););
     if (unlikely(!inIntRange(x) || !inIntRange(y) ||
                  stri->size >= (unsigned int) INT_MAX)) {
       raise_error(RANGE_ERROR);
