@@ -468,7 +468,7 @@ const func string: getSimpleStringLiteral (inout string: stri) is func
 const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string: symbol) is func
   local
     var integer: leng is 0;
-    var integer: backslashPos is 0;
+    var integer: semicolonPos is 0;
     var string: numberStri is "";
   begin
     leng := length(stri);
@@ -486,14 +486,18 @@ const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string
           incr(pos);
         end if;
       elsif stri[pos] in digit_char then
-        backslashPos := pos(stri, '\\', succ(pos));
-        numberStri := stri[pos .. pred(backslashPos)];
+        semicolonPos := pos(stri, ';', succ(pos));
+        if semicolonPos <> 0 then
+          numberStri := stri[pos .. pred(semicolonPos)];
+        else
+          numberStri := stri[pos ..];
+        end if;
         symbol &:= getNumber(numberStri);
         if numberStri = "" then
-          symbol &:= "\\";
-          pos := succ(backslashPos);
+          symbol &:= ";";
+          pos := succ(semicolonPos);
         else
-          pos := backslashPos - length(numberStri);
+          pos := semicolonPos - length(numberStri);
         end if;
       else
         symbol &:= stri[pos];
