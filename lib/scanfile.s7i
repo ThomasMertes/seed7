@@ -162,7 +162,6 @@ const proc: skipLineComment (inout file: inFile) is func
  *  it is assumed that the introducing character (e.g. '#') is in
  *  inFile.bufferChar. When the function is left the line end
  *  character ('\n' or [[char#EOF|EOF]]) is in inFile.bufferChar.
- *  A sequence of "\r\n" is interpreted as equal to '\n'.
  *  @return the content of the comment, including the start marker
  *          (e.g. '#') but without line end character ('\n', or
  *          [[char#EOF|EOF]]).
@@ -176,15 +175,8 @@ const func string: getLineComment (inout file: inFile) is func
     symbol := str(inFile.bufferChar);
     character := getc(inFile);
     while character <> '\n' and character <> EOF do
-      if character = '\r' then
-        character := getc(inFile);
-        if character <> '\n' then
-          symbol &:= '\r';
-        end if;
-      else
-        symbol &:= character;
-        character := getc(inFile);
-      end if;
+      symbol &:= character;
+      character := getc(inFile);
     end while;
     inFile.bufferChar := character;
   end func; # getLineComment
