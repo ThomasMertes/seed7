@@ -10064,6 +10064,59 @@ const func boolean: check_elem2 is func
   end func;
 
 
+const func boolean: check_elem3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    const bitset: set__64__63__2__1 is {-64, -63, -2, -1};
+    const bitset: set__64__63__1_0  is {-64, -63, -1,  0};
+    const bitset: set__64__63__1_1  is {-64, -63, -1,  1};
+    const bitset: set__64__63__1_63 is {-64, -63, -1, 63};
+    const bitset: set__64__63_0_1   is {-64, -63,  0,  1};
+    const bitset: set__1            is {-1};
+    const bitset: set__1_0_2_3      is {-1,  0,  2,  3};
+    const bitset: set__1_61_62_63   is {-1, 61, 62, 63};
+  begin
+    if      -1 not in set__64__63__2__1  or
+       not (-1     in set__64__63__2__1) or
+            -1 not in set__64__63__1_0   or
+       not (-1     in set__64__63__1_0)  or
+            -1 not in set__64__63__1_1   or
+       not (-1     in set__64__63__1_1)  or
+            -1 not in set__64__63__1_63  or
+       not (-1     in set__64__63__1_63) or
+       not (-1 not in set__64__63_0_1)   or
+            -1     in set__64__63_0_1    or
+            -1 not in set__1             or
+       not (-1     in set__1)            or
+            -1 not in set__1_0_2_3       or
+       not (-1     in set__1_0_2_3)      or
+            -1 not in set__1_61_62_63    or
+       not (-1     in set__1_61_62_63)   then
+      okay := FALSE;
+    end if;
+
+    if      intExpr(-1) not in set__64__63__2__1  or
+       not (intExpr(-1)     in set__64__63__2__1) or
+            intExpr(-1) not in set__64__63__1_0   or
+       not (intExpr(-1)     in set__64__63__1_0)  or
+            intExpr(-1) not in set__64__63__1_1   or
+       not (intExpr(-1)     in set__64__63__1_1)  or
+            intExpr(-1) not in set__64__63__1_63  or
+       not (intExpr(-1)     in set__64__63__1_63) or
+       not (intExpr(-1) not in set__64__63_0_1)   or
+            intExpr(-1)     in set__64__63_0_1    or
+            intExpr(-1) not in set__1             or
+       not (intExpr(-1)     in set__1)            or
+            intExpr(-1) not in set__1_0_2_3       or
+       not (intExpr(-1)     in set__1_0_2_3)      or
+            intExpr(-1) not in set__1_61_62_63    or
+       not (intExpr(-1)     in set__1_61_62_63)   then
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_elem_with_range_0_1 is func
   result
     var boolean: okay is TRUE;
@@ -10464,6 +10517,10 @@ const proc: check_elem is func
     end if;
 
     if not check_elem2 then
+      okay := FALSE;
+    end if;
+
+    if not check_elem3 then
       okay := FALSE;
     end if;
 
