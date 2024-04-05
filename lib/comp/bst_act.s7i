@@ -52,6 +52,7 @@ const proc: bst_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        bstDestr (const const_bstriType);");
     declareExtern(c_prog, "void        bstDestrGeneric (const genericType);");
     declareExtern(c_prog, "intType     bstHashCode (const const_bstriType);");
+    declareExtern(c_prog, "intType     bstHashCodeGeneric (const genericType);");
     declareExtern(c_prog, "bstriType   bstParse (const const_striType);");
     declareExtern(c_prog, "striType    bstStr (const const_bstriType);");
     declareExtern(c_prog, "bstriType   bstValue (const const_objRefType);");

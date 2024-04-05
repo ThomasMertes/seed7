@@ -116,6 +116,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  bigFromUInt64 (uint64Type);");
     declareExtern(c_prog, "bigIntType  bigGcd (const const_bigIntType, const const_bigIntType);");
     declareExtern(c_prog, "intType     bigHashCode (const const_bigIntType);");
+    declareExtern(c_prog, "intType     bigHashCodeGeneric (const genericType);");
     declareExtern(c_prog, "char       *bigHexCStri (const const_bigIntType);");
     declareExtern(c_prog, "void        bigIncr (bigIntType *const);");
     declareExtern(c_prog, "bigIntType  bigIPow (const const_bigIntType, intType);");

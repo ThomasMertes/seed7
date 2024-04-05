@@ -63,6 +63,7 @@ const proc: pcs_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "boolType    pcsEq (const const_processType, const const_processType);");
     declareExtern(c_prog, "intType     pcsExitValue (const const_processType);");
     declareExtern(c_prog, "intType     pcsHashCode (const const_bigIntType);");
+    declareExtern(c_prog, "intType     pcsHashCodeGeneric (const genericType);");
     declareExtern(c_prog, "boolType    pcsIsAlive (const processType);");
     declareExtern(c_prog, "void        pcsKill (const processType);");
     declareExtern(c_prog, "void        pcsPipe2 (const const_striType, const const_arrayType, fileType *, fileType *);");

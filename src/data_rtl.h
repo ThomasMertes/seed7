@@ -189,6 +189,7 @@ typedef struct rtlTimeStruct {
     rtlObjectType daylightSavingTime;
   } rtlTimeRecord;
 
+typedef intType (*hashCodeFuncType) (genericType);
 typedef intType (*compareType) (genericType, genericType);
 typedef genericType (*createFuncType) (genericType);
 typedef void (*destrFuncType) (genericType);

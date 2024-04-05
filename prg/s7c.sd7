@@ -3028,6 +3028,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bigCreateGeneric";
     elsif action_name = "BIG_DESTR" then
       c_expr.expr &:= "&bigDestrGeneric";
+    elsif action_name = "BIG_HASHCODE" then
+      c_expr.expr &:= "&bigHashCodeGeneric";
     elsif action_name = "BIN_CMP" then
       c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "BLN_CPY" then
@@ -3042,12 +3044,16 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bstCreateGeneric";
     elsif action_name = "BST_DESTR" then
       c_expr.expr &:= "&bstDestrGeneric";
+    elsif action_name = "BST_HASHCODE" then
+      c_expr.expr &:= "&bstHashCodeGeneric";
     elsif action_name = "CHR_CMP" then
       c_expr.expr &:= "&chrCmpGeneric";
     elsif action_name = "CHR_CPY" then
       c_expr.expr &:= "&genericCpy";
     elsif action_name = "CHR_CREATE" then
       c_expr.expr &:= "&genericCreate";
+    elsif action_name = "CHR_HASHCODE" then
+      c_expr.expr &:= "&genericHashCode";
     elsif action_name = "DRW_CMP" then
       c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "DRW_CPY" then
@@ -3056,6 +3062,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&drwCreateGeneric";
     elsif action_name = "DRW_DESTR" then
       c_expr.expr &:= "&drwDestrGeneric";
+    elsif action_name = "DRW_HASHCODE" then
+      c_expr.expr &:= "&ptrHashCodeGeneric";
     elsif action_name = "ENU_CPY" then
       c_expr.expr &:= "&genericCpy";
     elsif action_name = "ENU_CREATE" then
@@ -3072,6 +3080,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&fltCpyGeneric";
     elsif action_name = "FLT_CREATE" then
       c_expr.expr &:= "&genericCreate";
+    elsif action_name = "FLT_HASHCODE" then
+      c_expr.expr &:= "&genericHashCode";
     elsif action_name = "GEN_DESTR" then
       c_expr.expr &:= "&genericDestr";
     elsif action_name = "INT_CMP" then
@@ -3080,6 +3090,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&genericCpy";
     elsif action_name = "INT_CREATE" then
       c_expr.expr &:= "&genericCreate";
+    elsif action_name = "INT_HASHCODE" then
+      c_expr.expr &:= "&genericHashCode";
     elsif action_name = "ITF_CMP" then
       c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "ITF_CPY" then
@@ -3094,6 +3106,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       process_generic_destr_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
+    elsif action_name = "ITF_HASHCODE" then
+      c_expr.expr &:= "&ptrHashCodeGeneric";
     elsif action_name = "PCS_CMP" then
       c_expr.expr &:= "&pcsCmpGeneric";
     elsif action_name = "PCS_CPY" then
@@ -3102,6 +3116,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&pcsCreateGeneric";
     elsif action_name = "PCS_DESTR" then
       c_expr.expr &:= "&pcsDestrGeneric";
+    elsif action_name = "PCS_HASHCODE" then
+      c_expr.expr &:= "&pcsHashCodeGeneric";
     elsif action_name = "PLT_CMP" then
       c_expr.expr &:= "&bstCmpGeneric";
     elsif action_name = "PLT_CPY" then
@@ -3110,6 +3126,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bstCreateGeneric";
     elsif action_name = "PLT_DESTR" then
       c_expr.expr &:= "&bstDestrGeneric";
+    elsif action_name = "PLT_HASHCODE" then
+      c_expr.expr &:= "&bstHashCodeGeneric";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
     elsif action_name = "REF_CMP" then
@@ -3118,6 +3136,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&ptrCpyGeneric";
     elsif action_name = "REF_CREATE" then
       c_expr.expr &:= "&ptrCreateGeneric";
+    elsif action_name = "REF_HASHCODE" then
+      c_expr.expr &:= "&ptrHashCodeGeneric";
     elsif action_name = "RFL_CMP" then
       c_expr.expr &:= "&rflCmpGeneric";
     elsif action_name = "RFL_CPY" then
@@ -3150,6 +3170,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&setCreateGeneric";
     elsif action_name = "SET_DESTR" then
       c_expr.expr &:= "&setDestrGeneric";
+    elsif action_name = "SET_HASHCODE" then
+      c_expr.expr &:= "&setHashCodeGeneric";
     elsif action_name = "SQL_CMP_DB" then
       c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "SQL_CPY_DB" then
@@ -3174,6 +3196,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&strCreateGeneric";
     elsif action_name = "STR_DESTR" then
       c_expr.expr &:= "&strDestrGeneric";
+    elsif action_name = "STR_HASHCODE" then
+      c_expr.expr &:= "&strHashCodeGeneric";
     elsif action_name = "TYP_CMP" then
       c_expr.expr &:= "&typCmpGeneric";
     elsif action_name = "TYP_CPY" then
@@ -3182,6 +3206,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&ptrCreateGeneric";
     elsif action_name = "TYP_DESTR" then
       c_expr.expr &:= "&genericDestr";
+    elsif action_name = "TYP_HASHCODE" then
+      c_expr.expr &:= "&ptrHashCodeGeneric";
     else
       c_expr.expr &:= "NULL /* ACTOBJECT { ";
       c_expr.expr &:= action_name;
@@ -5532,6 +5558,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  uint64Type bits;");
     writeln(c_prog, "  double aDouble;");
     writeln(c_prog, "} double2BitsUnion;");
+    writeln(c_prog, "typedef intType (*hashCodeFuncType) (genericType);");
     writeln(c_prog, "typedef intType (*compareType) (genericType, genericType);");
     writeln(c_prog, "typedef genericType (*createFuncType) (genericType);");
     writeln(c_prog, "typedef void (*destrFuncType) (genericType);");
@@ -5751,10 +5778,12 @@ const proc: write_prototypes is func
     declareExtern("void        genericCpy (genericType *const, const genericType);");
     declareExtern("genericType genericCreate (genericType);");
     declareExtern("void        genericDestr (genericType);");
+    declareExtern("intType     genericHashCode (genericType);");
     declareExtern("intType     ptrCmp (const void *const, const void *const);");
     declareExtern("intType     ptrCmpGeneric (const genericType, const genericType);");
     declareExtern("void        ptrCpyGeneric (genericType *const, const genericType);");
     declareExtern("genericType ptrCreateGeneric (const genericType);");
+    declareExtern("intType     ptrHashCodeGeneric (const genericType);");
     writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
     declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
     declareExtern("void        triggerSigfpe (void);");
