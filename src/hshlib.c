@@ -99,6 +99,9 @@ static void free_hash (hashType old_hash, objectType key_destr_func,
     hashElemType *table;
 
   /* free_hash */
+    logFunction(printf("free_hash(" FMT_X_MEM " (size=" FMT_U_MEM "), ...)\n",
+                       (memSizeType) old_hash,
+                       old_hash == NULL ? 0 : old_hash->size););
     if (old_hash != NULL) {
       to_free = old_hash->size;
       if (to_free != 0) {
@@ -113,6 +116,7 @@ static void free_hash (hashType old_hash, objectType key_destr_func,
       } /* if */
       FREE_HASH(old_hash, old_hash->table_size);
     } /* if */
+    logFunction(printf("free_hash -->\n"););
   } /* free_hash */
 
 
@@ -952,7 +956,7 @@ objectType hsh_idx (listType arguments)
       } /* if */
     } /* while */
     if (unlikely(result_hashelem == NULL)) {
-      logError(printf("hsh_idx(" FMT_X_MEM ", " FMT_U_MEM ", " FMT_U "): "
+      logError(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode););
       result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
@@ -1237,7 +1241,7 @@ objectType hsh_rand_key (listType arguments)
   /* hsh_rand_key */
     isit_hash(arg_1(arguments));
     aHashMap = take_hash(arg_1(arguments));
-    logFunction(printf("hsh_rand_key(" FMT_U_MEM ")\n",
+    logFunction(printf("hsh_rand_key(" FMT_X_MEM ")\n",
                        (memSizeType) aHashMap););
     num_elements = aHashMap->size;
     /* printf("num_elements " FMT_U_MEM "\n", num_elements); */
@@ -1270,7 +1274,7 @@ objectType hsh_rand_key (listType arguments)
         result = &hash_elem->key;
       } /* if */
     } /* if */
-    logFunction(printf("hsh_rand_key --> " FMT_U_MEM "\n",
+    logFunction(printf("hsh_rand_key --> " FMT_X_MEM "\n",
                        (memSizeType) result););
     return result;
   } /* hsh_rand_key */
