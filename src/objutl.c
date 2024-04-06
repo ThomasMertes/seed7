@@ -346,6 +346,25 @@ objectType bld_hash_temp (hashType temp_hash)
 
 
 
+objectType bld_hashelem_temp (hashElemType temp_hashelem)
+
+  {
+    register objectType result;
+
+  /* bld_hashelem_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, HASHELEMOBJECT);
+      result->value.hashElemValue = temp_hashelem;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_hashelem_temp */
+
+
+
 objectType bld_int_temp (intType temp_int)
 
   {
@@ -730,6 +749,21 @@ void dump_temp_value (objectType object)
         break;
       case HASHOBJECT:
         if (object->value.hashValue != NULL) {
+#ifdef TRACE_DUMP_TEMP_VALUE
+          if (trace.actions) {
+            prot_cstri("before do_destroy: ");
+            trace1(object);
+            prot_nl();
+          } /* if */
+#endif
+          CLEAR_TEMP_FLAG(object);
+          do_destroy(object, &err_info);
+        } else {
+          SET_UNUSED_FLAG(object);
+        } /* if */
+        break;
+      case HASHELEMOBJECT:
+        if (object->value.hashElemValue != NULL) {
 #ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");

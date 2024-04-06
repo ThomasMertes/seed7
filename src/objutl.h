@@ -51,6 +51,7 @@
 #define take_file(arg)      (arg)->value.fileValue
 #define take_float(arg)     (arg)->value.floatValue
 #define take_hash(arg)      (arg)->value.hashValue
+#define take_hashelem(arg)  (arg)->value.hashElemValue
 #define take_int(arg)       (arg)->value.intValue
 #define take_interface(arg) (CATEGORY_OF_OBJ(arg) == INTERFACEOBJECT ? (arg)->value.objValue : (arg))
 #define take_bigint(arg)    (arg)->value.bigIntValue
@@ -100,6 +101,8 @@
 #define isit_float(arg)     hasCategory(arg, FLOATOBJECT)
 #define isit_hash(arg)      hasCategory(arg, HASHOBJECT); \
                             if (unlikely(take_hash(arg) == NULL))       { empty_value(arg); return NULL; }
+#define isit_hashelem(arg)  hasCategory(arg, HASHELEMOBJECT); \
+                            if (unlikely(take_hashelem(arg) == NULL))   { empty_value(arg); return NULL; }
 #define isit_int(arg)       hasCategory(arg, INTOBJECT)
 /*      isit_list(arg)      */
 #define isit_param(arg)     hasCategory(arg, FORMPARAMOBJECT)
@@ -142,6 +145,7 @@
 #define isit_file(arg)
 #define isit_float(arg)
 #define isit_hash(arg)
+#define isit_hashelem(arg)
 #define isit_int(arg)
 #define isit_list(arg)
 #define isit_param(arg)
@@ -181,6 +185,7 @@ void isit_enum (objectType argument);
 /* void isit_float (objectType argument); */
 #endif
 /* void isit_hash (objectType argument); */
+/* void isit_hashelem (objectType argument); */
 /* void isit_int (objectType argument); */
 void isit_list (objectType argument);
 /* void isit_proc (objectType argument); */
@@ -208,6 +213,7 @@ objectType bld_interface_temp (objectType temp_interface);
 objectType bld_file_temp (fileType temp_file);
 objectType bld_float_temp (double temp_float);
 objectType bld_hash_temp (hashType temp_hash);
+objectType bld_hashelem_temp (hashElemType temp_hashelem);
 objectType bld_int_temp (intType temp_int);
 objectType bld_list_temp (listType temp_list);
 objectType bld_param_temp (objectType temp_param);

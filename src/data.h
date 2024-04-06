@@ -53,6 +53,7 @@ typedef enum {
     BSTRIOBJECT,         /* bstriValue -  byte string               */
     ARRAYOBJECT,         /* arrayValue -  array                     */
     HASHOBJECT,          /* hashValue -   hash                      */
+    HASHELEMOBJECT,      /* hashElemValue - hash table element      */
     STRUCTOBJECT,        /* structValue - struct                    */
     CLASSOBJECT,         /* structValue - struct                    */
     INTERFACEOBJECT,     /* objValue -    Dynamic Object            */
@@ -205,6 +206,7 @@ typedef union {
     bstriType    bstriValue;    /* BSTRIOBJECT, POINTLISTOBJECT */
     arrayType    arrayValue;    /* ARRAYOBJECT */
     hashType     hashValue;     /* HASHOBJECT */
+    hashElemType hashElemValue; /* HASHELEMOBJECT */
     setType      setValue;      /* SETOBJECT */
     structType   structValue;   /* STRUCTOBJECT */
     uintType     binaryValue;   /* INTOBJECT */

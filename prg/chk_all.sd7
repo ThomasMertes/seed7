@@ -405,7 +405,8 @@ const string: chkhsh_output is "\n\
   \The keys function for hash tables works correctly.\n\
   \The values function for hash tables works correctly.\n\
   \The for loop for hash tables works correctly.\n\
-  \The assignment of a hash variable to itself works correctly.\n";
+  \The assignment of a hash variable to itself works correctly.\n\
+  \Hash literals work correctly.\n";
 
 const string: chkfil_output is "\n\
   \Open a file does work correctly.\n\

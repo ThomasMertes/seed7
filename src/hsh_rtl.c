@@ -473,6 +473,42 @@ static void dump_hash (const const_rtlHashType curr_hash)
 
 
 
+rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
+    rtlHashElemType element2)
+
+  {
+    rtlHashElemType lastElement1;
+    rtlHashElemType lastElement2;
+
+  /* hshConcatKeyValue */
+    logFunction(printf("hshConcatKeyValue(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) element1, (memSizeType) element2););
+    /* The concatenation uses the pointers of a hash element in a   */
+    /* special way. This allows the creation of hash element lists. */
+    /* next_greater ... Pointer to the next element in the list.    */
+    /* next_less    ... Pointer to the last element of the list.    */
+    /* Next_less is only set in the first element of the list.      */
+    /* In all other elements next_less is NULL.                     */
+    if (element1->next_less != NULL) {
+      lastElement1 = element1->next_less;
+    } else {
+      lastElement1 = element1;
+    } /* if */
+    if (element2->next_less != NULL) {
+      lastElement2 = element2->next_less;
+      element2->next_less = NULL;
+    } else {
+      lastElement2 = element2;
+    } /* if */
+    lastElement1->next_greater = element2;
+    element1->next_less = lastElement2;
+    logFunction(printf("hshConcatKeyValue --> " FMT_X_MEM "\n",
+                       (memSizeType) element1););
+    return element1;
+  } /* hshConcatKeyValue */
+
+
+
 /**
  *  Hash membership test.
  *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
@@ -673,6 +709,101 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
                        FMT_U ") size=" FMT_U_MEM " -->\n",
                        (memSizeType) aHashMap, aKey, hashcode, aHashMap->size););
   } /* hshExcl */
+
+
+
+rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
+    const hashCodeFuncType key_hash_code_func, compareType cmp_func,
+    const destrFuncType key_destr_func, const destrFuncType data_destr_func)
+
+  {
+    rtlHashElemType currentKeyValue;
+    unsigned int hashCode;
+    rtlHashElemType hashElem;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlHashType aHashMap;
+
+  /* hshGenHash */
+    logFunction(printf("hshGenHash(" FMT_X_MEM ", ...)\n",
+                       (memSizeType) keyValuePairs););
+    aHashMap = new_hash(TABLE_BITS);
+    if (unlikely(aHashMap == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      while (keyValuePairs != NULL) {
+        currentKeyValue = keyValuePairs;
+        keyValuePairs = keyValuePairs->next_greater;
+        currentKeyValue->next_less = NULL;
+        currentKeyValue->next_greater = NULL;
+        hashCode = (unsigned int) key_hash_code_func(
+            currentKeyValue->key.value.genericValue);
+        hashElem = aHashMap->table[hashCode & aHashMap->mask];
+        if (hashElem == NULL) {
+          aHashMap->table[hashCode & aHashMap->mask] = currentKeyValue;
+          aHashMap->size++;
+        } else {
+          do {
+            cmp = cmp_func(hashElem->key.value.genericValue,
+                           currentKeyValue->key.value.genericValue);
+            if (cmp < 0) {
+              if (hashElem->next_less == NULL) {
+                hashElem->next_less = currentKeyValue;
+                aHashMap->size++;
+                hashElem = NULL;
+              } else {
+                hashElem = hashElem->next_less;
+              } /* if */
+            } else if (cmp == 0) {
+              logError(printf("hshGenHash: A key is used twice.\n"););
+              key_destr_func(currentKeyValue->key.value.genericValue);
+              data_destr_func(currentKeyValue->data.value.genericValue);
+              FREE_RECORD(currentKeyValue, rtlHashElemRecord, count.rtl_helem);
+              err_info = RANGE_ERROR;
+              hashElem = NULL;
+            } else {
+              if (hashElem->next_greater == NULL) {
+                hashElem->next_greater = currentKeyValue;
+                aHashMap->size++;
+                hashElem = NULL;
+              } else {
+                hashElem = hashElem->next_greater;
+              } /* if */
+            } /* if */
+          } while (hashElem != NULL);
+        } /* if */
+      } /* while */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        free_hash(aHashMap, key_destr_func, data_destr_func);
+        raise_error(err_info);
+        aHashMap = NULL;
+      } /* if */
+    } /* if */
+    return aHashMap;
+  } /* hshGenHash */
+
+
+
+rtlHashElemType hshGenKeyValue (const genericType aKey, const genericType aValue)
+
+  {
+    rtlHashElemType keyValue;
+
+  /* hshGenKeyValue */
+    logFunction(printf("hshGenKeyValue(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) aKey, (memSizeType) aValue););
+    if (unlikely(!ALLOC_RECORD(keyValue, rtlHashElemRecord, count.rtl_helem))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      keyValue->next_less = NULL;
+      keyValue->next_greater = NULL;
+      keyValue->key.value.genericValue = aKey;
+      keyValue->data.value.genericValue = aValue;
+    } /* if */
+    logFunction(printf("hshGenKeyValue --> " FMT_X_MEM ")\n",
+                       (memSizeType) keyValue););
+    return keyValue;
+  } /* hshGenKeyValue */
 
 
 

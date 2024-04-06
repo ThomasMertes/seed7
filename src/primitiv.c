@@ -544,6 +544,7 @@ static const actEntryRecord actEntryTable[] = {
     { "GKB_WORD_READ",                gkb_word_read,                },
 #endif
 
+    { "HSH_CONCAT_KEY_VALUE",         hsh_concat_key_value,         },
     { "HSH_CONTAINS",                 hsh_contains,                 },
     { "HSH_CPY",                      hsh_cpy,                      },
     { "HSH_CREATE",                   hsh_create,                   },
@@ -553,6 +554,8 @@ static const actEntryRecord actEntryTable[] = {
     { "HSH_FOR",                      hsh_for,                      },
     { "HSH_FOR_DATA_KEY",             hsh_for_data_key,             },
     { "HSH_FOR_KEY",                  hsh_for_key,                  },
+    { "HSH_GEN_HASH",                 hsh_gen_hash,                 },
+    { "HSH_GEN_KEY_VALUE",            hsh_gen_key_value,            },
     { "HSH_IDX",                      hsh_idx,                      },
     { "HSH_IDX2",                     hsh_idx2,                     },
     { "HSH_INCL",                     hsh_incl,                     },

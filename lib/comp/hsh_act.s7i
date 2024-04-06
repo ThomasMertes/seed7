@@ -24,33 +24,39 @@
 (********************************************************************)
 
 
-const ACTION: HSH_CONTAINS      is action "HSH_CONTAINS";
-const ACTION: HSH_CPY           is action "HSH_CPY";
-const ACTION: HSH_CREATE        is action "HSH_CREATE";
-const ACTION: HSH_DESTR         is action "HSH_DESTR";
-const ACTION: HSH_EXCL          is action "HSH_EXCL";
-const ACTION: HSH_FOR           is action "HSH_FOR";
-const ACTION: HSH_FOR_DATA_KEY  is action "HSH_FOR_DATA_KEY";
-const ACTION: HSH_FOR_KEY       is action "HSH_FOR_KEY";
-const ACTION: HSH_IDX           is action "HSH_IDX";
-const ACTION: HSH_IDX2          is action "HSH_IDX2";
-const ACTION: HSH_INCL          is action "HSH_INCL";
-const ACTION: HSH_KEYS          is action "HSH_KEYS";
-const ACTION: HSH_LNG           is action "HSH_LNG";
-const ACTION: HSH_RAND_KEY      is action "HSH_RAND_KEY";
-const ACTION: HSH_UPDATE        is action "HSH_UPDATE";
-const ACTION: HSH_VALUES        is action "HSH_VALUES";
+const ACTION: HSH_CONCAT_KEY_VALUE is action "HSH_CONCAT_KEY_VALUE";
+const ACTION: HSH_CONTAINS         is action "HSH_CONTAINS";
+const ACTION: HSH_CPY              is action "HSH_CPY";
+const ACTION: HSH_CREATE           is action "HSH_CREATE";
+const ACTION: HSH_DESTR            is action "HSH_DESTR";
+const ACTION: HSH_EXCL             is action "HSH_EXCL";
+const ACTION: HSH_FOR              is action "HSH_FOR";
+const ACTION: HSH_FOR_DATA_KEY     is action "HSH_FOR_DATA_KEY";
+const ACTION: HSH_FOR_KEY          is action "HSH_FOR_KEY";
+const ACTION: HSH_GEN_HASH         is action "HSH_GEN_HASH";
+const ACTION: HSH_GEN_KEY_VALUE    is action "HSH_GEN_KEY_VALUE";
+const ACTION: HSH_IDX              is action "HSH_IDX";
+const ACTION: HSH_IDX2             is action "HSH_IDX2";
+const ACTION: HSH_INCL             is action "HSH_INCL";
+const ACTION: HSH_KEYS             is action "HSH_KEYS";
+const ACTION: HSH_LNG              is action "HSH_LNG";
+const ACTION: HSH_RAND_KEY         is action "HSH_RAND_KEY";
+const ACTION: HSH_UPDATE           is action "HSH_UPDATE";
+const ACTION: HSH_VALUES           is action "HSH_VALUES";
 
 
 const proc: hsh_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "hashElemType hshConcatKeyValue (hashElemType, hashElemType);");
     declareExtern(c_prog, "boolType    hshContains (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "void        hshCpy (hashType *const, const const_hashType, const createFuncType, const destrFuncType, const createFuncType, const destrFuncType);");
     declareExtern(c_prog, "hashType    hshCreate (const const_hashType, const createFuncType, const destrFuncType, const createFuncType, const destrFuncType);");
     declareExtern(c_prog, "void        hshDestr (const const_hashType, const destrFuncType, const destrFuncType);");
     declareExtern(c_prog, "hashType    hshEmpty (void);");
     declareExtern(c_prog, "void        hshExcl (const hashType, const genericType, intType, compareType, const destrFuncType, const destrFuncType);");
+    declareExtern(c_prog, "hashType    hshGenHash (hashElemType, const hashCodeFuncType, compareType, const destrFuncType, const destrFuncType);");
+    declareExtern(c_prog, "hashElemType hshGenKeyValue (const genericType, const genericType);");
     declareExtern(c_prog, "genericType hshIdx (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "rtlObjectType *hshIdxAddr (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "rtlObjectType *hshIdxAddr2 (const const_hashType, const genericType, intType, compareType);");
@@ -59,6 +65,19 @@ const proc: hsh_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "const_hashElemType hshRand (const const_hashType);");
     declareExtern(c_prog, "genericType hshUpdate (const hashType, const genericType, const genericType, intType, compareType, const createFuncType, const createFuncType);");
     declareExtern(c_prog, "arrayType   hshValues (const const_hashType, const createFuncType, const destrFuncType);");
+  end func;
+
+
+const proc: process (HSH_CONCAT_KEY_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "hshConcatKeyValue(";
+    getTemporaryToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ",\n";
+    getTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -446,6 +465,42 @@ const proc: process (HSH_FOR_KEY, in reference: function,
   begin
     declare_func_pointer_if_necessary(params[4], global_c_expr);
     process_hsh_for_generic(NIL, params[1], params[2], params[3], NIL, params[4], c_expr);
+  end func;
+
+
+const proc: process (HSH_GEN_HASH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[2], global_c_expr);
+    declare_func_pointer_if_necessary(params[3], global_c_expr);
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "hshGenHash(";
+    getTemporaryToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ",\n(hashCodeFuncType)(";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "), (compareType)(";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= "), (destrFuncType)(";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= "), (destrFuncType)(";
+    getAnyParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (HSH_GEN_KEY_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "hshGenKeyValue((genericType)(";
+    getGenericTemporaryToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "), (genericType)(";
+    getGenericTemporaryToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= "))";
   end func;
 
 

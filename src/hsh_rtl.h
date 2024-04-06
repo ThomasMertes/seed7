@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
+                                   rtlHashElemType element2);
 boolType hshContains (const const_rtlHashType hash1,
                       const genericType key, intType hashcode,
                       compareType cmp_func);
@@ -46,6 +48,11 @@ rtlHashType hshEmpty (void);
 void hshExcl (const rtlHashType hash1, const genericType key,
               intType hashcode, compareType cmp_func,
               const destrFuncType key_destr_func, const destrFuncType data_destr_func);
+rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
+                        const hashCodeFuncType key_hash_code_func, compareType cmp_func,
+                        const destrFuncType key_destr_func,
+                        const destrFuncType data_destr_func);
+rtlHashElemType hshGenKeyValue (const genericType aKey, const genericType aValue);
 genericType hshIdx (const const_rtlHashType hash1,
                        const genericType key, intType hashcode,
                        compareType cmp_func);

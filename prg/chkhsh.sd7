@@ -248,6 +248,29 @@ const type: enumTypeReferenceHash   is hash [enumerationType] reference;
 const type: enumTypeHashHash        is hash [enumerationType] enumTypeBooleanHash;
 
 
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
+  begin
+
+    const func boolean: raisesRangeError (in func aType: expression) is func
+      result
+        var boolean: raisesRangeError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch RANGE_ERROR:
+            raisesRangeError := TRUE;
+        end block;
+      end func;
+
+  end func;
+
+
+DECLARE_RAISES_RANGE_ERROR(stringIntegerHash);
+
+
 const proc: chkBooleanHash is func
   local
     var boolean: okay is TRUE;
@@ -3452,6 +3475,114 @@ const proc: chkAssignmentToItself is func
   end func;
 
 
+const proc: chkHashLiteral is func
+  local
+    var boolean: okay is TRUE;
+    var stringIntegerHash:  stringIntegerHashVar1  is [] (["one" : 1]);
+    var stringFloatHash:    stringFloatHashVar1    is [] (["one" : 1.0]);
+    var stringStringHash:   stringStringHashVar1   is [] (["one" : "1"]);
+    var stringIntegerHash:  stringIntegerHashVar2  is [] (["one" : 1], ["two" : 2]);
+    var stringFloatHash:    stringFloatHashVar2    is [] (["one" : 1.0], ["two" : 2.0]);
+    var stringStringHash:   stringStringHashVar2   is [] (["one" : "1"], ["two" : "2"]);
+    var stringIntegerHash:  stringIntegerHashVar3  is [] (["one" : 1], ["two" : 2], ["three" : 3]);
+    var stringFloatHash:    stringFloatHashVar3    is [] (["one" : 1.0], ["two" : 2.0], ["three" : 3.0]);
+    var stringStringHash:   stringStringHashVar3   is [] (["one" : "1"], ["two" : "2"], ["three" : "3"]);
+    var stringIntegerHash:  stringIntegerHashVar4  is [] (["one" : 1], ["two" : 2], (["three" : 3], ["four" : 4]));
+    var stringFloatHash:    stringFloatHashVar4    is [] (["one" : 1.0], ["two" : 2.0], (["three" : 3.0], ["four" : 4.0]));
+    var stringStringHash:   stringStringHashVar4   is [] (["one" : "1"], ["two" : "2"], (["three" : "3"], ["four" : "4"]));
+    var complexStringHash:  complexStringHashVar1  is [] ([complex(1.0, 1.0) : "one"]);
+    var complexStringHash:  complexStringHashVar2  is [] ([complex(1.0, 1.0) : "one"], [complex(2.0, 2.0) : "two"]);
+    var complexStringHash:  complexStringHashVar3  is [] ([complex(1.0, 1.0) : "one"], [complex(2.0, 2.0) : "two"], [complex(3.0, 3.0) : "three"]);
+    var complexComplexHash: complexComplexHashVar1 is [] ([complex(1.0, 1.0) : complex(1.0, -1.0)]);
+    var complexComplexHash: complexComplexHashVar2 is [] ([complex(1.0, 1.0) : complex(1.0, -1.0)], [complex(2.0, 2.0) : complex(2.0, -2.0)]);
+  begin
+    if  length(stringIntegerHashVar1) <> 1 or
+        length(stringFloatHashVar1)   <> 1 or
+        length(stringStringHashVar1)  <> 1 or
+        stringIntegerHashVar1["one"] <> 1 or
+        stringFloatHashVar1["one"]   <> 1.0 or
+        stringStringHashVar1["one"]  <> "1" or
+        stringIntegerHashVar1 <> [] (["one" : 1]) or
+        stringFloatHashVar1   <> [] (["one" : 1.0]) or
+        stringStringHashVar1  <> [] (["one" : "1"]) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (1)");
+    end if;
+    if  length(stringIntegerHashVar2) <> 2 or
+        length(stringFloatHashVar2)   <> 2 or
+        length(stringStringHashVar2)  <> 2 or
+        stringIntegerHashVar2["one"] <> 1 or
+        stringIntegerHashVar2["two"] <> 2 or
+        stringFloatHashVar2["one"] <> 1.0 or
+        stringFloatHashVar2["two"] <> 2.0 or
+        stringStringHashVar2["one"] <> "1" or
+        stringStringHashVar2["two"] <> "2" or
+        stringIntegerHashVar2 <> [] (["one" : 1], ["two" : 2]) or
+        stringFloatHashVar2   <> [] (["one" : 1.0], ["two" : 2.0]) or
+        stringStringHashVar2  <> [] (["one" : "1"], ["two" : "2"]) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (2)");
+    end if;
+    if  length(stringIntegerHashVar3) <> 3 or
+        length(stringFloatHashVar3)   <> 3 or
+        length(stringStringHashVar3)  <> 3 or
+        stringIntegerHashVar3["one"]   <> 1 or
+        stringIntegerHashVar3["two"]   <> 2 or
+        stringIntegerHashVar3["three"] <> 3 or
+        stringFloatHashVar3["one"]   <> 1.0 or
+        stringFloatHashVar3["two"]   <> 2.0 or
+        stringFloatHashVar3["three"] <> 3.0 or
+        stringStringHashVar3["one"]   <> "1" or
+        stringStringHashVar3["two"]   <> "2" or
+        stringStringHashVar3["three"] <> "3" or
+        stringIntegerHashVar3 <> [] (["one" : 1], ["two" : 2], ["three" : 3]) or
+        stringFloatHashVar3   <> [] (["one" : 1.0], ["two" : 2.0], ["three" : 3.0]) or
+        stringStringHashVar3  <> [] (["one" : "1"], ["two" : "2"], ["three" : "3"]) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (3)");
+    end if;
+    if  length(stringIntegerHashVar4) <> 4 or
+        length(stringFloatHashVar4)   <> 4 or
+        length(stringStringHashVar4)  <> 4 or
+        stringIntegerHashVar4["one"]   <> 1 or
+        stringIntegerHashVar4["two"]   <> 2 or
+        stringIntegerHashVar4["three"] <> 3 or
+        stringIntegerHashVar4["four"]  <> 4 or
+        stringFloatHashVar4["one"]   <> 1.0 or
+        stringFloatHashVar4["two"]   <> 2.0 or
+        stringFloatHashVar4["three"] <> 3.0 or
+        stringFloatHashVar4["four"]  <> 4.0 or
+        stringStringHashVar4["one"]   <> "1" or
+        stringStringHashVar4["two"]   <> "2" or
+        stringStringHashVar4["three"] <> "3" or
+        stringStringHashVar4["four"]  <> "4" or
+        stringIntegerHashVar4 <> [] (["one" : 1], ["two" : 2], (["three" : 3], ["four" : 4])) or
+        stringFloatHashVar4   <> [] (["one" : 1.0], ["two" : 2.0], (["three" : 3.0], ["four" : 4.0])) or
+        stringStringHashVar4  <> [] (["one" : "1"], ["two" : "2"], (["three" : "3"], ["four" : "4"])) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (4)");
+    end if;
+    if  complexStringHashVar1 <> [] ([complex(1.0, 1.0) : "one"]) or
+        complexStringHashVar2 <> [] ([complex(1.0, 1.0) : "one"], [complex(2.0, 2.0) : "two"]) or
+        complexStringHashVar3 <> [] ([complex(1.0, 1.0) : "one"], [complex(2.0, 2.0) : "two"], [complex(3.0, 3.0) : "three"]) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (5)");
+    end if;
+    if  complexComplexHashVar1 <> [] ([complex(1.0, 1.0) : complex(1.0, -1.0)]) or
+        complexComplexHashVar2 <> [] ([complex(1.0, 1.0) : complex(1.0, -1.0)], [complex(2.0, 2.0) : complex(2.0, -2.0)]) then
+      okay := FALSE;
+      writeln(" ***** Hash literals do not work correctly. (6)");
+    end if;
+    if  not raisesRangeError([] (["one" : 1], ["one" : -1])) then
+      okay := FALSE;
+      writeln(" ***** Hash literals with double keys do not raise RANGE_ERROR.");
+    end if;
+    if okay then
+      writeln("Hash literals work correctly.");
+    end if;
+  end func;
+
+
 const type: win_table_hash is hash [PRIMITIVE_WINDOW] integer;
 const type: win_index_hash is hash [integer] array PRIMITIVE_WINDOW;
 
@@ -3492,5 +3623,6 @@ const proc: main is func
     chkValuesFunction;
     chkForLoop;
     chkAssignmentToItself;
+    chkHashLiteral;
     chkInlineHashKeys;
   end func;

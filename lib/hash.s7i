@@ -37,16 +37,21 @@
 const func type: hash [ (in type: keyType) ] (in type: baseType) is func
   result
     var type: hashType is void;
+  local
+    var type: keyValueType is void;
   begin
     hashType := get_type(getfunc(hash [ (attr keyType) ] (attr baseType)));
     if hashType = void then
       global
       hashType := newtype;
       IN_PARAM_IS_REFERENCE(hashType);
+      keyValueType := newtype;
+      IN_PARAM_IS_REFERENCE(keyValueType);
       const type: hash [ (attr keyType) ] (attr baseType)                      is hashType;
       const type: key_type (attr hashType)                                     is keyType;
       const type: base_type (attr hashType)                                    is baseType;
 
+      const reference: (attr hashType) . keyHashCode is getfunc(hashCode(in keyType: anElem));
       const reference: (attr hashType) . keyCreate   is getfunc((ref keyType: dest) ::= (in keyType: source));
       const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType: aValue));
       const reference: (attr hashType) . keyCopy     is getfunc((inout keyType: dest) := (in keyType: source));
@@ -127,6 +132,11 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const func boolean: CONTAINS (in hashType: aHashMap, in keyType: aKey,
                                     in integer: hashCode,
                                     in reference: keyCompare)                  is action "HSH_CONTAINS";
+      const func hashType: GEN_HASH (in keyValueType: keyValuePairs,
+                                     in reference: keyHashCode,
+                                     in reference: keyCompare,
+                                     in reference: keyDestroy,
+                                     in reference: dataDestroy)                is action "HSH_GEN_HASH";
 (*
       const func hashType: (attr hashType) conv (in hashType: aHashMap)        is action "HSH_CONV";
       const varfunc hashType: (attr hashType) conv (inout hashType: aHashMap)  is action "TYP_VARCONV";
@@ -212,6 +222,14 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
         return UPDATE(aHashMap, aKey, anElem, hashCode(aKey), hashType.keyCompare,
                       hashType.keyCreate, hashType.dataCreate);
 
+      const func keyValueType: [ (in keyType: aKey) : (in baseType: aValue) ]  is action "HSH_GEN_KEY_VALUE";
+      const func keyValueType: (in keyValueType: element1) ,
+                               (in keyValueType: element2)                     is action "HSH_CONCAT_KEY_VALUE";
+
+      const func hashType: [] (in func keyValueType: keyValuePairs) is
+        return GEN_HASH(keyValuePairs, hashType.keyHashCode, hashType.keyCompare,
+                        hashType.keyDestroy, hashType.dataDestroy);
+
 (*
       const proc: clear (inout hashType: aHashMap) is func
         local
@@ -268,6 +286,30 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
        *)
       const func array baseType: values (in hashType: aHashMap) is
         return VALUES(aHashMap, hashType.dataCreate, hashType.dataDestroy);
+
+      if getobj((in baseType: element1) = (in baseType: element2)) <> NIL then
+
+        const func boolean: (in hashType: hash1) = (in hashType: hash2) is func
+          result
+            var boolean: isEqual is TRUE;
+          local
+            var keyType: aKey is keyType.value;
+            var baseType: aValue is baseType.value;
+          begin
+            if length(hash1) <> length(hash2) then
+              isEqual := FALSE;
+            else
+              for aValue key aKey range hash1 do
+                if not (aKey in hash2 and aValue = hash2[aKey]) then
+                  isEqual := FALSE;
+                end if;
+              end for;
+            end if;
+          end func;
+
+        const func boolean: (in hashType: hash1) <> (in hashType: hash2) is
+          return not hash1 = hash2;
+      end if;
 
       if getfunc(hashCode(in baseType: anElem)) <> NIL and
           getfunc(compare(in baseType: elem1, in baseType: elem2)) <> NIL then

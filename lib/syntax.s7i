@@ -75,6 +75,7 @@ $ syntax expr: . [ . ] .()                   is <-   1;
 $ syntax expr: . [ .(). ] .()                is <-   1;
 $ syntax expr: . [ .(). .. .(). ]            is <-   1;
 $ syntax expr: . [ .(). len .(). ]           is <-   1;
+$ syntax expr: . [ .(). : .(). ]             is <-   1;
 $ syntax expr: .(). . .()                    is  ->  2;
 $ syntax expr: .(). [ .(). ]                 is  ->  2;
 $ syntax expr: .(). [ .(). default .(). ]    is  ->  2;

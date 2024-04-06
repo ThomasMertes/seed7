@@ -1096,6 +1096,8 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"GKB_CLICKED_YPOS"}:
         drawLibraryUsed := TRUE;
         process(GKB_CLICKED_YPOS, function, params, c_expr);
+      when {"HSH_CONCAT_KEY_VALUE"}:
+        process(HSH_CONCAT_KEY_VALUE, function, params, c_expr);
       when {"HSH_CONTAINS"}:
         process(HSH_CONTAINS, function, params, c_expr);
       when {"HSH_CPY"}:
@@ -1112,6 +1114,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(HSH_FOR_DATA_KEY, function, params, c_expr);
       when {"HSH_FOR_KEY"}:
         process(HSH_FOR_KEY, function, params, c_expr);
+      when {"HSH_GEN_HASH"}:
+        process(HSH_GEN_HASH, function, params, c_expr);
+      when {"HSH_GEN_KEY_VALUE"}:
+        process(HSH_GEN_KEY_VALUE, function, params, c_expr);
       when {"HSH_IDX"}:
         process(HSH_IDX, function, params, c_expr);
       when {"HSH_IDX2"}:

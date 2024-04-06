@@ -551,6 +551,59 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
 
 
+objectType hsh_concat_key_value (listType arguments)
+
+  {
+    hashElemType element1;
+    hashElemType element2;
+    hashElemType lastElement1;
+    hashElemType lastElement2;
+
+  /* hsh_concat_key_value */
+    isit_hashelem(arg_1(arguments));
+    isit_hashelem(arg_3(arguments));
+    element1 = take_hashelem(arg_1(arguments));
+    element2 = take_hashelem(arg_3(arguments));
+    logFunction(printf("hsh_concat_key_value(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) element1, (memSizeType) element2););
+    /* The concatenation uses the pointers of a hash element in a   */
+    /* special way. This allows the creation of hash element lists. */
+    /* next_greater ... Pointer to the next element in the list.    */
+    /* next_less    ... Pointer to the last element of the list.    */
+    /* Next_less is only set in the first element of the list.      */
+    /* In all other elements next_less is NULL.                     */
+    if (element1->next_less != NULL) {
+      lastElement1 = element1->next_less;
+    } else {
+      lastElement1 = element1;
+    } /* if */
+    if (element2->next_less != NULL) {
+      lastElement2 = element2->next_less;
+      element2->next_less = NULL;
+    } else {
+      lastElement2 = element2;
+    } /* if */
+    lastElement1->next_greater = element2;
+    element1->next_less = lastElement2;
+    if (TEMP_OBJECT(arg_1(arguments))) {
+      arg_1(arguments)->value.hashElemValue = NULL;
+    } else {
+      logError(printf("hsh_concat_key_value: The keyValuePairs must be temporary.\n"););
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } /* if */
+    if (TEMP_OBJECT(arg_3(arguments))) {
+      arg_3(arguments)->value.hashElemValue = NULL;
+    } else {
+      logError(printf("hsh_concat_key_value: The keyValuePairs must be temporary.\n"););
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } /* if */
+    logFunction(printf("hsh_concat_key_value --> " FMT_X_MEM "\n",
+                       (memSizeType) element1););
+    return bld_hashelem_temp(element1);
+  } /* hsh_concat_key_value */
+
+
+
 /**
  *  Hash membership test.
  *  Determine if 'aKey/arg_2' is a member of the hash map 'aHashMap/arg_1'.
@@ -904,6 +957,158 @@ objectType hsh_for_key (listType arguments)
     for_key_hash(key_variable, aHashMap, statement, key_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_key */
+
+
+
+objectType hsh_gen_hash (listType arguments)
+
+  {
+    hashElemType keyValuePairs;
+    objectType key_hash_code_func;
+    objectType cmp_func;
+    objectType key_destr_func;
+    objectType data_destr_func;
+    hashElemType currentKeyValue;
+    objectType hashCodeObj;
+    unsigned int hashCode;
+    hashElemType hashElem;
+    objectType cmp_obj;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    hashType aHashMap;
+
+  /* hsh_gen_hash */
+    isit_hashelem(arg_1(arguments));
+    keyValuePairs      = take_hashelem(arg_1(arguments));
+    logFunction(printf("hsh_gen_hash(" FMT_X_MEM ", ...)\n",
+                       (memSizeType) keyValuePairs););
+    key_hash_code_func = take_reference(arg_2(arguments));
+    cmp_func           = take_reference(arg_3(arguments));
+    key_destr_func     = take_reference(arg_4(arguments));
+    data_destr_func    = take_reference(arg_5(arguments));
+    isit_not_null(key_hash_code_func);
+    isit_not_null(cmp_func);
+    isit_not_null(key_destr_func);
+    isit_not_null(data_destr_func);
+    if (TEMP_OBJECT(arg_1(arguments))) {
+      arg_1(arguments)->value.hashElemValue = NULL;
+    } else {
+      logError(printf("hsh_gen_hash: The keyValuePairs must be temporary.\n"););
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } /* if */
+    aHashMap = new_hash(TABLE_BITS);
+    if (unlikely(aHashMap == NULL)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      while (keyValuePairs != NULL) {
+        currentKeyValue = keyValuePairs;
+        keyValuePairs = keyValuePairs->next_greater;
+        currentKeyValue->next_less = NULL;
+        currentKeyValue->next_greater = NULL;
+        hashCodeObj = param2_call(key_hash_code_func, &currentKeyValue->key, key_hash_code_func);
+        isit_not_null(hashCodeObj);
+        isit_int(hashCodeObj);
+        hashCode = (unsigned int) take_int(hashCodeObj);
+        FREE_OBJECT(hashCodeObj);
+        hashElem = aHashMap->table[hashCode & aHashMap->mask];
+        if (hashElem == NULL) {
+          aHashMap->table[hashCode & aHashMap->mask] = currentKeyValue;
+          aHashMap->size++;
+        } else {
+          do {
+            cmp_obj = param3_call(cmp_func, &hashElem->key, &currentKeyValue->key, cmp_func);
+            isit_not_null(cmp_obj);
+            isit_int(cmp_obj);
+            cmp = take_int(cmp_obj);
+            FREE_OBJECT(cmp_obj);
+            if (cmp < 0) {
+              if (hashElem->next_less == NULL) {
+                hashElem->next_less = currentKeyValue;
+                aHashMap->size++;
+                hashElem = NULL;
+              } else {
+                hashElem = hashElem->next_less;
+              } /* if */
+            } else if (cmp == 0) {
+              logError(printf("hsh_gen_hash: A key is used twice.\n"););
+              param2_call(key_destr_func, &currentKeyValue->key, SYS_DESTR_OBJECT);
+              param2_call(data_destr_func, &currentKeyValue->data, SYS_DESTR_OBJECT);
+              FREE_RECORD(currentKeyValue, hashElemRecord, count.helem);
+              err_info = RANGE_ERROR;
+              hashElem = NULL;
+            } else {
+              if (hashElem->next_greater == NULL) {
+                hashElem->next_greater = currentKeyValue;
+                aHashMap->size++;
+                hashElem = NULL;
+              } else {
+                hashElem = hashElem->next_greater;
+              } /* if */
+            } /* if */
+          } while (hashElem != NULL);
+        } /* if */
+      } /* while */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        free_hash(aHashMap, key_destr_func, data_destr_func);
+        return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+      } else {
+        return bld_hash_temp(aHashMap);
+      } /* if */
+    } /* if */
+  } /* hsh_gen_hash */
+
+
+
+objectType hsh_gen_key_value (listType arguments)
+
+  {
+    objectType aKey;
+    objectType aValue;
+    errInfoType err_info = OKAY_NO_ERROR;
+    hashElemType keyValue;
+
+  /* hsh_gen_key_value */
+    aKey   = arg_2(arguments);
+    aValue = arg_4(arguments);
+    logFunction(printf("hsh_gen_key_value(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) aKey, (memSizeType) aValue););
+    if (unlikely(!ALLOC_RECORD(keyValue, hashElemRecord, count.helem))) {
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    } else {
+      keyValue->next_less = NULL;
+      keyValue->next_greater = NULL;
+      if (TEMP_OBJECT(aKey)) {
+        CLEAR_TEMP_FLAG(aKey);
+        SET_VAR_FLAG(aKey);
+        memcpy(&keyValue->key, aKey, sizeof(objectRecord));
+        FREE_OBJECT(aKey);
+        arg_2(arguments) = NULL;
+      } else {
+        if (unlikely(!arr_elem_initialisation(aKey->type_of,
+                                              &keyValue->key, aKey))) {
+          FREE_RECORD(keyValue, hashElemRecord, count.helem);
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        } /* if */
+      } /* if */
+      if (TEMP_OBJECT(aValue)) {
+        CLEAR_TEMP_FLAG(aValue);
+        SET_VAR_FLAG(aValue);
+        memcpy(&keyValue->data, aValue, sizeof(objectRecord));
+        FREE_OBJECT(aValue);
+        arg_4(arguments) = NULL;
+      } else {
+        if (unlikely(!arr_elem_initialisation(aValue->type_of,
+                                              &keyValue->data, aValue))) {
+          do_destroy(&keyValue->key, &err_info);
+          FREE_RECORD(keyValue, hashElemRecord, count.helem);
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("hsh_gen_key_value --> " FMT_X_MEM "\n",
+                       (memSizeType) keyValue););
+    return bld_hashelem_temp(keyValue);
+  } /* hsh_gen_key_value */
 
 
 
