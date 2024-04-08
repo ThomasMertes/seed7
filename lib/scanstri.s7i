@@ -282,9 +282,7 @@ const func string: getNumber (inout string: stri) is func
     elsif pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
       # integer literal with exponent
       incr(pos);
-      if pos <= leng and stri[pos] = '+' then
-        incr(pos);
-      elsif pos <= leng and stri[pos] = '-' then
+      if pos <= leng and (stri[pos] = '+' or stri[pos] = '-') then
         incr(pos);
       end if;
       while pos <= leng and stri[pos] in digit_char do
