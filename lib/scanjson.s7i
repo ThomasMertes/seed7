@@ -1,0 +1,377 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scanjson.s7i  String and file scanner functions for JSON        *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "chartype.s7i";
+
+
+(**
+ *  Reads a JSON string from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the JSON string including the introducing " and the
+ *          closing " .
+ *)
+const func string: getJsonString (inout string: stri) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: special_stri_char is {'"', '\\'} | control_char;
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+    var integer: charValue is 0;
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] not in special_stri_char do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos .. pred(pos)];
+      if pos > leng or stri[pos] in control_char then
+        raise RANGE_ERROR;
+      elsif stri[pos] = '\\' then
+        incr(pos);
+        if pos <= leng then
+          case stri[pos] of
+            when {'"', '\\', '/'}:
+              symbol &:= stri[pos];
+              incr(pos);
+            when {'b'}:
+              symbol &:= "\b";
+              incr(pos);
+            when {'f'}:
+              symbol &:= "\f";
+              incr(pos);
+            when {'n'}:
+              symbol &:= "\n";
+              incr(pos);
+            when {'r'}:
+              symbol &:= "\r";
+              incr(pos);
+            when {'t'}:
+              symbol &:= "\t";
+              incr(pos);
+            when {'u'}:
+              if pos + 4 <= leng then
+                symbol &:= char(integer(stri[succ(pos) fixLen 4], 16));
+                pos +:= 5;
+              else
+                raise RANGE_ERROR;
+              end if;
+            otherwise:
+              raise RANGE_ERROR;
+          end case;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    until pos <= leng and stri[pos] = '\"';
+    symbol &:= '"';
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
+ *  Reads a JSON string from a [[file]].
+ *  When the function is called it is assumed that the introducing "
+ *  is in inFile.bufferChar. When the function is left the character
+ *  after the closing " is in inFile.bufferChar.
+ *  @return the JSON string including the introducing " and the
+ *          closing " .
+ *)
+const func string: getJsonString (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: special_stri_char is {'"', '\\'} | control_char | {EOF};
+    var char: character is ' ';
+    var string: fourBytes is "";
+  begin
+    character := getc(inFile);
+    repeat
+      while character not in special_stri_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character in control_char or character = EOF then
+        raise RANGE_ERROR;
+      elsif character = '\\' then
+        character := getc(inFile);
+        case character of
+          when {'"', '\\', '/'}:
+            symbol &:= character;
+            character := getc(inFile);
+          when {'b'}:
+            symbol &:= "\b";
+            character := getc(inFile);
+          when {'f'}:
+            symbol &:= "\f";
+            character := getc(inFile);
+          when {'n'}:
+            symbol &:= "\n";
+            character := getc(inFile);
+          when {'r'}:
+            symbol &:= "\r";
+            character := getc(inFile);
+          when {'t'}:
+            symbol &:= "\t";
+            character := getc(inFile);
+          when {'u'}:
+            fourBytes := gets(inFile, 4);
+            if length(fourBytes) = 4 then
+              symbol &:= char(integer(fourBytes, 16));
+              character := getc(inFile);
+            else
+              raise RANGE_ERROR;
+            end if;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+      end if;
+    until character = '\"';
+    symbol &:= '"';
+    inFile.bufferChar := getc(inFile);
+  end func;
+
+
+(**
+ *  Reads a JSON number from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing digit or an introducing minus sign (-). When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the number.
+ *  @return the JSON number.
+ *)
+const func string: getJsonNumber (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] = '-' then
+      incr(pos);
+    end if;
+    if pos > leng or stri[pos] not in digit_char then
+      raise RANGE_ERROR;
+    else
+      if stri[pos] = '0' then
+        incr(pos);
+      else
+        repeat
+          incr(pos);
+        until pos > leng or stri[pos] not in digit_char;
+      end if;
+      if pos <= leng and stri[pos] = '.' then
+        incr(pos);
+        if pos > leng or stri[pos] not in digit_char then
+          raise RANGE_ERROR;
+        else
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in digit_char;
+        end if;
+      end if;
+      if pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
+        incr(pos);
+        if pos <= leng and (stri[pos] = '+' or stri[pos] = '-') then
+          incr(pos);
+        end if;
+        if pos > leng or stri[pos] not in digit_char then
+          raise RANGE_ERROR;
+        else
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in digit_char;
+        end if;
+      end if;
+    end if;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a JSON number from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the introducing digit or an introducing minus sign (-).
+ *  When the function is left the character after the number is in
+ *  inFile.bufferChar.
+ *  @return the JSON number.
+ *)
+const func string: getJsonNumber (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    character := inFile.bufferChar;
+    if character = '-' then
+      symbol := "-";
+      character := getc(inFile);
+    end if;
+    if character not in digit_char then
+      raise RANGE_ERROR;
+    else
+      if character = '0' then
+        symbol &:= "0";
+        character := getc(inFile);
+      else
+        repeat
+          symbol &:= character;
+          character := getc(inFile);
+        until character not in digit_char;
+      end if;
+      if character = '.' then
+        symbol &:= character;
+        character := getc(inFile);
+        if character not in digit_char then
+          raise RANGE_ERROR;
+        else
+          repeat
+            symbol &:= character;
+            character := getc(inFile);
+          until character not in digit_char;
+        end if;
+      end if;
+      if character = 'E' or character = 'e' then
+        symbol &:= character;
+        character := getc(inFile);
+        if character = '+' or character = '-' then
+          symbol &:= character;
+          character := getc(inFile);
+        end if;
+        if character not in digit_char then
+          raise RANGE_ERROR;
+        else
+          repeat
+            symbol &:= character;
+            character := getc(inFile);
+          until character not in digit_char;
+        end if;
+      end if;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a JSON symbol from a [[string]].
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  can be a literal (number or string), a name, a special character
+ *  (comma (,) or colon (:)) or a parenthesis. When the function is
+ *  called it is assumed that ''stri'' is empty or stri[1] contains a
+ *  whitespace character or the first character of a symbol. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the symbol.
+ *  @return the symbol, and
+ *          "" if end of ''stri'' was reached.
+ *)
+const func string: getJsonSymbol (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when letter_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in name_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when {',', ':'} | paren_char:
+          symbol := stri[pos fixLen 1];
+          stri := stri[succ(pos) ..];
+        when digit_char | {'-'}:
+          stri := stri[pos ..];
+          symbol := getJsonNumber(stri);
+        when double_quotation_char:
+          stri := stri[pos ..];
+          symbol := getJsonString(stri);
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads a JSON symbol from a [[file]].
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  can be a literal (number or string), a name, a special character
+ *  (comma (,) or colon (:)) or a parenthesis. When the function is
+ *  called it is assumed that inFile.bufferChar contains a whitespace
+ *  character or the first character of a symbol. When the function is
+ *  left the character after the symbol is in inFile.bufferChar.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getJsonSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when letter_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when {',', ':'} | paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char | {'-'}:
+        symbol := getJsonNumber(inFile);
+      when double_quotation_char:
+        symbol := getJsonString(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
