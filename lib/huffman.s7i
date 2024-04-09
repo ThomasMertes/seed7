@@ -29,22 +29,15 @@
 include "bitdata.s7i";
 
 
-const type: huffmanTable is sub object interface;
-
-
-const func integer: getHuffmanSymbol (inout bitStream: inBitStream,
-                                      in huffmanTable: table) is DYNAMIC;
-
-
-const type: msbHuffmanTable is new struct
+const type: huffmanTable is new struct
     var integer: maxBitWidth is 0;
     var array integer: symbols is 0 times 0;
     var array integer: codeLengths is 0 times 0;
   end struct;
 
-type_implements_interface(msbHuffmanTable, huffmanTable);
 
-const type: valuesOfCodeWithLengthType is array array integer;
+const type: msbHuffmanTable is sub huffmanTable struct
+  end struct;
 
 
 (**
@@ -132,13 +125,10 @@ const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos
   end func;
 
 
-const type: lsbHuffmanTable is new struct
-    var integer: maxBitWidth is 0;
-    var array integer: symbols is 0 times 0;
-    var array integer: codeLengths is 0 times 0;
+const type: lsbHuffmanTable is sub huffmanTable struct
   end struct;
 
-type_implements_interface(lsbHuffmanTable, huffmanTable);
+const type: valuesOfCodeWithLengthType is array array integer;
 
 
 const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths,

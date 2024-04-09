@@ -404,102 +404,113 @@ const msbHuffmanTable: t4MsbHuffmanTable is genT4MsbHuffmanTable;
 const lsbHuffmanTable: t4LsbHuffmanTable is genT4LsbHuffmanTable;
 
 
-const func integer: getWhiteBits (inout bitStream: ccittFaxStream,
-    in huffmanTable: whiteHuffmanTable) is func
-  result
-    var integer: whiteBits is 0;
-  local
-    var integer: additionalWhiteBits is 0;
+const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
+    in type: huffmanTable) is func
+
   begin
-    whiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
-    # writeln("W" <& whiteBits <& " ");
-    if whiteBits >= 64 then
-      repeat
-        additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
-        # writeln("W+" <& additionalWhiteBits <& " ");
-        whiteBits +:= additionalWhiteBits;
-      until additionalWhiteBits < 64;
-    end if;
-    # writeln("W=" <& whiteBits <& " ");
-  end func;
+
+    const func integer: getWhiteBits (inout bitStream: ccittFaxStream,
+        in huffmanTable: whiteHuffmanTable) is func
+      result
+        var integer: whiteBits is 0;
+      local
+        var integer: additionalWhiteBits is 0;
+      begin
+        whiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
+        # writeln("W" <& whiteBits <& " ");
+        if whiteBits >= 64 then
+          repeat
+            additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
+            # writeln("W+" <& additionalWhiteBits <& " ");
+            whiteBits +:= additionalWhiteBits;
+          until additionalWhiteBits < 64;
+        end if;
+        # writeln("W=" <& whiteBits <& " ");
+      end func;
 
 
-const func integer: getBlackBits (inout bitStream: ccittFaxStream,
-    in huffmanTable: blackHuffmanTable) is func
-  result
-    var integer: blackBits is 0;
-  local
-    var integer: additionalBlackBits is 0;
-  begin
-    blackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
-    # writeln("B" <& blackBits <& " ");
-    if blackBits >= 64 then
-      repeat
-        additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
-        # writeln("B+" <& additionalBlackBits <& " ");
-        blackBits +:= additionalBlackBits;
-      until additionalBlackBits < 64;
-    end if;
-    # writeln("B=" <& blackBits <& " ");
-  end func;
+    const func integer: getBlackBits (inout bitStream: ccittFaxStream,
+        in huffmanTable: blackHuffmanTable) is func
+      result
+        var integer: blackBits is 0;
+      local
+        var integer: additionalBlackBits is 0;
+      begin
+        blackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
+        # writeln("B" <& blackBits <& " ");
+        if blackBits >= 64 then
+          repeat
+            additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
+            # writeln("B+" <& additionalBlackBits <& " ");
+            blackBits +:= additionalBlackBits;
+          until additionalBlackBits < 64;
+        end if;
+        # writeln("B=" <& blackBits <& " ");
+      end func;
 
 
-const proc: skipEol (inout bitStream: inBitStream, in integer: expected) is func
-  local
-    var integer: symbol is 0;
-  begin
-    symbol := getBits(inBitStream, 12);
-    if symbol = 0 then
-      # Fill bits are present.
-      repeat
-        symbol := getBit(inBitStream);
-      until symbol = 1;
-    elsif symbol <> expected then
-      raise RANGE_ERROR;
-    end if;
-  end func;
+    const proc: skipEol (inout bitStream: inBitStream, in integer: expected) is func
+      local
+        var integer: symbol is 0;
+      begin
+        symbol := getBits(inBitStream, 12);
+        if symbol = 0 then
+          # Fill bits are present.
+          repeat
+            symbol := getBit(inBitStream);
+          until symbol = 1;
+        elsif symbol <> expected then
+          raise RANGE_ERROR;
+        end if;
+      end func;
 
 
-const proc: processCcittFaxRow (inout bitStream: faxDataStream,
-    in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
-    in pixel: whitePixel, in pixel: blackPixel, in integer: line,
-    in integer: width, inout array array pixel: image) is func
-  local
-    var integer: numWhitePixels is 0;
-    var integer: numBlackPixels is 0;
-    var integer: currentColumn is 1;
-    var integer: column is 0;
-    var integer: count is 0;
-  begin
-    repeat
-      numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
-      if numWhitePixels >= 0 then
-        for column range currentColumn to currentColumn + pred(numWhitePixels) do
-          image[line][column] := whitePixel;
-        end for;
-        currentColumn +:= numWhitePixels;
-        if currentColumn <= width then
-          numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
-          if numBlackPixels >= 0 then
-            for column range currentColumn to currentColumn + pred(numBlackPixels) do
-              image[line][column] := blackPixel;
+    const proc: processCcittFaxRow (inout bitStream: faxDataStream,
+        in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
+        in pixel: whitePixel, in pixel: blackPixel, in integer: line,
+        in integer: width, inout array array pixel: image) is func
+      local
+        var integer: numWhitePixels is 0;
+        var integer: numBlackPixels is 0;
+        var integer: currentColumn is 1;
+        var integer: column is 0;
+        var integer: count is 0;
+      begin
+        repeat
+          numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
+          if numWhitePixels >= 0 then
+            for column range currentColumn to currentColumn + pred(numWhitePixels) do
+              image[line][column] := whitePixel;
             end for;
-            currentColumn +:= numBlackPixels;
+            currentColumn +:= numWhitePixels;
+            if currentColumn <= width then
+              numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
+              if numBlackPixels >= 0 then
+                for column range currentColumn to currentColumn + pred(numBlackPixels) do
+                  image[line][column] := blackPixel;
+                end for;
+                currentColumn +:= numBlackPixels;
+              else
+                for column range currentColumn to width do
+                  image[line][column] := blackPixel;
+                end for;
+                currentColumn := succ(width);
+              end if;
+            end if;
           else
             for column range currentColumn to width do
-              image[line][column] := blackPixel;
+              image[line][column] := whitePixel;
             end for;
             currentColumn := succ(width);
           end if;
-        end if;
-      else
-        for column range currentColumn to width do
-          image[line][column] := whitePixel;
-        end for;
-        currentColumn := succ(width);
-      end if;
-    until currentColumn > width;
+        until currentColumn > width;
+      end func;
+
   end func;
+
+
+DECLARE_CcittModifiedGroup3Fax_FUNCTIONS(msbBitStream, msbHuffmanTable);
+DECLARE_CcittModifiedGroup3Fax_FUNCTIONS(lsbBitStream, lsbHuffmanTable);
 
 
 (**
@@ -570,159 +581,170 @@ const proc: processCcittModifiedGroup3FaxLsb (in string: faxData,
   end func;
 
 
-const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
-    in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
-    in huffmanTable: blackHuffmanTable, in array pixel: blackOrWhite,
-    in integer: line, in integer: width, inout array integer: bValues,
-    inout array array pixel: image) is func
-  local
-    var pixel: currentPixel is pixel.value;
-    var integer: mode is 0;
-    var integer: numBits1 is 0;
-    var integer: numBits2 is 0;
-    var integer: currentColumn is 1;
-    var integer: column is 1;
-    var array integer: aValues is 0 times 0;
-    var integer: bIndex is 1;
-    var integer: currentBValue is 0;
+const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
+    in type: huffmanTable) is func
+
   begin
-    mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
-    while mode >= 0 and currentColumn <= width do
-      if bIndex <= length(bValues) then
-        currentBValue := bValues[bIndex];
-      else
-        currentBValue := succ(width);
-      end if;
-      case mode of
-        when {CCITT_T4_PASS}:
-          # writeln("Pass");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          incr(bIndex);
+
+    const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
+        in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
+        in huffmanTable: blackHuffmanTable, in array pixel: blackOrWhite,
+        in integer: line, in integer: width, inout array integer: bValues,
+        inout array array pixel: image) is func
+      local
+        var pixel: currentPixel is pixel.value;
+        var integer: mode is 0;
+        var integer: numBits1 is 0;
+        var integer: numBits2 is 0;
+        var integer: currentColumn is 1;
+        var integer: column is 1;
+        var array integer: aValues is 0 times 0;
+        var integer: bIndex is 1;
+        var integer: currentBValue is 0;
+      begin
+        mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
+        while mode >= 0 and currentColumn <= width do
           if bIndex <= length(bValues) then
             currentBValue := bValues[bIndex];
           else
             currentBValue := succ(width);
           end if;
-          for column range currentColumn to currentBValue - 1 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue;
-          incr(bIndex);
-        when {CCITT_T4_HORIZONTAL}:
-          if odd(bIndex) then
-            numBits1 := getWhiteBits(faxDataStream, whiteHuffmanTable);
-            numBits2 := getBlackBits(faxDataStream, blackHuffmanTable);
-          else
-            numBits1 := getBlackBits(faxDataStream, blackHuffmanTable);
-            numBits2 := getWhiteBits(faxDataStream, whiteHuffmanTable);
+          case mode of
+            when {CCITT_T4_PASS}:
+              # writeln("Pass");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              incr(bIndex);
+              if bIndex <= length(bValues) then
+                currentBValue := bValues[bIndex];
+              else
+                currentBValue := succ(width);
+              end if;
+              for column range currentColumn to currentBValue - 1 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue;
+              incr(bIndex);
+            when {CCITT_T4_HORIZONTAL}:
+              if odd(bIndex) then
+                numBits1 := getWhiteBits(faxDataStream, whiteHuffmanTable);
+                numBits2 := getBlackBits(faxDataStream, blackHuffmanTable);
+              else
+                numBits1 := getBlackBits(faxDataStream, blackHuffmanTable);
+                numBits2 := getWhiteBits(faxDataStream, whiteHuffmanTable);
+              end if;
+              # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentColumn + pred(numBits1) do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn +:= numBits1;
+              aValues &:= currentColumn;
+              currentPixel := blackOrWhite[succ(bIndex) mod 2];
+              for column range currentColumn to currentColumn + pred(numBits2) do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn +:= numBits2;
+              aValues &:= currentColumn;
+              while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
+                bIndex +:= 2;
+              end while;
+            when {CCITT_T4_VERTICAL_0}:
+              # writeln("V(0)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue - 1 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue;
+              aValues &:= currentColumn;
+              incr(bIndex);
+            when {CCITT_T4_VERTICAL_RIGHT_1}:
+              # writeln("Vr(1)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue + 1;
+              aValues &:= currentColumn;
+              incr(bIndex);
+              if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
+                bIndex +:= 2;
+              end if;
+            when {CCITT_T4_VERTICAL_RIGHT_2}:
+              # writeln("Vr(2)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue + 1 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue + 2;
+              aValues &:= currentColumn;
+              incr(bIndex);
+              if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
+                bIndex +:= 2;
+              end if;
+            when {CCITT_T4_VERTICAL_RIGHT_3}:
+              # writeln("Vr(3)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue + 2 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue + 3;
+              aValues &:= currentColumn;
+              incr(bIndex);
+              while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
+                bIndex +:= 2;
+              end while;
+            when {CCITT_T4_VERTICAL_LEFT_1}:
+              # writeln("Vl(1)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue - 2 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue - 1;
+              aValues &:= currentColumn;
+              incr(bIndex);
+            when {CCITT_T4_VERTICAL_LEFT_2}:
+              # writeln("Vl(2)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue - 3 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue - 2;
+              aValues &:= currentColumn;
+              if bIndex > 1 and (pred(bIndex) > length(bValues) or
+                  bValues[pred(bIndex)] > currentColumn) then
+                decr(bIndex);
+              else
+                incr(bIndex);
+              end if;
+            when {CCITT_T4_VERTICAL_LEFT_3}:
+              # writeln("Vl(3)");
+              currentPixel := blackOrWhite[bIndex mod 2];
+              for column range currentColumn to currentBValue - 4 do
+                image[line][column] := currentPixel;
+              end for;
+              currentColumn := currentBValue - 3;
+              aValues &:= currentColumn;
+              if bIndex > 1 and (pred(bIndex) > length(bValues) or
+                  bValues[pred(bIndex)] > currentColumn) then
+                decr(bIndex);
+              else
+                incr(bIndex);
+              end if;
+            otherwise:
+              raise RANGE_ERROR;
+          end case;
+          if currentColumn <= width then
+            mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
           end if;
-          # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentColumn + pred(numBits1) do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn +:= numBits1;
-          aValues &:= currentColumn;
-          currentPixel := blackOrWhite[succ(bIndex) mod 2];
-          for column range currentColumn to currentColumn + pred(numBits2) do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn +:= numBits2;
-          aValues &:= currentColumn;
-          while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
-            bIndex +:= 2;
-          end while;
-        when {CCITT_T4_VERTICAL_0}:
-          # writeln("V(0)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue - 1 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue;
-          aValues &:= currentColumn;
-          incr(bIndex);
-        when {CCITT_T4_VERTICAL_RIGHT_1}:
-          # writeln("Vr(1)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue + 1;
-          aValues &:= currentColumn;
-          incr(bIndex);
-          if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
-            bIndex +:= 2;
-          end if;
-        when {CCITT_T4_VERTICAL_RIGHT_2}:
-          # writeln("Vr(2)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue + 1 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue + 2;
-          aValues &:= currentColumn;
-          incr(bIndex);
-          if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
-            bIndex +:= 2;
-          end if;
-        when {CCITT_T4_VERTICAL_RIGHT_3}:
-          # writeln("Vr(3)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue + 2 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue + 3;
-          aValues &:= currentColumn;
-          incr(bIndex);
-          while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
-            bIndex +:= 2;
-          end while;
-        when {CCITT_T4_VERTICAL_LEFT_1}:
-          # writeln("Vl(1)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue - 2 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue - 1;
-          aValues &:= currentColumn;
-          incr(bIndex);
-        when {CCITT_T4_VERTICAL_LEFT_2}:
-          # writeln("Vl(2)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue - 3 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue - 2;
-          aValues &:= currentColumn;
-          if bIndex > 1 and (pred(bIndex) > length(bValues) or
-              bValues[pred(bIndex)] > currentColumn) then
-            decr(bIndex);
-          else
-            incr(bIndex);
-          end if;
-        when {CCITT_T4_VERTICAL_LEFT_3}:
-          # writeln("Vl(3)");
-          currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to currentBValue - 4 do
-            image[line][column] := currentPixel;
-          end for;
-          currentColumn := currentBValue - 3;
-          aValues &:= currentColumn;
-          if bIndex > 1 and (pred(bIndex) > length(bValues) or
-              bValues[pred(bIndex)] > currentColumn) then
-            decr(bIndex);
-          else
-            incr(bIndex);
-          end if;
-        otherwise:
-          raise RANGE_ERROR;
-      end case;
-      if currentColumn <= width then
-        mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
-      end if;
-    end while;
-    bValues := aValues;
+        end while;
+        bValues := aValues;
+      end func;
+
   end func;
+
+
+DECLARE_CcittT6Fax_FUNCTIONS(msbBitStream, msbHuffmanTable);
+DECLARE_CcittT6Fax_FUNCTIONS(lsbBitStream, lsbHuffmanTable);
 
 
 (**
@@ -853,50 +875,61 @@ const proc: processCcittT4Fax1dLsb (in string: faxData,
   end func;
 
 
-const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
-    in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
-    in pixel: whitePixel, in pixel: blackPixel, in integer: line,
-    in integer: width, inout array integer: aValues,
-    inout array array pixel: image) is func
-  local
-    var integer: numWhitePixels is 0;
-    var integer: numBlackPixels is 0;
-    var integer: currentColumn is 1;
-    var integer: column is 0;
-    var integer: count is 0;
+const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
+    in type: huffmanTable) is func
+
   begin
-    aValues := 0 times 0;
-    repeat
-      numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
-      if numWhitePixels >= 0 then
-        for column range currentColumn to currentColumn + pred(numWhitePixels) do
-          image[line][column] := whitePixel;
-        end for;
-        currentColumn +:= numWhitePixels;
-        aValues &:= currentColumn;
-        if currentColumn <= width then
-          numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
-          if numBlackPixels >= 0 then
-            for column range currentColumn to currentColumn + pred(numBlackPixels) do
-              image[line][column] := blackPixel;
+
+    const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
+        in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
+        in pixel: whitePixel, in pixel: blackPixel, in integer: line,
+        in integer: width, inout array integer: aValues,
+        inout array array pixel: image) is func
+      local
+        var integer: numWhitePixels is 0;
+        var integer: numBlackPixels is 0;
+        var integer: currentColumn is 1;
+        var integer: column is 0;
+        var integer: count is 0;
+      begin
+        aValues := 0 times 0;
+        repeat
+          numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
+          if numWhitePixels >= 0 then
+            for column range currentColumn to currentColumn + pred(numWhitePixels) do
+              image[line][column] := whitePixel;
             end for;
-            currentColumn +:= numBlackPixels;
+            currentColumn +:= numWhitePixels;
             aValues &:= currentColumn;
+            if currentColumn <= width then
+              numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
+              if numBlackPixels >= 0 then
+                for column range currentColumn to currentColumn + pred(numBlackPixels) do
+                  image[line][column] := blackPixel;
+                end for;
+                currentColumn +:= numBlackPixels;
+                aValues &:= currentColumn;
+              else
+                for column range currentColumn to width do
+                  image[line][column] := blackPixel;
+                end for;
+                currentColumn := succ(width);
+              end if;
+            end if;
           else
             for column range currentColumn to width do
-              image[line][column] := blackPixel;
+              image[line][column] := whitePixel;
             end for;
             currentColumn := succ(width);
           end if;
-        end if;
-      else
-        for column range currentColumn to width do
-          image[line][column] := whitePixel;
-        end for;
-        currentColumn := succ(width);
-      end if;
-    until currentColumn > width;
+        until currentColumn > width;
+      end func;
+
   end func;
+
+
+DECLARE_CcittT4Fax2d_FUNCTIONS(msbBitStream, msbHuffmanTable);
+DECLARE_CcittT4Fax2d_FUNCTIONS(lsbBitStream, lsbHuffmanTable);
 
 
 (**
