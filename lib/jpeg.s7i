@@ -857,11 +857,14 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     for mcuTopLine range 1 to header.height step 8 do
       blockLineMax := min(7, header.height - mcuTopLine);
       for mcuLeftColumn range 1 to header.width step 8 do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          diffLuminance := 0;
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            diffLuminance := 0;
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         processBlock(luma, entropyCodedStream, dcLumaTable, acLumaTable,
                      header.lumaQuantization, diffLuminance);
@@ -874,7 +877,6 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
                 rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           end for;
         end for;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -907,13 +909,16 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     image := header.height times header.width times pixel.value;
     for line range 1 to header.height step header.vertical * 8 do
       for column range 1 to header.width step header.horizontal * 8 do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          diffLuminance := 0;
-          diffChromaBlue := 0;
-          diffChromaRed := 0;
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            diffLuminance := 0;
+            diffChromaBlue := 0;
+            diffChromaRed := 0;
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         for index range 1 to header.numLuma do
           processBlock(luma[index], entropyCodedStream, dcLumaTable, acLumaTable,
@@ -940,7 +945,6 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
                                     chromaBlue, chromaRed, image, line, column);
           end if;
         end if;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1034,17 +1038,19 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     end if;
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          diffLuminance := 0;
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            diffLuminance := 0;
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
         readDcValue(mcuImage[succ(pred(line) mdiv header.vertical)]
                             [succ(pred(column) mdiv header.horizontal)].luma[index][1],
                     entropyCodedStream, dcTable, diffLuminance, header.approximationLow);
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1071,13 +1077,16 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     end if;
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          diffLuminance := 0;
-          diffChromaBlue := 0;
-          diffChromaRed := 0;
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            diffLuminance := 0;
+            diffChromaBlue := 0;
+            diffChromaRed := 0;
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         if dcLumaIndex <> 0 then
           for index range 1 to header.numLuma do
@@ -1096,7 +1105,6 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
                       entropyCodedStream, header.dcTable[dcCrIndex],
                       diffChromaRed, header.approximationLow);
         end if;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1120,10 +1128,13 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     end if;
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         if dcLumaIndex <> 0 then
           for index range 1 to header.numLuma do
@@ -1142,7 +1153,6 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
             mcuImage[line][column].chroma[CHROMA_RED][1] +:= 1 << header.approximationLow;
           end if;
         end if;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1211,10 +1221,13 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     end if;
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         if eobRunLength > 0 then
           decr(eobRunLength);
@@ -1225,7 +1238,6 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
                       entropyCodedStream, acTable, header.startOfSpectral, header.endOfSpectral,
                       eobRunLength, header.approximationLow);
         end if;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1249,10 +1261,13 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     end if;
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         if eobRunLength > 0 then
           decr(eobRunLength);
@@ -1262,7 +1277,6 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
                       header.endOfSpectral, eobRunLength,
                       header.approximationLow);
         end if;
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1374,10 +1388,13 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     end if;
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
         refineBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
@@ -1385,7 +1402,6 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
                       entropyCodedStream, acTable, header.startOfSpectral,
                       header.endOfSpectral, eobRunLength,
                       1 << header.approximationLow);
-        decr(mcuCount);
       end for;
     end for;
   end func;
@@ -1409,16 +1425,18 @@ const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     end if;
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
-        if mcuCount = 0 then
-          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          entropyCodedStream := openMsbBitStream(entropyCodedSegment);
-          mcuCount := header.restartInterval;
+        if header.restartInterval <> 0 then
+          if mcuCount = 0 then
+            entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            mcuCount := header.restartInterval;
+          end if;
+          decr(mcuCount);
         end if;
         refineBlockAc(mcuImage[line][column].chroma[chromaIndex],
                       entropyCodedStream, acTable, header.startOfSpectral,
                       header.endOfSpectral, eobRunLength,
                       1 << header.approximationLow);
-        decr(mcuCount);
       end for;
     end for;
   end func;
