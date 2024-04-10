@@ -111,20 +111,6 @@ const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
   end func;
 
 
-# The function getHuffmanSymbolMsb(string) is deprecated. Use getHuffmanSymbol(msbBitStream) instead.
-const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in msbHuffmanTable: table) is func
-  result
-    var integer: symbol is 0;
-  local
-    var integer: index is 0;
-  begin
-    index := peekBitsMsb(stri, bytePos, bitPos, table.maxBitWidth);
-    symbol := table.symbols[index];
-    skipBitsMsb(bytePos, bitPos, table.codeLengths[index]);
-  end func;
-
-
 const type: lsbHuffmanTable is sub huffmanTable struct
   end struct;
 
@@ -253,18 +239,4 @@ const func integer: getHuffmanSymbol (inout lsbBitStream: inBitStream,
     index := peekBits(inBitStream, table.maxBitWidth);
     symbol := table.symbols[index];
     skipBits(inBitStream, table.codeLengths[symbol]);
-  end func;
-
-
-# The function getHuffmanSymbolLsb(string) is deprecated. Use getHuffmanSymbol(lsbBitStream) instead.
-const func integer: getHuffmanSymbolLsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in lsbHuffmanTable: table) is func
-  result
-    var integer: symbol is 0;
-  local
-    var integer: index is 0;
-  begin
-    index := peekBitsLsb(stri, bytePos, bitPos, table.maxBitWidth);
-    symbol := table.symbols[index];
-    skipBitsLsb(bytePos, bitPos, table.codeLengths[symbol]);
   end func;
