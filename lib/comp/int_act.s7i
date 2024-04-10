@@ -3522,13 +3522,45 @@ const proc: process (INT_LT, in reference: function,
 
 
 const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
+    inout expr_type: c_expr) is forward;
+
+
+const func boolean: optimize_mdiv_of_product (in reference: number, in integer: factor,
+    in integer: divisor, inout expr_type: c_expr) is func
+
+  result
+    var boolean: done is TRUE;
+  begin
+    if factor = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "0";
+    elsif factor = divisor then
+      incr(countOptimizations);
+      countOverflowOptimizations(c_expr);
+      process_expr(number, c_expr);
+    elsif factor mod divisor = 0 then
+      incr(countOptimizations);
+      process_const_int_mult(number, factor mdiv divisor, c_expr);
+    elsif divisor mod factor = 0 then
+      incr(countOptimizations);
+      countOverflowOptimizations(c_expr);
+      process_const_int_mdiv(number, divisor mdiv factor, c_expr);
+    else
+      done := FALSE;
+    end if;
+  end func;
+
+
+const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedDividend is NIL;
+    var reference: evaluatedFactor is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
     var intRange: dividend_range is intRange.value;
+    var boolean: done is TRUE;
   begin
     incr(countOptimizations);
     if divisor = 0 then
@@ -3546,120 +3578,133 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")";
-    elsif divisor = -1 then
-      # Dividing by -1 is equal to changing the sign.
-      # integer.first / -1 causes an integer overflow.
-      negate(dividend, c_expr);
-    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
-      # Divisor is a power of two.
-      if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-        c_expr.expr &:= "(";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= ") >> ";
-        c_expr.expr &:= integerLiteral(log2(divisor));
-      else
-        c_expr.expr &:= "(";
-        dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-        doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
-        c_expr.expr &:= ")";
-      end if;
-    elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
-      # Divisor is a negative power of two.
-      # The check above is (almost) equivalent to:
-      #   divisor < 0 and 2 ** log2(-divisor) = -divisor
-      # The check with bitLength is used to avoid negating the divisor.
-      # Negating the divisor would fail for the most negative integer.
-      dividend_range := getIntRange(dividend);
-      if ccConf.TWOS_COMPLEMENT_INTTYPE then
-        c_expr.expr &:= "(";
-        dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-        if dividend_range.minValue = integer.first then
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "==";
-          c_expr.expr &:= integerLiteral(integer.first);
-          c_expr.expr &:= "?";
-          c_expr.expr &:= integerLiteral(-(integer.first >> 1) >> pred(bitLength(divisor)));
-          c_expr.expr &:= ":";
-        end if;
+    elsif isActionExpression(dividend, "INT_MULT") and
+        getConstant(getActionParameter(dividend, 3), INTOBJECT, evaluatedFactor) then
+      done := optimize_mdiv_of_product(getActionParameter(dividend, 1),
+            getValue(evaluatedFactor, integer), divisor, c_expr);
+    elsif isActionExpression(dividend, "INT_MULT") and
+        getConstant(getActionParameter(dividend, 1), INTOBJECT, evaluatedFactor) then
+      done := optimize_mdiv_of_product(getActionParameter(dividend, 3),
+            getValue(evaluatedFactor, integer), divisor, c_expr);
+    else
+      done := FALSE;
+    end if;
+    if not done then
+      if divisor = -1 then
+        # Dividing by -1 is equal to changing the sign.
+        # integer.first / -1 causes an integer overflow.
+        negate(dividend, c_expr);
+      elsif divisor > 0 and 2 ** log2(divisor) = divisor then
+        # Divisor is a power of two.
         if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-          c_expr.expr &:= "-";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= " >> ";
-          c_expr.expr &:= integerLiteral(bitLength(divisor));
-        else
           c_expr.expr &:= "(";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "=-";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= ",";
-          doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
-          c_expr.expr &:= ")";
-        end if;
-        c_expr.expr &:= ")";
-      else
-        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-          c_expr.expr &:= "-(";
           process_expr(dividend, c_expr);
           c_expr.expr &:= ") >> ";
-          c_expr.expr &:= integerLiteral(bitLength(divisor));
+          c_expr.expr &:= integerLiteral(log2(divisor));
         else
-          dividend_name := defineTempVariable("intType", "dividend_", c_expr);
           c_expr.expr &:= "(";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "=-(";
-          process_expr(dividend, c_expr);
-          c_expr.expr &:= "),";
-          doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
+          dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+          doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
           c_expr.expr &:= ")";
         end if;
-      end if;
-    else
-      dividend_range := getIntRange(dividend);
-      if divisor > 0 and dividend_range.minValue >= 0 or
-          divisor < 0 and dividend_range.maxValue <= 0 then
-        # Dividend and divisor have the same sign.
-        # Formula used: a/b
-        c_expr.expr &:= "(";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= ")/";
-        c_expr.expr &:= integerLiteral(divisor);
-      elsif divisor > 0 and dividend_range.maxValue < 0 then
-        # Formula used: (a+1)/b-1
-        c_expr.expr &:= "((";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= ")+1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "-1";
-      elsif divisor < 0 and dividend_range.minValue > 0 then
-        # Formula used: (a-1)/b-1
-        c_expr.expr &:= "((";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= ")-1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "-1";
-      else
-        c_expr.expr &:= "(";
-        dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-        c_expr.expr &:= dividend_name;
-        if divisor > 0 then
-          # Formula used: a<0?(a+1)/b-1:a/b
-          c_expr.expr &:= "<0?(";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "+1)/";
-          c_expr.expr &:= integerLiteral(divisor);
-          c_expr.expr &:= "-1:";
-        else # divisor < 0
-          # Formula used: a>0?(a-1)/b-1:a/b
-          c_expr.expr &:= ">0?(";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "-1)/";
-          c_expr.expr &:= integerLiteral(divisor);
-          c_expr.expr &:= "-1:";
+      elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
+        # Divisor is a negative power of two.
+        # The check above is (almost) equivalent to:
+        #   divisor < 0 and 2 ** log2(-divisor) = -divisor
+        # The check with bitLength is used to avoid negating the divisor.
+        # Negating the divisor would fail for the most negative integer.
+        dividend_range := getIntRange(dividend);
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "(";
+          dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+          if dividend_range.minValue = integer.first then
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "==";
+            c_expr.expr &:= integerLiteral(integer.first);
+            c_expr.expr &:= "?";
+            c_expr.expr &:= integerLiteral(-(integer.first >> 1) >> pred(bitLength(divisor)));
+            c_expr.expr &:= ":";
+          end if;
+          if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+            c_expr.expr &:= "-";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= " >> ";
+            c_expr.expr &:= integerLiteral(bitLength(divisor));
+          else
+            c_expr.expr &:= "(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "=-";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= ",";
+            doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
+            c_expr.expr &:= ")";
+          end if;
+          c_expr.expr &:= ")";
+        else
+          if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+            c_expr.expr &:= "-(";
+            process_expr(dividend, c_expr);
+            c_expr.expr &:= ") >> ";
+            c_expr.expr &:= integerLiteral(bitLength(divisor));
+          else
+            dividend_name := defineTempVariable("intType", "dividend_", c_expr);
+            c_expr.expr &:= "(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "=-(";
+            process_expr(dividend, c_expr);
+            c_expr.expr &:= "),";
+            doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
+            c_expr.expr &:= ")";
+          end if;
         end if;
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= ")";
+      else
+        dividend_range := getIntRange(dividend);
+        if divisor > 0 and dividend_range.minValue >= 0 or
+            divisor < 0 and dividend_range.maxValue <= 0 then
+          # Dividend and divisor have the same sign.
+          # Formula used: a/b
+          c_expr.expr &:= "(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")/";
+          c_expr.expr &:= integerLiteral(divisor);
+        elsif divisor > 0 and dividend_range.maxValue < 0 then
+          # Formula used: (a+1)/b-1
+          c_expr.expr &:= "((";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")+1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1";
+        elsif divisor < 0 and dividend_range.minValue > 0 then
+          # Formula used: (a-1)/b-1
+          c_expr.expr &:= "((";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")-1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1";
+        else
+          c_expr.expr &:= "(";
+          dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+          c_expr.expr &:= dividend_name;
+          if divisor > 0 then
+            # Formula used: a<0?(a+1)/b-1:a/b
+            c_expr.expr &:= "<0?(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "+1)/";
+            c_expr.expr &:= integerLiteral(divisor);
+            c_expr.expr &:= "-1:";
+          else # divisor < 0
+            # Formula used: a>0?(a-1)/b-1:a/b
+            c_expr.expr &:= ">0?(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "-1)/";
+            c_expr.expr &:= integerLiteral(divisor);
+            c_expr.expr &:= "-1:";
+          end if;
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= ")";
+        end if;
       end if;
     end if;
   end func;
