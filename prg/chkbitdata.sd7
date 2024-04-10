@@ -95,28 +95,6 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-
-    # Test deprecated getBitLsb(string):
-    bytePosVar := bytePos;
-    bitPosVar := bitPos;
-    bits := getBitLsb(stri, bytePosVar, bitPosVar);
-    if bits <> bitsExpected or bytePosVar <> bytePosExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("getBitLsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if bytePosVar <> bytePosExpected then
-        writeln(" ***** Expected bytePos " <& bytePosExpected <& " found " <& bytePosVar);
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
   end func;
 
 
@@ -222,28 +200,6 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
       end if;
       if (bitPosExpected = 0 and bitPosVar <> 8) or
           (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    # Test deprecated getBitsLsb(string):
-    bytePosVar := bytePos;
-    bitPosVar := bitPos;
-    bits := getBitsLsb(stri, bytePosVar, bitPosVar, bitsNeeded);
-    if bits <> bitsExpected or bytePosVar <> bytePosExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("getBitsLsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if bytePosVar <> bytePosExpected then
-        writeln(" ***** Expected bytePos " <& bytePosExpected <& " found " <& bytePosVar);
-      end if;
-      if bitPosVar <> bitPosExpected then
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
@@ -923,18 +879,6 @@ const func boolean: chkPeekBitsLsb (in string: stri, in integer: bytePos,
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
       writeln("\": peekBits(lsbBitStream, " <& bitsNeeded <& ")");
-      writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated peekBitsLsb(string):
-    bits := peekBitsLsb(stri, bytePos, bitPos, bitsNeeded);
-    if bits <> bitsExpected then
-      okay := FALSE;
-      write("peekBitsLsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
   end func;
@@ -1844,28 +1788,6 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-
-    # Test deprecated getBitMsb(string):
-    bytePosVar := bytePos;
-    bitPosVar := bitPos;
-    bits := getBitMsb(stri, bytePosVar, bitPosVar);
-    if bits <> bitsExpected or bytePosVar <> bytePosExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("getBitMsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 lpad0 8 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if bytePosVar <> bytePosExpected then
-        writeln(" ***** Expected bytePos " <& bytePosExpected <& " found " <& bytePosVar);
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
   end func;
 
 
@@ -1971,28 +1893,6 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
       end if;
       if (bitPosExpected = 0 and bitPosVar <> 8) or
           (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    # Test deprecated getBitsMsb(string):
-    bytePosVar := bytePos;
-    bitPosVar := bitPos;
-    bits := getBitsMsb(stri, bytePosVar, bitPosVar, bitsNeeded);
-    if bits <> bitsExpected or bytePosVar <> bytePosExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("getBitsMsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 lpad0 8 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if bytePosVar <> bytePosExpected then
-        writeln(" ***** Expected bytePos " <& bytePosExpected <& " found " <& bytePosVar);
-      end if;
-      if bitPosVar <> bitPosExpected then
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
@@ -2672,18 +2572,6 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
       writeln("\": peekBits(msbBitStream, " <& bitsNeeded <& ")");
-      writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated peekBitsMsb(string):
-    bits := peekBitsMsb(stri, bytePos, bitPos, bitsNeeded);
-    if bits <> bitsExpected then
-      okay := FALSE;
-      write("peekBitsMsb(\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 lpad0 8 <& ";");
-      end for;
-      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
   end func;
