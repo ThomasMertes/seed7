@@ -85,6 +85,8 @@ boolType findX11Dll (void);
 #define PI 3.141592653589793238462643383279502884197
 
 Display *mydisplay = NULL;
+Atom net_wm_name;
+Atom utf8_string;
 Atom wm_delete_window;
 Atom motifWmHintsProperty;
 Atom net_wm_state;
@@ -561,6 +563,8 @@ void drawInit (void)
       XSetBackground(mydisplay, mygc, mybackground);
       XSetForeground(mydisplay, mygc, myforeground);
 
+      net_wm_name = XInternAtom(mydisplay, "_NET_WM_NAME", False);
+      utf8_string = XInternAtom(mydisplay, "UTF8_STRING", False);
       wm_delete_window = XInternAtom(mydisplay, "WM_DELETE_WINDOW", False);
       motifWmHintsProperty = XInternAtom(mydisplay, "_MOTIF_WM_HINTS", True);
       net_wm_state = XInternAtom(mydisplay, "_NET_WM_STATE", False);
@@ -1712,10 +1716,10 @@ winType drwOpen (intType xPos, intType yPos,
 
   {
     char *winName8;
+    memSizeType winName8Length;
     XSizeHints myhint;
     XWMHints mywmhint;
     XSetWindowAttributes attributes;
-    errInfoType err_info = OKAY_NO_ERROR;
     x11_winType result = NULL;
 
   /* drwOpen */
@@ -1738,12 +1742,11 @@ winType drwOpen (intType xPos, intType yPos,
         logError(printf("drwOpen: drawInit() failed to open a display.\n"););
         raise_error(GRAPHIC_ERROR);
       } else {
-        winName8 = stri_to_cstri8(windowName, &err_info);
+        winName8 = stri_to_cstri8_buf(windowName, &winName8Length);
         if (unlikely(winName8 == NULL)) {
-          logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
-                          "err_info=%d\n",
-                          striAsUnquotedCStri(windowName), err_info););
-          raise_error(err_info);
+          logError(printf("drwOpen: stri_to_cstri8_buf(\"%s\") failed\n",
+                          striAsUnquotedCStri(windowName)););
+          raise_error(MEMORY_ERROR);
         } else {
           if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
             memset(result, 0, sizeof(x11_winRecord));
@@ -1771,6 +1774,9 @@ winType drwOpen (intType xPos, intType yPos,
             XSetStandardProperties(mydisplay, result->window,
                 winName8, winName8,
                 None, /* argv, argc, */ NULL, 0, &myhint);
+            XChangeProperty(mydisplay, result->window, net_wm_name,
+                utf8_string, 8, PropModeReplace, (unsigned char *) winName8,
+                (int) winName8Length);
 
             mywmhint.flags = InputHint;
             mywmhint.input = True;
@@ -2828,26 +2834,23 @@ void drwSetTransparentColor (winType pixmap, intType col)
 void drwSetWindowName (winType aWindow, const const_striType windowName)
 
   {
-    char *winName;
-    int funcRes;
-    errInfoType err_info = OKAY_NO_ERROR;
+    char *winName8;
+    memSizeType winName8Length;
 
   /* drwSetWindowName */
     logFunction(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\")\n",
                        (memSizeType) aWindow,
                        striAsUnquotedCStri(windowName)););
-    winName = stri_to_cstri8(windowName, &err_info);
-    if (unlikely(winName == NULL)) {
-      raise_error(err_info);
+    winName8 = stri_to_cstri8_buf(windowName, &winName8Length);
+    if (unlikely(winName8 == NULL)) {
+      logError(printf("drwOpen: stri_to_cstri8_buf(\"%s\") failed\n",
+                      striAsUnquotedCStri(windowName)););
+      raise_error(MEMORY_ERROR);
     } else {
-      funcRes = XStoreName(mydisplay, to_window(aWindow), winName);
-      free_cstri8(winName, windowName);
-      if (unlikely(funcRes == 0)) {
-        logError(printf("XStoreName(mydisplay, " FMT_U_MEM ", \"%s\") failed\n",
-                        (memSizeType) aWindow,
-                        striAsUnquotedCStri(windowName)););
-        raise_error(GRAPHIC_ERROR);
-      } /* if */
+      XChangeProperty(mydisplay, to_window(aWindow), net_wm_name,
+          utf8_string, 8, PropModeReplace, (unsigned char *) winName8,
+          (int) winName8Length);
+      free_cstri8(winName8, windowName);
     } /* if */
     logFunction(printf("drwSetWindowName -->\n"););
   } /* drwSetWindowName */
