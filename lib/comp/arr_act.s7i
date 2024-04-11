@@ -259,10 +259,88 @@ const proc: process (ARR_CONV, in reference: function,
   end func;
 
 
+const proc: process_arr_cpy_times_optimization (in reference: dest,
+    in reference: factor, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+    var intRange: factorRange is intRange.value;
+    var string: factorName is "";
+  begin
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(dest, c_param1, statement);
+    statement.expr &:= "(";
+    factorName := getParameterAsVariable("intType", "factor_", factor, statement);
+    if function_range_check then
+      factorRange := getIntRange(factor);
+      if factorRange.minValue < 0 then
+        statement.expr &:= "(rngChk((";
+        statement.expr &:= factorName;
+        statement.expr &:= ") < 0)?";
+        statement.expr &:= intRaiseError("RANGE_ERROR");
+        statement.expr &:= ":0),\n";
+      else
+        countRangeOptimizations(statement);
+      end if;
+    else
+      incr(countNoRangeChecks);
+    end if;
+    if isNormalVariable(dest) then
+      statement.temp_decls &:= "memSizeType size_a = (uintType)((";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ")->max_position - (";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ")->min_position + 1);\n";
+      statement.expr &:= "(size_a != (uintType)(";
+      statement.expr &:= factorName;
+      statement.expr &:= ")?";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "=(arrayType)(arrRealloc(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ", size_a, ";
+      statement.expr &:= factorName;
+      statement.expr &:= ")):0),\n";
+      statement.expr &:= "memset((";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->arr, 0, ";
+      statement.expr &:= factorName;
+      statement.expr &:= " * sizeof(rtlObjectType)),\n";
+      statement.expr &:= "(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->min_position = 1,\n";
+      statement.expr &:= "(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->max_position = ";
+      statement.expr &:= factorName;
+    else
+      statement.temp_decls &:= "arrayType *array_ptr=&(";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ");\n";
+      statement.temp_decls &:= "memSizeType size_a = (uintType)((*array_ptr)->max_position - (*array_ptr)->min_position + 1);\n";
+      statement.expr &:= "(size_a != (uintType)(";
+      statement.expr &:= factorName;
+      statement.expr &:= ")?\n";
+      statement.expr &:= "*array_ptr=(arrayType)(arrRealloc(*array_ptr, size_a, ";
+      statement.expr &:= factorName;
+      statement.expr &:= ")):0),\n";
+      statement.expr &:= "memset((*array_ptr)->arr, 0, ";
+      statement.expr &:= factorName;
+      statement.expr &:= " * sizeof(rtlObjectType)),\n";
+      statement.expr &:= "(*array_ptr)->min_position = 1,\n";
+      statement.expr &:= "(*array_ptr)->max_position = ";
+      statement.expr &:= factorName;
+    end if;
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (ARR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
@@ -270,6 +348,12 @@ const proc: process (ARR_CPY, in reference: function,
     if isActionExpression(params[3], "ARR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
       process_arr_append(params[1], getActionParameter(params[3], 3), c_expr);
+    elsif inlineFunctions and
+        isActionExpression(params[3], "ARR_TIMES") and
+        getConstant(getActionParameter(params[3], 3), INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 0 then
+      process_arr_cpy_times_optimization(params[1],
+          getActionParameter(params[3], 1), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
