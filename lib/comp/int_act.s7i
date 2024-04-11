@@ -2077,6 +2077,8 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
         c_expr.expr &:= "-1]>255)?";
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= ":";
+      else
+        incr(countNoRangeChecks);
       end if;
       c_expr.expr &:= "(intType)";
       c_expr.expr &:= stri_name;
@@ -2118,6 +2120,7 @@ const proc: optimize_int_bytes_be_2_uint (in string: stri_name, in integer: leng
         c_expr.expr &:= integerLiteral(pred(index));
         c_expr.expr &:= "])";
       else
+        incr(countNoRangeChecks);
         c_expr.expr &:= "(intType)";
         c_expr.expr &:= stri_name;
         c_expr.expr &:= "->mem[";
@@ -2259,6 +2262,7 @@ const proc: optimize_int_bytes_le_2_uint (in string: stri_name, in integer: leng
         c_expr.expr &:= integerLiteral(pred(index));
         c_expr.expr &:= "])";
       else
+        incr(countNoRangeChecks);
         c_expr.expr &:= "(intType)";
         c_expr.expr &:= stri_name;
         c_expr.expr &:= "->mem[";
@@ -5258,6 +5262,8 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
           c_expr.expr &:= ":(";
           rangeCheckDone := TRUE;
         end if;
+      else
+        incr(countNoRangeChecks);
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
@@ -5398,6 +5404,8 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
           c_expr.expr &:= ":(";
           rangeCheckDone := TRUE;
         end if;
+      else
+        incr(countNoRangeChecks);
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
