@@ -56,11 +56,6 @@ const func file: openStriText (in array string: content) is func
   end func;
 
 
-# The function openStritext() is deprecated. openStriText() instead.
-const func file: openStritext (in array string: content) is
-  return openStriText(content);
-
-
 (**
  *  Write the [[string]] ''stri'' to ''outStriText''.
  *)

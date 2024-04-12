@@ -56,11 +56,6 @@ const func file: openStriFile (in string: content) is func
   end func;
 
 
-# The function openStrifile() is deprecated. Use openStriFile() instead.
-const func file: openStrifile (in string: content) is
-  return openStriFile(content);
-
-
 (**
  *  Open a ''striFile'' with an empty string content.
  *  @return the file opened.
@@ -73,11 +68,6 @@ const func file: openStriFile is func
   begin
     newFile := toInterface(new_striFile);
   end func;
-
-
-# The function openStrifile() is deprecated. Use openStriFile() instead.
-const func file: openStrifile is
-  return openStriFile;
 
 
 (**
