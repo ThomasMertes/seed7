@@ -576,7 +576,7 @@ boolType findTermDll (void);
 /* The macros below compute the array size as memSizeType    */
 /* value. The computation avoids a signed integer overflow.  */
 /* The computation fails if max_position is the maximum      */
-/* positive value of intType and min_position is the maximum */
+/* positive value of intType and min_position is the minimum */
 /* negative value of intType. All calls of the macros must   */
 /* assure that they are never called with this values. Since */
 /* the calls either use data from an existing array or use   */
