@@ -133,9 +133,9 @@ const func string: process_sct_alloc (in type: object_type, in string: variableN
     allocExpr &:= variableName;
     allocExpr &:= "=(";
     allocExpr &:= type_name(object_type);
-    allocExpr &:= ")(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) + ";
+    allocExpr &:= ")malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) + ";
     allocExpr &:= str(numElements);
-    allocExpr &:= " * sizeof(rtlObjectType))),\n";
+    allocExpr &:= " * sizeof(rtlObjectType)),\n";
     allocExpr &:= diagnosticLine;
     allocExpr &:= "(unlikely(";
     allocExpr &:= variableName;
