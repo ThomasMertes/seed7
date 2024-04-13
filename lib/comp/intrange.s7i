@@ -652,6 +652,33 @@ const func intRange: getIntMultRange (in intRange: factor1Range, in intRange: fa
   end func;
 
 
+const func intRange: getArrValueRange (in reference: arr) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var integer: arraySize is 0;
+    var ref_list: arrayList is ref_list.EMPTY;
+    var reference: element is NIL;
+    var integer: elementValue is 0;
+  begin
+    arraySize := succ(arrayMaxIdx(arr) - arrayMinIdx(arr));
+    if arraySize < 10000 then
+      valueRange.minValue := integer.last;
+      valueRange.maxValue := integer.first;
+      arrayList := arrayToList(arr);
+      for element range arrayList do
+        elementValue := getValue(element, integer);
+        if elementValue < valueRange.minValue then
+          valueRange.minValue := elementValue;
+        end if;
+        if elementValue > valueRange.maxValue then
+          valueRange.maxValue := elementValue;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
 const func intRange: getArrLenRange (in reference: arr) is func
   result
     var intRange: valueRange is intRange.value;
@@ -1064,6 +1091,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   "TYP_CMP"}:
               valueRange.minValue := -1;
               valueRange.maxValue := 1;
+            when {"ARR_IDX"}:
+              if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
+                valueRange := getArrValueRange(evaluatedParam);
+              end if;
             when {"ARR_LNG"}:
               valueRange := getArrLenRange(params[1]);
             when {"BIG_LOWEST_SET_BIT"}:
