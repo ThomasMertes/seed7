@@ -124,6 +124,7 @@ const category: STRIOBJECT        is category("STRIOBJECT");
 const category: BSTRIOBJECT       is category("BSTRIOBJECT");
 const category: ARRAYOBJECT       is category("ARRAYOBJECT");
 const category: HASHOBJECT        is category("HASHOBJECT");
+const category: HASHELEMOBJECT    is category("HASHELEMOBJECT");
 const category: STRUCTOBJECT      is category("STRUCTOBJECT");
 const category: CLASSOBJECT       is category("CLASSOBJECT");
 const category: INTERFACEOBJECT   is category("INTERFACEOBJECT");

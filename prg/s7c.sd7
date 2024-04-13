@@ -4893,6 +4893,9 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "FLT_CPY" or action_name = "FLT_CREATE" then
         defineParam1TypeCategory(current_object, FLOATOBJECT);
         count_declarations(c_expr);
+      elsif action_name = "HSH_CONCAT_KEY_VALUE" then
+        defineParam1TypeCategory(current_object, HASHELEMOBJECT);
+        count_declarations(c_expr);
       elsif action_name = "HSH_CPY" then
         process_hsh_cpy_declaration(current_object);
         count_declarations(c_expr);
