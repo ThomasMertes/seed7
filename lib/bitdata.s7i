@@ -119,9 +119,6 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
   end func;
 
 
-const type: bitStream is sub object interface;
-
-
 (**
  *  Type to read bitwise data starting with the least significant bit.
  *  This is used by the Huffman compression (as part of the deflate
