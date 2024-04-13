@@ -380,7 +380,7 @@ const proc: (inout bin64: bits1) ><:= (in bin64: bits2)        is action "BIN_XO
  *             or greater than 64.
  *)
 const func bin64: rotLeft (in bin64: x, in integer: shiftCount) is
-  return (x << shiftCount | x >> (64 - shiftCount));
+  return x << shiftCount | x >> (64 - shiftCount);
 
 
 (**
@@ -393,7 +393,7 @@ const func bin64: rotLeft (in bin64: x, in integer: shiftCount) is
  *             or greater than 64.
  *)
 const func bin64: rotRight (in bin64: x, in integer: shiftCount) is
-  return (x >> shiftCount | x << (64 - shiftCount));
+  return x >> shiftCount | x << (64 - shiftCount);
 
 
 (**
