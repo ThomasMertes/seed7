@@ -656,12 +656,14 @@ const func string: toBase (in string: byteStri, in string: digits) is func
   local
     var integer: index is 1;
   begin
-    encoded := toBase(bytes2BigInt(byteStri, UNSIGNED, BE), digits);
-    while index <= length(byteStri) and byteStri[index] = '\0;' do
-      incr(index);
-    end while;
-    if index >= 1 then
-      encoded := "1" mult pred(index) & encoded;
+    if byteStri <> "" then
+      encoded := toBase(bytes2BigInt(byteStri, UNSIGNED, BE), digits);
+      while index <= length(byteStri) and byteStri[index] = '\0;' do
+        incr(index);
+      end while;
+      if index > 1 then
+        encoded := "1" mult pred(index) & encoded;
+      end if;
     end if;
   end func;
 
