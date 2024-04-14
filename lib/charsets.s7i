@@ -1901,10 +1901,11 @@ const string: cp_1047 is "\
  *)
 const proc: conv2unicode (inout string: stri, in string: codePage) is func
   local
+    var char: ch is ' ';
     var integer: index is 0;
   begin
-    for index range 1 to length(stri) do
-      stri @:= [index] codePage[succ(ord(stri[index]))];
+    for ch key index range stri do
+      stri @:= [index] codePage[succ(ord(ch))];
     end for;
   end func;
 
