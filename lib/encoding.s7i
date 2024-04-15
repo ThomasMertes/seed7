@@ -662,7 +662,7 @@ const func string: toBase (in string: byteStri, in string: digits) is func
         incr(index);
       end while;
       if index > 1 then
-        encoded := "1" mult pred(index) & encoded;
+        encoded := str(digits[1]) mult pred(index) & encoded;
       end if;
     end if;
   end func;
@@ -690,10 +690,10 @@ const func string: fromBase (in string: encoded, in string: digits) is func
     if number <> 0_ then
       decoded := bytes(number, UNSIGNED, BE);
     end if;
-    while index <= length(encoded) and encoded[index] = '1' do
+    while index <= length(encoded) and encoded[index] = digits[1] do
       incr(index);
     end while;
-    if index >= 1 then
+    if index > 1 then
       decoded := "\0;" mult pred(index) & decoded;
     end if;
   end func;
