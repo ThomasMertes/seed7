@@ -191,7 +191,7 @@ const func string: (in bin32: bits) radix (in integer: base)   is action "BIN_ra
  *  The conversion uses the numeral system with the given ''base''.
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
- *   bin64(48879) radix 16   returns "BEEF"
+ *   bin64(48879) RADIX 16   returns "BEEF"
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
