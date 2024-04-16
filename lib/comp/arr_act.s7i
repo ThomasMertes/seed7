@@ -259,6 +259,31 @@ const proc: process (ARR_CONV, in reference: function,
   end func;
 
 
+const func boolean: isIntArrayOfZeros (in reference: arr) is func
+  result
+    var boolean: isIntArrayOfZeros is FALSE;
+  local
+    var type: arrayType is void;
+    var type: elementType is void;
+    var ref_list: arrayList is ref_list.EMPTY;
+    var reference: element is NIL;
+    var integer: elementValue is 0;
+  begin
+    arrayType := getExprResultType(arr);
+    elementType := array_element[arrayType];
+    if elementType in typeCategory and typeCategory[elementType] = INTOBJECT then
+      arrayList := arrayToList(arr);
+      isIntArrayOfZeros := TRUE;
+      for element range arrayList until not isIntArrayOfZeros do
+        elementValue := getValue(element, integer);
+        if elementValue <> 0 then
+          isIntArrayOfZeros := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
 const proc: process_arr_cpy_times_optimization (in reference: dest,
     in reference: factor, inout expr_type: c_expr) is func
 
@@ -336,6 +361,72 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
   end func;
 
 
+const proc: process_arr_cpy_times_optimization (in reference: dest,
+    in integer: minPosition, in integer: maxPosition, inout expr_type: c_expr) is func
+
+  local
+    var integer: factor is 0;
+    var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    factor := succ(maxPosition - minPosition);
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(dest, c_param1, statement);
+    statement.expr &:= "(";
+    if isNormalVariable(dest) then
+      statement.temp_decls &:= "memSizeType size_a = (uintType)((";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ")->max_position - (";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ")->min_position + 1);\n";
+      statement.expr &:= "(size_a != (uintType)(";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= ")?";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "=(arrayType)(arrRealloc(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ", size_a, ";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= ")):0),\n";
+      statement.expr &:= "memset((";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->arr, 0, ";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= " * sizeof(rtlObjectType)),\n";
+      statement.expr &:= "(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->min_position = ";
+      statement.expr &:= integerLiteral(minPosition);
+      statement.expr &:= ",\n";
+      statement.expr &:= "(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= ")->max_position = ";
+      statement.expr &:= integerLiteral(maxPosition);
+    else
+      statement.temp_decls &:= "arrayType *array_ptr=&(";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ");\n";
+      statement.temp_decls &:= "memSizeType size_a = (uintType)((*array_ptr)->max_position - (*array_ptr)->min_position + 1);\n";
+      statement.expr &:= "(size_a != (uintType)(";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= ")?\n";
+      statement.expr &:= "*array_ptr=(arrayType)(arrRealloc(*array_ptr, size_a, ";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= ")):0),\n";
+      statement.expr &:= "memset((*array_ptr)->arr, 0, ";
+      statement.expr &:= integerLiteral(factor);
+      statement.expr &:= " * sizeof(rtlObjectType)),\n";
+      statement.expr &:= "(*array_ptr)->min_position = ";
+      statement.expr &:= integerLiteral(minPosition);
+      statement.expr &:= ",\n";
+      statement.expr &:= "(*array_ptr)->max_position = ";
+      statement.expr &:= integerLiteral(maxPosition);
+    end if;
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (ARR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -354,6 +445,11 @@ const proc: process (ARR_CPY, in reference: function,
         getValue(evaluatedParam, integer) = 0 then
       process_arr_cpy_times_optimization(params[1],
           getActionParameter(params[3], 1), c_expr);
+    elsif inlineFunctions and
+        getConstant(params[3], ARRAYOBJECT, evaluatedParam) and
+        isIntArrayOfZeros(evaluatedParam) then
+      process_arr_cpy_times_optimization(params[1],
+          arrayMinIdx(evaluatedParam), arrayMaxIdx(evaluatedParam), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
