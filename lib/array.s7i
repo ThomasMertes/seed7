@@ -65,6 +65,7 @@ const func type: array (in type: baseType) is func
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
       tupleType := tuple(baseType);
+      const boolean: isArrayType (attr arrayType)                             is TRUE;
       const type: array (attr baseType)                                       is arrayType;
       const type: base_type (attr arrayType)                                  is baseType;
 
@@ -101,7 +102,7 @@ const func type: array (in type: baseType) is func
        *  Access one element from the array ''arr''.
        *  @return the element with the specified ''index'' from ''arr''.
        *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
-       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *                         greater than [[#maxIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
 
@@ -110,7 +111,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array beginning at the position ''start''.
        *  @return the sub array beginning at the start position.
-       *  @exception INDEX_ERROR The start position is less than minIdx(arr).
+       *  @exception INDEX_ERROR The start position is less than [[#minIdx(in_arrayType)|minIdx]](arr).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ (in integer: start) .. ]    is action "ARR_TAIL";
@@ -118,7 +119,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array ending at the position ''stop''.
        *  @return the sub array ending at the stop position.
-       *  @exception INDEX_ERROR The stop position is less than pred(minIdx(arr)).
+       *  @exception INDEX_ERROR The stop position is less than pred([[#minIdx(in_arrayType)|minIdx]](arr)).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ .. (in integer: stop) ]     is action "ARR_HEAD";
@@ -126,7 +127,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array from the position ''start'' to the position ''stop''.
        *  @return the sub array from position ''start'' to ''stop''.
-       *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+       *  @exception INDEX_ERROR The start position is less than [[#minIdx(in_arrayType)|minIdx]](arr1), or
        *                         the stop position is less than pred(start).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
@@ -136,7 +137,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array from the position ''start'' with maximum length ''len''.
        *  @return the sub array from position ''start'' with maximum length ''len''.
-       *  @exception INDEX_ERROR The start position is less than minIdx(arr), or
+       *  @exception INDEX_ERROR The start position is less than [[#minIdx(in_arrayType)|minIdx]](arr), or
        *                         the length is negative.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
@@ -148,8 +149,8 @@ const func type: array (in type: baseType) is func
        *  Elements are moved backward to create space for the element to be
        *  inserted. This function is tuned for performance and the movement
        *  works without copying elements.
-       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
-       *                         greater than succ(maxIdx(arr))
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         greater than succ([[#maxIdx(in_arrayType)|maxIdx]](arr))
        *)
       const proc: insert (inout arrayType: arr, in integer: index,
                           in baseType: element)                               is action "ARR_INSERT";
@@ -159,8 +160,8 @@ const func type: array (in type: baseType) is func
        *  Elements are moved backward to create space for the elements to be
        *  inserted. This function is tuned for performance and the movement
        *  works without copying elements.
-       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
-       *                         greater than succ(maxIdx(arr))
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         greater than succ([[#maxIdx(in_arrayType)|maxIdx]](arr))
        *)
       const proc: insert (inout arrayType: arr, in integer: index,
                           in arrayType: elements)                             is action "ARR_INSERT_ARRAY";
@@ -172,7 +173,7 @@ const func type: array (in type: baseType) is func
        *  without copying elements.
        *  @return the removed element.
        *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
-       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *                         greater than [[#maxIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
 
@@ -183,7 +184,7 @@ const func type: array (in type: baseType) is func
        *  without copying elements.
        *  @return the removed sub-array.
        *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
-       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *                         greater than [[#maxIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func arrayType: remove (inout arrayType: arr, in integer: index,
                                     in integer: length)                       is action "ARR_REMOVE_ARRAY";
