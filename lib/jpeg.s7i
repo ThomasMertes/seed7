@@ -69,20 +69,22 @@ const type: jpegScan is new struct
     var integer: acHuffmanTableIndex is 0;
   end struct;
 
+const type: dataBlockType is array integer;
+
 const type: jpegHeader is new struct
     var integer: precision is 0;
     var integer: width is 0;
     var integer: height is 0;
     var integer: framebytes is 0;
     var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
-    var array array integer: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
     var array jpegComponent: component is 0 times jpegComponent.value;
     var array jpegScan: scan is 0 times jpegScan.value;
     var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
     var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
-    var array integer: lumaQuantization is 0 times 0;
-    var array integer: chromaBlueQuantization is 0 times 0;
-    var array integer: chromaRedQuantization is 0 times 0;
+    var dataBlockType: lumaQuantization is 0 times 0;
+    var dataBlockType: chromaBlueQuantization is 0 times 0;
+    var dataBlockType: chromaRedQuantization is 0 times 0;
     var integer: restartInterval is 0;
     var integer: numberOfScans is 0;
     var integer: startOfSpectral is 0;
@@ -100,8 +102,8 @@ const type: jpegHeader is new struct
   end struct;
 
 const type: jpegMinimumCodedUnit is new struct
-    var array array integer: luma is 4 times JPEG_BLOCK_SIZE times 0;
-    var array array integer: chroma is 2 times JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: luma is 4 times JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: chroma is 2 times JPEG_BLOCK_SIZE times 0;
   end struct;
 
 const integer: CHROMA_BLUE is 1;
@@ -415,7 +417,7 @@ const func integer: getSymbol (inout msbBitStream: entropyCodedStream,
 #  @param dcTable Huffman table for the DC coefficient.
 #  @param acTable Huffman table for the 63 AC coefficients.
 #
-const proc: readBlock (inout array integer: dataBlock,
+const proc: readBlock (inout dataBlockType: dataBlock,
     inout msbBitStream: entropyCodedStream, in msbHuffmanTable: dcTable,
     in msbHuffmanTable: acTable) is func
   local
@@ -456,9 +458,9 @@ const proc: readBlock (inout array integer: dataBlock,
 #  @param dataBlock 64 coefficients to dezigzag.
 #  @return The dezigzagged coefficients.
 #
-const func array integer: unzigzag (in array integer: dataBlock) is func
+const func dataBlockType: unzigzag (in dataBlockType: dataBlock) is func
   result
-    var array integer: unzigzag is JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: unzigzag is JPEG_BLOCK_SIZE times 0;
   local
     const array integer: zigzag is [] (
          1,  2,  6,  7, 15, 16, 28, 29,
@@ -566,7 +568,7 @@ const proc: fastIdct8 (inout integer: a1, inout integer: a2, inout integer: a3,
 #  Perform a fast 2d inverse discrete cosine transform for a 8x8 block.
 #  @param dataBlock 64 coefficients to transform.
 #
-const proc: idct8x8 (inout array integer: dataBlock) is func
+const proc: idct8x8 (inout dataBlockType: dataBlock) is func
   local
     var integer: index is 0;
   begin
@@ -601,9 +603,9 @@ const proc: idct8x8 (inout array integer: dataBlock) is func
 #  The values are not clamped so they might also be higher or
 #  lower than the limit.
 #
-const proc: processBlock (inout array integer: dataBlock,
+const proc: processBlock (inout dataBlockType: dataBlock,
     inout msbBitStream: entropyCodedStream, in msbHuffmanTable: dcTable,
-    in msbHuffmanTable: acTable, in array integer: quantizationTable,
+    in msbHuffmanTable: acTable, in dataBlockType: quantizationTable,
     inout integer: diff) is func
   local
     var integer: index is 0;
@@ -636,8 +638,8 @@ const func pixel: setPixel (in integer: luminance, in integer: chromaBlue, in in
                   clampColor(chromaBlue * 454 mdiv 2048 + luminance));
 
 
-const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in array integer: luma1,
-    in array integer: chromaBlue, in array integer: chromaRed, inout array array pixel: image,
+const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in dataBlockType: luma1,
+    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout array array pixel: image,
     in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: line is 0;
@@ -663,8 +665,8 @@ const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in array integer: lu
   end func;
 
 
-const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in array integer: luma1,
-    in array integer: luma2, in array integer: chromaBlue, in array integer: chromaRed,
+const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in dataBlockType: luma1,
+    in dataBlockType: luma2, in dataBlockType: chromaBlue, in dataBlockType: chromaRed,
     inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
@@ -701,8 +703,8 @@ const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in array integer: lu
   end func;
 
 
-const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in array integer: luma1,
-    in array integer: luma2, in array integer: chromaBlue, in array integer: chromaRed,
+const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in dataBlockType: luma1,
+    in dataBlockType: luma2, in dataBlockType: chromaBlue, in dataBlockType: chromaRed,
     inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
@@ -734,9 +736,9 @@ const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in array integer: lu
   end func;
 
 
-const proc: colorMinimumCodedUnit22 (in jpegHeader: header, in array integer: luma1,
-    in array integer: luma2, in array integer: luma3, in array integer: luma4,
-    in array integer: chromaBlue, in array integer: chromaRed, inout array array pixel: image,
+const proc: colorMinimumCodedUnit22 (in jpegHeader: header, in dataBlockType: luma1,
+    in dataBlockType: luma2, in dataBlockType: luma3, in dataBlockType: luma4,
+    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout array array pixel: image,
     in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
@@ -841,7 +843,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     var integer: line is 0;
     var integer: mcuCount is -1;
     var integer: diffLuminance is 0;
-    var array integer: luma is JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: luma is JPEG_BLOCK_SIZE times 0;
     var integer: blockLine is 0;
     var integer: blockLineMax is 0;
     var integer: blockColumn is 0;
@@ -897,9 +899,9 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     var integer: diffLuminance is 0;
     var integer: diffChromaBlue is 0;
     var integer: diffChromaRed is 0;
-    var array array integer: luma is 4 times JPEG_BLOCK_SIZE times 0;
-    var array integer: chromaBlue is JPEG_BLOCK_SIZE times 0;
-    var array integer: chromaRed is JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: luma is 4 times JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: chromaBlue is JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: chromaRed is JPEG_BLOCK_SIZE times 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
     entropyCodedStream := openMsbBitStream(entropyCodedSegment);
@@ -1161,7 +1163,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
 ##
 #  Read the AC coefficients of a block.
 #
-const proc: readBlockAc (inout array integer: dataBlock,
+const proc: readBlockAc (inout dataBlockType: dataBlock,
     inout msbBitStream: entropyCodedStream, in msbHuffmanTable: acTable,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: approximationLow) is func
@@ -1282,7 +1284,7 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
   end func;
 
 
-const proc: refineNonZeroes (inout array integer: dataBlock,
+const proc: refineNonZeroes (inout dataBlockType: dataBlock,
     inout msbBitStream: entropyCodedStream, inout integer: spectral,
     in integer: endOfSpectral, in var integer: numberOfZeros,
     in integer: delta) is func
@@ -1316,7 +1318,7 @@ const proc: refineNonZeroes (inout array integer: dataBlock,
 ##
 #  Refine the AC coefficients of a block.
 #
-const proc: refineBlockAc (inout array integer: dataBlock,
+const proc: refineBlockAc (inout dataBlockType: dataBlock,
     inout msbBitStream: entropyCodedStream, in msbHuffmanTable: acTable,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: delta) is func
@@ -1515,7 +1517,7 @@ const proc: loadProgressive (inout file: jpegFile, in jpegHeader: header,
 #  The values are not clamped so they might also be higher or
 #  lower than the limit.
 #
-const proc: processBlock (inout array integer: dataBlock, in array integer: quantizationTable) is func
+const proc: processBlock (inout dataBlockType: dataBlock, in dataBlockType: quantizationTable) is func
   local
     var integer: index is 0;
   begin
@@ -1529,8 +1531,8 @@ const proc: processBlock (inout array integer: dataBlock, in array integer: quan
 
 const proc: colorMinimumCodedUnit (in jpegHeader: header,
     inout jpegMinimumCodedUnit: minimumCodedUnit,
-    in array integer: lumaQuantization, in array integer: chromaBlueQuantization,
-    in array integer: chromaRedQuantization, inout array array pixel: image,
+    in dataBlockType: lumaQuantization, in dataBlockType: chromaBlueQuantization,
+    in dataBlockType: chromaRedQuantization, inout array array pixel: image,
     in integer: line, in integer: column) is func
   local
     var integer: index is 0;
@@ -1575,8 +1577,8 @@ const proc: colorMinimumCodedUnit (in jpegHeader: header,
 
 
 const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
-    inout array array jpegMinimumCodedUnit: mcuImage, in array integer: lumaQuantization,
-    in array integer: chromaBlueQuantization, in array integer: chromaRedQuantization) is func
+    inout array array jpegMinimumCodedUnit: mcuImage, in dataBlockType: lumaQuantization,
+    in dataBlockType: chromaBlueQuantization, in dataBlockType: chromaRedQuantization) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
