@@ -69,7 +69,7 @@ const type: jpegScan is new struct
     var integer: acHuffmanTableIndex is 0;
   end struct;
 
-const type: dataBlockType is array integer;
+const type: dataBlockType is array [JPEG_BLOCK_SIZE] integer;
 
 const type: jpegHeader is new struct
     var integer: precision is 0;
@@ -77,14 +77,14 @@ const type: jpegHeader is new struct
     var integer: height is 0;
     var integer: framebytes is 0;
     var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
-    var array dataBlockType: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: quantizationTable is 4 times dataBlockType.value;
     var array jpegComponent: component is 0 times jpegComponent.value;
     var array jpegScan: scan is 0 times jpegScan.value;
     var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
     var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
-    var dataBlockType: lumaQuantization is 0 times 0;
-    var dataBlockType: chromaBlueQuantization is 0 times 0;
-    var dataBlockType: chromaRedQuantization is 0 times 0;
+    var dataBlockType: lumaQuantization is dataBlockType.value;
+    var dataBlockType: chromaBlueQuantization is dataBlockType.value;
+    var dataBlockType: chromaRedQuantization is dataBlockType.value;
     var integer: restartInterval is 0;
     var integer: numberOfScans is 0;
     var integer: startOfSpectral is 0;
@@ -102,8 +102,8 @@ const type: jpegHeader is new struct
   end struct;
 
 const type: jpegMinimumCodedUnit is new struct
-    var array dataBlockType: luma is 4 times JPEG_BLOCK_SIZE times 0;
-    var array dataBlockType: chroma is 2 times JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: luma is 4 times dataBlockType.value;
+    var array dataBlockType: chroma is 2 times dataBlockType.value;
   end struct;
 
 const integer: CHROMA_BLUE is 1;
@@ -426,7 +426,7 @@ const proc: readBlock (inout dataBlockType: dataBlock,
     var integer: aByte is 0;
     var integer: zeros is 0;
   begin
-    dataBlock := JPEG_BLOCK_SIZE times 0;
+    dataBlock := dataBlockType.value;
     bitWidth := getHuffmanSymbol(entropyCodedStream, dcTable);
     if bitWidth <> 0 then
       dataBlock[index] := getSymbol(entropyCodedStream, bitWidth);
@@ -460,7 +460,7 @@ const proc: readBlock (inout dataBlockType: dataBlock,
 #
 const func dataBlockType: unzigzag (in dataBlockType: dataBlock) is func
   result
-    var dataBlockType: unzigzag is JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: unzigzag is dataBlockType.value;
   local
     const array integer: zigzag is [] (
          1,  2,  6,  7, 15, 16, 28, 29,
@@ -843,7 +843,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     var integer: line is 0;
     var integer: mcuCount is -1;
     var integer: diffLuminance is 0;
-    var dataBlockType: luma is JPEG_BLOCK_SIZE times 0;
+    var dataBlockType: luma is dataBlockType.value;
     var integer: blockLine is 0;
     var integer: blockLineMax is 0;
     var integer: blockColumn is 0;
@@ -899,9 +899,9 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     var integer: diffLuminance is 0;
     var integer: diffChromaBlue is 0;
     var integer: diffChromaRed is 0;
-    var array dataBlockType: luma is 4 times JPEG_BLOCK_SIZE times 0;
-    var dataBlockType: chromaBlue is JPEG_BLOCK_SIZE times 0;
-    var dataBlockType: chromaRed is JPEG_BLOCK_SIZE times 0;
+    var array dataBlockType: luma is 4 times dataBlockType.value;
+    var dataBlockType: chromaBlue is dataBlockType.value;
+    var dataBlockType: chromaRed is dataBlockType.value;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
     entropyCodedStream := openMsbBitStream(entropyCodedSegment);
