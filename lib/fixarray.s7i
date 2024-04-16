@@ -1,0 +1,131 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  fixarray.s7i  Support for arrays with a fixed size              *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Abstract data type, describing fixed size arrays with [[integer]] index.
+ *  A fixed size array type defines the minimum and maximum allowed indices.
+ *  All arrays declared with this type have the same length and the same
+ *  minimum and maximum indices. All abstract fixed size array types are
+ *  incompatible to each other. A type declaration is needed to use the
+ *  same fixed size array type at several places. E.g.:
+ *    const type: dataBlockType is array [1 .. 64] integer;
+ *  afterwards ''dataBlockType'' can be used in declarations. E.g.:
+ *    var dataBlockType: aDataBlock is dataBlockType.value;
+ *  @param minIdx Minimum index of the array type.
+ *  @param maxIdx Maximum index of the array type.
+ *  @param baseType Type of the array elements.
+ *)
+const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type: baseType) is func
+  result
+    var type: arrayType is void;
+  begin
+    global
+      arrayType := newtype;
+      IN_PARAM_IS_REFERENCE(arrayType);
+
+      const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
+      const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
+      const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
+
+      const func arrayType: TIMES (in integer: factor, times, in baseType: element) is action "ARR_TIMES";
+      const arrayType: (attr arrayType) . value is TIMES(succ(maxIdx - minIdx), times, baseType.value);
+
+      (**
+       *  Length of all arrays declared with ''arrayType''.
+       *  All arrays declared with ''arrayType'' have this length.
+       *  @return the length of the array.
+       *)
+      const integer: length (attr arrayType) is succ(maxIdx - minIdx);
+
+      (**
+       *  Minimum index of all arrays declared with ''arrayType''.
+       *  All arrays declared with ''arrayType'' have this minimum index.
+       *  @return the length of the array.
+       *)
+      const integer: minIdx (attr arrayType) is minIdx;
+
+      (**
+       *  Maximum index of all arrays declared with ''arrayType''.
+       *  All arrays declared with ''arrayType'' have this maximum index.
+       *  @return the length of the array.
+       *)
+      const integer: maxIdx (attr arrayType) is maxIdx;
+
+      (**
+       *  Length of the array ''arr''.
+       *  The length of a fixed size array does not depend on the value.
+       *  @return the length of the array.
+       *)
+      const func integer: length (in arrayType: arr) is
+        return succ(maxIdx - minIdx);
+
+      (**
+       *  Minimum index of array ''arr''.
+       *  The minimum index of a fixed size array does not depend on the value.
+       *  @return the minimum index of the array.
+       *)
+      const func integer: minIdx (in arrayType: arr) is
+        return minIdx;
+
+      (**
+       *  Maximum index of array ''arr''.
+       *  The maximum index of a fixed size array does not depend on the value.
+       *  @return the maximum index of the array.
+       *)
+      const func integer: maxIdx (in arrayType: arr) is
+        return maxIdx;
+
+      (**
+       *  Access one element from the fixed size array ''arr''.
+       *  @return the element with the specified ''index'' from ''arr''.
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(attr_arrayType)|minIdx]](arrayType) or
+       *                         greater than [[#maxIdx(attr_arrayType)|maxIdx]](arrayType)
+       *)
+      const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
+
+      const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
+
+    end global;
+  end func;
+
+
+(**
+ *  Abstract data type for fixed size arrays with minimum index of 1.
+ *  A fixed size array type defines the minimum and maximum allowed indices.
+ *  All arrays declared with this type have the same length and the same
+ *  minimum and maximum indices. All abstract fixed size array types are
+ *  incompatible to each other. A type declaration is needed to use the
+ *  same fixed size array type at several places. E.g.:
+ *    const type: dataBlockType is array [64] integer;
+ *  afterwards ''dataBlockType'' can be used in declarations. E.g.:
+ *    var dataBlockType: aDataBlock is dataBlockType.value;
+ *  @param maxIdx Maximum index of the array type.
+ *  @param baseType Type of the array elements.
+ *)
+const func type: array [ (in integer: maxIdx) ] (in type: baseType) is
+  return array[1 .. maxIdx] baseType;
