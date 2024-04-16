@@ -33,6 +33,7 @@ const type: typeReferenceHash is hash [type] reference;
 const type: typeCategoryHash is hash [type] category;
 const type: type_hash is hash [type] type;
 const type: boolean_type_hash is hash [type] boolean;
+const type: integer_type_hash is hash [type] integer;
 const type: element_type_array is array type;
 const type: struct_element_type_hash is hash [type] element_type_array;
 const type: string_type_hash is hash [type] string;
@@ -41,6 +42,8 @@ const type: implements_hash is hash [type] array type;
 var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
 var type_hash: array_element is type_hash.EMPTY_HASH;
 var type_hash: array_type is type_hash.EMPTY_HASH;
+var integer_type_hash: array_minIdx is integer_type_hash.value;
+var integer_type_hash: array_maxIdx is integer_type_hash.value;
 var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
 
 const type: element_number_hash is hash [reference] integer;

@@ -2919,6 +2919,8 @@ const proc: process_type_declaration (in reference: current_object,
 const proc: process_int_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
+  local
+    var ref_list: param_list is ref_list.EMPTY;
   begin
     if isVar(current_object) then
       c_expr.expr &:= "intType o_";
@@ -2927,6 +2929,18 @@ const proc: process_int_declaration (in reference: current_object,
       c_expr.expr &:= integerLiteral(getValue(current_object, integer));
       c_expr.expr &:= ";\n\n";
       count_declarations(c_expr);
+    else
+      param_list := formalParams(current_object);
+      if param_list <> ref_list.EMPTY then
+        if length(param_list) = 2 and
+            category(param_list[1]) = TYPEOBJECT and
+            category(param_list[2]) = SYMBOLOBJECT then
+          case str(param_list[2]) of
+            when {"minIdx"}: array_minIdx @:= [getValue(param_list[1], type)] getValue(current_object, integer);
+            when {"maxIdx"}: array_maxIdx @:= [getValue(param_list[1], type)] getValue(current_object, integer);
+          end case;
+        end if;
+      end if;
     end if;
   end func;
 

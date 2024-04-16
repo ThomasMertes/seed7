@@ -746,6 +746,7 @@ const type: TST_2 is tuple integer;
 
 $ include "array.s7i";
 $ include "idxarray.s7i";
+$ include "fixarray.s7i";
 
 
 (* Functions with arrays of strings *)

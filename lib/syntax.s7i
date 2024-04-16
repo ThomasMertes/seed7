@@ -129,6 +129,7 @@ $ syntax expr: .tuple.()                     is <-  13;
 $ syntax expr: .set.of.()                    is <-  13;
 $ syntax expr: .array.()                     is <-  13;
 $ syntax expr: .array. [ .(). ] .()          is <-  13;
+$ syntax expr: .array. [ .(). .. .(). ] .()  is <-  13;
 $ syntax expr: .hash. [ .(). ] .()           is <-  13;
 $ syntax expr: .new.enum.(expr).end.enum     is  -> 13;
 $ syntax expr: .new.enum.end.enum            is  -> 13;
