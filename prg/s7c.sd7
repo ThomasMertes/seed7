@@ -2929,7 +2929,7 @@ const proc: process_int_declaration (in reference: current_object,
       c_expr.expr &:= integerLiteral(getValue(current_object, integer));
       c_expr.expr &:= ";\n\n";
       count_declarations(c_expr);
-    else
+    elsif optimizeFixedSizeArrays then
       param_list := formalParams(current_object);
       if param_list <> ref_list.EMPTY then
         if length(param_list) = 2 and

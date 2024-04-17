@@ -48,6 +48,7 @@ var boolean: modDividendOptimization is FALSE;
 var boolean: callOptimizeIntAdd      is FALSE;
 var boolean: reduceOverflowChecks    is FALSE;
 var boolean: optimizeComparisons     is FALSE;
+var boolean: optimizeFixedSizeArrays is FALSE;
 var boolean: declare_with_extern_c   is FALSE;
 var boolean: generate_c_plus_plus    is FALSE;
 
@@ -96,6 +97,7 @@ const proc: setOptimizationSettings (in integer: evaluate_const_expr) is func
     modDividendOptimization := evaluate_const_expr >= 3;
     reduceOverflowChecks    := evaluate_const_expr >= 3;
     optimizeComparisons     := evaluate_const_expr >= 3;
+    optimizeFixedSizeArrays := evaluate_const_expr >= 2;
   end func;
 
 
