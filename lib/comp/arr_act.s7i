@@ -947,8 +947,8 @@ const proc: process (ARR_IDX, in reference: function,
                 c_expr.expr &:= integerLiteral(array_minIdx[arrayType]);
                 c_expr.expr &:= ",idxChk(";
                 c_expr.expr &:= index_name;
-                c_expr.expr &:= " > (uintType)";
-                c_expr.expr &:= integerLiteral(array_maxIdx[arrayType] - array_minIdx[arrayType]);
+                c_expr.expr &:= " >= (uintType)";
+                c_expr.expr &:= integerLiteral(succ(array_maxIdx[arrayType] - array_minIdx[arrayType]));
                 c_expr.expr &:= ") ? ";
                 c_expr.expr &:= intRaiseError("INDEX_ERROR");
                 c_expr.expr &:= " : ";
@@ -985,11 +985,11 @@ const proc: process (ARR_IDX, in reference: function,
               c_expr.expr &:= array_name;
               c_expr.expr &:= "->min_position),idxChk(";
               c_expr.expr &:= index_name;
-              c_expr.expr &:= " > (uintType)(";
+              c_expr.expr &:= " >= (uintType)(";
               c_expr.expr &:= array_name;
               c_expr.expr &:= "->max_position) - (uintType)(";
               c_expr.expr &:= array_name;
-              c_expr.expr &:= "->min_position)) ? ";
+              c_expr.expr &:= "->min_position) + (uintType)1) ? ";
               c_expr.expr &:= intRaiseError("INDEX_ERROR");
               c_expr.expr &:= " : ";
               c_expr.expr &:= index_name;
