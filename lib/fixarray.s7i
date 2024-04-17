@@ -52,10 +52,14 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
       const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
       const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
+      const func arrayType: SET_MIN_IDX (paren1, in integer: start, paren2,
+                                         in arrayType: arr)                   is action "ARR_ARRLIT2";
       const func arrayType: TIMES (in integer: factor, times,
                                    in baseType: element, attr arrayType)      is action "ARR_TIMES";
+
       const arrayType: (attr arrayType) . value is
-          TIMES(succ(maxIdx - minIdx), times, baseType.value, arrayType);
+          SET_MIN_IDX(paren1, minIdx, paren2,
+                      TIMES(succ(maxIdx - minIdx), times, baseType.value, arrayType));
 
       (**
        *  Length of all arrays declared with ''arrayType''.
