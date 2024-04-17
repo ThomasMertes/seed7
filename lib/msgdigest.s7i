@@ -32,6 +32,10 @@ include "bin64.s7i";
 include "float.s7i";
 include "math.s7i";
 
+const type: digestData16      is array [16] bin32;
+const type: digestData64      is array [64] bin32;
+const type: digestData80      is array [80] bin32;
+const type: bin64digestData80 is array [80] bin64;
 
 (**
  *  Compute a message digest with the MD4 message digest algorithm.
@@ -54,7 +58,7 @@ const func string: md4 (in var string: message) is func
     var integer: length is 0;
     var integer: wordIndex is 1;
     var integer: index is 0;
-    var array bin32: m is 16 times bin32.value;
+    var digestData16: m is digestData16.value;
     var integer: a0 is 16#67452301;   # a
     var integer: b0 is 16#efcdab89;   # b
     var integer: c0 is 16#98badcfe;   # c
@@ -156,7 +160,7 @@ const func string: md5 (in var string: message) is func
     var integer: length is 0;
     var integer: wordIndex is 1;
     var integer: index is 0;
-    var array bin32: m is 16 times bin32.value;
+    var digestData16: m is digestData16.value;
     var integer: a0 is 16#67452301;   # a
     var integer: b0 is 16#efcdab89;   # b
     var integer: c0 is 16#98badcfe;   # c
@@ -376,7 +380,7 @@ const func string: sha1 (in var string: message) is func
     var integer: length is 0;
     var integer: wordIndex is 1;
     var integer: index is 0;
-    var array bin32: w is 80 times bin32.value;
+    var digestData80: w is digestData80.value;
     var integer: h0 is 16#67452301;
     var integer: h1 is 16#efcdab89;
     var integer: h2 is 16#98badcfe;
@@ -484,7 +488,7 @@ const func string: sha224 (in var string: message) is func
     var integer: length is 0;
     var integer: wordIndex is 1;
     var integer: index is 0;
-    var array bin32: w is 64 times bin32.value;
+    var digestData64: w is digestData64.value;
     # Initialize hash values with the second 32 bits of
     # the fractional parts of the square roots of the 9th through 16th primes 23..53.
     var integer: h0 is 16#c1059ed8;
@@ -609,7 +613,7 @@ const func string: sha256 (in var string: message) is func
     var integer: length is 0;
     var integer: wordIndex is 1;
     var integer: index is 0;
-    var array bin32: w is 64 times bin32.value;
+    var digestData64: w is digestData64.value;
     # Initialize hash values with the first 32 bits of
     # the fractional parts of the square roots of the first 8 primes 2..19.
     var integer: h0 is 16#6a09e667;
@@ -748,7 +752,7 @@ const func string: sha384 (in var string: message) is func
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
-    var array bin64: w is 80 times bin64.value;
+    var bin64digestData80: w is bin64digestData80.value;
     # Initialize hash values with the first 64 bits of
     # the fractional parts of the square roots of the first 8 primes 2..19.
     var bin64: h0 is bin64(16#cbbb9d5dc1059ed8_);
@@ -894,7 +898,7 @@ const func string: sha512 (in var string: message) is func
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
-    var array bin64: w is 80 times bin64.value;
+    var bin64digestData80: w is bin64digestData80.value;
     # Initialize hash values with the first 64 bits of
     # the fractional parts of the square roots of the first 8 primes 2..19.
     var bin64: h0 is bin64(16#6a09e667f3bcc908_);
