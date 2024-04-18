@@ -792,6 +792,42 @@ const proc: setFileMode (inout cpioArchive: cpio, in string: filePath,
 
 
 (**
+ *  Determine the file mode (permissions) of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var integer: modeValue is 0;
+  begin
+    # writeln("getFileMode: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        modeValue := cpio.catalog[filePath].mode;
+      elsif filePath in cpio.register then
+        modeValue := addToCatalog(cpio, filePath).mode;
+      elsif implicitDir(cpio, filePath) then
+        modeValue := addImplicitDir(cpio, filePath).mode;
+      else
+        raise FILE_ERROR;
+      end if;
+      mode := fileMode(modeValue);
+    end if;
+  end func;
+
+
+(**
  *  Determine the size of a file in a CPIO archive.
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
@@ -841,7 +877,7 @@ const func time: getMTime (inout cpioArchive: cpio, in string: filePath) is func
  *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
  *             the chain of symbolic links is too long.
@@ -866,6 +902,42 @@ const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
       else
         raise FILE_ERROR;
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var integer: mtime is 0;
+  begin
+    # writeln("getMTime: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        mtime := cpio.catalog[filePath].mtime;
+      elsif filePath in cpio.register then
+        mtime := addToCatalog(cpio, filePath).mtime;
+      elsif implicitDir(cpio, filePath) then
+        mtime := addImplicitDir(cpio, filePath).mtime;
+      else
+        raise FILE_ERROR;
+      end if;
+      modificationTime := timestamp1970ToTime(mtime);
     end if;
   end func;
 
@@ -917,6 +989,42 @@ const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
 
 
 (**
+ *  Determine the name of the owner (UID) of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
+  result
+    var string: owner is "";
+  local
+    var integer: uid is 0;
+  begin
+    # writeln("getOwner: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        uid := cpio.catalog[filePath].uid;
+      elsif filePath in cpio.register then
+        uid := addToCatalog(cpio, filePath).uid;
+      elsif implicitDir(cpio, filePath) then
+        uid := addImplicitDir(cpio, filePath).uid;
+      else
+        raise FILE_ERROR;
+      end if;
+      owner := str(uid);
+    end if;
+  end func;
+
+
+(**
  *  Determine the name of the group (GID) of a file in a CPIO archive.
  *  The function follows symbolic links.
  *  @return the name of the file group.
@@ -958,6 +1066,42 @@ const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
       else
         raise FILE_ERROR;
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getGroup (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
+  result
+    var string: group is "";
+  local
+    var integer: gid is 0;
+  begin
+    # writeln("getGroup: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        gid := cpio.catalog[filePath].gid;
+      elsif filePath in cpio.register then
+        gid := addToCatalog(cpio, filePath).gid;
+      elsif implicitDir(cpio, filePath) then
+        gid := addImplicitDir(cpio, filePath).gid;
+      else
+        raise FILE_ERROR;
+      end if;
+      group := str(gid);
     end if;
   end func;
 
