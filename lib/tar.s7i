@@ -913,7 +913,7 @@ const func time: getMTime (inout tarArchive: tar, in string: filePath) is func
  *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
  *             the chain of symbolic links is too long.
@@ -1047,6 +1047,147 @@ const proc: setGroup (inout tarArchive: tar, in string: filePath,
         writeHead(tar.tarFile, tar.catalog[header.filePath]);
       else
         raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a symbolic link in a TAR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath, SYMLINK) is func
+  result
+    var fileMode: mode is fileMode.value;
+  begin
+    # writeln("getFileMode: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in tar.catalog then
+        mode := tar.catalog[filePath].mode;
+      elsif filePath in tar.register then
+        mode := addToCatalog(tar, filePath).mode;
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a symbolic link in a TAR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func time: getMTime (inout tarArchive: tar, in string: filePath, SYMLINK) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var integer: mtime is 0;
+  begin
+    # writeln("getMTime: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in tar.catalog then
+        mtime := tar.catalog[filePath].mtime;
+      elsif filePath in tar.register then
+        mtime := addToCatalog(tar, filePath).mtime;
+      else
+        raise FILE_ERROR;
+      end if;
+      modificationTime := timestamp1970ToTime(mtime);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the owner (UID) of a symbolic link in a TAR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getOwner (inout tarArchive: tar, in string: filePath, SYMLINK) is func
+  result
+    var string: owner is "";
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    # writeln("getOwner: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in tar.catalog then
+        header := tar.catalog[filePath];
+      elsif filePath in tar.register then
+        header := addToCatalog(tar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if header.uname <> "" then
+        owner := header.uname;
+      else
+        owner := str(header.uid);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a symbolic link in a TAR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getGroup (inout tarArchive: tar, in string: filePath, SYMLINK) is func
+  result
+    var string: group is "";
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    # writeln("getGroup: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in tar.catalog then
+        header := tar.catalog[filePath];
+      elsif filePath in tar.register then
+        header := addToCatalog(tar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if header.gname <> "" then
+        group := header.gname;
+      else
+        group := str(header.gid);
       end if;
     end if;
   end func;
