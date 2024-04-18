@@ -1973,9 +1973,6 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
   result
     var string: missingPath is "";
   local
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
     var integer: symlinkCount is MAX_SYMLINKS;
     var boolean: isSymlink is TRUE;
   begin
@@ -2120,9 +2117,6 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
   begin
     # writeln("fileTypeSL: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -2375,7 +2369,7 @@ const func string: getGroup (inout rpmArchive: rpm, in string: filePath) is func
       else
         group := str(catalogEntry.gid);
       end if;
-     end if;
+    end if;
   end func;
 
 
@@ -2404,6 +2398,154 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
         setGroup(rpm.archive,
                  archiveFilePath(rpm.archive, catalogEntry.filePath),
                  group);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    # writeln("getFileMode: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      mode := fileMode(catalogEntry.mode);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func time: getMTime (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    # writeln("getMTime: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      modificationTime := timestamp1970ToTime(catalogEntry.mtime);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the owner (UID) of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getOwner (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
+  result
+    var string: owner is "";
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    # writeln("getOwner: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if catalogEntry.userName <> "" then
+        owner := catalogEntry.userName;
+      else
+        owner := str(catalogEntry.uid);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' does not
+ *             exist, or it is not a symbolic link.
+ *)
+const func string: getGroup (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
+  result
+    var string: group is "";
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    # writeln("getGroup: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if catalogEntry.groupName <> "" then
+        group := catalogEntry.groupName;
+      else
+        group := str(catalogEntry.gid);
       end if;
     end if;
   end func;
