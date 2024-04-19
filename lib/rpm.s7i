@@ -2255,7 +2255,7 @@ const func time: getMTime (inout rpmArchive: rpm, in string: filePath) is func
  *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
  *             the chain of symbolic links is too long.
@@ -2263,8 +2263,8 @@ const func time: getMTime (inout rpmArchive: rpm, in string: filePath) is func
 const proc: setMTime (inout rpmArchive: rpm, in string: filePath,
     in time: modificationTime) is func
   local
-    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: mtime is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
   begin
     mtime := timestamp1970(modificationTime);
     if mtime < 0 or mtime >= 2 ** 31 or
@@ -2315,6 +2315,14 @@ const func string: getOwner (inout rpmArchive: rpm, in string: filePath) is func
   end func;
 
 
+(**
+ *  Set the owner of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
 const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
     in string: owner) is func
   local
@@ -2337,9 +2345,13 @@ const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
         if rpm.archive = fileSys.value then
           getArchive(rpm);
         end if;
-        setOwner(rpm.archive,
-                 archiveFilePath(rpm.archive, catalogEntry.filePath),
-                 owner);
+        block
+          setOwner(rpm.archive,
+                   archiveFilePath(rpm.archive, catalogEntry.filePath),
+                   owner);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
       end if;
     end if;
   end func;
@@ -2373,6 +2385,14 @@ const func string: getGroup (inout rpmArchive: rpm, in string: filePath) is func
   end func;
 
 
+(**
+ *  Set the group of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
 const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
     in string: group) is func
   local
@@ -2395,9 +2415,13 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
         if rpm.archive = fileSys.value then
           getArchive(rpm);
         end if;
-        setGroup(rpm.archive,
-                 archiveFilePath(rpm.archive, catalogEntry.filePath),
-                 group);
+        block
+          setGroup(rpm.archive,
+                   archiveFilePath(rpm.archive, catalogEntry.filePath),
+                   group);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
       end if;
     end if;
   end func;
@@ -2410,8 +2434,8 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
  *)
 const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
   result
@@ -2433,7 +2457,11 @@ const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath, SY
       if not catalogEntry.allDataPresent then
         readCatalogEntry(rpm, catalogEntry);
       end if;
-      mode := fileMode(catalogEntry.mode);
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        mode := fileMode(catalogEntry.mode);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -2445,8 +2473,8 @@ const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath, SY
  *  @return the modification time of the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
  *)
 const func time: getMTime (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
   result
@@ -2468,7 +2496,60 @@ const func time: getMTime (inout rpmArchive: rpm, in string: filePath, SYMLINK) 
       if not catalogEntry.allDataPresent then
         readCatalogEntry(rpm, catalogEntry);
       end if;
-      modificationTime := timestamp1970ToTime(catalogEntry.mtime);
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        modificationTime := timestamp1970ToTime(catalogEntry.mtime);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the modification time of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
+ *)
+const proc: setMTime (inout rpmArchive: rpm, in string: filePath,
+    in time: modificationTime, SYMLINK) is func
+  local
+    var integer: mtime is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    mtime := timestamp1970(modificationTime);
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        catalogEntry.mtime := mtime;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        setMTime(rpm.archive,
+                 archiveFilePath(rpm.archive, catalogEntry.filePath),
+                 modificationTime, SYMLINK);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -2480,8 +2561,8 @@ const func time: getMTime (inout rpmArchive: rpm, in string: filePath, SYMLINK) 
  *  @return the name of the file owner.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
  *)
 const func string: getOwner (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
   result
@@ -2503,10 +2584,69 @@ const func string: getOwner (inout rpmArchive: rpm, in string: filePath, SYMLINK
       if not catalogEntry.allDataPresent then
         readCatalogEntry(rpm, catalogEntry);
       end if;
-      if catalogEntry.userName <> "" then
-        owner := catalogEntry.userName;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        if catalogEntry.userName <> "" then
+          owner := catalogEntry.userName;
+        else
+          owner := str(catalogEntry.uid);
+        end if;
       else
-        owner := str(catalogEntry.uid);
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the owner of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
+ *)
+const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
+    in string: owner, SYMLINK) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var integer: mtime is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        if isDigitString(owner) then
+          catalogEntry.uid := integer(owner);
+          catalogEntry.userName := "";
+        else
+          catalogEntry.uid := 0;
+          catalogEntry.userName := owner;
+        end if;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        block
+          setOwner(rpm.archive,
+                   archiveFilePath(rpm.archive, catalogEntry.filePath),
+                   owner, SYMLINK);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
+      else
+        raise FILE_ERROR;
       end if;
     end if;
   end func;
@@ -2519,8 +2659,8 @@ const func string: getOwner (inout rpmArchive: rpm, in string: filePath, SYMLINK
  *  @return the name of the file group.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
  *)
 const func string: getGroup (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
   result
@@ -2542,10 +2682,69 @@ const func string: getGroup (inout rpmArchive: rpm, in string: filePath, SYMLINK
       if not catalogEntry.allDataPresent then
         readCatalogEntry(rpm, catalogEntry);
       end if;
-      if catalogEntry.groupName <> "" then
-        group := catalogEntry.groupName;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        if catalogEntry.groupName <> "" then
+          group := catalogEntry.groupName;
+        else
+          group := str(catalogEntry.gid);
+        end if;
       else
-        group := str(catalogEntry.gid);
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
+ *)
+const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
+    in string: group, SYMLINK) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var integer: mtime is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        if isDigitString(group) then
+          catalogEntry.gid := integer(group);
+          catalogEntry.groupName := "";
+        else
+          catalogEntry.gid := 0;
+          catalogEntry.groupName := group;
+        end if;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        block
+          setGroup(rpm.archive,
+                   archiveFilePath(rpm.archive, catalogEntry.filePath),
+                   group, SYMLINK);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
+      else
+        raise FILE_ERROR;
       end if;
     end if;
   end func;
