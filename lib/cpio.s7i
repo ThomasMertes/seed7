@@ -891,21 +891,33 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath) is fu
   end func;
 
 
+(**
+ *  Set the owner of a file in a CPIO archive.
+ *  The function follows symbolic links. The CPIO archive format allows
+ *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
+ *  ''owner'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
+ *)
 const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
     in string: owner) is func
   local
+    var integer: uid is 0;
     var cpioHeader: header is cpioHeader.value;
   begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
       header := followSymlink(cpio, filePath);
       if header.filePath in cpio.register then
-        if isDigitString(owner) then
-          header.uid := integer(owner);
-        else
-          header.uid := 0;
-        end if;
+        header.uid := uid;
         cpio.catalog @:= [header.filePath] header;
         seek(cpio.cpioFile, cpio.register[header.filePath]);
         writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
@@ -937,21 +949,33 @@ const func string: getGroup (inout cpioArchive: cpio, in string: filePath) is fu
   end func;
 
 
+(**
+ *  Set the group of a file in a CPIO archive.
+ *  The function follows symbolic links. The CPIO archive format allows
+ *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
+ *  ''group'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
+ *)
 const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
     in string: group) is func
   local
+    var integer: gid is 0;
     var cpioHeader: header is cpioHeader.value;
   begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
       header := followSymlink(cpio, filePath);
       if header.filePath in cpio.register then
-        if isDigitString(group) then
-          header.gid := integer(group);
-        else
-          header.gid := 0;
-        end if;
+        header.gid := gid;
         cpio.catalog @:= [header.filePath] header;
         seek(cpio.cpioFile, cpio.register[header.filePath]);
         writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
@@ -969,14 +993,14 @@ const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
  *)
 const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
     var fileMode: mode is fileMode.value;
   local
-    var integer: modeValue is 0;
+    var cpioHeader: header is cpioHeader.value;
   begin
     # writeln("getFileMode: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -985,13 +1009,17 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, 
       raise FILE_ERROR;
     else
       if filePath in cpio.catalog then
-        modeValue := cpio.catalog[filePath].mode;
+        header := cpio.catalog[filePath];
       elsif filePath in cpio.register then
-        modeValue := addToCatalog(cpio, filePath).mode;
+        header := addToCatalog(cpio, filePath);
       else
         raise FILE_ERROR;
       end if;
-      mode := fileMode(modeValue);
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        mode := fileMode(header.mode);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -1003,14 +1031,14 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, 
  *  @return the modification time of the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
  *)
 const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
     var time: modificationTime is time.value;
   local
-    var integer: mtime is 0;
+    var cpioHeader: header is cpioHeader.value;
   begin
     # writeln("getMTime: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1019,13 +1047,60 @@ const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK
       raise FILE_ERROR;
     else
       if filePath in cpio.catalog then
-        mtime := cpio.catalog[filePath].mtime;
+        header := cpio.catalog[filePath];
       elsif filePath in cpio.register then
-        mtime := addToCatalog(cpio, filePath).mtime;
+        header := addToCatalog(cpio, filePath);
       else
         raise FILE_ERROR;
       end if;
-      modificationTime := timestamp1970ToTime(mtime);
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        modificationTime := timestamp1970ToTime(header.mtime);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the modification time of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
+ *)
+const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
+    in time: modificationTime, SYMLINK) is func
+  local
+    var integer: mtime is 0;
+    var cpioHeader: header is cpioHeader.value;
+  begin
+    mtime := timestamp1970(modificationTime);
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        header := cpio.catalog[filePath];
+      elsif filePath in cpio.register then
+        header := addToCatalog(cpio, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.mtime := mtime;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -1037,14 +1112,14 @@ const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK
  *  @return the name of the file owner.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
  *)
 const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
     var string: owner is "";
   local
-    var integer: uid is 0;
+    var cpioHeader: header is cpioHeader.value;
   begin
     # writeln("getOwner: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1053,13 +1128,63 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLI
       raise FILE_ERROR;
     else
       if filePath in cpio.catalog then
-        uid := cpio.catalog[filePath].uid;
+        header := cpio.catalog[filePath];
       elsif filePath in cpio.register then
-        uid := addToCatalog(cpio, filePath).uid;
+        header := addToCatalog(cpio, filePath);
       else
         raise FILE_ERROR;
       end if;
-      owner := str(uid);
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        owner := str(header.uid);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the owner of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The CPIO archive format allows only a numeric UID.
+ *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
+ *)
+const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
+    in string: owner, SYMLINK) is func
+  local
+    var integer: uid is 0;
+    var cpioHeader: header is cpioHeader.value;
+  begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        header := cpio.catalog[filePath];
+      elsif filePath in cpio.register then
+        header := addToCatalog(cpio, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.uid := uid;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -1071,14 +1196,14 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLI
  *  @return the name of the file group.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' does not
- *             exist, or it is not a symbolic link.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
  *)
 const func string: getGroup (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
     var string: group is "";
   local
-    var integer: gid is 0;
+    var cpioHeader: header is cpioHeader.value;
   begin
     # writeln("getGroup: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1087,13 +1212,63 @@ const func string: getGroup (inout cpioArchive: cpio, in string: filePath, SYMLI
       raise FILE_ERROR;
     else
       if filePath in cpio.catalog then
-        gid := cpio.catalog[filePath].gid;
+        header := cpio.catalog[filePath];
       elsif filePath in cpio.register then
-        gid := addToCatalog(cpio, filePath).gid;
+        header := addToCatalog(cpio, filePath);
       else
         raise FILE_ERROR;
       end if;
-      group := str(gid);
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        group := str(header.gid);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a symbolic link in a CPIO archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The CPIO archive format allows only a numeric GID.
+ *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the CPIO archive, or it is not a symbolic link.
+ *)
+const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
+    in string: group, SYMLINK) is func
+  local
+    var integer: gid is 0;
+    var cpioHeader: header is cpioHeader.value;
+  begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in cpio.catalog then
+        header := cpio.catalog[filePath];
+      elsif filePath in cpio.register then
+        header := addToCatalog(cpio, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.gid := gid;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 
