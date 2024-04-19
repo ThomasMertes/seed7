@@ -743,6 +743,7 @@ const func string: homeDir                                   is action "CMD_HOME
  *  The examples assume that the current working directory is "/home/myuser".
  *   toAbsPath(getcwd, "aFile")    returns e.g. "/home/myuser/aFile"
  *   toAbsPath(".", "aFile")       returns e.g. "/home/myuser/aFile"
+ *   toAbsPath(".", "../aFile")    returns e.g. "/home/aFile"
  *   toAbsPath(".", "..")          returns e.g. "/home"
  *   toAbsPath("/usr", "include")  returns "/usr/include"
  *  @param basePath Path of the base location. The relative ''path'' is
@@ -768,37 +769,7 @@ const func string: toAbsPath (in string: basePath, in string: path) is func
     else
       absolutePath := getcwd & "/" & basePath & "/" & path;
     end if;
-    absolutePath := replace(absolutePath, "/./", "/");
-    dotdotPos := pos(absolutePath, "/..");
-    while dotdotPos <> 0 do
-      slashPos := rpos(absolutePath, '/', pred(dotdotPos));
-      if length(absolutePath) = dotdotPos + 2 then
-        if slashPos <= 1 then
-          absolutePath := "/";
-        else
-          absolutePath := absolutePath[.. pred(slashPos)];
-        end if;
-        dotdotPos := 0;
-      elsif absolutePath[dotdotPos + 3] = '/' then
-        if slashPos <> 0 then
-          absolutePath := absolutePath[.. pred(slashPos)] & absolutePath[dotdotPos + 3 ..];
-        else
-          absolutePath := absolutePath[dotdotPos + 3 ..];
-        end if;
-        dotdotPos := pos(absolutePath, "/..");
-      else
-        dotdotPos := pos(absolutePath, "/..", succ(dotdotPos));
-      end if;
-    end while;
-    if endsWith(absolutePath, "/.") then
-      if absolutePath = "/." then
-        absolutePath := "/";
-      else
-        absolutePath := absolutePath[.. length(absolutePath) - 2];
-      end if;
-    end if;
-    # writeln("toAbsPath(" <& literal(basePath) <& ", " <& literal(path) <&
-    #         ") --> " <& literal(absolutePath));
+    absolutePath := removeDotFiles(absolutePath);
   end func;
 
 

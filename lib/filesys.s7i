@@ -106,6 +106,103 @@ enable_output(fileMode);
 
 
 (**
+ *  Removes dot files (. and ..) from a path.
+ *   removeDotFiles("/home/myuser/aFile/..")          returns "/home/myuser"
+ *   removeDotFiles("/aDir/aFile/../../home/myuser")  returns "/home/myuser"
+ *   removeDotFiles("/aDir/aFile/../../..")           returns "/"
+ *   removeDotFiles("aDir/aFile/../../..")            returns ".."
+ *   removeDotFiles("aDir/./aFile/.")                 returns "aDir/aFile"
+ *  @param path Absolute or relative path where the dot files should
+ *         be removed.
+ *  @return an absolute or relative path without dot files.
+ *)
+const func string: removeDotFiles (in string: path) is func
+  result
+    var string: resultPath is "";
+  local
+    var integer: dotdotPos is 0;
+    var integer: slashPos is 0;
+  begin
+    resultPath := replace(path, "/./", "/");
+    dotdotPos := pos(resultPath, "/..");
+    while dotdotPos <> 0 do
+      slashPos := rpos(resultPath, '/', pred(dotdotPos));
+      if length(resultPath) = dotdotPos + 2 then
+        if slashPos <= 1 then
+          if startsWith(resultPath, "/") then
+            resultPath := "/";
+          elsif resultPath = "../.." then
+            resultPath := "..";
+          else
+            resultPath := ".";
+          end if;
+        else
+          resultPath := resultPath[.. pred(slashPos)];
+        end if;
+        dotdotPos := 0;
+      elsif resultPath[dotdotPos + 3] = '/' then
+        if slashPos <> 0 then
+          resultPath := resultPath[.. pred(slashPos)] & resultPath[dotdotPos + 3 ..];
+        else
+          if startsWith(resultPath, "/") then
+            resultPath := resultPath[dotdotPos + 3 ..];
+          else
+            resultPath := resultPath[dotdotPos + 4 ..];
+          end if;
+        end if;
+        dotdotPos := pos(resultPath, "/..");
+      else
+        dotdotPos := pos(resultPath, "/..", succ(dotdotPos));
+      end if;
+    end while;
+    if endsWith(resultPath, "/.") then
+      if resultPath = "/." then
+        resultPath := "/";
+      else
+        resultPath := resultPath[.. length(resultPath) - 2];
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Destination of the symlink ''symlinkPath'' with the target ''targetPath''.
+ *  Symbolic links can be relative or absolute. Relative symbolic links are
+ *  relative to their place in the file system and not relative to the
+ *  current working directory.
+ *  @param symlinkPath Path of the symbolic link.
+ *  @param targetPath Relative or absolute target of the symbolic link:
+ *  @return an absolute or relative destination of the symbolic link.
+ *)
+const func string: symlinkDestination (in string: symlinkPath, in string: targetPath) is func
+  result
+    var string: destination is "";
+  local
+    var integer: slashPos is 0;
+    var string: symlinkDir is "";
+  begin
+    if startsWith(targetPath, "/") then
+      destination := targetPath;
+    else
+      slashPos := rpos(symlinkPath, '/');
+      if slashPos > 1 then
+        symlinkDir := symlinkPath[.. pred(slashPos)];
+      elsif slashPos = 1 then
+        symlinkDir := "/";
+      else
+        symlinkDir := ".";
+      end if;
+      if symlinkDir = "/" then
+        destination := "/" & targetPath;
+      else
+        destination := symlinkDir & "/" & targetPath;
+      end if;
+    end if;
+    destination := removeDotFiles(destination);
+  end func;
+
+
+(**
  *  Interface type for file systems ([[osfiles#osFileSys|os]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[cpio#cpioArchive|cpio]], [[rpm#rpmArchive|rpm]], [[ftp#ftpConnection|ftp]], ...).
  *)
 const type: fileSys is sub object interface;

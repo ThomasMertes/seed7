@@ -643,7 +643,7 @@ const func string: followSymlink (inout tarArchive: tar, in var string: filePath
       end if;
       if missingPath = "" then
         if header.typeflag = SYMTYPE then
-          filePath := header.linkPath;
+          filePath := symlinkDestination(filePath, header.linkPath);
           if startsWith(filePath, "/") and
               filePath not in tar.catalog and filePath not in tar.register then
             filePath := filePath[2 ..];
@@ -747,7 +747,8 @@ const func fileType: fileType (inout tarArchive: tar, in var string: filePath) i
             when {DIRTYPE}:  aFileType := FILE_DIR;
             when {FIFOTYPE}: aFileType := FILE_FIFO;
             when {CONTTYPE}: aFileType := FILE_UNKNOWN;
-            when {SYMTYPE}:  filePath := header.linkPath;
+            when {SYMTYPE}:
+              filePath := symlinkDestination(filePath, header.linkPath);
               if startsWith(filePath, "/") and
                   filePath not in tar.catalog and filePath not in tar.register then
                 filePath := filePath[2 ..];

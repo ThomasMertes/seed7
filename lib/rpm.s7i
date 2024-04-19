@@ -1976,6 +1976,7 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
     var integer: symlinkCount is MAX_SYMLINKS;
     var boolean: isSymlink is TRUE;
   begin
+    # writeln("followSymlink: " <& filePath);
     repeat
       if filePath in rpm.catalog then
         catalogEntry := rpm.catalog[filePath];
@@ -1991,7 +1992,7 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
           readCatalogEntry(rpm, catalogEntry);
         end if;
         if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-          filePath := catalogEntry.linkTo;
+          filePath := symlinkDestination(filePath, catalogEntry.linkTo);
         else
           isSymlink := FALSE;
         end if;
@@ -2091,7 +2092,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
             when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
-              filePath := catalogEntry.linkTo;
+              filePath := symlinkDestination(filePath, catalogEntry.linkTo);
             otherwise:
               raise RANGE_ERROR;
           end case;
