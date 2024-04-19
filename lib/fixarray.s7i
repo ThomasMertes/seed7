@@ -62,6 +62,15 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
                       TIMES(succ(maxIdx - minIdx), times, baseType.value, arrayType));
 
       (**
+       *  Generate an ''arrayType'' array filled with ''elements''.
+       *  @return a fixed size array filled with ''elements''.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (attr arrayType) times (in baseType: element) is
+          return SET_MIN_IDX(paren1, minIdx, paren2,
+                             TIMES(succ(maxIdx - minIdx), times, element, arrayType));
+
+      (**
        *  Length of all arrays declared with ''arrayType''.
        *  All arrays declared with ''arrayType'' have this length.
        *  @return the length of the array.
@@ -87,24 +96,21 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
        *  The length of a fixed size array does not depend on the value.
        *  @return the length of the array.
        *)
-      const func integer: length (in arrayType: arr) is
-        return succ(maxIdx - minIdx);
+      const integer: length (in arrayType: arr) is succ(maxIdx - minIdx);
 
       (**
        *  Minimum index of array ''arr''.
        *  The minimum index of a fixed size array does not depend on the value.
        *  @return the minimum index of the array.
        *)
-      const func integer: minIdx (in arrayType: arr) is
-        return minIdx;
+      const integer: minIdx (in arrayType: arr) is minIdx;
 
       (**
        *  Maximum index of array ''arr''.
        *  The maximum index of a fixed size array does not depend on the value.
        *  @return the maximum index of the array.
        *)
-      const func integer: maxIdx (in arrayType: arr) is
-        return maxIdx;
+      const integer: maxIdx (in arrayType: arr) is maxIdx;
 
       (**
        *  Access one element from the fixed size array ''arr''.
