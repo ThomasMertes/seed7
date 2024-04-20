@@ -95,6 +95,7 @@ var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
+var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
@@ -1580,7 +1581,6 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
     var category: functionCategory is category.value;
-    var reference: result_object is NIL;
     var reference: obj is NIL;
     var boolean: first_element is TRUE;
   begin
@@ -1598,11 +1598,10 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     if functionCategory = ACTOBJECT then
       process_action(function, params, c_expr);
     elsif functionCategory = BLOCKOBJECT then
-      result_object := resultVar(function);
-      if function in function_declared or result_object <> NIL then
-        process_func_call(function, params, c_expr);
-      else
+      if function in function_not_declared then
         process_inline(function, params, c_expr);
+      else
+        process_func_call(function, params, c_expr);
       end if;
     elsif functionCategory = LOCALVOBJECT then
       process_func_call(function, params, c_expr);
@@ -2533,11 +2532,13 @@ const proc: process_const_func_declaration (in reference: function,
         count_declarations(c_expr);
       else
         excl(function_declared, function);
+        function_not_declared @:= [function] TRUE;
         c_expr.expr &:= "/* declare inline o_";
         create_name2(function, c_expr.expr);
         c_expr.expr &:= "*/\n\n";
       end if;
     else
+      function_not_declared @:= [function] TRUE;
       c_expr.expr &:= "/* declare inline o_";
       create_name2(function, c_expr.expr);
       c_expr.expr &:= "*/\n\n";
@@ -3932,10 +3933,10 @@ const proc: process_dynamic_call (in reference: function,
         if resultType(getType(interface_object)) <> voidtype then
           c_expr.expr &:= "return ";
         end if;
-        if function in function_declared or resultVar(function) <> NIL then
-          process_dynamic_function_call(function, actual_params, interface_object, c_expr);
-        else
+        if function in function_not_declared then
           process_inline(function, actual_params, c_expr);
+        else
+          process_dynamic_function_call(function, actual_params, interface_object, c_expr);
         end if;
         c_expr.expr &:= ";\n";
       elsif objectCategory = ACTOBJECT then
