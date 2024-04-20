@@ -295,9 +295,8 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     function := params[1];
     params := params[2 ..];
     if not isVar(function) then
-      if category(function) in constantExpressionCategories then
-        isConstantCall := TRUE;
-      elsif isPureFunction(function) then
+      if category(function) in constantExpressionCategories or
+          isPureFunction(function) then
         isConstantCall := TRUE;
         for obj range params until not isConstantCall do
           if not isConstant(obj) then
