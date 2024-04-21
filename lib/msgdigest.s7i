@@ -32,10 +32,12 @@ include "bin64.s7i";
 include "float.s7i";
 include "math.s7i";
 
+
 const type: digestData16      is array [16] bin32;
 const type: digestData64      is array [64] bin32;
 const type: digestData80      is array [80] bin32;
 const type: bin64digestData80 is array [80] bin64;
+
 
 (**
  *  Compute a message digest with the MD4 message digest algorithm.

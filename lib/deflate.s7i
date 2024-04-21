@@ -121,12 +121,13 @@ const proc: putDistance (inout string: stri, inout integer: bitPos, in integer: 
 
 
 const type: lookupDict is hash [string] integer;
+const type: slidingWindowType is array [0 .. 32767] integer;
 
 const type: deflateData is new struct
     var integer: uPos is 1;
     var integer: bitPos is 0;
     var lookupDict: dictionary is lookupDict.value;
-    var array integer: slidingWindow is [0 .. 32767] times -32768;
+    var slidingWindowType: slidingWindow is slidingWindowType times -32768;
   end struct;
 
 

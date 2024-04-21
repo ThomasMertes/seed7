@@ -181,7 +181,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     var integer: hlit is 0;
     var integer: hdist is 0;
     var integer: hclen is 0;
-    var array integer: lengthCodeLengths is [0 .. -1] times 0;
+    var array integer: lengthCodeLengths is [0 .. 18] times 0;
     var array integer: combinedCodeLengths is [0 .. -1] times 0;
     var array integer: literalOrLengthCodeLengths is [0 .. -1] times 0;
     var array integer: distanceCodeLengths is [0 .. -1] times 0;
@@ -199,7 +199,6 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     hlit := getBits(compressedStream, 5);
     hdist := getBits(compressedStream, 5);
     hclen := getBits(compressedStream, 4);
-    lengthCodeLengths := [0 .. 18] times 0;
     for number range 1 to hclen + 4 do
       lengthCodeLengths[codeLengthAlphabet[number]] := getBits(compressedStream, 3);
     end for;

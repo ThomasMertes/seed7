@@ -498,7 +498,7 @@ const proc: write (inout gzipWriteFile: outFile, in string: stri) is func
       write(outFile.destFile, outFile.compressed[.. pred(length(outFile.compressed))]);
       outFile.deflateState.uPos := 1;
       outFile.deflateState.dictionary := lookupDict.value;
-      outFile.deflateState.slidingWindow := [0 .. 32767] times -32768;
+      outFile.deflateState.slidingWindow := slidingWindowType times -32768;
       outFile.crc32 := crc32(outFile.uncompressed, outFile.crc32);
       outFile.uncompressedLength +:= length(outFile.uncompressed);
       outFile.uncompressed := "";
