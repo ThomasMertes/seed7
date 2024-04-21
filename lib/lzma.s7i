@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lzma.s7i      LZMA compression support library                  *)
-(*  Copyright (C) 2020, 2021, 2023  Thomas Mertes                   *)
+(*  Copyright (C) 2020, 2021, 2023, 2024  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -170,25 +170,6 @@ const func integer: getDirectBits (inout lzmaRangeDecoderState: decoderState, in
   end func;
 
 
-const func integer: bitTreeReverseDecode (inout lzmaRangeDecoderState: decoderState,
-    inout array integer: probs, in integer: numBits) is func
-  result
-    var integer: bits is 0;
-  local
-    var integer: m is 1;
-    var integer: bitNum is 0;
-    var integer: bit is 0;
-  begin
-    for bitNum range 0 to pred(numBits) do
-      # writeln("probs[" <& m <& "]");
-      bit := getBit(decoderState, probs[m]);
-      m <<:= 1;
-      m +:= bit;
-      bits +:= bit << bitNum;
-    end for;
-  end func;
-
-
 const integer: LZMA_MODEL_TOTAL_BITS is 11;
 const integer: LZMA_PROB_INIT_VAL is (1 << LZMA_MODEL_TOTAL_BITS) mdiv 2;
 
@@ -196,16 +177,19 @@ const integer: LZMA_PROB_INIT_VAL is (1 << LZMA_MODEL_TOTAL_BITS) mdiv 2;
 const func type: lzmaBitTreeDecoder (in integer: numBits) is func
   result
     var type: decoderType is void;
+  local
+    var type: probsType is void;
   begin
+    probsType := array [0 .. pred(1 << numBits)] integer;
     decoderType := new struct
-        var array integer: probs is [0 .. pred(1 << numBits)] times LZMA_PROB_INIT_VAL;
+        var probsType: probs is probsType times LZMA_PROB_INIT_VAL;
       end struct;
 
     global
 
       const proc: init (inout decoderType: decoder) is func
         begin
-          decoder.probs := [0 .. pred(1 << numBits)] times LZMA_PROB_INIT_VAL;
+          decoder.probs := probsType times LZMA_PROB_INIT_VAL;
         end func;
 
       const func integer: decode (inout decoderType: decoder, inout lzmaRangeDecoderState: decoderState) is func
@@ -220,8 +204,22 @@ const func type: lzmaBitTreeDecoder (in integer: numBits) is func
           bits -:= 1 << numBits;
         end func;
 
-        const func integer: reverseDecode (inout decoderType: decoder, inout lzmaRangeDecoderState: decoderState) is
-          return bitTreeReverseDecode(decoderState, decoder.probs, numBits);
+      const func integer: reverseDecode (inout decoderType: decoder, inout lzmaRangeDecoderState: decoderState) is func
+        result
+          var integer: bits is 0;
+        local
+          var integer: m is 1;
+          var integer: bitNum is 0;
+          var integer: bit is 0;
+        begin
+          for bitNum range 0 to pred(numBits) do
+            # writeln("decoder.probs[" <& m <& "]");
+            bit := getBit(decoderState, decoder.probs[m]);
+            m <<:= 1;
+            m +:= bit;
+            bits +:= bit << bitNum;
+          end for;
+        end func;
 
     end global;
   end func;
@@ -235,12 +233,13 @@ const type: lzmaBitTreeDecoder4 is lzmaBitTreeDecoder(4);
 const type: lzmaBitTreeDecoder6 is lzmaBitTreeDecoder(6);
 const type: lzmaBitTreeDecoder8 is lzmaBitTreeDecoder(8);
 
+const type: decoder3ArrayType is array [0 .. LZMA_POS_STATE_MAX] lzmaBitTreeDecoder3;
 
 const type: lzmaLenDecoder is new struct
     var integer: choice is LZMA_PROB_INIT_VAL;
     var integer: choice2 is LZMA_PROB_INIT_VAL;
-    var array lzmaBitTreeDecoder3: lowCoder is [0 .. LZMA_POS_STATE_MAX] times lzmaBitTreeDecoder3.value;
-    var array lzmaBitTreeDecoder3: midCoder is [0 .. LZMA_POS_STATE_MAX] times lzmaBitTreeDecoder3.value;
+    var decoder3ArrayType: lowCoder is decoder3ArrayType.value;
+    var decoder3ArrayType: midCoder is decoder3ArrayType.value;
     var lzmaBitTreeDecoder8: highCoder is lzmaBitTreeDecoder8.value;
   end struct;
 
@@ -252,8 +251,8 @@ const proc: init (inout lzmaLenDecoder: decoder) is func
     decoder.choice := LZMA_PROB_INIT_VAL;
     decoder.choice2 := LZMA_PROB_INIT_VAL;
     init(decoder.highCoder);
-    decoder.lowCoder := [0 .. LZMA_POS_STATE_MAX] times lzmaBitTreeDecoder3.value;
-    decoder.midCoder := [0 .. LZMA_POS_STATE_MAX] times lzmaBitTreeDecoder3.value;
+    decoder.lowCoder := decoder3ArrayType.value;
+    decoder.midCoder := decoder3ArrayType.value;
     for posState range 0 to LZMA_POS_STATE_MAX do
       init(decoder.lowCoder[posState]);
       init(decoder.midCoder[posState]);
@@ -334,6 +333,14 @@ const integer: LZMA_MATCH_MIN_LEN is 2;
 const integer: LZMA_DIC_MIN is 1 << 12;
 
 
+const type: litProbsType             is array [0 .. 16#2ff] integer;
+const type: decoder6ArrayType        is array [0 .. LZMA_LEN_STATE_MAX] lzmaBitTreeDecoder6;
+const type: posDecoderProbsType      is array [1 .. 127] integer;
+const type: posDecoderProbsArrayType is array [4 .. LZMA_POS_DECODER_MAX_INDEX] posDecoderProbsType;
+const type: posStateProbsType        is array [0 .. LZMA_POS_STATE_MAX] integer;
+const type: posStateProbsArrayType   is array [0 .. LZMA_STATE_MAX] posStateProbsType;
+const type: repProbsType             is array [0 .. LZMA_STATE_MAX] integer;
+
 const type: lzmaDecoder is new struct
     var lzmaRangeDecoderState: rangeDec is lzmaRangeDecoderState.value;
     var string: uncompressed is "";
@@ -343,16 +350,16 @@ const type: lzmaDecoder is new struct
     var integer: lp is 0;
     var integer: dictSize is 0;
     var integer: state is 0;
-    var array array integer: litProbs is 0 times 0 times LZMA_PROB_INIT_VAL;
-    var array lzmaBitTreeDecoder6: posSlotDecoder is [0 .. LZMA_LEN_STATE_MAX] times lzmaBitTreeDecoder6.value;
+    var array litProbsType: litProbs is 0 times litProbsType times LZMA_PROB_INIT_VAL;
+    var decoder6ArrayType: posSlotDecoder is decoder6ArrayType.value;
     var lzmaBitTreeDecoder4: alignDecoder is lzmaBitTreeDecoder4.value;
-    var array array integer: posDecoders is [4 .. LZMA_POS_DECODER_MAX_INDEX] times [1 .. 127] times LZMA_PROB_INIT_VAL;
-    var array array integer: IsMatch is [0 .. LZMA_STATE_MAX] times [0 .. LZMA_POS_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    var array integer: IsRep is [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    var array integer: IsRepG0 is [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    var array integer: IsRepG1 is [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    var array integer: IsRepG2 is [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    var array array integer: IsRep0Long is [0 .. LZMA_STATE_MAX] times [0 .. LZMA_POS_STATE_MAX] times LZMA_PROB_INIT_VAL;
+    var posDecoderProbsArrayType: posDecoders is posDecoderProbsArrayType times posDecoderProbsType times LZMA_PROB_INIT_VAL;
+    var posStateProbsArrayType: IsMatch is posStateProbsArrayType times posStateProbsType times LZMA_PROB_INIT_VAL;
+    var repProbsType: IsRep is repProbsType times LZMA_PROB_INIT_VAL;
+    var repProbsType: IsRepG0 is repProbsType times LZMA_PROB_INIT_VAL;
+    var repProbsType: IsRepG1 is repProbsType times LZMA_PROB_INIT_VAL;
+    var repProbsType: IsRepG2 is repProbsType times LZMA_PROB_INIT_VAL;
+    var posStateProbsArrayType: IsRep0Long is posStateProbsArrayType times posStateProbsType times LZMA_PROB_INIT_VAL;
     var integer: rep0 is 0;
     var integer: rep1 is 0;
     var integer: rep2 is 0;
@@ -464,7 +471,26 @@ const proc: initDist (inout lzmaDecoder: lzma) is func
       init(lzma.posSlotDecoder[lenState]);
     end for;
     init(lzma.alignDecoder);
-    lzma.posDecoders := [4 .. LZMA_POS_DECODER_MAX_INDEX] times [1 .. 127] times LZMA_PROB_INIT_VAL;
+    lzma.posDecoders := posDecoderProbsArrayType times posDecoderProbsType times LZMA_PROB_INIT_VAL;
+  end func;
+
+
+const func integer: bitTreeReverseDecode (inout lzmaRangeDecoderState: decoderState,
+    inout posDecoderProbsType: probs, in integer: numBits) is func
+  result
+    var integer: bits is 0;
+  local
+    var integer: m is 1;
+    var integer: bitNum is 0;
+    var integer: bit is 0;
+  begin
+    for bitNum range 0 to pred(numBits) do
+      # writeln("probs[" <& m <& "]");
+      bit := getBit(decoderState, probs[m]);
+      m <<:= 1;
+      m +:= bit;
+      bits +:= bit << bitNum;
+    end for;
   end func;
 
 
@@ -498,16 +524,16 @@ const func integer: decodeDistance (inout lzmaDecoder: lzma, in integer: length)
 
 const proc: resetPropabilities (inout lzmaDecoder: lzma) is func
   begin
-    lzma.litProbs := [0 .. pred(1 << (lzma.lc + lzma.lp))] times [0 .. 16#2ff] times LZMA_PROB_INIT_VAL;
+    lzma.litProbs := [0 .. pred(1 << (lzma.lc + lzma.lp))] times litProbsType times LZMA_PROB_INIT_VAL;
 
     initDist(lzma);
 
-    lzma.IsMatch := [0 .. LZMA_STATE_MAX] times [0 .. LZMA_POS_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    lzma.IsRep := [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    lzma.IsRepG0 := [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    lzma.IsRepG1 := [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    lzma.IsRepG2 := [0 .. LZMA_STATE_MAX] times LZMA_PROB_INIT_VAL;
-    lzma.IsRep0Long := [0 .. LZMA_STATE_MAX] times [0 .. LZMA_POS_STATE_MAX] times LZMA_PROB_INIT_VAL;
+    lzma.IsMatch := posStateProbsArrayType times posStateProbsType times LZMA_PROB_INIT_VAL;
+    lzma.IsRep := repProbsType times LZMA_PROB_INIT_VAL;
+    lzma.IsRepG0 := repProbsType times LZMA_PROB_INIT_VAL;
+    lzma.IsRepG1 := repProbsType times LZMA_PROB_INIT_VAL;
+    lzma.IsRepG2 := repProbsType times LZMA_PROB_INIT_VAL;
+    lzma.IsRep0Long := posStateProbsArrayType times posStateProbsType times LZMA_PROB_INIT_VAL;
 
     init(lzma.lenDecoder);
     init(lzma.repLenDecoder);
