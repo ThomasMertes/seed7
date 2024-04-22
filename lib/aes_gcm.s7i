@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  aes_gcm.s7i   AES cipher with Galois Counter Mode (GCM)         *)
-(*  Copyright (C) 2023  Thomas Mertes                               *)
+(*  Copyright (C) 2023, 2024  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

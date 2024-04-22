@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  encoding.s7i  Encoding and decoding functions                   *)
 (*  Copyright (C) 2007, 2008, 2011, 2013, 2015, 2016  Thomas Mertes *)
-(*  Copyright (C) 2019 - 2021  Thomas Mertes                        *)
+(*                2019 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

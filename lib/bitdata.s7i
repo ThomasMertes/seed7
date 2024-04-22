@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bitdata.s7i   Read and write bits to and from strings           *)
-(*  Copyright (C) 2015, 2017, 2019 - 2023  Thomas Mertes            *)
+(*  Copyright (C) 2015, 2017, 2019 - 2024  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

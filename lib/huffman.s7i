@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  huffman.s7i   Support for Huffman coding.                       *)
-(*  Copyright (C) 2021, 2022  Thomas Mertes                         *)
+(*  Copyright (C) 2021, 2022, 2024  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

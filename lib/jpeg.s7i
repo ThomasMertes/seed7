@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  jpeg.s7i      Support for the JPEG image file format.           *)
-(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
+(*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

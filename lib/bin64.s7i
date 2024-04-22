@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bin64.s7i     64-bit binary value support library               *)
-(*  Copyright (C) 2015 - 2020  Thomas Mertes                        *)
+(*  Copyright (C) 2015 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  tar.s7i       Tar archive library                               *)
 (*  Copyright (C) 1994, 2004, 2005, 2010, 2014  Thomas Mertes       *)
-(*  Copyright (C) 2016 - 2023  Thomas Mertes                        *)
+(*                2016 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

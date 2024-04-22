@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  strifile.s7i  Implementation type for files stored in a string  *)
-(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*  Copyright (C) 2008, 2010 - 2013, 2020 - 2024  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

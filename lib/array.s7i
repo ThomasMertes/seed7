@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  array.s7i     Support for arrays with integer index             *)
-(*  Copyright (C) 1989 - 2014, 2017, 2020 - 2022  Thomas Mertes     *)
+(*  Copyright (C) 1989 - 2014, 2017, 2020 - 2024  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

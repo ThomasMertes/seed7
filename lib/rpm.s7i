@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  rpm.s7i       Rpm archive library                               *)
-(*  Copyright (C) 2020 - 2023  Thomas Mertes                        *)
+(*  Copyright (C) 2020 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
