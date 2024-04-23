@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  hsh_rtl.c     Primitive actions for the hash map type.          */
-/*  Copyright (C) 1989 - 2016, 2018  Thomas Mertes                  */
+/*  Copyright (C) 1989 - 2011, 2013 - 2016, 2018  Thomas Mertes     */
+/*                2021, 2024  Thomas Mertes                         */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +25,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/hsh_rtl.c                                       */
-/*  Changes: 2005, 2006, 2007, 2013, 2016  Thomas Mertes            */
+/*  Changes: 2005, 2006, 2007, 2013, 2016, 2018  Thomas Mertes      */
+/*           2021, 2024  Thomas Mertes                              */
 /*  Content: Primitive actions for the hash map type.               */
 /*                                                                  */
 /*  The functions from this file should only be used in compiled    */

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  bst_rtl.c     Primitive actions for the byte string type.       */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011, 2013 - 2016, 2018  Thomas Mertes     */
+/*                2024  Thomas Mertes                               */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_win.c     Graphic access using the windows capabilities.    */
-/*  Copyright (C) 1989 - 2017, 2019 - 2021  Thomas Mertes           */
+/*  Copyright (C) 1989 - 2006, 2009 - 2017  Thomas Mertes           */
+/*                2019 - 2024  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

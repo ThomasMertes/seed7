@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019, 2021  Thomas Mertes                  */
+/*  Copyright (C) 1990 - 2019, 2021, 2022, 2024  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,8 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/hshlib.c                                        */
-/*  Changes: 2005, 2013, 2016, 2018, 2021  Thomas Mertes            */
+/*  Changes: 2005, 2013, 2016, 2018, 2021, 2022  Thomas Mertes      */
+/*           2024  Thomas Mertes                                    */
 /*  Content: All primitive actions for hash types.                  */
 /*                                                                  */
 /********************************************************************/
