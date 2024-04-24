@@ -361,16 +361,16 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
   end func;
 
 
-const proc: process_arr_cpy_times_optimization (in reference: dest,
+const proc: process_arr_cpy_array_of_zeros (in reference: dest,
     in integer: minPosition, in integer: maxPosition, inout expr_type: c_expr) is func
 
   local
-    var integer: factor is 0;
+    var integer: arraySize is 0;
     var type: arrayType is void;
     var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
   begin
-    factor := succ(maxPosition - minPosition);
+    arraySize := succ(maxPosition - minPosition);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(dest, c_param1, statement);
     statement.expr &:= "(";
@@ -385,29 +385,35 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ")->min_position + 1);\n";
         statement.expr &:= "(size_a != (uintType)(";
-        statement.expr &:= integerLiteral(factor);
+        statement.expr &:= integerLiteral(arraySize);
         statement.expr &:= ")?";
         statement.expr &:= c_param1.expr;
         statement.expr &:= "=(arrayType)(arrRealloc(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ", size_a, ";
-        statement.expr &:= integerLiteral(factor);
+        statement.expr &:= integerLiteral(arraySize);
         statement.expr &:= ")):0),\n";
+        statement.expr &:= "memset((";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ")->arr, 0, ";
+        statement.expr &:= integerLiteral(arraySize);
+        statement.expr &:= " * sizeof(rtlObjectType)),\n";
+        statement.expr &:= "(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ")->min_position = ";
+        statement.expr &:= integerLiteral(minPosition);
+        statement.expr &:= ",\n";
+        statement.expr &:= "(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ")->max_position = ";
+        statement.expr &:= integerLiteral(maxPosition);
+      else
+        statement.expr &:= "memset((";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ")->arr, 0, ";
+        statement.expr &:= integerLiteral(arraySize);
+        statement.expr &:= " * sizeof(rtlObjectType))";
       end if;
-      statement.expr &:= "memset((";
-      statement.expr &:= c_param1.expr;
-      statement.expr &:= ")->arr, 0, ";
-      statement.expr &:= integerLiteral(factor);
-      statement.expr &:= " * sizeof(rtlObjectType)),\n";
-      statement.expr &:= "(";
-      statement.expr &:= c_param1.expr;
-      statement.expr &:= ")->min_position = ";
-      statement.expr &:= integerLiteral(minPosition);
-      statement.expr &:= ",\n";
-      statement.expr &:= "(";
-      statement.expr &:= c_param1.expr;
-      statement.expr &:= ")->max_position = ";
-      statement.expr &:= integerLiteral(maxPosition);
     else
       statement.temp_decls &:= "arrayType *array_ptr=&(";
       statement.temp_decls &:= c_param1.expr;
@@ -417,20 +423,24 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
           maxPosition <> array_maxIdx[arrayType] then
         statement.temp_decls &:= "memSizeType size_a = (uintType)((*array_ptr)->max_position - (*array_ptr)->min_position + 1);\n";
         statement.expr &:= "(size_a != (uintType)(";
-        statement.expr &:= integerLiteral(factor);
+        statement.expr &:= integerLiteral(arraySize);
         statement.expr &:= ")?\n";
         statement.expr &:= "*array_ptr=(arrayType)(arrRealloc(*array_ptr, size_a, ";
-        statement.expr &:= integerLiteral(factor);
+        statement.expr &:= integerLiteral(arraySize);
         statement.expr &:= ")):0),\n";
+        statement.expr &:= "memset((*array_ptr)->arr, 0, ";
+        statement.expr &:= integerLiteral(arraySize);
+        statement.expr &:= " * sizeof(rtlObjectType)),\n";
+        statement.expr &:= "(*array_ptr)->min_position = ";
+        statement.expr &:= integerLiteral(minPosition);
+        statement.expr &:= ",\n";
+        statement.expr &:= "(*array_ptr)->max_position = ";
+        statement.expr &:= integerLiteral(maxPosition);
+      else
+        statement.expr &:= "memset((*array_ptr)->arr, 0, ";
+        statement.expr &:= integerLiteral(arraySize);
+        statement.expr &:= " * sizeof(rtlObjectType))";
       end if;
-      statement.expr &:= "memset((*array_ptr)->arr, 0, ";
-      statement.expr &:= integerLiteral(factor);
-      statement.expr &:= " * sizeof(rtlObjectType)),\n";
-      statement.expr &:= "(*array_ptr)->min_position = ";
-      statement.expr &:= integerLiteral(minPosition);
-      statement.expr &:= ",\n";
-      statement.expr &:= "(*array_ptr)->max_position = ";
-      statement.expr &:= integerLiteral(maxPosition);
     end if;
     statement.expr &:= ");\n";
     doLocalDeclsOfStatement(statement, c_expr);
@@ -458,7 +468,7 @@ const proc: process (ARR_CPY, in reference: function,
     elsif inlineFunctions and
         getConstant(params[3], ARRAYOBJECT, evaluatedParam) and
         isIntArrayOfZeros(evaluatedParam) then
-      process_arr_cpy_times_optimization(params[1],
+      process_arr_cpy_array_of_zeros(params[1],
           arrayMinIdx(evaluatedParam), arrayMaxIdx(evaluatedParam), c_expr);
     else
       statement.temp_num := c_expr.temp_num;

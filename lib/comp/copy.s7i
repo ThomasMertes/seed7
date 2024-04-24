@@ -43,6 +43,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
   local
     var string: diagnosticLine is "";
     var string: select_value is "";
+    var integer: arraySize is 0;
   begin
     if object_type in copyFunction then
       diagnosticLine := diagnosticLine(copyFunction[object_type]);
@@ -61,89 +62,115 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= " b)\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
-    if array_element[object_type] not in typeCategory or
-        typeCategory[array_element[object_type]] not in simpleValueType then
+    if object_type not in array_minIdx or object_type not in array_maxIdx then
+      if array_element[object_type] not in typeCategory or
+          typeCategory[array_element[object_type]] not in simpleValueType then
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memSizeType i;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memSizeType size;\n";
+      end if;
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "memSizeType i;\n";
+      c_expr.expr &:= "memSizeType size_a = (uintType)((*a)->max_position - (*a)->min_position + 1);\n";
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "memSizeType size;\n";
-    end if;
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType size_a = (uintType)((*a)->max_position - (*a)->min_position + 1);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType size_b = (uintType)(b->max_position - b->min_position + 1);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "(*a)->min_position = b->min_position;\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "(*a)->max_position = b->max_position;\n";
-    c_expr.expr &:= diagnosticLine;
-
-    if array_element[object_type] in typeCategory and
-        typeCategory[array_element[object_type]] in simpleValueType then
-      c_expr.expr &:= "if (size_a != size_b) {\n";
+      c_expr.expr &:= "memSizeType size_b = (uintType)(b->max_position - b->min_position + 1);\n";
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "*a=(";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
+      c_expr.expr &:= "(*a)->min_position = b->min_position;\n";
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
+      c_expr.expr &:= "(*a)->max_position = b->max_position;\n";
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "memmove((*a)->arr, b->arr, size_b * sizeof(genericType));\n";
+      if array_element[object_type] in typeCategory and
+          typeCategory[array_element[object_type]] in simpleValueType then
+        c_expr.expr &:= "if (size_a != size_b) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "*a=(";
+        c_expr.expr &:= type_name(object_type);
+        c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memmove((*a)->arr, b->arr, size_b * sizeof(genericType));\n";
+      else
+        c_expr.expr &:= "if (size_a == size_b) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "size = size_a;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "} else {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "if (size_a < size_b) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "*a=(";
+        c_expr.expr &:= type_name(object_type);
+        c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "size = size_a;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "(*a)->arr[i]";
+        c_expr.expr &:= select_value;
+        c_expr.expr &:= "=";
+        process_create_call(array_element[object_type],
+            "b->arr[i]" & select_value, c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "} else /* size_a > size_b */ {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "size = size_b;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "for (i = size_b; i < size_a; i++) {\n";
+        c_expr.expr &:= diagnosticLine;
+        process_destr_call(array_element[object_type],
+            "(*a)->arr[i]" & select_value, c_expr.expr);
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "*a=(";
+        c_expr.expr &:= type_name(object_type);
+        c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "while (size != 0) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "size--;\n";
+        c_expr.expr &:= diagnosticLine;
+        process_cpy_call(array_element[object_type],
+            "(*a)->arr[size]" & select_value,
+            "b->arr[size]" & select_value, c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+      end if;
     else
-      c_expr.expr &:= "if (size_a == size_b) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "size = size_a;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "} else {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "if (size_a < size_b) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "*a=(";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "size = size_a;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "(*a)->arr[i]";
-      c_expr.expr &:= select_value;
-      c_expr.expr &:= "=";
-      process_create_call(array_element[object_type],
-          "b->arr[i]" & select_value, c_expr.expr);
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "} else /* size_a > size_b */ {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "size = size_b;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "for (i = size_b; i < size_a; i++) {\n";
-      c_expr.expr &:= diagnosticLine;
-      process_destr_call(array_element[object_type],
-          "(*a)->arr[i]" & select_value, c_expr.expr);
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "*a=(";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ")(arrRealloc((arrayType)(*a), size_a, size_b));\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "while (size != 0) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "size--;\n";
-      c_expr.expr &:= diagnosticLine;
-      process_cpy_call(array_element[object_type],
-          "(*a)->arr[size]" & select_value,
-          "b->arr[size]" & select_value, c_expr.expr);
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
+      arraySize := succ(array_maxIdx[object_type] - array_minIdx[object_type]);
+      if array_element[object_type] in typeCategory and
+          typeCategory[array_element[object_type]] in simpleValueType then
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memmove((*a)->arr, b->arr, (uintType) ";
+        c_expr.expr &:= integerLiteral(arraySize);
+        c_expr.expr &:= " * sizeof(genericType));\n";
+      else
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memSizeType index = (uintType) ";
+        c_expr.expr &:= integerLiteral(arraySize);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "while (index != 0) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "index--;\n";
+        c_expr.expr &:= diagnosticLine;
+        process_cpy_call(array_element[object_type],
+            "(*a)->arr[index]" & select_value,
+            "b->arr[index]" & select_value, c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
