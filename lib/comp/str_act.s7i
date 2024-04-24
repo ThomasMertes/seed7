@@ -4446,17 +4446,29 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
             else
               countIndexOptimizations(c_expr);
             end if;
-            c_expr.expr &:= logicalOr;
-            c_expr.expr &:= "(uintType)";
-            c_expr.expr &:= length_name;
-            c_expr.expr &:= ">";
-            if stri_is_variable or start_is_variable then
-              c_expr.expr &:= stri_size;
-              c_expr.expr &:= "-(memSizeType)";
-              c_expr.expr &:= start_name;
-              c_expr.expr &:= "+1";
+            if not length_is_variable then
+              if length_value > 0 and (stri_is_variable or start_is_variable) then
+                c_expr.expr &:= logicalOr;
+                c_expr.expr &:= "(uintType)";
+                c_expr.expr &:= integerLiteral(pred(length_value));
+                c_expr.expr &:= ">";
+                c_expr.expr &:= stri_size;
+                c_expr.expr &:= "-(memSizeType)";
+                c_expr.expr &:= start_name;
+              end if;
             else
-              c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
+              c_expr.expr &:= logicalOr;
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= ">";
+              if stri_is_variable or start_is_variable then
+                c_expr.expr &:= stri_size;
+                c_expr.expr &:= "-(memSizeType)";
+                c_expr.expr &:= start_name;
+                c_expr.expr &:= "+1";
+              else
+                c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
+              end if;
             end if;
             c_expr.expr &:= ")?";
             c_expr.expr &:= intRaiseError("INDEX_ERROR");
