@@ -31,9 +31,11 @@ include "bigint.s7i";
 include "aes.s7i";
 
 
+const type: halfHTableType is array [0 .. 15] bin64;
+
 const type: factorHType is new struct
-    var array bin64: lowHalfHTable  is [0 .. 15] times bin64(0);
-    var array bin64: highHalfHTable is [0 .. 15] times bin64(0);
+    var halfHTableType: lowHalfHTable  is halfHTableType.value;
+    var halfHTableType: highHalfHTable is halfHTableType.value;
   end struct;
 
 
