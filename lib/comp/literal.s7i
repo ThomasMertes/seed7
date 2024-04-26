@@ -210,6 +210,29 @@ const func string: memSizeLiteral (in integer: aSize) is func
   end func;
 
 
+const func string: memSizeLiteral (in bigInteger: aSize) is func
+
+  result
+    var string: expr is "";
+  begin
+    if ccConf.POINTER_SIZE = 64 then
+      if ccConf.INT64TYPE_LITERAL_SUFFIX = "" then
+        expr := "(memSizeType) ";
+        expr &:= str(aSize);
+        expr &:= "U";
+      else
+        expr := str(aSize);
+        expr &:= "U";
+        expr &:= ccConf.INT64TYPE_LITERAL_SUFFIX;
+      end if;
+    else # ccConf.POINTER_SIZE = 32
+      expr := str(aSize);
+      expr &:= "U";
+      expr &:= ccConf.INT32TYPE_LITERAL_SUFFIX;
+    end if;
+  end func;
+
+
 const func string: bitsetLiteral (in bitset: aBitset) is func
 
   result

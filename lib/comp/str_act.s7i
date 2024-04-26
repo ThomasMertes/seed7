@@ -4220,10 +4220,16 @@ const proc: process_str_substr_fixlen0 (in reference: stri,
           else
             start_name := getParameterAsVariable("intType", "start_", start, c_expr);
             c_expr.expr &:= "idxChk(";
-            c_expr.expr &:= start_name;
-            c_expr.expr &:= "<1||";
-            c_expr.expr &:= start_name;
-            c_expr.expr &:= ">";
+            if stri_is_variable or stri_length > 1 then
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= "<1||(uintType)";
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= ">";
+            else
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= "!=";
+            end if;
           end if;
           if stri_is_variable then
             c_expr.expr &:= "(";
@@ -4305,15 +4311,23 @@ const proc: process_str_substr_fixlen1 (in reference: stri,
                                  start_range.maxValue > stri_length then
             incr(countIndexChecks);
             c_expr.expr &:= "idxChk(";
-            if start_range.minValue < 1 then
+            if stri_is_variable or stri_length > 1 then
+              if start_range.minValue < 1 then
+                c_expr.expr &:= start_name;
+                c_expr.expr &:= "<1";
+                logicalOr := "||";
+              end if;
+              if stri_is_variable or start_range.maxValue > stri_length then
+                c_expr.expr &:= logicalOr;
+                c_expr.expr &:= "(uintType)";
+                c_expr.expr &:= start_name;
+                c_expr.expr &:= ">";
+                c_expr.expr &:= stri_size;
+              end if;
+            else
+              c_expr.expr &:= "(uintType)";
               c_expr.expr &:= start_name;
-              c_expr.expr &:= "<1";
-              logicalOr := "||";
-            end if;
-            if stri_is_variable or start_range.maxValue > stri_length then
-              c_expr.expr &:= logicalOr;
-              c_expr.expr &:= start_name;
-              c_expr.expr &:= ">";
+              c_expr.expr &:= "!=";
               c_expr.expr &:= stri_size;
             end if;
             c_expr.expr &:= ")?";
@@ -4345,17 +4359,13 @@ const proc: process_str_substr_fixlen1 (in reference: stri,
   end func;
 
 
-const proc: process_inline_str_substr_fixlen (in reference: stri,
+const proc: process_inline_str_substr_fixlen (in string: stri,
     in reference: start, in reference: length, in string: slice_name,
     inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
-    var boolean: stri_is_variable is TRUE;
-    var string: stri_name is "";
-    var string: stri_value is "";
     var integer: stri_length is 0;
-    var string: stri_size is "";
     var boolean: start_is_variable is TRUE;
     var string: start_name is "";
     var integer: start_value is 0;
@@ -4365,19 +4375,9 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
     var boolean: length_is_variable is TRUE;
     var intRange: length_range is intRange.value;
     var boolean: raisesIndexError is FALSE;
-    var string: logicalOr is "";
   begin
-    if getConstant(stri, STRIOBJECT, evaluatedParam) then
-      stri_is_variable := FALSE;
-      stri_value := getValue(evaluatedParam, string);
-      stri_name := "(" & stringLiteral(stri_value) & ")";
-      stri_length := length(stri_value);
-      stri_size := memSizeLiteral(stri_length);
-      # An empty string ("") raises INDEX_ERROR in the calling function.
-    else
-      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
-      stri_size := stri_name & "->size";
-    end if;
+    # An empty string ("") raises INDEX_ERROR in the calling function.
+    stri_length := length(stri);
     if getConstant(start, INTOBJECT, evaluatedParam) then
       start_is_variable := FALSE;
       start_value := getValue(evaluatedParam, integer);
@@ -4385,7 +4385,7 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
         c_expr.expr &:= strRaiseError("INDEX_ERROR");
         raisesIndexError := TRUE;
-      elsif not stri_is_variable and start_value > stri_length then
+      elsif start_value > stri_length then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
         c_expr.expr &:= strRaiseError("INDEX_ERROR");
         raisesIndexError := TRUE;
@@ -4403,7 +4403,11 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
           warning(DOES_RAISE, "INDEX_ERROR", c_expr);
           c_expr.expr &:= strRaiseError("INDEX_ERROR");
           raisesIndexError := TRUE;
-        elsif not stri_is_variable and not start_is_variable and
+        elsif length_value > stri_length then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= strRaiseError("INDEX_ERROR");
+          raisesIndexError := TRUE;
+        elsif not start_is_variable and
             length_value > stri_length - start_value + 1 then
           warning(DOES_RAISE, "INDEX_ERROR", c_expr);
           c_expr.expr &:= strRaiseError("INDEX_ERROR");
@@ -4418,57 +4422,60 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
         if string_index_check then
           start_range := getIntRange(start);
           length_range := getIntRange(length);
-          if stri_is_variable or start_is_variable or length_is_variable then
+          if start_is_variable or length_is_variable then
             incr(countIndexChecks);
             c_expr.expr &:= "idxChk(";
-            if start_is_variable and start_range.minValue < 1 then
-              c_expr.expr &:= start_name;
-              c_expr.expr &:= "<1";
-              logicalOr := "||";
-            else
-              countIndexOptimizations(c_expr);
-            end if;
-            if length_is_variable and length_range.minValue < 0 then
-              c_expr.expr &:= logicalOr;
-              c_expr.expr &:= length_name;
-              c_expr.expr &:= "<0";
-              logicalOr := "||";
-            else
-              countIndexOptimizations(c_expr);
-            end if;
-            if start_is_variable or stri_is_variable then
-              c_expr.expr &:= logicalOr;
-              c_expr.expr &:= "(uintType)";
-              c_expr.expr &:= start_name;
-              c_expr.expr &:= ">";
-              c_expr.expr &:= stri_size;
-              logicalOr := "||";
-            else
-              countIndexOptimizations(c_expr);
-            end if;
-            if not length_is_variable then
-              if length_value > 0 and (stri_is_variable or start_is_variable) then
-                c_expr.expr &:= logicalOr;
-                c_expr.expr &:= "(uintType)";
-                c_expr.expr &:= integerLiteral(pred(length_value));
-                c_expr.expr &:= ">";
-                c_expr.expr &:= stri_size;
-                c_expr.expr &:= "-(memSizeType)";
+            if start_is_variable then
+              if length_is_variable then
                 c_expr.expr &:= start_name;
-              end if;
-            else
-              c_expr.expr &:= logicalOr;
-              c_expr.expr &:= "(uintType)";
-              c_expr.expr &:= length_name;
-              c_expr.expr &:= ">";
-              if stri_is_variable or start_is_variable then
-                c_expr.expr &:= stri_size;
-                c_expr.expr &:= "-(memSizeType)";
-                c_expr.expr &:= start_name;
-                c_expr.expr &:= "+1";
+                if stri_length = 1 then
+                  c_expr.expr &:= "!=1||";
+                  if not ccConf.TWOS_COMPLEMENT_INTTYPE then
+                    c_expr.expr &:= length_name;
+                    c_expr.expr &:= "<0||";
+                  end if;
+                  c_expr.expr &:= "(uintType)";
+                  c_expr.expr &:= length_name;
+                  c_expr.expr &:= ">1";
+                else
+                  c_expr.expr &:= "<1||(uintType)";
+                  c_expr.expr &:= start_name;
+                  c_expr.expr &:= ">";
+                  c_expr.expr &:= memSizeLiteral(stri_length);
+                  c_expr.expr &:= "||";
+                  c_expr.expr &:= length_name;
+                  c_expr.expr &:= "<0||(uintType)";
+                  c_expr.expr &:= start_name;
+                  c_expr.expr &:= "+(uintType)";
+                  c_expr.expr &:= length_name;
+                  c_expr.expr &:= ">";
+                  c_expr.expr &:= memSizeLiteral(succ(stri_length));
+                end if;
               else
-                c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
+                c_expr.expr &:= start_name;
+                if length_value = stri_length then
+                  c_expr.expr &:= "!=1";
+                else
+                  c_expr.expr &:= "<1||(uintType)";
+                  c_expr.expr &:= start_name;
+                  if length_value > 0 then
+                    c_expr.expr &:= ">";
+                    c_expr.expr &:= memSizeLiteral(succ(stri_length - length_value));
+                  else
+                    c_expr.expr &:= ">";
+                    c_expr.expr &:= memSizeLiteral(stri_length);
+                  end if;
+                end if;
               end if;
+            else # length_is_variable then
+              if not ccConf.TWOS_COMPLEMENT_INTTYPE then
+                c_expr.expr &:= length_name;
+                c_expr.expr &:= "<0||";
+              end if;
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= memSizeLiteral(succ(stri_length - start_value));
             end if;
             c_expr.expr &:= ")?";
             c_expr.expr &:= intRaiseError("INDEX_ERROR");
@@ -4476,6 +4483,146 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
           else
             countIndexOptimizations(c_expr);
           end if;
+        else
+          incr(countSuppressedIndexChecks);
+        end if;
+        (* Formula used: slice.mem = &stri->mem[start - 1],
+                         slice.size = (memSizeType)length *)
+        c_expr.expr &:= "(";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem = &(";
+        c_expr.expr &:= stringLiteral(stri);
+        c_expr.expr &:= ")->mem[";
+        if start_is_variable then
+          c_expr.expr &:= start_name;
+          c_expr.expr &:= "-1";
+        else
+          c_expr.expr &:= integerLiteral(pred(start_value));
+        end if;
+        c_expr.expr &:= "], ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = (memSizeType)";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ")";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_inline_str_substr_fixlen (in reference: stri,
+    in reference: start, in reference: length, in string: slice_name,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: stri_name is "";
+    var string: stri_size is "";
+    var boolean: start_is_variable is TRUE;
+    var string: start_name is "";
+    var integer: start_value is 0;
+    var intRange: start_range is intRange.value;
+    var string: length_name is "";
+    var integer: length_value is 0;
+    var boolean: length_is_variable is TRUE;
+    var intRange: length_range is intRange.value;
+    var boolean: raisesIndexError is FALSE;
+  begin
+    stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+    stri_size := stri_name & "->size";
+    if getConstant(start, INTOBJECT, evaluatedParam) then
+      start_is_variable := FALSE;
+      start_value := getValue(evaluatedParam, integer);
+      if start_value < 1 then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        raisesIndexError := TRUE;
+      else
+        start_name := integerLiteral(start_value);
+      end if;
+    else
+      start_name := getTempVariable("intType", "start_", start, c_expr);
+    end if;
+    if not raisesIndexError then
+      if getConstant(length, INTOBJECT, evaluatedParam) then
+        length_is_variable := FALSE;
+        length_value := getValue(evaluatedParam, integer);
+        if length_value < 0 then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= strRaiseError("INDEX_ERROR");
+          raisesIndexError := TRUE;
+        else
+          length_name := integerLiteral(length_value);
+        end if;
+      else
+        length_name := getParameterAsVariable("intType", "length_", length, c_expr);
+      end if;
+      if not raisesIndexError then
+        if string_index_check then
+          start_range := getIntRange(start);
+          length_range := getIntRange(length);
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk(";
+          if start_is_variable then
+            if start_range.minValue < 1 then
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= "<1||";
+            end if;
+          end if;
+          if length_is_variable then
+            if length_range.minValue < 0 then
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "<0||";
+            end if;
+            if length_range.minValue <= 0 then
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= start_name;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri_size;
+              c_expr.expr &:= "||";
+            end if;
+          end if;
+          if start_is_variable then
+            c_expr.expr &:= "(uintType)";
+            c_expr.expr &:= start_name;
+            if length_is_variable then
+              c_expr.expr &:= "+(uintType)";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "-1";
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri_size;
+            else
+              if length_value > 0 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(length_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri_size;
+            end if;
+          else
+            if length_is_variable then
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= length_name;
+              if start_value > 1 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(start_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri_size;
+            else
+              if length_value > 0 then
+                c_expr.expr &:= memSizeLiteral(pred(bigInteger(start_value) +
+                                                    bigInteger(length_value)));
+              else
+                c_expr.expr &:= "(uintType)";
+                c_expr.expr &:= start_name;
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri_size;
+            end if;
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
         else
           incr(countSuppressedIndexChecks);
         end if;
@@ -4535,8 +4682,14 @@ const proc: process (STR_SUBSTR_FIXLEN, in reference: function,
       c_expr.temp_decls &:= ";\n";
       if inlineFunctions then
         incr(countInlinedFunctions);
-        process_inline_str_substr_fixlen(params[1], params[3], params[5],
-                                         slice_name, c_expr);
+        if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+          process_inline_str_substr_fixlen(getValue(evaluatedParam, string),
+                                           params[3], params[5],
+                                           slice_name, c_expr);
+        else
+          process_inline_str_substr_fixlen(params[1], params[3], params[5],
+                                           slice_name, c_expr);
+        end if;
       else
         c_expr.expr &:= "strSubstrFixLenSlice(";
         getAnyParamToExpr(params[1], c_expr);
