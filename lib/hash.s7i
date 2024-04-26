@@ -47,6 +47,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       IN_PARAM_IS_REFERENCE(hashType);
       keyValueType := newtype;
       IN_PARAM_IS_REFERENCE(keyValueType);
+      const boolean: isHashType (attr hashType)                                is TRUE;
       const type: hash [ (attr keyType) ] (attr baseType)                      is hashType;
       const type: key_type (attr hashType)                                     is keyType;
       const type: base_type (attr hashType)                                    is baseType;
@@ -222,10 +223,27 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
         return UPDATE(aHashMap, aKey, anElem, hashCode(aKey), hashType.keyCompare,
                       hashType.keyCreate, hashType.dataCreate);
 
+      (**
+       *  Create a key-value pair to be used in a hash literal.
+       *  A key-value pair with the key "one" and the value 1 is created with
+       *   ["one" : 1]
+       *  A key-value pair can only be used inside a hash literal. E.g.:
+       *   [] (["one" : 1], ["two" : 2])
+       *  This hash literal defines a hash with the keys "one" and "two"
+       *  and the corresponding values 1 and 2.
+       *)
       const func keyValueType: [ (in keyType: aKey) : (in baseType: aValue) ]  is action "HSH_GEN_KEY_VALUE";
+
       const func keyValueType: (in keyValueType: element1) ,
                                (in keyValueType: element2)                     is action "HSH_CONCAT_KEY_VALUE";
 
+      (**
+       *  Declare a hash literal from key-value pairs.
+       *  One or many key-value pairs are used to create a hash literal:
+       *   [] (["one" : 1], ["two" : 2])
+       *  This hash literal defines a hash with the keys "one" and "two"
+       *  and the corresponding values 1 and 2.
+       *)
       const func hashType: [] (in func keyValueType: keyValuePairs) is
         return GEN_HASH(keyValuePairs, hashType.keyHashCode, hashType.keyCompare,
                         hashType.keyDestroy, hashType.dataDestroy);
