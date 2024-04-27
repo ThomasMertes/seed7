@@ -939,7 +939,7 @@ const proc: process (ARR_IDX, in reference: function,
           indexRange := getIntRange(params[3]);
           if arrayType in array_minIdx and arrayType in array_maxIdx then
             if indexRange.maxValue < array_minIdx[arrayType] or
-              indexRange.minValue > array_maxIdx[arrayType] then
+                indexRange.minValue > array_maxIdx[arrayType] then
               warning(DOES_RAISE, "INDEX_ERROR", c_expr);
               c_expr.expr &:= intRaiseError("INDEX_ERROR");
             elsif indexRange.minValue >= array_minIdx[arrayType] and

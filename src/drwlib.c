@@ -515,7 +515,7 @@ objectType drw_create (listType arguments)
     logFunction(printf("drw_create(" FMT_U_MEM ") (usage=" FMT_U ")\n",
                        (memSizeType) take_win(source),
                        take_win(source) != NULL ? take_win(source)->usage_count
-	                                        : (uintType) 0););
+                                                : (uintType) 0););
     SET_CATEGORY_OF_OBJ(arg_1(arguments), WINOBJECT);
     win_value = take_win(source);
     arg_1(arguments)->value.winValue = win_value;
@@ -529,7 +529,7 @@ objectType drw_create (listType arguments)
     logFunction(printf("drw_create --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) win_value,
                        win_value != NULL ? win_value->usage_count
-	                                 : (uintType) 0););
+                                         : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* drw_create */
 
