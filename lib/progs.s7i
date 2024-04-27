@@ -408,6 +408,16 @@ const func integer: arrayMinIdx (in reference: arrayRef)                 is acti
 const func integer: arrayMaxIdx (in reference: arrayRef)                 is action "REF_ARRMAXIDX";
 
 
+(**
+ *  Obtain the length of the array referenced by 'arrayRef'.
+ *  @param arrayRef Reference to an array object.
+ *  @return the length of the array.
+ *  @exception RANGE_ERROR If 'arrayRef' does not refer to an array.
+ *)
+const func integer: arrayLength (in reference: arrayRef) is
+    return succ(arrayMaxIdx(arrayRef) - arrayMinIdx(arrayRef));
+
+
 const func ref_list: arrayToList (in reference: arrayRef)                is action "REF_ARRTOLIST";
 const func ref_list: structToList (in reference: structRef)              is action "REF_SCTTOLIST";
 const func ref_list: hashDataToList (in reference: hashRef)              is action "REF_HSHDATATOLIST";
