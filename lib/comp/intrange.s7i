@@ -661,7 +661,7 @@ const func intRange: getArrValueRange (in reference: arr) is func
     var reference: element is NIL;
     var integer: elementValue is 0;
   begin
-    arraySize := succ(arrayMaxIdx(arr) - arrayMinIdx(arr));
+    arraySize := arrayLength(arr);
     if arraySize < 10000 then
       valueRange.minValue := integer.last;
       valueRange.maxValue := integer.first;
@@ -686,7 +686,7 @@ const func intRange: getArrLenRange (in reference: arr) is func
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(arr, ARRAYOBJECT, evaluatedParam) then
-      valueRange.minValue := succ(arrayMaxIdx(evaluatedParam) - arrayMinIdx(evaluatedParam));
+      valueRange.minValue := arrayLength(evaluatedParam);
       valueRange.maxValue := valueRange.minValue
     elsif isActionExpression(arr, "ARR_SUBARR") and
               getConstant(getActionParameter(arr, 5), INTOBJECT, evaluatedParam) or

@@ -696,7 +696,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
             end if;
             c_expr.expr &:= index_name;
             c_expr.expr &:= ">=";
-            c_expr.expr &:= str(succ(arrayMaxIdx(anArray) - arrayMinIdx(anArray)));
+            c_expr.expr &:= integerLiteral(arrayLength(anArray));
             c_expr.expr &:= ") ? ";
             c_expr.expr &:= intRaiseError("INDEX_ERROR");
             c_expr.expr &:= " : ";

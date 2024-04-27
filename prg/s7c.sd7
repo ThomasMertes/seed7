@@ -639,7 +639,7 @@ const func boolean: canUseArrTimes (in type: objectType, in reference: arrayValu
           end if;
           previous_element := element;
         end for;
-        if repeat_count = succ(arrayMaxIdx(arrayValue) - arrayMinIdx(arrayValue)) then
+        if repeat_count = arrayLength(arrayValue) then
           canUseArrTimes := TRUE;
           repeatedElement := array_list[1];
         end if;
@@ -657,7 +657,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
     var string: variableName is "";
     var string: param_value is "";
   begin
-    arraySize := succ(arrayMaxIdx(arrayValue) - arrayMinIdx(arrayValue));
+    arraySize := arrayLength(arrayValue);
     if evaluate_const_expr >= 2 and
         arrayMinIdx(arrayValue) > arrayMaxIdx(arrayValue) then
       if FALSE and inlineFunctions then
