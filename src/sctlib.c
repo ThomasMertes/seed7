@@ -442,6 +442,9 @@ objectType sct_select (listType arguments)
     objectType result;
 
   /* sct_select */
+    logFunction(printf("sct_select(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
     isit_struct(arg_1(arguments));
     stru1 = take_struct(arg_1(arguments));
     selector = arg_3(arguments);
