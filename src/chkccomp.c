@@ -8118,7 +8118,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                              "int event_basep;\n"
                              "int error_basep;\n"
                              "display = XOpenDisplay(\"\");\n"
-                             "printf(\"%%d\\n\", (int)\n"
+                             "printf(\"%%d\\n\",\n"
+                             "    display != NULL &&\n"
                              "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
                              "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
         /* fprintf(logFile, "%s\n", testProgram);
@@ -8142,8 +8143,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                                "int event_basep;\n"
                                "int error_basep;\n"
                                "display = XOpenDisplay(\"\");\n"
-                               "printf(\"%%d\\n\", (int)\n"
-                               "  XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                               "printf(\"%%d\\n\",\n"
+                               "    display != NULL &&\n"
+                               "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
                                "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
           /* fprintf(logFile, "%s\n", testProgram);
              fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
