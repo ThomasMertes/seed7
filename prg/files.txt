@@ -185,6 +185,7 @@ file.s7i     Interface type describing sequential files.
 filebits.s7i File mode bits used by archive file systems.
 filesys.s7i  Interface for file systems (os, tar, zip, ...)
 fileutil.s7i File utility functions.
+fixarray.s7i Support for arrays with a fixed size
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
 font8x8.s7i  font with 8x8 pixel used by TI-99/4A.
@@ -251,12 +252,12 @@ process.s7i  Support for creating processes
 progs.s7i    Program handling support library
 propertyfile.s7i Read key-value pairs from a property file
 rational.s7i Rational number support library
-readjson.s7i Experimental functions to read JSON files
 ref_list.s7i Reference list support library
 reference.s7i Reference to object support library
 reverse.s7i  Filter file which writes right to left on output
 rpm.s7i      Rpm archive library
 scanfile.s7i File scanner functions
+scanjson.s7i String and file scanner functions for JSON
 scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type

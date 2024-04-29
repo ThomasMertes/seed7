@@ -242,10 +242,12 @@ pre.indent {
 <li><a class="link" href="#tutorial_Constants"><b>Constants</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
 <li><a class="link" href="#tutorial_Arrays"><b>Arrays</b></a></li>
+<li><a class="link" href="#tutorial_Hashes"><b>Hashes</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_containers"><b>For loop and containers</b></a></li>
 <li><a class="link" href="#tutorial_Functions"><b>Functions</b></a></li>
 <li><a class="link" href="#tutorial_Parameters"><b>Parameters</b></a></li>
 <li><a class="link" href="#tutorial_Overloading"><b>Overloading</b></a></li>
+<li><a class="link" href="#tutorial_Templates"><b>Templates</b></a></li>
 <li><a class="link" href="#tutorial_Declare_a_statement"><b>Declare a statement</b></a></li>
 <li><a class="link" href="#tutorial_Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol></li>
 <li><a class="link" href="#decls_file_start"><big><b>DECLARATIONS</b></big></a><ol>
@@ -889,7 +891,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
         <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Are you the inventor of Linux?"</a>);
       <a class="keywd_no_ul" href="#stats_case-statement">otherwise</a>:
         <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Hi "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"!"</a>);
-    <a class="keywd_no_ul" href="#stats_if-statement">end case</a>;
+    <a class="keywd_no_ul" href="#stats_case-statement">end case</a>;
   <span class="keywd">end func</span>;
 </pre><p>
   As it can be seen, the keyword <tt><a class="keywd_no_ul" href="#stats_case-statement">when</a></tt> is followed
@@ -1266,7 +1268,93 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   This array literal has the type <tt><a class="type_no_ul" href="#types_array">array</a> [<a class="type_no_ul" href="#types_char">char</a>] <a class="type_no_ul" href="#types_string">string</a></tt>. The minimum index of this array is the character <tt><a class="stri" href="#tokens_Character_literals">'0'</a></tt>.
 </p>
 
-<a name="tutorial_For_loop_and_containers"><h3>2.7 For loop and containers</h3></a>
+<a name="tutorial_Hashes"><h3>2.7 Hashes</h3></a>
+<p>
+    A <tt><a class="type" href="#types_hash">hash</a></tt> is similar to an <tt><a class="type" href="#types_array">array</a></tt> with the difference that the index
+  can be any type (not just one that can be converted to <tt><a class="type" href="#types_integer">integer</a></tt>). The
+  type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> defines a hash with a <tt><a class="type" href="#types_string">string</a></tt> as index
+  and an <tt><a class="type" href="#types_integer">integer</a></tt> as value. This type can be used in a type declaration:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
+</pre><p>
+  A hash literal can be used to initialize hash constants or variables:
+</p><pre class="indent">
+const <span class="type">nameToDigitType</span>: nameToDigit <span class="keywd">is</span> [] (
+    [<a class="stri" href="#tokens_String_literals">"zero"</a> : 0], [<a class="stri" href="#tokens_String_literals">"one"</a> : 1], [<a class="stri" href="#tokens_String_literals">"two"</a>   : 2], [<a class="stri" href="#tokens_String_literals">"three"</a> : 3], [<a class="stri" href="#tokens_String_literals">"four"</a> : 4],
+    [<a class="stri" href="#tokens_String_literals">"five"</a> : 5], [<a class="stri" href="#tokens_String_literals">"six"</a> : 6], [<a class="stri" href="#tokens_String_literals">"seven"</a> : 7], [<a class="stri" href="#tokens_String_literals">"eight"</a> : 8], [<a class="stri" href="#tokens_String_literals">"nine"</a> : 9]);
+</pre><p>
+  Like with arrays an element in the hash can be accessed with
+</p><pre class="indent">
+nameToDigit[name]
+</pre><p>
+  The following example asks for digit names and writes the
+  corresponding digit:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    const <span class="type">nameToDigitType</span>: nameToDigit <span class="keywd">is</span> [] (
+        [<a class="stri" href="#tokens_String_literals">"zero"</a> : 0], [<a class="stri" href="#tokens_String_literals">"one"</a> : 1], [<a class="stri" href="#tokens_String_literals">"two"</a>   : 2], [<a class="stri" href="#tokens_String_literals">"three"</a> : 3], [<a class="stri" href="#tokens_String_literals">"four"</a> : 4],
+        [<a class="stri" href="#tokens_String_literals">"five"</a> : 5], [<a class="stri" href="#tokens_String_literals">"six"</a> : 6], [<a class="stri" href="#tokens_String_literals">"seven"</a> : 7], [<a class="stri" href="#tokens_String_literals">"eight"</a> : 8], [<a class="stri" href="#tokens_String_literals">"nine"</a> : 9]);
+    var string: name is "";
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Enter the name of a digit: "</a>);
+    <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> name <span class="op_no_ul">in</span> nameToDigit <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"The value of "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" is "</a> <span class="op_no_ul">&lt;&amp;</span> nameToDigit[name]);
+    <a class="keywd_no_ul" href="#stats_if-statement">else</a>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"You entered "</a> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">", which is not the name of a digit."</a>);
+    <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  In the example above
+</p><pre class="indent">
+name <span class="op_no_ul">in</span> nameToDigit
+</pre><p>
+  checks if the key <tt>name</tt> is in the hash table <tt>nameToDigit</tt>. This
+  assures that getting the corresponding value with
+</p><pre class="indent">
+nameToDigit[name]
+</pre><p>
+  succeeds. For-each loops can be used with hash tables as well.
+  The example below uses <tt><span class="var">keyDescription</span></tt> which is defined as
+  <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_char">char</a><span class="type">]</span> <a class="type" href="#types_string">string</a></tt> in <tt><span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span></tt>. It contains descriptive
+  texts for keyboard keys. A <tt><span class="link">for-loop</span></tt> can loop over the values of
+  a <tt><a class="type" href="#types_hash">hash</a></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">begin</span>
+    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
+    <span class="keywd_no_ul">end for</span>;
+    <span class="func_no_ul">writeln</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  A <tt><span class="link">for-loop</span></tt> can also loop over the keys (indices) and values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+  <span class="keywd">begin</span>
+    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">key</span> aChar <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"const char: "</a> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" is "</a> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
+    <span class="keywd_no_ul">end for</span>;
+  <span class="keywd">end func</span>;
+</pre><p></p>
+
+<a name="tutorial_For_loop_and_containers"><h3>2.8 For loop and containers</h3></a>
 <p>
     <tt><span class="link">For-loops</span></tt> can also iterate over the elements of a <tt><a class="type" href="#types_set">set</a></tt>:
 </p><pre class="indent">
@@ -1305,42 +1393,6 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  A <tt><a class="type" href="#types_hash">hash</a></tt> is similar to an <tt><a class="type" href="#types_array">array</a></tt> with the difference that the index
-  can be any type (not just one that can be converted to <tt><a class="type" href="#types_integer">integer</a></tt>). The
-  type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> defines a hash with a <tt><a class="type" href="#types_string">string</a></tt> as index
-  and an <tt><a class="type" href="#types_integer">integer</a></tt> as value. The example below uses <tt><span class="var">keyDescription</span></tt>
-  which is defined as <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_char">char</a><span class="type">]</span> <a class="type" href="#types_string">string</a></tt> in <tt><span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span></tt>. It
-  contains descriptive texts for keyboard keys. A <tt><span class="link">for-loop</span></tt> can loop
-  over the values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
-</p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
-  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
-
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
-  <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
-  <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
-    <span class="keywd_no_ul">end for</span>;
-    <span class="func_no_ul">writeln</span>;
-  <span class="keywd">end func</span>;
-</pre><p>
-  A <tt><span class="link">for-loop</span></tt> can also loop over the keys (indices) and values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
-</p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
-  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
-
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
-  <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
-  <span class="keywd">begin</span>
-    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">key</span> aChar <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
-      <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"const char: "</a> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" is "</a> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
-    <span class="keywd_no_ul">end for</span>;
-  <span class="keywd">end func</span>;
-</pre><p>
   A <tt><span class="link">for-loop</span></tt> can loop over the keys (indices) and values of a <tt><a class="type" href="#types_array">array</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
@@ -1377,7 +1429,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre>
 
-<a name="tutorial_Functions"><h3>2.8 Functions</h3></a>
+<a name="tutorial_Functions"><h3>2.9 Functions</h3></a>
 <p>
     The program below uses the function <tt><span class="func">flipCoin</span></tt> to flip
   a coin until the result is heads:
@@ -1470,7 +1522,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   the <tt><span class="keywd">result</span></tt> part is mandatory.
 </p>
 
-<a name="tutorial_Parameters"><h3>2.9 Parameters</h3></a>
+<a name="tutorial_Parameters"><h3>2.10 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters to describe this situation:
@@ -1598,7 +1650,7 @@ reset(8);
   over an explicit <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameter.
 </p>
 
-<a name="tutorial_Overloading"><h3>2.10 Overloading</h3></a>
+<a name="tutorial_Overloading"><h3>2.11 Overloading</h3></a>
 <p>
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1678,7 +1730,35 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   above are taken from the <tt><span class="lib">mixarith.s7i</span></tt> library.
 </p>
 
-<a name="tutorial_Declare_a_statement"><h3>2.11 Declare a statement</h3></a>
+<a name="tutorial_Templates"><h3>2.12 Templates</h3></a>
+<p>
+    Templates allow the declaration of functions where the actual
+  types are specified later. The function declaraions are done
+  inside a procedure that has a type as parameter. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: DECLARE_MIN_MAX (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: min (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
+        <span class="keywd">return</span> value1 < value2 ? value1 : value2;
+
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: max (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
+        <span class="keywd">return</span> value1 > value2 ? value1 : value2;
+
+  <span class="keywd">end func</span>;
+</pre><p>
+  The procedure <tt>DECLARE_MIN_MAX</tt> uses the type parameter <tt><span class="type_no_ul">aType</span></tt>
+  to declare the functions <tt>min</tt> and <tt>max</tt>. The template must be
+  instantiated for every concret type which needs <tt>min</tt> and <tt>max</tt>. E.g.:
+</p><pre class="indent">
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_integer">integer</a>);
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_bigInteger">bigInteger</a>);
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_float">float</a>);
+</pre><p>
+  This allows expressions like <tt>min(2, 5)</tt> or <tt>min(PI, E)</tt>.
+</p>
+
+<a name="tutorial_Declare_a_statement"><h3>2.13 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre class="indent">
@@ -1721,7 +1801,7 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Because of these powerful features Seed7 does not need iterators.
 </p>
 
-<a name="tutorial_Template_declaring_a_statement"><h3>2.12 Template declaring a statement</h3></a>
+<a name="tutorial_Template_declaring_a_statement"><h3>2.14 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
@@ -5314,7 +5394,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   This defines <tt><span class="type">aHashType</span></tt> as a hash type with <tt><a class="type" href="#types_integer">integer</a></tt> elements and
   <tt><a class="type" href="#types_string">string</a></tt> keys. Variables of this type are declared with:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">aHashType</span>: aHashTable <span class="keywd">is</span> <span class="type">aHashType</span>.value;
+<span class="keywd">var</span> <span class="type">aHashType</span>: aHashTable1 <span class="keywd">is</span> <span class="type">aHashType</span>.value;                <span class="comment"># Empty hash table.</span>
+<span class="keywd">var</span> <span class="type">aHashType</span>: aHashTable2 <span class="keywd">is</span> [] ([<span class="stri">"one"</span> : 1], [<span class="stri">"two"</span> : 2]);  <span class="comment"># Hash with two elements which map strings to integers.</span>
 </pre><p>
   The expressions <tt><span class="type">aHashType</span>.value</tt> and <tt><span class="type">aHashType</span>.EMPTY_HASH</tt> describe
   empty hash tables. Beside them there are no hash table literals.
@@ -5322,6 +5403,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   and <tt><span class="func">compare</span></tt>. Besides this the <tt><span class="type">keyType</span></tt> can be any type. The
   <tt><span class="type">hash</span></tt> functions are defined in the library <span class="stri">"<span class="lib">hash.s7i</span>"</span>.
 </p><pre class="tt">
+    Literal:
+      [] ([key1 : value1], [key2 : value2])  Create a <span class="type">hash</span> with the given keys and corresponding values.
     Constants:
       <span class="type">hashType</span>.EMPTY_HASH  Empty hash table
     Infix operators:
@@ -5335,6 +5418,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="op">[</span> A ]     Access one hash table element
                   ( Type of argument A: <span class="type">keyType</span>,
                     Type of result: <span class="type">baseType</span> )
+    Relations:
+      =, &lt;>
     Functions:
       <span class="func">length</span>(A) Number of elements in hash table A
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
@@ -14504,8 +14589,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>kbd_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>GKB_BUTTON_PRESSED</td>  <td>gkb_button_pressed</td>  <td>gkbButtonPressed</td></tr>
-    <tr><td>GKB_BUTTON_XPOS</td>     <td>gkb_button_xpos</td>     <td>gkbButtonXpos</td></tr>
-    <tr><td>GKB_BUTTON_YPOS</td>     <td>gkb_button_ypos</td>     <td>gkbButtonYpos</td></tr>
+    <tr><td>GKB_CLICKED_XPOS</td>    <td>gkb_clicked_xpos</td>    <td>gkbClickedXpos</td></tr>
+    <tr><td>GKB_CLICKED_YPOS</td>    <td>gkb_clicked_ypos</td>    <td>gkbClickedYpos</td></tr>
     <tr><td>GKB_GETC</td>            <td>gkb_getc</td>            <td>gkbGetc</td></tr>
     <tr><td>GKB_GETS</td>            <td>gkb_gets</td>            <td>gkbGets</td></tr>
     <tr><td>GKB_INPUT_READY</td>     <td>gkb_input_ready</td>     <td>gkbInputReady</td></tr>

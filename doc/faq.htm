@@ -2274,11 +2274,13 @@ The usage of UTF-32 for strings in a program has several advantages:
    string from its byte-length. In an UTF-8 or UTF-16 string the number
    of code points must be computed by processing the whole string.
    Computing the length of an UTF-32 string does not need such an effort.</li>
-<li>Accessing a code point with an index in an UTF-32 string is simple as well.
+<li>Accessing a code point with an index into an UTF-32 string is simple as well.
    With UTF-8 and UTF-16 it is necessary to process all code points up
    to the index. It has been argued, that most strings are processed
-   sequentially. UTF-32 strings can be processed sequentially, but if
-   the processing is not sequentially UTF-32 has a big advantage.</li>
+   sequentially. To process UTF-8 strings sequentially multi-byte
+   encodings must be decoded to code points. UTF-32 strings don't need
+   any decoding when code points are accessed. Additionally the
+   processing of UTF-32 strings is not restricted to be sequencial.</li>
 <li>UTF-8 has invalid byte sequences. In UTF-16, single surrogate characters
    are invalid. A string library, that is based on UTF-8 or UTF-16
    must check for valid byte sequences. UTF-32 does not have invalid byte

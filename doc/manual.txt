@@ -31,12 +31,14 @@ CONTENTS
   2.4     Constants
   2.5     For loop and float expressions
   2.6     Arrays
-  2.7     For loop and containers
-  2.8     Functions
-  2.9     Parameters
-  2.10    Overloading
-  2.11    Declare a statement
-  2.12    Template declaring a statement
+  2.7     Hashes
+  2.8     For loop and containers
+  2.9     Functions
+  2.10    Parameters
+  2.11    Overloading
+  2.12    Templates
+  2.13    Declare a statement
+  2.14    Template declaring a statement
   3.    DECLARATIONS
   3.1     Variable declarations
   3.2     Constant declarations
@@ -1055,7 +1057,93 @@ CONTENTS
   This array literal has the type 'array [char] string'. The minimum index of this array is the character '0'.
 
 
-2.7 For loop and containers
+2.7 Hashes
+
+    A 'hash' is similar to an 'array' with the difference that the index
+  can be any type (not just one that can be converted to 'integer'). The
+  type 'hash [string] integer' defines a hash with a 'string' as index
+  and an 'integer' as value. This type can be used in a type declaration:
+
+    const type: nameToDigitType is hash [string] integer;
+
+  A hash literal can be used to initialize hash constants or variables:
+
+    const nameToDigitType: nameToDigit is [] (
+        ["zero" : 0], ["one" : 1], ["two"   : 2], ["three" : 3], ["four" : 4],
+        ["five" : 5], ["six" : 6], ["seven" : 7], ["eight" : 8], ["nine" : 9]);
+
+  Like with arrays an element in the hash can be accessed with
+
+    nameToDigit[name]
+
+  The following example asks for digit names and writes the
+  corresponding digit:
+
+    $ include "seed7_05.s7i";
+
+    const type: nameToDigitType is hash [string] integer;
+
+    const proc: main is func
+      local
+        const nameToDigitType: nameToDigit is [] (
+            ["zero" : 0], ["one" : 1], ["two"   : 2], ["three" : 3], ["four" : 4],
+            ["five" : 5], ["six" : 6], ["seven" : 7], ["eight" : 8], ["nine" : 9]);
+        var string: name is "";
+      begin
+        write("Enter the name of a digit: ");
+        readln(name);
+        if name in nameToDigit then
+          writeln("The value of " <& name <& " is " <& nameToDigit[name]);
+        else
+          writeln("You entered " <& name <& ", which is not the name of a digit.");
+        end if;
+      end func;
+
+  In the example above
+
+    name in nameToDigit
+
+  checks if the key 'name' is in the hash table 'nameToDigit'. This
+  assures that getting the corresponding value with
+
+    nameToDigit[name]
+
+  succeeds. For-each loops can be used with hash tables as well.
+  The example below uses 'keyDescription' which is defined as
+  'hash [char] string' in "keydescr.s7i". It contains descriptive
+  texts for keyboard keys. A for-loop can loop over the values of
+  a 'hash':
+
+    $ include "seed7_05.s7i";
+      include "keydescr.s7i";
+
+    const proc: main is func
+      local
+        var string: description is "";
+      begin
+        for description range keyDescription do
+          write(description <& " ");
+        end for;
+        writeln;
+      end func;
+
+  A for-loop can also loop over the keys (indices) and values of a 'hash':
+
+    $ include "seed7_05.s7i";
+      include "keydescr.s7i";
+
+    const proc: main is func
+      local
+        var char: aChar is ' ';
+        var string: description is "";
+      begin
+        for description key aChar range keyDescription do
+          writeln("const char: " <& description <& " is " <& literal(aChar));
+        end for;
+      end func;
+
+
+2.8 For loop and containers
 
     For-loops can also iterate over the elements of a 'set':
 
@@ -1094,42 +1182,6 @@ CONTENTS
         writeln;
       end func;
 
-  A 'hash' is similar to an 'array' with the difference that the index
-  can be any type (not just one that can be converted to 'integer'). The
-  type 'hash [string] integer' defines a hash with a 'string' as index
-  and an 'integer' as value. The example below uses 'keyDescription'
-  which is defined as 'hash [char] string' in "keydescr.s7i". It
-  contains descriptive texts for keyboard keys. A for-loop can loop
-  over the values of a 'hash':
-
-    $ include "seed7_05.s7i";
-      include "keydescr.s7i";
-
-    const proc: main is func
-      local
-        var string: description is "";
-      begin
-        for description range keyDescription do
-          write(description <& " ");
-        end for;
-        writeln;
-      end func;
-
-  A for-loop can also loop over the keys (indices) and values of a 'hash':
-
-    $ include "seed7_05.s7i";
-      include "keydescr.s7i";
-
-    const proc: main is func
-      local
-        var char: aChar is ' ';
-        var string: description is "";
-      begin
-        for description key aChar range keyDescription do
-          writeln("const char: " <& description <& " is " <& literal(aChar));
-        end for;
-      end func;
-
   A for-loop can loop over the keys (indices) and values of a 'array':
 
     $ include "seed7_05.s7i";
@@ -1166,7 +1218,7 @@ CONTENTS
       end func;
 
 
-2.8 Functions
+2.9 Functions
 
     The program below uses the function 'flipCoin' to flip
   a coin until the result is heads:
@@ -1259,7 +1311,7 @@ CONTENTS
   the 'result' part is mandatory.
 
 
-2.9 Parameters
+2.10 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -1387,7 +1439,7 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.10 Overloading
+2.11 Overloading
 
     Functions are not only identified by identifiers but also
   via the types of their parameters. So several versions of a
@@ -1467,7 +1519,35 @@ CONTENTS
   above are taken from the "mixarith.s7i" library.
 
 
-2.11 Declare a statement
+2.12 Templates
+
+    Templates allow the declaration of functions where the actual
+  types are specified later. The function declaraions are done
+  inside a procedure that has a type as parameter. E.g.:
+
+    const proc: DECLARE_MIN_MAX (in type: aType) is func
+      begin
+
+        const func aType: min (in aType: value1, in aType: value2) is
+            return value1 < value2 ? value1 : value2;
+
+        const func aType: max (in aType: value1, in aType: value2) is
+            return value1 > value2 ? value1 : value2;
+
+      end func;
+
+  The procedure 'DECLARE_MIN_MAX' uses the type parameter 'aType'
+  to declare the functions 'min' and 'max'. The template must be
+  instantiated for every concret type which needs 'min' and 'max'. E.g.:
+
+    DECLARE_MIN_MAX(integer);
+    DECLARE_MIN_MAX(bigInteger);
+    DECLARE_MIN_MAX(float);
+
+  This allows expressions like 'min(2, 5)' or 'min(PI, E)'.
+
+
+2.13 Declare a statement
 
     This example program writes its arguments
 
@@ -1510,7 +1590,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.12 Template declaring a statement
+2.14 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:
@@ -5103,7 +5183,8 @@ CONTENTS
   This defines 'aHashType' as a hash type with 'integer' elements and
   'string' keys. Variables of this type are declared with:
 
-    var aHashType: aHashTable is aHashType.value;
+    var aHashType: aHashTable1 is aHashType.value;                # Empty hash table.
+    var aHashType: aHashTable2 is [] (["one" : 1], ["two" : 2]);  # Hash with two elements which map strings to integers.
 
   The expressions 'aHashType.value' and 'aHashType.EMPTY_HASH' describe
   empty hash tables. Beside them there are no hash table literals.
@@ -5111,6 +5192,8 @@ CONTENTS
   and 'compare'. Besides this the 'keyType' can be any type. The
   'hash' functions are defined in the library "hash.s7i".
 
+    Literal:
+      [] ([key1 : value1], [key2 : value2])  Create a 'hash' with the given keys and corresponding values.
     Constants:
       hashType.EMPTY_HASH  Empty hash table
     Infix operators:
@@ -5124,6 +5207,8 @@ CONTENTS
       [ A ]     Access one hash table element
                   ( Type of argument A: keyType,
                     Type of result: baseType )
+    Relations:
+      =, <>
     Functions:
       length(A) Number of elements in hash table A
                   ( Type of result: integer,
@@ -14293,8 +14378,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         drwlib.c function   kbd_rtl.c/drw_x11.c/drw_win.c function
     GKB_BUTTON_PRESSED  gkb_button_pressed  gkbButtonPressed
-    GKB_BUTTON_XPOS     gkb_button_xpos     gkbButtonXpos
-    GKB_BUTTON_YPOS     gkb_button_ypos     gkbButtonYpos
+    GKB_CLICKED_XPOS    gkb_clicked_xpos    gkbClickedXpos
+    GKB_CLICKED_YPOS    gkb_clicked_ypos    gkbClickedYpos
     GKB_GETC            gkb_getc            gkbGetc
     GKB_GETS            gkb_gets            gkbGets
     GKB_INPUT_READY     gkb_input_ready     gkbInputReady

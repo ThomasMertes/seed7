@@ -510,12 +510,18 @@ COMPILING UNDER MAC OS
   contain the C compilers clang and gcc. They also provide a
   'make' utility. Depending on the version of macOS it might be
   necessary to install also XQuartz (the X11 support of macOS).
-  If the x11 lib is not found it can be installed using brew:
+  XQuartz can be installed using brew:
+
+    brew install --cask xquartz
+
+  After installing XQuartz the computer should be rebooted. If
+  the x11 lib is not found it can be installed using brew:
 
     brew install libx11
 
-  The brew location must be linked to to /usr/local/include,
-  so the C compiler can find it:
+  If /usr/local/include/X11 does not exist the brew location
+  must be linked to to /usr/local/include, so the C compiler
+  can find it:
 
     sudo ln -s /opt/homebrew/include/X11 /usr/local/include/X11
 

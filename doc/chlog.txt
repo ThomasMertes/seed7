@@ -1,3 +1,156 @@
+20240429:
+- The compilation of s7c with tcc has been fixed. Many thanks to
+  Cheap-Ad9743 for pointing out that compiling s7c with tcc failed.
+- Chapters about hashes and templates have been added to the manual.
+- The library hash.s7i has been improved to support hash table
+  literals and the comparison of hash tables with = and <> .
+- The new library scanjson.s7i has been added. This library supports
+  scanning (reading) JSON (JavaScript Object Notation) symbols from
+  strings and files.
+- The experimental readjson.s7i library has been removed.
+- The new library fixarray.s7i has been added. This library supports
+  arrays with a fixed size. The minimum and maximum index of these
+  arrays is encoded in the type. The functions minIdx(), maxIdx()
+  and length() can be used with an array or the type as parameter.
+  The times operator can be used with: arrayType times elementValue.
+- The library msgdigest.s7i has been refactored to use fixed size
+  arrays. The reduction in run-time for some functions is md5: 6%,
+  sha1: 26%, sha256: 21%, sha512: 22%.
+- The library lzma.s7i has been refactored to use fixed size arrays.
+  The run-time of the XZ decompression has been reduced by 10%.
+- The library jpeg.s7i has been refactored to use the fixed size
+  array type dataBlockType instead of array integer.
+- In jpeg.s7i the restart interval handling (with mcuCount) has been
+  improved.
+- The libraries deflate.s7i and gzip.s7i have been refactored to use
+  a fixed size array for the sliding window.
+- The library aes_gcm.s7i has been refactored to use fixed size
+  arrays for the factor H.
+- The interface types for bitStream and huffmanTable have been
+  removed. This way, bitStream and huffmanTable functions are called
+  without dynamic dispatch. This change reduces the run-time of the
+  function readJpeg() by 5.2% (measured with gcc and valgrind and
+  the s7c options -oc3 -O3).
+- The templates DECLARE_CcittModifiedGroup3Fax_FUNCTIONS,
+  DECLARE_CcittT6Fax_FUNCTIONS and DECLARE_CcittT4Fax2d_FUNCTIONS
+  have been added to ccittfax.s7i. The templates are instantiated
+  for MSB and LSB bit ordering. This way ccittfax functions work
+  without dynamic dispatch.
+- A declaration of the template DECLARE_MIN_MAX has been added to
+  integer.s7i. This template is used to define the functions min()
+  and max() for the types bigInteger, bigRational, float, integer
+  and rational (in bigint.s7i, bigrat.s7i, float.s7i, integer.s7i
+  and rational.s7i respectively).
+- Now non-SYMLINK getters and setters in cpio.s7i, tar.s7i and
+  rpm.s7i follow relative symlinks inside the archive.
+- Getters for fileMode, mTime, owner and group of symbolic links
+  have been added to cpio.s7i, tar.s7i and rpm.s7i.
+- Setters for mTime, owner and group of symbolic links have been
+  added to cpio.s7i, tar.s7i and rpm.s7i.
+- In osfiles.s7i SYMLINK setters for mTime, owner and group have
+  been added for the type osFileSys.
+- Setter interface functions for mTime, owner and group of symbolic
+  links have been added to filesys.s7i.
+- The functions removeDotFiles and symlinkDestination have been
+  added to filesys.s7i.
+- In encoding.s7i the functions toBase and toBase58 have been fixed
+  to allow encoding "". The functions toBase and fromBase have been
+  improved to work with any digit for 0 (toBase58 encodes 0 with 1).
+- In scanfile.s7i the function getLineComment has been fixed to
+  leave line endings unchanged.
+- In scanstri.s7i the function getEscapeSequence has been fixed to
+  assume that numeric escape sequences end with a semicolon (;).
+  The function getNumber has been refactored as well.
+- A definition of HASHELEMOBJECT has been added to category.s7i.
+- The function conv2unicode in the charsets.s7i library has been
+  improved to use a for-each loop.
+- A declaration of the function arrayLength has been added to the
+  progs.s7i library. This function is used by the compiler.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - The maximum and minimum values in a constant integer array are
+    determined. This way the range of possible values for indexing
+    into this array can be estimated. This allows for the removal of
+    some overflow checks. The run-time of the function md5() has
+    been reduced by 2.6% (measured with gcc and valgrind and the s7c
+    options -oc3 -O3).
+  - Now assignments with the times operator like
+      dest := aSize times 0
+    are optimized to use memset().
+  - Assignments to an integer array where the source array contains
+    only zeros are optimized to use memset(). The assignment does
+    realloc the array if the size changes. For fixed size arrays the
+    check of the size and the call of realloc is optimized away.
+  - For fixed size arrays index checks are optimized away if the
+    range of possible index values is always inside the array. This
+    optimization reduces the run-time of the function readJpeg()
+    by 7.5% (measured with gcc and valgrind and the s7c options
+    -oc3 -O3).
+  - Fixed size array assignments have been improved to omit the
+    copy of minIdx and maxIdx (for fixed size arrays they cannot
+    change with an assignment).
+  - The index check for fixed size arrays has been simplified. For
+    these arrays the lower and upper bounds of the index are known
+    at compile time. This optimization reduces the run-time of the
+    function readJpeg() by 7.9% (measured with gcc and valgrind and
+    the s7c options -oc3 -O3).
+  - Indexing into an array has been improved for fixed size arrays
+    if the index checks are suppressed.
+  - In str_act.s7i the index check for the fixLen substring
+    operation (stri[start fixLen length]) has been simplified.
+  - Now the division of product with mdiv is optimized. The division
+    or the multiplication is removed if possible.
+  - The recognition of constant expressions has been improved.
+    Constants defined with a parameter list are not considered
+    constant if at least one parameter is not constant.
+  - The code generation in set_act.s7i has been improved to avoid
+    adjacent - operators (e.g. number--1).
+  - Now a generic function for user defined hashCode function is
+    generated.
+  - In int_act.s7i the statistic of suppressed range checks has been
+    improved.
+- Regression tests which create adjacent - operators in the
+  generated C code have been added to chkset.sd7.
+- In drw_x11.c the graphics driver has been improved to support
+  window titles with Unicode.
+- In chkccomp.c test programs have been improved to call
+  XRenderQueryExtension() only if XOpenDisplay("") succeeded.
+- In bitdata.s7i the deprecated functions getBitLsb(), getBitsLsb(),
+  peekBitsLsb(), skipBitsLsb(), getBitMsb(), getBitsMsb(),
+  peekBitsMsb() and skipBitsMsb() with a string as parameter have
+  been removed. The functions with the types lsbBitStream and
+  msbBitStream should be used instead.
+- Tests for the deprecated bitdata functions with a string as
+  parameter (getBitLsb, getBitsLsb, peekBitsLsb, getBitMsb,
+  getBitsMsb and peekBitsMsb) have been removed from chkbitdata.sd7.
+- In huffman.s7i the deprecated functions
+  getHuffmanSymbolMsb(string, ...) and
+  getHuffmanSymbolLsb(string, ...) have been removed. The functions
+  getHuffmanSymbol(msbBitStream, ...) and
+  getHuffmanSymbol(lsbBitStream, ...) should be used instead.
+- In strifile.s7i the deprecated function openStrifile() has been
+  removed. The function openStriFile() should be used instead.
+- In stritext.s7i the deprecated function openStritext() has been
+  removed. The function openStriText() should be used instead.
+- The syntax of hash literals and fixed size arrays has been added
+  to syntax.s7i.
+- Generic hashCode functions have been introduced in big_gmp.c,
+  big_rtl.c, bst_rtl.c, int_rtl.c, pcs_rtl.c, set_rtl.c and
+  str_rtl.c. Function prototypes of these functions are defined
+  in big_act.s7i, bst_act.s7i, pcs_act.s7i, set_act.s7i and
+  str_act.s7i. Function pointers to these functions are used by
+  s7c.sd7 in the function action_address.
+- The functions hsh_concat_key_value, hsh_gen_hash and
+  hsh_gen_key_value have been added to hshlib.c.
+- The functions hshConcatKeyValue, hshGenHash and hshGenKeyValue
+  have been added to hsh_rtl.c.
+- The function bld_hashelem_temp has been added to objutl.c.
+- Interpreter and compiler have been improved to support the actions
+  HSH_CONCAT_KEY_VALUE, HSH_GEN_HASH and HSH_GEN_KEY_VALUE.
+- Logging functions have been improved in drw_win.c, drw_x11.c,
+  hshlib.c and sctlib.c.
+- Documentation comments have been improved in array.s7i, bin32.s7i,
+  bin64.s7i, cpio.s7i, hash.s7i, rpm.s7i, tar.s7i and int_rtl.c.
+
 20240322:
 - The compiler has been fixed to be able to compile itself without
   using the X11 library. Many thanks to Pietro Cerutti for pointing
