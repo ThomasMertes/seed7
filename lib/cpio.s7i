@@ -1311,6 +1311,79 @@ const func string: readLink (inout cpioArchive: cpio, in string: filePath) is fu
 
 
 (**
+ *  Create a symbolic link in a CPIO archive.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *             standard path representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: symlink (inout cpioArchive: cpio, in string: targetPath,
+    in string: symlinkPath) is func
+  local
+    var cpioHeader: header is cpioHeader.value;
+    var string: targetPath8 is "";
+    var string: symlinkPath8 is "";
+    var integer: length is 0;
+  begin
+    # writeln("symlink: " <& targetPath <& " " <& symlinkPath);
+    if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
+      raise RANGE_ERROR;
+    elsif symlinkPath = "" or symlinkPath in cpio.catalog or
+        symlinkPath in cpio.register or implicitDir(cpio, symlinkPath) then
+      raise FILE_ERROR;
+    else
+      targetPath8 := toUtf8(targetPath);
+      symlinkPath8 := toUtf8(symlinkPath);
+      header.magic      := cpio.magic;
+      header.ino        := 0;
+      header.mode       := ord(MODE_FILE_SYMLINK) + 8#777;
+      header.uid        := 100;
+      header.gid        := 100;
+      header.nlink      := 1;
+      header.mtime      := timestamp1970(time(NOW));
+      header.devmajor   := 0;
+      header.devminor   := 0;
+      header.rdevmajor  := 0;
+      header.rdevminor  := 0;
+      header.nameSize   := succ(length(symlinkPath8));
+      header.check      := 0;
+      header.headerSize := cpio.headerSize;
+      header.filePath   := symlinkPath;
+      header.padding    := cpio.padding;
+      length := length(cpio.cpioFile);
+      if cpio.trailerPos = 0 then
+        seek(cpio.cpioFile, succ(length));
+        # Add zero bytes such that the next header starts
+        # at a multiple of the block size:
+        write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+              pred(length) mod header.padding);
+      else
+        seek(cpio.cpioFile, cpio.trailerPos);
+      end if;
+      cpio.register @:= [symlinkPath] tell(cpio.cpioFile);
+      header.fileSize := length(targetPath8);
+      if header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
+        header.check := computeCheck(targetPath8);
+      end if;
+      writeHead(cpio.cpioFile, header);
+      write(cpio.cpioFile, symlinkPath8 <& "\0;");
+      write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+            pred(header.headerSize + header.nameSize) mod header.padding);
+      header.dataStartPos := tell(cpio.cpioFile);
+      cpio.catalog @:= [symlinkPath] header;
+      write(cpio.cpioFile, targetPath8);
+      write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+            pred(header.fileSize) mod header.padding);
+      cpio.trailerPos := tell(cpio.cpioFile);
+      writeTrailer(cpio.cpioFile, header);
+      flush(cpio.cpioFile);
+    end if;
+  end func;
+
+
+(**
  *  Get the contents of a file in a CPIO archive.
  *  The function follows symbolic links.
  *  @return the specified file as string.
