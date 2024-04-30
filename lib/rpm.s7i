@@ -2050,8 +2050,6 @@ const func array string: readDir (inout rpmArchive: rpm, RECURSIVE) is
  *  Determine the type of a file in a RPM archive.
  *  The function follows symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
- *  If a symbolic link refers to a place where the permission
- *  is denied the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
  *  invalid file names cause also ''FILE_ABSENT''.
@@ -2099,6 +2097,9 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
         end if;
         decr(symlinkCount);
       until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
+      if aFileType = FILE_UNKNOWN and symlinkCount = 0 then
+        aFileType := FILE_SYMLINK;
+      end if;
     end if;
   end func;
 
