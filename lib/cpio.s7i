@@ -1291,6 +1291,7 @@ const func string: readLink (inout cpioArchive: cpio, in string: filePath) is fu
     var string: linkPath is "";
   local
     var cpioHeader: header is cpioHeader.value;
+    var string: linkPath8 is "";
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
@@ -1303,7 +1304,13 @@ const func string: readLink (inout cpioArchive: cpio, in string: filePath) is fu
     end if;
     if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
       seek(cpio.cpioFile, header.dataStartPos);
-      linkPath := gets(cpio.cpioFile, header.fileSize);
+      linkPath8 := gets(cpio.cpioFile, header.fileSize);
+      block
+        linkPath := fromUtf8(linkPath8);
+      exception
+        catch RANGE_ERROR:
+          linkPath := linkPath8;
+      end block;
     else
       raise FILE_ERROR;
     end if;
