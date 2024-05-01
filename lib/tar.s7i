@@ -433,6 +433,7 @@ const func string: str (in tarHeader: header) is func
 const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
   local
     var string: filePath8 is "";
+    var string: linkPath8 is "";
     var tarHeader: longNameHead is tarHeader.value;
     var integer: startPos is 0;
     var integer: slashPos is 0;
@@ -477,6 +478,29 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
       else
         header.name := filePath8 & header.filePathSuffix;
       end if;
+    end if;
+    linkPath8 := toUtf8(header.linkPath);
+    if length(filePath8) > 100 then
+      longNameHead.name     := "././@LongLink";
+      longNameHead.mode     := fileMode.value;
+      longNameHead.uid      := 0;
+      longNameHead.gid      := 0;
+      longNameHead.fileSize := length(linkPath8);
+      longNameHead.mtime    := 0;
+      longNameHead.typeflag := LONGLINKTYPE;
+      longNameHead.linkname := "";
+      longNameHead.magic    := TAR_MAGIC;
+      longNameHead.version  := "  ";
+      longNameHead.uname    := "root";
+      longNameHead.gname    := "root";
+      longNameHead.devmajor := 0;
+      longNameHead.devminor := 0;
+      longNameHead.prefix   := "";
+      write(outFile, str(longNameHead));
+      write(outFile, linkPath8);
+      write(outFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(longNameHead.fileSize) mod TAR_BLOCK_SIZE);
+    else
+      header.linkname := linkPath8;
     end if;
     write(outFile, str(header));
   end func;
@@ -1392,6 +1416,57 @@ const func string: readLink (inout tarArchive: tar, in string: filePath) is func
   end func;
 
 
+(**
+ *  Create a symbolic link in a TAR archive.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *             standard path representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: symlink (inout tarArchive: tar, in string: targetPath,
+    in string: symlinkPath) is func
+  local
+    var tarHeader: header is tarHeader.value;
+    var string: targetPath8 is "";
+    var string: symlinkPath8 is "";
+    var integer: length is 0;
+  begin
+    # writeln("symlink: " <& targetPath <& " " <& symlinkPath);
+    if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
+      raise RANGE_ERROR;
+    elsif symlinkPath = "" or symlinkPath in tar.catalog or
+        symlinkPath in tar.register or implicitDir(tar, symlinkPath) then
+      raise FILE_ERROR;
+    else
+      header.name     := symlinkPath[.. 100];
+      header.mode     := fileMode(8#777);
+      header.uid      := 100;
+      header.gid      := 100;
+      header.fileSize := 0;
+      header.mtime    := timestamp1970(time(NOW));
+      header.typeflag := SYMTYPE;
+      header.magic    := TAR_MAGIC;
+      header.version  := "  ";
+      header.filePath := symlinkPath;
+      header.linkPath := targetPath;
+      length := length(tar.tarFile);
+      if seekable(tar.tarFile) then
+        seek(tar.tarFile, succ(length));
+      end if;
+      # Add zero bytes such that the next header starts at a multiple of the block size:
+      write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+            pred(length) mod TAR_BLOCK_SIZE);
+      tar.register @:= [symlinkPath] tell(tar.tarFile);
+      writeHead(tar.tarFile, header);
+      header.dataStartPos := tell(tar.tarFile);
+      tar.catalog @:= [symlinkPath] header;
+      flush(tar.tarFile);
+    end if;
+  end func;
+
+
 (*
 const proc: moveSingleFile (inout tarArchive: tar, in string: sourcePath,
     in string: destPath) is func
@@ -1616,13 +1691,13 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
       header.mode     := fileMode(8#775);
       header.uid      := 100;
       header.gid      := 100;
+      header.fileSize := 0;
       header.mtime    := timestamp1970(time(NOW));
       header.typeflag := DIRTYPE;
       header.magic    := TAR_MAGIC;
       header.version  := "  ";
       header.filePath := filePath;
       header.filePathSuffix := "/";
-      header.fileSize := 0;
       writeHead(tar.tarFile, header);
       header.dataStartPos := tell(tar.tarFile);
       tar.catalog @:= [filePath] header;
