@@ -838,6 +838,22 @@ const proc: show (in rpmHeader: header) is func
   end func;
 
 
+const func string: getUtf8z (in string: stri, inout integer: currPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var string: utf8Stri is "";
+  begin
+    utf8Stri := getAsciiz(stri, currPos);
+    block
+      resultStri := fromUtf8(utf8Stri);
+    exception
+      catch RANGE_ERROR:
+        resultStri := utf8Stri;
+    end block;
+  end func;
+
+
 const func string: getStriValue (in string: store,
     in rpmIndexEntry: indexEntry) is func
   result
@@ -1105,8 +1121,8 @@ const func array string: getStringArray (in rpmArchive: rpm, in integer: tag) is
       stringPos := succ(stringArrayIndex.offset);
       stringArray := stringArrayIndex.count times "";
       for index range 1 to stringArrayIndex.count do
-        stringArray[index] := getAsciiz(rpm.header.store, stringPos);
-        # writeln(rpmtagName(tag) <& "[" <& index <& "]: " <& stringArray[index]);
+        stringArray[index] := getUtf8z(rpm.header.store, stringPos);
+        # writeln(rpmtagName(tag) <& "[" <& index <& "]: " <& literal(stringArray[index]));
       end for;
     end if;
   end func;
@@ -1123,7 +1139,6 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     var integer: groupNamePos is 0;
     var integer: langPos is 0;
     var integer: numberOfFiles is 0;
-    var string: filePath8 is "";
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: index is 0;
   begin
@@ -1142,24 +1157,18 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     numberOfFiles := rpm.header.tagMap[RPMTAG_FILESIZES].count;
     for index range 1 to numberOfFiles do
       if oldFileNamePos <> 0 then
-        filePath8 := getAsciiz(rpm.header.store, oldFileNamePos);
+        catalogEntry.filePath := getUtf8z(rpm.header.store, oldFileNamePos);
       else
         catalogEntry.dirIndex := succ(bytes2Int(
             rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE));
         dirIndexPos +:= 4;
-        catalogEntry.baseName := getAsciiz(rpm.header.store, baseNamePos);
-        filePath8 := rpm.dirNameList[catalogEntry.dirIndex];
-        # writeln("dirName[" <& index <& "]: " <& filePath8);
-        filePath8 &:= catalogEntry.baseName;
+        catalogEntry.baseName := getUtf8z(rpm.header.store, baseNamePos);
+        catalogEntry.filePath := rpm.dirNameList[catalogEntry.dirIndex];
+        # writeln("dirName[" <& index <& "]: " <& catalogEntry.filePath);
+        catalogEntry.filePath &:= catalogEntry.baseName;
       end if;
-      block
-        catalogEntry.filePath := fromUtf8(filePath8);
-      exception
-        catch RANGE_ERROR:
-          catalogEntry.filePath := filePath8;
-      end block;
       catalogEntry.digest := getAsciiz(rpm.header.store, digestPos);
-      catalogEntry.linkTo := getAsciiz(rpm.header.store, linkToPos);
+      catalogEntry.linkTo := getUtf8z(rpm.header.store, linkToPos);
       catalogEntry.userName  := getAsciiz(rpm.header.store, userNamePos);
       catalogEntry.groupName := getAsciiz(rpm.header.store, groupNamePos);
       catalogEntry.lang := getAsciiz(rpm.header.store, langPos);
@@ -1291,6 +1300,7 @@ const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
     in integer: dataType, in array string: value) is func
   local
     var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var string: stri is "";
   begin
     if tag in section.tagMap then
       indexEntry := section.tagMap[tag];
@@ -1299,7 +1309,9 @@ const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
       indexEntry.dataType := dataType;
       indexEntry.count := length(value);
     end if;
-    indexEntry.arrayValue := value;
+    for stri range value do
+      indexEntry.arrayValue &:= toUtf8(stri);
+    end for;
     section.tagMap @:= [tag] indexEntry;
   end func;
 
@@ -1384,7 +1396,7 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
     updateIndexEntry(rpm, RPMTAG_FILEMD5S, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, catalogEntry.digest);
     updateIndexEntry(rpm, RPMTAG_FILELINKTOS, RPM_STRING_ARRAY_TYPE,
-                     catalogEntry.fileNumber, catalogEntry.linkTo);
+                     catalogEntry.fileNumber, toUtf8(catalogEntry.linkTo));
     updateIndexEntry(rpm, RPMTAG_FILEFLAGS, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.flags);
     updateIndexEntry(rpm, RPMTAG_FILEUSERNAME, RPM_STRING_ARRAY_TYPE,
@@ -1402,7 +1414,7 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
     updateIndexEntry(rpm, RPMTAG_DIRINDEXES, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, pred(catalogEntry.dirIndex));
     updateIndexEntry(rpm, RPMTAG_BASENAMES, RPM_STRING_ARRAY_TYPE,
-                     catalogEntry.fileNumber, catalogEntry.baseName);
+                     catalogEntry.fileNumber, toUtf8(catalogEntry.baseName));
     updateIndexEntry(rpm, RPMTAG_FILECOLORS, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.color);
     updateIndexEntry(rpm, RPMTAG_FILECLASS, RPM_INT32_TYPE,
@@ -2960,7 +2972,6 @@ const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
     var boolean: fileExists is TRUE;
     var integer: fileNumber is 0;
     var integer: length is 0;
-    var string: filePath8 is "";
   begin
     if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
