@@ -460,6 +460,14 @@ const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
 
 
 (**
+ *  Create a symbolic link.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *)
+const proc: symlink (inout fileSys: fileSystem, in string: targetPath,
+    in string: symlinkPath) is DYNAMIC;
+
+
+(**
  *  Remove a file (except a nonempty directory), from a file system.
  *  Not all file systems support this function.
  *)
