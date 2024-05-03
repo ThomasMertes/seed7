@@ -67,7 +67,7 @@ const proc: showHeader (inout file: outFile, in arHeader: header) is func
     writeln(outFile, "mtime: " <& header.mtime);
     writeln(outFile, "ownerId: " <& header.ownerId);
     writeln(outFile, "groupId: " <& header.groupId);
-    writeln(outFile, "mode: " <& header.mode);
+    writeln(outFile, "mode: " <& header.mode radix 8);
     writeln(outFile, "fileSize: " <& header.fileSize);
     writeln(outFile, "okay: " <& header.okay);
     writeln(outFile, "longNameStart: " <& header.longNameStart);
@@ -119,7 +119,7 @@ const func arHeader: arHeader (in string: stri) is func
       header.mtime :=   integer(rtrim(stri[17 fixLen 12]));
       header.ownerId := integer(rtrim(stri[29 fixLen  6]));
       header.groupId := integer(rtrim(stri[35 fixLen  6]));
-      header.mode :=    integer(rtrim(stri[41 fixLen  8]));
+      header.mode :=    integer(rtrim(stri[41 fixLen  8]), 8);
     end if;
     header.fileSize :=           integer(rtrim(stri[49 fixLen 10]));
     header.okay :=                             stri[59 fixLen  2] = "`\n";
@@ -175,11 +175,11 @@ const func string: str (in arHeader: header) is func
     else
       stri := "/" <& pred(header.longNameStart) rpad 15;
     end if;
-    stri &:= header.mtime rpad 12 <&
-             header.ownerId rpad 6 <&
-             header.groupId rpad 6 <&
-             header.mode rpad 8 <&
-             header.fileSize rpad 10 <&
+    stri &:= header.mtime        rpad 12 <&
+             header.ownerId      rpad  6 <&
+             header.groupId      rpad  6 <&
+             header.mode radix 8 rpad  8 <&
+             header.fileSize     rpad 10 <&
              "`\n";
     # writeln("header string: " <& literal(stri));
   end func;
