@@ -169,8 +169,6 @@ const func string: str (in arHeader: header) is func
     if header.longNameStart = 0 then
       if length(filePath8) < 16 then
         stri := (filePath8 & "/") rpad 16;
-      elsif length(filePath8) = 16 then
-        stri := filePath8[.. 16];
       else
         raise RANGE_ERROR;
       end if;
@@ -491,8 +489,9 @@ const proc: setHeaderFileName (inout arArchive: ar, inout arHeader: header) is f
   begin
     # writeln("setHeaderFileName: " <& header.filePath);
     filePath8 := toUtf8(header.filePath);
-    if length(filePath8) >= 16 then
-      # Although 16 chars would fit a long name is used.
+    if filePath8 <> header.filePath or length(filePath8) >= 16 or
+        pos(filePath8, '/') <> 0 then
+      # Not an ASCII file name with less than 16 chars.
       longNames := ar.longNames;
       header.longNameStart := addLongName(longNames, filePath8);
       if longNames <> ar.longNames then
