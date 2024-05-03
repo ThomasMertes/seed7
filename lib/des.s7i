@@ -31,14 +31,19 @@ include "bytedata.s7i";
 include "cipher.s7i";
 
 
+const integer: DES_KS_SIZE is 32;
+
+const type: desSubKeyType is array [DES_KS_SIZE] bin32;
+
+
 (**
  *  [[cipher|cipherState]] implementation type describing the state of a DES cipher.
  *  The data is encrypted / decrypted with the DES (Data Encryption
  *  Standard) block cipher.
  *)
 const type: desState is sub noCipherState struct
-    var array bin32: encryptionSubKey is 0 times bin32.value;
-    var array bin32: decryptionSubKey is 0 times bin32.value;
+    var desSubKeyType: encryptionSubKey is desSubKeyType.value;
+    var desSubKeyType: decryptionSubKey is desSubKeyType.value;
     var string: cipherBlock is "";
   end struct;
 
@@ -53,12 +58,9 @@ type_implements_interface(desState, cipherState);
 const func integer: blockSize (DES) is 8;
 
 
-const integer: DES_KS_SIZE is 32;
-
-
-const func array bin32: setDesKey (in string: desKey) is func
+const func desSubKeyType: setDesKey (in string: desKey) is func
   result
-    var array bin32: subKey is DES_KS_SIZE times bin32.value;
+    var desSubKeyType: subKey is desSubKeyType.value;
   local
     const array integer: pc1 is [] (                       # Permuted choice table (key)
         57, 49, 41, 33, 25, 17,  9,  1, 58, 50, 42, 34, 26, 18,
@@ -122,9 +124,9 @@ const func array bin32: setDesKey (in string: desKey) is func
   end func;
 
 
-const func array bin32: reverseKeyScheduleOrder (in array bin32: subKey) is func
+const func desSubKeyType: reverseKeyScheduleOrder (in desSubKeyType: subKey) is func
   result
-    var array bin32: reversedKey is DES_KS_SIZE times bin32.value;
+    var desSubKeyType: reversedKey is desSubKeyType.value;
   local
     var integer: i is 0;
   begin
@@ -349,7 +351,7 @@ const proc: finalPermutation (inout bin32: left, inout bin32: right) is func
   end func;
 
 
-const func string: processDesBlock (in array bin32: subKey, in string: inData) is func
+const func string: processDesBlock (in desSubKeyType: subKey, in string: inData) is func
   result
     var string: outData is "";
   local

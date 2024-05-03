@@ -37,12 +37,12 @@ include "des.s7i";
  *  block cipher.
  *)
 const type: tdesState is sub noCipherState struct
-    var array bin32: encryptionSubKey1 is 0 times bin32.value;
-    var array bin32: encryptionSubKey2 is 0 times bin32.value;
-    var array bin32: encryptionSubKey3 is 0 times bin32.value;
-    var array bin32: decryptionSubKey1 is 0 times bin32.value;
-    var array bin32: decryptionSubKey2 is 0 times bin32.value;
-    var array bin32: decryptionSubKey3 is 0 times bin32.value;
+    var desSubKeyType: encryptionSubKey1 is desSubKeyType.value;
+    var desSubKeyType: encryptionSubKey2 is desSubKeyType.value;
+    var desSubKeyType: encryptionSubKey3 is desSubKeyType.value;
+    var desSubKeyType: decryptionSubKey1 is desSubKeyType.value;
+    var desSubKeyType: decryptionSubKey2 is desSubKeyType.value;
+    var desSubKeyType: decryptionSubKey3 is desSubKeyType.value;
     var string: cipherBlock is "";
   end struct;
 
