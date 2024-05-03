@@ -408,6 +408,62 @@ const func arHeader: addImplicitDir (inout arArchive: ar,
   end func;
 
 
+const func string: followSymlink (inout arArchive: ar, in var string: filePath,
+    inout arHeader: header) is func
+  result
+    var string: missingPath is "";
+  local
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is TRUE;
+    var string: targetPath is "";
+  begin
+    # writeln("followSymlink: " <& filePath);
+    repeat
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      elsif implicitDir(ar, filePath) then
+        header := addImplicitDir(ar, filePath);
+      else
+        # The file does not exist.
+        missingPath := filePath;
+        isSymlink := FALSE;
+        # writeln("missing: " <& missingPath);
+      end if;
+      if missingPath = "" then
+        if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          seek(ar.arFile, header.dataStartPos);
+          targetPath := gets(ar.arFile, header.fileSize);
+          filePath := symlinkDestination(filePath, targetPath);
+        else
+          isSymlink := FALSE;
+          # writeln("found: " <& header.filePath);
+        end if;
+      end if;
+      decr(symlinkCount);
+    until not isSymlink or symlinkCount = 0;
+    if isSymlink then
+      # Too many symbolic links.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+const func arHeader: followSymlink (inout arArchive: ar, in string: filePath) is func
+  result
+    var arHeader: header is arHeader.value;
+  local
+    var string: missingPath is "";
+  begin
+    missingPath := followSymlink(ar, filePath, header);
+    if missingPath <> "" then
+      # The file does not exist.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
 const proc: fixRegisterAndCatalog (inout arArchive: ar, in integer: insertPos,
     in integer: numChars) is func
   local
@@ -503,8 +559,6 @@ const func array string: readDir (inout arArchive: ar, RECURSIVE) is
  *  Determine the type of a file in an AR archive.
  *  The function does follow symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
- *  If a symbolic link refers to a place where the permission
- *  is denied the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
  *  invalid file names cause also ''FILE_ABSENT''.
@@ -518,6 +572,7 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
   local
     var arHeader: header is arHeader.value;
     var integer: symlinkCount is 5;
+    var string: targetPath is "";
   begin
     # writeln("fileType: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -545,13 +600,17 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
               seek(ar.arFile, header.dataStartPos);
-              filePath := gets(ar.arFile, header.fileSize);
+              targetPath := gets(ar.arFile, header.fileSize);
+              filePath := symlinkDestination(filePath, targetPath);
             otherwise:
               raise RANGE_ERROR;
           end case;
         end if;
         decr(symlinkCount);
       until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
+      if aFileType = FILE_UNKNOWN and symlinkCount = 0 then
+        aFileType := FILE_SYMLINK;
+      end if;
     end if;
   end func;
 
@@ -607,6 +666,7 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
 
 (**
  *  Determine the file mode (permissions) of a file in an AR archive.
+ *  The function follows symbolic links.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -615,27 +675,18 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
 const func fileMode: getFileMode (inout arArchive: ar, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
-  local
-    var integer: modeValue is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      modeValue := ar.catalog[filePath].mode;
-    elsif filePath in ar.register then
-      modeValue := addToCatalog(ar, filePath).mode;
-    elsif implicitDir(ar, filePath) then
-      modeValue := addImplicitDir(ar, filePath).mode;
     else
-      raise FILE_ERROR;
+      mode := fileMode(followSymlink(ar, filePath).mode);
     end if;
-    # writeln(filePath <& " mode: " <& modeValue radix 8);
-    mode := fileMode(modeValue);
   end func;
 
 
 (**
  *  Change the file mode (permissions) of a file in an AR archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
@@ -647,18 +698,17 @@ const proc: setFileMode (inout arArchive: ar, in string: filePath,
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      ar.catalog[filePath].mode := (ar.catalog[filePath].mode >> 9 << 9) +
-          integer(mode);
-    elsif filePath in ar.register then
-      header := addToCatalog(ar, filePath);
-      header.mode := (header.mode >> 9 << 9) + integer(mode);
-      ar.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(ar, filePath);
+      if header.filePath in ar.register then
+        header.mode := (header.mode >> 9 << 9) + integer(mode);
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(ar.arFile, ar.register[filePath]);
-    writeHead(ar.arFile, ar.catalog[filePath]);
   end func;
 
 
@@ -666,6 +716,7 @@ const proc: setFileMode (inout arArchive: ar, in string: filePath,
  *  Determine the size of a file in an AR archive.
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
+ *  The function follows symbolic links.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -679,20 +730,15 @@ const func integer: fileSize (inout arArchive: ar, in string: filePath) is func
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      size := ar.catalog[filePath].fileSize;
-    elsif filePath in ar.register then
-      size := addToCatalog(ar, filePath).fileSize;
-    elsif implicitDir(ar, filePath) then
-      size := addImplicitDir(ar, filePath).fileSize;
     else
-      raise FILE_ERROR;
+      size := followSymlink(ar, filePath).fileSize;
     end if;
   end func;
 
 
 (**
  *  Determine the modification time of a file in an AR archive.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -703,25 +749,19 @@ const func time: getMTime (inout arArchive: ar, in string: filePath) is func
     var time: modificationTime is time.value;
   local
     var arHeader: header is arHeader.value;
-    var integer: mtime is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      mtime := ar.catalog[filePath].mtime;
-    elsif filePath in ar.register then
-      mtime := addToCatalog(ar, filePath).mtime;
-    elsif implicitDir(ar, filePath) then
-      mtime := addImplicitDir(ar, filePath).mtime;
     else
-      raise FILE_ERROR;
+      modificationTime := timestamp1970ToTime(
+          followSymlink(ar, filePath).mtime);
     end if;
-    modificationTime := timestamp1970ToTime(mtime);
   end func;
 
 
 (**
  *  Set the modification time of a file in an AR archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
@@ -738,22 +778,23 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
     if mtime < 0 or mtime >= 2 ** 31 or
         (filePath <> "/" and endsWith(filePath, "/")) then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      ar.catalog[filePath].mtime := mtime;
-    elsif filePath in ar.register then
-      header := addToCatalog(ar, filePath);
-      header.mtime := mtime;
-      ar.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(ar, filePath);
+      if header.filePath in ar.register then
+        header.mtime := mtime;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(ar.arFile, ar.register[filePath]);
-    writeHead(ar.arFile, ar.catalog[filePath]);
   end func;
 
 
 (**
  *  Determine the name of the owner (UID) of a file in a AR archive.
+ *  The function follows symbolic links.
  *  @return the name of the file owner.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -763,27 +804,55 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 const func string: getOwner (inout arArchive: ar, in string: filePath) is func
   result
     var string: owner is "";
-  local
-    var integer: uid is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      uid := ar.catalog[filePath].ownerId;
-    elsif filePath in ar.register then
-      uid := addToCatalog(ar, filePath).ownerId;
-    elsif implicitDir(ar, filePath) then
-      uid := addImplicitDir(ar, filePath).ownerId;
     else
-      raise FILE_ERROR;
+      owner := str(followSymlink(ar, filePath).ownerId);
     end if;
-    # writeln(filePath <& " uid: " <& uid);
-    owner := str(uid);
+  end func;
+
+
+(**
+ *  Set the owner of a file in a AR archive.
+ *  The function follows symbolic links. The AR archive format allows
+ *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
+ *  ''owner'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const proc: setOwner (inout arArchive: ar, in string: filePath,
+    in string: owner) is func
+  local
+    var integer: uid is 0;
+    var arHeader: header is arHeader.value;
+  begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(ar, filePath);
+      if header.filePath in ar.register then
+        header.ownerId := uid;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
   end func;
 
 
 (**
  *  Determine the name of the group (GID) of a file in a AR archive.
+ *  The function follows symbolic links.
  *  @return the name of the file group.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -793,27 +862,433 @@ const func string: getOwner (inout arArchive: ar, in string: filePath) is func
 const func string: getGroup (inout arArchive: ar, in string: filePath) is func
   result
     var string: group is "";
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      group := str(followSymlink(ar, filePath).groupId);
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a file in a AR archive.
+ *  The function follows symbolic links. The AR archive format allows
+ *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
+ *  ''group'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const proc: setGroup (inout arArchive: ar, in string: filePath,
+    in string: group) is func
   local
     var integer: gid is 0;
+    var arHeader: header is arHeader.value;
+  begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(ar, filePath);
+      if header.filePath in ar.register then
+        header.groupId := gid;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const func fileMode: getFileMode (inout arArchive: ar, in string: filePath, SYMLINK) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    # writeln("getFileMode: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        mode := fileMode(header.mode);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the modification time of the symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const func time: getMTime (inout arArchive: ar, in string: filePath, SYMLINK) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    # writeln("getMTime: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        modificationTime := timestamp1970ToTime(header.mtime);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the modification time of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const proc: setMTime (inout arArchive: ar, in string: filePath,
+    in time: modificationTime, SYMLINK) is func
+  local
+    var integer: mtime is 0;
+    var arHeader: header is arHeader.value;
+  begin
+    mtime := timestamp1970(modificationTime);
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.mtime := mtime;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the owner (UID) of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const func string: getOwner (inout arArchive: ar, in string: filePath, SYMLINK) is func
+  result
+    var string: owner is "";
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    # writeln("getOwner: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        owner := str(header.ownerId);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the owner of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The AR archive format allows only a numeric UID.
+ *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const proc: setOwner (inout arArchive: ar, in string: filePath,
+    in string: owner, SYMLINK) is func
+  local
+    var integer: uid is 0;
+    var arHeader: header is arHeader.value;
+  begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.ownerId := uid;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const func string: getGroup (inout arArchive: ar, in string: filePath, SYMLINK) is func
+  result
+    var string: group is "";
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    # writeln("getGroup: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        group := str(header.groupId);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a symbolic link in a AR archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The AR archive format allows only a numeric GID.
+ *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the AR archive, or it is not a symbolic link.
+ *)
+const proc: setGroup (inout arArchive: ar, in string: filePath,
+    in string: group, SYMLINK) is func
+  local
+    var integer: gid is 0;
+    var arHeader: header is arHeader.value;
+  begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        header.groupId := gid;
+        ar.catalog @:= [header.filePath] header;
+        seek(ar.arFile, ar.register[header.filePath]);
+        writeHead(ar.arFile, ar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads the destination of a symbolic link in a AR archive.
+ *  @return The destination referred by the symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive,
+ *             or is not a symbolic link.
+ *)
+const func string: readLink (inout arArchive: ar, in string: filePath) is func
+  result
+    var string: linkPath is "";
+  local
+    var arHeader: header is arHeader.value;
+    var string: linkPath8 is "";
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     elsif filePath in ar.catalog then
-      gid := ar.catalog[filePath].groupId;
+      header := ar.catalog[filePath];
     elsif filePath in ar.register then
-      gid := addToCatalog(ar, filePath).groupId;
-    elsif implicitDir(ar, filePath) then
-      gid := addImplicitDir(ar, filePath).groupId;
+      header := addToCatalog(ar, filePath);
     else
       raise FILE_ERROR;
     end if;
-    # writeln(filePath <& " gid: " <& gid);
-    group := str(gid);
+    if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      seek(ar.arFile, header.dataStartPos);
+      linkPath8 := gets(ar.arFile, header.fileSize);
+      block
+        linkPath := fromUtf8(linkPath8);
+      exception
+        catch RANGE_ERROR:
+          linkPath := linkPath8;
+      end block;
+    else
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Create a symbolic link in a AR archive.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *             standard path representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: symlink (inout arArchive: ar, in string: targetPath,
+    in string: symlinkPath) is func
+  local
+    var arHeader: header is arHeader.value;
+    var string: targetPath8 is "";
+    var string: symlinkPath8 is "";
+    var integer: length is 0;
+  begin
+    # writeln("symlink: " <& targetPath <& " " <& symlinkPath);
+    if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
+      raise RANGE_ERROR;
+    elsif symlinkPath = "" or symlinkPath in ar.catalog or
+        symlinkPath in ar.register or implicitDir(ar, symlinkPath) then
+      raise FILE_ERROR;
+    else
+      targetPath8 := toUtf8(targetPath);
+      symlinkPath8 := toUtf8(symlinkPath);
+      length := length(ar.arFile);
+      if length = 0 then
+        write(ar.arFile, AR_MAGIC);
+      end if;
+      header.filePath := symlinkPath;
+      header.mtime    := timestamp1970(time(NOW));
+      header.ownerId  := 100;
+      header.groupId  := 100;
+      header.mode     := ord(MODE_FILE_SYMLINK) + 8#777;
+      header.fileSize := length(targetPath8);
+      setHeaderFileName(ar, header);
+      length := length(ar.arFile);
+      ar.register @:= [symlinkPath] succ(length);
+      # writeln("ar.register[" <& literal(symlinkPath) <& "]: " <& ar.register[symlinkPath]);
+      seek(ar.arFile, succ(length));
+      writeHead(ar.arFile, header);
+      header.dataStartPos := tell(ar.arFile);
+      ar.catalog @:= [symlinkPath] header;
+      write(ar.arFile, targetPath8);
+      write(ar.arFile, "\0;" mult pred(AR_PADDING) -
+            pred(header.fileSize) mod AR_PADDING);
+      flush(ar.arFile);
+    end if;
   end func;
 
 
 (**
  *  Get the contents of a file in an AR archive.
+ *  The function follows symbolic links.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -828,20 +1303,14 @@ const func string: getFile (inout arArchive: ar, in string: filePath) is func
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      header := ar.catalog[filePath];
+    else
+      header := followSymlink(ar, filePath);
       if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
         seek(ar.arFile, header.dataStartPos);
+        content := gets(ar.arFile, header.fileSize);
+      else
+        raise FILE_ERROR;
       end if;
-    elsif filePath in ar.register then
-      header := addToCatalog(ar, filePath);
-    else
-      raise FILE_ERROR;
-    end if;
-    if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
-      content := gets(ar.arFile, header.fileSize);
-    else
-      raise FILE_ERROR;
     end if;
   end func;
 
@@ -849,69 +1318,121 @@ const func string: getFile (inout arArchive: ar, in string: filePath) is func
 (**
  *  Write ''data'' to an AR archive with the given ''filePath''.
  *  If the file exists already, it is overwritten.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *)
-const proc: putFile (inout arArchive: ar, in string: filePath,
+const proc: putFile (inout arArchive: ar, in var string: filePath,
     in string: data) is func
   local
     var arHeader: header is arHeader.value;
-    var boolean: fileExists is TRUE;
+    var string: missingPath is "";
     var integer: oldPaddedSize is 0;
     var integer: newPaddedSize is 0;
     var integer: length is 0;
   begin
-    # writeln("putFile(" <& literal(filePath) <& ")");
     if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      header := ar.catalog[filePath];
-    elsif filePath in ar.register then
-      header := addToCatalog(ar, filePath);
-    elsif implicitDir(ar, filePath) then
-      raise FILE_ERROR;
     else
-      fileExists := FALSE;
-    end if;
-    if fileExists then
-      if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
-        raise FILE_ERROR;
-      else
-        oldPaddedSize := succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
-        newPaddedSize := succ(pred(length(data)) mdiv AR_PADDING) * AR_PADDING;
-        # writeln("oldPaddedSize: " <& oldPaddedSize);
-        # writeln("newPaddedSize: " <& newPaddedSize);
-        if newPaddedSize > oldPaddedSize then
-          insertArea(ar.arFile, header.dataStartPos, newPaddedSize - oldPaddedSize);
-          fixRegisterAndCatalog(ar, header.dataStartPos, newPaddedSize - oldPaddedSize);
-        elsif newPaddedSize < oldPaddedSize then
-          deleteArea(ar.arFile, header.dataStartPos, oldPaddedSize - newPaddedSize);
-          fixRegisterAndCatalog(ar, header.dataStartPos + (oldPaddedSize - newPaddedSize),
-                                newPaddedSize - oldPaddedSize);
+      missingPath := followSymlink(ar, filePath, header);
+      if missingPath = "" then
+        # The file does exist.
+        filePath := header.filePath;
+        if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+          raise FILE_ERROR;
+        else
+          oldPaddedSize := succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
+          newPaddedSize := succ(pred(length(data)) mdiv AR_PADDING) * AR_PADDING;
+          # writeln("oldPaddedSize: " <& oldPaddedSize);
+          # writeln("newPaddedSize: " <& newPaddedSize);
+          if newPaddedSize > oldPaddedSize then
+            insertArea(ar.arFile, header.dataStartPos, newPaddedSize - oldPaddedSize);
+            fixRegisterAndCatalog(ar, header.dataStartPos, newPaddedSize - oldPaddedSize);
+          elsif newPaddedSize < oldPaddedSize then
+            deleteArea(ar.arFile, header.dataStartPos, oldPaddedSize - newPaddedSize);
+            fixRegisterAndCatalog(ar, header.dataStartPos + (oldPaddedSize - newPaddedSize),
+                                  newPaddedSize - oldPaddedSize);
+          end if;
+          # The file data is rewritten in place.
+          header.fileSize := length(data);
+          ar.catalog @:= [filePath] header;
+          seek(ar.arFile, ar.register[filePath]);
+          writeHead(ar.arFile, header);
+          write(ar.arFile, data);
+          write(ar.arFile, "\0;" mult pred(AR_PADDING) -
+                pred(header.fileSize) mod AR_PADDING);
+          flush(ar.arFile);
         end if;
-        # The file data is rewritten in place.
+      else
+        filePath := missingPath;
+        length := length(ar.arFile);
+        if length = 0 then
+          write(ar.arFile, AR_MAGIC);
+        end if;
+        header.filePath := filePath;
+        header.mtime    := timestamp1970(time(NOW));
+        header.ownerId  := 100;
+        header.groupId  := 100;
+        header.mode     := ord(MODE_FILE_REGULAR) + 8#664;
         header.fileSize := length(data);
-        ar.catalog @:= [filePath] header;
-        seek(ar.arFile, ar.register[filePath]);
+        setHeaderFileName(ar, header);
+        length := length(ar.arFile);
+        ar.register @:= [filePath] succ(length);
+        # writeln("ar.register[" <& literal(filePath) <& "]: " <& ar.register[filePath]);
+        seek(ar.arFile, succ(length));
         writeHead(ar.arFile, header);
+        header.dataStartPos := tell(ar.arFile);
+        ar.catalog @:= [filePath] header;
         write(ar.arFile, data);
         write(ar.arFile, "\0;" mult pred(AR_PADDING) -
               pred(header.fileSize) mod AR_PADDING);
         flush(ar.arFile);
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Creates a new directory in a AR archive.
+ *  The function does not follow symbolic links.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: mkdir (inout arArchive: ar, in string: filePath) is func
+  local
+    var arHeader: header is arHeader.value;
+    var boolean: fileExists is TRUE;
+    var integer: dataStartPos is 0;
+    var integer: length is 0;
+    var string: filePath8 is "";
+  begin
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      dataStartPos := ar.catalog[filePath].dataStartPos;
+    elsif filePath in ar.register then
+      dataStartPos := addToCatalog(ar, filePath).dataStartPos;
+    elsif implicitDir(ar, filePath) then
+      dataStartPos := addImplicitDir(ar, filePath).dataStartPos;
     else
+      fileExists := FALSE;
+    end if;
+    if fileExists and dataStartPos <> -1 then
+      # The file exists and it is not an implicit directory.
+      raise FILE_ERROR;
+    else
+      filePath8 := toUtf8(filePath);
       length := length(ar.arFile);
       if length = 0 then
         write(ar.arFile, AR_MAGIC);
       end if;
-      if not fileExists then
-        header.filePath   := filePath;
-        header.mtime      := timestamp1970(time(NOW));
-        header.ownerId    := 100;
-        header.groupId    := 100;
-        header.mode       := ord(MODE_FILE_REGULAR) + 8#664;
-      end if;
-      header.fileSize := length(data);
+      header.filePath := filePath;
+      header.mtime    := timestamp1970(time(NOW));
+      header.ownerId  := 100;
+      header.groupId  := 100;
+      header.mode     := ord(MODE_FILE_DIR) + 8#775;
+      header.fileSize := 0;
       setHeaderFileName(ar, header);
       length := length(ar.arFile);
       ar.register @:= [filePath] succ(length);
@@ -920,9 +1441,6 @@ const proc: putFile (inout arArchive: ar, in string: filePath,
       writeHead(ar.arFile, header);
       header.dataStartPos := tell(ar.arFile);
       ar.catalog @:= [filePath] header;
-      write(ar.arFile, data);
-      write(ar.arFile, "\0;" mult pred(AR_PADDING) -
-            pred(header.fileSize) mod AR_PADDING);
       flush(ar.arFile);
     end if;
   end func;
