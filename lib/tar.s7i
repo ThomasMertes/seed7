@@ -58,7 +58,7 @@ const char: EXTENDED_HEADER is 'x';   # Meta data for the next file in the archi
 
 const type: tarHeader is new struct
     var string: name is "";
-    var fileMode: mode is fileMode.value;
+    var integer: mode is 0;
     var integer: uid is 0;
     var integer: gid is 0;
     var integer: fileSize is 0;
@@ -84,7 +84,7 @@ const type: tarHeader is new struct
 const proc: showHeader (inout file: outFile, in tarHeader: header) is func
   begin
     writeln(outFile, "name: " <& header.name);
-    writeln(outFile, "mode: " <& header.mode);
+    writeln(outFile, "mode: " <& header.mode radix 8);
     writeln(outFile, "uid: " <& header.uid);
     writeln(outFile, "gid: " <& header.gid);
     writeln(outFile, "fileSize: " <& header.fileSize);
@@ -219,23 +219,23 @@ const func tarHeader: tarHeader (in string: stri) is func
   result
     var tarHeader: header is tarHeader.value;
   begin
-    header.name :=                gets0(stri[  1 fixLen 100]);
-    header.mode :=      fileMode(getOct(stri[101 fixLen   8]));
-    header.uid :=                getOct(stri[109 fixLen   8]);
-    header.gid :=                getOct(stri[117 fixLen   8]);
-    header.fileSize :=           getOct(stri[125 fixLen  12]);
-    header.mtime :=              getOct(stri[137 fixLen  12]);
-    header.chksum :=             getOct(stri[149 fixLen   8]);
-    header.typeflag :=                  stri[157];     (* 1*)
-    header.linkname :=            gets0(stri[158 fixLen 100]);
-    header.magic :=            gets0Spc(stri[258 fixLen   6]);
-    header.version :=                   stri[264 fixLen   2];
-    header.uname :=               gets0(stri[266 fixLen  32]);
-    header.gname :=               gets0(stri[298 fixLen  32]);
-    header.devmajor :=           getOct(stri[330 fixLen   8]);
-    header.devminor :=           getOct(stri[338 fixLen   8]);
-    header.prefix :=              gets0(stri[346 fixLen 155]);
-    # Unused                                             12
+    header.name :=        gets0(stri[  1 fixLen 100]);
+    header.mode :=       getOct(stri[101 fixLen   8]);
+    header.uid :=        getOct(stri[109 fixLen   8]);
+    header.gid :=        getOct(stri[117 fixLen   8]);
+    header.fileSize :=   getOct(stri[125 fixLen  12]);
+    header.mtime :=      getOct(stri[137 fixLen  12]);
+    header.chksum :=     getOct(stri[149 fixLen   8]);
+    header.typeflag :=          stri[157];     (* 1*)
+    header.linkname :=    gets0(stri[158 fixLen 100]);
+    header.magic :=    gets0Spc(stri[258 fixLen   6]);
+    header.version :=           stri[264 fixLen   2];
+    header.uname :=       gets0(stri[266 fixLen  32]);
+    header.gname :=       gets0(stri[298 fixLen  32]);
+    header.devmajor :=   getOct(stri[330 fixLen   8]);
+    header.devminor :=   getOct(stri[338 fixLen   8]);
+    header.prefix :=      gets0(stri[346 fixLen 155]);
+    # Unused                                     12
   end func;
 
 
@@ -407,7 +407,7 @@ const func string: str (in tarHeader: header) is func
     var string: chksum is "";
   begin
     puts0  (stri, header.name,               100);
-    putOct (stri, integer conv (header.mode),  8);
+    putOct (stri, header.mode,                 8);
     putOct (stri, header.uid,                  8);
     putOct (stri, header.gid,                  8);
     putOct (stri, header.fileSize,            12);
@@ -455,7 +455,7 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
         end if;
         if slashPos = 0 then
           longNameHead.name     := "././@LongLink";
-          longNameHead.mode     := fileMode.value;
+          longNameHead.mode     := 0;
           longNameHead.uid      := 0;
           longNameHead.gid      := 0;
           longNameHead.fileSize := length(filePath8) + length(header.filePathSuffix);
@@ -482,7 +482,7 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
     linkPath8 := toUtf8(header.linkPath);
     if length(filePath8) > 100 then
       longNameHead.name     := "././@LongLink";
-      longNameHead.mode     := fileMode.value;
+      longNameHead.mode     := 0;
       longNameHead.uid      := 0;
       longNameHead.gid      := 0;
       longNameHead.fileSize := length(linkPath8);
@@ -854,7 +854,7 @@ const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath) is
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      mode := followSymlink(tar, filePath).mode;
+      mode := fileMode(followSymlink(tar, filePath).mode mod 8#1000);
     end if;
   end func;
 
@@ -877,7 +877,7 @@ const proc: setFileMode (inout tarArchive: tar, in string: filePath,
     else
       header := followSymlink(tar, filePath);
       if header.filePath in tar.register then
-        header.mode := mode;
+        header.mode := (header.mode >> 9 << 9) + integer(mode);
         tar.catalog @:= [header.filePath] header;
         seek(tar.tarFile, tar.register[header.filePath]);
         writeHead(tar.tarFile, tar.catalog[header.filePath]);
@@ -1125,7 +1125,7 @@ const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath, SY
         raise FILE_ERROR;
       end if;
       if header.typeflag = SYMTYPE then
-        mode := header.mode;
+        mode := fileMode(header.mode mod 8#1000);
       else
         raise FILE_ERROR;
       end if;
@@ -1442,7 +1442,7 @@ const proc: symlink (inout tarArchive: tar, in string: targetPath,
       raise FILE_ERROR;
     else
       header.name     := symlinkPath[.. 100];
-      header.mode     := fileMode(8#777);
+      header.mode     := 8#777;
       header.uid      := 100;
       header.gid      := 100;
       header.fileSize := 0;
@@ -1632,7 +1632,7 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
         tar.register @:= [filePath] tell(tar.tarFile);
         if missingPath <> "" then
           header.name     := filePath[.. 100];
-          header.mode     := fileMode(8#664);
+          header.mode     := 8#664;
           header.uid      := 100;
           header.gid      := 100;
           header.mtime    := timestamp1970(time(NOW));
@@ -1689,7 +1689,7 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
       write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(length) mod TAR_BLOCK_SIZE);
       tar.register @:= [filePath] tell(tar.tarFile);
       header.name     := (filePath & "/") [.. 100];
-      header.mode     := fileMode(8#775);
+      header.mode     := 8#775;
       header.uid      := 100;
       header.gid      := 100;
       header.fileSize := 0;

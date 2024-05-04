@@ -2182,7 +2182,7 @@ const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath) is
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      mode := fileMode(followSymlink(rpm, filePath).mode);
+      mode := fileMode(followSymlink(rpm, filePath).mode mod 8#1000);
     end if;
   end func;
 
@@ -2473,7 +2473,7 @@ const func fileMode: getFileMode (inout rpmArchive: rpm, in string: filePath, SY
         readCatalogEntry(rpm, catalogEntry);
       end if;
       if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-        mode := fileMode(catalogEntry.mode);
+        mode := fileMode(catalogEntry.mode mod 8#1000);
       else
         raise FILE_ERROR;
       end if;

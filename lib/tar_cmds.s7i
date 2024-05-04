@@ -40,7 +40,7 @@ const proc: setUpHead (in string: basePath, in string: filePath,
     in string: filePathSuffix, inout tarHeader: header) is func
   begin
     header.name     := (filePath & filePathSuffix)[.. 100];
-    header.mode     := getFileMode(basePath & filePath);
+    header.mode     := integer(getFileMode(basePath & filePath));
     header.uid      := 100;
     header.gid      := 100;
     header.fileSize := 0;
@@ -139,7 +139,7 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
           else
             write("-");
           end if;
-          write(header.mode);
+          write(fileMode(header.mode mod 8#1000));
           write(" ");
           if header.uname <> "" then
             write(header.uname);
@@ -248,7 +248,7 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
               bytesCopied := copyFile(inFile, aFile, header.fileSize);
               close(aFile);
               # Just take the permission bits of the file mode.
-              setFileMode(header.filePath, fileMode(integer(header.mode) mod 8#1000));
+              setFileMode(header.filePath, fileMode(header.mode mod 8#1000));
               modTime := timestamp1970ToTime(header.mtime);
               setMTime(header.filePath, modTime);
               # Skip bytes up to header.fileSize and then up to a multiple of TAR_BLOCK_SIZE.
@@ -270,7 +270,7 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
     end while;
     for index range length(dirHeaderList) downto 1 do
       # Just take the permission bits of the file mode.
-      setFileMode(dirHeaderList[index].filePath, fileMode(integer(dirHeaderList[index].mode) mod 8#1000));
+      setFileMode(dirHeaderList[index].filePath, fileMode(dirHeaderList[index].mode mod 8#1000));
       modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
       setMTime(dirHeaderList[index].filePath, modTime);
     end for;

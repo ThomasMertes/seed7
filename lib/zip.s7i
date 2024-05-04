@@ -1212,7 +1212,7 @@ const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath) is
           end if;
         when {ZIP_HOST_SYSTEM_UNIX}:
           # The unix mode is in the high 16 bits of the attributes.
-          mode := fileMode(header.external_file_attributes >> 16);
+          mode := fileMode((header.external_file_attributes >> 16) mod 8#1000);
         otherwise:
           mode := {READ_USER, READ_GROUP, READ_OTHER,
                    WRITE_USER, WRITE_GROUP, WRITE_OTHER};
@@ -1465,7 +1465,7 @@ const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath, SY
       if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
           bin32(header.external_file_attributes >> 16) &
               MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-        mode := fileMode(header.external_file_attributes >> 16);
+        mode := fileMode((header.external_file_attributes >> 16) mod 8#1000);
       else
         raise FILE_ERROR;
       end if;

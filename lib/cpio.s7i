@@ -763,7 +763,7 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath) 
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      mode := fileMode(followSymlink(cpio, filePath).mode);
+      mode := fileMode(followSymlink(cpio, filePath).mode mod 8#1000);
     end if;
   end func;
 
@@ -1022,7 +1022,7 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, 
         raise FILE_ERROR;
       end if;
       if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-        mode := fileMode(header.mode);
+        mode := fileMode(header.mode mod 8#1000);
       else
         raise FILE_ERROR;
       end if;
