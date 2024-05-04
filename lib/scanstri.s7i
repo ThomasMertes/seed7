@@ -187,6 +187,9 @@ const func string: getLineComment (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the digits.
+ *   stri := "123ab";  getDigits(stri)  returns  "123"  and stri = "ab"
+ *   stri := "ab";     getDigits(stri)  returns  ""     and stri = "ab"
+ *   stri := " 12";    getDigits(stri)  returns  ""     and stri = " 12"
  *  @return the digit sequence, and
  *          "" if no digit was found.
  *)
@@ -215,6 +218,11 @@ const func string: getDigits (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the integer.
+ *   stri := "123*2";  getInteger(stri)  returns  "123"  and stri = "*2"
+ *   stri := "+1-2";   getInteger(stri)  returns  "+1"   and stri = "-2"
+ *   stri := "-2+3";   getInteger(stri)  returns  "-2"   and stri = "+3"
+ *   stri := "+-0";    getInteger(stri)  returns  "+"    and stri = "-0"
+ *   stri := "pi";     getInteger(stri)  returns  ""     and stri = "pi"
  *  @return the decimal integer string, and
  *          "" if no integer was found.
  *)
@@ -243,6 +251,14 @@ const func string: getInteger (inout string: stri) is func
  *  stri[1] contains the introducing digit. When the function is left
  *  ''stri'' is empty or stri[1] contains the character after the
  *  literal.
+ *   stri := "1x";      getNumber(stri)  returns  "1"       and stri = "x"
+ *   stri := "1.0+";    getNumber(stri)  returns  "1.0"     and stri = "+"
+ *   stri := "1.0E1-";  getNumber(stri)  returns  "1.0E1"   and stri = "-"
+ *   stri := "1.0e-1";  getNumber(stri)  returns  "1.0e-1"  and stri = ""
+ *   stri := "2#101*";  getNumber(stri)  returns  "2#101"   and stri = "*"
+ *   stri := "1e2y";    getNumber(stri)  returns  "1e2"     and stri = "y"
+ *   stri := "1E+3z";   getNumber(stri)  returns  "1E+3"    and stri = "z"
+ *   stri := "1234_/";  getNumber(stri)  returns  "1234_"   and stri = "/"
  *  @return The function returns the numeric literal.
  *)
 const func string: getNumber (inout string: stri) is func
@@ -302,6 +318,10 @@ const func string: getNumber (inout string: stri) is func
  *  When the function is called it is assumed that ''stri'' is empty or
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains a digit.
+ *   stri := "1+2";   getNonDigits(stri)  returns  ""    and stri = "1+2"
+ *   stri := " 1+2";  getNonDigits(stri)  returns  " "   and stri = "1+2"
+ *   stri := "-1+2";  getNonDigits(stri)  returns  "-"   and stri = "1+2"
+ *   stri := "a+2";   getNonDigits(stri)  returns  "a+"  and stri = "2"
  *  @return the non digit sequence, and
  *          "" if a digit was found.
  *)
@@ -322,12 +342,18 @@ const func string: getNonDigits (inout string: stri) is func
 
 
 (**
- *  Reads a text quoted with " or ' from a [[string]].
- *  The introducing and the closing character ( " or ' ) of the quoted
- *  text must be identical. When the function is called it is assumed
- *  that stri[1] contains the introducing " or ' . When the function
- *  is left ''stri'' is empty or stri[1] contains the character after
- *  the closing character.
+ *  Reads a text quoted with characters like " and ' from a [[string]].
+ *  The introducing and the closing quoting character must be identical.
+ *  When the function is called it is assumed that stri[1] contains the
+ *  introducing quoting character (which can be any character). When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the closing quoting character.
+ *   stri := "'ab'+";  getQuotedText(stri)  returns  "ab"  and stri = "+"
+ *   stri := "''=a";   getQuotedText(stri)  returns  ""    and stri = "=a"
+ *   stri := "\"A\"";  getQuotedText(stri)  returns  "A"   and stri = ""
+ *   stri := "\"\"?";  getQuotedText(stri)  returns  ""    and stri = "?"
+ *   stri := ":ab:5";  getQuotedText(stri)  returns  "ab"  and stri = "5"
+ *   stri := "+XY";    getQuotedText(stri)  returns  "XY"  and stri = ""
  *  @return the string literal without introducing or closing
  *          characters ( " or ' ).
  *)
@@ -715,6 +741,8 @@ const func string: getCStringLiteralText (inout string: stri) is func
  *  that ''stri'' is empty or stri[1] contains the first character to be
  *  handled. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the name.
+ *   stri := "test+1";  getName(stri)  returns  "test"  and stri = "+1"
+ *   stri := "+1";      getName(stri)  returns  ""      and stri = "+1"
  *  @return the name, and
  *          "" if no letter or underscore was found.
  *)
@@ -743,6 +771,8 @@ const func string: getName (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the space characters.
+ *   stri := " start";  skipSpace(stri);  afterwards  stri = "start"
+ *   stri := "start ";  skipSpace(stri);  afterwards  stri = "start "
  *)
 const proc: skipSpace (inout string: stri) is func
   local
@@ -765,6 +795,8 @@ const proc: skipSpace (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the sequence of space and tab characters.
+ *   stri := "\t abc";  skipSpaceOrTab(stri);  afterwards  stri = "abc"
+ *   stri := "abc ";    skipSpaceOrTab(stri);  afterwards  stri = "abc "
  *)
 const proc: skipSpaceOrTab (inout string: stri) is func
   local
@@ -787,6 +819,8 @@ const proc: skipSpaceOrTab (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the whitespace characters.
+ *   stri := "\t\n\r X";  skipWhiteSpace(stri);  afterwards  stri = "X"
+ *   stri := "X ";        skipWhiteSpace(stri);  afterwards  stri = "X "
  *)
 const proc: skipWhiteSpace (inout string: stri) is func
   local
@@ -809,6 +843,9 @@ const proc: skipWhiteSpace (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the whitespace characters.
+ *   stri := "\t X";  getWhiteSpace(stri)  returns  "\t "   and stri = "X"
+ *   stri := "\r\n";  getWhiteSpace(stri)  returns  "\r\n"  and stri = ""
+ *   stri := "X ";    getWhiteSpace(stri)  returns  ""      and stri = "X "
  *  @return the string of whitespace characters, and
  *          "" if no whitespace character was found.
  *)
@@ -838,6 +875,9 @@ const func string: getWhiteSpace (inout string: stri) is func
  *  is empty or stri[1] contains the first character to be handled.
  *  When the function is left ''stri'' is empty or stri[1] contains the
  *  character after the word.
+ *   stri := " abc";   getWord(stri)  returns  "abc"  and stri = ""
+ *   stri := " abc ";  getWord(stri)  returns  "abc"  and stri = " "
+ *   stri := "abc\t";  getWord(stri)  returns  "abc"  and stri = "\t"
  *  @return the word, and
  *          "" if no word was found.
  *)
@@ -872,6 +912,8 @@ const func string: getWord (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains '\n'.
  *  If stri[1] already contains '\n' nothing is done.
+ *   stri := "ab\nc";  skipLine(stri);  afterwards  stri = "\nc"
+ *   stri := "abc";    skipLine(stri);  afterwards  stri = ""
  *)
 const proc: skipLine (inout string: stri) is func
   local
@@ -893,6 +935,8 @@ const proc: skipLine (inout string: stri) is func
  *  function is left ''stri'' is empty or stri[1] contains '\n'.
  *  If stri[1] already contains '\n' nothing is done and the
  *  function returns "" .
+ *   stri := "ab\nc";  getLine(stri)  returns  "ab"   and stri = "\nc"
+ *   stri := "abc";    getLine(stri)  returns  "abc"  and stri = ""
  *  @return the line read, and
  *          "" if ''stri'' is empty or stri[1] contains '\n'.
  *)
