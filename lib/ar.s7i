@@ -431,6 +431,7 @@ const func string: followSymlink (inout arArchive: ar, in var string: filePath,
       end if;
       if missingPath = "" then
         if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          decr(symlinkCount);
           seek(ar.arFile, header.dataStartPos);
           targetPath := gets(ar.arFile, header.fileSize);
           filePath := symlinkDestination(filePath, targetPath);
@@ -439,8 +440,7 @@ const func string: followSymlink (inout arArchive: ar, in var string: filePath,
           # writeln("found: " <& header.filePath);
         end if;
       end if;
-      decr(symlinkCount);
-    until not isSymlink or symlinkCount = 0;
+    until not isSymlink or symlinkCount < 0;
     if isSymlink then
       # Too many symbolic links.
       raise FILE_ERROR;
@@ -570,7 +570,8 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var arHeader: header is arHeader.value;
-    var integer: symlinkCount is 5;
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is FALSE;
     var string: targetPath is "";
   begin
     # writeln("fileType: " <& filePath);
@@ -580,6 +581,7 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
       aFileType := FILE_DIR;
     else
       repeat
+        isSymlink := FALSE;
         if filePath in ar.catalog then
           header := ar.catalog[filePath];
         elsif filePath in ar.register then
@@ -598,16 +600,16 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
             when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
+              isSymlink := TRUE;
+              decr(symlinkCount);
               seek(ar.arFile, header.dataStartPos);
               targetPath := gets(ar.arFile, header.fileSize);
               filePath := symlinkDestination(filePath, targetPath);
-            otherwise:
-              raise RANGE_ERROR;
+            otherwise:                aFileType := FILE_UNKNOWN;
           end case;
         end if;
-        decr(symlinkCount);
-      until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
-      if aFileType = FILE_UNKNOWN and symlinkCount = 0 then
+      until not isSymlink or symlinkCount < 0;
+      if isSymlink then
         aFileType := FILE_SYMLINK;
       end if;
     end if;
@@ -655,8 +657,7 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
           when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
           when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
           when {MODE_FILE_SYMLINK}: aFileType := FILE_SYMLINK;
-          otherwise:
-            raise RANGE_ERROR;
+          otherwise:                aFileType := FILE_UNKNOWN;
         end case;
       end if;
     end if;

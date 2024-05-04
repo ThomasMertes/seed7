@@ -2004,13 +2004,13 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
           readCatalogEntry(rpm, catalogEntry);
         end if;
         if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          decr(symlinkCount);
           filePath := symlinkDestination(filePath, catalogEntry.linkTo);
         else
           isSymlink := FALSE;
         end if;
       end if;
-      decr(symlinkCount);
-    until not isSymlink or symlinkCount = 0;
+    until not isSymlink or symlinkCount < 0;
     if isSymlink then
       # Too many symbolic links.
       raise FILE_ERROR;
@@ -2075,6 +2075,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is FALSE;
   begin
     # writeln("fileType: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -2083,6 +2084,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
       aFileType := FILE_DIR;
     else
       repeat
+        isSymlink := FALSE;
         if filePath in rpm.catalog then
           catalogEntry := rpm.catalog[filePath];
         elsif implicitDir(rpm, filePath) then
@@ -2102,14 +2104,14 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
             when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
+              isSymlink := TRUE;
+              decr(symlinkCount);
               filePath := symlinkDestination(filePath, catalogEntry.linkTo);
-            otherwise:
-              raise RANGE_ERROR;
+            otherwise:                aFileType := FILE_UNKNOWN;
           end case;
         end if;
-        decr(symlinkCount);
-      until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
-      if aFileType = FILE_UNKNOWN and symlinkCount = 0 then
+      until not isSymlink or symlinkCount < 0;
+      if isSymlink then
         aFileType := FILE_SYMLINK;
       end if;
     end if;
@@ -2157,8 +2159,7 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
           when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
           when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
           when {MODE_FILE_SYMLINK}: aFileType := FILE_SYMLINK;
-          otherwise:
-            raise RANGE_ERROR;
+          otherwise:                aFileType := FILE_UNKNOWN;
         end case;
       end if;
     end if;

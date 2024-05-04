@@ -577,6 +577,7 @@ const func string: followSymlink (inout cpioArchive: cpio, in var string: filePa
       end if;
       if missingPath = "" then
         if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          decr(symlinkCount);
           seek(cpio.cpioFile, header.dataStartPos);
           targetPath := gets(cpio.cpioFile, header.fileSize);
           filePath := symlinkDestination(filePath, targetPath);
@@ -589,8 +590,7 @@ const func string: followSymlink (inout cpioArchive: cpio, in var string: filePa
           # writeln("found: " <& header.filePath);
         end if;
       end if;
-      decr(symlinkCount);
-    until not isSymlink or symlinkCount = 0;
+    until not isSymlink or symlinkCount < 0;
     if isSymlink then
       # Too many symbolic links.
       raise FILE_ERROR;
@@ -655,6 +655,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
   local
     var cpioHeader: header is cpioHeader.value;
     var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is FALSE;
     var string: targetPath is "";
   begin
     # writeln("fileType: " <& filePath);
@@ -664,6 +665,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
       aFileType := FILE_DIR;
     else
       repeat
+        isSymlink := FALSE;
         if filePath in cpio.catalog then
           header := cpio.catalog[filePath];
         elsif filePath in cpio.register then
@@ -682,16 +684,16 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
             when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
+              isSymlink := TRUE;
+              decr(symlinkCount);
               seek(cpio.cpioFile, header.dataStartPos);
               targetPath := gets(cpio.cpioFile, header.fileSize);
               filePath := symlinkDestination(filePath, targetPath);
-            otherwise:
-              raise RANGE_ERROR;
+            otherwise:                aFileType := FILE_UNKNOWN;
           end case;
         end if;
-        decr(symlinkCount);
-      until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
-      if aFileType = FILE_UNKNOWN and symlinkCount = 0 then
+      until not isSymlink or symlinkCount < 0;
+      if isSymlink then
         aFileType := FILE_SYMLINK;
       end if;
     end if;
@@ -738,8 +740,7 @@ const func fileType: fileTypeSL (inout cpioArchive: cpio, in string: filePath) i
           when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
           when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
           when {MODE_FILE_SYMLINK}: aFileType := FILE_SYMLINK;
-          otherwise:
-            raise RANGE_ERROR;
+          otherwise:                aFileType := FILE_UNKNOWN;
         end case;
       end if;
     end if;
