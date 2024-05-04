@@ -203,7 +203,7 @@ const func string: symlinkDestination (in string: symlinkPath, in string: target
 
 
 (**
- *  Interface type for file systems ([[osfiles#osFileSys|os]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[cpio#cpioArchive|cpio]], [[rpm#rpmArchive|rpm]], [[ftp#ftpConnection|ftp]], ...).
+ *  Interface type for file systems ([[osfiles#osFileSys|os]], [[ar#arArchive|ar]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[cpio#cpioArchive|cpio]], [[rpm#rpmArchive|rpm]], [[ftp#ftpConnection|ftp]], ...).
  *)
 const type: fileSys is sub object interface;
 
