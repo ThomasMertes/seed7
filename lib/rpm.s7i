@@ -1898,8 +1898,9 @@ const proc: close (inout rpmArchive: rpm) is func
       # writeln("prepare header:");
       assignIndexValues(rpm.header);
       updateHeader(rpm);
-      updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
-                       length(rpm.payloadFile));
+      # Optional. Might overflow 32-bit signed integer.
+      # updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
+      #                  length(rpm.payloadFile));
       updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNameList);
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
