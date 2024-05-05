@@ -362,7 +362,7 @@ const func string: getQuotedText (inout file: inFile) is func
       symbol &:= character;
       character := getc(inFile);
     end while;
-    inFile.bufferChar := character;
+    inFile.bufferChar := getc(inFile);
   end func;
 
 
