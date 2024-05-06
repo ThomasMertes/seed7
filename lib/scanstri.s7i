@@ -187,9 +187,10 @@ const func string: getLineComment (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the digits.
- *   stri := "123ab";  getDigits(stri)  returns  "123"  and stri = "ab"
- *   stri := "ab";     getDigits(stri)  returns  ""     and stri = "ab"
- *   stri := " 12";    getDigits(stri)  returns  ""     and stri = " 12"
+ *   stri := "12";    getDigits(stri)  returns  "12"  and stri = ""
+ *   stri := "12ab";  getDigits(stri)  returns  "12"  and stri = "ab"
+ *   stri := "ab";    getDigits(stri)  returns  ""    and stri = "ab"
+ *   stri := " 12";   getDigits(stri)  returns  ""    and stri = " 12"
  *  @return the digit sequence, and
  *          "" if no digit was found.
  *)
@@ -386,18 +387,18 @@ const func string: getQuotedText (inout string: stri) is func
  *  word. To represent a backslash it must be doubled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the terminating space. Examples:
- *   stri := "a b c";        # getCommandLineWord(stri) returns "a"
- *   stri := "a\\ b c";      # getCommandLineWord(stri) returns "a b"
- *   stri := " a b c";       # getCommandLineWord(stri) returns "a"
- *   stri := "\\ a b c";     # getCommandLineWord(stri) returns " a"
- *   stri := "a\\\"b c";     # getCommandLineWord(stri) returns "a\"b"
- *   stri := "a\" b\" c";    # getCommandLineWord(stri) returns "a b"
- *   stri := "\"a b\" c";    # getCommandLineWord(stri) returns "a b"
- *   stri := " \"a\" b c";   # getCommandLineWord(stri) returns "a"
- *   stri := "\" a\" b c";   # getCommandLineWord(stri) returns " a"
- *   stri := " \" a\" b c";  # getCommandLineWord(stri) returns " a"
- *   stri := "\"a\\\"b\" c"; # getCommandLineWord(stri) returns "a\"b"
- *   stri := "a\\\\b c";     # getCommandLineWord(stri) returns "a\\b"
+ *   stri := "a b c";        getCommandLineWord(stri) returns "a"
+ *   stri := "a\\ b c";      getCommandLineWord(stri) returns "a b"
+ *   stri := " a b c";       getCommandLineWord(stri) returns "a"
+ *   stri := "\\ a b c";     getCommandLineWord(stri) returns " a"
+ *   stri := "a\\\"b c";     getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\" b\" c";    getCommandLineWord(stri) returns "a b"
+ *   stri := "\"a b\" c";    getCommandLineWord(stri) returns "a b"
+ *   stri := " \"a\" b c";   getCommandLineWord(stri) returns "a"
+ *   stri := "\" a\" b c";   getCommandLineWord(stri) returns " a"
+ *   stri := " \" a\" b c";  getCommandLineWord(stri) returns " a"
+ *   stri := "\"a\\\"b\" c"; getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\\\\b c";     getCommandLineWord(stri) returns "a\\b"
  *  @return the space terminated word (without terminating space).
  *)
 const func string: getCommandLineWord (inout string: stri) is func
@@ -447,6 +448,17 @@ const func string: getCommandLineWord (inout string: stri) is func
  *  stri[1] contains the introducing delimiter character.
  *  When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the closing delimiter.
+ *   stri := "\"\"";        getSimpleStringLiteral(stri) returns "\"\""
+ *   stri := "\"\"x";       getSimpleStringLiteral(stri) returns "\"\""
+ *   stri := "\"\"\"";      getSimpleStringLiteral(stri) returns "\"\"\""
+ *   stri := "\"\"\"\"";    getSimpleStringLiteral(stri) returns "\"\"\""
+ *   stri := "\"a\"\"\"";   getSimpleStringLiteral(stri) returns "\"a\"\""
+ *   stri := "\"\"\"b\"";   getSimpleStringLiteral(stri) returns "\"\"b\""
+ *   stri := "\"a\"\"b\"";  getSimpleStringLiteral(stri) returns "\"a\"b\""
+ *   stri := "\"\"\"\"x";   getSimpleStringLiteral(stri) returns "\"\"\""
+ *   stri := "\"a\"\"\"x";  getSimpleStringLiteral(stri) returns "\"a\"\""
+ *   stri := "\"\"\"b\"x";  getSimpleStringLiteral(stri) returns "\"\"b\""
+ *   stri := "\"a\"\"b\"x"; getSimpleStringLiteral(stri) returns "\"a\"b\""
  *  @return the string literal including the introducing and
  *          closing delimiter character. Double delimiter chars in
  *          the literal are converted to single delimiter chars.
@@ -741,6 +753,7 @@ const func string: getCStringLiteralText (inout string: stri) is func
  *  that ''stri'' is empty or stri[1] contains the first character to be
  *  handled. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the name.
+ *   stri := "test";    getName(stri)  returns  "test"  and stri = ""
  *   stri := "test+1";  getName(stri)  returns  "test"  and stri = "+1"
  *   stri := "+1";      getName(stri)  returns  ""      and stri = "+1"
  *  @return the name, and
@@ -771,8 +784,9 @@ const func string: getName (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the space characters.
- *   stri := " start";  skipSpace(stri);  afterwards  stri = "start"
- *   stri := "start ";  skipSpace(stri);  afterwards  stri = "start "
+ *   stri := "  ok";  skipSpace(stri);  afterwards  stri = "ok"
+ *   stri := "   ";   skipSpace(stri);  afterwards  stri = ""
+ *   stri := "ok ";   skipSpace(stri);  afterwards  stri = "ok "
  *)
 const proc: skipSpace (inout string: stri) is func
   local
@@ -795,8 +809,9 @@ const proc: skipSpace (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the sequence of space and tab characters.
- *   stri := "\t abc";  skipSpaceOrTab(stri);  afterwards  stri = "abc"
- *   stri := "abc ";    skipSpaceOrTab(stri);  afterwards  stri = "abc "
+ *   stri := "\t x";  skipSpaceOrTab(stri);  afterwards  stri = "x"
+ *   stri := "\t  ";  skipSpaceOrTab(stri);  afterwards  stri = ""
+ *   stri := "abc ";  skipSpaceOrTab(stri);  afterwards  stri = "abc "
  *)
 const proc: skipSpaceOrTab (inout string: stri) is func
   local
@@ -820,6 +835,7 @@ const proc: skipSpaceOrTab (inout string: stri) is func
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the whitespace characters.
  *   stri := "\t\n\r X";  skipWhiteSpace(stri);  afterwards  stri = "X"
+ *   stri := "\t\n\r ";   skipWhiteSpace(stri);  afterwards  stri = ""
  *   stri := "X ";        skipWhiteSpace(stri);  afterwards  stri = "X "
  *)
 const proc: skipWhiteSpace (inout string: stri) is func

@@ -188,6 +188,10 @@ const func string: getLineComment (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the digits.
+ *   f := initScan("12");   getDigits(f) returns "12" and f.bufferChar = EOF
+ *   f := initScan("12ab"); getDigits(f) returns "12" and f.bufferChar = 'a'
+ *   f := initScan("ab");   getDigits(f) returns ""   and f.bufferChar = 'a'
+ *   f := initScan(" 12");  getDigits(f) returns ""   and f.bufferChar = ' '
  *  @return the digit sequence, and
  *          "" if no digit was found.
  *)
@@ -217,6 +221,11 @@ const func string: getDigits (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the integer.
+ *   f := initScan("123*2"); getInteger(f) returns "123" and f.bufferChar = '*'
+ *   f := initScan("+1-2");  getInteger(f) returns "+1"  and f.bufferChar = '-'
+ *   f := initScan("-2+3");  getInteger(f) returns "-2"  and f.bufferChar = '+'
+ *   f := initScan("+-0");   getInteger(f) returns "+"   and f.bufferChar = '-'
+ *   f := initScan("pi");    getInteger(f) returns ""    and f.bufferChar = 'p'
  *  @return the decimal integer string, and
  *          "" if no integer was found.
  *)
@@ -244,6 +253,14 @@ const func string: getInteger (inout file: inFile) is func
  *  When the function is called it is assumed that the introducing
  *  digit is in inFile.bufferChar. When the function is left the
  *  character after the literal is in inFile.bufferChar.
+ *   f := initScan("1x");     getNumber(f) returns "1"      and f.bufferChar = 'x'
+ *   f := initScan("1.0+");   getNumber(f) returns "1.0"    and f.bufferChar = '+'
+ *   f := initScan("1.0E1-"); getNumber(f) returns "1.0E1"  and f.bufferChar = '-'
+ *   f := initScan("1.0e-1"); getNumber(f) returns "1.0e-1" and f.bufferChar = EOF
+ *   f := initScan("2#101*"); getNumber(f) returns "2#101"  and f.bufferChar = '*'
+ *   f := initScan("1e2y");   getNumber(f) returns "1e2"    and f.bufferChar = 'y'
+ *   f := initScan("1E+3z");  getNumber(f) returns "1E+3"   and f.bufferChar = 'z'
+ *   f := initScan("1234_/"); getNumber(f) returns "1234_"  and f.bufferChar = '/'
  *  @return The function returns the numeric literal.
  *)
 const func string: getNumber (inout file: inFile) is func
@@ -318,6 +335,10 @@ const func string: getNumber (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains a digit or [[char#EOF|EOF]].
+ *   f := initScan("1+2");  getNonDigits(f) returns ""   and f.bufferChar = '1'
+ *   f := initScan(" 1+2"); getNonDigits(f) returns " "  and f.bufferChar = '1'
+ *   f := initScan("-1+2"); getNonDigits(f) returns "-"  and f.bufferChar = '1'
+ *   f := initScan("a+2");  getNonDigits(f) returns "a+" and f.bufferChar = '2'
  *  @return the non digit sequence, and
  *          "" if a digit was found.
  *)
@@ -340,12 +361,18 @@ const func string: getNonDigits (inout file: inFile) is func
 
 
 (**
- *  Reads a text quoted with " or ' from a [[file]].
- *  The introducing and the closing character ( " or ' ) of the quoted
- *  text must be identical. When the function is called it is assumed
- *  that inFile.bufferChar contains the introducing " or ' . When the
- *  function is left inFile.bufferChar contains the character after
- *  the closing character.
+ *  Reads a text quoted with characters like " and ' from a [[file]].
+ *  The introducing and the closing quoting character must be identical.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the introducing quoting character (which can be any
+ *  character). When the function is left inFile.bufferChar contains the
+ *  character after the closing quoting character.
+ *   f := initScan("'ab'+"); getQuotedText(f) returns "ab" and f.bufferChar = '+'
+ *   f := initScan("''=a");  getQuotedText(f) returns ""   and f.bufferChar = '='
+ *   f := initScan("\"A\""); getQuotedText(f) returns "A"  and f.bufferChar = EOF
+ *   f := initScan("\"\"?"); getQuotedText(f) returns ""   and f.bufferChar = '?'
+ *   f := initScan(":ab:5"); getQuotedText(f) returns "ab" and f.bufferChar = '5'
+ *   f := initScan("+XY");   getQuotedText(f) returns "XY" and f.bufferChar = EOF
  *  @return the quoted text without introducing or closing
  *          characters ( " or ' ).
  *)
@@ -377,6 +404,17 @@ const func string: getQuotedText (inout file: inFile) is func
  *  inFile.bufferChar contains the introducing delimiter character.
  *  When the function is left the character after the closing
  *  delimiter character is in inFile.bufferChar.
+ *   f := initScan("\"\"");        getSimpleStringLiteral(f) = "\"\""     and f.bufferChar = EOF
+ *   f := initScan("\"\"x");       getSimpleStringLiteral(f) = "\"\""     and f.bufferChar = 'x'
+ *   f := initScan("\"\"\"");      getSimpleStringLiteral(f) = "\"\"\""   and f.bufferChar = EOF
+ *   f := initScan("\"\"\"\"");    getSimpleStringLiteral(f) = "\"\"\""   and f.bufferChar = EOF
+ *   f := initScan("\"a\"\"\"");   getSimpleStringLiteral(f) = "\"a\"\""  and f.bufferChar = EOF
+ *   f := initScan("\"\"\"b\"");   getSimpleStringLiteral(f) = "\"\"b\""  and f.bufferChar = EOF
+ *   f := initScan("\"a\"\"b\"");  getSimpleStringLiteral(f) = "\"a\"b\"" and f.bufferChar = EOF
+ *   f := initScan("\"\"\"\"x");   getSimpleStringLiteral(f) = "\"\"\""   and f.bufferChar = 'x'
+ *   f := initScan("\"a\"\"\"x");  getSimpleStringLiteral(f) = "\"a\"\""  and f.bufferChar = 'x'
+ *   f := initScan("\"\"\"b\"x");  getSimpleStringLiteral(f) = "\"\"b\""  and f.bufferChar = 'x'
+ *   f := initScan("\"a\"\"b\"x"); getSimpleStringLiteral(f) = "\"a\"b\"" and f.bufferChar = 'x'
  *  @return the string literal including the introducing and
  *          closing delimiter character. Double delimiter chars in
  *          the literal are converted to single delimiter chars.
@@ -549,6 +587,9 @@ const func string: getStringLiteral (inout file: inFile) is func
  *  that inFile.bufferChar contains the first character to be handled.
  *  When the function is left inFile.bufferChar contains the character
  *  after the name.
+ *   f := initScan("test");   getName(f) returns "test" and f.bufferChar = EOF
+ *   f := initScan("test+1"); getName(f) returns "test" and f.bufferChar = '+'
+ *   f := initScan("+1");     getName(f) returns ""     and f.bufferChar = '+'
  *  @return the name, and
  *          "" if no letter or underscore was found.
  *)
@@ -575,6 +616,9 @@ const func string: getName (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar does not contain a space character.
+ *   f := initScan("  ok"); skipSpace(f); afterwards f.bufferChar = 'o'
+ *   f := initScan("   ");  skipSpace(f); afterwards f.bufferChar = EOF
+ *   f := initScan("ok ");  skipSpace(f); afterwards f.bufferChar = 'o'
  *)
 const proc: skipSpace (inout file: inFile) is func
   local
@@ -594,6 +638,9 @@ const proc: skipSpace (inout file: inFile) is func
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
  *  sequence of space and tab characters.
+ *   f := initScan("\t x"); skipSpaceOrTab(f); afterwards f.bufferChar = 'x'
+ *   f := initScan("\t  "); skipSpaceOrTab(f); afterwards f.bufferChar = EOF
+ *   f := initScan("abc "); skipSpaceOrTab(f); afterwards f.bufferChar = 'a'
  *)
 const proc: skipSpaceOrTab (inout file: inFile) is func
   begin
@@ -609,6 +656,9 @@ const proc: skipSpaceOrTab (inout file: inFile) is func
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
  *  whitespace characters.
+ *   f := initScan("\t\n\r X"); skipWhiteSpace(f); afterwards f.bufferChar = 'X'
+ *   f := initScan("\t\n\r ");  skipWhiteSpace(f); afterwards f.bufferChar = EOF
+ *   f := initScan("X ");       skipWhiteSpace(f); afterwards f.bufferChar = 'X'
  *)
 const proc: skipWhiteSpace (inout file: inFile) is func
   begin
@@ -639,6 +689,9 @@ const proc: skipWhiteSpace (inout file: inFile, in set of char: whiteSpaceChar) 
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
  *  whitespace characters.
+ *   f := initScan("\t X"); getWhiteSpace(f) returns "\t "  and f.bufferChar = 'X'
+ *   f := initScan("\r\n"); getWhiteSpace(f) returns "\r\n" and f.bufferChar = EOF
+ *   f := initScan("X ");   getWhiteSpace(f) returns ""     and f.bufferChar = 'X'
  *  @return the string of whitespace characters, and
  *          "" if no whitespace character was found.
  *)
@@ -661,6 +714,9 @@ const func string: getWhiteSpace (inout file: inFile) is func
  *  inFile.bufferChar contains the first character to be handled.
  *  When the function is left inFile.bufferChar contains the
  *  character after the word.
+ *   f := initScan(" ab");  getWord(f) returns "ab" and f.bufferChar = EOF
+ *   f := initScan(" ab "); getWord(f) returns "ab" and f.bufferChar = ' '
+ *   f := initScan("ab\t"); getWord(f) returns "ab" and f.bufferChar = '\t'
  *  @return the word, and
  *          "" if no word was found.
  *)
