@@ -793,7 +793,7 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Determine the name of the owner (UID) of a file in a AR archive.
+ *  Determine the name of the owner (UID) of a file in an AR archive.
  *  The function follows symbolic links.
  *  @return the name of the file owner.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -814,7 +814,7 @@ const func string: getOwner (inout arArchive: ar, in string: filePath) is func
 
 
 (**
- *  Set the owner of a file in a AR archive.
+ *  Set the owner of a file in an AR archive.
  *  The function follows symbolic links. The AR archive format allows
  *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
  *  ''owner'' names raise a RANGE_ERROR.
@@ -851,7 +851,7 @@ const proc: setOwner (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Determine the name of the group (GID) of a file in a AR archive.
+ *  Determine the name of the group (GID) of a file in an AR archive.
  *  The function follows symbolic links.
  *  @return the name of the file group.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -872,7 +872,7 @@ const func string: getGroup (inout arArchive: ar, in string: filePath) is func
 
 
 (**
- *  Set the group of a file in a AR archive.
+ *  Set the group of a file in an AR archive.
  *  The function follows symbolic links. The AR archive format allows
  *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
  *  ''group'' names raise a RANGE_ERROR.
@@ -909,7 +909,7 @@ const proc: setGroup (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Determine the file mode (permissions) of a symbolic link in a AR archive.
+ *  Determine the file mode (permissions) of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the file mode.
@@ -947,7 +947,7 @@ const func fileMode: getFileMode (inout arArchive: ar, in string: filePath, SYML
 
 
 (**
- *  Determine the modification time of a symbolic link in a AR archive.
+ *  Determine the modification time of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the modification time of the symbolic link.
@@ -985,7 +985,7 @@ const func time: getMTime (inout arArchive: ar, in string: filePath, SYMLINK) is
 
 
 (**
- *  Set the modification time of a symbolic link in a AR archive.
+ *  Set the modification time of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -1028,7 +1028,7 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Determine the name of the owner (UID) of a symbolic link in a AR archive.
+ *  Determine the name of the owner (UID) of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file owner.
@@ -1066,7 +1066,7 @@ const func string: getOwner (inout arArchive: ar, in string: filePath, SYMLINK) 
 
 
 (**
- *  Set the owner of a symbolic link in a AR archive.
+ *  Set the owner of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link. The AR archive format allows only a numeric UID.
  *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
@@ -1112,7 +1112,7 @@ const proc: setOwner (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Determine the name of the group (GID) of a symbolic link in a AR archive.
+ *  Determine the name of the group (GID) of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
  *  @return the name of the file group.
@@ -1150,7 +1150,7 @@ const func string: getGroup (inout arArchive: ar, in string: filePath, SYMLINK) 
 
 
 (**
- *  Set the group of a symbolic link in a AR archive.
+ *  Set the group of a symbolic link in an AR archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link. The AR archive format allows only a numeric GID.
  *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
@@ -1196,7 +1196,7 @@ const proc: setGroup (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Reads the destination of a symbolic link in a AR archive.
+ *  Reads the destination of a symbolic link in an AR archive.
  *  @return The destination referred by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -1235,7 +1235,7 @@ const func string: readLink (inout arArchive: ar, in string: filePath) is func
 
 
 (**
- *  Create a symbolic link in a AR archive.
+ *  Create a symbolic link in an AR archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  @param targetPath String to be contained in the symbolic link.
  *  @param symlinkPath Name of the symbolic link to be created.
@@ -1393,7 +1393,7 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
 
 
 (**
- *  Creates a new directory in a AR archive.
+ *  Creates a new directory in an AR archive.
  *  The function does not follow symbolic links.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
