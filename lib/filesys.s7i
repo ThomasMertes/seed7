@@ -463,8 +463,8 @@ const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
  *  Create a symbolic link.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *)
-const proc: symlink (inout fileSys: fileSystem, in string: targetPath,
-    in string: symlinkPath) is DYNAMIC;
+const proc: makeLink (inout fileSys: fileSystem, in string: symlinkPath,
+    in string: targetPath) is DYNAMIC;
 
 
 (**

@@ -2801,21 +2801,21 @@ const func string: readLink (inout rpmArchive: rpm, in string: filePath) is func
 (**
  *  Create a symbolic link in a RPM archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
- *  @param targetPath String to be contained in the symbolic link.
  *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
  *             standard path representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: symlink (inout rpmArchive: rpm, in string: targetPath,
-    in string: symlinkPath) is func
+const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
+    in string: targetPath) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var string: targetPath8 is "";
     var string: symlinkPath8 is "";
     var integer: length is 0;
   begin
-    # writeln("symlink: " <& targetPath <& " " <& symlinkPath);
+    # writeln("makeLink: " <& literal(symlinkPath) <& " " <& literal(targetPath));
     if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
       raise RANGE_ERROR;
     elsif symlinkPath = "" or symlinkPath in rpm.catalog or
@@ -2849,7 +2849,7 @@ const proc: symlink (inout rpmArchive: rpm, in string: targetPath,
       catalogEntry.dirty := TRUE;
       rpm.catalog @:= [symlinkPath] catalogEntry;
       rpm.register @:= [symlinkPath] catalogEntry.fileNumber;
-      symlink(rpm.archive, targetPath, symlinkPath);
+      makeLink(rpm.archive, symlinkPath, targetPath);
     end if;
   end func;
 

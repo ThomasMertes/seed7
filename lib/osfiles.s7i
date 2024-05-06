@@ -1022,8 +1022,8 @@ const proc: putFile (inout osFileSys: fileSystem, in string: filePath, in string
 const func string: readLink (inout osFileSys: fileSystem, in string: filePath) is
   return readLink(filePath);
 
-const proc: symlink (inout osFileSys: fileSystem, in string: targetPath,
-    in string: symlinkPath) is func
+const proc: makeLink (inout osFileSys: fileSystem, in string: symlinkPath,
+    in string: targetPath) is func
   begin
     symlink(targetPath, symlinkPath);
   end func;
