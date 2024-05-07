@@ -162,8 +162,10 @@ const func browserConnection: openBrowser is func
     until browser.inetListener <> listener.value or port >= MAX_PORT;
     if browser.inetListener <> listener.value then
       listen(browser.inetListener, 10);
-      # cmd_sh("firefox localhost:" <& port <& " &");
-      if fileType("/usr/bin/firefox") <> FILE_ABSENT then
+      const boolean: xdg_exist is true; # TODO: find xdg-open in $PATH
+      if xdg_exist then
+        cmd_sh("xdg-open http://localhost:" <& port);
+      elseif fileType("/usr/bin/firefox") <> FILE_ABSENT then
         browser.program := startProcess("/usr/bin/firefox", [] ("localhost:" <& port));
       elsif fileType("/usr/bin/chromium") <> FILE_ABSENT then
         browser.program := startProcess("/usr/bin/chromium", [] ("http://localhost:" <& port));
