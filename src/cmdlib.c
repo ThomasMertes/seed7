@@ -856,6 +856,29 @@ objectType cmd_home_dir (listType arguments)
 
 
 /**
+ *  Create a symbolic link.
+ *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
+ *  @param symlinkPath/arg_1 Name of the symbolic link to be created.
+ *  @param targetPath/arg_2 String to be contained in the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'symlinkPath' or
+ *             'targetPath' to the system path type.
+ *  @exception RANGE_ERROR 'symlinkPath' or 'targetPath' does not use the
+ *             standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType cmd_make_link (listType arguments)
+
+  { /* cmd_make_link */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdMakeLink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_make_link */
+
+
+
+/**
  *  Creates a new directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
  *             the system path type.
@@ -1360,29 +1383,6 @@ objectType cmd_shell_escape (listType arguments)
     return bld_stri_temp(
         cmdShellEscape(take_stri(arg_1(arguments))));
   } /* cmd_shell_escape */
-
-
-
-/**
- *  Create a symbolic link.
- *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
- *  @param targetPath/arg_1 String to be contained in the symbolic link.
- *  @param symlinkPath/arg_2 Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
- *             symlinkPath to the system path type.
- *  @exception RANGE_ERROR 'targetPath' or 'symlinkPath' does not use the
- *             standard path representation or one of them cannot be
- *             converted to the system path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-objectType cmd_symlink (listType arguments)
-
-  { /* cmd_symlink */
-    isit_stri(arg_1(arguments));
-    isit_stri(arg_2(arguments));
-    cmdSymlink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* cmd_symlink */
 
 
 

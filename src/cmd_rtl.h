@@ -90,6 +90,7 @@ void cmdGetMTimeOfSymlink (const const_striType filePath,
     boolType *is_dst);
 rtlArrayType cmdGetSearchPath (void);
 striType cmdHomeDir (void);
+void cmdMakeLink (const const_striType symlinkPath, const const_striType targetPath);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
 rtlArrayType cmdReadDir (const const_striType dirPath);
@@ -108,6 +109,5 @@ void cmdSetMTime (const const_striType filePath,
 void cmdSetSearchPath (rtlArrayType searchPath);
 intType cmdShell (const const_striType command, const const_striType parameters);
 striType cmdShellEscape (const const_striType stri);
-void cmdSymlink (const const_striType source_name, const const_striType dest_name);
 striType cmdToOsPath (const const_striType standardPath);
 void cmdUnsetenv (const const_striType name);

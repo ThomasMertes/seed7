@@ -592,6 +592,21 @@ const func string: finalPath (in string: filePath)           is action "CMD_FINA
 (**
  *  Create a symbolic link.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''symlinkPath'' or
+ *             ''targetPath'' to the system path type.
+ *  @exception RANGE_ERROR ''symlinkPath'' or ''targetPath'' does not use the
+ *             standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: makeLink (in string: symlinkPath, in string: targetPath)  is action "CMD_MAKE_LINK";
+
+
+(**
+ *  Create a symbolic link.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  @param targetPath String to be contained in the symbolic link.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
@@ -601,7 +616,10 @@ const func string: finalPath (in string: filePath)           is action "CMD_FINA
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: symlink (in string: targetPath, in string: symlinkPath)  is action "CMD_SYMLINK";
+const proc: symlink (in string: targetPath, in string: symlinkPath) is func
+  begin
+    makeLink(symlinkPath, targetPath);
+  end func;
 
 
 (**
@@ -1025,7 +1043,7 @@ const func string: readLink (inout osFileSys: fileSystem, in string: filePath) i
 const proc: makeLink (inout osFileSys: fileSystem, in string: symlinkPath,
     in string: targetPath) is func
   begin
-    symlink(targetPath, symlinkPath);
+    makeLink(symlinkPath, targetPath);
   end func;
 
 const proc: mkdir (inout osFileSys: fileSystem, in string: dirPath) is func

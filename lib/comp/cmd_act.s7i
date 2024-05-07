@@ -49,6 +49,7 @@ const ACTION: CMD_GET_OWNER                is action "CMD_GET_OWNER";
 const ACTION: CMD_GET_OWNER_OF_SYMLINK     is action "CMD_GET_OWNER_OF_SYMLINK";
 const ACTION: CMD_GET_SEARCH_PATH          is action "CMD_GET_SEARCH_PATH";
 const ACTION: CMD_HOME_DIR                 is action "CMD_HOME_DIR";
+const ACTION: CMD_MAKE_LINK                is action "CMD_MAKE_LINK";
 const ACTION: CMD_MKDIR                    is action "CMD_MKDIR";
 const ACTION: CMD_MOVE                     is action "CMD_MOVE";
 const ACTION: CMD_READ_DIR                 is action "CMD_READ_DIR";
@@ -68,7 +69,6 @@ const ACTION: CMD_SET_OWNER_OF_SYMLINK     is action "CMD_SET_OWNER_OF_SYMLINK";
 const ACTION: CMD_SET_SEARCH_PATH          is action "CMD_SET_SEARCH_PATH";
 const ACTION: CMD_SHELL                    is action "CMD_SHELL";
 const ACTION: CMD_SHELL_ESCAPE             is action "CMD_SHELL_ESCAPE";
-const ACTION: CMD_SYMLINK                  is action "CMD_SYMLINK";
 const ACTION: CMD_TO_OS_PATH               is action "CMD_TO_OS_PATH";
 const ACTION: CMD_UNSETENV                 is action "CMD_UNSETENV";
 
@@ -101,6 +101,7 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    cmdGetOwnerOfSymlink (const const_striType);");
     declareExtern(c_prog, "arrayType   cmdGetSearchPath (void);");
     declareExtern(c_prog, "striType    cmdHomeDir (void);");
+    declareExtern(c_prog, "void        cmdMakeLink (const_striType, const_striType);");
     declareExtern(c_prog, "void        cmdMkdir (const const_striType);");
     declareExtern(c_prog, "void        cmdMove (const const_striType, const const_striType);");
     declareExtern(c_prog, "arrayType   cmdReadDir (const const_striType);");
@@ -119,7 +120,6 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        cmdSetOwnerOfSymlink (const const_striType, const const_striType);");
     declareExtern(c_prog, "intType     cmdShell (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    cmdShellEscape (const const_striType);");
-    declareExtern(c_prog, "void        cmdSymlink (const_striType, const_striType);");
     declareExtern(c_prog, "striType    cmdToOsPath (const const_striType);");
     declareExtern(c_prog, "void        cmdUnsetenv (const const_striType);");
   end func;
@@ -489,6 +489,19 @@ const proc: process (CMD_HOME_DIR, in reference: function,
   end func;
 
 
+const proc: process (CMD_MAKE_LINK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdMakeLink(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process (CMD_MKDIR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -757,19 +770,6 @@ const proc: process (CMD_SHELL_ESCAPE, in reference: function,
     c_expr.result_expr := "cmdShellEscape(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (CMD_SYMLINK, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "cmdSymlink(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

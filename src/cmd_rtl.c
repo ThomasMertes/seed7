@@ -3537,6 +3537,65 @@ striType cmdHomeDir (void)
 
 
 /**
+ *  Create a symbolic link.
+ *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'symlinkPath' or
+ *             'targetPath' to the system path type.
+ *  @exception RANGE_ERROR 'symlinkPath' or 'targetPath' does not use the
+ *             standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdMakeLink (const const_striType symlinkPath, const const_striType targetPath)
+
+  {
+#if HAS_SYMLINK
+    os_striType os_symlinkPath;
+    os_striType os_targetPath;
+    int path_info;
+#endif
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdMakeLink */
+    logFunction(printf("cmdMakeLink(\"%s\", ", striAsUnquotedCStri(symlinkPath));
+                printf("\"%s\")\n", striAsUnquotedCStri(targetPath)););
+#if HAS_SYMLINK
+    os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, &err_info);
+    if (likely(os_symlinkPath != NULL)) {
+      os_targetPath = cp_to_os_path(targetPath, &path_info, &err_info);
+      if (likely(os_targetPath != NULL)) {
+        logMessage(printf("os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                          os_targetPath, os_symlinkPath););
+        if (unlikely(os_symlink(os_targetPath, os_symlinkPath) != 0)) {
+          logError(printf("cmdMakeLink: "
+                          "os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_targetPath, os_symlinkPath,
+                          errno, strerror(errno)););
+          err_info = FILE_ERROR;
+        } /* if */
+        os_stri_free(os_targetPath);
+      } /* if */
+      os_stri_free(os_symlinkPath);
+    } /* if */
+#elif defined DEFINE_WIN_SYMLINK
+    winSymlink(targetPath, symlinkPath, &err_info);
+#else
+    logError(printf("cmdMakeLink(\"%s\", ", striAsUnquotedCStri(symlinkPath));
+             printf("\"%s\"): Creating symbolic links is not supported.\n",
+                    striAsUnquotedCStri(targetPath)););
+    err_info = FILE_ERROR;
+#endif
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdMakeLink */
+
+
+
+/**
  *  Creates a new directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
  *             the system path type.
@@ -4552,65 +4611,6 @@ striType cmdShellEscape (const const_striType stri)
   } /* cmdShellEscape */
 
 #endif
-
-
-
-/**
- *  Create a symbolic link.
- *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
- *  @param targetPath String to be contained in the symbolic link.
- *  @param symlinkPath Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
- *             symlinkPath to the system path type.
- *  @exception RANGE_ERROR 'targetPath' or 'symlinkPath' does not use the
- *             standard path representation or one of them cannot be
- *             converted to the system path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-void cmdSymlink (const const_striType targetPath, const const_striType symlinkPath)
-
-  {
-#if HAS_SYMLINK
-    os_striType os_targetPath;
-    os_striType os_symlinkPath;
-    int path_info;
-#endif
-    errInfoType err_info = OKAY_NO_ERROR;
-
-  /* cmdSymlink */
-    logFunction(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(targetPath));
-                printf("\"%s\")\n", striAsUnquotedCStri(symlinkPath)););
-#if HAS_SYMLINK
-    os_targetPath = cp_to_os_path(targetPath, &path_info, &err_info);
-    if (likely(os_targetPath != NULL)) {
-      os_symlinkPath = cp_to_os_path(symlinkPath, &path_info, &err_info);
-      if (likely(os_symlinkPath != NULL)) {
-        logMessage(printf("os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
-                          os_targetPath, os_symlinkPath););
-        if (unlikely(os_symlink(os_targetPath, os_symlinkPath) != 0)) {
-          logError(printf("cmdSymlink: "
-                          "os_symlink(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          os_targetPath, os_symlinkPath,
-                          errno, strerror(errno)););
-          err_info = FILE_ERROR;
-        } /* if */
-        os_stri_free(os_symlinkPath);
-      } /* if */
-      os_stri_free(os_targetPath);
-    } /* if */
-#elif defined DEFINE_WIN_SYMLINK
-    winSymlink(targetPath, symlinkPath, &err_info);
-#else
-    logError(printf("cmdSymlink(\"%s\", ", striAsUnquotedCStri(targetPath));
-             printf("\"%s\"): Creating symbolic links is not supported.\n",
-                    striAsUnquotedCStri(symlinkPath)););
-    err_info = FILE_ERROR;
-#endif
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      raise_error(err_info);
-    } /* if */
-  } /* cmdSymlink */
 
 
 

@@ -278,6 +278,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_GET_OWNER_OF_SYMLINK",     cmd_get_owner_of_symlink,     },
     { "CMD_GET_SEARCH_PATH",          cmd_get_search_path,          },
     { "CMD_HOME_DIR",                 cmd_home_dir,                 },
+    { "CMD_MAKE_LINK",                cmd_make_link,                },
     { "CMD_MKDIR",                    cmd_mkdir,                    },
     { "CMD_MOVE",                     cmd_move,                     },
     { "CMD_READ_DIR",                 cmd_read_dir,                 },
@@ -297,7 +298,6 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_SET_SEARCH_PATH",          cmd_set_search_path,          },
     { "CMD_SHELL",                    cmd_shell,                    },
     { "CMD_SHELL_ESCAPE",             cmd_shell_escape,             },
-    { "CMD_SYMLINK",                  cmd_symlink,                  },
     { "CMD_TO_OS_PATH",               cmd_to_os_path,               },
     { "CMD_UNSETENV",                 cmd_unsetenv,                 },
 

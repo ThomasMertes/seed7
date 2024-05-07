@@ -524,6 +524,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_GET_SEARCH_PATH, function, params, c_expr);
       when {"CMD_HOME_DIR"}:
         process(CMD_HOME_DIR, function, params, c_expr);
+      when {"CMD_MAKE_LINK"}:
+        process(CMD_MAKE_LINK, function, params, c_expr);
       when {"CMD_MKDIR"}:
         process(CMD_MKDIR, function, params, c_expr);
       when {"CMD_MOVE"}:
@@ -562,8 +564,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SHELL, function, params, c_expr);
       when {"CMD_SHELL_ESCAPE"}:
         process(CMD_SHELL_ESCAPE, function, params, c_expr);
-      when {"CMD_SYMLINK"}:
-        process(CMD_SYMLINK, function, params, c_expr);
       when {"CMD_TO_OS_PATH"}:
         process(CMD_TO_OS_PATH, function, params, c_expr);
       when {"CMD_UNSETENV"}:
