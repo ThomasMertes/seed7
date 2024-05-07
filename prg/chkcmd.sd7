@@ -944,27 +944,27 @@ const func boolean: checkSymlinkToRegularFile is func
       removeFile(targetName);
     end if;
 
-    if not raisesFileError(symlink(targetName, "")) then
-      writeln(" ***** symlink() with empty symlink name does not raise FILE_ERROR.");
+    if not raisesFileError(makeLink("", targetName)) then
+      writeln(" ***** makeLink() with empty symlink name does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
 
-    if not raisesFileError(symlink("", symlinkName)) then
-      writeln(" ***** symlink() with empty target name does not raise FILE_ERROR.");
+    if not raisesFileError(makeLink(symlinkName, "")) then
+      writeln(" ***** makeLink() with empty target name does not raise FILE_ERROR.");
       okay := FALSE;
     end if;
 
-    if raisesFileError(symlink(targetName, symlinkName)) then
-      writeln(" ***** symlink() to a non-existing target raises FILE_ERROR.");
+    if raisesFileError(makeLink(symlinkName, targetName)) then
+      writeln(" ***** makeLink() with a non-existing target raises FILE_ERROR.");
       okay := FALSE;
     elsif fileTypeSL(symlinkName) <> FILE_SYMLINK then
-      writeln(" ***** symlink() failed to create a symbolic link.");
+      writeln(" ***** makeLink() failed to create a symbolic link.");
       okay := FALSE;
     end if;
 
     if okay then
-      if not raisesFileError(symlink(targetName, symlinkName)) then
-        writeln(" ***** symlink() when a file with the symlink name exists does not raise FILE_ERROR.");
+      if not raisesFileError(makeLink(symlinkName, targetName)) then
+        writeln(" ***** makeLink() when a file with the symlink name exists does not raise FILE_ERROR.");
         okay := FALSE;
       end if;
 

@@ -604,18 +604,8 @@ const func string: finalPath (in string: filePath)           is action "CMD_FINA
 const proc: makeLink (in string: symlinkPath, in string: targetPath)  is action "CMD_MAKE_LINK";
 
 
-(**
- *  Create a symbolic link.
- *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
- *  @param targetPath String to be contained in the symbolic link.
- *  @param symlinkPath Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert targetPath or
- *             symlinkPath to the system path type.
- *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
- *             standard path representation or one of them cannot be
- *             converted to the system path type.
- *  @exception FILE_ERROR A system function returns an error.
- *)
+# The function symlink() is deprecated. Use makeLink() instead.
+# Note that makeLink() has the symlinkPath as first parameter.
 const proc: symlink (in string: targetPath, in string: symlinkPath) is func
   begin
     makeLink(symlinkPath, targetPath);
