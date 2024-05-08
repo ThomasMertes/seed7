@@ -1710,6 +1710,76 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
 
 
 (**
+ *  Create a symbolic link in a ZIP archive.
+ *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param targetPath String to be contained in the symbolic link.
+ *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *             standard path representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: makeLink (inout zipArchive: zip, in string: symlinkPath,
+    in string: targetPath) is func
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+    var string: symlinkPath8 is "";
+    var string: targetPath8 is "";
+    var integer: roomForNewFile is 0;
+  begin
+    # writeln("makeLink: " <& literal(symlinkPath) <& " " <& literal(targetPath));
+    if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
+      raise RANGE_ERROR;
+    elsif symlinkPath = "" or symlinkPath in zip.catalog or
+        symlinkPath in zip.register or implicitDir(zip, symlinkPath) then
+      raise FILE_ERROR;
+    else
+      symlinkPath8 := toUtf8(symlinkPath);
+      targetPath8 := toUtf8(targetPath);
+      header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
+      header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
+      header.version_needed_to_extract  := 10;
+      if symlinkPath8 <> symlinkPath then
+        header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
+      else
+        header.general_purpose_bit_flag := bin32(0);
+      end if;
+      header.compression_method         := 0;
+      header.crc_32                     := crc32(targetPath8);
+      header.compressed_size            := length(targetPath8);
+      header.uncompressed_size          := length(targetPath8);
+      header.disk_number_start          := 0;
+      header.internal_file_attributes   := 0;
+      # The unix mode is in the high 16 bits of the attributes.
+      header.external_file_attributes   := (ord(MODE_FILE_SYMLINK) + 8#777) << 16;
+      header.file_name                  := symlinkPath8;
+      header.extra_field                := "";
+      # assignLastModFileTime(header, time(NOW));
+      header.file_comment               := "";
+      header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
+      roomForNewFile := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
+          length(header.extra_field) + header.compressed_size;
+      insertArea(zip.zipFile, zip.startOfCentralDirPos, roomForNewFile);
+      fixRegisterAndCatalog(zip, zip.startOfCentralDirPos, roomForNewFile);
+      localHeader := toLocalHeader(header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      writeHead(zip.zipFile, localHeader);
+      write(zip.zipFile, targetPath8);
+      seek(zip.zipFile, zip.endOfCentralDirPos);
+      zip.register @:= [symlinkPath] zip.endOfCentralDirPos;
+      writeHead(zip.zipFile, header);
+      zip.catalog @:= [symlinkPath] header;
+      zip.endOfCentralDirPos := tell(zip.zipFile);
+      incr(zip.endOfCentralDir.entries_in_central_directory_on_this_disk);
+      incr(zip.endOfCentralDir.entries_in_central_directory);
+      zip.endOfCentralDir.size_of_central_directory := zip.endOfCentralDirPos - zip.startOfCentralDirPos;
+      zip.endOfCentralDir.offset_of_start_of_central_directory := pred(zip.startOfCentralDirPos);
+      write(zip.zipFile, str(zip.endOfCentralDir));
+    end if;
+  end func;
+
+
+(**
  *  Get the contents of a file in a ZIP archive.
  *  The function follows symbolic links.
  *  @return the specified file as string.
