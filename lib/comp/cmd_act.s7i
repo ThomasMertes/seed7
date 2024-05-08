@@ -49,8 +49,8 @@ const ACTION: CMD_GET_OWNER                is action "CMD_GET_OWNER";
 const ACTION: CMD_GET_OWNER_OF_SYMLINK     is action "CMD_GET_OWNER_OF_SYMLINK";
 const ACTION: CMD_GET_SEARCH_PATH          is action "CMD_GET_SEARCH_PATH";
 const ACTION: CMD_HOME_DIR                 is action "CMD_HOME_DIR";
+const ACTION: CMD_MAKE_DIR                 is action "CMD_MAKE_DIR";
 const ACTION: CMD_MAKE_LINK                is action "CMD_MAKE_LINK";
-const ACTION: CMD_MKDIR                    is action "CMD_MKDIR";
 const ACTION: CMD_MOVE                     is action "CMD_MOVE";
 const ACTION: CMD_READ_DIR                 is action "CMD_READ_DIR";
 const ACTION: CMD_READ_LINK                is action "CMD_READ_LINK";
@@ -101,8 +101,8 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    cmdGetOwnerOfSymlink (const const_striType);");
     declareExtern(c_prog, "arrayType   cmdGetSearchPath (void);");
     declareExtern(c_prog, "striType    cmdHomeDir (void);");
+    declareExtern(c_prog, "void        cmdMakeDir (const const_striType);");
     declareExtern(c_prog, "void        cmdMakeLink (const_striType, const_striType);");
-    declareExtern(c_prog, "void        cmdMkdir (const const_striType);");
     declareExtern(c_prog, "void        cmdMove (const const_striType, const const_striType);");
     declareExtern(c_prog, "arrayType   cmdReadDir (const const_striType);");
     declareExtern(c_prog, "striType    cmdReadLink (const const_striType);");
@@ -489,6 +489,17 @@ const proc: process (CMD_HOME_DIR, in reference: function,
   end func;
 
 
+const proc: process (CMD_MAKE_DIR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdMakeDir(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process (CMD_MAKE_LINK, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -498,17 +509,6 @@ const proc: process (CMD_MAKE_LINK, in reference: function,
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process (CMD_MKDIR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "cmdMkdir(";
-    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

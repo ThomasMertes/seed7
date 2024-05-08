@@ -708,7 +708,7 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: makeDir (in string: dirPath)                     is action "CMD_MKDIR";
+const proc: makeDir (in string: dirPath)                     is action "CMD_MAKE_DIR";
 
 
 # The function mkdir() is deprecated. Use makeDir() instead.

@@ -856,6 +856,25 @@ objectType cmd_home_dir (listType arguments)
 
 
 /**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType cmd_make_dir (listType arguments)
+
+  { /* cmd_make_dir */
+    isit_stri(arg_1(arguments));
+    cmdMakeDir(take_stri(arg_1(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_make_dir */
+
+
+
+/**
  *  Create a symbolic link.
  *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
  *  @param symlinkPath/arg_1 Name of the symbolic link to be created.
@@ -875,25 +894,6 @@ objectType cmd_make_link (listType arguments)
     cmdMakeLink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* cmd_make_link */
-
-
-
-/**
- *  Creates a new directory.
- *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
- *             the system path type.
- *  @exception RANGE_ERROR 'dirPath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-objectType cmd_mkdir (listType arguments)
-
-  { /* cmd_mkdir */
-    isit_stri(arg_1(arguments));
-    cmdMkdir(take_stri(arg_1(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* cmd_mkdir */
 
 
 

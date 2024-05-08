@@ -524,10 +524,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_GET_SEARCH_PATH, function, params, c_expr);
       when {"CMD_HOME_DIR"}:
         process(CMD_HOME_DIR, function, params, c_expr);
+      when {"CMD_MAKE_DIR"}:
+        process(CMD_MAKE_DIR, function, params, c_expr);
       when {"CMD_MAKE_LINK"}:
         process(CMD_MAKE_LINK, function, params, c_expr);
-      when {"CMD_MKDIR"}:
-        process(CMD_MKDIR, function, params, c_expr);
       when {"CMD_MOVE"}:
         process(CMD_MOVE, function, params, c_expr);
       when {"CMD_READ_DIR"}:

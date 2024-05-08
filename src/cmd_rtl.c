@@ -3537,6 +3537,48 @@ striType cmdHomeDir (void)
 
 
 /**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdMakeDir (const const_striType dirPath)
+
+  {
+    os_striType os_path;
+    int mkdir_result;
+    int path_info;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdMakeDir */
+    logFunction(printf("cmdMakeDir(\"%s\")\n", striAsUnquotedCStri(dirPath)););
+    os_path = cp_to_os_path(dirPath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdMakeDir: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(dirPath), path_info, err_info););
+      raise_error(err_info);
+    } else {
+      /* printf("mkdir(\"" FMT_S_OS "\")\n", os_path); */
+      mkdir_result = os_mkdir(os_path, 0777);
+      if (unlikely(mkdir_result != 0)) {
+        logError(printf("cmdMakeDir: os_mkdir(\"" FMT_S_OS "\", 0777) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        os_stri_free(os_path);
+        raise_error(FILE_ERROR);
+      } else {
+        os_stri_free(os_path);
+      } /* if */
+    } /* if */
+  } /* cmdMakeDir */
+
+
+
+/**
  *  Create a symbolic link.
  *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
  *  @param symlinkPath Name of the symbolic link to be created.
@@ -3592,48 +3634,6 @@ void cmdMakeLink (const const_striType symlinkPath, const const_striType targetP
       raise_error(err_info);
     } /* if */
   } /* cmdMakeLink */
-
-
-
-/**
- *  Creates a new directory.
- *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
- *             the system path type.
- *  @exception RANGE_ERROR 'dirPath' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- */
-void cmdMkdir (const const_striType dirPath)
-
-  {
-    os_striType os_path;
-    int mkdir_result;
-    int path_info;
-    errInfoType err_info = OKAY_NO_ERROR;
-
-  /* cmdMkdir */
-    logFunction(printf("cmdMkdir(\"%s\")\n", striAsUnquotedCStri(dirPath)););
-    os_path = cp_to_os_path(dirPath, &path_info, &err_info);
-    if (unlikely(os_path == NULL)) {
-      logError(printf("cmdMkdir: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(dirPath), path_info, err_info););
-      raise_error(err_info);
-    } else {
-      /* printf("mkdir(\"" FMT_S_OS "\")\n", os_path); */
-      mkdir_result = os_mkdir(os_path, 0777);
-      if (unlikely(mkdir_result != 0)) {
-        logError(printf("cmdMkdir: os_mkdir(\"" FMT_S_OS "\", 0777) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        os_path, errno, strerror(errno)););
-        os_stri_free(os_path);
-        raise_error(FILE_ERROR);
-      } else {
-        os_stri_free(os_path);
-      } /* if */
-    } /* if */
-  } /* cmdMkdir */
 
 
 
