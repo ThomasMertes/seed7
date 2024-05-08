@@ -1789,21 +1789,10 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         end if;
         crc_32 := crc32(content);
         if localHeader.crc_32 <> crc_32 or
-            localHeader.uncompressed_size <> length(content) then
-          header := zip.catalog[filePath];
-          if header.crc_32 = crc_32 and
-              header.uncompressed_size = length(content) then
-            localHeader.crc_32            := crc_32;
-            localHeader.compressed_size   := header.compressed_size;
-            localHeader.uncompressed_size := header.uncompressed_size;
-          else
-            # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
-            #         " actual size: " <& length(content));
-            # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
-            #         " actual crc_32: " <& crc32(content) radix 16);
-            # write(localHeader);
-            raise FILE_ERROR;
-          end if;
+            localHeader.uncompressed_size <> length(content) or
+            header.crc_32 <> crc_32 or
+            header.uncompressed_size <> length(content) then
+          raise FILE_ERROR;
         end if;
       else
         raise FILE_ERROR;
