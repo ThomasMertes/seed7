@@ -1665,6 +1665,7 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
   local
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
+    var string: linkPath8 is "";
     var bin32: crc_32 is bin32(0);
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1684,28 +1685,24 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
       # write(localHeader);
       if localHeader.compression_method = 0 then
         # The link destination is stored (no compression).
-        linkPath := gets(zip.zipFile, localHeader.compressed_size);
+        linkPath8 := gets(zip.zipFile, localHeader.compressed_size);
       else
         # writeln("unsupported compression method: " <& localHeader.compression_method);
         raise FILE_ERROR;
       end if;
-      crc_32 := crc32(linkPath);
+      crc_32 := crc32(linkPath8);
       if localHeader.crc_32 <> crc_32 or
-          localHeader.uncompressed_size <> length(linkPath) then
-        if header.crc_32 = crc_32 and
-            header.uncompressed_size = length(linkPath) then
-          localHeader.crc_32            := crc_32;
-          localHeader.compressed_size   := header.compressed_size;
-          localHeader.uncompressed_size := header.uncompressed_size;
-        else
-          # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
-          #         " actual size: " <& length(linkPath));
-          # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
-          #         " actual crc_32: " <& crc32(linkPath) radix 16);
-          # write(localHeader);
-          raise FILE_ERROR;
-        end if;
+          localHeader.uncompressed_size <> length(linkPath8) or
+          header.crc_32 <> crc_32 or
+          header.uncompressed_size <> length(linkPath8) then
+        raise FILE_ERROR;
       end if;
+      block
+        linkPath := fromUtf8(linkPath8);
+      exception
+        catch RANGE_ERROR:
+          linkPath := linkPath8;
+      end block;
     else
       raise FILE_ERROR;
     end if;
