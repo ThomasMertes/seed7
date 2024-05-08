@@ -1248,7 +1248,6 @@ const proc: makeLink (inout arArchive: ar, in string: symlinkPath,
   local
     var arHeader: header is arHeader.value;
     var string: targetPath8 is "";
-    var string: symlinkPath8 is "";
     var integer: length is 0;
   begin
     # writeln("makeLink: " <& literal(symlinkPath) <& " " <& literal(targetPath));
@@ -1259,7 +1258,6 @@ const proc: makeLink (inout arArchive: ar, in string: symlinkPath,
       raise FILE_ERROR;
     else
       targetPath8 := toUtf8(targetPath);
-      symlinkPath8 := toUtf8(symlinkPath);
       length := length(ar.arFile);
       if length = 0 then
         write(ar.arFile, AR_MAGIC);

@@ -1331,8 +1331,8 @@ const proc: makeLink (inout cpioArchive: cpio, in string: symlinkPath,
     in string: targetPath) is func
   local
     var cpioHeader: header is cpioHeader.value;
-    var string: targetPath8 is "";
     var string: symlinkPath8 is "";
+    var string: targetPath8 is "";
     var integer: length is 0;
   begin
     # writeln("makeLink: " <& literal(symlinkPath) <& " " <& literal(targetPath));
@@ -1342,8 +1342,8 @@ const proc: makeLink (inout cpioArchive: cpio, in string: symlinkPath,
         symlinkPath in cpio.register or implicitDir(cpio, symlinkPath) then
       raise FILE_ERROR;
     else
-      targetPath8 := toUtf8(targetPath);
       symlinkPath8 := toUtf8(symlinkPath);
+      targetPath8 := toUtf8(targetPath);
       header.magic      := cpio.magic;
       header.ino        := 0;
       header.mode       := ord(MODE_FILE_SYMLINK) + 8#777;

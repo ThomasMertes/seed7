@@ -2811,8 +2811,6 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
     in string: targetPath) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var string: targetPath8 is "";
-    var string: symlinkPath8 is "";
     var integer: length is 0;
   begin
     # writeln("makeLink: " <& literal(symlinkPath) <& " " <& literal(targetPath));
