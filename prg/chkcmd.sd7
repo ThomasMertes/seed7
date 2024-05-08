@@ -156,7 +156,7 @@ const proc: checkRemoveFile is func
     const string: fileName is "remove_file_test";
     var boolean: okay is TRUE;
   begin
-    mkdir(fileName);
+    makeDir(fileName);
     putf(fileName & "/" & fileName, "File content checkRemoveFile 1");
     if not raisesFileError(removeFile(fileName)) then
       writeln(" ***** removeFile with nonempty directory does not raise FILE_ERROR.");
@@ -202,7 +202,7 @@ const proc: checkRemoveTree is func
       okay := FALSE;
     end if;
 
-    mkdir(fileName);
+    makeDir(fileName);
     if raisesFileError(removeTree(fileName)) then
       writeln(" ***** removeTree with an empty directory raises FILE_ERROR");
       okay := FALSE;
@@ -211,7 +211,7 @@ const proc: checkRemoveTree is func
       okay := FALSE;
     end if;
 
-    mkdir(fileName);
+    makeDir(fileName);
     putf(fileName & "/" & fileName, "File content check_removeTree 2");
     if raisesFileError(removeTree(fileName)) then
       writeln(" ***** removeTree a directory tree raises FILE_ERROR");
@@ -246,7 +246,7 @@ const proc: checkCopyFile is func
     removeFile(fileName2);
 
     putf(fileName1, "File content checkCopyFile 3");
-    mkdir(fileName2);
+    makeDir(fileName2);
     if not raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
@@ -254,7 +254,7 @@ const proc: checkCopyFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName2, "File content checkCopyFile 4");
     if not raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile of directory to existing file does not raise FILE_ERROR.");
@@ -263,8 +263,8 @@ const proc: checkCopyFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     if not raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile of directory to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
@@ -297,7 +297,7 @@ const proc: checkCopyFile is func
       removeFile(fileName2);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     if raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
@@ -322,7 +322,7 @@ const proc: checkCopyFile is func
       removeFile(fileName2);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName1 & "/" & fileName1, "File content checkCopyFile 6");
     if raisesFileError(copyFile(fileName1, fileName2)) then
       writeln(" ***** copyFile with a directory raises FILE_ERROR.");
@@ -352,8 +352,8 @@ const proc: checkCopyFile is func
       removeTree(fileName2);
     end if;
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     putf(fileName1 & "/" & fileName1, "File content checkCopyFile 7");
     if raisesFileError(copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
       writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
@@ -381,9 +381,9 @@ const proc: checkCopyFile is func
     removeTree(fileName1);
     removeTree(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
-    mkdir(fileName1 & "/" & fileName1);
+    makeDir(fileName1);
+    makeDir(fileName2);
+    makeDir(fileName1 & "/" & fileName1);
     if raisesFileError(copyFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
       writeln(" ***** copyFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
@@ -435,7 +435,7 @@ const proc: checkCloneFile is func
     removeFile(fileName2);
 
     putf(fileName1, "File content checkCloneFile 3");
-    mkdir(fileName2);
+    makeDir(fileName2);
     if not raisesFileError(cloneFile(fileName1, fileName2)) then
       writeln(" ***** cloneFile to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
@@ -443,7 +443,7 @@ const proc: checkCloneFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName2, "File content checkCloneFile 4");
     if not raisesFileError(cloneFile(fileName1, fileName2)) then
       writeln(" ***** cloneFile of directory to existing file does not raise FILE_ERROR.");
@@ -452,8 +452,8 @@ const proc: checkCloneFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     if not raisesFileError(cloneFile(fileName1, fileName2)) then
       writeln(" ***** cloneFile of directory to existing directory does not raise FILE_ERROR.");
       okay := FALSE;
@@ -495,7 +495,7 @@ const proc: checkCloneFile is func
       removeFile(fileName1);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     if raisesFileError(cloneFile(fileName1, fileName2)) then
       writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
@@ -528,7 +528,7 @@ const proc: checkCloneFile is func
       removeFile(fileName1);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName1 & "/" & fileName1, "File content checkCloneFile 6");
     if raisesFileError(cloneFile(fileName1, fileName2)) then
       writeln(" ***** cloneFile with a directory raises FILE_ERROR.");
@@ -575,8 +575,8 @@ const proc: checkCloneFile is func
       removeTree(fileName1);
     end if;
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     putf(fileName1 & "/" & fileName1, "File content checkCloneFile 7");
     if raisesFileError(cloneFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
       writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
@@ -612,9 +612,9 @@ const proc: checkCloneFile is func
     removeTree(fileName1);
     removeTree(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
-    mkdir(fileName1 & "/" & fileName1);
+    makeDir(fileName1);
+    makeDir(fileName2);
+    makeDir(fileName1 & "/" & fileName1);
     if raisesFileError(cloneFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
       writeln(" ***** cloneFile with an empty directory raises FILE_ERROR.");
       okay := FALSE;
@@ -675,7 +675,7 @@ const proc: checkMoveFile is func
     removeFile(fileName2);
 
     putf(fileName1, "File content checkMoveFile 3");
-    mkdir(fileName2);
+    makeDir(fileName2);
     if not raisesFileError(moveFile(fileName1, fileName2)) then
       writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
       okay := FALSE;
@@ -683,7 +683,7 @@ const proc: checkMoveFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName2, "File content checkMoveFile 4");
     if not raisesFileError(moveFile(fileName1, fileName2)) then
       writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
@@ -692,8 +692,8 @@ const proc: checkMoveFile is func
     removeFile(fileName1);
     removeFile(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     if not raisesFileError(moveFile(fileName1, fileName2)) then
       writeln(" ***** moveFile to existing file does not raise FILE_ERROR.");
       okay := FALSE;
@@ -728,7 +728,7 @@ const proc: checkMoveFile is func
       removeFile(fileName1);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     sourceProperties := getFileProperties(fileName1);
     if raisesFileError(moveFile(fileName1, fileName2)) then
       writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");
@@ -755,7 +755,7 @@ const proc: checkMoveFile is func
       removeFile(fileName1);
     end if;
 
-    mkdir(fileName1);
+    makeDir(fileName1);
     putf(fileName1 & "/" & fileName1, "File content checkMoveFile 6");
     sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
     if raisesFileError(moveFile(fileName1, fileName2)) then
@@ -787,8 +787,8 @@ const proc: checkMoveFile is func
       removeFile(fileName1);
     end if;
 
-    mkdir(fileName1);
-    mkdir(fileName2);
+    makeDir(fileName1);
+    makeDir(fileName2);
     putf(fileName1 & "/" & fileName1, "File content checkMoveFile 7");
     sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
     if raisesFileError(moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
@@ -818,9 +818,9 @@ const proc: checkMoveFile is func
     removeTree(fileName1);
     removeTree(fileName2);
 
-    mkdir(fileName1);
-    mkdir(fileName2);
-    mkdir(fileName1 & "/" & fileName1);
+    makeDir(fileName1);
+    makeDir(fileName2);
+    makeDir(fileName1 & "/" & fileName1);
     sourceProperties := getFileProperties(fileName1 & "/" & fileName1);
     if raisesFileError(moveFile(fileName1 & "/" & fileName1, fileName2 & "/" & fileName2)) then
       writeln(" ***** moveFile with an empty directory raises FILE_ERROR.");

@@ -1528,7 +1528,7 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
+const proc: makeDir (inout cpioArchive: cpio, in string: filePath) is func
   local
     var cpioHeader: header is cpioHeader.value;
     var boolean: fileExists is TRUE;

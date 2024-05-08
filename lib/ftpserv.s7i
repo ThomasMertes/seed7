@@ -511,7 +511,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
       argument := getPathArgument(request[5 ..]);
       chdir(ftp.backendSys, ftp.currentDirectory);
       block
-        mkdir(ftp.backendSys, argument);
+        makeDir(ftp.backendSys, argument);
         ftpResponse(ftp.control, "257 " <& toQuotedUtf8(argument) <&
             " - Directory successfully created.");
       exception

@@ -882,7 +882,7 @@ const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string
  *  Creates a directory on a remote host using a FTP connection.
  *  @exception FILE_ERROR The remote host returns an error.
  *)
-const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
+const proc: makeDir (inout ftpConnection: ftp, in string: dirName) is func
   begin
     ftpCommand(ftp, "MKD " <& toUtf8(dirName));
     ftpResponse(ftp);

@@ -184,7 +184,7 @@ const proc: execute (inout ftpFileSys: ftp, in string: command) is func
     elsif startsWith(command, "cd ") then
       chdir(ftp, trim(command[4 ..]));
     elsif startsWith(command, "mkdir ") then
-      mkdir(ftp, trim(command[7 ..]));
+      makeDir(ftp, trim(command[7 ..]));
     elsif startsWith(command, "rmdir ") then
       rmdir(ftp, trim(command[7 ..]));
     elsif startsWith(command, "delete ") then
@@ -226,7 +226,7 @@ const proc: execute (inout ftpFileSys: ftp, in string: command) is func
     elsif command = "!pwd" then
       writeln(getcwd(osFiles));
     elsif startsWith(command, "!mkdir ") then
-      mkdir(osFiles, trim(command[7 ..]));
+      makeDir(osFiles, trim(command[7 ..]));
     elsif startsWith(command, "!rmdir ") then
       rmdir(osFiles, trim(command[7 ..]));
     elsif startsWith(command, "help") then

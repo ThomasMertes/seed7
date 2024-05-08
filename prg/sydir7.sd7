@@ -193,7 +193,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         if flags.doCopy then
           writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
           if flags.doChanges then
-            mkdir(destPath);
+            makeDir(destPath);
             syncDir(sourcePath, destPath, flags);
             setMTime(destPath, getMTime(sourcePath));
           end if;

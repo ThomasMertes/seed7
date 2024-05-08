@@ -2968,7 +2968,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
+const proc: makeDir (inout rpmArchive: rpm, in string: filePath) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var boolean: fileExists is TRUE;
@@ -3018,7 +3018,7 @@ const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
       catalogEntry.dirty := TRUE;
       rpm.catalog @:= [filePath] catalogEntry;
       rpm.register @:= [filePath] catalogEntry.fileNumber;
-      mkdir(rpm.archive, filePath);
+      makeDir(rpm.archive, filePath);
     end if;
   end func;
 

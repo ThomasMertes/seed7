@@ -269,7 +269,7 @@ const proc: doMkdirCmd (in array string: fileList,
       if okay then
         if fileTypeSL(fileName) = FILE_ABSENT then
           block
-            mkdir(fileName);
+            makeDir(fileName);
           exception
             catch FILE_ERROR:
               writeln(" *** Cannot make directory " <& fileName);

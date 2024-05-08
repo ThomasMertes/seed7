@@ -1399,7 +1399,7 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (inout arArchive: ar, in string: filePath) is func
+const proc: makeDir (inout arArchive: ar, in string: filePath) is func
   local
     var arHeader: header is arHeader.value;
     var boolean: fileExists is TRUE;

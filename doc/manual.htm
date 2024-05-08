@@ -392,7 +392,7 @@ pre.indent {
 <li><a class="link" href="#os_Symbolic_links"><b>Symbolic links</b></a><ol>
 <li><a class="link" href="#os_readLink"><b><i>readLink</i></b></a></li>
 <li><a class="link" href="#os_finalPath"><b><i>finalPath</i></b></a></li>
-<li><a class="link" href="#os_symlink"><b><i>symlink</i></b></a></li>
+<li><a class="link" href="#os_makeLink"><b><i>makeLink</i></b></a></li>
 <li><a class="link" href="#os_getFileMode_SYMLINK"><b><i>Symbolic link getFileMode</i></b></a></li>
 <li><a class="link" href="#os_getATime_SYMLINK"><b><i>Symbolic link getATime</i></b></a></li>
 <li><a class="link" href="#os_getMTime_SYMLINK"><b><i>Symbolic link getMTime</i></b></a></li>
@@ -406,7 +406,7 @@ pre.indent {
 <li><a class="link" href="#os_openDir"><b><i>openDir</i></b></a></li>
 <li><a class="link" href="#os_getcwd"><b><i>getcwd</i></b></a></li>
 <li><a class="link" href="#os_chdir"><b><i>chdir</i></b></a></li>
-<li><a class="link" href="#os_mkdir"><b><i>mkdir</i></b></a></li>
+<li><a class="link" href="#os_makeDir"><b><i>makeDir</i></b></a></li>
 <li><a class="link" href="#os_homeDir"><b><i>homeDir</i></b></a></li></ol></li>
 <li><a class="link" href="#os_Maintenance functions"><b>Maintenance functions</b></a><ol>
 <li><a class="link" href="#os_removeFile"><b><i>removeFile</i></b></a></li>
@@ -1733,7 +1733,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <a name="tutorial_Templates"><h3>2.12 Templates</h3></a>
 <p>
     Templates allow the declaration of functions where the actual
-  types are specified later. The function declaraions are done
+  types are specified later. The function declarations are done
   inside a procedure that has a type as parameter. E.g.:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: DECLARE_MIN_MAX (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
@@ -1749,13 +1749,13 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </pre><p>
   The procedure <tt>DECLARE_MIN_MAX</tt> uses the type parameter <tt><span class="type_no_ul">aType</span></tt>
   to declare the functions <tt>min</tt> and <tt>max</tt>. The template must be
-  instantiated for every concret type which needs <tt>min</tt> and <tt>max</tt>. E.g.:
+  instantiated for every actual type which needs <tt>min</tt> and <tt>max</tt>. E.g.:
 </p><pre class="indent">
 DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_integer">integer</a>);
 DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_bigInteger">bigInteger</a>);
 DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_float">float</a>);
 </pre><p>
-  This allows expressions like <tt>min(2, 5)</tt> or <tt>min(PI, E)</tt>.
+  This allows for expressions like <tt>min(2, 5)</tt> or <tt>min(PI, E)</tt>.
 </p>
 
 <a name="tutorial_Declare_a_statement"><h3>2.13 Declare a statement</h3></a>
@@ -6776,7 +6776,7 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">moveFile</span>(aFileSys, sourcePath, destPath)  Move and rename a file or directory tree
                   ( Type of argument sourcePath: <a class="type" href="#types_string">string</a>,
                     Type of argument destPath: <a class="type" href="#types_string">string</a> )
-      <span class="func">mkdir</span>(aFileSys, dirPath)  Create a directory
+      <span class="func">makeDir</span>(aFileSys, dirPath)  Create a directory
                   ( Type of argument dirPath: <a class="type" href="#types_string">string</a> )
       <span class="func">rmdir</span>(aFileSys, dirPath)  Delete an empty directory
                   ( Type of argument dirPath: <a class="type" href="#types_string">string</a> )
@@ -12454,25 +12454,25 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
         <dd>The file described with <tt>'filePath'</tt> does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_symlink"><h4>12.3.3 symlink</h4></a>
+<a name="os_makeLink"><h4>12.3.3 makeLink</h4></a>
 <p>
-  The function <tt><span class="func">symlink</span></tt> creates a symbolic link called <tt>'dest'</tt>
-  that contains the string referred by <tt>'source'</tt>:
+  The function <tt><span class="func">makeLink</span></tt> creates a symbolic link at <tt>symlinkPath</tt>
+  that contains the string referred by <tt>targetPath</tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: symlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dest) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: makeLink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: symlinkPath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: targetPath) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Parameters:</p></dt><dd><dl>
-    <dt>source</dt>
-        <dd>String to be contained in the symbolic link.</dd>
-    <dt>dest</dt>
+    <dt>symlinkPath</dt>
         <dd>Name of the symbolic link to be created.</dd>
+    <dt>targetPath</dt>
+        <dd>String to be contained in the symbolic link.</dd>
 </dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
+        <dd>Not enough memory to convert <tt>'symlinkPath'</tt> or <tt>'targetPath'</tt>
         to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'source'</tt> or <tt>'dest'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        <dd><tt>'symlinkPath'</tt> or <tt>'targetPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
         representation</a>, or one of them cannot be converted to the
         system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
@@ -12805,11 +12805,11 @@ chdir(<span class="stri">"/usr/bin"</span>);
     changes the current working directory to <tt><span class="stri">"/usr/bin"</span></tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_mkdir"><h4>12.4.5 mkdir</h4></a>
+<a name="os_makeDir"><h4>12.4.5 makeDir</h4></a>
 <p>
-  The function <tt><span class="func">mkdir</span></tt> creates a new directory.
+  The function <tt><span class="func">makeDir</span></tt> creates a new directory.
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: mkdir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: makeDir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
@@ -12823,7 +12823,7 @@ chdir(<span class="stri">"/usr/bin"</span>);
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     The statement
 </p><pre class="indent">
-mkdir(<span class="stri">"my_dir"</span>);
+makeDir(<span class="stri">"my_dir"</span>);
 </pre><p>
     creates the directory <tt><span class="stri">"my_dir"</span></tt>.
 </p></dd></dl></div><p></p>

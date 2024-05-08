@@ -1661,7 +1661,7 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
+const proc: makeDir (inout tarArchive: tar, in string: filePath) is func
   local
     var tarHeader: header is tarHeader.value;
     var boolean: fileExists is TRUE;

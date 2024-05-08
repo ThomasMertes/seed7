@@ -492,7 +492,14 @@ const proc: moveFile (inout fileSys: fileSystem, in string: sourcePath, in strin
  *  Creates a directory in the file system.
  *  Not all file systems support this function.
  *)
-const proc: mkdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+const proc: makeDir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+
+
+# The function mkdir() is deprecated. Use makeDir() instead.
+const proc: mkdir (inout fileSys: fileSystem, in string: dirPath) is func
+  begin
+    makeDir(fileSystem, dirPath);
+  end func;
 
 
 (**

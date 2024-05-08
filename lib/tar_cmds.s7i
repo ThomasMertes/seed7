@@ -232,7 +232,7 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
             dirHeaderList &:= [] (header);
           elsif fileType(header.filePath) = FILE_ABSENT then
             makeParentDirs(header.filePath);
-            mkdir(header.filePath);
+            makeDir(header.filePath);
             dirHeaderList &:= [] (header);
           else
             writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a directory");

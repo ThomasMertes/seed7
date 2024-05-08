@@ -708,7 +708,14 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (in string: dirPath)                       is action "CMD_MKDIR";
+const proc: makeDir (in string: dirPath)                     is action "CMD_MKDIR";
+
+
+# The function mkdir() is deprecated. Use makeDir() instead.
+const proc: mkdir (in string: dirPath) is func
+  begin
+    makeDir(dirPath);
+  end func;
 
 
 (**
@@ -818,7 +825,7 @@ const proc: makeParentDirs (in string: filePath) is func
     while slashPos <> 0 do
       dirPath := filePath[.. pred(slashPos)];
       if fileTypeSL(dirPath) = FILE_ABSENT then
-        mkdir(dirPath);
+        makeDir(dirPath);
         slashPos := pos(filePath, '/', succ(slashPos));
       elsif fileTypeSL(dirPath) = FILE_DIR then
         slashPos := pos(filePath, '/', succ(slashPos));
@@ -1036,9 +1043,9 @@ const proc: makeLink (inout osFileSys: fileSystem, in string: symlinkPath,
     makeLink(symlinkPath, targetPath);
   end func;
 
-const proc: mkdir (inout osFileSys: fileSystem, in string: dirPath) is func
+const proc: makeDir (inout osFileSys: fileSystem, in string: dirPath) is func
   begin
-    mkdir(dirPath);
+    makeDir(dirPath);
   end func;
 
 const func string: getcwd (inout osFileSys: fileSystem) is

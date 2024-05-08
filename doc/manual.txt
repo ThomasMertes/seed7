@@ -181,7 +181,7 @@ CONTENTS
   12.3    Symbolic links
   12.3.1    readLink
   12.3.2    finalPath
-  12.3.3    symlink
+  12.3.3    makeLink
   12.3.4    Symbolic link getFileMode
   12.3.5    Symbolic link getATime
   12.3.6    Symbolic link getMTime
@@ -195,7 +195,7 @@ CONTENTS
   12.4.2    openDir
   12.4.3    getcwd
   12.4.4    chdir
-  12.4.5    mkdir
+  12.4.5    makeDir
   12.4.6    homeDir
   12.5    Maintenance functions
   12.5.1    removeFile
@@ -1522,7 +1522,7 @@ CONTENTS
 2.12 Templates
 
     Templates allow the declaration of functions where the actual
-  types are specified later. The function declaraions are done
+  types are specified later. The function declarations are done
   inside a procedure that has a type as parameter. E.g.:
 
     const proc: DECLARE_MIN_MAX (in type: aType) is func
@@ -1538,13 +1538,13 @@ CONTENTS
 
   The procedure 'DECLARE_MIN_MAX' uses the type parameter 'aType'
   to declare the functions 'min' and 'max'. The template must be
-  instantiated for every concret type which needs 'min' and 'max'. E.g.:
+  instantiated for every actual type which needs 'min' and 'max'. E.g.:
 
     DECLARE_MIN_MAX(integer);
     DECLARE_MIN_MAX(bigInteger);
     DECLARE_MIN_MAX(float);
 
-  This allows expressions like 'min(2, 5)' or 'min(PI, E)'.
+  This allows for expressions like 'min(2, 5)' or 'min(PI, E)'.
 
 
 2.13 Declare a statement
@@ -6565,7 +6565,7 @@ CONTENTS
       moveFile(aFileSys, sourcePath, destPath)  Move and rename a file or directory tree
                   ( Type of argument sourcePath: string,
                     Type of argument destPath: string )
-      mkdir(aFileSys, dirPath)  Create a directory
+      makeDir(aFileSys, dirPath)  Create a directory
                   ( Type of argument dirPath: string )
       rmdir(aFileSys, dirPath)  Delete an empty directory
                   ( Type of argument dirPath: string )
@@ -12243,25 +12243,25 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         The file described with 'filePath' does not exist or a system function returns an error.
 
 
-12.3.3 symlink
+12.3.3 makeLink
 
-  The function 'symlink' creates a symbolic link called 'dest'
-  that contains the string referred by 'source':
+  The function 'makeLink' creates a symbolic link at 'symlinkPath'
+  that contains the string referred by 'targetPath':
 
-    const proc: symlink (in string: source, in string: dest) is ...
+    const proc: makeLink (in string: symlinkPath, in string: targetPath) is ...
 
   Parameters:
-    source
-        String to be contained in the symbolic link.
-    dest
+    symlinkPath
         Name of the symbolic link to be created.
+    targetPath
+        String to be contained in the symbolic link.
 
   Possible exceptions:
     MEMORY_ERROR
-        Not enough memory to convert 'source' or 'dest'
+        Not enough memory to convert 'symlinkPath' or 'targetPath'
         to the system path type.
     RANGE_ERROR
-        'source' or 'dest' does not use the standard path
+        'symlinkPath' or 'targetPath' does not use the standard path
         representation, or one of them cannot be converted to the
         system path type.
     FILE_ERROR
@@ -12594,11 +12594,11 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     changes the current working directory to "/usr/bin".
 
 
-12.4.5 mkdir
+12.4.5 makeDir
 
-  The function 'mkdir' creates a new directory.
+  The function 'makeDir' creates a new directory.
 
-    const proc: mkdir (in string: name) is ...
+    const proc: makeDir (in string: name) is ...
 
   Possible exceptions:
     MEMORY_ERROR
@@ -12612,7 +12612,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   Examples:
     The statement
 
-      mkdir("my_dir");
+      makeDir("my_dir");
 
     creates the directory "my_dir".
 
