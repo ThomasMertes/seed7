@@ -788,6 +788,27 @@ const proc: assignLastModFileTime (inout central_file_header: header,
   end func;
 
 
+const proc: initLastModFileTime (inout central_file_header: header,
+    in time: modificationTime) is func
+  local
+    var integer: timestamp is 0;
+    var string: unixExtraField is "";
+  begin
+    timestamp := timestamp1970(modificationTime);
+    unixExtraField :=
+        bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) mult 2 &
+        bytes(                       0, UNSIGNED, LE, 2) mult 2;
+    header.extraFieldMap @:= [16#000d] unixExtraField;
+    header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    header.last_mod_file_time := (modificationTime.hour << 11) +
+                                 (modificationTime.minute << 5) +
+                                 (modificationTime.second >> 1);
+    header.last_mod_file_date := ((modificationTime.year - 1980) << 9) +
+                                  (modificationTime.month << 5) +
+                                   modificationTime.day;
+  end func;
+
+
 const type: zipCatalogType is hash [string] central_file_header;
 
 
@@ -1753,8 +1774,7 @@ const proc: makeLink (inout zipArchive: zip, in string: symlinkPath,
       # The unix mode is in the high 16 bits of the attributes.
       header.external_file_attributes   := (ord(MODE_FILE_SYMLINK) + 8#777) << 16;
       header.file_name                  := symlinkPath8;
-      header.extra_field                := "";
-      # assignLastModFileTime(header, time(NOW));
+      initLastModFileTime(header, time(NOW));
       header.file_comment               := "";
       header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
       roomForNewFile := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
@@ -1904,8 +1924,6 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
     end if;
     compressed := deflate(data);
     oldSize := header.compressed_size;
-    modificationTime := time(NOW);
-    assignLastModFileTime(header, modificationTime);
     header.crc_32 := crc32(data);
     header.uncompressed_size := length(data);
     if length(compressed) >= length(data) then
@@ -1920,6 +1938,8 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
       if endsWith(header.file_name, "/") then
         raise FILE_ERROR;
       else
+        modificationTime := time(NOW);
+        assignLastModFileTime(header, modificationTime);
         localHeaderPos := succ(header.relative_offset_of_local_header);
         seek(zip.zipFile, localHeaderPos);
         localHeader := get_local_header(zip.zipFile);
@@ -1963,7 +1983,7 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
       # The unix mode is in the high 16 bits of the attributes.
       header.external_file_attributes   := (ord(MODE_FILE_REGULAR) + 8#664) << 16;
       header.file_name                  := filePath8;
-      header.extra_field                := "";
+      initLastModFileTime(header, time(NOW));
       header.file_comment               := "";
       header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
       roomForNewFile := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
@@ -2036,8 +2056,7 @@ const proc: makeDir (inout zipArchive: zip, in string: filePath) is func
       # The unix mode is in the high 16 bits of the attributes.
       header.external_file_attributes   := (ord(MODE_FILE_DIR) + 8#775) << 16;
       header.file_name                  := filePath8 & "/";
-      header.extra_field                := "";
-      # assignLastModFileTime(header, time(NOW));
+      initLastModFileTime(header, time(NOW));
       header.file_comment               := "";
       header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
       roomForNewFile := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
