@@ -728,6 +728,27 @@ const proc: updateLocalHeader (inout local_file_header: localHeader,
   end func;
 
 
+const proc: initLastModFileTime (inout central_file_header: header,
+    in time: modificationTime) is func
+  local
+    var integer: timestamp is 0;
+    var string: unixExtraField is "";
+  begin
+    timestamp := timestamp1970(modificationTime);
+    unixExtraField :=
+        bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) mult 2 &
+        bytes(                       0, UNSIGNED, LE, 2) mult 2;
+    header.extraFieldMap @:= [16#000d] unixExtraField;
+    header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    header.last_mod_file_time := (modificationTime.hour << 11) +
+                                 (modificationTime.minute << 5) +
+                                 (modificationTime.second >> 1);
+    header.last_mod_file_date := ((modificationTime.year - 1980) << 9) +
+                                  (modificationTime.month << 5) +
+                                   modificationTime.day;
+  end func;
+
+
 const proc: assignLastModFileTime (inout local_file_header: localHeader,
     in time: modificationTime) is func
   local
@@ -788,24 +809,95 @@ const proc: assignLastModFileTime (inout central_file_header: header,
   end func;
 
 
-const proc: initLastModFileTime (inout central_file_header: header,
-    in time: modificationTime) is func
+const proc: assignUserId (inout local_file_header: localHeader,
+    in integer: uid) is func
   local
-    var integer: timestamp is 0;
-    var string: unixExtraField is "";
+    var integer: size is 0;
   begin
-    timestamp := timestamp1970(modificationTime);
-    unixExtraField :=
-        bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) mult 2 &
-        bytes(                       0, UNSIGNED, LE, 2) mult 2;
-    header.extraFieldMap @:= [16#000d] unixExtraField;
-    header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    header.last_mod_file_time := (modificationTime.hour << 11) +
-                                 (modificationTime.minute << 5) +
-                                 (modificationTime.second >> 1);
-    header.last_mod_file_date := ((modificationTime.year - 1980) << 9) +
-                                  (modificationTime.month << 5) +
-                                   modificationTime.day;
+    if 16#000d in localHeader.extraFieldMap then
+      # UNIX Extra Field
+      localHeader.extraFieldMap[16#000d] @:= [9] bytes(uid, UNSIGNED, LE, 2);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#756e in localHeader.extraFieldMap then
+      # ASi Unix Extra Field:
+      localHeader.extraFieldMap[16#756e] @:= [11] bytes(uid, UNSIGNED, LE, 2);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#7875 in localHeader.extraFieldMap then
+      # New Unix Extra Field:
+      size := ord(localHeader.extraFieldMap[16#7875][2]);
+      localHeader.extraFieldMap[16#7875] @:= [3] bytes(uid, UNSIGNED, LE, size);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    end if;
+  end func;
+
+
+const proc: assignUserId (inout central_file_header: header,
+    in integer: uid) is func
+  local
+    var integer: size is 0;
+  begin
+    if 16#000d in header.extraFieldMap then
+      # UNIX Extra Field
+      header.extraFieldMap[16#000d] @:= [9] bytes(uid, UNSIGNED, LE, 2);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#756e in header.extraFieldMap then
+      # ASi Unix Extra Field:
+      header.extraFieldMap[16#756e] @:= [11] bytes(uid, UNSIGNED, LE, 2);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#7875 in header.extraFieldMap then
+      # New Unix Extra Field:
+      size := ord(header.extraFieldMap[16#7875][2]);
+      header.extraFieldMap[16#7875] @:= [3] bytes(uid, UNSIGNED, LE, size);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    end if;
+  end func;
+
+
+const proc: assignGroupId (inout local_file_header: localHeader,
+    in integer: gid) is func
+  local
+    var integer: pos is 0;
+    var integer: size is 0;
+  begin
+    if 16#000d in localHeader.extraFieldMap then
+      # UNIX Extra Field
+      localHeader.extraFieldMap[16#000d] @:= [11] bytes(gid, UNSIGNED, LE, 2);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#756e in localHeader.extraFieldMap then
+      # ASi Unix Extra Field:
+      localHeader.extraFieldMap[16#756e] @:= [13] bytes(gid, UNSIGNED, LE, 2);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#7875 in localHeader.extraFieldMap then
+      # New Unix Extra Field:
+      pos := 3 + ord(localHeader.extraFieldMap[16#7875][2]);
+      size := ord(localHeader.extraFieldMap[16#7875][pos]);
+      localHeader.extraFieldMap[16#7875] @:= [succ(pos)] bytes(gid, UNSIGNED, LE, size);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    end if;
+  end func;
+
+
+const proc: assignGroupId (inout central_file_header: header,
+    in integer: gid) is func
+  local
+    var integer: pos is 0;
+    var integer: size is 0;
+  begin
+    if 16#000d in header.extraFieldMap then
+      # UNIX Extra Field
+      header.extraFieldMap[16#000d] @:= [11] bytes(gid, UNSIGNED, LE, 2);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#756e in header.extraFieldMap then
+      # ASi Unix Extra Field:
+      header.extraFieldMap[16#756e] @:= [13] bytes(gid, UNSIGNED, LE, 2);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#7875 in header.extraFieldMap then
+      # New Unix Extra Field:
+      pos := 3 + ord(header.extraFieldMap[16#7875][2]);
+      size := ord(header.extraFieldMap[16#7875][pos]);
+      header.extraFieldMap[16#7875] @:= [succ(pos)] bytes(gid, UNSIGNED, LE, size);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    end if;
   end func;
 
 
@@ -1415,6 +1507,45 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath) is func
 
 
 (**
+ *  Set the owner of a file in a ZIP archive.
+ *  The function follows symbolic links. The ZIP archive format allows
+ *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
+ *  ''owner'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const proc: setOwner (inout zipArchive: zip, in string: filePath,
+    in string: owner) is func
+  local
+    var integer: uid is 0;
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(zip, filePath);
+      assignUserId(header, uid);
+      zip.catalog @:= [filePath] header;
+      seek(zip.zipFile, zip.register[filePath]);
+      writeHead(zip.zipFile, header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      localHeader := get_local_header(zip.zipFile);
+      assignUserId(localHeader, uid);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      writeHead(zip.zipFile, localHeader);
+    end if;
+  end func;
+
+
+(**
  *  Determine the name of the group (GID) of a file in a ZIP archive.
  *  The function follows symbolic links.
  *  @return the name of the file group.
@@ -1451,6 +1582,45 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath) is func
         gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) fixLen size], UNSIGNED, LE);
         group := str(gid);
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a file in a ZIP archive.
+ *  The function follows symbolic links. The ZIP archive format allows
+ *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
+ *  ''group'' names raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const proc: setGroup (inout zipArchive: zip, in string: filePath,
+    in string: group) is func
+  local
+    var integer: gid is 0;
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(zip, filePath);
+      assignGroupId(header, gid);
+      zip.catalog @:= [filePath] header;
+      seek(zip.zipFile, zip.register[filePath]);
+      writeHead(zip.zipFile, header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      localHeader := get_local_header(zip.zipFile);
+      assignGroupId(localHeader, gid);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      writeHead(zip.zipFile, localHeader);
     end if;
   end func;
 
@@ -1616,6 +1786,60 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath, SYMLINK
 
 
 (**
+ *  Set the owner of a symbolic link in a ZIP archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The ZIP archive format allows only a numeric UID.
+ *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''owner'' cannot be mapped to a UID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the ZIP archive, or it is not a symbolic link.
+ *)
+const proc: setOwner (inout zipArchive: zip, in string: filePath,
+    in string: owner, SYMLINK) is func
+  local
+    var integer: uid is 0;
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if isDigitString(owner) then
+      uid := integer(owner);
+    elsif owner <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
+          bin32(header.external_file_attributes >> 16) &
+              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        assignUserId(header, uid);
+        zip.catalog @:= [filePath] header;
+        seek(zip.zipFile, zip.register[filePath]);
+        writeHead(zip.zipFile, header);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        localHeader := get_local_header(zip.zipFile);
+        assignUserId(localHeader, uid);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        writeHead(zip.zipFile, localHeader);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Determine the name of the group (GID) of a symbolic link in a ZIP archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
@@ -1665,6 +1889,60 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath, SYMLINK
           gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) fixLen size], UNSIGNED, LE);
           group := str(gid);
         end if;
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the group of a symbolic link in a ZIP archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link. The ZIP archive format allows only a numeric GID.
+ *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
+ *  raise a RANGE_ERROR.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation, or the ''group'' cannot be mapped to a GID.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the ZIP archive, or it is not a symbolic link.
+ *)
+const proc: setGroup (inout zipArchive: zip, in string: filePath,
+    in string: group, SYMLINK) is func
+  local
+    var integer: gid is 0;
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if isDigitString(group) then
+      gid := integer(group);
+    elsif group <> "root" then
+      raise RANGE_ERROR;
+    end if;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
+          bin32(header.external_file_attributes >> 16) &
+              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        assignGroupId(header, gid);
+        zip.catalog @:= [filePath] header;
+        seek(zip.zipFile, zip.register[filePath]);
+        writeHead(zip.zipFile, header);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        localHeader := get_local_header(zip.zipFile);
+        assignGroupId(localHeader, gid);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        writeHead(zip.zipFile, localHeader);
       else
         raise FILE_ERROR;
       end if;
