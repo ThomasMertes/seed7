@@ -1731,6 +1731,54 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath, SYMLINK) 
 
 
 (**
+ *  Set the modification time of a symbolic link in a ZIP archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the ZIP archive, or it is not a symbolic link.
+ *)
+const proc: setMTime (inout zipArchive: zip, in string: filePath,
+    in time: modificationTime, SYMLINK) is func
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
+          bin32(header.external_file_attributes >> 16) &
+              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        assignLastModFileTime(header, modificationTime);
+        zip.catalog @:= [filePath] header;
+        seek(zip.zipFile, zip.register[filePath]);
+        writeHead(zip.zipFile, header);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        localHeader := get_local_header(zip.zipFile);
+        assignLastModFileTime(localHeader, modificationTime);
+        seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+        writeHead(zip.zipFile, localHeader);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Determine the name of the owner (UID) of a symbolic link in a ZIP archive.
  *  The function only works for symbolic links and does not follow the
  *  symbolic link.
