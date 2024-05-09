@@ -149,6 +149,10 @@ const func type: array (in type: baseType) is func
        *  Elements are moved backward to create space for the element to be
        *  inserted. This function is tuned for performance and the movement
        *  works without copying elements.
+       *   anArray := [] ("A", "B");
+       *   insert(anArray, 2, "X");  afterwards  anArray = [] ("A", "X", "B")
+       *  In this example the former anArray[2] is moved to anArray[3] and
+       *  "X" is inserted as new anArray[2].
        *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than succ([[#maxIdx(in_arrayType)|maxIdx]](arr))
        *)
@@ -171,6 +175,10 @@ const func type: array (in type: baseType) is func
        *  The elements after the removed element are moved forward.
        *  This function is tuned for performance and the movement works
        *  without copying elements.
+       *   anArray := [] ("A", "B", "C");
+       *   remove(anArray, 2)  returns  "B"  and  anArray = [] ("A", "C")
+       *  In this example the current anArray[2] is removed and the former
+       *  anArray[3] is now at anArray[2].
        *  @return the removed element.
        *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than [[#maxIdx(in_arrayType)|maxIdx]](arr)
@@ -218,6 +226,9 @@ const func type: array (in type: baseType) is func
 
       (**
        *  Generate an array by using ''factor'' ''elements''.
+       *    5 times 'x'    returns  [] ('x', 'x', 'x', 'x', 'x')
+       *    0 times FALSE  returns  (array boolean).value
+       *   -1 times 5      raises   RANGE_ERROR
        *  @return an array with ''factor'' ''elements''.
        *  @exception RANGE_ERROR If ''factor'' is negative.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
