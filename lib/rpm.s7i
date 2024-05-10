@@ -2351,11 +2351,10 @@ const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
       if catalogEntry.fileNumber <> 0 then
         if isDigitString(owner) then
           catalogEntry.uid := integer(owner);
-          catalogEntry.userName := "";
         else
           catalogEntry.uid := 0;
-          catalogEntry.userName := owner;
         end if;
+        catalogEntry.userName := owner;
         catalogEntry.dirty := TRUE;
         rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
         if rpm.archive = fileSys.value then
@@ -2421,11 +2420,10 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
       if catalogEntry.fileNumber <> 0 then
         if isDigitString(group) then
           catalogEntry.gid := integer(group);
-          catalogEntry.groupName := "";
         else
           catalogEntry.gid := 0;
-          catalogEntry.groupName := group;
         end if;
+        catalogEntry.groupName := group;
         catalogEntry.dirty := TRUE;
         rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
         if rpm.archive = fileSys.value then
@@ -2644,11 +2642,10 @@ const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
       if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
         if isDigitString(owner) then
           catalogEntry.uid := integer(owner);
-          catalogEntry.userName := "";
         else
           catalogEntry.uid := 0;
-          catalogEntry.userName := owner;
         end if;
+        catalogEntry.userName := owner;
         catalogEntry.dirty := TRUE;
         rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
         if rpm.archive = fileSys.value then
@@ -2742,11 +2739,10 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
       if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
         if isDigitString(group) then
           catalogEntry.gid := integer(group);
-          catalogEntry.groupName := "";
         else
           catalogEntry.gid := 0;
-          catalogEntry.groupName := group;
         end if;
+        catalogEntry.groupName := group;
         catalogEntry.dirty := TRUE;
         rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
         if rpm.archive = fileSys.value then
