@@ -864,8 +864,8 @@ objectType cmd_home_dir (listType arguments)
  *  @exception RANGE_ERROR 'dirPath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file 'dirPath' already exists, or a system
- *             function returns an error.
+ *  @exception FILE_ERROR The file 'dirPath' already exists, or a
+ *             system function returns an error.
  */
 objectType cmd_make_dir (listType arguments)
 
@@ -888,7 +888,8 @@ objectType cmd_make_dir (listType arguments)
  *  @exception RANGE_ERROR 'symlinkPath' or 'targetPath' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file 'symlinkPath' already exists, or a
+ *             system function returns an error.
  */
 objectType cmd_make_link (listType arguments)
 

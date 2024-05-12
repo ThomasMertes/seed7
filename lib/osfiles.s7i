@@ -600,7 +600,8 @@ const func string: finalPath (in string: filePath)           is action "CMD_FINA
  *  @exception RANGE_ERROR ''symlinkPath'' or ''targetPath'' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''symlinkPath'' already exists, or a
+ *             system function returns an error.
  *)
 const proc: makeLink (in string: symlinkPath, in string: targetPath)  is action "CMD_MAKE_LINK";
 
