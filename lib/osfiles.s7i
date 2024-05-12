@@ -592,6 +592,7 @@ const func string: finalPath (in string: filePath)           is action "CMD_FINA
 (**
  *  Create a symbolic link.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert ''symlinkPath'' or
@@ -700,13 +701,16 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
 
 
 (**
- *  Creates a new directory.
+ *  Create a new directory.
+ *  The function does not follow symbolic links.
+ *  @param dirPath Name of the directory to be created.
  *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
  *             the system path type.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists, or a
+ *             system function returns an error.
  *)
 const proc: makeDir (in string: dirPath)                     is action "CMD_MAKE_DIR";
 

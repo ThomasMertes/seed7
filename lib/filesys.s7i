@@ -462,6 +462,11 @@ const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
 (**
  *  Create a symbolic link.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  Not all file systems support this function.
+ *  @param fileSystem Open file system.
+ *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param targetPath String to be contained in the symbolic link.
  *)
 const proc: makeLink (inout fileSys: fileSystem, in string: symlinkPath,
     in string: targetPath) is DYNAMIC;
@@ -489,8 +494,11 @@ const proc: moveFile (inout fileSys: fileSystem, in string: sourcePath, in strin
 
 
 (**
- *  Creates a directory in the file system.
+ *  Create a directory in the file system.
+ *  The function does not follow symbolic links.
  *  Not all file systems support this function.
+ *  @param fileSystem Open file system.
+ *  @param dirPath Name of the directory to be created.
  *)
 const proc: makeDir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
 

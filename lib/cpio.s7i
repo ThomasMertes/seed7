@@ -1321,6 +1321,8 @@ const func string: readLink (inout cpioArchive: cpio, in string: filePath) is fu
 (**
  *  Create a symbolic link in a CPIO archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  @param cpio Open CPIO archive.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
@@ -1522,28 +1524,30 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
 
 
 (**
- *  Creates a new directory in a CPIO archive.
+ *  Create a new directory in a CPIO archive.
  *  The function does not follow symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param dirPath Name of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists.
  *)
-const proc: makeDir (inout cpioArchive: cpio, in string: filePath) is func
+const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
   local
     var cpioHeader: header is cpioHeader.value;
     var boolean: fileExists is TRUE;
     var integer: dataStartPos is 0;
     var integer: length is 0;
-    var string: filePath8 is "";
+    var string: dirPath8 is "";
   begin
-    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+    if dirPath = "" or dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      dataStartPos := cpio.catalog[filePath].dataStartPos;
-    elsif filePath in cpio.register then
-      dataStartPos := addToCatalog(cpio, filePath).dataStartPos;
-    elsif implicitDir(cpio, filePath) then
-      dataStartPos := addImplicitDir(cpio, filePath).dataStartPos;
+    elsif dirPath in cpio.catalog then
+      dataStartPos := cpio.catalog[dirPath].dataStartPos;
+    elsif dirPath in cpio.register then
+      dataStartPos := addToCatalog(cpio, dirPath).dataStartPos;
+    elsif implicitDir(cpio, dirPath) then
+      dataStartPos := addImplicitDir(cpio, dirPath).dataStartPos;
     else
       fileExists := FALSE;
     end if;
@@ -1551,7 +1555,7 @@ const proc: makeDir (inout cpioArchive: cpio, in string: filePath) is func
       # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
-      filePath8 := toUtf8(filePath);
+      dirPath8 := toUtf8(dirPath);
       header.magic      := cpio.magic;
       header.ino        := 0;
       header.mode       := ord(MODE_FILE_DIR) + 8#775;
@@ -1563,10 +1567,10 @@ const proc: makeDir (inout cpioArchive: cpio, in string: filePath) is func
       header.devminor   := 0;
       header.rdevmajor  := 0;
       header.rdevminor  := 0;
-      header.nameSize   := succ(length(filePath8));
+      header.nameSize   := succ(length(dirPath8));
       header.check      := 0;
       header.headerSize := cpio.headerSize;
-      header.filePath   := filePath;
+      header.filePath   := dirPath;
       header.padding    := cpio.padding;
       length := length(cpio.cpioFile);
       if cpio.trailerPos = 0 then
@@ -1578,14 +1582,14 @@ const proc: makeDir (inout cpioArchive: cpio, in string: filePath) is func
       else
         seek(cpio.cpioFile, cpio.trailerPos);
       end if;
-      cpio.register @:= [filePath] tell(cpio.cpioFile);
+      cpio.register @:= [dirPath] tell(cpio.cpioFile);
       header.fileSize := 0;
       writeHead(cpio.cpioFile, header);
-      write(cpio.cpioFile, filePath8 <& "\0;");
+      write(cpio.cpioFile, dirPath8 <& "\0;");
       write(cpio.cpioFile, "\0;" mult pred(header.padding) -
             pred(header.headerSize + header.nameSize) mod header.padding);
       header.dataStartPos := tell(cpio.cpioFile);
-      cpio.catalog @:= [filePath] header;
+      cpio.catalog @:= [dirPath] header;
       cpio.trailerPos := tell(cpio.cpioFile);
       writeTrailer(cpio.cpioFile, header);
       flush(cpio.cpioFile);

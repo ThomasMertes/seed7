@@ -2797,6 +2797,8 @@ const func string: readLink (inout rpmArchive: rpm, in string: filePath) is func
 (**
  *  Create a symbolic link in a RPM archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  @param rpm Open RPM archive.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
@@ -2956,25 +2958,27 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
 
 
 (**
- *  Creates a new directory in a RPM archive.
+ *  Create a new directory in a RPM archive.
  *  The function does not follow symbolic links.
+ *  @param rpm Open RPM archive.
+ *  @param dirPath Name of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists.
  *)
-const proc: makeDir (inout rpmArchive: rpm, in string: filePath) is func
+const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var boolean: fileExists is TRUE;
     var integer: fileNumber is 0;
     var integer: length is 0;
   begin
-    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+    if dirPath = "" or dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.catalog then
-      fileNumber := rpm.catalog[filePath].fileNumber;
-    elsif implicitDir(rpm, filePath) then
-      fileNumber := addImplicitDir(rpm, filePath).fileNumber;
+    elsif dirPath in rpm.catalog then
+      fileNumber := rpm.catalog[dirPath].fileNumber;
+    elsif implicitDir(rpm, dirPath) then
+      fileNumber := addImplicitDir(rpm, dirPath).fileNumber;
     else
       fileExists := FALSE;
     end if;
@@ -3007,12 +3011,12 @@ const proc: makeDir (inout rpmArchive: rpm, in string: filePath) is func
       catalogEntry.dependX := 0;
       catalogEntry.dependN := 0;
       catalogEntry.allDataPresent := TRUE;
-      catalogEntry.filePath := filePath;
+      catalogEntry.filePath := dirPath;
       catalogEntry.fileNumber := succ(length(rpm.register));
       catalogEntry.dirty := TRUE;
-      rpm.catalog @:= [filePath] catalogEntry;
-      rpm.register @:= [filePath] catalogEntry.fileNumber;
-      makeDir(rpm.archive, filePath);
+      rpm.catalog @:= [dirPath] catalogEntry;
+      rpm.register @:= [dirPath] catalogEntry.fileNumber;
+      makeDir(rpm.archive, dirPath);
     end if;
   end func;
 

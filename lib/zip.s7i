@@ -2059,6 +2059,8 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
 (**
  *  Create a symbolic link in a ZIP archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  @param zip Open ZIP archive.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
@@ -2335,29 +2337,31 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
 
 
 (**
- *  Creates a new directory in a ZIP archive.
+ *  Create a new directory in a ZIP archive.
  *  The function does not follow symbolic links.
+ *  @param zip Open ZIP archive.
+ *  @param dirPath Name of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists.
  *)
-const proc: makeDir (inout zipArchive: zip, in string: filePath) is func
+const proc: makeDir (inout zipArchive: zip, in string: dirPath) is func
   local
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
     var boolean: fileExists is TRUE;
     var integer: relative_offset_of_local_header is 0;
-    var string: filePath8 is "";
+    var string: dirPath8 is "";
     var integer: roomForNewFile is 0;
   begin
-    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+    if dirPath = "" or dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in zip.catalog then
-      relative_offset_of_local_header := zip.catalog[filePath].relative_offset_of_local_header;
-    elsif filePath in zip.register then
-      relative_offset_of_local_header := addToCatalog(zip, filePath).relative_offset_of_local_header;
-    elsif implicitDir(zip, filePath) then
-      relative_offset_of_local_header := addImplicitDir(zip, filePath).relative_offset_of_local_header;
+    elsif dirPath in zip.catalog then
+      relative_offset_of_local_header := zip.catalog[dirPath].relative_offset_of_local_header;
+    elsif dirPath in zip.register then
+      relative_offset_of_local_header := addToCatalog(zip, dirPath).relative_offset_of_local_header;
+    elsif implicitDir(zip, dirPath) then
+      relative_offset_of_local_header := addImplicitDir(zip, dirPath).relative_offset_of_local_header;
     else
       fileExists := FALSE;
     end if;
@@ -2365,11 +2369,11 @@ const proc: makeDir (inout zipArchive: zip, in string: filePath) is func
       # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
-      filePath8 := toUtf8(filePath);
+      dirPath8 := toUtf8(dirPath);
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
       header.version_needed_to_extract  := 10;
-      if filePath8 <> filePath then
+      if dirPath8 <> dirPath then
         header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
       else
         header.general_purpose_bit_flag := bin32(0);
@@ -2381,7 +2385,7 @@ const proc: makeDir (inout zipArchive: zip, in string: filePath) is func
       header.internal_file_attributes   := 0;
       # The unix mode is in the high 16 bits of the attributes.
       header.external_file_attributes   := (ord(MODE_FILE_DIR) + 8#775) << 16;
-      header.file_name                  := filePath8 & "/";
+      header.file_name                  := dirPath8 & "/";
       initLastModFileTime(header, time(NOW));
       header.file_comment               := "";
       header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
@@ -2393,9 +2397,9 @@ const proc: makeDir (inout zipArchive: zip, in string: filePath) is func
       seek(zip.zipFile, succ(header.relative_offset_of_local_header));
       writeHead(zip.zipFile, localHeader);
       seek(zip.zipFile, zip.endOfCentralDirPos);
-      zip.register @:= [filePath] zip.endOfCentralDirPos;
+      zip.register @:= [dirPath] zip.endOfCentralDirPos;
       writeHead(zip.zipFile, header);
-      zip.catalog @:= [filePath] header;
+      zip.catalog @:= [dirPath] header;
       zip.endOfCentralDirPos := tell(zip.zipFile);
       incr(zip.endOfCentralDir.entries_in_central_directory_on_this_disk);
       incr(zip.endOfCentralDir.entries_in_central_directory);

@@ -856,13 +856,16 @@ objectType cmd_home_dir (listType arguments)
 
 
 /**
- *  Creates a new directory.
+ *  Create a new directory.
+ *  The function does not follow symbolic links.
+ *  @param dirPath/arg_1 Name of the directory to be created.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'dirPath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file 'dirPath' already exists, or a system
+ *             function returns an error.
  */
 objectType cmd_make_dir (listType arguments)
 
@@ -877,6 +880,7 @@ objectType cmd_make_dir (listType arguments)
 /**
  *  Create a symbolic link.
  *  The symbolic link 'symlinkPath' will refer to 'targetPath' afterwards.
+ *  The function does not follow symbolic links.
  *  @param symlinkPath/arg_1 Name of the symbolic link to be created.
  *  @param targetPath/arg_2 String to be contained in the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'symlinkPath' or

@@ -1237,6 +1237,8 @@ const func string: readLink (inout arArchive: ar, in string: filePath) is func
 (**
  *  Create a symbolic link in an AR archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  @param ar Open AR archive.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
@@ -1391,28 +1393,30 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
 
 
 (**
- *  Creates a new directory in an AR archive.
+ *  Create a new directory in an AR archive.
  *  The function does not follow symbolic links.
+ *  @param ar Open AR archive.
+ *  @param dirPath Name of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists.
  *)
-const proc: makeDir (inout arArchive: ar, in string: filePath) is func
+const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
   local
     var arHeader: header is arHeader.value;
     var boolean: fileExists is TRUE;
     var integer: dataStartPos is 0;
     var integer: length is 0;
-    var string: filePath8 is "";
+    var string: dirPath8 is "";
   begin
-    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+    if dirPath = "" or dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in ar.catalog then
-      dataStartPos := ar.catalog[filePath].dataStartPos;
-    elsif filePath in ar.register then
-      dataStartPos := addToCatalog(ar, filePath).dataStartPos;
-    elsif implicitDir(ar, filePath) then
-      dataStartPos := addImplicitDir(ar, filePath).dataStartPos;
+    elsif dirPath in ar.catalog then
+      dataStartPos := ar.catalog[dirPath].dataStartPos;
+    elsif dirPath in ar.register then
+      dataStartPos := addToCatalog(ar, dirPath).dataStartPos;
+    elsif implicitDir(ar, dirPath) then
+      dataStartPos := addImplicitDir(ar, dirPath).dataStartPos;
     else
       fileExists := FALSE;
     end if;
@@ -1420,12 +1424,12 @@ const proc: makeDir (inout arArchive: ar, in string: filePath) is func
       # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
-      filePath8 := toUtf8(filePath);
+      dirPath8 := toUtf8(dirPath);
       length := length(ar.arFile);
       if length = 0 then
         write(ar.arFile, AR_MAGIC);
       end if;
-      header.filePath := filePath;
+      header.filePath := dirPath;
       header.mtime    := timestamp1970(time(NOW));
       header.ownerId  := 100;
       header.groupId  := 100;
@@ -1433,12 +1437,12 @@ const proc: makeDir (inout arArchive: ar, in string: filePath) is func
       header.fileSize := 0;
       setHeaderFileName(ar, header);
       length := length(ar.arFile);
-      ar.register @:= [filePath] succ(length);
-      # writeln("ar.register[" <& literal(filePath) <& "]: " <& ar.register[filePath]);
+      ar.register @:= [dirPath] succ(length);
+      # writeln("ar.register[" <& literal(dirPath) <& "]: " <& ar.register[dirPath]);
       seek(ar.arFile, succ(length));
       writeHead(ar.arFile, header);
       header.dataStartPos := tell(ar.arFile);
-      ar.catalog @:= [filePath] header;
+      ar.catalog @:= [dirPath] header;
       flush(ar.arFile);
     end if;
   end func;

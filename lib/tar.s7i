@@ -1420,6 +1420,8 @@ const func string: readLink (inout tarArchive: tar, in string: filePath) is func
 (**
  *  Create a symbolic link in a TAR archive.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
+ *  The function does not follow symbolic links.
+ *  @param tar Open TAR archive.
  *  @param symlinkPath Name of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
@@ -1653,27 +1655,29 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
 
 
 (**
- *  Creates a new directory in a TAR archive.
+ *  Create a new directory in a TAR archive.
  *  The function does not follow symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param dirPath Name of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR The file ''dirPath'' already exists.
  *)
-const proc: makeDir (inout tarArchive: tar, in string: filePath) is func
+const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
   local
     var tarHeader: header is tarHeader.value;
     var boolean: fileExists is TRUE;
     var integer: dataStartPos is 0;
     var integer: length is 0;
   begin
-    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+    if dirPath = "" or dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      dataStartPos := tar.catalog[filePath].dataStartPos;
-    elsif filePath in tar.register then
-      dataStartPos := addToCatalog(tar, filePath).dataStartPos;
-    elsif implicitDir(tar, filePath) then
-      dataStartPos := addImplicitDir(tar, filePath).dataStartPos;
+    elsif dirPath in tar.catalog then
+      dataStartPos := tar.catalog[dirPath].dataStartPos;
+    elsif dirPath in tar.register then
+      dataStartPos := addToCatalog(tar, dirPath).dataStartPos;
+    elsif implicitDir(tar, dirPath) then
+      dataStartPos := addImplicitDir(tar, dirPath).dataStartPos;
     else
       fileExists := FALSE;
     end if;
@@ -1685,8 +1689,8 @@ const proc: makeDir (inout tarArchive: tar, in string: filePath) is func
       seek(tar.tarFile, succ(length));
       # Add zero bytes such that the next header starts at a multiple of the block size:
       write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(length) mod TAR_BLOCK_SIZE);
-      tar.register @:= [filePath] tell(tar.tarFile);
-      header.name     := (filePath & "/") [.. 100];
+      tar.register @:= [dirPath] tell(tar.tarFile);
+      header.name     := (dirPath & "/") [.. 100];
       header.mode     := 8#775;
       header.uid      := 100;
       header.gid      := 100;
@@ -1695,11 +1699,11 @@ const proc: makeDir (inout tarArchive: tar, in string: filePath) is func
       header.typeflag := DIRTYPE;
       header.magic    := TAR_MAGIC;
       header.version  := "  ";
-      header.filePath := filePath;
+      header.filePath := dirPath;
       header.filePathSuffix := "/";
       writeHead(tar.tarFile, header);
       header.dataStartPos := tell(tar.tarFile);
-      tar.catalog @:= [filePath] header;
+      tar.catalog @:= [dirPath] header;
       flush(tar.tarFile);
     end if;
   end func;
