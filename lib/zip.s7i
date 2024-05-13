@@ -736,8 +736,8 @@ const proc: initLastModFileTime (inout central_file_header: header,
   begin
     timestamp := timestamp1970(modificationTime);
     unixExtraField :=
-        bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) mult 2 &
-        bytes(                       0, UNSIGNED, LE, 2) mult 2;
+        bytes(timestamp, UNSIGNED, LE, 4) mult 2 &
+        bytes(        0, UNSIGNED, LE, 2) mult 2;
     header.extraFieldMap @:= [16#000d] unixExtraField;
     header.extra_field := extraFieldFromMap(header.extraFieldMap);
     header.last_mod_file_time := (modificationTime.hour << 11) +
@@ -762,7 +762,8 @@ const proc: assignLastModFileTime (inout local_file_header: localHeader,
     elsif 16#000d in localHeader.extraFieldMap then
       # UNIX Extra Field
       timestamp := timestamp1970(modificationTime);
-      localHeader.extraFieldMap[16#000d] @:= [5] bytes(timestamp, UNSIGNED, LE, 4);
+      # Update last access time and modification time.
+      localHeader.extraFieldMap[16#000d] @:= [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     elsif 16#000a in localHeader.extraFieldMap then
       # NTFS Extra Field:
@@ -792,7 +793,8 @@ const proc: assignLastModFileTime (inout central_file_header: header,
     elsif 16#000d in header.extraFieldMap then
       # UNIX Extra Field
       timestamp := timestamp1970(modificationTime);
-      header.extraFieldMap[16#000d] @:= [5] bytes(timestamp, UNSIGNED, LE, 4);
+      # Update last access time and modification time.
+      header.extraFieldMap[16#000d] @:= [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     elsif 16#000a in header.extraFieldMap then
       # NTFS Extra Field:
