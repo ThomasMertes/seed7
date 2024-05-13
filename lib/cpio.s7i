@@ -31,6 +31,7 @@ include "time.s7i";
 include "filesys.s7i";
 include "filebits.s7i";
 include "unicode.s7i";
+include "fileutil.s7i";
 include "bytedata.s7i";
 include "bin32.s7i";
 include "subfile.s7i";
@@ -609,6 +610,25 @@ const func cpioHeader: followSymlink (inout cpioArchive: cpio, in var string: fi
       # The file does not exist.
       raise FILE_ERROR;
     end if;
+  end func;
+
+
+const proc: fixRegisterAndCatalog (inout cpioArchive: cpio, in integer: insertPos,
+    in integer: numChars) is func
+  local
+    var integer: headerPos is 1;
+    var string: filePath is "";
+  begin
+    for key filePath range cpio.register do
+      if cpio.register[filePath] >= insertPos then
+        cpio.register[filePath] +:= numChars;
+      end if;
+    end for;
+    for key filePath range cpio.catalog do
+      if cpio.catalog[filePath].dataStartPos >= insertPos then
+        cpio.catalog[filePath].dataStartPos +:= numChars;
+      end if;
+    end for;
   end func;
 
 
@@ -1593,6 +1613,55 @@ const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
       cpio.trailerPos := tell(cpio.cpioFile);
       writeTrailer(cpio.cpioFile, header);
       flush(cpio.cpioFile);
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file (if it is not a directory), from an CPIO archive.
+ *  The function does not follow symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Name of the file to be removed.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *)
+const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
+  local
+    var cpioHeader: header is cpioHeader.value;
+    var boolean: fileExists is TRUE;
+    var integer: posOfHeaderToBeRemoved is 0;
+    var integer: numCharsToBeRemoved is 0;
+  begin
+    # writeln("removeFile(" <& literal(filePath) <& ")");
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in cpio.catalog then
+      header := cpio.catalog[filePath];
+    elsif filePath in cpio.register then
+      header := addToCatalog(cpio, filePath);
+    elsif implicitDir(cpio, filePath) then
+      header := addImplicitDir(cpio, filePath);
+    else
+      fileExists := FALSE;
+    end if;
+    if fileExists then
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+        raise FILE_ERROR;
+      else
+        posOfHeaderToBeRemoved := cpio.register[filePath];
+        numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
+            succ(pred(header.fileSize) mdiv header.padding) * header.padding;
+        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+        deleteArea(cpio.cpioFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+        excl(cpio.register, filePath);
+        excl(cpio.catalog, filePath);
+        fixRegisterAndCatalog(cpio, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                              -numCharsToBeRemoved);
+        flush(cpio.cpioFile);
+      end if;
+    else
+      raise FILE_ERROR;
     end if;
   end func;
 
