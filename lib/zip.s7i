@@ -1131,7 +1131,7 @@ const proc: fixRegisterAndCatalog (inout zipArchive: zip, in integer: insertPos,
       end if;
     end for;
     for key filePath range zip.catalog do
-      if zip.catalog[filePath].relative_offset_of_local_header >= insertPos then
+      if succ(zip.catalog[filePath].relative_offset_of_local_header) >= insertPos then
         zip.catalog[filePath].relative_offset_of_local_header +:= numChars;
         seek(zip.zipFile, zip.register[filePath]);
         writeHead(zip.zipFile, zip.catalog[filePath]);
@@ -2406,6 +2406,69 @@ const proc: makeDir (inout zipArchive: zip, in string: dirPath) is func
       zip.endOfCentralDir.size_of_central_directory := zip.endOfCentralDirPos - zip.startOfCentralDirPos;
       zip.endOfCentralDir.offset_of_start_of_central_directory := pred(zip.startOfCentralDirPos);
       write(zip.zipFile, str(zip.endOfCentralDir));
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file (if it is not a directory), from an ZIP archive.
+ *  The function does not follow symbolic links.
+ *  @param zip Open ZIP archive.
+ *  @param filePath Name of the file to be removed.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *)
+const proc: removeFile (inout zipArchive: zip, in string: filePath) is func
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+    var boolean: fileExists is TRUE;
+    var integer: posOfHeaderToBeRemoved is 0;
+    var integer: numCharsToBeRemoved is 0;
+  begin
+    # writeln("removeFile(" <& literal(filePath) <& ")");
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in zip.catalog then
+      header := zip.catalog[filePath];
+    elsif filePath in zip.register then
+      header := addToCatalog(zip, filePath);
+    elsif implicitDir(zip, filePath) then
+      header := addImplicitDir(zip, filePath);
+    else
+      fileExists := FALSE;
+    end if;
+    if fileExists then
+      if isRegularFile(header) then
+        # Remove local header and file content.
+        posOfHeaderToBeRemoved := succ(header.relative_offset_of_local_header);
+        numCharsToBeRemoved := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
+          length(header.extra_field) + header.compressed_size;
+        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+        deleteArea(zip.zipFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+        fixRegisterAndCatalog(zip, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                              -numCharsToBeRemoved);
+        # Remove central header.
+        posOfHeaderToBeRemoved := zip.register[filePath];
+        numCharsToBeRemoved := ZIP_CENTRAL_HEADER_FIXED_SIZE + length(header.file_name) +
+          length(header.extra_field) + length(header.file_comment);
+        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+        deleteArea(zip.zipFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+        excl(zip.register, filePath);
+        excl(zip.catalog, filePath);
+        fixRegisterAndCatalog(zip, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                              -numCharsToBeRemoved);
+        decr(zip.endOfCentralDir.entries_in_central_directory_on_this_disk);
+        decr(zip.endOfCentralDir.entries_in_central_directory);
+        zip.endOfCentralDir.size_of_central_directory := zip.endOfCentralDirPos - zip.startOfCentralDirPos;
+        zip.endOfCentralDir.offset_of_start_of_central_directory := pred(zip.startOfCentralDirPos);
+        seek(zip.zipFile, zip.endOfCentralDirPos);
+        write(zip.zipFile, str(zip.endOfCentralDir));
+        flush(zip.zipFile);
+      end if;
+    else
+      raise FILE_ERROR;
     end if;
   end func;
 
