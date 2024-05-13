@@ -1450,6 +1450,9 @@ const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
 
 (**
  *  Remove a file (if it is not a directory), from an AR archive.
+ *  The function does not follow symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Name of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The file does not exist or it is a directory.
@@ -1458,8 +1461,8 @@ const proc: removeFile (inout arArchive: ar, in string: filePath) is func
   local
     var arHeader: header is arHeader.value;
     var boolean: fileExists is TRUE;
-    var integer: numCharsToBeRemoved is 0;
     var integer: posOfHeaderToBeRemoved is 0;
+    var integer: numCharsToBeRemoved is 0;
   begin
     # writeln("removeFile(" <& literal(filePath) <& ")");
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1477,9 +1480,9 @@ const proc: removeFile (inout arArchive: ar, in string: filePath) is func
       if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
         raise FILE_ERROR;
       else
+        posOfHeaderToBeRemoved := ar.register[filePath];
         numCharsToBeRemoved := AR_HEADER_SIZE + succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
         # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
-        posOfHeaderToBeRemoved := ar.register[filePath];
         deleteArea(ar.arFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
         excl(ar.register, filePath);
         excl(ar.catalog, filePath);
