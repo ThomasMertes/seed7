@@ -1030,6 +1030,28 @@ const func central_file_header: addImplicitDir (inout zipArchive: zip,
   end func;
 
 
+const func boolean: isRegularFile (in central_file_header: header) is func
+  result
+    var boolean: isRegularFile is FALSE;
+  begin
+    if header.relative_offset_of_local_header <> -1 then
+      # It is not an implicit directory.
+      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX then
+        isRegularFile := bin32(header.external_file_attributes >> 16) &
+                         MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR;
+      else
+        isRegularFile := not endsWith(header.file_name, "/");
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isSymlink (in central_file_header: header) is
+  return header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
+            bin32(header.external_file_attributes >> 16) &
+                MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK;
+
+
 const func string: followSymlink (inout zipArchive: zip, in var string: filePath,
     inout central_file_header: header) is func
   result
@@ -1055,9 +1077,7 @@ const func string: followSymlink (inout zipArchive: zip, in var string: filePath
         # writeln("missing: " <& missingPath);
       end if;
       if missingPath = "" then
-        if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-            bin32(header.external_file_attributes >> 16) &
-                MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        if isSymlink(header) then
           decr(symlinkCount);
           seek(zip.zipFile, succ(header.relative_offset_of_local_header));
           localHeader := get_local_header(zip.zipFile);
@@ -1654,9 +1674,7 @@ const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath, SY
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         mode := fileMode((header.external_file_attributes >> 16) mod 8#1000);
       else
         raise FILE_ERROR;
@@ -1695,9 +1713,7 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath, SYMLINK) 
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         if 16#5455 in header.extraFieldMap then
           # Extended Timestamp Extra Field
           timestamp := bytes2Int(header.extraFieldMap[16#5455][2 fixLen 4], UNSIGNED, LE);
@@ -1759,9 +1775,7 @@ const proc: setMTime (inout zipArchive: zip, in string: filePath,
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         assignLastModFileTime(header, modificationTime);
         zip.catalog @:= [filePath] header;
         seek(zip.zipFile, zip.register[filePath]);
@@ -1809,9 +1823,7 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath, SYMLINK
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         if 16#000d in header.extraFieldMap then
           # UNIX Extra Field
           uid := bytes2Int(header.extraFieldMap[16#000d][9 fixLen 2], UNSIGNED, LE);
@@ -1868,9 +1880,7 @@ const proc: setOwner (inout zipArchive: zip, in string: filePath,
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         assignUserId(header, uid);
         zip.catalog @:= [filePath] header;
         seek(zip.zipFile, zip.register[filePath]);
@@ -1919,9 +1929,7 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath, SYMLINK
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         if 16#000d in header.extraFieldMap then
           # UNIX Extra Field
           gid := bytes2Int(header.extraFieldMap[16#000d][11 fixLen 2], UNSIGNED, LE);
@@ -1979,9 +1987,7 @@ const proc: setGroup (inout zipArchive: zip, in string: filePath,
       else
         raise FILE_ERROR;
       end if;
-      if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-          bin32(header.external_file_attributes >> 16) &
-              MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      if isSymlink(header) then
         assignGroupId(header, gid);
         zip.catalog @:= [filePath] header;
         seek(zip.zipFile, zip.register[filePath]);
@@ -2024,9 +2030,7 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
     else
       raise FILE_ERROR;
     end if;
-    if header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-        bin32(header.external_file_attributes >> 16) &
-            MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+    if isSymlink(header) then
       seek(zip.zipFile, succ(header.relative_offset_of_local_header));
       localHeader := get_local_header(zip.zipFile);
       # write(localHeader);
@@ -2151,13 +2155,7 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
       raise RANGE_ERROR;
     else
       header := followSymlink(zip, filePath);
-      if  ((header.version_made_by >> 8 = ZIP_HOST_SYSTEM_UNIX and
-            bin32(header.external_file_attributes >> 16) &
-                MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR) or
-           (header.version_made_by >> 8 <> ZIP_HOST_SYSTEM_UNIX and
-            not endsWith(header.file_name, "/"))) and
-          header.relative_offset_of_local_header <> -1 then
-        # Regular file
+      if isRegularFile(header) then
         seek(zip.zipFile, succ(header.relative_offset_of_local_header));
         localHeader := get_local_header(zip.zipFile);
         # write(localHeader);
