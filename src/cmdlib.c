@@ -1018,7 +1018,9 @@ objectType cmd_read_link_absolute (listType arguments)
 
 /**
  *  Remove a file of any type unless it is a directory that is not empty.
- *  An attempt to remove a directory that is not empty triggers FILE_ERROR.
+ *  The function does not follow symbolic links. An attempt to remove a
+ *  directory that is not empty triggers FILE_ERROR.
+ *  @param filePath/arg_1 Name of the file to be removed.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path

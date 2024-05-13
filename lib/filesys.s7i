@@ -474,7 +474,10 @@ const proc: makeLink (inout fileSys: fileSystem, in string: symlinkPath,
 
 (**
  *  Remove a file (except a nonempty directory), from a file system.
+ *  The function does not follow symbolic links.
  *  Not all file systems support this function.
+ *  @param fileSystem Open file system.
+ *  @param filePath Name of the file to be removed.
  *)
 const proc: removeFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
