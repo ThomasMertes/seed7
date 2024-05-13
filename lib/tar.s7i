@@ -31,6 +31,7 @@ include "stdio.s7i";
 include "time.s7i";
 include "filesys.s7i";
 include "unicode.s7i";
+include "fileutil.s7i";
 include "subfile.s7i";
 include "iobuffer.s7i";
 include "archive_base.s7i";
@@ -697,6 +698,25 @@ const func tarHeader: followSymlink (inout tarArchive: tar, in string: filePath)
       # The file does not exist.
       raise FILE_ERROR;
     end if;
+  end func;
+
+
+const proc: fixRegisterAndCatalog (inout tarArchive: tar, in integer: insertPos,
+    in integer: numChars) is func
+  local
+    var integer: headerPos is 1;
+    var string: filePath is "";
+  begin
+    for key filePath range tar.register do
+      if tar.register[filePath] >= insertPos then
+        tar.register[filePath] +:= numChars;
+      end if;
+    end for;
+    for key filePath range tar.catalog do
+      if tar.catalog[filePath].dataStartPos >= insertPos then
+        tar.catalog[filePath].dataStartPos +:= numChars;
+      end if;
+    end for;
   end func;
 
 
@@ -1705,6 +1725,55 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
       header.dataStartPos := tell(tar.tarFile);
       tar.catalog @:= [dirPath] header;
       flush(tar.tarFile);
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file (if it is not a directory), from an TAR archive.
+ *  The function does not follow symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Name of the file to be removed.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *)
+const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
+  local
+    var tarHeader: header is tarHeader.value;
+    var boolean: fileExists is TRUE;
+    var integer: posOfHeaderToBeRemoved is 0;
+    var integer: numCharsToBeRemoved is 0;
+  begin
+    # writeln("removeFile(" <& literal(filePath) <& ")");
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in tar.catalog then
+      header := tar.catalog[filePath];
+    elsif filePath in tar.register then
+      header := addToCatalog(tar, filePath);
+    elsif implicitDir(tar, filePath) then
+      header := addImplicitDir(tar, filePath);
+    else
+      fileExists := FALSE;
+    end if;
+    if fileExists then
+      if header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE then
+        raise FILE_ERROR;
+      else
+        posOfHeaderToBeRemoved := tar.register[filePath];
+        numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
+            succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+        deleteArea(tar.tarFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+        excl(tar.register, filePath);
+        excl(tar.catalog, filePath);
+        fixRegisterAndCatalog(tar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                              -numCharsToBeRemoved);
+        flush(tar.tarFile);
+      end if;
+    else
+      raise FILE_ERROR;
     end if;
   end func;
 
