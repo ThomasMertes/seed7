@@ -1266,8 +1266,8 @@ const proc: makeLink (inout arArchive: ar, in string: symlinkPath,
       end if;
       header.filePath := symlinkPath;
       header.mtime    := timestamp1970(time(NOW));
-      header.ownerId  := 100;
-      header.groupId  := 100;
+      header.ownerId  := 0;
+      header.groupId  := 0;
       header.mode     := ord(MODE_FILE_SYMLINK) + 8#777;
       header.fileSize := length(targetPath8);
       setHeaderFileName(ar, header);
@@ -1371,8 +1371,8 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
         end if;
         header.filePath := filePath;
         header.mtime    := timestamp1970(time(NOW));
-        header.ownerId  := 100;
-        header.groupId  := 100;
+        header.ownerId  := 0;
+        header.groupId  := 0;
         header.mode     := ord(MODE_FILE_REGULAR) + 8#664;
         header.fileSize := length(data);
         setHeaderFileName(ar, header);
@@ -1431,8 +1431,8 @@ const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
       end if;
       header.filePath := dirPath;
       header.mtime    := timestamp1970(time(NOW));
-      header.ownerId  := 100;
-      header.groupId  := 100;
+      header.ownerId  := 0;
+      header.groupId  := 0;
       header.mode     := ord(MODE_FILE_DIR) + 8#775;
       header.fileSize := 0;
       setHeaderFileName(ar, header);

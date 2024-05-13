@@ -1463,8 +1463,8 @@ const proc: makeLink (inout tarArchive: tar, in string: symlinkPath,
     else
       header.name     := symlinkPath[.. 100];
       header.mode     := 8#777;
-      header.uid      := 100;
-      header.gid      := 100;
+      header.uid      := 0;
+      header.gid      := 0;
       header.fileSize := 0;
       header.mtime    := timestamp1970(time(NOW));
       header.typeflag := SYMTYPE;
@@ -1653,8 +1653,8 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
         if missingPath <> "" then
           header.name     := filePath[.. 100];
           header.mode     := 8#664;
-          header.uid      := 100;
-          header.gid      := 100;
+          header.uid      := 0;
+          header.gid      := 0;
           header.mtime    := timestamp1970(time(NOW));
           header.typeflag := REGTYPE;
           header.magic    := TAR_MAGIC;
@@ -1712,8 +1712,8 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
       tar.register @:= [dirPath] tell(tar.tarFile);
       header.name     := (dirPath & "/") [.. 100];
       header.mode     := 8#775;
-      header.uid      := 100;
-      header.gid      := 100;
+      header.uid      := 0;
+      header.gid      := 0;
       header.fileSize := 0;
       header.mtime    := timestamp1970(time(NOW));
       header.typeflag := DIRTYPE;

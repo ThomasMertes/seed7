@@ -2820,8 +2820,8 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
     else
       catalogEntry.fileSize := 0;
       catalogEntry.mode := ord(MODE_FILE_SYMLINK) + 8#777;
-      catalogEntry.uid := 100;
-      catalogEntry.gid := 100;
+      catalogEntry.uid := 0;
+      catalogEntry.gid := 0;
       catalogEntry.rdev := 0;
       catalogEntry.mtime := timestamp1970(time(NOW));
       catalogEntry.digest := "";
@@ -2926,8 +2926,8 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         end if;
         catalogEntry.fileSize := length(data);
         catalogEntry.mode := ord(MODE_FILE_REGULAR) + 8#664;
-        catalogEntry.uid := 100;
-        catalogEntry.gid := 100;
+        catalogEntry.uid := 0;
+        catalogEntry.gid := 0;
         catalogEntry.rdev := 0;
         catalogEntry.mtime := timestamp1970(time(NOW));
         catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
@@ -2991,8 +2991,8 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       end if;
       catalogEntry.fileSize := 0;
       catalogEntry.mode := ord(MODE_FILE_DIR) + 8#775;
-      catalogEntry.uid := 100;
-      catalogEntry.gid := 100;
+      catalogEntry.uid := 0;
+      catalogEntry.gid := 0;
       catalogEntry.rdev := 0;
       catalogEntry.mtime := timestamp1970(time(NOW));
       catalogEntry.digest := "";
