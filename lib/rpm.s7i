@@ -1105,6 +1105,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var array rpmDependency: required is 0 times rpmDependency.value;
     var file: payloadFile is STD_NULL;
     var fileSys: archive is fileSys.value;
+    var boolean: dirty is FALSE;
   end struct;
 
 
@@ -1477,11 +1478,15 @@ const func boolean: isDirty (in rpmArchive: rpm) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
   begin
-    for catalogEntry range rpm.catalog do
-      if catalogEntry.dirty then
-        isDirty := TRUE;
-      end if;
-    end for;
+    if rpm.dirty then
+      isDirty := TRUE;
+    else
+      for catalogEntry range rpm.catalog do
+        if catalogEntry.dirty then
+          isDirty := TRUE;
+        end if;
+      end for;
+    end if;
   end func;
 
 
@@ -2030,6 +2035,25 @@ const func rpmCatalogEntry: followSymlink (inout rpmArchive: rpm, in string: fil
       # The file does not exist.
       raise FILE_ERROR;
     end if;
+  end func;
+
+
+const proc: fixRegisterAndCatalog (inout rpmArchive: rpm, in integer: insertPos,
+    in integer: numEntries) is func
+  local
+    var integer: headerPos is 1;
+    var string: filePath is "";
+  begin
+    for key filePath range rpm.register do
+      if rpm.register[filePath] >= insertPos then
+        rpm.register[filePath] +:= numEntries;
+      end if;
+    end for;
+    for key filePath range rpm.catalog do
+      if rpm.catalog[filePath].fileNumber >= insertPos then
+        rpm.catalog[filePath].fileNumber +:= numEntries;
+      end if;
+    end for;
   end func;
 
 
@@ -3017,6 +3041,49 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       rpm.catalog @:= [dirPath] catalogEntry;
       rpm.register @:= [dirPath] catalogEntry.fileNumber;
       makeDir(rpm.archive, dirPath);
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file (if it is not a directory), from an RPM archive.
+ *  The function does not follow symbolic links.
+ *  @param rpm Open RPM archive.
+ *  @param filePath Name of the file to be removed.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *)
+const proc: removeFile (inout rpmArchive: rpm, in string: filePath) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var boolean: fileExists is TRUE;
+  begin
+    # writeln("removeFile(" <& literal(filePath) <& ")");
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in rpm.catalog then
+      catalogEntry := rpm.catalog[filePath];
+    elsif implicitDir(rpm, filePath) then
+      catalogEntry := addImplicitDir(rpm, filePath);
+    else
+      fileExists := FALSE;
+    end if;
+    if fileExists then
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+        raise FILE_ERROR;
+      else
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        excl(rpm.register, filePath);
+        excl(rpm.catalog, filePath);
+        fixRegisterAndCatalog(rpm, catalogEntry.fileNumber, -1);
+        removeFile(rpm.archive, filePath);
+        rpm.dirty := TRUE;
+      end if;
+    else
+      raise FILE_ERROR;
     end if;
   end func;
 
