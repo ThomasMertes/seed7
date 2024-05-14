@@ -1947,7 +1947,7 @@ const proc: close (inout rpmArchive: rpm) is func
     if rpm.archive <> fileSys.value then
       close(rpm.archive);
     end if;
-    rpm.rpmFile := STD_NULL;
+    rpm := rpmArchive.value;
   end func;
 
 

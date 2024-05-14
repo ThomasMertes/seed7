@@ -596,8 +596,7 @@ const func fileSys: openTar (in string: tarFileName) is func
  *)
 const proc: close (inout tarArchive: tar) is func
   begin
-    # close(tar.tarFile);
-    tar.tarFile := STD_NULL;
+    tar := tarArchive.value;
   end func;
 
 

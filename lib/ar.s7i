@@ -358,8 +358,7 @@ const func fileSys: openAr (in string: arFileName) is func
  *)
 const proc: close (inout arArchive: ar) is func
   begin
-    # close(ar.arFile);
-    ar.arFile := STD_NULL;
+    ar := arArchive.value;
   end func;
 
 

@@ -987,8 +987,7 @@ const func fileSys: openZip (in string: zipFileName) is func
  *)
 const proc: close (inout zipArchive: zip) is func
   begin
-    # close(zip.zipFile);
-    zip.zipFile := STD_NULL;
+    zip := zipArchive.value;
   end func;
 
 

@@ -504,8 +504,7 @@ const func fileSys: openCpio (in string: cpioFileName) is func
  *)
 const proc: close (inout cpioArchive: cpio) is func
   begin
-    # close(cpio.cpioFile);
-    cpio.cpioFile := STD_NULL;
+    cpio := cpioArchive.value;
   end func;
 
 
