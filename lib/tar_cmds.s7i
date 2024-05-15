@@ -60,7 +60,8 @@ const proc: setUpHead (in string: basePath, in string: filePath,
   end func;
 
 
-const func file: openTarFileWithMagic (in string: inFileName, in boolean: doUncompress) is func
+const func file: openTarFileWithMagic (in string: inFileName,
+    in boolean: complainIfUncompressed) is func
   result
     var file: inFile is STD_NULL;
   local
@@ -84,7 +85,7 @@ const func file: openTarFileWithMagic (in string: inFileName, in boolean: doUnco
             inFile := openXzFile(inFile);
           elsif endsWith(inFileName, ".lzma") then
             inFile := openLzmaFile(inFile);
-          elsif doUncompress then
+          elsif complainIfUncompressed then
             write("tar7: File \"");
             write(inFileName);
             writeln("\" not in gzip, xz, zstd or lzma format.");
@@ -118,6 +119,10 @@ const func boolean: filePathIsInTarMemberList (in string: filePath,
  *  List the files in the TAR achive ''inFile''.
  *  This function is used by the ''tar7'' program. In other application areas the
  *  [[tar]] file system might be more convenient.
+ *   aFile := open("test.tar", "r");
+ *   if aFile <> STD_NULL then
+ *     tarTell(aFile, 0 times "", TRUE);
+ *     ...
  *  @param inFile File in TAR format.
  *  @param memberList List of archive members that should be listed.
  *                    If ''memberList'' is empty all files in the archive are listed.
@@ -172,23 +177,26 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
 
 
 (**
- *  List files in the TAR achive named ''inFileName''.
+ *  List files in the possibly compressed TAR achive named ''inFileName''.
+ *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
  *  This function is used by the ''tar7'' program. In other application areas the
  *  [[tar]] file system might be more convenient.
+ *   tarTell("test.tar", 0 times "", FALSE, FALSE);
+ *   tarTell("test.tgz", 0 times "", FALSE, TRUE);
  *  @param inFileName Name of the TAR archive.
  *  @param memberList List of archive members that should be listed.
  *                    If ''memberList'' is empty all files in the archive are listed.
  *  @param doView TRUE show details of the files in the archive,
  *                FALSE only write the names of the files in the archive.
- *  @param doUncompress TRUE if the archive is compressed with gzip, xz, zstd or lzma.
- *                      FALSE if the archive is not compressed.
+ *  @param complainIfUncompressed TRUE complain if the archive is not compressed,
+ *                                FALSE silently accept an uncompressed archive.
  *)
 const proc: tarTell (in string: inFileName, in array string: memberList,
-    in boolean: doView, in boolean: doUncompress) is func
+    in boolean: doView, in boolean: complainIfUncompressed) is func
   local
     var file: inFile is STD_NULL;
   begin
-    inFile := openTarFileWithMagic(inFileName, doUncompress);
+    inFile := openTarFileWithMagic(inFileName, complainIfUncompressed);
     if inFile <> STD_NULL then
       tarTell(inFile, memberList, doView);
     else
@@ -201,8 +209,14 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
 
 (**
  *  Extract files from the TAR achive ''inFile''.
- *  This function is used by the ''tar7'' program. In other application areas the
- *  [[tar]] file system might be more convenient.
+ *  This function is used by the ''tar7'' program. The function extracts files
+ *  directly to the hard-disk respectively solid-state drive of the operating
+ *  system. In other application areas the [[tar]] file system might be more
+ *  convenient.
+ *   aFile := open("test.tar", "r");
+ *   if aFile <> STD_NULL then
+ *     tarXtract(aFile, 0 times "", FALSE);
+ *     ...
  *  @param inFile File in TAR format.
  *  @param memberList List of archive members that should be extracted.
  *                    If ''memberList'' is empty all files in the archive are extracted.
@@ -278,23 +292,28 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
 
 
 (**
- *  Extract files from the TAR achive named ''inFileName''.
- *  This function is used by the ''tar7'' program. In other application areas the
- *  [[tar]] file system might be more convenient.
+ *  Extract files from the possibly compressed TAR achive named ''inFileName''.
+ *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  This function is used by the ''tar7'' program. The function extracts files
+ *  directly to the hard-disk respectively solid-state drive of the operating
+ *  system. In other application areas the [[tar]] file system might be more
+ *  convenient.
+ *   tarXtract("test.tar", 0 times "", FALSE, FALSE);
+ *   tarXtract("test.tgz", 0 times "", FALSE, TRUE);
  *  @param inFileName Name of the TAR archive.
  *  @param memberList List of archive members that should be extracted.
  *                    If ''memberList'' is empty all files in the archive are extracted.
  *  @param doView TRUE write the names of the extracted files,
  *                FALSE extract quietly.
- *  @param doUncompress TRUE if the archive is compressed with gzip, xz, zstd or lzma.
- *                      FALSE if the archive is not compressed.
+ *  @param complainIfUncompressed TRUE complain if the archive is not compressed,
+ *                                FALSE silently accept an uncompressed archive.
  *)
 const proc: tarXtract (in string: inFileName, in array string: memberList,
-    in boolean: doView, in boolean: doUncompress) is func
+    in boolean: doView, in boolean: complainIfUncompressed) is func
   local
     var file: inFile is STD_NULL;
   begin
-    inFile := openTarFileWithMagic(inFileName, doUncompress);
+    inFile := openTarFileWithMagic(inFileName, complainIfUncompressed);
     if inFile <> STD_NULL then
       tarXtract(inFile, memberList, doView);
     else
@@ -305,12 +324,34 @@ const proc: tarXtract (in string: inFileName, in array string: memberList,
   end func;
 
 
+(**
+ *  Extract files from the possibly compressed TAR achive named ''inFileName''.
+ *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  This function extracts files directly to the hard-disk respectively
+ *  solid-state drive of the operating system. In other application
+ *  areas the [[tar]] file system might be more convenient.
+ *   tarXtract("test.tar", TRUE);
+ *   tarXtract("test.tgz", FALSE);
+ *  @param inFileName Name of the TAR archive.
+ *  @param doView TRUE write the names of the extracted files,
+ *                FALSE extract quietly.
+ *)
 const proc: tarXtract (in string: inFileName, in boolean: doView) is func
   begin
     tarXtract(inFileName, 0 times "", doView, FALSE);
   end func;
 
 
+(**
+ *  Extract files from the possibly compressed TAR achive named ''inFileName''.
+ *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  This function extracts files directly to the hard-disk respectively
+ *  solid-state drive of the operating system. In other application areas
+ *  the [[tar]] file system might be more convenient.
+ *   tarXtract("test.tar");
+ *   tarXtract("test.tgz");
+ *  @param inFileName Name of the TAR archive.
+ *)
 const proc: tarXtract (in string: inFileName) is func
   begin
     tarXtract(inFileName, 0 times "", FALSE, FALSE);
@@ -319,9 +360,16 @@ const proc: tarXtract (in string: inFileName) is func
 
 (**
  *  Write a TAR archive to ''outFile'' with the files listed in ''fileList''.
- *  This function is used by the ''tar7'' program. In other application areas the
- *  [[tar]] file system might be more convenient.
+ *  This function is used by the ''tar7'' program. The function copies files
+ *  from the hard-disk respectively solid-state drive of the operating system.
+ *  In other application areas the [[tar]] file system might be more convenient.
+ *   aFile := open("test.tar", "w");
+ *   if aFile <> STD_NULL then
+ *     tarCreate(aFile, "", "", [] ("test_dir"), FALSE);
+ *     ...
  *  @param outFile Destination for the crated TAR file.
+ *  @param basePath Base path for all files to be processed.
+ *  @param pathFromBase Path from ''basePath'' for the files in ''fileList''.
  *  @param fileList List of file paths to be put into the created tar archive.
  *  @param doView TRUE write the names of the processed files,
  *                FALSE work quietly.
@@ -372,8 +420,11 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
 
 (**
  *  Create the TAR file ''outFileName'' with the files listed in ''fileList''.
- *  This function is used by the ''tar7'' program. In other application areas the
- *  [[tar]] file system might be more convenient.
+ *  This function is used by the ''tar7'' program. The function copies files
+ *  from the hard-disk respectively solid-state drive of the operating system.
+ *  In other application areas the [[tar]] file system might be more convenient.
+ *   tarCreate("test.tar", [] ("test_file1", "test_file2"), FALSE, FALSE);
+ *   tarCreate("test.tgz", [] ("test_file1", "test_file2"), FALSE, TRUE);
  *  @param outFileName Name of the TAR archive to be created.
  *  @param fileList List of file paths to be put into the created tar archive.
  *  @param doView TRUE to log a line for every processed file,
@@ -406,6 +457,17 @@ const proc: tarCreate (in string: outFileName, in array string: fileList,
   end func;
 
 
+(**
+ *  Create the TAR file ''outFileName'' with the files listed in ''fileList''.
+ *  This function copies files from the hard-disk respectively solid-state drive
+ *  of the operating system. In other application areas the [[tar]] file system
+ *  might be more convenient.
+ *   tarCreate("test.tar", [] ("test_file1", "test_file2"), TRUE);
+ *  @param outFileName Name of the TAR archive to be created.
+ *  @param fileList List of file paths to be put into the created tar archive.
+ *  @param doView TRUE to log a line for every processed file,
+ *                FALSE if nothing should be logged.
+ *)
 const proc: tarCreate (in string: outFileName, in array string: fileList,
     in boolean: doView) is func
   begin
@@ -413,6 +475,15 @@ const proc: tarCreate (in string: outFileName, in array string: fileList,
   end func;
 
 
+(**
+ *  Create the TAR file ''outFileName'' with the files listed in ''fileList''.
+ *  This function copies files from the hard-disk respectively solid-state drive
+ *  of the operating system. In other application areas the [[tar]] file system
+ *  might be more convenient.
+ *   tarCreate("test.tar", [] ("test_file1", "test_file2"));
+ *  @param outFileName Name of the TAR archive to be created.
+ *  @param fileList List of file paths to be put into the created tar archive.
+ *)
 const proc: tarCreate (in string: outFileName, in array string: fileList) is func
   begin
     tarCreate(outFileName, fileList, FALSE, FALSE);
