@@ -162,7 +162,7 @@ const func browserConnection: openBrowser is func
     until browser.inetListener <> listener.value or port >= MAX_PORT;
     if browser.inetListener <> listener.value then
       listen(browser.inetListener, 10);
-      # cmd_sh("firefox localhost:" <& port <& " &");
+      # shellCmd("firefox localhost:" <& port <& " &");
       if fileType("/usr/bin/firefox") <> FILE_ABSENT then
         browser.program := startProcess("/usr/bin/firefox", [] ("localhost:" <& port));
       elsif fileType("/usr/bin/chromium") <> FILE_ABSENT then

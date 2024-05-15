@@ -8126,9 +8126,9 @@ const proc: execProgramScript (in string: command, in array string: parameters,
     end case;
     if length(redirection) = 0 then
       # An CC_ERROR_FILEDES of zero means: Do not redirect.
-      cmd_sh(command, shellParameters(parameters));
+      shellCmd(command, shellParameters(parameters));
     else
-      cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
+      shellCmd(command, shellParameters(parameters) <& " " <& join(redirection, " "));
     end if
   end func;
 

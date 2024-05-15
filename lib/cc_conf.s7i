@@ -1212,8 +1212,8 @@ const func string: determineCCVersion is func
         redirection &:= ccConf.REDIRECT_FILEDES_1 & ccConf.NULL_DEVICE;
         redirection &:= ccConf.REDIRECT_FILEDES_2 & ccVersionFile;
     end case;
-    cmd_sh(ccConf.C_COMPILER, ccConf.CC_OPT_VERSION_INFO <&
-           " " <& join(redirection, " "));
+    shellCmd(ccConf.C_COMPILER, ccConf.CC_OPT_VERSION_INFO <&
+             " " <& join(redirection, " "));
     aFile := open(ccVersionFile, "r");
     if aFile <> STD_NULL then
       c_compiler_version := getln(aFile);
