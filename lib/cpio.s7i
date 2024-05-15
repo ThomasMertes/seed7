@@ -418,11 +418,11 @@ const type: cpioCatalogType is hash [string] cpioHeader;
  *  and relative paths in a CPIO archive can be accessed directly.
  *  Since "/" is just a normal path in a CPIO archive the root path of a
  *  cpio file system is "". Possible usages of cpio file system functions are:
- *    getMTime(aCpioFile, "src/drivers")   # Relative path in the archive.
- *    fileType(aCpioFile, "/usr/include")  # Absolute path in the archive.
- *    fileSize(aCpioFile, "/image")        # Absolute path in the archive.
- *    readDir(aCpioFile, "")               # Return e.g.: "src" and "/"
- *    readDir(aCpioFile, "/")              # Return e.g.: "usr" and "image"
+ *    getMTime(aCpioArchive, "src/drivers")   # Relative path in the archive.
+ *    fileType(aCpioArchive, "/usr/include")  # Absolute path in the archive.
+ *    fileSize(aCpioArchive, "/image")        # Absolute path in the archive.
+ *    readDir(aCpioArchive, "")               # Return e.g.: "src" and "/"
+ *    readDir(aCpioArchive, "/")              # Return e.g.: "usr" and "image"
  *)
 const type: cpioArchive is sub emptyFileSys struct
     var file: cpioFile is STD_NULL;

@@ -263,11 +263,11 @@ const type: arCatalogType is hash [string] arHeader;
  *  and relative paths in an AR archive can be accessed directly.
  *  Since "/" is just a normal path in an AR archive the root path of a
  *  ar file system is "". Possible usages of ar file system functions are:
- *    getMTime(aArFile, "src/drivers")   # Relative path in the archive.
- *    fileType(aArFile, "/usr/include")  # Absolute path in the archive.
- *    fileSize(aArFile, "/image")        # Absolute path in the archive.
- *    readDir(aArFile, "")               # Return e.g.: "src" and "/"
- *    readDir(aArFile, "/")              # Return e.g.: "usr" and "image"
+ *    getMTime(anArArchive, "src/drivers")   # Relative path in the archive.
+ *    fileType(anArArchive, "/usr/include")  # Absolute path in the archive.
+ *    fileSize(anArArchive, "/image")        # Absolute path in the archive.
+ *    readDir(anArArchive, "")               # Return e.g.: "src" and "/"
+ *    readDir(anArArchive, "/")              # Return e.g.: "usr" and "image"
  *)
 const type: arArchive is sub emptyFileSys struct
     var file: arFile is STD_NULL;

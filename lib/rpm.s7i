@@ -1084,11 +1084,11 @@ const type: rpmSection is new struct
  *  and relative paths in a rpm archive can be accessed directly.
  *  Since "/" is just a normal path in a rpm archive the root path of a
  *  rpm file system is "". Possible usages of rpm file system functions are:
- *    getMTime(aRpmFile, "src/drivers")   # Relative path in the archive.
- *    fileType(aRpmFile, "/usr/include")  # Absolute path in the archive.
- *    fileSize(aRpmFile, "/image")        # Absolute path in the archive.
- *    readDir(aRpmFile, "")               # Return e.g.: "src" and "/"
- *    readDir(aRpmFile, "/")              # Return e.g.: "usr" and "image"
+ *    getMTime(aRpmArchive, "src/drivers")   # Relative path in the archive.
+ *    fileType(aRpmArchive, "/usr/include")  # Absolute path in the archive.
+ *    fileSize(aRpmArchive, "/image")        # Absolute path in the archive.
+ *    readDir(aRpmArchive, "")               # Return e.g.: "src" and "/"
+ *    readDir(aRpmArchive, "/")              # Return e.g.: "usr" and "image"
  *)
 const type: rpmArchive is sub emptyFileSys struct
     var file: rpmFile is STD_NULL;

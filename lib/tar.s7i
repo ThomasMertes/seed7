@@ -519,11 +519,11 @@ const type: tarCatalogType is hash [string] tarHeader;
  *  and relative paths in a TAR archive can be accessed directly.
  *  Since "/" is just a normal path in a TAR archive the root path of a
  *  tar file system is "". Possible usages of tar file system functions are:
- *    getMTime(aTarFile, "src/drivers")   # Relative path in the archive.
- *    fileType(aTarFile, "/usr/include")  # Absolute path in the archive.
- *    fileSize(aTarFile, "/image")        # Absolute path in the archive.
- *    readDir(aTarFile, "")               # Return e.g.: "src" and "/"
- *    readDir(aTarFile, "/")              # Return e.g.: "usr" and "image"
+ *    getMTime(aTarArchive, "src/drivers")   # Relative path in the archive.
+ *    fileType(aTarArchive, "/usr/include")  # Absolute path in the archive.
+ *    fileSize(aTarArchive, "/image")        # Absolute path in the archive.
+ *    readDir(aTarArchive, "")               # Return e.g.: "src" and "/"
+ *    readDir(aTarArchive, "/")              # Return e.g.: "usr" and "image"
  *)
 const type: tarArchive is sub emptyFileSys struct
     var file: tarFile is STD_NULL;
