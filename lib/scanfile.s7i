@@ -717,12 +717,11 @@ const func string: getWhiteSpace (inout file: inFile) is func
  *   f := initScan(" ab");  getWord(f) returns "ab" and f.bufferChar = EOF
  *   f := initScan(" ab "); getWord(f) returns "ab" and f.bufferChar = ' '
  *   f := initScan("ab\t"); getWord(f) returns "ab" and f.bufferChar = '\t'
- *  @return the word, and
- *          "" if no word was found.
+ *  @return the word, and "" if no word was found.
  *)
 const func string: getWord (inout file: inFile) is func
   result
-    var string: symbol is "";
+    var string: aWord is "";
   local
     var char: character is ' ';
   begin
@@ -732,9 +731,43 @@ const func string: getWord (inout file: inFile) is func
     end while;
     if character <> EOF then
       repeat
-        symbol &:= character;
+        aWord &:= character;
         character := getc(inFile);
       until character in white_space_char or character = EOF;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a word consisting of ''wordChars'' from a [[file]].
+ *  Before reading the word it skips non-''wordChars'' characters.
+ *  A word is a sequence of ''wordChars'' characters. When the function
+ *  is called it is assumed that inFile.bufferChar contains the first
+ *  character to be handled. When the function is left inFile.bufferChar
+ *  contains the character after the word.
+ *   f := initScan(" a1");  getWord(f, alphanum_char) returns "a1" and f.bufferChar = EOF
+ *   f := initScan("-a2."); getWord(f, alphanum_char) returns "a2" and f.bufferChar = '.'
+ *   f := initScan("=a3,"); getWord(f, alphanum_char) returns "a3" and f.bufferChar = ','
+ *   f := initScan("a4\t"); getWord(f, alphanum_char) returns "a4" and f.bufferChar = '\t'
+ *   f := initScan(", a5"); getWord(f, alphanum_char) returns "a5" and f.bufferChar = EOF
+ *  @return the word, and "" if no word was found.
+ *)
+const func string: getWord (inout file: inFile, in set of char: wordChars) is func
+  result
+    var string: aWord is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character not in wordChars do
+      character := getc(inFile);
+    end while;
+    if character <> EOF then
+      repeat
+        aWord &:= character;
+        character := getc(inFile);
+      until character not in wordChars or character = EOF;
     end if;
     inFile.bufferChar := character;
   end func;

@@ -894,12 +894,11 @@ const func string: getWhiteSpace (inout string: stri) is func
  *   stri := " abc";   getWord(stri)  returns  "abc"  and stri = ""
  *   stri := " abc ";  getWord(stri)  returns  "abc"  and stri = " "
  *   stri := "abc\t";  getWord(stri)  returns  "abc"  and stri = "\t"
- *  @return the word, and
- *          "" if no word was found.
+ *  @return the word, and "" if no word was found.
  *)
 const func string: getWord (inout string: stri) is func
   result
-    var string: symbol is "";
+    var string: aWord is "";
   local
     var integer: leng is 0;
     var integer: start is 1;
@@ -914,7 +913,46 @@ const func string: getWord (inout string: stri) is func
       repeat
         incr(pos);
       until pos > leng or stri[pos] in white_space_char;
-      symbol := stri[start .. pred(pos)];
+      aWord := stri[start .. pred(pos)];
+      stri := stri[pos ..];
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads a word consisting of ''wordChars'' from a [[string]].
+ *  Before reading the word it skips non-''wordChars'' characters.
+ *  A word is a sequence of ''wordChars'' characters. When the function
+ *  is called it is assumed that ''stri'' is empty or stri[1] contains
+ *  the first character to be handled. When the function is left
+ *  ''stri'' is empty or stri[1] contains the character after the word.
+ *   stri := " a1";   getWord(stri, alphanum_char)  returns  "a1"  and stri = ""
+ *   stri := "-a2.";  getWord(stri, alphanum_char)  returns  "a2"  and stri = "."
+ *   stri := "=a3,";  getWord(stri, alphanum_char)  returns  "a3"  and stri = ","
+ *   stri := "a4\t";  getWord(stri, alphanum_char)  returns  "a4"  and stri = "\t"
+ *   stri := ", a5";  getWord(stri, alphanum_char)  returns  "a5"  and stri = ""
+ *  @return the word, and "" if no word was found.
+ *)
+const func string: getWord (inout string: stri, in set of char: wordChars) is func
+  result
+    var string: aWord is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] not in wordChars do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] not in wordChars;
+      aWord := stri[start .. pred(pos)];
       stri := stri[pos ..];
     else
       stri := "";
