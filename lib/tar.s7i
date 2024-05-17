@@ -662,6 +662,20 @@ const func tarHeader: addImplicitDir (inout tarArchive: tar,
   end func;
 
 
+const func boolean: isEmptyDir (in tarArchive: tar, in string: dirPath) is func
+  result
+    var boolean: isEmptyDir is TRUE;
+  local
+    var string: filePath is "";
+  begin
+    for key filePath range tar.register do
+      if startsWith(filePath, dirPath) and filePath <> dirPath then
+        isEmptyDir := FALSE;
+      end if;
+    end for;
+  end func;
+
+
 const func string: followSymlink (inout tarArchive: tar, in var string: filePath,
     inout tarHeader: header) is func
   result
@@ -1769,13 +1783,15 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
 
 
 (**
- *  Remove a file (if it is not a directory), from an TAR archive.
- *  The function does not follow symbolic links.
+ *  Remove any file except non-empty directories from a TAR archive.
+ *  The function does not follow symbolic links. An attempt to remove a
+ *  directory that is not empty triggers FILE_ERROR.
  *  @param tar Open TAR archive.
  *  @param filePath Name of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty.
  *)
 const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
   local
@@ -1797,10 +1813,9 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if  header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE and
-          header.typeflag <> SYMTYPE then
-        raise FILE_ERROR;
-      else
+      if  header.typeflag in {REGTYPE, AREGTYPE, SYMTYPE, CHRTYPE, BLKTYPE,
+                              FIFOTYPE, CONTTYPE} or
+          (header.typeflag = DIRTYPE and isEmptyDir(tar, filePath)) then
         posOfHeaderToBeRemoved := tar.register[filePath];
         numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
             succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
@@ -1811,6 +1826,8 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
         fixRegisterAndCatalog(tar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
                               -numCharsToBeRemoved);
         flush(tar.tarFile);
+      else
+        raise FILE_ERROR;
       end if;
     else
       raise FILE_ERROR;
