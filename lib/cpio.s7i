@@ -1645,7 +1645,8 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+      if  bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR and
+          bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_SYMLINK then
         raise FILE_ERROR;
       else
         posOfHeaderToBeRemoved := cpio.register[filePath];

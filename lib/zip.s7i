@@ -2439,7 +2439,7 @@ const proc: removeFile (inout zipArchive: zip, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if isRegularFile(header) then
+      if isRegularFile(header) or isSymlink(header) then
         # Remove local header and file content.
         posOfHeaderToBeRemoved := succ(header.relative_offset_of_local_header);
         numCharsToBeRemoved := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
@@ -2465,6 +2465,8 @@ const proc: removeFile (inout zipArchive: zip, in string: filePath) is func
         seek(zip.zipFile, zip.endOfCentralDirPos);
         write(zip.zipFile, str(zip.endOfCentralDir));
         flush(zip.zipFile);
+      else
+        raise FILE_ERROR;
       end if;
     else
       raise FILE_ERROR;

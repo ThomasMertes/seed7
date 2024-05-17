@@ -1757,7 +1757,8 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE then
+      if  header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE and
+          header.typeflag <> SYMTYPE then
         raise FILE_ERROR;
       else
         posOfHeaderToBeRemoved := tar.register[filePath];

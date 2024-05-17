@@ -3070,7 +3070,8 @@ const proc: removeFile (inout rpmArchive: rpm, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+      if  bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR and
+          bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_SYMLINK then
         raise FILE_ERROR;
       else
         if rpm.archive = fileSys.value then
