@@ -552,6 +552,20 @@ const func cpioHeader: addImplicitDir (inout cpioArchive: cpio,
   end func;
 
 
+const func boolean: isEmptyDir (in cpioArchive: cpio, in string: dirPath) is func
+  result
+    var boolean: isEmptyDir is TRUE;
+  local
+    var string: filePath is "";
+  begin
+    for key filePath range cpio.register do
+      if startsWith(filePath, dirPath) and filePath <> dirPath then
+        isEmptyDir := FALSE;
+      end if;
+    end for;
+  end func;
+
+
 const func string: followSymlink (inout cpioArchive: cpio, in var string: filePath,
     inout cpioHeader: header) is func
   result
@@ -1617,13 +1631,15 @@ const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
 
 
 (**
- *  Remove a file (if it is not a directory), from an CPIO archive.
- *  The function does not follow symbolic links.
+ *  Remove any file except non-empty directories from a CPIO archive.
+ *  The function does not follow symbolic links. An attempt to remove a
+ *  directory that is not empty triggers FILE_ERROR.
  *  @param cpio Open CPIO archive.
  *  @param filePath Name of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty.
  *)
 const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
   local
@@ -1645,10 +1661,14 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists then
-      if  bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR and
-          bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_SYMLINK then
-        raise FILE_ERROR;
-      else
+      if  bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR or
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_CHAR or
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_BLOCK or
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_FIFO or
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK or
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SOCKET or
+          (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
+	   isEmptyDir(cpio, filePath)) then
         posOfHeaderToBeRemoved := cpio.register[filePath];
         numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
             succ(pred(header.fileSize) mdiv header.padding) * header.padding;
@@ -1659,6 +1679,8 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
         fixRegisterAndCatalog(cpio, posOfHeaderToBeRemoved + numCharsToBeRemoved,
                               -numCharsToBeRemoved);
         flush(cpio.cpioFile);
+      else
+        raise FILE_ERROR;
       end if;
     else
       raise FILE_ERROR;
