@@ -1389,10 +1389,10 @@ const proc: setGroup (inout tarArchive: tar, in string: filePath,
       end if;
       if header.typeflag = SYMTYPE then
         if isDigitString(group) then
-          header.uid := integer(group);
+          header.gid := integer(group);
           header.gname := "";
         else
-          header.uid := 0;
+          header.gid := 0;
           header.gname := group;
         end if;
         tar.catalog @:= [header.filePath] header;
