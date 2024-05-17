@@ -41,6 +41,7 @@ const string: TAR_MAGIC is "ustar";
 const string: TAR_NOMAGIC is "";
 
 const integer: TAR_BLOCK_SIZE is 512;
+const string: END_OF_FILE_MARKER is "\0;" mult TAR_BLOCK_SIZE;
 
 const char: REGTYPE         is '0';   # Regular file (preferred code)
 const char: AREGTYPE        is '\0;'; # Regular file (alternate code)
@@ -74,6 +75,7 @@ const type: tarHeader is new struct
     var integer: devmajor is 0;
     var integer: devminor is 0;
     var string: prefix is "";
+    var boolean: endOfFileMarker is FALSE;
     var boolean: chksumOkay is FALSE;
     var string: filePath is "";
     var string: filePathSuffix is "";
@@ -100,6 +102,7 @@ const proc: showHeader (inout file: outFile, in tarHeader: header) is func
     writeln(outFile, "devmajor: " <& header.devmajor);
     writeln(outFile, "devminor: " <& header.devminor);
     writeln(outFile, "prefix: " <& header.prefix);
+    writeln(outFile, "endOfFileMarker: " <& header.endOfFileMarker);
     writeln(outFile, "chksumOkay: " <& header.chksumOkay);
     writeln(outFile, "filePath: " <& header.filePath);
     writeln(outFile, "filePathSuffix: " <& header.filePathSuffix);
@@ -248,11 +251,17 @@ const func tarHeader: readHeadBlock (inout file: inFile) is func
   begin
     stri := gets(inFile, TAR_BLOCK_SIZE);
     if length(stri) = TAR_BLOCK_SIZE then
-      header := tarHeader(stri);
-      # The checksum is computed with an empty chksum field:
-      header.chksumOkay :=
-          tarChksum(stri[ .. 148] & ("" lpad 8) & stri[157 .. ]) = header.chksum;
+      if stri = END_OF_FILE_MARKER then
+        header.endOfFileMarker := TRUE;
+      else
+        header := tarHeader(stri);
+        # The checksum is computed with an empty chksum field:
+        header.chksumOkay :=
+            tarChksum(stri[ .. 148] & ("" lpad 8) & stri[157 .. ]) = header.chksum;
+      end if;
       # showHeader(STD_OUT, header);
+    elsif stri = "" then
+      header.endOfFileMarker := TRUE;
     end if;
   end func;
 
@@ -336,13 +345,18 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
   begin
     stri := gets(inFile, TAR_BLOCK_SIZE);
     if length(stri) = TAR_BLOCK_SIZE then
-      header.name :=         gets0(stri[  1 fixLen 100]);
-      header.fileSize :=    getOct(stri[125 fixLen  12]);
-      header.typeflag :=           stri[157];     (* 1*)
-      header.magic :=     gets0Spc(stri[258 fixLen   6]);
-      header.prefix :=       gets0(stri[346 fixLen 155]);
-      # writeln("header.name: " <& header.name);
+      if stri = END_OF_FILE_MARKER then
+        header.endOfFileMarker := TRUE;
+      else
+        header.name :=         gets0(stri[  1 fixLen 100]);
+        header.fileSize :=    getOct(stri[125 fixLen  12]);
+        header.typeflag :=           stri[157];     (* 1*)
+        header.magic :=     gets0Spc(stri[258 fixLen   6]);
+        header.prefix :=       gets0(stri[346 fixLen 155]);
+      end if;
       # showHeader(STD_OUT, header);
+    elsif stri = "" then
+      header.endOfFileMarker := TRUE;
     end if;
   end func;
 
@@ -529,6 +543,7 @@ const type: tarArchive is sub emptyFileSys struct
     var file: tarFile is STD_NULL;
     var archiveRegisterType: register is archiveRegisterType.value;
     var tarCatalogType: catalog is tarCatalogType.value;
+    var integer: endOfFileMarkerPos is 0;
   end struct;
 
 
@@ -552,7 +567,8 @@ const func fileSys: openTar (inout file: tarFile) is func
     else
       seek(tarFile, headPos);
       readHead(tarFile, header);
-      if header.chksumOkay and header.filePath <> "" and
+      if not header.endOfFileMarker and
+          header.chksumOkay and header.filePath <> "" and
           (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) then
         tar.tarFile := tarFile;
         repeat
@@ -566,8 +582,11 @@ const func fileSys: openTar (inout file: tarFile) is func
             seek(tarFile, headPos);
           end if;
           readMinimumOfHead(tarFile, header);
-        until header.filePath = "" or
+        until header.endOfFileMarker or header.filePath = "" or
               (header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC);
+        if header.endOfFileMarker then
+          tar.endOfFileMarkerPos := headPos;
+        end if;
         newFileSys := toInterface(tar);
       end if;
     end if;
@@ -1471,16 +1490,22 @@ const proc: makeLink (inout tarArchive: tar, in string: symlinkPath,
       header.version  := "  ";
       header.filePath := symlinkPath;
       header.linkPath := targetPath;
-      length := length(tar.tarFile);
-      if seekable(tar.tarFile) then
-        seek(tar.tarFile, succ(length));
+      if seekable(tar.tarFile) and tar.endOfFileMarkerPos <> 0 then
+        seek(tar.tarFile, tar.endOfFileMarkerPos);
+      else
+        length := length(tar.tarFile);
+        if seekable(tar.tarFile) then
+          seek(tar.tarFile, succ(length));
+        end if;
+        # Add zero bytes such that the next header starts at a multiple of the block size:
+        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+              pred(length) mod TAR_BLOCK_SIZE);
       end if;
-      # Add zero bytes such that the next header starts at a multiple of the block size:
-      write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
-            pred(length) mod TAR_BLOCK_SIZE);
       tar.register @:= [symlinkPath] tell(tar.tarFile);
       writeHead(tar.tarFile, header);
       header.dataStartPos := tell(tar.tarFile);
+      tar.endOfFileMarkerPos := header.dataStartPos;
+      write(tar.tarFile, END_OF_FILE_MARKER mult 2);
       tar.catalog @:= [symlinkPath] header;
       flush(tar.tarFile);
     end if;
@@ -1641,13 +1666,17 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
         filePath := missingPath;
       end if;
       if appendFile then
-        length := length(tar.tarFile);
-        if seekable(tar.tarFile) then
-          seek(tar.tarFile, succ(length));
+        if seekable(tar.tarFile) and tar.endOfFileMarkerPos <> 0 then
+          seek(tar.tarFile, tar.endOfFileMarkerPos);
+        else
+          length := length(tar.tarFile);
+          if seekable(tar.tarFile) then
+            seek(tar.tarFile, succ(length));
+          end if;
+          # Add zero bytes such that the next header starts at a multiple of the block size:
+          write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+                pred(length) mod TAR_BLOCK_SIZE);
         end if;
-        # Add zero bytes such that the next header starts at a multiple of the block size:
-        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
-              pred(length) mod TAR_BLOCK_SIZE);
         tar.register @:= [filePath] tell(tar.tarFile);
         if missingPath <> "" then
           header.name     := filePath[.. 100];
@@ -1667,6 +1696,8 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
         write(tar.tarFile, data);
         write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
               pred(header.fileSize) mod TAR_BLOCK_SIZE);
+        tar.endOfFileMarkerPos := tell(tar.tarFile);
+        write(tar.tarFile, END_OF_FILE_MARKER mult 2);
         flush(tar.tarFile);
       end if;
     end if;
@@ -1704,10 +1735,17 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
       # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
-      length := length(tar.tarFile);
-      seek(tar.tarFile, succ(length));
-      # Add zero bytes such that the next header starts at a multiple of the block size:
-      write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(length) mod TAR_BLOCK_SIZE);
+      if seekable(tar.tarFile) and tar.endOfFileMarkerPos <> 0 then
+        seek(tar.tarFile, tar.endOfFileMarkerPos);
+      else
+        length := length(tar.tarFile);
+        if seekable(tar.tarFile) then
+          seek(tar.tarFile, succ(length));
+        end if;
+        # Add zero bytes such that the next header starts at a multiple of the block size:
+        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+              pred(length) mod TAR_BLOCK_SIZE);
+      end if;
       tar.register @:= [dirPath] tell(tar.tarFile);
       header.name     := (dirPath & "/") [.. 100];
       header.mode     := 8#775;
@@ -1722,6 +1760,8 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
       header.filePathSuffix := "/";
       writeHead(tar.tarFile, header);
       header.dataStartPos := tell(tar.tarFile);
+      tar.endOfFileMarkerPos := header.dataStartPos;
+      write(tar.tarFile, END_OF_FILE_MARKER mult 2);
       tar.catalog @:= [dirPath] header;
       flush(tar.tarFile);
     end if;
