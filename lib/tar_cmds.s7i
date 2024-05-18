@@ -139,11 +139,15 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
     while header.filePath <> "" and (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) do
       if filePathIsInTarMemberList(header.filePath, memberList) then
         if doView then
-          if header.typeflag = DIRTYPE then
-            write("d");
-          else
-            write("-");
-          end if;
+          case header.typeflag of
+            when {REGTYPE, AREGTYPE}: write("-");
+            when {SYMTYPE}:           write("l");
+            when {CHRTYPE}:           write("c");
+            when {BLKTYPE}:           write("b");
+            when {DIRTYPE}:           write("d");
+            when {FIFOTYPE}:          write("f");
+            otherwise:                write("?");
+          end case;
           write(fileMode(header.mode mod 8#1000));
           write(" ");
           if header.uname <> "" then
