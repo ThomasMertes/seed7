@@ -179,8 +179,12 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
       end if;
       readHead(inFile, header);
     end while;
-    if not header.endOfFileMarker and not header.chksumOkay then
-       writeln("*** The check-sum of a header is not okay");
+    if not header.endOfFileMarker then
+      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+        writeln("*** The magic number of a tar header is not okay");
+      elsif not header.chksumOkay then
+        writeln("*** The check-sum of a tar header is not okay");
+      end if;
     end if;
   end func;
 
@@ -313,8 +317,12 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
       end if;
       readHead(inFile, header);
     end while;
-    if not header.endOfFileMarker and not header.chksumOkay then
-       writeln("*** The check-sum of a header is not okay");
+    if not header.endOfFileMarker then
+      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+        writeln("*** The magic number of a tar header is not okay");
+      elsif not header.chksumOkay then
+        writeln("*** The check-sum of a tar header is not okay");
+      end if;
     end if;
     for index range length(dirHeaderList) downto 1 do
       # Just take the permission bits of the file mode.
