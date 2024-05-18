@@ -179,6 +179,9 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
       end if;
       readHead(inFile, header);
     end while;
+    if not header.endOfFileMarker and not header.chksumOkay then
+       writeln("*** The check-sum of a header is not okay");
+    end if;
   end func;
 
 
@@ -290,6 +293,9 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
       end if;
       readHead(inFile, header);
     end while;
+    if not header.endOfFileMarker and not header.chksumOkay then
+       writeln("*** The check-sum of a header is not okay");
+    end if;
     for index range length(dirHeaderList) downto 1 do
       # Just take the permission bits of the file mode.
       setFileMode(dirHeaderList[index].filePath, fileMode(dirHeaderList[index].mode mod 8#1000));
