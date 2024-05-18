@@ -289,6 +289,22 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
             writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
             okay := FALSE;
           end if;
+        elsif header.typeflag = SYMTYPE then
+          if fileType(header.filePath) = FILE_SYMLINK then
+            removeFile(header.filePath);
+          end if;
+          if fileType(header.filePath) = FILE_ABSENT then
+            if succeeds(makeLink(header.filePath, header.linkPath)) then
+              modTime := timestamp1970ToTime(header.mtime);
+              setMTime(header.filePath, modTime, SYMLINK);
+            else
+              writeln("*** Cannot create symbolic link " <& literal(header.filePath));
+              okay := FALSE;
+            end if;
+          else
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a symbolic link");
+            okay := FALSE;
+          end if;
         end if;
       end if;
       readHead(inFile, header);
