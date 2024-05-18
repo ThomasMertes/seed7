@@ -253,9 +253,9 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
           writeln(header.filePath <& header.filePathSuffix);
         end if;
         if header.typeflag = DIRTYPE then
-          if fileType(header.filePath) = FILE_DIR then
+          if fileTypeSL(header.filePath) = FILE_DIR then
             dirHeaderList &:= [] (header);
-          elsif fileType(header.filePath) = FILE_ABSENT then
+          elsif fileTypeSL(header.filePath) = FILE_ABSENT then
             makeParentDirs(header.filePath);
             makeDir(header.filePath);
             dirHeaderList &:= [] (header);
@@ -264,10 +264,11 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
             okay := FALSE;
           end if;
         elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
-          if fileType(header.filePath) = FILE_REGULAR then
+          if fileTypeSL(header.filePath) = FILE_REGULAR then
             removeFile(header.filePath);
           end if;
-          if fileType(header.filePath) = FILE_ABSENT then
+          if fileTypeSL(header.filePath) = FILE_ABSENT then
+            makeParentDirs(header.filePath);
             aFile  := open(header.filePath, "w");
             if aFile <> STD_NULL then
               bytesCopied := copyFile(inFile, aFile, header.fileSize);
@@ -290,10 +291,11 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
             okay := FALSE;
           end if;
         elsif header.typeflag = SYMTYPE then
-          if fileType(header.filePath) = FILE_SYMLINK then
+          if fileTypeSL(header.filePath) = FILE_SYMLINK then
             removeFile(header.filePath);
           end if;
-          if fileType(header.filePath) = FILE_ABSENT then
+          if fileTypeSL(header.filePath) = FILE_ABSENT then
+            makeParentDirs(header.filePath);
             if succeeds(makeLink(header.filePath, header.linkPath)) then
               modTime := timestamp1970ToTime(header.mtime);
               setMTime(header.filePath, modTime, SYMLINK);
@@ -305,6 +307,8 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
             writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a symbolic link");
             okay := FALSE;
           end if;
+        else
+          writeln("*** Cannot create " <& literal(header.filePath));
         end if;
       end if;
       readHead(inFile, header);
