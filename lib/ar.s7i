@@ -374,25 +374,6 @@ const func arHeader: addToCatalog (inout arArchive: ar, in string: filePath) is 
   end func;
 
 
-const func boolean: implicitDir (inout arArchive: ar, in string: dirPath) is func
-  result
-    var boolean: implicitDir is FALSE;
-  local
-    var string: filePath is "";
-  begin
-    # writeln("implicitDir: " <& literal(dirPath));
-    if dirPath <> "" then
-      for key filePath range ar.register do
-        if startsWith(filePath, dirPath) and
-            length(filePath) > length(dirPath) and
-            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
-          implicitDir := TRUE;
-        end if;
-      end for;
-    end if;
-  end func;
-
-
 const func arHeader: addImplicitDir (inout arArchive: ar,
     in string: dirPath) is func
   result
@@ -420,7 +401,7 @@ const func string: followSymlink (inout arArchive: ar, in var string: filePath,
         header := ar.catalog[filePath];
       elsif filePath in ar.register then
         header := addToCatalog(ar, filePath);
-      elsif implicitDir(ar, filePath) then
+      elsif implicitDir(ar.register, filePath) then
         header := addImplicitDir(ar, filePath);
       else
         # The file does not exist.
@@ -585,7 +566,7 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
           header := ar.catalog[filePath];
         elsif filePath in ar.register then
           header := addToCatalog(ar, filePath);
-        elsif implicitDir(ar, filePath) then
+        elsif implicitDir(ar.register, filePath) then
           header := addImplicitDir(ar, filePath);
         else
           aFileType := FILE_ABSENT;
@@ -641,7 +622,7 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
         modeValue := ar.catalog[filePath].mode;
       elsif filePath in ar.register then
         modeValue := addToCatalog(ar, filePath).mode;
-      elsif implicitDir(ar, filePath) then
+      elsif implicitDir(ar.register, filePath) then
         modeValue := addImplicitDir(ar, filePath).mode;
       else
         aFileType := FILE_ABSENT;
@@ -1255,7 +1236,7 @@ const proc: makeLink (inout arArchive: ar, in string: symlinkPath,
     if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
       raise RANGE_ERROR;
     elsif symlinkPath = "" or symlinkPath in ar.catalog or
-        symlinkPath in ar.register or implicitDir(ar, symlinkPath) then
+        symlinkPath in ar.register or implicitDir(ar.register, symlinkPath) then
       raise FILE_ERROR;
     else
       targetPath8 := toUtf8(targetPath);
@@ -1414,7 +1395,7 @@ const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
       dataStartPos := ar.catalog[dirPath].dataStartPos;
     elsif dirPath in ar.register then
       dataStartPos := addToCatalog(ar, dirPath).dataStartPos;
-    elsif implicitDir(ar, dirPath) then
+    elsif implicitDir(ar.register, dirPath) then
       dataStartPos := addImplicitDir(ar, dirPath).dataStartPos;
     else
       fileExists := FALSE;
@@ -1448,13 +1429,15 @@ const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
 
 
 (**
- *  Remove a file (if it is not a directory), from an AR archive.
- *  The function does not follow symbolic links.
+ *  Remove any file except non-empty directories from an AR archive.
+ *  The function does not follow symbolic links. An attempt to remove a
+ *  directory that is not empty triggers FILE_ERROR.
  *  @param ar Open AR archive.
  *  @param filePath Name of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty.
  *)
 const proc: removeFile (inout arArchive: ar, in string: filePath) is func
   local
@@ -1470,26 +1453,29 @@ const proc: removeFile (inout arArchive: ar, in string: filePath) is func
       header := ar.catalog[filePath];
     elsif filePath in ar.register then
       header := addToCatalog(ar, filePath);
-    elsif implicitDir(ar, filePath) then
+    elsif implicitDir(ar.register, filePath) then
       header := addImplicitDir(ar, filePath);
     else
       fileExists := FALSE;
     end if;
-    if fileExists then
-      if  bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR and
-          bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_SYMLINK then
-        raise FILE_ERROR;
-      else
-        posOfHeaderToBeRemoved := ar.register[filePath];
-        numCharsToBeRemoved := AR_HEADER_SIZE + succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
-        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
-        deleteArea(ar.arFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
-        excl(ar.register, filePath);
-        excl(ar.catalog, filePath);
-        fixRegisterAndCatalog(ar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
-                              -numCharsToBeRemoved);
-        flush(ar.arFile);
-      end if;
+    if fileExists and
+        (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_CHAR or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_BLOCK or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_FIFO or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SOCKET or
+         (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
+          isEmptyDir(ar.register, filePath))) then
+      posOfHeaderToBeRemoved := ar.register[filePath];
+      numCharsToBeRemoved := AR_HEADER_SIZE + succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
+      # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+      deleteArea(ar.arFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+      excl(ar.register, filePath);
+      excl(ar.catalog, filePath);
+      fixRegisterAndCatalog(ar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                            -numCharsToBeRemoved);
+      flush(ar.arFile);
     else
       raise FILE_ERROR;
     end if;
@@ -1524,7 +1510,7 @@ const func file: openFileInAr (inout arArchive: ar, in string: filePath,
         header := ar.catalog[filePath];
       elsif filePath in ar.register then
         header := addToCatalog(ar, filePath);
-      elsif implicitDir(ar, filePath) then
+      elsif implicitDir(ar.register, filePath) then
         header := addImplicitDir(ar, filePath);
       else
         okay := FALSE;

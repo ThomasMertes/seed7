@@ -522,24 +522,6 @@ const func cpioHeader: addToCatalog (inout cpioArchive: cpio, in string: filePat
   end func;
 
 
-const func boolean: implicitDir (inout cpioArchive: cpio, in string: dirPath) is func
-  result
-    var boolean: implicitDir is FALSE;
-  local
-    var string: filePath is "";
-  begin
-    if dirPath <> "" then
-      for key filePath range cpio.register do
-        if startsWith(filePath, dirPath) and
-            length(filePath) > length(dirPath) and
-            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
-          implicitDir := TRUE;
-        end if;
-      end for;
-    end if;
-  end func;
-
-
 const func cpioHeader: addImplicitDir (inout cpioArchive: cpio,
     in string: dirPath) is func
   result
@@ -549,20 +531,6 @@ const func cpioHeader: addImplicitDir (inout cpioArchive: cpio,
     header.mode := ord(MODE_FILE_DIR) + 8#775;
     header.dataStartPos := -1;
     cpio.catalog @:= [dirPath] header;
-  end func;
-
-
-const func boolean: isEmptyDir (in cpioArchive: cpio, in string: dirPath) is func
-  result
-    var boolean: isEmptyDir is TRUE;
-  local
-    var string: filePath is "";
-  begin
-    for key filePath range cpio.register do
-      if startsWith(filePath, dirPath) and filePath <> dirPath then
-        isEmptyDir := FALSE;
-      end if;
-    end for;
   end func;
 
 
@@ -581,7 +549,7 @@ const func string: followSymlink (inout cpioArchive: cpio, in var string: filePa
         header := cpio.catalog[filePath];
       elsif filePath in cpio.register then
         header := addToCatalog(cpio, filePath);
-      elsif implicitDir(cpio, filePath) then
+      elsif implicitDir(cpio.register, filePath) then
         header := addImplicitDir(cpio, filePath);
       else
         # The file does not exist.
@@ -703,7 +671,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
           header := cpio.catalog[filePath];
         elsif filePath in cpio.register then
           header := addToCatalog(cpio, filePath);
-        elsif implicitDir(cpio, filePath) then
+        elsif implicitDir(cpio.register, filePath) then
           header := addImplicitDir(cpio, filePath);
         else
           aFileType := FILE_ABSENT;
@@ -759,7 +727,7 @@ const func fileType: fileTypeSL (inout cpioArchive: cpio, in string: filePath) i
         modeValue := cpio.catalog[filePath].mode;
       elsif filePath in cpio.register then
         modeValue := addToCatalog(cpio, filePath).mode;
-      elsif implicitDir(cpio, filePath) then
+      elsif implicitDir(cpio.register, filePath) then
         modeValue := addImplicitDir(cpio, filePath).mode;
       else
         aFileType := FILE_ABSENT;
@@ -1374,7 +1342,7 @@ const proc: makeLink (inout cpioArchive: cpio, in string: symlinkPath,
     if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
       raise RANGE_ERROR;
     elsif symlinkPath = "" or symlinkPath in cpio.catalog or
-        symlinkPath in cpio.register or implicitDir(cpio, symlinkPath) then
+        symlinkPath in cpio.register or implicitDir(cpio.register, symlinkPath) then
       raise FILE_ERROR;
     else
       symlinkPath8 := toUtf8(symlinkPath);
@@ -1579,7 +1547,7 @@ const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
       dataStartPos := cpio.catalog[dirPath].dataStartPos;
     elsif dirPath in cpio.register then
       dataStartPos := addToCatalog(cpio, dirPath).dataStartPos;
-    elsif implicitDir(cpio, dirPath) then
+    elsif implicitDir(cpio.register, dirPath) then
       dataStartPos := addImplicitDir(cpio, dirPath).dataStartPos;
     else
       fileExists := FALSE;
@@ -1655,33 +1623,30 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
       header := cpio.catalog[filePath];
     elsif filePath in cpio.register then
       header := addToCatalog(cpio, filePath);
-    elsif implicitDir(cpio, filePath) then
+    elsif implicitDir(cpio.register, filePath) then
       header := addImplicitDir(cpio, filePath);
     else
       fileExists := FALSE;
     end if;
-    if fileExists then
-      if  bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR or
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_CHAR or
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_BLOCK or
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_FIFO or
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK or
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SOCKET or
-          (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
-	   isEmptyDir(cpio, filePath)) then
-        posOfHeaderToBeRemoved := cpio.register[filePath];
-        numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
-            succ(pred(header.fileSize) mdiv header.padding) * header.padding;
-        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
-        deleteArea(cpio.cpioFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
-        excl(cpio.register, filePath);
-        excl(cpio.catalog, filePath);
-        fixRegisterAndCatalog(cpio, posOfHeaderToBeRemoved + numCharsToBeRemoved,
-                              -numCharsToBeRemoved);
-        flush(cpio.cpioFile);
-      else
-        raise FILE_ERROR;
-      end if;
+    if fileExists and
+        (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_CHAR or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_BLOCK or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_FIFO or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK or
+         bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SOCKET or
+         (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
+          isEmptyDir(cpio.register, filePath))) then
+      posOfHeaderToBeRemoved := cpio.register[filePath];
+      numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
+          succ(pred(header.fileSize) mdiv header.padding) * header.padding;
+      # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+      deleteArea(cpio.cpioFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+      excl(cpio.register, filePath);
+      excl(cpio.catalog, filePath);
+      fixRegisterAndCatalog(cpio, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                            -numCharsToBeRemoved);
+      flush(cpio.cpioFile);
     else
       raise FILE_ERROR;
     end if;

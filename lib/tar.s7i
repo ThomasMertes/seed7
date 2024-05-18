@@ -629,24 +629,6 @@ const func tarHeader: addToCatalog (inout tarArchive: tar, in string: filePath) 
   end func;
 
 
-const func boolean: implicitDir (inout tarArchive: tar, in string: dirPath) is func
-  result
-    var boolean: implicitDir is FALSE;
-  local
-    var string: filePath is "";
-  begin
-    if dirPath <> "" then
-      for key filePath range tar.register do
-        if startsWith(filePath, dirPath) and
-            length(filePath) > length(dirPath) and
-            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
-          implicitDir := TRUE;
-        end if;
-      end for;
-    end if;
-  end func;
-
-
 const func tarHeader: addImplicitDir (inout tarArchive: tar,
     in string: dirPath) is func
   result
@@ -659,20 +641,6 @@ const func tarHeader: addImplicitDir (inout tarArchive: tar,
     header.typeflag := DIRTYPE;
     header.dataStartPos := -1;
     tar.catalog @:= [dirPath] header;
-  end func;
-
-
-const func boolean: isEmptyDir (in tarArchive: tar, in string: dirPath) is func
-  result
-    var boolean: isEmptyDir is TRUE;
-  local
-    var string: filePath is "";
-  begin
-    for key filePath range tar.register do
-      if startsWith(filePath, dirPath) and filePath <> dirPath then
-        isEmptyDir := FALSE;
-      end if;
-    end for;
   end func;
 
 
@@ -690,7 +658,7 @@ const func string: followSymlink (inout tarArchive: tar, in var string: filePath
         header := tar.catalog[filePath];
       elsif filePath in tar.register then
         header := addToCatalog(tar, filePath);
-      elsif implicitDir(tar, filePath) then
+      elsif implicitDir(tar.register, filePath) then
         header := addImplicitDir(tar, filePath);
       else
         # The file does not exist.
@@ -809,7 +777,7 @@ const func fileType: fileType (inout tarArchive: tar, in var string: filePath) i
           header := tar.catalog[filePath];
         elsif filePath in tar.register then
           header := addToCatalog(tar, filePath);
-        elsif implicitDir(tar, filePath) then
+        elsif implicitDir(tar.register, filePath) then
           header := addImplicitDir(tar, filePath);
         else
           aFileType := FILE_ABSENT;
@@ -868,7 +836,7 @@ const func fileType: fileTypeSL (inout tarArchive: tar, in string: filePath) is 
         typeflag := tar.catalog[filePath].typeflag;
       elsif filePath in tar.register then
         typeflag := addToCatalog(tar, filePath).typeflag;
-      elsif implicitDir(tar, filePath) then
+      elsif implicitDir(tar.register, filePath) then
         typeflag := addImplicitDir(tar, filePath).typeflag;
       else
         aFileType := FILE_ABSENT;
@@ -1490,7 +1458,7 @@ const proc: makeLink (inout tarArchive: tar, in string: symlinkPath,
     if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
       raise RANGE_ERROR;
     elsif symlinkPath = "" or symlinkPath in tar.catalog or
-        symlinkPath in tar.register or implicitDir(tar, symlinkPath) then
+        symlinkPath in tar.register or implicitDir(tar.register, symlinkPath) then
       raise FILE_ERROR;
     else
       header.name     := symlinkPath[.. 100];
@@ -1740,7 +1708,7 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
       dataStartPos := tar.catalog[dirPath].dataStartPos;
     elsif dirPath in tar.register then
       dataStartPos := addToCatalog(tar, dirPath).dataStartPos;
-    elsif implicitDir(tar, dirPath) then
+    elsif implicitDir(tar.register, dirPath) then
       dataStartPos := addImplicitDir(tar, dirPath).dataStartPos;
     else
       fileExists := FALSE;
@@ -1807,28 +1775,25 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
       header := tar.catalog[filePath];
     elsif filePath in tar.register then
       header := addToCatalog(tar, filePath);
-    elsif implicitDir(tar, filePath) then
+    elsif implicitDir(tar.register, filePath) then
       header := addImplicitDir(tar, filePath);
     else
       fileExists := FALSE;
     end if;
-    if fileExists then
-      if  header.typeflag in {REGTYPE, AREGTYPE, SYMTYPE, CHRTYPE, BLKTYPE,
-                              FIFOTYPE, CONTTYPE} or
-          (header.typeflag = DIRTYPE and isEmptyDir(tar, filePath)) then
-        posOfHeaderToBeRemoved := tar.register[filePath];
-        numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
-            succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-        # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
-        deleteArea(tar.tarFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
-        excl(tar.register, filePath);
-        excl(tar.catalog, filePath);
-        fixRegisterAndCatalog(tar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
-                              -numCharsToBeRemoved);
-        flush(tar.tarFile);
-      else
-        raise FILE_ERROR;
-      end if;
+    if fileExists and
+        (header.typeflag in {REGTYPE, AREGTYPE, SYMTYPE, CHRTYPE, BLKTYPE,
+                            FIFOTYPE, CONTTYPE} or
+         (header.typeflag = DIRTYPE and isEmptyDir(tar.register, filePath))) then
+      posOfHeaderToBeRemoved := tar.register[filePath];
+      numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
+          succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+      # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
+      deleteArea(tar.tarFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
+      excl(tar.register, filePath);
+      excl(tar.catalog, filePath);
+      fixRegisterAndCatalog(tar, posOfHeaderToBeRemoved + numCharsToBeRemoved,
+                            -numCharsToBeRemoved);
+      flush(tar.tarFile);
     else
       raise FILE_ERROR;
     end if;

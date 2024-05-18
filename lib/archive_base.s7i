@@ -100,3 +100,35 @@ const func array string: readDir (in archiveRegisterType: register, in string: d
     end if;
     fileNames := sort(toArray(fileNameSet));
   end func;
+
+
+const func boolean: implicitDir (in archiveRegisterType: register, in string: dirPath) is func
+  result
+    var boolean: implicitDir is FALSE;
+  local
+    var string: filePath is "";
+  begin
+    if dirPath <> "" then
+      for key filePath range register do
+        if startsWith(filePath, dirPath) and
+            length(filePath) > length(dirPath) and
+            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
+          implicitDir := TRUE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func boolean: isEmptyDir (in archiveRegisterType: register, in string: dirPath) is func
+  result
+    var boolean: isEmptyDir is TRUE;
+  local
+    var string: filePath is "";
+  begin
+    for key filePath range register do
+      if startsWith(filePath, dirPath) and filePath <> dirPath then
+        isEmptyDir := FALSE;
+      end if;
+    end for;
+  end func;

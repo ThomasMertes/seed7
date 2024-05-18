@@ -1956,24 +1956,6 @@ const proc: close (inout rpmArchive: rpm) is func
   end func;
 
 
-const func boolean: implicitDir (inout rpmArchive: rpm, in string: dirPath) is func
-  result
-    var boolean: implicitDir is FALSE;
-  local
-    var string: filePath is "";
-  begin
-    if dirPath <> "" then
-      for key filePath range rpm.register do
-        if startsWith(filePath, dirPath) and
-            length(filePath) > length(dirPath) and
-            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
-          implicitDir := TRUE;
-        end if;
-      end for;
-    end if;
-  end func;
-
-
 const func rpmCatalogEntry: addImplicitDir (inout rpmArchive: rpm,
     in string: dirPath) is func
   result
@@ -1998,7 +1980,7 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
     repeat
       if filePath in rpm.catalog then
         catalogEntry := rpm.catalog[filePath];
-      elsif implicitDir(rpm, filePath) then
+      elsif implicitDir(rpm.register, filePath) then
         catalogEntry := addImplicitDir(rpm, filePath);
       else
         missingPath := filePath;
@@ -2112,7 +2094,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
         isSymlink := FALSE;
         if filePath in rpm.catalog then
           catalogEntry := rpm.catalog[filePath];
-        elsif implicitDir(rpm, filePath) then
+        elsif implicitDir(rpm.register, filePath) then
           catalogEntry := addImplicitDir(rpm, filePath);
         else
           aFileType := FILE_ABSENT;
@@ -2167,7 +2149,7 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
     else
       if filePath in rpm.catalog then
         catalogEntry := rpm.catalog[filePath];
-      elsif implicitDir(rpm, filePath) then
+      elsif implicitDir(rpm.register, filePath) then
         catalogEntry := addImplicitDir(rpm, filePath);
       else
         aFileType := FILE_ABSENT;
@@ -2839,7 +2821,7 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
     if symlinkPath <> "/" and endsWith(symlinkPath, "/") then
       raise RANGE_ERROR;
     elsif symlinkPath = "" or symlinkPath in rpm.catalog or
-        implicitDir(rpm, symlinkPath) then
+        implicitDir(rpm.register, symlinkPath) then
       raise FILE_ERROR;
     else
       catalogEntry.fileSize := 0;
@@ -3001,7 +2983,7 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       raise RANGE_ERROR;
     elsif dirPath in rpm.catalog then
       fileNumber := rpm.catalog[dirPath].fileNumber;
-    elsif implicitDir(rpm, dirPath) then
+    elsif implicitDir(rpm.register, dirPath) then
       fileNumber := addImplicitDir(rpm, dirPath).fileNumber;
     else
       fileExists := FALSE;
@@ -3046,13 +3028,15 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
 
 
 (**
- *  Remove a file (if it is not a directory), from an RPM archive.
- *  The function does not follow symbolic links.
+ *  Remove any file except non-empty directories from a RPM archive.
+ *  The function does not follow symbolic links. An attempt to remove a
+ *  directory that is not empty triggers FILE_ERROR.
  *  @param rpm Open RPM archive.
  *  @param filePath Name of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty.
  *)
 const proc: removeFile (inout rpmArchive: rpm, in string: filePath) is func
   local
@@ -3064,25 +3048,28 @@ const proc: removeFile (inout rpmArchive: rpm, in string: filePath) is func
       raise RANGE_ERROR;
     elsif filePath in rpm.catalog then
       catalogEntry := rpm.catalog[filePath];
-    elsif implicitDir(rpm, filePath) then
+    elsif implicitDir(rpm.register, filePath) then
       catalogEntry := addImplicitDir(rpm, filePath);
     else
       fileExists := FALSE;
     end if;
-    if fileExists then
-      if  bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR and
-          bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_SYMLINK then
-        raise FILE_ERROR;
-      else
-        if rpm.archive = fileSys.value then
-          getArchive(rpm);
-        end if;
-        excl(rpm.register, filePath);
-        excl(rpm.catalog, filePath);
-        fixRegisterAndCatalog(rpm, catalogEntry.fileNumber, -1);
-        removeFile(rpm.archive, filePath);
-        rpm.dirty := TRUE;
+    if fileExists and
+        (bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR or
+         bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_CHAR or
+         bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_BLOCK or
+         bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_FIFO or
+         bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK or
+         bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SOCKET or
+         (bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
+          isEmptyDir(rpm.register, filePath))) then
+      if rpm.archive = fileSys.value then
+        getArchive(rpm);
       end if;
+      excl(rpm.register, filePath);
+      excl(rpm.catalog, filePath);
+      fixRegisterAndCatalog(rpm, catalogEntry.fileNumber, -1);
+      removeFile(rpm.archive, filePath);
+      rpm.dirty := TRUE;
     else
       raise FILE_ERROR;
     end if;
