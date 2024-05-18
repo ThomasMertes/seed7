@@ -136,7 +136,9 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
     var time: modTime is time.value;
   begin
     readHead(inFile, header);
-    while header.filePath <> "" and (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) do
+    while not header.endOfFileMarker and
+        header.chksumOkay and header.filePath <> "" and
+        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) do
       if filePathIsInTarMemberList(header.filePath, memberList) then
         if doView then
           case header.typeflag of
@@ -239,7 +241,9 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
     var boolean: okay is TRUE;
   begin
     readHead(inFile, header);
-    while header.filePath <> "" and (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) and okay do
+    while not header.endOfFileMarker and
+        header.chksumOkay and header.filePath <> "" and
+        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) and okay do
       if filePathIsInTarMemberList(header.filePath, memberList) then
         if doView then
           write("x ");
@@ -419,6 +423,7 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
         end if;
       end if;
     end for;
+    write(outFile, END_OF_FILE_MARKER mult 2);
   end func;
 
 
