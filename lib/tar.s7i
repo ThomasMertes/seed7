@@ -625,7 +625,11 @@ const func tarHeader: addToCatalog (inout tarArchive: tar, in string: filePath) 
   begin
     seek(tar.tarFile, tar.register[filePath]);
     readHead(tar.tarFile, header);
-    tar.catalog @:= [filePath] header;
+    if not header.chksumOkay then
+      raise FILE_ERROR;
+    else
+      tar.catalog @:= [filePath] header;
+    end if;
   end func;
 
 
