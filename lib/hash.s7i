@@ -261,6 +261,11 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       (**
        *  For-loop where ''forVar'' loops over the values of the hash map ''aHashMap''.
+       *  The values are processed unordered. E.g.:
+       *   for aValue range aHash do ...
+       *  In many cases it is okay to process the values unordered.
+       *  The values can be processed in an ordered way by using ''values'' and ''sort'':
+       *   for aValue range sort(values(aHash)) do ...
        *)
       const proc: for (inout baseType: forVar) range (in hashType: aHashMap) do
                     (in proc: statements)
@@ -271,6 +276,11 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       (**
        *  For-loop where ''keyVar'' loops over the keys (indices) of the hash map ''aHashMap''.
+       *  The keys (indices) are processed unordered. E.g.:
+       *   for aKey range aHash do ...
+       *  In many cases it is okay to process the keys (indices) unordered.
+       *  The keys can be processed in an ordered way by using ''keys'' and ''sort'':
+       *   for aKey range sort(keys(aHash)) do ...
        *)
       const proc: for key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)
@@ -283,6 +293,13 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
        *  For-loop where ''forVar'' and ''keyVar'' loop over the hash map ''aHashMap''.
        *  The variable ''forVar'' loops over the values of ''aHashMap''
        *  and ''keyVar'' loops over the keys (indices) of ''aHashMap''.
+       *  The keys (indices) and values are processed unordered. E.g.:
+       *   for aValue key aKey range aHash do ...
+       *  In many cases it is okay to process the keys (indices) and values unordered.
+       *  The keys and values can be processed in an ordered way by using ''keys'' and ''sort'':
+       *   for aKey range sort(keys(aHash)) do
+       *     value := aHash[aKey];
+       *     ...
        *)
       const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)
@@ -293,14 +310,26 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       (**
        *  Obtain the keys of the hash map ''aHashMap''.
-       *  @return the keys of the hash map.
+       *  The returned array of keys is unordered. A loop over the keys like
+       *   for aKey range keys(aHash) do ...
+       *  is equal to the following for-each loop
+       *   for key aKey range aHash do ...
+       *  The keys can be processed in an ordered way by using ''sort'':
+       *   for aKey range sort(keys(aHash)) do ...
+       *  @return an unordered array with the keys of the hash map.
        *)
       const func array keyType: keys (in hashType: aHashMap) is
         return KEYS(aHashMap, hashType.keyCreate, hashType.keyDestroy);
 
       (**
        *  Obtain the values of the hash map ''aHashMap''.
-       *  @return the values of the hash map.
+       *  The returned array of values is unordered. A loop over the values like
+       *   for aValue range values(aHash) do ...
+       *  is equal to the following for-each loop
+       *   for aValue range aHash do ...
+       *  The values can be processed in an ordered way by using ''sort'':
+       *   for aValue range sort(values(aHash)) do ...
+       *  @return an unordered array with the values of the hash map.
        *)
       const func array baseType: values (in hashType: aHashMap) is
         return VALUES(aHashMap, hashType.dataCreate, hashType.dataDestroy);
