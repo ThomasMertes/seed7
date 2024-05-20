@@ -51,6 +51,7 @@ var external_file: STD_IN is  INIT_STD_FILE(CLIB_INPUT,  "STD_IN");
 
 (**
  *  Standard output file of the operating system.
+ *  The file STD_OUT only supports characters <= '\255;'.
  *  The file OUT is initialized with STD_OUT.
  *)
 var external_file: STD_OUT is INIT_STD_FILE(CLIB_OUTPUT, "STD_OUT");
@@ -58,6 +59,7 @@ var external_file: STD_OUT is INIT_STD_FILE(CLIB_OUTPUT, "STD_OUT");
 
 (**
  *  Standard error file of the operating system.
+ *  The file STD_ERR only supports characters <= '\255;'.
  *)
 var external_file: STD_ERR is INIT_STD_FILE(CLIB_ERROR,  "STD_ERR");
 
@@ -74,6 +76,8 @@ var file: IN is STD_IN;
  *  Standard output file used by write and writeln.
  *  Assigning a file to OUT changes the destination fo the
  *  functions [[#write(in_string)|write]] and [[#writeln|writeln]].
+ *  STD_OUT only supports characters <= '\255;'. To allow Unicode
+ *  characters assign STD_CONSOLE to OUT at the beginning of main.
  *)
 var file: OUT is STD_OUT;
 
