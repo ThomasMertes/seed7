@@ -163,6 +163,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_REMOVE_ARRAY, function, params, c_expr);
       when {"ARR_SORT"}:
         process(ARR_SORT, function, params, c_expr);
+      when {"ARR_SORT_REVERSE"}:
+        process(ARR_SORT_REVERSE, function, params, c_expr);
       when {"ARR_SUBARR"}:
         process(ARR_SUBARR, function, params, c_expr);
       when {"ARR_TIMES"}:

@@ -60,6 +60,7 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
 genericType arrRemove (rtlArrayType *arr_to, intType position);
 rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType length);
 rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func);
+rtlArrayType arrSortReverse (rtlArrayType arr1, compareType cmp_func);
 rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len);
 rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len);
 rtlArrayType arrTail (const const_rtlArrayType arr1, intType start);

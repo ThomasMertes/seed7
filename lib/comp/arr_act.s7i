@@ -49,6 +49,7 @@ const ACTION: ARR_RANGE        is action "ARR_RANGE";
 const ACTION: ARR_REMOVE       is action "ARR_REMOVE";
 const ACTION: ARR_REMOVE_ARRAY is action "ARR_REMOVE_ARRAY";
 const ACTION: ARR_SORT         is action "ARR_SORT";
+const ACTION: ARR_SORT_REVERSE is action "ARR_SORT_REVERSE";
 const ACTION: ARR_SUBARR       is action "ARR_SUBARR";
 const ACTION: ARR_TAIL         is action "ARR_TAIL";
 const ACTION: ARR_TIMES        is action "ARR_TIMES";
@@ -79,6 +80,7 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "genericType arrRemove (arrayType *, intType);");
     declareExtern(c_prog, "arrayType   arrRemoveArray (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrSort (arrayType, compareType);");
+    declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, compareType);");
     declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");
@@ -1386,6 +1388,20 @@ const proc: process (ARR_SORT, in reference: function,
     declare_func_pointer_if_necessary(params[2], global_c_expr);
     prepare_typed_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "arrSort(";
+    getTemporaryToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", (compareType)(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (ARR_SORT_REVERSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[2], global_c_expr);
+    prepare_typed_result(getExprResultType(params[1]), c_expr);
+    c_expr.result_expr := "arrSortReverse(";
     getTemporaryToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", (compareType)(";
     getStdParamToResultExpr(params[2], c_expr);

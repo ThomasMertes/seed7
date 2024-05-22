@@ -535,7 +535,9 @@ const func type: array (in type: baseType) is func
 
         const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType: element1, in baseType: element2));
 
-        const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
+        const func arrayType: SORT (in arrayType: arr, in reference: dataCompare)         is action "ARR_SORT";
+
+        const func arrayType: SORT_REVERSE (in arrayType: arr, in reference: dataCompare) is action "ARR_SORT_REVERSE";
 
         (**
          *  Sort an array with the compare function of the element type.
@@ -552,6 +554,22 @@ const func type: array (in type: baseType) is func
          *)
         const func arrayType: sort (in arrayType: arr_obj) is
           return SORT(arr_obj, arrayType.dataCompare);
+
+        (**
+         *  Reverse sort an array with the compare function of the element type.
+         *   sort([] (2, 4, 6, 5, 3, 1), REVERSE)             returns  [] (6, 5, 4, 3, 2, 1)
+         *   sort([] ('o', 'r', 'g', 'y', 'l'), REVERSE)      returns  [] ('y', 'r', 'o', 'l', 'g')
+         *   sort([] ("bravo", "charlie", "alpha"), REVERSE)  returns  [] ("charlie", "bravo", "alpha")
+         *   sort([] (pred(2_**107), pred(2_**89)), REVERSE)  returns  [] (pred(2_**107), pred(2_**89))
+         *   sort([] (E, sqrt(2.0), PI, 1.0), REVERSE)        returns  [] (PI, E, sqrt(2.0), 1.0)
+         *  For a user defined element type the following approach can be used:
+         *   const type: myType is ...
+         *   const func integer: compare (in myType: a, in myType: b) is ...
+         *   const type: myArrayType is array myType;
+         *  Afterwards ''myArrayType'' arrays can be sorted.
+         *)
+        const func arrayType: sort (in arrayType: arr_obj, REVERSE) is
+          return SORT_REVERSE(arr_obj, arrayType.dataCompare);
 
       end if;
       end global;

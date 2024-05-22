@@ -127,6 +127,79 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
 
 
 /**
+ *  Reverse sort an array of 'objectRecord' elements with the quicksort algorithm.
+ *  In contrast to qsort() this function uses a different compare function.
+ *  The compare function of qsort() has two void pointers as parameters.
+ *  @param begin_sort Pointer to first element to be sorted.
+ *  @param end_sort Pointer to the last element to be sorted.
+ *  @param cmp_func Object describing the compare function to be used.
+ */
+static void qsort_array_reverse (objectType begin_sort, objectType end_sort,
+    objectType cmp_func)
+
+  {
+    objectRecord compare_elem;
+    objectRecord help_element;
+    objectType middle_elem;
+    objectType less_elem;
+    objectType greater_elem;
+    objectType cmp_obj;
+    intType cmp;
+
+  /* qsort_array_reverse */
+    if (end_sort - begin_sort < QSORT_LIMIT) {
+      /* Use insertion sort */
+      for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
+        memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
+        greater_elem = begin_sort - 1;
+        do {
+          greater_elem++;
+          cmp_obj = param3_call(cmp_func, greater_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp > 0);
+        memmove(&greater_elem[1], greater_elem,
+                (memSizeType) (middle_elem - greater_elem) * sizeof(objectRecord));
+        memcpy(greater_elem, &compare_elem, sizeof(objectRecord));
+      } /* for */
+    } else {
+      middle_elem = &begin_sort[(memSizeType) (end_sort - begin_sort) >> 1];
+      memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
+      memcpy(middle_elem, end_sort, sizeof(objectRecord));
+      memcpy(end_sort, &compare_elem, sizeof(objectRecord));
+      greater_elem = begin_sort - 1;
+      less_elem = end_sort;
+      do {
+        do {
+          greater_elem++;
+          cmp_obj = param3_call(cmp_func, greater_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp > 0);
+        do {
+          less_elem--;
+          cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp < 0 && less_elem != begin_sort);
+        memcpy(&help_element, greater_elem, sizeof(objectRecord));
+        memcpy(greater_elem, less_elem, sizeof(objectRecord));
+        memcpy(less_elem, &help_element, sizeof(objectRecord));
+      } while (less_elem > greater_elem);
+      memcpy(less_elem, greater_elem, sizeof(objectRecord));
+      memcpy(greater_elem, &compare_elem, sizeof(objectRecord));
+      memcpy(end_sort, &help_element, sizeof(objectRecord));
+      qsort_array_reverse(begin_sort, greater_elem - 1, cmp_func);
+      qsort_array_reverse(greater_elem + 1, end_sort, cmp_func);
+    } /* if */
+  } /* qsort_array_reverse */
+
+
+
+/**
  *  Append the array 'extension' to the array 'arr_variable'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
@@ -1426,6 +1499,43 @@ objectType arr_sort (listType arguments)
         data_cmp_func);
     return bld_array_temp(result);
   } /* arr_sort */
+
+
+
+objectType arr_sort_reverse (listType arguments)
+
+  {
+    objectType arr_arg;
+    objectType data_cmp_func;
+    arrayType arr1;
+    memSizeType result_size;
+    arrayType result;
+
+  /* arr_sort_reverse */
+    arr_arg = arg_1(arguments);
+    isit_array(arr_arg);
+    data_cmp_func    = take_reference(arg_2(arguments));
+    if (TEMP2_OBJECT(arr_arg)) {
+      result = take_array(arr_arg);
+      arr_arg->value.arrayValue = NULL;
+    } else {
+      arr1 = take_array(arr_arg);
+      result_size = arraySize(arr1);
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+      result->min_position = arr1->min_position;
+      result->max_position = arr1->max_position;
+      if (unlikely(!crea_array(result->arr, arr1->arr, result_size))) {
+        FREE_ARRAY(result, result_size);
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      } /* if */
+    } /* if */
+    qsort_array_reverse(result->arr,
+        &result->arr[result->max_position - result->min_position],
+        data_cmp_func);
+    return bld_array_temp(result);
+  } /* arr_sort_reverse */
 
 
 

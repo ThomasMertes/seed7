@@ -619,39 +619,6 @@ const func string: striRand (in integer: maxLen) is func
   end func;
 
 
-const proc: testArraySort is func
-  local
-    var integer: striLen is 0;
-    var integer: testNumber is 0;
-    var integer: arraySize is 0;
-    var integer: number is 0;
-    var array string: stringArray is 0 times "";
-    var string: symbol is "";
-    var array string: sortedArray is 0 times "";
-  begin
-    for striLen range 1 to 20 do
-      writeln("striLen=" <& striLen);
-      for testNumber range 1 to 5 do
-        writeln("testNumber=" <& testNumber);
-        for arraySize range 0 to 500 do
-          # writeln("arraySize=" <& arraySize);
-          stringArray := 0 times "";
-          for number range 1 to arraySize do
-            stringArray &:= [] (striRand(striLen));
-          end for;
-          sortedArray := sort(stringArray);
-          for number range 2 to length(sortedArray) do
-            if sortedArray[pred(number)] > sortedArray[number] then
-              writeln("*** " <& literal(sortedArray[pred(number)]) <&
-                  ">" <& literal(sortedArray[number]));
-            end if;
-          end for;
-        end for;
-      end for;
-    end for;
-  end func;
-
-
 const proc: testArrayCopy is func
   local
     var integer: striLen is 0;
@@ -6828,6 +6795,101 @@ const proc: testRemoveArray is func
   end func;
 
 
+const proc: testArraySort is func
+  local
+    var array integer: intArr is 0 times 0;
+    var array char: chrArr is 0 times ' ';
+    var array string: strArr is 0 times "";
+    var array bigInteger: bigArr is 0 times 0_;
+    var array float: fltArr is 0 times 0.0;
+    var boolean: ok is TRUE;
+    var boolean: okay is TRUE;
+  begin
+    if  sort([] (2, 4, 6, 5, 3, 1))            <> [] (1, 2, 3, 4, 5, 6) or
+        sort([] ('o', 'r', 'g', 'y', 'l'))     <> [] ('g', 'l', 'o', 'r', 'y') or
+        sort([] ("bravo", "charlie", "alpha")) <> [] ("alpha", "bravo", "charlie") or
+        sort([] (pred(2_**107), pred(2_**89))) <> [] (pred(2_**89), pred(2_**107)) or
+        sort([] (E, sqrt(2.0), PI, 1.0))       <> [] (1.0, sqrt(2.0), E, PI) then
+      writeln(" ***** Sorting small arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr); ok := ok and intArr = [] (1, 2, 3, 4, 5, 6);
+    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr); ok := ok and chrArr = [] ('g', 'l', 'o', 'r', 'y');
+    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr); ok := ok and strArr = [] ("alpha", "bravo", "charlie");
+    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr); ok := ok and bigArr = [] (pred(2_**89), pred(2_**107));
+    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr); ok := ok and fltArr = [] (1.0, sqrt(2.0), E, PI);
+    if not ok then
+      writeln(" ***** Assignment of sorted small arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  sort([] (2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1)) <>
+             [] (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25) or
+        sort([] ('t', 'h', 'e', 'q', 'u', 'i', 'c', 'k', 'b', 'r', 'o', 'w', 'n', 'f', 'o', 'x', 'j',
+                 'u', 'm', 'p', 's', 'o', 'v', 'e', 'r', 't', 'h', 'e', 'l', 'a', 'z', 'y', 'd', 'o', 'g')) <>
+             [] ('a', 'b', 'c', 'd', 'e', 'e', 'e', 'f', 'g', 'h', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                 'o', 'o', 'o', 'o', 'p', 'q', 'r', 'r', 's', 't', 't', 'u', 'u', 'v', 'w', 'x', 'y', 'z') or
+        sort([] ("tango",  "hotel",  "echo",    "quebec",   "uniform", "india",  "charlie", "kilo", "bravo",
+                 "romeo",  "oscar",  "whiskey", "november", "foxtrot", "xray",   "juliett", "mike", "papa",
+                 "sierra", "victor", "lima",    "alpha",    "zulu",    "yankee", "delta",   "golf")) <>
+             [] ("alpha",   "bravo", "charlie", "delta",  "echo",     "foxtrot", "golf",   "hotel",  "india",
+                 "juliett", "kilo",  "lima",    "mike",   "november", "oscar",   "papa",   "quebec", "romeo",
+                 "sierra",  "tango", "uniform", "victor", "whiskey",  "xray",    "yankee", "zulu") or
+        sort([] (4096_, 524288_, 32_, 8388608_, 256_, 32768_, 4_, 512_, 2097152_, 2_, 131072_, 8192_, 2048_,
+                 16777216_, 64_, 4194304_, 16_, 1048576_, 1_, 33554432_, 8_, 262144_, 128_, 16384_, 1024_, 65536_)) <>
+             [] (1_, 2_, 4_, 8_, 16_, 32_, 64_, 128_, 256_, 512_, 1024_, 2048_, 4096_, 8192_, 16384_, 32768_,
+                 65536_, 131072_, 262144_, 524288_, 1048576_, 2097152_, 4194304_, 8388608_, 16777216_, 33554432_) then
+      writeln(" ***** Sorting medium sized arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  sort([] (2, 4, 6, 5, 3, 1), REVERSE)            <> [] (6, 5, 4, 3, 2, 1) or
+        sort([] ('o', 'r', 'g', 'y', 'l'), REVERSE)     <> [] ('y', 'r', 'o', 'l', 'g') or
+        sort([] ("bravo", "charlie", "alpha"), REVERSE) <> [] ("charlie", "bravo", "alpha") or
+        sort([] (pred(2_**107), pred(2_**89)), REVERSE) <> [] (pred(2_**107), pred(2_**89)) or
+        sort([] (E, sqrt(2.0), PI, 1.0), REVERSE)       <> [] (PI, E, sqrt(2.0), 1.0) then
+      writeln(" ***** Reverse sorting small arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr, REVERSE); ok := ok and intArr = [] (6, 5, 4, 3, 2, 1);
+    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr, REVERSE); ok := ok and chrArr = [] ('y', 'r', 'o', 'l', 'g');
+    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr, REVERSE); ok := ok and strArr = [] ("charlie", "bravo", "alpha");
+    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr, REVERSE); ok := ok and bigArr = [] (pred(2_**107), pred(2_**89));
+    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr, REVERSE); ok := ok and fltArr = [] (PI, E, sqrt(2.0), 1.0);
+    if not ok then
+      writeln(" ***** Assignment of reverse sorted small arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  sort([] (2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1), REVERSE) <>
+             [] (25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1) or
+        sort([] ('t', 'h', 'e', 'q', 'u', 'i', 'c', 'k', 'b', 'r', 'o', 'w', 'n', 'f', 'o', 'x', 'j',
+                 'u', 'm', 'p', 's', 'o', 'v', 'e', 'r', 't', 'h', 'e', 'l', 'a', 'z', 'y', 'd', 'o', 'g'), REVERSE) <>
+             [] ('z', 'y', 'x', 'w', 'v', 'u', 'u', 't', 't', 's', 'r', 'r', 'q', 'p', 'o', 'o', 'o', 'o',
+                 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'h', 'g', 'f', 'e', 'e', 'e', 'd', 'c', 'b', 'a') or
+        sort([] ("tango",  "hotel",  "echo",    "quebec",   "uniform", "india",  "charlie", "kilo", "bravo",
+                 "romeo",  "oscar",  "whiskey", "november", "foxtrot", "xray",   "juliett", "mike", "papa",
+                 "sierra", "victor", "lima",    "alpha",    "zulu",    "yankee", "delta",   "golf"), REVERSE) <>
+             [] ("zulu",   "yankee", "xray",    "whiskey",  "victor", "uniform", "tango", "sierra",  "romeo",
+                 "quebec", "papa",   "oscar",   "november", "mike",   "lima",    "kilo",  "juliett", "india",
+                 "hotel",  "golf",   "foxtrot", "echo",     "delta",  "charlie", "bravo", "alpha") or
+        sort([] (4096_, 524288_, 32_, 8388608_, 256_, 32768_, 4_, 512_, 2097152_, 2_, 131072_, 8192_, 2048_,
+                 16777216_, 64_, 4194304_, 16_, 1048576_, 1_, 33554432_, 8_, 262144_, 128_, 16384_, 1024_, 65536_), REVERSE) <>
+             [] (33554432_, 16777216_, 8388608_, 4194304_, 2097152_, 1048576_, 524288_, 262144_, 131072_, 65536_,
+                 32768_, 16384_, 8192_, 4096_, 2048_, 1024_, 512_, 256_, 128_, 64_, 32_, 16_, 8_, 4_, 2_, 1_) then
+      writeln(" ***** Reverse sorting medium sized arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Sorting arrays works correctly.");
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -6849,6 +6911,6 @@ const proc: main is func
     testInsertArray;
     testRemoveElement;
     testRemoveArray;
-    # testArraySort;
+    testArraySort;
     # testArrayCopy;
   end func;

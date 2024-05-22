@@ -234,7 +234,8 @@ const string: chkarr_output is "\n\
   \Insert element into array works correctly.\n\
   \Insert array into array works correctly.\n\
   \Remove element from array works correctly.\n\
-  \Remove array from array works correctly.\n";
+  \Remove array from array works correctly.\n\
+  \Sorting arrays works correctly.\n";
 
 const string: chkprc_output is "\n\
   \If statements work correctly.\n\

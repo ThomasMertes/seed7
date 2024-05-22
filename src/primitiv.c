@@ -110,6 +110,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_REMOVE",                   arr_remove,                   },
     { "ARR_REMOVE_ARRAY",             arr_remove_array,             },
     { "ARR_SORT",                     arr_sort,                     },
+    { "ARR_SORT_REVERSE",             arr_sort_reverse,             },
     { "ARR_SUBARR",                   arr_subarr,                   },
     { "ARR_TAIL",                     arr_tail,                     },
     { "ARR_TIMES",                    arr_times,                    },

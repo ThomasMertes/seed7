@@ -50,6 +50,7 @@ objectType arr_range        (listType arguments);
 objectType arr_remove       (listType arguments);
 objectType arr_remove_array (listType arguments);
 objectType arr_sort         (listType arguments);
+objectType arr_sort_reverse (listType arguments);
 objectType arr_subarr       (listType arguments);
 objectType arr_tail         (listType arguments);
 objectType arr_times        (listType arguments);

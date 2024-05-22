@@ -163,6 +163,70 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
 
 
 /**
+ *  Reverse sort an array of 'rtlObjectType' elements with the quicksort algorithm.
+ *  In contrast to qsort() this function uses a different compare function.
+ *  The compare function of qsort() has two void pointers as parameters.
+ *  @param begin_sort Pointer to first element to be sorted.
+ *  @param end_sort Pointer to the last element to be sorted.
+ *  @param cmp_func Pointer to a compare function that gets two values as
+ *         'genericType' and compares them.
+ */
+static void rtl_qsort_array_reverse (rtlObjectType *begin_sort, rtlObjectType *end_sort,
+    compareType cmp_func)
+
+  {
+    genericType compare_elem;
+    genericType help_element;
+    rtlObjectType *middle_elem;
+    rtlObjectType *less_elem;
+    rtlObjectType *greater_elem;
+    intType cmp;
+
+  /* rtl_qsort_array_reverse */
+    if (end_sort - begin_sort < QSORT_LIMIT) {
+      /* Use insertion sort */
+      for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
+        compare_elem = middle_elem->value.genericValue;
+        greater_elem = begin_sort - 1;
+        do {
+          greater_elem++;
+          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
+        } while (cmp > 0);
+        memmove(&greater_elem[1], greater_elem, (memSizeType)
+                (middle_elem - greater_elem) * sizeof(rtlObjectType));
+        greater_elem->value.genericValue = compare_elem;
+      } /* for */
+    } else {
+      middle_elem = &begin_sort[((memSizeType)(end_sort - begin_sort)) >> 1];
+      compare_elem = middle_elem->value.genericValue;
+      middle_elem->value.genericValue = end_sort->value.genericValue;
+      end_sort->value.genericValue = compare_elem;
+      greater_elem = begin_sort - 1;
+      less_elem = end_sort;
+      do {
+        do {
+          greater_elem++;
+          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
+        } while (cmp > 0);
+        do {
+          less_elem--;
+          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
+        } while (cmp < 0 && less_elem != begin_sort);
+        help_element = greater_elem->value.genericValue;
+        greater_elem->value.genericValue = less_elem->value.genericValue;
+        less_elem->value.genericValue = help_element;
+      } while (less_elem > greater_elem);
+      less_elem->value.genericValue = greater_elem->value.genericValue;
+      greater_elem->value.genericValue = compare_elem;
+      end_sort->value.genericValue = help_element;
+      rtl_qsort_array_reverse(begin_sort, greater_elem - 1, cmp_func);
+      rtl_qsort_array_reverse(greater_elem + 1, end_sort, cmp_func);
+    } /* if */
+  } /* rtl_qsort_array_reverse */
+
+
+
+/**
  *  Get the name of the program without path and extension.
  *  @param arg_0 Parameter argv[0] from the function main() as string.
  *  @return the name of the program.
@@ -1593,6 +1657,16 @@ rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
     rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
     return arr1;
   } /* arrSort */
+
+
+
+rtlArrayType arrSortReverse (rtlArrayType arr1, compareType cmp_func)
+
+  { /* arrSortReverse */
+    /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
+    rtl_qsort_array_reverse(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
+    return arr1;
+  } /* arrSortReverse */
 
 
 
