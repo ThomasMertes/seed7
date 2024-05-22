@@ -60,10 +60,13 @@ const func integer: shell (in string: command,
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for the
  *         ''command'', or "" if there are no parameters.
+ *  @exception FILE_ERROR The shell command returns an error.
  *)
 const proc: shellCmd (in string: command, in string: parameters) is func
   begin
-    ignore(shell(command, parameters));
+    if shell(command, parameters) <> 0 then
+      raise FILE_ERROR;
+    end if;
   end func;
 
 
@@ -119,10 +122,13 @@ const func integer: shell (in string: cmdAndParams) is func
  *  @param cmdAndParams Command to be executed and optional space
  *         separated list of parameters. Command and parameters
  *         must be space separated.
+ *  @exception FILE_ERROR The shell command returns an error.
  *)
 const proc: shellCmd (in string: cmdAndParams) is func
   begin
-    ignore(shell(cmdAndParams));
+    if shell(cmdAndParams) <> 0 then
+      raise FILE_ERROR;
+    end if;
   end func;
 
 

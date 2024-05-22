@@ -8114,6 +8114,7 @@ const proc: execProgramScript (in string: command, in array string: parameters,
 
   local
     var array string: redirection is 0 times "";
+    var integer: shellResult is 0;
   begin
     logProgram(command, parameters, errorFile);
     case ccConf.CC_ERROR_FILEDES of
@@ -8126,10 +8127,14 @@ const proc: execProgramScript (in string: command, in array string: parameters,
     end case;
     if length(redirection) = 0 then
       # An CC_ERROR_FILEDES of zero means: Do not redirect.
-      shellCmd(command, shellParameters(parameters));
+      shellResult := shell(command, shellParameters(parameters));
     else
-      shellCmd(command, shellParameters(parameters) <& " " <& join(redirection, " "));
-    end if
+      shellResult := shell(command, shellParameters(parameters) <& " " <&
+                           join(redirection, " "));
+    end if;
+    if shellResult <> 0 then
+      writeln("*** The shell command returned " <& shellResult);
+    end if;
   end func;
 
 
