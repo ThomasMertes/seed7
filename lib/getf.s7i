@@ -31,6 +31,7 @@ include "stdio.s7i";
 
 (**
  *  Read the file with the given 'file_name' into a string.
+ *  Getf returns all bytes of a file without any change.
  *  @return a string with the file content, or "" if no file exists.
  *)
 const func string: getf (in string: file_name) is func
