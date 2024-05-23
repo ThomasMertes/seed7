@@ -38,7 +38,8 @@ const set of category: constantExpressionCategories is {
  *  calling this function the code of the special action is inlined.
  *)
 const set of string: specialActions is
-    {"BIG_PARSE1", "BIN_AND", "BIN_OR", "BIN_XOR", "BLN_ICONV1",
+    {"ARR_SORT", "ARR_SORT_REVERSE",
+     "BIG_PARSE1", "BIN_AND", "BIN_OR", "BIN_XOR", "BLN_ICONV1",
      "BLN_ICONV3", "BLN_ORD", "BLN_TERNARY", "BST_PARSE1", "CHR_ICONV1",
      "CHR_ICONV3", "CHR_ORD", "ENU_ICONV2", "ENU_LIT", "ENU_ORD2",
      "FLT_PARSE1", "HSH_CONTAINS", "HSH_EXCL", "HSH_INCL", "HSH_KEYS",

@@ -555,6 +555,9 @@ const func type: array (in type: baseType) is func
         const func arrayType: sort (in arrayType: arr_obj) is
           return SORT(arr_obj, arrayType.dataCompare);
 
+        const func arrayType: sort (in func arrayType: arr_obj) is
+          return SORT(arr_obj, arrayType.dataCompare);
+
         (**
          *  Reverse sort an array with the compare function of the element type.
          *   sort([] (2, 4, 6, 5, 3, 1), REVERSE)             returns  [] (6, 5, 4, 3, 2, 1)
@@ -569,6 +572,9 @@ const func type: array (in type: baseType) is func
          *  Afterwards ''myArrayType'' arrays can be sorted.
          *)
         const func arrayType: sort (in arrayType: arr_obj, REVERSE) is
+          return SORT_REVERSE(arr_obj, arrayType.dataCompare);
+
+        const func arrayType: sort (in func arrayType: arr_obj, REVERSE) is
           return SORT_REVERSE(arr_obj, arrayType.dataCompare);
 
       end if;
