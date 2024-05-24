@@ -40,11 +40,11 @@
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
  *)
-const func string: toUtf8 (in string: stri)                    is action "STR_TOUTF8";
+const func string: toUtf8 (in string: stri)                    is action "STR_TO_UTF8";
 
 
 # The function striToUtf8() is deprecated. Use toUtf8() instead.
-const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
+const func string: striToUtf8 (in string: stri)                is action "STR_TO_UTF8";
 
 
 (**
@@ -62,11 +62,11 @@ const func string: striToUtf8 (in string: stri)                is action "STR_TO
  *  @exception RANGE_ERROR If ''utf8'' contains a char beyond '\255;' or
  *                         if ''utf8'' is not encoded with UTF-8.
  *)
-const func string: fromUtf8 (in string: utf8)                  is action "STR_UTF8TOSTRI";
+const func string: fromUtf8 (in string: utf8)                  is action "STR_FROM_UTF8";
 
 
 # The function utf8ToStri() is deprecated. Use fromUtf8() instead.
-const func string: utf8ToStri (in string: utf8)                is action "STR_UTF8TOSTRI";
+const func string: utf8ToStri (in string: utf8)                is action "STR_FROM_UTF8";
 
 
 (**

@@ -1903,6 +1903,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_FOR_KEY, function, params, c_expr);
       when {"STR_FOR_VAR_KEY"}:
         process(STR_FOR_VAR_KEY, function, params, c_expr);
+      when {"STR_FROM_UTF8"}:
+        process(STR_FROM_UTF8, function, params, c_expr);
       when {"STR_GE"}:
         process(STR_GE, function, params, c_expr);
       when {"STR_GT"}:
@@ -1967,14 +1969,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_SUBSTR_FIXLEN, function, params, c_expr);
       when {"STR_TAIL"}:
         process(STR_TAIL, function, params, c_expr);
-      when {"STR_TOUTF8"}:
-        process(STR_TOUTF8, function, params, c_expr);
+      when {"STR_TO_UTF8"}:
+        process(STR_TO_UTF8, function, params, c_expr);
       when {"STR_TRIM"}:
         process(STR_TRIM, function, params, c_expr);
       when {"STR_UP"}:
         process(STR_UP, function, params, c_expr);
-      when {"STR_UTF8TOSTRI"}:
-        process(STR_UTF8TOSTRI, function, params, c_expr);
       when {"STR_VALUE"}:
         process(STR_VALUE, function, params, c_expr);
       when {"TIM_AWAIT"}:

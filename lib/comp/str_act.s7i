@@ -38,6 +38,7 @@ const ACTION: STR_EQ            is action "STR_EQ";
 const ACTION: STR_FOR           is action "STR_FOR";
 const ACTION: STR_FOR_KEY       is action "STR_FOR_KEY";
 const ACTION: STR_FOR_VAR_KEY   is action "STR_FOR_VAR_KEY";
+const ACTION: STR_FROM_UTF8     is action "STR_FROM_UTF8";
 const ACTION: STR_GE            is action "STR_GE";
 const ACTION: STR_GT            is action "STR_GT";
 const ACTION: STR_HASHCODE      is action "STR_HASHCODE";
@@ -70,10 +71,9 @@ const ACTION: STR_STR           is action "STR_STR";
 const ACTION: STR_SUBSTR        is action "STR_SUBSTR";
 const ACTION: STR_SUBSTR_FIXLEN is action "STR_SUBSTR_FIXLEN";
 const ACTION: STR_TAIL          is action "STR_TAIL";
-const ACTION: STR_TOUTF8        is action "STR_TOUTF8";
+const ACTION: STR_TO_UTF8       is action "STR_TO_UTF8";
 const ACTION: STR_TRIM          is action "STR_TRIM";
 const ACTION: STR_UP            is action "STR_UP";
-const ACTION: STR_UTF8TOSTRI    is action "STR_UTF8TOSTRI";
 const ACTION: STR_VALUE         is action "STR_VALUE";
 
 
@@ -104,6 +104,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        strDestr (const const_striType);");
     declareExtern(c_prog, "void        strDestrGeneric (const genericType);");
     declareExtern(c_prog, "striType    strEmpty(void);");
+    declareExtern(c_prog, "striType    strFromUtf8 (const const_striType);");
     declareExtern(c_prog, "boolType    strGe (const const_striType, const const_striType);");
     declareExtern(c_prog, "boolType    strGt (const const_striType, const const_striType);");
     declareExtern(c_prog, "intType     strHashCode (const const_striType);");
@@ -147,7 +148,6 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    strTrim (const const_striType);");
     declareExtern(c_prog, "striType    strUp (const const_striType);");
     declareExtern(c_prog, "striType    strUpTemp (const striType);");
-    declareExtern(c_prog, "striType    strUtf8ToStri (const const_striType);");
     declareExtern(c_prog, "striType    strValue (const const_objRefType);");
     declareExtern(c_prog, "const_striType strValueRef (const const_objRefType);");
     declareExtern(c_prog, "striType    strZero (const intType);");
@@ -1451,6 +1451,17 @@ const proc: process (STR_FOR_VAR_KEY, in reference: function,
     process_call_by_name_expr(params[8], statement);
     statement.expr &:= "}\n";
     doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (STR_FROM_UTF8, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "strFromUtf8(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4861,7 +4872,7 @@ const proc: process (STR_TAIL, in reference: function,
   end func;
 
 
-const proc: process (STR_TOUTF8, in reference: function,
+const proc: process (STR_TO_UTF8, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4905,17 +4916,6 @@ const proc: process (STR_UP, in reference: function,
       c_expr.result_expr := "strUp(";
       c_expr.result_expr &:= c_param1.expr;
     end if;
-    c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (STR_UTF8TOSTRI, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "strUtf8ToStri(";
-    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 

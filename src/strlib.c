@@ -774,6 +774,23 @@ objectType str_for_var_key (listType arguments)
 
 
 /**
+ *  Convert a string with bytes in UTF-8 encoding to UTF-32.
+ *  @param utf8/arg_1 String of bytes encoded with UTF-8.
+ *  @return 'utf8' converted to a normal (UTF-32) string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *                         if 'utf8' is not encoded with UTF-8.
+ */
+objectType str_from_utf8 (listType arguments)
+
+  { /* str_from_utf8 */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        strFromUtf8(take_stri(arg_1(arguments))));
+  } /* str_from_utf8 */
+
+
+
+/**
  *  Check if stri1 is greater than or equal to stri2.
  *  @return TRUE if stri1 is greater than or equal to stri2,
  *          FALSE otherwise.
@@ -1815,13 +1832,13 @@ objectType str_tail (listType arguments)
  *  @param stri/arg_1 Normal (UTF-32) string to be converted to UTF-8.
  *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
  */
-objectType str_toutf8 (listType arguments)
+objectType str_to_utf8 (listType arguments)
 
-  { /* str_toutf8 */
+  { /* str_to_utf8 */
     isit_stri(arg_1(arguments));
     return bld_stri_temp(
         strToUtf8(take_stri(arg_1(arguments))));
-  } /* str_toutf8 */
+  } /* str_to_utf8 */
 
 
 
@@ -1881,23 +1898,6 @@ objectType str_up (listType arguments)
     return bld_stri_temp(
         strUp(take_stri(arg_1(arguments))));
   } /* str_up */
-
-
-
-/**
- *  Convert a string with bytes in UTF-8 encoding to UTF-32.
- *  @param utf8/arg_1 String of bytes encoded with UTF-8.
- *  @return 'utf8' converted to a normal (UTF-32) string.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
- *                         if 'utf8' is not encoded with UTF-8.
- */
-objectType str_utf8tostri (listType arguments)
-
-  { /* str_utf8tostri */
-    isit_stri(arg_1(arguments));
-    return bld_stri_temp(
-        strUtf8ToStri(take_stri(arg_1(arguments))));
-  } /* str_utf8tostri */
 
 
 

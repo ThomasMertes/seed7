@@ -254,13 +254,13 @@ const func boolean: isPureFunction (in reference: function) is func
          "SET_VALUE",
          "SOC_EQ", "SOC_NE",
          "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
-         "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",
-         "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG", "STR_LOW",
-         "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_LTRIM", "STR_MULT", "STR_NE",
-         "STR_POS", "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL",
-         "STR_RIPOS", "STR_RPAD", "STR_RPOS", "STR_RTRIM", "STR_SPLIT", "STR_STR",
-         "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL", "STR_TOUTF8", "STR_TRIM",
-         "STR_UP", "STR_UTF8TOSTRI", "STR_VALUE",
+         "STR_CMP", "STR_EQ", "STR_FROM_UTF8", "STR_GE", "STR_GT", "STR_HASHCODE",
+         "STR_HEAD", "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG",
+         "STR_LOW", "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_LTRIM", "STR_MULT",
+         "STR_NE", "STR_POS", "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS",
+         "STR_REPL", "STR_RIPOS", "STR_RPAD", "STR_RPOS", "STR_RTRIM",
+         "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL",
+         "STR_TO_UTF8", "STR_TRIM", "STR_UP", "STR_VALUE",
          "TYP_CMP", "TYP_EQ", "TYP_NE"};
     const set of string: specialFunctionActions is
         {"PRC_FOR_DOWNTO", "PRC_FOR_TO", "SET_INCL", "TYP_VARCONV"};
