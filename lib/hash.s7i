@@ -190,6 +190,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
        *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
        *  If an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
+       *   incl(aHash, aKey, aValue);
        *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: incl (inout hashType: aHashMap, in keyType: aKey, in baseType: anElem) is func
@@ -211,6 +212,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
        *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
        *  If an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
+       *   aHash @:= [aKey] aValue;
        *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: (inout hashType: aHashMap) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
