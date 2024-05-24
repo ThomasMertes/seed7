@@ -427,6 +427,8 @@ const integer: RPM_DIGESTALGO_SHA384      is  9;
 const integer: RPM_DIGESTALGO_SHA512      is 10;
 const integer: RPM_DIGESTALGO_SHA224      is 11;
 
+const integer: RPM_ALL_VERIFY_FLAGS is 4294967295;
+
 
 const func string: sigtagName (in integer: tag) is func
   result
@@ -1427,45 +1429,13 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
   end func;
 
 
-const func integer: findDirIndex (in array string: dirNameList, in string: dirName) is func
-  result
-    var integer: dirIndex is 0;
-  local
-    var integer: index is 0;
-  begin
-    for key index range dirNameList until dirIndex <> 0 do
-      if dirNameList[index] = dirName then
-        dirIndex := index;
-      end if;
-    end for;
-  end func;
-
-
 const proc: updateHeader (inout rpmArchive: rpm) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var integer: slashPos is 0;
-    var string: dirName is "";
-    var integer: dirIndex is 0;
   begin
     for catalogEntry range rpm.catalog do
       if catalogEntry.dirty then
         # writeln("updateHeader " <& catalogEntry.filePath);
-        slashPos := rpos(catalogEntry.filePath, "/");
-        if slashPos <> 0 then
-          dirName := catalogEntry.filePath[.. slashPos];
-          catalogEntry.baseName := catalogEntry.filePath[succ(slashPos) ..];
-        else
-          dirName := "";
-          catalogEntry.baseName := catalogEntry.filePath;
-        end if;
-        dirIndex := findDirIndex(rpm.dirNameList, dirName);
-        if dirIndex = 0 then
-          rpm.dirNameList &:= dirName;
-          dirIndex := length(rpm.dirNameList);
-        end if;
-        catalogEntry.dirIndex := dirIndex;
-        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
         updateHeader(rpm, catalogEntry);
       end if;
     end for;
@@ -1649,8 +1619,7 @@ const proc: doSettings (inout rpmArchive: rpm) is func
   local
     var rpmIndexEntry: fileDigestAlgo is rpmIndexEntry.value;
   begin
-    if rpm.fileDigestAlgo = RPM_DIGESTALGO_MD5 and
-        RPMTAG_FILEDIGESTALGO in rpm.header.tagMap then
+    if RPMTAG_FILEDIGESTALGO in rpm.header.tagMap then
       fileDigestAlgo := rpm.header.tagMap[RPMTAG_FILEDIGESTALGO];
       rpm.fileDigestAlgo := bytes2Int(
           rpm.header.store[succ(fileDigestAlgo.offset) fixLen 4], SIGNED, BE);
@@ -1834,6 +1803,7 @@ const func fileSys: openRpm (inout file: rpmFile) is func
   begin
     if length(rpmFile) = 0 then
       rpm.rpmFile := rpmFile;
+      rpm.fileDigestAlgo := RPM_DIGESTALGO_SHA256;
       newFileSys := toInterface(rpm);
     else
       seek(rpmFile, 1);
@@ -1909,6 +1879,12 @@ const proc: close (inout rpmArchive: rpm) is func
       updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNameList);
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
+      if rpm.fileDigestAlgo <> RPM_DIGESTALGO_MD5 then
+        updateIndexEntry(rpm.header, RPMTAG_FILEDIGESTALGO, RPM_INT32_TYPE, rpm.fileDigestAlgo);
+      end if;
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADDIGEST, RPM_STRING_ARRAY_TYPE,
+                       [] (hex(getDigest(payload, RPM_DIGESTALGO_SHA256))));
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADDIGESTALGO, RPM_INT32_TYPE, RPM_DIGESTALGO_SHA256);
       updateStore(rpm.header);
       headerSection := sectionStri(rpm.header, RPMTAG_HEADERIMMUTABLE);
 
@@ -2036,6 +2012,44 @@ const proc: fixRegisterAndCatalog (inout rpmArchive: rpm, in integer: insertPos,
         rpm.catalog[filePath].fileNumber +:= numEntries;
       end if;
     end for;
+  end func;
+
+
+const func integer: findDirIndex (in array string: dirNameList, in string: dirName) is func
+  result
+    var integer: dirIndex is 0;
+  local
+    var integer: index is 0;
+  begin
+    for key index range dirNameList until dirIndex <> 0 do
+      if dirNameList[index] = dirName then
+        dirIndex := index;
+      end if;
+    end for;
+  end func;
+
+
+const proc: setDirIndexAndBaseName (inout rpmArchive: rpm,
+    inout rpmCatalogEntry: catalogEntry) is func
+  local
+    var integer: slashPos is 0;
+    var string: dirName is "";
+    var integer: dirIndex is 0;
+  begin
+    slashPos := rpos(catalogEntry.filePath, "/");
+    if slashPos <> 0 then
+      dirName := catalogEntry.filePath[.. slashPos];
+      catalogEntry.baseName := catalogEntry.filePath[succ(slashPos) ..];
+    else
+      dirName := "";
+      catalogEntry.baseName := catalogEntry.filePath;
+    end if;
+    dirIndex := findDirIndex(rpm.dirNameList, dirName);
+    if dirIndex = 0 then
+      rpm.dirNameList &:= dirName;
+      dirIndex := length(rpm.dirNameList);
+    end if;
+    catalogEntry.dirIndex := dirIndex;
   end func;
 
 
@@ -2824,7 +2838,7 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
         implicitDir(rpm.register, symlinkPath) then
       raise FILE_ERROR;
     else
-      catalogEntry.fileSize := 0;
+      catalogEntry.fileSize := length(toUtf8(targetPath));
       catalogEntry.mode := ord(MODE_FILE_SYMLINK) + 8#777;
       catalogEntry.uid := 0;
       catalogEntry.gid := 0;
@@ -2835,12 +2849,10 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       catalogEntry.flags := 0;
       catalogEntry.userName := "";
       catalogEntry.groupName := "";
-      catalogEntry.verifyFlags := 0;
-      catalogEntry.device := 0;
+      catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
+      catalogEntry.device := 1;
       catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
-      catalogEntry.dirIndex := 0;
-      catalogEntry.baseName := "";
       catalogEntry.color := 0;
       catalogEntry.fileClass := 0;
       catalogEntry.dependX := 0;
@@ -2849,6 +2861,7 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       catalogEntry.filePath := symlinkPath;
       catalogEntry.fileNumber := succ(length(rpm.register));
       catalogEntry.dirty := TRUE;
+      setDirIndexAndBaseName(rpm, catalogEntry);
       rpm.catalog @:= [symlinkPath] catalogEntry;
       rpm.register @:= [symlinkPath] catalogEntry.fileNumber;
       makeLink(rpm.archive, symlinkPath, targetPath);
@@ -2941,12 +2954,10 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.flags := 0;
         catalogEntry.userName := "";
         catalogEntry.groupName := "";
-        catalogEntry.verifyFlags := 0;
-        catalogEntry.device := 0;
+        catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
+        catalogEntry.device := 1;
         catalogEntry.inode := succ(length(rpm.register));
         catalogEntry.lang := "";
-        catalogEntry.dirIndex := 0;
-        catalogEntry.baseName := "";
         catalogEntry.color := 0;
         catalogEntry.fileClass := 0;
         catalogEntry.dependX := 0;
@@ -2955,6 +2966,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.filePath := missingPath;
         catalogEntry.fileNumber := succ(length(rpm.register));
         catalogEntry.dirty := TRUE;
+        setDirIndexAndBaseName(rpm, catalogEntry);
         rpm.catalog @:= [missingPath] catalogEntry;
         rpm.register @:= [missingPath] catalogEntry.fileNumber;
         putFile(rpm.archive, missingPath, data);
@@ -3006,12 +3018,10 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       catalogEntry.flags := 0;
       catalogEntry.userName := "";
       catalogEntry.groupName := "";
-      catalogEntry.verifyFlags := 0;
-      catalogEntry.device := 0;
+      catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
+      catalogEntry.device := 1;
       catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
-      catalogEntry.dirIndex := 0;
-      catalogEntry.baseName := "";
       catalogEntry.color := 0;
       catalogEntry.fileClass := 0;
       catalogEntry.dependX := 0;
@@ -3020,6 +3030,7 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       catalogEntry.filePath := dirPath;
       catalogEntry.fileNumber := succ(length(rpm.register));
       catalogEntry.dirty := TRUE;
+      setDirIndexAndBaseName(rpm, catalogEntry);
       rpm.catalog @:= [dirPath] catalogEntry;
       rpm.register @:= [dirPath] catalogEntry.fileNumber;
       makeDir(rpm.archive, dirPath);
