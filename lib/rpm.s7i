@@ -2015,17 +2015,29 @@ const proc: fixRegisterAndCatalog (inout rpmArchive: rpm, in integer: insertPos,
   end func;
 
 
-const func integer: findDirIndex (in array string: dirNameList, in string: dirName) is func
+const func integer: findNameIndex (in array string: nameList, in string: name) is func
   result
-    var integer: dirIndex is 0;
+    var integer: nameIndex is 0;
   local
     var integer: index is 0;
   begin
-    for key index range dirNameList until dirIndex <> 0 do
-      if dirNameList[index] = dirName then
-        dirIndex := index;
+    for key index range nameList until nameIndex <> 0 do
+      if nameList[index] = name then
+        nameIndex := index;
       end if;
     end for;
+  end func;
+
+
+const func integer: getNameIndex (inout array string: nameList, in string: name) is func
+  result
+    var integer: nameIndex is 0;
+  begin
+    nameIndex := findNameIndex(nameList, name);
+    if nameIndex = 0 then
+      nameList &:= name;
+      nameIndex := length(nameList);
+    end if;
   end func;
 
 
@@ -2034,7 +2046,6 @@ const proc: setDirIndexAndBaseName (inout rpmArchive: rpm,
   local
     var integer: slashPos is 0;
     var string: dirName is "";
-    var integer: dirIndex is 0;
   begin
     slashPos := rpos(catalogEntry.filePath, "/");
     if slashPos <> 0 then
@@ -2044,12 +2055,7 @@ const proc: setDirIndexAndBaseName (inout rpmArchive: rpm,
       dirName := "";
       catalogEntry.baseName := catalogEntry.filePath;
     end if;
-    dirIndex := findDirIndex(rpm.dirNameList, dirName);
-    if dirIndex = 0 then
-      rpm.dirNameList &:= dirName;
-      dirIndex := length(rpm.dirNameList);
-    end if;
-    catalogEntry.dirIndex := dirIndex;
+    catalogEntry.dirIndex := getNameIndex(rpm.dirNameList, dirName);
   end func;
 
 
