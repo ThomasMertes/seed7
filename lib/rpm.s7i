@@ -224,7 +224,7 @@ const integer: RPMTAG_CACHECTIME         is 1136;
 const integer: RPMTAG_CACHEPKGPATH       is 1137;
 const integer: RPMTAG_CACHEPKGSIZE       is 1138;
 const integer: RPMTAG_CACHEPKGMTIME      is 1139;
-const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 (bits)  "color" (type) of the file [indexed]
+const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 (bits)  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [indexed]
 const integer: RPMTAG_FILECLASS          is 1141;  # INT  Index into class dictionary [indexed]
 const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY  List of file classes (output of the "file" command)
 const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT  Size of the entries in DependsDict [indexed]
@@ -2964,7 +2964,13 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.device := 1;
         catalogEntry.inode := succ(length(rpm.register));
         catalogEntry.lang := "";
-        catalogEntry.color := 0;
+        if startsWith(data, "\127;ELF\1;") then
+          catalogEntry.color := 1;  # 32bit ELF
+        elsif startsWith(data, "\127;ELF\2;") then
+          catalogEntry.color := 2;  # 64bit ELF
+        else
+          catalogEntry.color := 0;
+	end if;
         catalogEntry.fileClass := 0;
         catalogEntry.dependX := 0;
         catalogEntry.dependN := 0;
