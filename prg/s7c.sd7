@@ -8511,7 +8511,7 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 3.2." <& ccConf.VERSION_REVISION_LEVEL <&
-            " Copyright (c) 1990-2023 Thomas Mertes");
+            " Copyright (c) 1990-2024 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

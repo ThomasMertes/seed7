@@ -74,7 +74,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.2.%d  Copyright (c) 1990-2023 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.2.%d  Copyright (c) 1990-2024 Thomas Mertes\n"
 
 
 
