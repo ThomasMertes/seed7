@@ -34,6 +34,15 @@ include "chartype.s7i";
  *  When the function is called it is assumed that stri[1] contains
  *  the introducing " . When the function is left ''stri'' is empty or
  *  stri[1] contains the character after the closing " .
+ *   stri := "\"\"";         getJsonString(stri)  returns  "\"\""      and stri = ""
+ *   stri := "\"x\"&ab";     getJsonString(stri)  returns  "\"x\""     and stri = "&ab"
+ *   stri := "\"\\\\\"+";    getJsonString(stri)  returns  "\"\\\""    and stri = "+"
+ *   stri := "\"\\\"\"/";    getJsonString(stri)  returns  "\"\"\""    and stri = "/"
+ *   stri := "\"\\/\"*";     getJsonString(stri)  returns  "\"/\""     and stri = "*"
+ *   stri := "\"\\b\\f\"";   getJsonString(stri)  returns  "\"\b\f\""  and stri = ""
+ *   stri := "\"\\n\\r\"";   getJsonString(stri)  returns  "\"\n\r\""  and stri = ""
+ *   stri := "\"\\t$\"-";    getJsonString(stri)  returns  "\"\t$\""   and stri = "-"
+ *   stri := "\"\\u20ac\"";  getJsonString(stri)  returns  "\"€\""     and stri = ""
  *  @return the JSON string including the introducing " and the
  *          closing " .
  *)
@@ -103,6 +112,15 @@ const func string: getJsonString (inout string: stri) is func
  *  When the function is called it is assumed that the introducing "
  *  is in inFile.bufferChar. When the function is left the character
  *  after the closing " is in inFile.bufferChar.
+ *   f := initScan("\"\"");        getJsonString(f) returns "\"\""     and f.bufferChar = EOF
+ *   f := initScan("\"x\"&ab");    getJsonString(f) returns "\"x\""    and f.bufferChar = '&'
+ *   f := initScan("\"\\\\\"+");   getJsonString(f) returns "\"\\\""   and f.bufferChar = '+'
+ *   f := initScan("\"\\\"\"/");   getJsonString(f) returns "\"\"\""   and f.bufferChar = '/'
+ *   f := initScan("\"\\/\"*");    getJsonString(f) returns "\"/\""    and f.bufferChar = '*'
+ *   f := initScan("\"\\b\\f\"");  getJsonString(f) returns "\"\b\f\"" and f.bufferChar = EOF
+ *   f := initScan("\"\\n\\r\"");  getJsonString(f) returns "\"\n\r\"" and f.bufferChar = EOF
+ *   f := initScan("\"\\t$\"-");   getJsonString(f) returns "\"\t$\""  and f.bufferChar = '-'
+ *   f := initScan("\"\\u20ac\""); getJsonString(f) returns "\"€\""    and f.bufferChar = EOF
  *  @return the JSON string including the introducing " and the
  *          closing " .
  *)
@@ -167,6 +185,17 @@ const func string: getJsonString (inout file: inFile) is func
  *  the introducing digit or an introducing minus sign (-). When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the number.
+ *   stri := "12";      getJsonNumber(stri)  returns  "12"      and stri = ""
+ *   stri := "123*2";   getJsonNumber(stri)  returns  "123"     and stri = "*2"
+ *   stri := "-2+3";    getJsonNumber(stri)  returns  "-2"      and stri = "+3"
+ *   stri := "-01";     getJsonNumber(stri)  returns  "-0"      and stri = "1"
+ *   stri := "1x";      getJsonNumber(stri)  returns  "1"       and stri = "x"
+ *   stri := "1.0+";    getJsonNumber(stri)  returns  "1.0"     and stri = "+"
+ *   stri := "1.0E1-";  getJsonNumber(stri)  returns  "1.0E1"   and stri = "-"
+ *   stri := "1.0e-1";  getJsonNumber(stri)  returns  "1.0e-1"  and stri = ""
+ *   stri := "1e2y";    getJsonNumber(stri)  returns  "1e2"     and stri = "y"
+ *   stri := "1E+3z";   getJsonNumber(stri)  returns  "1E+3"    and stri = "z"
+ *   stri := "1234_/";  getJsonNumber(stri)  returns  "1234"    and stri = "_/"
  *  @return the JSON number.
  *)
 const func string: getJsonNumber (inout string: stri) is func
@@ -225,6 +254,17 @@ const func string: getJsonNumber (inout string: stri) is func
  *  contains the introducing digit or an introducing minus sign (-).
  *  When the function is left the character after the number is in
  *  inFile.bufferChar.
+ *   f := initScan("12");     getJsonNumber(f) returns "12"     and f.bufferChar = EOF
+ *   f := initScan("123*2");  getJsonNumber(f) returns "123"    and f.bufferChar = '*'
+ *   f := initScan("-2+3");   getJsonNumber(f) returns "-2"     and f.bufferChar = '+'
+ *   f := initScan("-01");    getJsonNumber(f) returns "-0"     and f.bufferChar = '1'
+ *   f := initScan("1x");     getJsonNumber(f) returns "1"      and f.bufferChar = 'x'
+ *   f := initScan("1.0+");   getJsonNumber(f) returns "1.0"    and f.bufferChar = '+'
+ *   f := initScan("1.0E1-"); getJsonNumber(f) returns "1.0E1"  and f.bufferChar = '-'
+ *   f := initScan("1.0e-1"); getJsonNumber(f) returns "1.0e-1" and f.bufferChar = EOF
+ *   f := initScan("1e2y");   getJsonNumber(f) returns "1e2"    and f.bufferChar = 'y'
+ *   f := initScan("1E+3z");  getJsonNumber(f) returns "1E+3"   and f.bufferChar = 'z'
+ *   f := initScan("1234_/"); getJsonNumber(f) returns "1234"   and f.bufferChar = '_'
  *  @return the JSON number.
  *)
 const func string: getJsonNumber (inout file: inFile) is func
@@ -294,6 +334,15 @@ const func string: getJsonNumber (inout file: inFile) is func
  *  whitespace character or the first character of a symbol. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the symbol.
+ *   stri := " null ";  getJsonSymbol(stri)  returns  "null"   and stri = " "
+ *   stri := "\ntrue";  getJsonSymbol(stri)  returns  "true"   and stri = ""
+ *   stri := ",-9";     getJsonSymbol(stri)  returns  ","      and stri = "-9"
+ *   stri := ":true";   getJsonSymbol(stri)  returns  ":"      and stri = "true"
+ *   stri := "\r{ } ";  getJsonSymbol(stri)  returns  "{"      and stri = " } "
+ *   stri := " [123]";  getJsonSymbol(stri)  returns  "["      and stri = "123]"
+ *   stri := "\t987 ";  getJsonSymbol(stri)  returns  "987"    and stri = " "
+ *   stri := " -123,";  getJsonSymbol(stri)  returns  "-123"   and stri = ","
+ *   stri := " \"x\"";  getJsonSymbol(stri)  returns  "\"x\""  and stri = ""
  *  @return the symbol, and
  *          "" if end of ''stri'' was reached.
  *)
@@ -344,6 +393,15 @@ const func string: getJsonSymbol (inout string: stri) is func
  *  called it is assumed that inFile.bufferChar contains a whitespace
  *  character or the first character of a symbol. When the function is
  *  left the character after the symbol is in inFile.bufferChar.
+ *   f := initScan(" null "); getJsonSymbol(f) returns "null"  and f.bufferChar = ' '
+ *   f := initScan("\ntrue"); getJsonSymbol(f) returns "true"  and f.bufferChar = EOF
+ *   f := initScan(",-9");    getJsonSymbol(f) returns ","     and f.bufferChar = '-'
+ *   f := initScan(":true");  getJsonSymbol(f) returns ":"     and f.bufferChar = 't'
+ *   f := initScan("\r{ } "); getJsonSymbol(f) returns "{"     and f.bufferChar = ' '
+ *   f := initScan(" [123]"); getJsonSymbol(f) returns "["     and f.bufferChar = '1'
+ *   f := initScan("\t987 "); getJsonSymbol(f) returns "987"   and f.bufferChar = ' '
+ *   f := initScan(" -123,"); getJsonSymbol(f) returns "-123"  and f.bufferChar = ','
+ *   f := initScan(" \"x\""); getJsonSymbol(f) returns "\"x\"" and f.bufferChar = EOF
  *  @return the symbol, and
  *          "" if [[char#EOF|EOF]] was reached.
  *)
