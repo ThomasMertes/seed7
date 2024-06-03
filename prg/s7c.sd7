@@ -3860,18 +3860,30 @@ const proc: process_dynamic_function_call (in reference: function,
   begin
     resultExpr.currentFile := file(interface_object);
     resultExpr.currentLine := line(interface_object);
-    resultExpr.expr &:= "o_";
-    create_name(function, resultExpr.expr);
-    resultExpr.expr &:= "(";
-    process_dynamic_parameter_list(function, actual_params, resultExpr);
-    resultExpr.expr &:= ")";
-    if function in return_ref_to_value then
-      c_expr.expr &:= "/* copy ref_to_value */ ";
-      process_create_declaration(resultType(getType(interface_object)), global_c_expr);
-      process_create_call(resultType(getType(interface_object)),
-          resultExpr.expr, c_expr.expr);
+    if function in function_not_declared then
+      process_inline(function, actual_params, resultExpr);
+      if resultExpr.result_expr = "" then
+        c_expr.expr &:= "/* copy ref_to_value */ ";
+        process_create_declaration(resultType(getType(interface_object)), global_c_expr);
+        process_create_call(resultType(getType(interface_object)),
+            resultExpr.expr, c_expr.expr);
+      else
+        c_expr.expr &:= resultExpr.result_expr;
+      end if;
     else
-      c_expr.expr &:= resultExpr.expr;
+      resultExpr.expr &:= "o_";
+      create_name(function, resultExpr.expr);
+      resultExpr.expr &:= "(";
+      process_dynamic_parameter_list(function, actual_params, resultExpr);
+      resultExpr.expr &:= ")";
+      if function in return_ref_to_value then
+        c_expr.expr &:= "/* copy ref_to_value */ ";
+        process_create_declaration(resultType(getType(interface_object)), global_c_expr);
+        process_create_call(resultType(getType(interface_object)),
+            resultExpr.expr, c_expr.expr);
+      else
+        c_expr.expr &:= resultExpr.expr;
+      end if;
     end if;
     c_expr.temp_decls &:= resultExpr.temp_decls;
     c_expr.temp_assigns &:= resultExpr.temp_assigns;
@@ -3933,11 +3945,7 @@ const proc: process_dynamic_call (in reference: function,
         if resultType(getType(interface_object)) <> voidtype then
           c_expr.expr &:= "return ";
         end if;
-        if function in function_not_declared then
-          process_inline(function, actual_params, c_expr);
-        else
-          process_dynamic_function_call(function, actual_params, interface_object, c_expr);
-        end if;
+        process_dynamic_function_call(function, actual_params, interface_object, c_expr);
         c_expr.expr &:= ";\n";
       elsif objectCategory = ACTOBJECT then
         if resultType(getType(interface_object)) <> voidtype then
