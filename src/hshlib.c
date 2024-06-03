@@ -1116,7 +1116,7 @@ objectType hsh_gen_key_value (listType arguments)
 /**
  *  Access one value from the hash table 'aHashMap/arg_1'.
  *  @return the element with the key 'aKey/arg_2' from 'aHashMap/arg_1'.
- *  @exception RANGE_ERROR If 'aHashMap/arg_1' does not have an element
+ *  @exception INDEX_ERROR If 'aHashMap/arg_1' does not have an element
  *             with the key 'aKey/arg_2'.
  */
 objectType hsh_idx (listType arguments)
@@ -1165,7 +1165,7 @@ objectType hsh_idx (listType arguments)
       logError(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode););
-      result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+      result = raise_with_arguments(SYS_IDX_EXCEPTION, arguments);
     } else {
       if (TEMP2_OBJECT(arg_1(arguments))) {
         /* The hash will be destroyed after indexing. */
@@ -1198,9 +1198,9 @@ objectType hsh_idx (listType arguments)
 
 /**
  *  Access one value from the hash table 'aHashMap/arg_1'.
- *  @return the element with the key 'aKey/arg_2' from 'aHashMap/arg_1'.
- *  @exception RANGE_ERROR If 'aHashMap/arg_1' does not have an element
- *             with the key 'aKey/arg_2'.
+ *  @return the element with the key 'aKey/arg_2' from 'aHashMap/arg_1' or
+ *          'defaultValue/arg_4' if 'aHashMap/arg_1' does not have an element
+ *          with the key 'aKey/arg_2'.
  */
 objectType hsh_idx2 (listType arguments)
 

@@ -248,6 +248,43 @@ const type: enumTypeReferenceHash   is hash [enumerationType] reference;
 const type: enumTypeHashHash        is hash [enumerationType] enumTypeBooleanHash;
 
 
+const proc: DECLARE_RAISES_INDEX_ERROR (in type: aType) is func
+  begin
+
+    const func boolean: raisesIndexError (in varfunc aType: expression) is func
+      result
+        var boolean: raisesIndexError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch INDEX_ERROR:
+            raisesIndexError := TRUE;
+        end block;
+      end func;
+
+  end func;
+
+
+DECLARE_RAISES_INDEX_ERROR(boolean);
+DECLARE_RAISES_INDEX_ERROR(integer);
+DECLARE_RAISES_INDEX_ERROR(bigInteger);
+DECLARE_RAISES_INDEX_ERROR(rational);
+DECLARE_RAISES_INDEX_ERROR(bigRational);
+DECLARE_RAISES_INDEX_ERROR(float);
+DECLARE_RAISES_INDEX_ERROR(complex);
+DECLARE_RAISES_INDEX_ERROR(char);
+DECLARE_RAISES_INDEX_ERROR(string);
+DECLARE_RAISES_INDEX_ERROR(bstring);
+DECLARE_RAISES_INDEX_ERROR(bitset);
+DECLARE_RAISES_INDEX_ERROR(time);
+DECLARE_RAISES_INDEX_ERROR(enumerationType);
+DECLARE_RAISES_INDEX_ERROR(type);
+DECLARE_RAISES_INDEX_ERROR(reference);
+
+
 const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
 
@@ -359,6 +396,23 @@ const proc: chkBooleanHash is func
         values(booleanTypeHashVar)        <> 0 times boolean or
         values(booleanReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[boolean] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(booleanBooleanHashVar     [TRUE]) or
+        not raisesIndexError(booleanIntegerHashVar     [TRUE]) or
+        not raisesIndexError(booleanBigIntegerHashVar  [TRUE]) or
+        not raisesIndexError(booleanBigRationalHashVar [TRUE]) or
+        not raisesIndexError(booleanFloatHashVar       [TRUE]) or
+        not raisesIndexError(booleanComplexHashVar     [TRUE]) or
+        not raisesIndexError(booleanCharHashVar        [TRUE]) or
+        not raisesIndexError(booleanStringHashVar      [TRUE]) or
+        not raisesIndexError(booleanBstringHashVar     [TRUE]) or
+        not raisesIndexError(booleanBitsetHashVar      [TRUE]) or
+        not raisesIndexError(booleanTimeHashVar        [TRUE]) or
+        not raisesIndexError(booleanEnumTypeHashVar    [TRUE]) or
+        not raisesIndexError(booleanTypeHashVar        [TRUE]) or
+        not raisesIndexError(booleanReferenceHashVar   [TRUE]) then
+      writeln(" ***** Indexing into an empty hash[boolean] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     booleanBooleanHashVar     @:= [TRUE] TRUE;
@@ -595,6 +649,23 @@ const proc: chkIntegerHash is func
         values(integerTypeHashVar)        <> 0 times boolean or
         values(integerReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[integer] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(integerBooleanHashVar     [87654321]) or
+        not raisesIndexError(integerIntegerHashVar     [87654321]) or
+        not raisesIndexError(integerBigIntegerHashVar  [87654321]) or
+        not raisesIndexError(integerBigRationalHashVar [87654321]) or
+        not raisesIndexError(integerFloatHashVar       [87654321]) or
+        not raisesIndexError(integerComplexHashVar     [87654321]) or
+        not raisesIndexError(integerCharHashVar        [87654321]) or
+        not raisesIndexError(integerStringHashVar      [87654321]) or
+        not raisesIndexError(integerBstringHashVar     [87654321]) or
+        not raisesIndexError(integerBitsetHashVar      [87654321]) or
+        not raisesIndexError(integerTimeHashVar        [87654321]) or
+        not raisesIndexError(integerEnumTypeHashVar    [87654321]) or
+        not raisesIndexError(integerTypeHashVar        [87654321]) or
+        not raisesIndexError(integerReferenceHashVar   [87654321]) then
+      writeln(" ***** Indexing into an empty hash[integer] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     integerBooleanHashVar     @:= [87654321] TRUE;
@@ -834,6 +905,23 @@ const proc: chkBigIntegerHash is func
       writeln(" ***** Number of values in empty hash[bigInteger] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(bigIntegerBooleanHashVar     [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerIntegerHashVar     [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerBigIntegerHashVar  [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerBigRationalHashVar [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerFloatHashVar       [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerComplexHashVar     [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerCharHashVar        [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerStringHashVar      [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerBstringHashVar     [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerBitsetHashVar      [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerTimeHashVar        [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerEnumTypeHashVar    [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerTypeHashVar        [9223372036854775808_]) or
+        not raisesIndexError(bigIntegerReferenceHashVar   [9223372036854775808_]) then
+      writeln(" ***** Indexing into an empty hash[bigInteger] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
     bigIntegerIntegerHashVar     @:= [9223372036854775808_] 1234;
     bigIntegerBigIntegerHashVar  @:= [9223372036854775808_] 9999999999_;
@@ -1069,6 +1157,23 @@ const proc: chkRationalHash is func
         values(rationalTypeHashVar)        <> 0 times boolean or
         values(rationalReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[rational] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(rationalBooleanHashVar     [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalIntegerHashVar     [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalBigIntegerHashVar  [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalBigRationalHashVar [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalFloatHashVar       [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalComplexHashVar     [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalCharHashVar        [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalStringHashVar      [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalBstringHashVar     [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalBitsetHashVar      [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalTimeHashVar        [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalEnumTypeHashVar    [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalTypeHashVar        [9876543212 / 1234567890]) or
+        not raisesIndexError(rationalReferenceHashVar   [9876543212 / 1234567890]) then
+      writeln(" ***** Indexing into an empty hash[rational] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
@@ -1308,6 +1413,23 @@ const proc: chkBigRationalHash is func
       writeln(" ***** Number of values in empty hash[bigRational] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(bigRationalBooleanHashVar     [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalIntegerHashVar     [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalBigRationalHashVar [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalFloatHashVar       [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalComplexHashVar     [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalCharHashVar        [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalStringHashVar      [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalBstringHashVar     [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalBitsetHashVar      [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalTimeHashVar        [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalEnumTypeHashVar    [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalTypeHashVar        [9876543212_ / 1234567890_]) or
+        not raisesIndexError(bigRationalReferenceHashVar   [9876543212_ / 1234567890_]) then
+      writeln(" ***** Indexing into an empty hash[bigRational] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
     bigRationalIntegerHashVar     @:= [9876543212_ / 1234567890_] 1234;
     bigRationalBigIntegerHashVar  @:= [9876543212_ / 1234567890_] 9999999999_;
@@ -1543,6 +1665,23 @@ const proc: chkFloatHash is func
         values(floatTypeHashVar)        <> 0 times boolean or
         values(floatReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[float] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(floatBooleanHashVar     [3.1415926535]) or
+        not raisesIndexError(floatIntegerHashVar     [3.1415926535]) or
+        not raisesIndexError(floatBigIntegerHashVar  [3.1415926535]) or
+        not raisesIndexError(floatBigRationalHashVar [3.1415926535]) or
+        not raisesIndexError(floatFloatHashVar       [3.1415926535]) or
+        not raisesIndexError(floatComplexHashVar     [3.1415926535]) or
+        not raisesIndexError(floatCharHashVar        [3.1415926535]) or
+        not raisesIndexError(floatStringHashVar      [3.1415926535]) or
+        not raisesIndexError(floatBstringHashVar     [3.1415926535]) or
+        not raisesIndexError(floatBitsetHashVar      [3.1415926535]) or
+        not raisesIndexError(floatTimeHashVar        [3.1415926535]) or
+        not raisesIndexError(floatEnumTypeHashVar    [3.1415926535]) or
+        not raisesIndexError(floatTypeHashVar        [3.1415926535]) or
+        not raisesIndexError(floatReferenceHashVar   [3.1415926535]) then
+      writeln(" ***** Indexing into an empty hash[float] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     floatBooleanHashVar     @:= [3.1415926535] TRUE;
@@ -1782,6 +1921,23 @@ const proc: chkComplexHash is func
       writeln(" ***** Number of values in empty hash[complex] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(complexBooleanHashVar     [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexIntegerHashVar     [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexBigIntegerHashVar  [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexBigRationalHashVar [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexFloatHashVar       [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexComplexHashVar     [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexCharHashVar        [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexStringHashVar      [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexBstringHashVar     [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexBitsetHashVar      [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexTimeHashVar        [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexEnumTypeHashVar    [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexTypeHashVar        [complex(5.6, 7.8)]) or
+        not raisesIndexError(complexReferenceHashVar   [complex(5.6, 7.8)]) then
+      writeln(" ***** Indexing into an empty hash[complex] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
     complexIntegerHashVar     @:= [complex(5.6, 7.8)] 1234;
     complexBigIntegerHashVar  @:= [complex(5.6, 7.8)] 9999999999_;
@@ -2017,6 +2173,23 @@ const proc: chkCharHash is func
         values(charTypeHashVar)        <> 0 times boolean or
         values(charReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[char] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(charBooleanHashVar     ['k']) or
+        not raisesIndexError(charIntegerHashVar     ['k']) or
+        not raisesIndexError(charBigIntegerHashVar  ['k']) or
+        not raisesIndexError(charBigRationalHashVar ['k']) or
+        not raisesIndexError(charFloatHashVar       ['k']) or
+        not raisesIndexError(charComplexHashVar     ['k']) or
+        not raisesIndexError(charCharHashVar        ['k']) or
+        not raisesIndexError(charStringHashVar      ['k']) or
+        not raisesIndexError(charBstringHashVar     ['k']) or
+        not raisesIndexError(charBitsetHashVar      ['k']) or
+        not raisesIndexError(charTimeHashVar        ['k']) or
+        not raisesIndexError(charEnumTypeHashVar    ['k']) or
+        not raisesIndexError(charTypeHashVar        ['k']) or
+        not raisesIndexError(charReferenceHashVar   ['k']) then
+      writeln(" ***** Indexing into an empty hash[char] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     charBooleanHashVar     @:= ['k'] TRUE;
@@ -2256,6 +2429,23 @@ const proc: chkStringHash is func
       writeln(" ***** Number of values in empty hash[string] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(stringBooleanHashVar     ["asdfghjkl"]) or
+        not raisesIndexError(stringIntegerHashVar     ["asdfghjkl"]) or
+        not raisesIndexError(stringBigIntegerHashVar  ["asdfghjkl"]) or
+        not raisesIndexError(stringBigRationalHashVar ["asdfghjkl"]) or
+        not raisesIndexError(stringFloatHashVar       ["asdfghjkl"]) or
+        not raisesIndexError(stringComplexHashVar     ["asdfghjkl"]) or
+        not raisesIndexError(stringCharHashVar        ["asdfghjkl"]) or
+        not raisesIndexError(stringStringHashVar      ["asdfghjkl"]) or
+        not raisesIndexError(stringBstringHashVar     ["asdfghjkl"]) or
+        not raisesIndexError(stringBitsetHashVar      ["asdfghjkl"]) or
+        not raisesIndexError(stringTimeHashVar        ["asdfghjkl"]) or
+        not raisesIndexError(stringEnumTypeHashVar    ["asdfghjkl"]) or
+        not raisesIndexError(stringTypeHashVar        ["asdfghjkl"]) or
+        not raisesIndexError(stringReferenceHashVar   ["asdfghjkl"]) then
+      writeln(" ***** Indexing into an empty hash[string] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
     stringIntegerHashVar     @:= ["asdfghjkl"] 1234;
     stringBigIntegerHashVar  @:= ["asdfghjkl"] 9999999999_;
@@ -2491,6 +2681,23 @@ const proc: chkBstringHash is func
         values(bstringTypeHashVar)        <> 0 times boolean or
         values(bstringReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[bstring] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(bstringBooleanHashVar     [bstring("qwert")]) or
+        not raisesIndexError(bstringIntegerHashVar     [bstring("qwert")]) or
+        not raisesIndexError(bstringBigIntegerHashVar  [bstring("qwert")]) or
+        not raisesIndexError(bstringBigRationalHashVar [bstring("qwert")]) or
+        not raisesIndexError(bstringFloatHashVar       [bstring("qwert")]) or
+        not raisesIndexError(bstringComplexHashVar     [bstring("qwert")]) or
+        not raisesIndexError(bstringCharHashVar        [bstring("qwert")]) or
+        not raisesIndexError(bstringStringHashVar      [bstring("qwert")]) or
+        not raisesIndexError(bstringBstringHashVar     [bstring("qwert")]) or
+        not raisesIndexError(bstringBitsetHashVar      [bstring("qwert")]) or
+        not raisesIndexError(bstringTimeHashVar        [bstring("qwert")]) or
+        not raisesIndexError(bstringEnumTypeHashVar    [bstring("qwert")]) or
+        not raisesIndexError(bstringTypeHashVar        [bstring("qwert")]) or
+        not raisesIndexError(bstringReferenceHashVar   [bstring("qwert")]) then
+      writeln(" ***** Indexing into an empty hash[bstring] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
@@ -2730,6 +2937,23 @@ const proc: chkBitsetHash is func
       writeln(" ***** Number of values in empty hash[bitset] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(bitsetBooleanHashVar     [{234}]) or
+        not raisesIndexError(bitsetIntegerHashVar     [{234}]) or
+        not raisesIndexError(bitsetBigIntegerHashVar  [{234}]) or
+        not raisesIndexError(bitsetBigRationalHashVar [{234}]) or
+        not raisesIndexError(bitsetFloatHashVar       [{234}]) or
+        not raisesIndexError(bitsetComplexHashVar     [{234}]) or
+        not raisesIndexError(bitsetCharHashVar        [{234}]) or
+        not raisesIndexError(bitsetStringHashVar      [{234}]) or
+        not raisesIndexError(bitsetBstringHashVar     [{234}]) or
+        not raisesIndexError(bitsetBitsetHashVar      [{234}]) or
+        not raisesIndexError(bitsetTimeHashVar        [{234}]) or
+        not raisesIndexError(bitsetEnumTypeHashVar    [{234}]) or
+        not raisesIndexError(bitsetTypeHashVar        [{234}]) or
+        not raisesIndexError(bitsetReferenceHashVar   [{234}]) then
+      writeln(" ***** Indexing into an empty hash[bitset] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     bitsetBooleanHashVar     @:= [{234}] TRUE;
     bitsetIntegerHashVar     @:= [{234}] 1234;
     bitsetBigIntegerHashVar  @:= [{234}] 9999999999_;
@@ -2967,6 +3191,23 @@ const proc: chkTimeHash is func
       writeln(" ***** Number of values in empty hash[time] table is not 0");
       okay := FALSE;
     end if;
+    if  not raisesIndexError(timeBooleanHashVar     [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeIntegerHashVar     [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeBigIntegerHashVar  [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeBigRationalHashVar [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeFloatHashVar       [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeComplexHashVar     [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeCharHashVar        [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeStringHashVar      [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeBstringHashVar     [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeBitsetHashVar      [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeTimeHashVar        [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeEnumTypeHashVar    [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeTypeHashVar        [time("2010-11-12 13:14")]) or
+        not raisesIndexError(timeReferenceHashVar   [time("2010-11-12 13:14")]) then
+      writeln(" ***** Indexing into an empty hash[time] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
     timeBooleanHashVar     @:= [time("2010-11-12 13:14")] TRUE;
     timeIntegerHashVar     @:= [time("2010-11-12 13:14")] 1234;
     timeBigIntegerHashVar  @:= [time("2010-11-12 13:14")] 9999999999_;
@@ -3202,6 +3443,23 @@ const proc: chkEnumerationTypeHash is func
         values(enumTypeTypeHashVar)        <> 0 times boolean or
         values(enumTypeReferenceHashVar)   <> 0 times NIL then
       writeln(" ***** Number of values in empty hash[enumerationType] table is not 0");
+      okay := FALSE;
+    end if;
+    if  not raisesIndexError(enumTypeBooleanHashVar     [YELLOW]) or
+        not raisesIndexError(enumTypeIntegerHashVar     [YELLOW]) or
+        not raisesIndexError(enumTypeBigIntegerHashVar  [YELLOW]) or
+        not raisesIndexError(enumTypeBigRationalHashVar [YELLOW]) or
+        not raisesIndexError(enumTypeFloatHashVar       [YELLOW]) or
+        not raisesIndexError(enumTypeComplexHashVar     [YELLOW]) or
+        not raisesIndexError(enumTypeCharHashVar        [YELLOW]) or
+        not raisesIndexError(enumTypeStringHashVar      [YELLOW]) or
+        not raisesIndexError(enumTypeBstringHashVar     [YELLOW]) or
+        not raisesIndexError(enumTypeBitsetHashVar      [YELLOW]) or
+        not raisesIndexError(enumTypeTimeHashVar        [YELLOW]) or
+        not raisesIndexError(enumTypeEnumTypeHashVar    [YELLOW]) or
+        not raisesIndexError(enumTypeTypeHashVar        [YELLOW]) or
+        not raisesIndexError(enumTypeReferenceHashVar   [YELLOW]) then
+      writeln(" ***** Indexing into an empty hash[enumerationType] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
     enumTypeBooleanHashVar     @:= [YELLOW] TRUE;

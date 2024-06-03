@@ -812,7 +812,7 @@ rtlHashElemType hshGenKeyValue (const genericType aKey, const genericType aValue
 /**
  *  Access one value from the hash table 'aHashMap'.
  *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR If 'aHashMap' does not have an element
+ *  @exception INDEX_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
@@ -843,7 +843,7 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
       logError(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, aKey, hashcode););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
       result = 0;
     } else {
       result = result_hashelem->data.value.genericValue;
@@ -862,7 +862,7 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
 /**
  *  Determine the address of a value from the hash table 'aHashMap'.
  *  @return the address of the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR If 'aHashMap' does not have an element
+ *  @exception INDEX_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
@@ -896,7 +896,7 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
       logError(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, aKey, hashcode););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
       result = NULL;
     } else {
       result = &result_hashelem->data;

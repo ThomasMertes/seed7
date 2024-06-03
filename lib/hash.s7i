@@ -149,7 +149,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       (**
        *  Access one value from the hash table ''aHashMap''.
        *  @return the element with the key ''aKey'' from ''aHashMap''.
-       *  @exception RANGE_ERROR If ''aHashMap'' does not have an element
+       *  @exception INDEX_ERROR If ''aHashMap'' does not have an element
        *             with the key ''aKey''.
        *)
       const func baseType: (in hashType: aHashMap) [ (in keyType: aKey) ] is
