@@ -347,6 +347,24 @@ const string: chktime_output is "\n\
   \await accepts only legal time values.\n\
   \setLocalTZ accepts only legal time values.\n";
 
+const string: chkscan_output is "\n\
+  \The function getDigits works correctly.\n\
+  \The function getInteger works correctly.\n\
+  \The function getNumber works correctly.\n\
+  \The function getNonDigits works correctly.\n\
+  \The function getQuotedText works correctly.\n\
+  \The function getCommandLineWord works correctly.\n\
+  \The function getSimpleStringLiteral works correctly.\n\
+  \The function getName works correctly.\n\
+  \The function skipSpace works correctly.\n\
+  \The function skipSpaceOrTab works correctly.\n\
+  \The function skipWhiteSpace works correctly.\n\
+  \The function getWhiteSpace works correctly.\n\
+  \The function getWord works correctly.\n\
+  \The function skipLine works correctly.\n\
+  \The function getLine works correctly.\n\
+  \The function getXmlTagHeadOrContent works correctly.\n";
+
 const string:chkbitdata_output is "\n\
   \getBit(lsbBitStream) works correctly.\n\
   \getBits(lsbBitStream) works correctly.\n\
@@ -726,6 +744,7 @@ const proc: main is func
     check("chkbool", chkbool_output);
     check("chkenum", chkenum_output);
     check("chktime", chktime_output);
+    check("chkscan", chkscan_output);
     check("chkbitdata", chkbitdata_output);
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);
