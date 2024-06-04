@@ -366,6 +366,10 @@ const proc: addInterface (in type: aType, in type: interfaceType) is action "TYP
 DECLARE_TERNARY(type);
 
 
+const func boolean: (in void: void1) = (in void: void2) is return TRUE;
+const func boolean: (in void: void1) <> (in void: void2) is return FALSE;
+
+
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
