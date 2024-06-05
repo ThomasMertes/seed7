@@ -4211,46 +4211,44 @@ const proc: process_dynamic_decision (in reference: current_object,
     object_type := getType(current_object);
     if isFunc(object_type) or isVarfunc(object_type) then
       result_type := resultType(object_type);
-      if result_type not in typeCategory or typeCategory[result_type] <> TYPEOBJECT then
-        declare_types_of_params(param_list, global_c_expr);
-        c_expr.expr &:= diagnosticLine(current_object);
-        c_expr.expr &:= "/* DYNAMIC */ static ";
-        c_expr.expr &:= type_name(result_type);
-        if isVarfunc(object_type) then
-          c_expr.expr &:= " *o_";
-        else
-          c_expr.expr &:= " o_";
-        end if;
-        create_name(current_object, c_expr.expr);
-        param_list := formalParams(current_object);
-        c_expr.expr &:= " (";
-        process_param_list_declaration(param_list, c_param_list);
-        c_expr.expr &:= c_param_list.expr;
-        c_expr.expr &:= ")\n";
-        c_expr.expr &:= diagnosticLine(current_object);
-        c_expr.expr &:= "{\n";
-        process_dynamic_condition(current_object,
-            param_list, 0, c_func_body);
-        appendWithDiagnostic(c_param_list.temp_decls, c_expr);
-        appendWithDiagnostic(c_func_body.temp_decls, c_expr);
-        c_expr.expr &:= c_param_list.temp_assigns;
-        if trace_dynamic_calls then
-          c_expr.expr &:= "fprintf(";
-          c_expr.expr &:= trace_output;
-          c_expr.expr &:= ", \"DYNAMIC ";
-          create_name(current_object, c_expr.expr);
-          c_expr.expr &:= "\\n\");\n";
-          c_expr.expr &:= "fflush(";
-          c_expr.expr &:= trace_output;
-          c_expr.expr &:= ");\n";
-        end if;
-        appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
-        c_expr.expr &:= c_func_body.expr;
-        appendWithDiagnostic(c_param_list.temp_frees, c_expr);
-        appendWithDiagnostic(c_func_body.temp_frees, c_expr);
-        c_expr.expr &:= diagnosticLine(current_object);
-        c_expr.expr &:= "}\n\n";
+      declare_types_of_params(param_list, global_c_expr);
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "/* DYNAMIC */ static ";
+      c_expr.expr &:= type_name(result_type);
+      if isVarfunc(object_type) then
+        c_expr.expr &:= " *o_";
+      else
+        c_expr.expr &:= " o_";
       end if;
+      create_name(current_object, c_expr.expr);
+      param_list := formalParams(current_object);
+      c_expr.expr &:= " (";
+      process_param_list_declaration(param_list, c_param_list);
+      c_expr.expr &:= c_param_list.expr;
+      c_expr.expr &:= ")\n";
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "{\n";
+      process_dynamic_condition(current_object,
+          param_list, 0, c_func_body);
+      appendWithDiagnostic(c_param_list.temp_decls, c_expr);
+      appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+      c_expr.expr &:= c_param_list.temp_assigns;
+      if trace_dynamic_calls then
+        c_expr.expr &:= "fprintf(";
+        c_expr.expr &:= trace_output;
+        c_expr.expr &:= ", \"DYNAMIC ";
+        create_name(current_object, c_expr.expr);
+        c_expr.expr &:= "\\n\");\n";
+        c_expr.expr &:= "fflush(";
+        c_expr.expr &:= trace_output;
+        c_expr.expr &:= ");\n";
+      end if;
+      appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+      c_expr.expr &:= c_func_body.expr;
+      appendWithDiagnostic(c_param_list.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "}\n\n";
     end if;
   end func;
 
@@ -4278,24 +4276,22 @@ const proc: process_dynamic_declaration (in reference: current_object,
     object_type := getType(current_object);
     if isFunc(object_type) or isVarfunc(object_type) then
       result_type := resultType(object_type);
-      if result_type not in typeCategory or typeCategory[result_type] <> TYPEOBJECT then
-        dynamic_functions &:= make_list(current_object);
-        declare_types_of_params(param_list, global_c_expr);
-        c_expr.expr &:= "/* DYNAMIC */ static ";
-        c_expr.expr &:= type_name(result_type);
-        if isVarfunc(object_type) then
-          c_expr.expr &:= " *o_";
-        else
-          c_expr.expr &:= " o_";
-        end if;
-        create_name(current_object, c_expr.expr);
-        param_list := formalParams(current_object);
-        c_expr.expr &:= " (";
-        process_param_list_declaration(param_list, c_param_list);
-        c_expr.expr &:= c_param_list.expr;
-        c_expr.expr &:= ");\n";
-        prototype_declared @:= [current_object] TRUE;
+      dynamic_functions &:= make_list(current_object);
+      declare_types_of_params(param_list, global_c_expr);
+      c_expr.expr &:= "/* DYNAMIC */ static ";
+      c_expr.expr &:= type_name(result_type);
+      if isVarfunc(object_type) then
+        c_expr.expr &:= " *o_";
+      else
+        c_expr.expr &:= " o_";
       end if;
+      create_name(current_object, c_expr.expr);
+      param_list := formalParams(current_object);
+      c_expr.expr &:= " (";
+      process_param_list_declaration(param_list, c_param_list);
+      c_expr.expr &:= c_param_list.expr;
+      c_expr.expr &:= ");\n";
+      prototype_declared @:= [current_object] TRUE;
     end if;
   end func;
 
