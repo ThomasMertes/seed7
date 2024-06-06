@@ -1,0 +1,791 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  jsondom.s7i   Reading and processing JSON data with a JSON DOM. *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanjson.s7i";
+include "strifile.s7i";
+include "bigint.s7i";
+include "float.s7i";
+
+
+(**
+ *  Enumeration type describing the category of a [[#jsonValue|jsonValue]].
+ *  Categories are JSON_NULL, JSON_BOOLEAN, JSON_NUMBER, JSON_STRING,
+ *  JSON_ARRAY and JSON_OBJECT.
+ *)
+const type: jsonCategory is new enum
+    JSON_NULL,
+    JSON_BOOLEAN,
+    JSON_NUMBER,
+    JSON_STRING,
+    JSON_ARRAY,
+    JSON_OBJECT
+  end enum;
+
+const func string: str (in jsonCategory: aCategory) is
+  return literal(aCategory);
+
+enable_output(jsonCategory);
+
+
+(**
+ *  Interface type to represent JSON values.
+ *  JSON values can be null (''jsonNull''),  booleans (''jsonBoolean''),
+ *  numbers (''jsonNumber''), strings (''jsonString''), arrays (''jsonArray'') or
+ *  objects (''jsonObject'').
+ *   var jsonValue: json is jsonValue.value;
+ *   ...
+ *   json := readJson("[1, \"a\", {\"ok\" : true}]");
+ *)
+const type: jsonValue is sub object interface;
+
+
+const func jsonValue: readJson (inout file: inFile, inout string: symbol) is forward;
+
+
+(**
+ *  Get the category of the JSON value ''aValue''.
+ *  Returns one of JSON_NULL, JSON_BOOLEAN, JSON_NUMBER, JSON_STRING,
+ *  JSON_ARRAY or JSON_OBJECT.
+ *   category(jsonValue(NULL))                  returns  JSON_NULL
+ *   category(jsonValue(TRUE))                  returns  JSON_BOOLEAN
+ *   category(jsonValue(              12345 ))  returns  JSON_NUMBER
+ *   category(jsonValue(9223372036854775808_))  returns  JSON_NUMBER
+ *   category(jsonValue("foo"))                 returns  JSON_STRING
+ *   category(readJson("false"))                returns  JSON_BOOLEAN
+ *   category(readJson("9223372036854775808"))  returns  JSON_NUMBER
+ *   category(readJson("0.00000762939453125"))  returns  JSON_NUMBER
+ *  @return the category of the JSON value ''aValue''.
+ *)
+const func jsonCategory: category (in jsonValue: aValue)        is DYNAMIC;
+
+
+(**
+ *  Get the ''type'' of the JSON value ''aValue''.
+ *  Returns one of ''void'', [[boolean]], [[integer]], [[bigint|bigInteger]], [[float]],
+ *  [[string]], ''jsonValueArray'' or ''jsonValueMap''.
+ *   type(jsonValue(NULL))                  returns  void
+ *   type(jsonValue(TRUE))                  returns  boolean
+ *   type(jsonValue(9223372036854775808_))  returns  bigInteger
+ *   type(jsonValue(0.00000762939453125 ))  returns  float
+ *   type(jsonValue("foo"))                 returns  string
+ *   type(readJson("false"))                returns  boolean
+ *   type(readJson("9223372036854775808"))  returns  bigInteger
+ *   type(readJson("0.00000762939453125"))  returns  float
+ *  @return the ''type'' of the JSON value ''aValue''.
+ *)
+const func type: type (in jsonValue: aValue)                         is DYNAMIC;
+
+
+(**
+ *  Get the ''void'' value from the JSON null ''aValue''.
+ *   void(jsonValue(NULL))   returns  empty
+ *   void(readJson("null"))  returns  empty
+ *  @return the void value of a JSON null.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON null.
+ *)
+const func void: void (in jsonValue: aValue)                         is DYNAMIC;
+
+
+(**
+ *  Get the [[boolean]] value from the JSON boolean ''aValue''.
+ *   boolean(jsonValue(FALSE))  returns  FALSE
+ *   boolean(readJson("true"))  returns  TRUE
+ *  @return the boolean value of a JSON boolean.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON boolean.
+ *)
+const func boolean: boolean (in jsonValue: aValue)                   is DYNAMIC;
+
+
+(**
+ *  Get the [[integer]] value from the JSON number ''aValue''.
+ *   integer(jsonValue(12345))                  returns  12345
+ *   integer(readJson("12345"))                 returns  12345
+ *   integer(readJson("12345678909876543210"))  raises   RANGE_ERROR
+ *  @return the integer value of a JSON number.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
+ *  @exception RANGE_ERROR The JSON number cannot be represented as integer.
+ *)
+const func integer: integer (in jsonValue: aValue)                   is DYNAMIC;
+
+
+(**
+ *  Get the [[bigInteger]] value from the JSON number ''aValue''.
+ *   bigInteger(jsonValue(12345_))   returns  12345_
+ *   bigInteger(readJson("12345"))   returns  12345_
+ *   bigInteger(readJson("123.45"))  raises   RANGE_ERROR
+ *  @return the bigInteger value of a JSON number.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
+ *  @exception RANGE_ERROR The JSON number cannot be represented as bigInteger.
+ *)
+const func bigInteger: bigInteger (in jsonValue: aValue)             is DYNAMIC;
+
+
+(**
+ *  Get the [[float]] value from the JSON number ''aValue''.
+ *   float(jsonValue(0.0625))   returns  0.0625
+ *   float(readJson("0.0625"))  returns  0.0625
+ *  @return the float value of a JSON number.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
+ *)
+const func float: float (in jsonValue: aValue)                       is DYNAMIC;
+
+
+(**
+ *  Get the [[string]] value from the JSON string ''aValue''.
+ *   string(jsonValue(""))               returns  ""
+ *   string(jsonValue("abcdefg"))        returns  "abcdefg"
+ *   string(jsonValue(" \t\r\n"))        returns  " \t\r\n"
+ *   string(readJson("\"\""))            returns  ""
+ *   string(readJson("\"abcdefg\""))     returns  "abcdefg"
+ *   string(readJson("\" \\t\\r\\n\""))  returns  " \t\r\n"
+ *  @return the string value of a JSON string.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON string.
+ *)
+const func string: string (in jsonValue: aValue)                     is DYNAMIC;
+
+
+(**
+ *  Access one element from the JSON array ''aValue''.
+ *   type(   readJson("[false, 0.125]")[1]) returns boolean
+ *   boolean(readJson("[false, 0.125]")[1]) returns FALSE
+ *   type(   readJson("[false, 0.125]")[2]) returns float
+ *   float(  readJson("[false, 0.125]")[2]) returns 0.125
+ *  @return the element with the specified ''index'' from ''aValue''.
+ *  @exception INDEX_ERROR If ''index'' is less than 1 or
+ *                         greater than [[#maxIdx(in_jsonValue)|maxIdx]](aValue).
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON array.
+ *)
+const func jsonValue: (in jsonValue: aValue) [ (in integer: index) ] is DYNAMIC;
+
+
+(**
+ *  Length of JSON array ''aValue''.
+ *   length(readJson("[]"))           returns 0
+ *   length(readJson("[1]"))          returns 1
+ *   length(readJson("[1, \"foo\"]")) returns 2
+ *  @return the length of the JSON array.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON array.
+ *)
+const func integer: length (in jsonValue: aValue)                    is DYNAMIC;
+
+
+(**
+ *  Minimum index of JSON array ''aValue''.
+ *   minIdx(readJson("[]"))           returns 1
+ *   minIdx(readJson("[1]"))          returns 1
+ *   minIdx(readJson("[1, \"foo\"]")) returns 1
+ *  @return the minimum index of the JSON array.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON array.
+ *)
+const func integer: minIdx (in jsonValue: aValue)                    is DYNAMIC;
+
+
+(**
+ *  Maximum index of JSON array ''aValue''.
+ *   maxIdx(readJson("[]"))           returns 0
+ *   maxIdx(readJson("[1]"))          returns 1
+ *   maxIdx(readJson("[1, \"foo\"]")) returns 2
+ *  @return the maximum index of the JSON array.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON array.
+ *)
+const func integer: maxIdx (in jsonValue: aValue)                    is DYNAMIC;
+
+
+(**
+ *  Access one element from the JSON object ''aValue''.
+ *   type(   readJson("{\"fee\": 0.5, \"foo\": true}")["fee"])  returns  float
+ *   float(  readJson("{\"fee\": 0.5, \"foo\": true}")["fee"])  returns  0.5
+ *   type(   readJson("{\"fee\": 0.5, \"foo\": true}")["foo"])  returns  boolean
+ *   boolean(readJson("{\"fee\": 0.5, \"foo\": true}")["foo"])  returns  TRUE
+ *  @return the element with the specified ''name'' from ''aValue''.
+ *  @exception INDEX_ERROR If ''aValue'' does not have an element
+ *             with the key ''name''.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON object.
+ *)
+const func jsonValue: (in jsonValue: aValue) [ (in string: name) ]   is DYNAMIC;
+
+
+(**
+ *  Determine if ''aKey'' is an element name of the JSON object ''aValue''.
+ *   "fee" in readJson("{\"fee\": 0.5, \"foo\": true}")  returns  TRUE
+ *   "fi"  in readJson("{\"fee\": 0.5, \"foo\": true}")  returns  FALSE
+ *  @return TRUE if ''aKey'' is an element name of the JSON object ''aValue'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: aKey) in (in jsonValue: aValue)      is DYNAMIC;
+
+
+(**
+ *  Determine if ''aKey'' is not an element name of the JSON object ''aValue''.
+ *   "fee" not in readJson("{\"fee\": 0.5, \"foo\": true}")  returns  FALSE
+ *   "fi"  not in readJson("{\"fee\": 0.5, \"foo\": true}")  returns  TRUE
+ *  @return FALSE if ''aKey'' is an element name of the JSON object ''aValue'',
+ *          TRUE otherwise.
+ *)
+const func boolean: (in string: aKey) not in (in jsonValue: aValue)  is DYNAMIC;
+
+
+(**
+ *  Obtain the element names of the JSON object ''aValue''.
+ *   keys(readJson("{}"))                             returns  0 times ""
+ *   keys(readJson("{\"fee\": 0.5}"))                 returns  [] ("fee")
+ *   keys(readJson("{\"fee\": 0.5, \"foo\": true}"))  returns  [] ("fee", "foo")
+ *  @return an array with the element names of the JSON object.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON object.
+ *)
+const func array string: keys (in jsonValue: aValue)                 is DYNAMIC;
+
+
+(**
+ *  Obtain the elements of the JSON array ''aValue''.
+ *   values(readJson("[]"))           returns  0 times jsonValue.value
+ *   values(readJson("[\"fee\"]"))    returns  [] (jsonValue("fee"))
+ *   values(readJson("[0.5, true]"))  returns  [] (jsonValue(0.5), jsonValue(TRUE))
+ *  @return an array with the elements of the JSON array.
+ *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON array.
+ *)
+const func array jsonValue: values (in jsonValue: aValue)             is DYNAMIC;
+
+
+(**
+ *  Convert the given JSON value ''aValue'' to a [[string]].
+ *   str(readJson("[1, \"a\", {\"ok\" : true}]"))  returns  "[1,\"a\",{\"ok\":true}]"
+ *  @return the JSON value as [[string]].
+ *)
+const func string: str (in jsonValue: aValue)                        is DYNAMIC;
+
+
+(**
+ *  For-loop where ''forVar'' loops over the elements of a JSON array.
+ *   var jsonValue: json is jsonValue.value;
+ *   var jsonValue: anElement is jsonValue.value;
+ *   ...
+ *   if "keys" in json and category(json["keys"]) = JSON_ARRAY then
+ *     for anElement range json["keys"] do
+ *       ...
+ *)
+const proc: for (inout jsonValue: forVar) range (in jsonValue: aValue) do
+              (in proc: statements)
+            end for is func
+  begin
+    for forVar range values(aValue) do
+      statements;
+    end for;
+  end func;
+
+
+const type: jsonBase is new struct
+  end struct;
+
+
+type_implements_interface(jsonBase, jsonValue);
+
+
+#
+# jsonNull
+#
+
+
+##
+#  jsonValue implementation type representing null.
+#
+const type: jsonNull is sub jsonBase struct
+  end struct;
+
+
+type_implements_interface(jsonNull, jsonValue);
+
+
+const jsonValue: (attr jsonValue) . value is jsonNull.value;
+
+
+const type: jsonValueMap is hash [string] jsonValue;
+const type: jsonValueArray is array jsonValue;
+
+
+(**
+ *  Create a null [[#jsonValue|jsonValue]].
+ *   jsonValue(NULL)
+ *  @return a ''jsonNull'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (NULL) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonNull: aNull is jsonNull.value;
+  begin
+    aValue := toInterface(aNull);
+  end func;
+
+
+const func jsonValue: readJsonNull (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  begin
+    aValue := jsonValue(NULL);
+    symbol := getJsonSymbol(inFile);
+  end func;
+
+
+const func jsonCategory: category (in jsonNull: aNull) is return JSON_NULL;
+const func type: type (in jsonNull: aNull)             is return void;
+const func void: void (in jsonNull: aNull)             is return empty;
+const func string: str (in jsonNull: aNull)            is return "null";
+
+
+#
+# jsonBoolean
+#
+
+
+##
+#  jsonValue implementation type representing a boolean.
+#
+const type: jsonBoolean is sub jsonBase struct
+    var boolean: okay is FALSE;
+  end struct;
+
+
+type_implements_interface(jsonBoolean, jsonValue);
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given [[boolean]] ''okay''.
+ *   jsonValue(TRUE)
+ *  @return a ''jsonBoolean'' with the given ''okay'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in boolean: okay) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonBoolean: aBoolean is jsonBoolean.value;
+  begin
+    aBoolean.okay := okay;
+    aValue := toInterface(aBoolean);
+  end func;
+
+
+const func jsonValue: readJsonBoolean (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  begin
+    if symbol = "false" then
+      aValue := jsonValue(FALSE);
+    elsif symbol = "true" then
+      aValue := jsonValue(TRUE);
+    else
+      raise RANGE_ERROR;
+    end if;
+    symbol := getJsonSymbol(inFile);
+  end func;
+
+
+const func jsonCategory: category (in jsonBoolean: aBoolean) is return JSON_BOOLEAN;
+const func type: type (in jsonBoolean: aBoolean)             is return boolean;
+const func boolean: boolean (in jsonBoolean: aBoolean)       is return aBoolean.okay;
+const func string: str (in jsonBoolean: aBoolean)            is return lower(str(aBoolean.okay));
+
+
+#
+# jsonNumber
+#
+
+
+##
+#  jsonValue implementation type representing a number.
+#
+const type: jsonNumber is sub jsonBase struct
+    var string: number is "";
+  end struct;
+
+
+type_implements_interface(jsonNumber, jsonValue);
+
+
+(**
+ *  Create a ''jsonNumber'' with the given ''number''.
+ *)
+const func jsonValue: jsonNumber (in string: number) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonNumber: aNumber is jsonNumber.value;
+  begin
+    aNumber.number := number;
+    aValue := toInterface(aNumber);
+  end func;
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given [[integer]] ''number''.
+ *   jsonValue(123)
+ *  @return a ''jsonNumber'' with the given [[integer]] ''number'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in integer: number) is return jsonNumber(str(number));
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given [[bigInteger]] ''number''.
+ *   jsonValue(123_)
+ *  @return a ''jsonNumber'' with the given [[bigInteger]] ''number'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in bigInteger: number) is return jsonNumber(str(number));
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given [[float]] ''number''.
+ *   jsonValue(0.125)
+ *  @return a ''jsonNumber'' with the given [[float]] ''number'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in float: number) is return jsonNumber(str(number));
+
+
+const func jsonValue: readJsonNumber (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  begin
+    aValue := jsonNumber(symbol);
+    symbol := getJsonSymbol(inFile);
+  end func;
+
+
+const func jsonCategory: category (in jsonNumber: aNumber) is return JSON_NUMBER;
+
+
+const func type: type (in jsonNumber: aNumber) is func
+  result
+    var type: aType is void;
+  begin
+    if succeeds(ignore(integer(aNumber.number))) then
+      aType := integer;
+    elsif succeeds(ignore(bigInteger(aNumber.number))) then
+      aType := bigInteger;
+    elsif succeeds(ignore(float(aNumber.number))) then
+      aType := float;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func integer: integer (in jsonNumber: aNumber)       is return integer(aNumber.number);
+const func bigInteger: bigInteger (in jsonNumber: aNumber) is return bigInteger(aNumber.number);
+const func float: float (in jsonNumber: aNumber)           is return float(aNumber.number);
+const func string: str (in jsonNumber: aNumber)            is return str(aNumber.number);
+
+
+#
+# jsonString
+#
+
+
+##
+#  jsonValue implementation type representing a string.
+#
+const type: jsonString is sub jsonBase struct
+    var string: stri is "";
+  end struct;
+
+
+type_implements_interface(jsonString, jsonValue);
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given [[string]] ''stri''.
+ *   jsonValue("test")
+ *  @return a ''jsonString'' with the given [[string]] ''stri'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in string: stri) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonString: aString is jsonString.value;
+  begin
+    aString.stri := stri;
+    aValue := toInterface(aString);
+  end func;
+
+
+const func jsonValue: readJsonString (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  begin
+    aValue := jsonValue(symbol[2 .. pred(length(symbol))]);
+    symbol := getJsonSymbol(inFile);
+  end func;
+
+
+const func jsonCategory: category (in jsonString: aString) is return JSON_STRING;
+const func type: type (in jsonString: aString)             is return string;
+const func string: string (in jsonString: aString)         is return aString.stri;
+const func string: str (in jsonString: aString)            is return literal(aString.stri);
+
+
+#
+# jsonArray
+#
+
+
+##
+#  jsonValue implementation type representing an array.
+#
+const type: jsonArray is sub jsonBase struct
+    var jsonValueArray: elements is jsonValueArray.value;
+  end struct;
+
+
+type_implements_interface(jsonArray, jsonValue);
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given ''elements''.
+ *   jsonValue(0 times jsonValue.value)
+ *  @return a ''jsonArray'' with the given ''elements'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in jsonValueArray: elements) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonArray: anArray is jsonArray.value;
+  begin
+    anArray.elements := elements;
+    aValue := toInterface(anArray);
+  end func;
+
+
+const func jsonValue: readJsonArray (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var jsonArray: anArray is jsonArray.value;
+  begin
+    symbol := getJsonSymbol(inFile);
+    if symbol <> "]" then
+      anArray.elements &:= readJson(inFile, symbol);
+      while symbol = "," do
+        symbol := getJsonSymbol(inFile);
+        anArray.elements &:= readJson(inFile, symbol);
+      end while;
+    end if;
+    if symbol = "]" then
+      symbol := getJsonSymbol(inFile);
+    else
+      raise RANGE_ERROR;
+    end if;
+    aValue := toInterface(anArray);
+  end func;
+
+
+const func jsonCategory: category (in jsonArray: anArray)             is return JSON_ARRAY;
+const func type: type (in jsonArray: anArray)                         is return jsonValueArray;
+const func jsonValue: (in jsonArray: anArray) [ (in integer: index) ] is return anArray.elements[index];
+const func integer: length (in jsonArray: anArray)                    is return length(anArray.elements);
+const func integer: minIdx (in jsonArray: anArray)                    is return 1;
+const func integer: maxIdx (in jsonArray: anArray)                    is return maxIdx(anArray.elements);
+const func array jsonValue: values (in jsonArray: anArray)            is return anArray.elements;
+
+
+const func string: str (in jsonArray: anArray) is func
+  result
+    var string: stri is "[";
+  local
+    var jsonValue: element is jsonValue.value;
+    var boolean: firstElement is TRUE;
+  begin
+    for element range anArray.elements do
+      if firstElement then
+        firstElement := FALSE;
+      else
+        stri &:= ",";
+      end if;
+      stri &:= str(element);
+    end for;
+    stri &:= "]";
+  end func;
+
+
+#
+# jsonObject
+#
+
+
+##
+#  jsonValue implementation type representing an object.
+#
+const type: jsonObject is sub jsonBase struct
+    var array string: elementNames is 0 times "";
+    var jsonValueMap: elements is jsonValueMap.value;
+  end struct;
+
+
+type_implements_interface(jsonObject, jsonValue);
+
+
+const func jsonValue: readJsonObject (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var string: elementName is "";
+    var jsonObject: anObject is jsonObject.value;
+  begin
+    symbol := getJsonSymbol(inFile);
+    if symbol <> "}" then
+      if startsWith(symbol, "\"") then
+        elementName := symbol[2 .. pred(length(symbol))];
+        symbol := getJsonSymbol(inFile);
+        if symbol = ":" then
+          symbol := getJsonSymbol(inFile);
+          anObject.elementNames &:= elementName;
+          anObject.elements @:= [elementName] readJson(inFile, symbol);
+          while symbol = "," do
+            symbol := getJsonSymbol(inFile);
+            if startsWith(symbol, "\"") then
+              elementName := symbol[2 .. pred(length(symbol))];
+              symbol := getJsonSymbol(inFile);
+              if symbol = ":" then
+                symbol := getJsonSymbol(inFile);
+                anObject.elementNames &:= elementName;
+                anObject.elements @:= [elementName] readJson(inFile, symbol);
+              else
+                raise RANGE_ERROR;
+              end if;
+            else
+              raise RANGE_ERROR;
+            end if;
+          end while;
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+    if symbol = "}" then
+      symbol := getJsonSymbol(inFile);
+    else
+      raise RANGE_ERROR;
+    end if;
+    aValue := toInterface(anObject);
+  end func;
+
+
+const func jsonCategory: category (in jsonObject: anObject) is return JSON_OBJECT;
+const func type: type (in jsonObject: anObject) is return jsonValueMap;
+const func jsonValue: (in jsonObject: anObject) [ (in string: name) ] is return anObject.elements[name];
+const func boolean: (in string: aKey) in (in jsonObject: anObject) is return aKey in anObject.elements;
+const func boolean: (in string: aKey) not in (in jsonObject: anObject) is return aKey not in anObject.elements;
+const func array string: keys (in jsonObject: anObject) is return anObject.elementNames;
+
+
+const func string: str (in jsonObject: anObject) is func
+  result
+    var string: stri is "{";
+  local
+    var string: elementName is "";
+    var boolean: firstElement is TRUE;
+  begin
+    for elementName range anObject.elementNames do
+      if firstElement then
+        firstElement := FALSE;
+      else
+        stri &:= ",";
+      end if;
+      stri &:= literal(elementName);
+      stri &:= ":";
+      stri &:= str(anObject.elements[elementName]);
+    end for;
+    stri &:= "}";
+  end func;
+
+
+const func jsonValue: readJson (inout file: inFile, inout string: symbol) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var string: elementName is "";
+    var jsonObject: anObject is jsonObject.value;
+  begin
+    # write(symbol);
+    if symbol = "{" then
+      aValue := readJsonObject(inFile, symbol);
+    elsif symbol = "[" then
+      aValue := readJsonArray(inFile, symbol);
+    elsif startsWith(symbol, "\"") then
+      aValue := readJsonString(inFile, symbol);
+    elsif symbol <> "" and symbol[1] in digit_char | {'-'} then
+      aValue := readJsonNumber(inFile, symbol);
+    elsif symbol = "null" then
+      aValue := readJsonNull(inFile, symbol);
+    elsif symbol = "true" or symbol = "false" then
+      aValue := readJsonBoolean(inFile, symbol);
+    else
+      raise RANGE_ERROR;
+    end if;
+    # TRACE_OBJ(aValue); writeln;
+  end func;
+
+
+(**
+ *  Read a [[#jsonValue|jsonValue]] from the given ''inFile''.
+ *   var file: aFile is STD_NULL;
+ *   var jsonValue: json is jsonValue.value;
+ *   ...
+ *   aFile := openUtf8("test.json", "r");
+ *   if aFile <> STD_NULL then
+ *     json := readJson(aFile);
+ *  @return the [[#jsonValue|jsonValue]] read from ''inFile''.
+ *  @exception RANGE_ERROR The ''inFile'' does not contain valid JSON.
+ *)
+const func jsonValue: readJson (inout file: inFile) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var string: symbol is "";
+  begin
+    symbol := getJsonSymbol(inFile);
+    aValue := readJson(inFile, symbol);
+  end func;
+
+
+(**
+ *  Read a [[#jsonValue|jsonValue]] from the given ''jsonStri''.
+ *   var jsonValue: json is jsonValue.value;
+ *   ...
+ *   json := readJson("[1, \"a\", {\"ok\" : true}]");
+ *  @return the [[#jsonValue|jsonValue]] read from ''jsonStri''.
+ *  @exception RANGE_ERROR The string ''jsonStri'' does not contain valid JSON.
+ *)
+const func jsonValue: readJson (in string: jsonStri) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  local
+    var file: jsonFile is STD_NULL;
+  begin
+    jsonFile := openStriFile(jsonStri);
+    aValue := readJson(jsonFile);
+  end func;
