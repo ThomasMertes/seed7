@@ -75,6 +75,7 @@ const proc: main is func
           \include \"ftp.s7i\";\n\
           \include \"keybd.s7i\";\n\
           \include \"draw.s7i\";\n\
+          \include \"jsondom.s7i\";\n\
           \\n\
           \const proc: main is func\n\
           \  begin\n\
