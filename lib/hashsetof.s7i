@@ -44,6 +44,7 @@ const func type: hashset (in type: baseType) is func
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
+      const boolean: isSetType (attr setType) is TRUE;
       const type: hashset (attr baseType)     is setType;
       const type: base_type (attr setType)    is baseType;
 

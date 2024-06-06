@@ -44,6 +44,7 @@ const func type: bitset (in type: baseType) is func
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
+      const boolean: isSetType (attr setType)                            is TRUE;
       const type: bitset (attr baseType)                                 is setType;
       const type: base_type (attr setType)                               is baseType;
       const proc: (ref setType: dest) ::= (in setType: source)           is action "SET_CREATE";
