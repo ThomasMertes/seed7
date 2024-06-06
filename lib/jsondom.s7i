@@ -103,8 +103,14 @@ const func type: type (in jsonValue: aValue)                         is DYNAMIC;
 
 (**
  *  Get the ''void'' value from the JSON null ''aValue''.
+ *  This function is defined for completeness.
+ *  If applied on a JSON null it will always return ''empty''.
  *   void(jsonValue(NULL))   returns  empty
  *   void(readJson("null"))  returns  empty
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for JSON null:
+ *   if type(aJasonValue) = void then
+ *  The function [[#category(in_jsonValue)|category]] can be used for the same purpose:
+ *   if category(aJasonValue) = JSON_NULL then
  *  @return the void value of a JSON null.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON null.
  *)
@@ -115,6 +121,12 @@ const func void: void (in jsonValue: aValue)                         is DYNAMIC;
  *  Get the [[boolean]] value from the JSON boolean ''aValue''.
  *   boolean(jsonValue(FALSE))  returns  FALSE
  *   boolean(readJson("true"))  returns  TRUE
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[boolean]]:
+ *   if type(aJasonValue) = boolean then
+ *     aBoolean := boolean(aValue);
+ *  The function [[#category(in_jsonValue)|category]] can be used for the same purpose:
+ *   if category(aJasonValue) = JSON_BOOLEAN then
+ *     aBoolean := boolean(aValue);
  *  @return the boolean value of a JSON boolean.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON boolean.
  *)
@@ -126,6 +138,9 @@ const func boolean: boolean (in jsonValue: aValue)                   is DYNAMIC;
  *   integer(jsonValue(12345))                  returns  12345
  *   integer(readJson("12345"))                 returns  12345
  *   integer(readJson("12345678909876543210"))  raises   RANGE_ERROR
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for an [[integer]]:
+ *   if type(aJasonValue) = integer then
+ *     anInteger := integer(aValue);
  *  @return the integer value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *  @exception RANGE_ERROR The JSON number cannot be represented as integer.
@@ -134,10 +149,13 @@ const func integer: integer (in jsonValue: aValue)                   is DYNAMIC;
 
 
 (**
- *  Get the [[bigInteger]] value from the JSON number ''aValue''.
+ *  Get the [[bigint|bigInteger]] value from the JSON number ''aValue''.
  *   bigInteger(jsonValue(12345_))   returns  12345_
  *   bigInteger(readJson("12345"))   returns  12345_
  *   bigInteger(readJson("123.45"))  raises   RANGE_ERROR
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[bigint|bigInteger]]:
+ *   if type(aJasonValue) = bigInteger then
+ *     aBigInteger := bigInteger(aValue);
  *  @return the bigInteger value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *  @exception RANGE_ERROR The JSON number cannot be represented as bigInteger.
@@ -149,6 +167,9 @@ const func bigInteger: bigInteger (in jsonValue: aValue)             is DYNAMIC;
  *  Get the [[float]] value from the JSON number ''aValue''.
  *   float(jsonValue(0.0625))   returns  0.0625
  *   float(readJson("0.0625"))  returns  0.0625
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[float]]:
+ *   if type(aJasonValue) = float then
+ *     aFloat := float(aValue);
  *  @return the float value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *)
@@ -163,6 +184,12 @@ const func float: float (in jsonValue: aValue)                       is DYNAMIC;
  *   string(readJson("\"\""))            returns  ""
  *   string(readJson("\"abcdefg\""))     returns  "abcdefg"
  *   string(readJson("\" \\t\\r\\n\""))  returns  " \t\r\n"
+ *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[string]]:
+ *   if type(aJasonValue) = string then
+ *     aString := string(aValue);
+ *  The function [[#category(in_jsonValue)|category]] can be used for the same purpose:
+ *   if category(aJasonValue) = JSON_STRING then
+ *     aString := string(aValue);
  *  @return the string value of a JSON string.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON string.
  *)
@@ -450,9 +477,9 @@ const func jsonValue: jsonValue (in integer: number) is return jsonNumber(str(nu
 
 
 (**
- *  Create a [[#jsonValue|jsonValue]] with the given [[bigInteger]] ''number''.
+ *  Create a [[#jsonValue|jsonValue]] with the given [[bigint|bigInteger]] ''number''.
  *   jsonValue(123_)
- *  @return a ''jsonNumber'' with the given [[bigInteger]] ''number'' as [[#jsonValue|jsonValue]].
+ *  @return a ''jsonNumber'' with the given [[bigint|bigInteger]] ''number'' as [[#jsonValue|jsonValue]].
  *)
 const func jsonValue: jsonValue (in bigInteger: number) is return jsonNumber(str(number));
 
