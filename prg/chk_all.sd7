@@ -365,6 +365,12 @@ const string: chkscan_output is "\n\
   \The function getLine works correctly.\n\
   \The function getXmlTagHeadOrContent works correctly.\n";
 
+const string: chkjson_output is "\n\
+  \The function getJsonString works correctly.\n\
+  \The function getJsonNumber works correctly.\n\
+  \The function getJsonSymbol works correctly.\n\
+  \JSON DOM functions work correctly.\n";
+
 const string:chkbitdata_output is "\n\
   \getBit(lsbBitStream) works correctly.\n\
   \getBits(lsbBitStream) works correctly.\n\
@@ -745,6 +751,7 @@ const proc: main is func
     check("chkenum", chkenum_output);
     check("chktime", chktime_output);
     check("chkscan", chkscan_output);
+    check("chkjson", chkjson_output);
     check("chkbitdata", chkbitdata_output);
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);
