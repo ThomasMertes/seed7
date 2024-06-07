@@ -59,7 +59,13 @@ enable_output(jsonCategory);
  *  objects (''jsonObject'').
  *   var jsonValue: json is jsonValue.value;
  *   ...
- *   json := readJson("[1, \"a\", {\"ok\" : true}]");
+ *   json := readJson("{\"size\": 2, \"keys\": [{\"id\": 1}, {\"id\": 2}]");
+ *   if "keys" in json and category(json["keys"]) = JSON_ARRAY then
+ *     for aKey range json["keys"] do
+ *       write(integer(aKey["id"]) <& " ");
+ *     end for;
+ *     writeln;
+ *   end if;
  *)
 const type: jsonValue is sub object interface;
 
