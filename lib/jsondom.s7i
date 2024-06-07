@@ -123,10 +123,10 @@ const func void: void (in jsonValue: aValue)                         is DYNAMIC;
  *   boolean(readJson("true"))  returns  TRUE
  *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[boolean]]:
  *   if type(aJasonValue) = boolean then
- *     aBoolean := boolean(aValue);
+ *     aBoolean := boolean(aJasonValue);
  *  The function [[#category(in_jsonValue)|category]] can be used for the same purpose:
  *   if category(aJasonValue) = JSON_BOOLEAN then
- *     aBoolean := boolean(aValue);
+ *     aBoolean := boolean(aJasonValue);
  *  @return the boolean value of a JSON boolean.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON boolean.
  *)
@@ -140,7 +140,7 @@ const func boolean: boolean (in jsonValue: aValue)                   is DYNAMIC;
  *   integer(readJson("12345678909876543210"))  raises   RANGE_ERROR
  *  The function [[#type(in_jsonValue)|type]] can be used to check for an [[integer]]:
  *   if type(aJasonValue) = integer then
- *     anInteger := integer(aValue);
+ *     anInteger := integer(aJasonValue);
  *  @return the integer value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *  @exception RANGE_ERROR The JSON number cannot be represented as integer.
@@ -155,7 +155,7 @@ const func integer: integer (in jsonValue: aValue)                   is DYNAMIC;
  *   bigInteger(readJson("123.45"))  raises   RANGE_ERROR
  *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[bigint|bigInteger]]:
  *   if type(aJasonValue) = bigInteger then
- *     aBigInteger := bigInteger(aValue);
+ *     aBigInteger := bigInteger(aJasonValue);
  *  @return the bigInteger value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *  @exception RANGE_ERROR The JSON number cannot be represented as bigInteger.
@@ -169,7 +169,7 @@ const func bigInteger: bigInteger (in jsonValue: aValue)             is DYNAMIC;
  *   float(readJson("0.0625"))  returns  0.0625
  *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[float]]:
  *   if type(aJasonValue) = float then
- *     aFloat := float(aValue);
+ *     aFloat := float(aJasonValue);
  *  @return the float value of a JSON number.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON number.
  *)
@@ -186,10 +186,10 @@ const func float: float (in jsonValue: aValue)                       is DYNAMIC;
  *   string(readJson("\" \\t\\r\\n\""))  returns  " \t\r\n"
  *  The function [[#type(in_jsonValue)|type]] can be used to check for a [[string]]:
  *   if type(aJasonValue) = string then
- *     aString := string(aValue);
+ *     aString := string(aJasonValue);
  *  The function [[#category(in_jsonValue)|category]] can be used for the same purpose:
  *   if category(aJasonValue) = JSON_STRING then
- *     aString := string(aValue);
+ *     aString := string(aJasonValue);
  *  @return the string value of a JSON string.
  *  @exception ILLEGAL_ACTION The value ''aValue'' is not a JSON string.
  *)
