@@ -1,0 +1,304 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  magic.s7i     Get magic numbers from strings and files.         *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const string: MAGIC_AR             is "!<arch>\n";
+const string: MAGIC_BMP            is "BM";
+const string: MAGIC_CPIO_BINARY_BE is "\16#71;\16#c7;";
+const string: MAGIC_CPIO_BINARY_LE is "\16#c7;\16#71;";
+const string: MAGIC_CPIO_ASCII_OLD is "070707";
+const string: MAGIC_CPIO_ASCII     is "070701";
+const string: MAGIC_CPIO_ASCII_CRC is "070702";
+const string: MAGIC_ELF_32_BIT_LE  is "\127;ELF\1;\1;";
+const string: MAGIC_ELF_64_BIT_LE  is "\127;ELF\2;\1;";
+const string: MAGIC_ELF_32_BIT_BE  is "\127;ELF\1;\2;";
+const string: MAGIC_ELF_64_BIT_BE  is "\127;ELF\2;\2;";
+const string: MAGIC_GIF_87         is "GIF87a";
+const string: MAGIC_GIF_89         is "GIF89a";
+const string: MAGIC_GZIP           is "\31;\139;";
+const string: MAGIC_ICO            is "\0;\0;\1;\0;";
+const string: MAGIC_JPEG           is "\16#ff;\16#d8;\16#ff;";
+const string: MAGIC_PDF            is "%PDF-";
+const string: MAGIC_PNG            is "\137;PNG\r\n\26;\n";
+const string: MAGIC_PPM            is "P6";
+const string: MAGIC_RAR            is "Rar!\26;\7;";
+const string: MAGIC_RIFF           is "RIFF";
+const string: MAGIC_RPM            is "\16#ed;\16#ab;\16#ee;\16#db;";
+const string: MAGIC_SEVEN_ZIP      is "7z\188;\175;'\28;";
+const string: MAGIC_SQLITE3        is "SQLite format 3\0;";
+const string: MAGIC_TAR            is "ustar";
+const string: MAGIC_TIFF_LE        is "II\42;\0;";
+const string: MAGIC_TIFF_BE        is "MM\0;\42;";
+const string: MAGIC_UTF8           is "\16#ef;\16#bb;\16#bf;";
+const string: MAGIC_UTF16LE        is "\16#ff;\16#fe;";
+const string: MAGIC_UTF16BE        is "\16#fe;\16#ff;";
+const string: MAGIC_WASM           is "\0;asm";
+const string: MAGIC_WEBP           is "WEBPVP8";
+const string: MAGIC_ZIP            is "PK\3;\4;";
+const string: MAGIC_ZIP_EMPTY      is "PK\5;\6;";
+const string: MAGIC_XZ             is "\16#FD;7zXZ\0;";
+const string: MAGIC_ZSTD           is "(\16#B5;/\16#FD;";
+
+
+(**
+ *  Determine the magic number (signature) of the given [[string]] ''data''.
+ *  @return the magic number (signature), or
+ *          "" if no magic number was found.
+ *)
+const func string: getMagic (in string: data) is func
+  result
+    var string: magic is "";
+  local
+    var string: magicBytes is "";
+  begin
+    if length(data) >= 2 then
+      magicBytes := data[.. 2];
+      if  magicBytes = MAGIC_BMP            or
+          magicBytes = MAGIC_CPIO_BINARY_BE or
+          magicBytes = MAGIC_CPIO_BINARY_LE or
+          magicBytes = MAGIC_GZIP           or
+          magicBytes = MAGIC_PPM            or
+          magicBytes = MAGIC_UTF16LE        or
+          magicBytes = MAGIC_UTF16BE        then
+        magic := magicBytes;
+      elsif length(data) >= 3 then
+        magicBytes := data[.. 3];
+        if  magicBytes = MAGIC_JPEG           or
+            magicBytes = MAGIC_UTF8           then
+          magic := magicBytes;
+        elsif length(data) >= 4 then
+          magicBytes := data[.. 4];
+          if  magicBytes = MAGIC_ICO       or
+              magicBytes = MAGIC_RPM       or
+              magicBytes = MAGIC_TIFF_LE   or
+              magicBytes = MAGIC_TIFF_BE   or
+              magicBytes = MAGIC_WASM      or
+              magicBytes = MAGIC_ZIP       or
+              magicBytes = MAGIC_ZIP_EMPTY or
+              magicBytes = MAGIC_ZSTD      then
+              magic := magicBytes;
+          elsif magicBytes = MAGIC_RIFF then
+            if length(data) >= 15 and
+                data[9 fixLen 7] = MAGIC_WEBP then
+              magic := MAGIC_WEBP;
+            else
+              magic := MAGIC_RIFF;
+            end if;
+          elsif length(data) >= 5 then
+            magicBytes := data[.. 5];
+            if  magicBytes = MAGIC_PDF then
+              magic := magicBytes;
+            elsif length(data) >= 6 then
+              magicBytes := data[.. 6];
+              if  magicBytes = MAGIC_CPIO_ASCII_OLD or
+                  magicBytes = MAGIC_CPIO_ASCII     or
+                  magicBytes = MAGIC_CPIO_ASCII_CRC or
+                  magicBytes = MAGIC_ELF_32_BIT_LE  or
+                  magicBytes = MAGIC_ELF_64_BIT_LE  or
+                  magicBytes = MAGIC_ELF_32_BIT_BE  or
+                  magicBytes = MAGIC_ELF_64_BIT_BE  or
+                  magicBytes = MAGIC_GIF_87         or
+                  magicBytes = MAGIC_GIF_89         or
+                  magicBytes = MAGIC_RAR            or
+                  magicBytes = MAGIC_SEVEN_ZIP      or
+                  magicBytes = MAGIC_XZ             then
+                magic := magicBytes;
+              elsif length(data) >= 8 then
+                magicBytes := data[.. 8];
+                if  magicBytes = MAGIC_AR  or
+                    magicBytes = MAGIC_PNG then
+                  magic := magicBytes;
+                elsif length(data) >= 16 then
+                  magicBytes := data[.. 16];
+                  if  magicBytes = MAGIC_SQLITE3 then
+                    magic := magicBytes;
+                  elsif length(data) >= 262 then
+                    magicBytes := data[258 fixLen 5];
+                    if magicBytes = MAGIC_TAR then
+                      magic := magicBytes;
+                    end if;
+                  end if;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the magic number (signature) of the given [[file]] ''inFile''.
+ *  @return the magic number (signature), or
+ *          "" if no magic number was found.
+ *)
+const func string: getMagic (inout file: inFile) is func
+  result
+    var string: magic is "";
+  local
+    var string: magicBytes is "";
+  begin
+    magicBytes := gets(inFile, 2);
+    if length(magicBytes) = 2 then
+      if  magicBytes = MAGIC_BMP            or
+          magicBytes = MAGIC_CPIO_BINARY_BE or
+          magicBytes = MAGIC_CPIO_BINARY_LE or
+          magicBytes = MAGIC_GZIP           or
+          magicBytes = MAGIC_PPM            or
+          magicBytes = MAGIC_UTF16LE        or
+          magicBytes = MAGIC_UTF16BE        then
+        magic := magicBytes;
+      else
+        magicBytes &:= gets(inFile, 1);
+        if length(magicBytes) = 3 then
+          if  magicBytes = MAGIC_JPEG           or
+              magicBytes = MAGIC_UTF8           then
+            magic := magicBytes;
+          else
+            magicBytes &:= gets(inFile, 1);
+            if length(magicBytes) = 4 then
+              if  magicBytes = MAGIC_ICO       or
+                  magicBytes = MAGIC_RPM       or
+                  magicBytes = MAGIC_TIFF_LE   or
+                  magicBytes = MAGIC_TIFF_BE   or
+                  magicBytes = MAGIC_WASM      or
+                  magicBytes = MAGIC_ZIP       or
+                  magicBytes = MAGIC_ZIP_EMPTY or
+                  magicBytes = MAGIC_ZSTD      then
+                magic := magicBytes;
+              elsif magicBytes = MAGIC_RIFF then
+                magicBytes &:= gets(inFile, 11);
+                if length(magicBytes) = 15 and
+                    magicBytes[9 fixLen 7] = MAGIC_WEBP then
+                  magic := MAGIC_WEBP;
+                else
+                  magic := MAGIC_RIFF;
+                end if;
+              else
+                magicBytes &:= gets(inFile, 1);
+                if length(magicBytes) = 5 then
+                  if  magicBytes = MAGIC_PDF then
+                    magic := magicBytes;
+                  else
+                    magicBytes &:= gets(inFile, 1);
+                    if length(magicBytes) = 6 then
+                      if  magicBytes = MAGIC_CPIO_ASCII_OLD or
+                          magicBytes = MAGIC_CPIO_ASCII     or
+                          magicBytes = MAGIC_CPIO_ASCII_CRC or
+                          magicBytes = MAGIC_ELF_32_BIT_LE  or
+                          magicBytes = MAGIC_ELF_64_BIT_LE  or
+                          magicBytes = MAGIC_ELF_32_BIT_BE  or
+                          magicBytes = MAGIC_ELF_64_BIT_BE  or
+                          magicBytes = MAGIC_GIF_87         or
+                          magicBytes = MAGIC_GIF_89         or
+                          magicBytes = MAGIC_RAR            or
+                          magicBytes = MAGIC_SEVEN_ZIP      or
+                          magicBytes = MAGIC_XZ             then
+                        magic := magicBytes;
+                      else
+                        magicBytes &:= gets(inFile, 2);
+                        if length(magicBytes) = 8 then
+                          if  magicBytes = MAGIC_AR  or
+                              magicBytes = MAGIC_PNG then
+                            magic := magicBytes;
+                          else
+                            magicBytes &:= gets(inFile, 8);
+                            if length(magicBytes) = 16 then
+                              if  magicBytes = MAGIC_SQLITE3 then
+                                magic := magicBytes;
+                              else
+                                magicBytes &:= gets(inFile, 246);
+                                if length(magicBytes) = 262 then
+                                  if endsWith(magicBytes, MAGIC_TAR) then
+                                    magic := MAGIC_TAR;
+                                  end if;
+                                end if;
+                              end if;
+                            end if;
+                          end if;
+                        end if;
+                      end if;
+                    end if;
+                  end if;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine a description corresponding to a magic number (signature).
+ *  @return the description of a magic number.
+ *)
+const func string: magicDescription (in string: magic) is func
+  result
+    var string: description is "";
+  begin
+    case magic of
+      when {MAGIC_AR}:             description := "current ar archive";
+      when {MAGIC_BMP}:            description := "PC bitmap";
+      when {MAGIC_CPIO_BINARY_BE,
+            MAGIC_CPIO_BINARY_LE,
+            MAGIC_CPIO_ASCII_OLD,
+            MAGIC_CPIO_ASCII,
+            MAGIC_CPIO_ASCII_CRC}: description := "cpio archive";
+      when {MAGIC_ELF_32_BIT_LE}:  description := "ELF 32-bit LSB executable";
+      when {MAGIC_ELF_64_BIT_LE}:  description := "ELF 64-bit LSB executable";
+      when {MAGIC_ELF_32_BIT_BE}:  description := "ELF 32-bit MSB executable";
+      when {MAGIC_ELF_64_BIT_BE}:  description := "ELF 64-bit MSB executable";
+      when {MAGIC_GIF_87,
+            MAGIC_GIF_89}:         description := "GIF image data";
+      when {MAGIC_GZIP}:           description := "gzip compressed data";
+      when {MAGIC_ICO}:            description := "MS Windows icon resource";
+      when {MAGIC_JPEG}:           description := "JPEG image data";
+      when {MAGIC_PDF}:            description := "PDF document";
+      when {MAGIC_PNG}:            description := "PNG image data";
+      when {MAGIC_PPM}:            description := "Netpbm image data";
+      when {MAGIC_RAR}:            description := "RAR archive data";
+      when {MAGIC_RIFF}:           description := "RIFF data";
+      when {MAGIC_RPM}:            description := "RPM v3.0";
+      when {MAGIC_SEVEN_ZIP}:      description := "7-zip archive data";
+      when {MAGIC_SQLITE3}:        description := "SQLite 3.x database";
+      when {MAGIC_TAR}:            description := "POSIX tar archive";
+      when {MAGIC_TIFF_LE,
+            MAGIC_TIFF_BE}:        description := "TIFF image data";
+      when {MAGIC_UTF8,
+            MAGIC_UTF16LE,
+            MAGIC_UTF16BE}:        description := "Unicode text";
+      when {MAGIC_WASM}:           description := "WebAssembly (wasm) binary module";
+      when {MAGIC_WEBP}:           description := "Web/P image data";
+      when {MAGIC_ZIP,
+            MAGIC_ZIP_EMPTY}:      description := "Zip archive data";
+      when {MAGIC_XZ}:             description := "XZ compressed data";
+      when {MAGIC_ZSTD}:           description := "Zstandard compressed data";
+    end case;
+  end func;
