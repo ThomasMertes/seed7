@@ -39,6 +39,7 @@ include "xz.s7i";
 include "zstd.s7i";
 include "cpio.s7i";
 include "archive_base.s7i";
+include "magic.s7i";
 
 
 const string: RPM_LEAD_MAGIC is "\16#ed;\16#ab;\16#ee;\16#db;";
@@ -1888,6 +1889,7 @@ const proc: close (inout rpmArchive: rpm) is func
       # updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
       #                  length(rpm.payloadFile));
       updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNameList);
+      updateIndexEntry(rpm.header, RPMTAG_CLASSDICT, RPM_STRING_ARRAY_TYPE, rpm.classDict);
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
       if rpm.fileDigestAlgo <> RPM_DIGESTALGO_MD5 then
@@ -2048,6 +2050,27 @@ const func integer: getNameIndex (inout array string: nameList, in string: name)
     if nameIndex = 0 then
       nameList &:= name;
       nameIndex := length(nameList);
+    end if;
+  end func;
+
+
+const func integer: fileClass (inout array string: nameList, in string: filePath,
+    in string: data) is func
+  result
+    var integer: fileClass is 0;
+  local
+    var string: description is "";
+  begin
+    description := magicDescription(getMagic(data));
+    if description = "" then
+      if endsWith(filePath, ".sd7") then
+        description := "Seed7 source";
+      elsif endsWith(filePath, ".s7i") then
+        description := "Seed7 library";
+      end if;
+    end if;
+    if description <> "" then
+      fileClass := getNameIndex(nameList, description);
     end if;
   end func;
 
@@ -2871,7 +2894,8 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
       catalogEntry.color := 0;
-      catalogEntry.fileClass := 0;
+      catalogEntry.fileClass :=
+          getNameIndex(rpm.classDict, "symbolic link to " & targetPath);
       catalogEntry.dependX := 0;
       catalogEntry.dependN := 0;
       catalogEntry.allDataPresent := TRUE;
@@ -2982,7 +3006,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         else
           catalogEntry.color := 0;
 	end if;
-        catalogEntry.fileClass := 0;
+        catalogEntry.fileClass := fileClass(rpm.classDict, filePath, data);
         catalogEntry.dependX := 0;
         catalogEntry.dependN := 0;
         catalogEntry.allDataPresent := TRUE;
@@ -3046,7 +3070,7 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
       catalogEntry.color := 0;
-      catalogEntry.fileClass := 0;
+      catalogEntry.fileClass := getNameIndex(rpm.classDict, "directory");
       catalogEntry.dependX := 0;
       catalogEntry.dependN := 0;
       catalogEntry.allDataPresent := TRUE;
