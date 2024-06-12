@@ -1357,7 +1357,7 @@ const proc: setFileMode (inout zipArchive: zip, in string: filePath,
     else
       header := followSymlink(zip, filePath);
       header.external_file_attributes :=
-          header.external_file_attributes mod 8#10000 +
+          header.external_file_attributes mod 16#10000 +
           (((header.external_file_attributes >> 25 << 9) + integer(mode)) << 16);
       zip.catalog @:= [filePath] header;
       seek(zip.zipFile, zip.register[filePath]);
