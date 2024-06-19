@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  jsondom.s7i   Reading and processing JSON data with a JSON DOM. *)
+(*  json.s7i      Reading and processing JSON data with a JSON DOM. *)
 (*  Copyright (C) 2024  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

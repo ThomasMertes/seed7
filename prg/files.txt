@@ -29,6 +29,7 @@ chkhent.sd7  Checks the HTML entity handling functions
 chkhsh.sd7   Checks hash table operations
 chkidx.sd7   Checks the exception INDEX_ERROR.
 chkint.sd7   Checks integer literals and operations
+chkjson.sd7  Checks the JSON scanner and DOM functions
 chkovf.sd7   Checks catching of integer overflows.
 chkprc.sd7   Checks procedures and statements
 chkscan.sd7  Checks the scanner functions
@@ -218,6 +219,7 @@ inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 iobuffer.s7i Implementation type for a buffered file.
 jpeg.s7i     Support for the JPEG image file format.
+json.s7i     Reading and processing JSON data with a JSON DOM.
 keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
 leb128.s7i   Convert integers to and from LEB128 encoding.
@@ -227,6 +229,7 @@ logfile.s7i  Interface type describing log files.
 lower.s7i    Filter file which turns characters to lower case
 lzma.s7i     LZMA compression support library
 lzw.s7i      Lempel-Ziv-Welch compression support library
+magic.s7i    Get magic numbers from strings and files.
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 make.s7i     Make library to manage the compilation process
 makedata.s7i Function and data structure to read makefiles

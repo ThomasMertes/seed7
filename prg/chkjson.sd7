@@ -25,7 +25,7 @@
 $ include "seed7_05.s7i";
   include "strifile.s7i";
   include "scanjson.s7i";
-  include "jsondom.s7i";
+  include "json.s7i";
 
 
 const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
