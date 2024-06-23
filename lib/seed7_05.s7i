@@ -697,14 +697,6 @@ const func string: noCtrlChars (in string: stri) is func
   end func;
 
 
-(* STRUCT *)
-
-$ include "struct.s7i";
-
-(* SUBRANGE *)
-
-$ include "subrange.s7i";
-
 (* TUPLE *)
 
 const func type: tuple (in type: baseType) is func
@@ -746,11 +738,21 @@ const type: TST_1 is tuple integer;
 const type: TST_2 is tuple integer;
 
 
+$ include "fixarray.s7i";
+$ include "basearray.s7i";
+
+(* STRUCT *)
+
+$ include "struct.s7i";
+
+(* SUBRANGE *)
+
+$ include "subrange.s7i";
+
 (* ARRAY *)
 
 $ include "array.s7i";
 $ include "idxarray.s7i";
-$ include "fixarray.s7i";
 
 
 (* Functions with arrays of strings *)
