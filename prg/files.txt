@@ -131,6 +131,7 @@ arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
 archive_base.s7i Common functions for file archives.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
+basearray.s7i Support for arrays with a fixed minimum index.
 bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
