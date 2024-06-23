@@ -815,13 +815,18 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
             countIndexOptimizations(c_expr);
             c_expr.expr &:= integerLiteral(index - array_minIdx[arrayType]);
           end if;
+        elsif arrayType in array_minIdx and index < array_minIdx[arrayType] then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
         else
           incr(countIndexChecks);
           c_expr.expr &:= "(idxChk(";
-          c_expr.expr &:= integerLiteral(index);
-          c_expr.expr &:= "<";
-          c_expr.expr &:= array_name;
-          c_expr.expr &:= "->min_position || ";
+          if arrayType not in array_minIdx then
+            c_expr.expr &:= integerLiteral(index);
+            c_expr.expr &:= "<";
+            c_expr.expr &:= array_name;
+            c_expr.expr &:= "->min_position || ";
+          end if;
           c_expr.expr &:= integerLiteral(index);
           c_expr.expr &:= ">";
           c_expr.expr &:= array_name;
@@ -869,8 +874,11 @@ const proc: process_fixlen_array_index (in reference: index,
       countIndexOptimizations(c_expr);
       c_expr.expr &:= "(";
       process_expr(index, c_expr);
-      c_expr.expr &:= ")-";
-      c_expr.expr &:= integerLiteral(minIndex);
+      c_expr.expr &:= ")";
+      if minIndex <> 0 then
+        c_expr.expr &:= "-";
+        c_expr.expr &:= integerLiteral(minIndex);
+      end if;
     else
       incr(countIndexChecks);
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -879,8 +887,11 @@ const proc: process_fixlen_array_index (in reference: index,
         c_expr.expr &:= index_name;
         c_expr.expr &:= " = (uintType)(";
         process_expr(index, c_expr);
-        c_expr.expr &:= ")-(uintType)";
-        c_expr.expr &:= integerLiteral(minIndex);
+        c_expr.expr &:= ")";
+        if minIndex <> 0 then
+          c_expr.expr &:= "-(uintType)";
+          c_expr.expr &:= integerLiteral(minIndex);
+        end if;
         c_expr.expr &:= ",idxChk(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= " >= (uintType)";
@@ -904,10 +915,48 @@ const proc: process_fixlen_array_index (in reference: index,
         c_expr.expr &:= intRaiseError("INDEX_ERROR");
         c_expr.expr &:= " : ";
         c_expr.expr &:= index_name;
-        c_expr.expr &:= "-";
-        c_expr.expr &:= integerLiteral(minIndex);
+        if minIndex <> 0 then
+          c_expr.expr &:= "-";
+          c_expr.expr &:= integerLiteral(minIndex);
+        end if;
         c_expr.expr &:= ")";
       end if;
+    end if;
+  end func;
+
+
+const proc: process_base_array_index (in string: array_name,
+    in reference: index, in intRange: indexRange, in integer: minIndex,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: index_name is "";
+  begin
+    if indexRange.maxValue < minIndex then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    else
+      incr(countIndexChecks);
+      index_name := getParameterAsVariable("intType", "idx_", index, c_expr);
+      c_expr.expr &:= "(idxChk(";
+      if indexRange.minValue < minIndex then
+        c_expr.expr &:= index_name;
+        c_expr.expr &:= " < ";
+        c_expr.expr &:= integerLiteral(minIndex);
+        c_expr.expr &:= " || ";
+      end if;
+      c_expr.expr &:= index_name;
+      c_expr.expr &:= " > ";
+      c_expr.expr &:= array_name;
+      c_expr.expr &:= "->max_position) ? ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
+      c_expr.expr &:= index_name;
+      if minIndex <> 0 then
+        c_expr.expr &:= "-";
+        c_expr.expr &:= integerLiteral(minIndex);
+      end if;
+      c_expr.expr &:= ")";
     end if;
   end func;
 
@@ -1001,6 +1050,9 @@ const proc: process (ARR_IDX, in reference: function,
           if arrayType in array_minIdx and arrayType in array_maxIdx then
             process_fixlen_array_index(params[3], indexRange,
                 array_minIdx[arrayType], array_maxIdx[arrayType], c_expr);
+          elsif arrayType in array_minIdx then
+            process_base_array_index(array_name, params[3], indexRange,
+                array_minIdx[arrayType], c_expr);
           else
             incr(countIndexChecks);
             if ccConf.TWOS_COMPLEMENT_INTTYPE then
