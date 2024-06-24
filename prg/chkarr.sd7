@@ -1210,6 +1210,26 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array boolean' does not work correctly. (8)");
       okay := FALSE;
     end if;
+    blnArr := 3 times FALSE;
+    if blnArr <> [] (FALSE, FALSE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    blnArr := intExpr(5) times FALSE;
+    if blnArr <> [] (FALSE, FALSE, FALSE, FALSE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    blnArrArr[1] := 3 times FALSE;
+    if blnArrArr[1] <> [] (FALSE, FALSE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    blnArrArr[1] := intExpr(5) times FALSE;
+    if blnArrArr[1] <> [] (FALSE, FALSE, FALSE, FALSE, FALSE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correctly. (12)");
+      okay := FALSE;
+    end if;
 
     intArr := intArr;
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7) then
@@ -1249,6 +1269,26 @@ const proc: testAssign is func
     intArr := peelFirstElement(intArr);
     if intArr <> [] (1) then
       writeln(" ***** array assignment for 'array integer' does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+    intArr := 3 times 0;
+    if intArr <> [] (0, 0, 0) then
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    intArr := intExpr(5) times 0;
+    if intArr <> [] (0, 0, 0, 0, 0) then
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    intArrArr[1] := 3 times 0;
+    if intArrArr[1] <> [] (0, 0, 0) then
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    intArrArr[1] := intExpr(5) times 0;
+    if intArrArr[1] <> [] (0, 0, 0, 0, 0) then
+      writeln(" ***** array assignment for 'array integer' does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -1292,6 +1332,26 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (8)");
       okay := FALSE;
     end if;
+    bigArr := 3 times 0_;
+    if bigArr <> [] (0_, 0_, 0_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    bigArr := intExpr(5) times 0_;
+    if bigArr <> [] (0_, 0_, 0_, 0_, 0_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    bigArrArr[1] := 3 times 0_;
+    if bigArrArr[1] <> [] (0_, 0_, 0_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    bigArrArr[1] := intExpr(5) times 0_;
+    if bigArrArr[1] <> [] (0_, 0_, 0_, 0_, 0_) then
+      writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (12)");
+      okay := FALSE;
+    end if;
 
     fltArr := fltArr;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
@@ -1331,6 +1391,26 @@ const proc: testAssign is func
     fltArr := peelFirstElement(fltArr);
     if fltArr <> [] (1.0) then
       writeln(" ***** array assignment for 'array float' does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+    fltArr := 3 times 0.0;
+    if fltArr <> [] (0.0, 0.0, 0.0) then
+      writeln(" ***** array assignment for 'array float' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    fltArr := intExpr(5) times 0.0;
+    if fltArr <> [] (0.0, 0.0, 0.0, 0.0, 0.0) then
+      writeln(" ***** array assignment for 'array float' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    fltArrArr[1] := 3 times 0.0;
+    if fltArrArr[1] <> [] (0.0, 0.0, 0.0) then
+      writeln(" ***** array assignment for 'array float' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    fltArrArr[1] := intExpr(5) times 0.0;
+    if fltArrArr[1] <> [] (0.0, 0.0, 0.0, 0.0, 0.0) then
+      writeln(" ***** array assignment for 'array float' does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -1387,6 +1467,28 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array complex' does not work correctly. (8)");
       okay := FALSE;
     end if;
+    cpxArr := 3 times complex(0.0, 0.0);
+    if cpxArr <> [] (complex(0.0, 0.0), complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    cpxArr := intExpr(5) times complex(0.0, 0.0);
+    if cpxArr <> [] (complex(0.0, 0.0), complex(0.0, 0.0), complex(0.0, 0.0),
+                     complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    cpxArrArr[1] := 3 times complex(0.0, 0.0);
+    if cpxArrArr[1] <> [] (complex(0.0, 0.0), complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    cpxArrArr[1] := intExpr(5) times complex(0.0, 0.0);
+    if cpxArrArr[1] <> [] (complex(0.0, 0.0), complex(0.0, 0.0), complex(0.0, 0.0),
+                     complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array assignment for 'array complex' does not work correctly. (12)");
+      okay := FALSE;
+    end if;
 
     chrArr := chrArr;
     if chrArr <> [] ('a', 'b', 'c', 'd', 'e', 'f', 'g') then
@@ -1426,6 +1528,26 @@ const proc: testAssign is func
     chrArr := peelFirstElement(chrArr);
     if chrArr <> [] ('a') then
       writeln(" ***** array assignment for 'array char' does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+    chrArr := 3 times '\0;';
+    if chrArr <> [] ('\0;', '\0;', '\0;') then
+      writeln(" ***** array assignment for 'array char' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    chrArr := intExpr(5) times '\0;';
+    if chrArr <> [] ('\0;', '\0;', '\0;', '\0;', '\0;') then
+      writeln(" ***** array assignment for 'array char' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    chrArrArr[1] := 3 times '\0;';
+    if chrArrArr[1] <> [] ('\0;', '\0;', '\0;') then
+      writeln(" ***** array assignment for 'array char' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    chrArrArr[1] := intExpr(5) times '\0;';
+    if chrArrArr[1] <> [] ('\0;', '\0;', '\0;', '\0;', '\0;') then
+      writeln(" ***** array assignment for 'array char' does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -1470,6 +1592,26 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array string' does not work correctly. (8)");
       okay := FALSE;
     end if;
+    strArr := 3 times "";
+    if strArr <> [] ("", "", "") then
+      writeln(" ***** array assignment for 'array string' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    strArr := intExpr(5) times "";
+    if strArr <> [] ("", "", "", "", "") then
+      writeln(" ***** array assignment for 'array string' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    strArrArr[1] := 3 times "";
+    if strArrArr[1] <> [] ("", "", "") then
+      writeln(" ***** array assignment for 'array string' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    strArrArr[1] := intExpr(5) times "";
+    if strArrArr[1] <> [] ("", "", "", "", "") then
+      writeln(" ***** array assignment for 'array string' does not work correctly. (12)");
+      okay := FALSE;
+    end if;
 
     setArr := setArr;
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
@@ -1509,6 +1651,26 @@ const proc: testAssign is func
     setArr := peelFirstElement(setArr);
     if setArr <> [] ({1}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+    setArr := 3 times {};
+    if setArr <> [] ({}, {}, {}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+    setArr := intExpr(5) times {};
+    if setArr <> [] ({}, {}, {}, {}, {}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+    setArrArr[1] := 3 times {};
+    if setArrArr[1] <> [] ({}, {}, {}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+    setArrArr[1] := intExpr(5) times {};
+    if setArrArr[1] <> [] ({}, {}, {}, {}, {}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correctly. (12)");
       okay := FALSE;
     end if;
 
@@ -2660,14 +2822,6 @@ const proc: testIndex is func
 const proc: testTimes is func
   local
     var boolean: okay is TRUE;
-    var array boolean: blnArr is 0 times FALSE;
-    var array integer: intArr is 0 times 0;
-    var array bigInteger: bigArr is 0 times 0_;
-    var array float: fltArr is 0 times 0.0;
-    var array complex: cpxArr is 0 times complex.value;
-    var array char: chrArr is 0 times ' ';
-    var array string: strArr is 0 times "";
-    var array bitset: setArr is 0 times {};
     var boolean: blnElem is FALSE;
     var integer: intElem is 0;
     var bigInteger: bigElem is 0_;
