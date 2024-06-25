@@ -3860,6 +3860,7 @@ const proc: process_dynamic_function_call (in reference: function,
   begin
     resultExpr.currentFile := file(interface_object);
     resultExpr.currentLine := line(interface_object);
+    resultExpr.temp_num := c_expr.temp_num;
     if function in function_not_declared then
       process_inline(function, actual_params, resultExpr);
       if resultExpr.result_expr = "" then
@@ -3885,6 +3886,7 @@ const proc: process_dynamic_function_call (in reference: function,
         c_expr.expr &:= resultExpr.expr;
       end if;
     end if;
+    c_expr.temp_num := resultExpr.temp_num;
     c_expr.temp_decls &:= resultExpr.temp_decls;
     c_expr.temp_assigns &:= resultExpr.temp_assigns;
     c_expr.temp_frees &:= resultExpr.temp_frees;
