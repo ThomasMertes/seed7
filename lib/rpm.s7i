@@ -1869,7 +1869,7 @@ const proc: close (inout rpmArchive: rpm) is func
     var string: payload is "";
   begin
     if isDirty(rpm) then
-      writeln("in close");
+      # writeln("in close");
       if length(rpm.rpmFile) = 0 then
         writeLead(rpm.rpmFile, rpm.lead);
       end if;
@@ -1901,7 +1901,7 @@ const proc: close (inout rpmArchive: rpm) is func
       updateStore(rpm.header);
       headerSection := sectionStri(rpm.header, RPMTAG_HEADERIMMUTABLE);
 
-      writeln("prepare signature:");
+      # writeln("prepare signature:");
       updateIndexEntry(rpm.signature, RPMSIGTAG_SIZE, RPM_INT32_TYPE,
                        length(headerSection) + length(payload));
       updateIndexEntry(rpm.signature, RPMSIGTAG_PAYLOADSIZE, RPM_INT32_TYPE,
@@ -1916,11 +1916,11 @@ const proc: close (inout rpmArchive: rpm) is func
       assignIndexValues(rpm.signature);
       updateStore(rpm.signature);
       signatureSection := sectionStri(rpm.signature, RPMSIGTAG_HEADERSIGNATURES);
-      writeln(length(signatureSection));
+      # writeln(length(signatureSection));
 
-      writeln(4505 - length(signatureSection) -
-          (7 - pred(length(signatureSection)) mod 8) -
-          RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
+      # writeln(4505 - length(signatureSection) -
+      #    (7 - pred(length(signatureSection)) mod 8) -
+      #    RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
       updateIndexEntry(rpm.signature, RPMSIGTAG_RESERVEDSPACE, RPM_BIN_TYPE,
                        "\0;" mult 4505 - length(signatureSection) -
                        (7 - pred(length(signatureSection)) mod 8) -
@@ -1929,7 +1929,7 @@ const proc: close (inout rpmArchive: rpm) is func
       rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].offset := length(rpm.signature.store);
       rpm.signature.store &:= rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].striValue;
       signatureSection := sectionStri(rpm.signature, RPMSIGTAG_HEADERSIGNATURES);
-      writeln(length(signatureSection));
+      # writeln(length(signatureSection));
 
       write(rpm.rpmFile, signatureSection);
       write(rpm.rpmFile, "\0;" mult (7 - pred(length(signatureSection)) mod 8));
