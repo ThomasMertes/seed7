@@ -1962,7 +1962,7 @@ const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath
   result
     var string: missingPath is "";
   local
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is TRUE;
   begin
     # writeln("followSymlink: " <& filePath);
@@ -2135,7 +2135,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is FALSE;
   begin
     # writeln("fileType: " <& filePath);

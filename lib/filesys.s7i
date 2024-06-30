@@ -49,7 +49,7 @@ const fileType: FILE_FIFO    is 6;
 const fileType: FILE_SYMLINK is 7;
 const fileType: FILE_SOCKET  is 8;
 
-const integer: MAX_SYMLINKS is 5;
+const integer: MAX_SYMLINK_CHAIN_LENGTH is 5;
 
 (**
  *  Type to describe one file permission.

@@ -1040,7 +1040,7 @@ const func string: followSymlink (inout zipArchive: zip, in var string: filePath
   result
     var string: missingPath is "";
   local
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is TRUE;
     var local_file_header: localHeader is local_file_header.value;
     var string: targetPath is "";
@@ -1170,7 +1170,7 @@ const func fileType: fileType (inout zipArchive: zip, in var string: filePath) i
   local
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is FALSE;
     var string: targetPath is "";
   begin

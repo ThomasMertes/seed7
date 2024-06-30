@@ -539,7 +539,7 @@ const func string: followSymlink (inout cpioArchive: cpio, in var string: filePa
   result
     var string: missingPath is "";
   local
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is TRUE;
     var string: targetPath is "";
   begin
@@ -655,7 +655,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var cpioHeader: header is cpioHeader.value;
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is FALSE;
     var string: targetPath is "";
   begin

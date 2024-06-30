@@ -391,7 +391,7 @@ const func string: followSymlink (inout arArchive: ar, in var string: filePath,
   result
     var string: missingPath is "";
   local
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is TRUE;
     var string: targetPath is "";
   begin
@@ -550,7 +550,7 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var arHeader: header is arHeader.value;
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is FALSE;
     var string: targetPath is "";
   begin

@@ -653,7 +653,7 @@ const func string: followSymlink (inout tarArchive: tar, in var string: filePath
   result
     var string: missingPath is "";
   local
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is TRUE;
   begin
     # writeln("followSymlink: " <& filePath);
@@ -766,7 +766,7 @@ const func fileType: fileType (inout tarArchive: tar, in var string: filePath) i
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var tarHeader: header is tarHeader.value;
-    var integer: symlinkCount is MAX_SYMLINKS;
+    var integer: symlinkCount is MAX_SYMLINK_CHAIN_LENGTH;
     var boolean: isSymlink is FALSE;
   begin
     # writeln("fileType: " <& filePath);
