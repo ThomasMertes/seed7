@@ -503,14 +503,30 @@ COMPILING UNDER DOS WITH DJGPP
 
 COMPILING UNDER MAC OS
 
-    To compile under macOS make sure that the command line
-  tools for macOS are installed. They can be obtained from Xcode
-  (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
-  the command line tools can be downloaded directly. The tools
-  contain the C compilers clang and gcc. They also provide a
-  'make' utility. Depending on the version of macOS it might be
-  necessary to install also XQuartz (the X11 support of macOS).
-  XQuartz can be installed using brew:
+    To compile under macOS you need You need to install Xcode.
+  Xcode can be installed from the App Store or from Apple's
+  developer site if a specific version is needed.
+
+  For the next steps a terminal window is needed. A terminal
+  window is opened by clicking the launchpad icon in the dock,
+  typing terminal in the search field, then clicking on the
+  terminal icon.
+
+  The Homebrew package manager needs to be installed. Use
+  a terminal window and the following command to install it:
+
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  Homebrew uses the brew command to install software. If the
+  brew command is unknown it might be necessary to add it to
+  the PATH. If the zsh shell is used this can be done with:
+
+    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+
+  Depending on the version of macOS it might be necessary to
+  also install XQuartz (the X11 support of macOS). XQuartz
+  can be installed using brew:
 
     brew install --cask xquartz
 
@@ -518,11 +534,13 @@ COMPILING UNDER MAC OS
   the x11 lib is not found it can be installed using brew:
 
     brew install libx11
+    brew install libxrender
 
   If /usr/local/include/X11 does not exist the brew location
   must be linked to to /usr/local/include, so the C compiler
   can find it:
 
+    sudo mkdir /usr/local/include
     sudo ln -s /opt/homebrew/include/X11 /usr/local/include/X11
 
   In newer versions of macOS gcc is based on clang. You can use

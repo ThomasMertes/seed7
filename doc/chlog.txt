@@ -1,3 +1,161 @@
+20240630:
+- Explanations about scanner functions and why some write statements
+  raise RANGE_ERROR have been added to the FAQ.
+- The new library json.s7i has been added. This library supports
+  reading processing and writing JSON data. A JSON DOM is used to
+  store the JSON data.
+- A test program for JSON functions (chkjson.sd7) has been added.
+- The program calc7.sd7 has been improved to support JSON functions.
+- The new library magic.s7i has been added. This library supports
+  getting magic numbers (signatures) from strings and files.
+- The new library basearray.s7i has been added. This library
+  supports arrays with a fixed minimum index.
+- Tests for arrays with fixed size or fixed minimum index have been
+  added to chkarr.sd7.
+- A test program for scanner functions (chkscan.sd7) has been added.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - Support to compile dynamic functions with a type result has been
+    added.
+  - The compilation of an array sort has been improved to avoid
+    unnecessary copying of the array.
+  - The code generation for a fixed size array index access has been
+    refactored.
+  - The code generation for dynamic function calls has been
+    refactored.
+  - The optimizations for array indexing have been improved.
+- Interpreter and compiler have been improved to raise INDEX_ERROR
+  instead of RANGE_ERROR if indexing into a hash map fails.
+- Tests for INDEX_ERROR have been added to chkhsh.sd7.
+- A function to sort an array in reverse order has been added to the
+  library array.s7i.
+- Tests for array assignment and array sort have been added to
+  chkarr.sd7.
+- The program chk_all.sd7 has has been adjusted to consider the
+  changes in the test suite.
+- In ar.s7i, cpio.s7i, rpm.s7i, tar.s7i, tar_cmds.s7i and zip.s7i
+  the function getFileMode has been improved to return only the
+  permission bits.
+- In tar.s7i and zip.s7i the function setFileMode() has been
+  improved to only change the permission bits.
+- In ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i the function
+  close() has been changed to reset the file system to be empty.
+- In ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i the functions
+  fileType() and fileTypeSL() have been changed to return
+  FILE_UNKNOWN for a unknown file type.
+- The libraries ar.s7i, cpio.s7i, rpm.s7i and tar.s7i have been
+  improved such that newly created files in an archive get an UID
+  and GID of 0.
+- The library ar.s7i has been improved to use only ASCII file names
+  without a slash (/) and a length less than 16. All other file
+  names are stored as long name.
+- The function makeDir() has been added to ar.s7i and zip.s7i.
+- The function makeLink() has been added to filesys.s7i,
+  osfiles.s7i, ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i.
+- Support for the function removeFile() has been added to cpio.s7i,
+  rpm.s7i, tar.s7i and zip.s7i.
+- In ar.s7i the function removeFile() has been improved to remove
+  any file except non-empty directories.
+- Support for the function readLink() has been added to ar.s7i and
+  zip.s7i.
+- In cpio.s7i, rpm.s7i and zip.s7i the function readLink() has been
+  improved to support symlinks with UTF-8.
+- In ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i the function
+  fileType() has been improved to return FILE_SYMLINK if the
+  symbolic link chain is too long.
+- The constant MAX_SYMLINKS has been renamed to
+  MAX_SYMLINK_CHAIN_LENGTH.
+- The functions mkdir(), symlink() and cmd_sh() are deprecated now.
+  The functions makeDir(), makeLink() and shellCmd() should be used
+  instead. The parameters of makeLink() differ from the parameters
+  of symlink(). The symlinkPath is the first parameter of makeLink()
+  and the second parameter of symlink(). The function shellCmd()
+  raises FILE_ERROR if executing the command fails.
+- The files cc_conf.s7i, cli_cmds.s7i, cmd_act.s7i, cpio.s7i,
+  filesys.s7i, ftp.s7i, osfiles.s7i, rpm.s7i, shell.s7i, tar.s7i,
+  chkcmd.sd7, ftp7.sd7, sydir7.sd7, cmdlib.c, cmd_rtl.c and
+  cmd_rtl.h have been changed to use makeDir(), makeLink() and
+  shellCmd() instead of the deprected functions.
+- The function implicitDir() has been added to archive_base.s7i.
+  This allows removing declarations of implicitDir() from ar.s7i,
+  cpio.s7i, rpm.s7i, tar.s7i and zip.s7i.
+- The function isEmptyDir() has been added to archive_base.s7i. This
+  function is used in ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i
+  to assure that removeFile() removes only directories which are
+  empty.
+- The library ar.s7i has been improved to read and store the file
+  mode as octal number.
+- The library rpm.s7i has been improved:
+  - Now, it computes dirIndex and baseName when a file is created.
+  - Now, it sets the RPM file class when a file is created. This is
+    done with the functions getMagic() and magicDescription() from
+    the library magic.s7i.
+  - The function getNameIndex() has been introduced as helper
+    function.
+  - User and group names are stored additionally to UIDs and GIDs.
+  - Now, the function close() does not write the tag ARCHIVESIZE as
+    it might overflow.
+  - Support for the RMP file color (1 for 32bit ELF, 2 for 64bit ELF
+    and 0 otherwise) has been added.
+  - Declarations for RPMFILE flags have been added.
+- The library tar.s7i has been improved:
+  - Now the end-of-file marker is considered.
+  - The exception FILE_ERROR is raised if the check-sum of a header
+    is not okay.
+  - The function setGroup(... SYMLINK) has been fixed to set the gid
+    and the gname.
+- The library zip.s7i has been improved:
+  - Now it sets the modification time when a file is created.
+  - Now, the last access time and the modification time are updated
+    together.
+  - The helper functions isRegularFile() and isSymlink() have been
+    added.
+  - The crc32 check in getFile() has been simplified.
+- Symbolic link setters for mTime have been added to ar.s7i and
+  zip.s7i.
+- Setters for owner and group of normal files and symbolic links
+  have been added to ar.s7i and zip.s7i.
+- The libraries des.s7i and tdes.s7i have been improved to use fixed
+  size arrays for the encryption sub keys.
+- In scanfile.s7i the function getQuotedText() has been fixed to
+  move past the closing quotation character.
+- The function getWord(), with allowed characters as parameter, has
+  been added to scanstri.s7i and scanfile.s7i.
+- The library tar_cmds.s7i has been improved:
+  - The functions tarTell() and tarXtract() have been improved to
+    write an error message if the magic number or the check-sum is
+    not okay.
+  - The function tarTell() has been improved to write the file type
+    indicator for all type flag values.
+  - The function tarXtract() has been improved to look for existing
+    files with fileTypeSL() instead of fileType().
+  - Support for the extraction of symbolic links has been added.
+  - The functions tarTell(), tarXtract() and tarCreate() have been
+    improved to consider the end-of-file marker.
+- The function isSetType has been added to bitset.s7i, bitsetof.s7i
+  and hashsetof.s7i.
+- The copyright notice of interpreter and compiler has been
+  updated.
+- Comparisons for the type void have been added to seed7_05.s7i.
+- In syntax.s7i the priority of the shift operators >> and << has
+  been changed from 9 to 6. Now the shift operators have the same
+  priority as multiplication an division.
+- Interpreter and compiler have been improved to support the action
+  ARR_SORT_REVERSE.
+- The functions qsort_array_reverse() and arr_sort_reverse() have
+  been added to arrlib.c.
+- The functions rtl_qsort_array_reverse() and arrSortReverse() have
+  been added to arr_rtl.c.
+- In strlib.c the functions str_toutf8() and str_utf8tostri() have
+  been renamed to str_to_utf8() and str_from_utf8() respectively.
+- In str_rtl.c the function strUtf8ToStri has been renamed to
+  strFromUtf8().
+- The actions CMD_MKDIR, STR_TOUTF8 and STR_UTF8TOSTRI have been
+  renamed to CMD_MAKE_DIR, STR_TO_UTF8 respectively STR_FROM_UTF8.
+- Documentation comments have been improved in array.s7i, ar.s7i,
+  cpio.s7i, filesys.s7i, float.s7i, getf.s7i, hash.s7i, osfiles.s7i,
+  rpm.s7i, scanfile.s7i, shell.s7i, stdio.s7i, string.s7i, tar.s7i,
+  zip.s7i, cmdlib.c, cmd_rtl.c, hshlib.c and hsh_rtl.c.
+
 20240429:
 - The compilation of s7c with tcc has been fixed. Many thanks to
   Cheap-Ad9743 for pointing out that compiling s7c with tcc failed.

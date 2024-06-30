@@ -2250,12 +2250,12 @@ $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class
 $ unknownPragma
 ---------------^
 </pre><p>
-  The pragma <tt><span class="keywd">message</span></tt> can be used to write a message during
+  <a name="decls_pragma_message">The pragma <tt><span class="keywd">message</span></tt> can be used to write a message</a> during
   parsing. To write <tt><span class="stri">"hello world"</span></tt> during parsing use:
 </p><pre class="indent">
 $ <span class="keywd">message</span> <span class="stri">"hello world"</span>;
 </pre><p>
-  The pragma <tt><span class="keywd">info</span></tt> can be used to change the verbosity level of
+  <a name="decls_pragma_info">The pragma <tt><span class="keywd">info</span></tt> can be used to change the verbosity level</a> of
   the parsing phase. This overrules the <span class="link"><tt><b>-v</b><span class="keywd">n</span></tt></span> option of the
   <span class="link">interpreter</span>. With
 </p><pre class="indent">
@@ -2268,7 +2268,7 @@ $ <span class="keywd">info</span> <span class="keywd">off</span>;
 </pre><p>
   no such information is written.
 </p><p>
-  The pragma <tt><span class="keywd">trace</span></tt> can be used to turn interpreter tracing
+  <a name="decls_pragma_trace">The pragma <tt><span class="keywd">trace</span></tt> can be used to turn interpreter tracing</a>
   on or off during the parsing of the program. This
   overrules the <span class="link"><tt><b>-d</b><span class="keywd">x</span></tt></span> option of the <span class="link">interpreter</span>. The <tt><a class="type" href="#types_string">string</a></tt>
   parameter of the <tt><span class="keywd">trace</span></tt> pragma allows a sequence of the
@@ -2287,7 +2287,7 @@ $ <span class="keywd">info</span> <span class="keywd">off</span>;
     <li><b>s</b> Trace signals</li>
     <li><b>*</b> All flags</li>
 </ul><p>
-  The pragma <tt><span class="keywd">names</span></tt> can be used to allow Unicode in
+  <a name="decls_pragma_names">The pragma <tt><span class="keywd">names</span></tt> can be used to allow Unicode</a> in
   <a class="link" href="#tokens_Name_identifiers">name identifiers</a>:
 </p><pre class="indent">
 $ <span class="keywd">names</span> <span class="keywd">unicode</span>;
@@ -6778,6 +6778,9 @@ enable_output(<span class="type">anEnumType</span>);
                     Type of argument destPath: <a class="type" href="#types_string">string</a> )
       <span class="func">makeDir</span>(aFileSys, dirPath)  Create a directory
                   ( Type of argument dirPath: <a class="type" href="#types_string">string</a> )
+      <span class="func">makeLink</span>(aFileSys, symlinkPath, targetPath)  Create a symbolic link
+                  ( Type of argument symlinkPath: <a class="type" href="#types_string">string</a>,
+                    Type of argument targetPath: <a class="type" href="#types_string">string</a> )
       <span class="func">rmdir</span>(aFileSys, dirPath)  Delete an empty directory
                   ( Type of argument dirPath: <a class="type" href="#types_string">string</a> )
       <span class="func">getcwd</span>(aFileSys)  Determine the current working directory
@@ -12457,7 +12460,8 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
 <a name="os_makeLink"><h4>12.3.3 makeLink</h4></a>
 <p>
   The function <tt><span class="func">makeLink</span></tt> creates a symbolic link at <tt>symlinkPath</tt>
-  that contains the string referred by <tt>targetPath</tt>:
+  that contains the string referred by <tt>targetPath</tt>.
+  The function does not follow symbolic links.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: makeLink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: symlinkPath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: targetPath) <span class="keywd">is</span> ...
 </pre>
@@ -12476,7 +12480,8 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
         representation</a>, or one of them cannot be converted to the
         system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file ''dirPath'' already exists, or a
+        system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="os_getFileMode_SYMLINK"><h4>12.3.4 Symbolic link getFileMode</h4></a>
@@ -12808,17 +12813,19 @@ chdir(<span class="stri">"/usr/bin"</span>);
 <a name="os_makeDir"><h4>12.4.5 makeDir</h4></a>
 <p>
   The function <tt><span class="func">makeDir</span></tt> creates a new directory.
+  The function does not follow symbolic links.
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: makeDir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: makeDir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dirPath) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
-        <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
+        <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd><tt>'name'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        <dd><tt>'dirPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd>The file ''dirPath'' already exists, or a
+        system function returns an error.</dd>
 </dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     The statement
@@ -14140,6 +14147,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ARR_REMOVE</td>          <td>arr_remove</td>          <td>arrRemove</td></tr>
     <tr><td>ARR_REMOVE_ARRAY</td>    <td>arr_remove_array</td>    <td>arrRemoveArray</td></tr>
     <tr><td>ARR_SORT</td>            <td>arr_sort</td>            <td>arrSort</td></tr>
+    <tr><td>ARR_SORT_REVERSE</td>    <td>arr_sort_reverse</td>    <td>arrSortReverse</td></tr>
     <tr><td>ARR_SUBARR</td>          <td>arr_subarr</td>          <td>arrSubarr, arrSubarrTemp</td></tr>
     <tr><td>ARR_TAIL</td>            <td>arr_tail</td>            <td>arrTail</td></tr>
     <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
@@ -14311,35 +14319,45 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_CONFIG_VALUE</td>    <td>cmd_config_value</td>    <td>cmdConfigValue</td></tr>
     <tr><td>CMD_COPY_FILE</td>       <td>cmd_copy_file</td>       <td>cmdCopyFile</td></tr>
     <tr><td>CMD_ENVIRONMENT</td>     <td>cmd_environment</td>     <td>cmdEnvironment</td></tr>
-    <tr><td>CMD_FILEMODE</td>        <td>cmd_filemode</td>        <td>cmdFileMode</td></tr>
     <tr><td>CMD_FILESIZE</td>        <td>cmd_filesize</td>        <td>cmdFileSize</td></tr>
     <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
     <tr><td>CMD_FILETYPE_SL</td>     <td>cmd_filetype_sl</td>     <td>cmdFileTypeSL</td></tr>
+    <tr><td>CMD_FINAL_PATH</td>      <td>cmd_final_path</td>      <td>cmdFinalPath</td></tr>
     <tr><td>CMD_GETCWD</td>          <td>cmd_getcwd</td>          <td>cmdGetcwd</td></tr>
     <tr><td>CMD_GETENV</td>          <td>cmd_getenv</td>          <td>cmdGetenv</td></tr>
     <tr><td>CMD_GET_ATIME</td>       <td>cmd_get_atime</td>       <td>cmdGetATime</td></tr>
+    <tr><td>CMD_GET_ATIME_OF_SYMLINK</td> <td>cmd_get_atime_of_symlink</td> <td>cmdGetATimeOfSymlink</td></tr>
     <tr><td>CMD_GET_CTIME</td>       <td>cmd_get_ctime</td>       <td>cmdGetCTime</td></tr>
+    <tr><td>CMD_GET_FILE_MODE</td>   <td>cmd_get_file_mode</td>   <td>cmdGetFileMode</td></tr>
+    <tr><td>CMD_GET_FILE_MODE_OF_SYMLINK</td> <td>cmd_get_file_mode_of_symlink</td> <td>cmdGetFileModeOfSymlink</td></tr>
     <tr><td>CMD_GET_GROUP</td>       <td>cmd_get_group</td>       <td>cmdGetGroup</td></tr>
+    <tr><td>CMD_GET_GROUP_OF_SYMLINK</td> <td>cmd_get_group_of_symlink</td> <td>cmdGetGroupOfSymlink</td></tr>
     <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
+    <tr><td>CMD_GET_MTIME_OF_SYMLINK</td> <td>cmd_get_mtime_of_symlink</td> <td>cmdGetMTimeOfSymlink</td></tr>
     <tr><td>CMD_GET_OWNER</td>       <td>cmd_get_owner</td>       <td>cmdGetOwner</td></tr>
+    <tr><td>CMD_GET_OWNER_OF_SYMLINK</td> <td>cmd_get_owner_of_symlink</td> <td>cmdGetOwnerOfSymlink</td></tr>
     <tr><td>CMD_GET_SEARCH_PATH</td> <td>cmd_get_search_path</td> <td>cmdGetSearchPath</td></tr>
     <tr><td>CMD_HOME_DIR</td>        <td>cmd_home_dir</td>        <td>cmdHomeDir</td></tr>
-    <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
-    <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
+    <tr><td>CMD_MAKE_DIR</td>        <td>cmd_make_dir</td>        <td>cmdMakeDir</td></tr>
+    <tr><td>CMD_MAKE_LINK</td>       <td>cmd_make_link</td>       <td>cmdMakeLink</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
-    <tr><td>CMD_READLINK</td>        <td>cmd_readlink</td>        <td>cmdReadLink</td></tr>
+    <tr><td>CMD_READ_DIR</td>        <td>cmd_read_dir</td>        <td>cmdReadDir</td></tr>
+    <tr><td>CMD_READ_LINK</td>       <td>cmd_read_link</td>       <td>cmdReadLink</td></tr>
+    <tr><td>CMD_READ_LINK_ABSOLUTE</td> <td>cmd_read_link_absolute</td> <td>cmdReadLinkAbsolute</td></tr>
     <tr><td>CMD_REMOVE_FILE</td>     <td>cmd_remove_file</td>     <td>cmdRemoveFile</td></tr>
     <tr><td>CMD_REMOVE_TREE</td>     <td>cmd_remove_tree</td>     <td>cmdRemoveTree</td></tr>
     <tr><td>CMD_SETENV</td>          <td>cmd_setenv</td>          <td>cmdSetenv</td></tr>
     <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
     <tr><td>CMD_SET_FILEMODE</td>    <td>cmd_set_filemode</td>    <td>cmdSetFileMode</td></tr>
     <tr><td>CMD_SET_GROUP</td>       <td>cmd_set_group</td>       <td>cmdSetGroup</td></tr>
+    <tr><td>CMD_SET_GROUP_OF_SYMLINK</td> <td>cmd_set_group_of_symlink</td> <td>cmdSetGroupOfSymlink</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
+    <tr><td>CMD_SET_MTIME_OF_SYMLINK</td> <td>cmd_set_mtime_of_symlink</td> <td>cmdSetMTimeOfSymlink</td></tr>
     <tr><td>CMD_SET_OWNER</td>       <td>cmd_set_owner</td>       <td>cmdSetOwner</td></tr>
+    <tr><td>CMD_SET_OWNER_OF_SYMLINK</td> <td>cmd_set_owner_of_symlink</td> <td>cmdSetOwnerOfSymlink</td></tr>
     <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_set_search_path</td> <td>cmdSetSearchPath</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
-    <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
     <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
     <tr><td>CMD_UNSETENV</td>        <td>cmd_unsetenv</td>        <td>cmdUnsetenv</td></tr>
 </table><p></p>
@@ -15121,6 +15139,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_FOR</td>             <td>str_for</td>             <td>for</td></tr>
     <tr><td>STR_FOR_KEY</td>         <td>str_for_key</td>         <td>for</td></tr>
     <tr><td>STR_FOR_VAR_KEY</td>     <td>str_for_var_key</td>     <td>for</td></tr>
+    <tr><td>STR_FROM_UTF8</td>       <td>str_from_utf8</td>       <td>strFromUtf8</td></tr>
     <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
     <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
@@ -15153,10 +15172,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_SUBSTR</td>          <td>str_substr</td>          <td>strSubstr</td></tr>
     <tr><td>STR_SUBSTR_FIXLEN</td>   <td>str_substr_fixlen</td>   <td>strSubstrFixLen</td></tr>
     <tr><td>STR_TAIL</td>            <td>str_tail</td>            <td>strTail</td></tr>
-    <tr><td>STR_TOUTF8</td>          <td>str_toutf8</td>          <td>strToUtf8</td></tr>
+    <tr><td>STR_TO_UTF8</td>         <td>str_to_utf8</td>         <td>strToUtf8</td></tr>
     <tr><td>STR_TRIM</td>            <td>str_trim</td>            <td>strTrim</td></tr>
     <tr><td>STR_UP</td>              <td>str_up</td>              <td>strUp, strUpTemp</td></tr>
-    <tr><td>STR_UTF8TOSTRI</td>      <td>str_utf8tostri</td>      <td>strUtf8ToStri</td></tr>
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
 
@@ -16743,6 +16761,8 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="op">[index fixLen length]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bstring</span></tt> operation:</dt><dd>
         <span class="op">[index]</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
+        <span class="op">[</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
         <span class="op">[index]</span>, <span class="op">@:= [index] element</span>.</dd></dl>
 <p>
@@ -16782,8 +16802,6 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">rand</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">next</span>, <span class="func">integer</span>, <span class="func">bitset</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
         <span class="op">times</span>, <span class="func">rand</span>.</dd><dt>
-    It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
-        <span class="op">[</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bin32</span></tt> operations:</dt><dd>
         <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="func">bytes</span>, <span class="func">float2MbfBits</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bin64</span></tt> operations:</dt><dd>

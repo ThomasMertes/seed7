@@ -376,6 +376,9 @@ Can Seed7 access databases?
 <li><a class="link" href="#faq_regular_expressions"><b>
 Are there regular expressions?
 </b></a></li>
+<li><a class="link" href="#faq_scanner_functions"><b>
+What are scanner functions?
+</b></a></li>
 <li><a class="link" href="#faq_div_operator"><b>
 Why is the div operator used for integer divisions?
 </b></a></li>
@@ -471,6 +474,9 @@ Are there exceptions?
 </b></a></li>
 <li><a class="link" href="#faq_stack_trace"><b>
 What happens if an exception is not caught?
+</b></a></li>
+<li><a class="link" href="#faq_write_raises_RANGE_ERROR"><b>
+Why does a write statement raise RANGE_ERROR?
 </b></a></li>
 <li><a class="link" href="#faq_no_return_statement"><b>
 Is there a return statement?
@@ -880,12 +886,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-03-22 the number of lines is:
+than 400000 lines of Seed7. For version 2024-06-30 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">182501</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13736</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">256022</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">180303</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">183204</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13757</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">259140</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">186442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1267,7 +1273,7 @@ and searched for that file.
 The following options are recognized by s7:
 </p><ul>
   <li><b>-?</b> or <b>-h</b>  Write Seed7 interpreter usage.</li>
-  <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
+  <li><a name="faq_interpreter_option-a"><b>-a</b></a>   Analyze only and suppress the execution phase.</li>
   <li><a name="faq_interpreter_option-d"><b>-d</b><span class="keywd">x</span></a>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
@@ -1277,12 +1283,12 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li>
          <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
-  <li><b>-i</b>   Show the identifier table after the analysis phase.</li>
+  <li><a name="faq_interpreter_option-i"><b>-i</b></a>   Show the identifier table after the analysis phase.</li>
   <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
-  <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
+  <li><a name="faq_interpreter_option-p"><b>-p</b></a>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
   <li><a name="faq_interpreter_option-q"><b>-q</b></a>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
-  <li><b>-s</b>   Deactivate signal handlers.</li>
+  <li><a name="faq_interpreter_option-s"><b>-s</b></a>   Deactivate signal handlers.</li>
   <li><a name="faq_interpreter_option-t"><b>-t</b><span class="keywd">x</span></a>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
@@ -2464,16 +2470,59 @@ In the manual there is a chapter about the <span class="link">database abstracti
 <p>
 Regular expressions are a powerful feature. Unfortunately they also lead
 to code that is hard to maintain. The regular expression language is
-usually embedded in a surrounding programming language. As with other
-language-in-language features, this leads to maintenance problems. There
-are other difficulties too. Regular expressions work typeless but Seed7
-does not. For this reasons regular expressions are currently not supported,
-but there is an alternative (see below).
+usually embedded in a surrounding programming language. Like the format
+strings of C regular expressions are parsed and processed at run-time.
+As consequence checking a regular expression at compile-time is not easy.
+Computing a regular expression usually takes more time than a dedicated
+function for a specific purpose. There are other difficulties too. Regular
+expressions work typeless but Seed7 does not. For this reasons regular
+expressions are currently not supported, but there are alternatives
+(see below). For simple cases the functions <span class="func">startsWith</span> and <span class="func">endsWith</span> can be used. E.g.:
+</p><pre class="indent">
+<span class="keywd">if</span> <span class="func">endsWith</span>(fileName, <span class="stri">".sd7"</span>) <span class="keywd">then</span>
+  ...
+</pre><p>
+There are variants of <span class="func">replace</span> like
+</p><ul>
+<li><span class="func">replace1</span> - Replace one occurrence</li>
+<li><span class="func">replaceN</span> - Replace all occurrences including the ones created by replacements</li>
+<li><span class="func">replace2</span> - Replace occurrences of search1 followed by search2</li>
+</ul><p>
+Seed7 has support for lexical scanner functions which can be used as
+replacement for regular expressions in many situations.
+</p></div>
+
+<div><br /><a name="faq_scanner_functions"><h3>What are scanner functions?
+</h3></a><hr />
+<p>
+Scanner functions read a symbol from a <tt><span class="type">string</span></tt> or <tt><span class="type">file</span></tt>. The symbol read
+is removed from the beginning of the <tt><span class="type">string</span></tt> respectively <tt><span class="type">file</span></tt>. If the
+variable <tt>stri</tt> has the value <span class="stri">"12ab"</span> the function
+</p><pre class="indent">
+<span class="func">getDigits</span>(stri)
+</pre><p>
+returns <span class="stri">"12"</span> and <tt>stri</tt> has the value <span class="stri">"ab"</span> afterwards. The library
+<span class="lib">scanstri.s7i</span> supports scanning from a <tt><span class="type">string</span></tt>. It defines the following
+functions:
+</p><pre class="indent">
+<span class="func">skipComment</span>, <span class="func">getComment</span>, <span class="func">skipClassicComment</span>, <span class="func">skipLineComment</span>,
+<span class="func">getLineComment</span>, <span class="func">getDigits</span>, <span class="func">getInteger</span>, <span class="func">getNumber</span>, <span class="func">getNonDigits</span>,
+<span class="func">getQuotedText</span>, <span class="func">getCommandLineWord</span>, <span class="func">getSimpleStringLiteral</span>,
+<span class="func">getEscapeSequence</span>, <span class="func">getCharLiteral</span>, <span class="func">getStringLiteral</span>,
+<span class="func">getCStringLiteralText</span>, <span class="func">getName</span>, <span class="func">skipSpace</span>, <span class="func">skipSpaceOrTab</span>,
+<span class="func">skipWhiteSpace</span>, <span class="func">getWhiteSpace</span>, <span class="func">getWord</span>, <span class="func">skipLine</span>, <span class="func">getLine</span>,
+<span class="func">getSymbolOrComment</span>, <span class="func">getSymbol</span>, <span class="func">skipXmlComment</span>, <span class="func">getXmlTagOrContent</span>,
+<span class="func">getXmlCdataContent</span>, <span class="func">getXmlTagHeadOrContent</span>, <span class="func">getSymbolInXmlTag</span>,
+<span class="func">skipXmlTag</span>, <span class="func">getNextXmlAttribute</span>, <span class="func">getHtmlAttributeValue</span>,
+<span class="func">getNextHtmlAttribute</span>, <span class="func">getHttpSymbol</span>
+</pre><p>
+The library <span class="lib">scanfile.s7i</span> supports scanning from a <tt><span class="type">file</span></tt>. It defines
+functions similar to the ones defined by <span class="lib">scanstri.s7i</span>.
 </p><p>
-Seed7 has support for lexical scanner functions. Scanner functions use the
-LL(1) approach, which is used in compilers. Practically no compiler uses
-regular expressions to parse a program. The example below uses scanner
-functions to read a key-value pair from a file:
+Scanner functions use the LL(1) approach, which is used in compilers.
+Practically no compiler uses regular expressions to parse a program.
+The example below uses scanner functions to read a key-value pair from
+a file:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd_no_ul">inout</span> <span class="type">file</span>: inFile,
     <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyName, <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyValue) <span class="keywd">is</span> <span class="keywd">func</span>
@@ -2492,9 +2541,7 @@ functions to read a key-value pair from a file:
 </pre><p>
 Scanner functions work strictly from left to right. They examine one
 character and do decisions based on this character. How scanner
-functions work is described in <span class="link">the manual</span>. Scanner functions for strings
-are defined in <span class="lib">scanstri.s7i</span> and scanner functions for files are
-defined in <span class="lib">scanfile.s7i</span>.
+functions work is described in <span class="link">the manual</span>.
 </p></div>
 
 <div><br /><a name="faq_div_operator"><h3>Why is the div operator used for integer divisions?
@@ -2632,7 +2679,7 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
     writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     aFunc(aGlobal, aGlobal);
   <span class="keywd">end func</span>;
@@ -2738,7 +2785,7 @@ Below is a <a class="link" href="#faq_call_by_name">call-by-name parameter</a> d
 The call-by-name parameter <tt><span class="var">callByNameParam</span></tt> refers to the function
 provided as an actual parameter when <tt>whileTrueDo</tt> is called:
 </p><pre class="indent">
-whileTrueDo(<span class="func">getc</span>(<span class="var">IN</span>) <span class="op_no_ul">&lt;></span> '\n');
+whileTrueDo(<span class="func">getc</span>(<span class="var">IN</span>) <span class="op_no_ul">&lt;></span> <span class="stri">'\n'</span>);
 </pre><p>
 Inside <tt>whileTrueDo</tt>, the call-by-name parameter cannot be changed,
 but depending on the actual parameter, it can refer to different
@@ -2836,7 +2883,9 @@ if (!slow && !overflow_ocurred) {
       normal integer. At least a check of the lowest bit and a shift of
       the value is necessary to obtain the normal integer.</li>
    <li>If a pointer to a normal integer is needed the combined integer
-      needs to be converted and a conversion back is also needed.</li></ul>
+      needs to be converted and a conversion back is also needed.</li>
+   <li>Multiplications and divisions need an additional shift of the
+      result to obtain the combined integer representation.</li></ul>
    All these actions slow the program down.</li>
 </ul><p>
 The automatic promotion to big integer (with the combined integer type)
@@ -3275,7 +3324,7 @@ respectively string. The function <span class="func">execute</span> can be used 
 $ include <span class="lib">"seed7_05.s7i"</span>;
   include <span class="lib">"progs.s7i"</span>;
 
-<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
   <span class="keywd">begin</span>
@@ -3302,7 +3351,7 @@ in the program panic.sd7:
 $ include <span class="lib">"seed7_05.s7i"</span>;
   include <span class="lib">"progs.s7i"</span>;
 
-<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
     <span class="keywd">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
@@ -3458,6 +3507,25 @@ if the exception is not related to floating point operations.
 </p><p>
 <span class="link">Chapter 16.5 (Stack trace)</span> of the manual contains a detailed description how to
 debug compiled Seed7 programs.
+</p></div>
+
+<div><br /><a name="faq_write_raises_RANGE_ERROR"><h3>Why does a write statement raise RANGE_ERROR?
+</h3></a><hr />
+<p>
+Writing an Unicode character beyond <tt><span class="stri">'\255;'</span></tt> to the standard output file (<tt><span class="var">STD_OUT</span></tt>) raises <tt><span class="exception">RANGE_ERROR</span></tt>. The file <tt><span class="var">STD_OUT</span></tt> only supports Latin-1 or Ascii characters <= <tt><span class="stri">'\255;'</span></tt>. This can be avoided by using <tt><span class="var">STD_CONSOLE</span></tt> instead of <tt><span class="var">STD_OUT</span></tt>. You need to include the library <span class="lib">console.s7i</span> with
+</p><pre class="indent">
+include "console.s7i";
+</pre><p>
+and assign <tt><span class="var">STD_CONSOLE</span></tt> to <tt><span class="var">OUT</span></tt> at the beginning of the <tt>main</tt> function
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+  ...
+  <span class="keywd">begin</span>
+    <span class="var">OUT</span> <span class="op_no_ul">:=</span> <span class="var">STD_CONSOLE</span>;
+</pre><p>
+This way <tt><span class="func">write</span></tt> will accept any Unicode character.
+</p><p>
+Writing Unicode characters beyond <tt><span class="stri">'\255;'</span></tt> to a file opened with <tt><span class="func">open</span></tt> also raises <tt><span class="exception">RANGE_ERROR</span></tt>. This can be avoided by opening the file with <tt><span class="func">openUtf8</span></tt>.
 </p></div>
 
 <div><br /><a name="faq_no_return_statement"><h3>Is there a return statement?

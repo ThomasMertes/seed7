@@ -6567,6 +6567,9 @@ CONTENTS
                     Type of argument destPath: string )
       makeDir(aFileSys, dirPath)  Create a directory
                   ( Type of argument dirPath: string )
+      makeLink(aFileSys, symlinkPath, targetPath)  Create a symbolic link
+                  ( Type of argument symlinkPath: string,
+                    Type of argument targetPath: string )
       rmdir(aFileSys, dirPath)  Delete an empty directory
                   ( Type of argument dirPath: string )
       getcwd(aFileSys)  Determine the current working directory
@@ -12246,7 +12249,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 12.3.3 makeLink
 
   The function 'makeLink' creates a symbolic link at 'symlinkPath'
-  that contains the string referred by 'targetPath':
+  that contains the string referred by 'targetPath'.
+  The function does not follow symbolic links.
 
     const proc: makeLink (in string: symlinkPath, in string: targetPath) is ...
 
@@ -12265,7 +12269,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         representation, or one of them cannot be converted to the
         system path type.
     FILE_ERROR
-        A system function returns an error.
+        The file ''dirPath'' already exists, or a
+        system function returns an error.
 
 
 12.3.4 Symbolic link getFileMode
@@ -12597,17 +12602,19 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 12.4.5 makeDir
 
   The function 'makeDir' creates a new directory.
+  The function does not follow symbolic links.
 
-    const proc: makeDir (in string: name) is ...
+    const proc: makeDir (in string: dirPath) is ...
 
   Possible exceptions:
     MEMORY_ERROR
-        Not enough memory to convert 'name' to the system path type.
+        Not enough memory to convert 'dirPath' to the system path type.
     RANGE_ERROR
-        'name' does not use the standard path representation
+        'dirPath' does not use the standard path representation
         or it cannot be converted to the system path type.
     FILE_ERROR
-        A system function returns an error.
+        The file ''dirPath'' already exists, or a
+        system function returns an error.
 
   Examples:
     The statement
@@ -13929,6 +13936,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     ARR_REMOVE          arr_remove          arrRemove
     ARR_REMOVE_ARRAY    arr_remove_array    arrRemoveArray
     ARR_SORT            arr_sort            arrSort
+    ARR_SORT_REVERSE    arr_sort_reverse    arrSortReverse
     ARR_SUBARR          arr_subarr          arrSubarr, arrSubarrTemp
     ARR_TAIL            arr_tail            arrTail
     ARR_TIMES           arr_times           times_ ...
@@ -14100,35 +14108,45 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CMD_CONFIG_VALUE    cmd_config_value    cmdConfigValue
     CMD_COPY_FILE       cmd_copy_file       cmdCopyFile
     CMD_ENVIRONMENT     cmd_environment     cmdEnvironment
-    CMD_FILEMODE        cmd_filemode        cmdFileMode
     CMD_FILESIZE        cmd_filesize        cmdFileSize
     CMD_FILETYPE        cmd_filetype        cmdFileType
     CMD_FILETYPE_SL     cmd_filetype_sl     cmdFileTypeSL
+    CMD_FINAL_PATH      cmd_final_path      cmdFinalPath
     CMD_GETCWD          cmd_getcwd          cmdGetcwd
     CMD_GETENV          cmd_getenv          cmdGetenv
     CMD_GET_ATIME       cmd_get_atime       cmdGetATime
+    CMD_GET_ATIME_OF_SYMLINK cmd_get_atime_of_symlink cmdGetATimeOfSymlink
     CMD_GET_CTIME       cmd_get_ctime       cmdGetCTime
+    CMD_GET_FILE_MODE   cmd_get_file_mode   cmdGetFileMode
+    CMD_GET_FILE_MODE_OF_SYMLINK cmd_get_file_mode_of_symlink cmdGetFileModeOfSymlink
     CMD_GET_GROUP       cmd_get_group       cmdGetGroup
+    CMD_GET_GROUP_OF_SYMLINK cmd_get_group_of_symlink cmdGetGroupOfSymlink
     CMD_GET_MTIME       cmd_get_mtime       cmdGetMTime
+    CMD_GET_MTIME_OF_SYMLINK cmd_get_mtime_of_symlink cmdGetMTimeOfSymlink
     CMD_GET_OWNER       cmd_get_owner       cmdGetOwner
+    CMD_GET_OWNER_OF_SYMLINK cmd_get_owner_of_symlink cmdGetOwnerOfSymlink
     CMD_GET_SEARCH_PATH cmd_get_search_path cmdGetSearchPath
     CMD_HOME_DIR        cmd_home_dir        cmdHomeDir
-    CMD_LS              cmd_ls              cmdLs
-    CMD_MKDIR           cmd_mkdir           cmdMkdir
+    CMD_MAKE_DIR        cmd_make_dir        cmdMakeDir
+    CMD_MAKE_LINK       cmd_make_link       cmdMakeLink
     CMD_MOVE            cmd_move            cmdMove
-    CMD_READLINK        cmd_readlink        cmdReadLink
+    CMD_READ_DIR        cmd_read_dir        cmdReadDir
+    CMD_READ_LINK       cmd_read_link       cmdReadLink
+    CMD_READ_LINK_ABSOLUTE cmd_read_link_absolute cmdReadLinkAbsolute
     CMD_REMOVE_FILE     cmd_remove_file     cmdRemoveFile
     CMD_REMOVE_TREE     cmd_remove_tree     cmdRemoveTree
     CMD_SETENV          cmd_setenv          cmdSetenv
     CMD_SET_ATIME       cmd_set_atime       cmdSetATime
     CMD_SET_FILEMODE    cmd_set_filemode    cmdSetFileMode
     CMD_SET_GROUP       cmd_set_group       cmdSetGroup
+    CMD_SET_GROUP_OF_SYMLINK cmd_set_group_of_symlink cmdSetGroupOfSymlink
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
+    CMD_SET_MTIME_OF_SYMLINK cmd_set_mtime_of_symlink cmdSetMTimeOfSymlink
     CMD_SET_OWNER       cmd_set_owner       cmdSetOwner
+    CMD_SET_OWNER_OF_SYMLINK cmd_set_owner_of_symlink cmdSetOwnerOfSymlink
     CMD_SET_SEARCH_PATH cmd_set_search_path cmdSetSearchPath
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SHELL_ESCAPE    cmd_shell_escape    cmdShellEscape
-    CMD_SYMLINK         cmd_symlink         cmdSymlink
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
     CMD_UNSETENV        cmd_unsetenv        cmdUnsetenv
 
@@ -14910,6 +14928,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_FOR             str_for             for
     STR_FOR_KEY         str_for_key         for
     STR_FOR_VAR_KEY     str_for_var_key     for
+    STR_FROM_UTF8       str_from_utf8       strFromUtf8
     STR_GE              str_ge              strGe
     STR_GT              str_gt              strGt
     STR_HASHCODE        str_hashcode        strHashCode
@@ -14942,10 +14961,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_SUBSTR          str_substr          strSubstr
     STR_SUBSTR_FIXLEN   str_substr_fixlen   strSubstrFixLen
     STR_TAIL            str_tail            strTail
-    STR_TOUTF8          str_toutf8          strToUtf8
+    STR_TO_UTF8         str_to_utf8         strToUtf8
     STR_TRIM            str_trim            strTrim
     STR_UP              str_up              strUp, strUpTemp
-    STR_UTF8TOSTRI      str_utf8tostri      strUtf8ToStri
     STR_VALUE           str_value           strValue
 
 
@@ -16532,6 +16550,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         [index], [index ..], [.. index], [start .. stop], [index len length], [index fixLen length], @:= [index] char, @:= [index] string.
     It may be raised from the following 'bstring' operation:
         [index].
+    It may be raised from the following 'hash' operations:
+        [.
     It may be raised from the following 'ref_list' operations:
         [index], @:= [index] element.
 
@@ -16571,8 +16591,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         conv, parse, rand, min, max, next, integer, bitset.
     It may be raised from the following 'array' operations:
         times, rand.
-    It may be raised from the following 'hash' operations:
-        [.
     It may be raised from the following 'bin32' operations:
         radix, RADIX, bytes, float2MbfBits.
     It may be raised from the following 'bin64' operations:

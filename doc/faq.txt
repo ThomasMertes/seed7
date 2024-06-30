@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-03-22 the number of lines is:
+than 400000 lines of Seed7. For version 2024-06-30 the number of lines is:
 
-  182501  C source files (*.c)
-   13736  C header files (*.h)
-  256022  Seed7 source files (*.sd7)
-  180303  Seed7 library/include files (*.s7i)
+  183204  C source files (*.c)
+   13757  C header files (*.h)
+  259140  Seed7 source files (*.sd7)
+  186442  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1931,16 +1931,59 @@ Are there regular expressions?
 
 Regular expressions are a powerful feature. Unfortunately they also lead
 to code that is hard to maintain. The regular expression language is
-usually embedded in a surrounding programming language. As with other
-language-in-language features, this leads to maintenance problems. There
-are other difficulties too. Regular expressions work typeless but Seed7
-does not. For this reasons regular expressions are currently not supported,
-but there is an alternative (see below).
+usually embedded in a surrounding programming language. Like the format
+strings of C regular expressions are parsed and processed at run-time.
+As consequence checking a regular expression at compile-time is not easy.
+Computing a regular expression usually takes more time than a dedicated
+function for a specific purpose. There are other difficulties too. Regular
+expressions work typeless but Seed7 does not. For this reasons regular
+expressions are currently not supported, but there are alternatives
+(see below). For simple cases the functions startsWith and endsWith can be used. E.g.:
 
-Seed7 has support for lexical scanner functions. Scanner functions use the
-LL(1) approach, which is used in compilers. Practically no compiler uses
-regular expressions to parse a program. The example below uses scanner
-functions to read a key-value pair from a file:
+  if endsWith(fileName, ".sd7") then
+    ...
+
+There are variants of replace like
+
+ - replace1 - Replace one occurrence
+ - replaceN - Replace all occurrences including the ones created by replacements
+ - replace2 - Replace occurrences of search1 followed by search2
+
+Seed7 has support for lexical scanner functions which can be used as
+replacement for regular expressions in many situations.
+
+
+What are scanner functions?
+===========================
+
+Scanner functions read a symbol from a string or file. The symbol read
+is removed from the beginning of the string respectively file. If the
+variable 'stri' has the value "12ab" the function
+
+  getDigits(stri)
+
+returns "12" and 'stri' has the value "ab" afterwards. The library
+scanstri.s7i supports scanning from a string. It defines the following
+functions:
+
+  skipComment, getComment, skipClassicComment, skipLineComment,
+  getLineComment, getDigits, getInteger, getNumber, getNonDigits,
+  getQuotedText, getCommandLineWord, getSimpleStringLiteral,
+  getEscapeSequence, getCharLiteral, getStringLiteral,
+  getCStringLiteralText, getName, skipSpace, skipSpaceOrTab,
+  skipWhiteSpace, getWhiteSpace, getWord, skipLine, getLine,
+  getSymbolOrComment, getSymbol, skipXmlComment, getXmlTagOrContent,
+  getXmlCdataContent, getXmlTagHeadOrContent, getSymbolInXmlTag,
+  skipXmlTag, getNextXmlAttribute, getHtmlAttributeValue,
+  getNextHtmlAttribute, getHttpSymbol
+
+The library scanfile.s7i supports scanning from a file. It defines
+functions similar to the ones defined by scanstri.s7i.
+
+Scanner functions use the LL(1) approach, which is used in compilers.
+Practically no compiler uses regular expressions to parse a program.
+The example below uses scanner functions to read a key-value pair from
+a file:
 
   const proc: getKeyValuePair (inout file: inFile,
       inout string: propertyName, inout string: propertyValue) is func
@@ -1959,9 +2002,7 @@ functions to read a key-value pair from a file:
 
 Scanner functions work strictly from left to right. They examine one
 character and do decisions based on this character. How scanner
-functions work is described in the manual. Scanner functions for strings
-are defined in scanstri.s7i and scanner functions for files are
-defined in scanfile.s7i.
+functions work is described in the manual.
 
 
 Why is the div operator used for integer divisions?
@@ -2304,6 +2345,8 @@ combined integer) and no overflow occurs.
       the value is necessary to obtain the normal integer.
     - If a pointer to a normal integer is needed the combined integer
       needs to be converted and a conversion back is also needed.
+    - Multiplications and divisions need an additional shift of the
+      result to obtain the combined integer representation.
    All these actions slow the program down.
 
 The automatic promotion to big integer (with the combined integer type)
@@ -2925,6 +2968,25 @@ if the exception is not related to floating point operations.
 
 Chapter 16.5 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
+
+
+Why does a write statement raise RANGE_ERROR?
+=============================================
+
+Writing an Unicode character beyond '\255;' to the standard output file (STD_OUT) raises RANGE_ERROR. The file STD_OUT only supports Latin-1 or Ascii characters <= '\255;'. This can be avoided by using STD_CONSOLE instead of STD_OUT. You need to include the library console.s7i with
+
+  include "console.s7i";
+
+and assign STD_CONSOLE to OUT at the beginning of the 'main' function
+
+  const proc: main is func
+    ...
+    begin
+      OUT := STD_CONSOLE;
+
+This way 'write' will accept any Unicode character.
+
+Writing Unicode characters beyond '\255;' to a file opened with 'open' also raises RANGE_ERROR. This can be avoided by opening the file with 'openUtf8'.
 
 
 Is there a return statement?
