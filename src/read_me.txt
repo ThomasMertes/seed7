@@ -388,7 +388,7 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
 
   The makefiles mk_emccl.mak and mk_emccw.mak are provided
   for compiling with emcc under Linux and Windows. Besides emcc
-  you need also gcc (under Windows use gcc from MinGW) and
+  you also need gcc (under Windows use gcc from MinGW) and
   node.js. When you download emsdk you get also a version of
   node.js.
 
@@ -683,7 +683,7 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
   and under openSUSE Tumbleweed the name is ncurses-devel),
   but you can search in your package manager for a curses/ncurses
   package which mentions that it contains the header files.
-  To execute programs you need also to install the non-developer
+  To execute programs, you also need to install the non-developer
   package of curses/ncurses (in most cases it will already
   be installed because it is needed by other packages).
 
@@ -707,7 +707,7 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
   Note that under X11 'client' means: The program which wants
   to draw. A X11 'server' is the place where the drawings are
-  displayed. So you have to search for a X11 client developer
+  displayed. So, you must search for a X11 client developer
   package with headers. If you use X11 in some way (you don't
   do everything from the text console) the non-developer package
   of X11 will already be installed.

@@ -567,8 +567,10 @@ this case you get some errors after typing 'make depend'. Errors such as
 
 indicate that the development package of the C library is
 missing. I don't know the name of this package in your
-distribution (under Ubuntu it has the name libc6-dev), but
-you can search for C development libraries and header files.
+distribution (under Ubuntu it has the name libc6-dev and under
+openSUSE Tumbleweed the name is glibc-devel), but you can
+search in your package manager for C development libraries and
+header files.
 
 Errors such as
 
@@ -576,10 +578,11 @@ Errors such as
   kbd_inf.c:53:18: error: term.h: No such file or directory
   trm_inf.c:47:18: error: term.h: No such file or directory
 
-indicate that the curses or ncurses development package is missing.
-I don't know the name of this package in your distribution
-(under Ubuntu it has the name libncurses5-dev), but you
-can search in your package manager for a curses/ncurses
+indicate that the curses or ncurses development package is
+missing. I don't know the name of this package in your
+distribution (under Ubuntu it has the name libncurses5-dev
+and under openSUSE Tumbleweed the name is ncurses-devel),
+but you can search in your package manager for a curses/ncurses
 package which mentions that it contains the header files.
 To execute programs, you also need to install the non-developer
 package of curses/ncurses (in most cases it will already
@@ -594,13 +597,21 @@ Errors such as
 
 indicate that the X11 development package is missing.
 Under Ubuntu this package has the name libx11-dev and is
-described as: X11 client-side library (development headers)
-Note that under X11 'client' means: The program which wants to
-draw. A X11 'server' is the place where the drawings are displayed.
-So, you must search for a X11 client developer package with
-headers. If you use X11 in some way (you don't do everything
-from the text console) the non-developer package of X11 will
-already be installed.
+described as:
+
+  X11 client-side library (development headers)
+
+Under openSUSE Tumbleweed this package is named libX11-devel
+and is described as:
+
+  Development files for the Core X11 protocol library
+
+Note that under X11 'client' means: The program which wants
+to draw. A X11 'server' is the place where the drawings are
+displayed. So, you must search for a X11 client developer
+package with headers. If you use X11 in some way (you don't
+do everything from the text console) the non-developer package
+of X11 will already be installed.
 
 Errors such as
 
