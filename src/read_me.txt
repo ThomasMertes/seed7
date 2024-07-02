@@ -666,8 +666,10 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
   indicate that the development package of the C library is
   missing. I don't know the name of this package in your
-  distribution (under Ubuntu it has the name libc6-dev), but
-  you can search for C development libraries and header files.
+  distribution (under Ubuntu it has the name libc6-dev and under
+  openSUSE Tumbleweed the name is glibc-devel), but you can
+  search in your package manager for C development libraries and
+  header files.
 
  --- Errors such as
 
