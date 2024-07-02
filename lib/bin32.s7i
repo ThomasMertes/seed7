@@ -285,7 +285,7 @@ const func bin32: ~ (in bin32: bits) is
 
 
 (**
- *  Shift a bin32 value left by lshift bits.
+ *  Compute ''bits'' logically left shifted by ''lshift''.
  *   bin32(16#abcdef) << 4  returns  bin32(16#abcdef0)
  *   bin32(1) << 64         raises OVERFLOW_ERROR
  *  @return the left shifted value.
@@ -296,18 +296,18 @@ const func bin32: (in bin32: bits) << (in integer: lshift)     is action "BIN_LS
 
 
 (**
- *  Shift a bin32 value right by rshift bits.
+ *  Compute ''bits'' logically right shifted by ''rshift''.
  *  Bits shifted beyond the lowest bit position are lost.
  *   bin32(16#abcdef) >> 4  returns  bin32(16#abcde)
  *  @return the right shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
-const func bin32: (in bin32: bits) >> (in integer: lshift)     is action "BIN_RSHIFT";
+const func bin32: (in bin32: bits) >> (in integer: rshift)     is action "BIN_RSHIFT";
 
 
 (**
- *  Shift a bin32 value left by lshift bits and assign the result back to ''bits''.
+ *  Logical left shift ''bits'' by ''lshift'' and assign the result back to ''bits''.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
@@ -315,7 +315,7 @@ const proc: (inout bin32: bits) <<:= (in integer: lshift)      is action "BIN_LS
 
 
 (**
- *  Shift a bin32 value right by rshift bits and assign the result back to ''bits''.
+ *  Logical right shift ''bits'' by ''rshift'' and assign the result back to ''bits''.
  *  Bits shifted beyond the lowest bit position are lost.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
