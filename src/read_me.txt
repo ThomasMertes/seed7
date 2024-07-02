@@ -98,9 +98,15 @@ REMAINING BUILD STEPS
 
 COMPILING UNDER LINUX
 
-    For Linux the compilation process is the simplest. The
-  file 'makefile' is (almost) identical to 'mk_linux.mak' and
-  that file is already prepared to compile under Linux.
+    For Linux the compilation process is the simplest. Besides
+  C compiler and a make utility you need some packages:
+
+    - The C development libraries and header files (e.g. glibc-devel or libc6-dev)
+    - The header files for ncurses (e.g. ncurses-devel, libncurses-devel or libncurses5-dev)
+    - The development package of X11 (e.g. libX11-devel or libx11-dev)
+
+  The file 'makefile' is (almost) identical to 'mk_linux.mak'
+  and that file is already prepared to compile under Linux.
   Go to the 'seed7/src' directory and type:
 
     make depend

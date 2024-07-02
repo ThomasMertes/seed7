@@ -309,9 +309,15 @@ make clean
 
 <div><br /><a name="build_COMPILING_UNDER_LINUX"><h3>COMPILING UNDER LINUX
 </h3></a><p>
-    For Linux the compilation process is the simplest. The
-  file 'makefile' is (almost) identical to 'mk_linux.mak' and
-  that file is already prepared to compile under Linux.
+    For Linux the compilation process is the simplest. Besides
+  C compiler and a make utility you need some packages:
+</p><ul>
+<li>The C development libraries and header files (e.g. glibc-devel or libc6-dev)</li>
+<li>The header files for ncurses (e.g. ncurses-devel, libncurses-devel or libncurses5-dev)</li>
+<li>The development package of X11 (e.g. libX11-devel or libx11-dev)</li>
+</ul><p>
+  The file 'makefile' is (almost) identical to 'mk_linux.mak'
+  and that file is already prepared to compile under Linux.
   Go to the 'seed7/src' directory and type:
 </p><pre class="indent">
 make depend
