@@ -1113,7 +1113,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var archiveRegisterType: register is archiveRegisterType.value;
     var rpmCatalogType: catalog is rpmCatalogType.value;
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
-    var array string: dirNameList is 0 times "";
+    var array string: dirNames is 0 times "";
     var array string: classDict is 0 times "";
     var array rpmDependency: provided is 0 times rpmDependency.value;
     var array rpmDependency: required is 0 times rpmDependency.value;
@@ -1160,7 +1160,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     if RPMTAG_OLDFILENAMES in rpm.header.tagMap then
       oldFileNamePos := succ(rpm.header.tagMap[RPMTAG_OLDFILENAMES].offset);
     else
-      rpm.dirNameList := getStringArray(rpm, RPMTAG_DIRNAMES);
+      rpm.dirNames := getStringArray(rpm, RPMTAG_DIRNAMES);
       dirIndexPos := succ(rpm.header.tagMap[RPMTAG_DIRINDEXES].offset);
       baseNamePos := succ(rpm.header.tagMap[RPMTAG_BASENAMES].offset);
     end if;
@@ -1178,7 +1178,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
             rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE));
         dirIndexPos +:= 4;
         catalogEntry.baseName := getUtf8z(rpm.header.store, baseNamePos);
-        catalogEntry.filePath := rpm.dirNameList[catalogEntry.dirIndex];
+        catalogEntry.filePath := rpm.dirNames[catalogEntry.dirIndex];
         # writeln("dirName[" <& index <& "]: " <& catalogEntry.filePath);
         catalogEntry.filePath &:= catalogEntry.baseName;
       end if;
@@ -1888,7 +1888,7 @@ const proc: close (inout rpmArchive: rpm) is func
       # Optional. Might overflow 32-bit signed integer.
       # updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
       #                  length(rpm.payloadFile));
-      updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNameList);
+      updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNames);
       updateIndexEntry(rpm.header, RPMTAG_CLASSDICT, RPM_STRING_ARRAY_TYPE, rpm.classDict);
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
@@ -2089,7 +2089,7 @@ const proc: setDirIndexAndBaseName (inout rpmArchive: rpm,
       dirName := "";
       catalogEntry.baseName := catalogEntry.filePath;
     end if;
-    catalogEntry.dirIndex := getNameIndex(rpm.dirNameList, dirName);
+    catalogEntry.dirIndex := getNameIndex(rpm.dirNames, dirName);
   end func;
 
 
