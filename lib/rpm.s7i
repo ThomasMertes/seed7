@@ -852,6 +852,17 @@ const proc: show (in rpmHeader: header) is func
   end func;
 
 
+const proc: show (in rpmIndexEntry: indexEntry) is func
+  local
+    var string: striValue is "";
+  begin
+    write("Tag: " <& indexEntry.tag);
+    write(" type: " <& indexEntry.dataType);
+    write(" offset: " <& indexEntry.offset);
+    writeln(" count: " <& indexEntry.count);
+  end func;
+
+
 const func string: getUtf8z (in string: stri, inout integer: currPos) is func
   result
     var string: resultStri is "";
@@ -1506,7 +1517,7 @@ const func string: sectionStri (inout rpmSection: section, in integer: sectionTa
     var string: sectionStri is "";
   local
     var rpmIndexEntry: sectionIndexEntry is rpmIndexEntry.value;
-    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var integer: tag is 0;
   begin
     section.head.magic := RPM_HEADER_MAGIC;
     section.head.version := 1;
@@ -1520,9 +1531,9 @@ const func string: sectionStri (inout rpmSection: section, in integer: sectionTa
     sectionIndexEntry.offset := length(section.store);
     sectionIndexEntry.count := 16;
     sectionStri &:= str(sectionIndexEntry);
-    for indexEntry range section.tagMap do
-      # writeln("indexEntry: " <& literal(str(indexEntry)));
-      sectionStri &:= str(indexEntry);
+    for tag range sort(keys(section.tagMap)) do
+      # show(section.tagMap[tag]);
+      sectionStri &:= str(section.tagMap[tag]);
     end for;
     # section.store does not contain the data of the sectionTag index entry.
     sectionStri &:= section.store;
@@ -1891,6 +1902,7 @@ const proc: close (inout rpmArchive: rpm) is func
       updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNames);
       updateIndexEntry(rpm.header, RPMTAG_CLASSDICT, RPM_STRING_ARRAY_TYPE, rpm.classDict);
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADFLAGS, RPM_STRING_TYPE, "9");
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
       if rpm.fileDigestAlgo <> RPM_DIGESTALGO_MD5 then
         updateIndexEntry(rpm.header, RPMTAG_FILEDIGESTALGO, RPM_INT32_TYPE, rpm.fileDigestAlgo);
