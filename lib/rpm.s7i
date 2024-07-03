@@ -1174,11 +1174,11 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       if oldFileNamePos <> 0 then
         catalogEntry.filePath := getUtf8z(rpm.header.store, oldFileNamePos);
       else
-        catalogEntry.dirIndex := succ(bytes2Int(
-            rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE));
+        catalogEntry.dirIndex := bytes2Int(
+            rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE);
         dirIndexPos +:= 4;
         catalogEntry.baseName := getUtf8z(rpm.header.store, baseNamePos);
-        catalogEntry.filePath := rpm.dirNames[catalogEntry.dirIndex];
+        catalogEntry.filePath := rpm.dirNames[succ(catalogEntry.dirIndex)];
         # writeln("dirName[" <& index <& "]: " <& catalogEntry.filePath);
         catalogEntry.filePath &:= catalogEntry.baseName;
       end if;
@@ -1427,7 +1427,7 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
     updateIndexEntry(rpm, RPMTAG_FILELANGS, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, catalogEntry.lang);
     updateIndexEntry(rpm, RPMTAG_DIRINDEXES, RPM_INT32_TYPE,
-                     catalogEntry.fileNumber, pred(catalogEntry.dirIndex));
+                     catalogEntry.fileNumber, catalogEntry.dirIndex);
     updateIndexEntry(rpm, RPMTAG_BASENAMES, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, toUtf8(catalogEntry.baseName));
     updateIndexEntry(rpm, RPMTAG_FILECOLORS, RPM_INT32_TYPE,
@@ -2051,6 +2051,7 @@ const func integer: getNameIndex (inout array string: nameList, in string: name)
       nameList &:= name;
       nameIndex := length(nameList);
     end if;
+    decr(nameIndex);
   end func;
 
 
@@ -2069,9 +2070,7 @@ const func integer: fileClass (inout array string: nameList, in string: filePath
         description := "Seed7 library";
       end if;
     end if;
-    if description <> "" then
-      fileClass := getNameIndex(nameList, description);
-    end if;
+    fileClass := getNameIndex(nameList, description);
   end func;
 
 
@@ -2894,8 +2893,7 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       catalogEntry.inode := succ(length(rpm.register));
       catalogEntry.lang := "";
       catalogEntry.color := 0;
-      catalogEntry.fileClass :=
-          getNameIndex(rpm.classDict, "symbolic link to " & targetPath);
+      catalogEntry.fileClass := getNameIndex(rpm.classDict, "symbolic link");
       catalogEntry.dependX := 0;
       catalogEntry.dependN := 0;
       catalogEntry.allDataPresent := TRUE;
