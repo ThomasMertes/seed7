@@ -1112,6 +1112,7 @@ const type: rpmCatalogEntry is new struct
     var boolean: allDataPresent is FALSE;
     var string: filePath is "";
     var integer: fileNumber is 0;
+    var array rpmDependency: dependencies is 0 times rpmDependency.value;
     var boolean: dirty is FALSE;
   end struct;
 
@@ -1184,6 +1185,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var array string: classDict is 0 times "";
     var array rpmDependency: provided is 0 times rpmDependency.value;
     var array rpmDependency: required is 0 times rpmDependency.value;
+    var array integer: dependsDict is 0 times 0;
     var file: payloadFile is STD_NULL;
     var fileSys: archive is fileSys.value;
     var boolean: dirty is FALSE;
@@ -1548,11 +1550,30 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
 
 const proc: updateHeader (inout rpmArchive: rpm) is func
   local
+    const integer: requiresFlag is bytes2Int("R\0;\0;\0;", UNSIGNED, BE);
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var rpmDependency: dependency is rpmDependency.value;
+    var integer: dependencyIndex is 0;
+    var integer: dependsDictEntry is 0;
   begin
     for catalogEntry range rpm.catalog do
       if catalogEntry.dirty then
         # writeln("updateHeader " <& catalogEntry.filePath);
+        if length(catalogEntry.dependencies) <> 0 then
+          catalogEntry.dependX := length(rpm.dependsDict);
+          catalogEntry.dependN := length(catalogEntry.dependencies);
+          for dependency range catalogEntry.dependencies do
+            dependencyIndex := findDependency(rpm.required, dependency);
+            if dependencyIndex <> 0 then
+              dependsDictEntry := requiresFlag + pred(dependencyIndex);
+              rpm.dependsDict &:= dependsDictEntry;
+              updateIndexEntry(rpm, RPMTAG_DEPENDSDICT, RPM_INT32_TYPE,
+                               length(rpm.dependsDict), dependsDictEntry);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end for;
+        end if;
         updateHeader(rpm, catalogEntry);
       end if;
     end for;
