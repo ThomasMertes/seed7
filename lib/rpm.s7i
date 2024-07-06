@@ -1573,10 +1573,12 @@ const proc: assignIndexValues (inout rpmSection: section) is func
 
 const proc: updateStore (inout rpmSection: section) is func
   local
+    var integer: tag is 0;
     var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
     var string: store is "";
   begin
-    for indexEntry range section.tagMap do
+    for tag range sort(keys(section.tagMap)) do
+      indexEntry := section.tagMap[tag];
       indexEntry.offset := length(store);
       case indexEntry.dataType of
         when {RPM_INT8_TYPE}:
