@@ -1026,6 +1026,67 @@ const func string: str (in rpmIndexEntry: indexEntry) is
          bytes(indexEntry.count,    UNSIGNED, BE, 4);
 
 
+const type: rpmDependency is new struct
+    var string: name is "";
+    var string: version is "";
+    var integer: flags is 0;
+  end struct;
+
+
+const func boolean: (in rpmDependency: depend1) = (in rpmDependency: depend2) is
+  return depend1.name    = depend2.name and
+         depend1.version = depend2.version and
+         depend1.flags   = depend2.flags;
+
+
+const func boolean: (in rpmDependency: depend1) <> (in rpmDependency: depend2) is
+  return depend1.name    <> depend2.name or
+         depend1.version <> depend2.version or
+         depend1.flags   <> depend2.flags;
+
+
+const func integer: compare (in rpmDependency: depend1, in rpmDependency: depend2) is func
+  result
+    var integer: signumValue is 0;
+  begin
+    signumValue := compare(depend1.name, depend2.name);
+    if signumValue = 0 then
+      signumValue := compare(depend1.version, depend2.version);
+      if signumValue = 0 then
+        signumValue := compare(depend1.flags, depend2.flags);
+      end if;
+    end if;
+  end func;
+
+
+const func integer: findDependency (in array rpmDependency: dependencies, in rpmDependency: dependency) is func
+  result
+    var integer: indexFound is 0;
+  local
+    var integer: index is 0;
+  begin
+    for key index range dependencies until indexFound <> 0 do
+      if dependencies[index] = dependency then
+        indexFound := index;
+      end if;
+    end for;
+  end func;
+
+
+const proc: addDependency (inout array rpmDependency: dependencies, in rpmDependency: dependency) is func
+  local
+    var integer: index is 0;
+    var boolean: found is FALSE;
+  begin
+    for key index range dependencies until found do
+      found := dependencies[index] = dependency;
+    end for;
+    if not found then
+      dependencies &:= dependency;
+    end if;
+  end func;
+
+
 const type: rpmCatalogEntry is new struct
     var integer: fileSize is 0;
     var integer: mode is 0;
@@ -1084,12 +1145,6 @@ const proc: write (in rpmCatalogEntry: catalogEntry) is func
     writeln("dirty: " <& catalogEntry.dirty);
   end func;
 
-
-const type: rpmDependency is new struct
-    var integer: flags is 0;
-    var string: name is "";
-    var string: version is "";
-  end struct;
 
 const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 
