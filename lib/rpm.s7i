@@ -3136,7 +3136,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
           catalogEntry.color := 2;  # 64bit ELF
         else
           catalogEntry.color := 0;
-	end if;
+        end if;
         catalogEntry.fileClass := fileClass(rpm.classDict, filePath, data);
         catalogEntry.dependX := 0;
         catalogEntry.dependN := 0;
