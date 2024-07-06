@@ -910,6 +910,7 @@ const func string: getStriValue (in string: store,
         for index range 1 to indexEntry.count do
           data &:= getAsciiz(store, currPos) & "\0;";
         end for;
+        data := data[.. pred(length(data))];
     end case;
   end func;
 
@@ -1314,6 +1315,10 @@ const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
         indexEntry.striValue := value;
       when {RPM_BIN_TYPE}:
         indexEntry.count := length(value);
+        indexEntry.striValue := value;
+      when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
+        indexEntry.arrayValue := split(value, '\0;');
+        indexEntry.count := length(indexEntry.arrayValue);
         indexEntry.striValue := value;
       otherwise:
         raise RANGE_ERROR;
