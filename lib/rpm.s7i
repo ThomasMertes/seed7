@@ -1467,6 +1467,40 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
   end func;
 
 
+const proc: updateProvisions (inout rpmArchive: rpm) is func
+  local
+    var rpmDependency: dependency is rpmDependency.value;
+    var integer: index is 0;
+    var array string: provideName is 0 times "";
+    var array string: provideVersion is 0 times "";
+  begin
+    for dependency key index range rpm.provided do
+      provideName &:= dependency.name;
+      provideVersion &:= dependency.version;
+      updateIndexEntry(rpm, RPMTAG_PROVIDEFLAGS, RPM_INT32_TYPE, index, dependency.flags);
+    end for;
+    updateIndexEntry(rpm.header, RPMTAG_PROVIDENAME, RPM_STRING_ARRAY_TYPE, provideName);
+    updateIndexEntry(rpm.header, RPMTAG_PROVIDEVERSION, RPM_STRING_ARRAY_TYPE, provideVersion);
+  end func;
+
+
+const proc: updateRequirements (inout rpmArchive: rpm) is func
+  local
+    var rpmDependency: dependency is rpmDependency.value;
+    var integer: index is 0;
+    var array string: requireName is 0 times "";
+    var array string: requireVersion is 0 times "";
+  begin
+    for dependency key index range rpm.required do
+      requireName &:= dependency.name;
+      requireVersion &:= dependency.version;
+      updateIndexEntry(rpm, RPMTAG_REQUIREFLAGS, RPM_INT32_TYPE, index, dependency.flags);
+    end for;
+    updateIndexEntry(rpm.header, RPMTAG_REQUIRENAME, RPM_STRING_ARRAY_TYPE, requireName);
+    updateIndexEntry(rpm.header, RPMTAG_REQUIREVERSION, RPM_STRING_ARRAY_TYPE, requireVersion);
+  end func;
+
+
 const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
   begin
     updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
@@ -1957,6 +1991,10 @@ const proc: close (inout rpmArchive: rpm) is func
 
       # writeln("prepare header:");
       assignIndexValues(rpm.header);
+      rpm.provided := sort(rpm.provided);
+      updateProvisions(rpm);
+      rpm.required := sort(rpm.required);
+      updateRequirements(rpm);
       updateHeader(rpm);
       # Optional. Might overflow 32-bit signed integer.
       # updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
