@@ -49,6 +49,7 @@ const string: MAGIC_RAR            is "Rar!\26;\7;";
 const string: MAGIC_RIFF           is "RIFF";
 const string: MAGIC_RPM            is "\16#ed;\16#ab;\16#ee;\16#db;";
 const string: MAGIC_SEVEN_ZIP      is "7z\188;\175;'\28;";
+const string: MAGIC_SHEBANG        is "#!";
 const string: MAGIC_SQLITE3        is "SQLite format 3\0;";
 const string: MAGIC_TAR            is "ustar";
 const string: MAGIC_TIFF_LE        is "II\42;\0;";
@@ -82,6 +83,7 @@ const func string: getMagic (in string: data) is func
           magicBytes = MAGIC_CPIO_BINARY_LE or
           magicBytes = MAGIC_GZIP           or
           magicBytes = MAGIC_PPM            or
+          magicBytes = MAGIC_SHEBANG        or
           magicBytes = MAGIC_UTF16LE        or
           magicBytes = MAGIC_UTF16BE        then
         magic := magicBytes;
@@ -170,6 +172,7 @@ const func string: getMagic (inout file: inFile) is func
           magicBytes = MAGIC_CPIO_BINARY_LE or
           magicBytes = MAGIC_GZIP           or
           magicBytes = MAGIC_PPM            or
+          magicBytes = MAGIC_SHEBANG        or
           magicBytes = MAGIC_UTF16LE        or
           magicBytes = MAGIC_UTF16BE        then
         magic := magicBytes;
@@ -287,6 +290,7 @@ const func string: magicDescription (in string: magic) is func
       when {MAGIC_RIFF}:           description := "RIFF data";
       when {MAGIC_RPM}:            description := "RPM v3.0";
       when {MAGIC_SEVEN_ZIP}:      description := "7-zip archive data";
+      when {MAGIC_SHEBANG}:        description := "a script";
       when {MAGIC_SQLITE3}:        description := "SQLite 3.x database";
       when {MAGIC_TAR}:            description := "POSIX tar archive";
       when {MAGIC_TIFF_LE,
