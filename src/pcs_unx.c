@@ -460,7 +460,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       } else {
         close(childStdinPipes[0]); /* These are being used by the child */
         close(childStdoutPipes[1]);
-        initFileType(childStdinFile, 1);
+        initFileType(childStdinFile, FALSE, TRUE);
         childStdinFile->cFile = os_fdopen(childStdinPipes[1], "w");
         if (childStdinFile->cFile == NULL) {
           FREE_RECORD(childStdinFile, fileRecord, count.files);
@@ -468,7 +468,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
           filDestr(*childStdin);
           *childStdin  = childStdinFile;
         } /* if */
-        initFileType(childStdoutFile, 1);
+        initFileType(childStdoutFile, TRUE, FALSE);
         childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         if (childStdoutFile->cFile == NULL) {
           FREE_RECORD(childStdoutFile, fileRecord, count.files);
@@ -587,7 +587,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             dup2(savedStdin, 0);
             dup2(savedStdout, 1);
             close(slavefd); /* This is being used by the child */
-            initFileType(childStdinFile, 1);
+            initFileType(childStdinFile, FALSE, TRUE);
             childStdinFile->cFile = os_fdopen(masterfd, "w");
             if (childStdinFile->cFile == NULL) {
               FREE_RECORD(childStdinFile, fileRecord, count.files);
@@ -595,7 +595,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
               filDestr(*childStdin);
               *childStdin = childStdinFile;
             } /* if */
-            initFileType(childStdoutFile, 1);
+            initFileType(childStdoutFile, TRUE, FALSE);
             childStdoutFile->cFile = os_fdopen(masterfd, "r");
             if (childStdoutFile->cFile == NULL) {
               FREE_RECORD(childStdoutFile, fileRecord, count.files);
@@ -858,13 +858,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->usage_count = 1;
         process->pid = pid;
         process->isTerminated = FALSE;
-        initFileType(childStdinFile, 1);
+        initFileType(childStdinFile, FALSE, TRUE);
         childStdinFile->cFile  = os_fdopen(childStdinPipes[1], "w");
         process->stdIn = childStdinFile;
-        initFileType(childStdoutFile, 1);
+        initFileType(childStdoutFile, TRUE, FALSE);
         childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         process->stdOut = childStdoutFile;
-        initFileType(childStderrFile, 1);
+        initFileType(childStderrFile, TRUE, FALSE);
         childStderrFile->cFile = os_fdopen(childStderrPipes[0], "r");
         process->stdErr = childStderrFile;
       } /* if */

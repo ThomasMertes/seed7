@@ -343,11 +343,11 @@ void filPipe (fileType *inFile, fileType *outFile)
           err_info = FILE_ERROR;
         } else {
           filDestr(*inFile);
-          initFileType(pipeInFile, 1);
+          initFileType(pipeInFile, TRUE, FALSE);
           pipeInFile->cFile = cPipeInFile;
           *inFile = pipeInFile;
           filDestr(*outFile);
-          initFileType(pipeOutFile, 1);
+          initFileType(pipeOutFile, FALSE, TRUE);
           pipeOutFile->cFile = cPipeOutFile;
           *outFile = pipeOutFile;
         } /* if */

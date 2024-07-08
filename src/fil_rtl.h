@@ -41,8 +41,10 @@ EXTERN fileRecord stdoutFileRecord;
 EXTERN fileRecord stderrFileRecord;
 #endif
 
-#define initFileType(aFile, usage) (aFile)->usage_count = (usage);
-
+#define initFileType(aFile, readingOkay, writingOkay) \
+    (aFile)->usage_count = 1;				    \
+    (aFile)->readingAllowed = (readingOkay); \
+    (aFile)->writingAllowed = (writingOkay);
 
 int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin);
 memSizeType remainingBytesInFile (cFileType aFile);

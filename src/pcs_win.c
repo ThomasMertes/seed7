@@ -544,7 +544,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                                &processInformation) != 0) {
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
-              initFileType(childStdinFile, 1);
+              initFileType(childStdinFile, FALSE, TRUE);
               childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
               if (childStdinFile->cFile == NULL) {
                 FREE_RECORD(childStdinFile, fileRecord, count.files);
@@ -552,7 +552,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                 filDestr(*childStdin);
                 *childStdin = childStdinFile;
               } /* if */
-              initFileType(childStdoutFile, 1);
+              initFileType(childStdoutFile, TRUE, FALSE);
               childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
               if (childStdoutFile->cFile == NULL) {
                 FREE_RECORD(childStdoutFile, fileRecord, count.files);
@@ -849,13 +849,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               process->hThread  = processInformation.hThread;
               process->pid      = processInformation.dwProcessId;
               process->isTerminated = FALSE;
-              initFileType(childStdinFile, 1);
+              initFileType(childStdinFile, FALSE, TRUE);
               childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
               process->stdIn = childStdinFile;
-              initFileType(childStdoutFile, 1);
+              initFileType(childStdoutFile, TRUE, FALSE);
               childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
               process->stdOut = childStdoutFile;
-              initFileType(childStderrFile, 1);
+              initFileType(childStderrFile, TRUE, FALSE);
               childStderrFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childErrorRead), _O_TEXT), "r");
               process->stdErr = childStderrFile;
             } else {

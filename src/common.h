@@ -643,6 +643,8 @@ typedef struct bstriStruct {
 typedef struct fileStruct {
     cFileType cFile;
     uintType usage_count;
+    boolType readingAllowed;
+    boolType writingAllowed;
   } fileRecord;
 
 typedef struct pollStruct {

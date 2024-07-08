@@ -1965,7 +1965,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
           fclose(cFile);
           raise_error(MEMORY_ERROR);
         } else {
-          initFileType(fileOpened, 1);
+          initFileType(fileOpened, readingAllowed, writingAllowed);
           fileOpened->cFile = cFile;
         } /* if */
       } /* if */
@@ -2002,7 +2002,7 @@ fileType filOpenNullDevice (void)
         fclose(cFile);
         raise_error(MEMORY_ERROR);
       } else {
-        initFileType(fileOpened, 1);
+        initFileType(fileOpened, TRUE, TRUE);
         fileOpened->cFile = cFile;
       } /* if */
     } /* if */
@@ -2103,8 +2103,8 @@ fileType filPopen (const const_striType command,
 #if POPEN_SUPPORTS_BINARY_MODE
         os_mode[mode_pos++] = 'b';
 #endif
-        readingAllowed = file_mode->mem[0] == 'r';
-        writingAllowed = file_mode->mem[0] == 'w';
+        readingAllowed = mode->mem[0] == 'r';
+        writingAllowed = mode->mem[0] == 'w';
       } else if (mode->size == 2 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w') &&
@@ -2113,8 +2113,8 @@ fileType filPopen (const const_striType command,
 #if POPEN_SUPPORTS_TEXT_MODE
         os_mode[mode_pos++] = 't';
 #endif
-        readingAllowed = file_mode->mem[0] == 'r';
-        writingAllowed = file_mode->mem[0] == 'w';
+        readingAllowed = mode->mem[0] == 'r';
+        writingAllowed = mode->mem[0] == 'w';
       } /* if */
       if (unlikely(mode_pos == 0)) {
         logError(printf("filPopen: Illegal mode: \"%s\".\n",
@@ -2146,7 +2146,7 @@ fileType filPopen (const const_striType command,
             raise_error(MEMORY_ERROR);
             fileOpened = NULL;
           } else {
-            initFileType(fileOpened, 1);
+            initFileType(fileOpened, readingAllowed, writingAllowed);
             fileOpened->cFile = cFile;
           } /* if */
         } /* if */
