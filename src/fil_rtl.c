@@ -107,30 +107,31 @@ extern int _chsize (int fd, long size);
  *  The following modes are accepted
  *   Seed7 mode | C mode | Comment
  *   "r"        | "rb"   | Open file for reading.
- *   "w"        | "rw"   | Truncate to zero length or create file for writing.
- *   "a"        | "ra"   | Append; open or create file for writing at end-of-file.
+ *   "w"        | "wb"   | Truncate to zero length or create file for writing.
+ *   "a"        | "ab"   | Append; open or create file for writing at end-of-file.
  *   "r+"       | "rb+"  | Open file for update (reading and writing).
- *   "w+"       | "rw+"  | Truncate to zero length or create file for update.
- *   "a+"       | "ra+"  | Append; open or create file for update, writing at end-of-file.
+ *   "w+"       | "wb+"  | Truncate to zero length or create file for update.
+ *   "a+"       | "ab+"  | Append; open or create file for update, writing at end-of-file.
  *   "rt"       | "r"    | Open file for reading.
  *   "wt"       | "w"    | Truncate to zero length or create file for writing.
  *   "at"       | "a"    | Append; open or create file for writing at end-of-file.
  *   "rt+"      | "r+"   | Open file for update (reading and writing).
  *   "wt+"      | "w+"   | Truncate to zero length or create file for update.
- *   "at+"      | "q+"   | Append; open or create file for update, writing at end-of-file.
+ *   "at+"      | "a+"   | Append; open or create file for update, writing at end-of-file.
  *  Other Seed7 modes correspond to the C mode "".
  *  The Seed7 modes with t are text modes and the modes
  *  without t are binary modes.
  *  If there is a mode character to set the O_CLOEXEC flag (FOPEN_SUPPORTS_CLOEXEC_MODE),
  *  it is appended to os_mode.
  */
-static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType file_mode)
+static void get_mode (const const_striType file_mode,
+    os_charType os_mode[MAX_MODE_LEN])
 
   {
     int mode_pos = 0;
 
   /* get_mode */
-    logFunction(printf("get_mode(*, \"%s\")\n",
+    logFunction(printf("get_mode(\"%s\", *)\n",
                        striAsUnquotedCStri(file_mode)););
     if (file_mode->size >= 1 &&
         (file_mode->mem[0] == 'r' ||
@@ -154,7 +155,7 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           os_mode[mode_pos++] = 'b';
           os_mode[mode_pos++] = '+';
-         } else if (file_mode->mem[1] == 't') {
+        } else if (file_mode->mem[1] == 't') {
           /* Text mode
              rt ... Open file for reading.
              wt ... Truncate to zero length or create file for writing.
@@ -181,8 +182,8 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
 #endif
     } /* if */
     os_mode[mode_pos] = '\0';
-    logFunction(printf("get_mode(\"" FMT_S_OS "\", \"%s\") -->\n",
-                       os_mode, striAsUnquotedCStri(file_mode)););
+    logFunction(printf("get_mode(\"%s\", \"" FMT_S_OS "\") -->\n",
+                       striAsUnquotedCStri(file_mode), os_mode););
   } /* get_mode */
 
 
@@ -1824,7 +1825,7 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
   /* cFileOpen */
     logFunction(printf("cFileOpen(\"%s\", ", striAsUnquotedCStri(path));
                 printf("\"%s\", *)\n", striAsUnquotedCStri(mode)););
-    get_mode(os_mode, mode);
+    get_mode(mode, os_mode);
     if (unlikely(os_mode[0] == '\0')) {
       logError(printf("cFileOpen: Illegal mode: \"%s\".\n",
                       striAsUnquotedCStri(mode)););
@@ -1922,8 +1923,7 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
  *
  *  Note that this modes differ from the ones used by the C function
  *  fopen(). Unicode characters in 'path' are converted to the
- *  representation used by the fopen() function of the operating
- *  system.
+ *  representation used by the fopen() function of the operating system.
  *  @param path Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
