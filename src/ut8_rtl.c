@@ -593,6 +593,14 @@ striType ut8Gets (fileType inFile, intType length)
           result->size = 0;
         } /* if */
       } /* if */
+#if FREAD_WRONG_FOR_WRITE_ONLY_FILES
+    } else if (unlikely(!inFile->readingAllowed)) {
+      logError(printf("ut8Gets(%d, " FMT_D "): "
+                      "The file is not open for reading.\n",
+                      safe_fileno(cInFile), length););
+      raise_error(FILE_ERROR);
+      result = NULL;
+#endif
     } else {
       if ((uintType) length > MAX_MEMSIZETYPE) {
         chars_requested = MAX_MEMSIZETYPE;
@@ -699,6 +707,14 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
       logError(printf("ut8LineRead: Attempt to read from closed file.\n"););
       raise_error(FILE_ERROR);
       result = NULL;
+#if FREAD_WRONG_FOR_WRITE_ONLY_FILES
+    } else if (unlikely(!inFile->readingAllowed)) {
+      logError(printf("ut8LineRead(%d, *): "
+                      "The file is not open for reading.\n",
+                      safe_fileno(cInFile)););
+      raise_error(FILE_ERROR);
+      result = NULL;
+#endif
     } else {
       memlength = READ_STRI_INIT_SIZE;
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
@@ -899,6 +915,14 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
       logError(printf("ut8WordRead: Attempt to read from closed file.\n"););
       raise_error(FILE_ERROR);
       result = NULL;
+#if FREAD_WRONG_FOR_WRITE_ONLY_FILES
+    } else if (unlikely(!inFile->readingAllowed)) {
+      logError(printf("ut8WordRead(%d, *): "
+                      "The file is not open for reading.\n",
+                      safe_fileno(cInFile)););
+      raise_error(FILE_ERROR);
+      result = NULL;
+#endif
     } else {
       memlength = READ_STRI_INIT_SIZE;
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
