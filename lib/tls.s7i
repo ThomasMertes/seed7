@@ -69,6 +69,7 @@ const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_AES_256_CBC_SHA256,
     TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+    TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
   );
 
@@ -359,6 +360,12 @@ const proc: storeCipherSuite (inout tlsParameters: parameters) is func
       parameters.bulk_cipher_algorithm := AES;
       parameters.key_material_length := 16;
       parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 then
+      parameters.key_exchange_algorithm := EC_DIFFIE_HELLMAN;
+      parameters.bulk_cipher_algorithm := AES_GCM;
+      parameters.key_material_length := 16;
+      parameters.iv_size := 4;  # Implicit salt of the GCM nonce
+      parameters.mac_algorithm := NO_DIGEST;
     elsif parameters.cipher_suite = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 then
       parameters.key_exchange_algorithm := EC_DIFFIE_HELLMAN;
       parameters.bulk_cipher_algorithm := AES_GCM;
