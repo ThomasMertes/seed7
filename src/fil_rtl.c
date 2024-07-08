@@ -124,8 +124,8 @@ extern int _chsize (int fd, long size);
  *  If there is a mode character to set the O_CLOEXEC flag (FOPEN_SUPPORTS_CLOEXEC_MODE),
  *  it is appended to os_mode.
  */
-static void get_mode (const const_striType file_mode,
-    os_charType os_mode[MAX_MODE_LEN])
+static void get_mode (const const_striType file_mode, os_charType os_mode[MAX_MODE_LEN],
+    boolType *readingAllowed, boolType *writingAllowed)
 
   {
     int mode_pos = 0;
@@ -145,6 +145,8 @@ static void get_mode (const const_striType file_mode,
         */
         os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
         os_mode[mode_pos++] = 'b';
+        *readingAllowed = file_mode->mem[0] == 'r';
+        *writingAllowed = file_mode->mem[0] != 'r';
       } else if (file_mode->size == 2) {
         if (file_mode->mem[1] == '+') {
           /* Binary mode
@@ -155,6 +157,8 @@ static void get_mode (const const_striType file_mode,
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           os_mode[mode_pos++] = 'b';
           os_mode[mode_pos++] = '+';
+          *readingAllowed = TRUE;
+          *writingAllowed = TRUE;
         } else if (file_mode->mem[1] == 't') {
           /* Text mode
              rt ... Open file for reading.
@@ -162,6 +166,8 @@ static void get_mode (const const_striType file_mode,
              at ... Append; open or create file for writing at end-of-file.
           */
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
+          *readingAllowed = file_mode->mem[0] == 'r';
+          *writingAllowed = file_mode->mem[0] != 'r';
         } /* if */
       } else if (file_mode->size == 3) {
         if (file_mode->mem[1] == 't' &&
@@ -173,6 +179,8 @@ static void get_mode (const const_striType file_mode,
           */
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           os_mode[mode_pos++] = '+';
+          *readingAllowed = TRUE;
+          *writingAllowed = TRUE;
         } /* if */
       } /* if */
 #if FOPEN_SUPPORTS_CLOEXEC_MODE
@@ -1928,6 +1936,8 @@ fileType filOpen (const const_striType path, const const_striType mode)
 
   {
     os_charType os_mode[MAX_MODE_LEN];
+    boolType readingAllowed;
+    boolType writingAllowed;
     cFileType cFile;
     errInfoType err_info = OKAY_NO_ERROR;
     fileType fileOpened;
@@ -1935,7 +1945,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
   /* filOpen */
     logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
                 printf("\"%s\")\n", striAsUnquotedCStri(mode)););
-    get_mode(mode, os_mode);
+    get_mode(mode, os_mode, &readingAllowed, &writingAllowed);
     if (unlikely(os_mode[0] == '\0')) {
       logError(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
                printf("\"%s\"): Illegal mode.\n", striAsUnquotedCStri(mode)););
@@ -2063,6 +2073,8 @@ fileType filPopen (const const_striType command,
 #if HAS_POPEN
     os_striType os_command;
     os_charType os_mode[MAX_MODE_LEN];
+    boolType readingAllowed;
+    boolType writingAllowed;
     int mode_pos = 0;
     errInfoType err_info = OKAY_NO_ERROR;
     cFileType cFile;
@@ -2091,6 +2103,8 @@ fileType filPopen (const const_striType command,
 #if POPEN_SUPPORTS_BINARY_MODE
         os_mode[mode_pos++] = 'b';
 #endif
+        readingAllowed = file_mode->mem[0] == 'r';
+        writingAllowed = file_mode->mem[0] == 'w';
       } else if (mode->size == 2 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w') &&
@@ -2099,6 +2113,8 @@ fileType filPopen (const const_striType command,
 #if POPEN_SUPPORTS_TEXT_MODE
         os_mode[mode_pos++] = 't';
 #endif
+        readingAllowed = file_mode->mem[0] == 'r';
+        writingAllowed = file_mode->mem[0] == 'w';
       } /* if */
       if (unlikely(mode_pos == 0)) {
         logError(printf("filPopen: Illegal mode: \"%s\".\n",
