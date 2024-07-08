@@ -67,7 +67,7 @@
 #include "traceutl.h"
 
 
-static fileRecord protFileRecord = {NULL, 0};
+static fileRecord protFileRecord = {NULL, 0, FALSE, TRUE};
 static fileType protfile = &protFileRecord;
 static boolType internal_protocol = FALSE;
 

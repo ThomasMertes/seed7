@@ -30,10 +30,10 @@
 /********************************************************************/
 
 #ifdef DO_INIT
-fileRecord nullFileRecord = {NULL, 0};
-fileRecord stdinFileRecord = {NULL, 0};
-fileRecord stdoutFileRecord = {NULL, 0};
-fileRecord stderrFileRecord = {NULL, 0};
+fileRecord nullFileRecord = {NULL, 0, TRUE, TRUE};
+fileRecord stdinFileRecord = {NULL, 0, TRUE, FALSE};
+fileRecord stdoutFileRecord = {NULL, 0, FALSE, TRUE};
+fileRecord stderrFileRecord = {NULL, 0, FALSE, TRUE};
 #else
 EXTERN fileRecord nullFileRecord;
 EXTERN fileRecord stdinFileRecord;
