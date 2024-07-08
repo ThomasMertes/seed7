@@ -10679,10 +10679,19 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",canRead);return 0;}\n")) {
       fprintf(versionFile, "#define FREAD_WRONG_FOR_WRITE_ONLY_FILES %d\n", doTest() == 1);
     } /* if */
-    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[]){\n"
+    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc,char *argv[]){\n"
                          "int closeFails=0;FILE *aFile;char buffer[5];\n"
-                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
-                         " fread(buffer,1,4,aFile);closeFails=fclose(aFile)!=0;\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL) {\n"
+                         " fread(buffer,1,4,aFile);if (fclose(aFile)!=0) {closeFails = 1;}\n"
+                         " remove(\"tmp_test_file\");}\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL) {\n"
+                         " memcpy(buffer, \"abcd\", 5);\n"
+                         " fwrite(buffer,1,4,aFile);\n"
+                         " fclose(aFile);}\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"r\"))!=NULL) {\n"
+                         " memcpy(buffer, \"abcd\", 5);\n"
+                         " fwrite(buffer,1,4,aFile);if (fclose(aFile)!=0) {closeFails = 1;}\n"
                          " remove(\"tmp_test_file\");}\n"
                          "printf(\"%d\\n\", closeFails);return 0;}\n")) {
       fprintf(versionFile, "#define FCLOSE_FAILS_AFTER_PREVIOUS_ERROR %d\n", doTest() == 1);
