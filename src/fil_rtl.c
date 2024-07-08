@@ -1775,46 +1775,43 @@ intType filLng (fileType aFile)
 
 
 /**
- *  Opens a file with the specified 'path' and 'mode'.
+ *  Opens a file with the specified 'path' and 'os_mode'.
+ *  The 'os_mode' is used by the C function fopen().
  *  There are text modes and binary modes:
  *  - Binary modes:
+ *   - "rb"  Open file for reading.
+ *   - "wb"  Truncate to zero length or create file for writing.
+ *   - "ab"  Append; open or create file for writing at end-of-file.
+ *   - "rb+" Open file for update (reading and writing).
+ *   - "wb+" Truncate to zero length or create file for update.
+ *   - "ab+" Append; open or create file for update, writing at end-of-file.
+ *  - Text modes:
  *   - "r"   Open file for reading.
  *   - "w"   Truncate to zero length or create file for writing.
  *   - "a"   Append; open or create file for writing at end-of-file.
  *   - "r+"  Open file for update (reading and writing).
  *   - "w+"  Truncate to zero length or create file for update.
  *   - "a+"  Append; open or create file for update, writing at end-of-file.
- *  - Text modes:
- *   - "rt"  Open file for reading.
- *   - "wt"  Truncate to zero length or create file for writing.
- *   - "at"  Append; open or create file for writing at end-of-file.
- *   - "rt+" Open file for update (reading and writing).
- *   - "wt+" Truncate to zero length or create file for update.
- *   - "at+" Append; open or create file for update, writing at end-of-file.
  *
- *  Note that this modes differ from the ones used by the C function
- *  fopen(). Unicode characters in 'path' are converted to the
- *  representation used by the fopen() function of the operating
- *  system.
+ *  Unicode characters in 'path' are converted to the
+ *  representation used by the fopen() function of the operating system.
  *  @param path Path of the file to be opened. The path must
  *         use the standard path representation.
- *  @param mode Mode of the file to be opened.
+ *  @param os_mode Mode of the file to be opened.
  *  @param err_info Unchanged if the function succeeds, or
  *                  MEMORY_ERROR if there is not enough memory to convert
  *                        the path to the system path type, or
- *                  RANGE_ERROR if the 'mode' is not one of the allowed
- *                        values or 'path' does not use the standard path
+ *                  RANGE_ERROR if 'path' does not use the standard path
  *                        representation or 'path' cannot be converted
  *                        to the system path type.
  *  @return the file opened, or NULL if it could not be opened or
  *          if 'path' refers to a directory.
  */
-static cFileType cFileOpen (const const_striType path, const const_striType mode,
-    errInfoType *err_info)
+static cFileType cFileOpen (const const_striType path,
+    const const_os_striType os_mode, errInfoType *err_info)
 
   {
     os_striType os_path;
-    os_charType os_mode[MAX_MODE_LEN];
     int path_info = PATH_IS_NORMAL;
 #if FOPEN_OPENS_DIRECTORIES
     int file_no;
@@ -1823,80 +1820,71 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
     cFileType result;
 
   /* cFileOpen */
-    logFunction(printf("cFileOpen(\"%s\", ", striAsUnquotedCStri(path));
-                printf("\"%s\", *)\n", striAsUnquotedCStri(mode)););
-    get_mode(mode, os_mode);
-    if (unlikely(os_mode[0] == '\0')) {
-      logError(printf("cFileOpen: Illegal mode: \"%s\".\n",
-                      striAsUnquotedCStri(mode)););
-      *err_info = RANGE_ERROR;
+    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", *)\n",
+                       striAsUnquotedCStri(path), os_mode););
+    os_path = cp_to_os_path(path, &path_info, err_info);
+    /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, *err_info); */
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT ||
+          path_info == PATH_NOT_MAPPED) {
+        /* Cannot open this file. Do not raise an exception. */
+        *err_info = OKAY_NO_ERROR;
+      } else
+#endif
+      {
+        logError(printf("cFileOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(path), path_info, *err_info););
+      }
       result = NULL;
     } else {
-      os_path = cp_to_os_path(path, &path_info, err_info);
-      /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, *err_info); */
-      if (unlikely(os_path == NULL)) {
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (path_info == PATH_IS_EMULATED_ROOT ||
-            path_info == PATH_NOT_MAPPED) {
-          /* Cannot open this file. Do not raise an exception. */
-          *err_info = OKAY_NO_ERROR;
-        } else
-#endif
-        {
-          logError(printf("cFileOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
-                          "path_info=%d, err_info=%d\n",
-                          striAsUnquotedCStri(path), path_info, *err_info););
-        }
-        result = NULL;
+      logMessage(printf("os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                        os_path, os_mode););
+      result = os_fopen(os_path, os_mode);
+      if (unlikely(result == NULL)) {
+        logError(printf("cFileOpen: "
+                        "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, os_mode, errno, strerror(errno)););
       } else {
-        logMessage(printf("os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
-                          os_path, os_mode););
-        result = os_fopen(os_path, os_mode);
-        if (unlikely(result == NULL)) {
-          logError(printf("cFileOpen: "
-                          "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          os_path, os_mode, errno, strerror(errno)););
-        } else {
 #if !FOPEN_SUPPORTS_CLOEXEC_MODE && HAS_FCNTL_SETFD_CLOEXEC
-          file_no = os_fileno(result);
-          if (file_no != -1) {
-            fcntl(file_no, F_SETFD, fcntl(file_no, F_GETFD) | FD_CLOEXEC);
-          } /* if */
+        file_no = os_fileno(result);
+        if (file_no != -1) {
+          fcntl(file_no, F_SETFD, fcntl(file_no, F_GETFD) | FD_CLOEXEC);
+        } /* if */
 #endif
 #if FOPEN_OPENS_DIRECTORIES
-          file_no = os_fileno(result);
-          if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
-              S_ISDIR(stat_buf.st_mode)) {
-            /* An attempt to open a directory with cFileOpen()   */
-            /* returns NULL even if fopen() succeeds. On many    */
-            /* modern operating systems functions like fgetc()   */
-            /* and readf() fail to read from a directory anyway. */
-            /* So it is better to fail early, when the file is   */
-            /* opened, instead of later at an unexpected place.  */
-            /* Even if reading a directory as file succeeds      */
-            /* there is another issue: Reading a directory as    */
-            /* file is not portable, since it delivers an        */
-            /* operating system specific representation of the   */
-            /* directory. So reading a directory as file should  */
-            /* be avoided altogether. The functions dirOpen(),   */
-            /* dirRead() and dirClose() provide a portable way   */
-            /* to open, read and close a directory.              */
-            fclose(result);
-            logError(printf("cFileOpen: "
-                            "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") "
-                            "opened a directory. Close it and return NULL.\n",
-                            os_path, os_mode););
-            result = NULL;
-          } /* if */
-#endif
+        file_no = os_fileno(result);
+        if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
+            S_ISDIR(stat_buf.st_mode)) {
+          /* An attempt to open a directory with cFileOpen()   */
+          /* returns NULL even if fopen() succeeds. On many    */
+          /* modern operating systems functions like fgetc()   */
+          /* and readf() fail to read from a directory anyway. */
+          /* So it is better to fail early, when the file is   */
+          /* opened, instead of later at an unexpected place.  */
+          /* Even if reading a directory as file succeeds      */
+          /* there is another issue: Reading a directory as    */
+          /* file is not portable, since it delivers an        */
+          /* operating system specific representation of the   */
+          /* directory. So reading a directory as file should  */
+          /* be avoided altogether. The functions dirOpen(),   */
+          /* dirRead() and dirClose() provide a portable way   */
+          /* to open, read and close a directory.              */
+          fclose(result);
+          logError(printf("cFileOpen: "
+                          "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") "
+                          "opened a directory. Close it and return NULL.\n",
+                          os_path, os_mode););
+          result = NULL;
         } /* if */
-        os_stri_free(os_path);
+#endif
       } /* if */
+      os_stri_free(os_path);
     } /* if */
-    logFunction(printf("cFileOpen(\"%s\", ", striAsUnquotedCStri(path));
-                printf("\"%s\", %d) --> %d\n",
-                       striAsUnquotedCStri(mode),
+    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", %d) --> %d",
+                       striAsUnquotedCStri(path), os_mode,
                        *err_info, safe_fileno(result)););
     return result;
   } /* cFileOpen */
@@ -1939,6 +1927,7 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
 fileType filOpen (const const_striType path, const const_striType mode)
 
   {
+    os_charType os_mode[MAX_MODE_LEN];
     cFileType cFile;
     errInfoType err_info = OKAY_NO_ERROR;
     fileType fileOpened;
@@ -1946,21 +1935,29 @@ fileType filOpen (const const_striType path, const const_striType mode)
   /* filOpen */
     logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
                 printf("\"%s\")\n", striAsUnquotedCStri(mode)););
-    cFile = cFileOpen(path, mode, &err_info);
-    if (unlikely(cFile == NULL)) {
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-        fileOpened = NULL;
-      } else {
-        fileOpened = &nullFileRecord;
-      } /* if */
+    get_mode(mode, os_mode);
+    if (unlikely(os_mode[0] == '\0')) {
+      logError(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
+               printf("\"%s\"): Illegal mode.\n", striAsUnquotedCStri(mode)););
+      raise_error(RANGE_ERROR);
+      fileOpened = NULL;
     } else {
-      if (unlikely(!ALLOC_RECORD(fileOpened, fileRecord, count.files))) {
-        fclose(cFile);
-        raise_error(MEMORY_ERROR);
+      cFile = cFileOpen(path, os_mode, &err_info);
+      if (unlikely(cFile == NULL)) {
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(err_info);
+          fileOpened = NULL;
+        } else {
+          fileOpened = &nullFileRecord;
+        } /* if */
       } else {
-        initFileType(fileOpened, 1);
-        fileOpened->cFile = cFile;
+        if (unlikely(!ALLOC_RECORD(fileOpened, fileRecord, count.files))) {
+          fclose(cFile);
+          raise_error(MEMORY_ERROR);
+        } else {
+          initFileType(fileOpened, 1);
+          fileOpened->cFile = cFile;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
