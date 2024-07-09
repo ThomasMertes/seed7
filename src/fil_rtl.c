@@ -2619,7 +2619,7 @@ void filWrite (fileType outFile, const const_striType stri)
       return;
     } /* if */
 #if FWRITE_WRONG_FOR_READ_ONLY_FILES
-    if (unlikely(stri->size > 0 && (cOutFile->flags & _F_WRIT) == 0)) {
+    if (unlikely(stri->size > 0 && !outFile->writingAllowed)) {
       logError(printf("filWrite: Attempt to write to read only file: %d.\n",
                       safe_fileno(cOutFile)););
       raise_error(FILE_ERROR);
