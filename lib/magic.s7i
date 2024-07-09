@@ -26,43 +26,52 @@
 (********************************************************************)
 
 
-const string: MAGIC_AR             is "!<arch>\n";
-const string: MAGIC_BMP            is "BM";
-const string: MAGIC_CPIO_BINARY_BE is "\16#71;\16#c7;";
-const string: MAGIC_CPIO_BINARY_LE is "\16#c7;\16#71;";
-const string: MAGIC_CPIO_ASCII_OLD is "070707";
-const string: MAGIC_CPIO_ASCII     is "070701";
-const string: MAGIC_CPIO_ASCII_CRC is "070702";
-const string: MAGIC_ELF_32_BIT_LE  is "\127;ELF\1;\1;";
-const string: MAGIC_ELF_64_BIT_LE  is "\127;ELF\2;\1;";
-const string: MAGIC_ELF_32_BIT_BE  is "\127;ELF\1;\2;";
-const string: MAGIC_ELF_64_BIT_BE  is "\127;ELF\2;\2;";
-const string: MAGIC_GIF_87         is "GIF87a";
-const string: MAGIC_GIF_89         is "GIF89a";
-const string: MAGIC_GZIP           is "\31;\139;";
-const string: MAGIC_ICO            is "\0;\0;\1;\0;";
-const string: MAGIC_JPEG           is "\16#ff;\16#d8;\16#ff;";
-const string: MAGIC_PDF            is "%PDF-";
-const string: MAGIC_PNG            is "\137;PNG\r\n\26;\n";
-const string: MAGIC_PPM            is "P6";
-const string: MAGIC_RAR            is "Rar!\26;\7;";
-const string: MAGIC_RIFF           is "RIFF";
-const string: MAGIC_RPM            is "\16#ed;\16#ab;\16#ee;\16#db;";
-const string: MAGIC_SEVEN_ZIP      is "7z\188;\175;'\28;";
-const string: MAGIC_SHEBANG        is "#!";
-const string: MAGIC_SQLITE3        is "SQLite format 3\0;";
-const string: MAGIC_TAR            is "ustar";
-const string: MAGIC_TIFF_LE        is "II\42;\0;";
-const string: MAGIC_TIFF_BE        is "MM\0;\42;";
-const string: MAGIC_UTF8           is "\16#ef;\16#bb;\16#bf;";
-const string: MAGIC_UTF16LE        is "\16#ff;\16#fe;";
-const string: MAGIC_UTF16BE        is "\16#fe;\16#ff;";
-const string: MAGIC_WASM           is "\0;asm";
-const string: MAGIC_WEBP           is "WEBPVP8";
-const string: MAGIC_ZIP            is "PK\3;\4;";
-const string: MAGIC_ZIP_EMPTY      is "PK\5;\6;";
-const string: MAGIC_XZ             is "\16#FD;7zXZ\0;";
-const string: MAGIC_ZSTD           is "(\16#B5;/\16#FD;";
+include "bytedata.s7i";
+
+
+const string: MAGIC_AR               is "!<arch>\n";
+const string: MAGIC_BMP              is "BM";
+const string: MAGIC_CPIO_BINARY_BE   is "\16#71;\16#c7;";
+const string: MAGIC_CPIO_BINARY_LE   is "\16#c7;\16#71;";
+const string: MAGIC_CPIO_ASCII_OLD   is "070707";
+const string: MAGIC_CPIO_ASCII       is "070701";
+const string: MAGIC_CPIO_ASCII_CRC   is "070702";
+const string: MAGIC_ELF_32_BIT_LE    is "\127;ELF\1;\1;";
+const string: MAGIC_ELF_64_BIT_LE    is "\127;ELF\2;\1;";
+const string: MAGIC_ELF_32_BIT_BE    is "\127;ELF\1;\2;";
+const string: MAGIC_ELF_64_BIT_BE    is "\127;ELF\2;\2;";
+const string: MAGIC_GIF_87           is "GIF87a";
+const string: MAGIC_GIF_89           is "GIF89a";
+const string: MAGIC_GZIP             is "\31;\139;";
+const string: MAGIC_ICO              is "\0;\0;\1;\0;";
+const string: MAGIC_JPEG             is "\16#ff;\16#d8;\16#ff;";
+const string: MAGIC_MACH_O_32_BIT_LE is "\16#fe;\16#ed;\16#fa;\16#ce;";
+const string: MAGIC_MACH_O_64_BIT_LE is "\16#fe;\16#ed;\16#fa;\16#cf;";
+const string: MAGIC_MACH_O_32_BIT_BE is "\16#ce;\16#fa;\16#ed;\16#fe;";
+const string: MAGIC_MACH_O_64_BIT_BE is "\16#cf;\16#fa;\16#ed;\16#fe;";
+const string: MAGIC_MZ               is "MZ";
+const string: MAGIC_PDF              is "%PDF-";
+const string: MAGIC_PE               is "PE\0;\0;";
+const string: MAGIC_PNG              is "\137;PNG\r\n\26;\n";
+const string: MAGIC_PPM              is "P6";
+const string: MAGIC_RAR              is "Rar!\26;\7;";
+const string: MAGIC_RIFF             is "RIFF";
+const string: MAGIC_RPM              is "\16#ed;\16#ab;\16#ee;\16#db;";
+const string: MAGIC_SEVEN_ZIP        is "7z\188;\175;'\28;";
+const string: MAGIC_SHEBANG          is "#!";
+const string: MAGIC_SQLITE3          is "SQLite format 3\0;";
+const string: MAGIC_TAR              is "ustar";
+const string: MAGIC_TIFF_LE          is "II\42;\0;";
+const string: MAGIC_TIFF_BE          is "MM\0;\42;";
+const string: MAGIC_UTF8             is "\16#ef;\16#bb;\16#bf;";
+const string: MAGIC_UTF16LE          is "\16#ff;\16#fe;";
+const string: MAGIC_UTF16BE          is "\16#fe;\16#ff;";
+const string: MAGIC_WASM             is "\0;asm";
+const string: MAGIC_WEBP             is "WEBPVP8";
+const string: MAGIC_ZIP              is "PK\3;\4;";
+const string: MAGIC_ZIP_EMPTY        is "PK\5;\6;";
+const string: MAGIC_XZ               is "\16#FD;7zXZ\0;";
+const string: MAGIC_ZSTD             is "(\16#B5;/\16#FD;";
 
 
 (**
@@ -75,6 +84,7 @@ const func string: getMagic (in string: data) is func
     var string: magic is "";
   local
     var string: magicBytes is "";
+    var integer: offset is 0;
   begin
     if length(data) >= 2 then
       magicBytes := data[.. 2];
@@ -87,6 +97,18 @@ const func string: getMagic (in string: data) is func
           magicBytes = MAGIC_UTF16LE        or
           magicBytes = MAGIC_UTF16BE        then
         magic := magicBytes;
+      elsif magicBytes = "MZ" then
+        if length(data) >= 64 then
+          offset := bytes2Int(data[61 fixLen 4], UNSIGNED, LE);
+          if length(data) >= offset + 4 and
+              data[succ(offset) fixLen 4] = MAGIC_PE then
+            magic := MAGIC_PE;
+          else
+            magic := MAGIC_MZ;
+          end if;
+	else
+          magic := MAGIC_MZ;
+        end if;
       elsif length(data) >= 3 then
         magicBytes := data[.. 3];
         if  magicBytes = MAGIC_JPEG           or
@@ -94,14 +116,18 @@ const func string: getMagic (in string: data) is func
           magic := magicBytes;
         elsif length(data) >= 4 then
           magicBytes := data[.. 4];
-          if  magicBytes = MAGIC_ICO       or
-              magicBytes = MAGIC_RPM       or
-              magicBytes = MAGIC_TIFF_LE   or
-              magicBytes = MAGIC_TIFF_BE   or
-              magicBytes = MAGIC_WASM      or
-              magicBytes = MAGIC_ZIP       or
-              magicBytes = MAGIC_ZIP_EMPTY or
-              magicBytes = MAGIC_ZSTD      then
+          if  magicBytes = MAGIC_ICO              or
+              magicBytes = MAGIC_MACH_O_32_BIT_LE or
+              magicBytes = MAGIC_MACH_O_64_BIT_LE or
+              magicBytes = MAGIC_MACH_O_32_BIT_BE or
+              magicBytes = MAGIC_MACH_O_64_BIT_BE or
+              magicBytes = MAGIC_RPM              or
+              magicBytes = MAGIC_TIFF_LE          or
+              magicBytes = MAGIC_TIFF_BE          or
+              magicBytes = MAGIC_WASM             or
+              magicBytes = MAGIC_ZIP              or
+              magicBytes = MAGIC_ZIP_EMPTY        or
+              magicBytes = MAGIC_ZSTD             then
               magic := magicBytes;
           elsif magicBytes = MAGIC_RIFF then
             if length(data) >= 15 and
@@ -164,6 +190,7 @@ const func string: getMagic (inout file: inFile) is func
     var string: magic is "";
   local
     var string: magicBytes is "";
+    var integer: offset is 0;
   begin
     magicBytes := gets(inFile, 2);
     if length(magicBytes) = 2 then
@@ -176,6 +203,20 @@ const func string: getMagic (inout file: inFile) is func
           magicBytes = MAGIC_UTF16LE        or
           magicBytes = MAGIC_UTF16BE        then
         magic := magicBytes;
+      elsif magicBytes = "MZ" then
+        magicBytes &:= gets(inFile, 62);
+        if length(magicBytes) = 64 then
+          offset := bytes2Int(magicBytes[61 fixLen 4], UNSIGNED, LE);
+          magicBytes &:= gets(inFile, offset - 60);
+          if length(magicBytes) = offset + 4 and
+              magicBytes[succ(offset) fixLen 4] = MAGIC_PE then
+            magic := MAGIC_PE;
+          else
+            magic := MAGIC_MZ;
+          end if;
+	else
+          magic := MAGIC_MZ;
+        end if;
       else
         magicBytes &:= gets(inFile, 1);
         if length(magicBytes) = 3 then
@@ -185,14 +226,18 @@ const func string: getMagic (inout file: inFile) is func
           else
             magicBytes &:= gets(inFile, 1);
             if length(magicBytes) = 4 then
-              if  magicBytes = MAGIC_ICO       or
-                  magicBytes = MAGIC_RPM       or
-                  magicBytes = MAGIC_TIFF_LE   or
-                  magicBytes = MAGIC_TIFF_BE   or
-                  magicBytes = MAGIC_WASM      or
-                  magicBytes = MAGIC_ZIP       or
-                  magicBytes = MAGIC_ZIP_EMPTY or
-                  magicBytes = MAGIC_ZSTD      then
+              if  magicBytes = MAGIC_ICO              or
+                  magicBytes = MAGIC_MACH_O_32_BIT_LE or
+                  magicBytes = MAGIC_MACH_O_64_BIT_LE or
+                  magicBytes = MAGIC_MACH_O_32_BIT_BE or
+                  magicBytes = MAGIC_MACH_O_64_BIT_BE or
+                  magicBytes = MAGIC_RPM              or
+                  magicBytes = MAGIC_TIFF_LE          or
+                  magicBytes = MAGIC_TIFF_BE          or
+                  magicBytes = MAGIC_WASM             or
+                  magicBytes = MAGIC_ZIP              or
+                  magicBytes = MAGIC_ZIP_EMPTY        or
+                  magicBytes = MAGIC_ZSTD             then
                 magic := magicBytes;
               elsif magicBytes = MAGIC_RIFF then
                 magicBytes &:= gets(inFile, 11);
@@ -267,42 +312,47 @@ const func string: magicDescription (in string: magic) is func
     var string: description is "";
   begin
     case magic of
-      when {MAGIC_AR}:             description := "current ar archive";
-      when {MAGIC_BMP}:            description := "PC bitmap";
+      when {MAGIC_AR}:               description := "current ar archive";
+      when {MAGIC_BMP}:              description := "PC bitmap";
       when {MAGIC_CPIO_BINARY_BE,
             MAGIC_CPIO_BINARY_LE,
             MAGIC_CPIO_ASCII_OLD,
             MAGIC_CPIO_ASCII,
-            MAGIC_CPIO_ASCII_CRC}: description := "cpio archive";
-      when {MAGIC_ELF_32_BIT_LE}:  description := "ELF 32-bit LSB executable";
-      when {MAGIC_ELF_64_BIT_LE}:  description := "ELF 64-bit LSB executable";
-      when {MAGIC_ELF_32_BIT_BE}:  description := "ELF 32-bit MSB executable";
-      when {MAGIC_ELF_64_BIT_BE}:  description := "ELF 64-bit MSB executable";
+            MAGIC_CPIO_ASCII_CRC}:   description := "cpio archive";
+      when {MAGIC_ELF_32_BIT_LE}:    description := "ELF 32-bit LSB executable";
+      when {MAGIC_ELF_64_BIT_LE}:    description := "ELF 64-bit LSB executable";
+      when {MAGIC_ELF_32_BIT_BE}:    description := "ELF 32-bit MSB executable";
+      when {MAGIC_ELF_64_BIT_BE}:    description := "ELF 64-bit MSB executable";
       when {MAGIC_GIF_87,
-            MAGIC_GIF_89}:         description := "GIF image data";
-      when {MAGIC_GZIP}:           description := "gzip compressed data";
-      when {MAGIC_ICO}:            description := "MS Windows icon resource";
-      when {MAGIC_JPEG}:           description := "JPEG image data";
-      when {MAGIC_PDF}:            description := "PDF document";
-      when {MAGIC_PNG}:            description := "PNG image data";
-      when {MAGIC_PPM}:            description := "Netpbm image data";
-      when {MAGIC_RAR}:            description := "RAR archive data";
-      when {MAGIC_RIFF}:           description := "RIFF data";
-      when {MAGIC_RPM}:            description := "RPM v3.0";
-      when {MAGIC_SEVEN_ZIP}:      description := "7-zip archive data";
-      when {MAGIC_SHEBANG}:        description := "a script";
-      when {MAGIC_SQLITE3}:        description := "SQLite 3.x database";
-      when {MAGIC_TAR}:            description := "POSIX tar archive";
+            MAGIC_GIF_89}:           description := "GIF image data";
+      when {MAGIC_GZIP}:             description := "gzip compressed data";
+      when {MAGIC_ICO}:              description := "MS Windows icon resource";
+      when {MAGIC_JPEG}:             description := "JPEG image data";
+      when {MAGIC_MACH_O_32_BIT_LE}: description := "Mach-O 32-bit LSB executable";
+      when {MAGIC_MACH_O_64_BIT_LE}: description := "Mach-O 64-bit LSB executable";
+      when {MAGIC_MACH_O_32_BIT_BE}: description := "Mach-O 32-bit MSB executable";
+      when {MAGIC_MACH_O_64_BIT_BE}: description := "Mach-O 64-bit MSB executable";
+      when {MAGIC_PDF}:              description := "PDF document";
+      when {MAGIC_PE}:               description := "PE executable";
+      when {MAGIC_PNG}:              description := "PNG image data";
+      when {MAGIC_PPM}:              description := "Netpbm image data";
+      when {MAGIC_RAR}:              description := "RAR archive data";
+      when {MAGIC_RIFF}:             description := "RIFF data";
+      when {MAGIC_RPM}:              description := "RPM v3.0";
+      when {MAGIC_SEVEN_ZIP}:        description := "7-zip archive data";
+      when {MAGIC_SHEBANG}:          description := "a script";
+      when {MAGIC_SQLITE3}:          description := "SQLite 3.x database";
+      when {MAGIC_TAR}:              description := "POSIX tar archive";
       when {MAGIC_TIFF_LE,
-            MAGIC_TIFF_BE}:        description := "TIFF image data";
+            MAGIC_TIFF_BE}:          description := "TIFF image data";
       when {MAGIC_UTF8,
             MAGIC_UTF16LE,
-            MAGIC_UTF16BE}:        description := "Unicode text";
-      when {MAGIC_WASM}:           description := "WebAssembly (wasm) binary module";
-      when {MAGIC_WEBP}:           description := "Web/P image data";
+            MAGIC_UTF16BE}:          description := "Unicode text";
+      when {MAGIC_WASM}:             description := "WebAssembly (wasm) binary module";
+      when {MAGIC_WEBP}:             description := "Web/P image data";
       when {MAGIC_ZIP,
-            MAGIC_ZIP_EMPTY}:      description := "Zip archive data";
-      when {MAGIC_XZ}:             description := "XZ compressed data";
-      when {MAGIC_ZSTD}:           description := "Zstandard compressed data";
+            MAGIC_ZIP_EMPTY}:        description := "Zip archive data";
+      when {MAGIC_XZ}:               description := "XZ compressed data";
+      when {MAGIC_ZSTD}:             description := "Zstandard compressed data";
     end case;
   end func;
