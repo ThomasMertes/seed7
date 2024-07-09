@@ -6521,6 +6521,9 @@ static void determineOsWCharFunctions (FILE *versionFile)
       fputs("#define HAS_GET_FINAL_PATH_NAME_BY_HANDLE\n", versionFile);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "#ifndef FILE_FLAG_OPEN_REPARSE_POINT\n"
+                         "#define FILE_FLAG_OPEN_REPARSE_POINT 0x200000\n"
+                         "#endif\n"
                          "#ifndef FSCTL_GET_REPARSE_POINT\n"
                          "#define FSCTL_GET_REPARSE_POINT 0x900a8\n"
                          "#endif\n"
@@ -6538,6 +6541,9 @@ static void determineOsWCharFunctions (FILE *versionFile)
       fputs("#define HAS_DEVICE_IO_CONTROL\n", versionFile);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "#ifndef FILE_FLAG_OPEN_REPARSE_POINT\n"
+                         "#define FILE_FLAG_OPEN_REPARSE_POINT 0x200000\n"
+                         "#endif\n"
                          "int main(int argc,char *argv[])\n"
                          "{HANDLE fileHandle;\n"
                          "FILE_BASIC_INFO fileBasicInfoData;\n"
@@ -6550,11 +6556,38 @@ static void determineOsWCharFunctions (FILE *versionFile)
                          "return 0;}\n")) {
       fputs("#define HAS_GET_FILE_INFORMATION_BY_HANDLE_EX\n", versionFile);
     } /* if */
-    if (!compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
-                          "int main(int argc,char *argv[])\n"
-                          "{printf(\"%d\\n\", INVALID_FILE_ATTRIBUTES == (DWORD) -1);\n"
-                          "return 0;}\n")) {
+    assertCompAndLnk("#include <stdio.h>\n#include <windows.h>\n"
+                     "int main(int argc,char *argv[]){\n"
+                     "#ifdef INVALID_FILE_ATTRIBUTES\n"
+                     "printf(\"1\\n\");\n"
+                     "#else\n"
+                     "printf(\"0\\n\");\n"
+                     "#endif\n"
+                     "return 0;}\n");
+    if (doTest() == 0) {
       fputs("#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)\n", versionFile);
+    } /* if */
+    assertCompAndLnk("#include <stdio.h>\n#include <windows.h>\n"
+                     "int main(int argc,char *argv[]){\n"
+                     "#ifdef FILE_ATTRIBUTE_REPARSE_POINT\n"
+                     "printf(\"1\\n\");\n"
+                     "#else\n"
+                     "printf(\"0\\n\");\n"
+                     "#endif\n"
+                     "return 0;}\n");
+    if (doTest() == 0) {
+      fputs("#define FILE_ATTRIBUTE_REPARSE_POINT 0x00000400\n", versionFile);
+    } /* if */
+    assertCompAndLnk("#include <stdio.h>\n#include <windows.h>\n"
+                     "int main(int argc,char *argv[]){\n"
+                     "#ifdef FILE_FLAG_OPEN_REPARSE_POINT\n"
+                     "printf(\"1\\n\");\n"
+                     "#else\n"
+                     "printf(\"0\\n\");\n"
+                     "#endif\n"
+                     "return 0;}\n");
+    if (doTest() == 0) {
+      fputs("#define FILE_FLAG_OPEN_REPARSE_POINT 0x200000\n", versionFile);
     } /* if */
   } /* determineOsWCharFunctions */
 
