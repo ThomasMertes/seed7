@@ -910,7 +910,9 @@ const func string: getStriValue (in string: store,
         for index range 1 to indexEntry.count do
           data &:= getAsciiz(store, currPos) & "\0;";
         end for;
-        data := data[.. pred(length(data))];
+        if data <> "" then
+          data := data[.. pred(length(data))];
+        end if;
     end case;
   end func;
 
@@ -1481,8 +1483,10 @@ const proc: updateProvisions (inout rpmArchive: rpm) is func
       provideVersion &:= dependency.version;
       updateIndexEntry(rpm, RPMTAG_PROVIDEFLAGS, RPM_INT32_TYPE, index, dependency.flags);
     end for;
-    updateIndexEntry(rpm.header, RPMTAG_PROVIDENAME, RPM_STRING_ARRAY_TYPE, provideName);
-    updateIndexEntry(rpm.header, RPMTAG_PROVIDEVERSION, RPM_STRING_ARRAY_TYPE, provideVersion);
+    if length(provideName) <> 0 then
+      updateIndexEntry(rpm.header, RPMTAG_PROVIDENAME, RPM_STRING_ARRAY_TYPE, provideName);
+      updateIndexEntry(rpm.header, RPMTAG_PROVIDEVERSION, RPM_STRING_ARRAY_TYPE, provideVersion);
+    end if;
   end func;
 
 
@@ -1498,8 +1502,10 @@ const proc: updateRequirements (inout rpmArchive: rpm) is func
       requireVersion &:= dependency.version;
       updateIndexEntry(rpm, RPMTAG_REQUIREFLAGS, RPM_INT32_TYPE, index, dependency.flags);
     end for;
-    updateIndexEntry(rpm.header, RPMTAG_REQUIRENAME, RPM_STRING_ARRAY_TYPE, requireName);
-    updateIndexEntry(rpm.header, RPMTAG_REQUIREVERSION, RPM_STRING_ARRAY_TYPE, requireVersion);
+    if length(requireName) <> 0 then
+      updateIndexEntry(rpm.header, RPMTAG_REQUIRENAME, RPM_STRING_ARRAY_TYPE, requireName);
+      updateIndexEntry(rpm.header, RPMTAG_REQUIREVERSION, RPM_STRING_ARRAY_TYPE, requireVersion);
+    end if;
   end func;
 
 
@@ -1719,7 +1725,9 @@ const proc: updateStore (inout rpmSection: section) is func
         when {RPM_BIN_TYPE}:
           store &:= indexEntry.striValue;
         when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
-          store &:= join(indexEntry.arrayValue, "\0;") & "\0;";
+          if length(indexEntry.arrayValue) <> 0 then
+            store &:= join(indexEntry.arrayValue, "\0;") & "\0;";
+          end if;
       end case;
       section.tagMap @:= [indexEntry.tag] indexEntry;
     end for;
