@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gif.s7i       Support for the GIF image file format.            *)
-(*  Copyright (C) 2021 - 2023  Thomas Mertes                         *)
+(*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -259,6 +259,92 @@ const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelDa
   end func;
 
 
+const proc: fillGifImage8BitInterlaced (inout array array pixel: image,
+    in string: pixelData, in array pixel: palette,
+    in gifImageHeader: imageHeader) is func
+  local
+    var char: colorIndex is '\0;';
+    var integer: line is 0;
+    var integer: lineBeyond is 0;
+    var integer: lineDelta is 8;
+    var integer: column is 0;
+    var integer: columnBeyond is 0;
+    var integer: interlace is 1;
+  begin
+    # writeln("length(pixelData): " <& length(pixelData));
+    # writeln("height: " <& imageHeader.height);
+    # writeln("width: " <& imageHeader.width);
+    # writeln("no transparent color");
+    line := succ(imageHeader.topPosition);
+    lineBeyond := succ(imageHeader.topPosition + imageHeader.height);
+    column := succ(imageHeader.leftPosition);
+    columnBeyond := succ(imageHeader.leftPosition + imageHeader.width);
+    for colorIndex range pixelData do
+      image[line][column] := palette[ord(colorIndex)];
+      incr(column);
+      if column = columnBeyond then
+        line +:= lineDelta;
+        if line >= lineBeyond then
+          incr(interlace);
+          case interlace of
+            when {2}: line := imageHeader.topPosition + 5;
+                      lineDelta := 8;
+            when {3}: line := imageHeader.topPosition + 3;
+                      lineDelta := 4;
+            when {4}: line := imageHeader.topPosition + 2;
+                      lineDelta := 2;
+          end case;
+        end if;
+        column := succ(imageHeader.leftPosition);
+      end if;
+    end for;
+  end func;
+
+
+const proc: fillGifImage8BitInterlaced (inout array array pixel: image,
+    in string: pixelData, in array pixel: palette,
+    in integer: transparentColorIndex, in gifImageHeader: imageHeader) is func
+  local
+    var char: colorIndex is '\0;';
+    var integer: line is 0;
+    var integer: lineBeyond is 0;
+    var integer: lineDelta is 8;
+    var integer: column is 0;
+    var integer: columnBeyond is 0;
+    var integer: interlace is 1;
+  begin
+    # writeln("length(pixelData): " <& length(pixelData));
+    # writeln("height: " <& imageHeader.height);
+    # writeln("width: " <& imageHeader.width);
+    # writeln("transparentColorIndex: " <& ord(transparentColorIndex));
+    line := succ(imageHeader.topPosition);
+    lineBeyond := succ(imageHeader.topPosition + imageHeader.height);
+    column := succ(imageHeader.leftPosition);
+    columnBeyond := succ(imageHeader.leftPosition + imageHeader.width);
+    for colorIndex range pixelData do
+      if ord(colorIndex) <> transparentColorIndex then
+        image[line][column] := palette[ord(colorIndex)];
+      end if;
+      incr(column);
+      if column = columnBeyond then
+        line +:= lineDelta;
+        if line >= lineBeyond then
+          incr(interlace);
+          case interlace of
+            when {2}: line := imageHeader.topPosition + 5;
+                      lineDelta := 8;
+            when {3}: line := imageHeader.topPosition + 3;
+                      lineDelta := 4;
+            when {4}: line := imageHeader.topPosition + 2;
+                      lineDelta := 2;
+          end case;
+        end if;
+        column := succ(imageHeader.leftPosition);
+      end if;
+    end for;
+  end func;
+
+
 (**
  *  Reads a GIF file into a pixmap.
  *  @param gifFile File that contains a GIF image.
@@ -295,19 +381,39 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
                                            initialNumberOfLzwBits);
           if imageHeader.hasLocalColorMap then
             if extensions.transparentColorFlag then
-              fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
-                               extensions.transparentColorIndex, imageHeader);
+              if imageHeader.interlacedOrder then
+                fillGifImage8BitInterlaced(image, uncompressed, imageHeader.localColorMap,
+                                 extensions.transparentColorIndex, imageHeader);
+              else
+                fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
+                                 extensions.transparentColorIndex, imageHeader);
+              end if;
             else
-              fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
-                               imageHeader);
+              if imageHeader.interlacedOrder then
+                fillGifImage8BitInterlaced(image, uncompressed,
+                                           imageHeader.localColorMap, imageHeader);
+              else
+                fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
+                                 imageHeader);
+              end if;
             end if;
           else
             if extensions.transparentColorFlag then
-              fillGifImage8Bit(image, uncompressed, header.globalColorMap,
-                               extensions.transparentColorIndex, imageHeader);
+              if imageHeader.interlacedOrder then
+                fillGifImage8BitInterlaced(image, uncompressed, header.globalColorMap,
+                                 extensions.transparentColorIndex, imageHeader);
+              else
+                fillGifImage8Bit(image, uncompressed, header.globalColorMap,
+                                 extensions.transparentColorIndex, imageHeader);
+              end if;
             else
-              fillGifImage8Bit(image, uncompressed, header.globalColorMap,
-                               imageHeader);
+              if imageHeader.interlacedOrder then
+                fillGifImage8BitInterlaced(image, uncompressed,
+                                           header.globalColorMap, imageHeader);
+              else
+                fillGifImage8Bit(image, uncompressed, header.globalColorMap,
+                                 imageHeader);
+              end if;
             end if;
           end if;
           extensions.transparentColorFlag := FALSE;
