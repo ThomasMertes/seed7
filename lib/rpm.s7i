@@ -3044,7 +3044,8 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       setDirIndexAndBaseName(rpm, catalogEntry);
       rpm.catalog @:= [symlinkPath] catalogEntry;
       rpm.register @:= [symlinkPath] catalogEntry.fileNumber;
-      makeLink(rpm.archive, symlinkPath, targetPath);
+      makeLink(rpm.archive, archiveFilePath(rpm.archive, symlinkPath),
+                            archiveFilePath(rpm.archive, targetPath));
     end if;
   end func;
 
@@ -3117,7 +3118,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
           catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
           catalogEntry.dirty := TRUE;
           rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
-          putFile(rpm.archive, catalogEntry.filePath, data);
+          putFile(rpm.archive, archiveFilePath(rpm.archive, catalogEntry.filePath), data);
         end if;
       else
         if rpm.archive = fileSys.value then
@@ -3155,7 +3156,7 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         setDirIndexAndBaseName(rpm, catalogEntry);
         rpm.catalog @:= [missingPath] catalogEntry;
         rpm.register @:= [missingPath] catalogEntry.fileNumber;
-        putFile(rpm.archive, missingPath, data);
+        putFile(rpm.archive, archiveFilePath(rpm.archive, missingPath), data);
       end if;
     end if;
   end func;
@@ -3219,7 +3220,7 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       setDirIndexAndBaseName(rpm, catalogEntry);
       rpm.catalog @:= [dirPath] catalogEntry;
       rpm.register @:= [dirPath] catalogEntry.fileNumber;
-      makeDir(rpm.archive, dirPath);
+      makeDir(rpm.archive, archiveFilePath(rpm.archive, dirPath));
     end if;
   end func;
 
@@ -3265,7 +3266,7 @@ const proc: removeFile (inout rpmArchive: rpm, in string: filePath) is func
       excl(rpm.register, filePath);
       excl(rpm.catalog, filePath);
       fixRegisterAndCatalog(rpm, catalogEntry.fileNumber, -1);
-      removeFile(rpm.archive, filePath);
+      removeFile(rpm.archive, archiveFilePath(rpm.archive, filePath));
       rpm.dirty := TRUE;
     else
       raise FILE_ERROR;
@@ -3298,7 +3299,7 @@ const func file: openFileInRpm (inout rpmArchive: rpm, in string: filePath,
         if rpm.archive = fileSys.value then
           getArchive(rpm);
         end if;
-        newFile := open(rpm.archive, filePath, mode);
+        newFile := open(rpm.archive, archiveFilePath(rpm.archive, filePath), mode);
       end if;
     end if;
   end func;
