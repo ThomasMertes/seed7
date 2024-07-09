@@ -6550,6 +6550,12 @@ static void determineOsWCharFunctions (FILE *versionFile)
                          "return 0;}\n")) {
       fputs("#define HAS_GET_FILE_INFORMATION_BY_HANDLE_EX\n", versionFile);
     } /* if */
+    if (!compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                          "int main(int argc,char *argv[])\n"
+                          "{printf(\"%d\\n\", INVALID_FILE_ATTRIBUTES == (DWORD) -1);\n"
+                          "return 0;}\n")) {
+      fputs("#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)\n", versionFile);
+    } /* if */
   } /* determineOsWCharFunctions */
 
 
