@@ -339,6 +339,7 @@ static int testNumber = 0;
 static char c_compiler[COMMAND_SIZE];
 static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
+static int buildTimeLinking = 0;
 static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
 static unsigned long numberOfSuccessfulTestsAfterRestart = 0;
@@ -7560,6 +7561,41 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
 
 
 
+static int findLinkerOptionForDll (const char *scopeName, const char *testProgram,
+    const char *includeOption, const char *libraryOption, const char **dllNameList,
+    size_t dllNameListLength, char *system_libs)
+
+  {
+    unsigned int nameIndex;
+    char linkParam[PATH_SIZE];
+    char linkOption[PATH_SIZE];
+    int libFound = 0;
+
+  /* findLinkerOptionForDll */
+    for (nameIndex = 0;
+         !libFound && nameIndex < dllNameListLength;
+         nameIndex++) {
+      sprintf(linkOption, "-l:%s", dllNameList[nameIndex]);
+      linkParam[0] = '\0';
+      appendOption(linkParam, libraryOption);
+      appendOption(linkParam, linkOption);
+      /* fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
+         fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkParam)) {
+        if (doTest() == 1) {
+          fprintf(logFile, "\r%s: Linker option: %s\n",
+                  scopeName, linkOption);
+          appendOption(system_libs, libraryOption);
+          appendOption(system_libs, linkOption);
+          libFound = 1;
+        } /* if */
+      } /* if */
+    } /* for */
+    return libFound;
+  } /* findLinkerOptionForDll */
+
+
+
 static int canLoadDynamicLibrary (const char *dllName)
 
   {
@@ -8523,6 +8559,13 @@ static void determineMySqlDefines (FILE *versionFile,
                            libNameList, sizeof(libNameList) / sizeof(char *),
                            system_database_libs)) {
         searchForLib = 0;
+      } else if (buildTimeLinking) {
+        if (findLinkerOptionForDll("MySql/MariaDb", testProgram, includeOption,
+                                   MYSQL_LIBRARY_PATH, dllNameList,
+                                   sizeof(dllNameList) / sizeof(char *),
+                                   system_database_libs)) {
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -8663,6 +8706,13 @@ static void determineSqliteDefines (FILE *versionFile,
                            libNameList, sizeof(libNameList) / sizeof(char *),
                            system_database_libs)) {
         searchForLib = 0;
+      } else if (buildTimeLinking) {
+        if (findLinkerOptionForDll("SQLite", testProgram, includeOption,
+                                   SQLITE_LIBRARY_PATH, dllNameList,
+                                   sizeof(dllNameList) / sizeof(char *),
+                                   system_database_libs)) {
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -9086,6 +9136,13 @@ static void determinePostgresDefines (FILE *versionFile,
                            libNameList, sizeof(libNameList) / sizeof(char *),
                            system_database_libs)) {
         searchForLib = 0;
+      } else if (buildTimeLinking) {
+        if (findLinkerOptionForDll("PostgreSQL", testProgram, includeOption,
+                                   POSTGRESQL_LIBRARY_PATH, dllNameList,
+                                   sizeof(dllNameList) / sizeof(char *),
+                                   system_database_libs)) {
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -9244,6 +9301,13 @@ static void determineOdbcDefines (FILE *versionFile,
                          libNameList, sizeof(libNameList) / sizeof(char *),
                          system_database_libs)) {
       searchForLib = 0;
+    } else if (buildTimeLinking) {
+      if (findLinkerOptionForDll("Odbc", testProgram, includeOption,
+                                 ODBC_LIBRARY_PATH, dllNameList,
+                                 sizeof(dllNameList) / sizeof(char *),
+                                 system_database_libs)) {
+        searchForLib = 0;
+      } /* if */
     } /* if */
 #endif
     if (searchForLib) {
@@ -9358,6 +9422,13 @@ static void determineOciDefines (FILE *versionFile,
                            libNameList, sizeof(libNameList) / sizeof(char *),
                            system_database_libs)) {
         searchForLib = 0;
+      } else if (buildTimeLinking) {
+        if (findLinkerOptionForDll("Oracle", testProgram, includeOption,
+                                   OCI_LIBRARY_PATH, dllNameList,
+                                   sizeof(dllNameList) / sizeof(char *),
+                                   system_database_libs)) {
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -9532,6 +9603,13 @@ static void determineFireDefines (FILE *versionFile,
                          libNameList, sizeof(libNameList) / sizeof(char *),
                          system_database_libs)) {
       searchForLib = 0;
+    } else if (buildTimeLinking) {
+      if (findLinkerOptionForDll("Firebird", testProgram, includeOption,
+                                 FIRE_LIBRARY_PATH, dllNameList,
+                                 sizeof(dllNameList) / sizeof(char *),
+                                 system_database_libs)) {
+        searchForLib = 0;
+      } /* if */
     } /* if */
 #endif
     if (searchForLib) {
@@ -9693,6 +9771,14 @@ static void determineDb2Defines (FILE *versionFile,
                              db2_libs)) {
           appendToMakeMacros("DB2_LIBS", db2_libs);
           searchForLib = 0;
+        } else if (buildTimeLinking) {
+          if (findLinkerOptionForDll("DB2", testProgram, includeOption,
+                                     DB2_LIBRARY_PATH, dllNameList,
+                                     sizeof(dllNameList) / sizeof(char *),
+                                     db2_libs)) {
+            appendToMakeMacros("DB2_LIBS", db2_libs);
+            searchForLib = 0;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -9910,6 +9996,14 @@ static void determineInformixDefines (FILE *versionFile,
                              informix_libs)) {
           appendToMakeMacros("INFORMIX_LIBS", informix_libs);
           searchForLib = 0;
+        } else if (buildTimeLinking) {
+          if (findLinkerOptionForDll("Informix", testProgram, includeOption,
+                                     INFORMIX_LIBRARY_PATH, dllNameList,
+                                     sizeof(dllNameList) / sizeof(char *),
+                                     informix_libs)) {
+            appendToMakeMacros("INFORMIX_LIBS", informix_libs);
+            searchForLib = 0;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -10066,6 +10160,14 @@ static void determineSqlServerDefines (FILE *versionFile,
                            sql_server_libs)) {
         appendToMakeMacros("SQL_SERVER_LIBS", sql_server_libs);
         searchForLib = 0;
+      } else if (buildTimeLinking) {
+        if (findLinkerOptionForDll("SQL Server", testProgram, includeOption,
+                                   SQL_SERVER_LIBRARY_PATH, dllNameList,
+                                   sizeof(dllNameList) / sizeof(char *),
+                                   sql_server_libs)) {
+          appendToMakeMacros("SQL_SERVER_LIBS", sql_server_libs);
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -10171,6 +10273,13 @@ static void determineTdsDefines (FILE *versionFile,
                          libNameList, sizeof(libNameList) / sizeof(char *),
                          system_database_libs)) {
       searchForLib = 0;
+    } else if (buildTimeLinking) {
+      if (findLinkerOptionForDll("TDS", testProgram, includeOption,
+                                 TDS_LIBRARY_PATH, dllNameList,
+                                 sizeof(dllNameList) / sizeof(char *),
+                                 system_database_libs)) {
+        searchForLib = 0;
+      } /* if */
     } /* if */
 #endif
     if (searchForLib) {
@@ -10576,6 +10685,7 @@ int main (int argc, char **argv)
     char *s7_lib_dir_arg = NULL;
     char *seed7_library_arg = NULL;
     char *cc_environment_ini_arg = NULL;
+    char *link_time_arg = NULL;
     int codePage = 0;
     int driveLetters;
 
@@ -10595,6 +10705,15 @@ int main (int argc, char **argv)
         } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
                    (*curr_arg)[19] != '\0') {
           cc_environment_ini_arg = &(*curr_arg)[19];
+        } else if (memcmp(*curr_arg, "LINK_TIME=", 10 * sizeof(char)) == 0 &&
+                   (*curr_arg)[10] != '\0') {
+          link_time_arg = &(*curr_arg)[10];
+          if (strcmp(link_time_arg, "BUILD") == 0) {
+            fprintf(stdout, "Link at build time.\n");
+            buildTimeLinking = 1;
+          } else if (strcmp(link_time_arg, "RUN") != 0) {
+            fprintf(stdout, "\n *** LINK_TIME is neither BUILD nor RUN.\n");
+          } /* if */
         } /* if */
       } /* for */
       if (fileIsRegular(versionFileName)) {

@@ -211,7 +211,7 @@ settings.h:
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
 
 version.h: chkccomp base.h settings.h
-	./chkccomp version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)"
+	./chkccomp version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "LINK_TIME=$(LINK_TIME)"
 	cp version.h vers_freebsd.h
 
 chkccomp: chkccomp.c chkccomp.h base.h settings.h
