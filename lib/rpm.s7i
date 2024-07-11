@@ -373,12 +373,12 @@ const integer: RPMTAG_TRANSFILETRIGGERCONDS       is 5088;  # s[] extension
 const integer: RPMTAG_TRANSFILETRIGGERTYPE        is 5089;  # s[] extension
 const integer: RPMTAG_FILESIGNATURES              is 5090;  # s[]
 const integer: RPMTAG_FILESIGNATURELENGTH         is 5091;  # i
-const integer: RPMTAG_PAYLOADDIGEST               is 5092;  # s[]
-const integer: RPMTAG_PAYLOADDIGESTALGO           is 5093;  # i
+const integer: RPMTAG_PAYLOADDIGEST               is 5092;  # STRING_ARRAY Hex digest of the compressed payload
+const integer: RPMTAG_PAYLOADDIGESTALGO           is 5093;  # INT          ID of payload digest algorithm (PAYLOADDIGEST and PAYLOADDIGESTALT)
 const integer: RPMTAG_AUTOINSTALLED               is 5094;  # i reservation (unimplemented)
 const integer: RPMTAG_IDENTITY                    is 5095;  # s reservation (unimplemented)
 const integer: RPMTAG_MODULARITYLABEL             is 5096;  # s
-const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # s[]
+const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # STRING_ARRAY Hex digest of the uncompressed payload
 
 const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional
 const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count for the header section plus the compressed payload.
@@ -1883,6 +1883,30 @@ const proc: checkPayloadDigest (inout rpmArchive: rpm) is func
   end func;
 
 
+const proc: checkUncompressedDigest (inout rpmArchive: rpm) is func
+  local
+    var integer: digestPos is 0;
+    var string: referenceDigest is "";
+    var string: computedDigest is "";
+    var integer: digestAlgo is 0;
+  begin
+    if RPMTAG_PAYLOADDIGESTALT in rpm.header.tagMap and
+        RPMTAG_PAYLOADDIGESTALGO in rpm.header.tagMap then
+      digestPos := succ(rpm.header.tagMap[RPMTAG_PAYLOADDIGESTALT].offset);
+      referenceDigest := getAsciiz(rpm.header.store, digestPos);
+      digestAlgo := getIntValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADDIGESTALGO]);
+      computedDigest := hex(getDigest(gets(rpm.payloadFile, integer.last), digestAlgo));
+      seek(rpm.payloadFile, 1);
+      if referenceDigest <> computedDigest then
+        # writeln("digestAlgo: " <& digestAlgo);
+        # writeln("reference digest: " <& literal(referenceDigest));
+        # writeln("computed digest:  " <& literal(computedDigest));
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
 const proc: getArchive (inout rpmArchive: rpm) is func
   local
     var string: compressor is "";
@@ -1911,6 +1935,7 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       end if;
     end if;
     if rpm.payloadFile <> STD_NULL then
+      # checkUncompressedDigest(rpm);
       if RPMTAG_PAYLOADFORMAT in rpm.header.tagMap then
         format := getStriValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADFORMAT]);
         # writeln("format: " <& format);
@@ -2039,6 +2064,9 @@ const proc: close (inout rpmArchive: rpm) is func
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADDIGEST, RPM_STRING_ARRAY_TYPE,
                        [] (hex(getDigest(payload, RPM_DIGESTALGO_SHA256))));
       updateIndexEntry(rpm.header, RPMTAG_PAYLOADDIGESTALGO, RPM_INT32_TYPE, RPM_DIGESTALGO_SHA256);
+      seek(rpm.payloadFile, 1);
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADDIGESTALT, RPM_STRING_ARRAY_TYPE,
+                       [] (hex(getDigest(gets(rpm.payloadFile, integer.last), RPM_DIGESTALGO_SHA256))));
       updateStore(rpm.header);
       headerSection := sectionStri(rpm.header, RPMTAG_HEADERIMMUTABLE);
 
