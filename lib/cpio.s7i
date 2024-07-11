@@ -243,6 +243,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
       # writeln("CPIO_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
       if length(headerStri) = 24 then
+        header.ino        := bytes2Int(headerStri[ 3 fixLen 2], UNSIGNED, BE);
         header.nameSize   := bytes2Int(headerStri[19 fixLen 2], UNSIGNED, BE);
         header.fileSize   := bytes2Int(headerStri[21 fixLen 4], UNSIGNED, BE);
         header.headerSize := 26;
@@ -253,6 +254,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
       # writeln("CPIO_SWAPPED_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
       if length(headerStri) = 24 then
+        header.ino        := bytes2Int(headerStri[ 3 fixLen 2], UNSIGNED, LE);
         header.nameSize   := bytes2Int(headerStri[19 fixLen 2], UNSIGNED, LE);
         header.fileSize   := bytes2Int(headerStri[21 fixLen 2], UNSIGNED, LE) * 65536 +
                              bytes2Int(headerStri[23 fixLen 2], UNSIGNED, LE);
@@ -267,6 +269,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
         # writeln("CPIO_OLD_ASCII_MAGIC");
         headerStri := gets(inFile, 70);
         if length(headerStri) = 70 then
+          header.ino        := integer(headerStri[ 7 fixLen  6], 8);
           header.nameSize   := integer(headerStri[54 fixLen  6], 8);
           header.fileSize   := integer(headerStri[60 fixLen 11], 8);
           header.headerSize := 76;
@@ -278,6 +281,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
         # writeln("CPIO_NEW_ASCII_MAGIC");
         headerStri := gets(inFile, 104);
         if length(headerStri) = 104 then
+          header.ino        := integer(headerStri[ 1 fixLen  8], 16);
           header.fileSize   := integer(headerStri[49 fixLen  8], 16);
           header.nameSize   := integer(headerStri[89 fixLen  8], 16);
           header.headerSize := 110;
@@ -432,6 +436,7 @@ const type: cpioArchive is sub emptyFileSys struct
     var integer: headerSize is 0;
     var integer: padding is 0;
     var integer: trailerPos is 0;
+    var integer: maximumIno is 0;
   end struct;
 
 
@@ -459,6 +464,7 @@ const func fileSys: openCpio (inout file: cpioFile) is func
     else
       seek(cpioFile, headPos);
       readMinimumOfHead(cpioFile, header);
+      cpio.maximumIno := max(cpio.maximumIno, header.ino);
       if header.magic <> "" then
         cpio.magic := header.magic;
         cpio.headerSize := header.headerSize;
@@ -473,6 +479,7 @@ const func fileSys: openCpio (inout file: cpioFile) is func
           # writeln(headPos);
           seek(cpioFile, headPos);
           readMinimumOfHead(cpioFile, header);
+          cpio.maximumIno := max(cpio.maximumIno, header.ino);
         until header.magic = "" or
               (header.filePath = CPIO_TRAILER_NAME and header.fileSize = 0);
         cpio.trailerPos := headPos;
@@ -1348,7 +1355,8 @@ const proc: makeLink (inout cpioArchive: cpio, in string: symlinkPath,
       symlinkPath8 := toUtf8(symlinkPath);
       targetPath8 := toUtf8(targetPath);
       header.magic      := cpio.magic;
-      header.ino        := 0;
+      incr(cpio.maximumIno);
+      header.ino        := cpio.maximumIno;
       header.mode       := ord(MODE_FILE_SYMLINK) + 8#777;
       header.uid        := 0;
       header.gid        := 0;
@@ -1476,7 +1484,8 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
         filePath8 := toUtf8(filePath);
         if missingPath <> "" then
           header.magic      := cpio.magic;
-          header.ino        := 0;
+          incr(cpio.maximumIno);
+          header.ino        := cpio.maximumIno;
           header.mode       := ord(MODE_FILE_REGULAR) + 8#664;
           header.uid        := 0;
           header.gid        := 0;
@@ -1558,7 +1567,8 @@ const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
     else
       dirPath8 := toUtf8(dirPath);
       header.magic      := cpio.magic;
-      header.ino        := 0;
+      incr(cpio.maximumIno);
+      header.ino        := cpio.maximumIno;
       header.mode       := ord(MODE_FILE_DIR) + 8#775;
       header.uid        := 0;
       header.gid        := 0;
