@@ -217,6 +217,13 @@ uninstall:
 
 strip:
 	strip ../bin/s7
+	strip ../bin/s7c
+	strip ../bin/$(SEED7_LIB)
+	strip ../bin/$(DRAW_LIB)
+	strip ../bin/$(CONSOLE_LIB)
+	strip ../bin/$(DATABASE_LIB)
+	strip ../bin/$(COMP_DATA_LIB)
+	strip ../bin/$(COMPILER_LIB)
 
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
