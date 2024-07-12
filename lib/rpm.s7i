@@ -1180,6 +1180,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var rpmSection: signature is rpmSection.value;
     var rpmSection: header is rpmSection.value;
     var integer: payloadPos is 0;
+    var integer: maximumInode is 0;
     var archiveRegisterType: register is archiveRegisterType.value;
     var rpmCatalogType: catalog is rpmCatalogType.value;
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
@@ -1223,6 +1224,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     var integer: linkToPos is 0;
     var integer: userNamePos is 0;
     var integer: groupNamePos is 0;
+    var integer: inodePos is 0;
     var integer: langPos is 0;
     var integer: numberOfFiles is 0;
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
@@ -1239,6 +1241,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     linkToPos := succ(rpm.header.tagMap[RPMTAG_FILELINKTOS].offset);
     userNamePos := succ(rpm.header.tagMap[RPMTAG_FILEUSERNAME].offset);
     groupNamePos := succ(rpm.header.tagMap[RPMTAG_FILEGROUPNAME].offset);
+    inodePos := succ(rpm.header.tagMap[RPMTAG_FILEINODES].offset);
     langPos := succ(rpm.header.tagMap[RPMTAG_FILELANGS].offset);
     numberOfFiles := rpm.header.tagMap[RPMTAG_FILESIZES].count;
     for index range 1 to numberOfFiles do
@@ -1246,7 +1249,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
         catalogEntry.filePath := getUtf8z(rpm.header.store, oldFileNamePos);
       else
         catalogEntry.dirIndex := bytes2Int(
-            rpm.header.store[dirIndexPos fixLen 4], SIGNED, BE);
+            rpm.header.store[dirIndexPos fixLen 4], UNSIGNED, BE);
         dirIndexPos +:= 4;
         catalogEntry.baseName := getUtf8z(rpm.header.store, baseNamePos);
         catalogEntry.filePath := rpm.dirNames[succ(catalogEntry.dirIndex)];
@@ -1257,6 +1260,10 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       catalogEntry.linkTo := getUtf8z(rpm.header.store, linkToPos);
       catalogEntry.userName  := getAsciiz(rpm.header.store, userNamePos);
       catalogEntry.groupName := getAsciiz(rpm.header.store, groupNamePos);
+      catalogEntry.inode := bytes2Int(
+          rpm.header.store[inodePos fixLen 4], UNSIGNED, BE);
+      inodePos +:= 4;
+      rpm.maximumInode := max(rpm.maximumInode, catalogEntry.inode);
       catalogEntry.lang := getAsciiz(rpm.header.store, langPos);
       catalogEntry.fileNumber := index;
       rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
@@ -1317,7 +1324,6 @@ const proc: readCatalogEntry (inout rpmArchive: rpm, inout rpmCatalogEntry: cata
       catalogEntry.flags       := getInt(rpm, RPMTAG_FILEFLAGS,       fileNumber);
       catalogEntry.verifyFlags := getInt(rpm, RPMTAG_FILEVERIFYFLAGS, fileNumber);
       catalogEntry.device      := getInt(rpm, RPMTAG_FILEDEVICES,     fileNumber);
-      catalogEntry.inode       := getInt(rpm, RPMTAG_FILEINODES,      fileNumber);
       catalogEntry.color       := getInt(rpm, RPMTAG_FILECOLORS,      fileNumber);
       catalogEntry.fileClass   := getInt(rpm, RPMTAG_FILECLASS,       fileNumber);
       catalogEntry.dependX     := getInt(rpm, RPMTAG_FILEDEPENDSX,    fileNumber);
@@ -3059,7 +3065,8 @@ const proc: makeLink (inout rpmArchive: rpm, in string: symlinkPath,
       catalogEntry.groupName := "";
       catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
       catalogEntry.device := 1;
-      catalogEntry.inode := succ(length(rpm.register));
+      incr(rpm.maximumInode);
+      catalogEntry.inode := rpm.maximumInode;
       catalogEntry.lang := "";
       catalogEntry.color := 0;
       catalogEntry.fileClass := getNameIndex(rpm.classDict, "symbolic link");
@@ -3165,7 +3172,8 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.groupName := "";
         catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
         catalogEntry.device := 1;
-        catalogEntry.inode := succ(length(rpm.register));
+        incr(rpm.maximumInode);
+        catalogEntry.inode := rpm.maximumInode;
         catalogEntry.lang := "";
         if startsWith(data, "\127;ELF\1;") then
           catalogEntry.color := 1;  # 32bit ELF
@@ -3235,7 +3243,8 @@ const proc: makeDir (inout rpmArchive: rpm, in string: dirPath) is func
       catalogEntry.groupName := "";
       catalogEntry.verifyFlags := RPM_ALL_VERIFY_FLAGS;
       catalogEntry.device := 1;
-      catalogEntry.inode := succ(length(rpm.register));
+      incr(rpm.maximumInode);
+      catalogEntry.inode := rpm.maximumInode;
       catalogEntry.lang := "";
       catalogEntry.color := 0;
       catalogEntry.fileClass := getNameIndex(rpm.classDict, "directory");
