@@ -379,6 +379,8 @@ const integer: RPMTAG_AUTOINSTALLED               is 5094;  # i reservation (uni
 const integer: RPMTAG_IDENTITY                    is 5095;  # s reservation (unimplemented)
 const integer: RPMTAG_MODULARITYLABEL             is 5096;  # s
 const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # STRING_ARRAY Hex digest of the uncompressed payload
+const integer: RPMTAG_ARCHSUFFIX                  is 5098;  # STRING       Package file arch suffix (“.src”, “.nosrc” or .arch)
+const integer: RPMTAG_SPEC                        is 5099;  # STRING       Expanded and parsed spec contents.
 
 const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional
 const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count for the header section plus the compressed payload.
@@ -769,6 +771,8 @@ const func string: rpmtagName (in integer: tag) is func
       when {RPMTAG_IDENTITY}:                    name := "IDENTITY";
       when {RPMTAG_MODULARITYLABEL}:             name := "MODULARITYLABEL";
       when {RPMTAG_PAYLOADDIGESTALT}:            name := "PAYLOADDIGESTALT";
+      when {RPMTAG_ARCHSUFFIX}:                  name := "ARCHSUFFIX";
+      when {RPMTAG_SPEC}:                        name := "SPEC";
       otherwise: name := "tag " <& tag;
     end case;
   end func;
@@ -1592,6 +1596,25 @@ const proc: updateHeader (inout rpmArchive: rpm) is func
   end func;
 
 
+const proc: update (inout rpmArchive: rpm, RPMTAG_SIZE) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var integer: sumOfRegularFileSizes is 0;
+  begin
+    for catalogEntry range rpm.catalog do
+      case bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK of
+        when {MODE_FILE_REGULAR, MODE_FILE_SYMLINK}:
+          sumOfRegularFileSizes +:= catalogEntry.fileSize;
+      end case;
+    end for;
+    if sumOfRegularFileSizes <= 2 ** 31 - 1 then
+      updateIndexEntry(rpm.header, RPMTAG_SIZE, RPM_INT32_TYPE, sumOfRegularFileSizes);
+    else
+      updateIndexEntry(rpm.header, RPMTAG_LONGSIZE, RPM_INT64_TYPE, sumOfRegularFileSizes);
+    end if;
+  end func;
+
+
 const func boolean: isDirty (in rpmArchive: rpm) is func
   result
     var boolean: isDirty is FALSE;
@@ -2056,6 +2079,7 @@ const proc: close (inout rpmArchive: rpm) is func
       rpm.required := sort(rpm.required);
       updateRequirements(rpm);
       updateHeader(rpm);
+      update(rpm, RPMTAG_SIZE);
       # Optional. Might overflow 32-bit signed integer.
       # updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
       #                  length(rpm.payloadFile));
