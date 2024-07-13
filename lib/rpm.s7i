@@ -92,12 +92,12 @@ const integer: RPM_BIN_TYPE          is 7;  # Size 1
 const integer: RPM_STRING_ARRAY_TYPE is 8;  # Variable, vector of NULL-terminated strings
 const integer: RPM_I18NSTRING_TYPE   is 9;  # Variable, vector of NULL-terminated strings
 
-const integer: RPMTAG_HEADERIMMUTABLE    is   63;  # BIN          Optional
+const integer: RPMTAG_HEADERIMMUTABLE    is   63;  # BIN          Optional  First entry (its data is placed at the end and it refers back)
 const integer: RPMTAG_HEADERI18NTABLE    is  100;  # STRING_ARRAY Required  Contains a list of locales for which strings are provided
 const integer: RPMTAG_NAME               is 1000;  # STRING       Required  Name of package
 const integer: RPMTAG_VERSION            is 1001;  # STRING       Required  Version of package
 const integer: RPMTAG_RELEASE            is 1002;  # STRING       Required  Release of package
-const integer: RPMTAG_EPOCH              is 1003;  #                        Epoch of package
+const integer: RPMTAG_EPOCH              is 1003;  # INT32        Optional  Epoch of package
 const integer: RPMTAG_SUMMARY            is 1004;  # I18NSTRING   Required  Summary description of the package
 const integer: RPMTAG_DESCRIPTION        is 1005;  # I18NSTRING   Required  Full description of the package
 const integer: RPMTAG_BUILDTIME          is 1006;  # INT32        Optional  Seconds since epoch when pkg built
@@ -112,11 +112,11 @@ const integer: RPMTAG_LICENSE            is 1014;  # STRING       Required  Pack
 const integer: RPMTAG_PACKAGER           is 1015;
 const integer: RPMTAG_GROUP              is 1016;  # I18NSTRING   Required  Package group
 const integer: RPMTAG_CHANGELOG          is 1017;
-const integer: RPMTAG_SOURCE             is 1018;
+const integer: RPMTAG_SOURCE             is 1018;  # STRING_ARRAY Optional  Source file names
 const integer: RPMTAG_PATCH              is 1019;
-const integer: RPMTAG_URL                is 1020;
-const integer: RPMTAG_OS                 is 1021;  # STRING       Required
-const integer: RPMTAG_ARCH               is 1022;  # STRING       Required  Architecture of package
+const integer: RPMTAG_URL                is 1020;  # STRING                 Package URL (typically project upstream website)
+const integer: RPMTAG_OS                 is 1021;  # STRING       Required  The operating system the package is for
+const integer: RPMTAG_ARCH               is 1022;  # STRING       Required  The architecture the package is for
 const integer: RPMTAG_PREIN              is 1023;  # STRING
 const integer: RPMTAG_POSTIN             is 1024;  # STRING
 const integer: RPMTAG_PREUN              is 1025;  # STRING
@@ -179,7 +179,7 @@ const integer: RPMTAG_OBSOLETENAME       is 1090;  # STRING_ARRAY  List of obsol
 const integer: RPMTAG_VERIFYSCRIPTPROG   is 1091;
 const integer: RPMTAG_TRIGGERSCRIPTPROG  is 1092;
 const integer: RPMTAG_DOCDIR             is 1093;
-const integer: RPMTAG_COOKIE             is 1094;  # STRING       Optional
+const integer: RPMTAG_COOKIE             is 1094;  # STRING       Optional  Opaque value for tracking packages from a single build operation
 const integer: RPMTAG_FILEDEVICES        is 1095;  # INT32  16-bit device number from which the file was copied [indexed]
 const integer: RPMTAG_FILEINODES         is 1096;  # INT32  Inode value from the original file on build host [indexed]
 const integer: RPMTAG_FILELANGS          is 1097;  # STRING_ARRAY  Per-file locale marker [indexed]
@@ -191,7 +191,7 @@ const integer: RPMTAG_TRIGGERPOSTUN      is 1102;
 const integer: RPMTAG_AUTOREQ            is 1103;
 const integer: RPMTAG_AUTOPROV           is 1104;
 const integer: RPMTAG_CAPABILITY         is 1105;
-const integer: RPMTAG_SOURCEPACKAGE      is 1106;
+const integer: RPMTAG_SOURCEPACKAGE      is 1106;  # INT32        Optional  Denotes a source rpm
 const integer: RPMTAG_OLDORIGFILENAMES   is 1107;
 const integer: RPMTAG_BUILDPREREQ        is 1108;
 const integer: RPMTAG_BUILDREQUIRES      is 1109;
@@ -226,12 +226,12 @@ const integer: RPMTAG_CACHEPKGPATH       is 1137;
 const integer: RPMTAG_CACHEPKGSIZE       is 1138;
 const integer: RPMTAG_CACHEPKGMTIME      is 1139;
 const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 (bits)  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [indexed]
-const integer: RPMTAG_FILECLASS          is 1141;  # INT  Index into class dictionary [indexed]
+const integer: RPMTAG_FILECLASS          is 1141;  # INT32  Index into class dictionary [indexed]
 const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY  List of file classes (output of the "file" command)
-const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT  Index into the entries in DependsDict [indexed]
-const integer: RPMTAG_FILEDEPENDSN       is 1144;  # INT  Size of the entries in DependsDict [indexed]
+const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT32  Index into the entries in DependsDict [indexed]
+const integer: RPMTAG_FILEDEPENDSN       is 1144;  # INT32  Size of the entries in DependsDict [indexed]
 const integer: RPMTAG_DEPENDSDICT        is 1145;  # INT32  Type/Index into Requires/Provides/Conflicts/Obsoletes
-const integer: RPMTAG_SOURCEPKGID        is 1146;
+const integer: RPMTAG_SOURCEPKGID        is 1146;  # BIN    RPMSIGTAG_MD5 of the associated source rpm
 const integer: RPMTAG_FILECONTEXTS       is 1147;
 const integer: RPMTAG_FSCONTEXTS         is 1148;
 const integer: RPMTAG_RECONTEXTS         is 1149;
@@ -291,7 +291,7 @@ const integer: RPMTAG_TRIGGERCONDS       is 5005;
 const integer: RPMTAG_TRIGGERTYPE        is 5006;
 const integer: RPMTAG_ORIGFILENAMES      is 5007;
 const integer: RPMTAG_LONGFILESIZES      is 5008;
-const integer: RPMTAG_LONGSIZE           is 5009;
+const integer: RPMTAG_LONGSIZE           is 5009;  # INT64    Used instead of RPMTAG_SIZE when > 4GB
 const integer: RPMTAG_FILECAPS           is 5010;
 const integer: RPMTAG_FILEDIGESTALGO     is 5011;
 const integer: RPMTAG_BUGURL             is 5012;
@@ -374,7 +374,7 @@ const integer: RPMTAG_TRANSFILETRIGGERTYPE        is 5089;  # s[] extension
 const integer: RPMTAG_FILESIGNATURES              is 5090;  # s[]
 const integer: RPMTAG_FILESIGNATURELENGTH         is 5091;  # i
 const integer: RPMTAG_PAYLOADDIGEST               is 5092;  # STRING_ARRAY Hex digest of the compressed payload
-const integer: RPMTAG_PAYLOADDIGESTALGO           is 5093;  # INT          ID of payload digest algorithm (PAYLOADDIGEST and PAYLOADDIGESTALT)
+const integer: RPMTAG_PAYLOADDIGESTALGO           is 5093;  # INT32        ID of payload digest algorithm (PAYLOADDIGEST and PAYLOADDIGESTALT)
 const integer: RPMTAG_AUTOINSTALLED               is 5094;  # i reservation (unimplemented)
 const integer: RPMTAG_IDENTITY                    is 5095;  # s reservation (unimplemented)
 const integer: RPMTAG_MODULARITYLABEL             is 5096;  # s
@@ -382,7 +382,7 @@ const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # STRING_ARRAY Hex d
 const integer: RPMTAG_ARCHSUFFIX                  is 5098;  # STRING       Package file arch suffix (“.src”, “.nosrc” or .arch)
 const integer: RPMTAG_SPEC                        is 5099;  # STRING       Expanded and parsed spec contents.
 
-const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional
+const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional  First entry (its data is placed at the end and it refers back)
 const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count for the header section plus the compressed payload.
 const integer: RPMSIGTAG_PGP              is 1002;  # BIN    Optional
 const integer: RPMSIGTAG_MD5              is 1004;  # BIN    Required  MD5 checksum over the header section plus the payload.
@@ -1607,7 +1607,7 @@ const proc: update (inout rpmArchive: rpm, RPMTAG_SIZE) is func
           sumOfRegularFileSizes +:= catalogEntry.fileSize;
       end case;
     end for;
-    if sumOfRegularFileSizes <= 2 ** 31 - 1 then
+    if sumOfRegularFileSizes <= 2 ** 32 - 1 then
       updateIndexEntry(rpm.header, RPMTAG_SIZE, RPM_INT32_TYPE, sumOfRegularFileSizes);
     else
       updateIndexEntry(rpm.header, RPMTAG_LONGSIZE, RPM_INT64_TYPE, sumOfRegularFileSizes);
