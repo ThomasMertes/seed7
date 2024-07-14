@@ -1519,6 +1519,36 @@ const proc: updateRequirements (inout rpmArchive: rpm) is func
   end func;
 
 
+const proc: updateDependencies (inout rpmArchive: rpm) is func
+  local
+    const integer: requiresFlag is bytes2Int("R\0;\0;\0;", UNSIGNED, BE);
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var rpmDependency: dependency is rpmDependency.value;
+    var integer: dependencyIndex is 0;
+    var integer: dependsDictEntry is 0;
+  begin
+    for catalogEntry range rpm.catalog do
+      if catalogEntry.dirty then
+        if length(catalogEntry.dependencies) <> 0 then
+          rpm.catalog[catalogEntry.filePath].dependX := length(rpm.dependsDict);
+          rpm.catalog[catalogEntry.filePath].dependN := length(catalogEntry.dependencies);
+          for dependency range catalogEntry.dependencies do
+            dependencyIndex := findDependency(rpm.required, dependency);
+            if dependencyIndex <> 0 then
+              dependsDictEntry := requiresFlag + pred(dependencyIndex);
+              rpm.dependsDict &:= dependsDictEntry;
+              updateIndexEntry(rpm, RPMTAG_DEPENDSDICT, RPM_INT32_TYPE,
+                               length(rpm.dependsDict), dependsDictEntry);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end for;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
   begin
     updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
@@ -1557,39 +1587,22 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
                      catalogEntry.fileNumber, catalogEntry.color);
     updateIndexEntry(rpm, RPMTAG_FILECLASS, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.fileClass);
-    updateIndexEntry(rpm, RPMTAG_FILEDEPENDSX, RPM_INT32_TYPE,
-                     catalogEntry.fileNumber, catalogEntry.dependX);
-    updateIndexEntry(rpm, RPMTAG_FILEDEPENDSN, RPM_INT32_TYPE,
-                     catalogEntry.fileNumber, catalogEntry.dependN);
+    if length(rpm.dependsDict) <> 0 then
+      updateIndexEntry(rpm, RPMTAG_FILEDEPENDSX, RPM_INT32_TYPE,
+                       catalogEntry.fileNumber, catalogEntry.dependX);
+      updateIndexEntry(rpm, RPMTAG_FILEDEPENDSN, RPM_INT32_TYPE,
+                       catalogEntry.fileNumber, catalogEntry.dependN);
+    end if;
   end func;
 
 
 const proc: updateHeader (inout rpmArchive: rpm) is func
   local
-    const integer: requiresFlag is bytes2Int("R\0;\0;\0;", UNSIGNED, BE);
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var rpmDependency: dependency is rpmDependency.value;
-    var integer: dependencyIndex is 0;
-    var integer: dependsDictEntry is 0;
   begin
     for catalogEntry range rpm.catalog do
       if catalogEntry.dirty then
         # writeln("updateHeader " <& catalogEntry.filePath);
-        if length(catalogEntry.dependencies) <> 0 then
-          catalogEntry.dependX := length(rpm.dependsDict);
-          catalogEntry.dependN := length(catalogEntry.dependencies);
-          for dependency range catalogEntry.dependencies do
-            dependencyIndex := findDependency(rpm.required, dependency);
-            if dependencyIndex <> 0 then
-              dependsDictEntry := requiresFlag + pred(dependencyIndex);
-              rpm.dependsDict &:= dependsDictEntry;
-              updateIndexEntry(rpm, RPMTAG_DEPENDSDICT, RPM_INT32_TYPE,
-                               length(rpm.dependsDict), dependsDictEntry);
-            else
-              raise RANGE_ERROR;
-            end if;
-          end for;
-        end if;
         updateHeader(rpm, catalogEntry);
       end if;
     end for;
@@ -1795,6 +1808,9 @@ const func boolean: checkHeaderDigest (inout rpmArchive: rpm) is func
 const proc: doSettings (inout rpmArchive: rpm) is func
   local
     var rpmIndexEntry: fileDigestAlgo is rpmIndexEntry.value;
+    var integer: dependsDictPos is 0;
+    var integer: count is 0;
+    var integer: index is 0;
   begin
     if RPMTAG_FILEDIGESTALGO in rpm.header.tagMap then
       fileDigestAlgo := rpm.header.tagMap[RPMTAG_FILEDIGESTALGO];
@@ -1803,6 +1819,16 @@ const proc: doSettings (inout rpmArchive: rpm) is func
       # writeln("fileDigestAlgo: " <& rpm.fileDigestAlgo);
     end if;
     rpm.classDict := getStringArray(rpm, RPMTAG_CLASSDICT);
+    if RPMTAG_DEPENDSDICT in rpm.header.tagMap then
+      dependsDictPos := succ(rpm.header.tagMap[RPMTAG_DEPENDSDICT].offset);
+      count := rpm.header.tagMap[RPMTAG_DEPENDSDICT].count;
+      rpm.dependsDict := count times 0;
+      for index range 1 to count do
+        rpm.dependsDict[index] := bytes2Int(
+            rpm.header.store[dependsDictPos fixLen 4], UNSIGNED, BE);
+        dependsDictPos +:= 4;
+      end for;
+    end if;
   end func;
 
 
@@ -2078,6 +2104,7 @@ const proc: close (inout rpmArchive: rpm) is func
       updateProvisions(rpm);
       rpm.required := sort(rpm.required);
       updateRequirements(rpm);
+      updateDependencies(rpm);
       updateHeader(rpm);
       update(rpm, RPMTAG_SIZE);
       # Optional. Might overflow 32-bit signed integer.
