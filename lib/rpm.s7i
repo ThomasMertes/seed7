@@ -957,20 +957,33 @@ const func integer: getIntValue (in string: store,
   end func;
 
 
+const proc: initLead (inout rpmLead: lead) is func
+  begin
+    lead.magic := RPM_LEAD_MAGIC;
+    lead.majorVersion := 3;
+    lead.minorVersion := 0;
+    lead.fileType := 1;
+    lead.arch := 1;
+    lead.name := "";
+    lead.os := 1;
+    lead.sig := 5;
+  end func;
+
+
 const proc: readLead (inout file: rpmFile, inout rpmLead: lead) is func
   local
     var string: leadStri is "";
   begin
     leadStri := gets(rpmFile, RPM_LEAD_SIZE);
     if length(leadStri) = RPM_LEAD_SIZE then
-      lead.magic        :=           leadStri[ 1 fixLen  4];
-      lead.majorVersion := bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
-      lead.minorVersion := bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
-      lead.fileType     := bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
-      lead.arch         := bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
-      lead.name         :=           leadStri[11 fixLen 66];
-      lead.os           := bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
-      lead.sig          := bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
+      lead.magic        :=            leadStri[ 1 fixLen  4];
+      lead.majorVersion :=  bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
+      lead.minorVersion :=  bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
+      lead.fileType     :=  bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
+      lead.arch         :=  bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
+      lead.name         := fromAsciiz(leadStri[11 fixLen 66], 1);
+      lead.os           :=  bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
+      lead.sig          :=  bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
       # 16 reserved bytes are currently unused.
     end if;
   end func;
@@ -982,7 +995,8 @@ const func string: str (in rpmLead: lead) is
          bytes(lead.minorVersion, UNSIGNED, BE, 1) <&
          bytes(lead.fileType,     UNSIGNED, BE, 2) <&
          bytes(lead.arch,         UNSIGNED, BE, 2) <&
-               lead.name rpad 66                   <&
+               lead.name[.. 66] <&
+         length(lead.name) < 66 ? "\0;" mult 66 - length(lead.name) : "" <&
          bytes(lead.os,           UNSIGNED, BE, 2) <&
          bytes(lead.sig,          UNSIGNED, BE, 2) <&
          "\0;" mult 16;   # 16 reserved bytes
@@ -990,14 +1004,6 @@ const func string: str (in rpmLead: lead) is
 
 const proc: writeLead (inout file: outFile, inout rpmLead: lead) is func
   begin
-    lead.magic := RPM_LEAD_MAGIC;
-    lead.majorVersion := 3;
-    lead.minorVersion := 0;
-    lead.fileType := 1;
-    lead.arch := 1;
-    lead.name := "";
-    lead.os := 1;
-    lead.sig := 5;
     write(outFile, str(lead));
   end func;
 
@@ -2030,6 +2036,7 @@ const func fileSys: openRpm (inout file: rpmFile) is func
     var rpmArchive: rpm is rpmArchive.value;
   begin
     if length(rpmFile) = 0 then
+      initLead(rpm.lead);
       rpm.rpmFile := rpmFile;
       rpm.fileDigestAlgo := RPM_DIGESTALGO_SHA256;
       newFileSys := toInterface(rpm);
@@ -2146,11 +2153,11 @@ const proc: close (inout rpmArchive: rpm) is func
 
       # writeln(4505 - length(signatureSection) -
       #    (7 - pred(length(signatureSection)) mod 8) -
-      #    RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
+      #    RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE - 1);
       updateIndexEntry(rpm.signature, RPMSIGTAG_RESERVEDSPACE, RPM_BIN_TYPE,
                        "\0;" mult 4505 - length(signatureSection) -
                        (7 - pred(length(signatureSection)) mod 8) -
-                       RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE);
+                       RPM_LEAD_SIZE - RPM_INDEX_ENTRY_SIZE - 1);
 
       rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].offset := length(rpm.signature.store);
       rpm.signature.store &:= rpm.signature.tagMap[RPMSIGTAG_RESERVEDSPACE].striValue;
