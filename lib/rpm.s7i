@@ -106,8 +106,8 @@ const integer: RPMTAG_INSTALLTIME        is 1008;
 const integer: RPMTAG_SIZE               is 1009;  # INT32        Required  Sum of sizes of regular files in archive
 const integer: RPMTAG_DISTRIBUTION       is 1010;  # STRING
 const integer: RPMTAG_VENDOR             is 1011;
-const integer: RPMTAG_GIF                is 1012;
-const integer: RPMTAG_XPM                is 1013;
+const integer: RPMTAG_GIF                is 1012;  # BIN          Deprecated
+const integer: RPMTAG_XPM                is 1013;  # BIN          Deprecated
 const integer: RPMTAG_LICENSE            is 1014;  # STRING       Required  Package license
 const integer: RPMTAG_PACKAGER           is 1015;
 const integer: RPMTAG_GROUP              is 1016;  # I18NSTRING   Required  Package group
@@ -137,7 +137,7 @@ const integer: RPMTAG_FILEUSERNAME       is 1039;  # STRING_ARRAY  Owner name of
 const integer: RPMTAG_FILEGROUPNAME      is 1040;  # STRING_ARRAY  Group name of file [indexed]
 const integer: RPMTAG_EXCLUDE            is 1041;
 const integer: RPMTAG_EXCLUSIVE          is 1042;
-const integer: RPMTAG_ICON               is 1043;
+const integer: RPMTAG_ICON               is 1043;  # BIN          Deprecated
 const integer: RPMTAG_SOURCERPM          is 1044;  # STRING       Optional  Name of associated source rpm
 const integer: RPMTAG_FILEVERIFYFLAGS    is 1045;  # INT32 (bits) Optional  Bits that control how files are to be verified after install [indexed]
 const integer: RPMTAG_ARCHIVESIZE        is 1046;  # INT32        Optional  Uncompressed size of the payload archive
@@ -225,7 +225,7 @@ const integer: RPMTAG_CACHECTIME         is 1136;
 const integer: RPMTAG_CACHEPKGPATH       is 1137;
 const integer: RPMTAG_CACHEPKGSIZE       is 1138;
 const integer: RPMTAG_CACHEPKGMTIME      is 1139;
-const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 (bits)  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [indexed]
+const integer: RPMTAG_FILECOLORS         is 1140;  # INT32  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [indexed]
 const integer: RPMTAG_FILECLASS          is 1141;  # INT32  Index into class dictionary [indexed]
 const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY  List of file classes (output of the "file" command)
 const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT32  Index into the entries in DependsDict [indexed]
@@ -291,7 +291,7 @@ const integer: RPMTAG_TRIGGERCONDS       is 5005;
 const integer: RPMTAG_TRIGGERTYPE        is 5006;
 const integer: RPMTAG_ORIGFILENAMES      is 5007;
 const integer: RPMTAG_LONGFILESIZES      is 5008;
-const integer: RPMTAG_LONGSIZE           is 5009;  # INT64    Used instead of RPMTAG_SIZE when > 4GB
+const integer: RPMTAG_LONGSIZE           is 5009;  # INT64    Used instead of RPMTAG_SIZE when >= 4GB
 const integer: RPMTAG_FILECAPS           is 5010;
 const integer: RPMTAG_FILEDIGESTALGO     is 5011;
 const integer: RPMTAG_BUGURL             is 5012;
@@ -380,17 +380,20 @@ const integer: RPMTAG_IDENTITY                    is 5095;  # s reservation (uni
 const integer: RPMTAG_MODULARITYLABEL             is 5096;  # s
 const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # STRING_ARRAY Hex digest of the uncompressed payload
 const integer: RPMTAG_ARCHSUFFIX                  is 5098;  # STRING       Package file arch suffix (“.src”, “.nosrc” or .arch)
-const integer: RPMTAG_SPEC                        is 5099;  # STRING       Expanded and parsed spec contents.
+const integer: RPMTAG_SPEC                        is 5099;  # STRING       Expanded and parsed spec contents
 
 const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional  First entry (its data is placed at the end and it refers back)
-const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count for the header section plus the compressed payload.
+const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count of header section + compressed payload
 const integer: RPMSIGTAG_PGP              is 1002;  # BIN    Optional
-const integer: RPMSIGTAG_MD5              is 1004;  # BIN    Required  MD5 checksum over the header section plus the payload.
+const integer: RPMSIGTAG_MD5              is 1004;  # BIN    Required  MD5 digest of header section + compressed payload
 const integer: RPMSIGTAG_GPG              is 1005;  # BIN    Optional
-const integer: RPMSIGTAG_PAYLOADSIZE      is 1007;  # INT32  Optional  Byte count for the uncompressed payload.
-const integer: RPMSIGTAG_RESERVEDSPACE    is 1008;  # BIN
-const integer: RPMSIGTAG_SHA1             is  269;  # STRING
-const integer: RPMSIGTAG_SHA256           is  273;  # STRING Optional
+const integer: RPMSIGTAG_PAYLOADSIZE      is 1007;  # INT32  Optional  Byte count of the uncompressed payload
+const integer: RPMSIGTAG_RESERVEDSPACE    is 1008;  # BIN              Area with zero bytes to fill the signature section up to a fixed size
+const integer: RPMSIGTAG_SIGSIZE          is  257;  # INT32            Header + payload size
+const integer: RPMSIGTAG_RSA              is  268;  # BIN              OpenPGP RSA signature of the header (if thus signed)
+const integer: RPMSIGTAG_SHA1             is  269;  # STRING           SHA-1 digest of the header section
+const integer: RPMSIGTAG_LONGSIGSIZE      is  270;  # INT64            Header + payload size if >= 4GB
+const integer: RPMSIGTAG_SHA256           is  273;  # STRING Optional  SHA-256 digest of the header section
 
 const integer: RPMFILE_CONFIG    is 1 << 0;  # The file is a configuration file. Upgrade should save an existing file and remove should not remove it.
 const integer: RPMFILE_DOC       is 1 << 1;  # The file contains documentation.
@@ -471,7 +474,7 @@ const func string: sigtagName (in integer: tag) is func
       when { 267}: name := "DSA";
       when { 268}: name := "RSA";
       when { 269}: name := "SHA1";
-      when { 270}: name := "LONGSIZE";
+      when { 270}: name := "LONGSIGSIZE";
       when { 271}: name := "LONGARCHIVESIZE";
       when { 273}: name := "SHA256";
       otherwise: name := "tag " <& tag;
@@ -1626,10 +1629,10 @@ const proc: update (inout rpmArchive: rpm, RPMTAG_SIZE) is func
           sumOfRegularFileSizes +:= catalogEntry.fileSize;
       end case;
     end for;
-    if sumOfRegularFileSizes <= 2 ** 32 - 1 then
-      updateIndexEntry(rpm.header, RPMTAG_SIZE, RPM_INT32_TYPE, sumOfRegularFileSizes);
-    else
+    if sumOfRegularFileSizes >= 2 ** 32 then
       updateIndexEntry(rpm.header, RPMTAG_LONGSIZE, RPM_INT64_TYPE, sumOfRegularFileSizes);
+    else
+      updateIndexEntry(rpm.header, RPMTAG_SIZE, RPM_INT32_TYPE, sumOfRegularFileSizes);
     end if;
   end func;
 
