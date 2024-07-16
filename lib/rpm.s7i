@@ -3232,6 +3232,16 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
           end if;
           catalogEntry.fileSize := length(data);
           catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
+          if startsWith(data, "\127;ELF\1;") then
+            catalogEntry.color := 1;  # 32bit ELF
+            setDependencies(rpm, catalogEntry, data);
+          elsif startsWith(data, "\127;ELF\2;") then
+            catalogEntry.color := 2;  # 64bit ELF
+            setDependencies(rpm, catalogEntry, data);
+          else
+            catalogEntry.color := 0;
+          end if;
+          catalogEntry.fileClass := fileClass(rpm.classDict, filePath, data);
           catalogEntry.dirty := TRUE;
           if length(data) >= 2 ** 32 then
             rpm.useLongFileSizes := TRUE;
