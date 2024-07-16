@@ -1194,6 +1194,7 @@ const type: rpmArchive is sub emptyFileSys struct
     var rpmSection: header is rpmSection.value;
     var integer: payloadPos is 0;
     var integer: maximumInode is 0;
+    var boolean: useLongFileSizes is FALSE;
     var archiveRegisterType: register is archiveRegisterType.value;
     var rpmCatalogType: catalog is rpmCatalogType.value;
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
@@ -1245,10 +1246,12 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
   begin
     if RPMTAG_OLDFILENAMES in rpm.header.tagMap then
       oldFileNamePos := succ(rpm.header.tagMap[RPMTAG_OLDFILENAMES].offset);
+      numberOfFiles := rpm.header.tagMap[RPMTAG_OLDFILENAMES].count;
     else
       rpm.dirNames := getStringArray(rpm, RPMTAG_DIRNAMES);
       dirIndexPos := succ(rpm.header.tagMap[RPMTAG_DIRINDEXES].offset);
       baseNamePos := succ(rpm.header.tagMap[RPMTAG_BASENAMES].offset);
+      numberOfFiles := rpm.header.tagMap[RPMTAG_BASENAMES].count;
     end if;
     digestPos := succ(rpm.header.tagMap[RPMTAG_FILEDIGESTS].offset);
     linkToPos := succ(rpm.header.tagMap[RPMTAG_FILELINKTOS].offset);
@@ -1256,7 +1259,6 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     groupNamePos := succ(rpm.header.tagMap[RPMTAG_FILEGROUPNAME].offset);
     inodePos := succ(rpm.header.tagMap[RPMTAG_FILEINODES].offset);
     langPos := succ(rpm.header.tagMap[RPMTAG_FILELANGS].offset);
-    numberOfFiles := rpm.header.tagMap[RPMTAG_FILESIZES].count;
     for fileNumber range 1 to numberOfFiles do
       if oldFileNamePos <> 0 then
         catalogEntry.filePath := getUtf8z(rpm.header.store, oldFileNamePos);
@@ -1328,7 +1330,11 @@ const proc: readCatalogEntry (inout rpmArchive: rpm, inout rpmCatalogEntry: cata
     if fileNumber = 0 then
       raise RANGE_ERROR;
     else
-      catalogEntry.fileSize    := getInt(rpm, RPMTAG_FILESIZES,       fileNumber);
+      if rpm.useLongFileSizes then
+        catalogEntry.fileSize    := getInt(rpm, RPMTAG_LONGFILESIZES,   fileNumber);
+      else
+        catalogEntry.fileSize    := getInt(rpm, RPMTAG_FILESIZES,       fileNumber);
+      end if;
       catalogEntry.mode        := getInt(rpm, RPMTAG_FILEMODES,       fileNumber);
       catalogEntry.uid         := getInt(rpm, RPMTAG_FILEUIDS,        fileNumber);
       catalogEntry.gid         := getInt(rpm, RPMTAG_FILEGIDS,        fileNumber);
@@ -1560,8 +1566,13 @@ const proc: updateDependencies (inout rpmArchive: rpm) is func
 
 const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
   begin
-    updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
-                     catalogEntry.fileNumber, catalogEntry.fileSize);
+    if rpm.useLongFileSizes then
+      updateIndexEntry(rpm, RPMTAG_LONGFILESIZES, RPM_INT64_TYPE,
+                       catalogEntry.fileNumber, catalogEntry.fileSize);
+    else
+      updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
+                       catalogEntry.fileNumber, catalogEntry.fileSize);
+    end if;
     updateIndexEntry(rpm, RPMTAG_FILEMODES, RPM_INT16_TYPE,
                      catalogEntry.fileNumber, catalogEntry.mode);
     # RPMTAG_FILEUIDS
@@ -1607,8 +1618,16 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
 
 const proc: updateHeader (inout rpmArchive: rpm) is func
   local
+    var integer: fileNumber is 0;
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
   begin
+    if rpm.useLongFileSizes and RPMTAG_FILESIZES in rpm.header.tagMap then
+      for fileNumber range 1 to rpm.header.tagMap[RPMTAG_FILESIZES].count do
+        updateIndexEntry(rpm, RPMTAG_LONGFILESIZES, RPM_INT64_TYPE, fileNumber,
+                         getInt(rpm, RPMTAG_FILESIZES, fileNumber));
+      end for;
+      excl(rpm.header.tagMap, RPMTAG_FILESIZES);
+    end if;
     for catalogEntry range rpm.catalog do
       if catalogEntry.dirty then
         # writeln("updateHeader " <& catalogEntry.filePath);
@@ -2058,6 +2077,7 @@ const func fileSys: openRpm (inout file: rpmFile) is func
             if checkHeaderDigest(rpm) then
               doSettings(rpm);
               createMinimumOfCatalog(rpm);
+              rpm.useLongFileSizes := RPMTAG_FILESIZES not in rpm.header.tagMap;
               readDependencies(rpm);
               newFileSys := toInterface(rpm);
             end if;
@@ -3213,6 +3233,9 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
           catalogEntry.fileSize := length(data);
           catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
           catalogEntry.dirty := TRUE;
+          if length(data) >= 2 ** 32 then
+            rpm.useLongFileSizes := TRUE;
+          end if;
           rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
           putFile(rpm.archive, archiveFilePath(rpm.archive, catalogEntry.filePath), data);
         end if;
@@ -3250,6 +3273,9 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.filePath := missingPath;
         catalogEntry.fileNumber := succ(length(rpm.register));
         catalogEntry.dirty := TRUE;
+        if length(data) >= 2 ** 32 then
+          rpm.useLongFileSizes := TRUE;
+        end if;
         setDirIndexAndBaseName(rpm, catalogEntry);
         rpm.catalog @:= [missingPath] catalogEntry;
         rpm.register @:= [missingPath] catalogEntry.fileNumber;
