@@ -102,18 +102,18 @@ const integer: RPMTAG_SUMMARY            is 1004;  # I18NSTRING   Required  Summ
 const integer: RPMTAG_DESCRIPTION        is 1005;  # I18NSTRING   Required  Full description of the package
 const integer: RPMTAG_BUILDTIME          is 1006;  # INT32        Optional  Seconds since epoch when pkg built
 const integer: RPMTAG_BUILDHOST          is 1007;  # STRING       Optional  Host package was built on
-const integer: RPMTAG_INSTALLTIME        is 1008;
+const integer: RPMTAG_INSTALLTIME        is 1008;  # INT32                  Unix timestamp of package installation
 const integer: RPMTAG_SIZE               is 1009;  # INT32        Required  Sum of sizes of regular files in archive
 const integer: RPMTAG_DISTRIBUTION       is 1010;  # STRING
-const integer: RPMTAG_VENDOR             is 1011;
+const integer: RPMTAG_VENDOR             is 1011;  # STRING                 Package vendor contact information
 const integer: RPMTAG_GIF                is 1012;  # BIN          Deprecated
 const integer: RPMTAG_XPM                is 1013;  # BIN          Deprecated
 const integer: RPMTAG_LICENSE            is 1014;  # STRING       Required  Package license
-const integer: RPMTAG_PACKAGER           is 1015;
+const integer: RPMTAG_PACKAGER           is 1015;  # STRING                 Packager contact information
 const integer: RPMTAG_GROUP              is 1016;  # I18NSTRING   Required  Package group
 const integer: RPMTAG_CHANGELOG          is 1017;
 const integer: RPMTAG_SOURCE             is 1018;  # STRING_ARRAY Optional  Source file names
-const integer: RPMTAG_PATCH              is 1019;
+const integer: RPMTAG_PATCH              is 1019;  # STRING_ARRAY           Patch file names
 const integer: RPMTAG_URL                is 1020;  # STRING                 Package URL (typically project upstream website)
 const integer: RPMTAG_OS                 is 1021;  # STRING       Required  The operating system the package is for
 const integer: RPMTAG_ARCH               is 1022;  # STRING       Required  The architecture the package is for
@@ -121,35 +121,35 @@ const integer: RPMTAG_PREIN              is 1023;  # STRING
 const integer: RPMTAG_POSTIN             is 1024;  # STRING
 const integer: RPMTAG_PREUN              is 1025;  # STRING
 const integer: RPMTAG_POSTUN             is 1026;  # STRING
-const integer: RPMTAG_OLDFILENAMES       is 1027;  # STRING_ARRAY Optional  Filenames when not in "compressed format"
-const integer: RPMTAG_FILESIZES          is 1028;  # INT32      Size of each file [indexed]
-const integer: RPMTAG_FILESTATES         is 1029;  # CHAR       (only after installed)
-const integer: RPMTAG_FILEMODES          is 1030;  # INT16      Mode of each file [indexed]
+const integer: RPMTAG_OLDFILENAMES       is 1027;  # STRING_ARRAY Deprecated Filenames when not in "compressed format"
+const integer: RPMTAG_FILESIZES          is 1028;  # INT32 ARRAY  Size of each file [index: fileNumber]
+const integer: RPMTAG_FILESTATES         is 1029;  # CHAR         Per-file installed status information (only after installed)
+const integer: RPMTAG_FILEMODES          is 1030;  # INT16 ARRAY  Mode of each file [index: fileNumber]
 const integer: RPMTAG_FILEUIDS           is 1031;
 const integer: RPMTAG_FILEGIDS           is 1032;
-const integer: RPMTAG_FILERDEVS          is 1033;  # INT16      Device number from which the file was copied [indexed]
-const integer: RPMTAG_FILEMTIMES         is 1034;  # INT32      Modification time seconds since epoch [indexed]
-const integer: RPMTAG_FILEMD5S           is 1035;  # STRING_ARRAY  MD5 sum of each file [indexed] (blank if not regular file)
-const integer: RPMTAG_FILELINKTOS        is 1036;  # STRING_ARRAY  Target for symlink [indexed]
-const integer: RPMTAG_FILEFLAGS          is 1037;  # INT32 (bits)  Bits that classify and control how files installed [indexed]
+const integer: RPMTAG_FILERDEVS          is 1033;  # INT16 ARRAY  Device ID of device files (0 for other files) [index: fileNumber]
+const integer: RPMTAG_FILEMTIMES         is 1034;  # INT32 ARRAY  Modification time seconds since epoch of each file [index: fileNumber]
+const integer: RPMTAG_FILEDIGESTS        is 1035;  # STRING_ARRAY Cryptographic digest using algorithm from FILEDIGESTALGO [index: fileNumber]
+const integer: RPMTAG_FILELINKTOS        is 1036;  # STRING_ARRAY Target of symbolic links ("" for other files) [index: fileNumber]
+const integer: RPMTAG_FILEFLAGS          is 1037;  # INT32 ARRAY  Bits that classify and control how files installed [index: fileNumber]
 const integer: RPMTAG_ROOT               is 1038;
-const integer: RPMTAG_FILEUSERNAME       is 1039;  # STRING_ARRAY  Owner name of file [indexed]
-const integer: RPMTAG_FILEGROUPNAME      is 1040;  # STRING_ARRAY  Group name of file [indexed]
+const integer: RPMTAG_FILEUSERNAME       is 1039;  # STRING_ARRAY Owner name of each file [index: fileNumber]
+const integer: RPMTAG_FILEGROUPNAME      is 1040;  # STRING_ARRAY Group name of each file [index: fileNumber]
 const integer: RPMTAG_EXCLUDE            is 1041;
 const integer: RPMTAG_EXCLUSIVE          is 1042;
 const integer: RPMTAG_ICON               is 1043;  # BIN          Deprecated
 const integer: RPMTAG_SOURCERPM          is 1044;  # STRING       Optional  Name of associated source rpm
-const integer: RPMTAG_FILEVERIFYFLAGS    is 1045;  # INT32 (bits) Optional  Bits that control how files are to be verified after install [indexed]
+const integer: RPMTAG_FILEVERIFYFLAGS    is 1045;  # INT32 ARRAY  Optional  Bits that control how files are to be verified after install [index: fileNumber]
 const integer: RPMTAG_ARCHIVESIZE        is 1046;  # INT32        Optional  Uncompressed size of the payload archive
-const integer: RPMTAG_PROVIDENAME        is 1047;  # STRING_ARRAY  List of dependency names [index]
-const integer: RPMTAG_REQUIREFLAGS       is 1048;  # INT32 (bits)  Bits to specify the dependency range and context [indexed]
-const integer: RPMTAG_REQUIRENAME        is 1049;  # STRING_ARRAY  List of requirement names [index]
-const integer: RPMTAG_REQUIREVERSION     is 1050;  # STRING_ARRAY  Version associated with Requirename [indexed]
-const integer: RPMTAG_NOSOURCE           is 1051;
+const integer: RPMTAG_PROVIDENAME        is 1047;  # STRING_ARRAY List of dependency names [index: provision]
+const integer: RPMTAG_REQUIREFLAGS       is 1048;  # INT32 ARRAY  Bits to specify the dependency range and context [index: requirement]
+const integer: RPMTAG_REQUIRENAME        is 1049;  # STRING_ARRAY List of requirement names [index: requirement]
+const integer: RPMTAG_REQUIREVERSION     is 1050;  # STRING_ARRAY Version associated with Requirename [index: requirement]
+const integer: RPMTAG_NOSOURCE           is 1051;  # INT32 ARRAY  Denotes a source number for which source is not supplied [indexed]
 const integer: RPMTAG_NOPATCH            is 1052;
-const integer: RPMTAG_CONFLICTFLAGS      is 1053;  # INT32 (bits)  Bits to specify the conflict range and context [indexed]
-const integer: RPMTAG_CONFLICTNAME       is 1054;  # STRING_ARRAY  List of conflict names [index]
-const integer: RPMTAG_CONFLICTVERSION    is 1055;  # STRING_ARRAY  Version associated with Versioname [indexed]
+const integer: RPMTAG_CONFLICTFLAGS      is 1053;  # INT32 ARRAY  Bits to specify the conflict range and context [indexed]
+const integer: RPMTAG_CONFLICTNAME       is 1054;  # STRING_ARRAY List of conflict names [indexed]
+const integer: RPMTAG_CONFLICTVERSION    is 1055;  # STRING_ARRAY Version associated with Versioname [indexed]
 const integer: RPMTAG_DEFAULTPREFIX      is 1056;
 const integer: RPMTAG_BUILDROOT          is 1057;
 const integer: RPMTAG_INSTALLPREFIX      is 1058;
@@ -175,15 +175,15 @@ const integer: RPMTAG_POSTINPROG         is 1086;  # STRING  Interpreter for pos
 const integer: RPMTAG_PREUNPROG          is 1087;  # STRING  Interpreter for preun scripts
 const integer: RPMTAG_POSTUNPROG         is 1088;  # STRING  Interpreter for postun scripts
 const integer: RPMTAG_BUILDARCHS         is 1089;
-const integer: RPMTAG_OBSOLETENAME       is 1090;  # STRING_ARRAY  List of obsoleted dependency names [index]
+const integer: RPMTAG_OBSOLETENAME       is 1090;  # STRING_ARRAY  List of obsoleted dependency names [indexed]
 const integer: RPMTAG_VERIFYSCRIPTPROG   is 1091;
 const integer: RPMTAG_TRIGGERSCRIPTPROG  is 1092;
 const integer: RPMTAG_DOCDIR             is 1093;
 const integer: RPMTAG_COOKIE             is 1094;  # STRING       Optional  Opaque value for tracking packages from a single build operation
-const integer: RPMTAG_FILEDEVICES        is 1095;  # INT32  16-bit device number from which the file was copied [indexed]
-const integer: RPMTAG_FILEINODES         is 1096;  # INT32  Inode value from the original file on build host [indexed]
-const integer: RPMTAG_FILELANGS          is 1097;  # STRING_ARRAY  Per-file locale marker [indexed]
-const integer: RPMTAG_PREFIXES           is 1098;  # STRING_ARRAY  Relocation prefixes
+const integer: RPMTAG_FILEDEVICES        is 1095;  # INT32 ARRAY  Abstract device ID of each file [index: fileNumber]
+const integer: RPMTAG_FILEINODES         is 1096;  # INT32 ARRAY  Abstract inode number of each file [index: fileNumber]
+const integer: RPMTAG_FILELANGS          is 1097;  # STRING_ARRAY Per-file locale marker [index: fileNumber]
+const integer: RPMTAG_PREFIXES           is 1098;  # STRING_ARRAY Relocation prefixes
 const integer: RPMTAG_INSTPREFIXES       is 1099;
 const integer: RPMTAG_TRIGGERIN          is 1100;
 const integer: RPMTAG_TRIGGERUN          is 1101;
@@ -197,13 +197,13 @@ const integer: RPMTAG_BUILDPREREQ        is 1108;
 const integer: RPMTAG_BUILDREQUIRES      is 1109;
 const integer: RPMTAG_BUILDCONFLICTS     is 1110;
 const integer: RPMTAG_BUILDMACROS        is 1111;
-const integer: RPMTAG_PROVIDEFLAGS       is 1112;  # INT32 (bits)  Bits to specify the provide range and context [indexed]
-const integer: RPMTAG_PROVIDEVERSION     is 1113;  # STRING_ARRAY  Version associated with provide names [indexed]
-const integer: RPMTAG_OBSOLETEFLAGS      is 1114;  # INT32 (bits)  Bits to specify the obsolete range and context [indexed]
-const integer: RPMTAG_OBSOLETEVERSION    is 1115;  # STRING_ARRAY  Version associated with the obsolete names [indexed]
-const integer: RPMTAG_DIRINDEXES         is 1116;  # INT32        Optional  Specifies the index for the file into the dirnames array [indexed]
-const integer: RPMTAG_BASENAMES          is 1117;  # STRING_ARRAY Optional  Specified the base portion of the filename [index]
-const integer: RPMTAG_DIRNAMES           is 1118;  # STRING_ARRAY Optional  The directory portion of the filename [indexed]
+const integer: RPMTAG_PROVIDEFLAGS       is 1112;  # INT32 ARRAY  Bits to specify the provide range and context [index: provision]
+const integer: RPMTAG_PROVIDEVERSION     is 1113;  # STRING_ARRAY Version associated with provide names [index: provision]
+const integer: RPMTAG_OBSOLETEFLAGS      is 1114;  # INT32 ARRAY  Bits to specify the obsolete range and context [indexed]
+const integer: RPMTAG_OBSOLETEVERSION    is 1115;  # STRING_ARRAY Version associated with the obsolete names [indexed]
+const integer: RPMTAG_DIRINDEXES         is 1116;  # INT32 ARRAY  Directory number (dirNumber) of each file [index: fileNumber]
+const integer: RPMTAG_BASENAMES          is 1117;  # STRING_ARRAY Base name of each file path [index: fileNumber]
+const integer: RPMTAG_DIRNAMES           is 1118;  # STRING_ARRAY List of file path directories [index: dirNumber]
 const integer: RPMTAG_ORIGDIRINDEXES     is 1119;
 const integer: RPMTAG_ORIGBASENAMES      is 1120;
 const integer: RPMTAG_ORIGDIRNAMES       is 1121;
@@ -214,39 +214,39 @@ const integer: RPMTAG_PAYLOADCOMPRESSOR  is 1125;  # STRING       Required  Form
 const integer: RPMTAG_PAYLOADFLAGS       is 1126;  # STRING       Required  Specifies the compression level of package "9"
 const integer: RPMTAG_INSTALLCOLOR       is 1127;
 const integer: RPMTAG_INSTALLTID         is 1128;
-const integer: RPMTAG_REMOVETID          is 1129;
+const integer: RPMTAG_REMOVETID          is 1129;  # INT32        Deprecated
 const integer: RPMTAG_SHA1RHN            is 1130;
 const integer: RPMTAG_RHNPLATFORM        is 1131;  # STRING       Deprecated
-const integer: RPMTAG_PLATFORM           is 1132;  # STRING       Optional
-const integer: RPMTAG_PATCHESNAME        is 1133;
-const integer: RPMTAG_PATCHESFLAGS       is 1134;
-const integer: RPMTAG_PATCHESVERSION     is 1135;
+const integer: RPMTAG_PLATFORM           is 1132;  # STRING       Optional  Package platform (arch-os-vendor)
+const integer: RPMTAG_PATCHESNAME        is 1133;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_PATCHESFLAGS       is 1134;  # INT32 ARRAY  Deprecated
+const integer: RPMTAG_PATCHESVERSION     is 1135;  # STRING_ARRAY Deprecated
 const integer: RPMTAG_CACHECTIME         is 1136;
 const integer: RPMTAG_CACHEPKGPATH       is 1137;
 const integer: RPMTAG_CACHEPKGSIZE       is 1138;
 const integer: RPMTAG_CACHEPKGMTIME      is 1139;
-const integer: RPMTAG_FILECOLORS         is 1140;  # INT32  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [indexed]
-const integer: RPMTAG_FILECLASS          is 1141;  # INT32  Index into class dictionary [indexed]
-const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY  List of file classes (output of the "file" command)
-const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT32  Index into the entries in DependsDict [indexed]
-const integer: RPMTAG_FILEDEPENDSN       is 1144;  # INT32  Size of the entries in DependsDict [indexed]
-const integer: RPMTAG_DEPENDSDICT        is 1145;  # INT32  Type/Index into Requires/Provides/Conflicts/Obsoletes
-const integer: RPMTAG_SOURCEPKGID        is 1146;  # BIN    RPMSIGTAG_MD5 of the associated source rpm
-const integer: RPMTAG_FILECONTEXTS       is 1147;
-const integer: RPMTAG_FSCONTEXTS         is 1148;
-const integer: RPMTAG_RECONTEXTS         is 1149;
+const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 ARRAY  1 for 32bit ELF, 2 for 64bit ELF and 0 otherwise [index: fileNumber]
+const integer: RPMTAG_FILECLASS          is 1141;  # INT32 ARRAY  Index into CLASSDICT for each file [index: fileNumber]
+const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY List of file classes (output of the "file" command)
+const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT32 ARRAY  Index into the entries in DependsDict for each file [index: fileNumber]
+const integer: RPMTAG_FILEDEPENDSN       is 1144;  # INT32 ARRAY  Size of the entries in DependsDict for each file [index: fileNumber]
+const integer: RPMTAG_DEPENDSDICT        is 1145;  # INT32 ARRAY  Type/Index into Requires/Provides/Conflicts/Obsoletes [indexed]
+const integer: RPMTAG_SOURCEPKGID        is 1146;  # BIN          RPMSIGTAG_MD5 of the associated source rpm
+const integer: RPMTAG_FILECONTEXTS       is 1147;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_FSCONTEXTS         is 1148;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_RECONTEXTS         is 1149;  # STRING_ARRAY Deprecated
 const integer: RPMTAG_POLICIES           is 1150;
 const integer: RPMTAG_PRETRANS           is 1151;
 const integer: RPMTAG_POSTTRANS          is 1152;
 const integer: RPMTAG_PRETRANSPROG       is 1153;
 const integer: RPMTAG_POSTTRANSPROG      is 1154;
 const integer: RPMTAG_DISTTAG            is 1155;
-const integer: RPMTAG_OLDSUGGESTSNAME    is 1156;
-const integer: RPMTAG_OLDSUGGESTSVERSION is 1157;
-const integer: RPMTAG_OLDSUGGESTSFLAGS   is 1158;
-const integer: RPMTAG_OLDENHANCESNAME    is 1159;
-const integer: RPMTAG_OLDENHANCESVERSION is 1160;
-const integer: RPMTAG_OLDENHANCESFLAGS   is 1161;
+const integer: RPMTAG_OLDSUGGESTSNAME    is 1156;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_OLDSUGGESTSVERSION is 1157;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_OLDSUGGESTSFLAGS   is 1158;  # INT32 ARRAY  Deprecated
+const integer: RPMTAG_OLDENHANCESNAME    is 1159;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_OLDENHANCESVERSION is 1160;  # STRING_ARRAY Deprecated
+const integer: RPMTAG_OLDENHANCESFLAGS   is 1161;  # INT32 ARRAY  Deprecated
 const integer: RPMTAG_PRIORITY           is 1162;
 const integer: RPMTAG_CVSID              is 1163;
 const integer: RPMTAG_BLINKPKGID         is 1164;
@@ -290,10 +290,10 @@ const integer: RPMTAG_FSSIZES            is 5004;
 const integer: RPMTAG_TRIGGERCONDS       is 5005;
 const integer: RPMTAG_TRIGGERTYPE        is 5006;
 const integer: RPMTAG_ORIGFILENAMES      is 5007;
-const integer: RPMTAG_LONGFILESIZES      is 5008;
-const integer: RPMTAG_LONGSIZE           is 5009;  # INT64    Used instead of RPMTAG_SIZE when >= 4GB
+const integer: RPMTAG_LONGFILESIZES      is 5008;  # INT64 ARRAY  Size of each file when files >= 4GB are present [index: fileNumber]
+const integer: RPMTAG_LONGSIZE           is 5009;  # INT64        Used instead of RPMTAG_SIZE when >= 4GB
 const integer: RPMTAG_FILECAPS           is 5010;
-const integer: RPMTAG_FILEDIGESTALGO     is 5011;
+const integer: RPMTAG_FILEDIGESTALGO     is 5011;  # INT32        ID of file digest algorithm. If missing, considered to be MD5.
 const integer: RPMTAG_BUGURL             is 5012;
 const integer: RPMTAG_EVR                is 5013;
 const integer: RPMTAG_NVR                is 5014;
@@ -343,7 +343,7 @@ const integer: RPMTAG_RECOMMENDNEVRS     is 5058;
 const integer: RPMTAG_SUGGESTNEVRS       is 5059;
 const integer: RPMTAG_SUPPLEMENTNEVRS    is 5060;
 const integer: RPMTAG_ENHANCENEVRS       is 5061;
-const integer: RPMTAG_ENCODING           is 5062;
+const integer: RPMTAG_ENCODING           is 5062;  # STRING   Optional Encoding of the header string data (always utf-8)
 const integer: RPMTAG_FILETRIGGERIN               is 5063;  # internal
 const integer: RPMTAG_FILETRIGGERUN               is 5064;  # internal
 const integer: RPMTAG_FILETRIGGERPOSTUN           is 5065;  # internal
@@ -524,7 +524,7 @@ const func string: rpmtagName (in integer: tag) is func
       when {RPMTAG_FILEGIDS}:                    name := "FILEGIDS";
       when {RPMTAG_FILERDEVS}:                   name := "FILERDEVS";
       when {RPMTAG_FILEMTIMES}:                  name := "FILEMTIMES";
-      when {RPMTAG_FILEMD5S}:                    name := "FILEMD5S";
+      when {RPMTAG_FILEDIGESTS}:                 name := "FILEDIGESTS";
       when {RPMTAG_FILELINKTOS}:                 name := "FILELINKTOS";
       when {RPMTAG_FILEFLAGS}:                   name := "FILEFLAGS";
       when {RPMTAG_ROOT}:                        name := "ROOT";
@@ -1241,7 +1241,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     var integer: langPos is 0;
     var integer: numberOfFiles is 0;
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var integer: index is 0;
+    var integer: fileNumber is 0;
   begin
     if RPMTAG_OLDFILENAMES in rpm.header.tagMap then
       oldFileNamePos := succ(rpm.header.tagMap[RPMTAG_OLDFILENAMES].offset);
@@ -1250,14 +1250,14 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       dirIndexPos := succ(rpm.header.tagMap[RPMTAG_DIRINDEXES].offset);
       baseNamePos := succ(rpm.header.tagMap[RPMTAG_BASENAMES].offset);
     end if;
-    digestPos := succ(rpm.header.tagMap[RPMTAG_FILEMD5S].offset);
+    digestPos := succ(rpm.header.tagMap[RPMTAG_FILEDIGESTS].offset);
     linkToPos := succ(rpm.header.tagMap[RPMTAG_FILELINKTOS].offset);
     userNamePos := succ(rpm.header.tagMap[RPMTAG_FILEUSERNAME].offset);
     groupNamePos := succ(rpm.header.tagMap[RPMTAG_FILEGROUPNAME].offset);
     inodePos := succ(rpm.header.tagMap[RPMTAG_FILEINODES].offset);
     langPos := succ(rpm.header.tagMap[RPMTAG_FILELANGS].offset);
     numberOfFiles := rpm.header.tagMap[RPMTAG_FILESIZES].count;
-    for index range 1 to numberOfFiles do
+    for fileNumber range 1 to numberOfFiles do
       if oldFileNamePos <> 0 then
         catalogEntry.filePath := getUtf8z(rpm.header.store, oldFileNamePos);
       else
@@ -1266,7 +1266,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
         dirIndexPos +:= 4;
         catalogEntry.baseName := getUtf8z(rpm.header.store, baseNamePos);
         catalogEntry.filePath := rpm.dirNames[succ(catalogEntry.dirIndex)];
-        # writeln("dirName[" <& index <& "]: " <& catalogEntry.filePath);
+        # writeln("dirName[" <& fileNumber <& "]: " <& catalogEntry.filePath);
         catalogEntry.filePath &:= catalogEntry.baseName;
       end if;
       catalogEntry.digest := getAsciiz(rpm.header.store, digestPos);
@@ -1278,9 +1278,9 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
       inodePos +:= 4;
       rpm.maximumInode := max(rpm.maximumInode, catalogEntry.inode);
       catalogEntry.lang := getAsciiz(rpm.header.store, langPos);
-      catalogEntry.fileNumber := index;
+      catalogEntry.fileNumber := fileNumber;
       rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
-      rpm.register @:= [catalogEntry.filePath] index;
+      rpm.register @:= [catalogEntry.filePath] fileNumber;
     end for;
   end func;
 
@@ -1570,7 +1570,7 @@ const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntr
                      catalogEntry.fileNumber, catalogEntry.rdev);
     updateIndexEntry(rpm, RPMTAG_FILEMTIMES, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.mtime);
-    updateIndexEntry(rpm, RPMTAG_FILEMD5S, RPM_STRING_ARRAY_TYPE,
+    updateIndexEntry(rpm, RPMTAG_FILEDIGESTS, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, catalogEntry.digest);
     updateIndexEntry(rpm, RPMTAG_FILELINKTOS, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, toUtf8(catalogEntry.linkTo));
