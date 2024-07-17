@@ -355,6 +355,7 @@ const string: chkscan_output is "\n\
   \The function getQuotedText works correctly.\n\
   \The function getCommandLineWord works correctly.\n\
   \The function getSimpleStringLiteral works correctly.\n\
+  \The function getLetters works correctly.\n\
   \The function getName works correctly.\n\
   \The function skipSpace works correctly.\n\
   \The function skipSpaceOrTab works correctly.\n\

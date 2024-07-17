@@ -747,15 +747,45 @@ const func string: getCStringLiteralText (inout string: stri) is func
 
 
 (**
+ *  Reads a sequence of letters from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the letters.
+ *   stri := "test";    getLetters(stri)  returns  "test"  and stri = ""
+ *   stri := "test1";   getLetters(stri)  returns  "test"  and stri = "1";
+ *   stri := "test+1";  getLetters(stri)  returns  "test"  and stri = "+1"
+ *   stri := "+1";      getLetters(stri)  returns  ""      and stri = "+1"
+ *  @return the letter sequence, and
+ *          "" if no letter was found.
+ *)
+const func string: getLetters (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in letter_char do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
  *  Reads an alphanumeric name from a [[string]].
  *  A name consists of a letter or underscore followed by letters,
  *  digits or underscores. When the function is called it is assumed
  *  that ''stri'' is empty or stri[1] contains the first character to be
  *  handled. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the name.
- *   stri := "test";    getName(stri)  returns  "test"  and stri = ""
- *   stri := "test+1";  getName(stri)  returns  "test"  and stri = "+1"
- *   stri := "+1";      getName(stri)  returns  ""      and stri = "+1"
+ *   stri := "test";    getName(stri)  returns  "test"   and stri = ""
+ *   stri := "test1";   getName(stri)  returns  "test1"  and stri = "";
+ *   stri := "test+1";  getName(stri)  returns  "test"   and stri = "+1"
+ *   stri := "+1";      getName(stri)  returns  ""       and stri = "+1"
  *  @return the name, and
  *          "" if no letter or underscore was found.
  *)

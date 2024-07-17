@@ -581,15 +581,46 @@ const func string: getStringLiteral (inout file: inFile) is func
 
 
 (**
+ *  Reads a sequence of letters from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the letters.
+ *   f := initScan("test");   getLetters(f) returns "test" and f.bufferChar = EOF
+ *   f := initScan("test1");  getLetters(f) returns "test" and f.bufferChar = '1'
+ *   f := initScan("test+1"); getLetters(f) returns "test" and f.bufferChar = '+'
+ *   f := initScan("+1");     getLetters(f) returns ""     and f.bufferChar = '+'
+ *  @return the letter sequence, and
+ *          "" if no letter was found.
+ *)
+const func string: getLetters (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in letter_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in letter_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
  *  Reads an alphanumeric name from a [[file]].
  *  A name consists of a letter or underscore followed by letters,
  *  digits or underscores. When the function is called it is assumed
  *  that inFile.bufferChar contains the first character to be handled.
  *  When the function is left inFile.bufferChar contains the character
  *  after the name.
- *   f := initScan("test");   getName(f) returns "test" and f.bufferChar = EOF
- *   f := initScan("test+1"); getName(f) returns "test" and f.bufferChar = '+'
- *   f := initScan("+1");     getName(f) returns ""     and f.bufferChar = '+'
+ *   f := initScan("test");   getName(f) returns "test"  and f.bufferChar = EOF
+ *   f := initScan("test1");  getName(f) returns "test1" and f.bufferChar = EOF
+ *   f := initScan("test+1"); getName(f) returns "test"  and f.bufferChar = '+'
+ *   f := initScan("+1");     getName(f) returns ""      and f.bufferChar = '+'
  *  @return the name, and
  *          "" if no letter or underscore was found.
  *)

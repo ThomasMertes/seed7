@@ -313,6 +313,38 @@ const proc: checkGetSimpleStringLiteral is func
   end func;
 
 
+const proc: checkGetLetters is func
+  local
+    var string: stri is "";
+    var file: aFile is STD_NULL;
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+  begin
+    stri := "test";   ok := ok and getLetters(stri) = "test" and stri = "";
+    stri := "test1";  ok := ok and getLetters(stri) = "test" and stri = "1";
+    stri := "test+1"; ok := ok and getLetters(stri) = "test" and stri = "+1";
+    stri := "+1";     ok := ok and getLetters(stri) = ""     and stri = "+1";
+    if not ok then
+      writeln(" ***** The function getLetters(STRING) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    aFile := initScan("test");   ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = EOF;
+    aFile := initScan("test1");  ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = '1';
+    aFile := initScan("test+1"); ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = '+';
+    aFile := initScan("+1");     ok := ok and getLetters(aFile) = ""     and aFile.bufferChar = '+';
+    if not ok then
+      writeln(" ***** The function getLetters(FILE) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getLetters works correctly.");
+    end if;
+  end func;
+
+
 const proc: checkGetName is func
   local
     var string: stri is "";
@@ -320,18 +352,20 @@ const proc: checkGetName is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "test";   ok := ok and getName(stri) = "test" and stri = "";
-    stri := "test+1"; ok := ok and getName(stri) = "test" and stri = "+1";
-    stri := "+1";     ok := ok and getName(stri) = ""     and stri = "+1";
+    stri := "test";   ok := ok and getName(stri) = "test"  and stri = "";
+    stri := "test1";  ok := ok and getName(stri) = "test1" and stri = "";
+    stri := "test+1"; ok := ok and getName(stri) = "test"  and stri = "+1";
+    stri := "+1";     ok := ok and getName(stri) = ""      and stri = "+1";
     if not ok then
       writeln(" ***** The function getName(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("test");   ok := ok and getName(aFile) = "test" and aFile.bufferChar = EOF;
-    aFile := initScan("test+1"); ok := ok and getName(aFile) = "test" and aFile.bufferChar = '+';
-    aFile := initScan("+1");     ok := ok and getName(aFile) = ""     and aFile.bufferChar = '+';
+    aFile := initScan("test");   ok := ok and getName(aFile) = "test"  and aFile.bufferChar = EOF;
+    aFile := initScan("test1");  ok := ok and getName(aFile) = "test1" and aFile.bufferChar = EOF;
+    aFile := initScan("test+1"); ok := ok and getName(aFile) = "test"  and aFile.bufferChar = '+';
+    aFile := initScan("+1");     ok := ok and getName(aFile) = ""      and aFile.bufferChar = '+';
     if not ok then
       writeln(" ***** The function getName(FILE) does not work correctly.");
       okay := FALSE;
@@ -633,6 +667,7 @@ const proc: main is func
     checkGetQuotedText;
     checkGetCommandLineWord;
     checkGetSimpleStringLiteral;
+    checkGetLetters;
     checkGetName;
     checkSkipSpace;
     checkSkipSpaceOrTab;
