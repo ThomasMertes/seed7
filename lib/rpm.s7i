@@ -799,11 +799,9 @@ const func string: rpmDependencyFlagsString (in integer: flags) is func
           flagsString &:= ", ";
         end if;
         case integer(bin32(1) << bitNum) of
-          when {1 << 0}:                 flagsString &:= "UNUSED_0";
           when {RPMSENSE_LESS}:          flagsString &:= "LESS";
           when {RPMSENSE_GREATER}:       flagsString &:= "GREATER";
           when {RPMSENSE_EQUAL}:         flagsString &:= "EQUAL";
-          when {1 << 4}:                 flagsString &:= "UNUSED_4";
           when {RPMSENSE_POSTTRANS}:     flagsString &:= "POSTTRANS";
           when {RPMSENSE_PREREQ}:        flagsString &:= "PREREQ";
           when {RPMSENSE_PRETRANS}:      flagsString &:= "PRETRANS";
@@ -819,15 +817,11 @@ const func string: rpmDependencyFlagsString (in integer: flags) is func
           when {RPMSENSE_TRIGGERUN}:     flagsString &:= "TRIGGERUN";
           when {RPMSENSE_TRIGGERPOSTUN}: flagsString &:= "TRIGGERPOSTUN";
           when {RPMSENSE_MISSINGOK}:     flagsString &:= "MISSINGOK";
-          when {1 << 20}:                flagsString &:= "UNUSED_20";
-          when {1 << 21}:                flagsString &:= "UNUSED_21";
-          when {1 << 22}:                flagsString &:= "UNUSED_22";
-          when {1 << 23}:                flagsString &:= "UNUSED_23";
           when {RPMSENSE_RPMLIB}:        flagsString &:= "RPMLIB";
           when {RPMSENSE_TRIGGERPREIN}:  flagsString &:= "TRIGGERPREIN";
           when {RPMSENSE_KEYRING}:       flagsString &:= "KEYRING";
-          when {1 << 27}:                flagsString &:= "UNUSED_27";
           when {RPMSENSE_CONFIG}:        flagsString &:= "CONFIG";
+	  otherwise:                     flagsString &:= "UNUSED_" <& bitNum;
         end case;
       end if;
     end for;
