@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  scanstri.s7i  String scanner functions                          *)
 (*  Copyright (C) 2007 - 2011, 2013, 2019, 2021  Thomas Mertes      *)
-(*                2023  Thomas Mertes                               *)
+(*                2023, 2024  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
