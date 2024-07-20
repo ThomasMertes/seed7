@@ -49,12 +49,15 @@ const integer: RPM_LEAD_SIZE is 96;
 const integer: RPM_HEADER_SIZE is 16;
 const integer: RPM_INDEX_ENTRY_SIZE is 16;
 
+const type: rpmPackageType is new enum
+    RPM_BINARY_PACKAGE, RPM_SOURCE_PACKAGE
+  end enum;
 
 const type: rpmLead is new struct
     var string: magic is "";
     var integer: majorVersion is 0;
     var integer: minorVersion is 0;
-    var integer: fileType is 0;
+    var rpmPackageType: packageType is RPM_BINARY_PACKAGE;
     var integer: arch is 0;
     var string: name is "";
     var integer: os is 0;
@@ -821,7 +824,7 @@ const func string: rpmDependencyFlagsString (in integer: flags) is func
           when {RPMSENSE_TRIGGERPREIN}:  flagsString &:= "TRIGGERPREIN";
           when {RPMSENSE_KEYRING}:       flagsString &:= "KEYRING";
           when {RPMSENSE_CONFIG}:        flagsString &:= "CONFIG";
-	  otherwise:                     flagsString &:= "UNUSED_" <& bitNum;
+          otherwise:                     flagsString &:= "UNUSED_" <& bitNum;
         end case;
       end if;
     end for;
@@ -833,7 +836,7 @@ const proc: show (in rpmLead: lead) is func
   begin
     if lead.magic = RPM_LEAD_MAGIC then
       writeln("Version " <& lead.majorVersion <& "." <& lead.minorVersion);
-      writeln("Type: " <& lead.fileType);
+      writeln("Type: " <& ord(lead.packageType));
       writeln("Arch: " <& lead.arch);
       writeln("Name: " <& literal(lead.name));
       writeln("Os: " <& lead.os);
@@ -964,7 +967,7 @@ const proc: initLead (inout rpmLead: lead) is func
     lead.magic := RPM_LEAD_MAGIC;
     lead.majorVersion := 3;
     lead.minorVersion := 0;
-    lead.fileType := 1;
+    lead.packageType := RPM_SOURCE_PACKAGE;
     lead.arch := 1;
     lead.name := "";
     lead.os := 1;
@@ -978,14 +981,14 @@ const proc: readLead (inout file: rpmFile, inout rpmLead: lead) is func
   begin
     leadStri := gets(rpmFile, RPM_LEAD_SIZE);
     if length(leadStri) = RPM_LEAD_SIZE then
-      lead.magic        :=            leadStri[ 1 fixLen  4];
-      lead.majorVersion :=  bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
-      lead.minorVersion :=  bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
-      lead.fileType     :=  bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
-      lead.arch         :=  bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
-      lead.name         := fromAsciiz(leadStri[11 fixLen 66], 1);
-      lead.os           :=  bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
-      lead.sig          :=  bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
+      lead.magic        :=                               leadStri[ 1 fixLen  4];
+      lead.majorVersion :=                     bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
+      lead.minorVersion :=                     bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
+      lead.packageType  := rpmPackageType conv bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
+      lead.arch         :=                     bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
+      lead.name         :=                    fromAsciiz(leadStri[11 fixLen 66], 1);
+      lead.os           :=                     bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
+      lead.sig          :=                     bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
       # 16 reserved bytes are currently unused.
     end if;
   end func;
@@ -993,14 +996,14 @@ const proc: readLead (inout file: rpmFile, inout rpmLead: lead) is func
 
 const func string: str (in rpmLead: lead) is
   return lead.magic <&
-         bytes(lead.majorVersion, UNSIGNED, BE, 1) <&
-         bytes(lead.minorVersion, UNSIGNED, BE, 1) <&
-         bytes(lead.fileType,     UNSIGNED, BE, 2) <&
-         bytes(lead.arch,         UNSIGNED, BE, 2) <&
-               lead.name[.. 66] <&
-         length(lead.name) < 66 ? "\0;" mult 66 - length(lead.name) : "" <&
-         bytes(lead.os,           UNSIGNED, BE, 2) <&
-         bytes(lead.sig,          UNSIGNED, BE, 2) <&
+         bytes(    lead.majorVersion, UNSIGNED, BE, 1) <&
+         bytes(    lead.minorVersion, UNSIGNED, BE, 1) <&
+         bytes(ord(lead.packageType), UNSIGNED, BE, 2) <&
+         bytes(    lead.arch,         UNSIGNED, BE, 2) <&
+                   lead.name[.. 66] <&
+         length(   lead.name) < 66 ? "\0;" mult 66 - length(lead.name) : "" <&
+         bytes(    lead.os,           UNSIGNED, BE, 2) <&
+         bytes(    lead.sig,          UNSIGNED, BE, 2) <&
          "\0;" mult 16;   # 16 reserved bytes
 
 
