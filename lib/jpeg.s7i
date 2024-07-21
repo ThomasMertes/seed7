@@ -812,23 +812,16 @@ const proc: setupQuantization (inout jpegHeader: header) is func
 const func string: readEntropyCodedSegment (inout file: jpegFile) is func
   result
     var string: ecsData is "";
-  local
-    var char: ch is ' ';
   begin
     repeat
-      ch := getc(jpegFile);
-      while ch <> JPEG_MARKER_START and ch <> EOF do
-        ecsData &:= ch;
-        ch := getc(jpegFile);
-      end while;
-      if ch = JPEG_MARKER_START then
-        ch := getc(jpegFile);
-        if ch = '\0;' then
+      ecsData &:= getTerminatedString(jpegFile, JPEG_MARKER_START);
+      if jpegFile.bufferChar = JPEG_MARKER_START then
+        jpegFile.bufferChar := getc(jpegFile);
+        if jpegFile.bufferChar = '\0;' then
           ecsData &:= JPEG_MARKER_START;
         end if;
       end if;
-    until ch <> '\0;';
-    jpegFile.bufferChar := ch;
+    until jpegFile.bufferChar <> '\0;';
   end func;
 
 
