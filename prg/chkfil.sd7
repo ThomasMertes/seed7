@@ -321,14 +321,12 @@ const func boolean: check_file_io_1 is func
           writeln("read(file, string) does not work correctly. (1)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" then
           writeln("getln(file) does not work correctly. (1)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> "qwertyuiop" then
@@ -379,7 +377,6 @@ const func boolean: check_file_io_1 is func
           writeln("gets(file, 10) does not work correctly. (1)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> "qwertyuiop\n" then
@@ -433,14 +430,12 @@ const func boolean: check_file_io_2 is func
           writeln("read(file, string) does not work correctly. (2)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" then
           writeln("getln(file) does not work correctly. (2)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> "qwertyuiop" then
@@ -491,7 +486,6 @@ const func boolean: check_file_io_2 is func
           writeln("gets(file, 10) does not work correctly. (2)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> "qwertyuiop\r\n" then
@@ -547,14 +541,12 @@ const func boolean: check_file_io_3 is func
           writeln("read(file, string) does not work correctly. (3)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> testString then
           writeln("getln(file) does not work correctly. (3)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> testString then
@@ -605,7 +597,6 @@ const func boolean: check_file_io_3 is func
           writeln("gets(file, 10) does not work correctly. (3)");
           okay := FALSE;
         end if;
-        stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> testString & "\n" then
@@ -712,28 +703,24 @@ const proc: check_file_seek is func
             writeln("read(file, string) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getln(aFile);
           if stri <> SEEK_TEST_END_MARKER then
             writeln("getln(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getwd(aFile);
           if stri <> "this" then
             writeln("getwd(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 15);
           if stri <> SEEK_TEST_END_MARKER then
             writeln("gets(file, 15) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
@@ -1138,28 +1125,24 @@ const proc: check_utf8_io is func
             writeln("read(file, string) does not work correctly. (4)");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, 1);
           stri := getln(aFile);
           if stri <> "qwertyuiop" then
             writeln("getln(file) does not work correctly. (4)");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, 1);
           stri := getwd(aFile);
           if stri <> "qwertyuiop" then
             writeln("getwd(file) does not work correctly. (4)");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 10);
           if stri <> "qwertyuiop" then
             writeln("gets(file, 10) does not work correctly. (4)");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 999999999);
           if stri <> "qwertyuiop\n" then
@@ -1237,28 +1220,24 @@ const proc: check_utf8_seek is func
             writeln("read(file, string) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getln(aFile);
           if stri <> SEEK_TEST_END_MARKER then
             writeln("getln(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := getwd(aFile);
           if stri <> "this" then
             writeln("getwd(file) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 15);
           if stri <> SEEK_TEST_END_MARKER then
             writeln("gets(file, 15) after seek does not work correctly.");
             okay := FALSE;
           end if;
-          stri := "";
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
