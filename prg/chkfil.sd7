@@ -322,6 +322,12 @@ const func boolean: check_file_io_1 is func
           okay := FALSE;
         end if;
         seek(aFile, 1);
+        stri := getTerminatedString(aFile, 'y');
+        if stri <> "qwert" or aFile.bufferChar <> 'y' then
+          writeln("getTerminatedString(file, terminator) does not work correctly. (1)");
+          okay := FALSE;
+        end if;
+        seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" or aFile.bufferChar <> '\n' then
           writeln("getln(file) does not work correctly. (1)");
@@ -428,6 +434,12 @@ const func boolean: check_file_io_2 is func
         read(aFile, stri);
         if stri <> "qwertyuiop" then
           writeln("read(file, string) does not work correctly. (2)");
+          okay := FALSE;
+        end if;
+        seek(aFile, 1);
+        stri := getTerminatedString(aFile, 'y');
+        if stri <> "qwert" or aFile.bufferChar <> 'y' then
+          writeln("getTerminatedString(file, terminator) does not work correctly. (2)");
           okay := FALSE;
         end if;
         seek(aFile, 1);
@@ -539,6 +551,12 @@ const func boolean: check_file_io_3 is func
         read(aFile, stri);
         if stri <> testString then
           writeln("read(file, string) does not work correctly. (3)");
+          okay := FALSE;
+        end if;
+        seek(aFile, 1);
+        stri := getTerminatedString(aFile, '^');
+        if stri <> "\0;\A\B\C\D\E\F\G\H" or aFile.bufferChar <> '^' then
+          writeln("getTerminatedString(file, terminator) does not work correctly. (3)");
           okay := FALSE;
         end if;
         seek(aFile, 1);
@@ -701,6 +719,12 @@ const proc: check_file_seek is func
           read(aFile, stri);
           if stri <> "this" then
             writeln("read(file, string) after seek does not work correctly.");
+            okay := FALSE;
+          end if;
+          seek(aFile, END_MARKER_POS);
+          stri := getTerminatedString(aFile, 'e');
+          if stri <> "this is th" or aFile.bufferChar <> 'e' then
+            writeln("getTerminatedString(file, terminator) after seek does not work correctly.");
             okay := FALSE;
           end if;
           seek(aFile, END_MARKER_POS);
@@ -1126,6 +1150,12 @@ const proc: check_utf8_io is func
             okay := FALSE;
           end if;
           seek(aFile, 1);
+          stri := getTerminatedString(aFile, 'y');
+          if stri <> "qwert" or aFile.bufferChar <> 'y' then
+            writeln("getTerminatedString(file, terminator) does not work correctly. (4)");
+            okay := FALSE;
+          end if;
+          seek(aFile, 1);
           stri := getln(aFile);
           if stri <> "qwertyuiop" or aFile.bufferChar <> '\n' then
             writeln("getln(file) does not work correctly. (4)");
@@ -1218,6 +1248,12 @@ const proc: check_utf8_seek is func
           read(aFile, stri);
           if stri <> "this" then
             writeln("read(file, string) after seek does not work correctly.");
+            okay := FALSE;
+          end if;
+          seek(aFile, END_MARKER_POS);
+          stri := getTerminatedString(aFile, 'e');
+          if stri <> "this is th" or aFile.bufferChar <> 'e' then
+            writeln("getTerminatedString(file, terminator) after seek does not work correctly.");
             okay := FALSE;
           end if;
           seek(aFile, END_MARKER_POS);
