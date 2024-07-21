@@ -124,31 +124,6 @@ const func string: getAsciiz (inout file: inFile) is func
 
 
 (**
- *  Read a string from ''inFile'' until the ''terminator'' character is found.
- *  If a ''terminator'' is found the string before the ''terminator'' is
- *  returned and the ''terminator'' character is assigned to inFile.bufferChar.
- *  The file position is advanced after the ''terminator'' character.
- *  If no ''terminator'' is found the rest of the string is returned and
- *  EOF is assigned to the inFile.bufferChar.
- *  @return the string read without the ''terminator'' or the rest of the
- *          file if no ''terminator'' is found.
- *)
-const func string: getStriUpToChar (inout file: inFile, in char: terminator) is func
-  result
-    var string: resultStri is "";
-  local
-    var char: ch is ' ';
-  begin
-    ch := getc(inFile);
-    while ch <> terminator and ch <> EOF do
-      resultStri &:= ch;
-      ch := getc(inFile);
-    end while;
-    inFile.bufferChar := ch;
-  end func;
-
-
-(**
  *  Convert a [[string]] of bytes to its hexadecimal representation.
  *  Each byte is represented by two hexadecimal digits.
  *   hex("!;Mn")  returns "213b4d6e"
