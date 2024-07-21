@@ -8038,6 +8038,9 @@ const proc: pass_2 (in string: source, in program: prog,
             if countOptimizedOverflowChecks <> 0 then
               writeln(countOptimizedOverflowChecks <& " overflow checks optimized away");
             end if;
+            if countSuppressedOverflowChecks <> 0 then
+              writeln(countSuppressedOverflowChecks <& " overflow checks suppressed");
+            end if;
           else
             write("*** Cannot open temp file ");
             write(literal(temporaryFileName));

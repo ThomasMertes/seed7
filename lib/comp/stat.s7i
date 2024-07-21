@@ -37,6 +37,7 @@ var integer: countOptimizedIndexChecks     is 0;
 var integer: countSuppressedIndexChecks    is 0;
 var integer: countOverflowChecks           is 0;
 var integer: countOptimizedOverflowChecks  is 0;
+var integer: countSuppressedOverflowChecks is 0;
 
 
 const proc: countDivisionOptimizations (in expr_type: c_expr) is func

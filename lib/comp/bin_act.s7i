@@ -323,6 +323,7 @@ const proc: process (BIN_LSHIFT, in reference: function,
         c_expr.expr &:= "))";
       end if;
     else
+      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") << (";
@@ -385,6 +386,7 @@ const proc: process (BIN_LSHIFT_ASSIGN, in reference: function,
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
+      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       statement.expr &:= variable_name;
       statement.expr &:= "=(intType)((uintType)(";
@@ -793,6 +795,7 @@ const proc: process (BIN_RSHIFT, in reference: function,
         c_expr.expr &:= "))";
       end if;
     else
+      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") >> (";
@@ -855,6 +858,7 @@ const proc: process (BIN_RSHIFT_ASSIGN, in reference: function,
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
+      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       statement.expr &:= variable_name;
       statement.expr &:= "=(intType)((uintType)(";
