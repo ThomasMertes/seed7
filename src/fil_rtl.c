@@ -2373,6 +2373,117 @@ intType filTell (fileType aFile)
 
 
 /**
+ *  Read a string from 'inFile' until the 'terminator' character is found.
+ *  If a 'terminator' is found the string before the 'terminator' is
+ *  returned and the 'terminator' character is assigned to 'terminationChar'.
+ *  The file position is advanced after the 'terminator' character.
+ *  If no 'terminator' is found the rest of 'inFile' is returned and
+ *  EOF is assigned to the 'terminationChar'.
+ *  @param inFile File from which the string is read.
+ *  @param terminator Character which terminates the string.
+ *  @param terminationChar Variable to receive the actual termination character
+ *         (either 'terminator' or EOF).
+ *  @return the string read without the 'terminator' or the rest of the
+ *          file if no 'terminator' is found.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+striType filTerminatedRead (fileType inFile, charType terminator,
+    charType *terminationChar)
+
+  {
+    cFileType cInFile;
+    register int termCh;
+    register int ch;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
+
+  /* filTerminatedRead */
+    logFunction(printf("filTerminatedRead(%s%d, '\\" FMT_U32 ";', '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       terminator, *terminationChar););
+    if (unlikely(terminator > 255)) {
+      termCh = EOF;
+    } else {
+      termCh = (int) terminator;
+    } /* if */
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filTerminatedRead: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
+#if FREAD_WRONG_FOR_WRITE_ONLY_FILES
+    } else if (unlikely(!inFile->readingAllowed)) {
+      logError(printf("filTerminatedRead(%d, '\\" FMT_U32 ";', *): "
+                      "The file is not open for reading.\n",
+                      safe_fileno(cInFile), terminator););
+      raise_error(FILE_ERROR);
+      result = NULL;
+#endif
+    } else {
+      memlength = READ_STRI_INIT_SIZE;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        memory = result->mem;
+        position = 0;
+        flockfile(cInFile);
+        while ((ch = getc_unlocked(cInFile)) != termCh && ch != EOF) {
+          if (position >= memlength) {
+            newmemlength = memlength + READ_STRI_SIZE_DELTA;
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            if (unlikely(resized_result == NULL)) {
+              FREE_STRI(result, memlength);
+              funlockfile(cInFile);
+              raise_error(MEMORY_ERROR);
+              return NULL;
+            } /* if */
+            result = resized_result;
+            COUNT3_STRI(memlength, newmemlength);
+            memory = result->mem;
+            memlength = newmemlength;
+          } /* if */
+          memory[position++] = (strElemType) ch;
+        } /* while */
+        funlockfile(cInFile);
+        if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
+          FREE_STRI(result, memlength);
+          logError(printf("filTerminatedRead(%d, '\\" FMT_U32 ";', '\\" FMT_U32 ";'): "
+                          "getc_unlocked(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(cInFile), terminator, *terminationChar,
+                          safe_fileno(cInFile), errno, strerror(errno)););
+          raise_error(FILE_ERROR);
+          result = NULL;
+        } else {
+          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(memlength, position);
+            result->size = position;
+            *terminationChar = (charType) ch;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("filTerminatedRead(%d, '\\" FMT_U32 ";', '\\" FMT_U32 ";') --> \"%s\"\n",
+                       safe_fileno(cInFile), terminator, *terminationChar,
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* filTerminatedRead */
+
+
+
+/**
  *  Truncate 'aFile' to the given 'length'.
  *  If the file previously was larger than 'length', the extra data is lost.
  *  If the file previously was shorter, it is extended, and the extended

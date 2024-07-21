@@ -57,6 +57,7 @@ objectType fil_seek             (listType arguments);
 objectType fil_seekable         (listType arguments);
 objectType fil_setbuf           (listType arguments);
 objectType fil_tell             (listType arguments);
+objectType fil_terminated_read  (listType arguments);
 objectType fil_truncate         (listType arguments);
 objectType fil_value            (listType arguments);
 objectType fil_word_read        (listType arguments);

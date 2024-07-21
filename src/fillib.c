@@ -719,6 +719,41 @@ objectType fil_tell (listType arguments)
 
 
 /**
+ *  Read a string from inFile/arg_1 until the terminator/arg_2 character is found.
+ *  If a terminator/arg_2 is found the string before the terminator/arg_2 is
+ *  returned and the terminator/arg_2 character is assigned to terminationChar/arg_3.
+ *  The file position is advanced after the terminator/arg_2 character.
+ *  If no terminator/arg_2 is found the rest of inFile/arg_1 is returned and
+ *  EOF is assigned to the terminationChar/arg_3.
+ *  @param inFile/arg_1 File from which the string is read.
+ *  @param terminator/arg_2 Character which terminates the string.
+ *  @param terminationChar/arg_3 Variable to receive the actual termination character
+ *         (either terminator/arg_2 or EOF).
+ *  @return the string read without the terminator/arg_2 or the rest of the
+ *          file if no terminator/arg_2 is found.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType fil_terminated_read (listType arguments)
+
+  {
+    objectType terminationChar;
+
+  /* fil_terminated_read */
+    isit_file(arg_1(arguments));
+    isit_char(arg_2(arguments));
+    terminationChar = arg_3(arguments);
+    isit_char(terminationChar);
+    is_variable(terminationChar);
+    return bld_stri_temp(
+        filTerminatedRead(take_file(arg_1(arguments)),
+                          take_char(arg_2(arguments)),
+                          &terminationChar->value.charValue));
+  } /* fil_terminated_read */
+
+
+
+/**
  *  Truncate 'aFile/arg_1' to the given 'length/arg_2'.
  *  If the file previously was larger than 'length/arg_2', the extra data is lost.
  *  If the file previously was shorter, it is extended, and the extended

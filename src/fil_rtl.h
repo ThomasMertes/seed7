@@ -79,6 +79,8 @@ void filSeek (fileType aFile, intType file_position);
 boolType filSeekable (fileType aFile);
 void filSetbuf (fileType aFile, intType mode, intType size);
 intType filTell (fileType aFile);
+striType filTerminatedRead (fileType inFile, charType terminator,
+    charType *terminationChar);
 void filTruncate (fileType aFile, intType length);
 striType filWordRead (fileType inFile, charType *terminationChar);
 striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar);
