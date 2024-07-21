@@ -54,6 +54,7 @@ const ACTION: FIL_SEEK             is action "FIL_SEEK";
 const ACTION: FIL_SEEKABLE         is action "FIL_SEEKABLE";
 const ACTION: FIL_SETBUF           is action "FIL_SETBUF";
 const ACTION: FIL_TELL             is action "FIL_TELL";
+const ACTION: FIL_TERMINATED_READ  is action "FIL_TERMINATED_READ";
 const ACTION: FIL_VALUE            is action "FIL_VALUE";
 const ACTION: FIL_WRITE            is action "FIL_WRITE";
 const ACTION: FIL_WORD_READ        is action "FIL_WORD_READ";
@@ -94,6 +95,7 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "boolType    filSeekable (fileType);");
     declareExtern(c_prog, "void        filSetbuf (fileType, intType, intType);");
     declareExtern(c_prog, "intType     filTell (fileType);");
+    declareExtern(c_prog, "striType    filTerminatedRead (fileType, charType, charType *);");
     declareExtern(c_prog, "void        filTruncate (fileType, intType);");
     declareExtern(c_prog, "striType    filWordRead (fileType, charType *);");
     declareExtern(c_prog, "striType    filWordReadChkCtrlC (fileType, charType *);");
@@ -460,6 +462,21 @@ const proc: process (FIL_TELL, in reference: function,
     c_expr.expr &:= "filTell(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_TERMINATED_READ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "filTerminatedRead(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= "))";
   end func;
 
 

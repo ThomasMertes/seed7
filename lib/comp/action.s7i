@@ -897,6 +897,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_SETBUF, function, params, c_expr);
       when {"FIL_TELL"}:
         process(FIL_TELL, function, params, c_expr);
+      when {"FIL_TERMINATED_READ"}:
+        process(FIL_TERMINATED_READ, function, params, c_expr);
       when {"FIL_TRUNCATE"}:
         process(FIL_TRUNCATE, function, params, c_expr);
       when {"FIL_VALUE"}:
