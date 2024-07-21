@@ -112,6 +112,23 @@ const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
 
 
 (**
+ *  Read a [[string]] from ''inFile'' until the ''terminator'' character is found.
+ *  If a ''terminator'' is found the string before the ''terminator'' is
+ *  returned and the ''terminator'' character is assigned to inFile.bufferChar.
+ *  The file position is advanced after the ''terminator'' character.
+ *  If no ''terminator'' is found the rest of ''inFile'' is returned and
+ *  [[char#EOF|EOF]] is assigned to the inFile.bufferChar. When the function
+ *  is left inFile.bufferChar contains either ''terminator'' or [[char#EOF|EOF]].
+ *  @param inFile File from which the string is read.
+ *  @param terminator Character which terminates the string.
+ *  @return the string read without the ''terminator'' or the rest of the
+ *          file if no ''terminator'' is found.
+ *)
+const func string: getTerminatedString (inout file: inFile,
+                                        in char: terminator) is DYNAMIC;
+
+
+(**
  *  Read a word from a file.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].

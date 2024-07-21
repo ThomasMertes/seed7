@@ -144,6 +144,39 @@ const func string: gets (inout striFile: inStriFile, in integer: maxLength) is f
 
 
 (**
+ *  Read a [[string]] from ''inStriFile'' until the ''terminator'' character is found.
+ *  If a ''terminator'' is found the string before the ''terminator'' is
+ *  returned and the ''terminator'' character is assigned to inStriFile.bufferChar.
+ *  The file position is advanced after the ''terminator'' character.
+ *  If no ''terminator'' is found the rest of ''inStriFile'' is returned and
+ *  [[char#EOF|EOF]] is assigned to the inStriFile.bufferChar. When the function
+ *  is left inFile.bufferChar contains either ''terminator'' or [[char#EOF|EOF]].
+ *  @param inFile File from which the string is read.
+ *  @param terminator Character which terminates the string.
+ *  @return the string read without the ''terminator'' or the rest of the
+ *          file if no ''terminator'' is found.
+ *)
+const func string: getTerminatedString (inout striFile: inStriFile,
+                                        in char: terminator) is func
+  result
+    var string: stri is "";
+  local
+    var integer: terminatorPos is 0;
+  begin
+    terminatorPos := pos(inStriFile.content, terminator, inStriFile.position);
+    if terminatorPos <> 0 then
+      stri := inStriFile.content[inStriFile.position .. pred(terminatorPos)];
+      inStriFile.position := succ(terminatorPos);
+      inStriFile.bufferChar := terminator;
+    else
+      stri := inStriFile.content[inStriFile.position ..];
+      inStriFile.position := succ(length(inStriFile.content));
+      inStriFile.bufferChar := EOF;
+    end if;
+  end func;
+
+
+(**
  *  Read a word from ''inStriFile''.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n", or [[char#EOF|EOF]].
