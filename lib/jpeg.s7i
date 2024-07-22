@@ -424,26 +424,17 @@ const proc: readBlock (inout dataBlockType: dataBlock,
     var integer: bitWidth is 0;
     var integer: index is 1;
     var integer: aByte is 0;
-    var integer: zeros is 0;
   begin
     dataBlock := dataBlockType.value;
     bitWidth := getHuffmanSymbol(entropyCodedStream, dcTable);
     if bitWidth <> 0 then
-      dataBlock[index] := getSymbol(entropyCodedStream, bitWidth);
+      dataBlock[1] := getSymbol(entropyCodedStream, bitWidth);
     end if;
     repeat
       aByte := getHuffmanSymbol(entropyCodedStream, acTable);
-      zeros := aByte >> 4;
+      index +:= succ(aByte >> 4);
       bitWidth := aByte mod 16;
-      if bitWidth = 0 then
-        if zeros = 15 then
-          index +:= 16;
-          if index >= JPEG_BLOCK_SIZE then
-            raise RANGE_ERROR;
-          end if;
-        end if;
-      else
-        index +:= succ(zeros);
+      if bitWidth <> 0 then
         dataBlock[index] := getSymbol(entropyCodedStream, bitWidth);
         if index = JPEG_BLOCK_SIZE then
           aByte := 0;
