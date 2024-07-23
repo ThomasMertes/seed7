@@ -881,7 +881,7 @@ const proc: process_fixlen_array_index (in reference: index,
       process_expr(index, c_expr);
       c_expr.expr &:= ")";
       if minIndex <> 0 then
-        c_expr.expr &:= "-";
+        c_expr.expr &:= "- ";
         c_expr.expr &:= integerLiteral(minIndex);
       end if;
     else
@@ -921,7 +921,7 @@ const proc: process_fixlen_array_index (in reference: index,
         c_expr.expr &:= " : ";
         c_expr.expr &:= index_name;
         if minIndex <> 0 then
-          c_expr.expr &:= "-";
+          c_expr.expr &:= "- ";
           c_expr.expr &:= integerLiteral(minIndex);
         end if;
         c_expr.expr &:= ")";
@@ -958,7 +958,7 @@ const proc: process_base_array_index (in string: array_name,
       c_expr.expr &:= " : ";
       c_expr.expr &:= index_name;
       if minIndex <> 0 then
-        c_expr.expr &:= "-";
+        c_expr.expr &:= "- ";
         c_expr.expr &:= integerLiteral(minIndex);
       end if;
       c_expr.expr &:= ")";
@@ -1102,7 +1102,7 @@ const proc: process (ARR_IDX, in reference: function,
           incr(countSuppressedIndexChecks);
           c_expr.expr &:= "(";
           process_expr(params[3], c_expr);
-          c_expr.expr &:= ")-";
+          c_expr.expr &:= ")- ";
           if arrayType in array_minIdx then
             c_expr.expr &:= integerLiteral(array_minIdx[arrayType]);
           else
