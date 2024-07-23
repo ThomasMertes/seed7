@@ -944,16 +944,27 @@ const proc: process_base_array_index (in string: array_name,
       incr(countIndexChecks);
       index_name := getParameterAsVariable("intType", "idx_", index, c_expr);
       c_expr.expr &:= "(idxChk(";
-      if indexRange.minValue < minIndex then
+      if ccConf.TWOS_COMPLEMENT_INTTYPE and
+          indexRange.minValue < minIndex and
+          minIndex = 0 then
+        c_expr.expr &:= "(uintType)";
         c_expr.expr &:= index_name;
-        c_expr.expr &:= " < ";
-        c_expr.expr &:= integerLiteral(minIndex);
-        c_expr.expr &:= " || ";
+        c_expr.expr &:= " > (uintType)(";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->max_position)";
+      else
+        if indexRange.minValue < minIndex then
+          c_expr.expr &:= index_name;
+          c_expr.expr &:= " < ";
+          c_expr.expr &:= integerLiteral(minIndex);
+          c_expr.expr &:= " || ";
+        end if;
+        c_expr.expr &:= index_name;
+        c_expr.expr &:= " > ";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->max_position";
       end if;
-      c_expr.expr &:= index_name;
-      c_expr.expr &:= " > ";
-      c_expr.expr &:= array_name;
-      c_expr.expr &:= "->max_position) ? ";
+      c_expr.expr &:= ") ? ";
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
       c_expr.expr &:= " : ";
       c_expr.expr &:= index_name;
