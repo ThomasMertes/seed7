@@ -37,8 +37,8 @@ const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength
     var msbHuffmanTable: table is msbHuffmanTable.value;
   begin
     table.maxBitWidth := maximumCodeLength;
-    table.symbols := [0 .. pred(1 << maximumCodeLength)] times -2;
-    table.codeLengths := [0 .. pred(1 << maximumCodeLength)] times 0;
+    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times -2;
+    table.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
   end func;
 
 
@@ -65,7 +65,7 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in integer: maximumCodeLength
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   begin
     table.maxBitWidth := maximumCodeLength;
-    table.symbols := [0 .. pred(1 << maximumCodeLength)] times -2;
+    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times -2;
     table.codeLengths := [minSymbol .. maxSymbol] times 0;
   end func;
 
@@ -87,228 +87,256 @@ const proc: addCode (inout lsbHuffmanTable: table, in integer: huffmanValue, in 
   end func;
 
 
-const proc: addCode (inout huffmanTable: table, in integer: huffmanValue, in string: bits) is DYNAMIC;
+const type: huffmanValueBits is new struct
+    var integer: huffmanValue is 0;
+    var string: bits is "";
+  end struct;
 
 
-const proc: addWhiteHuffmanValues (inout huffmanTable: table) is func
+const func huffmanValueBits: huffmanValueBits (in integer: huffmanValue, in string: bits) is func
+  result
+    var huffmanValueBits: valueBits is huffmanValueBits.value;
   begin
-    # addCode(table,   -1, "00000000");
-    addCode(table,   -1, "000000000001");
-    addCode(table,    0, "00110101");
-    addCode(table,    1, "000111");
-    addCode(table,    2, "0111");
-    addCode(table,    3, "1000");
-    addCode(table,    4, "1011");
-    addCode(table,    5, "1100");
-    addCode(table,    6, "1110");
-    addCode(table,    7, "1111");
-    addCode(table,    8, "10011");
-    addCode(table,    9, "10100");
-    addCode(table,   10, "00111");
-    addCode(table,   11, "01000");
-    addCode(table,   12, "001000");
-    addCode(table,   13, "000011");
-    addCode(table,   14, "110100");
-    addCode(table,   15, "110101");
-    addCode(table,   16, "101010");
-    addCode(table,   17, "101011");
-    addCode(table,   18, "0100111");
-    addCode(table,   19, "0001100");
-    addCode(table,   20, "0001000");
-    addCode(table,   21, "0010111");
-    addCode(table,   22, "0000011");
-    addCode(table,   23, "0000100");
-    addCode(table,   24, "0101000");
-    addCode(table,   25, "0101011");
-    addCode(table,   26, "0010011");
-    addCode(table,   27, "0100100");
-    addCode(table,   28, "0011000");
-    addCode(table,   29, "00000010");
-    addCode(table,   30, "00000011");
-    addCode(table,   31, "00011010");
-    addCode(table,   32, "00011011");
-    addCode(table,   33, "00010010");
-    addCode(table,   34, "00010011");
-    addCode(table,   35, "00010100");
-    addCode(table,   36, "00010101");
-    addCode(table,   37, "00010110");
-    addCode(table,   38, "00010111");
-    addCode(table,   39, "00101000");
-    addCode(table,   40, "00101001");
-    addCode(table,   41, "00101010");
-    addCode(table,   42, "00101011");
-    addCode(table,   43, "00101100");
-    addCode(table,   44, "00101101");
-    addCode(table,   45, "00000100");
-    addCode(table,   46, "00000101");
-    addCode(table,   47, "00001010");
-    addCode(table,   48, "00001011");
-    addCode(table,   49, "01010010");
-    addCode(table,   50, "01010011");
-    addCode(table,   51, "01010100");
-    addCode(table,   52, "01010101");
-    addCode(table,   53, "00100100");
-    addCode(table,   54, "00100101");
-    addCode(table,   55, "01011000");
-    addCode(table,   56, "01011001");
-    addCode(table,   57, "01011010");
-    addCode(table,   58, "01011011");
-    addCode(table,   59, "01001010");
-    addCode(table,   60, "01001011");
-    addCode(table,   61, "00110010");
-    addCode(table,   62, "00110011");
-    addCode(table,   63, "00110100");
-    addCode(table,   64, "11011");
-    addCode(table,  128, "10010");
-    addCode(table,  192, "010111");
-    addCode(table,  256, "0110111");
-    addCode(table,  320, "00110110");
-    addCode(table,  384, "00110111");
-    addCode(table,  448, "01100100");
-    addCode(table,  512, "01100101");
-    addCode(table,  576, "01101000");
-    addCode(table,  640, "01100111");
-    addCode(table,  704, "011001100");
-    addCode(table,  768, "011001101");
-    addCode(table,  832, "011010010");
-    addCode(table,  896, "011010011");
-    addCode(table,  960, "011010100");
-    addCode(table, 1024, "011010101");
-    addCode(table, 1088, "011010110");
-    addCode(table, 1152, "011010111");
-    addCode(table, 1216, "011011000");
-    addCode(table, 1280, "011011001");
-    addCode(table, 1344, "011011010");
-    addCode(table, 1408, "011011011");
-    addCode(table, 1472, "010011000");
-    addCode(table, 1536, "010011001");
-    addCode(table, 1600, "010011010");
-    addCode(table, 1664, "011000");
-    addCode(table, 1728, "010011011");
-    addCode(table, 1792, "00000001000");
-    addCode(table, 1856, "00000001100");
-    addCode(table, 1920, "00000001101");
-    addCode(table, 1984, "000000010010");
-    addCode(table, 2048, "000000010011");
-    addCode(table, 2112, "000000010100");
-    addCode(table, 2176, "000000010101");
-    addCode(table, 2240, "000000010110");
-    addCode(table, 2304, "000000010111");
-    addCode(table, 2368, "000000011100");
-    addCode(table, 2432, "000000011101");
-    addCode(table, 2496, "000000011110");
-    addCode(table, 2560, "000000011111");
+    valueBits.huffmanValue := huffmanValue;
+    valueBits.bits := bits;
   end func;
 
 
-const proc: addBlackHuffmanValues (inout huffmanTable: table) is func
+const array huffmanValueBits: whiteHuffmanValueBits is [] (
+    huffmanValueBits(  -1, "000000000001"),
+    huffmanValueBits(   0, "00110101"),
+    huffmanValueBits(   1, "000111"),
+    huffmanValueBits(   2, "0111"),
+    huffmanValueBits(   3, "1000"),
+    huffmanValueBits(   4, "1011"),
+    huffmanValueBits(   5, "1100"),
+    huffmanValueBits(   6, "1110"),
+    huffmanValueBits(   7, "1111"),
+    huffmanValueBits(   8, "10011"),
+    huffmanValueBits(   9, "10100"),
+    huffmanValueBits(  10, "00111"),
+    huffmanValueBits(  11, "01000"),
+    huffmanValueBits(  12, "001000"),
+    huffmanValueBits(  13, "000011"),
+    huffmanValueBits(  14, "110100"),
+    huffmanValueBits(  15, "110101"),
+    huffmanValueBits(  16, "101010"),
+    huffmanValueBits(  17, "101011"),
+    huffmanValueBits(  18, "0100111"),
+    huffmanValueBits(  19, "0001100"),
+    huffmanValueBits(  20, "0001000"),
+    huffmanValueBits(  21, "0010111"),
+    huffmanValueBits(  22, "0000011"),
+    huffmanValueBits(  23, "0000100"),
+    huffmanValueBits(  24, "0101000"),
+    huffmanValueBits(  25, "0101011"),
+    huffmanValueBits(  26, "0010011"),
+    huffmanValueBits(  27, "0100100"),
+    huffmanValueBits(  28, "0011000"),
+    huffmanValueBits(  29, "00000010"),
+    huffmanValueBits(  30, "00000011"),
+    huffmanValueBits(  31, "00011010"),
+    huffmanValueBits(  32, "00011011"),
+    huffmanValueBits(  33, "00010010"),
+    huffmanValueBits(  34, "00010011"),
+    huffmanValueBits(  35, "00010100"),
+    huffmanValueBits(  36, "00010101"),
+    huffmanValueBits(  37, "00010110"),
+    huffmanValueBits(  38, "00010111"),
+    huffmanValueBits(  39, "00101000"),
+    huffmanValueBits(  40, "00101001"),
+    huffmanValueBits(  41, "00101010"),
+    huffmanValueBits(  42, "00101011"),
+    huffmanValueBits(  43, "00101100"),
+    huffmanValueBits(  44, "00101101"),
+    huffmanValueBits(  45, "00000100"),
+    huffmanValueBits(  46, "00000101"),
+    huffmanValueBits(  47, "00001010"),
+    huffmanValueBits(  48, "00001011"),
+    huffmanValueBits(  49, "01010010"),
+    huffmanValueBits(  50, "01010011"),
+    huffmanValueBits(  51, "01010100"),
+    huffmanValueBits(  52, "01010101"),
+    huffmanValueBits(  53, "00100100"),
+    huffmanValueBits(  54, "00100101"),
+    huffmanValueBits(  55, "01011000"),
+    huffmanValueBits(  56, "01011001"),
+    huffmanValueBits(  57, "01011010"),
+    huffmanValueBits(  58, "01011011"),
+    huffmanValueBits(  59, "01001010"),
+    huffmanValueBits(  60, "01001011"),
+    huffmanValueBits(  61, "00110010"),
+    huffmanValueBits(  62, "00110011"),
+    huffmanValueBits(  63, "00110100"),
+    huffmanValueBits(  64, "11011"),
+    huffmanValueBits( 128, "10010"),
+    huffmanValueBits( 192, "010111"),
+    huffmanValueBits( 256, "0110111"),
+    huffmanValueBits( 320, "00110110"),
+    huffmanValueBits( 384, "00110111"),
+    huffmanValueBits( 448, "01100100"),
+    huffmanValueBits( 512, "01100101"),
+    huffmanValueBits( 576, "01101000"),
+    huffmanValueBits( 640, "01100111"),
+    huffmanValueBits( 704, "011001100"),
+    huffmanValueBits( 768, "011001101"),
+    huffmanValueBits( 832, "011010010"),
+    huffmanValueBits( 896, "011010011"),
+    huffmanValueBits( 960, "011010100"),
+    huffmanValueBits(1024, "011010101"),
+    huffmanValueBits(1088, "011010110"),
+    huffmanValueBits(1152, "011010111"),
+    huffmanValueBits(1216, "011011000"),
+    huffmanValueBits(1280, "011011001"),
+    huffmanValueBits(1344, "011011010"),
+    huffmanValueBits(1408, "011011011"),
+    huffmanValueBits(1472, "010011000"),
+    huffmanValueBits(1536, "010011001"),
+    huffmanValueBits(1600, "010011010"),
+    huffmanValueBits(1664, "011000"),
+    huffmanValueBits(1728, "010011011"),
+    huffmanValueBits(1792, "00000001000"),
+    huffmanValueBits(1856, "00000001100"),
+    huffmanValueBits(1920, "00000001101"),
+    huffmanValueBits(1984, "000000010010"),
+    huffmanValueBits(2048, "000000010011"),
+    huffmanValueBits(2112, "000000010100"),
+    huffmanValueBits(2176, "000000010101"),
+    huffmanValueBits(2240, "000000010110"),
+    huffmanValueBits(2304, "000000010111"),
+    huffmanValueBits(2368, "000000011100"),
+    huffmanValueBits(2432, "000000011101"),
+    huffmanValueBits(2496, "000000011110"),
+    huffmanValueBits(2560, "000000011111"));
+
+
+const array huffmanValueBits: blackHuffmanValueBits is [] (
+    huffmanValueBits(  -1, "00000000000"),
+    huffmanValueBits(   0, "0000110111"),
+    huffmanValueBits(   1, "010"),
+    huffmanValueBits(   2, "11"),
+    huffmanValueBits(   3, "10"),
+    huffmanValueBits(   4, "011"),
+    huffmanValueBits(   5, "0011"),
+    huffmanValueBits(   6, "0010"),
+    huffmanValueBits(   7, "00011"),
+    huffmanValueBits(   8, "000101"),
+    huffmanValueBits(   9, "000100"),
+    huffmanValueBits(  10, "0000100"),
+    huffmanValueBits(  11, "0000101"),
+    huffmanValueBits(  12, "0000111"),
+    huffmanValueBits(  13, "00000100"),
+    huffmanValueBits(  14, "00000111"),
+    huffmanValueBits(  15, "000011000"),
+    huffmanValueBits(  16, "0000010111"),
+    huffmanValueBits(  17, "0000011000"),
+    huffmanValueBits(  18, "0000001000"),
+    huffmanValueBits(  19, "00001100111"),
+    huffmanValueBits(  20, "00001101000"),
+    huffmanValueBits(  21, "00001101100"),
+    huffmanValueBits(  22, "00000110111"),
+    huffmanValueBits(  23, "00000101000"),
+    huffmanValueBits(  24, "00000010111"),
+    huffmanValueBits(  25, "00000011000"),
+    huffmanValueBits(  26, "000011001010"),
+    huffmanValueBits(  27, "000011001011"),
+    huffmanValueBits(  28, "000011001100"),
+    huffmanValueBits(  29, "000011001101"),
+    huffmanValueBits(  30, "000001101000"),
+    huffmanValueBits(  31, "000001101001"),
+    huffmanValueBits(  32, "000001101010"),
+    huffmanValueBits(  33, "000001101011"),
+    huffmanValueBits(  34, "000011010010"),
+    huffmanValueBits(  35, "000011010011"),
+    huffmanValueBits(  36, "000011010100"),
+    huffmanValueBits(  37, "000011010101"),
+    huffmanValueBits(  38, "000011010110"),
+    huffmanValueBits(  39, "000011010111"),
+    huffmanValueBits(  40, "000001101100"),
+    huffmanValueBits(  41, "000001101101"),
+    huffmanValueBits(  42, "000011011010"),
+    huffmanValueBits(  43, "000011011011"),
+    huffmanValueBits(  44, "000001010100"),
+    huffmanValueBits(  45, "000001010101"),
+    huffmanValueBits(  46, "000001010110"),
+    huffmanValueBits(  47, "000001010111"),
+    huffmanValueBits(  48, "000001100100"),
+    huffmanValueBits(  49, "000001100101"),
+    huffmanValueBits(  50, "000001010010"),
+    huffmanValueBits(  51, "000001010011"),
+    huffmanValueBits(  52, "000000100100"),
+    huffmanValueBits(  53, "000000110111"),
+    huffmanValueBits(  54, "000000111000"),
+    huffmanValueBits(  55, "000000100111"),
+    huffmanValueBits(  56, "000000101000"),
+    huffmanValueBits(  57, "000001011000"),
+    huffmanValueBits(  58, "000001011001"),
+    huffmanValueBits(  59, "000000101011"),
+    huffmanValueBits(  60, "000000101100"),
+    huffmanValueBits(  61, "000001011010"),
+    huffmanValueBits(  62, "000001100110"),
+    huffmanValueBits(  63, "000001100111"),
+    huffmanValueBits(  64, "0000001111"),
+    huffmanValueBits( 128, "000011001000"),
+    huffmanValueBits( 192, "000011001001"),
+    huffmanValueBits( 256, "000001011011"),
+    huffmanValueBits( 320, "000000110011"),
+    huffmanValueBits( 384, "000000110100"),
+    huffmanValueBits( 448, "000000110101"),
+    huffmanValueBits( 512, "0000001101100"),
+    huffmanValueBits( 576, "0000001101101"),
+    huffmanValueBits( 640, "0000001001010"),
+    huffmanValueBits( 704, "0000001001011"),
+    huffmanValueBits( 768, "0000001001100"),
+    huffmanValueBits( 832, "0000001001101"),
+    huffmanValueBits( 896, "0000001110010"),
+    huffmanValueBits( 960, "0000001110011"),
+    huffmanValueBits(1024, "0000001110100"),
+    huffmanValueBits(1088, "0000001110101"),
+    huffmanValueBits(1152, "0000001110110"),
+    huffmanValueBits(1216, "0000001110111"),
+    huffmanValueBits(1280, "0000001010010"),
+    huffmanValueBits(1344, "0000001010011"),
+    huffmanValueBits(1408, "0000001010100"),
+    huffmanValueBits(1472, "0000001010101"),
+    huffmanValueBits(1536, "0000001011010"),
+    huffmanValueBits(1600, "0000001011011"),
+    huffmanValueBits(1664, "0000001100100"),
+    huffmanValueBits(1728, "0000001100101"),
+    huffmanValueBits(1792, "00000001000"),
+    huffmanValueBits(1856, "00000001100"),
+    huffmanValueBits(1920, "00000001101"),
+    huffmanValueBits(1984, "000000010010"),
+    huffmanValueBits(2048, "000000010011"),
+    huffmanValueBits(2112, "000000010100"),
+    huffmanValueBits(2176, "000000010101"),
+    huffmanValueBits(2240, "000000010110"),
+    huffmanValueBits(2304, "000000010111"),
+    huffmanValueBits(2368, "000000011100"),
+    huffmanValueBits(2432, "000000011101"),
+    huffmanValueBits(2496, "000000011110"),
+    huffmanValueBits(2560, "000000011111"));
+
+
+const proc: addHuffmanValues (inout msbHuffmanTable: table,
+    in array huffmanValueBits: valueBitsArray) is func
+  local
+    var huffmanValueBits: valueBits is huffmanValueBits.value;
   begin
-    # addCode(table,   -1, "00000000");
-    addCode(table,   -1, "00000000000");
-    addCode(table,    0, "0000110111");
-    addCode(table,    1, "010");
-    addCode(table,    2, "11");
-    addCode(table,    3, "10");
-    addCode(table,    4, "011");
-    addCode(table,    5, "0011");
-    addCode(table,    6, "0010");
-    addCode(table,    7, "00011");
-    addCode(table,    8, "000101");
-    addCode(table,    9, "000100");
-    addCode(table,   10, "0000100");
-    addCode(table,   11, "0000101");
-    addCode(table,   12, "0000111");
-    addCode(table,   13, "00000100");
-    addCode(table,   14, "00000111");
-    addCode(table,   15, "000011000");
-    addCode(table,   16, "0000010111");
-    addCode(table,   17, "0000011000");
-    addCode(table,   18, "0000001000");
-    addCode(table,   19, "00001100111");
-    addCode(table,   20, "00001101000");
-    addCode(table,   21, "00001101100");
-    addCode(table,   22, "00000110111");
-    addCode(table,   23, "00000101000");
-    addCode(table,   24, "00000010111");
-    addCode(table,   25, "00000011000");
-    addCode(table,   26, "000011001010");
-    addCode(table,   27, "000011001011");
-    addCode(table,   28, "000011001100");
-    addCode(table,   29, "000011001101");
-    addCode(table,   30, "000001101000");
-    addCode(table,   31, "000001101001");
-    addCode(table,   32, "000001101010");
-    addCode(table,   33, "000001101011");
-    addCode(table,   34, "000011010010");
-    addCode(table,   35, "000011010011");
-    addCode(table,   36, "000011010100");
-    addCode(table,   37, "000011010101");
-    addCode(table,   38, "000011010110");
-    addCode(table,   39, "000011010111");
-    addCode(table,   40, "000001101100");
-    addCode(table,   41, "000001101101");
-    addCode(table,   42, "000011011010");
-    addCode(table,   43, "000011011011");
-    addCode(table,   44, "000001010100");
-    addCode(table,   45, "000001010101");
-    addCode(table,   46, "000001010110");
-    addCode(table,   47, "000001010111");
-    addCode(table,   48, "000001100100");
-    addCode(table,   49, "000001100101");
-    addCode(table,   50, "000001010010");
-    addCode(table,   51, "000001010011");
-    addCode(table,   52, "000000100100");
-    addCode(table,   53, "000000110111");
-    addCode(table,   54, "000000111000");
-    addCode(table,   55, "000000100111");
-    addCode(table,   56, "000000101000");
-    addCode(table,   57, "000001011000");
-    addCode(table,   58, "000001011001");
-    addCode(table,   59, "000000101011");
-    addCode(table,   60, "000000101100");
-    addCode(table,   61, "000001011010");
-    addCode(table,   62, "000001100110");
-    addCode(table,   63, "000001100111");
-    addCode(table,   64, "0000001111");
-    addCode(table,  128, "000011001000");
-    addCode(table,  192, "000011001001");
-    addCode(table,  256, "000001011011");
-    addCode(table,  320, "000000110011");
-    addCode(table,  384, "000000110100");
-    addCode(table,  448, "000000110101");
-    addCode(table,  512, "0000001101100");
-    addCode(table,  576, "0000001101101");
-    addCode(table,  640, "0000001001010");
-    addCode(table,  704, "0000001001011");
-    addCode(table,  768, "0000001001100");
-    addCode(table,  832, "0000001001101");
-    addCode(table,  896, "0000001110010");
-    addCode(table,  960, "0000001110011");
-    addCode(table, 1024, "0000001110100");
-    addCode(table, 1088, "0000001110101");
-    addCode(table, 1152, "0000001110110");
-    addCode(table, 1216, "0000001110111");
-    addCode(table, 1280, "0000001010010");
-    addCode(table, 1344, "0000001010011");
-    addCode(table, 1408, "0000001010100");
-    addCode(table, 1472, "0000001010101");
-    addCode(table, 1536, "0000001011010");
-    addCode(table, 1600, "0000001011011");
-    addCode(table, 1664, "0000001100100");
-    addCode(table, 1728, "0000001100101");
-    addCode(table, 1792, "00000001000");
-    addCode(table, 1856, "00000001100");
-    addCode(table, 1920, "00000001101");
-    addCode(table, 1984, "000000010010");
-    addCode(table, 2048, "000000010011");
-    addCode(table, 2112, "000000010100");
-    addCode(table, 2176, "000000010101");
-    addCode(table, 2240, "000000010110");
-    addCode(table, 2304, "000000010111");
-    addCode(table, 2368, "000000011100");
-    addCode(table, 2432, "000000011101");
-    addCode(table, 2496, "000000011110");
-    addCode(table, 2560, "000000011111");
+    for valueBits range valueBitsArray do
+      addCode(table, valueBits.huffmanValue, valueBits.bits);
+    end for;
+  end func;
+
+
+const proc: addHuffmanValues (inout lsbHuffmanTable: table,
+    in array huffmanValueBits: valueBitsArray) is func
+  local
+    var huffmanValueBits: valueBits is huffmanValueBits.value;
+  begin
+    for valueBits range valueBitsArray do
+      addCode(table, valueBits.huffmanValue, valueBits.bits);
+    end for;
   end func;
 
 
@@ -317,7 +345,7 @@ const func msbHuffmanTable: genWhiteMsbHuffmanTable is func
     var msbHuffmanTable: table is msbHuffmanTable.value;
   begin
     table := createHuffmanTableMsb(12);
-    addWhiteHuffmanValues(table);
+    addHuffmanValues(table, whiteHuffmanValueBits);
   end func;
 
 
@@ -326,7 +354,7 @@ const func msbHuffmanTable: genBlackMsbHuffmanTable is func
     var msbHuffmanTable: table is msbHuffmanTable.value;
   begin
     table := createHuffmanTableMsb(13);
-    addBlackHuffmanValues(table);
+    addHuffmanValues(table, blackHuffmanValueBits);
   end func;
 
 
@@ -335,7 +363,7 @@ const func lsbHuffmanTable: genWhiteLsbHuffmanTable is func
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   begin
     table := createHuffmanTableLsb(12, -1, 2560);
-    addWhiteHuffmanValues(table);
+    addHuffmanValues(table, whiteHuffmanValueBits);
   end func;
 
 
@@ -344,7 +372,7 @@ const func lsbHuffmanTable: genBlackLsbHuffmanTable is func
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   begin
     table := createHuffmanTableLsb(13, -1, 2560);
-    addBlackHuffmanValues(table);
+    addHuffmanValues(table, blackHuffmanValueBits);
   end func;
 
 
@@ -366,20 +394,18 @@ const integer: CCITT_T4_VERTICAL_LEFT_3  is 8;
 const integer: CCITT_T4_UNCOMPRESSED     is 9;
 
 
-const proc: addT4HuffmanValues (inout huffmanTable: table) is func
-  begin
-    addCode(table, -1,                       "000000000001");
-    addCode(table, CCITT_T4_PASS,             "0001");         # Pass
-    addCode(table, CCITT_T4_HORIZONTAL,       "001");          # Horizontal
-    addCode(table, CCITT_T4_VERTICAL_0,       "1");            # V(0)
-    addCode(table, CCITT_T4_VERTICAL_RIGHT_1, "011");          # Vr(1)
-    addCode(table, CCITT_T4_VERTICAL_RIGHT_2, "000011");       # Vr(2)
-    addCode(table, CCITT_T4_VERTICAL_RIGHT_3, "0000011");      # Vr(3)
-    addCode(table, CCITT_T4_VERTICAL_LEFT_1,  "010");          # Vl(1)
-    addCode(table, CCITT_T4_VERTICAL_LEFT_2,  "000010");       # Vl(2)
-    addCode(table, CCITT_T4_VERTICAL_LEFT_3,  "0000010");      # Vl(3)
-    addCode(table, CCITT_T4_UNCOMPRESSED,     "0000001111");   # Uncompressed
-  end func;
+const array huffmanValueBits: t4HuffmanValueBits is [] (
+    huffmanValueBits(-1,                       "000000000001"),
+    huffmanValueBits(CCITT_T4_PASS,             "0001"),         # Pass
+    huffmanValueBits(CCITT_T4_HORIZONTAL,       "001"),          # Horizontal
+    huffmanValueBits(CCITT_T4_VERTICAL_0,       "1"),            # V(0)
+    huffmanValueBits(CCITT_T4_VERTICAL_RIGHT_1, "011"),          # Vr(1)
+    huffmanValueBits(CCITT_T4_VERTICAL_RIGHT_2, "000011"),       # Vr(2)
+    huffmanValueBits(CCITT_T4_VERTICAL_RIGHT_3, "0000011"),      # Vr(3)
+    huffmanValueBits(CCITT_T4_VERTICAL_LEFT_1,  "010"),          # Vl(1)
+    huffmanValueBits(CCITT_T4_VERTICAL_LEFT_2,  "000010"),       # Vl(2)
+    huffmanValueBits(CCITT_T4_VERTICAL_LEFT_3,  "0000010"),      # Vl(3)
+    huffmanValueBits(CCITT_T4_UNCOMPRESSED,     "0000001111"));  # Uncompressed
 
 
 const func msbHuffmanTable: genT4MsbHuffmanTable is func
@@ -387,7 +413,7 @@ const func msbHuffmanTable: genT4MsbHuffmanTable is func
     var msbHuffmanTable: table is msbHuffmanTable.value;
   begin
     table := createHuffmanTableMsb(12);
-    addT4HuffmanValues(table)
+    addHuffmanValues(table, t4HuffmanValueBits)
   end func;
 
 
@@ -396,7 +422,7 @@ const func lsbHuffmanTable: genT4LsbHuffmanTable is func
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   begin
     table := createHuffmanTableLsb(12, -2, 10);
-    addT4HuffmanValues(table)
+    addHuffmanValues(table, t4HuffmanValueBits)
   end func;
 
 

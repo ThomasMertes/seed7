@@ -29,14 +29,14 @@
 include "bitdata.s7i";
 
 
-const type: huffmanTable is new struct
+const type: huffmanSymbolArray is array [0 ..] integer;
+const type: msbHuffmanCodeLengthArray is array [0 ..] integer;
+
+
+const type: msbHuffmanTable is new struct
     var integer: maxBitWidth is 0;
-    var array integer: symbols is 0 times 0;
-    var array integer: codeLengths is 0 times 0;
-  end struct;
-
-
-const type: msbHuffmanTable is sub huffmanTable struct
+    var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
+    var msbHuffmanCodeLengthArray: codeLengths is msbHuffmanCodeLengthArray.value;
   end struct;
 
 
@@ -65,8 +65,8 @@ const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength
     var integer: tableIndex is 0;
   begin
     table.maxBitWidth := maximumCodeLength;
-    table.symbols := [0 .. pred(1 << maximumCodeLength)] times 0;
-    table.codeLengths := [0 .. pred(1 << maximumCodeLength)] times 0;
+    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
+    table.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
     for codeLength range 1 to maximumCodeLength do
       valueIndexStart := succ(valueIndexEnd);
       valueIndexEnd +:= numberOfCodesWithLength[codeLength];
@@ -111,7 +111,10 @@ const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
   end func;
 
 
-const type: lsbHuffmanTable is sub huffmanTable struct
+const type: lsbHuffmanTable is new struct
+    var integer: maxBitWidth is 0;
+    var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
+    var array integer: codeLengths is 0 times 0;
   end struct;
 
 const type: valuesOfCodeWithLengthType is array array integer;
@@ -130,7 +133,7 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths
     var integer: highBits is 0;
   begin
     table.maxBitWidth := maximumCodeLength;
-    table.symbols := [0 .. pred(1 << maximumCodeLength)] times 0;
+    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
     table.codeLengths := codeLengths;
     for codeLength range 1 to maximumCodeLength do
       for huffmanValue range valuesOfCodeWithLength[codeLength] do
