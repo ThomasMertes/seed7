@@ -44,11 +44,14 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
     var type: arrayType is void;
   local
     var type: tupleType is void;
+    var type: maxIndexType is void;
   begin
     global
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
       tupleType := tuple(baseType);
+      maxIndexType := newtype;
+      IN_PARAM_IS_VALUE(maxIndexType);
 
       const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
       const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
@@ -209,6 +212,21 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
 
       const func arrayType: (attr arrayType) [] (in baseType: anElement) is
           return SET_MIN_IDX(paren1, minIdx, paren2, anElement, arrayType);
+
+      const proc: (ref maxIndexType: dest) ::= (ref maxIndexType: source)        is action "INT_CREATE";
+      const proc: (inout maxIndexType: dest) := (in maxIndexType: source)        is action "INT_CPY";
+      const proc: destroy (ref maxIndexType: aValue)                             is action "GEN_DESTR";
+
+      const func integer: ord (in maxIndexType: maxIndex)                        is action "INT_ICONV1";
+
+      const func maxIndexType: (attr maxIndexType) conv (in integer: number)     is action "INT_ICONV3";
+
+      const func maxIndexType: (attr arrayType) [ .. (in integer: maxIdx) ] is
+          return maxIndexType conv maxIdx;
+
+      const func arrayType: (in maxIndexType: maxIndex) times (in baseType: element) is
+          return SET_MIN_IDX(paren1, minIdx, paren2,
+                             TIMES(succ(ord(maxIndex) - minIdx), times, element, arrayType));
 
       (**
        *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
