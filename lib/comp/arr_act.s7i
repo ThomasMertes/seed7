@@ -1611,6 +1611,43 @@ const proc: process (ARR_TAIL, in reference: function,
   end func;
 
 
+const proc: two_dimensional_times_optimization (in type: result_type,
+    in reference: factor1, in reference: factor2, inout expr_type: c_expr) is func
+
+  local
+    var string: resultName is "";
+    var string: indexName is "";
+  begin
+    incr(countOptimizations);
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "({";
+    resultName := defineTempVariable("arrayType", "times_res_", c_expr);
+    indexName := defineTempVariable("intType", "index_", c_expr);
+    c_expr.result_expr &:= resultName;
+    c_expr.result_expr &:= "=arrMalloc(1, ";
+    getStdParamToResultExpr(factor1, c_expr);
+    c_expr.result_expr &:= ");\n";
+    c_expr.result_expr &:= "for (";
+    c_expr.result_expr &:= indexName;
+    c_expr.result_expr &:= "=0;";
+    c_expr.result_expr &:= indexName;
+    c_expr.result_expr &:= "<";
+    getStdParamToResultExpr(factor1, c_expr);
+    c_expr.result_expr &:= ";";
+    c_expr.result_expr &:= indexName;
+    c_expr.result_expr &:= "++) {\n";
+    c_expr.result_expr &:= resultName;
+    c_expr.result_expr &:= "->arr[";
+    c_expr.result_expr &:= indexName;
+    c_expr.result_expr &:= "].value.arrayValue=arrTimes(1, ";
+    getStdParamToResultExpr(factor2, c_expr);
+    c_expr.result_expr &:= ", 0);\n";
+    c_expr.result_expr &:= "};";
+    c_expr.result_expr &:= resultName;
+    c_expr.result_expr &:= ";})";
+  end func;
+
+
 const proc: process (ARR_TIMES, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1623,12 +1660,20 @@ const proc: process (ARR_TIMES, in reference: function,
     typeCategory @:= [result_type] ARRAYOBJECT;
     if getConstant(params[1], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
+      incr(countOptimizations);
       prepare_typed_result(result_type, c_expr);
       c_expr.result_expr := "arrMalloc(1, 0)";
+    elsif inlineFunctions and ccConf.STMT_BLOCK_IN_PARENTHESES_OK and
+        isActionExpression(params[3], "ARR_TIMES") and
+        getConstant(getActionParameter(params[3], 3), INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 0 then
+      two_dimensional_times_optimization(result_type, params[1],
+          getActionParameter(params[3], 1), c_expr);
     else
       element_type := getType(formalParams(function)[3]);
       if element_type in typeCategory and
           typeCategory[element_type] in simpleValueType then
+        incr(countOptimizations);
         prepare_typed_result(result_type, c_expr);
         c_expr.result_expr := "arrTimes(1, ";
         getStdParamToResultExpr(params[1], c_expr);
