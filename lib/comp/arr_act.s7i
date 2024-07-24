@@ -1615,34 +1615,34 @@ const proc: two_dimensional_times_optimization (in type: result_type,
     in reference: factor1, in reference: factor2, inout expr_type: c_expr) is func
 
   local
+    var string: factor1Name is "";
+    var string: factor2Name is "";
     var string: resultName is "";
-    var string: indexName is "";
   begin
     incr(countOptimizations);
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "({";
+    factor1Name := getParameterInResultStatement("intType",
+        "factor1_", factor1, c_expr);
+    factor2Name := getParameterInResultStatement("intType",
+        "factor2_", factor2, c_expr);
     resultName := defineTempVariable("arrayType", "times_res_", c_expr);
-    indexName := defineTempVariable("intType", "index_", c_expr);
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= "=arrMalloc(1, ";
-    getStdParamToResultExpr(factor1, c_expr);
+    c_expr.result_expr &:= factor1Name;
     c_expr.result_expr &:= ");\n";
-    c_expr.result_expr &:= "for (";
-    c_expr.result_expr &:= indexName;
-    c_expr.result_expr &:= "=0;";
-    c_expr.result_expr &:= indexName;
-    c_expr.result_expr &:= "<";
-    getStdParamToResultExpr(factor1, c_expr);
-    c_expr.result_expr &:= ";";
-    c_expr.result_expr &:= indexName;
-    c_expr.result_expr &:= "++) {\n";
+    c_expr.result_expr &:= "while (";
+    c_expr.result_expr &:= factor1Name;
+    c_expr.result_expr &:= "!=0) {\n";
+    c_expr.result_expr &:= factor1Name;
+    c_expr.result_expr &:= "--;\n";
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= "->arr[";
-    c_expr.result_expr &:= indexName;
+    c_expr.result_expr &:= factor1Name;
     c_expr.result_expr &:= "].value.arrayValue=arrTimes(1, ";
-    getStdParamToResultExpr(factor2, c_expr);
+    c_expr.result_expr &:= factor2Name;
     c_expr.result_expr &:= ", 0);\n";
-    c_expr.result_expr &:= "};";
+    c_expr.result_expr &:= "}\n";
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= ";})";
   end func;

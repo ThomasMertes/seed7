@@ -907,6 +907,24 @@ const func reference: getParameterAsVariable (in reference: param1,
   end func;
 
 
+const func string: getParameterInResultStatement (in string: typeName,
+    in string: namePrefix, in reference: param1, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  begin
+    if isNormalVariable(param1) then
+      variableName := normalVariable(param1, c_expr);
+    else
+      variableName := defineTempVariable(typeName, namePrefix, c_expr);
+      c_expr.result_expr &:= variableName;
+      c_expr.result_expr &:= "=";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ";\n";
+    end if;
+  end func;
+
+
 const func string: getReference (in string: typeName, in string: namePrefix,
     in reference: param1, inout expr_type: c_expr) is func
 
