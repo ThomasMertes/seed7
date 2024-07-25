@@ -70,6 +70,7 @@ const type: jpegScan is new struct
   end struct;
 
 const type: dataBlockType is array [JPEG_BLOCK_SIZE] integer;
+const type: jpegComponentArray is array [1 ..] jpegComponent;
 
 const type: jpegHeader is new struct
     var integer: precision is 0;
@@ -78,7 +79,7 @@ const type: jpegHeader is new struct
     var integer: framebytes is 0;
     var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
     var array dataBlockType: quantizationTable is 4 times dataBlockType.value;
-    var array jpegComponent: component is 0 times jpegComponent.value;
+    var jpegComponentArray: component is jpegComponentArray.value;
     var array jpegScan: scan is 0 times jpegScan.value;
     var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
     var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
@@ -128,7 +129,7 @@ const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is
       header.width     := bytes2Int(stri[6 fixLen 2], UNSIGNED, BE);
       numComponents    := bytes2Int(stri[8 fixLen 1], UNSIGNED, BE);
       header.framebytes := header.width * header.height * numComponents;
-      header.component := numComponents times jpegComponent.value;
+      header.component := jpegComponentArray[.. numComponents] times jpegComponent.value;
       componentData := gets(jpegFile, numComponents * 3);
       if length(componentData) = numComponents * 3 then
         for index range 1 to numComponents do
