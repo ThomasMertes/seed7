@@ -71,6 +71,7 @@ const type: jpegScan is new struct
 
 const type: dataBlockType is array [JPEG_BLOCK_SIZE] integer;
 const type: jpegComponentArray is array [1 ..] jpegComponent;
+const type: jpegScanArray is array [1 ..] jpegScan;
 
 const type: jpegHeader is new struct
     var integer: precision is 0;
@@ -80,7 +81,7 @@ const type: jpegHeader is new struct
     var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
     var array dataBlockType: quantizationTable is 4 times dataBlockType.value;
     var jpegComponentArray: component is jpegComponentArray.value;
-    var array jpegScan: scan is 0 times jpegScan.value;
+    var jpegScanArray: scan is jpegScanArray.value;
     var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
     var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
     var dataBlockType: lumaQuantization is dataBlockType.value;
@@ -239,7 +240,7 @@ const proc: readStartOfScan (inout file: jpegFile, inout jpegHeader: header) is 
         if pos < length then
           header.numberOfScans := ord(stri[pos]);
           incr(pos);
-          header.scan := header.numberOfScans times jpegScan.value;
+          header.scan := jpegScanArray[.. header.numberOfScans] times jpegScan.value;
           for index range 1 to header.numberOfScans do
             header.scan[index].componentId := ord(stri[pos]);
             incr(pos);
