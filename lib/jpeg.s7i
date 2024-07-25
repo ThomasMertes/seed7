@@ -74,6 +74,7 @@ const type: twoDataBlocksArray is array [1 .. 2] dataBlockType;
 const type: fourDataBlocksArray is array [1 .. 4] dataBlockType;
 const type: jpegComponentArray is array [1 ..] jpegComponent;
 const type: jpegScanArray is array [1 ..] jpegScan;
+const type: fourHuffmanTables is array [1 .. 4] msbHuffmanTable;
 
 const type: jpegHeader is new struct
     var integer: precision is 0;
@@ -84,8 +85,8 @@ const type: jpegHeader is new struct
     var fourDataBlocksArray: quantizationTable is fourDataBlocksArray.value;
     var jpegComponentArray: component is jpegComponentArray.value;
     var jpegScanArray: scan is jpegScanArray.value;
-    var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
-    var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
+    var fourHuffmanTables: dcTable is fourHuffmanTables.value;
+    var fourHuffmanTables: acTable is fourHuffmanTables.value;
     var dataBlockType: lumaQuantization is dataBlockType.value;
     var dataBlockType: chromaBlueQuantization is dataBlockType.value;
     var dataBlockType: chromaRedQuantization is dataBlockType.value;
