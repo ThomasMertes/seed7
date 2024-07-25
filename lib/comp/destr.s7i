@@ -34,6 +34,8 @@ const set of category: simpleValueType is {
     BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
     SOCKETOBJECT, REFOBJECT, TYPEOBJECT, ACTOBJECT, BLOCKOBJECT};
 
+const integer: ARRAY_FREELIST_LIMIT is 64;
+
 
 const proc: process_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
@@ -63,18 +65,99 @@ const proc: declare_free_list (in type: object_type, in string: diagnosticLine,
   end func;
 
 
+const proc: define_array_size_variable (in type: object_type, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "memSizeType size = (uintType)(";
+    if object_type in array_minIdx then
+      if object_type in array_maxIdx then
+        c_expr.expr &:= integerLiteral(array_maxIdx[object_type] - array_minIdx[object_type] + 1);
+      else
+        c_expr.expr &:= "b->max_position - ";
+        if array_minIdx[object_type] = integer.first then
+          c_expr.expr &:= integerLiteral(array_minIdx[object_type]);
+          c_expr.expr &:= " + 1";
+        else
+          c_expr.expr &:= integerLiteral(pred(array_minIdx[object_type]));
+        end if;
+      end if;
+    else
+      c_expr.expr &:= "b->max_position - b->min_position + 1";
+    end if;
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const func string: process_arr_free (in type: object_type, in string: variableName,
+    in boolean: useFreelist, in string: diagnosticLine) is func
+
+  result
+    var string: freeExpr is "";
+  begin
+    if useFreelist then
+      freeExpr &:= "if (flist_allowed_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= ">0) {\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "((freeListElemType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "))->next = flist_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= ";\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= " = (freeListElemType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= ");\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_allowed_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= "--;\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "} else {\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "arrFree((arrayType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "));\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_was_full_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= "=1;\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "}\n";
+    else
+      freeExpr &:= "arrFree((arrayType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "));\n";
+    end if;
+  end func;
+
+
 const proc: process_arr_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
     var string: diagnosticLine is "";
     var string: select_value is "";
+    var boolean: useFreelist is FALSE;
   begin
     if object_type in destrFunction then
       diagnosticLine := diagnosticLine(destrFunction[object_type]);
     end if;
     select_value := select_value_from_rtlObjectStruct(array_element[object_type]);
     process_destr_declaration(array_element[object_type], c_expr);
+    if fixArrayFreelist and
+        object_type in array_minIdx and object_type in array_maxIdx and
+        array_maxIdx[object_type] -
+        array_minIdx[object_type] < ARRAY_FREELIST_LIMIT then
+      useFreelist := TRUE;
+      writeln("free list destr: " <& c_expr.currentFile <& "(" <& c_expr.currentLine <& "): " <& type_name(object_type));
+      if object_type not in flist_declared then
+        # Free list might already be defined by the declaration of create_... .
+        declare_free_list(object_type, diagnosticLine, c_expr);
+      end if;
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void destr_";
     c_expr.expr &:= str(typeNumber(object_type));
@@ -88,7 +171,7 @@ const proc: process_arr_destr_declaration (in type: object_type,
     if array_element[object_type] not in typeCategory or
         typeCategory[array_element[object_type]] not in simpleValueType then
       c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "memSizeType size = (uintType)(b->max_position - b->min_position + 1);\n";
+      define_array_size_variable(object_type, c_expr);
       c_expr.expr &:= diagnosticLine;
       c_expr.expr &:= "while (size != 0) {\n";
       c_expr.expr &:= diagnosticLine;
@@ -100,7 +183,7 @@ const proc: process_arr_destr_declaration (in type: object_type,
       c_expr.expr &:= "}\n";
     end if;
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "arrFree((arrayType)(b));\n";
+    c_expr.expr &:= process_arr_free(object_type, "b", useFreelist, diagnosticLine);
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;

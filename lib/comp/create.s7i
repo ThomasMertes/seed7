@@ -38,18 +38,99 @@ const proc: process_create_call (in type: object_type,
     in string: param_b, inout string: expr) is forward;
 
 
+const func string: process_arr_alloc (in type: object_type, in string: variableName,
+    in boolean: useFreelist, in string: diagnosticLine) is func
+
+  result
+    var string: allocExpr is "";
+  local
+    const integer: maxFlistLen is 1 << 16;
+  begin
+    if useFreelist then
+      allocExpr := diagnosticLine;
+      allocExpr &:= "flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= " != NULL ? (";
+      allocExpr &:= variableName;
+      allocExpr &:= "=(";
+      allocExpr &:= type_name(object_type);
+      allocExpr &:= ")(flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "), ";
+      allocExpr &:= "flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "=flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "->next, ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "++, ";
+      allocExpr &:= variableName;
+      allocExpr &:= "->min_position=";
+      allocExpr &:= integerLiteral(array_minIdx[object_type]);
+      allocExpr &:= ", ";
+      allocExpr &:= variableName;
+      allocExpr &:= "->max_position=";
+      allocExpr &:= integerLiteral(array_maxIdx[object_type]);
+      allocExpr &:= ") : (\n";
+      allocExpr &:= diagnosticLine;
+      allocExpr &:= variableName;
+      allocExpr &:= "=(";
+      allocExpr &:= type_name(object_type);
+      allocExpr &:= ")arrMalloc(";
+      allocExpr &:= integerLiteral(array_minIdx[object_type]);
+      allocExpr &:= ", ";
+      allocExpr &:= integerLiteral(array_maxIdx[object_type]);
+      allocExpr &:= "),\n";
+      allocExpr &:= diagnosticLine;
+      allocExpr &:= "unlikely(flist_was_full_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= ") ? (";
+      allocExpr &:= "flist_was_full_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "=0, ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "<";
+      allocExpr &:= str(maxFlistLen);
+      allocExpr &:= " ? ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "<<=1 : 0) : 0)";
+    else
+      allocExpr &:= diagnosticLine;
+      allocExpr &:= variableName;
+      allocExpr &:= "=(";
+      allocExpr &:= type_name(object_type);
+      allocExpr &:= ")arrMalloc(b->min_position, b->max_position)";
+    end if;
+  end func;
+
+
 const proc: process_arr_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
     var string: diagnosticLine is "";
     var string: select_value is "";
+    var boolean: useFreelist is FALSE;
   begin
     if object_type in createFunction then
       diagnosticLine := diagnosticLine(createFunction[object_type]);
     end if;
     select_value := select_value_from_rtlObjectStruct(array_element[object_type]);
     process_create_declaration(array_element[object_type], c_expr);
+    if fixArrayFreelist and
+        object_type in array_minIdx and object_type in array_maxIdx and
+        array_maxIdx[object_type] -
+        array_minIdx[object_type] < ARRAY_FREELIST_LIMIT then
+      useFreelist := TRUE;
+      writeln("free list create: " <& c_expr.currentFile <& "(" <& c_expr.currentLine <& "): " <& type_name(object_type));
+      if object_type not in flist_declared then
+        # Free list might already be defined by the declaration of create_... .
+        declare_free_list(object_type, diagnosticLine, c_expr);
+      end if;
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(object_type);
@@ -64,11 +145,10 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType size = (uintType)(b->max_position - b->min_position + 1);\n";
+    define_array_size_variable(object_type, c_expr);
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a=(";
-    c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(arrMalloc(b->min_position, b->max_position));\n";
+    c_expr.expr &:= process_arr_alloc(object_type, "a", useFreelist, diagnosticLine);
+    c_expr.expr &:= ";\n";
     c_expr.expr &:= diagnosticLine;
     if array_element[object_type] in typeCategory and
         typeCategory[array_element[object_type]] in simpleValueType then
