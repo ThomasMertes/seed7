@@ -111,6 +111,52 @@ const proc: process_arr_destr_declaration (in type: object_type,
   end func;
 
 
+const func string: process_sct_free (in type: object_type, in string: variableName,
+    in string: diagnosticLine) is func
+
+  result
+    var string: freeExpr is "";
+  begin
+    if structFreelist then
+      freeExpr &:= "if (flist_allowed_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= ">0) {\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "((freeListElemType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "))->next = flist_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= ";\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= " = (freeListElemType)(";
+      freeExpr &:= variableName;
+      freeExpr &:= ");\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_allowed_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= "--;\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "} else {\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "free((void *)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "));\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "flist_was_full_";
+      freeExpr &:= str(typeNumber(object_type));
+      freeExpr &:= "=1;\n";
+      freeExpr &:= diagnosticLine;
+      freeExpr &:= "}\n";
+    else
+      freeExpr &:= "free((void *)(";
+      freeExpr &:= variableName;
+      freeExpr &:= "));\n";
+    end if;
+  end func;
+
+
 const proc: process_sct_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
@@ -153,38 +199,9 @@ const proc: process_sct_destr_declaration (in type: object_type,
       process_destr_call(struct_element_type[object_type][elementIndex],
           "b->stru[" & str(elementIndex) & "]" & select_value, c_expr.expr);
     end for;
-    if structFreelist then
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "if (flist_allowed_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= ">0) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "((freeListElemType)(b))->next = flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " = (freeListElemType)(b);\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_allowed_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "--;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "} else {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "free((void *)(b));\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_was_full_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "=1;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-    else
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "free((void *)(b));\n";
-      c_expr.expr &:= diagnosticLine;
-    end if;
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= process_sct_free(object_type, "b", diagnosticLine);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}}\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
