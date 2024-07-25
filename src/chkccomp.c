@@ -10947,6 +10947,15 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",aUnion.ch==(char)aUnion.gen);return 0;}\n")) {
       fprintf(versionFile, "#define CASTING_GETS_A_UNION_ELEMENT %d\n", doTest() == 1);
     } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "char buffer[5];\n"
+                         "memcpy(buffer, \"abcd\", 5);\n"
+                         "memcpy(&buffer[1], \"xy\", 0);\n"
+                         "printf(\"%d\\n\", memcmp(buffer, \"abcd\", 5) == 0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define MEMCPY_ZERO_BYTES_DOES_NOTHING %d\n", doTest() == 1);
+    } /* if */
     if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{printf(\"%d\\n\", EOF == -1); return 0;}\n")) {
       fprintf(versionFile, "#define EOF_IS_MINUS_ONE %d\n", doTest());
