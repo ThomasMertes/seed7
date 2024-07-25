@@ -1622,11 +1622,14 @@ const proc: two_dimensional_times_optimization (in type: result_type,
     incr(countOptimizations);
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "({";
-    factor1Name := getParameterInResultStatement("intType",
-        "factor1_", factor1, c_expr);
+    factor1Name := defineTempVariable("intType", "factor1_", c_expr);
     factor2Name := getParameterInResultStatement("intType",
         "factor2_", factor2, c_expr);
     resultName := defineTempVariable("arrayType", "times_res_", c_expr);
+    c_expr.result_expr &:= factor1Name;
+    c_expr.result_expr &:= "=(";
+    getStdParamToResultExpr(factor1, c_expr);
+    c_expr.result_expr &:= ");\n";
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= "=arrMalloc(1, ";
     c_expr.result_expr &:= factor1Name;
