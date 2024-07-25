@@ -71,6 +71,7 @@ const type: jpegScan is new struct
 
 const type: dataBlockType is array [JPEG_BLOCK_SIZE] integer;
 const type: twoDataBlocksArray is array [1 .. 2] dataBlockType;
+const type: fourDataBlocksArray is array [1 .. 4] dataBlockType;
 const type: jpegComponentArray is array [1 ..] jpegComponent;
 const type: jpegScanArray is array [1 ..] jpegScan;
 
@@ -80,7 +81,7 @@ const type: jpegHeader is new struct
     var integer: height is 0;
     var integer: framebytes is 0;
     var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
-    var array dataBlockType: quantizationTable is 4 times dataBlockType.value;
+    var fourDataBlocksArray: quantizationTable is fourDataBlocksArray.value;
     var jpegComponentArray: component is jpegComponentArray.value;
     var jpegScanArray: scan is jpegScanArray.value;
     var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
@@ -105,7 +106,7 @@ const type: jpegHeader is new struct
   end struct;
 
 const type: jpegMinimumCodedUnit is new struct
-    var array dataBlockType: luma is 4 times dataBlockType.value;
+    var fourDataBlocksArray: luma is fourDataBlocksArray.value;
     var twoDataBlocksArray: chroma is twoDataBlocksArray.value;
   end struct;
 
