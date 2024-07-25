@@ -152,7 +152,6 @@ const proc: process_arr_destr_declaration (in type: object_type,
         array_maxIdx[object_type] -
         array_minIdx[object_type] < ARRAY_FREELIST_LIMIT then
       useFreelist := TRUE;
-      writeln("free list destr: " <& c_expr.currentFile <& "(" <& c_expr.currentLine <& "): " <& type_name(object_type));
       if object_type not in flist_declared then
         # Free list might already be defined by the declaration of create_... .
         declare_free_list(object_type, diagnosticLine, c_expr);
