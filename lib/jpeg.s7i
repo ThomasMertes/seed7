@@ -70,6 +70,7 @@ const type: jpegScan is new struct
   end struct;
 
 const type: dataBlockType is array [JPEG_BLOCK_SIZE] integer;
+const type: twoDataBlocksArray is array [1 .. 2] dataBlockType;
 const type: jpegComponentArray is array [1 ..] jpegComponent;
 const type: jpegScanArray is array [1 ..] jpegScan;
 
@@ -105,7 +106,7 @@ const type: jpegHeader is new struct
 
 const type: jpegMinimumCodedUnit is new struct
     var array dataBlockType: luma is 4 times dataBlockType.value;
-    var array dataBlockType: chroma is 2 times dataBlockType.value;
+    var twoDataBlocksArray: chroma is twoDataBlocksArray.value;
   end struct;
 
 const integer: CHROMA_BLUE is 1;
