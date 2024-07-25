@@ -72,11 +72,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     if array_element[object_type] in typeCategory and
         typeCategory[array_element[object_type]] in simpleValueType then
-      c_expr.expr &:= "if (size != 0) {\n";
-      c_expr.expr &:= diagnosticLine;
       c_expr.expr &:= "memcpy(a->arr, b->arr, size * sizeof(genericType));\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
     else
       c_expr.expr &:= "while (size != 0) {\n";
       c_expr.expr &:= diagnosticLine;
