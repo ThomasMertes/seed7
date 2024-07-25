@@ -635,7 +635,7 @@ const func pixel: setPixel (in integer: luminance, in integer: chromaBlue, in in
 
 
 const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in dataBlockType: luma1,
-    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout array array pixel: image,
+    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout pixelImageType: image,
     in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: line is 0;
@@ -663,7 +663,7 @@ const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in dataBlockType: lu
 
 const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in dataBlockType: luma1,
     in dataBlockType: luma2, in dataBlockType: chromaBlue, in dataBlockType: chromaRed,
-    inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+    inout pixelImageType: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
     var integer: blockColumn is 0;
@@ -701,7 +701,7 @@ const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in dataBlockType: lu
 
 const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in dataBlockType: luma1,
     in dataBlockType: luma2, in dataBlockType: chromaBlue, in dataBlockType: chromaRed,
-    inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+    inout pixelImageType: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
     var integer: blockColumn is 0;
@@ -734,7 +734,7 @@ const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in dataBlockType: lu
 
 const proc: colorMinimumCodedUnit22 (in jpegHeader: header, in dataBlockType: luma1,
     in dataBlockType: luma2, in dataBlockType: luma3, in dataBlockType: luma4,
-    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout array array pixel: image,
+    in dataBlockType: chromaBlue, in dataBlockType: chromaRed, inout pixelImageType: image,
     in integer: mcuTopLine, in integer: mcuLeftColumn) is func
   local
     var integer: blockLine is 0;
@@ -823,7 +823,7 @@ const func string: readEntropyCodedSegment (inout file: jpegFile) is func
 
 const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     in msbHuffmanTable: dcLumaTable, in msbHuffmanTable: acLumaTable,
-    inout array array pixel: image) is func
+    inout pixelImageType: image) is func
   local
     var string: entropyCodedSegment is "";
     var msbBitStream: entropyCodedStream is msbBitStream.value;
@@ -844,7 +844,8 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
-    image := header.height times header.width times pixel.value;
+    image := pixelImageType[.. header.height] times
+             pixelArray[.. header.width] times pixel.value;
     for mcuTopLine range 1 to header.height step 8 do
       blockLineMax := min(7, header.height - mcuTopLine);
       for mcuLeftColumn range 1 to header.width step 8 do
@@ -877,7 +878,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     in msbHuffmanTable: dcLumaTable, in msbHuffmanTable: acLumaTable,
     in msbHuffmanTable: dcChromaBlueTable, in msbHuffmanTable: acChromaBlueTable,
     in msbHuffmanTable: dcChromaRedTable, in msbHuffmanTable: acChromaRedTable,
-    inout array array pixel: image) is func
+    inout pixelImageType: image) is func
   local
     var string: entropyCodedSegment is "";
     var msbBitStream: entropyCodedStream is msbBitStream.value;
@@ -897,7 +898,8 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
-    image := header.height times header.width times pixel.value;
+    image := pixelImageType[.. header.height] times
+             pixelArray[.. header.width] times pixel.value;
     for line range 1 to header.height step header.vertical * 8 do
       for column range 1 to header.width step header.horizontal * 8 do
         if header.restartInterval <> 0 then
@@ -942,7 +944,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
 
 
 const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
-    inout array array pixel: image) is func
+    inout pixelImageType: image) is func
   local
     var integer: dcLumaIndex is 0;
     var integer: acLumaIndex is 0;
@@ -983,7 +985,7 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImageType: image is pixelImageType.value;
   begin
     loadImage(jpegFile, header, image);
     pixmap := getPixmap(image);
@@ -1521,7 +1523,7 @@ const proc: processBlock (inout dataBlockType: dataBlock, in dataBlockType: quan
 const proc: colorMinimumCodedUnit (in jpegHeader: header,
     inout jpegMinimumCodedUnit: minimumCodedUnit,
     in dataBlockType: lumaQuantization, in dataBlockType: chromaBlueQuantization,
-    in dataBlockType: chromaRedQuantization, inout array array pixel: image,
+    in dataBlockType: chromaRedQuantization, inout pixelImageType: image,
     in integer: line, in integer: column) is func
   local
     var integer: index is 0;
@@ -1573,9 +1575,10 @@ const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
   local
     var integer: line is 0;
     var integer: column is 0;
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImageType: image is pixelImageType.value;
   begin
-    image := header.height times header.width times pixel.value;
+    image := pixelImageType[.. header.height] times
+             pixelArray[.. header.width] times pixel.value;
     for line range 1 to length(mcuImage) do
       for column range 1 to length(mcuImage[line]) do
         colorMinimumCodedUnit(header, mcuImage[line][column],
