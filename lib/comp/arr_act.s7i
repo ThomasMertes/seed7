@@ -54,6 +54,8 @@ const ACTION: ARR_SUBARR       is action "ARR_SUBARR";
 const ACTION: ARR_TAIL         is action "ARR_TAIL";
 const ACTION: ARR_TIMES        is action "ARR_TIMES";
 
+var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
+
 
 const proc: arr_prototypes (inout file: c_prog) is func
 
@@ -89,29 +91,25 @@ const proc: arr_prototypes (inout file: c_prog) is func
   end func;
 
 
-const proc: declare_prototype_if_necessary (in reference: function,
+const proc: declare_times_prototype (in type: arrayType,
     inout expr_type: c_expr) is func
 
   local
-    var ref_list: params is ref_list.EMPTY;
-    var type: result_type is void;
-    var type: object_type is void;
+    var type: elementType is void;
   begin
-    if function not in prototype_declared then
-      result_type := resultType(getType(function));
-      params := formalParams(function);
-      object_type := getType(params[3]);
-      process_create_declaration(object_type, c_expr);
-      # c_expr.expr &:= type_name(result_type);
+    if arrayType not in times_prototype_declared then
+      elementType := array_element[arrayType];
+      process_create_declaration(elementType, c_expr);
+      # c_expr.expr &:= type_name(arrayType);
       c_expr.expr &:= "static arrayType times_";
-      c_expr.expr &:= str(typeNumber(result_type));
+      c_expr.expr &:= str(typeNumber(arrayType));
       c_expr.expr &:= " (intType, const ";
-      if useConstPrefix(object_type) then
+      if useConstPrefix(elementType) then
         c_expr.expr &:= "const_";
       end if;
-      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= type_name(elementType);
       c_expr.expr &:= ");\n\n";
-      prototype_declared @:= [function] TRUE;
+      times_prototype_declared @:= [arrayType] TRUE;
     end if;
   end func;
 
@@ -1684,7 +1682,7 @@ const proc: process (ARR_TIMES, in reference: function,
         getGenericValueToResultExpr(params[3], c_expr);
         c_expr.result_expr &:= ")";
       else
-        declare_prototype_if_necessary(function, global_c_expr);
+        declare_times_prototype(result_type, global_c_expr);
         prepare_typed_result(result_type, c_expr);
         c_expr.result_expr := "times_";
         c_expr.result_expr &:= str(typeNumber(result_type));

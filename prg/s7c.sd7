@@ -4585,7 +4585,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
         c_expr.expr &:= type_name(elementType);
         c_expr.expr &:= " b)\n";
         c_expr.expr &:= diagnosticLine;
-        prototype_declared @:= [current_object] TRUE;
+        times_prototype_declared @:= [arrayType] TRUE;
         c_expr.expr &:= "{\n";
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "arrayType a;\n";
