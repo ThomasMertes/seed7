@@ -337,7 +337,6 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
       statement.expr &:= "(";
       statement.expr &:= c_param1.expr;
       statement.expr &:= ")->max_position = ";
-      statement.expr &:= factorName;
     else
       statement.temp_decls &:= "arrayType *array_ptr=&(";
       statement.temp_decls &:= c_param1.expr;
@@ -354,8 +353,8 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
       statement.expr &:= " * sizeof(rtlObjectType)),\n";
       statement.expr &:= "(*array_ptr)->min_position = 1,\n";
       statement.expr &:= "(*array_ptr)->max_position = ";
-      statement.expr &:= factorName;
     end if;
+    statement.expr &:= factorName;
     statement.expr &:= ");\n";
     doLocalDeclsOfStatement(statement, c_expr);
   end func;
@@ -447,6 +446,116 @@ const proc: process_arr_cpy_array_of_zeros (in reference: dest,
   end func;
 
 
+const func boolean: isFixedMinIdxTimes (in reference: aParam) is func
+  result
+    var boolean: isFixedMinIdxTimes is FALSE;
+  local
+    var type: arrayType is void;
+    var reference: timesBody is NIL;
+    var reference: timesExpression is NIL;
+  begin
+    arrayType := getExprResultType(aParam);
+    if arrayType in array_minIdx and
+        category(aParam) = CALLOBJECT and
+        length(getValue(aParam, ref_list)) >= 4 and
+        str(getActionParameter(aParam, 2)) = "times" and
+        category(getValue(aParam, ref_list)[1]) = BLOCKOBJECT then
+      timesBody := body(getValue(aParam, ref_list)[1]);
+      if isActionExpression(timesBody, "ARR_ARRLIT2") then
+        timesExpression := getActionParameter(timesBody, 4);
+        if isActionExpression(timesExpression, "ARR_TIMES") then
+          isFixedMinIdxTimes := TRUE;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: two_dimensional_times_optimization (in reference: dest,
+    in integer: minIdx1, in reference: maxIdx1, in integer: minIdx2, in reference: maxIdx2,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: arrayType is void;
+    var string: maxIdx1Name is "";
+    var string: maxIdx2Name is "";
+    var string: resultName is "";
+    var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    incr(countOptimizations);
+    arrayType := getExprResultType(dest);
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(dest, c_param1, statement);
+    maxIdx1Name := defineTempVariable("intType", "maxIdx1_", statement);
+    if isNormalVariable(maxIdx2) then
+      maxIdx2Name := normalVariable(maxIdx2, statement);
+    else
+      maxIdx2Name := defineTempVariable("intType", "maxIdx2_", statement);
+    end if;
+    resultName := defineTempVariable("arrayType", "times_res_", statement);
+    statement.expr &:= maxIdx1Name;
+    statement.expr &:= "=(";
+    process_expr(maxIdx1, statement);
+    statement.expr &:= ");\n";
+    if not isNormalVariable(maxIdx2) then
+      statement.expr &:= maxIdx2Name;
+      statement.expr &:= "=(";
+      process_expr(maxIdx2, statement);
+      statement.expr &:= ");\n";
+    end if;
+    if isNormalVariable(dest) then
+      resultName := "(" & c_param1.expr & ")";
+    else
+      statement.temp_decls &:= "arrayType *array_ptr=&(";
+      statement.temp_decls &:= c_param1.expr;
+      statement.temp_decls &:= ");\n";
+      resultName := "(*array_ptr)";
+    end if;
+    process_destr_declaration(arrayType, global_c_expr);
+    process_destr_call(arrayType, resultName, statement.expr);
+    statement.expr &:= resultName;
+    statement.expr &:= "=arrMalloc(";
+    statement.expr &:= integerLiteral(minIdx1);
+    statement.expr &:= ", ";
+    statement.expr &:= maxIdx1Name;
+    statement.expr &:= ");\n";
+    if minIdx1 > 1 then
+      statement.expr &:= maxIdx1Name;
+      statement.expr &:= "-= ";
+      statement.expr &:= integerLiteral(pred(minIdx1));
+      statement.expr &:= ";\n";
+    elsif minIdx1 <= succ(integer.first) then
+      statement.expr &:= maxIdx1Name;
+      statement.expr &:= "-= ";
+      statement.expr &:= integerLiteral(minIdx1);
+      statement.expr &:= ";\n";
+      statement.expr &:= maxIdx1Name;
+      statement.expr &:= "++;\n";
+    elsif minIdx1 < 1 then
+      statement.expr &:= maxIdx1Name;
+      statement.expr &:= "+= ";
+      statement.expr &:= integerLiteral(succ(-minIdx1));
+      statement.expr &:= ";\n";
+    end if;
+    statement.expr &:= "while (";
+    statement.expr &:= maxIdx1Name;
+    statement.expr &:= "!=0) {\n";
+    statement.expr &:= maxIdx1Name;
+    statement.expr &:= "--;\n";
+    statement.expr &:= resultName;
+    statement.expr &:= "->arr[";
+    statement.expr &:= maxIdx1Name;
+    statement.expr &:= "].value.arrayValue=arrTimes(";
+    statement.expr &:= integerLiteral(minIdx2);
+    statement.expr &:= ", ";
+    statement.expr &:= maxIdx2Name;
+    statement.expr &:= ", 0);\n";
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (ARR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -472,6 +581,14 @@ const proc: process (ARR_CPY, in reference: function,
         isIntArrayOfZeros(evaluatedParam) then
       process_arr_cpy_array_of_zeros(params[1],
           arrayMinIdx(evaluatedParam), arrayMaxIdx(evaluatedParam), c_expr);
+    elsif isFixedMinIdxTimes(params[3]) and
+        isFixedMinIdxTimes(getActionParameter(params[3], 3)) and
+        getConstant(getActionParameter(getActionParameter(params[3], 3), 3), INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 0 then
+      two_dimensional_times_optimization(params[1],
+          array_minIdx[arrayType], getActionParameter(params[3], 1),
+          array_minIdx[getExprResultType(getActionParameter(params[3], 3))],
+          getActionParameter(getActionParameter(params[3], 3), 1), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
