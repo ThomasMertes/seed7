@@ -493,7 +493,6 @@ const proc: two_dimensional_times_optimization (in reference: dest,
     else
       maxIdx2Name := defineTempVariable("intType", "maxIdx2_", statement);
     end if;
-    resultName := defineTempVariable("arrayType", "times_res_", statement);
     statement.expr &:= maxIdx1Name;
     statement.expr &:= "=(";
     process_expr(maxIdx1, statement);
