@@ -1,0 +1,121 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  exif.s7i      Support for the exchangeable image file format    *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const string: EXIF_MAGIC is "Exif";
+const string: EXIF_TIFF_MAGIC_LE is "II\42;\0;";
+const string: EXIF_TIFF_MAGIC_BE is "MM\0;\42;";
+const integer: EXIF_THUMBNAIL_WIDTH   is 16#0100;
+const integer: EXIF_IMAGE_DESCRIPTION is 16#010e;
+const integer: EXIF_MANUFACTURER      is 16#010f;  # Manufacturer of digicam
+const integer: EXIF_MODEL             is 16#0110;  # Model number of digicam
+const integer: EXIF_ORIENTATION       is 16#0112;  # Start point of data (1=upper left, 3=lower right, 6=upper right, 8=lower left, 9=undefined)
+const integer: EXIF_X_RESOLUTION      is 16#011a;
+const integer: EXIF_Y_RESOLUTION      is 16#011b;
+const integer: EXIF_RESOLUTION_UNIT   is 16#0128;  # Unit of X and Y resolution (1=no-unit, 2=inch, 3=centimeter)
+const integer: EXIF_SOFTWARE          is 16#0131;
+const integer: EXIF_DATE_TIME         is 16#0132;  # Modification date/time of image (format: "YYYY:MM:DD HH:MM:SS\0;", total 20bytes)
+const integer: EXIF_YCBCR_POSITIONING is 16#0213;
+const integer: EXIF_OFFSET            is 16#8769;
+
+const integer: EXIF_UNSIGNED_BYTE_TYPE     is  1;  # Size 1
+const integer: EXIF_ASCII_STRINGS_TYPE     is  2;  # Size 1
+const integer: EXIF_UNSIGNED_SHORT_TYPE    is  3;  # Size 2
+const integer: EXIF_UNSIGNED_LONG_TYPE     is  4;  # Size 4
+const integer: EXIF_UNSIGNED_RATIONAL_TYPE is  5;  # Size 8
+const integer: EXIF_SIGNED_BYTE_TYPE       is  6;  # Size 1
+const integer: EXIF_UNDEFINED_TYPE         is  7;  # Size 1
+const integer: EXIF_SIGNED_SHORT_TYPE      is  8;  # Size 2
+const integer: EXIF_SIGNED_LONG_TYPE       is  9;  # Size 4
+const integer: EXIF_SIGNED_RATIONAL_TYPE   is 10;  # Size 8
+const integer: EXIF_SINGLE_FLOAT_TYPE      is 11;  # Size 4
+const integer: EXIF_DOUBLE_FLOAT_TYPE      is 12;  # Size 8
+
+const integer: EXIF_ORIENTATION_DEFAULT           is 0;
+const integer: EXIF_ORIENTATION_NORMAL            is 1;
+const integer: EXIF_ORIENTATION_MIRROR_HORIZONTAL is 2;
+const integer: EXIF_ORIENTATION_ROTATE_180        is 3;
+const integer: EXIF_ORIENTATION_MIRROR_VERTICAL   is 4;
+const integer: EXIF_ORIENTATION_MIRROR_ROTATE_90  is 5;
+const integer: EXIF_ORIENTATION_ROTATE_90         is 6;
+const integer: EXIF_ORIENTATION_MIRROR_ROTATE_270 is 7;
+const integer: EXIF_ORIENTATION_ROTATE_270        is 8;
+const integer: EXIF_ORIENTATION_UNDEFINED         is 9;
+
+const type: exifDataType is new struct
+    var integer: orientation is 0;
+  end struct;
+
+
+const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
+  local
+    var integer: offsetToFirstIfd is 0;
+    var integer: pos is 1;
+    var integer: numberOfDirectoryEntries is 0;
+    var integer: tagNumber is 0;
+    var integer: format is 0;
+    var integer: numberOfComponents is 0;
+    var integer: offsetOrValue is 0;
+  begin
+    if stri[7 fixLen 4] = EXIF_TIFF_MAGIC_LE then
+      offsetToFirstIfd := bytes2Int(stri[11 fixLen 4], UNSIGNED, LE);
+      pos := 7 + offsetToFirstIfd;
+      numberOfDirectoryEntries := bytes2Int(stri[pos fixLen 2], UNSIGNED, LE);
+      pos +:= 2;
+      while numberOfDirectoryEntries > 0 do
+        tagNumber          :=  bytes2Int(stri[pos     fixLen 2], UNSIGNED, LE);
+        format             :=  bytes2Int(stri[pos + 2 fixLen 2], UNSIGNED, LE);
+        numberOfComponents :=  bytes2Int(stri[pos + 4 fixLen 4], UNSIGNED, LE);
+        offsetOrValue      :=  bytes2Int(stri[pos + 6 fixLen 4], UNSIGNED, LE);
+        pos +:= 12;
+        # writeln("LE: " <& tagNumber radix 16 lpad0 4 <& " " <& format <& " " <&
+        #     numberOfComponents <& " " <& offsetOrValue);
+        if tagNumber = EXIF_ORIENTATION and format = EXIF_UNSIGNED_SHORT_TYPE then
+          exifData.orientation := offsetOrValue mod 2 ** 16;
+        end if;
+        decr(numberOfDirectoryEntries);
+      end while;
+    elsif stri[7 fixLen 4] = EXIF_TIFF_MAGIC_BE then
+      offsetToFirstIfd := bytes2Int(stri[11 fixLen 4], UNSIGNED, BE);
+      pos := 7 + offsetToFirstIfd;
+      numberOfDirectoryEntries := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
+      pos +:= 2;
+      while numberOfDirectoryEntries > 0 do
+        tagNumber          :=  bytes2Int(stri[pos     fixLen 2], UNSIGNED, BE);
+        format             :=  bytes2Int(stri[pos + 2 fixLen 2], UNSIGNED, BE);
+        numberOfComponents :=  bytes2Int(stri[pos + 4 fixLen 4], UNSIGNED, BE);
+        offsetOrValue      :=  bytes2Int(stri[pos + 6 fixLen 4], UNSIGNED, BE);
+        pos +:= 12;
+        # writeln("BE: " <& tagNumber radix 16 lpad0 4 <& " " <& format <& " " <&
+        #    numberOfComponents <& " " <& offsetOrValue);
+        if tagNumber = EXIF_ORIENTATION and format = EXIF_UNSIGNED_SHORT_TYPE then
+          exifData.orientation := offsetOrValue mod 2 ** 16;
+        end if;
+        decr(numberOfDirectoryEntries);
+      end while;
+    end if;
+  end func;
