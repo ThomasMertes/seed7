@@ -30,6 +30,7 @@ include "bytedata.s7i";
 include "bitdata.s7i";
 include "huffman.s7i";
 include "draw.s7i";
+include "exif.s7i";
 include "pixelimage.s7i";
 
 
@@ -105,6 +106,7 @@ const type: jpegHeader is new struct
     var integer: unitColumns is 0;
     var integer: blockLines is 0;
     var integer: blockColumns is 0;
+    var exifDataType: exifData is exifDataType.value;
   end struct;
 
 const type: jpegMinimumCodedUnit is new struct
@@ -356,7 +358,8 @@ const proc: readDefineRestartInterval (inout file: jpegFile, inout jpegHeader: h
   end func;
 
 
-const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber) is func
+const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber,
+    inout jpegHeader: header) is func
   local
     var string: stri is "";
     var integer: length is 0;
@@ -370,6 +373,9 @@ const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber)
       data := gets(jpegFile, length);
       if length(data) = length then
         identifier := getAsciiz(data, pos);
+        if appNumber = 1 and identifier = EXIF_MAGIC then
+          readExifData(data, header.exifData);
+        end if;
       else
         raise RANGE_ERROR;
       end if;
@@ -982,6 +988,27 @@ const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
   end func;
 
 
+const proc: changeOrientation (inout pixelImage: image, in integer: orientation) is func
+  begin
+    case orientation of
+      when {EXIF_ORIENTATION_MIRROR_HORIZONTAL}:
+        mirrorHorizontally(image);
+      when {EXIF_ORIENTATION_ROTATE_180}:
+        rotate180(image);
+      when {EXIF_ORIENTATION_MIRROR_VERTICAL}:
+        mirrorVertically(image);
+      when {EXIF_ORIENTATION_MIRROR_ROTATE_90}:
+        image := rotat270AndMirrorHorizontal(image);
+      when {EXIF_ORIENTATION_ROTATE_90}:
+        rotate270(image);
+      when {EXIF_ORIENTATION_MIRROR_ROTATE_270}:
+        image := rotat90AndMirrorHorizontal(image);
+      when {EXIF_ORIENTATION_ROTATE_270}:
+        rotate90(image);
+    end case;
+  end func;
+
+
 const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader: header) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
@@ -989,6 +1016,10 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
     var pixelImage: image is pixelImage.value;
   begin
     loadImage(jpegFile, header, image);
+    if header.exifData.orientation > EXIF_ORIENTATION_NORMAL and
+        header.exifData.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.exifData.orientation);
+    end if;
     pixmap := getPixmap(image);
   end func;
 
@@ -1589,6 +1620,10 @@ const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
                               succ(pred(column) * 8 * header.horizontal));
       end for;
     end for;
+    if header.exifData.orientation > EXIF_ORIENTATION_NORMAL and
+        header.exifData.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.exifData.orientation);
+    end if;
     pixmap := getPixmap(image);
   end func;
 
@@ -1648,7 +1683,7 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: jpegFile) is func
           when {JPEG_DRI}:
             readDefineRestartInterval(jpegFile, header);
           when {JPEG_APP0 .. JPEG_APP15}:
-            readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0));
+            readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0), header);
           when {JPEG_COM}:
             readComment(jpegFile);
           when {JPEG_FILLER}:
