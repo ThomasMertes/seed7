@@ -79,7 +79,6 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
     var integer: tagNumber is 0;
     var integer: format is 0;
     var integer: numberOfComponents is 0;
-    var integer: offsetOrValue is 0;
   begin
     if stri[7 fixLen 4] = EXIF_TIFF_MAGIC_LE then
       offsetToFirstIfd := bytes2Int(stri[11 fixLen 4], UNSIGNED, LE);
@@ -90,13 +89,13 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
         tagNumber          :=  bytes2Int(stri[pos     fixLen 2], UNSIGNED, LE);
         format             :=  bytes2Int(stri[pos + 2 fixLen 2], UNSIGNED, LE);
         numberOfComponents :=  bytes2Int(stri[pos + 4 fixLen 4], UNSIGNED, LE);
-        offsetOrValue      :=  bytes2Int(stri[pos + 6 fixLen 4], UNSIGNED, LE);
-        pos +:= 12;
+        # Offset or value:               stri[pos + 8 fixLen 4]
         # writeln("LE: " <& tagNumber radix 16 lpad0 4 <& " " <& format <& " " <&
-        #     numberOfComponents <& " " <& offsetOrValue);
+        #     numberOfComponents <& " " <& literal(stri[pos + 8 fixLen 4]));
         if tagNumber = EXIF_ORIENTATION and format = EXIF_UNSIGNED_SHORT_TYPE then
-          exifData.orientation := offsetOrValue mod 2 ** 16;
+          exifData.orientation := bytes2Int(stri[pos + 8 fixLen 2], UNSIGNED, LE);
         end if;
+        pos +:= 12;
         decr(numberOfDirectoryEntries);
       end while;
     elsif stri[7 fixLen 4] = EXIF_TIFF_MAGIC_BE then
@@ -108,13 +107,13 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
         tagNumber          :=  bytes2Int(stri[pos     fixLen 2], UNSIGNED, BE);
         format             :=  bytes2Int(stri[pos + 2 fixLen 2], UNSIGNED, BE);
         numberOfComponents :=  bytes2Int(stri[pos + 4 fixLen 4], UNSIGNED, BE);
-        offsetOrValue      :=  bytes2Int(stri[pos + 6 fixLen 4], UNSIGNED, BE);
-        pos +:= 12;
+        # Offset or value:               stri[pos + 8 fixLen 4]
         # writeln("BE: " <& tagNumber radix 16 lpad0 4 <& " " <& format <& " " <&
-        #    numberOfComponents <& " " <& offsetOrValue);
+        #     numberOfComponents <& " " <& literal(stri[pos + 8 fixLen 4]));
         if tagNumber = EXIF_ORIENTATION and format = EXIF_UNSIGNED_SHORT_TYPE then
-          exifData.orientation := offsetOrValue mod 2 ** 16;
+          exifData.orientation := bytes2Int(stri[pos + 8 fixLen 2], UNSIGNED, BE);
         end if;
+        pos +:= 12;
         decr(numberOfDirectoryEntries);
       end while;
     end if;
