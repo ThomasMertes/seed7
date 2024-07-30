@@ -998,11 +998,11 @@ const proc: changeOrientation (inout pixelImage: image, in integer: orientation)
       when {EXIF_ORIENTATION_MIRROR_VERTICAL}:
         mirrorVertically(image);
       when {EXIF_ORIENTATION_MIRROR_ROTATE_90}:
-        image := rotat270AndMirrorHorizontally(image);
+        image := getRotated270AndMirroredHorizontally(image);
       when {EXIF_ORIENTATION_ROTATE_90}:
         rotate270(image);
       when {EXIF_ORIENTATION_MIRROR_ROTATE_270}:
-        image := rotat90AndMirrorHorizontally(image);
+        image := getRotated90AndMirroredHorizontally(image);
       when {EXIF_ORIENTATION_ROTATE_270}:
         rotate90(image);
     end case;

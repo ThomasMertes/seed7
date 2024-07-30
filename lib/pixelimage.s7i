@@ -253,7 +253,7 @@ const proc: mirrorVertically (inout pixelImage: image) is func
  *  Return ''image'' rotated by 90 degrees counterclockwise and mirrored horizontally.
  *  This is the same as mirroring vertically and rotating by 90 degrees conterclockwise.
  *)
-const func pixelImage: rotat90AndMirrorHorizontally (in pixelImage: image) is func
+const func pixelImage: getRotated90AndMirroredHorizontally (in pixelImage: image) is func
   result
     var pixelImage: destImage is pixelImage.value;
   local
@@ -284,7 +284,7 @@ const func pixelImage: rotat90AndMirrorHorizontally (in pixelImage: image) is fu
  *  Return ''image'' rotated by 270 degrees counterclockwise and mirrored horizontally.
  *  This is the same as mirroring vertically and rotating by 270 degrees conterclockwise.
  *)
-const func pixelImage: rotat270AndMirrorHorizontally (in pixelImage: image) is func
+const func pixelImage: getRotated270AndMirroredHorizontally (in pixelImage: image) is func
   result
     var pixelImage: destImage is pixelImage.value;
   local
