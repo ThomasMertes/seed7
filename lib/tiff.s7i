@@ -33,6 +33,7 @@ include "lzw.s7i";
 include "jpeg.s7i";
 include "strifile.s7i";
 include "gzip.s7i";
+include "pixelimage.s7i";
 
 
 const string: TIFF_MAGIC_LE is "II\42;\0;";
@@ -583,7 +584,7 @@ const proc: predictor (in tiffHeader: header, inout string: stripData) is func
 
 
 const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var file: jpegFile is STD_NULL;
     var boolean: readMarker is TRUE;
@@ -645,8 +646,8 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
     var integer: stripByteCount is 0;
     var string: stripData is "";
     var integer: insertPos is 1;
-    var pixelImageType: subImage is pixelImageType.value;
-    var pixelImageType: image is pixelImageType.value;
+    var pixelImage: subImage is pixelImage.value;
+    var pixelImage: image is pixelImage.value;
   begin
     jpegHead.width := header.width;
     jpegHead.height := header.height;
@@ -705,7 +706,7 @@ const func string: unpackBits (in string: compressed) is func
 
 const proc: processCcittModifiedGroup3Fax (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var pixel: whitePixel is pixel.value;
     var pixel: blackPixel is pixel.value;
@@ -733,7 +734,7 @@ const proc: processCcittModifiedGroup3Fax (in tiffHeader: header, in string: str
 
 const proc: processCcittT6Fax (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var array pixel: blackOrWhite is 0 times pixel.value;
   begin
@@ -758,7 +759,7 @@ const proc: processCcittT6Fax (in tiffHeader: header, in string: stripData,
 
 const proc: processCcittT4Fax1d (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var pixel: whitePixel is pixel.value;
     var pixel: blackPixel is pixel.value;
@@ -786,7 +787,7 @@ const proc: processCcittT4Fax1d (in tiffHeader: header, in string: stripData,
 
 const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var array pixel: blackOrWhite is 0 times pixel.value;
   begin
@@ -810,7 +811,7 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
 
 
 const proc: processRow (in tiffHeader: header, inout msbBitStream: stripDataStream,
-    in integer: line, inout pixelImageType: image) is func
+    in integer: line, inout pixelImage: image) is func
   local
     var integer: bitsPerSample1 is 0;
     var pixel: whitePixel is pixel.value;
@@ -869,7 +870,7 @@ const proc: processRow (in tiffHeader: header, inout msbBitStream: stripDataStre
 
 const proc: processRowWithColorMap (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
   begin
@@ -899,7 +900,7 @@ const proc: processRowWithColorMap (in tiffHeader: header,
 
 const proc: processRowWithGrayscale (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -937,7 +938,7 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
 
 const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -975,7 +976,7 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
 
 const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1013,7 +1014,7 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
 
 const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1051,7 +1052,7 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
 
 const proc: processRowWithRGB (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1097,7 +1098,7 @@ const proc: processRowWithRGB (in tiffHeader: header,
 
 const proc: processRowWithRGBA (in tiffHeader: header,
     in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
   begin
@@ -1133,7 +1134,7 @@ const proc: processRowWithRGBA (in tiffHeader: header,
 
 const proc: processRow (in tiffHeader: header, in string: stripData,
     inout integer: currPosition, in integer: line,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   begin
     # writeln("line: " <& line);
     case header.samplesPerPixel of
@@ -1229,9 +1230,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     var integer: currPosition is 1;
     var integer: currentRow is 1;
     var msbBitStream: stripDataStream is msbBitStream.value;
-    var pixelImageType: image is pixelImageType.value;
+    var pixelImage: image is pixelImage.value;
   begin
-    image := pixelImageType[.. header.height] times
+    image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
     lastFullStripIndex := header.height div header.rowsPerStrip;
     if header.photometricInterpretation =
@@ -1299,7 +1300,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
 
 const proc: processRow (in tiffHeader: header, in array string: stripData,
     in integer: line, inout integer: currPosition,
-    inout pixelImageType: image) is func
+    inout pixelImage: image) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1354,9 +1355,9 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
     var integer: sampleIndex is 0;
     var integer: line is 0;
     var integer: currPosition is 0;
-    var pixelImageType: image is pixelImageType.value;
+    var pixelImage: image is pixelImage.value;
   begin
-    image := pixelImageType[.. header.height] times
+    image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
     stripsPerImage := (header.height + header.rowsPerStrip - 1) div header.rowsPerStrip;
     # writeln("length(stripOffsets): " <& length(header.stripOffsets));
