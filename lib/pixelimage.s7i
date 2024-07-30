@@ -1,0 +1,305 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pixelimage.s7i  Support for pixelImage (2D array of pixels)     *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "draw.s7i";
+
+
+const type: pixelArray is array [1 ..] pixel;
+
+
+(**
+ *  Two dimensional array of pixels.
+ *)
+const type: pixelImage is array [1 ..] pixelArray;
+
+
+(**
+ *  Create a new pixmap from a two-dimensional array of pixels.
+ *  The array of pixels might come from a image file.
+ *  @param image Pixel array with lines from top downward and columns from left to right.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (ref pixelImage: image) is action "DRW_GET_PIXMAP_FROM_PIXELS";
+
+
+(**
+ *  Get a two-dimensional array of pixels from ''aWindow''.
+ *  The array of pixels can be used to write the image to a file.
+ *  This is used by the function str(aWindow, PPM):
+ *   image := getPixelImage(pixmap);
+ *   for line range 1 to height do
+ *     for pix range image[line] do
+ *       col := pixelToColor(pix);
+ *       stri &:= chr(col.redLight   mdiv 256);
+ *       stri &:= chr(col.greenLight mdiv 256);
+ *       stri &:= chr(col.blueLight  mdiv 256);
+ *     end for;
+ *   end for;
+ *  @param aWindow Window or pixmap source to create the array of pixels.
+ *  @return a pixel array with lines from top downward and columns from left to right.
+ *)
+const func pixelImage: getPixelImage (in PRIMITIVE_WINDOW: aWindow) is action "DRW_GET_PIXEL_ARRAY";
+
+
+(**
+ *  Return ''image'' rotated by 90 degrees counterclockwise.
+ *)
+const func pixelImage: getRotated90 (in pixelImage: image) is func
+  result
+    var pixelImage: rotatedImage is pixelImage.value;
+  local
+    var integer: srcLine is 0;
+    var integer: firstDestLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: destColumn is 1;
+  begin
+    rotatedImage := pixelImage[.. length(image[1])] times
+                    pixelArray[.. length(image)] times pixel.value;
+    firstDestLine := length(image[1]);
+    lastSrcColumn := length(image[1]);
+    for srcLine range 1 to length(image) do
+      destLine := firstDestLine;
+      for srcColumn range 1 to lastSrcColumn do
+        rotatedImage[destLine][destColumn] := image[srcLine][srcColumn];
+        decr(destLine);
+      end for;
+      incr(destColumn);
+    end for;
+  end func;
+
+
+(**
+ *  Rotate the given ''image'' by 90 degrees counterclockwise.
+ *)
+const proc: rotate90 (inout pixelImage: image) is func
+  begin
+    image := getRotated90(image);
+  end func;
+
+
+(**
+ *  Return ''image'' rotated by 180 degrees.
+ *)
+const func pixelImage: getRotated180 (in pixelImage: image) is func
+  result
+    var pixelImage: rotatedImage is pixelImage.value;
+  local
+    var integer: srcLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: firstDestColumn is 0;
+    var integer: destColumn is 1;
+  begin
+    rotatedImage := pixelImage[.. length(image)] times
+                    pixelArray[.. length(image[1])] times pixel.value;
+    destLine := length(image);
+    lastSrcColumn := length(image[1]);
+    firstDestColumn := length(image[1]);
+    for srcLine range 1 to succ(length(image)) div 2 do
+      destColumn := firstDestColumn;
+      for srcColumn range 1 to lastSrcColumn do
+        rotatedImage[destLine][destColumn] := image[srcLine][srcColumn];
+        decr(destColumn);
+      end for;
+      decr(destLine);
+    end for;
+  end func;
+
+
+(**
+ *  Rotate the given ''image'' by 180 degrees.
+ *)
+const proc: rotate180 (inout pixelImage: image) is func
+  local
+    var integer: srcLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: firstDestColumn is 0;
+    var integer: destColumn is 1;
+    var pixel: aPixel is pixel.value;
+  begin
+    destLine := length(image);
+    lastSrcColumn := length(image[1]);
+    firstDestColumn := length(image[1]);
+    for srcLine range 1 to succ(length(image)) div 2 do
+      destColumn := firstDestColumn;
+      for srcColumn range 1 to lastSrcColumn do
+        aPixel := image[srcLine][srcColumn];
+        image[srcLine][srcColumn] := image[destLine][destColumn];
+        image[destLine][destColumn] := aPixel;
+        decr(destColumn);
+      end for;
+      decr(destLine);
+    end for;
+  end func;
+
+
+(**
+ *  Return ''image'' rotated by 270 degrees counterclockwise.
+ *)
+const func pixelImage: getRotated270 (in pixelImage: image) is func
+  result
+    var pixelImage: rotatedImage is pixelImage.value;
+  local
+    var integer: srcLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: destColumn is 1;
+  begin
+    rotatedImage := pixelImage[.. length(image[1])] times
+                    pixelArray[.. length(image)] times pixel.value;
+    lastSrcColumn := length(image[1]);
+    destColumn := length(image);
+    for srcLine range 1 to length(image) do
+      destLine := 1;
+      for srcColumn range 1 to lastSrcColumn do
+        rotatedImage[srcColumn][destColumn] := image[srcLine][srcColumn];
+      end for;
+      decr(destColumn);
+    end for;
+  end func;
+
+
+(**
+ *  Rotate the given ''image'' by 270 degrees counterclockwise.
+ *)
+const proc: rotate270 (inout pixelImage: image) is func
+  begin
+    image := getRotated270(image);
+  end func;
+
+
+(**
+ *  Mirror the given ''image'' horizontally.
+ *)
+const proc: mirrorHorizontally (inout pixelImage: image) is func
+  local
+    var integer: srcLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: firstDestColumn is 0;
+    var integer: destColumn is 1;
+    var pixel: aPixel is pixel.value;
+  begin
+    lastSrcColumn := succ(length(image[1])) div 2;
+    firstDestColumn := length(image[1]);
+    for srcLine range 1 to length(image) do
+      destColumn := firstDestColumn;
+      for srcColumn range 1 to lastSrcColumn do
+        aPixel := image[srcLine][srcColumn];
+        image[srcLine][srcColumn] := image[srcLine][destColumn];
+        image[srcLine][destColumn] := aPixel;
+        decr(destColumn);
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Mirror the given ''image'' vertically.
+ *)
+const proc: mirrorVertically (inout pixelImage: image) is func
+  local
+    var integer: srcLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var pixel: aPixel is pixel.value;
+  begin
+    destLine := length(image);
+    lastSrcColumn := length(image[1]);
+    for srcLine range 1 to succ(length(image)) div 2 do
+      for srcColumn range 1 to lastSrcColumn do
+        aPixel := image[srcLine][srcColumn];
+        image[srcLine][srcColumn] := image[destLine][srcColumn];
+        image[destLine][srcColumn] := aPixel;
+      end for;
+      decr(destLine);
+    end for;
+  end func;
+
+
+(**
+ *  Return ''image'' rotated by 90 degrees counterclockwise and mirrored horizontally.
+ *  This is the same as mirroring vertically and rotating by 90 degrees conterclockwise.
+ *)
+const func pixelImage: rotat90AndMirrorHorizontal (in pixelImage: image) is func
+  result
+    var pixelImage: destImage is pixelImage.value;
+  local
+    var integer: srcLine is 0;
+    var integer: firstDestLine is 0;
+    var integer: destLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: destColumn is 1;
+  begin
+    destImage := pixelImage[.. length(image[1])] times
+                 pixelArray[.. length(image)] times pixel.value;
+    firstDestLine := length(image[1]);
+    lastSrcColumn := length(image[1]);
+    destColumn := length(image);
+    for srcLine range 1 to length(image) do
+      destLine := firstDestLine;
+      for srcColumn range 1 to lastSrcColumn do
+        destImage[destLine][destColumn] := image[srcLine][srcColumn];
+        decr(destLine);
+      end for;
+      decr(destColumn);
+    end for;
+  end func;
+
+
+(**
+ *  Return ''image'' rotated by 270 degrees counterclockwise and mirrored horizontally.
+ *  This is the same as mirroring vertically and rotating by 270 degrees conterclockwise.
+ *)
+const func pixelImage: rotat270AndMirrorHorizontal (in pixelImage: image) is func
+  result
+    var pixelImage: destImage is pixelImage.value;
+  local
+    var integer: srcLine is 0;
+    var integer: srcColumn is 0;
+    var integer: lastSrcColumn is 0;
+    var integer: destColumn is 1;
+  begin
+    destImage := pixelImage[.. length(image[1])] times
+                 pixelArray[.. length(image)] times pixel.value;
+    lastSrcColumn := length(image[1]);
+    for srcLine range 1 to length(image) do
+      for srcColumn range 1 to lastSrcColumn do
+        destImage[srcColumn][destColumn] := image[srcLine][srcColumn];
+      end for;
+      incr(destColumn);
+    end for;
+  end func;
