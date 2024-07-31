@@ -34,6 +34,12 @@ EXTERN objectType fail_value;
 EXTERN listType fail_expression;
 EXTERN listType fail_stack;
 
+#ifdef DO_INIT
+boolType catch_exceptions = TRUE;
+#else
+EXTERN boolType catch_exceptions;
+#endif
+
 #define set_fail_flag(failValue) interrupt_flag = (failValue); fail_flag = (failValue);
 /* printf("set_fail_flag(%d) at %s(%d)\n", failValue, __FILE__, __LINE__); */
 

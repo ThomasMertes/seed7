@@ -54,6 +54,7 @@
 
 #undef EXTERN
 #define EXTERN
+#define DO_INIT
 #include "runerr.h"
 
 
@@ -73,12 +74,15 @@ static void continue_question (objectType *exception)
     printf("\n*** The following commands are possible:\n"
            "  RETURN  Continue\n"
            "  *       Terminate\n"
+           "  #       Terminate with stack trace\n"
            "  /       Trigger SIGFPE\n"
            "  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)\n");
     ch = fgetc(stdin);
     if (ch == (int) '*') {
       shutDrivers();
       os_exit(1);
+    } else if (ch == (int) '#') {
+      catch_exceptions = FALSE;
     } else if (ch == (int) '/') {
       triggerSigfpe();
     } /* if */
@@ -318,7 +322,11 @@ void uncaught_exception (void)
 
   { /* uncaught_exception */
     prot_nl();
-    prot_cstri("*** Uncaught exception ");
+    if (catch_exceptions) {
+      prot_cstri("*** Uncaught exception ");
+    } else {
+      prot_cstri("*** Program terminated after exception ");
+    } /* if */
     printobject(fail_value);
     prot_cstri(" raised with");
     prot_nl();

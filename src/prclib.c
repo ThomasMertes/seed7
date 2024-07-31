@@ -254,7 +254,7 @@ objectType prc_block (listType arguments)
   /* prc_block */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (unlikely(fail_flag)) {
+    if (unlikely(fail_flag && catch_exceptions)) {
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
@@ -289,7 +289,7 @@ objectType prc_block_catch_all (listType arguments)
   /* prc_block_catch_all */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (unlikely(fail_flag)) {
+    if (unlikely(fail_flag && catch_exceptions)) {
       default_statement = arg_6(arguments);
       leaveExceptionHandling();
       evaluate(default_statement);
@@ -312,7 +312,7 @@ objectType prc_block_otherwise (listType arguments)
   /* prc_block_otherwise */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (unlikely(fail_flag)) {
+    if (unlikely(fail_flag && catch_exceptions)) {
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
