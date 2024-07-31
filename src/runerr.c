@@ -83,6 +83,7 @@ static void continue_question (objectType *exception)
       os_exit(1);
     } else if (ch == (int) '#') {
       catch_exceptions = FALSE;
+      set_fail_flag(TRUE);
     } else if (ch == (int) '/') {
       triggerSigfpe();
     } /* if */
@@ -321,17 +322,22 @@ void write_call_stack (const_listType stack_elem)
 void uncaught_exception (void)
 
   { /* uncaught_exception */
-    prot_nl();
-    if (catch_exceptions) {
-      prot_cstri("*** Uncaught exception ");
+    if (fail_value != NULL) {
+      prot_nl();
+      if (catch_exceptions) {
+        prot_cstri("*** Uncaught exception ");
+      } else {
+        prot_cstri("*** Program terminated after exception ");
+      } /* if */
+      printobject(fail_value);
+      prot_cstri(" raised with");
+      prot_nl();
+      write_fail_expression(fail_expression);
+      prot_nl();
     } else {
-      prot_cstri("*** Program terminated after exception ");
+      printf("\n*** Program terminated after signal %s\n",
+             signalName(signal_number));
     } /* if */
-    printobject(fail_value);
-    prot_cstri(" raised with");
-    prot_nl();
-    write_fail_expression(fail_expression);
-    prot_nl();
     prot_nl();
     prot_cstri("Stack:\n");
     write_call_stack(fail_stack);
