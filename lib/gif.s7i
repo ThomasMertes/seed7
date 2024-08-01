@@ -29,6 +29,7 @@
 include "bytedata.s7i";
 include "draw.s7i";
 include "lzw.s7i";
+include "pixelimage.s7i";
 
 
 const string: GIF_MAGIC_87 is "GIF87a";
@@ -204,7 +205,7 @@ const proc: readExtensionBlock (inout file: gifFile, inout gifExtensions: extens
   end func;
 
 
-const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelData,
+const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
     in array pixel: palette, in gifImageHeader: imageHeader) is func
   local
     var char: colorIndex is '\0;';
@@ -230,7 +231,7 @@ const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelDa
   end func;
 
 
-const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelData,
+const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
     in array pixel: palette, in integer: transparentColorIndex,
     in gifImageHeader: imageHeader) is func
   local
@@ -259,7 +260,7 @@ const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelDa
   end func;
 
 
-const proc: fillGifImage8BitInterlaced (inout array array pixel: image,
+const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
     in string: pixelData, in array pixel: palette,
     in gifImageHeader: imageHeader) is func
   local
@@ -301,7 +302,7 @@ const proc: fillGifImage8BitInterlaced (inout array array pixel: image,
   end func;
 
 
-const proc: fillGifImage8BitInterlaced (inout array array pixel: image,
+const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
     in string: pixelData, in array pixel: palette,
     in integer: transparentColorIndex, in gifImageHeader: imageHeader) is func
   local
@@ -364,12 +365,13 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
     var char: sentinel is ' ';
     var integer: initialNumberOfLzwBits is 0;
     var string: uncompressed is "";
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImage: image is pixelImage.value;
   begin
     magic := gets(gifFile, length(GIF_MAGIC_87));
     if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
       readHeader(gifFile, header);
-      image := header.screenHeight times header.screenWidth times pixel.value;
+      image := pixelImage[.. header.screenHeight] times
+               pixelArray[.. header.screenWidth] times pixel.value;
       sentinel := getc(gifFile);
       while sentinel <> ';' do
         if sentinel = '!' then

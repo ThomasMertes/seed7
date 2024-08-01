@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ppm.s7i       Support for the PPM image file format.            *)
-(*  Copyright (C) 2021 - 2023  Thomas Mertes                        *)
+(*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,6 +30,8 @@ include "scanfile.s7i";
 include "bytedata.s7i";
 include "draw.s7i";
 include "keybd.s7i";
+include "pixelimage.s7i";
+
 
 const string: PPM_MAGIC is "P6";
 
@@ -54,7 +56,7 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
     var integer: byteIndex is 1;
     var integer: line is 0;
     var integer: column is 0;
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImage: image is pixelImage.value;
   begin
     magic := gets(ppmFile, length(PPM_MAGIC));
     if magic = PPM_MAGIC then
@@ -80,7 +82,8 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
       end while;
       skipWhiteSpace(ppmFile);
       maximumColorValue := integer(getInteger(ppmFile));
-      image := height times width times pixel.value;
+      image := pixelImage[.. height] times
+               pixelArray[.. width] times pixel.value;
       if maximumColorValue <= 255 then
         for line range 1 to height do
           pixelData := gets(ppmFile, width * 3);
@@ -143,7 +146,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   local
     var integer: height is 0;
     var integer: width is 0;
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImage: image is pixelImage.value;
     var integer: line is 0;
     var pixel: pix is pixel.value;
     var color: col is color.value;
@@ -151,7 +154,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
     height := height(pixmap);
     width := width(pixmap);
     stri &:= "\n" <& width <& " " <& height <& "\n255\n";
-    image := getPixelArray(pixmap);
+    image := getPixelImage(pixmap);
     for line range 1 to height do
       for pix range image[line] do
         col := pixelToColor(pix);

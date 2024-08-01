@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ico.s7i       Support for the ICO image file format.            *)
-(*  Copyright (C) 2019 - 2023  Thomas Mertes                        *)
+(*  Copyright (C) 2019 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -28,6 +28,7 @@
 
 include "draw.s7i";
 include "bmp.s7i";
+include "pixelimage.s7i";
 
 
 const string: ICO_MAGIC is "\0;\0;\1;\0;";
@@ -144,7 +145,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
   local
     var integer: width is 0;
     var integer: height is 0;
-    var array array pixel: image is 0 times 0 times pixel.value;
+    var pixelImage: image is pixelImage.value;
     var integer: padding is 0;
     var integer: lineMaskLen is 0;
     var integer: line is 0;
@@ -178,7 +179,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
               "\0;" mult 4 &                        # vertical resolution
               "\0;" mult 4 &                        # palette colors
               "\0;" mult 4;                         # important colors (0 means all colors are important)
-      image := getPixelArray(pixmap);
+      image := getPixelImage(pixmap);
       padding := -(3 * width) mod 4;
       for line range height downto 1 do
         for pix range image[line] do
