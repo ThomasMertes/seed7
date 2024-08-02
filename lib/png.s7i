@@ -259,7 +259,7 @@ const proc: filterPngData (in pngHeader: header, inout string: uncompressed) is 
 
 
 const proc: fillPngImage1Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in integer: height, in integer: width) is func
+    in colorLookupTable: palette, in integer: height, in integer: width) is func
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -295,7 +295,7 @@ const proc: fillPngImage1Bit (inout pixelImage: image, in string: pixelData,
 
 
 const proc: fillPngImage2Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in integer: height, in integer: width) is func
+    in colorLookupTable: palette, in integer: height, in integer: width) is func
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -327,7 +327,7 @@ const proc: fillPngImage2Bit (inout pixelImage: image, in string: pixelData,
 
 
 const proc: fillPngImage4Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in integer: height, in integer: width) is func
+    in colorLookupTable: palette, in integer: height, in integer: width) is func
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -351,7 +351,7 @@ const proc: fillPngImage4Bit (inout pixelImage: image, in string: pixelData,
 
 
 const proc: fillPngImage8Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in integer: height, in integer: width) is func
+    in colorLookupTable: palette, in integer: height, in integer: width) is func
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -444,29 +444,29 @@ const proc: fillPngImage48Bit (inout pixelImage: image, in string: pixelData,
 
 
 const func pixelImage: pixelDataToImage (in pngHeader: header,
-    in string: pixelData, in array pixel: palette) is func
+    in string: pixelData, in colorLookupTable: palette) is func
   result
     var pixelImage: image is pixelImage.value;
   local
-    var array pixel: grayscalePalette is 0 times pixel.value;
+    var colorLookupTable: grayscalePalette is colorLookupTable.value;
   begin
     image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
     if header.colorType = 0 or header.colorType = 4 then
       if header.bitDepth = 1 then
-        grayscalePalette := [0 .. 1] times pixel.value;
+        grayscalePalette := colorLookupTable[.. 1] times pixel.value;
         grayscalePalette[0] := rgbPixel(    0,     0,     0);
         grayscalePalette[1] := rgbPixel(65535, 65535, 65535);
         fillPngImage1Bit(image, pixelData, grayscalePalette, header.height, header.width);
       elsif header.bitDepth = 2 then
-        grayscalePalette := [0 .. 3] times pixel.value;
+        grayscalePalette := colorLookupTable[.. 3] times pixel.value;
         grayscalePalette[0] := rgbPixel(    0,     0,     0);
         grayscalePalette[1] := rgbPixel(21845, 21845, 21845);
         grayscalePalette[2] := rgbPixel(43690, 43690, 43690);
         grayscalePalette[3] := rgbPixel(65535, 65535, 65535);
         fillPngImage2Bit(image, pixelData, grayscalePalette, header.height, header.width);
       elsif header.bitDepth = 4 then
-        grayscalePalette := [0 .. 15] times pixel.value;
+        grayscalePalette := colorLookupTable[.. 15] times pixel.value;
         grayscalePalette[ 0] := rgbPixel(    0,     0,     0);
         grayscalePalette[ 1] := rgbPixel( 4369,  4369,  4369);
         grayscalePalette[ 2] := rgbPixel( 8738,  8738,  8738);
@@ -510,7 +510,7 @@ const func pixelImage: pixelDataToImage (in pngHeader: header,
 
 
 const func pixelImage: interlaceToImage (in pngHeader: header,
-    in string: pixelData, in array pixel: palette) is func
+    in string: pixelData, in colorLookupTable: palette) is func
   result
     var pixelImage: image is pixelImage.value;
   local
@@ -613,7 +613,7 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
     var string: uncompressed is "";
     var integer: paletteIndex is 0;
     var integer: byteIndex is 1;
-    var array pixel: palette is 0 times pixel.value;
+    var colorLookupTable: palette is colorLookupTable.value;
     var pixelImage: image is pixelImage.value;
   begin
     magic := gets(pngFile, length(PNG_MAGIC));
@@ -627,7 +627,7 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
           when {"IHDR"}:
             header := pngHeader(chunkData);
           when {"PLTE"}:
-            palette := [0 .. pred(length(chunkData) div 3)] times pixel.value;
+            palette := colorLookupTable[.. pred(length(chunkData) div 3)] times pixel.value;
             byteIndex := 1;
             for paletteIndex range 0 to pred(length(chunkData) div 3) do
               palette[paletteIndex] := rgbPixel(ord(chunkData[byteIndex]) * 256,

@@ -615,7 +615,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
 
     const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
-        in huffmanTable: blackHuffmanTable, in array pixel: blackOrWhite,
+        in huffmanTable: blackHuffmanTable, in colorLookupTable: blackOrWhite,
         in integer: line, in integer: width, inout array integer: bValues,
         inout pixelImage: image) is func
       local
@@ -789,7 +789,7 @@ DECLARE_CcittT6Fax_FUNCTIONS(lsbBitStream, lsbHuffmanTable);
  *  @param image Destination of the pixel lines.
  *)
 const proc: processCcittT6FaxMsb (in string: faxData,
-    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
     var msbBitStream: faxDataStream is msbBitStream.value;
@@ -821,7 +821,7 @@ const proc: processCcittT6FaxMsb (in string: faxData,
  *  @param image Destination of the pixel lines.
  *)
 const proc: processCcittT6FaxLsb (in string: faxData,
-    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
     var lsbBitStream: faxDataStream is lsbBitStream.value;
@@ -974,7 +974,7 @@ DECLARE_CcittT4Fax2d_FUNCTIONS(lsbBitStream, lsbHuffmanTable);
  *  @param image Destination of the pixel lines.
  *)
 const proc: processCcittT4Fax2dMsb (in string: faxData,
-    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
     var msbBitStream: faxDataStream is msbBitStream.value;
@@ -1013,7 +1013,7 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
  *  @param image Destination of the pixel lines.
  *)
 const proc: processCcittT4Fax2dLsb (in string: faxData,
-    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
     var lsbBitStream: faxDataStream is lsbBitStream.value;

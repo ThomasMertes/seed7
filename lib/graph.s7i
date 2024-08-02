@@ -58,6 +58,7 @@ const func integer: (attr integer) conv (in pixel: aPixel) is action "INT_ICONV3
 const func integer: ord (in pixel: aPixel)                 is action "INT_ICONV1";
 const pixel: (attr pixel) . value                          is pixel conv 0;
 
+const type: colorLookupTable is array [0 ..] pixel;
 
 const proc: DRAW_POINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y)                   is action "DRW_POINT";

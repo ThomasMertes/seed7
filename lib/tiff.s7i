@@ -135,7 +135,7 @@ const type: tiffHeader is new struct
     var integer: offsetToFirstIfd is 0;
     var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
     var tiffStringTagValues: stringTagValues is tiffStringTagValues.value;
-    var array pixel: colorMap is 0 times pixel.value;
+    var colorLookupTable: colorMap is colorLookupTable.value;
   end struct;
 
 const type: tiffIDFEntry is new struct
@@ -546,7 +546,7 @@ const proc: readColorMap (inout tiffHeader: header) is func
     colorMapData := header.integerTagValues[TIFF_TAG_COLOR_MAP];
     numberOfColorMapEntries := length(colorMapData) div 3;
     # writeln("numberOfColorMapEntries: " <& numberOfColorMapEntries);
-    header.colorMap := [0 .. pred(numberOfColorMapEntries)] times pixel.value;
+    header.colorMap := colorLookupTable[.. pred(numberOfColorMapEntries)] times pixel.value;
     for colorMapIndex range 0 to pred(numberOfColorMapEntries) do
       # writeln("colorMap[" <& colorMapIndex <& "] := rgbPixel(" <&
       #     colorMapData[succ(colorMapIndex)] <& ", " <&
@@ -736,12 +736,12 @@ const proc: processCcittT6Fax (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
     inout pixelImage: image) is func
   local
-    var array pixel: blackOrWhite is 0 times pixel.value;
+    var colorLookupTable: blackOrWhite is colorLookupTable.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      blackOrWhite := [0] (colorPixel(black), colorPixel(white));
+      blackOrWhite := colorLookupTable[] (colorPixel(black), colorPixel(white));
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      blackOrWhite := [0] (colorPixel(white), colorPixel(black));
+      blackOrWhite := colorLookupTable[] (colorPixel(white), colorPixel(black));
     else
       raise RANGE_ERROR;
     end if;
@@ -789,12 +789,12 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
     inout pixelImage: image) is func
   local
-    var array pixel: blackOrWhite is 0 times pixel.value;
+    var colorLookupTable: blackOrWhite is colorLookupTable.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      blackOrWhite := [0] (colorPixel(black), colorPixel(white));
+      blackOrWhite := colorLookupTable[] (colorPixel(black), colorPixel(white));
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      blackOrWhite := [0] (colorPixel(white), colorPixel(black));
+      blackOrWhite := colorLookupTable[] (colorPixel(white), colorPixel(black));
     else
       raise RANGE_ERROR;
     end if;

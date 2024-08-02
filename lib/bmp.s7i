@@ -90,7 +90,7 @@ const type: bmpHeader is new struct
     var integer: redGamma is 0;
     var integer: greenGamma is 0;
     var integer: blueGamma is 0;
-    var array pixel: palette is 0 times pixel.value;
+    var colorLookupTable: palette is colorLookupTable.value;
   end struct;
 
 
@@ -268,7 +268,7 @@ const proc: readPaletteData (inout file: bmpFile, inout bmpHeader: header,
   begin
     numOfPaletteBytes := header.paletteColors * colorEntrySize;
     header.paletteColors := min(header.paletteColors, 256);
-    header.palette := [0 .. pred(header.paletteColors)] times pixel.value;
+    header.palette := colorLookupTable[.. pred(header.paletteColors)] times pixel.value;
     stri := gets(bmpFile, numOfPaletteBytes);
     if length(stri) = numOfPaletteBytes then
       header.calculatedOffset +:= numOfPaletteBytes;

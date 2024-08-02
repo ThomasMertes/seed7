@@ -43,7 +43,7 @@ const type: gifHeader is new struct
     var integer: screenHeight is 0;
     var integer: bitsOfColorResolution is 0;
     var integer: globalBitsPerPixel is 0;
-    var array pixel: globalColorMap is 0 times pixel.value;
+    var colorLookupTable: globalColorMap is colorLookupTable.value;
   end struct;
 
 const type: gifImageHeader is new struct
@@ -54,7 +54,7 @@ const type: gifImageHeader is new struct
     var boolean: interlacedOrder is FALSE;
     var integer: bitsPerPixel is 0;
     var boolean: hasLocalColorMap is FALSE;
-    var array pixel: localColorMap is 0 times pixel.value;
+    var colorLookupTable: localColorMap is colorLookupTable.value;
   end struct;
 
 const type: gifExtensions is new struct
@@ -91,7 +91,7 @@ const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
       # writeln("globalBitsPerPixel: " <& header.globalBitsPerPixel);
       if globalColorMapFollows then
         maxColorMapIndex := pred(2 ** header.globalBitsPerPixel);
-        header.globalColorMap := [0 .. maxColorMapIndex] times pixel.value;
+        header.globalColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
         rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
         for colorMapIndex range 0 to maxColorMapIndex do
           header.globalColorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
@@ -132,7 +132,7 @@ const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) 
       # writeln("bitsPerPixel: " <& header.bitsPerPixel);
       if header.hasLocalColorMap then
         maxColorMapIndex := pred(2 ** header.bitsPerPixel);
-        header.localColorMap := [0 .. maxColorMapIndex] times pixel.value;
+        header.localColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
         rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
         for colorMapIndex range 0 to maxColorMapIndex do
           header.localColorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
@@ -206,7 +206,7 @@ const proc: readExtensionBlock (inout file: gifFile, inout gifExtensions: extens
 
 
 const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in gifImageHeader: imageHeader) is func
+    in colorLookupTable: palette, in gifImageHeader: imageHeader) is func
   local
     var char: colorIndex is '\0;';
     var integer: line is 0;
@@ -232,7 +232,7 @@ const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
 
 
 const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
-    in array pixel: palette, in integer: transparentColorIndex,
+    in colorLookupTable: palette, in integer: transparentColorIndex,
     in gifImageHeader: imageHeader) is func
   local
     var char: colorIndex is '\0;';
@@ -261,7 +261,7 @@ const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
 
 
 const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
-    in string: pixelData, in array pixel: palette,
+    in string: pixelData, in colorLookupTable: palette,
     in gifImageHeader: imageHeader) is func
   local
     var char: colorIndex is '\0;';
@@ -303,7 +303,7 @@ const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
 
 
 const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
-    in string: pixelData, in array pixel: palette,
+    in string: pixelData, in colorLookupTable: palette,
     in integer: transparentColorIndex, in gifImageHeader: imageHeader) is func
   local
     var char: colorIndex is '\0;';
