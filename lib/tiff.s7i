@@ -105,6 +105,7 @@ const integer: TIFF_COMPRESSION_LEMPEL_ZIV_WELCH       is     5;
 const integer: TIFF_COMPRESSION_JPEG                   is     7;
 const integer: TIFF_COMPRESSION_DEFLATE                is     8;
 const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
+const integer: TIFF_COMPRESSION_THUNDERSCAN            is 32809;
 const integer: TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE is 32946;
 
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO     is 0;
@@ -148,6 +149,17 @@ const type: tiffIDFEntry is new struct
 const proc: showHeader (in tiffHeader: header) is func
   begin
     writeln("littleEndian: " <& header.littleEndian);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("compression: " <& header.compression);
+    writeln("photometricInterpretation: " <& header.photometricInterpretation);
+    writeln("planarConfiguration: " <& header.planarConfiguration);
+    writeln("fillOrder: " <& header.fillOrder);
+    writeln("samplesPerPixel: " <& header.samplesPerPixel);
+    writeln("length(bitsPerSample): " <& length(header.bitsPerSample));
+    writeln("rowsPerStrip: " <& header.rowsPerStrip);
+    writeln("length(stripOffsets): " <& length(header.stripOffsets));
+    writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
     writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
   end func;
 
@@ -1215,6 +1227,138 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
   end func;
 
 
+const proc: readThunderScan (in tiffHeader: header, in string: stripData,
+    in integer: startLine, in colorLookupTable: palette,
+    inout pixelImage: image) is func
+  local
+    const char: PIXEL_RUN_MAX       is '\2#00111111;';
+    const char: TWO_BIT_DELTA_MIN   is '\2#01000000;';
+    const char: TWO_BIT_DELTA_MAX   is '\2#01111111;';
+    const char: THREE_BIT_DELTA_MIN is '\2#10000000;';
+    const char: THREE_BIT_DELTA_MAX is '\2#10111111;';
+    const char: ONE_PIXEL_MIN       is '\2#11000000;';
+    const array integer: twoBitDeltas is [0] (0, 1, 0, -1);
+    const array integer: threeBitDeltas is [0] (0, 1, 2, 3, 0, -3, -2, -1);
+    const integer: twoBitDeltaSkip is 2;
+    const integer: threeBitDeltaSkip is 4;
+    var char: ch is ' ';
+    var integer: paletteIndex is 0;
+    var pixel: aPixel is pixel.value;
+    var integer: line is 1;
+    var integer: column is 1;
+    var integer: factor is 0;
+    var integer: delta is 0;
+  begin
+    line := startLine;
+    for ch range stripData do
+      if ch <= PIXEL_RUN_MAX then
+        for factor range 1 to ord(ch) do
+          if line <= header.height and column <= header.width then
+            image[line][column] := aPixel;
+            incr(column);
+          end if;
+        end for;
+      elsif ch <= TWO_BIT_DELTA_MAX then
+        delta := (ord(ch) - ord(TWO_BIT_DELTA_MIN)) >> 4;
+        if delta <> twoBitDeltaSkip then
+          paletteIndex +:= twoBitDeltas[delta];
+          aPixel := palette[paletteIndex];
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+        delta := ((ord(ch) - ord(TWO_BIT_DELTA_MIN)) >> 2) mod 4;
+        if delta <> twoBitDeltaSkip then
+          paletteIndex +:= twoBitDeltas[delta];
+          aPixel := palette[paletteIndex];
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+        delta := (ord(ch) - ord(TWO_BIT_DELTA_MIN)) mod 4;
+        if delta <> twoBitDeltaSkip then
+          paletteIndex +:= twoBitDeltas[delta];
+          aPixel := palette[paletteIndex];
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+      elsif ch <= THREE_BIT_DELTA_MAX then
+        delta := (ord(ch) - ord(THREE_BIT_DELTA_MIN)) >> 3;
+        if delta <> threeBitDeltaSkip then
+          paletteIndex +:= threeBitDeltas[delta];
+          aPixel := palette[paletteIndex];
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+        delta := (ord(ch) - ord(THREE_BIT_DELTA_MIN)) mod 8;
+        if delta <> threeBitDeltaSkip then
+          paletteIndex +:= threeBitDeltas[delta];
+          aPixel := palette[paletteIndex];
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+      else
+        paletteIndex := ord(ch) - ord(ONE_PIXEL_MIN);
+        aPixel := palette[paletteIndex];
+        if line <= header.height and column <= header.width then
+          image[line][column] := aPixel;
+          incr(column);
+        end if;
+      end if;
+      if column > header.width then
+        incr(line);
+        column := 1;
+      end if;
+    end for;
+  end func;
+
+
+const proc: readThunderScan (in tiffHeader: header, in string: stripData,
+    in integer: startLine, inout pixelImage: image) is func
+  local
+    const colorLookupTable: grayscalePaletteWhiteIsZero is colorLookupTable[] (
+        rgbPixel(65535, 65535, 65535),
+        rgbPixel(61166, 61166, 61166),
+        rgbPixel(56797, 56797, 56797),
+        rgbPixel(52428, 52428, 52428),
+        rgbPixel(48059, 48059, 48059),
+        rgbPixel(43690, 43690, 43690),
+        rgbPixel(39321, 39321, 39321),
+        rgbPixel(34952, 34952, 34952),
+        rgbPixel(30583, 30583, 30583),
+        rgbPixel(26214, 26214, 26214),
+        rgbPixel(21845, 21845, 21845),
+        rgbPixel(17476, 17476, 17476),
+        rgbPixel(13107, 13107, 13107),
+        rgbPixel( 8738,  8738,  8738),
+        rgbPixel( 4369,  4369,  4369),
+        rgbPixel(    0,     0,     0));
+    const colorLookupTable: grayscalePaletteBlackIsZero is colorLookupTable[] (
+        rgbPixel(    0,     0,     0),
+        rgbPixel( 4369,  4369,  4369),
+        rgbPixel( 8738,  8738,  8738),
+        rgbPixel(13107, 13107, 13107),
+        rgbPixel(17476, 17476, 17476),
+        rgbPixel(21845, 21845, 21845),
+        rgbPixel(26214, 26214, 26214),
+        rgbPixel(30583, 30583, 30583),
+        rgbPixel(34952, 34952, 34952),
+        rgbPixel(39321, 39321, 39321),
+        rgbPixel(43690, 43690, 43690),
+        rgbPixel(48059, 48059, 48059),
+        rgbPixel(52428, 52428, 52428),
+        rgbPixel(56797, 56797, 56797),
+        rgbPixel(61166, 61166, 61166),
+        rgbPixel(65535, 65535, 65535));
+  begin
+    if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+      readThunderScan(header, stripData, startLine,
+                      grayscalePaletteWhiteIsZero, image);
+    elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+      readThunderScan(header, stripData, startLine,
+                      grayscalePaletteBlackIsZero, image);
+    end if;
+  end func;
+
+
 const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     inout tiffHeader: header) is func
   result
@@ -1288,6 +1432,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
             end if;
           when {TIFF_COMPRESSION_CCITT_T6}:
             processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          when {TIFF_COMPRESSION_THUNDERSCAN}:
+            readThunderScan(header, stripData, currentRow, image);
             currentRow +:= rowsInCurrentStrip;
         end case;
       else
@@ -1447,6 +1594,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                                         (header.bitsPerSample[1] mdiv 8));
           # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
         end if;
+        # showHeader(header);
         case header.compression of
           when {TIFF_NO_COMPRESSION,
                 TIFF_COMPRESSION_PACK_BITS,
@@ -1455,7 +1603,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                 TIFF_COMPRESSION_CCITT_T6,
                 TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
                 TIFF_COMPRESSION_DEFLATE,
-                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
+                TIFF_COMPRESSION_THUNDERSCAN}:
             if header.planarConfiguration = TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT then
               pixmap := readTiff(tiffFile, header);
             else
