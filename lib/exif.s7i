@@ -33,7 +33,7 @@ const integer: EXIF_THUMBNAIL_WIDTH   is 16#0100;
 const integer: EXIF_IMAGE_DESCRIPTION is 16#010e;
 const integer: EXIF_MANUFACTURER      is 16#010f;  # Manufacturer of digicam
 const integer: EXIF_MODEL             is 16#0110;  # Model number of digicam
-const integer: EXIF_ORIENTATION       is 16#0112;  # Start point of data (1=upper left, 3=lower right, 6=upper right, 8=lower left, 9=undefined)
+const integer: EXIF_ORIENTATION       is 16#0112;  # Image orientation defined by the EXIF_ORIENTATION_... constants
 const integer: EXIF_X_RESOLUTION      is 16#011a;
 const integer: EXIF_Y_RESOLUTION      is 16#011b;
 const integer: EXIF_RESOLUTION_UNIT   is 16#0128;  # Unit of X and Y resolution (1=no-unit, 2=inch, 3=centimeter)
