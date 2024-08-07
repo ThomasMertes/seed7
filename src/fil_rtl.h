@@ -42,7 +42,7 @@ EXTERN fileRecord stderrFileRecord;
 #endif
 
 #define initFileType(aFile, readingOkay, writingOkay) \
-    (aFile)->usage_count = 1;				    \
+    (aFile)->usage_count = 1; \
     (aFile)->readingAllowed = (readingOkay); \
     (aFile)->writingAllowed = (writingOkay);
 
