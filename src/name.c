@@ -713,28 +713,68 @@ void pop_object_list (listType list_element)
 
 
 
-static void match_name_list (listType raw_name_list)
+static void free_matched_list (listType matched_name_list)
 
   {
     listType name_elem;
 
+  /* free_matched_list */
+    logFunction(printf("free_matched_list\n"););
+    name_elem = matched_name_list;
+    while (name_elem != NULL) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
+        free_expression(name_elem->obj);
+      } /* if */
+      name_elem = name_elem->next;
+    } /* while */
+    free_list(matched_name_list);
+    logFunction(printf("free_matched_list -->\n"););
+  } /* free_matched_list */
+
+
+
+static listType match_name_list (listType original_name_list, errInfoType *err_info)
+
+  {
+    listType name_elem;
+    listType matched_name_list;
+    listType *list_insert_place;
+    objectType parameter;
+
   /* match_name_list */
     logFunction(printf("match_name_list\n"););
-    name_elem = raw_name_list;
+    name_elem = original_name_list;
+    matched_name_list = NULL;
+    list_insert_place = &matched_name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
-        if (match_expression(name_elem->obj) == NULL) {
-          err_match(NO_MATCH, name_elem->obj);
+        parameter = copy_expression(name_elem->obj, err_info);
+        if (*err_info == OKAY_NO_ERROR) {
+          if (match_expression(parameter) == NULL) {
+            err_match(NO_MATCH, parameter);
+          } /* if */
+          list_insert_place = append_element_to_list(list_insert_place,
+              parameter, err_info);
         } /* if */
+      } else {
+        if (HAS_ENTITY(name_elem->obj) &&
+            GET_ENTITY(name_elem->obj)->syobject != NULL) {
+          parameter = GET_ENTITY(name_elem->obj)->syobject;
+        } else {
+          parameter = name_elem->obj;
+        } /* if */
+        list_insert_place = append_element_to_list(list_insert_place,
+            parameter, err_info);
       } /* if */
       name_elem = name_elem->next;
     } /* while */
     logFunction(printf("match_name_list -->\n"););
+    return matched_name_list;
   } /* match_name_list */
 
 
 
-static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
+static listType eval_name_list (listType matched_name_list, errInfoType *err_info)
 
   {
     listType name_elem;
@@ -744,7 +784,7 @@ static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
 
   /* eval_name_list */
     logFunction(printf("eval_name_list\n"););
-    name_elem = raw_name_list;
+    name_elem = matched_name_list;
     name_list = NULL;
     list_insert_place = &name_list;
     while (name_elem != NULL) {
@@ -785,6 +825,7 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     errInfoType *err_info)
 
   {
+    listType matched_name_list;
     listType name_list;
     objectType defined_object;
 
@@ -793,13 +834,18 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
                        (memSizeType) declaration_base);
                 trace1(object_name);
                 printf(")\n"););
-    match_name_list(object_name->value.listValue);
-    push_stack();
-    name_list = eval_name_list(object_name->value.listValue, err_info);
-    down_stack();
+    matched_name_list = match_name_list(object_name->value.listValue, err_info);
     if (*err_info == OKAY_NO_ERROR) {
-      defined_object = push_name(prog, declaration_base, name_list,
-          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+      push_stack();
+      name_list = eval_name_list(matched_name_list, err_info);
+      down_stack();
+      if (*err_info == OKAY_NO_ERROR) {
+        defined_object = push_name(prog, declaration_base, name_list,
+            GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+      } else {
+        defined_object = NULL;
+      } /* if */
+      free_matched_list(matched_name_list);
     } else {
       defined_object = NULL;
     } /* if */
@@ -838,6 +884,7 @@ static objectType inst_object_expr (const_nodeType declaration_base,
     objectType object_name, errInfoType *err_info)
 
   {
+    listType matched_name_list;
     listType name_list;
     objectType param_obj;
     objectType defined_object = NULL;
@@ -847,35 +894,38 @@ static objectType inst_object_expr (const_nodeType declaration_base,
                        (memSizeType) declaration_base);
                 trace1(object_name);
                 printf(")\n"););
-    match_name_list(object_name->value.listValue);
-    push_stack();
-    name_list = eval_name_list(object_name->value.listValue, err_info);
-    down_stack();
+    matched_name_list = match_name_list(object_name->value.listValue, err_info);
     if (*err_info == OKAY_NO_ERROR) {
-      /* printf("name_list ");
-      prot_list(name_list);
-      printf("\n");
-      fflush(stdout);
-      printf("name_list->obj ");
-      trace1(name_list->obj);
-      printf("\n");
-      fflush(stdout); */
-      if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-        param_obj = name_list->obj->value.objValue;
-        if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-            CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-          err_object(IDENT_EXPECTED, object_name);
+      push_stack();
+      name_list = eval_name_list(matched_name_list, err_info);
+      down_stack();
+      if (*err_info == OKAY_NO_ERROR) {
+        /* printf("name_list ");
+        prot_list(name_list);
+        printf("\n");
+        fflush(stdout);
+        printf("name_list->obj ");
+        trace1(name_list->obj);
+        printf("\n");
+        fflush(stdout); */
+        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+          param_obj = name_list->obj->value.objValue;
+          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+            err_object(IDENT_EXPECTED, object_name);
+          } else {
+            /* printf("param_obj ");
+            trace1(param_obj);
+            printf("\n"); */
+            defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
+          } /* if */
         } else {
-          /* printf("param_obj ");
-          trace1(param_obj);
-          printf("\n"); */
-          defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
+          err_object(IDENT_EXPECTED, object_name);
         } /* if */
-      } else {
-        err_object(IDENT_EXPECTED, object_name);
+        free_name_list(name_list, FALSE);
       } /* if */
-      free_name_list(name_list, FALSE);
+      free_matched_list(matched_name_list);
     } /* if */
     logFunction(printf("inst_object_expr --> ");
                 trace1(defined_object);
@@ -928,6 +978,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
     errInfoType *err_info)
 
   {
+    listType matched_name_list;
     listType name_list;
     objectType param_obj;
     entityType entity;
@@ -942,41 +993,51 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
       grow_stack(err_info);
       if (*err_info == OKAY_NO_ERROR) {
         if (object_name->value.listValue->next != NULL) {
-          match_name_list(object_name->value.listValue);
-          push_stack();
-          name_list = eval_name_list(object_name->value.listValue, err_info);
-          down_stack();
+          matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
-            entity = find_entity(declaration_base, name_list);
+            push_stack();
+            name_list = eval_name_list(matched_name_list, err_info);
+            down_stack();
+            if (*err_info == OKAY_NO_ERROR) {
+              entity = find_entity(declaration_base, name_list);
+            } else {
+              entity = NULL;
+            } /* if */
+            shrink_stack();
+            free_name_list(name_list, entity == NULL);
           } else {
             entity = NULL;
           } /* if */
-          shrink_stack();
-          free_name_list(name_list, entity == NULL);
+          free_matched_list(matched_name_list);
         } else if (CATEGORY_OF_OBJ(object_name->value.listValue->obj) == EXPROBJECT ||
             CATEGORY_OF_OBJ(object_name->value.listValue->obj) == MATCHOBJECT) {
-          match_name_list(object_name->value.listValue);
-          push_stack();
-          name_list = eval_name_list(object_name->value.listValue, err_info);
-          down_stack();
+          matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
-            if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-              param_obj = name_list->obj->value.objValue;
-              if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-                  CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-                  CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-                entity = NULL;
+            push_stack();
+            name_list = eval_name_list(matched_name_list, err_info);
+            down_stack();
+            if (*err_info == OKAY_NO_ERROR) {
+              if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+                param_obj = name_list->obj->value.objValue;
+                if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                    CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+                    CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+                  entity = NULL;
+                } else {
+                  entity = GET_ENTITY(param_obj);
+                } /* if */
               } else {
-                entity = GET_ENTITY(param_obj);
+                entity = NULL;
               } /* if */
             } else {
               entity = NULL;
             } /* if */
+            shrink_stack();
+            free_name_list(name_list, entity == NULL);
           } else {
             entity = NULL;
           } /* if */
-          shrink_stack();
-          free_name_list(name_list, entity == NULL);
+          free_matched_list(matched_name_list);
         } else {
           entity = GET_ENTITY(object_name->value.listValue->obj);
           shrink_stack();
@@ -1007,6 +1068,7 @@ objectType search_name (const_nodeType declaration_base,
     const_objectType object_name, errInfoType *err_info)
 
   {
+    listType matched_name_list;
     listType name_list;
     objectType param_obj;
     entityType entity;
@@ -1021,41 +1083,51 @@ objectType search_name (const_nodeType declaration_base,
       grow_stack(err_info);
       if (*err_info == OKAY_NO_ERROR) {
         if (object_name->value.listValue->next != NULL) {
-          match_name_list(object_name->value.listValue);
-          push_stack();
-          name_list = eval_name_list(object_name->value.listValue, err_info);
-          down_stack();
+          matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
-            entity = search_entity(declaration_base, name_list);
+            push_stack();
+            name_list = eval_name_list(matched_name_list, err_info);
+            down_stack();
+            if (*err_info == OKAY_NO_ERROR) {
+              entity = search_entity(declaration_base, name_list);
+            } else {
+              entity = NULL;
+            } /* if */
+            shrink_stack();
+            free_name_list(name_list, entity == NULL);
           } else {
             entity = NULL;
           } /* if */
-          shrink_stack();
-          free_name_list(name_list, entity == NULL);
+          free_matched_list(matched_name_list);
         } else if (CATEGORY_OF_OBJ(object_name->value.listValue->obj) == EXPROBJECT ||
             CATEGORY_OF_OBJ(object_name->value.listValue->obj) == MATCHOBJECT) {
-          match_name_list(object_name->value.listValue);
-          push_stack();
-          name_list = eval_name_list(object_name->value.listValue, err_info);
-          down_stack();
+          matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
-            if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-              param_obj = name_list->obj->value.objValue;
-              if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-                  CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-                  CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-                entity = NULL;
+            push_stack();
+            name_list = eval_name_list(matched_name_list, err_info);
+            down_stack();
+            if (*err_info == OKAY_NO_ERROR) {
+              if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+                param_obj = name_list->obj->value.objValue;
+                if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                    CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+                    CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+                  entity = NULL;
+                } else {
+                  entity = GET_ENTITY(param_obj);
+                } /* if */
               } else {
-                entity = GET_ENTITY(param_obj);
+                entity = NULL;
               } /* if */
             } else {
               entity = NULL;
             } /* if */
+            shrink_stack();
+            free_name_list(name_list, entity == NULL);
           } else {
             entity = NULL;
           } /* if */
-          shrink_stack();
-          free_name_list(name_list, entity == NULL);
+          free_matched_list(matched_name_list);
         } else {
           entity = GET_ENTITY(object_name->value.listValue->obj);
           shrink_stack();
