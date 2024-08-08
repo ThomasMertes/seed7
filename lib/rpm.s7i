@@ -106,7 +106,7 @@ const integer: RPMTAG_DESCRIPTION        is 1005;  # I18NSTRING   Required  Full
 const integer: RPMTAG_BUILDTIME          is 1006;  # INT32        Optional  Seconds since epoch when pkg built
 const integer: RPMTAG_BUILDHOST          is 1007;  # STRING       Optional  Host package was built on
 const integer: RPMTAG_INSTALLTIME        is 1008;  # INT32                  Unix timestamp of package installation
-const integer: RPMTAG_SIZE               is 1009;  # INT32        Required  Sum of sizes of regular files in archive
+const integer: RPMTAG_SIZE               is 1009;  # INT32        Required  Sum of regular file sizes and symlink sizes in archive
 const integer: RPMTAG_DISTRIBUTION       is 1010;  # STRING
 const integer: RPMTAG_VENDOR             is 1011;  # STRING                 Package vendor contact information
 const integer: RPMTAG_GIF                is 1012;  # BIN          Deprecated
