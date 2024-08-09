@@ -40,6 +40,7 @@ include "zstd.s7i";
 include "cpio.s7i";
 include "archive_base.s7i";
 include "magic.s7i";
+include "elf.s7i";
 
 
 const string: RPM_LEAD_MAGIC is "\16#ed;\16#ab;\16#ee;\16#db;";
@@ -2332,6 +2333,32 @@ const func integer: fileClass (inout array string: nameList, in string: filePath
   end func;
 
 
+const proc: setDependencies (inout rpmArchive: rpm,
+    inout rpmCatalogEntry: catalogEntry, in string: data) is func
+  local
+    var file: elfFile is STD_NULL;
+    var elfData: elf is elfData.value;
+    var rpmDependency: dependency is rpmDependency.value;
+    var string: name is "";
+  begin
+    elfFile := openStriFile(data);
+    elf := openElf(elfFile);
+    if elf.header.magic = ELF_MAGIC then
+      dependency.flags := RPMSENSE_FIND_REQUIRES;
+      for name range getVerNeeds(elf) do
+        dependency.name := name;
+        catalogEntry.dependencies &:= dependency;
+        addDependency(rpm.required, dependency);
+      end for;
+      for name range getDynamicNeeds(elf) do
+        dependency.name := name <& "()(" <& elf.header.addressSize <& "bit)";
+        catalogEntry.dependencies &:= dependency;
+        addDependency(rpm.required, dependency);
+      end for;
+    end if;
+  end func;
+
+
 const proc: setDirIndexAndBaseName (inout rpmArchive: rpm,
     inout rpmCatalogEntry: catalogEntry) is func
   local
@@ -3273,8 +3300,10 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
         catalogEntry.lang := "";
         if startsWith(data, "\127;ELF\1;") then
           catalogEntry.color := 1;  # 32bit ELF
+          setDependencies(rpm, catalogEntry, data);
         elsif startsWith(data, "\127;ELF\2;") then
           catalogEntry.color := 2;  # 64bit ELF
+          setDependencies(rpm, catalogEntry, data);
         else
           catalogEntry.color := 0;
         end if;
