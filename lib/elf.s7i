@@ -1,0 +1,1558 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  elf.s7i       Support for the ELF executable and link format    *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+
+
+const string: ELF_MAGIC is "\127;ELF";
+
+const integer: ELF_IDENT_SIZE is 16;
+const integer: ELF_HEADER32_SIZE is 52;
+const integer: ELF_HEADER64_SIZE is 64;
+
+const integer: ELF_PROGRAM_HEADER32_SIZE is 32;
+const integer: ELF_PROGRAM_HEADER64_SIZE is 56;
+
+const integer: ELF_SECTION_HEADER32_SIZE is 40;
+const integer: ELF_SECTION_HEADER64_SIZE is 64;
+
+const integer: ELF_NOTE_HEADER_SIZE is 12;
+
+const integer: ELF_SYM32_SIZE is 16;
+const integer: ELF_SYM64_SIZE is 24;
+
+const integer: ELF_DYN32_SIZE is  8;
+const integer: ELF_DYN64_SIZE is 16;
+
+const integer: ELF_VER_D_AUX_SIZE is  8;
+const integer: ELF_VER_N_AUX_SIZE is 16;
+const integer: ELF_VER_NEED_SIZE  is 16;
+
+const integer: ELF_TARGET_OS_SYSTEM_V       is 16#00;  # System V
+const integer: ELF_TARGET_OS_HP_UX          is 16#01;  # HP-UX
+const integer: ELF_TARGET_OS_NET_BSD        is 16#02;  # NetBSD
+const integer: ELF_TARGET_OS_LINUX          is 16#03;  # Linux
+const integer: ELF_TARGET_OS_GNU_HURD       is 16#04;  # GNU Hurd
+const integer: ELF_TARGET_OS_SOLARIS        is 16#06;  # Solaris
+const integer: ELF_TARGET_OS_AIX            is 16#07;  # AIX (Monterey)
+const integer: ELF_TARGET_OS_IRIX           is 16#08;  # IRIX
+const integer: ELF_TARGET_OS_FREE_BSD       is 16#09;  # FreeBSD
+const integer: ELF_TARGET_OS_TRU64          is 16#0a;  # Tru64
+const integer: ELF_TARGET_OS_NOVELL_MODESTO is 16#0b;  # Novell Modesto
+const integer: ELF_TARGET_OS_OPEN_BSD       is 16#0c;  # OpenBSD
+const integer: ELF_TARGET_OS_OPEN_VMS       is 16#0d;  # OpenVMS
+const integer: ELF_TARGET_OS_NONSTOP_KERNEL is 16#0e;  # NonStop Kernel
+const integer: ELF_TARGET_OS_AROS           is 16#0f;  # AROS
+const integer: ELF_TARGET_OS_FENIX_OS       is 16#10;  # FenixOS
+const integer: ELF_TARGET_OS_NUXI           is 16#11;  # Nuxi CloudABI
+const integer: ELF_TARGET_OS_OPEN_VOS       is 16#12;  # Stratus Technologies OpenVOS
+
+const integer: ELF_OBJECT_FILE_TYPE_NONE   is 16#00;    # Unknown.
+const integer: ELF_OBJECT_FILE_TYPE_REL    is 16#01;    # Relocatable file.
+const integer: ELF_OBJECT_FILE_TYPE_EXEC   is 16#02;    # Executable file.
+const integer: ELF_OBJECT_FILE_TYPE_DYN    is 16#03;    # Shared object.
+const integer: ELF_OBJECT_FILE_TYPE_CORE   is 16#04;    # Core file.
+const integer: ELF_OBJECT_FILE_TYPE_LOOS   is 16#fE00;  # Reserved inclusive range. Operating system specific.
+const integer: ELF_OBJECT_FILE_TYPE_HIOS   is 16#fEff;
+const integer: ELF_OBJECT_FILE_TYPE_LOPROC is 16#ff00;  # Reserved inclusive range. Processor specific.
+const integer: ELF_OBJECT_FILE_TYPE_HIPROC is 16#ffff;
+
+const integer: ELF_MACHINE_NO_SPECIFIC            is 16#00;   # No specific instruction set
+const integer: ELF_MACHINE_AT_AND_T_WE            is 16#01;   # AT&T WE 32100
+const integer: ELF_MACHINE_SPARC                  is 16#02;   # SPARC
+const integer: ELF_MACHINE_X86                    is 16#03;   # x86
+const integer: ELF_MACHINE_MOTOROLA_68000         is 16#04;   # Motorola 68000 (M68k)
+const integer: ELF_MACHINE_MOTOROLA_88000         is 16#05;   # Motorola 88000 (M88k)
+const integer: ELF_MACHINE_INTEL_MCU              is 16#06;   # Intel MCU
+const integer: ELF_MACHINE_INTEL_80860            is 16#07;   # Intel 80860
+const integer: ELF_MACHINE_MIPS                   is 16#08;   # MIPS
+const integer: ELF_MACHINE_IBM_SYSTEM_370         is 16#09;   # IBM System/370
+const integer: ELF_MACHINE_MIPS_RS3000_LE         is 16#0a;   # MIPS RS3000 Little-endian
+#                                            16#0b - 16#0e    # Reserved for future use
+const integer: ELF_MACHINE_HP_PA_RISC             is 16#0f;   # Hewlett-Packard PA-RISC
+const integer: ELF_MACHINE_INTEL_80960            is 16#13;   # Intel 80960
+const integer: ELF_MACHINE_POWER_PC               is 16#14;   # PowerPC
+const integer: ELF_MACHINE_POWER_PC_64_BIT        is 16#15;   # PowerPC (64-bit)
+const integer: ELF_MACHINE_S390                   is 16#16;   # S390, including S3916#
+const integer: ELF_MACHINE_IBM_SPU_SPC            is 16#17;   # IBM SPU/SPC
+#                                            16#18 - 16#23    # Reserved for future use
+const integer: ELF_MACHINE_NEC_V800               is 16#24;   # NEC V800
+const integer: ELF_MACHINE_FUJITSU_FR20           is 16#25;   # Fujitsu FR20
+const integer: ELF_MACHINE_TRW_RH_22              is 16#26;   # TRW RH-32
+const integer: ELF_MACHINE_MOTOROLA_RCE           is 16#27;   # Motorola RCE
+const integer: ELF_MACHINE_ARM                    is 16#28;   # Arm (up to Armv7/AArch32)
+const integer: ELF_MACHINE_DIGITAL_ALPHA          is 16#29;   # Digital Alpha
+const integer: ELF_MACHINE_SUPER_H                is 16#2a;   # SuperH
+const integer: ELF_MACHINE_SPARC_VERSION_9        is 16#2b;   # SPARC Version 9
+const integer: ELF_MACHINE_SIEMENS_TRI_CORE       is 16#2c;   # Siemens TriCore embedded processor
+const integer: ELF_MACHINE_ARGONAUT_RISC          is 16#2d;   # Argonaut RISC Core
+const integer: ELF_MACHINE_HITACHI_H8_300         is 16#2e;   # Hitachi H8/300
+const integer: ELF_MACHINE_HITACHI_H8_300H        is 16#2f;   # Hitachi H8/300H
+const integer: ELF_MACHINE_HITACHI_H8S            is 16#30;   # Hitachi H8S
+const integer: ELF_MACHINE_HITACHI_H8_500         is 16#31;   # Hitachi H8/500
+const integer: ELF_MACHINE_IA_64                  is 16#32;   # IA-64
+const integer: ELF_MACHINE_STANFORD_MIPS_X        is 16#33;   # Stanford MIPS-X
+const integer: ELF_MACHINE_MOTOROLA_COLD_FIRE     is 16#34;   # Motorola ColdFire
+const integer: ELF_MACHINE_MOTOROLA_M68HC12       is 16#35;   # Motorola M68HC12
+const integer: ELF_MACHINE_FUJITSU_MMA            is 16#36;   # Fujitsu MMA Multimedia Accelerator
+const integer: ELF_MACHINE_SIEMENS_PCP            is 16#37;   # Siemens PCP
+const integer: ELF_MACHINE_SONY_N_CPU             is 16#38;   # Sony nCPU embedded RISC processor
+const integer: ELF_MACHINE_DENSO_NDR1             is 16#39;   # Denso NDR1 microprocessor
+const integer: ELF_MACHINE_MOTOROLA_STAR_CORE     is 16#3a;   # Motorola Star*Core processor
+const integer: ELF_MACHINE_TOYOTA_ME16            is 16#3b;   # Toyota ME16 processor
+const integer: ELF_MACHINE_ST100                  is 16#3c;   # STMicroelectronics ST100 processor
+const integer: ELF_MACHINE_TINY_J                 is 16#3d;   # Advanced Logic Corp. TinyJ embedded processor family
+const integer: ELF_MACHINE_AMD_X86_64             is 16#3e;   # AMD x86-64
+const integer: ELF_MACHINE_SONY_DSP               is 16#3f;   # Sony DSP Processor
+const integer: ELF_MACHINE_DEC_PDP_10             is 16#40;   # Digital Equipment Corp. PDP-10
+const integer: ELF_MACHINE_DEC_PDP_11             is 16#41;   # Digital Equipment Corp. PDP-11
+const integer: ELF_MACHINE_SIEMENS_FX66           is 16#42;   # Siemens FX66 microcontroller
+const integer: ELF_MACHINE_ST9                    is 16#43;   # STMicroelectronics ST9+ 8/16 bit microcontroller
+const integer: ELF_MACHINE_ST7                    is 16#44;   # STMicroelectronics ST7 8-bit microcontroller
+const integer: ELF_MACHINE_MOTOROLA_MC68HC16      is 16#45;   # Motorola MC68HC16 Microcontroller
+const integer: ELF_MACHINE_MOTOROLA_MC68HC11      is 16#46;   # Motorola MC68HC11 Microcontroller
+const integer: ELF_MACHINE_MOTOROLA_MC68HC08      is 16#47;   # Motorola MC68HC08 Microcontroller
+const integer: ELF_MACHINE_MOTOROLA_MC68HC05      is 16#48;   # Motorola MC68HC05 Microcontroller
+const integer: ELF_MACHINE_SILICON_GRAPHICS_SV_X  is 16#49;   # Silicon Graphics SVx
+const integer: ELF_MACHINE_ST19                   is 16#4a;   # STMicroelectronics ST19 8-bit microcontroller
+const integer: ELF_MACHINE_DIGITAL_VAX            is 16#4b;   # Digital VAX
+const integer: ELF_MACHINE_AXIS                   is 16#4c;   # Axis Communications 32-bit embedded processor
+const integer: ELF_MACHINE_INFINEON               is 16#4d;   # Infineon Technologies 32-bit embedded processor
+const integer: ELF_MACHINE_ELEMENT_14             is 16#4e;   # Element 14 64-bit DSP Processor
+const integer: ELF_MACHINE_LSI_LOGIC              is 16#4f;   # LSI Logic 16-bit DSP Processor
+const integer: ELF_MACHINE_TMS320C6000            is 16#8c;   # TMS320C6000 Family
+const integer: ELF_MACHINE_MCST_ELBRUS_E2K        is 16#af;   # MCST Elbrus e2k
+const integer: ELF_MACHINE_ARM_64                 is 16#b7;   # Arm 64-bits (Armv8/AArch64)
+const integer: ELF_MACHINE_ZILOG_Z80              is 16#dc;   # Zilog Z80
+const integer: ELF_MACHINE_RISC_V                 is 16#f3;   # RISC-V
+const integer: ELF_MACHINE_BERKELEY_PACKET_FILTER is 16#f7;   # Berkeley Packet Filter
+const integer: ELF_MACHINE_WDC_65C816             is 16#101;  # WDC 65C816
+const integer: ELF_MACHINE_LOONG_ARCH             is 16#102;  # LoongArch
+
+const integer: ELF_PT_NULL    is 16#00000000;  # Program header table entry unused.
+const integer: ELF_PT_LOAD    is 16#00000001;  # Loadable segment.
+const integer: ELF_PT_DYNAMIC is 16#00000002;  # Dynamic linking information.
+const integer: ELF_PT_INTERP  is 16#00000003;  # Interpreter information.
+const integer: ELF_PT_NOTE    is 16#00000004;  # Auxiliary information.
+const integer: ELF_PT_SHLIB   is 16#00000005;  # Reserved.
+const integer: ELF_PT_PHDR    is 16#00000006;  # Segment containing program header table itself.
+const integer: ELF_PT_TLS     is 16#00000007;  # Thread-Local Storage template.
+const integer: ELF_PT_LOOS    is 16#60000000;  # Reserved inclusive range. Operating system specific.
+const integer: ELF_PT_HIOS    is 16#6fffffff;
+const integer: ELF_PT_LOPROC  is 16#70000000;  # Reserved inclusive range. Processor specific.
+const integer: ELF_PT_HIPROC  is 16#7fffffff;
+
+const integer: ELF_SHT_NULL           is 16#0;         # Section header table entry unused
+const integer: ELF_SHT_PROGBITS       is 16#1;         # Program data
+const integer: ELF_SHT_SYMTAB         is 16#2;         # Symbol table
+const integer: ELF_SHT_STRTAB         is 16#3;         # String table
+const integer: ELF_SHT_RELA           is 16#4;         # Relocation entries with addends
+const integer: ELF_SHT_HASH           is 16#5;         # Symbol hash table
+const integer: ELF_SHT_DYNAMIC        is 16#6;         # Dynamic linking information
+const integer: ELF_SHT_NOTE           is 16#7;         # Notes
+const integer: ELF_SHT_NOBITS         is 16#8;         # Program space with no data (bss)
+const integer: ELF_SHT_REL            is 16#9;         # Relocation entries, no addends
+const integer: ELF_SHT_SHLIB          is 16#a;         # Reserved
+const integer: ELF_SHT_DYNSYM         is 16#b;         # Dynamic linker symbol table
+const integer: ELF_SHT_INIT_ARRAY     is 16#e;         # Array of constructors
+const integer: ELF_SHT_FINI_ARRAY     is 16#f;         # Array of destructors
+const integer: ELF_SHT_PREINIT_ARRAY  is 16#10;        # Array of pre-constructors
+const integer: ELF_SHT_GROUP          is 16#11;        # Section group
+const integer: ELF_SHT_SYMTAB_SHNDX   is 16#12;        # Extended section indices
+const integer: ELF_SHT_NUM            is 16#13;        # Number of defined types.
+const integer: ELF_SHT_LOOS           is 16#60000000;  # Start OS-specific.
+const integer: ELF_SHT_GNU_ATTRIBUTES is 16#6ffffff5;  # Object attributes.
+const integer: ELF_SHT_GNU_HASH       is 16#6ffffff6;  # GNU-style hash table.
+const integer: ELF_SHT_GNU_LIBLIST    is 16#6ffffff7;  # Prelink library list
+const integer: ELF_SHT_CHECKSUM       is 16#6ffffff8;  # Checksum for DSO content.
+const integer: ELF_SHT_LOSUNW         is 16#6ffffffa;  # Sun-specific low bound.
+const integer: ELF_SHT_SUNW_move      is 16#6ffffffa;
+const integer: ELF_SHT_SUNW_COMDAT    is 16#6ffffffb;
+const integer: ELF_SHT_SUNW_syminfo   is 16#6ffffffc;
+const integer: ELF_SHT_GNU_verdef     is 16#6ffffffd;  # Version definition section.
+const integer: ELF_SHT_GNU_verneed    is 16#6ffffffe;  # Version needs section.
+const integer: ELF_SHT_GNU_versym     is 16#6fffffff;  # Version symbol table.
+
+const integer: ELF_SHF_WRITE            is 16#1;         # Writable
+const integer: ELF_SHF_ALLOC            is 16#2;         # Occupies memory during execution
+const integer: ELF_SHF_EXECINSTR        is 16#4;         # Executable
+const integer: ELF_SHF_MERGE            is 16#10;        # Might be merged
+const integer: ELF_SHF_STRINGS          is 16#20;        # Contains null-terminated strings
+const integer: ELF_SHF_INFO_LINK        is 16#40;        # 'sh_info' contains SHT index
+const integer: ELF_SHF_LINK_ORDER       is 16#80;        # Preserve order after combining
+const integer: ELF_SHF_OS_NONCONFORMING is 16#100;       # Non-standard OS specific handling required
+const integer: ELF_SHF_GROUP            is 16#200;       # Section is member of a group
+const integer: ELF_SHF_TLS              is 16#400;       # Section hold thread-local data
+const integer: ELF_SHF_MASKOS           is 16#0ff00000;  # OS-specific
+const integer: ELF_SHF_MASKPROC         is 16#f0000000;  # Processor-specific
+const integer: ELF_SHF_ORDERED          is 16#4000000;   # Special ordering requirement (Solaris)
+const integer: ELF_SHF_EXCLUDE          is 16#8000000;   # Section is excluded unless referenced or allocated (Solaris)
+
+const integer: ELF_DT_NULL            is  0;  # Marks end of dynamic section
+const integer: ELF_DT_NEEDED          is  1;  # Name of needed library
+const integer: ELF_DT_PLTRELSZ        is  2;  # Size in bytes of PLT relocs
+const integer: ELF_DT_PLTGOT          is  3;  # Processor defined value
+const integer: ELF_DT_HASH            is  4;  # Address of symbol hash table
+const integer: ELF_DT_STRTAB          is  5;  # Address of string table
+const integer: ELF_DT_SYMTAB          is  6;  # Address of symbol table
+const integer: ELF_DT_RELA            is  7;  # Address of Rela relocs
+const integer: ELF_DT_RELASZ          is  8;  # Total size of Rela relocs
+const integer: ELF_DT_RELAENT         is  9;  # Size of one Rela reloc
+const integer: ELF_DT_STRSZ           is 10;  # Size of string table
+const integer: ELF_DT_SYMENT          is 11;  # Size of one symbol table entry
+const integer: ELF_DT_INIT            is 12;  # Address of init function
+const integer: ELF_DT_FINI            is 13;  # Address of termination function
+const integer: ELF_DT_SONAME          is 14;  # Name of shared object
+const integer: ELF_DT_RPATH           is 15;  # Library search path (deprecated)
+const integer: ELF_DT_SYMBOLIC        is 16;  # Start symbol search here
+const integer: ELF_DT_REL             is 17;  # Address of Rel relocs
+const integer: ELF_DT_RELSZ           is 18;  # Total size of Rel relocs
+const integer: ELF_DT_RELENT          is 19;  # Size of one Rel reloc
+const integer: ELF_DT_PLTREL          is 20;  # Type of reloc in PLT
+const integer: ELF_DT_DEBUG           is 21;  # For debugging; unspecified
+const integer: ELF_DT_TEXTREL         is 22;  # Reloc might modify .text
+const integer: ELF_DT_JMPREL          is 23;  # Address of PLT relocs
+const integer: ELF_DT_BIND_NOW        is 24;  # Process relocations of object
+const integer: ELF_DT_INIT_ARRAY      is 25;  # Array with addresses of init fct
+const integer: ELF_DT_FINI_ARRAY      is 26;  # Array with addresses of fini fct
+const integer: ELF_DT_INIT_ARRAYSZ    is 27;  # Size in bytes of DT_INIT_ARRAY
+const integer: ELF_DT_FINI_ARRAYSZ    is 28;  # Size in bytes of DT_FINI_ARRAY
+const integer: ELF_DT_RUNPATH         is 29;  # Library search path
+const integer: ELF_DT_FLAGS           is 30;  # Flags for the object being loaded
+const integer: ELF_DT_ENCODING        is 32;  # Start of encoded range
+const integer: ELF_DT_PREINIT_ARRAY   is 32;  # Array with addresses of preinit fct*/
+const integer: ELF_DT_PREINIT_ARRAYSZ is 33;  # size in bytes of DT_PREINIT_ARRAY
+const integer: ELF_DT_SYMTAB_SHNDX    is 34;  # Address of SYMTAB_SHNDX section
+const integer: ELF_DT_RELRSZ          is 35;  # Total size of RELR relative relocations
+const integer: ELF_DT_RELR            is 36;  # Address of RELR relative relocations
+const integer: ELF_DT_RELRENT         is 37;  # Size of one RELR relative relocaction
+const integer: ELF_DT_NUM             is 38;  # Number used
+
+
+const type: elfHeader is new struct
+    var string: magic is "";
+    var integer: addressSize is 0;
+    var boolean: isLittleEndian is TRUE;
+    var integer: elfVersion is 0;
+    var integer: targetOs is 0;
+    var integer: abiVersion is 0;
+    var integer: objectFileType is 0;       # Object file type
+    var integer: machine is 0;              # Architecture
+    var integer: version is 0;              # Object file version
+    var integer: entry is 0;                # Entry point virtual address
+    var integer: programHeaderOffset is 0;  # Program header table file offset
+    var integer: sectionHeaderOffset is 0;  # Section header table file offset
+    var integer: flags is 0;                # Processor-specific flags
+    var integer: headerSize is 0;           # ELF header size in bytes
+    var integer: programHeaderSize is 0;    # Program header table entry size
+    var integer: programHeaderNum is 0;     # Program header table entry count
+    var integer: sectionHeaderSize is 0;    # Section header table entry size
+    var integer: sectionHeaderNum is 0;     # Section header table entry count
+    var integer: nameSectionIndex is 0;     # Section header string table index
+  end struct;
+
+
+const proc: show (in elfHeader: header) is func
+  begin
+    writeln("magic: " <& literal(header.magic));
+    writeln("addressSize: " <& header.addressSize);
+    writeln("isLittleEndian: " <& header.isLittleEndian);
+    writeln("elfVersion: " <& header.elfVersion);
+    writeln("targetOs: " <& header.targetOs);
+    writeln("abiVersion: " <& header.abiVersion);
+    writeln("objectFileType: " <& header.objectFileType);
+    writeln("machine: 16#" <& header.machine radix 16);
+    writeln("version: " <& header.version);
+    writeln("entry: " <& header.entry);
+    writeln("programHeaderOffset: " <& header.programHeaderOffset);
+    writeln("sectionHeaderOffset: " <& header.sectionHeaderOffset);
+    writeln("flags: " <& header.flags);
+    writeln("headerSize: " <& header.headerSize);
+    writeln("programHeaderSize: " <& header.programHeaderSize);
+    writeln("programHeaderNum: " <& header.programHeaderNum);
+    writeln("sectionHeaderSize: " <& header.sectionHeaderSize);
+    writeln("sectionHeaderNum: " <& header.sectionHeaderNum);
+    writeln("nameSectionIndex: " <& header.nameSectionIndex);
+  end func;
+
+
+const proc: readHeader32Le (in string: stri, inout elfHeader: header) is func
+  begin
+    header.objectFileType      := bytes2Int(stri[17 fixLen  2], UNSIGNED, LE);
+    header.machine             := bytes2Int(stri[19 fixLen  2], UNSIGNED, LE);
+    header.version             := bytes2Int(stri[21 fixLen  4], UNSIGNED, LE);
+    header.entry               := bytes2Int(stri[25 fixLen  4], UNSIGNED, LE);
+    header.programHeaderOffset := bytes2Int(stri[29 fixLen  4], UNSIGNED, LE);
+    header.sectionHeaderOffset := bytes2Int(stri[33 fixLen  4], UNSIGNED, LE);
+    header.flags               := bytes2Int(stri[37 fixLen  4], UNSIGNED, LE);
+    header.headerSize          := bytes2Int(stri[41 fixLen  2], UNSIGNED, LE);
+    header.programHeaderSize   := bytes2Int(stri[43 fixLen  2], UNSIGNED, LE);
+    header.programHeaderNum    := bytes2Int(stri[45 fixLen  2], UNSIGNED, LE);
+    header.sectionHeaderSize   := bytes2Int(stri[47 fixLen  2], UNSIGNED, LE);
+    header.sectionHeaderNum    := bytes2Int(stri[49 fixLen  2], UNSIGNED, LE);
+    header.nameSectionIndex    := bytes2Int(stri[51 fixLen  2], UNSIGNED, LE);
+  end func;
+
+
+const proc: readHeader32Be (in string: stri, inout elfHeader: header) is func
+  begin
+    header.objectFileType      := bytes2Int(stri[17 fixLen  2], UNSIGNED, BE);
+    header.machine             := bytes2Int(stri[19 fixLen  2], UNSIGNED, BE);
+    header.version             := bytes2Int(stri[21 fixLen  4], UNSIGNED, BE);
+    header.entry               := bytes2Int(stri[25 fixLen  4], UNSIGNED, BE);
+    header.programHeaderOffset := bytes2Int(stri[29 fixLen  4], UNSIGNED, BE);
+    header.sectionHeaderOffset := bytes2Int(stri[33 fixLen  4], UNSIGNED, BE);
+    header.flags               := bytes2Int(stri[37 fixLen  4], UNSIGNED, BE);
+    header.headerSize          := bytes2Int(stri[41 fixLen  2], UNSIGNED, BE);
+    header.programHeaderSize   := bytes2Int(stri[43 fixLen  2], UNSIGNED, BE);
+    header.programHeaderNum    := bytes2Int(stri[45 fixLen  2], UNSIGNED, BE);
+    header.sectionHeaderSize   := bytes2Int(stri[47 fixLen  2], UNSIGNED, BE);
+    header.sectionHeaderNum    := bytes2Int(stri[49 fixLen  2], UNSIGNED, BE);
+    header.nameSectionIndex    := bytes2Int(stri[51 fixLen  2], UNSIGNED, BE);
+  end func;
+
+
+const proc: readHeader64Le (in string: stri, inout elfHeader: header) is func
+  begin
+    header.objectFileType      := bytes2Int(stri[17 fixLen  2], UNSIGNED, LE);
+    header.machine             := bytes2Int(stri[19 fixLen  2], UNSIGNED, LE);
+    header.version             := bytes2Int(stri[21 fixLen  4], UNSIGNED, LE);
+    header.entry               := bytes2Int(stri[25 fixLen  8], UNSIGNED, LE);
+    header.programHeaderOffset := bytes2Int(stri[33 fixLen  8], UNSIGNED, LE);
+    header.sectionHeaderOffset := bytes2Int(stri[41 fixLen  8], UNSIGNED, LE);
+    header.flags               := bytes2Int(stri[49 fixLen  4], UNSIGNED, LE);
+    header.headerSize          := bytes2Int(stri[53 fixLen  2], UNSIGNED, LE);
+    header.programHeaderSize   := bytes2Int(stri[55 fixLen  2], UNSIGNED, LE);
+    header.programHeaderNum    := bytes2Int(stri[57 fixLen  2], UNSIGNED, LE);
+    header.sectionHeaderSize   := bytes2Int(stri[59 fixLen  2], UNSIGNED, LE);
+    header.sectionHeaderNum    := bytes2Int(stri[61 fixLen  2], UNSIGNED, LE);
+    header.nameSectionIndex    := bytes2Int(stri[63 fixLen  2], UNSIGNED, LE);
+  end func;
+
+
+const proc: readHeader64Be (in string: stri, inout elfHeader: header) is func
+  begin
+    header.objectFileType      := bytes2Int(stri[17 fixLen  2], UNSIGNED, BE);
+    header.machine             := bytes2Int(stri[19 fixLen  2], UNSIGNED, BE);
+    header.version             := bytes2Int(stri[21 fixLen  4], UNSIGNED, BE);
+    header.entry               := bytes2Int(stri[25 fixLen  8], UNSIGNED, BE);
+    header.programHeaderOffset := bytes2Int(stri[33 fixLen  8], UNSIGNED, BE);
+    header.sectionHeaderOffset := bytes2Int(stri[41 fixLen  8], UNSIGNED, BE);
+    header.flags               := bytes2Int(stri[49 fixLen  4], UNSIGNED, BE);
+    header.headerSize          := bytes2Int(stri[53 fixLen  2], UNSIGNED, BE);
+    header.programHeaderSize   := bytes2Int(stri[55 fixLen  2], UNSIGNED, BE);
+    header.programHeaderNum    := bytes2Int(stri[57 fixLen  2], UNSIGNED, BE);
+    header.sectionHeaderSize   := bytes2Int(stri[59 fixLen  2], UNSIGNED, BE);
+    header.sectionHeaderNum    := bytes2Int(stri[61 fixLen  2], UNSIGNED, BE);
+    header.nameSectionIndex    := bytes2Int(stri[63 fixLen  2], UNSIGNED, BE);
+  end func;
+
+
+const proc: readHeader (inout file: inFile, inout elfHeader: header) is func
+  local
+    var string: stri is "";
+    var integer: addressFormat is 0;
+    var integer: endianess is 0;
+  begin
+    stri := gets(inFile, ELF_IDENT_SIZE);
+    if length(stri) = ELF_IDENT_SIZE then
+      header.magic             :=           stri[ 1 fixLen  4];
+      addressFormat            := bytes2Int(stri[ 5 fixLen  1], UNSIGNED, LE);
+      endianess                := bytes2Int(stri[ 6 fixLen  1], UNSIGNED, LE);
+      header.elfVersion        := bytes2Int(stri[ 7 fixLen  1], UNSIGNED, LE);
+      header.targetOs          := bytes2Int(stri[ 8 fixLen  1], UNSIGNED, LE);
+      header.abiVersion        := bytes2Int(stri[ 9 fixLen  1], UNSIGNED, LE);
+      # 7 reserved padding bytes are currently unused.
+      if header.magic =  ELF_MAGIC then
+        if addressFormat = 1 then
+          stri &:= gets(inFile, ELF_HEADER32_SIZE - ELF_IDENT_SIZE);
+          if length(stri) = ELF_HEADER32_SIZE then
+            header.addressSize := 32;
+            if endianess = 1 then
+              header.isLittleEndian := TRUE;
+              readHeader32Le(stri, header);
+            elsif endianess = 2 then
+              header.isLittleEndian := FALSE;
+              readHeader32Be(stri, header);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            raise RANGE_ERROR;
+          end if;
+        elsif addressFormat = 2 then
+          stri &:= gets(inFile, ELF_HEADER64_SIZE - ELF_IDENT_SIZE);
+          if length(stri) = ELF_HEADER64_SIZE then
+            header.addressSize := 64;
+            if endianess = 1 then
+              header.isLittleEndian := TRUE;
+              readHeader64Le(stri, header);
+            elsif endianess = 2 then
+              header.isLittleEndian := FALSE;
+              readHeader64Be(stri, header);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const type: elfProgramHeader is new struct
+    var integer: segmentType is 0;   # Segment type
+    var integer: offset is 0;        # Segment file offset
+    var integer: virtualAddr is 0;   # Segment virtual address
+    var integer: physicalAddr is 0;  # Segment physical address
+    var integer: fileSize is 0;      # Segment size in file
+    var integer: memorySize is 0;    # Segment size in memory
+    var integer: flags is 0;         # Segment flags
+    var integer: alignment is 0;     # Segment alignment
+    var integer: addressSize is 0;
+    var boolean: isLittleEndian is TRUE;
+  end struct;
+
+
+const proc: show (in elfProgramHeader: header) is func
+  begin
+    writeln("segmentType: " <& header.segmentType);
+    writeln("flags: " <& header.flags);
+    writeln("offset: " <& header.offset);
+    writeln("virtualAddr: " <& header.virtualAddr);
+    writeln("physicalAddr: " <& header.physicalAddr);
+    writeln("fileSize: " <& header.fileSize);
+    writeln("memorySize: " <& header.memorySize);
+    writeln("alignment: " <& header.alignment);
+    writeln("addressSize: " <& header.addressSize);
+    writeln("isLittleEndian: " <& header.isLittleEndian);
+  end func;
+
+
+const proc: readProgramHeader32Le (in string: stri,
+    inout elfProgramHeader: programHeader) is func
+  begin
+    programHeader.segmentType  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    programHeader.offset       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    programHeader.virtualAddr  := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    programHeader.physicalAddr := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+    programHeader.fileSize     := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
+    programHeader.memorySize   := bytes2Int(stri[21 fixLen 4], UNSIGNED, LE);
+    programHeader.flags        := bytes2Int(stri[25 fixLen 4], UNSIGNED, LE);
+    programHeader.alignment    := bytes2Int(stri[29 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readProgramHeader32Be (in string: stri,
+    inout elfProgramHeader: programHeader) is func
+  begin
+    programHeader.segmentType  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    programHeader.offset       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    programHeader.virtualAddr  := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    programHeader.physicalAddr := bytes2Int(stri[13 fixLen 4], UNSIGNED, BE);
+    programHeader.fileSize     := bytes2Int(stri[17 fixLen 4], UNSIGNED, BE);
+    programHeader.memorySize   := bytes2Int(stri[21 fixLen 4], UNSIGNED, BE);
+    programHeader.flags        := bytes2Int(stri[25 fixLen 4], UNSIGNED, BE);
+    programHeader.alignment    := bytes2Int(stri[29 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const proc: readProgramHeader64Le (in string: stri,
+    inout elfProgramHeader: programHeader) is func
+  begin
+    programHeader.segmentType  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    programHeader.flags        := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    programHeader.offset       := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, LE);
+    programHeader.virtualAddr  := bytes2Int(stri[17 fixLen 8], UNSIGNED, LE);
+    programHeader.physicalAddr := bytes2Int(stri[25 fixLen 8], UNSIGNED, LE);
+    programHeader.fileSize     := bytes2Int(stri[33 fixLen 8], UNSIGNED, LE);
+    programHeader.memorySize   := bytes2Int(stri[41 fixLen 8], UNSIGNED, LE);
+    programHeader.alignment    := bytes2Int(stri[49 fixLen 8], UNSIGNED, LE);
+  end func;
+
+
+const proc: readProgramHeader64Be (in string: stri,
+    inout elfProgramHeader: programHeader) is func
+  begin
+    programHeader.segmentType  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    programHeader.flags        := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    programHeader.offset       := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, BE);
+    programHeader.virtualAddr  := bytes2Int(stri[17 fixLen 8], UNSIGNED, BE);
+    programHeader.physicalAddr := bytes2Int(stri[25 fixLen 8], UNSIGNED, BE);
+    programHeader.fileSize     := bytes2Int(stri[33 fixLen 8], UNSIGNED, BE);
+    programHeader.memorySize   := bytes2Int(stri[41 fixLen 8], UNSIGNED, BE);
+    programHeader.alignment    := bytes2Int(stri[49 fixLen 8], UNSIGNED, BE);
+  end func;
+
+
+const proc: readProgramHeader (inout file: inFile, in elfHeader: header,
+    inout elfProgramHeader: programHeader) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, header.programHeaderSize);
+    if length(stri) = header.programHeaderSize then
+      if header.addressSize = 32 then
+        if length(stri) >= ELF_PROGRAM_HEADER32_SIZE then
+          if header.isLittleEndian then
+            readProgramHeader32Le(stri, programHeader);
+          else
+            readProgramHeader32Be(stri, programHeader);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      elsif header.addressSize = 64 then
+        if length(stri) >= ELF_PROGRAM_HEADER64_SIZE then
+          if header.isLittleEndian then
+            readProgramHeader64Le(stri, programHeader);
+          else
+            readProgramHeader64Be(stri, programHeader);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+      programHeader.addressSize := header.addressSize;
+      programHeader.isLittleEndian := header.isLittleEndian;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: elfSectionHeader is new struct
+    var integer: nameOffset is 0;     # Section name (string tbl index)
+    var integer: sectionType is 0;    # Section type
+    var integer: flags is 0;          # Section flags
+    var integer: address is 0;        # Section virtual addr at execution
+    var integer: offset is 0;         # Section file offset
+    var integer: size is 0;           # Section size in bytes
+    var integer: link is 0;           # Link to another section
+    var integer: info is 0;           # Additional section information
+    var integer: addrAlignment is 0;  # Section alignment
+    var integer: entrySize is 0;      # Entry size if section holds table
+    var string: name is "";
+    var integer: addressSize is 0;
+    var boolean: isLittleEndian is TRUE;
+  end struct;
+
+
+const func string: sectionTypeName (in integer: sectionType) is func
+  result
+    var string: typeName is "";
+  begin
+    case sectionType of
+      when {ELF_SHT_NULL}:           typeName := "SHT_NULL";
+      when {ELF_SHT_PROGBITS}:       typeName := "SHT_PROGBITS";
+      when {ELF_SHT_SYMTAB}:         typeName := "SHT_SYMTAB";
+      when {ELF_SHT_STRTAB}:         typeName := "SHT_STRTAB";
+      when {ELF_SHT_RELA}:           typeName := "SHT_RELA";
+      when {ELF_SHT_HASH}:           typeName := "SHT_HASH";
+      when {ELF_SHT_DYNAMIC}:        typeName := "SHT_DYNAMIC";
+      when {ELF_SHT_NOTE}:           typeName := "SHT_NOTE";
+      when {ELF_SHT_NOBITS}:         typeName := "SHT_NOBITS";
+      when {ELF_SHT_REL}:            typeName := "SHT_REL";
+      when {ELF_SHT_SHLIB}:          typeName := "SHT_SHLIB";
+      when {ELF_SHT_DYNSYM}:         typeName := "SHT_DYNSYM";
+      when {ELF_SHT_INIT_ARRAY}:     typeName := "SHT_INIT_ARRAY";
+      when {ELF_SHT_FINI_ARRAY}:     typeName := "SHT_FINI_ARRAY";
+      when {ELF_SHT_PREINIT_ARRAY}:  typeName := "SHT_PREINIT_ARRAY";
+      when {ELF_SHT_GROUP}:          typeName := "SHT_GROUP";
+      when {ELF_SHT_SYMTAB_SHNDX}:   typeName := "SHT_SYMTAB_SHNDX";
+      when {ELF_SHT_NUM}:            typeName := "SHT_NUM";
+      when {ELF_SHT_GNU_ATTRIBUTES}: typeName := "SHT_GNU_ATTRIBUTES";
+      when {ELF_SHT_GNU_HASH}:       typeName := "SHT_GNU_HASH";
+      when {ELF_SHT_GNU_LIBLIST}:    typeName := "SHT_GNU_LIBLIST";
+      when {ELF_SHT_CHECKSUM}:       typeName := "SHT_CHECKSUM";
+      when {ELF_SHT_SUNW_move}:      typeName := "SHT_SUNW_move";
+      when {ELF_SHT_SUNW_COMDAT}:    typeName := "SHT_SUNW_COMDAT";
+      when {ELF_SHT_SUNW_syminfo}:   typeName := "SHT_SUNW_syminfo";
+      when {ELF_SHT_GNU_verdef}:     typeName := "SHT_GNU_verdef";
+      when {ELF_SHT_GNU_verneed}:    typeName := "SHT_GNU_verneed";
+      when {ELF_SHT_GNU_versym}:     typeName := "SHT_GNU_versym";
+      otherwise:                     typeName := sectionType radix 16;
+    end case;
+  end func;
+
+
+const proc: show (in elfSectionHeader: header) is func
+  begin
+    writeln("nameOffset: " <& header.nameOffset);
+    writeln("sectionType: " <& header.sectionType <& " " <& sectionTypeName(header.sectionType));
+    writeln("flags: " <& header.flags);
+    writeln("address: " <& header.address);
+    writeln("offset: " <& header.offset);
+    writeln("size: " <& header.size);
+    writeln("link: " <& header.link);
+    writeln("info: " <& header.info);
+    writeln("addrAlignment: " <& header.addrAlignment);
+    writeln("entrySize: " <& header.entrySize);
+    writeln("name: " <& header.name);
+    writeln("addressSize: " <& header.addressSize);
+    writeln("isLittleEndian: " <& header.isLittleEndian);
+  end func;
+
+
+const proc: readSectionHeader32Le (in string: stri,
+    inout elfSectionHeader: sectionHeader) is func
+  begin
+    sectionHeader.nameOffset    := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    sectionHeader.sectionType   := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    sectionHeader.flags         := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    sectionHeader.address       := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+    sectionHeader.offset        := bytes2Int(stri[17 fixLen 4], UNSIGNED, LE);
+    sectionHeader.size          := bytes2Int(stri[21 fixLen 4], UNSIGNED, LE);
+    sectionHeader.link          := bytes2Int(stri[25 fixLen 4], UNSIGNED, LE);
+    sectionHeader.info          := bytes2Int(stri[29 fixLen 4], UNSIGNED, LE);
+    sectionHeader.addrAlignment := bytes2Int(stri[33 fixLen 4], UNSIGNED, LE);
+    sectionHeader.entrySize     := bytes2Int(stri[37 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readSectionHeader32Be (in string: stri,
+    inout elfSectionHeader: sectionHeader) is func
+  begin
+    sectionHeader.nameOffset    := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    sectionHeader.sectionType   := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    sectionHeader.flags         := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    sectionHeader.address       := bytes2Int(stri[13 fixLen 4], UNSIGNED, BE);
+    sectionHeader.offset        := bytes2Int(stri[17 fixLen 4], UNSIGNED, BE);
+    sectionHeader.size          := bytes2Int(stri[21 fixLen 4], UNSIGNED, BE);
+    sectionHeader.link          := bytes2Int(stri[25 fixLen 4], UNSIGNED, BE);
+    sectionHeader.info          := bytes2Int(stri[29 fixLen 4], UNSIGNED, BE);
+    sectionHeader.addrAlignment := bytes2Int(stri[33 fixLen 4], UNSIGNED, BE);
+    sectionHeader.entrySize     := bytes2Int(stri[37 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const proc: readSectionHeader64Le (in string: stri,
+    inout elfSectionHeader: sectionHeader) is func
+  begin
+    sectionHeader.nameOffset    := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    sectionHeader.sectionType   := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    sectionHeader.flags         := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, LE);
+    sectionHeader.address       := bytes2Int(stri[17 fixLen 8], UNSIGNED, LE);
+    sectionHeader.offset        := bytes2Int(stri[25 fixLen 8], UNSIGNED, LE);
+    sectionHeader.size          := bytes2Int(stri[33 fixLen 8], UNSIGNED, LE);
+    sectionHeader.link          := bytes2Int(stri[41 fixLen 4], UNSIGNED, LE);
+    sectionHeader.info          := bytes2Int(stri[45 fixLen 4], UNSIGNED, LE);
+    sectionHeader.addrAlignment := bytes2Int(stri[49 fixLen 8], UNSIGNED, LE);
+    sectionHeader.entrySize     := bytes2Int(stri[57 fixLen 8], UNSIGNED, LE);
+  end func;
+
+
+const proc: readSectionHeader64Be (in string: stri,
+    inout elfSectionHeader: sectionHeader) is func
+  begin
+    sectionHeader.nameOffset    := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    sectionHeader.sectionType   := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    sectionHeader.flags         := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, BE);
+    sectionHeader.address       := bytes2Int(stri[17 fixLen 8], UNSIGNED, BE);
+    sectionHeader.offset        := bytes2Int(stri[25 fixLen 8], UNSIGNED, BE);
+    sectionHeader.size          := bytes2Int(stri[33 fixLen 8], UNSIGNED, BE);
+    sectionHeader.link          := bytes2Int(stri[41 fixLen 4], UNSIGNED, BE);
+    sectionHeader.info          := bytes2Int(stri[45 fixLen 4], UNSIGNED, BE);
+    sectionHeader.addrAlignment := bytes2Int(stri[49 fixLen 8], UNSIGNED, BE);
+    sectionHeader.entrySize     := bytes2Int(stri[57 fixLen 8], UNSIGNED, BE);
+  end func;
+
+
+const proc: readSectionHeader (inout file: inFile, in elfHeader: header,
+    inout elfSectionHeader: sectionHeader) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, header.sectionHeaderSize);
+    if length(stri) = header.sectionHeaderSize then
+      if header.addressSize = 32 then
+        if length(stri) >= ELF_SECTION_HEADER32_SIZE then
+          if header.isLittleEndian then
+            readSectionHeader32Le(stri, sectionHeader);
+          else
+            readSectionHeader32Be(stri, sectionHeader);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      elsif header.addressSize = 64 then
+        if length(stri) >= ELF_SECTION_HEADER64_SIZE then
+          if header.isLittleEndian then
+            readSectionHeader64Le(stri, sectionHeader);
+          else
+            readSectionHeader64Be(stri, sectionHeader);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+      sectionHeader.addressSize := header.addressSize;
+      sectionHeader.isLittleEndian := header.isLittleEndian;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: elfSectionNameHash is hash [string] integer;
+
+const type: elfData is sub emptyFileSys struct
+    var file: elfFile is STD_NULL;
+    var elfHeader: header is elfHeader.value;
+    var array elfProgramHeader: programHeaders is 0 times elfProgramHeader.value;
+    var array elfSectionHeader: sectionHeaders is 0 times elfSectionHeader.value;
+    var string: sectionNameTable is "";
+    var elfSectionNameHash: sectionNameHash is elfSectionNameHash.value;
+  end struct;
+
+
+(**
+ *  Open an ELF file.
+ *)
+const func elfData: openElf (inout file: elfFile) is func
+  result
+    var elfData: data is elfData.value;
+  local
+    var elfSectionHeader: sectionHeader0 is elfSectionHeader.value;
+    var integer: index is 0;
+  begin
+    readHeader(elfFile, data.header);
+    if data.header.magic = ELF_MAGIC then
+      # show(data.header);
+      if data.header.sectionHeaderNum = 0 and
+          data.header.sectionHeaderOffset <> 0 then
+        seek(elfFile, succ(data.header.sectionHeaderOffset));
+        readSectionHeader(elfFile, data.header, sectionHeader0);
+        data.header.sectionHeaderNum := sectionHeader0.size;
+      end if;
+      data.elfFile := elfFile;
+      data.programHeaders := data.header.programHeaderNum times elfProgramHeader.value;
+      seek(elfFile, succ(data.header.programHeaderOffset));
+      for index range 1 to data.header.programHeaderNum do
+        readProgramHeader(elfFile, data.header, data.programHeaders[index]);
+        # show(data.programHeaders[index]);
+      end for;
+      data.sectionHeaders := data.header.sectionHeaderNum times elfSectionHeader.value;
+      seek(elfFile, succ(data.header.sectionHeaderOffset));
+      for index range 1 to data.header.sectionHeaderNum do
+        readSectionHeader(elfFile, data.header, data.sectionHeaders[index]);
+        # show(data.sectionHeaders[index]);
+      end for;
+      # writeln("------------");
+      index := succ(data.header.nameSectionIndex);
+      # show(data.sectionHeaders[index]);
+      seek(elfFile, succ(data.sectionHeaders[index].offset));
+      data.sectionNameTable := gets(elfFile, data.sectionHeaders[index].size);
+      # writeln(literal(data.sectionNameTable));
+      for index range 1 to data.header.sectionHeaderNum do
+        data.sectionHeaders[index].name :=
+            fromAsciiz(data.sectionNameTable, succ(data.sectionHeaders[index].nameOffset));
+        # writeln(data.sectionHeaders[index].name);
+        data.sectionNameHash @:= [data.sectionHeaders[index].name] index;
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Return the list of section names from the given ELF ''data''.
+ *)
+const func array string: readSectionNames (in elfData: data) is
+  return keys(data.sectionNameHash);
+
+
+(**
+ *  Get the section with the with the specified ''sectionName''.
+ *  @return the section with the name ''sectionName'', or
+ *          an empty section if no section with this name exists.
+ *)
+const func elfSectionHeader: getSection (in elfData: data, in string: sectionName) is func
+  result
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+  begin
+    if sectionName in data.sectionNameHash then
+      sectionHeader := data.sectionHeaders[data.sectionNameHash[sectionName]];
+    end if;
+  end func;
+
+
+(**
+ *  Get the section data of the section ''sectionName''.
+ *)
+const func string: getSectionData (inout elfData: data, in string: sectionName) is func
+  result
+    var string: sectionData is "";
+  local
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+  begin
+    if sectionName in data.sectionNameHash then
+      sectionHeader := data.sectionHeaders[data.sectionNameHash[sectionName]];
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+    end if;
+  end func;
+
+
+const type: elfGnuHashHeader is new struct
+    var integer: nbuckets is 0;
+    var integer: symndx is 0;    # Index of the first accessible symbol in .dynsym
+    var integer: maskwords is 0; # Nyumber of elements in the Bloom Filter
+    var integer: shift2 is 0;    # Shift count for the Bloom Filter
+    var array integer: bloom_filter is 0 times 0;
+    var array integer: buckets is 0 times 0;
+    var array integer: values is 0 times 0;
+  end struct;
+
+
+const proc: show (in elfGnuHashHeader: header) is func
+  begin
+    writeln("nbuckets: " <& header.nbuckets);
+    writeln("symndx: " <& header.symndx);
+    writeln("maskwords: " <& header.maskwords);
+    writeln("shift2: " <& header.shift2);
+  end func;
+
+
+const proc: readGnuHashHeaderLe (in string: stri, inout elfGnuHashHeader: hashHeader) is func
+  begin
+    hashHeader.nbuckets     := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    hashHeader.symndx       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    hashHeader.maskwords    := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    hashHeader.shift2       := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+    hashHeader.bloom_filter := hashHeader.maskwords times 0;
+    hashHeader.buckets      := hashHeader.nbuckets times 0;
+    (*
+    uintXX_t bloom_filter[maskwords];
+    uint32_t buckets[nbuckets];
+    uint32_t values[dynsymcount - symndx];
+    *)
+  end func;
+
+
+const proc: readGnuHashHeaderBe (in string: stri, inout elfGnuHashHeader: hashHeader) is func
+  begin
+    hashHeader.nbuckets     := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    hashHeader.symndx       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    hashHeader.maskwords    := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    hashHeader.shift2       := bytes2Int(stri[13 fixLen 4], UNSIGNED, BE);
+    hashHeader.bloom_filter := hashHeader.maskwords times 0;
+    hashHeader.buckets      := hashHeader.nbuckets times 0;
+    (*
+    uintXX_t bloom_filter[maskwords];
+    uint32_t buckets[nbuckets];
+    uint32_t values[dynsymcount - symndx];
+    *)
+  end func;
+
+
+const func elfGnuHashHeader: readGnuHashHeader (in string: sectionData, inout integer: pos,
+    in boolean: isLittleEndian) is func
+  result
+    var elfGnuHashHeader: hashHeader is elfGnuHashHeader.value;
+  local
+    var string: stri is "";
+  begin
+    stri := sectionData[pos ..];
+    if length(stri) >= ELF_NOTE_HEADER_SIZE then
+      if isLittleEndian then
+        readGnuHashHeaderLe(stri, hashHeader);
+      else
+        readGnuHashHeaderBe(stri, hashHeader);
+      end if;
+    end if;
+  end func;
+
+
+const type: elfNoteHeader is new struct
+    var integer: nameSize is 0;         # Length of the note's name.
+    var integer: descriptionSize is 0;  # Length of the note's descriptor.
+    var integer: noteType is 0;         # Type of the note.
+    var string: name is "";
+    var string: description is "";
+  end struct;
+
+
+const proc: show (in elfNoteHeader: header) is func
+  begin
+    writeln("nameSize: " <& header.nameSize);
+    writeln("descriptionSize: " <& header.descriptionSize);
+    writeln("noteType: " <& header.noteType);
+    writeln("name: " <& header.name);
+    writeln("description: " <& literal(header.description));
+  end func;
+
+
+const proc: readNoteHeaderLe (in string: stri, inout elfNoteHeader: noteHeader) is func
+  begin
+    noteHeader.nameSize        := bytes2Int(stri[1 fixLen 4], UNSIGNED, LE);
+    noteHeader.descriptionSize := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+    noteHeader.noteType        := bytes2Int(stri[9 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readNoteHeaderBe (in string: stri, inout elfNoteHeader: noteHeader) is func
+  begin
+    noteHeader.nameSize        := bytes2Int(stri[1 fixLen 4], UNSIGNED, BE);
+    noteHeader.descriptionSize := bytes2Int(stri[5 fixLen 4], UNSIGNED, BE);
+    noteHeader.noteType        := bytes2Int(stri[9 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const func elfNoteHeader: readNoteHeader (in string: sectionData, inout integer: pos,
+    in boolean: isLittleEndian) is func
+  result
+    var elfNoteHeader: noteHeader is elfNoteHeader.value;
+  local
+    var string: stri is "";
+    var integer: alignedNameSize is 0;
+    var integer: alignedDescriptionSize is 0;
+  begin
+    stri := sectionData[pos ..];
+    if length(stri) >= ELF_NOTE_HEADER_SIZE then
+      if isLittleEndian then
+        readNoteHeaderLe(stri, noteHeader);
+      else
+        readNoteHeaderBe(stri, noteHeader);
+      end if;
+      alignedNameSize        := succ(pred(noteHeader.nameSize       ) mdiv 4) * 4;
+      alignedDescriptionSize := succ(pred(noteHeader.descriptionSize) mdiv 4) * 4;
+      if length(stri) >= alignedNameSize + noteHeader.descriptionSize then
+        if noteHeader.nameSize > 0 then
+          noteHeader.name :=      stri[13                   fixLen pred(noteHeader.nameSize)];
+          if stri[12 + noteHeader.nameSize] <> '\0;' then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+        noteHeader.description := stri[13 + alignedNameSize fixLen noteHeader.descriptionSize];
+        pos +:= ELF_NOTE_HEADER_SIZE + alignedNameSize + alignedDescriptionSize;
+      else
+        raise RANGE_ERROR;
+      end if;
+    elsif stri <> "" then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Get the note ''noteName'' from section ''sectionName'' in ELF ''data''.
+ *)
+const func string: getNote (inout elfData: data, in string: sectionName,
+    in string: noteName) is func
+  result
+    var string: note is "";
+  local
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+    var string: sectionData is "";
+    var integer: pos is 1;
+    var elfNoteHeader: noteHeader is elfNoteHeader.value;
+  begin
+    sectionHeader := getSection(data, sectionName);
+    if sectionHeader.sectionType = ELF_SHT_NOTE then
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+      repeat
+        noteHeader := readNoteHeader(sectionData, pos, sectionHeader.isLittleEndian);
+        # show(noteHeader);
+        # writeln(literal(noteHeader.name) <& " = " <& literal(noteName) <& ": " <& noteHeader.name = noteName);
+      until noteHeader.name = noteName;
+      note := noteHeader.description;
+    end if;
+  end func;
+
+
+(**
+ *  Get the build ID from the given ELF ''data''.
+ *)
+const func string: getBuildId (inout elfData: data) is
+  return getNote(data, ".note.gnu.build-id", "GNU");
+
+
+const type: noteHash is hash [string] string;
+
+
+const func noteHash: getNotes (inout elfData: data, in string: sectionName) is func
+  result
+    var noteHash: notes is noteHash.value;
+  local
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+    var string: sectionData is "";
+    var integer: pos is 1;
+    var elfNoteHeader: noteHeader is elfNoteHeader.value;
+  begin
+    sectionHeader := getSection(data, sectionName);
+    if sectionHeader.sectionType = ELF_SHT_NOTE then
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+      repeat
+        noteHeader := readNoteHeader(sectionData, pos, sectionHeader.isLittleEndian);
+        show(noteHeader);
+        if noteHeader.name <> "" or noteHeader.description <> "" then
+          notes @:= [noteHeader.name] noteHeader.description;
+        end if;
+      until noteHeader.name = "" and noteHeader.description = "";
+    end if;
+  end func;
+
+
+const type: elfSym is new struct
+    var integer: nameIndex is 0;  # Symbol name (string tbl index)
+    var integer: value is 0;      # Symbol value
+    var integer: size is 0;       # Symbol size
+    var integer: info is 0;       # Symbol type and binding
+    var integer: other is 0;      # Symbol visibility
+    var integer: shndx is 0;      # Section index
+  end struct;
+
+
+const proc: show (in elfSym: sym) is func
+  begin
+    writeln("nameIndex: " <& sym.nameIndex);
+    writeln("value: " <& sym.value);
+    writeln("size: " <& sym.size);
+    writeln("info: " <& sym.info);
+    writeln("other: " <& sym.other);
+    writeln("shndx: " <& sym.shndx);
+  end func;
+
+
+const proc: readSym32Le (in string: stri, inout elfSym: sym) is func
+  begin
+    sym.nameIndex := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    sym.value     := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    sym.size      := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    sym.info      := bytes2Int(stri[13 fixLen 1], UNSIGNED, LE);
+    sym.other     := bytes2Int(stri[14 fixLen 1], UNSIGNED, LE);
+    sym.shndx     := bytes2Int(stri[15 fixLen 2], UNSIGNED, LE);
+  end func;
+
+
+const proc: readSym32Be (in string: stri, inout elfSym: sym) is func
+  begin
+    sym.nameIndex := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    sym.value     := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    sym.size      := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    sym.info      := bytes2Int(stri[13 fixLen 1], UNSIGNED, BE);
+    sym.other     := bytes2Int(stri[14 fixLen 1], UNSIGNED, BE);
+    sym.shndx     := bytes2Int(stri[15 fixLen 2], UNSIGNED, BE);
+  end func;
+
+
+const proc: readSym64Le (in string: stri, inout elfSym: sym) is func
+  begin
+    sym.nameIndex := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    sym.info      := bytes2Int(stri[ 5 fixLen 1], UNSIGNED, LE);
+    sym.other     := bytes2Int(stri[ 6 fixLen 1], UNSIGNED, LE);
+    sym.shndx     := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+    sym.value     := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, LE);
+    sym.size      := bytes2Int(stri[17 fixLen 8], UNSIGNED, LE);
+  end func;
+
+
+const proc: readSym64Be (in string: stri, inout elfSym: sym) is func
+  begin
+    sym.nameIndex := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    sym.info      := bytes2Int(stri[ 5 fixLen 1], UNSIGNED, BE);
+    sym.other     := bytes2Int(stri[ 6 fixLen 1], UNSIGNED, BE);
+    sym.shndx     := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, BE);
+    sym.value     := bytes2Int(stri[ 9 fixLen 8], UNSIGNED, BE);
+    sym.size      := bytes2Int(stri[17 fixLen 8], UNSIGNED, BE);
+  end func;
+
+
+const func elfSym: readSym (in string: sectionData, inout integer: pos,
+    in integer: addressSize, in boolean: isLittleEndian) is func
+  result
+    var elfSym: sym is elfSym.value;
+  local
+    var string: stri is "";
+  begin
+    stri := sectionData[pos ..];
+    if addressSize = 32 then
+      if length(stri) >= ELF_SYM32_SIZE then
+        if isLittleEndian then
+          readSym32Le(stri, sym);
+        else
+          readSym32Be(stri, sym);
+        end if;
+        pos +:= ELF_SYM32_SIZE;
+      else
+        raise RANGE_ERROR;
+      end if;
+    elsif addressSize = 64 then
+      if length(stri) >= ELF_SYM64_SIZE then
+        if isLittleEndian then
+          readSym64Le(stri, sym);
+        else
+          readSym64Le(stri, sym);
+        end if;
+        pos +:= ELF_SYM64_SIZE;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of dynamic symbols from ''sectionName'' using ''dynstrSectionName''.
+ *   getDynsymNames(data, ".dynsym", ".dynstr")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with dynamic symbols.
+ *  @param dynstrSectionName Name of section with string data.
+ *  @return an array with dynamic symbols.
+ *)
+const func array string: getDynsymNames (inout elfData: data, in string: sectionName,
+    in string: dynstrSectionName) is func
+  result
+    var array string: dynsymNames is 0 times "";
+  local
+    var string: dynstr is "";
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+    var string: sectionData is "";
+    var integer: pos is 1;
+    var elfSym: sym is elfSym.value;
+  begin
+    dynstr := getSectionData(data, dynstrSectionName);
+    sectionHeader := getSection(data, sectionName);
+    if sectionHeader.sectionType = ELF_SHT_DYNSYM then
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+      repeat
+        sym := readSym(sectionData, pos, sectionHeader.addressSize, sectionHeader.isLittleEndian);
+        # show(sym);
+        dynsymNames &:= fromAsciiz(dynstr, succ(sym.nameIndex));
+      until pos > length(sectionData);
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of dynamic symbols from ''sectionName'' in ELF ''data''.
+ *   getDynsymNames(data, ".dynsym")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with dynamic symbols.
+ *  @return an array with dynamic symbols.
+ *)
+const func array string: getDynsymNames (inout elfData: data, in string: sectionName) is
+  return getDynsymNames(data, sectionName, ".dynstr");
+
+
+(**
+ *  Get the list of dynamic symbols from ELF ''data''.
+ *  @param data ELF data.
+ *  @return an array with dynamic symbols.
+ *)
+const func array string: getDynsymNames (inout elfData: data) is
+  return getDynsymNames(data, ".dynsym", ".dynstr");
+
+
+const type: elfDyn is new struct
+    var integer: tag is 0;       # Dynamic entry type
+    var integer: valOrPtr is 0;  # Integer value or address value
+  end struct;
+
+
+const proc: show (in elfDyn: dyn) is func
+  begin
+    writeln("tag: " <& dyn.tag);
+    writeln("valOrPtr: " <& dyn.valOrPtr);
+  end func;
+
+
+const proc: readDyn32Le (in string: stri, inout elfDyn: dyn) is func
+  begin
+    dyn.tag      := bytes2Int(stri[1 fixLen 4],   SIGNED, LE);
+    dyn.valOrPtr := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readDyn32Be (in string: stri, inout elfDyn: dyn) is func
+  begin
+    dyn.tag      := bytes2Int(stri[1 fixLen 4],   SIGNED, BE);
+    dyn.valOrPtr := bytes2Int(stri[5 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const proc: readDyn64Le (in string: stri, inout elfDyn: dyn) is func
+  begin
+    dyn.tag      := bytes2Int(stri[1 fixLen 8],   SIGNED, LE);
+    dyn.valOrPtr := bytes2Int(stri[9 fixLen 8], UNSIGNED, LE);
+  end func;
+
+
+const proc: readDyn64Be (in string: stri, inout elfDyn: dyn) is func
+  begin
+    dyn.tag      := bytes2Int(stri[1 fixLen 8],   SIGNED, BE);
+    dyn.valOrPtr := bytes2Int(stri[9 fixLen 8], UNSIGNED, BE);
+  end func;
+
+
+const func elfDyn: readDyn (in string: sectionData, inout integer: pos,
+    in integer: addressSize, in boolean: isLittleEndian) is func
+  result
+    var elfDyn: dyn is elfDyn.value;
+  local
+    var string: stri is "";
+  begin
+    stri := sectionData[pos ..];
+    if addressSize = 32 then
+      if length(stri) >= ELF_DYN32_SIZE then
+        if isLittleEndian then
+          readDyn32Le(stri, dyn);
+        else
+          readDyn32Be(stri, dyn);
+        end if;
+        pos +:= ELF_DYN32_SIZE;
+      else
+        raise RANGE_ERROR;
+      end if;
+    elsif addressSize = 64 then
+      if length(stri) >= ELF_DYN64_SIZE then
+        if isLittleEndian then
+          readDyn64Le(stri, dyn);
+        else
+          readDyn64Le(stri, dyn);
+        end if;
+        pos +:= ELF_DYN64_SIZE;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of dynamic data from ''sectionName'' using ''dynstrSectionName''.
+ *   getDynamicNeeds(elf, ".dynamic", ".dynstr")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with dynamic data.
+ *  @param dynstrSectionName Name of section with string data.
+ *  @return an array with the dynamic data.
+ *)
+const func array string: getDynamicNeeds (inout elfData: data, in string: sectionName,
+    in string: dynstrSectionName) is func
+  result
+    var array string: dynNames is 0 times "";
+  local
+    var string: dynstr is "";
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+    var string: sectionData is "";
+    var integer: pos is 1;
+    var elfDyn: dyn is elfDyn.value;
+  begin
+    dynstr := getSectionData(data, dynstrSectionName);
+    sectionHeader := getSection(data, sectionName);
+    if sectionHeader.sectionType = ELF_SHT_DYNAMIC then
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+      repeat
+        dyn := readDyn(sectionData, pos, sectionHeader.addressSize, sectionHeader.isLittleEndian);
+        if dyn.tag = ELF_DT_NEEDED then
+          dynNames &:= fromAsciiz(dynstr, succ(dyn.valOrPtr));
+        # else
+        #   show(dyn);
+        end if;
+      until pos > length(sectionData);
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of dynamic data from ''sectionName'' in ELF ''data''.
+ *   getDynamicNeeds(elf, ".dynamic")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with dynamic data.
+ *  @return an array with the dynamic data.
+ *)
+const func array string: getDynamicNeeds (inout elfData: data, in string: sectionName) is
+  return getDynamicNeeds(data, sectionName, ".dynstr");
+
+
+(**
+ *  Get the list of dynamic data from ELF ''data''.
+ *  @param data ELF data.
+ *  @return an array with the dynamic data.
+ *)
+const func array string: getDynamicNeeds (inout elfData: data) is
+  return getDynamicNeeds(data, ".dynamic", ".dynstr");
+
+
+const type: elfVerDAux is new struct
+    var integer: name is 0;  # Version or dependency names
+    var integer: next is 0;  # Offset in bytes to next verdaux entry
+  end struct;
+
+
+const proc: show (in elfVerDAux: verDAux) is func
+  begin
+    writeln("name: " <& verDAux.name);
+    writeln("next: " <& verDAux.next);
+  end func;
+
+
+const proc: readVerDAuxLe (in string: stri, inout elfVerDAux: verDAux) is func
+  begin
+    verDAux.name := bytes2Int(stri[1 fixLen 4], UNSIGNED, LE);
+    verDAux.next := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readVerDAuxBe (in string: stri, inout elfVerDAux: verDAux) is func
+  begin
+    verDAux.name := bytes2Int(stri[1 fixLen 4], UNSIGNED, BE);
+    verDAux.next := bytes2Int(stri[5 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const func elfVerDAux: readVerDAux (in string: sectionData, inout integer: pos,
+    in boolean: isLittleEndian) is func
+  result
+    var elfVerDAux: verDAux is elfVerDAux.value;
+  local
+    var string: stri is "";
+  begin
+    stri := sectionData[pos ..];
+    if length(stri) >= ELF_VER_D_AUX_SIZE then
+      if isLittleEndian then
+        readVerDAuxLe(stri, verDAux);
+      else
+        readVerDAuxBe(stri, verDAux);
+      end if;
+      # pos +:= ELF_VER_D_AUX_SIZE;
+
+      if verDAux.next <> 0 then
+        pos +:= verDAux.next;
+      else
+        pos := 0;
+      end if;
+
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: elfVerNAux is new struct
+    var integer: nameHash is 0;   # Hash value of dependency name
+    var integer: flags is 0;      # Dependency specific information
+    var integer: other is 0;      # Unused
+    var integer: nameIndex is 0;  # Dependency name string offset
+    var integer: next is 0;       # Offset in bytes to next vernaux entry
+    var string: name is "";
+  end struct;
+
+
+const proc: show (in elfVerNAux: verNAux) is func
+  begin
+    writeln("nameHash: " <& verNAux.nameHash);
+    writeln("flags: " <& verNAux.flags);
+    writeln("other: " <& verNAux.other);
+    writeln("nameIndex: " <& verNAux.nameIndex);
+    writeln("next: " <& verNAux.next);
+    writeln("name: " <& verNAux.name);
+  end func;
+
+
+const proc: readVerNAuxLe (in string: stri, inout elfVerNAux: verNAux) is func
+  begin
+    verNAux.nameHash  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
+    verNAux.flags     := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+    verNAux.other     := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+    verNAux.nameIndex := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    verNAux.next      := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readVerNAuxBe (in string: stri, inout elfVerNAux: verNAux) is func
+  begin
+    verNAux.nameHash  := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, BE);
+    verNAux.flags     := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, BE);
+    verNAux.other     := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, BE);
+    verNAux.nameIndex := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    verNAux.next      := bytes2Int(stri[13 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const func elfVerNAux: readVerNAux (in string: stri, in boolean: isLittleEndian,
+    in string: dynstr) is func
+  result
+    var elfVerNAux: verNAux is elfVerNAux.value;
+  begin
+    if length(stri) >= ELF_VER_N_AUX_SIZE then
+      if isLittleEndian then
+        readVerNAuxLe(stri, verNAux);
+      else
+        readVerNAuxBe(stri, verNAux);
+      end if;
+      verNAux.name := fromAsciiz(dynstr, succ(verNAux.nameIndex));
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: elfVerNeed is new struct
+    var integer: version is 0;        # Version of structure
+    var integer: count is 0;          # Number of associated aux entries
+    var integer: fileNameIndex is 0;  # Offset of filename for this dependency
+    var integer: aux is 0;            # Offset in bytes to vernaux array
+    var integer: next is 0;           # Offset in bytes to next verneed entry
+    var string: fileName is "";
+  end struct;
+
+
+const proc: show (in elfVerNeed: verNeed) is func
+  begin
+    writeln("version: " <& verNeed.version);
+    writeln("count: " <& verNeed.count);
+    writeln("fileNameIndex: " <& verNeed.fileNameIndex);
+    writeln("aux: " <& verNeed.aux);
+    writeln("next: " <& verNeed.next);
+    writeln("fileName: " <& verNeed.fileName);
+  end func;
+
+
+const proc: readVerNeedLe (in string: stri, inout elfVerNeed: verNeed) is func
+  begin
+    verNeed.version       := bytes2Int(stri[ 1 fixLen 2], UNSIGNED, LE);
+    verNeed.count         := bytes2Int(stri[ 3 fixLen 2], UNSIGNED, LE);
+    verNeed.fileNameIndex := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+    verNeed.aux           := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+    verNeed.next          := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+  end func;
+
+
+const proc: readVerNeedBe (in string: stri, inout elfVerNeed: verNeed) is func
+  begin
+    verNeed.version       := bytes2Int(stri[ 1 fixLen 2], UNSIGNED, BE);
+    verNeed.count         := bytes2Int(stri[ 3 fixLen 2], UNSIGNED, BE);
+    verNeed.fileNameIndex := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, BE);
+    verNeed.aux           := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, BE);
+    verNeed.next          := bytes2Int(stri[13 fixLen 4], UNSIGNED, BE);
+  end func;
+
+
+const func elfVerNeed: readVerNeed (in string: stri, in boolean: isLittleEndian,
+    in string: dynstr) is func
+  result
+    var elfVerNeed: verNeed is elfVerNeed.value;
+  begin
+    if length(stri) >= ELF_VER_NEED_SIZE then
+      if isLittleEndian then
+        readVerNeedLe(stri, verNeed);
+      else
+        readVerNeedBe(stri, verNeed);
+      end if;
+      verNeed.fileName := fromAsciiz(dynstr, succ(verNeed.fileNameIndex));
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of version needs from ''sectionName'' using ''dynstrSectionName''.
+ *   getVerNeeds(elf, ".gnu.version_r", ".dynstr")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with version needs.
+ *  @param dynstrSectionName Name of section with string data.
+ *  @return an array with the version needs.
+ *)
+const func array string: getVerNeeds (inout elfData: data, in string: sectionName,
+    in string: dynstrSectionName) is func
+  result
+    var array string: verNeedNames is 0 times "";
+  local
+    var string: dynstr is "";
+    var string: addressSizeStri is "";
+    var elfSectionHeader: sectionHeader is elfSectionHeader.value;
+    var string: sectionData is "";
+    var integer: verNeedPos is 1;
+    var elfVerNeed: verNeed is elfVerNeed.value;
+    var integer: verNAuxPos is 1;
+    var integer: count is 0;
+    var elfVerNAux: verNAux is elfVerNAux.value;
+  begin
+    dynstr := getSectionData(data, dynstrSectionName);
+    addressSizeStri := "(" <& data.header.addressSize <& "bit)";
+    sectionHeader := getSection(data, sectionName);
+    if sectionHeader.sectionType = ELF_SHT_GNU_verneed then
+      seek(data.elfFile, succ(sectionHeader.offset));
+      sectionData := gets(data.elfFile, sectionHeader.size);
+      repeat
+        verNeed := readVerNeed(sectionData[verNeedPos ..], sectionHeader.isLittleEndian, dynstr);
+        # show(verNeed);
+        if verNeed.count <> 0 then
+          verNAuxPos := verNeedPos + verNeed.aux;
+          for count range 1 to verNeed.count do
+            verNAux := readVerNAux(sectionData[verNAuxPos ..], sectionHeader.isLittleEndian, dynstr);
+            # show(verNAux);
+            verNeedNames &:= verNeed.fileName & "(" & verNAux.name & ")" & addressSizeStri;
+            if verNAux.next <> 0 then
+              verNAuxPos +:= verNAux.next;
+            else
+              verNAuxPos := 0;
+            end if;
+          end for;
+          if verNAuxPos <> 0 then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+        if verNeed.next <> 0 then
+          verNeedPos +:= verNeed.next;
+        else
+          verNeedPos := 0;
+        end if;
+      until verNeedPos = 0;
+    end if;
+  end func;
+
+
+(**
+ *  Get the list of version needs from ''sectionName'' in ELF ''data''.
+ *   getVerNeeds(elf, ".gnu.version_r")
+ *  @param data ELF data.
+ *  @param sectionName Name of section in ''data'' with version needs.
+ *  @return an array with the version needs.
+ *)
+const func array string: getVerNeeds (inout elfData: data, in string: sectionName) is
+  return getVerNeeds(data, sectionName, ".dynstr");
+
+
+(**
+ *  Get the list of version needs from ELF ''data''.
+ *  @param data ELF data.
+ *  @return an array with the version needs.
+ *)
+const func array string: getVerNeeds (inout elfData: data) is
+  return getVerNeeds(data, ".gnu.version_r", ".dynstr");
