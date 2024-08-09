@@ -1,0 +1,317 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  rpmext.s7i    Extension library for the RPM archive             *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "rpm.s7i";
+
+
+const func string: getName (in fileSys: fileSystem) is DYNAMIC;
+
+const proc: setName (inout fileSys: fileSystem, in string: name) is DYNAMIC;
+
+const func rpmPackageType: getPackageType (in fileSys: fileSystem) is DYNAMIC;
+
+const proc: setPackageType (inout fileSys: fileSystem, in rpmPackageType: packageType) is DYNAMIC;
+
+const proc: addProvision (inout fileSys: fileSystem, in string: name,
+    in string: version, in integer: flags) is DYNAMIC;
+
+const proc: addRequirement (inout fileSys: fileSystem, in string: name,
+    in string: version, in integer: flags) is DYNAMIC;
+
+const func string: getTagValue (in fileSys: fileSystem, in integer: tag, attr string) is DYNAMIC;
+
+const func integer: getTagValue (in fileSys: fileSystem, in integer: tag, attr integer) is DYNAMIC;
+
+const proc: setTagValue (inout fileSys: fileSystem, in integer: tag,
+    in string: value) is DYNAMIC;
+
+const proc: setTagValue (inout fileSys: fileSystem, in integer: tag,
+    in string: value, in integer: dataType) is DYNAMIC;
+
+const proc: setTagValue (inout fileSys: fileSystem, in integer: tag,
+    in integer: value) is DYNAMIC;
+
+const proc: getFileFlags (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+const proc: getFileFlags (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
+
+const proc: setFileFlags (inout fileSys: fileSystem, in string: filePath,
+    in integer: flags) is DYNAMIC;
+
+const proc: setFileFlags (inout fileSys: fileSystem, in string: filePath,
+    in integer: flags, SYMLINK) is DYNAMIC;
+
+
+(**
+ *  Get the name of a RPM archive.
+ *)
+const func string: getName (in rpmArchive: rpm) is
+  return rpm.lead.name;
+
+
+(**
+ *  Set the name of a RPM archive.
+ *)
+const proc: setName (inout rpmArchive: rpm, in string: name) is func
+  begin
+    rpm.lead.name := name;
+  end func;
+
+
+(**
+ *  Get the package type of a RPM archive.
+ *)
+const func rpmPackageType: getPackageType (in rpmArchive: rpm) is
+  return rpm.lead.packageType;
+
+
+(**
+ *  Set the package type of a RPM archive.
+ *)
+const proc: setPackageType (inout rpmArchive: rpm, in rpmPackageType: packageType) is func
+  begin
+    rpm.lead.packageType := packageType;
+  end func;
+
+
+(**
+ *  Add a provided dependency to a RPM archive.
+ *)
+const proc: addProvision (inout rpmArchive: rpm, in string: name,
+    in string: version, in integer: flags) is func
+  local
+    var rpmDependency: dependency is rpmDependency.value;
+  begin
+    dependency.name := name;
+    dependency.version := version;
+    dependency.flags := flags;
+    addDependency(rpm.provided, dependency);
+  end func;
+
+
+(**
+ *  Add a required dependency to a RPM archive.
+ *)
+const proc: addRequirement (inout rpmArchive: rpm, in string: name,
+    in string: version, in integer: flags) is func
+  local
+    var rpmDependency: dependency is rpmDependency.value;
+  begin
+    dependency.name := name;
+    dependency.version := version;
+    dependency.flags := flags;
+    addDependency(rpm.required, dependency);
+  end func;
+
+
+(**
+ *  Get a tag value from a RPM archive as [[string]].
+ *)
+const func string: getTagValue (in rpmArchive: rpm, in integer: tag, attr string) is func
+  result
+    var string: value is "";
+  begin
+    if tag in rpm.header.tagMap then
+      value := getStriValue(rpm.header.store, rpm.header.tagMap[tag]);
+    end if;
+  end func;
+
+
+(**
+ *  Get a tag value from a RPM archive as [[integer]].
+ *)
+const func integer: getTagValue (in rpmArchive: rpm, in integer: tag, attr integer) is func
+  result
+    var integer: value is 0;
+  begin
+    if tag in rpm.header.tagMap then
+      value := getIntValue(rpm.header.store, rpm.header.tagMap[tag]);
+    end if;
+  end func;
+
+
+(**
+ *  Set the value of ''tag'' in a RPM archive to ''value''.
+ *)
+const proc: setTagValue (inout rpmArchive: rpm, in integer: tag,
+    in string: value) is func
+  begin
+    updateIndexEntry(rpm.header, tag, RPM_STRING_TYPE, value);
+  end func;
+
+
+(**
+ *  Set the value of ''tag'' in a RPM archive to ''value'' with ''dataType''.
+ *)
+const proc: setTagValue (inout rpmArchive: rpm, in integer: tag,
+    in string: value, in integer: dataType) is func
+  begin
+    updateIndexEntry(rpm.header, tag, dataType, value);
+  end func;
+
+
+(**
+ *  Set the value of ''tag'' in a RPM archive to ''value''.
+ *)
+const proc: setTagValue (inout rpmArchive: rpm, in integer: tag,
+    in integer: value) is func
+  begin
+    if value >= 0 and value < 2**31 then
+      updateIndexEntry(rpm.header, tag, RPM_INT32_TYPE, value);
+    else
+      updateIndexEntry(rpm.header, tag, RPM_INT64_TYPE, value);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file flags of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @return the file flags.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func integer: getFileFlags (inout rpmArchive: rpm, in string: filePath) is func
+  result
+    var integer: flags is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      flags := followSymlink(rpm, filePath).flags;
+    end if;
+  end func;
+
+
+(**
+ *  Change the file flags of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const proc: setFileFlags (inout rpmArchive: rpm, in string: filePath,
+    in integer: flags) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.fileNumber <> 0 then
+        catalogEntry.flags := flags;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file flags of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @return the file flags.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
+ *)
+const func integer: getFileFlags (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
+  result
+    var integer: flags is 0;
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        flags := catalogEntry.flags;
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Set the file flags of a symbolic link in a RPM archive.
+ *  The function only works for symbolic links and does not follow the
+ *  symbolic link.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR The file described with ''filePath'' is not
+ *             present in the RPM archive, or it is not a symbolic link.
+ *)
+const proc: setFileFlags (inout rpmArchive: rpm, in string: filePath,
+    in integer: flags, SYMLINK) is func
+  local
+    var integer: mtime is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      raise FILE_ERROR;
+    else
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      else
+        raise FILE_ERROR;
+      end if;
+      if not catalogEntry.allDataPresent then
+        readCatalogEntry(rpm, catalogEntry);
+      end if;
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+        catalogEntry.flags := flags;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
