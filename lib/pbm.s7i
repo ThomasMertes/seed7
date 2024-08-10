@@ -1,0 +1,190 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pbm.s7i       Support for PBM (portable bitmap) image format.   *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanfile.s7i";
+include "bytedata.s7i";
+include "draw.s7i";
+include "keybd.s7i";
+include "pixelimage.s7i";
+
+
+const string: PBM_MAGIC is "P4";
+
+
+(**
+ *  Reads a PBM file into a pixmap.
+ *  @param pbmFile File that contains a PBM image.
+ *  @return A pixmap with the PBM image, or
+ *          PRIMITIVE_WINDOW.value if the file does
+ *          not contain a PBM magic number.
+ *  @exception RANGE_ERROR The file is not in the PBM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPbm (inout file: pbmFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    const pixel: blackPixel is rgbPixel(0, 0, 0);
+    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
+    var string: magic is "";
+    var integer: width is 0;
+    var integer: height is 0;
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: bitNumber is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: currentByte is 0;
+    var pixelImage: image is pixelImage.value;
+  begin
+    magic := gets(pbmFile, length(PBM_MAGIC));
+    if magic = PBM_MAGIC then
+      pbmFile.bufferChar := getc(pbmFile);
+      skipWhiteSpace(pbmFile);
+      while pbmFile.bufferChar = '#' do
+        skipLineComment(pbmFile);
+        pbmFile.bufferChar := getc(pbmFile);
+        skipWhiteSpace(pbmFile);
+      end while;
+      width := integer(getDigits(pbmFile));
+      skipWhiteSpace(pbmFile);
+      while pbmFile.bufferChar = '#' do
+        skipLineComment(pbmFile);
+        pbmFile.bufferChar := getc(pbmFile);
+        skipWhiteSpace(pbmFile);
+      end while;
+      height := integer(getDigits(pbmFile));
+      image := pixelImage[.. height] times
+               pixelArray[.. width] times pixel.value;
+      for line range 1 to height do
+        pixelData := gets(pbmFile, succ(pred(width) div 8));
+        byteIndex := 1;
+        bitNumber := 7;
+        currentByte := ord(pixelData[1]);
+        for column range 1 to width do
+          if not odd(currentByte >> bitNumber) then
+            image[line][column] := whitePixel;
+          end if;
+          if bitNumber > 0 then
+            decr(bitNumber);
+          else
+            bitNumber := 7;
+            incr(byteIndex);
+            if byteIndex <= length(pixelData) then
+              currentByte := ord(pixelData[byteIndex]);
+            else
+              currentByte := 0;
+            end if;
+          end if;
+        end for;
+      end for;
+      pixmap := getPixmap(image);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a PBM file with the given ''pbmFileName'' into a pixmap.
+ *  @param pbmFileName Name of the PBM file.
+ *  @return A pixmap with the PBM image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a PBM magic number.
+ *  @exception RANGE_ERROR The file is not in the PBM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPbm (in string: pbmFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: pbmFile is STD_NULL;
+   begin
+    pbmFile := open(pbmFileName, "r");
+    if pbmFile <> STD_NULL then
+      pixmap := readPbm(pbmFile);
+      close(pbmFile);
+    end if;
+  end func;
+
+
+(**
+ *  Converts a pixmap into a string in PBM format.
+ *  @param pixmap Pixmap to be converted.
+ *  @return a string with data in PBM format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: pixmap, PBM) is func
+  result
+    var string: stri is PBM_MAGIC;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var pixelImage: image is pixelImage.value;
+    var integer: line is 0;
+    var pixel: pix is pixel.value;
+    var color: col is color.value;
+    var integer: luminance is 0;
+    var integer: bitNumber is 0;
+    var integer: currentByte is 0;
+  begin
+    height := height(pixmap);
+    width := width(pixmap);
+    stri &:= "\n" <& width <& " " <& height <& "\n";
+    image := getPixelImage(pixmap);
+    for line range 1 to height do
+      currentByte := 0;
+      bitNumber := 7;
+      for pix range image[line] do
+        col := pixelToColor(pix);
+        luminance := round(0.299 * float(col.redLight) +
+                           0.587 * float(col.greenLight) +
+                           0.114 * float(col.blueLight));
+        if luminance < 32768 then
+          currentByte +:= 1 << bitNumber;
+        end if;
+        if bitNumber > 0 then
+          decr(bitNumber);
+        else
+          stri &:= chr(currentByte);
+          currentByte := 0;
+          bitNumber := 7;
+        end if;
+      end for;
+      if bitNumber <> 7 then
+        stri &:= chr(currentByte);
+      end if;
+    end for;
+  end func;
+
+
+const proc: writePbm (in string: pbmFileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: pbmFile is STD_NULL;
+  begin
+    pbmFile := open(pbmFileName, "w");
+    if pbmFile <> STD_NULL then
+      write(pbmFile, str(pixmap, PBM));
+      close(pbmFile);
+    end if;
+  end func;
