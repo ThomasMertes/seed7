@@ -94,11 +94,7 @@ const func PRIMITIVE_WINDOW: readPbm (inout file: pbmFile) is func
           else
             bitNumber := 7;
             incr(byteIndex);
-            if byteIndex <= length(pixelData) then
-              currentByte := ord(pixelData[byteIndex]);
-            else
-              currentByte := 0;
-            end if;
+            currentByte := ord(pixelData[byteIndex]);
           end if;
         end for;
       end for;
