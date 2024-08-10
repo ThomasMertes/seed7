@@ -82,7 +82,7 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
     var string: magic is "";
   begin
     block
-      magic := gets(imageFile, length(PPM_MAGIC));
+      magic := gets(imageFile, length(BMP_MAGIC));
       if magic = BMP_MAGIC then
         seek(imageFile, 1);
         pixmap := readBmp(imageFile);
@@ -92,11 +92,11 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
       elsif magic = PGM_ASCII_MAGIC or magic = PGM_BINARY_MAGIC then
         seek(imageFile, 1);
         pixmap := readPgm(imageFile);
-      elsif magic = PPM_MAGIC then
+      elsif magic = PPM_ASCII_MAGIC or magic = PPM_BINARY_MAGIC then
         seek(imageFile, 1);
         pixmap := readPpm(imageFile);
       else
-        magic &:= gets(imageFile, length(JPEG_MAGIC) - length(PPM_MAGIC));
+        magic &:= gets(imageFile, length(JPEG_MAGIC) - length(BMP_MAGIC));
         if magic = JPEG_MAGIC then
           seek(imageFile, 1);
           pixmap := readJpeg(imageFile);

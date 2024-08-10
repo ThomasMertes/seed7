@@ -33,7 +33,72 @@ include "keybd.s7i";
 include "pixelimage.s7i";
 
 
-const string: PPM_MAGIC is "P6";
+const string: PPM_ASCII_MAGIC  is "P3";
+const string: PPM_BINARY_MAGIC is "P6";
+
+
+const proc: readPpmAsciiImage (inout pixelImage: image,
+    in integer: height, in integer: width, in integer: maximumColorValue,
+    inout file: ppmFile) is func
+  local
+    var integer: factor is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: redLight is 0;
+    var integer: greenLight is 0;
+    var integer: blueLight is 0;
+  begin
+    factor := pred(2 ** 16) div maximumColorValue;
+    for line range 1 to height do
+      for column range 1 to width do
+        skipWhiteSpace(ppmFile);
+        redLight := integer(getDigits(ppmFile)) * factor;
+        skipWhiteSpace(ppmFile);
+        greenLight := integer(getDigits(ppmFile)) * factor;
+        skipWhiteSpace(ppmFile);
+        blueLight := integer(getDigits(ppmFile)) * factor;
+        image[line][column] := rgbPixel(redLight, greenLight, blueLight);
+      end for;
+    end for;
+  end func;
+
+
+const proc: readPpmBinaryImage (inout pixelImage: image,
+    in integer: height, in integer: width, in integer: maximumColorValue,
+    inout file: ppmFile) is func
+  local
+    var integer: factor is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+  begin
+    factor := pred(2 ** 16) div maximumColorValue;
+    if maximumColorValue <= 255 then
+      for line range 1 to height do
+        pixelData := gets(ppmFile, width * 3);
+        byteIndex := 1;
+        for column range 1 to width do
+          image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * factor,
+                                          ord(pixelData[succ(byteIndex)]) * factor,
+                                          ord(pixelData[byteIndex + 2]) * factor);
+          byteIndex +:= 3;
+        end for;
+      end for;
+    else
+      for line range 1 to height do
+        pixelData := gets(ppmFile, width * 6);
+        byteIndex := 1;
+        for column range 1 to width do
+          image[line][column] :=
+              rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE) * factor,
+                       bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE) * factor,
+                       bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE) * factor);
+          byteIndex +:= 6;
+        end for;
+      end for;
+    end if;
+  end func;
 
 
 (**
@@ -52,14 +117,10 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
     var integer: width is 0;
     var integer: height is 0;
     var integer: maximumColorValue is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
-    var integer: line is 0;
-    var integer: column is 0;
     var pixelImage: image is pixelImage.value;
   begin
-    magic := gets(ppmFile, length(PPM_MAGIC));
-    if magic = PPM_MAGIC then
+    magic := gets(ppmFile, length(PPM_ASCII_MAGIC));
+    if magic = PPM_ASCII_MAGIC or magic = PPM_BINARY_MAGIC then
       ppmFile.bufferChar := getc(ppmFile);
       skipWhiteSpace(ppmFile);
       while ppmFile.bufferChar = '#' do
@@ -84,29 +145,12 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
       maximumColorValue := integer(getDigits(ppmFile));
       image := pixelImage[.. height] times
                pixelArray[.. width] times pixel.value;
-      if maximumColorValue <= 255 then
-        for line range 1 to height do
-          pixelData := gets(ppmFile, width * 3);
-          byteIndex := 1;
-          for column range 1 to width do
-            image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256,
-                                            ord(pixelData[succ(byteIndex)]) * 256,
-                                            ord(pixelData[byteIndex + 2]) * 256);
-            byteIndex +:= 3;
-          end for;
-        end for;
+      if magic = PPM_ASCII_MAGIC then
+        readPpmAsciiImage(image, height, width, maximumColorValue,
+                          ppmFile);
       else
-        for line range 1 to height do
-          pixelData := gets(ppmFile, width * 6);
-          byteIndex := 1;
-          for column range 1 to width do
-            image[line][column] :=
-                rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE),
-                         bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE),
-                         bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE));
-            byteIndex +:= 6;
-          end for;
-        end for;
+        readPpmBinaryImage(image, height, width, maximumColorValue,
+                           ppmFile);
       end if;
       pixmap := getPixmap(image);
     end if;
@@ -142,7 +186,7 @@ const func PRIMITIVE_WINDOW: readPpm (in string: ppmFileName) is func
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   result
-    var string: stri is PPM_MAGIC;
+    var string: stri is PPM_BINARY_MAGIC;
   local
     var integer: height is 0;
     var integer: width is 0;
