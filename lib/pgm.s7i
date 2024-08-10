@@ -46,7 +46,7 @@ const proc: readPgmAsciiImage (inout pixelImage: image,
     var integer: column is 0;
     var integer: luminance is 0;
   begin
-    factor := 2 ** 16 div succ(maximumColorValue);
+    factor := pred(2 ** 16) div maximumColorValue;
     for line range 1 to height do
       for column range 1 to width do
         skipWhiteSpace(pgmFile);
@@ -68,7 +68,7 @@ const proc: readPgmBinaryImage (inout pixelImage: image,
     var integer: byteIndex is 1;
     var integer: luminance is 0;
   begin
-    factor := 2 ** 16 div succ(maximumColorValue);
+    factor := pred(2 ** 16) div maximumColorValue;
     if maximumColorValue <= 255 then
       for line range 1 to height do
         pixelData := gets(pgmFile, width);
@@ -140,7 +140,7 @@ const func PRIMITIVE_WINDOW: readPgm (inout file: pgmFile) is func
                pixelArray[.. width] times pixel.value;
       if magic = PGM_ASCII_MAGIC then
         readPgmAsciiImage(image, height, width, maximumColorValue,
-                           pgmFile);
+                          pgmFile);
       else
         readPgmBinaryImage(image, height, width, maximumColorValue,
                            pgmFile);
