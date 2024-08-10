@@ -1,0 +1,181 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pgm.s7i       Support for PGM (portable graymap) image format.  *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanfile.s7i";
+include "bytedata.s7i";
+include "draw.s7i";
+include "keybd.s7i";
+include "pixelimage.s7i";
+
+
+const string: PGM_MAGIC is "P5";
+
+
+(**
+ *  Reads a PGM file into a pixmap.
+ *  @param pgmFile File that contains a PGM image.
+ *  @return A pixmap with the PGM image, or
+ *          PRIMITIVE_WINDOW.value if the file does
+ *          not contain a PGM magic number.
+ *  @exception RANGE_ERROR The file is not in the PGM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPgm (inout file: pgmFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: maximumColorValue is 0;
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: luminance is 0;
+    var pixelImage: image is pixelImage.value;
+  begin
+    magic := gets(pgmFile, length(PGM_MAGIC));
+    if magic = PGM_MAGIC then
+      pgmFile.bufferChar := getc(pgmFile);
+      skipWhiteSpace(pgmFile);
+      while pgmFile.bufferChar = '#' do
+        skipLineComment(pgmFile);
+        pgmFile.bufferChar := getc(pgmFile);
+        skipWhiteSpace(pgmFile);
+      end while;
+      width := integer(getDigits(pgmFile));
+      skipWhiteSpace(pgmFile);
+      while pgmFile.bufferChar = '#' do
+        skipLineComment(pgmFile);
+        pgmFile.bufferChar := getc(pgmFile);
+        skipWhiteSpace(pgmFile);
+      end while;
+      height := integer(getDigits(pgmFile));
+      skipWhiteSpace(pgmFile);
+      while pgmFile.bufferChar = '#' do
+        skipLineComment(pgmFile);
+        pgmFile.bufferChar := getc(pgmFile);
+        skipWhiteSpace(pgmFile);
+      end while;
+      maximumColorValue := integer(getDigits(pgmFile));
+      image := pixelImage[.. height] times
+               pixelArray[.. width] times pixel.value;
+      if maximumColorValue <= 255 then
+        for line range 1 to height do
+          pixelData := gets(pgmFile, width);
+          byteIndex := 1;
+          for column range 1 to width do
+            luminance := ord(pixelData[byteIndex]) * 256;
+            image[line][column] := rgbPixel(luminance, luminance, luminance);
+            incr(byteIndex);
+          end for;
+        end for;
+      else
+        for line range 1 to height do
+          pixelData := gets(pgmFile, width * 2);
+          byteIndex := 1;
+          for column range 1 to width do
+            luminance :=
+                bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, BE);
+            image[line][column] := rgbPixel(luminance, luminance, luminance);
+            byteIndex +:= 2;
+          end for;
+        end for;
+      end if;
+      pixmap := getPixmap(image);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a PGM file with the given ''pgmFileName'' into a pixmap.
+ *  @param pgmFileName Name of the PGM file.
+ *  @return A pixmap with the PGM image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a PGM magic number.
+ *  @exception RANGE_ERROR The file is not in the PGM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPgm (in string: pgmFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: pgmFile is STD_NULL;
+   begin
+    pgmFile := open(pgmFileName, "r");
+    if pgmFile <> STD_NULL then
+      pixmap := readPgm(pgmFile);
+      close(pgmFile);
+    end if;
+  end func;
+
+
+(**
+ *  Converts a pixmap into a string in PGM format.
+ *  @param pixmap Pixmap to be converted.
+ *  @return a string with data in PGM format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: pixmap, PGM) is func
+  result
+    var string: stri is PGM_MAGIC;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var pixelImage: image is pixelImage.value;
+    var integer: line is 0;
+    var pixel: pix is pixel.value;
+    var color: col is color.value;
+    var integer: luminance is 0;
+  begin
+    height := height(pixmap);
+    width := width(pixmap);
+    stri &:= "\n" <& width <& " " <& height <& "\n255\n";
+    image := getPixelImage(pixmap);
+    for line range 1 to height do
+      for pix range image[line] do
+        col := pixelToColor(pix);
+        luminance := round(0.299 * float(col.redLight) +
+                           0.587 * float(col.greenLight) +
+                           0.114 * float(col.blueLight));
+        luminance := luminance < 0 ? 0 :
+                     luminance > 65535 ? 65535 : luminance;
+        stri &:= chr(luminance mdiv 256);
+      end for;
+    end for;
+  end func;
+
+
+const proc: writePgm (in string: pgmFileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: pgmFile is STD_NULL;
+  begin
+    pgmFile := open(pgmFileName, "w");
+    if pgmFile <> STD_NULL then
+      write(pgmFile, str(pixmap, PGM));
+      close(pgmFile);
+    end if;
+  end func;
