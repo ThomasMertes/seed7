@@ -53,6 +53,8 @@ const string: MAGIC_MZ               is "MZ";
 const string: MAGIC_PDF              is "%PDF-";
 const string: MAGIC_PE               is "PE\0;\0;";
 const string: MAGIC_PNG              is "\137;PNG\r\n\26;\n";
+const string: MAGIC_PBM              is "P4";
+const string: MAGIC_PGM              is "P5";
 const string: MAGIC_PPM              is "P6";
 const string: MAGIC_RAR              is "Rar!\26;\7;";
 const string: MAGIC_RIFF             is "RIFF";
@@ -92,6 +94,8 @@ const func string: getMagic (in string: data) is func
           magicBytes = MAGIC_CPIO_BINARY_BE or
           magicBytes = MAGIC_CPIO_BINARY_LE or
           magicBytes = MAGIC_GZIP           or
+          magicBytes = MAGIC_PBM            or
+          magicBytes = MAGIC_PGM            or
           magicBytes = MAGIC_PPM            or
           magicBytes = MAGIC_SHEBANG        or
           magicBytes = MAGIC_UTF16LE        or
@@ -198,6 +202,8 @@ const func string: getMagic (inout file: inFile) is func
           magicBytes = MAGIC_CPIO_BINARY_BE or
           magicBytes = MAGIC_CPIO_BINARY_LE or
           magicBytes = MAGIC_GZIP           or
+          magicBytes = MAGIC_PBM            or
+          magicBytes = MAGIC_PGM            or
           magicBytes = MAGIC_PPM            or
           magicBytes = MAGIC_SHEBANG        or
           magicBytes = MAGIC_UTF16LE        or
@@ -335,7 +341,9 @@ const func string: magicDescription (in string: magic) is func
       when {MAGIC_PDF}:              description := "PDF document";
       when {MAGIC_PE}:               description := "PE executable";
       when {MAGIC_PNG}:              description := "PNG image data";
-      when {MAGIC_PPM}:              description := "Netpbm image data";
+      when {MAGIC_PBM}:              description := "Netpbm rawbits bitmap image data";
+      when {MAGIC_PGM}:              description := "Netpbm rawbits graymap image data";
+      when {MAGIC_PPM}:              description := "Netpbm rawbits pixmap image data";
       when {MAGIC_RAR}:              description := "RAR archive data";
       when {MAGIC_RIFF}:             description := "RIFF data";
       when {MAGIC_RPM}:              description := "RPM v3.0";
