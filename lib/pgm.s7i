@@ -37,7 +37,7 @@ const string: PGM_MAGIC is "P5";
 
 
 (**
- *  Reads a PGM file into a pixmap.
+ *  Reads a PGM (portable graymap) image file into a pixmap.
  *  @param pgmFile File that contains a PGM image.
  *  @return A pixmap with the PGM image, or
  *          PRIMITIVE_WINDOW.value if the file does

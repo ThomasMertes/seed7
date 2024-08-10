@@ -37,7 +37,7 @@ const string: PPM_MAGIC is "P6";
 
 
 (**
- *  Reads a PPM file into a pixmap.
+ *  Reads a PPM (portable pixmap) image file into a pixmap.
  *  @param ppmFile File that contains a PPM image.
  *  @return A pixmap with the PPM image, or
  *          PRIMITIVE_WINDOW.value if the file does

@@ -37,7 +37,7 @@ const string: PBM_MAGIC is "P4";
 
 
 (**
- *  Reads a PBM file into a pixmap.
+ *  Reads a PBM (portable bitmap) image file into a pixmap.
  *  @param pbmFile File that contains a PBM image.
  *  @return A pixmap with the PBM image, or
  *          PRIMITIVE_WINDOW.value if the file does
