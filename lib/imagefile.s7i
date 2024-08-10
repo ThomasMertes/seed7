@@ -86,7 +86,7 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
       if magic = BMP_MAGIC then
         seek(imageFile, 1);
         pixmap := readBmp(imageFile);
-      elsif magic = PBM_MAGIC then
+      elsif magic = PBM_ASCII_MAGIC or magic = PBM_BINARY_MAGIC then
         seek(imageFile, 1);
         pixmap := readPbm(imageFile);
       elsif magic = PGM_MAGIC then

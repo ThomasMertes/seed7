@@ -33,7 +33,63 @@ include "keybd.s7i";
 include "pixelimage.s7i";
 
 
-const string: PBM_MAGIC is "P4";
+const string: PBM_ASCII_MAGIC  is "P1";
+const string: PBM_BINARY_MAGIC is "P4";
+
+
+const proc: readPbmAsciiImage (inout pixelImage: image,
+    in integer: height, in integer: width, inout file: pbmFile) is func
+  local
+    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
+    var integer: line is 0;
+    var integer: column is 0;
+    var char: ch is ' ';
+  begin
+    for line range 1 to height do
+      for column range 1 to width do
+        repeat
+          ch := getc(pbmFile);
+        until ch not in white_space_char;
+        if ch = '0' then
+          image[line][column] := whitePixel;
+        elsif ch <> '1' then
+          raise RANGE_ERROR;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: readPbmBinaryImage (inout pixelImage: image,
+    in integer: height, in integer: width, inout file: pbmFile) is func
+  local
+    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: bitNumber is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: currentByte is 0;
+  begin
+    for line range 1 to height do
+      pixelData := gets(pbmFile, succ(pred(width) div 8));
+      byteIndex := 1;
+      bitNumber := 7;
+      currentByte := ord(pixelData[1]);
+      for column range 1 to width do
+        if not odd(currentByte >> bitNumber) then
+          image[line][column] := whitePixel;
+        end if;
+        if bitNumber > 0 then
+          decr(bitNumber);
+        else
+          bitNumber := 7;
+          incr(byteIndex);
+          currentByte := ord(pixelData[byteIndex]);
+        end if;
+      end for;
+    end for;
+  end func;
 
 
 (**
@@ -48,21 +104,13 @@ const func PRIMITIVE_WINDOW: readPbm (inout file: pbmFile) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
-    const pixel: blackPixel is rgbPixel(0, 0, 0);
-    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
     var string: magic is "";
     var integer: width is 0;
     var integer: height is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
-    var integer: bitNumber is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: currentByte is 0;
     var pixelImage: image is pixelImage.value;
   begin
-    magic := gets(pbmFile, length(PBM_MAGIC));
-    if magic = PBM_MAGIC then
+    magic := gets(pbmFile, length(PBM_BINARY_MAGIC));
+    if magic = PBM_ASCII_MAGIC or magic = PBM_BINARY_MAGIC then
       pbmFile.bufferChar := getc(pbmFile);
       skipWhiteSpace(pbmFile);
       while pbmFile.bufferChar = '#' do
@@ -80,24 +128,11 @@ const func PRIMITIVE_WINDOW: readPbm (inout file: pbmFile) is func
       height := integer(getDigits(pbmFile));
       image := pixelImage[.. height] times
                pixelArray[.. width] times pixel.value;
-      for line range 1 to height do
-        pixelData := gets(pbmFile, succ(pred(width) div 8));
-        byteIndex := 1;
-        bitNumber := 7;
-        currentByte := ord(pixelData[1]);
-        for column range 1 to width do
-          if not odd(currentByte >> bitNumber) then
-            image[line][column] := whitePixel;
-          end if;
-          if bitNumber > 0 then
-            decr(bitNumber);
-          else
-            bitNumber := 7;
-            incr(byteIndex);
-            currentByte := ord(pixelData[byteIndex]);
-          end if;
-        end for;
-      end for;
+      if magic = PBM_ASCII_MAGIC then
+        readPbmAsciiImage(image, height, width, pbmFile);
+      else
+        readPbmBinaryImage(image, height, width, pbmFile);
+      end if;
       pixmap := getPixmap(image);
     end if;
   end func;
@@ -132,7 +167,7 @@ const func PRIMITIVE_WINDOW: readPbm (in string: pbmFileName) is func
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PBM) is func
   result
-    var string: stri is PBM_MAGIC;
+    var string: stri is PBM_BINARY_MAGIC;
   local
     var integer: height is 0;
     var integer: width is 0;
