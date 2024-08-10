@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  ppm.s7i       Support for the PPM image file format.            *)
+(*  ppm.s7i       Support for PPM (portable pixmap) image format.   *)
 (*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -65,23 +65,23 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
       while ppmFile.bufferChar = '#' do
         skipLineComment(ppmFile);
         ppmFile.bufferChar := getc(ppmFile);
+        skipWhiteSpace(ppmFile);
       end while;
-      skipWhiteSpace(ppmFile);
-      width := integer(getInteger(ppmFile));
+      width := integer(getDigits(ppmFile));
       skipWhiteSpace(ppmFile);
       while ppmFile.bufferChar = '#' do
         skipLineComment(ppmFile);
         ppmFile.bufferChar := getc(ppmFile);
+        skipWhiteSpace(ppmFile);
       end while;
-      skipWhiteSpace(ppmFile);
-      height := integer(getInteger(ppmFile));
+      height := integer(getDigits(ppmFile));
       skipWhiteSpace(ppmFile);
       while ppmFile.bufferChar = '#' do
         skipLineComment(ppmFile);
         ppmFile.bufferChar := getc(ppmFile);
+        skipWhiteSpace(ppmFile);
       end while;
-      skipWhiteSpace(ppmFile);
-      maximumColorValue := integer(getInteger(ppmFile));
+      maximumColorValue := integer(getDigits(ppmFile));
       image := pixelImage[.. height] times
                pixelArray[.. width] times pixel.value;
       if maximumColorValue <= 255 then
