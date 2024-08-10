@@ -64,11 +64,11 @@ const proc: readPbmBinaryImage (inout pixelImage: image,
     in integer: height, in integer: width, inout file: pbmFile) is func
   local
     const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
+    var integer: line is 0;
+    var integer: column is 0;
     var string: pixelData is "";
     var integer: byteIndex is 1;
     var integer: bitNumber is 0;
-    var integer: line is 0;
-    var integer: column is 0;
     var integer: currentByte is 0;
   begin
     for line range 1 to height do
@@ -109,7 +109,7 @@ const func PRIMITIVE_WINDOW: readPbm (inout file: pbmFile) is func
     var integer: height is 0;
     var pixelImage: image is pixelImage.value;
   begin
-    magic := gets(pbmFile, length(PBM_BINARY_MAGIC));
+    magic := gets(pbmFile, length(PBM_ASCII_MAGIC));
     if magic = PBM_ASCII_MAGIC or magic = PBM_BINARY_MAGIC then
       pbmFile.bufferChar := getc(pbmFile);
       skipWhiteSpace(pbmFile);
