@@ -33,7 +33,65 @@ include "keybd.s7i";
 include "pixelimage.s7i";
 
 
-const string: PGM_MAGIC is "P5";
+const string: PGM_ASCII_MAGIC  is "P2";
+const string: PGM_BINARY_MAGIC is "P5";
+
+
+const proc: readPgmAsciiImage (inout pixelImage: image,
+    in integer: height, in integer: width, in integer: maximumColorValue,
+    inout file: pgmFile) is func
+  local
+    var integer: factor is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    factor := 2 ** 16 div succ(maximumColorValue);
+    for line range 1 to height do
+      for column range 1 to width do
+        skipWhiteSpace(pgmFile);
+        luminance := integer(getDigits(pgmFile)) * factor;
+        image[line][column] := rgbPixel(luminance, luminance, luminance);
+      end for;
+    end for;
+  end func;
+
+
+const proc: readPgmBinaryImage (inout pixelImage: image,
+    in integer: height, in integer: width, in integer: maximumColorValue,
+    inout file: pgmFile) is func
+  local
+    var integer: factor is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: luminance is 0;
+  begin
+    factor := 2 ** 16 div succ(maximumColorValue);
+    if maximumColorValue <= 255 then
+      for line range 1 to height do
+        pixelData := gets(pgmFile, width);
+        byteIndex := 1;
+        for column range 1 to width do
+          luminance := ord(pixelData[byteIndex]) * factor;
+          image[line][column] := rgbPixel(luminance, luminance, luminance);
+          incr(byteIndex);
+        end for;
+      end for;
+    else
+      for line range 1 to height do
+        pixelData := gets(pgmFile, width * 2);
+        byteIndex := 1;
+        for column range 1 to width do
+          luminance :=
+              bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, BE) * factor;
+          image[line][column] := rgbPixel(luminance, luminance, luminance);
+          byteIndex +:= 2;
+        end for;
+      end for;
+    end if;
+  end func;
 
 
 (**
@@ -52,15 +110,10 @@ const func PRIMITIVE_WINDOW: readPgm (inout file: pgmFile) is func
     var integer: width is 0;
     var integer: height is 0;
     var integer: maximumColorValue is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: luminance is 0;
     var pixelImage: image is pixelImage.value;
   begin
-    magic := gets(pgmFile, length(PGM_MAGIC));
-    if magic = PGM_MAGIC then
+    magic := gets(pgmFile, length(PGM_ASCII_MAGIC));
+    if magic = PGM_ASCII_MAGIC or magic = PGM_BINARY_MAGIC then
       pgmFile.bufferChar := getc(pgmFile);
       skipWhiteSpace(pgmFile);
       while pgmFile.bufferChar = '#' do
@@ -85,27 +138,12 @@ const func PRIMITIVE_WINDOW: readPgm (inout file: pgmFile) is func
       maximumColorValue := integer(getDigits(pgmFile));
       image := pixelImage[.. height] times
                pixelArray[.. width] times pixel.value;
-      if maximumColorValue <= 255 then
-        for line range 1 to height do
-          pixelData := gets(pgmFile, width);
-          byteIndex := 1;
-          for column range 1 to width do
-            luminance := ord(pixelData[byteIndex]) * 256;
-            image[line][column] := rgbPixel(luminance, luminance, luminance);
-            incr(byteIndex);
-          end for;
-        end for;
+      if magic = PGM_ASCII_MAGIC then
+        readPgmAsciiImage(image, height, width, maximumColorValue,
+                           pgmFile);
       else
-        for line range 1 to height do
-          pixelData := gets(pgmFile, width * 2);
-          byteIndex := 1;
-          for column range 1 to width do
-            luminance :=
-                bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(luminance, luminance, luminance);
-            byteIndex +:= 2;
-          end for;
-        end for;
+        readPgmBinaryImage(image, height, width, maximumColorValue,
+                           pgmFile);
       end if;
       pixmap := getPixmap(image);
     end if;
@@ -141,7 +179,7 @@ const func PRIMITIVE_WINDOW: readPgm (in string: pgmFileName) is func
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PGM) is func
   result
-    var string: stri is PGM_MAGIC;
+    var string: stri is PGM_BINARY_MAGIC;
   local
     var integer: height is 0;
     var integer: width is 0;

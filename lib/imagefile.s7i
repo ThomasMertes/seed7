@@ -89,7 +89,7 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
       elsif magic = PBM_ASCII_MAGIC or magic = PBM_BINARY_MAGIC then
         seek(imageFile, 1);
         pixmap := readPbm(imageFile);
-      elsif magic = PGM_MAGIC then
+      elsif magic = PGM_ASCII_MAGIC or magic = PGM_BINARY_MAGIC then
         seek(imageFile, 1);
         pixmap := readPgm(imageFile);
       elsif magic = PPM_MAGIC then
