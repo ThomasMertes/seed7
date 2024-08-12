@@ -268,6 +268,7 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
     var string: rationalStri is "";
     var integer: numerator is 0;
     var integer: denominator is 0;
+    var integer: index is 0;
   begin
     case fieldType of
       when {TIFF_FIELD_BYTE}:
@@ -284,6 +285,18 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
             else
               raise RANGE_ERROR;
             end if;
+          end if;
+        elsif count <= 4 then
+          if header.littleEndian then
+            for index range 1 to count do
+              writeln("LE " <& index <& " " <& (valueOrOffset >> (pred(index) * 8)) mod 256 <& " " <& literal(stri));
+              stri &:= char((valueOrOffset >> (pred(index) * 8)) mod 256);
+            end for;
+          else
+            for index range 1 to count do
+              writeln("BE " <& index <& " " <& (valueOrOffset >> (32 - index * 8)) mod 256 <& " " <& literal(stri));
+              stri &:= char((valueOrOffset >> (32 - index * 8)) mod 256);
+            end for;
           end if;
         else
           oldPos := tell(tiffFile);
@@ -383,7 +396,16 @@ const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: 
             end if;
           end if;
         elsif count <= 4 then
-          raise RANGE_ERROR;
+          tagValues := count times 0;
+          if header.littleEndian then
+            for index range 1 to count do
+              tagValues[index] := (valueOrOffset >> (pred(index) * 8)) mod 256;
+            end for;
+          else
+            for index range 1 to count do
+              tagValues[index] := (valueOrOffset >> (32 - index * 8)) mod 256;
+            end for;
+          end if;
         else
           tagValues := count times 0;
           oldPos := tell(tiffFile);
