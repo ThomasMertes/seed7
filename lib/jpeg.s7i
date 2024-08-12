@@ -30,8 +30,8 @@ include "bytedata.s7i";
 include "bitdata.s7i";
 include "huffman.s7i";
 include "draw.s7i";
-include "exif.s7i";
 include "pixelimage.s7i";
+include "exif.s7i";
 
 
 const string: JPEG_MAGIC is "\16#ff;\16#d8;\16#ff;";  # Start of image (SOI) + ff
@@ -985,27 +985,6 @@ const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
     else
       raise RANGE_ERROR;
     end if;
-  end func;
-
-
-const proc: changeOrientation (inout pixelImage: image, in integer: orientation) is func
-  begin
-    case orientation of
-      when {EXIF_ORIENTATION_MIRROR_HORIZONTAL}:
-        mirrorHorizontally(image);
-      when {EXIF_ORIENTATION_ROTATE_180}:
-        rotate180(image);
-      when {EXIF_ORIENTATION_MIRROR_VERTICAL}:
-        mirrorVertically(image);
-      when {EXIF_ORIENTATION_MIRROR_ROTATE_90}:
-        image := getRotated270AndMirroredHorizontally(image);
-      when {EXIF_ORIENTATION_ROTATE_90}:
-        rotate270(image);
-      when {EXIF_ORIENTATION_MIRROR_ROTATE_270}:
-        image := getRotated90AndMirroredHorizontally(image);
-      when {EXIF_ORIENTATION_ROTATE_270}:
-        rotate90(image);
-    end case;
   end func;
 
 

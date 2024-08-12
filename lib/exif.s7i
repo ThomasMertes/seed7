@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "pixelimage.s7i";
+
+
 const string: EXIF_MAGIC is "Exif";
 const string: EXIF_TIFF_MAGIC_LE is "II\42;\0;";
 const string: EXIF_TIFF_MAGIC_BE is "MM\0;\42;";
@@ -66,11 +69,15 @@ const integer: EXIF_ORIENTATION_MIRROR_ROTATE_270 is 7;
 const integer: EXIF_ORIENTATION_ROTATE_270        is 8;
 const integer: EXIF_ORIENTATION_UNDEFINED         is 9;
 
+
 const type: exifDataType is new struct
     var integer: orientation is 0;
   end struct;
 
 
+(**
+ *  Read Exif data from the given [[string]] ''stri''.
+ *)
 const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
   local
     var integer: offsetToFirstIfd is 0;
@@ -117,4 +124,28 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
         decr(numberOfDirectoryEntries);
       end while;
     end if;
+  end func;
+
+
+(**
+ *  Change the ''image'' orientation according to the Exif ''orientation''.
+ *)
+const proc: changeOrientation (inout pixelImage: image, in integer: orientation) is func
+  begin
+    case orientation of
+      when {EXIF_ORIENTATION_MIRROR_HORIZONTAL}:
+        mirrorHorizontally(image);
+      when {EXIF_ORIENTATION_ROTATE_180}:
+        rotate180(image);
+      when {EXIF_ORIENTATION_MIRROR_VERTICAL}:
+        mirrorVertically(image);
+      when {EXIF_ORIENTATION_MIRROR_ROTATE_90}:
+        image := getRotated270AndMirroredHorizontally(image);
+      when {EXIF_ORIENTATION_ROTATE_90}:
+        rotate270(image);
+      when {EXIF_ORIENTATION_MIRROR_ROTATE_270}:
+        image := getRotated90AndMirroredHorizontally(image);
+      when {EXIF_ORIENTATION_ROTATE_270}:
+        rotate90(image);
+    end case;
   end func;
