@@ -34,6 +34,7 @@ include "jpeg.s7i";
 include "strifile.s7i";
 include "gzip.s7i";
 include "pixelimage.s7i";
+include "exif.s7i";
 
 
 const string: TIFF_MAGIC_LE is "II\42;\0;";
@@ -133,6 +134,7 @@ const type: tiffHeader is new struct
     var integer: rowsPerStrip is pred(2 ** 32);   # Default in the TIFF 6.0 specification
     var array integer: stripOffsets is 0 times 0;
     var array integer: stripByteCounts is 0 times 0;
+    var integer: orientation is 0;
     var integer: offsetToFirstIfd is 0;
     var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
     var tiffStringTagValues: stringTagValues is tiffStringTagValues.value;
@@ -160,6 +162,7 @@ const proc: showHeader (in tiffHeader: header) is func
     writeln("rowsPerStrip: " <& header.rowsPerStrip);
     writeln("length(stripOffsets): " <& length(header.stripOffsets));
     writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
+    writeln("orientation: " <& header.orientation);
     writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
   end func;
 
@@ -522,6 +525,8 @@ const proc: readIDFEntry (inout file: tiffFile, inout tiffHeader: header) is fun
       (*
       if fieldType = TIFF_FIELD_ASCII or fieldType = TIFF_FIELD_BYTE or count = 1 then
         writeln(" " <& tagValueAsString(tiffFile, header, fieldType, count, valueOrOffset));
+      elsif fieldType = TIFF_FIELD_FLOAT then
+        writeln(" " <& float(bin32(valueOrOffset)));
       elsif fieldType = TIFF_FIELD_UNDEFINED then
         writeln(" " <& hex(header.stringTagValues[tag]));
       else
@@ -714,6 +719,10 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
         end if;
       end if;
     end for;
+    if header.orientation > EXIF_ORIENTATION_NORMAL and
+        header.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.orientation);
+    end if;
     pixmap := getPixmap(image);
   end func;
 
@@ -1463,6 +1472,10 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
         raise RANGE_ERROR;
       end if;
     end for;
+    if header.orientation > EXIF_ORIENTATION_NORMAL and
+        header.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.orientation);
+    end if;
     pixmap := getPixmap(image);
   end func;
 
@@ -1557,6 +1570,10 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
       end if;
       processRow(header, stripData, line, currPosition, image);
     end for;
+    if header.orientation > EXIF_ORIENTATION_NORMAL and
+        header.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.orientation);
+    end if;
     pixmap := getPixmap(image);
   end func;
 
@@ -1615,6 +1632,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                                         header.samplesPerPixel *
                                         (header.bitsPerSample[1] mdiv 8));
           # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
+        end if;
+        if TIFF_TAG_ORIENTATION in header.integerTagValues then
+          header.orientation := header.integerTagValues[TIFF_TAG_ORIENTATION][1];
         end if;
         # showHeader(header);
         case header.compression of
