@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  ppm.s7i       Support for PPM (portable pixmap) image format.   *)
+(*  ppm.s7i       Support for PPM (portable pixmap) image format    *)
 (*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

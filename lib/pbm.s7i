@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  pbm.s7i       Support for PBM (portable bitmap) image format.   *)
+(*  pbm.s7i       Support for PBM (portable bitmap) image format    *)
 (*  Copyright (C) 2024  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

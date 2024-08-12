@@ -498,6 +498,7 @@ pre.indent {
 <li><a class="link" href="#errors_GRAPHIC_ERROR"><b><i>GRAPHIC_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_ILLEGAL_ACTION"><b><i>ILLEGAL_ACTION</i></b></a></li></ol></li>
 <li><a class="link" href="#errors_Handlers"><b>Handlers</b></a></li>
+<li><a class="link" href="#errors_Trace_exceptions"><b>Trace exceptions</b></a></li>
 <li><a class="link" href="#errors_Stack_trace"><b>Stack trace</b></a></li>
 <li><a class="link" href="#errors_Suppressing_exception_checks"><b>Suppressing exception checks</b></a></li>
 <li><a class="link" href="#errors_Signals"><b>Signals</b></a></li>
@@ -1734,7 +1735,8 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 <p>
     Templates allow the declaration of functions where the actual
   types are specified later. The function declarations are done
-  inside a procedure that has a type as parameter. E.g.:
+  inside a procedure that has a type as parameter. The library
+  <span class="lib">integer.s7i</span> defines the template <tt>DECLARE_MIN_MAX</tt> as:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: DECLARE_MIN_MAX (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -1747,13 +1749,13 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
   <span class="keywd">end func</span>;
 </pre><p>
-  The procedure <tt>DECLARE_MIN_MAX</tt> uses the type parameter <tt><span class="type_no_ul">aType</span></tt>
-  to declare the functions <tt>min</tt> and <tt>max</tt>. The template must be
-  instantiated for every actual type which needs <tt>min</tt> and <tt>max</tt>. E.g.:
+  The template procedure <tt>DECLARE_MIN_MAX</tt> uses the type parameter
+  <tt><span class="type_no_ul">aType</span></tt> to declare the functions <tt><span class="func">min</span></tt> and <tt><span class="func">max</span></tt>. The template is
+  instantiated for every actual type which needs <tt><span class="func">min</span></tt> and <tt><span class="func">max</span></tt>. E.g.:
 </p><pre class="indent">
-DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_integer">integer</a>);
-DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_bigInteger">bigInteger</a>);
-DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_float">float</a>);
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_integer">integer</a>);     <a class="comment" href="#tokens_Line_comments"># Instantiated in the integer.s7i library</a>
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_bigInteger">bigInteger</a>);  <a class="comment" href="#tokens_Line_comments"># Instantiated in the bigint.s7i library</a>
+DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_float">float</a>);       <a class="comment" href="#tokens_Line_comments"># Instantiated in the float.s7i library</a>
 </pre><p>
   This allows for expressions like <tt>min(2, 5)</tt> or <tt>min(PI, E)</tt>.
 </p>
@@ -9541,8 +9543,8 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt><a name="file_KEY_MOUSE1">KEY_MOUSE1</a></tt></td>                 <td>Mouse button 1 (counted from left)</td></tr>
     <tr><td><tt><a name="file_KEY_MOUSE2">KEY_MOUSE2</a></tt></td>                 <td>Mouse button 2 (counted from left)</td></tr>
     <tr><td><tt><a name="file_KEY_MOUSE3">KEY_MOUSE3</a></tt></td>                 <td>Mouse button 3 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse wheel scroll up</td></tr>
-    <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse wheel scroll down</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE4">KEY_MOUSE4</a></tt></td>                 <td>Mouse wheel scroll up</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE5">KEY_MOUSE5</a></tt></td>                 <td>Mouse wheel scroll down</td></tr>
     <tr><td><tt><a name="file_KEY_MOUSE_FWD">KEY_MOUSE_FWD</a></tt></td>              <td>Mouse forward button</td></tr>
     <tr><td><tt><a name="file_KEY_MOUSE_BACK">KEY_MOUSE_BACK</a></tt></td>             <td>Mouse back button</td></tr>
     <tr><td><tt>KEY_SFT_MOUSE1</tt></td>             <td>Shift mouse button 1 (counted from left)</td></tr>
@@ -16514,7 +16516,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="errors_ERRORS"><h2>17. ERRORS</h2></a>
 
 <p></p>
-<a name="errors_Parsing_errors"><h3>16.1 Parsing errors</h3></a>
+<a name="errors_Parsing_errors"><h3>17.1 Parsing errors</h3></a>
 <p>
   Parsing errors are triggered by interpreter and compiler. The checks
   for these errors are done before the program is executed respectively
@@ -16592,7 +16594,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
 </table></dd></dl><p></p>
 
-<a name="errors_Compilation_errors"><h3>16.2 Compilation errors</h3></a>
+<a name="errors_Compilation_errors"><h3>17.2 Compilation errors</h3></a>
 <p>
   The compiler does checks when generating code. As a result of
   the checks some warnings might be written. The warning level can
@@ -16611,7 +16613,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>1     </td><td> Forward definition of the called function.</td></tr>
 </table></dd></dl><p></p>
 
-<a name="errors_Exceptions"><h3>16.3 Exceptions</h3></a>
+<a name="errors_Exceptions"><h3>17.3 Exceptions</h3></a>
 <p>
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
@@ -16629,7 +16631,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <span class="keywd">const</span> <a class="type" href="#types_enumeration">EXCEPTION</a>: MY_ERROR <span class="keywd">is</span> enumlit;
 </pre><p></p>
 
-<a name="errors_MEMORY_ERROR"><h4>16.3.1 MEMORY_ERROR</h4></a>
+<a name="errors_MEMORY_ERROR"><h4>17.3.1 MEMORY_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">MEMORY_ERROR</span></tt> is raised if there is not enough memory
   to store some data. This error can be raised from the run-time library
@@ -16642,7 +16644,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     Additionally the interpreter kernel may raise this exception also.
 </dd></dl><p></p>
 
-<a name="errors_NUMERIC_ERROR"><h4>16.3.2 NUMERIC_ERROR</h4></a>
+<a name="errors_NUMERIC_ERROR"><h4>17.3.2 NUMERIC_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">NUMERIC_ERROR</span></tt> is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
@@ -16672,7 +16674,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
        positive arguments. E.g.: <tt><span class="func">sqrt</span>(-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>
 </ul><p></p>
 
-<a name="errors_OVERFLOW_ERROR"><h4>16.3.3 OVERFLOW_ERROR</h4></a>
+<a name="errors_OVERFLOW_ERROR"><h4>17.3.3 OVERFLOW_ERROR</h4></a>
 <p>
   An integer overflow occurs if a calculation produces a result that
   cannot be stored in an <tt><a class="type" href="#types_integer">integer</a></tt> variable. This happens if the result
@@ -16717,7 +16719,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   <span class="link"><tt><b>-so</b></tt></span> can be used to suppress the generation of integer overflow checks.
   If an overflow situation occurs, although overflow checking has been
   switched off (with <span class="link"><tt><b>-so</b></tt></span>), the behavior is undefined (see chapter
-  <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
+  <a class="link" href="#errors_Suppressing_exception_checks">17.6 Suppressing exception checks</a>).
 </p><p>
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised
@@ -16748,7 +16750,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   result.
 </p>
 
-<a name="errors_INDEX_ERROR"><h4>16.3.4 INDEX_ERROR</h4></a>
+<a name="errors_INDEX_ERROR"><h4>17.3.4 INDEX_ERROR</h4></a>
 <p>
   An <tt><span class="exception">INDEX_ERROR</span></tt> occurs if an index is used to access an <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>,
   <tt><span class="type">bstring</span></tt> or <tt><a class="type" href="#types_ref_list">ref_list</a></tt> element beyond the elements that actually exist.
@@ -16771,10 +16773,10 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   existing element. The option <span class="link"><tt><b>-si</b></tt></span> can be used to suppress the generation
   of index checks. If a nonexistent element is referred, although index
   checking has been switched off (with <span class="link"><tt><b>-si</b></tt></span>), the behavior is undefined
-  (see chapter <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
+  (see chapter <a class="link" href="#errors_Suppressing_exception_checks">17.6 Suppressing exception checks</a>).
 </p>
 
-<a name="errors_RANGE_ERROR"><h4>16.3.5 RANGE_ERROR</h4></a>
+<a name="errors_RANGE_ERROR"><h4>17.3.5 RANGE_ERROR</h4></a>
 <p>
   Many functions define a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt>
   if this range is violated.
@@ -16815,7 +16817,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="func">write</span>, <span class="func">writeln</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">truncate</span>, <span class="func">seek</span>, <span class="func">tell</span>, <span class="func">skip</span>.</dd></dl>
 <p></p>
 
-<a name="errors_FILE_ERROR"><h4>16.3.6 FILE_ERROR</h4></a>
+<a name="errors_FILE_ERROR"><h4>17.3.6 FILE_ERROR</h4></a>
 <p>
   A <tt><span class="exception">FILE_ERROR</span></tt> occurs if an illegal operation with a file is done.
 </p><dl><dt>
@@ -16827,7 +16829,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
 <p></p>
 
-<a name="errors_DATABASE_ERROR"><h4>16.3.7 DATABASE_ERROR</h4></a>
+<a name="errors_DATABASE_ERROR"><h4>17.3.7 DATABASE_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">DATABASE_ERROR</span></tt> may be raised by database
   functions. If a <tt><span class="exception">DATABASE_ERROR</span></tt> is caught it is possible
@@ -16845,14 +16847,14 @@ Searching for dynamic libraries failed: libclntsh.so
   be used to specify the place of the connector library.
 </p>
 
-<a name="errors_GRAPHIC_ERROR"><h4>16.3.8 GRAPHIC_ERROR</h4></a>
+<a name="errors_GRAPHIC_ERROR"><h4>17.3.8 GRAPHIC_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">GRAPHIC_ERROR</span></tt> may be raised by graphic drivers.
   If an underlying graphic library function reports an error a
   <tt><span class="exception">GRAPHIC_ERROR</span></tt> is raised.
 </p>
 
-<a name="errors_ILLEGAL_ACTION"><h4>16.3.9 ILLEGAL_ACTION</h4></a>
+<a name="errors_ILLEGAL_ACTION"><h4>17.3.9 ILLEGAL_ACTION</h4></a>
 <p>
   The exception <tt><span class="exception">ILLEGAL_ACTION</span></tt> may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -16861,7 +16863,7 @@ Searching for dynamic libraries failed: libclntsh.so
   is also raised if the primitive action ACT_ILLEGAL is executed.
 </p>
 
-<a name="errors_Handlers"><h3>16.4 Handlers</h3></a>
+<a name="errors_Handlers"><h3>17.4 Handlers</h3></a>
 <p>
   To catch an EXCEPTION the following handler construct can be used:
 </p><pre class="indent">
@@ -16892,7 +16894,42 @@ Searching for dynamic libraries failed: libclntsh.so
 <span class="keywd">end block</span>;
 </pre><p></p>
 
-<a name="errors_Stack_trace"><h3>16.5 Stack trace</h3></a>
+<a name="errors_Trace_exceptions"><h3>17.5 Trace exceptions</h3></a>
+<p>
+  The interpreter option <span class="link"><tt><b>-t</b><span class="keywd">e</span></tt></span> can be used to trace exceptions and handlers.
+  If an exception occurs the following is written:
+</p><pre class="indent">
+*** Exception NUMERIC_ERROR raised at integer.s7i(118)
+{160000 div fuel_max } at lander.sd7(836)
+*** Action "INT_DIV"
+
+*** The following commands are possible:
+  RETURN  Continue
+  *       Terminate
+  #       Terminate with stack trace
+  /       Trigger SIGFPE
+  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)
+</pre><p>
+  In detail:
+<ul>
+    <li>After pressing RETURN the program continues without any change.</li>
+    <li>Pressing <tt>*</tt> and RETURN terminates the program immediately.</li>
+    <li>Pressing <tt>#</tt> and RETURN writes a stack trace and terminates the program. E.g.:
+</p><pre class="indent">
+*** Program terminated after exception NUMERIC_ERROR raised with
+{integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
+
+Stack:
+in (val integer: dividend) div (val integer: divisor) at integer.s7i(118)
+in init_display at lander.sd7(836)
+in setup at lander.sd7(906)
+in main at lander.sd7(1536)
+</pre></li>
+    <li>Pressing <tt>/</tt> and RETURN triggers the signal SIGFPE. If the interpreter has
+       been started from a debugger, this triggers the debugger.</li>
+</ul>
+
+<a name="errors_Stack_trace"><h3>17.6 Stack trace</h3></a>
 <p>
   If an exception is not caught the program is terminated and the s7
   interpreter writes a stack trace:
@@ -16901,15 +16938,15 @@ Searching for dynamic libraries failed: libclntsh.so
 {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
 Stack:
-in (val integer: dividend) div (val integer: divisor) at integer.s7i(116)
-in init_display at lander.sd7(839)
-in setup at lander.sd7(908)
-in main at lander.sd7(1541)
+in (val integer: dividend) div (val integer: divisor) at integer.s7i(118)
+in init_display at lander.sd7(836)
+in setup at lander.sd7(906)
+in main at lander.sd7(1536)
 </pre><p>
   The stack trace shows that a <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> was raised by the <tt><span class="keywd">div</span></tt> operation.
-  This operation is defined in line 95 of <tt><span class="lib">integer.s7i</span></tt>. More interesting is that
+  This operation is defined in line 118 of <tt><span class="lib">integer.s7i</span></tt>. More interesting is that
   <tt><span class="keywd">div</span></tt> was called from the function <tt>'init_display'</tt> in
-  line 840 of <tt><span class="prog">lander.sd7</span></tt>. A <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> with <tt><span class="keywd">div</span></tt> is
+  line 836 of <tt><span class="prog">lander.sd7</span></tt>. A <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> with <tt><span class="keywd">div</span></tt> is
   probably caused by a zero division. A short examination in <tt><span class="prog">lander.sd7</span></tt> shows that an assignment to
   <tt>'fuel_max'</tt> was commented out to show how stack traces work.
 </p><p>
@@ -16976,7 +17013,7 @@ Program received signal SIGFPE, Arithmetic exception.
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 </p>
 
-<a name="errors_Suppressing_exception_checks"><h3>16.6 Suppressing exception checks</h3></a>
+<a name="errors_Suppressing_exception_checks"><h3>17.7 Suppressing exception checks</h3></a>
 <p>
   A Seed7 program can be <span class="link">compiled</span> with the option <span class="link"><tt><b>-s</b><span class="keywd">x</span></tt></span>, to suppress the
   generation of checks for exceptions. The suppressed checks <span class="keywd">x</span> are
@@ -17020,7 +17057,7 @@ Program received signal SIGFPE, Arithmetic exception.
   necessary to decide about the omission of exception checking.
 </p>
 
-<a name="errors_Signals"><h3>16.7 Signals</h3></a>
+<a name="errors_Signals"><h3>17.8 Signals</h3></a>
 <p>
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
@@ -17074,7 +17111,7 @@ re-enter input>
   must be executed with a debugger to get a stack trace.
 </p>
 
-<a name="errors_Other_errors_and_warnings"><h3>16.8 Other errors and warnings</h3></a>
+<a name="errors_Other_errors_and_warnings"><h3>17.9 Other errors and warnings</h3></a>
 <p><dl><dt>
   No more memory. Parsing terminated.</dt><dd>
     This error message is displayed after the parsing error 1

@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-06-30 the number of lines is:
+than 400000 lines of Seed7. For version 2024-08-12 the number of lines is:
 
-  183204  C source files (*.c)
-   13757  C header files (*.h)
-  259140  Seed7 source files (*.sd7)
-  186442  Seed7 library/include files (*.s7i)
+  183664  C source files (*.c)
+   13770  C header files (*.h)
+  259238  Seed7 source files (*.sd7)
+  190664  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -686,6 +686,8 @@ information from the interpreter):
   chkbool ........... okay
   chkenum ........... okay
   chktime ........... okay
+  chkscan ........... okay
+  chkjson ........... okay
   chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
@@ -2085,6 +2087,44 @@ enable_output. The description of the Seed7 file API also contains a chapter
 about the conversion to strings and back.
 
 
+How is the number format specified when writing a number?
+=========================================================
+
+The operator 'radix' converts an integer or bigInteger number to a string using a radix. E.g.:
+
+  writeln(48879 radix 16);
+
+The operator 'RADIX' does the same with upper case characters. E.g.:
+
+  writeln(3735928559_ RADIX 16);
+
+The operator 'lpad' converts a value to string and pads it with spaces at the left side. E.g.:
+
+  writeln(98765 lpad 6);
+
+The operator 'rpad' converts a value to string and pads it with spaces at the right side. E.g.:
+
+  writeln(name rpad 20);
+
+The operator 'digits' converts a float to string in decimal fixed point notation. The number is rounded to the specified number of digits. E.g.:
+
+  writeln(3.1415 digits 2);
+
+The operator 'sci' converts a float to string in scientific notation. E.g.:
+
+  writeln(0.012345 sci 4);
+
+The operator 'exp' is used to specify the number of exponent digits. E.g.:
+
+     writeln(1.2468e15 sci 2 exp 1);
+
+All these operators can be combined. E.g:
+
+  writeln("decimal:    " <& number lpad 10);
+  writeln("hex:        " <& number radix 16 lpad 8);
+  writeln("scientific: " <& number sci 4 exp 2 lpad 14);
+
+
 What types of parameters does Seed7 have?
 =========================================
 
@@ -3293,22 +3333,41 @@ that are specific for the OS and the C compiler. The command make depend
 also compiles 'chkccomp.c'. This program includes 'base.h' and 'chkccomp.h'.
 After the compilation 'chkccomp' is executed with:
 
-  ./chkccomp version.h
+  ./chkccomp version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY) "LINK_TIME=$(LINK_TIME)"
 
 When 'chkccomp' runs it copies the files 'base.h' and 'settings.h' to
 'version.h'. Then it tests the properties of the OS and the C compiler
 with various small test programs. The results of these tests are also
 written to 'version.h'.
 
-Afterwards the program 'setpaths.c' is compiled and then executed with:
+Afterwards 'chkccomp' appends further information to 'version.h' (which
+includes the absolute path to the seed7 directory). The environment
+variables S7_LIB_DIR and SEED7_LIBRARY allow the specification of the
+final path to the Seed7 directory. If the seed7 directory will not move
+afterwards these variables can be left empty. The environment variables
+S7_LIB_DIR and SEED7_LIBRARY can be specified when 'make depend' is invoked. E.g.:
 
-  ./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+  make S7_LIB_DIR=<lib-dir-path> SEED7_LIBRARY=<library-path> LINK_TIME=<value> depend
 
-This appends further information to 'version.h' (which includes the
-absolute path to the seed7 directory). The environment variables S7_LIB_DIR
-and SEED7_LIBRARY allow the specification of the final path to the
-Seed7 directory. If the seed7 directory will not move afterwards these
-variables can be left empty.
+Each of the options S7_LIB_DIR, SEED7_LIBRARY and LINK_TIME can be ommited.
+The following environment variables are defined by 'chkccomp':
+
+  +--------------------+--------------------------------------------------+
+  | Variable           | Comment                                          |
+  +--------------------+--------------------------------------------------+
+  | S7_LIB_DIR         | Absolute path to directory with static libraries |
+  | SEED7_LIBRARY      | Absolute path of directory with *.s7i libraries  |
+  | CC_ENVIRONMENT_INI | Name of environment ini file in the S7_LIB_DIR   |
+  | LINK_TIME          | Link libraries at 'BUILD' time or at 'RUN' time  |
+  +--------------------+--------------------------------------------------+
+
+When a package is created the option LINK_TIME can be set to BUILD. This means
+that all libraries must be present when an executable is invoked. In this
+case all the linked libraries must be added to the dependencies of the package.
+The default of the option LINK_TIME is RUN. This means that the executables
+do not depend on certain libraries. The libraries are searched for at
+run-time, when they are needed. This allows that a library can be added later
+and Seed7 can use it then.
 
 
 How does the Seed7 compiler get information about C compiler and runtime?
@@ -3375,23 +3434,23 @@ A binary Seed7 package needs to install four groups of files:
 
 The table below shows the suggested directories for Linux/Unix/BSD:
 
-  +---------------------+---------------+-------------------------+
-  | Directory           | Macro         | Group of files          |
-  +---------------------+---------------+-------------------------+
-  | /usr/bin            | -             | Executables (s7 + s7c)  |
-  | /usr/lib/seed7/lib  | SEED7_LIBRARY | Seed7 include libraries |
-  | /usr/lib/seed7/bin  | S7_LIB_DIR    | Static libraries        |
-  +---------------------+---------------+-------------------------+
+  +-----------------------+---------------+-------------------------+
+  | Directory             | Macro         | Group of files          |
+  +-----------------------+---------------+-------------------------+
+  | /usr/bin              | -             | Executables (s7 + s7c)  |
+  | /usr/lib64/seed7/lib  | SEED7_LIBRARY | Seed7 include libraries |
+  | /usr/lib64/seed7/bin  | S7_LIB_DIR    | Static libraries        |
+  +-----------------------+---------------+-------------------------+
 
 The macros must be defined, when the interpreter is compiled. This can be done
 by calling 'make depend' with:
 
-  make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
+  make S7_LIB_DIR=/usr/lib64/seed7/bin SEED7_LIBRARY=/usr/lib64/seed7/lib depend
 
 Afterwards the interpreter can be compiled with 'make' and the Seed7 compiler
 can be compiled with 'make s7c'. This three make commands can be combined to
 
-  make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
+  make S7_LIB_DIR=/usr/lib64/seed7/bin SEED7_LIBRARY=/usr/lib64/seed7/lib depend s7 s7c
 
 Alternatively the Seed7 compiler can be compiled as post-install step.
 This requires that 'seed7/prg/s7c.sd7' is also installed. The actual

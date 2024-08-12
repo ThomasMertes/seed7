@@ -385,6 +385,9 @@ Why is the div operator used for integer divisions?
 <li><a class="link" href="#faq_concatenation_operators"><b>
 Why are &amp; and &lt;&amp; defined for string concatenation?
 </b></a></li>
+<li><a class="link" href="#faq_number_format"><b>
+How is the number format specified when writing a number?
+</b></a></li>
 <li><a class="link" href="#faq_types_of_parameters"><b>
 What types of parameters does Seed7 have?
 </b></a></li>
@@ -886,12 +889,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-06-30 the number of lines is:
+than 400000 lines of Seed7. For version 2024-08-12 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">183204</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13757</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">259140</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">186442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">183664</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13770</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">259238</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">190664</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1226,6 +1229,8 @@ chkbig ........... okay
 chkbool ........... okay
 chkenum ........... okay
 chktime ........... okay
+chkscan ........... okay
+chkjson ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay
@@ -2624,6 +2629,44 @@ The <tt><span class="op">&lt;&amp;</span></tt> operator can be defined for new t
 about the <span class="link">conversion to strings and back</span>.
 </p></div>
 
+<div><br /><a name="faq_number_format"><h3>How is the number format specified when writing a number?
+</h3></a><hr />
+<p>
+The operator <tt><span class="op">radix</span></tt> converts an <tt><span class="type">integer</span></tt> or <tt><span class="type">bigInteger</span></tt> number to a <tt><span class="type">string</span></tt> using a radix. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(48879 <span class="op_no_ul">radix</span> 16);
+</pre><p>
+The operator <tt><span class="op">RADIX</span></tt> does the same with upper case characters. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(3735928559_ <span class="op_no_ul">RADIX</span> 16);
+</pre><p>
+The operator <tt><span class="op">lpad</span></tt> converts a value to <tt><span class="type">string</span></tt> and pads it with spaces at the left side. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(98765 <span class="op_no_ul">lpad</span> 6);
+</pre><p>
+The operator <tt><span class="op">rpad</span></tt> converts a value to <tt><span class="type">string</span></tt> and pads it with spaces at the right side. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(name <span class="op_no_ul">rpad</span> 20);
+</pre><p>
+The operator <tt><span class="op">digits</span></tt> converts a <tt><span class="type">float</span></tt> to <tt><span class="type">string</span></tt> in decimal fixed point notation. The number is rounded to the specified number of digits. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(3.1415 <span class="op_no_ul">digits</span> 2);
+</pre><p>
+The operator <tt><span class="op">sci</span></tt> converts a <tt><span class="type">float</span></tt> to <tt><span class="type">string</span></tt> in scientific notation. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(0.012345 <span class="op_no_ul">sci</span> 4);
+</pre><p>
+The operator <tt><span class="op">exp</span></tt> is used to specify the number of exponent digits. E.g.:
+</p><pre class="indent">
+<span class="func">writeln</span>(1.2468e15 <span class="op_no_ul">sci</span> 2 <span class="op_no_ul">exp</span> 1);
+</pre><p>
+All these operators can be combined. E.g:
+</p><pre class="indent">
+<span class="func">writeln</span>("decimal:    " <span class="op_no_ul">&lt;&amp;</span> number <span class="op_no_ul">lpad</span> 10);
+<span class="func">writeln</span>("hex:        " <span class="op_no_ul">&lt;&amp;</span> number <span class="op_no_ul">radix</span> 16 <span class="op_no_ul">lpad</span> 8);
+<span class="func">writeln</span>("scientific: " <span class="op_no_ul">&lt;&amp;</span> number <span class="op_no_ul">sci</span> 4 <span class="op_no_ul">exp</span> 2 <span class="op_no_ul">lpad</span> 14);
+</pre></div>
+
 <div><br /><a name="faq_types_of_parameters"><h3>What types of parameters does Seed7 have?
 </h3></a><hr />
 <p>
@@ -3832,22 +3875,41 @@ that are specific for the OS and the C compiler. The command <tt>make depend</tt
 also compiles <span class="lib">chkccomp.c</span>. This program includes <span class="lib">base.h</span> and <span class="lib">chkccomp.h</span>.
 After the compilation <span class="lib">chkccomp</span> is executed with:
 </p><pre class="indent">
-./chkccomp version.h
+./chkccomp version.h "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY) "LINK_TIME=$(LINK_TIME)"
 </pre><p>
 When <span class="lib">chkccomp</span> runs it copies the files <span class="lib">base.h</span> and <span class="lib">settings.h</span> to
 <span class="lib">version.h</span>. Then it tests the properties of the OS and the C compiler
 with various small test programs. The results of these tests are also
 written to <span class="lib">version.h</span>.
 </p><p>
-Afterwards the program <span class="lib">setpaths.c</span> is compiled and then executed with:
+Afterwards <span class="lib">chkccomp</span> appends further information to <span class="lib">version.h</span> (which
+includes the absolute path to the seed7 directory). The environment
+variables <tt><span class="link">S7_LIB_DIR</span></tt> and <tt><span class="link">SEED7_LIBRARY</span></tt> allow the specification of the
+final path to the Seed7 directory. If the seed7 directory will not move
+afterwards these variables can be left empty. The environment variables
+<tt><span class="link">S7_LIB_DIR</span></tt> and <tt><span class="link">SEED7_LIBRARY</span></tt> can be specified when <span class="lib">make depend</span> is invoked. E.g.:
 </p><pre class="indent">
-./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+make S7_LIB_DIR=&lt;lib-dir-path&gt; SEED7_LIBRARY=&lt;library-path&gt; LINK_TIME=&lt;value&gt; depend
 </pre><p>
-This appends further information to <span class="lib">version.h</span> (which includes the
-absolute path to the seed7 directory). The environment variables <tt><span class="link">S7_LIB_DIR</span></tt>
-and <tt><span class="link">SEED7_LIBRARY</span></tt> allow the specification of the final path to the
-Seed7 directory. If the seed7 directory will not move afterwards these
-variables can be left empty.
+Each of the options <tt><span class="link">S7_LIB_DIR</span></tt>, <tt><span class="link">SEED7_LIBRARY</span></tt> and <tt><span class="link">LINK_TIME</span></tt> can be ommited.
+The following environment variables are defined by <span class="lib">chkccomp</span>:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Variable           </th><th> Comment                                          </th></tr>
+  
+  <tr><td> S7_LIB_DIR         </td><td> Absolute path to directory with static libraries </td></tr>
+  <tr><td> SEED7_LIBRARY      </td><td> Absolute path of directory with *.s7i libraries  </td></tr>
+  <tr><td> CC_ENVIRONMENT_INI </td><td> Name of environment ini file in the S7_LIB_DIR   </td></tr>
+  <tr><td> LINK_TIME          </td><td> Link libraries at 'BUILD' time or at 'RUN' time  </td></tr>
+  
+</table></dd></dl><p>
+When a package is created the option <tt><span class="link">LINK_TIME</span></tt> can be set to <tt><span class="link">BUILD</span></tt>. This means
+that all libraries must be present when an executable is invoked. In this
+case all the linked libraries must be added to the dependencies of the package.
+The default of the option <tt><span class="link">LINK_TIME</span></tt> is <tt><span class="link">RUN</span></tt>. This means that the executables
+do not depend on certain libraries. The libraries are searched for at
+run-time, when they are needed. This allows that a library can be added later
+and Seed7 can use it then.
 </p></div>
 
 <div><br /><a name="faq_cmd_config_value"><h3>How does the Seed7 compiler get information about C compiler and runtime?
@@ -3915,22 +3977,22 @@ A binary Seed7 package needs to install four groups of files:
 The table below shows the suggested directories for Linux/Unix/BSD:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   
-  <tr><th> Directory           </th><th> Macro         </th><th> Group of files          </th></tr>
+  <tr><th> Directory             </th><th> Macro         </th><th> Group of files          </th></tr>
   
-  <tr><td> /usr/bin            </td><td> -             </td><td> Executables (s7 + s7c)  </td></tr>
-  <tr><td> /usr/lib/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
-  <tr><td> /usr/lib/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
+  <tr><td> /usr/bin              </td><td> -             </td><td> Executables (s7 + s7c)  </td></tr>
+  <tr><td> /usr/lib64/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
+  <tr><td> /usr/lib64/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
   
 </table></dd></dl><p>
 The macros must be defined, when the interpreter is compiled. This can be done
 by calling <a class="link" href="#faq_make_depend">make depend</a> with:
 </p><pre class="indent">
-make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
+make S7_LIB_DIR=/usr/lib64/seed7/bin SEED7_LIBRARY=/usr/lib64/seed7/lib depend
 </pre><p>
 Afterwards the interpreter can be compiled with <tt>'make'</tt> and the <span class="link">Seed7 compiler</span>
 can be compiled with <tt>'make s7c'</tt>. This three make commands can be combined to
 </p><pre class="indent">
-make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
+make S7_LIB_DIR=/usr/lib64/seed7/bin SEED7_LIBRARY=/usr/lib64/seed7/lib depend s7 s7c
 </pre><p>
 Alternatively the <span class="link">Seed7 compiler</span> can be compiled as post-install step.
 This requires that <nobr><span class="lib">seed7/prg/s7c.sd7</span></nobr> is also installed. The actual

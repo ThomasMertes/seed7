@@ -243,6 +243,7 @@ pre.indent {
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_CYGWIN">mk_cygw.mak</a>  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_msys.mak</a>  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_mingw.mak</a> </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_THE_INSTALLER">mk_mingc.mak</a> </td><td> Windows (MinGW) </td><td> make7 </td><td> gcc        </td><td> cmd.exe</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_nmake.mak</a> </td><td> Windows (MinGW) </td><td> nmake        </td><td> gcc        </td><td> cmd.exe</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_CL_FROM_MSVC">mk_msvc.mak</a>  </td><td> Windows (MSVC)  </td><td> nmake        </td><td> cl         </td><td> cmd.exe</td></tr>
   <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_BCC32">mk_bcc32.mak</a> </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
@@ -378,6 +379,53 @@ nmake
   The remaining steps to build and install Seed7 are explained
   above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
   Keep in mind to use the same 'make' utility as before.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_THE_INSTALLER"><h3>COMPILING UNDER WINDOWS WITH GCC FROM THE INSTALLER
+</h3></a><p>
+    The <a class="link" href="#faq_installer">Seed7 installer for Windows</a> uses an encapsulated gcc
+  in the directory 'seed7\gcc'. This gcc can be invoked via the
+  file 'seed7\bin\call_gcc.bat'. This ensures the encapsulated
+  gcc and another gcc do not interfere with each other. The
+  makefile 'mk_mingc.mak' invokes gcc via 'call_gcc.bat' and
+  ar via 'call_ar.bat'.
+</p><p>
+  To use Seed7 from GitHub with the encapsulated gcc:
+</p><ul>
+<li>Decide for a place for the seed7 directory from GitHub.</li>
+<li>This place should differ from the place of the seed7
+      directory created by the installer.</li>
+<li>Clone Seed7 into the new place with
+      'git clone https://github.com/ThomasMertes/seed7.git'.</li>
+<li>The clone creates a new seed7 directory.</li>
+<li>Copy the installers seed7\gcc directory to the GitHub
+      created seed7 directory.</li>
+<li>Go to the GitHub created 'seed7\src' (with the cd
+      command).</li>
+</ul><p>
+  Use the <span class="link">make7</span> command and always use the option '-f mk_mingc.mak':
+</p><pre class="indent">
+make7 -f mk_mingc.mak clean
+make7 -f mk_mingc.mak depend
+make7 -f mk_mingc.mak
+</pre><p>
+  Don't forget '-f mk_mingc.mak' for later build commands. E.g.:
+</p><pre class="indent">
+make7 -f mk_mingc.mak s7c
+make7 -f mk_mingc.mak test
+make7 -f mk_mingc.mak utils
+</pre><p>
+  After switching from the installers version to the GitHub
+  version it is necessary to change the paths with:
+</p><pre class="indent">
+make7 -f mk_mingc.mak install
+</pre><p>
+  After an update from GitHub (git pull in the seed7 directory)
+  the commands starting from
+</p><pre class="indent">
+make7 -f mk_mingc.mak clean
+</pre><p>
+  can be used to compile the new version.
 </p></div>
 
 <div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_CL_FROM_MSVC"><h3>COMPILING UNDER WINDOWS WITH CL FROM MSVC
@@ -1223,6 +1271,8 @@ chkprc ........... okay
 chkbig ........... okay
 chkbool ........... okay
 chkenum ........... okay
+chkscan ........... okay
+chkjson ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay

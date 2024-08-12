@@ -32,6 +32,7 @@ THE MAKEFILES
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
+  mk_mingc.mak | Windows (MinGW) | make7 | gcc        | cmd.exe
   mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
@@ -167,6 +168,53 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
   The remaining steps to build and install Seed7 are explained
   above in the chapter REMAINING BUILD STEPS.
   Keep in mind to use the same 'make' utility as before.
+
+
+COMPILING UNDER WINDOWS WITH GCC FROM THE INSTALLER
+
+    The Seed7 installer for Windows uses an encapsulated gcc
+  in the directory 'seed7\gcc'. This gcc can be invoked via the
+  file 'seed7\bin\call_gcc.bat'. This ensures the encapsulated
+  gcc and another gcc do not interfere with each other. The
+  makefile 'mk_mingc.mak' invokes gcc via 'call_gcc.bat' and
+  ar via 'call_ar.bat'.
+
+  To use Seed7 from GitHub with the encapsulated gcc:
+
+    - Decide for a place for the seed7 directory from GitHub.
+    - This place should differ from the place of the seed7
+      directory created by the installer.
+    - Clone Seed7 into the new place with
+      'git clone https://github.com/ThomasMertes/seed7.git'.
+    - The clone creates a new seed7 directory.
+    - Copy the installers seed7\gcc directory to the GitHub
+      created seed7 directory.
+    - Go to the GitHub created 'seed7\src' (with the cd
+      command).
+
+  Use the make7 command and always use the option '-f mk_mingc.mak':
+
+    make7 -f mk_mingc.mak clean
+    make7 -f mk_mingc.mak depend
+    make7 -f mk_mingc.mak
+
+  Don't forget '-f mk_mingc.mak' for later build commands. E.g.:
+
+    make7 -f mk_mingc.mak s7c
+    make7 -f mk_mingc.mak test
+    make7 -f mk_mingc.mak utils
+
+  After switching from the installers version to the GitHub
+  version it is necessary to change the paths with:
+
+    make7 -f mk_mingc.mak install
+
+  After an update from GitHub (git pull in the seed7 directory)
+  the commands starting from
+
+    make7 -f mk_mingc.mak clean
+
+  can be used to compile the new version.
 
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
@@ -1012,6 +1060,8 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbig ........... okay
     chkbool ........... okay
     chkenum ........... okay
+    chkscan ........... okay
+    chkjson ........... okay
     chkbitdata ........... okay
     chkset ........... okay
     chkhsh ........... okay

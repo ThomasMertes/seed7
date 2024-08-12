@@ -1,3 +1,248 @@
+20240812:
+- A new Seed7 installer for Windows (seed7_05_20240630_win.exe) has
+  been released. This installer works without a previously
+  installed gcc. Many thanks to Simon Dash for reporting that the
+  old Seed7 installer for Windows was aborting.
+- The declaration processing for functions with parameters in name.c
+  has been improved to leave original_name_list unchanged. Many
+  thanks to Simon Dash for reporting an error which happened with
+  array templates.
+- The run-time library has been improved to reliably raise
+  FILE_ERROR if gets(), getln() or getwd() are called with a write
+  only file. Many thanks to Joe Thompson for pointing out that the
+  chkexc.sd7 test failed with MinGW (GCC 14.1).
+- The test of _wrename() and the definition of os_rename_orig has
+  been removed from chkccomp.c. Many thanks to Liam O'Brien for
+  pointing out that chkccomp.c could not define os_rename_orig on a
+  new Windows 10 PC.
+- The library jpeg.s7i has been improved to use Exif data to change
+  the orientation of an image if necessary. Many thanks to
+  Johannes Gritsch for pointing out that pv7 displayed some images
+  with the wrong orientation.
+- The new library elf.s7i has been added. This library supports the
+  ELF executable and link format.
+- The new library pbm.s7i has been added. This library supports the
+  PBM (portable bitmap) image format in the ASCII and the binary
+  version.
+- The new library pgm.s7i has been added. This library supports the
+  PGM (portable graymap) image format in the ASCII and the binary
+  version.
+- Support for the ASCII PPM (portable pixmap) image format has been
+  added to the library ppm.s7i. The existing binary PPM function
+  has been refactored.
+- The library imagefile.s7i has been improved to support PBM, PGM
+  and PPM image files in the ASCII and the binary version.
+- The new library pixelimage.s7i has been added. This library
+  defines the type pixelImage (2D array of pixels) and functions to
+  convert (getPixmap() and getPixelImage()), rotate and mirror
+  pixel images. The type pixelImage is a 2D array with a fixed
+  minimum index.
+- The libraries bmp.s7i, ccittfax.s7i, gif.s7i, ico.s7i, jpeg.s7i,
+  png.s7i, ppm.s7i and tiff.s7i have been refactored to use the
+  type pixelImage.
+- Explanations about specifying number formats and what happens
+  during  "make depend" have been added to the FAQ.
+- The tutorial about templates in the manual has been improved.
+- An explanation of the interpreter option -te (trace exceptions)
+  has been added to the chapter "errors" of the manual.
+- The new library exif.s7i has been added. This library supports
+  the exchangeable image file format. It also defines the function
+  changeOrientation() which changes an image orientation according
+  to the Exif orientation value.
+- In jpeg.s7i the function readEntropyCodedSegment() has been
+  refactored to use getTerminatedString with '\255;' as terminator.
+  This improves the performance of readEntropyCodedSegment() by a
+  factor of 3. The run-time of the function readJpeg() has been
+  reduced by 4.7% (measured with gcc and valgrind and the s7c
+  options -oc3 -O3).
+- In huffman.s7i array types with fixed minimum index have been
+  introduced (huffmanSymbolArray and msbHuffmanCodeLengthArray).
+  The run-time of the function readJpeg() has been reduced by 2.8%
+  (measured with gcc and valgrind and the s7c options -oc3 -O3).
+- The library ccittfax.s7i has been adjusted to use the types
+  huffmanSymbolArray and msbHuffmanCodeLengthArray and to work
+  without a generic huffmanTable type.
+- A definition of the type colorLookupTable has been added to the
+  library graph.s7i.
+- The libraries bmp.s7i, ccittfax.s7i, gif.s7i, png.s7i and tiff.s7i
+  have been refactored to use the new type colorLookupTable for
+  palette values.
+- The interpreter has been improved to allow the termination of a
+  program with a stack trace. After pressing ctrl-c the menu allows
+  selecting # (+return) to terminate the program with a stack trace.
+- In basearray.s7i a times operator for arrays with a fixed minimum
+  index has been added.
+- In basearray.s7i the default value of arrays with a fixed minimum
+  index has been fixed.
+- Tests for fixed size arrays and arrays with a fixed minimum index
+  have been added to chkarr.sd7.
+- Support for interlaced GIF images has been added to gif.s7i.
+- Support for the ThunderScan 4-bit compression algorithm has been
+  added to the library tiff.s7i.
+- In tiff.s7i the functions tagValueAsString() and tagValueAsArray()
+  have been improved to read up to 4 bytes from valueOrOffset.
+- The library tiff.s7i has been improved to use Exif data to change
+  the orientation of an image if necessary.
+- In jpeg.s7i the function readBlock() has been simplified.
+- The types twoDataBlocksArray, fourDataBlocksArray and
+  fourHuffmanTables have been introduced in jpeg.s7i. These types
+  define fixed size arrays.
+- The types jpegComponentArray and jpegScanArray have been
+  introduced in jpeg.s7i. These types define arrays with a fixed
+  minimum index.
+- Magic numbers for Mach-O, PE, MZ, PBM, PGM, PPM and the shebang
+  have been added to magic.s7i.
+- The function getLetters() has been added to scanfile.s7i and
+  scanstri.s7i.
+- Tests for the function getLetters() have been added to
+  chkscan.sd7.
+- Support for TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 has been added
+  to tls.s7i.
+- The library rpm.s7i has been improved:
+  - Support for file sizes >= 4GB has been added.
+  - Now a unique inode number is assigned to each new RPM catalog
+    entry.
+  - The function rpmDependencyFlagsString() has been improved.
+  - Declarations of the flags RPMFILE_NONE, RPMFILE_UNPATCHED,
+    RPMFILE_PUBKEY and RPMFILE_ARTIFACT have been added.
+  - The function initLead() has been added.
+  - The function readLead() has been improved to read the RPM lead
+    name without trailing zero bytes.
+  - The new enumeration type rpmPackageType has been added.
+  - The field lead.fileType has been renamed to lead.packageType.
+  - The sizes of regular files and sizes of symlinks are summed up
+    and stored in RPMTAG_SIZE respectively RPMTAG_LONGSIZE
+    (when >= 4GB).
+  - The sha-256 digest of the uncompressed payload is computed
+    and stored under RPMTAG_PAYLOADDIGESTALT.
+  - The new function updateDependencies() has been introduced. It
+    computates RPMTAG_FILEDEPENDSX, RPMTAG_FILEDEPENDSN and
+    RPMTAG_DEPENDSDICT.
+  - RPMTAG_FILEDEPENDSX and RPMTAG_FILEDEPENDSN are only written if
+    RPMTAG_DEPENDSDICT exists.
+  - Code to read RPMTAG_DEPENDSDICT has been added to doSettings().
+  - The dependencies are computed when an ELF file is added to the
+    RPM archive.
+  - Operators to compare rpmDependency values (with = and <> ) have
+    been added.
+  - The rpmDependency functions compare(), findDependency() and
+    addDependency() have been added.
+  - The functions updateProvisions(), updateRequirements(),
+    updateDependencies(), update(), checkUncompressedDigest() and
+    setDependencies() have been added.
+  - The functions sectionStri() and updateStore() have been improved
+    to process index entry data ordered by tag number.
+  - The catalog entry elements dirIndex and fileClass have been
+    changed to be zero based instead of one based.
+  - The function putFile() has been improved to set file color and
+    file class when an existing file is overwritten.
+  - The element dirNameList has been renamed to dirNames.
+  - The functions makeLink(), putFile(), makeDir(), removeFile() and
+    openFileInRpm() have been changed to call archiveFilePath().
+    This assures that a relative ./ path is used in the basic CPIO
+    archive.
+- The new library rpmext.s7i has been added. This library contains
+  extensions for the rpm.s7i library. It allows getting and setting
+  additional properties of an RPM archive.
+- The library cpio.s7i has been improved to assign a unique inode
+  number to each new CPIO header. The cpioHeader field ino has been
+  renamed to inode.
+- The function getStriUpToChar() has been removed from bytedata.s7i.
+  The function getTerminatedString() can be used instead.
+- The function terminated_read() has been added to clib_file.s7i.
+- The compiler has been improved:
+  - The code generation for array indexing has been fixed to work
+    for a negative minIdx.
+  - The array indexing for arrays with a fixed minimum index has
+    been optimized.
+  - Creating a two dimensional array with the times operator has
+    been optimized. The run-time of the function readJpeg() has been
+    reduced by 2.1% (measured with gcc and valgrind and the s7c
+    options -oc3 -O3).
+  - The times operator for two dimensional arrays with a fixed
+    minimum index has been optimized. The run-time of the function
+    readJpeg() has been reduced by 2.1% (measured with gcc and
+    valgrind and the s7c options -oc3 -O3).
+  - A counter for suppressed overflow checks has been added.
+  - In arr_act.s7i the function declare_prototype_if_necessary()
+    has been renamed to declare_times_prototype().
+  - The functions isFixedMinIdxTimes() and
+    two_dimensional_times_optimization() have been added to
+    arr_act.s7i.
+  - In arr_act.s7i subtractions of integer literals have been
+    changed to insert a space after the "-" operator. This avoids
+    writing "--" (which triggers a C compiler error message).
+  - The functions define_array_size_variable(), process_arr_free()
+    and process_sct_free() have been added to comp/destr.s7i.
+  - The function process_arr_alloc() has been added to
+    comp/create.s7i.
+  - Support for fix size array free lists has been added in
+    create.s7i and destr.s7i. This functionality is currently
+    deactivated in config.s7i.
+  - The function getParameterInResultStatement has been added to
+    comp/expr_utl.s7i.
+- The function getTerminatedString() has been added to file.s7i,
+  external_file.s7i, null_file.s7i and strifile.s7i.
+- Unnecessary string assignments have been removed from chkfil.s7i.
+- Tests for the function getTerminatedString have been added to
+  chkfil.sd7.
+- Tests in chkfil.sd7 have been improved to check if bufferChar has
+  the correct value after calls of getln() and getwd().
+- Interpreter and compiler have been improved to support the action
+  FIL_TERMINATED_READ.
+- In common.h the boolean fields readingAllowed and writingAllowed
+  have been added to the fileStruct.
+- In the files fil_emc.c, fil_rtl.c, fil_rtl.h, fil_unx.c,
+  fil_win.c, pcs_unx.c, pcs_win.c and traceutl.c initializations
+  of the new fields readingAllowed and writingAllowed have been
+  added.
+- In fil_rtl.c the function get_mode() has been improved to
+  determine readingAllowed and writingAllowed from the opening mode.
+- In fil_rtl.c the parameters of get_mode() have been refactored to
+  get_mode(file_mode, os_mode).
+- In fil_rtl.c and utf_rtl.c the functions filGets, filLineRead,
+  filWordRead, ut8Gets, ut8LineRead and ut8WordRead have been
+  improved to check readingAllowed if the macro
+  FREAD_WRONG_FOR_WRITE_ONLY_FILES is defined. This way, the
+  functions reliably raise FILE_ERROR on an attempt to read from a
+  write-only file.
+- In the functions filWrite() (in fil_rtl.c) and ut8Write() (in
+  utf_rtl.c) checks with system specific flags have been replaced
+  with checks using the boolean value writingAllowed.
+- In fil_rtl.c the call of get_mode() has been moved from
+  cFileOpen() to filOpen().
+- The function filTerminatedRead() has been added to fil_rtl.c.
+- The function fil_terminated_read() has been added to fillib.c.
+- The function free_matched_list() has been added to name.c.
+- The global interpreter flag catch_exceptions has been defined in
+  runerr.h.
+- In prclib.c the functions prc_block(), prc_block_catch_all() and
+  prc_block_otherwise() have been improved to catch an exception
+  only if catch_exceptions is TRUE.
+- In runerr.c the functions continue_question() and
+  uncaught_exception() have been improved to allow that '#'
+  terminates the program with a stack trace. In this case the global
+  interpreter flag catch_exceptions is set to FALSE.
+- In chkccomp.c the test to determine if fclose() fails after a
+  previous error has been improved.
+- The program chkccomp.c has been improved to define reparse point
+  macros and the macro INVALID_FILE_ATTRIBUTES if necessary.
+- Support for the option LINK_TIME has been added to chkcccomp.c and
+  to makefile, mk_clang.mak, mk_freebsd.mk, mk_icc.mak,
+  mk_linux.mak, mk_osx.mak, mk_osxcl.mak and mk_tcc_l.mak.
+- The command "make strip" has been improved in the makefiles to
+  strip Seed7 interpreter, compiler and libraries.
+- A check if memcpy() with zero bytes does nothing has been added to
+  chkccomp.c.
+- The function findLinkerOptionForDll has been added to chkccomp.c.
+  This function is used if LINK_TIME=BUILD.
+- Descriptions of the packages needed for the Linux build have been
+  added to src/readme.txt, src/readme.htm, doc/faq.txt and
+  doc/faq.htm.
+- Documentation comments have been improved in bin32.s7i, bin64.s7i,
+  rpm.s7i, ppm.s7i, imagefile.s7i, ppm.s7i, scanfile.s7i,
+  scanstri.s7i and fil_rtl.c.
+
 20240630:
 - Explanations about scanner functions and why some write statements
   raise RANGE_ERROR have been added to the FAQ.
@@ -41,7 +286,7 @@
   close() has been changed to reset the file system to be empty.
 - In ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i the functions
   fileType() and fileTypeSL() have been changed to return
-  FILE_UNKNOWN for a unknown file type.
+  FILE_UNKNOWN for an unknown file type.
 - The libraries ar.s7i, cpio.s7i, rpm.s7i and tar.s7i have been
   improved such that newly created files in an archive get an UID
   and GID of 0.
@@ -138,7 +383,7 @@
 - Comparisons for the type void have been added to seed7_05.s7i.
 - In syntax.s7i the priority of the shift operators >> and << has
   been changed from 9 to 6. Now the shift operators have the same
-  priority as multiplication an division.
+  priority as multiplication and division.
 - Interpreter and compiler have been improved to support the action
   ARR_SORT_REVERSE.
 - The functions qsort_array_reverse() and arr_sort_reverse() have

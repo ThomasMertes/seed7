@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  pgm.s7i       Support for PGM (portable graymap) image format.  *)
+(*  pgm.s7i       Support for PGM (portable graymap) image format   *)
 (*  Copyright (C) 2024  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

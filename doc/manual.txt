@@ -287,10 +287,11 @@ CONTENTS
   17.3.8  GRAPHIC_ERROR
   17.3.9  ILLEGAL_ACTION
   17.4    Handlers
-  17.5    Stack trace
-  17.6    Suppressing exception checks
-  17.7    Signals
-  17.8    Other errors and warnings
+  17.5    Trace exceptions
+  17.6    Stack trace
+  17.7    Suppressing exception checks
+  17.8    Signals
+  17.9    Other errors and warnings
 
 
 
@@ -1523,7 +1524,8 @@ CONTENTS
 
     Templates allow the declaration of functions where the actual
   types are specified later. The function declarations are done
-  inside a procedure that has a type as parameter. E.g.:
+  inside a procedure that has a type as parameter. The library
+  integer.s7i defines the template DECLARE_MIN_MAX as:
 
     const proc: DECLARE_MIN_MAX (in type: aType) is func
       begin
@@ -1536,13 +1538,13 @@ CONTENTS
 
       end func;
 
-  The procedure 'DECLARE_MIN_MAX' uses the type parameter 'aType'
-  to declare the functions 'min' and 'max'. The template must be
+  The template procedure 'DECLARE_MIN_MAX' uses the type parameter
+  'aType' to declare the functions 'min' and 'max'. The template is
   instantiated for every actual type which needs 'min' and 'max'. E.g.:
 
-    DECLARE_MIN_MAX(integer);
-    DECLARE_MIN_MAX(bigInteger);
-    DECLARE_MIN_MAX(float);
+    DECLARE_MIN_MAX(integer);     # Instantiated in the integer.s7i library
+    DECLARE_MIN_MAX(bigInteger);  # Instantiated in the bigint.s7i library
+    DECLARE_MIN_MAX(float);       # Instantiated in the float.s7i library
 
   This allows for expressions like 'min(2, 5)' or 'min(PI, E)'.
 
@@ -16303,7 +16305,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 17. ERRORS
 ==========
 
-16.1 Parsing errors
+17.1 Parsing errors
 
   Parsing errors are triggered by interpreter and compiler. The checks
   for these errors are done before the program is executed respectively
@@ -16381,7 +16383,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         Undefined error
 
 
-16.2 Compilation errors
+17.2 Compilation errors
 
   The compiler does checks when generating code. As a result of
   the checks some warnings might be written. The warning level can
@@ -16400,7 +16402,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     1     | Forward definition of the called function.
 
 
-16.3 Exceptions
+17.3 Exceptions
 
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
@@ -16418,7 +16420,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     const EXCEPTION: MY_ERROR is enumlit;
 
 
-16.3.1 MEMORY_ERROR
+17.3.1 MEMORY_ERROR
 
   The exception MEMORY_ERROR is raised if there is not enough memory
   to store some data. This error can be raised from the run-time library
@@ -16431,7 +16433,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Additionally the interpreter kernel may raise this exception also.
 
 
-16.3.2 NUMERIC_ERROR
+17.3.2 NUMERIC_ERROR
 
   The exception NUMERIC_ERROR is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
@@ -16461,7 +16463,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
        positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.
 
 
-16.3.3 OVERFLOW_ERROR
+17.3.3 OVERFLOW_ERROR
 
   An integer overflow occurs if a calculation produces a result that
   cannot be stored in an 'integer' variable. This happens if the result
@@ -16506,7 +16508,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   -so can be used to suppress the generation of integer overflow checks.
   If an overflow situation occurs, although overflow checking has been
   switched off (with -so), the behavior is undefined (see chapter
-  16.6 Suppressing exception checks).
+  17.6 Suppressing exception checks).
 
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where OVERFLOW_ERROR is raised
@@ -16537,7 +16539,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   result.
 
 
-16.3.4 INDEX_ERROR
+17.3.4 INDEX_ERROR
 
   An INDEX_ERROR occurs if an index is used to access an 'array', 'string',
   'bstring' or 'ref_list' element beyond the elements that actually exist.
@@ -16560,10 +16562,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   existing element. The option -si can be used to suppress the generation
   of index checks. If a nonexistent element is referred, although index
   checking has been switched off (with -si), the behavior is undefined
-  (see chapter 16.6 Suppressing exception checks).
+  (see chapter 17.6 Suppressing exception checks).
 
 
-16.3.5 RANGE_ERROR
+17.3.5 RANGE_ERROR
 
   Many functions define a range of valid arguments and raise RANGE_ERROR
   if this range is violated.
@@ -16604,7 +16606,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         write, writeln, gets, length, truncate, seek, tell, skip.
 
 
-16.3.6 FILE_ERROR
+17.3.6 FILE_ERROR
 
   A FILE_ERROR occurs if an illegal operation with a file is done.
 
@@ -16616,7 +16618,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 
-16.3.7 DATABASE_ERROR
+17.3.7 DATABASE_ERROR
 
   The exception DATABASE_ERROR may be raised by database
   functions. If a DATABASE_ERROR is caught it is possible
@@ -16634,14 +16636,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   be used to specify the place of the connector library.
 
 
-16.3.8 GRAPHIC_ERROR
+17.3.8 GRAPHIC_ERROR
 
   The exception GRAPHIC_ERROR may be raised by graphic drivers.
   If an underlying graphic library function reports an error a
   GRAPHIC_ERROR is raised.
 
 
-16.3.9 ILLEGAL_ACTION
+17.3.9 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -16650,7 +16652,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   is also raised if the primitive action ACT_ILLEGAL is executed.
 
 
-16.4 Handlers
+17.4 Handlers
 
   To catch an EXCEPTION the following handler construct can be used:
 
@@ -16681,7 +16683,42 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     end block;
 
 
-16.5 Stack trace
+17.5 Trace exceptions
+
+  The interpreter option -te can be used to trace exceptions and handlers.
+  If an exception occurs the following is written:
+
+    *** Exception NUMERIC_ERROR raised at integer.s7i(118)
+    {160000 div fuel_max } at lander.sd7(836)
+    *** Action "INT_DIV"
+
+    *** The following commands are possible:
+      RETURN  Continue
+      *       Terminate
+      #       Terminate with stack trace
+      /       Trigger SIGFPE
+      !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)
+
+  In detail:
+
+     - After pressing RETURN the program continues without any change.
+     - Pressing * and RETURN terminates the program immediately.
+     - Pressing # and RETURN writes a stack trace and terminates the program. E.g.:
+
+         *** Program terminated after exception NUMERIC_ERROR raised with
+         {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
+
+         Stack:
+         in (val integer: dividend) div (val integer: divisor) at integer.s7i(118)
+         in init_display at lander.sd7(836)
+         in setup at lander.sd7(906)
+         in main at lander.sd7(1536)
+
+     - Pressing / and RETURN triggers the signal SIGFPE. If the interpreter has
+       been started from a debugger, this triggers the debugger.
+
+
+17.6 Stack trace
 
   If an exception is not caught the program is terminated and the s7
   interpreter writes a stack trace:
@@ -16690,15 +16727,15 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
-    in (val integer: dividend) div (val integer: divisor) at integer.s7i(116)
-    in init_display at lander.sd7(839)
-    in setup at lander.sd7(908)
-    in main at lander.sd7(1541)
+    in (val integer: dividend) div (val integer: divisor) at integer.s7i(118)
+    in init_display at lander.sd7(836)
+    in setup at lander.sd7(906)
+    in main at lander.sd7(1536)
 
   The stack trace shows that a NUMERIC_ERROR was raised by the 'div' operation.
-  This operation is defined in line 95 of "integer.s7i". More interesting is that
+  This operation is defined in line 118 of "integer.s7i". More interesting is that
   'div' was called from the function 'init_display' in
-  line 840 of "lander.sd7". A NUMERIC_ERROR with 'div' is
+  line 836 of "lander.sd7". A NUMERIC_ERROR with 'div' is
   probably caused by a zero division. A short examination in "lander.sd7" shows that an assignment to
   'fuel_max' was commented out to show how stack traces work.
 
@@ -16765,7 +16802,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-16.6 Suppressing exception checks
+17.7 Suppressing exception checks
 
   A Seed7 program can be compiled with the option -sx, to suppress the
   generation of checks for exceptions. The suppressed checks x are
@@ -16809,7 +16846,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   necessary to decide about the omission of exception checking.
 
 
-16.7 Signals
+17.8 Signals
 
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
@@ -16863,7 +16900,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   must be executed with a debugger to get a stack trace.
 
 
-16.8 Other errors and warnings
+17.9 Other errors and warnings
 
   No more memory. Parsing terminated.
     This error message is displayed after the parsing error 1
