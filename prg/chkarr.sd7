@@ -2144,7 +2144,7 @@ const func boolean: testIndex (in array array boolean: blnArr,
 
 const type: fixArrayType is array [1 .. 64] integer;
 const type: fixArrayType2 is array [0 .. 15] integer;
-const type: fixArrayType3 is array [-9223372036854775807 .. -9223372036854775806] integer;
+const type: fixArrayType3 is array [-2147483647 .. -2147483646] integer;
 
 
 const func boolean: testFixArrayIndex is func
@@ -2161,32 +2161,32 @@ const func boolean: testFixArrayIndex is func
     anArray2[0]  :=  0;
     anArray2[5]  :=  5;
     anArray2[15] := 15;
-    anArray3[-9223372036854775807] := -9223372036854775807;
-    anArray3[-9223372036854775806] := -9223372036854775806;
+    anArray3[-2147483647] := -2147483647;
+    anArray3[-2147483646] := -2147483646;
     if  anArray[ 1] <>  1 or
         anArray[12] <> 12 or
         anArray[64] <> 64 or
         anArray2[ 0] <>  0 or
         anArray2[ 5] <>  5 or
         anArray2[15] <> 15 or
-        anArray3[-9223372036854775807] <> -9223372036854775807 or
-        anArray3[-9223372036854775806] <> -9223372036854775806 or
+        anArray3[-2147483647] <> -2147483647 or
+        anArray3[-2147483646] <> -2147483646 or
         anArray[intExpr( 1)] <>  1 or
         anArray[intExpr(12)] <> 12 or
         anArray[intExpr(64)] <> 64 or
         anArray2[intExpr( 0)] <>  0 or
         anArray2[intExpr( 5)] <>  5 or
         anArray2[intExpr(15)] <> 15 or
-        anArray3[intExpr(-9223372036854775807)] <> -9223372036854775807 or
-        anArray3[intExpr(-9223372036854775806)] <> -9223372036854775806 or
+        anArray3[intExpr(-2147483647)] <> -2147483647 or
+        anArray3[intExpr(-2147483646)] <> -2147483646 or
         anArray[intExpr( 0) mod 64 + 1] <>  1 or
         anArray[intExpr(11) mod 64 + 1] <> 12 or
         anArray[intExpr(63) mod 64 + 1] <> 64 or
         anArray2[intExpr( 0) mod 16] <>  0 or
         anArray2[intExpr( 5) mod 16] <>  5 or
         anArray2[intExpr(15) mod 16] <> 15 or
-        anArray3[intExpr(0) mod 8 - 9223372036854775807] <> -9223372036854775807 or
-        anArray3[intExpr(1) mod 8 - 9223372036854775807] <> -9223372036854775806 or
+        anArray3[intExpr(0) mod 8 - 2147483647] <> -2147483647 or
+        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 or
         anArray[ abs(intExpr( 0)) +  1] <>  1 or
         anArray[ abs(intExpr(11)) +  1] <> 12 or
         anArray[ abs(intExpr(63)) +  1] <> 64 or
@@ -2199,10 +2199,10 @@ const func boolean: testFixArrayIndex is func
         anArray2[-abs(intExpr(15)) + 15] <>  0 or
         anArray2[-abs(intExpr(10)) + 15] <>  5 or
         anArray2[-abs(intExpr( 0)) + 15] <> 15 or
-        anArray3[ abs(intExpr(0)) - 9223372036854775807] <> -9223372036854775807 or
-        anArray3[ abs(intExpr(1)) - 9223372036854775807] <> -9223372036854775806 or
-        anArray3[-abs(intExpr(1)) - 9223372036854775806] <> -9223372036854775807 or
-        anArray3[-abs(intExpr(0)) - 9223372036854775806] <> -9223372036854775806 then
+        anArray3[ abs(intExpr(0)) - 2147483647] <> -2147483647 or
+        anArray3[ abs(intExpr(1)) - 2147483647] <> -2147483646 or
+        anArray3[-abs(intExpr(1)) - 2147483646] <> -2147483647 or
+        anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 then
       writeln(" ***** Indexing into a fixed size array failed.");
       okay := FALSE;
     end if;
@@ -2211,26 +2211,26 @@ const func boolean: testFixArrayIndex is func
         not raisesIndexError(anArray[65]) or
         not raisesIndexError(anArray2[-1]) or
         not raisesIndexError(anArray2[16]) or
-        not raisesIndexError(anArray3[       integer.first]) or
-        not raisesIndexError(anArray3[-9223372036854775805]) or
+        not raisesIndexError(anArray3[-2147483648]) or
+        not raisesIndexError(anArray3[-2147483645]) or
         not raisesIndexError(anArray[intExpr( 0)]) or
         not raisesIndexError(anArray[intExpr(65)]) or
         not raisesIndexError(anArray2[intExpr(-1)]) or
         not raisesIndexError(anArray2[intExpr(16)]) or
-        not raisesIndexError(anArray3[intExpr(       integer.first)]) or
-        not raisesIndexError(anArray3[intExpr(-9223372036854775805)]) or
+        not raisesIndexError(anArray3[intExpr(-2147483648)]) or
+        not raisesIndexError(anArray3[intExpr(-2147483645)]) or
         not raisesIndexError(anArray[-abs(intExpr(0))]) or
         not raisesIndexError(anArray[ abs(intExpr(0)) + 65]) or
         not raisesIndexError(anArray2[-abs(intExpr(0)) -  1]) or
         not raisesIndexError(anArray2[ abs(intExpr(0)) + 16]) or
-        not raisesIndexError(anArray3[-abs(intExpr(0)) +       integer.first]) or
-        not raisesIndexError(anArray3[ abs(intExpr(0)) - 9223372036854775805]) or
+        not raisesIndexError(anArray3[-abs(intExpr(0)) - 2147483648]) or
+        not raisesIndexError(anArray3[ abs(intExpr(0)) - 2147483645]) or
         not raisesIndexError(anArray[ abs(intExpr(64)) +  1]) or
         not raisesIndexError(anArray[-abs(intExpr(64)) + 64]) or
         not raisesIndexError(anArray2[ abs(intExpr(16))]) or
         not raisesIndexError(anArray2[-abs(intExpr(16)) + 15]) or
-        not raisesIndexError(anArray3[ abs(intExpr(2)) - 9223372036854775807]) or
-        not raisesIndexError(anArray3[-abs(intExpr(2)) - 9223372036854775806]) then
+        not raisesIndexError(anArray3[ abs(intExpr(2)) - 2147483647]) or
+        not raisesIndexError(anArray3[-abs(intExpr(2)) - 2147483646]) then
       writeln(" ***** Indexing into a fixed size array does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
@@ -2239,7 +2239,7 @@ const func boolean: testFixArrayIndex is func
 
 const type: baseArrayType is array [1 ..] integer;
 const type: baseArrayType2 is array [0 ..] integer;
-const type: baseArrayType3 is array [-9223372036854775807 ..] integer;
+const type: baseArrayType3 is array [-2147483647 ..] integer;
 
 
 const func boolean: testBaseArrayIndex is func
@@ -2248,32 +2248,32 @@ const func boolean: testBaseArrayIndex is func
   local
     var baseArrayType: anArray is baseArrayType [.. 12] times 0;
     var baseArrayType2: anArray2 is baseArrayType2 [.. 5] times 0;
-    var baseArrayType3: anArray3 is baseArrayType3 [.. -9223372036854775806] times 0;
+    var baseArrayType3: anArray3 is baseArrayType3 [.. -2147483646] times 0;
   begin
     anArray[1]  :=  1;
     anArray[12] := 12;
     anArray2[0]  :=  0;
     anArray2[5]  :=  5;
-    anArray3[-9223372036854775807] := -9223372036854775807;
-    anArray3[-9223372036854775806] := -9223372036854775806;
+    anArray3[-2147483647] := -2147483647;
+    anArray3[-2147483646] := -2147483646;
     if  anArray[ 1] <>  1 or
         anArray[12] <> 12 or
         anArray2[ 0] <>  0 or
         anArray2[ 5] <>  5 or
-        anArray3[-9223372036854775807] <> -9223372036854775807 or
-        anArray3[-9223372036854775806] <> -9223372036854775806 or
+        anArray3[-2147483647] <> -2147483647 or
+        anArray3[-2147483646] <> -2147483646 or
         anArray[intExpr( 1)] <>  1 or
         anArray[intExpr(12)] <> 12 or
         anArray2[intExpr( 0)] <>  0 or
         anArray2[intExpr( 5)] <>  5 or
-        anArray3[intExpr(-9223372036854775807)] <> -9223372036854775807 or
-        anArray3[intExpr(-9223372036854775806)] <> -9223372036854775806 or
+        anArray3[intExpr(-2147483647)] <> -2147483647 or
+        anArray3[intExpr(-2147483646)] <> -2147483646 or
         anArray[intExpr( 0) mod 64 + 1] <>  1 or
         anArray[intExpr(11) mod 64 + 1] <> 12 or
         anArray2[intExpr( 0) mod 16] <>  0 or
         anArray2[intExpr( 5) mod 16] <>  5 or
-        anArray3[intExpr(0) mod 8 - 9223372036854775807] <> -9223372036854775807 or
-        anArray3[intExpr(1) mod 8 - 9223372036854775807] <> -9223372036854775806 or
+        anArray3[intExpr(0) mod 8 - 2147483647] <> -2147483647 or
+        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 or
         anArray[ abs(intExpr( 0)) +  1] <>  1 or
         anArray[ abs(intExpr(11)) +  1] <> 12 or
         anArray[-abs(intExpr(63)) + 64] <>  1 or
@@ -2282,10 +2282,10 @@ const func boolean: testBaseArrayIndex is func
         anArray2[ abs(intExpr( 5))] <>  5 or
         anArray2[-abs(intExpr(15)) + 15] <>  0 or
         anArray2[-abs(intExpr(10)) + 15] <>  5 or
-        anArray3[ abs(intExpr(0)) - 9223372036854775807] <> -9223372036854775807 or
-        anArray3[ abs(intExpr(1)) - 9223372036854775807] <> -9223372036854775806 or
-        anArray3[-abs(intExpr(1)) - 9223372036854775806] <> -9223372036854775807 or
-        anArray3[-abs(intExpr(0)) - 9223372036854775806] <> -9223372036854775806 then
+        anArray3[ abs(intExpr(0)) - 2147483647] <> -2147483647 or
+        anArray3[ abs(intExpr(1)) - 2147483647] <> -2147483646 or
+        anArray3[-abs(intExpr(1)) - 2147483646] <> -2147483647 or
+        anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 then
       writeln(" ***** Indexing into a fixed minimum index array failed.");
       okay := FALSE;
     end if;
@@ -2294,26 +2294,26 @@ const func boolean: testBaseArrayIndex is func
         not raisesIndexError(anArray[13]) or
         not raisesIndexError(anArray2[-1]) or
         not raisesIndexError(anArray2[ 6]) or
-        not raisesIndexError(anArray3[       integer.first]) or
-        not raisesIndexError(anArray3[-9223372036854775805]) or
+        not raisesIndexError(anArray3[-2147483648]) or
+        not raisesIndexError(anArray3[-2147483645]) or
         not raisesIndexError(anArray[intExpr( 0)]) or
         not raisesIndexError(anArray[intExpr(13)]) or
         not raisesIndexError(anArray2[intExpr(-1)]) or
         not raisesIndexError(anArray2[intExpr( 6)]) or
-        not raisesIndexError(anArray3[intExpr(       integer.first)]) or
-        not raisesIndexError(anArray3[intExpr(-9223372036854775805)]) or
+        not raisesIndexError(anArray3[intExpr(-2147483648)]) or
+        not raisesIndexError(anArray3[intExpr(-2147483645)]) or
         not raisesIndexError(anArray[-abs(intExpr(0))]) or
         not raisesIndexError(anArray[ abs(intExpr(0)) + 13]) or
         not raisesIndexError(anArray2[-abs(intExpr(0)) -  1]) or
         not raisesIndexError(anArray2[ abs(intExpr(0)) +  6]) or
-        not raisesIndexError(anArray3[-abs(intExpr(0)) +       integer.first]) or
-        not raisesIndexError(anArray3[ abs(intExpr(0)) - 9223372036854775805]) or
+        not raisesIndexError(anArray3[-abs(intExpr(0)) - 2147483648]) or
+        not raisesIndexError(anArray3[ abs(intExpr(0)) - 2147483645]) or
         not raisesIndexError(anArray[ abs(intExpr(12)) +  1]) or
         not raisesIndexError(anArray[-abs(intExpr(12)) + 12]) or
         not raisesIndexError(anArray2[ abs(intExpr(6))]) or
         not raisesIndexError(anArray2[-abs(intExpr(6)) + 5]) or
-        not raisesIndexError(anArray3[ abs(intExpr(2)) - 9223372036854775807]) or
-        not raisesIndexError(anArray3[-abs(intExpr(2)) - 9223372036854775806]) then
+        not raisesIndexError(anArray3[ abs(intExpr(2)) - 2147483647]) or
+        not raisesIndexError(anArray3[-abs(intExpr(2)) - 2147483646]) then
       writeln(" ***** Indexing into a fixed fixed minimum index array does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
