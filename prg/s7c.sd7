@@ -6911,6 +6911,7 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
     inout expr_type: c_expr) is func
 
   local
+    const integer: endLength is 8;
     var stringLengthHash: stringLengths is stringLengthHash.value;
     var lengthToStriNumHash: lengthToStriNum is lengthToStriNumHash.value;
     var array integer: lengthList is 0 times 0;
@@ -6922,7 +6923,10 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
     var integer: combinedBStriLength is 0;
     var string: bstriChars is "";
     var integer: striPos is 0;
+    var string: bstriCharsEnd is "";
     var integer: striIndex is 0;
+    var integer: startPosition is 0;
+    var integer: checkedLength is 0;
     var boolean: found is FALSE;
   begin
     stringPosition := [0 .. pred(length(bstri_const_table))] times 0;
@@ -6939,22 +6943,45 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
           combinedBStriLength +:= length(stri);
           striPos := pos(bstriChars, stri);
           if striPos = 0 then
-            found := FALSE;
-            if length(bstriChars) > length(stri) then
-              striIndex := rpos(stri, bstriChars[length(bstriChars)]);
-              while striIndex <> 0 and not found do
-                if stri[.. striIndex] = bstriChars[succ(length(bstriChars) - striIndex) ..] then
-                  stringPosition[number] := succ(length(bstriChars) - striIndex);
-                  bstriChars &:= stri[succ(striIndex) ..];
-                  found := TRUE;
-                else
-                  striIndex := rpos(stri, bstriChars[length(bstriChars)], pred(striIndex));
-                end if;
-              end while;
+            if length(bstriChars) >= endLength then
+              bstriCharsEnd :=
+                  bstriChars[succ(length(bstriChars) - endLength) fixLen endLength];
+            else
+              bstriCharsEnd := bstriChars;
             end if;
+            striIndex := rpos(stri, bstriCharsEnd);
+            found := FALSE;
+            while striIndex <> 0 and not found do
+              startPosition := length(bstriChars) - striIndex - length(bstriCharsEnd) + 2;
+              checkedLength := pred(striIndex + length(bstriCharsEnd));
+              if startPosition >= 1 and
+                  stri[.. checkedLength] =  bstriChars[startPosition ..] then
+                stringPosition[number] := startPosition;
+                bstriChars &:= stri[succ(checkedLength) ..];
+                found := TRUE;
+              else
+                striIndex := rpos(stri, bstriCharsEnd, pred(striIndex));
+              end if;
+            end while;
             if not found then
-              stringPosition[number] := succ(length(bstriChars));
-              bstriChars &:= stri;
+              if length(stri) > 1 then
+                for checkedLength range min(length(stri), pred(endLength))
+                    downto 1 until found do
+                  if checkedLength <= length(stri) then
+                    startPosition := succ(length(bstriChars) - checkedLength);
+                    if startPosition >= 1 and
+                        stri[.. checkedLength] = bstriChars[startPosition ..] then
+                      stringPosition[number] := startPosition;
+                      bstriChars &:= stri[succ(checkedLength) ..];
+                      found := TRUE;
+                    end if;
+                  end if;
+                end for;
+              end if;
+              if not found then
+                stringPosition[number] := succ(length(bstriChars));
+                bstriChars &:= stri;
+              end if;
             end if;
           else
             stringPosition[number] := striPos;

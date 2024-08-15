@@ -561,6 +561,30 @@ const proc: check_bstring_index is func
   end func;
 
 
+const proc: check_bstring_constants is func
+  local
+    # The conents of the two bstrings overlap.
+    # The compiler recognizes the overlap and saves memory.
+    const bstring: bstri1 is bstring("1234567890abcdefghijklmnop");
+    const bstring: bstri2 is bstring("abcdefghijklmnopqrstuvwxyz");
+    const bstring: bstri3 is bstring("xyzABCDEFGHIJKL");
+    var char: ch is ' ';
+    var string: stri1 is "";
+    var string: stri2 is "";
+    var string: stri3 is "";
+  begin
+    for ch range bstri1 do
+      stri1 &:= ch;
+    end for;
+    for ch range bstri2 do
+      stri2 &:= ch;
+    end for;
+    for ch range bstri3 do
+      stri3 &:= ch;
+    end for;
+  end func;
+
+
 const proc: check_bstring_ternary is func
   local
     const bstring: thenValue is bstring("thenValue");
