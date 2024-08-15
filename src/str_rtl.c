@@ -1838,14 +1838,28 @@ striType strCLit (const const_striType stri)
           if (character < ' ') {
             literal->mem[pos] = (strElemType) '\\';
             if (cstri_escape_sequence[character][1] == '0') {
-              /* Always write three octal digits to avoid errors if */
-              /* the octal representation is followed by a digit.   */
-              literal->mem[pos + 1] = (strElemType) '0';
-              /* Write the character as two octal digits. */
-              /* This code is much faster than sprintf(). */
-              literal->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
-              literal->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
-              pos += 4;
+              if (position < striSize - 1 &&
+                  stri->mem[position + 1] >= '0' && stri->mem[position + 1] <= '9') {
+                /* The octal representation is followed by a digit: */
+                /* Write three octal digits to avoid ambiguity.     */
+                literal->mem[pos + 1] = (strElemType) '0';
+                /* Write the character as two octal digits. */
+                /* This code is much faster than sprintf(). */
+                literal->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
+                literal->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
+                pos += 4;
+              } else if (cstri_escape_sequence[character][2] == '0') {
+                /* The octal representation is not followed by a digit: */
+                /* Write one octal digit to shorten the string length.  */
+                literal->mem[pos + 1] = (strElemType) ((character      & 0x7) + '0');
+                pos += 2;
+              } else {
+                /* The octal representation is not followed by a digit: */
+                /* Write two octal digits to shorten the string length. */
+                literal->mem[pos + 1] = (strElemType) ((character >> 3 & 0x7) + '0');
+                literal->mem[pos + 2] = (strElemType) ((character      & 0x7) + '0');
+                pos += 3;
+              } /* if */
             } else {
               literal->mem[pos + 1] = (strElemType) cstri_escape_sequence[character][1];
               pos += 2;
