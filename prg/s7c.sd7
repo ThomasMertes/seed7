@@ -6706,6 +6706,60 @@ const proc: write_str_table (in stri_index_hash: stri_index,
   end func;
 
 
+const proc: handleOverlappingStrings (inout string: striChars, in string: stri,
+    inout integer: stringPosition) is func
+
+  local
+    const integer: endLength is 8;
+    var string: striCharsEnd is "";
+    var integer: striIndex is 0;
+    var integer: startPosition is 0;
+    var integer: checkedLength is 0;
+    var boolean: found is FALSE;
+  begin
+    if length(striChars) >= endLength then
+      striCharsEnd :=
+          striChars[succ(length(striChars) - endLength) fixLen endLength];
+    else
+      striCharsEnd := striChars;
+    end if;
+    striIndex := rpos(stri, striCharsEnd);
+    found := FALSE;
+    while striIndex <> 0 and not found do
+      startPosition := length(striChars) - striIndex - length(striCharsEnd) + 2;
+      checkedLength := pred(striIndex + length(striCharsEnd));
+      if startPosition >= 1 and
+          stri[.. checkedLength] =  striChars[startPosition ..] then
+        stringPosition := startPosition;
+        striChars &:= stri[succ(checkedLength) ..];
+        found := TRUE;
+      else
+        striIndex := rpos(stri, striCharsEnd, pred(striIndex));
+      end if;
+    end while;
+    if not found then
+      if length(stri) > 1 then
+        for checkedLength range min(length(stri), pred(endLength))
+            downto 1 until found do
+          if checkedLength <= length(stri) then
+            startPosition := succ(length(striChars) - checkedLength);
+            if startPosition >= 1 and
+                stri[.. checkedLength] = striChars[startPosition ..] then
+              stringPosition := startPosition;
+              striChars &:= stri[succ(checkedLength) ..];
+              found := TRUE;
+            end if;
+          end if;
+        end for;
+      end if;
+      if not found then
+        stringPosition := succ(length(striChars));
+        striChars &:= stri;
+      end if;
+    end if;
+  end func;
+
+
 const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     inout expr_type: c_expr) is func
 
@@ -6742,46 +6796,7 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
           combinedStriLength +:= length(stri);
           striPos := pos(striChars, stri);
           if striPos = 0 then
-            if length(striChars) >= endLength then
-              striCharsEnd :=
-                  striChars[succ(length(striChars) - endLength) fixLen endLength];
-            else
-              striCharsEnd := striChars;
-            end if;
-            striIndex := rpos(stri, striCharsEnd);
-            found := FALSE;
-            while striIndex <> 0 and not found do
-              startPosition := length(striChars) - striIndex - length(striCharsEnd) + 2;
-              checkedLength := pred(striIndex + length(striCharsEnd));
-              if startPosition >= 1 and
-                  stri[.. checkedLength] =  striChars[startPosition ..] then
-                stringPosition[number] := startPosition;
-                striChars &:= stri[succ(checkedLength) ..];
-                found := TRUE;
-              else
-                striIndex := rpos(stri, striCharsEnd, pred(striIndex));
-              end if;
-            end while;
-            if not found then
-              if length(stri) > 1 then
-                for checkedLength range min(length(stri), pred(endLength))
-                    downto 1 until found do
-                  if checkedLength <= length(stri) then
-                    startPosition := succ(length(striChars) - checkedLength);
-                    if startPosition >= 1 and
-                        stri[.. checkedLength] = striChars[startPosition ..] then
-                      stringPosition[number] := startPosition;
-                      striChars &:= stri[succ(checkedLength) ..];
-                      found := TRUE;
-                    end if;
-                  end if;
-                end for;
-              end if;
-              if not found then
-                stringPosition[number] := succ(length(striChars));
-                striChars &:= stri;
-              end if;
-            end if;
+            handleOverlappingStrings(striChars, stri, stringPosition[number]);
           else
             stringPosition[number] := striPos;
           end if;
@@ -6974,46 +6989,7 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
           combinedBStriLength +:= length(stri);
           striPos := pos(bstriChars, stri);
           if striPos = 0 then
-            if length(bstriChars) >= endLength then
-              bstriCharsEnd :=
-                  bstriChars[succ(length(bstriChars) - endLength) fixLen endLength];
-            else
-              bstriCharsEnd := bstriChars;
-            end if;
-            striIndex := rpos(stri, bstriCharsEnd);
-            found := FALSE;
-            while striIndex <> 0 and not found do
-              startPosition := length(bstriChars) - striIndex - length(bstriCharsEnd) + 2;
-              checkedLength := pred(striIndex + length(bstriCharsEnd));
-              if startPosition >= 1 and
-                  stri[.. checkedLength] =  bstriChars[startPosition ..] then
-                stringPosition[number] := startPosition;
-                bstriChars &:= stri[succ(checkedLength) ..];
-                found := TRUE;
-              else
-                striIndex := rpos(stri, bstriCharsEnd, pred(striIndex));
-              end if;
-            end while;
-            if not found then
-              if length(stri) > 1 then
-                for checkedLength range min(length(stri), pred(endLength))
-                    downto 1 until found do
-                  if checkedLength <= length(stri) then
-                    startPosition := succ(length(bstriChars) - checkedLength);
-                    if startPosition >= 1 and
-                        stri[.. checkedLength] = bstriChars[startPosition ..] then
-                      stringPosition[number] := startPosition;
-                      bstriChars &:= stri[succ(checkedLength) ..];
-                      found := TRUE;
-                    end if;
-                  end if;
-                end for;
-              end if;
-              if not found then
-                stringPosition[number] := succ(length(bstriChars));
-                bstriChars &:= stri;
-              end if;
-            end if;
+            handleOverlappingStrings(bstriChars, stri, stringPosition[number]);
           else
             stringPosition[number] := striPos;
           end if;
