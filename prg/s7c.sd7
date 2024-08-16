@@ -6642,25 +6642,25 @@ const proc: assign_plist_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: write_striChars (in string: striChars, inout expr_type: c_expr) is func
+const proc: write_striChars (in string: striChars, inout file: c_prog) is func
   local
     var integer: countChars is 0;
     var char: ch is ' ';
   begin
     if length(striChars) <> 0 then
-      c_expr.expr &:= "static strElemType striChars[";
-      c_expr.expr &:= str(length(striChars));
-      c_expr.expr &:= "]={\n";
+      writeln(c_prog, "static strElemType striChars[" <&
+                      str(length(striChars)) <&
+                      "]={");
       for ch range striChars do
-        c_expr.expr &:= c_literal(ch);
-        c_expr.expr &:= ",";
+        write(c_prog, c_literal(ch) <& ",");
         incr(countChars);
         if countChars = 20 then
-          c_expr.expr &:= "\n";
+          writeln(c_prog);
           countChars := 0;
         end if;
       end for;
-      c_expr.expr &:= "};\n\n";
+      writeln(c_prog, "};");
+      writeln(c_prog);
     end if;
   end func;
 
@@ -6788,7 +6788,11 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
         end for;
       end if;
     end for;
-    write_striChars(striChars, c_expr);
+    write(c_prog, global_c_expr.expr);
+    write(c_prog, c_expr.expr);
+    global_c_expr := expr_type.value;
+    c_expr := expr_type.value;
+    write_striChars(striChars, c_prog);
     write_str_table(stri_index, stringPosition, c_expr);
     if SHOW_STATISTIC then
       writeln(combinedStriLength <& " chars in all strings");
@@ -6863,38 +6867,38 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: write_bstriChars (in string: bstriChars, inout expr_type: c_expr) is func
+const proc: write_bstriChars (in string: bstriChars, inout file: c_prog) is func
   local
     var char: ch is ' ';
     var integer: countChars is 0;
   begin
     if length(bstriChars) <> 0 then
-      c_expr.expr &:= "static unsigned char bstriChars[/*";
-      c_expr.expr &:= str(length(bstriChars));
-      c_expr.expr &:= "*/]";
+      write(c_prog, "static unsigned char bstriChars[/*" <&
+                    str(length(bstriChars)) <&
+                    "*/]");
       countChars := 0;
       if ccConf.LIMITED_CSTRI_LITERAL_LEN then
-        c_expr.expr &:= "={";
-        c_expr.expr &:= "\n";
+        writeln(c_prog, "={");
         for ch range bstriChars do
-          c_expr.expr &:= c_literal(ch);
-          c_expr.expr &:= ",";
+          write(c_prog, c_literal(ch) <& ",");
           incr(countChars);
           if countChars = 20 then
-            c_expr.expr &:= "\n";
+            writeln(c_prog);
             countChars := 0;
           end if;
         end for;
-        c_expr.expr &:= "};\n\n";
+        writeln(c_prog, "};");
+        writeln(c_prog);
       else
         if length(bstriChars) <> 0 then
-          c_expr.expr &:= "=";
+          write(c_prog, "=");
           for countChars range 1 to length(bstriChars) step 40 do
-            c_expr.expr &:= "\n";
-            c_expr.expr &:= c_literal(bstriChars[countChars len 40]);
+            writeln(c_prog);
+            write(c_prog, c_literal(bstriChars[countChars len 40]));
           end for;
         end if;
-        c_expr.expr &:= ";\n\n";
+        writeln(c_prog, ";");
+        writeln(c_prog);
       end if;
     end if;
   end func;
@@ -7016,7 +7020,11 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
         end for;
       end if;
     end for;
-    write_bstriChars(bstriChars, c_expr);
+    write(c_prog, global_c_expr.expr);
+    write(c_prog, c_expr.expr);
+    global_c_expr := expr_type.value;
+    c_expr := expr_type.value;
+    write_bstriChars(bstriChars, c_prog);
     write_bst_table(bstri_index, stringPosition, c_expr);
     if SHOW_STATISTIC then
       writeln(combinedBStriLength <& " chars in all bstrings");
