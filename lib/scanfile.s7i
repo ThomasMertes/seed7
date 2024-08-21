@@ -214,6 +214,36 @@ const func string: getDigits (inout file: inFile) is func
 
 
 (**
+ *  Reads a sequence of hexadecimal digits from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the hexadecimal digits.
+ *   f := initScan("1f");  getHexDigits(f) returns "1f" and f.bufferChar = EOF
+ *   f := initScan("1ag"); getHexDigits(f) returns "1a" and f.bufferChar = 'g'
+ *   f := initScan("gx");  getHexDigits(f) returns ""   and f.bufferChar = 'g'
+ *   f := initScan(" 1a"); getHexDigits(f) returns ""   and f.bufferChar = ' '
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
+ *)
+const func string: getHexDigits (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in hexdigit_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in hexdigit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
  *  Reads a decimal integer with optional sign from a [[file]].
  *  A decimal integer accepted by ''getInteger'' consists of an optional
  *  + or - sign followed by a possibly empty sequence of digits. Because

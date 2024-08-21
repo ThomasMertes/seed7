@@ -211,6 +211,35 @@ const func string: getDigits (inout string: stri) is func
 
 
 (**
+ *  Reads a sequence of hexadecimal digits from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the hexadecimal digits.
+ *   stri := "1f";   getHexDigits(stri)  returns  "1f"  and stri = ""
+ *   stri := "1ag";  getHexDigits(stri)  returns  "1a"  and stri = "g"
+ *   stri := "gx";   getHexDigits(stri)  returns  ""    and stri = "gx"
+ *   stri := " 1a";  getHexDigits(stri)  returns  ""    and stri = " 1a"
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
+ *)
+const func string: getHexDigits (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in hexdigit_char do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
  *  Reads a decimal integer with optional sign from a [[string]].
  *  A decimal integer accepted by ''getInteger'' consists of an optional
  *  + or - sign followed by a possibly empty sequence of digits. Because

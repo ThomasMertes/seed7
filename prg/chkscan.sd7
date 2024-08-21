@@ -69,6 +69,38 @@ const proc: checkGetDigits is func
   end func;
 
 
+const proc: checkGetHexDigits is func
+  local
+    var string: stri is "";
+    var file: aFile is STD_NULL;
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+  begin
+    stri := "1f";  ok := ok and getHexDigits(stri) = "1f" and stri = "";
+    stri := "1ag"; ok := ok and getHexDigits(stri) = "1a" and stri = "g";
+    stri := "gx";  ok := ok and getHexDigits(stri) = ""   and stri = "gx";
+    stri := " 1a"; ok := ok and getHexDigits(stri) = ""   and stri = " 1a";
+    if not ok then
+      writeln(" ***** The function getHexDigits(STRING) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    aFile := initScan("1f");  ok := ok and getHexDigits(aFile) = "1f" and aFile.bufferChar = EOF;
+    aFile := initScan("1ag"); ok := ok and getHexDigits(aFile) = "1a" and aFile.bufferChar = 'g';
+    aFile := initScan("gx");  ok := ok and getHexDigits(aFile) = ""   and aFile.bufferChar = 'g';
+    aFile := initScan(" 1a"); ok := ok and getHexDigits(aFile) = ""   and aFile.bufferChar = ' ';
+    if not ok then
+      writeln(" ***** The function getHexDigits(FILE) does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getHexDigits works correctly.");
+    end if;
+  end func;
+
+
 const proc: checkGetInteger is func
   local
     var string: stri is "";
@@ -661,6 +693,7 @@ const proc: main is func
   begin
     writeln;
     checkGetDigits;
+    checkGetHexDigits;
     checkGetInteger;
     checkGetNumber;
     checkGetNonDigits;

@@ -349,6 +349,7 @@ const string: chktime_output is "\n\
 
 const string: chkscan_output is "\n\
   \The function getDigits works correctly.\n\
+  \The function getHexDigits works correctly.\n\
   \The function getInteger works correctly.\n\
   \The function getNumber works correctly.\n\
   \The function getNonDigits works correctly.\n\
