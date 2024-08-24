@@ -540,7 +540,7 @@ const func string: toAscii85 (in string: byteStri) is func
 
 
 (**
- *  Decode a Ascii85 encoded string.
+ *  Decode an Ascii85 encoded string.
  *  Every block of five radix 85 characters is decoded to four bytes.
  *  Radix 85 characters are between '!' (encodes 0) and 'u' (encodes 84).
  *  The character 'z' is used to encode a block of four zero bytes.
@@ -581,6 +581,69 @@ const func string: fromAscii85 (in string: ascii85) is func
         base85Number := base85Number * 85 + 84;
       end for;
       decoded &:= bytes(base85Number, UNSIGNED, BE, 4)[.. pred(digitIndex)];
+    end if;
+  end func;
+
+
+(**
+ *  Encode a string with the AsciiHex encoding.
+ *  AsciiHex encodes a byte string as ASCII string.
+ *  In AsciiHex each byte is encoded with two hexadecimal digits.
+ *  White-space characters in an AsciiHex encoded string are ignored.
+ *  The AsciiHex encoded string ends with the character '>'.
+ *  @return the AsciiHex encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toAsciiHex (in string: byteStri) is func
+  result
+    var string: asciiHex is "";
+  local
+    const char: endOfData is '>';
+    const integer: encodingsPerLine is 32;
+    var integer: index is 1;
+  begin
+    while index <= length(byteStri) do
+      asciiHex &:= hex(byteStri[index len encodingsPerLine]);
+      index +:= encodingsPerLine;
+    end while;
+    asciiHex &:= endOfData;
+  end func;
+
+
+(**
+ *  Decode an AsciiHex encoded string.
+ *  In AsciiHex each byte is encoded with two hexadecimal digits.
+ *  White-space characters in an AsciiHex encoded string are ignored.
+ *  The AsciiHex encoded string ends with the character '>'.
+ *  If a '>' follows the first hexadecimal digit of an encoded byte
+ *  the decoding works as if a '0' is at the place of the '>'.
+ *  The decoder works also correctly if the '>' is missing.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''asciiHex'' is not in AsciiHex format.
+ *)
+const func string: fromAsciiHex (in string: asciiHex) is func
+  result
+    var string: stri is "";
+  local
+    const char: endOfData is '>';
+    const set of char: whiteSpace is {'\0;', '\t', '\n', '\f', '\r', ' '};
+    var integer: index is 1;
+  begin
+    while index < length(asciiHex) and asciiHex[index] <> endOfData do
+      if asciiHex[index] not in whiteSpace then
+        if asciiHex[succ(index)] = endOfData then
+          stri &:= char(integer(asciiHex[index fixLen 1] & "0", 16));
+          incr(index);
+        else
+          stri &:= char(integer(asciiHex[index fixLen 2], 16));
+          index +:= 2;
+        end if;
+      else
+        incr(index);
+      end if;
+    end while;
+    if index = length(asciiHex) and asciiHex[index] <> endOfData then
+      stri &:= char(integer(asciiHex[index fixLen 1] & "0", 16));
     end if;
   end func;
 
