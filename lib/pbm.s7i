@@ -85,7 +85,9 @@ const proc: readPbmBinaryImage (inout pixelImage: image,
         else
           bitNumber := 7;
           incr(byteIndex);
-          currentByte := ord(pixelData[byteIndex]);
+          if byteIndex <= length(pixelData) then
+            currentByte := ord(pixelData[byteIndex]);
+          end if;
         end if;
       end for;
     end for;
