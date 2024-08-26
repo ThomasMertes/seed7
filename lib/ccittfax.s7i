@@ -600,6 +600,9 @@ const proc: processCcittModifiedGroup3FaxLsb (in string: faxData,
   end func;
 
 
+const type: ccittFaxValues is array [1 .. ] integer;
+
+
 const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
     in type: huffmanTable) is func
 
@@ -608,7 +611,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
     const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
         in huffmanTable: blackHuffmanTable, in colorLookupTable: blackOrWhite,
-        in integer: width, inout array integer: bValues,
+        in integer: width, inout ccittFaxValues: bValues,
         inout pixelArray: imageLine) is func
       local
         var pixel: currentPixel is pixel.value;
@@ -616,7 +619,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
         var integer: numBits1 is 0;
         var integer: numBits2 is 0;
         var integer: currentColumn is 1;
-        var array integer: aValues is 0 times 0;
+        var ccittFaxValues: aValues is ccittFaxValues.value;
         var integer: bIndex is 1;
         var integer: currentBValue is 0;
       begin
@@ -766,7 +769,7 @@ const proc: processCcittT6FaxMsb (in string: faxData,
     in integer: width, inout pixelImage: image) is func
   local
     var msbBitStream: faxDataStream is msbBitStream.value;
-    var array integer: bValues is 0 times 0;
+    var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
     faxDataStream := openMsbBitStream(faxData);
@@ -797,7 +800,7 @@ const proc: processCcittT6FaxLsb (in string: faxData,
     in integer: width, inout pixelImage: image) is func
   local
     var lsbBitStream: faxDataStream is lsbBitStream.value;
-    var array integer: bValues is 0 times 0;
+    var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
     faxDataStream := openLsbBitStream(faxData);
@@ -881,13 +884,13 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
     const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
         in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
         in pixel: whitePixel, in pixel: blackPixel, in integer: width,
-	inout array integer: aValues, inout pixelArray: imageLine) is func
+	inout ccittFaxValues: aValues, inout pixelArray: imageLine) is func
       local
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;
         var integer: currentColumn is 1;
       begin
-        aValues := 0 times 0;
+        aValues := ccittFaxValues.value;
         repeat
           numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
           if numWhitePixels >= 0 then
@@ -940,7 +943,7 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
     in integer: width, inout pixelImage: image) is func
   local
     var msbBitStream: faxDataStream is msbBitStream.value;
-    var array integer: bValues is 0 times 0;
+    var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
     faxDataStream := openMsbBitStream(faxData);
@@ -978,7 +981,7 @@ const proc: processCcittT4Fax2dLsb (in string: faxData,
     in integer: width, inout pixelImage: image) is func
   local
     var lsbBitStream: faxDataStream is lsbBitStream.value;
-    var array integer: bValues is 0 times 0;
+    var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
     faxDataStream := openLsbBitStream(faxData);
