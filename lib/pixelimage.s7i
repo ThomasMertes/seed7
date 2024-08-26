@@ -39,6 +39,20 @@ const type: pixelImage is array [1 ..] pixelArray;
 
 
 (**
+ *  Set pixels in an image line.
+ *)
+const proc: setPixels (inout pixelArray: imageLine, in integer: startColumn,
+    in integer: stopColumn, in pixel: currentPixel) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range startColumn to stopColumn do
+      imageLine[column] := currentPixel;
+    end for;
+  end func;
+
+
+(**
  *  Create a new pixmap from a two-dimensional array of pixels.
  *  The array of pixels might come from a image file.
  *  @param image Pixel array with lines from top downward and columns from left to right.

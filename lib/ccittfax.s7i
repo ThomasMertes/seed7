@@ -500,34 +500,26 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;
         var integer: currentColumn is 1;
-        var integer: column is 0;
-        var integer: count is 0;
       begin
         repeat
           numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
           if numWhitePixels >= 0 then
-            for column range currentColumn to currentColumn + pred(numWhitePixels) do
-              image[line][column] := whitePixel;
-            end for;
+            setPixels(image[line], currentColumn,
+                      currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             if currentColumn <= width then
               numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
               if numBlackPixels >= 0 then
-                for column range currentColumn to currentColumn + pred(numBlackPixels) do
-                  image[line][column] := blackPixel;
-                end for;
+                setPixels(image[line], currentColumn,
+                          currentColumn + pred(numBlackPixels), blackPixel);
                 currentColumn +:= numBlackPixels;
               else
-                for column range currentColumn to width do
-                  image[line][column] := blackPixel;
-                end for;
+                setPixels(image[line], currentColumn, width, blackPixel);
                 currentColumn := succ(width);
               end if;
             end if;
           else
-            for column range currentColumn to width do
-              image[line][column] := whitePixel;
-            end for;
+            setPixels(image[line], currentColumn, width, whitePixel);
             currentColumn := succ(width);
           end if;
         until currentColumn > width;
@@ -624,7 +616,6 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
         var integer: numBits1 is 0;
         var integer: numBits2 is 0;
         var integer: currentColumn is 1;
-        var integer: column is 1;
         var array integer: aValues is 0 times 0;
         var integer: bIndex is 1;
         var integer: currentBValue is 0;
@@ -646,9 +637,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
               else
                 currentBValue := succ(width);
               end if;
-              for column range currentColumn to currentBValue - 1 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue - 1, currentPixel);
               currentColumn := currentBValue;
               incr(bIndex);
             when {CCITT_T4_HORIZONTAL}:
@@ -661,15 +650,13 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
               end if;
               # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentColumn + pred(numBits1) do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentColumn + pred(numBits1),
+                        currentPixel);
               currentColumn +:= numBits1;
               aValues &:= currentColumn;
               currentPixel := blackOrWhite[succ(bIndex) mod 2];
-              for column range currentColumn to currentColumn + pred(numBits2) do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentColumn + pred(numBits2),
+                        currentPixel);
               currentColumn +:= numBits2;
               aValues &:= currentColumn;
               while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
@@ -678,18 +665,14 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_0}:
               # writeln("V(0)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue - 1 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue - 1, currentPixel);
               currentColumn := currentBValue;
               aValues &:= currentColumn;
               incr(bIndex);
             when {CCITT_T4_VERTICAL_RIGHT_1}:
               # writeln("Vr(1)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue, currentPixel);
               currentColumn := currentBValue + 1;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -699,9 +682,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_RIGHT_2}:
               # writeln("Vr(2)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue + 1 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue + 1, currentPixel);
               currentColumn := currentBValue + 2;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -711,9 +692,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_RIGHT_3}:
               # writeln("Vr(3)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue + 2 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue + 2, currentPixel);
               currentColumn := currentBValue + 3;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -723,18 +702,14 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_LEFT_1}:
               # writeln("Vl(1)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue - 2 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue - 2, currentPixel);
               currentColumn := currentBValue - 1;
               aValues &:= currentColumn;
               incr(bIndex);
             when {CCITT_T4_VERTICAL_LEFT_2}:
               # writeln("Vl(2)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue - 3 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue - 3, currentPixel);
               currentColumn := currentBValue - 2;
               aValues &:= currentColumn;
               if bIndex > 1 and (pred(bIndex) > length(bValues) or
@@ -746,9 +721,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_LEFT_3}:
               # writeln("Vl(3)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              for column range currentColumn to currentBValue - 4 do
-                image[line][column] := currentPixel;
-              end for;
+              setPixels(image[line], currentColumn, currentBValue - 4, currentPixel);
               currentColumn := currentBValue - 3;
               aValues &:= currentColumn;
               if bIndex > 1 and (pred(bIndex) > length(bValues) or
@@ -916,37 +889,29 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;
         var integer: currentColumn is 1;
-        var integer: column is 0;
-        var integer: count is 0;
       begin
         aValues := 0 times 0;
         repeat
           numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
           if numWhitePixels >= 0 then
-            for column range currentColumn to currentColumn + pred(numWhitePixels) do
-              image[line][column] := whitePixel;
-            end for;
+            setPixels(image[line], currentColumn,
+                      currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             aValues &:= currentColumn;
             if currentColumn <= width then
               numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
               if numBlackPixels >= 0 then
-                for column range currentColumn to currentColumn + pred(numBlackPixels) do
-                  image[line][column] := blackPixel;
-                end for;
+                setPixels(image[line], currentColumn,
+                          currentColumn + pred(numBlackPixels), blackPixel);
                 currentColumn +:= numBlackPixels;
                 aValues &:= currentColumn;
               else
-                for column range currentColumn to width do
-                  image[line][column] := blackPixel;
-                end for;
+                setPixels(image[line], currentColumn, width, blackPixel);
                 currentColumn := succ(width);
               end if;
             end if;
           else
-            for column range currentColumn to width do
-              image[line][column] := whitePixel;
-            end for;
+            setPixels(image[line], currentColumn, width, whitePixel);
             currentColumn := succ(width);
           end if;
         until currentColumn > width;
