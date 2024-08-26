@@ -494,8 +494,8 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
 
     const proc: processCcittFaxRow (inout bitStream: faxDataStream,
         in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
-        in pixel: whitePixel, in pixel: blackPixel, in integer: line,
-        in integer: width, inout pixelImage: image) is func
+        in pixel: whitePixel, in pixel: blackPixel, in integer: width,
+        inout pixelArray: imageLine) is func
       local
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;
@@ -504,22 +504,22 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
         repeat
           numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
           if numWhitePixels >= 0 then
-            setPixels(image[line], currentColumn,
+            setPixels(imageLine, currentColumn,
                       currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             if currentColumn <= width then
               numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
               if numBlackPixels >= 0 then
-                setPixels(image[line], currentColumn,
+                setPixels(imageLine, currentColumn,
                           currentColumn + pred(numBlackPixels), blackPixel);
                 currentColumn +:= numBlackPixels;
               else
-                setPixels(image[line], currentColumn, width, blackPixel);
+                setPixels(imageLine, currentColumn, width, blackPixel);
                 currentColumn := succ(width);
               end if;
             end if;
           else
-            setPixels(image[line], currentColumn, width, whitePixel);
+            setPixels(imageLine, currentColumn, width, whitePixel);
             currentColumn := succ(width);
           end if;
         until currentColumn > width;
@@ -559,7 +559,7 @@ const proc: processCcittModifiedGroup3FaxMsb (in string: faxData,
     for line range startLine to startLine + height - 1 do
       processCcittFaxRow(faxDataStream, whiteMsbHuffmanTable,
                          blackMsbHuffmanTable, whitePixel, blackPixel,
-                         line, width, image);
+                         width, image[line]);
       # Go to the next available byte boundary
       ignore(gets(faxDataStream, 0));
     end for;
@@ -593,7 +593,7 @@ const proc: processCcittModifiedGroup3FaxLsb (in string: faxData,
     for line range startLine to startLine + height - 1 do
       processCcittFaxRow(faxDataStream, whiteLsbHuffmanTable,
                          blackLsbHuffmanTable, whitePixel, blackPixel,
-                         line, width, image);
+                         width, image[line]);
       # Go to the next available byte boundary
       ignore(gets(faxDataStream, 0));
     end for;
@@ -608,8 +608,8 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
     const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
         in huffmanTable: blackHuffmanTable, in colorLookupTable: blackOrWhite,
-        in integer: line, in integer: width, inout array integer: bValues,
-        inout pixelImage: image) is func
+        in integer: width, inout array integer: bValues,
+        inout pixelArray: imageLine) is func
       local
         var pixel: currentPixel is pixel.value;
         var integer: mode is 0;
@@ -637,7 +637,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
               else
                 currentBValue := succ(width);
               end if;
-              setPixels(image[line], currentColumn, currentBValue - 1, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue - 1, currentPixel);
               currentColumn := currentBValue;
               incr(bIndex);
             when {CCITT_T4_HORIZONTAL}:
@@ -650,12 +650,12 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
               end if;
               # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentColumn + pred(numBits1),
+              setPixels(imageLine, currentColumn, currentColumn + pred(numBits1),
                         currentPixel);
               currentColumn +:= numBits1;
               aValues &:= currentColumn;
               currentPixel := blackOrWhite[succ(bIndex) mod 2];
-              setPixels(image[line], currentColumn, currentColumn + pred(numBits2),
+              setPixels(imageLine, currentColumn, currentColumn + pred(numBits2),
                         currentPixel);
               currentColumn +:= numBits2;
               aValues &:= currentColumn;
@@ -665,14 +665,14 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_0}:
               # writeln("V(0)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue - 1, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue - 1, currentPixel);
               currentColumn := currentBValue;
               aValues &:= currentColumn;
               incr(bIndex);
             when {CCITT_T4_VERTICAL_RIGHT_1}:
               # writeln("Vr(1)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue, currentPixel);
               currentColumn := currentBValue + 1;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -682,7 +682,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_RIGHT_2}:
               # writeln("Vr(2)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue + 1, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue + 1, currentPixel);
               currentColumn := currentBValue + 2;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -692,7 +692,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_RIGHT_3}:
               # writeln("Vr(3)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue + 2, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue + 2, currentPixel);
               currentColumn := currentBValue + 3;
               aValues &:= currentColumn;
               incr(bIndex);
@@ -702,14 +702,14 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_LEFT_1}:
               # writeln("Vl(1)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue - 2, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue - 2, currentPixel);
               currentColumn := currentBValue - 1;
               aValues &:= currentColumn;
               incr(bIndex);
             when {CCITT_T4_VERTICAL_LEFT_2}:
               # writeln("Vl(2)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue - 3, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue - 3, currentPixel);
               currentColumn := currentBValue - 2;
               aValues &:= currentColumn;
               if bIndex > 1 and (pred(bIndex) > length(bValues) or
@@ -721,7 +721,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
             when {CCITT_T4_VERTICAL_LEFT_3}:
               # writeln("Vl(3)");
               currentPixel := blackOrWhite[bIndex mod 2];
-              setPixels(image[line], currentColumn, currentBValue - 4, currentPixel);
+              setPixels(imageLine, currentColumn, currentBValue - 4, currentPixel);
               currentColumn := currentBValue - 3;
               aValues &:= currentColumn;
               if bIndex > 1 and (pred(bIndex) > length(bValues) or
@@ -773,8 +773,7 @@ const proc: processCcittT6FaxMsb (in string: faxData,
     for line range startLine to startLine + height - 1 do
       processCcittT4Fax2dRow(faxDataStream, t4MsbHuffmanTable,
                              whiteMsbHuffmanTable, blackMsbHuffmanTable,
-                             blackOrWhite, line, width,
-                             bValues, image);
+                             blackOrWhite, width, bValues, image[line]);
     end for;
   end func;
 
@@ -805,8 +804,7 @@ const proc: processCcittT6FaxLsb (in string: faxData,
     for line range startLine to startLine + height - 1 do
       processCcittT4Fax2dRow(faxDataStream, t4LsbHuffmanTable,
                              whiteLsbHuffmanTable, blackLsbHuffmanTable,
-                             blackOrWhite, line, width,
-                             bValues, image);
+                             blackOrWhite, width, bValues, image[line]);
     end for;
   end func;
 
@@ -838,7 +836,7 @@ const proc: processCcittT4Fax1dMsb (in string: faxData,
       skipEol(faxDataStream, 2#000000000001);
       processCcittFaxRow(faxDataStream, whiteMsbHuffmanTable,
                          blackMsbHuffmanTable, whitePixel, blackPixel,
-                         line, width, image);
+                         width, image[line]);
     end for;
   end func;
 
@@ -870,7 +868,7 @@ const proc: processCcittT4Fax1dLsb (in string: faxData,
       skipEol(faxDataStream, 2#100000000000);
       processCcittFaxRow(faxDataStream, whiteLsbHuffmanTable,
                          blackLsbHuffmanTable, whitePixel, blackPixel,
-                         line, width, image);
+                         width, image[line]);
     end for;
   end func;
 
@@ -882,9 +880,8 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
 
     const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
         in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
-        in pixel: whitePixel, in pixel: blackPixel, in integer: line,
-        in integer: width, inout array integer: aValues,
-        inout pixelImage: image) is func
+        in pixel: whitePixel, in pixel: blackPixel, in integer: width,
+	inout array integer: aValues, inout pixelArray: imageLine) is func
       local
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;
@@ -894,24 +891,24 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
         repeat
           numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
           if numWhitePixels >= 0 then
-            setPixels(image[line], currentColumn,
+            setPixels(imageLine, currentColumn,
                       currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             aValues &:= currentColumn;
             if currentColumn <= width then
               numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
               if numBlackPixels >= 0 then
-                setPixels(image[line], currentColumn,
+                setPixels(imageLine, currentColumn,
                           currentColumn + pred(numBlackPixels), blackPixel);
                 currentColumn +:= numBlackPixels;
                 aValues &:= currentColumn;
               else
-                setPixels(image[line], currentColumn, width, blackPixel);
+                setPixels(imageLine, currentColumn, width, blackPixel);
                 currentColumn := succ(width);
               end if;
             end if;
           else
-            setPixels(image[line], currentColumn, width, whitePixel);
+            setPixels(imageLine, currentColumn, width, whitePixel);
             currentColumn := succ(width);
           end if;
         until currentColumn > width;
@@ -952,12 +949,11 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
       if getBit(faxDataStream) = 1 then
         processCcittT4Fax1dRow(faxDataStream, whiteMsbHuffmanTable,
                                blackMsbHuffmanTable, blackOrWhite[1], blackOrWhite[0],
-                               line, width, bValues, image);
+                               width, bValues, image[line]);
       else
         processCcittT4Fax2dRow(faxDataStream, t4MsbHuffmanTable,
                                whiteMsbHuffmanTable, blackMsbHuffmanTable,
-                               blackOrWhite, line, width,
-                               bValues, image);
+                               blackOrWhite, width, bValues, image[line]);
       end if;
     end for;
   end func;
@@ -991,12 +987,11 @@ const proc: processCcittT4Fax2dLsb (in string: faxData,
       if getBit(faxDataStream) = 1 then
         processCcittT4Fax1dRow(faxDataStream, whiteLsbHuffmanTable,
                                blackLsbHuffmanTable, blackOrWhite[1], blackOrWhite[0],
-                               line, width, bValues, image);
+                               width, bValues, image[line]);
       else
         processCcittT4Fax2dRow(faxDataStream, t4LsbHuffmanTable,
                                whiteLsbHuffmanTable, blackLsbHuffmanTable,
-                               blackOrWhite, line, width,
-                               bValues, image);
+                               blackOrWhite, width, bValues, image[line]);
       end if;
     end for;
   end func;
