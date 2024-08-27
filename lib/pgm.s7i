@@ -57,38 +57,58 @@ const proc: readPgmAsciiImage (inout pixelImage: image,
   end func;
 
 
+const proc: readPgmBinaryImageLine8 (inout pixelArray: imageLine,
+    in integer: width, in integer: factor, inout file: pgmFile) is func
+  local
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    pixelData := gets(pgmFile, width);
+    byteIndex := 1;
+    for column range 1 to width do
+      luminance := ord(pixelData[byteIndex]) * factor;
+      imageLine[column] := rgbPixel(luminance, luminance, luminance);
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPgmBinaryImageLine16 (inout pixelArray: imageLine,
+    in integer: width, in integer: factor, inout file: pgmFile) is func
+  local
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    pixelData := gets(pgmFile, width * 2);
+    byteIndex := 1;
+    for column range 1 to width do
+      luminance :=
+          bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, BE) * factor;
+      imageLine[column] := rgbPixel(luminance, luminance, luminance);
+      byteIndex +:= 2;
+    end for;
+  end func;
+
+
 const proc: readPgmBinaryImage (inout pixelImage: image,
     in integer: height, in integer: width, in integer: maximumColorValue,
     inout file: pgmFile) is func
   local
     var integer: factor is 0;
     var integer: line is 0;
-    var integer: column is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
-    var integer: luminance is 0;
   begin
     factor := pred(2 ** 16) div maximumColorValue;
     if maximumColorValue <= 255 then
       for line range 1 to height do
-        pixelData := gets(pgmFile, width);
-        byteIndex := 1;
-        for column range 1 to width do
-          luminance := ord(pixelData[byteIndex]) * factor;
-          image[line][column] := rgbPixel(luminance, luminance, luminance);
-          incr(byteIndex);
-        end for;
+        readPgmBinaryImageLine8(image[line], width, factor, pgmFile);
       end for;
     else
       for line range 1 to height do
-        pixelData := gets(pgmFile, width * 2);
-        byteIndex := 1;
-        for column range 1 to width do
-          luminance :=
-              bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, BE) * factor;
-          image[line][column] := rgbPixel(luminance, luminance, luminance);
-          byteIndex +:= 2;
-        end for;
+        readPgmBinaryImageLine16(image[line], width, factor, pgmFile);
       end for;
     end if;
   end func;
