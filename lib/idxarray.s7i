@@ -225,3 +225,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       end global;
     end if;
   end func;
+
+
+const func type: array [ (attr integer) ] (in type: baseType) is
+  return array baseType;
