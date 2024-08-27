@@ -63,39 +63,58 @@ const proc: readPpmAsciiImage (inout pixelImage: image,
   end func;
 
 
+const proc: readPpmBinaryImageLine8 (inout pixelArray: imageLine,
+    in integer: width, in integer: factor, inout file: ppmFile) is func
+  local
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    pixelData := gets(ppmFile, width * 3);
+    byteIndex := 1;
+    for column range 1 to width do
+      imageLine[column] := rgbPixel(ord(pixelData[byteIndex]) * factor,
+                                    ord(pixelData[succ(byteIndex)]) * factor,
+                                    ord(pixelData[byteIndex + 2]) * factor);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
+const proc: readPpmBinaryImageLine16 (inout pixelArray: imageLine,
+    in integer: width, in integer: factor, inout file: ppmFile) is func
+  local
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    pixelData := gets(ppmFile, width * 6);
+    byteIndex := 1;
+    for column range 1 to width do
+      imageLine[column] :=
+          rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE) * factor,
+                   bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE) * factor,
+                   bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE) * factor);
+      byteIndex +:= 6;
+    end for;
+  end func;
+
+
 const proc: readPpmBinaryImage (inout pixelImage: image,
     in integer: height, in integer: width, in integer: maximumColorValue,
     inout file: ppmFile) is func
   local
     var integer: factor is 0;
     var integer: line is 0;
-    var integer: column is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
   begin
     factor := pred(2 ** 16) div maximumColorValue;
     if maximumColorValue <= 255 then
       for line range 1 to height do
-        pixelData := gets(ppmFile, width * 3);
-        byteIndex := 1;
-        for column range 1 to width do
-          image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * factor,
-                                          ord(pixelData[succ(byteIndex)]) * factor,
-                                          ord(pixelData[byteIndex + 2]) * factor);
-          byteIndex +:= 3;
-        end for;
+        readPpmBinaryImageLine8(image[line], width, factor, ppmFile);
       end for;
     else
       for line range 1 to height do
-        pixelData := gets(ppmFile, width * 6);
-        byteIndex := 1;
-        for column range 1 to width do
-          image[line][column] :=
-              rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE) * factor,
-                       bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE) * factor,
-                       bytes2Int(pixelData[byteIndex + 4 fixLen 2], UNSIGNED, BE) * factor);
-          byteIndex +:= 6;
-        end for;
+        readPpmBinaryImageLine16(image[line], width, factor, ppmFile);
       end for;
     end if;
   end func;
