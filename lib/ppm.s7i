@@ -71,7 +71,6 @@ const proc: readPpmBinaryImageLine8 (inout pixelArray: imageLine,
     var integer: column is 0;
   begin
     pixelData := gets(ppmFile, width * 3);
-    byteIndex := 1;
     for column range 1 to width do
       imageLine[column] := rgbPixel(ord(pixelData[byteIndex]) * factor,
                                     ord(pixelData[succ(byteIndex)]) * factor,
@@ -89,7 +88,6 @@ const proc: readPpmBinaryImageLine16 (inout pixelArray: imageLine,
     var integer: column is 0;
   begin
     pixelData := gets(ppmFile, width * 6);
-    byteIndex := 1;
     for column range 1 to width do
       imageLine[column] :=
           rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE) * factor,

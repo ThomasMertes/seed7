@@ -60,36 +60,42 @@ const proc: readPbmAsciiImage (inout pixelImage: image,
   end func;
 
 
+const proc: readPbmBinaryImageLine (inout pixelArray: imageLine,
+    in integer: width, inout file: pbmFile) is func
+  local
+    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: bitNumber is 7;
+    var integer: currentByte is 0;
+    var integer: column is 0;
+  begin
+    pixelData := gets(pbmFile, succ(pred(width) div 8));
+    currentByte := ord(pixelData[1]);
+    for column range 1 to width do
+      if not odd(currentByte >> bitNumber) then
+        imageLine[column] := whitePixel;
+      end if;
+      if bitNumber > 0 then
+        decr(bitNumber);
+      else
+        bitNumber := 7;
+        incr(byteIndex);
+        if byteIndex <= length(pixelData) then
+          currentByte := ord(pixelData[byteIndex]);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const proc: readPbmBinaryImage (inout pixelImage: image,
     in integer: height, in integer: width, inout file: pbmFile) is func
   local
-    const pixel: whitePixel is rgbPixel(65535, 65535, 65535);
     var integer: line is 0;
-    var integer: column is 0;
-    var string: pixelData is "";
-    var integer: byteIndex is 1;
-    var integer: bitNumber is 0;
-    var integer: currentByte is 0;
   begin
     for line range 1 to height do
-      pixelData := gets(pbmFile, succ(pred(width) div 8));
-      byteIndex := 1;
-      bitNumber := 7;
-      currentByte := ord(pixelData[1]);
-      for column range 1 to width do
-        if not odd(currentByte >> bitNumber) then
-          image[line][column] := whitePixel;
-        end if;
-        if bitNumber > 0 then
-          decr(bitNumber);
-        else
-          bitNumber := 7;
-          incr(byteIndex);
-          if byteIndex <= length(pixelData) then
-            currentByte := ord(pixelData[byteIndex]);
-          end if;
-        end if;
-      end for;
+      readPbmBinaryImageLine(image[line], width, pbmFile);
     end for;
   end func;
 
