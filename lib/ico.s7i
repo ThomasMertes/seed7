@@ -28,6 +28,7 @@
 
 include "draw.s7i";
 include "bmp.s7i";
+include "png.s7i";
 include "pixelimage.s7i";
 
 
@@ -64,14 +65,14 @@ const proc: readDirEntry (inout file: icoFile, inout icoDirEntry: dirEntry) is f
   begin
     stri := gets(icoFile, ICO_DIR_ENTRY_SIZE);
     if length(stri) = ICO_DIR_ENTRY_SIZE then
-       dirEntry.width        := bytes2Int(stri[ 1 fixLen 1], UNSIGNED, LE);
-       dirEntry.height       := bytes2Int(stri[ 2 fixLen 1], UNSIGNED, LE);
-       dirEntry.numColors    := bytes2Int(stri[ 3 fixLen 1], UNSIGNED, LE);
-       # Ignore 1 reserved byte.
-       dirEntry.planes       := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
-       dirEntry.bitsPerPixel := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
-       dirEntry.imageSize    := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
-       dirEntry.offset       := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
+      dirEntry.width        := bytes2Int(stri[ 1 fixLen 1], UNSIGNED, LE);
+      dirEntry.height       := bytes2Int(stri[ 2 fixLen 1], UNSIGNED, LE);
+      dirEntry.numColors    := bytes2Int(stri[ 3 fixLen 1], UNSIGNED, LE);
+      # Ignore 1 reserved byte.
+      dirEntry.planes       := bytes2Int(stri[ 5 fixLen 2], UNSIGNED, LE);
+      dirEntry.bitsPerPixel := bytes2Int(stri[ 7 fixLen 2], UNSIGNED, LE);
+      dirEntry.imageSize    := bytes2Int(stri[ 9 fixLen 4], UNSIGNED, LE);
+      dirEntry.offset       := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
     else
       raise RANGE_ERROR;
     end if;
@@ -101,12 +102,18 @@ const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
       # writeln("numberOfImages: " <& numberOfImages);
       readDirEntry(icoFile, dirEntry);
       # showDirEntry(dirEntry);
-      # seek(icoFile, succ(dirEntry.offset));
-      header.dibHeaderSize := bytes2Int(gets(icoFile, 4), UNSIGNED, LE);
-      readDibHeader(icoFile, header);
-      # showHeader(header);
-      header.height := dirEntry.height;
-      pixmap := readBmp(icoFile, header);
+      seek(icoFile, succ(dirEntry.offset));
+      magic := gets(icoFile, 4);
+      if magic = PNG_MAGIC[.. 4] then
+        seek(icoFile, succ(dirEntry.offset));
+        pixmap := readPng(icoFile);
+      else
+        header.dibHeaderSize := bytes2Int(magic, UNSIGNED, LE);
+        readDibHeader(icoFile, header);
+        # showHeader(header);
+        header.height := dirEntry.height;
+        pixmap := readBmp(icoFile, header);
+      end if;
     end if;
   end func;
 
