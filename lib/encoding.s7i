@@ -649,6 +649,86 @@ const func string: fromAsciiHex (in string: asciiHex) is func
 
 
 (**
+ *  Encode a string with the run length encoding of PDF.
+ *  @return the run length encoded string.
+ *)
+const func string: toRunLengthEncoded (in string: byteStri) is func
+  result
+    var string: runLengthEncoded is "";
+  local
+    const char: endOfData is '\128;';
+    var integer: pos is 1;
+    var integer: pos2 is 1;
+    var integer: count is 0;
+    var char: ch is ' ';
+  begin
+    while pos <= length(byteStri) do
+      ch := byteStri[pos];
+      pos2 := succ(pos);
+      while pos2 <= length(byteStri) and ch = byteStri[pos2] do
+        incr(pos2);
+      end while;
+      if pos2 - pos >= 2 then
+        count := pos2 - pos;
+        while count > 128 do
+          runLengthEncoded &:= char(129);
+          runLengthEncoded &:= ch;
+          count -:= 128;
+        end while;
+        runLengthEncoded &:= char(257 - count);
+        runLengthEncoded &:= ch;
+        pos := pos2;
+      else
+        while pos2 <= length(byteStri) and ch <> byteStri[pos2] do
+          ch := byteStri[pos2];
+          incr(pos2);
+        end while;
+        count := pos2 - pos;
+        while count > 128 do
+          runLengthEncoded &:= char(127);
+          runLengthEncoded &:= byteStri[pos len 128];
+          count -:= 128;
+        end while;
+        runLengthEncoded &:= char(pred(count));
+        runLengthEncoded &:= byteStri[pos len count];
+        pos := pos2;
+      end if;
+    end while;
+    runLengthEncoded &:= endOfData;
+  end func;
+
+
+(**
+ *  Decode a run length encoded string.
+ *  The decoding corresponds to the PDF RunLengthDecode method.
+ *  @return the decoded string.
+ *)
+const func string: fromRunLengthEncoded (in string: runLengthEncoded) is func
+  result
+    var string: stri is "";
+  local
+    const char: endOfData is '\128;';
+    var integer: index is 1;
+    var integer: count is 0;
+    var integer: bytesToCopy is 0;
+  begin
+    while index < length(runLengthEncoded) and
+        runLengthEncoded[index] <> endOfData do
+      count := ord(runLengthEncoded[index]);
+      if count <= 127 then
+        # Copy a sequence of bytes.
+        stri &:= runLengthEncoded[succ(index) fixLen succ(count)];
+        index +:= count + 2;
+      else
+        # Make copies of the next byte.
+        stri &:= str(runLengthEncoded[succ(index)]) mult 257 - count;
+        index +:= 2;
+      end if;
+    end while;
+  end func;
+
+
+(**
  *  Encode a number with a positional numeric system.
  *  The encoded string starts with the most significant digit.
  *  @param number BigInteger number to be encoded.
