@@ -33,6 +33,7 @@ include "lzw.s7i";
 include "jpeg.s7i";
 include "strifile.s7i";
 include "gzip.s7i";
+include "compress.s7i";
 include "pixelimage.s7i";
 include "exif.s7i";
 
@@ -727,26 +728,6 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
   end func;
 
 
-const func string: unpackBits (in string: compressed) is func
-  result
-    var string: uncompressed is "";
-  local
-    var integer: index is 1;
-    var char: ch is ' ';
-  begin
-    while index <= length(compressed) do
-      ch := compressed[index];
-      if ch <= chr(127) then
-        uncompressed &:= compressed[succ(index) fixLen succ(ord(ch))];
-        index +:= ord(ch) + 2;
-      else
-        uncompressed &:= str(compressed[succ(index)]) mult (257 - ord(ch));
-        index +:= 2;
-      end if;
-    end while;
-  end func;
-
-
 const proc: processCcittModifiedGroup3Fax (in tiffHeader: header, in string: stripData,
     in integer: startLine, in integer: height,
     inout pixelImage: image) is func
@@ -1229,7 +1210,7 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
   begin
     case header.compression of
       when {TIFF_COMPRESSION_PACK_BITS}:
-        stripData := unpackBits(stripData);
+        stripData := fromPackBits(stripData);
       when {TIFF_COMPRESSION_LEMPEL_ZIV_WELCH}:
         if stripData[1] = '\0;' then
           # Old style LZW encoded
