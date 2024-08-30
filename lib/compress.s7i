@@ -1,0 +1,148 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  compress.s7i  Compression and decompression functions           *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Compress a string with the run length encoding PackBits.
+ *  The PackBits compression is used in TIFF files.
+ *  @return the run length encoded string.
+ *)
+const func string: toPackBits (in string: uncompressed) is func
+  result
+    var string: compressed is "";
+  local
+    var integer: pos is 1;
+    var integer: pos2 is 1;
+    var integer: count is 0;
+    var char: ch is ' ';
+  begin
+    while pos <= length(uncompressed) do
+      ch := uncompressed[pos];
+      pos2 := succ(pos);
+      while pos2 <= length(uncompressed) and ch = uncompressed[pos2] do
+        incr(pos2);
+      end while;
+      if pos2 - pos >= 2 then
+        count := pos2 - pos;
+        while count > 128 do
+          compressed &:= char(129);
+          compressed &:= ch;
+          count -:= 128;
+        end while;
+        compressed &:= char(257 - count);
+        compressed &:= ch;
+        pos := pos2;
+      else
+        while pos2 < length(uncompressed) and
+            (ch <> uncompressed[pos2] or ch <> uncompressed[succ(pos2)]) do
+          ch := uncompressed[pos2];
+          incr(pos2);
+        end while;
+        if pos2 < length(uncompressed) then
+          decr(pos2);
+        elsif pos2 = length(uncompressed) then
+          incr(pos2);
+        end if;
+        count := pos2 - pos;
+        while count > 128 do
+          compressed &:= char(127);
+          compressed &:= uncompressed[pos len 128];
+          count -:= 128;
+        end while;
+        compressed &:= char(pred(count));
+        compressed &:= uncompressed[pos len count];
+        pos := pos2;
+      end if;
+    end while;
+  end func;
+
+
+(**
+ *  Decompress a PackBits run length encoded string.
+ *  The PackBits compression is used in TIFF files.
+ *  @return the compressed string.
+ *)
+const func string: fromPackBits (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: index is 1;
+    var integer: number is 0;
+  begin
+    while index <= length(compressed) do
+      number := ord(compressed[index]);
+      if number <= 127 then
+        # Copy a sequence of bytes.
+        uncompressed &:= compressed[succ(index) fixLen succ(number)];
+        index +:= number + 2;
+      elsif number = 128 then
+        # No operation.
+        incr(index);
+      else
+        # Make copies of the next byte.
+        uncompressed &:= str(compressed[succ(index)]) mult 257 - number;
+        index +:= 2;
+      end if;
+    end while;
+  end func;
+
+
+(**
+ *  Compress a string with the run length encoding PackBits of PDF.
+ *  In the PackBits encoding of PDF '\128';' encodes the end of data.
+ *  @return the run length encoded string.
+ *)
+const func string: toPackBitsPdf (in string: uncompressed) is
+  return toPackBits(uncompressed) & "\128;";
+
+
+(**
+ *  Decompress a PDF PackBits run length encoded string.
+ *  In the PackBits encoding of PDF '\128';' encodes the end of data.
+ *  @return the compressed string.
+ *)
+const func string: fromPackBitsPdf (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    const char: endOfData is '\128;';
+    var integer: index is 1;
+    var integer: number is 0;
+  begin
+    while index <= length(compressed) and compressed[index] <> endOfData do
+      number := ord(compressed[index]);
+      if number <= 127 then
+        # Copy a sequence of bytes.
+        uncompressed &:= compressed[succ(index) fixLen succ(number)];
+        index +:= number + 2;
+      else
+        # Make copies of the next byte.
+        uncompressed &:= str(compressed[succ(index)]) mult 257 - number;
+        index +:= 2;
+      end if;
+    end while;
+  end func;
