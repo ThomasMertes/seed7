@@ -6729,7 +6729,7 @@ const proc: handleOverlappingStrings (inout string: striChars, in string: stri,
       startPosition := length(striChars) - striIndex - length(striCharsEnd) + 2;
       checkedLength := pred(striIndex + length(striCharsEnd));
       if startPosition >= 1 and
-          stri[.. checkedLength] =  striChars[startPosition ..] then
+          stri[.. checkedLength] = striChars[startPosition ..] then
         stringPosition := startPosition;
         striChars &:= stri[succ(checkedLength) ..];
         found := TRUE;

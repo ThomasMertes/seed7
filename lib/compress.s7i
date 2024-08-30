@@ -113,7 +113,7 @@ const func string: fromPackBits (in string: compressed) is func
 
 (**
  *  Compress a string with the run length encoding PackBits of PDF.
- *  In the PackBits encoding of PDF '\128';' encodes the end of data.
+ *  In the PackBits encoding of PDF '\128;' encodes the end of data.
  *  @return the run length encoded string.
  *)
 const func string: toPackBitsPdf (in string: uncompressed) is
@@ -122,7 +122,7 @@ const func string: toPackBitsPdf (in string: uncompressed) is
 
 (**
  *  Decompress a PDF PackBits run length encoded string.
- *  In the PackBits encoding of PDF '\128';' encodes the end of data.
+ *  In the PackBits encoding of PDF '\128;' encodes the end of data.
  *  @return the compressed string.
  *)
 const func string: fromPackBitsPdf (in string: compressed) is func
