@@ -92,6 +92,14 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
     end for;
     if buffer <> "" then
       putBitsLsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+      if length(mydict) + 2 = moreBitsNeeded then
+        if bitsToWrite = 12 then
+          putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+          bitsToWrite := succ(codeSize);
+        else
+          incr(bitsToWrite);
+        end if;
+      end if;
     end if;
     putBitsLsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
   end func;
