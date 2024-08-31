@@ -142,12 +142,6 @@ const type: tiffHeader is new struct
     var colorLookupTable: colorMap is colorLookupTable.value;
   end struct;
 
-const type: tiffIDFEntry is new struct
-    var string: tag is "";
-    var boolean: littleEndian is TRUE;
-    var integer: offsetToFirstIfd is 0;
-  end struct;
-
 
 const proc: showHeader (in tiffHeader: header) is func
   begin
