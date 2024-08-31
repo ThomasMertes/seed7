@@ -1598,7 +1598,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     if functionCategory = ACTOBJECT then
       process_action(function, params, c_expr);
     elsif functionCategory = BLOCKOBJECT then
-      if function in function_not_declared then
+      if function in function_not_declared or
+          isFunctionCallingSpecialAction(function) then
         process_inline(function, params, c_expr);
       else
         process_func_call(function, params, c_expr);
