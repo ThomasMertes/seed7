@@ -72,6 +72,7 @@ const func string: toPackBits (in string: uncompressed) is func
           compressed &:= char(127);
           compressed &:= uncompressed[pos len 128];
           count -:= 128;
+          pos +:= 128;
         end while;
         compressed &:= char(pred(count));
         compressed &:= uncompressed[pos len count];
