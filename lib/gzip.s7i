@@ -199,7 +199,7 @@ const func string: gzuncompress (in string: compressed) is func
 
 const func string: gzcompress (in string: uncompressed) is func
   result
-    var string: compressed is "\184;\109;";
+    var string: compressed is "x\156;";
   begin
     deflateBlock(uncompressed, compressed, TRUE);
   end func;
