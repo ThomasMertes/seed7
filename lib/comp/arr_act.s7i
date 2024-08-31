@@ -92,13 +92,10 @@ const proc: arr_prototypes (inout file: c_prog) is func
 
 
 const proc: declare_times_prototype (in type: arrayType,
-    inout expr_type: c_expr) is func
+    in type: elementType, inout expr_type: c_expr) is func
 
-  local
-    var type: elementType is void;
   begin
     if arrayType not in times_prototype_declared then
-      elementType := array_element[arrayType];
       process_create_declaration(elementType, c_expr);
       # c_expr.expr &:= type_name(arrayType);
       c_expr.expr &:= "static arrayType times_";
@@ -1798,7 +1795,7 @@ const proc: process (ARR_TIMES, in reference: function,
         getGenericValueToResultExpr(params[3], c_expr);
         c_expr.result_expr &:= ")";
       else
-        declare_times_prototype(result_type, global_c_expr);
+        declare_times_prototype(result_type, element_type, global_c_expr);
         prepare_typed_result(result_type, c_expr);
         c_expr.result_expr := "times_";
         c_expr.result_expr &:= str(typeNumber(result_type));
