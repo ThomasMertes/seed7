@@ -267,6 +267,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
       putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
         if bitsToWrite = 12 then
+          putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
           incr(bitsToWrite);
@@ -450,6 +451,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
       putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
         if bitsToWrite = 12 then
+          putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
           incr(bitsToWrite);
