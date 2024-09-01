@@ -642,7 +642,8 @@ const func string: fromAsciiHex (in string: asciiHex) is func
         incr(index);
       end if;
     end while;
-    if index = length(asciiHex) and asciiHex[index] <> endOfData then
+    if index = length(asciiHex) and asciiHex[index] <> endOfData and
+        asciiHex[index] not in whiteSpace then
       stri &:= char(integer(asciiHex[index fixLen 1] & "0", 16));
     end if;
   end func;
