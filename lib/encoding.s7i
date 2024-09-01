@@ -509,20 +509,11 @@ const func string: toAscii85 (in string: byteStri) is func
     var integer: subIndex is 0;
     var integer: fourBytes is 0;
     var string: fiveBytes is "     ";
+    var integer: partialGroupSize is 0;
     var char: ch is ' ';
   begin
-    for index range 1 to length(byteStri) step 4 do
-      fourBytes := 0;
-      for subIndex range index to index + 3 do
-        fourBytes <<:= 8;
-        if subIndex <= length(byteStri) then
-          ch := byteStri[subIndex];
-          if ch >= '\256;' then
-            raise RANGE_ERROR;
-          end if;
-          fourBytes +:= ord(ch);
-        end if;
-      end for;
+    for index range 1 to length(byteStri) - 3 step 4 do
+      fourBytes := bytes2Int(byteStri[index fixLen 4], UNSIGNED, BE);
       if fourBytes = 0 then
         ascii85 &:= 'z';
       else
@@ -533,8 +524,17 @@ const func string: toAscii85 (in string: byteStri) is func
         ascii85 &:= fiveBytes;
       end if;
     end for;
-    if length(byteStri) rem 4 <> 0 then
-      ascii85 := ascii85[.. length(ascii85) - 4 + length(byteStri) rem 4];
+    partialGroupSize := length(byteStri) mod 4;
+    if partialGroupSize <> 0 then
+      index := succ(pred(length(byteStri)) mdiv 4 * 4);
+      fourBytes := bytes2Int(byteStri[index ..] &
+                             "\0;" mult 4 - partialGroupSize,
+                             UNSIGNED, BE);
+      for subIndex range 5 downto 1 do
+        fiveBytes @:= [subIndex] chr(ord('!') + fourBytes rem 85);
+        fourBytes := fourBytes div 85;
+      end for;
+      ascii85 &:= fiveBytes[.. succ(partialGroupSize)];
     end if;
   end func;
 
