@@ -1364,7 +1364,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
       elsif category(intExpression) = VALUEPARAMOBJECT then
         if intExpression in inlineParam and
             inlineParam[intExpression][1].actualParam <> NIL then
-          valueRange := getIntRange(inlineParam[intExpression][1].actualParam);
+          if category(inlineParam[intExpression][1].actualParam) <> CALLOBJECT or
+              category(getValue(inlineParam[intExpression][1].actualParam, ref_list)[1]) <> BLOCKOBJECT then
+            valueRange := getIntRange(inlineParam[intExpression][1].actualParam);
+          end if;
         end if;
       end if;
     end if;
