@@ -268,7 +268,7 @@ const proc: fillPngImage1Bit (inout pixelImage: image, in string: pixelData,
     var integer: rshift is 0;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to (width - 7) step 8 do
         currentByte := ord(pixelData[byteIndex]);
         image[line][column]       := palette[ currentByte >> 7];
@@ -304,7 +304,7 @@ const proc: fillPngImage2Bit (inout pixelImage: image, in string: pixelData,
     var integer: rshift is 0;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to (width - 3) step 4 do
         currentByte := ord(pixelData[byteIndex]);
         image[line][column]       := palette[ currentByte >> 6];
@@ -335,7 +335,7 @@ const proc: fillPngImage4Bit (inout pixelImage: image, in string: pixelData,
     var integer: currentByte is 0;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to pred(width) step 2 do
         currentByte := ord(pixelData[byteIndex]);
         image[line][column]       := palette[currentByte >> 4];
@@ -358,7 +358,7 @@ const proc: fillPngImage8Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to width do
         image[line][column] := palette[ord(pixelData[byteIndex])];
         incr(byteIndex);
@@ -376,7 +376,7 @@ const proc: fillPngImage8Bit (inout pixelImage: image, in string: pixelData,
     var integer: grayIntensity is 0;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to width do
         grayIntensity := ord(pixelData[byteIndex]) * 256;
         image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
@@ -395,7 +395,7 @@ const proc: fillPngImage16Bit (inout pixelImage: image, in string: pixelData,
     var integer: grayIntensity is 0;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to width do
         grayIntensity := ord(pixelData[byteIndex]) * 256 + ord(pixelData[byteIndex + 1]);
         image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
@@ -413,7 +413,7 @@ const proc: fillPngImage24Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to width do
         image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256,
                                         ord(pixelData[byteIndex + 1]) * 256,
@@ -432,7 +432,7 @@ const proc: fillPngImage48Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      incr(byteIndex);
+      incr(byteIndex);  # Skip byte with filterType
       for column range 1 to width do
         image[line][column] := rgbPixel(bytes2Int(pixelData[byteIndex     fixLen 2], UNSIGNED, BE),
                                         bytes2Int(pixelData[byteIndex + 2 fixLen 2], UNSIGNED, BE),
