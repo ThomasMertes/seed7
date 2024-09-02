@@ -398,19 +398,21 @@ const func string: fromPercentEncoded (in string: percentEncoded) is func
     var string: decoded is "";
   local
     var integer: pos is 0;
+    var integer: start is 1;
   begin
-    decoded := percentEncoded;
-    pos := pos(decoded, '%');
+    pos := pos(percentEncoded, '%');
     while pos <> 0 do
-      if pos <= length(decoded) - 2 and
-          decoded[succ(pos)] in hexdigit_char and
-          decoded[pos + 2] in hexdigit_char then
-        decoded := decoded[.. pred(pos)] &
-            str(chr(integer(decoded[succ(pos) fixLen 2], 16))) &
-            decoded[pos + 3 ..];
+      if pos <= length(percentEncoded) - 2 and
+          percentEncoded[succ(pos)] in hexdigit_char and
+          percentEncoded[pos + 2] in hexdigit_char then
+        decoded &:= percentEncoded[start .. pred(pos)];
+        decoded &:= char(integer(percentEncoded[succ(pos) fixLen 2], 16));
+        pos +:= 2;
+        start := succ(pos);
       end if;
-      pos := pos(decoded, '%', succ(pos));
+      pos := pos(percentEncoded, '%', succ(pos));
     end while;
+    decoded &:= percentEncoded[start ..];
   end func;
 
 
