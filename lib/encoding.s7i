@@ -476,8 +476,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
           urlEncoded[pos + 2] in hexdigit_char then
         decoded &:= urlEncoded[start .. pred(pos)];
         decoded &:= chr(integer(urlEncoded[succ(pos) fixLen 2], 16));
-        pos +:= 2;
-        start := succ(pos);
+        start := pos + 3;
       elsif ch = '+' then
         decoded &:= urlEncoded[start .. pred(pos)];
         decoded &:= ' ';
