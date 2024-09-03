@@ -4580,16 +4580,19 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
             end if;
           end if;
           if length_is_variable then
-            if length_range.minValue < 0 then
-              c_expr.expr &:= length_name;
-              c_expr.expr &:= "<0||";
-            end if;
             if length_range.minValue <= 0 then
+              c_expr.expr &:= "(";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "==0?";
               c_expr.expr &:= "(uintType)";
               c_expr.expr &:= start_name;
               c_expr.expr &:= ">";
               c_expr.expr &:= stri_size;
-              c_expr.expr &:= "||";
+              c_expr.expr &:= ":(";
+            end if;
+            if length_range.minValue < 0 then
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "<0||";
             end if;
           end if;
           if start_is_variable then
@@ -4602,7 +4605,7 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
               c_expr.expr &:= ">";
               c_expr.expr &:= stri_size;
             else
-              if length_value > 0 then
+              if length_value > 1 then
                 c_expr.expr &:= "+";
                 c_expr.expr &:= memSizeLiteral(pred(length_value));
               end if;
@@ -4630,6 +4633,9 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
               c_expr.expr &:= ">";
               c_expr.expr &:= stri_size;
             end if;
+          end if;
+          if length_is_variable and length_range.minValue <= 0 then
+            c_expr.expr &:= "))";
           end if;
           c_expr.expr &:= ")?";
           c_expr.expr &:= intRaiseError("INDEX_ERROR");
