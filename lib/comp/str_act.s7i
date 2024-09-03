@@ -1255,6 +1255,244 @@ const proc: process (STR_ELEMCPY, in reference: function,
   end func;
 
 
+const func boolean: optimize_str_eq_of_substr_fixlen (in reference: stri1,
+    in reference: start1, in reference: length1, in reference: stri2,
+    in reference: start2, in reference: length2, inout expr_type: c_expr) is func
+  result
+    var boolean: optimizationDone is FALSE;
+  local
+    var reference: evaluatedParam is NIL;
+    var string: stri1_name is "";
+    var string: stri1_size is "";
+    var string: stri2_name is "";
+    var string: stri2_size is "";
+    var boolean: start1_is_variable is TRUE;
+    var string: start1_name is "";
+    var integer: start1_value is 0;
+    var intRange: start1_range is intRange.value;
+    var boolean: start2_is_variable is TRUE;
+    var string: start2_name is "";
+    var integer: start2_value is 0;
+    var intRange: start2_range is intRange.value;
+    var string: length_name is "";
+    var integer: length_value is 0;
+    var boolean: length_is_variable is TRUE;
+    var intRange: length_range is intRange.value;
+    var boolean: raisesIndexError is FALSE;
+  begin
+    if isPureExpression(stri1) and isPureExpression(start1) and
+        isPureExpression(length1) and isPureExpression(stri2) and
+        isPureExpression(start2) and isPureExpression(length2) and
+        equalExpressions(length1, length2) then
+      optimizationDone := TRUE;
+      c_expr.expr &:= "(";
+      stri1_name := getParameterAsVariable("const_striType", "stri1_", stri1, c_expr);
+      if getConstant(stri1, STRIOBJECT, evaluatedParam) then
+        stri1_size := integerLiteral(length(getValue(evaluatedParam, string)));
+      else
+        stri1_size := stri1_name & "->size";
+      end if;
+      stri2_name := getParameterAsVariable("const_striType", "stri2_", stri2, c_expr);
+      if getConstant(stri2, STRIOBJECT, evaluatedParam) then
+        stri2_size := integerLiteral(length(getValue(evaluatedParam, string)));
+      else
+        stri2_size := stri2_name & "->size";
+      end if;
+      if getConstant(start1, INTOBJECT, evaluatedParam) then
+        start1_is_variable := FALSE;
+        start1_value := getValue(evaluatedParam, integer);
+        if start1_value < 1 then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= strRaiseError("INDEX_ERROR");
+          raisesIndexError := TRUE;
+        else
+          start1_name := integerLiteral(start1_value);
+        end if;
+      else
+        start1_name := getTempVariable("intType", "start1_", start1, c_expr);
+      end if;
+      if not raisesIndexError then
+        if getConstant(start2, INTOBJECT, evaluatedParam) then
+          start2_is_variable := FALSE;
+          start2_value := getValue(evaluatedParam, integer);
+          if start2_value < 1 then
+            warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+            c_expr.expr &:= strRaiseError("INDEX_ERROR");
+            raisesIndexError := TRUE;
+          else
+            start2_name := integerLiteral(start2_value);
+          end if;
+        else
+          start2_name := getTempVariable("intType", "start2_", start2, c_expr);
+        end if;
+      end if;
+      if not raisesIndexError then
+        if getConstant(length1, INTOBJECT, evaluatedParam) then
+          length_is_variable := FALSE;
+          length_value := getValue(evaluatedParam, integer);
+          if length_value < 0 then
+            warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+            c_expr.expr &:= strRaiseError("INDEX_ERROR");
+            raisesIndexError := TRUE;
+          else
+            length_name := integerLiteral(length_value);
+          end if;
+        else
+          length_name := getParameterAsVariable("intType", "length_", length1, c_expr);
+        end if;
+      end if;
+      if not raisesIndexError then
+        if string_index_check then
+          start1_range := getIntRange(start1);
+          start2_range := getIntRange(start2);
+          length_range := getIntRange(length1);
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk(";
+          if start1_is_variable then
+            if start1_range.minValue < 1 then
+              c_expr.expr &:= start1_name;
+              c_expr.expr &:= "<1||";
+            end if;
+          end if;
+          if start2_is_variable then
+            if start2_range.minValue < 1 then
+              c_expr.expr &:= start2_name;
+              c_expr.expr &:= "<1||";
+            end if;
+          end if;
+          if length_is_variable then
+            if length_range.minValue <= 0 then
+              c_expr.expr &:= "(";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "==0?";
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= start1_name;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri1_size;
+              c_expr.expr &:= "||";
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= start2_name;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri2_size;
+              c_expr.expr &:= ":(";
+            end if;
+            if length_range.minValue < 0 then
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "<0||";
+            end if;
+          end if;
+          if start1_is_variable then
+            c_expr.expr &:= "(uintType)";
+            c_expr.expr &:= start1_name;
+            if length_is_variable then
+              c_expr.expr &:= "+(uintType)";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "-1>";
+              c_expr.expr &:= stri1_size;
+            else
+              if length_value > 1 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(length_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri1_size;
+            end if;
+          else
+            if length_is_variable then
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= length_name;
+              if start1_value > 1 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(start1_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri1_size;
+            else
+              if length_value > 0 then
+                c_expr.expr &:= memSizeLiteral(pred(bigInteger(start1_value) +
+                                                    bigInteger(length_value)));
+              else
+                c_expr.expr &:= "(uintType)";
+                c_expr.expr &:= start1_name;
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri1_size;
+            end if;
+          end if;
+          c_expr.expr &:= "||";
+          if start2_is_variable then
+            c_expr.expr &:= "(uintType)";
+            c_expr.expr &:= start2_name;
+            if length_is_variable then
+              c_expr.expr &:= "+(uintType)";
+              c_expr.expr &:= length_name;
+              c_expr.expr &:= "-1>";
+              c_expr.expr &:= stri2_size;
+            else
+              if length_value > 1 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(length_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri2_size;
+            end if;
+          else
+            if length_is_variable then
+              c_expr.expr &:= "(uintType)";
+              c_expr.expr &:= length_name;
+              if start2_value > 1 then
+                c_expr.expr &:= "+";
+                c_expr.expr &:= memSizeLiteral(pred(start2_value));
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri2_size;
+            else
+              if length_value > 0 then
+                c_expr.expr &:= memSizeLiteral(pred(bigInteger(start2_value) +
+                                                    bigInteger(length_value)));
+              else
+                c_expr.expr &:= "(uintType)";
+                c_expr.expr &:= start2_name;
+              end if;
+              c_expr.expr &:= ">";
+              c_expr.expr &:= stri2_size;
+            end if;
+          end if;
+          if length_is_variable and length_range.minValue <= 0 then
+            c_expr.expr &:= "))";
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
+        else
+          incr(countSuppressedIndexChecks);
+        end if;
+        c_expr.expr &:= "memcmp(&";
+        c_expr.expr &:= stri1_name;
+        c_expr.expr &:= "->mem[";
+        if start1_is_variable then
+          c_expr.expr &:= start1_name;
+          c_expr.expr &:= "-1"
+        else
+          c_expr.expr &:= memSizeLiteral(pred(start1_value));
+        end if;
+        c_expr.expr &:= "],&";
+        c_expr.expr &:= stri2_name;
+        c_expr.expr &:= "->mem[";
+        if start2_is_variable then
+          c_expr.expr &:= start2_name;
+          c_expr.expr &:= "-1";
+        else
+          c_expr.expr &:= memSizeLiteral(pred(start2_value));
+        end if;
+        c_expr.expr &:= "],";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= "*sizeof(strElemType))==0)";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_const_str_eq (in reference: param1, in string: stri_b,
     inout expr_type: c_expr) is func
 
@@ -1314,14 +1552,25 @@ const proc: process (STR_EQ, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
+    var boolean: optimizationDone is FALSE;
     var string: stri_a_name is "";
     var string: stri_b_name is "";
   begin
     if getConstant(params[3], STRIOBJECT, evaluatedParam) then
       process_const_str_eq(params[1], getValue(evaluatedParam, string), c_expr);
+      optimizationDone := TRUE;
     elsif getConstant(params[1], STRIOBJECT, evaluatedParam) then
       process_const_str_eq(params[3], getValue(evaluatedParam, string), c_expr);
-    else
+      optimizationDone := TRUE;
+    elsif optimizeStringFunctions and
+        isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
+        isActionExpression(params[3], "STR_SUBSTR_FIXLEN") then
+      optimizationDone := optimize_str_eq_of_substr_fixlen(
+          getActionParameter(params[1], 1), getActionParameter(params[1], 3),
+          getActionParameter(params[1], 5), getActionParameter(params[3], 1),
+          getActionParameter(params[3], 3), getActionParameter(params[3], 5), c_expr);
+    end if;
+    if not optimizationDone then
       c_expr.expr &:= "(";
       stri_a_name := getParameterAsVariable("const_striType", "tmp_a_", params[1], c_expr);
       stri_b_name := getParameterAsVariable("const_striType", "tmp_b_", params[3], c_expr);
@@ -4601,8 +4850,7 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
             if length_is_variable then
               c_expr.expr &:= "+(uintType)";
               c_expr.expr &:= length_name;
-              c_expr.expr &:= "-1";
-              c_expr.expr &:= ">";
+              c_expr.expr &:= "-1>";
               c_expr.expr &:= stri_size;
             else
               if length_value > 1 then
