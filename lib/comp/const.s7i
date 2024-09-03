@@ -525,3 +525,79 @@ const func boolean: isFunctionCallingSpecialAction (in reference: function) is f
       end if;
     end if;
   end func;
+
+
+const func boolean: isPureExpression (in reference: currExpr) is func
+  result
+    var boolean: isPureExpression is FALSE;
+  local
+    const set of category: localsAndParameters is
+        {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT};
+    var category: exprCategory is category.value;
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var reference: obj is NIL;
+  begin
+    exprCategory := category(currExpr);
+    if exprCategory in basicExpressionCategories then
+      isPureExpression := TRUE;
+    elsif exprCategory in localsAndParameters then
+      isPureExpression := TRUE;
+    elsif exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+      params := getValue(currExpr, ref_list);
+      function := params[1];
+      params := params[2 ..];
+      isPureExpression :=
+          category(function) in basicExpressionCategories or
+          isPureFunction(function);
+      for obj range params until not isPureExpression do
+        if not isPureExpression(obj) then
+          isPureExpression := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func boolean: equalExpressions (in reference: expression1,
+    in reference: expression2) is func
+  result
+    var boolean: isEqual is FALSE;
+  local
+    var category: exprCategory1 is category.value;
+    var category: exprCategory2 is category.value;
+    var ref_list: params1 is ref_list.EMPTY;
+    var ref_list: params2 is ref_list.EMPTY;
+    var reference: function1 is NIL;
+    var reference: function2 is NIL;
+    var integer: index is 0;
+    var reference: obj1 is NIL;
+    var reference: obj2 is NIL;
+  begin
+    if expression1 = expression2 then
+      isEqual := TRUE;
+    else
+      exprCategory1 := category(expression1);
+      exprCategory2 := category(expression2);
+      if exprCategory1 = exprCategory2 then
+        if exprCategory1 = INTOBJECT then
+          isEqual := getValue(expression1, integer) = getValue(expression2, integer);
+        elsif exprCategory1 = MATCHOBJECT or exprCategory1 = CALLOBJECT then
+          params1 := getValue(expression1, ref_list);
+          function1 := params1[1];
+          params1 := params1[2 ..];
+          params2 := getValue(expression2, ref_list);
+          function2 := params2[1];
+          params2 := params2[2 ..];
+          if function1 = function2 and length(params1) = length(params2) then
+            isEqual := TRUE;
+            for index range 1 to length(params1) until not isEqual do
+              if not equalExpressions(params1[index], params2[index]) then
+                isEqual := FALSE;
+              end if;
+            end for;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
