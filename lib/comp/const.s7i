@@ -24,12 +24,12 @@
 (********************************************************************)
 
 
-const set of category: constantExpressionCategories is {
+const set of category: basicExpressionCategories is {
     TYPEOBJECT, INTOBJECT, BIGINTOBJECT, CHAROBJECT, STRIOBJECT,
     BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT, SETOBJECT,
-    FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
-    POINTLISTOBJECT, PROCESSOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT,
-    SYMBOLOBJECT};
+    FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, BOOLOBJECT,
+    WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT, ENUMLITERALOBJECT,
+    REFLISTOBJECT, SYMBOLOBJECT};
 
 (**
  *  Special actions are used for function inlining. It is checked if
@@ -81,7 +81,7 @@ const func boolean: isConstantCall (in reference: current_expression,
     function := actual_params[1];
     actual_params := actual_params[2 ..];
     if not isVar(function) then
-      if category(function) in constantExpressionCategories then
+      if category(function) in basicExpressionCategories then
         isConstantCall := TRUE;
       elsif isPureFunction(function) then
         # write(" {isPureFunction(" <& str(function) <& ")}");
@@ -139,7 +139,7 @@ const func boolean: isConstant (in reference: current_expression,
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
         isConstant := isConstantCall(current_expression, local_objects);
-      elsif exprCategory in constantExpressionCategories then
+      elsif exprCategory in basicExpressionCategories then
         isConstant := TRUE;
       end if;
     end if;
@@ -296,7 +296,7 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     function := params[1];
     params := params[2 ..];
     if not isVar(function) then
-      if category(function) in constantExpressionCategories or
+      if category(function) in basicExpressionCategories or
           isPureFunction(function) then
         isConstantCall := TRUE;
         for obj range params until not isConstantCall do
@@ -322,7 +322,7 @@ const func boolean: isConstant (in reference: current_expression) is func
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
         isConstant := isConstantCall(current_expression);
-      elsif exprCategory in constantExpressionCategories then
+      elsif exprCategory in basicExpressionCategories then
         isConstant := TRUE;
       elsif exprCategory = BLOCKOBJECT then
         isConstant := TRUE;
@@ -416,7 +416,7 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
           if inlineParamFound then
             evaluatedExpr := evaluate(current_expression, new_actual_params);
             if evaluatedExpr <> NIL then
-              if category(evaluatedExpr) in constantExpressionCategories then
+              if category(evaluatedExpr) in basicExpressionCategories then
                 incr(countEvaluations);
                 okay := TRUE;
               end if;
@@ -483,7 +483,7 @@ const func boolean: getConstant (in var reference: currExpr,
             inlineParam[currExpr][1].paramValue <> NIL then
         evaluatedExpr := inlineParam[currExpr][1].paramValue;
         okay := TRUE;
-      elsif category(currExpr) in constantExpressionCategories and
+      elsif category(currExpr) in basicExpressionCategories and
           not isVar(currExpr) then
         evaluatedExpr := currExpr;
         incr(countEvaluations);
@@ -492,7 +492,7 @@ const func boolean: getConstant (in var reference: currExpr,
         block
           evaluatedExpr := evaluate(prog, currExpr);
           if evaluatedExpr <> NIL then
-            if category(evaluatedExpr) in constantExpressionCategories then
+            if category(evaluatedExpr) in basicExpressionCategories then
               incr(countEvaluations);
               okay := TRUE;
             end if;
@@ -514,7 +514,6 @@ const func boolean: isFunctionCallingSpecialAction (in reference: function) is f
   result
     var boolean: isFunctionCallingSpecialAction is FALSE;
   local
-    var ref_list: params is ref_list.EMPTY;
     var reference: calledFunction is NIL;
   begin
     if category(body(function)) = CALLOBJECT then
