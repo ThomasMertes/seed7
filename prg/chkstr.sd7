@@ -2502,6 +2502,158 @@ const func boolean: check_string_compare is func
   end func;
 
 
+const func boolean: check_eq_of_substr_fixlen is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: asdfg1 is "asdfg";
+    var string: asdfg2 is "asdfg";
+    var integer: start1 is 1;
+    var integer: start2 is 1;
+    var integer: length is 4;
+  begin
+    if  not (         "asdfg" [        3  fixLen         2 ] =          "asdfg" [        3  fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen         2 ] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen         2 ] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen         2 ] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen         2 ] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen         2 ] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] =          "asdfg" [        3  fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [        3  fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] =          "asdfg" [        3  fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] =          "asdfg" [        3  fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (         "asdfg" [intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] =          "asdfg" [        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] =          "asdfg" [        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[        3  fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] =          "asdfg" [        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen         2 ] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] =          "asdfg" [        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] =          "asdfg" [        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] =          "asdfg" [intExpr(3) fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[        3  fixLen intExpr(2)]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen         2 ]) or
+        not (striExpr("asdfg")[intExpr(3) fixLen intExpr(2)] = striExpr("asdfg")[intExpr(3) fixLen intExpr(2)]) then
+      writeln(" ***** Equality of fixLen substrings does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not ("asdfg"[         3 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not ("asdfg"[         3 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not ("asdfg"[         3 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not ("asdfg"[         3 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not ("asdfg"[         3 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not ("asdfg"[         3 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not ("asdfg"[         3 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not ("asdfg"[         3 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not ("asdfg"[start1 + 2 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not ("asdfg"[start1 + 2 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not ("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not ("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not ("asdfg"[start1 + 2 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not ("asdfg"[start1 + 2 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not ("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not ("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not ( asdfg1[         3 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not ( asdfg1[         3 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not ( asdfg1[         3 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not ( asdfg1[         3 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not ( asdfg1[         3 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not ( asdfg1[         3 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not ( asdfg1[         3 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not ( asdfg1[         3 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not ( asdfg1[start1 + 2 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not ( asdfg1[start1 + 2 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not ( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not ( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not ( asdfg1[start1 + 2 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not ( asdfg1[start1 + 2 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not ( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not ( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) then
+      writeln(" ***** Equality of fixLen substrings does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  "asdfg"[         3 fixLen          2] = "asdfg"[         3 fixLen          3] or
+        "asdfg"[         3 fixLen          2] =  asdfg2[         3 fixLen          3] or
+        "asdfg"[         3 fixLen length - 2] = "asdfg"[         3 fixLen length - 1] or
+        "asdfg"[         3 fixLen length - 2] =  asdfg2[         3 fixLen length - 1] or
+        "asdfg"[         3 fixLen          2] = "asdfg"[start2 + 2 fixLen          3] or
+        "asdfg"[         3 fixLen          2] =  asdfg2[start2 + 2 fixLen          3] or
+        "asdfg"[         3 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 1] or
+        "asdfg"[         3 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 1] or
+        "asdfg"[start1 + 2 fixLen          2] = "asdfg"[         3 fixLen          3] or
+        "asdfg"[start1 + 2 fixLen          2] =  asdfg2[         3 fixLen          3] or
+        "asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[         3 fixLen length - 1] or
+        "asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[         3 fixLen length - 1] or
+        "asdfg"[start1 + 2 fixLen          2] = "asdfg"[start2 + 2 fixLen          3] or
+        "asdfg"[start1 + 2 fixLen          2] =  asdfg2[start2 + 2 fixLen          3] or
+        "asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 1] or
+        "asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 1] or
+         asdfg1[         3 fixLen          2] = "asdfg"[         3 fixLen          3] or
+         asdfg1[         3 fixLen          2] =  asdfg2[         3 fixLen          3] or
+         asdfg1[         3 fixLen length - 2] = "asdfg"[         3 fixLen length - 1] or
+         asdfg1[         3 fixLen length - 2] =  asdfg2[         3 fixLen length - 1] or
+         asdfg1[         3 fixLen          2] = "asdfg"[start2 + 2 fixLen          3] or
+         asdfg1[         3 fixLen          2] =  asdfg2[start2 + 2 fixLen          3] or
+         asdfg1[         3 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 1] or
+         asdfg1[         3 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 1] or
+         asdfg1[start1 + 2 fixLen          2] = "asdfg"[         3 fixLen          3] or
+         asdfg1[start1 + 2 fixLen          2] =  asdfg2[         3 fixLen          3] or
+         asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[         3 fixLen length - 1] or
+         asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[         3 fixLen length - 1] or
+         asdfg1[start1 + 2 fixLen          2] = "asdfg"[start2 + 2 fixLen          3] or
+         asdfg1[start1 + 2 fixLen          2] =  asdfg2[start2 + 2 fixLen          3] or
+         asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 1] or
+         asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 1] then
+      writeln(" ***** Equality of fixLen substrings does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_string_comparisons is func
   local
     var boolean: okay is TRUE;
@@ -2535,6 +2687,10 @@ const proc: check_string_comparisons is func
     end if;
 
     if not check_string_compare then
+      okay := FALSE;
+    end if;
+
+    if not check_eq_of_substr_fixlen then
       okay := FALSE;
     end if;
 
