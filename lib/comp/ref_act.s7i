@@ -112,6 +112,7 @@ const proc: process (REF_ADDR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    c_expr.expr &:= "(void *)(";
     if valueIsAtHeap(getExprResultType(params[2])) then
       process_expr(params[2], c_expr);
     else
@@ -119,6 +120,7 @@ const proc: process (REF_ADDR, in reference: function,
       process_expr(params[2], c_expr);
       c_expr.expr &:= ")";
     end if;
+    c_expr.expr &:= ")";
   end func;
 
 
