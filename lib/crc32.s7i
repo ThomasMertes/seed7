@@ -29,9 +29,12 @@
 include "bin32.s7i";
 
 
-const func array bin32: createCrc32Table is func
+const type: crc32TableType is array [0 .. 255] bin32;
+
+
+const func crc32TableType: createCrc32Table is func
   result
-    var array bin32: crc32Table is [0] (bin32(0));
+    var crc32TableType: crc32Table is crc32TableType.value;
   local
     var bin32: c is bin32.value; # crc shift register
     var integer: i is 0;         # counter for all possible eight bit values
@@ -46,12 +49,12 @@ const func array bin32: createCrc32Table is func
           c >>:= 1;
         end if;
       end for;
-      crc32Table &:= c;
+      crc32Table[i] := c;
     end for;
   end func;
 
 
-const array bin32: crc32Table is createCrc32Table;
+const crc32TableType: crc32Table is createCrc32Table;
 
 
 (**
