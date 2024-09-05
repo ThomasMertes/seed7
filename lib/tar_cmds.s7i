@@ -409,6 +409,8 @@ const proc: tarXtract (in string: inFileName) is func
  *   if aFile <> STD_NULL then
  *     tarCreate(aFile, "", "", [] ("test_dir"), FALSE);
  *     ...
+ *     write(aFile, END_OF_FILE_MARKER mult 2);
+ *     close(aFile);
  *  @param outFile Destination for the crated TAR file.
  *  @param basePath Base path for all files to be processed.
  *  @param pathFromBase Path from ''basePath'' for the files in ''fileList''.
@@ -457,7 +459,6 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
         end if;
       end if;
     end for;
-    write(outFile, END_OF_FILE_MARKER mult 2);
   end func;
 
 
@@ -492,6 +493,7 @@ const proc: tarCreate (in string: outFileName, in array string: fileList,
       for name range fileList do
         tarCreate(outFile, "", "", [] name, doView);
       end for;
+      write(outFile, END_OF_FILE_MARKER mult 2);
       close(outFile);
     end if;
     if compressedFile <> STD_NULL then
