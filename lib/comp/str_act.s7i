@@ -1362,9 +1362,9 @@ const func boolean: optimize_str_eq_of_substr_fixlen (in reference: stri1,
           end if;
           if length_is_variable then
             if length_range.minValue <= 0 then
-              c_expr.expr &:= "(";
+              c_expr.expr &:= "(unlikely(";
               c_expr.expr &:= length_name;
-              c_expr.expr &:= "==0?";
+              c_expr.expr &:= "==0)?";
               c_expr.expr &:= "(uintType)";
               c_expr.expr &:= start1_name;
               c_expr.expr &:= ">";
@@ -4830,9 +4830,9 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
           end if;
           if length_is_variable then
             if length_range.minValue <= 0 then
-              c_expr.expr &:= "(";
+              c_expr.expr &:= "(unlikely(";
               c_expr.expr &:= length_name;
-              c_expr.expr &:= "==0?";
+              c_expr.expr &:= "==0)?";
               c_expr.expr &:= "(uintType)";
               c_expr.expr &:= start_name;
               c_expr.expr &:= ">";
