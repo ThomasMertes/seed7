@@ -18671,6 +18671,422 @@ const proc: check_string_substr_fixLen is func
   end func;
 
 
+const func boolean: check_string_eq_of_substr_fixlen_1 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: asdfg1 is "asdfg";
+    var string: asdfg2 is "asdfg";
+    var integer: start1 is 1;
+    var integer: start2 is 1;
+    var integer: length is 4;
+    var integer: minimum is integer.first;
+    var integer: maximum is integer.last;
+  begin
+    if  not raisesIndexError("asdfg"[minimum fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[minimum fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[minimum fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[minimum fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[minimum fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[minimum fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[minimum fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[minimum fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[minimum fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[minimum fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[minimum fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[minimum fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[minimum fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[minimum fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[minimum fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[minimum fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[pred(start1) fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[pred(start1) fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[pred(start1) fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[start1 + 4 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 4 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 4 fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[maximum fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[maximum fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError("asdfg"[maximum fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[maximum fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[maximum fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[maximum fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError("asdfg"[maximum fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[maximum fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[maximum fixLen          2] = "asdfg"[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[maximum fixLen          2] =  asdfg2[         3 fixLen          2]) or
+        not raisesIndexError( asdfg1[maximum fixLen length - 2] = "asdfg"[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[maximum fixLen length - 2] =  asdfg2[         3 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[maximum fixLen          2] = "asdfg"[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[maximum fixLen          2] =  asdfg2[start2 + 2 fixLen          2]) or
+        not raisesIndexError( asdfg1[maximum fixLen length - 2] = "asdfg"[start2 + 2 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[maximum fixLen length - 2] =  asdfg2[start2 + 2 fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_eq_of_substr_fixlen_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: asdfg1 is "asdfg";
+    var string: asdfg2 is "asdfg";
+    var integer: start1 is 1;
+    var integer: start2 is 1;
+    var integer: length is 4;
+    var integer: minimum is integer.first;
+  begin
+    if  not raisesIndexError("asdfg"[         3 fixLen minimum] = "asdfg"[         3 fixLen minimum]) or
+        not raisesIndexError("asdfg"[         3 fixLen minimum] =  asdfg2[         3 fixLen minimum]) or
+        not raisesIndexError("asdfg"[         3 fixLen minimum] = "asdfg"[start2 + 2 fixLen minimum]) or
+        not raisesIndexError("asdfg"[         3 fixLen minimum] =  asdfg2[start2 + 2 fixLen minimum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen minimum] = "asdfg"[         3 fixLen minimum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen minimum] =  asdfg2[         3 fixLen minimum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen minimum] = "asdfg"[start2 + 2 fixLen minimum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen minimum] =  asdfg2[start2 + 2 fixLen minimum]) or
+        not raisesIndexError( asdfg1[         3 fixLen minimum] = "asdfg"[         3 fixLen minimum]) or
+        not raisesIndexError( asdfg1[         3 fixLen minimum] =  asdfg2[         3 fixLen minimum]) or
+        not raisesIndexError( asdfg1[         3 fixLen minimum] = "asdfg"[start2 + 2 fixLen minimum]) or
+        not raisesIndexError( asdfg1[         3 fixLen minimum] =  asdfg2[start2 + 2 fixLen minimum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen minimum] = "asdfg"[         3 fixLen minimum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen minimum] =  asdfg2[         3 fixLen minimum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen minimum] = "asdfg"[start2 + 2 fixLen minimum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen minimum] =  asdfg2[start2 + 2 fixLen minimum]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen length - 5] = "asdfg"[         3 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 5] =  asdfg2[         3 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 5] = "asdfg"[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 5] =  asdfg2[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 5] = "asdfg"[         3 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 5] =  asdfg2[         3 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 5] = "asdfg"[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 5] =  asdfg2[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 5] = "asdfg"[         3 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 5] =  asdfg2[         3 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 5] = "asdfg"[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 5] =  asdfg2[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 5] = "asdfg"[         3 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 5] =  asdfg2[         3 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 5] = "asdfg"[start2 + 2 fixLen length - 5]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 5] =  asdfg2[start2 + 2 fixLen length - 5]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         6 fixLen length - 4] = "asdfg"[         3 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         6 fixLen length - 4] =  asdfg2[         3 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         6 fixLen length - 4] = "asdfg"[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         6 fixLen length - 4] =  asdfg2[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 5 fixLen length - 4] = "asdfg"[         3 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 5 fixLen length - 4] =  asdfg2[         3 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 5 fixLen length - 4] = "asdfg"[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 5 fixLen length - 4] =  asdfg2[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         6 fixLen length - 4] = "asdfg"[         3 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         6 fixLen length - 4] =  asdfg2[         3 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         6 fixLen length - 4] = "asdfg"[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         6 fixLen length - 4] =  asdfg2[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 5 fixLen length - 4] = "asdfg"[         3 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 5 fixLen length - 4] =  asdfg2[         3 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 5 fixLen length - 4] = "asdfg"[start2 + 2 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 5 fixLen length - 4] =  asdfg2[start2 + 2 fixLen length - 4]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen length - 4] = "asdfg"[         6 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 4] =  asdfg2[         6 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 4] = "asdfg"[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 4] =  asdfg2[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 4] = "asdfg"[         6 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 4] =  asdfg2[         6 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 4] = "asdfg"[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 4] =  asdfg2[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 4] = "asdfg"[         6 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 4] =  asdfg2[         6 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 4] = "asdfg"[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 4] =  asdfg2[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 4] = "asdfg"[         6 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 4] =  asdfg2[         6 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 4] = "asdfg"[start2 + 5 fixLen length - 4]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 4] =  asdfg2[start2 + 5 fixLen length - 4]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_eq_of_substr_fixlen_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: asdfg1 is "asdfg";
+    var string: asdfg2 is "asdfg";
+    var integer: start1 is 1;
+    var integer: start2 is 1;
+    var integer: length is 4;
+    var integer: maximum is integer.last;
+  begin
+    if  not raisesIndexError("asdfg"[         3 fixLen length] = "asdfg"[         2 fixLen length]) or
+        not raisesIndexError("asdfg"[         3 fixLen length] =  asdfg2[         2 fixLen length]) or
+        not raisesIndexError("asdfg"[         3 fixLen length] = "asdfg"[start2 + 1 fixLen length]) or
+        not raisesIndexError("asdfg"[         3 fixLen length] =  asdfg2[start2 + 1 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length] = "asdfg"[         2 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length] =  asdfg2[         2 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length] = "asdfg"[start2 + 1 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length] =  asdfg2[start2 + 1 fixLen length]) or
+        not raisesIndexError( asdfg1[         3 fixLen length] = "asdfg"[         2 fixLen length]) or
+        not raisesIndexError( asdfg1[         3 fixLen length] =  asdfg2[         2 fixLen length]) or
+        not raisesIndexError( asdfg1[         3 fixLen length] = "asdfg"[start2 + 1 fixLen length]) or
+        not raisesIndexError( asdfg1[         3 fixLen length] =  asdfg2[start2 + 1 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length] = "asdfg"[         2 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length] =  asdfg2[         2 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length] = "asdfg"[start2 + 1 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length] =  asdfg2[start2 + 1 fixLen length]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         2 fixLen length] = "asdfg"[         3 fixLen length]) or
+        not raisesIndexError("asdfg"[         2 fixLen length] =  asdfg2[         3 fixLen length]) or
+        not raisesIndexError("asdfg"[         2 fixLen length] = "asdfg"[start2 + 2 fixLen length]) or
+        not raisesIndexError("asdfg"[         2 fixLen length] =  asdfg2[start2 + 2 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 1 fixLen length] = "asdfg"[         3 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 1 fixLen length] =  asdfg2[         3 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 1 fixLen length] = "asdfg"[start2 + 2 fixLen length]) or
+        not raisesIndexError("asdfg"[start1 + 1 fixLen length] =  asdfg2[start2 + 2 fixLen length]) or
+        not raisesIndexError( asdfg1[         2 fixLen length] = "asdfg"[         3 fixLen length]) or
+        not raisesIndexError( asdfg1[         2 fixLen length] =  asdfg2[         3 fixLen length]) or
+        not raisesIndexError( asdfg1[         2 fixLen length] = "asdfg"[start2 + 2 fixLen length]) or
+        not raisesIndexError( asdfg1[         2 fixLen length] =  asdfg2[start2 + 2 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 1 fixLen length] = "asdfg"[         3 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 1 fixLen length] =  asdfg2[         3 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 1 fixLen length] = "asdfg"[start2 + 2 fixLen length]) or
+        not raisesIndexError( asdfg1[start1 + 1 fixLen length] =  asdfg2[start2 + 2 fixLen length]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[maximum fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError("asdfg"[maximum fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] = "asdfg"[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] =  asdfg2[         3 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] = "asdfg"[start2 + 2 fixLen maximum]) or
+        not raisesIndexError( asdfg1[maximum fixLen maximum] =  asdfg2[start2 + 2 fixLen maximum]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[         3 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[         3 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] =  asdfg2[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] = "asdfg"[maximum fixLen maximum]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen maximum] =  asdfg2[maximum fixLen maximum]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_eq_of_substr_fixlen_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: asdfg1 is "asdfg";
+    var string: asdfg2 is "asdfg";
+    var integer: start1 is 1;
+    var integer: start2 is 1;
+    var integer: length is 4;
+    var integer: minimum is integer.first;
+    var integer: maximum is integer.last;
+  begin
+    if  not raisesIndexError("asdfg"[         3 fixLen          2] = "asdfg"[minimum fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen          2] =  asdfg2[minimum fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] = "asdfg"[minimum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] =  asdfg2[minimum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] = "asdfg"[minimum fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] =  asdfg2[minimum fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[minimum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[minimum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] = "asdfg"[minimum fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] =  asdfg2[minimum fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] = "asdfg"[minimum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] =  asdfg2[minimum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] = "asdfg"[minimum fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] =  asdfg2[minimum fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[minimum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[minimum fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen          2] = "asdfg"[pred(start2) fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen          2] =  asdfg2[pred(start2) fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] = "asdfg"[pred(start2) fixLen length - 2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] =  asdfg2[pred(start2) fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] = "asdfg"[pred(start2) fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] =  asdfg2[pred(start2) fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[pred(start2) fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[pred(start2) fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] = "asdfg"[pred(start2) fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] =  asdfg2[pred(start2) fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] = "asdfg"[pred(start2) fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] =  asdfg2[pred(start2) fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] = "asdfg"[pred(start2) fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] =  asdfg2[pred(start2) fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[pred(start2) fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[pred(start2) fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (15)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen          2] = "asdfg"[start2 + 4 fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen          2] =  asdfg2[start2 + 4 fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] = "asdfg"[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] =  asdfg2[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] = "asdfg"[start2 + 4 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] =  asdfg2[start2 + 4 fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] = "asdfg"[start2 + 4 fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] =  asdfg2[start2 + 4 fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] = "asdfg"[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] =  asdfg2[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] = "asdfg"[start2 + 4 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] =  asdfg2[start2 + 4 fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[start2 + 4 fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[start2 + 4 fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (16)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError("asdfg"[         3 fixLen          2] = "asdfg"[maximum fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen          2] =  asdfg2[maximum fixLen          2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] = "asdfg"[maximum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[         3 fixLen length - 2] =  asdfg2[maximum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] = "asdfg"[maximum fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen          2] =  asdfg2[maximum fixLen          2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] = "asdfg"[maximum fixLen length - 2]) or
+        not raisesIndexError("asdfg"[start1 + 2 fixLen length - 2] =  asdfg2[maximum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] = "asdfg"[maximum fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen          2] =  asdfg2[maximum fixLen          2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] = "asdfg"[maximum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[         3 fixLen length - 2] =  asdfg2[maximum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] = "asdfg"[maximum fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen          2] =  asdfg2[maximum fixLen          2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] = "asdfg"[maximum fixLen length - 2]) or
+        not raisesIndexError( asdfg1[start1 + 2 fixLen length - 2] =  asdfg2[maximum fixLen length - 2]) then
+      writeln(" ***** stri1[start1 fixLen length] = stri2[start2 fixLen length] does not work correctly. (17)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_eq_of_substr_fixlen is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_eq_of_substr_fixlen_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_eq_of_substr_fixlen_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_eq_of_substr_fixlen_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_eq_of_substr_fixlen_4 then
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_string_assign_at is func
   local
     var boolean: okay is TRUE;
@@ -18915,5 +19331,6 @@ const proc: main is func
     check_string_range;
     check_string_substr;
     check_string_substr_fixLen;
+    check_string_eq_of_substr_fixlen;
     check_string_assign_at;
   end func;
