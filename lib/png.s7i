@@ -114,19 +114,14 @@ const func boolean: isOkay (in pngHeader: header) is
 
 const proc: computeBytesPerPixel (inout pngHeader: header) is func
   begin
-    if header.colorType = PNG_COLOR_TYPE_GRAYSCALE then
-      header.bytesPerPixel := 1;
-    elsif header.colorType = PNG_COLOR_TYPE_RGB then
-      header.bytesPerPixel := 3;
-    elsif header.colorType = PNG_COLOR_TYPE_PALETTE then
-      header.bytesPerPixel := 1;
-    elsif header.colorType = PNG_COLOR_TYPE_GRAYSCALE_ALPHA then
-      header.bytesPerPixel := 2;
-    elsif header.colorType = PNG_COLOR_TYPE_RGB_ALPHA then
-      header.bytesPerPixel := 4;
-    else
-      raise RANGE_ERROR;
-    end if;
+    case header.colorType of
+      when {PNG_COLOR_TYPE_GRAYSCALE}:       header.bytesPerPixel := 1;
+      when {PNG_COLOR_TYPE_RGB}:             header.bytesPerPixel := 3;
+      when {PNG_COLOR_TYPE_PALETTE}:         header.bytesPerPixel := 1;
+      when {PNG_COLOR_TYPE_GRAYSCALE_ALPHA}: header.bytesPerPixel := 2;
+      when {PNG_COLOR_TYPE_RGB_ALPHA}:       header.bytesPerPixel := 4;
+      otherwise: raise RANGE_ERROR;
+    end case;
     if header.bitDepth = 16 then
       header.bytesPerPixel *:= 2;
     end if;
