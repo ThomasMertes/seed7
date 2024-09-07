@@ -38,6 +38,12 @@ const string: PNG_MAGIC is "\137;PNG\r\n\26;\n";
 
 const integer: PNG_HEADER_SIZE is 13;
 
+const integer: PNG_COLOR_TYPE_GRAYSCALE       is 0;  # Each pixel is a grayscale sample.
+const integer: PNG_COLOR_TYPE_RGB             is 2;  # Each pixel is an R,G,B triple.
+const integer: PNG_COLOR_TYPE_PALETTE         is 3;  # Each pixel is a palette index.
+const integer: PNG_COLOR_TYPE_GRAYSCALE_ALPHA is 4;  # Each pixel is a grayscale,alpha pair.
+const integer: PNG_COLOR_TYPE_RGB_ALPHA       is 6;  # Each pixel is an R,G,B,alpha quadruple,
+
 const type: pngHeader is new struct
     var integer: width is 0;
     var integer: height is 0;
@@ -95,24 +101,31 @@ const func string: str (in pngHeader: header) is
 
 
 const func boolean: isOkay (in pngHeader: header) is
-  return (header.colorType = 0 or header.colorType = 2 or header.colorType = 4 or header.colorType = 6) and
-         (header.bitDepth = 8 or header.bitDepth = 16) or
-         (header.colorType = 0 or header.colorType = 3) and
-         (header.bitDepth = 1 or header.bitDepth = 2 or header.bitDepth = 4 or header.bitDepth = 8);
+  return (header.colorType = PNG_COLOR_TYPE_GRAYSCALE or
+          header.colorType = PNG_COLOR_TYPE_RGB or
+          header.colorType = PNG_COLOR_TYPE_GRAYSCALE_ALPHA or
+          header.colorType = PNG_COLOR_TYPE_RGB_ALPHA) and
+              (header.bitDepth = 8 or header.bitDepth = 16) or
+         (header.colorType = PNG_COLOR_TYPE_GRAYSCALE or
+          header.colorType = PNG_COLOR_TYPE_PALETTE) and
+             (header.bitDepth = 1 or header.bitDepth = 2 or
+              header.bitDepth = 4 or header.bitDepth = 8);
 
 
 const proc: computeBytesPerPixel (inout pngHeader: header) is func
   begin
-    if header.colorType = 0 then
+    if header.colorType = PNG_COLOR_TYPE_GRAYSCALE then
       header.bytesPerPixel := 1;
-    elsif header.colorType = 2 then
+    elsif header.colorType = PNG_COLOR_TYPE_RGB then
       header.bytesPerPixel := 3;
-    elsif header.colorType = 3 then
+    elsif header.colorType = PNG_COLOR_TYPE_PALETTE then
       header.bytesPerPixel := 1;
-    elsif header.colorType = 4 then
+    elsif header.colorType = PNG_COLOR_TYPE_GRAYSCALE_ALPHA then
       header.bytesPerPixel := 2;
-    else # if header.colorType = 6 then
+    elsif header.colorType = PNG_COLOR_TYPE_RGB_ALPHA then
       header.bytesPerPixel := 4;
+    else
+      raise RANGE_ERROR;
     end if;
     if header.bitDepth = 16 then
       header.bytesPerPixel *:= 2;
@@ -452,7 +465,8 @@ const func pixelImage: pixelDataToImage (in pngHeader: header,
   begin
     image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
-    if header.colorType = 0 or header.colorType = 4 then
+    if  header.colorType = PNG_COLOR_TYPE_GRAYSCALE or
+        header.colorType = PNG_COLOR_TYPE_GRAYSCALE_ALPHA then
       if header.bitDepth = 1 then
         grayscalePalette := colorLookupTable[.. 1] times pixel.value;
         grayscalePalette[0] := rgbPixel(    0,     0,     0);
@@ -489,13 +503,14 @@ const func pixelImage: pixelDataToImage (in pngHeader: header,
       else
         fillPngImage16Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
       end if;
-    elsif header.colorType = 2 or header.colorType = 6 then
+    elsif header.colorType = PNG_COLOR_TYPE_RGB or
+          header.colorType = PNG_COLOR_TYPE_RGB_ALPHA then
       if header.bitDepth = 8 then
         fillPngImage24Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
       else
         fillPngImage48Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
       end if;
-    elsif header.colorType = 3 then
+    elsif header.colorType = PNG_COLOR_TYPE_PALETTE then
       if header.bitDepth = 1 then
         fillPngImage1Bit(image, pixelData, palette, header.height, header.width);
       elsif header.bitDepth = 2 then
