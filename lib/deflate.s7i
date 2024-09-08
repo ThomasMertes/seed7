@@ -29,91 +29,93 @@
 include "bitdata.s7i";
 
 
-const proc: putLiteralOrLength (inout string: stri, inout integer: bitPos,
+const proc: putLiteralOrLength (inout lsbOutputBitStream: compressedStream,
     in integer: literalOrLength) is func
   begin
     if literalOrLength <= 143 then
-      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#00110000], 8);
+      putBits(compressedStream, reverseBits[8][literalOrLength + 2#00110000], 8);
     elsif literalOrLength <= 255 then
-      putBitsLsb(stri, bitPos, reverseBits[9][literalOrLength + 2#110010000 - 144], 9);
+      putBits(compressedStream, reverseBits[9][literalOrLength + 2#110010000 - 144], 9);
     elsif literalOrLength <= 279 then
-      putBitsLsb(stri, bitPos, reverseBits[7][literalOrLength - 256], 7);
+      putBits(compressedStream, reverseBits[7][literalOrLength - 256], 7);
     else
-      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#11000000 - 280], 8);
+      putBits(compressedStream, reverseBits[8][literalOrLength + 2#11000000 - 280], 8);
     end if;
   end func;
 
 
-const proc: putLength (inout string: stri, inout integer: bitPos, in integer: length) is func
+const proc: putLength (inout lsbOutputBitStream: compressedStream,
+    in integer: length) is func
   begin
     if length <= 10 then
-      putLiteralOrLength(stri, bitPos, 254 + length);
+      putLiteralOrLength(compressedStream, 254 + length);
     elsif length <= 18 then
-      putLiteralOrLength(stri, bitPos, 265 + ((length - 11) >> 1));
-      putBitLsb(stri, bitPos, (length - 11) mod 2);
+      putLiteralOrLength(compressedStream, 265 + ((length - 11) >> 1));
+      putBit(compressedStream, (length - 11) mod 2);
     elsif length <= 34 then
-      putLiteralOrLength(stri, bitPos, 269 + ((length - 19) >> 2));
-      putBitsLsb(stri, bitPos, (length - 19) mod 4, 2);
+      putLiteralOrLength(compressedStream, 269 + ((length - 19) >> 2));
+      putBits(compressedStream, (length - 19) mod 4, 2);
     elsif length <= 66 then
-      putLiteralOrLength(stri, bitPos, 273 + ((length - 35) >> 3));
-      putBitsLsb(stri, bitPos, (length - 35) mod 8, 3);
+      putLiteralOrLength(compressedStream, 273 + ((length - 35) >> 3));
+      putBits(compressedStream, (length - 35) mod 8, 3);
     elsif length <= 130 then
-      putLiteralOrLength(stri, bitPos, 277 + ((length - 67) >> 4));
-      putBitsLsb(stri, bitPos, (length - 67) mod 16, 4);
+      putLiteralOrLength(compressedStream, 277 + ((length - 67) >> 4));
+      putBits(compressedStream, (length - 67) mod 16, 4);
     elsif length <= 257 then
-      putLiteralOrLength(stri, bitPos, 281 + ((length - 131) >> 5));
-      putBitsLsb(stri, bitPos, (length - 131) mod 32, 5);
+      putLiteralOrLength(compressedStream, 281 + ((length - 131) >> 5));
+      putBits(compressedStream, (length - 131) mod 32, 5);
     elsif length = 258 then
-      putLiteralOrLength(stri, bitPos, 285);
+      putLiteralOrLength(compressedStream, 285);
     else
       raise RANGE_ERROR;
     end if;
   end func;
 
 
-const proc: putDistance (inout string: stri, inout integer: bitPos, in integer: distance) is func
+const proc: putDistance (inout lsbOutputBitStream: compressedStream,
+    in integer: distance) is func
   begin
     if distance <= 4 then
-      putBitsLsb(stri, bitPos, reverseBits[5][pred(distance)], 5);
+      putBits(compressedStream, reverseBits[5][pred(distance)], 5);
     elsif distance <= 8 then
-      putBitsLsb(stri, bitPos, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
-      putBitLsb(stri, bitPos, (distance - 5) mod 2);
+      putBits(compressedStream, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
+      putBit(compressedStream, (distance - 5) mod 2);
     elsif distance <= 16 then
-      putBitsLsb(stri, bitPos, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
-      putBitsLsb(stri, bitPos, (distance - 9) mod 4, 2);
+      putBits(compressedStream, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
+      putBits(compressedStream, (distance - 9) mod 4, 2);
     elsif distance <= 32 then
-      putBitsLsb(stri, bitPos, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
-      putBitsLsb(stri, bitPos, (distance - 17) mod 8, 3);
+      putBits(compressedStream, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
+      putBits(compressedStream, (distance - 17) mod 8, 3);
     elsif distance <= 64 then
-      putBitsLsb(stri, bitPos, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
-      putBitsLsb(stri, bitPos, (distance - 33) mod 16, 4);
+      putBits(compressedStream, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
+      putBits(compressedStream, (distance - 33) mod 16, 4);
     elsif distance <= 128 then
-      putBitsLsb(stri, bitPos, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
-      putBitsLsb(stri, bitPos, (distance - 65) mod 32, 5);
+      putBits(compressedStream, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
+      putBits(compressedStream, (distance - 65) mod 32, 5);
     elsif distance <= 256 then
-      putBitsLsb(stri, bitPos, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
-      putBitsLsb(stri, bitPos, (distance - 129) mod 64, 6);
+      putBits(compressedStream, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
+      putBits(compressedStream, (distance - 129) mod 64, 6);
     elsif distance <= 512 then
-      putBitsLsb(stri, bitPos, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
-      putBitsLsb(stri, bitPos, (distance - 257) mod 128, 7);
+      putBits(compressedStream, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
+      putBits(compressedStream, (distance - 257) mod 128, 7);
     elsif distance <= 1024 then
-      putBitsLsb(stri, bitPos, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
-      putBitsLsb(stri, bitPos, (distance - 513) mod 256, 8);
+      putBits(compressedStream, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
+      putBits(compressedStream, (distance - 513) mod 256, 8);
     elsif distance <= 2048 then
-      putBitsLsb(stri, bitPos, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
-      putBitsLsb(stri, bitPos, (distance - 1025) mod 512, 9);
+      putBits(compressedStream, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
+      putBits(compressedStream, (distance - 1025) mod 512, 9);
     elsif distance <= 4096 then
-      putBitsLsb(stri, bitPos, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
-      putBitsLsb(stri, bitPos, (distance - 2049) mod 1024, 10);
+      putBits(compressedStream, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
+      putBits(compressedStream, (distance - 2049) mod 1024, 10);
     elsif distance <= 8192 then
-      putBitsLsb(stri, bitPos, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
-      putBitsLsb(stri, bitPos, (distance - 4097) mod 2048, 11);
+      putBits(compressedStream, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
+      putBits(compressedStream, (distance - 4097) mod 2048, 11);
     elsif distance <= 16384 then
-      putBitsLsb(stri, bitPos, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
-      putBitsLsb(stri, bitPos, (distance - 8193) mod 4096, 12);
+      putBits(compressedStream, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
+      putBits(compressedStream, (distance - 8193) mod 4096, 12);
     elsif distance <= 32768 then
-      putBitsLsb(stri, bitPos, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
-      putBitsLsb(stri, bitPos, (distance - 16385) mod 8192, 13);
+      putBits(compressedStream, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
+      putBits(compressedStream, (distance - 16385) mod 8192, 13);
     else
       raise RANGE_ERROR;
     end if;
@@ -125,14 +127,13 @@ const type: slidingWindowType is array [0 .. 32767] integer;
 
 const type: deflateData is new struct
     var integer: uPos is 1;
-    var integer: bitPos is 0;
     var lookupDict: dictionary is lookupDict.value;
     var slidingWindowType: slidingWindow is slidingWindowType times -32768;
   end struct;
 
 
 const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
-    in integer: limit, inout string: compressed) is func
+    in integer: limit, inout lsbOutputBitStream: compressedStream) is func
   local
     var integer: pos is 0;
     var string: threeChars is "";
@@ -171,8 +172,8 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
           end while;
           deflateState.slidingWindow[pos mod 32768] := dictionaryPosFound;
           if length > 3 or pos - posFound <= 4096 then
-            putLength(compressed, deflateState.bitPos, length);
-            putDistance(compressed, deflateState.bitPos, pos - posFound);
+            putLength(compressedStream, length);
+            putDistance(compressedStream, pos - posFound);
             nextPos := pos + length;
             incr(pos);
             while pos < nextPos do
@@ -185,16 +186,16 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
               incr(pos);
             end while;
           else
-            putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+            putLiteralOrLength(compressedStream, ord(uncompressed[pos]));
             incr(pos);
           end if;
         else
           # Not necessary to update slidingWindow, since it is already outdated.
-          putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+          putLiteralOrLength(compressedStream, ord(uncompressed[pos]));
           incr(pos);
         end if;
       else
-        putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+        putLiteralOrLength(compressedStream, ord(uncompressed[pos]));
         incr(pos);
       end if;
     end while;
@@ -203,24 +204,25 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
 
 
 const proc: beginDeflateBlock (inout deflateData: deflateState,
-    inout string: compressed, in boolean: bfinal) is func
+    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
   begin
-    putBitLsb(compressed, deflateState.bitPos, ord(bfinal));
-    putBitsLsb(compressed, deflateState.bitPos, 1, 2);       # btype:  Fixed Huffman codes
+    putBit(compressedStream, ord(bfinal));
+    putBits(compressedStream, 1, 2);       # btype:  Fixed Huffman codes
   end func;
 
 
-const proc: endDeflateBlock (inout deflateData: deflateState, inout string: compressed) is func
+const proc: endDeflateBlock (inout deflateData: deflateState,
+    inout lsbOutputBitStream: compressedStream) is func
   begin
-    putLiteralOrLength(compressed, deflateState.bitPos, 256);
+    putLiteralOrLength(compressedStream, 256);
   end func;
 
 
 const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncompressed,
-    inout string: compressed) is func
+    inout lsbOutputBitStream: compressedStream) is func
   begin
-    deflate(deflateState, uncompressed, length(uncompressed), compressed);
-    endDeflateBlock(deflateState, compressed);
+    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
+    endDeflateBlock(deflateState, compressedStream);
   end func;
 
 
@@ -229,37 +231,41 @@ const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncom
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
  *)
-const proc: deflateBlock (in string: uncompressed, inout string: compressed,
-    in boolean: bfinal) is func
+const proc: deflateBlock (in string: uncompressed,
+    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
   local
     var deflateData: deflateState is deflateData.value;
   begin
-    beginDeflateBlock(deflateState, compressed, bfinal);
-    deflate(deflateState, uncompressed, length(uncompressed), compressed);
-    endDeflateBlock(deflateState, compressed);
+    beginDeflateBlock(deflateState, compressedStream, bfinal);
+    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
+    endDeflateBlock(deflateState, compressedStream);
   end func;
 
 
-const proc: deflateBlock (inout file: inFile, inout string: compressed,
-    inout integer: bitPos, in boolean: bfinal) is func
+const proc: deflateBlock (inout file: inFile,
+    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
   local
     var deflateData: deflateState is deflateData.value;
     var string: uncompressed is "";
   begin
-    beginDeflateBlock(deflateState, compressed, bfinal);
+    beginDeflateBlock(deflateState, compressedStream, bfinal);
     uncompressed := gets(inFile, 4096);
     while hasNext(inFile) do
-      deflate(deflateState, uncompressed, length(uncompressed) - 258, compressed);
+      deflate(deflateState, uncompressed, length(uncompressed) - 258, compressedStream);
       uncompressed &:= gets(inFile, 4096);
     end while;
-    deflate(deflateState, uncompressed, length(uncompressed), compressed);
-    endDeflateBlock(deflateState, compressed);
+    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
+    endDeflateBlock(deflateState, compressedStream);
   end func;
 
 
 const func string: deflate (in string: uncompressed) is func
   result
     var string: compressed is "";
+  local
+    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
   begin
-    deflateBlock(uncompressed, compressed, TRUE);
+    deflateBlock(uncompressed, compressedStream, TRUE);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
   end func;

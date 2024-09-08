@@ -199,9 +199,15 @@ const func string: gzuncompress (in string: compressed) is func
 
 const func string: gzcompress (in string: uncompressed) is func
   result
-    var string: compressed is "x\156;";
+    var string: compressed is "";
+  local
+    const string: GZ_MAGIC is "x\156;";
+    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
   begin
-    deflateBlock(uncompressed, compressed, TRUE);
+    write(compressedStream, GZ_MAGIC);
+    deflateBlock(uncompressed, compressedStream, TRUE);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
   end func;
 
 
@@ -221,6 +227,7 @@ const func string: gunzip (in string: compressed) is func
     var lsbBitStream: compressedStream is lsbBitStream.value;
     var integer: bytePos is 0;
     var boolean: bfinal is FALSE;
+    var string: trailer is "";
   begin
     header := readGzipHeader(compressed, bytePos);
     if header.magic = GZIP_MAGIC then
@@ -229,6 +236,12 @@ const func string: gunzip (in string: compressed) is func
       repeat
         processCompressedBlock(compressedStream, uncompressed, bfinal);
       until bfinal;
+      trailer := gets(compressedStream, 8);
+      if length(trailer) <> 8 or
+          bytes2Int(trailer[1 fixLen 4], UNSIGNED, LE) <> ord(crc32(uncompressed)) or
+          bytes2Int(trailer[5 fixLen 4], UNSIGNED, LE) <> length(uncompressed) mod 2 ** 32 then
+        raise RANGE_ERROR;
+      end if;
     end if;
   end func;
 
@@ -419,16 +432,22 @@ const func integer: tell (in gzipFile: aFile) is
  *)
 const func string: gzip (in string: uncompressed) is func
   result
-    var string: compressed is GZIP_MAGIC;
+    var string: compressed is "";
+  local
+    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
   begin
-    compressed &:= "\8;" &  # Compression method: Deflate
-                   "\0;" &  # Flags
-                   bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
-                   "\0;" &  # Extra flags
-                   "\3;";   # Operating system: Unix
-    deflateBlock(uncompressed, compressed, TRUE);
-    compressed &:= bytes(ord(crc32(uncompressed)), UNSIGNED, LE, 4) &
-                   bytes(length(uncompressed),     UNSIGNED, LE, 4);
+    write(compressedStream,
+          GZIP_MAGIC &
+          "\8;" &  # Compression method: Deflate
+          "\0;" &  # Flags
+          bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
+          "\0;" &  # Extra flags
+          "\3;");  # Operating system: Unix
+    deflateBlock(uncompressed, compressedStream, TRUE);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
+    compressed &:= bytes(ord(crc32(uncompressed)),         UNSIGNED, LE, 4) &
+                   bytes(length(uncompressed) mod 2 ** 32, UNSIGNED, LE, 4);
   end func;
 
 
@@ -441,7 +460,7 @@ const type: gzipWriteFile is sub null_file struct
     var bin32: crc32 is bin32(0);
     var integer: uncompressedLength is 0;
     var string: uncompressed is "";
-    var string: compressed is GZIP_MAGIC;
+    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
   end struct;
 
 type_implements_interface(gzipWriteFile, file);
@@ -462,12 +481,14 @@ const func file: openGzipFile (inout file: destFile, WRITE) is func
   local
     var gzipWriteFile: new_gzipWriteFile is gzipWriteFile.value;
   begin
+    write(destFile,
+          GZIP_MAGIC &
+          "\8;" &  # Compression method: Deflate
+          "\0;" &  # Flags
+          bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
+          "\0;" &  # Extra flags
+          "\3;");  # Operating system: Unix
     new_gzipWriteFile.destFile := destFile;
-    new_gzipWriteFile.compressed &:= "\8;" &  # Compression method: Deflate
-                                     "\0;" &  # Flags
-                                     bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
-                                     "\0;" &  # Extra flags
-                                     "\3;";   # Operating system: Unix
     newFile := toInterface(new_gzipWriteFile);
   end func;
 
@@ -477,11 +498,14 @@ const func file: openGzipFile (inout file: destFile, WRITE) is func
  *)
 const proc: close (inout gzipWriteFile: aFile) is func
   begin
-    beginDeflateBlock(aFile.deflateState, aFile.compressed, TRUE);
-    closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressed);
-    aFile.compressed &:= bytes(ord(crc32(aFile.uncompressed, aFile.crc32)),           UNSIGNED, LE, 4) &
-                         bytes(length(aFile.uncompressed) + aFile.uncompressedLength, UNSIGNED, LE, 4);
-    write(aFile.destFile, aFile.compressed);
+    beginDeflateBlock(aFile.deflateState, aFile.compressedStream, TRUE);
+    closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressedStream);
+    flush(aFile.compressedStream);
+    write(aFile.destFile,
+          getBytes(aFile.compressedStream) &
+          bytes(ord(crc32(aFile.uncompressed, aFile.crc32)), UNSIGNED, LE, 4) &
+          bytes((length(aFile.uncompressed) +
+                 aFile.uncompressedLength) mod 2 ** 32, UNSIGNED, LE, 4));
   end func;
 
 
@@ -493,16 +517,16 @@ const proc: write (inout gzipWriteFile: outFile, in string: stri) is func
     const integer: blockSize is 1000000;
   begin
     if length(outFile.uncompressed) > blockSize and length(stri) <> 0 then
-      beginDeflateBlock(outFile.deflateState, outFile.compressed, FALSE);
-      closeDeflateBlock(outFile.deflateState, outFile.uncompressed, outFile.compressed);
-      write(outFile.destFile, outFile.compressed[.. pred(length(outFile.compressed))]);
+      beginDeflateBlock(outFile.deflateState, outFile.compressedStream, FALSE);
+      closeDeflateBlock(outFile.deflateState, outFile.uncompressed, outFile.compressedStream);
+      # Do not flush. A partially filled byte is kept in outFile.compressedStream.
+      write(outFile.destFile, getBytes(outFile.compressedStream));
       outFile.deflateState.uPos := 1;
       outFile.deflateState.dictionary := lookupDict.value;
       outFile.deflateState.slidingWindow := slidingWindowType times -32768;
       outFile.crc32 := crc32(outFile.uncompressed, outFile.crc32);
       outFile.uncompressedLength +:= length(outFile.uncompressed);
       outFile.uncompressed := "";
-      outFile.compressed := outFile.compressed[length(outFile.compressed) len 1];
     end if;
     outFile.uncompressed &:= stri;
   end func;
