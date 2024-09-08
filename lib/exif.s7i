@@ -87,9 +87,9 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
     var integer: format is 0;
     var integer: numberOfComponents is 0;
   begin
-    if stri[7 fixLen 4] = EXIF_TIFF_MAGIC_LE then
-      offsetToFirstIfd := bytes2Int(stri[11 fixLen 4], UNSIGNED, LE);
-      pos := 7 + offsetToFirstIfd;
+    if stri[1 fixLen 4] = EXIF_TIFF_MAGIC_LE then
+      offsetToFirstIfd := bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+      pos := succ(offsetToFirstIfd);
       numberOfDirectoryEntries := bytes2Int(stri[pos fixLen 2], UNSIGNED, LE);
       pos +:= 2;
       while numberOfDirectoryEntries > 0 do
@@ -105,9 +105,9 @@ const proc: readExifData (in string: stri, inout exifDataType: exifData) is func
         pos +:= 12;
         decr(numberOfDirectoryEntries);
       end while;
-    elsif stri[7 fixLen 4] = EXIF_TIFF_MAGIC_BE then
-      offsetToFirstIfd := bytes2Int(stri[11 fixLen 4], UNSIGNED, BE);
-      pos := 7 + offsetToFirstIfd;
+    elsif stri[1 fixLen 4] = EXIF_TIFF_MAGIC_BE then
+      offsetToFirstIfd := bytes2Int(stri[5 fixLen 4], UNSIGNED, BE);
+      pos := succ(offsetToFirstIfd);
       numberOfDirectoryEntries := bytes2Int(stri[pos fixLen 2], UNSIGNED, BE);
       pos +:= 2;
       while numberOfDirectoryEntries > 0 do

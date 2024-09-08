@@ -374,7 +374,7 @@ const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber,
       if length(data) = length then
         identifier := getAsciiz(data, pos);
         if appNumber = 1 and identifier = EXIF_MAGIC then
-          readExifData(data, header.exifData);
+          readExifData(data[7 ..], header.exifData);
         end if;
       else
         raise RANGE_ERROR;
