@@ -384,10 +384,10 @@ const string:chkbitdata_output is "\n\
   \peekBits(msbBitStream) works correctly.\n\
   \gets(msbBitStream) works correctly.\n\
   \close(msbBitStream) works correctly.\n\
-  \putBitLsb works correctly.\n\
-  \putBitsLsb works correctly.\n\
-  \putBitMsb works correctly.\n\
-  \putBitsMsb works correctly.\n";
+  \putBit(lsbOutputBitStream) works correctly.\n\
+  \putBits(lsbOutputBitStream) works correctly.\n\
+  \putBit(msbOutputBitStream) works correctly.\n\
+  \putBits(msbOutputBitStream) works correctly.\n";
 
 const string: chkset_output is "\n\
   \Bitset literals work correctly.\n\
