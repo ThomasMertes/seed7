@@ -728,6 +728,275 @@ const func string: gets (inout msbBitStream: inBitStream, in integer: maxLength)
 
 
 (**
+ *  Type to write bitwise data starting with the least significant bit.
+ *  In a ''lsbOutputBitStream'' the write direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *  For the bit position in a byte (bitPos) holds: 0 = LSB, 7 = MSB.
+ *  The bits are stored in a string of bytes. The byte string can
+ *  be obtained with the function getBytes(). The function flush()
+ *  can be used to add a partially filled byte to the byte string.
+ *  This bit encoding is used by the Huffman compression (as part of
+ *  the deflate compression) used for ZIP and GZIP files. It is also
+ *  used by the Lempel-Ziv-Welch compression used for GIF files.
+ *)
+const type: lsbOutputBitStream is new struct
+    var integer: buffer is 0;
+    var integer: bitPos is 0;
+    var string: byteString is "";
+  end struct;
+
+
+(**
+ *  Append one bit in LSB-First order to ''outBitStream''.
+ *  The append direction is from LSB (least significant bit) to
+ *  MSB (most significant bit).
+ *   # Stream data:   "\2#0101011;"  and  bitPos = 7
+ *   #                   ^
+ *   #                current
+ *   #               position
+ *   putBit(aBitStream, 2#1)
+ *   # Stream data:  "\2#10101011;"  and  bitPos = 0
+ *   #                   1
+ *   #                appended
+ *   #                  bit
+ *   putBit(aBitStream, 2#1)
+ *   # Stream data:  "\2#10101011;\2#1;"  and  bitPos = 1
+ *   #                               1
+ *   #                            appended
+ *   #                              bit
+ *  @param outBitStream Bit stream to which the bit is appended.
+ *  @param bit Bit to be appended to ''outBitStream''.
+ *)
+const proc: putBit (inout lsbOutputBitStream: outBitStream, in integer: bit) is func
+  begin
+    outBitStream.buffer +:= bit << outBitStream.bitPos;
+    incr(outBitStream.bitPos);
+    if outBitStream.bitPos = 8 then
+      outBitStream.byteString &:= char(outBitStream.buffer);
+      outBitStream.bitPos := 0;
+      outBitStream.buffer := 0;
+    end if;
+  end func;
+
+
+(**
+ *  Append ''bitWidth'' bits in LSB-First order to ''outBitStream''.
+ *  The append direction is from LSB (least significant bit) to
+ *  MSB (most significant bit). If necessary additional bytes are
+ *  added to ''stristri''.
+ *   # Stream data:     "\2#01011;"  and  bitPos = 5
+ *   #                     ^
+ *   #                  current
+ *   #                 position
+ *   putBits(aBitStream, 2#10011, 5);
+ *   # Stream data:  "\2#01101011;\2#10;"  and  bitPos = 2
+ *   #                   011         10
+ *   #                appended    appended
+ *   #               lower bits  higher bits
+ *  @param outBitStream Bit stream to which the bits are appended.
+ *  @param bits Bits to be appended to ''outBitStream''.
+ *  @param bitWidth Number of bits to be appended (width of ''bits'').
+ *)
+const proc: putBits (inout lsbOutputBitStream: outBitStream, in integer: bits,
+    in integer: bitWidth) is func
+  begin
+    outBitStream.buffer +:= bits << outBitStream.bitPos;
+    outBitStream.bitPos +:= bitWidth;
+    while outBitStream.bitPos >= 8 do
+      outBitStream.byteString &:= char(outBitStream.buffer mod 256);
+      outBitStream.bitPos -:= 8;
+      outBitStream.buffer >>:= 8;
+    end while;
+  end func;
+
+
+(**
+ *  Complete a partially filled byte and add it to the byte string.
+ *  If ''outBitStream'' has a partially filled byte it is filled with zero
+ *  bits and added to the byte string. If ''outBitStream'' has not a
+ *  partially filled byte nothing is done.
+ *  @param outBitStream Bit stream where the partially filled byte is added.
+ *)
+const proc: flush (inout lsbOutputBitStream: outBitStream) is func
+  begin
+    if outBitStream.bitPos <> 0 then
+      outBitStream.byteString &:= char(outBitStream.buffer);
+      outBitStream.bitPos := 0;
+    end if;
+    outBitStream.buffer := 0;
+  end func;
+
+
+(**
+ *  Obtain the byte string created from the bits written to ''outBitStream''.
+ *  The returned byte string is removed from ''outBitStream''.
+ *  A partially filled byte is not part of the returned byte string.
+ *  The function flush() can be called in advance to add a
+ *  partially filled byte to the byte string.
+ *  @param outBitStream Bit stream from which the byte string is obtained.
+ *  @return a string of completely filled bytes from ''outBitStream''.
+ *)
+const func string: getBytes (inout lsbOutputBitStream: outBitStream) is func
+  result
+    var string: bytes is "";
+  begin
+    bytes := outBitStream.byteString;
+    outBitStream.byteString := "";
+  end func;
+
+
+(**
+ *  Add the given string ''stri'' to the byte string of ''outBitStream''.
+ *  The ''outBitStream'' is flushed before adding ''stri''.
+ *  @param outBitStream Bit stream to which ''stri'' is added.
+ *  @param stri String to be added to ''outBitStream''.
+ *)
+const proc: write (inout lsbOutputBitStream: outBitStream, in string: stri) is func
+  begin
+    flush(outBitStream);
+    outBitStream.byteString &:= stri;
+  end func;
+
+
+(**
+ *  Type to write bitwise data starting with the most significant bit.
+ *  In a ''msbOutputBitStream'' the write direction is from
+ *  MSB (most significant bit) to LSB (least significant bit).
+ *  For the bit position in a byte (bitSize) holds: 0 = MSB, 7 = LSB.
+ *  The bits are stored in a string of bytes. The byte string can
+ *  be obtained with the function getBytes(). The function flush()
+ *  can be used to add a partially filled byte to the byte string.
+ *  This bit encoding is used by the Huffman compression used for
+ *  JPEG files.
+ *)
+const type: msbOutputBitStream is new struct
+    var integer: buffer is 0;
+    var integer: bitSize is 0;
+    var string: byteString is "";
+  end struct;
+
+
+(**
+ *  Append one bit in MSB-First order to ''outBitStream''.
+ *  The append direction is from MSB (most significant bit) to
+ *  LSB (least significant bit).
+ *   # Stream data:  "\2#01011100;"  and  bitPos = 7
+ *   #                          ^
+ *   #                       current
+ *   #                       position
+ *   putBit(aBitStream, 2#1)
+ *   # Stream data:  "\2#01011101;"  and  bitPos = 0
+ *   #                          1
+ *   #                       appended
+ *   #                         bit
+ *   putBit(aBitStream, 2#1)
+ *   # Stream data:  "\2#01011101;\2#10000000;"  and  bitPos = 1
+ *   #                               1
+ *   #                            appended
+ *   #                              bit
+ *  @param outBitStream Bit stream to which the bit is appended.
+ *  @param bit Bit to be appended to ''outBitStream''.
+ *)
+const proc: putBit (inout msbOutputBitStream: outBitStream, in integer: bit) is func
+  begin
+    outBitStream.buffer <<:= 1;
+    outBitStream.buffer +:= bit;
+    incr(outBitStream.bitSize);
+    if outBitStream.bitSize = 8 then
+      outBitStream.byteString &:= char(outBitStream.buffer);
+      outBitStream.bitSize := 0;
+      outBitStream.buffer := 0;
+    end if;
+  end func;
+
+
+(**
+ *  Append ''bitWidth'' bits in MSB-First order to ''outBitStream''.
+ *  The append direction is from MSB (most significant bit) to
+ *  LSB (least significant bit). If necessary additional bytes are
+ *  added to ''outBitStream''.
+ *   # Stream data:  "\2#01011000;"  and  bitPos = 5
+ *   #                        ^
+ *   #                     current
+ *   #                    position
+ *   putBitsMsb(stri, bitPos, 2#10011, 5);
+ *   # Stream data:  "\2#01011100;\2#11000000;"  and  bitPos = 2
+ *   #                        100    11
+ *   #                    appended  appended
+ *   #                 higher bits  lower bits
+ *  @param outBitStream Bit stream to which the bits are appended.
+ *  @param bits Bits to be appended to ''outBitStream''.
+ *  @param bitWidth Number of bits to be appended (width of ''bits'').
+ *)
+const proc: putBits (inout msbOutputBitStream: outBitStream, in integer: bits,
+    in integer: bitWidth) is func
+  local
+    var integer: bitShift is 0;
+  begin
+    outBitStream.buffer <<:= bitWidth;
+    outBitStream.buffer +:= bits;
+    outBitStream.bitSize +:= bitWidth;
+    if outBitStream.bitSize >= 8 then
+      bitShift := outBitStream.bitSize;
+      repeat
+	bitShift -:= 8;
+        outBitStream.byteString &:= char((outBitStream.buffer >> bitShift) mod 256);
+      until bitShift < 8;
+      outBitStream.bitSize := bitShift;
+      outBitStream.buffer := outBitStream.buffer mod 2 ** bitShift;
+    end if;
+  end func;
+
+
+(**
+ *  Complete a partially filled byte and add it to the byte string.
+ *  If ''outBitStream'' has a partially filled byte it is filled with zero
+ *  bits and added to the byte string. If ''outBitStream'' has not a
+ *  partially filled byte nothing is done.
+ *  @param outBitStream Bit stream where the partially filled byte is added.
+ *)
+const proc: flush (inout msbOutputBitStream: outBitStream) is func
+  begin
+    if outBitStream.bitSize <> 0 then
+      outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitSize));
+      outBitStream.bitSize := 0;
+    end if;
+    outBitStream.buffer := 0;
+  end func;
+
+
+(**
+ *  Obtain the byte string created from the bits written to ''outBitStream''.
+ *  The returned byte string is removed from ''outBitStream''.
+ *  A partially filled byte is not part of the returned byte string.
+ *  The function flush() can be called in advance to add a
+ *  partially filled byte to the byte string.
+ *  @param outBitStream Bit stream from which the byte string is obtained.
+ *  @return a string of completely filled bytes from ''outBitStream''.
+ *)
+const func string: getBytes (inout msbOutputBitStream: outBitStream) is func
+  result
+    var string: bytes is "";
+  begin
+    bytes := outBitStream.byteString;
+    outBitStream.byteString := "";
+  end func;
+
+
+(**
+ *  Add the given string ''stri'' to the byte string of ''outBitStream''.
+ *  The ''outBitStream'' is flushed before adding ''stri''.
+ *  @param outBitStream Bit stream to which ''stri'' is added.
+ *  @param stri String to be added to ''outBitStream''.
+ *)
+const proc: write (inout msbOutputBitStream: outBitStream, in string: stri) is func
+  begin
+    flush(outBitStream);
+    outBitStream.byteString &:= stri;
+  end func;
+
+
+(**
  *  Append one bit in LSB-First order to ''stri''.
  *  The bit is appended to ''stri'' at the current bit position.
  *  Afterwards the bit position is advanced by one bit. The append
