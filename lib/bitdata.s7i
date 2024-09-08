@@ -996,16 +996,7 @@ const proc: write (inout msbOutputBitStream: outBitStream, in string: stri) is f
   end func;
 
 
-(**
- *  Append one bit in LSB-First order to ''stri''.
- *  The bit is appended to ''stri'' at the current bit position.
- *  Afterwards the bit position is advanced by one bit. The append
- *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  If necessary ''stri'' is enlarged.
- *  @param stri String of bytes to which the bit is appended.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bit Bit to be appended to ''stri''.
- *)
+# The function putBitLsb(string) is deprecated. Use putBit(lsbOutputBitStream) instead.
 const proc: putBitLsb (inout string: stri, inout integer: bitPos, in integer: bit) is func
   begin
     if bitPos = 0 then
@@ -1018,23 +1009,7 @@ const proc: putBitLsb (inout string: stri, inout integer: bitPos, in integer: bi
   end func;
 
 
-(**
- *  Append ''bitWidth'' bits in LSB-First order to ''stri''.
- *  The bits are appended to ''stri'' at the current bit position. Afterwards
- *  the bit position is advanced by ''bitWidth'' bits. The append
- *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  If necessary ''stri'' is enlarged with bytes in little-endian byte order.
- *   stri := "\2#01011;"; bitPos := 5;
- *   putBitsLsb(stri, bitPos, 2#10011, 5);
- *   # Now holds:  stri = "\2#01101011;\2#10;"  and  bitPos = 2
- *   #                        011         10
- *   #                     appended    appended
- *   #                    lower bits  higher bits
- *  @param stri String of bytes to which the bits are appended.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bits Bits to be appended to ''stri''.
- *  @param bitWidth Number of bits to be appended (width of ''bits'').
- *)
+# The function putBitsLsb(string) is deprecated. Use putBits(lsbOutputBitStream) instead.
 const proc: putBitsLsb (inout string: stri, inout integer: bitPos, in var integer: bits,
     in var integer: bitWidth) is func
   local
@@ -1075,16 +1050,7 @@ const proc: putBitsLsb (inout string: stri, inout integer: bitPos, in var intege
   end func;
 
 
-(**
- *  Append one bit in MSB-First order to ''stri''.
- *  The bit is appended to ''stri'' at the current bit position.
- *  Afterwards the bit position is advanced by one bit. The append
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  If necessary ''stri'' is enlarged.
- *  @param stri String of bytes to which the bit is appended.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bit Bit to be appended to ''stri''.
- *)
+# The function putBitMsb(string) is deprecated. Use putBit(msbOutputBitStream) instead.
 const proc: putBitMsb (inout string: stri, inout integer: bitPos, in integer: bit) is func
   begin
     if bitPos = 0 then
@@ -1097,23 +1063,7 @@ const proc: putBitMsb (inout string: stri, inout integer: bitPos, in integer: bi
   end func;
 
 
-(**
- *  Append ''bitWidth'' bits in MSB-First order to ''stri''.
- *  The bits are appended to ''stri'' at the current bit position. Afterwards
- *  the bit position is advanced by ''bitWidth'' bits. The append
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  If necessary ''stri'' is enlarged with bytes in big-endian byte order.
- *   stri := "\2#01011000;";
- *   putBitsMsb(stri, bitPos, 2#10011, 5);
- *   # Now holds  stri = "\2#01011100;\2#11000000;"  and  bitPos = 2
- *   #                            100    11
- *   #                        appended  appended
- *   #                     higher bits  lower bits
- *  @param stri String of bytes to which the bits are appended.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bits Bits to be appended to ''stri''.
- *  @param bitWidth Number of bits to be appended (width of ''bits'').
- *)
+# The function putBitsMsb(string) is deprecated. Use putBits(msbOutputBitStream) instead.
 const proc: putBitsMsb (inout string: stri, inout integer: bitPos, in var integer: bits,
     in var integer: bitWidth) is func
   local
