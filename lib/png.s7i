@@ -32,6 +32,7 @@ include "crc32.s7i";
 include "draw.s7i";
 include "gzip.s7i";
 include "pixelimage.s7i";
+include "exif.s7i";
 
 
 const string: PNG_MAGIC is "\137;PNG\r\n\26;\n";
@@ -54,6 +55,7 @@ const type: pngHeader is new struct
     var integer: interlaceMethod is 0;
     var integer: bytesPerPixel is 0;
     var integer: bytesPerScanline is 0;
+    var exifDataType: exifData is exifDataType.value;
   end struct;
 
 
@@ -711,6 +713,8 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
             end for;
           when {"IDAT"}:
             compressed &:= chunkData;
+          when {"eXIf"}:
+            readExifData(chunkData, header.exifData);
         end case;
       until chunkType = "IEND";
       if isOkay(header) then
@@ -722,6 +726,10 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
           image := pixelDataToImage(header, uncompressed, palette);
         else
           image := interlaceToImage(header, uncompressed, palette);
+        end if;
+        if header.exifData.orientation > EXIF_ORIENTATION_NORMAL and
+            header.exifData.orientation < EXIF_ORIENTATION_UNDEFINED then
+          changeOrientation(image, header.exifData.orientation);
         end if;
         pixmap := getPixmap(image);
       else
