@@ -124,7 +124,7 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
  *  This is used by the Huffman compression (as part of the deflate
  *  compression) used for ZIP and GZIP files. It is also used by the
  *  Lempel-Ziv-Welch compression used for GIF files.
- *  In an ''lsbBitStream'' the read direction is from
+ *  In a ''lsbBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *  For the bit position in a byte holds: 0 = LSB, 7 = MSB.
  *)
@@ -166,7 +166,7 @@ const proc: fillBuffer (inout lsbBitStream: inBitStream) is func
 
 (**
  *  Open an LSB bit stream from the file ''inFile'' for reading.
- *  In an ''lsbBitStream'' the read direction is from
+ *  In a ''lsbBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
 const func lsbBitStream: openLsbBitStream (in file: inFile) is func
@@ -180,7 +180,7 @@ const func lsbBitStream: openLsbBitStream (in file: inFile) is func
 
 (**
  *  Open an LSB bit stream from the string ''stri'' for reading.
- *  In an ''lsbBitStream'' the read direction is from
+ *  In a ''lsbBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
 const func lsbBitStream: openLsbBitStream (in string: stri) is func
@@ -429,7 +429,7 @@ const func string: gets (inout lsbBitStream: inBitStream, in integer: maxLength)
 (**
  *  Type to read bitwise data starting with the most significant bit.
  *  This is used by the Huffman compression used for JPEG files.
- *  In an ''msbBitStream'' the read direction is from
+ *  In a ''msbBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *  For the bit position in a byte holds: 0 = MSB, 7 = LSB.
  *)
@@ -471,7 +471,7 @@ const proc: fillBuffer (inout msbBitStream: inBitStream) is func
 
 (**
  *  Open an MSB bit stream from the file ''inFile'' for reading.
- *  In an ''msbBitStream'' the read direction is from
+ *  In a ''msbBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
 const func msbBitStream: openMsbBitStream (in file: inFile) is func
@@ -485,7 +485,7 @@ const func msbBitStream: openMsbBitStream (in file: inFile) is func
 
 (**
  *  Open an MSB bit stream from the string ''stri'' for reading.
- *  In an ''msbBitStream'' the read direction is from
+ *  In a ''msbBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
 const func msbBitStream: openMsbBitStream (in string: stri) is func
