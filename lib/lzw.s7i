@@ -46,6 +46,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
   result
     var string: compressed is "";
   local
+    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
@@ -53,7 +54,6 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
     var hash [string] integer: mydict is (hash [string] integer).value;
     var string: buffer is "";
     var string: xstr is "";
-    var integer: bitPos is 0;
     var integer: bitsToWrite is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -63,7 +63,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
     for code range 0 to pred(clearCode) do
       mydict @:= [str(char(code))] code;
     end for;
-    putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+    putBits(compressedStream, clearCode, bitsToWrite);
     bitsToWrite := succ(codeSize);
     moreBitsNeeded := 1 << bitsToWrite;
     for ch range uncompressed do
@@ -71,7 +71,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
       if xstr in mydict then
         buffer &:= str(ch)
       else
-        putBitsLsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        putBits(compressedStream, mydict[buffer], bitsToWrite);
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
@@ -80,7 +80,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
             end for;
-            putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+            putBits(compressedStream, clearCode, bitsToWrite);
             bitsToWrite := succ(codeSize);
           else
             incr(bitsToWrite);
@@ -91,17 +91,19 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
       end if;
     end for;
     if buffer <> "" then
-      putBitsLsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+      putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
         if bitsToWrite = 12 then
-          putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+          putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
           incr(bitsToWrite);
         end if;
       end if;
     end if;
-    putBitsLsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
+    putBits(compressedStream, endOfInformationCode, bitsToWrite);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
   end func;
 
 
@@ -227,6 +229,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
   result
     var string: compressed is "";
   local
+    var msbOutputBitStream: compressedStream is msbOutputBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
@@ -234,7 +237,6 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
     var hash [string] integer: mydict is (hash [string] integer).value;
     var string: buffer is "";
     var string: xstr is "";
-    var integer: bitPos is 0;
     var integer: bitsToWrite is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -244,7 +246,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
     for code range 0 to pred(clearCode) do
       mydict @:= [str(char(code))] code;
     end for;
-    putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+    putBits(compressedStream, clearCode, bitsToWrite);
     bitsToWrite := succ(codeSize);
     moreBitsNeeded := 1 << bitsToWrite;
     for ch range uncompressed do
@@ -252,7 +254,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
       if xstr in mydict then
         buffer &:= str(ch)
       else
-        putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        putBits(compressedStream, mydict[buffer], bitsToWrite);
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
@@ -261,7 +263,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
             end for;
-            putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+            putBits(compressedStream, clearCode, bitsToWrite);
             bitsToWrite := succ(codeSize);
           else
             incr(bitsToWrite);
@@ -272,17 +274,19 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
       end if;
     end for;
     if buffer <> "" then
-      putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+      putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
         if bitsToWrite = 12 then
-          putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+          putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
           incr(bitsToWrite);
         end if;
       end if;
     end if;
-    putBitsMsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
+    putBits(compressedStream, endOfInformationCode, bitsToWrite);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
   end func;
 
 
@@ -411,6 +415,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
   result
     var string: compressed is "";
   local
+    var msbOutputBitStream: compressedStream is msbOutputBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
@@ -418,7 +423,6 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
     var hash [string] integer: mydict is (hash [string] integer).value;
     var string: buffer is "";
     var string: xstr is "";
-    var integer: bitPos is 0;
     var integer: bitsToWrite is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -428,7 +432,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
     for code range 0 to pred(clearCode) do
       mydict @:= [str(char(code))] code;
     end for;
-    putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+    putBits(compressedStream, clearCode, bitsToWrite);
     bitsToWrite := succ(codeSize);
     moreBitsNeeded := pred(1 << bitsToWrite);
     for ch range uncompressed do
@@ -436,7 +440,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
       if xstr in mydict then
         buffer &:= str(ch)
       else
-        putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        putBits(compressedStream, mydict[buffer], bitsToWrite);
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
@@ -445,7 +449,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
             end for;
-            putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+            putBits(compressedStream, clearCode, bitsToWrite);
             bitsToWrite := succ(codeSize);
           else
             incr(bitsToWrite);
@@ -456,17 +460,19 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
       end if;
     end for;
     if buffer <> "" then
-      putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+      putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
         if bitsToWrite = 12 then
-          putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+          putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
           incr(bitsToWrite);
         end if;
       end if;
     end if;
-    putBitsMsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
+    putBits(compressedStream, endOfInformationCode, bitsToWrite);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream);
   end func;
 
 
