@@ -266,7 +266,7 @@ const proc: filterPngData (in pngHeader: header, inout string: uncompressed) is 
   end func;
 
 
-const proc: fillPngImage1BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine1Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in colorLookupTable: palette, in integer: width) is func
   local
     var integer: column is 0;
@@ -305,12 +305,12 @@ const proc: fillPngImage1Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage1BitLine(image[line], pixelData, byteIndex, palette, width);
+      fillPngImageLine1Bit(image[line], pixelData, byteIndex, palette, width);
     end for;
   end func;
 
 
-const proc: fillPngImage2BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine2Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in colorLookupTable: palette, in integer: width) is func
   local
     var integer: column is 0;
@@ -345,12 +345,12 @@ const proc: fillPngImage2Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage2BitLine(image[line], pixelData, byteIndex, palette, width);
+      fillPngImageLine2Bit(image[line], pixelData, byteIndex, palette, width);
     end for;
   end func;
 
 
-const proc: fillPngImage4BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine4Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in colorLookupTable: palette, in integer: width) is func
   local
     var integer: column is 0;
@@ -377,12 +377,12 @@ const proc: fillPngImage4Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage4BitLine(image[line], pixelData, byteIndex, palette, width);
+      fillPngImageLine4Bit(image[line], pixelData, byteIndex, palette, width);
     end for;
   end func;
 
 
-const proc: fillPngImage8BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine8Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in colorLookupTable: palette, in integer: width) is func
   local
     var integer: column is 0;
@@ -402,12 +402,12 @@ const proc: fillPngImage8Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage8BitLine(image[line], pixelData, byteIndex, palette, width);
+      fillPngImageLine8Bit(image[line], pixelData, byteIndex, palette, width);
     end for;
   end func;
 
 
-const proc: fillPngImage8BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine8Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in integer: bytesPerPixel, in integer: width) is func
   local
     var integer: column is 0;
@@ -429,12 +429,12 @@ const proc: fillPngImage8Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage8BitLine(image[line], pixelData, byteIndex, bytesPerPixel, width);
+      fillPngImageLine8Bit(image[line], pixelData, byteIndex, bytesPerPixel, width);
     end for;
   end func;
 
 
-const proc: fillPngImage16BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine16Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in integer: bytesPerPixel, in integer: width) is func
   local
     var integer: column is 0;
@@ -456,12 +456,12 @@ const proc: fillPngImage16Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage16BitLine(image[line], pixelData, byteIndex, bytesPerPixel, width);
+      fillPngImageLine16Bit(image[line], pixelData, byteIndex, bytesPerPixel, width);
     end for;
   end func;
 
 
-const proc: fillPngImage24BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine24Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in integer: bytesPerPixel, in integer: width) is func
   local
     var integer: column is 0;
@@ -483,12 +483,12 @@ const proc: fillPngImage24Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage24BitLine(image[line], pixelData, byteIndex, bytesPerPixel, width);
+      fillPngImageLine24Bit(image[line], pixelData, byteIndex, bytesPerPixel, width);
     end for;
   end func;
 
 
-const proc: fillPngImage48BitLine (inout pixelArray: imageLine, in string: pixelData,
+const proc: fillPngImageLine48Bit (inout pixelArray: imageLine, in string: pixelData,
     inout integer: byteIndex, in integer: bytesPerPixel, in integer: width) is func
   local
     var integer: column is 0;
@@ -510,7 +510,7 @@ const proc: fillPngImage48Bit (inout pixelImage: image, in string: pixelData,
     var integer: byteIndex is 1;
   begin
     for line range 1 to height do
-      fillPngImage48BitLine(image[line], pixelData, byteIndex, bytesPerPixel, width);
+      fillPngImageLine48Bit(image[line], pixelData, byteIndex, bytesPerPixel, width);
     end for;
   end func;
 
