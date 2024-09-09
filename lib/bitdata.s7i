@@ -1154,17 +1154,7 @@ const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
   end func;
 
 
-(**
- *  Write one bit in LSB-First order to ''outFile''.
- *  The bit is appended to ''outFile'' at the current bit position.
- *  Afterwards the bit position is advanced by one bit. The append
- *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  Bits are cached in outFile.bufferChar until a complete byte is present.
- *  Complete bytes in outFile.bufferChar are written to ''outFile''.
- *  @param outFile File of bytes to which the ''bit'' is written.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bit Bit to be written to ''outFile''.
- *)
+# The function putBitLsb(file) is deprecated. Use putBit(lsbOutputBitStream) instead.
 const proc: putBitLsb (inout file: outFile, inout integer: bitPos, in integer: bit) is func
   begin
     if bitPos = 7 then
@@ -1178,18 +1168,7 @@ const proc: putBitLsb (inout file: outFile, inout integer: bitPos, in integer: b
   end func;
 
 
-(**
- *  Write ''bitWidth'' bits in LSB-First order to ''outFile''.
- *  The bits are appended to ''outFile'' at the current bit position.
- *  Afterwards the bit position is advanced by ''bitWidth'' bits. The append
- *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  Bits are cached in outFile.bufferChar until a complete byte is present.
- *  Complete bytes in outFile.bufferChar are written to ''outFile''.
- *  @param outFile File of bytes to which the ''bits'' is written.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bits Bits to be written to ''outFile''.
- *  @param bitWidth Number of bits to be written (width of ''bits'').
- *)
+# The function putBitsLsb(file) is deprecated. Use putBits(lsbOutputBitStream) instead.
 const proc: putBitsLsb (inout file: outFile, inout integer: bitPos, in var integer: bits,
     in var integer: bitWidth) is func
   local
@@ -1268,17 +1247,7 @@ const func integer: getBitsMsb (inout file: inFile, inout integer: bitPos,
   end func;
 
 
-(**
- *  Write one bit in MSB-First order to ''outFile''.
- *  The bit is appended to ''outFile'' at the current bit position.
- *  Afterwards the bit position is advanced by one bit. The append
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  Bits are cached in outFile.bufferChar until a complete byte is present.
- *  Complete bytes in outFile.bufferChar are written to ''outFile''.
- *  @param outFile File of bytes to which the ''bit'' is written.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bit Bit to be written to ''outFile''.
- *)
+# The function putBitMsb(file) is deprecated. Use putBit(msbOutputBitStream) instead.
 const proc: putBitMsb (inout file: outFile, inout integer: bitPos, in integer: bit) is func
   begin
     if bitPos = 7 then
@@ -1292,18 +1261,7 @@ const proc: putBitMsb (inout file: outFile, inout integer: bitPos, in integer: b
   end func;
 
 
-(**
- *  Write ''bitWidth'' bits in MSB-First order to ''outFile''.
- *  The bits are appended to ''outFile'' at the current bit position.
- *  Afterwards the bit position is advanced by ''bitWidth'' bits. The append
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  Bits are cached in outFile.bufferChar until a complete byte is present.
- *  Complete bytes in outFile.bufferChar are written to ''outFile''.
- *  @param outFile File of bytes to which the ''bits'' is written.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bits Bits to be written to ''outFile''.
- *  @param bitWidth Number of bits to be written (width of ''bits'').
- *)
+# The function putBitsMsb(file) is deprecated. Use putBits(msbOutputBitStream) instead.
 const proc: putBitsMsb (inout file: outFile, inout integer: bitPos, in var integer: bits,
     in var integer: bitWidth) is func
   local
