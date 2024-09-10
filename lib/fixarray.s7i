@@ -122,6 +122,169 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
 
       const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
 
+      (**
+       *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
+       *)
+      const proc: for (inout baseType: forVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: number is 0;
+        begin
+          for number range minIdx to maxIdx do
+            forVar := arr[number];
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''keyVar'' loops over the indices of the array ''arr''.
+       *)
+      const proc: for key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx to maxIdx do
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' and ''keyVar'' loop over the array ''arr''.
+       *  The variable ''forVar'' loops over the elements of ''arr''
+       *  and ''keyVar'' loops over the indices of ''arr''.
+       *)
+      const proc: for (inout baseType: forVar) key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx to maxIdx do
+            forVar := arr[keyVar];
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
+       *  Additionally a ''condition'' is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for (inout baseType: forVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: index is 0;
+        begin
+          index := minIdx;
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      const proc: for (inout baseType: forVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: index is 0;
+        begin
+          index := minIdx;
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      (**
+       *  For-loop where ''keyVar'' loops over the indices of the array ''arr''.
+       *  Additionally a ''condition'' is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx to maxIdx until condition do
+            statements;
+          end for;
+        end func;
+
+      const proc: for key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx to maxIdx until condition do
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' and ''keyVar'' loop over the array ''arr''.
+       *  The variable ''forVar'' loops over the elements of ''arr''
+       *  and ''keyVar'' loops over the indices of ''arr''.
+       *  Additionally a ''condition'' is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for (inout baseType: forVar)
+                  key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          keyVar := minIdx;
+          if keyVar <= maxIdx then
+            forVar := arr[keyVar];
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      const proc: for (inout baseType: forVar)
+                  key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          keyVar := minIdx;
+          if keyVar <= maxIdx then
+            forVar := arr[keyVar];
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
+        end func;
+
     end global;
   end func;
 
