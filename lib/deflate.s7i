@@ -29,7 +29,7 @@
 include "bitdata.s7i";
 
 
-const proc: putLiteralOrLength (inout lsbOutputBitStream: compressedStream,
+const proc: putLiteralOrLength (inout lsbOutBitStream: compressedStream,
     in integer: literalOrLength) is func
   begin
     if literalOrLength <= 143 then
@@ -44,7 +44,7 @@ const proc: putLiteralOrLength (inout lsbOutputBitStream: compressedStream,
   end func;
 
 
-const proc: putLength (inout lsbOutputBitStream: compressedStream,
+const proc: putLength (inout lsbOutBitStream: compressedStream,
     in integer: length) is func
   begin
     if length <= 10 then
@@ -72,7 +72,7 @@ const proc: putLength (inout lsbOutputBitStream: compressedStream,
   end func;
 
 
-const proc: putDistance (inout lsbOutputBitStream: compressedStream,
+const proc: putDistance (inout lsbOutBitStream: compressedStream,
     in integer: distance) is func
   begin
     if distance <= 4 then
@@ -133,7 +133,7 @@ const type: deflateData is new struct
 
 
 const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
-    in integer: limit, inout lsbOutputBitStream: compressedStream) is func
+    in integer: limit, inout lsbOutBitStream: compressedStream) is func
   local
     var integer: pos is 0;
     var string: threeChars is "";
@@ -204,7 +204,7 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
 
 
 const proc: beginDeflateBlock (inout deflateData: deflateState,
-    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
+    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
   begin
     putBit(compressedStream, ord(bfinal));
     putBits(compressedStream, 1, 2);       # btype:  Fixed Huffman codes
@@ -212,14 +212,14 @@ const proc: beginDeflateBlock (inout deflateData: deflateState,
 
 
 const proc: endDeflateBlock (inout deflateData: deflateState,
-    inout lsbOutputBitStream: compressedStream) is func
+    inout lsbOutBitStream: compressedStream) is func
   begin
     putLiteralOrLength(compressedStream, 256);
   end func;
 
 
 const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncompressed,
-    inout lsbOutputBitStream: compressedStream) is func
+    inout lsbOutBitStream: compressedStream) is func
   begin
     deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
     endDeflateBlock(deflateState, compressedStream);
@@ -232,7 +232,7 @@ const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncom
  *  the LZ77 algorithm and Huffman coding.
  *)
 const proc: deflateBlock (in string: uncompressed,
-    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
+    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
   local
     var deflateData: deflateState is deflateData.value;
   begin
@@ -243,7 +243,7 @@ const proc: deflateBlock (in string: uncompressed,
 
 
 const proc: deflateBlock (inout file: inFile,
-    inout lsbOutputBitStream: compressedStream, in boolean: bfinal) is func
+    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
   local
     var deflateData: deflateState is deflateData.value;
     var string: uncompressed is "";
@@ -263,7 +263,7 @@ const func string: deflate (in string: uncompressed) is func
   result
     var string: compressed is "";
   local
-    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   begin
     deflateBlock(uncompressed, compressedStream, TRUE);
     flush(compressedStream);

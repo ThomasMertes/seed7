@@ -202,7 +202,7 @@ const func string: gzcompress (in string: uncompressed) is func
     var string: compressed is "";
   local
     const string: GZ_MAGIC is "x\156;";
-    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   begin
     write(compressedStream, GZ_MAGIC);
     deflateBlock(uncompressed, compressedStream, TRUE);
@@ -434,7 +434,7 @@ const func string: gzip (in string: uncompressed) is func
   result
     var string: compressed is "";
   local
-    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   begin
     write(compressedStream,
           GZIP_MAGIC &
@@ -460,7 +460,7 @@ const type: gzipWriteFile is sub null_file struct
     var bin32: crc32 is bin32(0);
     var integer: uncompressedLength is 0;
     var string: uncompressed is "";
-    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   end struct;
 
 type_implements_interface(gzipWriteFile, file);

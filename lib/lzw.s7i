@@ -46,7 +46,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
   result
     var string: compressed is "";
   local
-    var lsbOutputBitStream: compressedStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
@@ -229,7 +229,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
   result
     var string: compressed is "";
   local
-    var msbOutputBitStream: compressedStream is msbOutputBitStream.value;
+    var msbOutBitStream: compressedStream is msbOutBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
@@ -415,7 +415,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
   result
     var string: compressed is "";
   local
-    var msbOutputBitStream: compressedStream is msbOutputBitStream.value;
+    var msbOutBitStream: compressedStream is msbOutBitStream.value;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;

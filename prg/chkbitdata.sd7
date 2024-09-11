@@ -3413,7 +3413,7 @@ const proc: chkCloseMsb is func
   end func;
 
 
-const proc: initBitStream (inout lsbOutputBitStream: aBitStream,
+const proc: initBitStream (inout lsbOutBitStream: aBitStream,
     in string: stri, in integer: bitPos) is func
   begin
     if bitPos = 0 then
@@ -3430,7 +3430,7 @@ const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
   result
     var boolean: okay is TRUE;
   local
-    var lsbOutputBitStream: aBitStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: aBitStream is lsbOutBitStream.value;
     var string: bytes is "";
     var string: striVar is "";
     var integer: bitPosVar is 0;
@@ -3532,7 +3532,7 @@ const proc: chkPutBitLsb is func
         chkPutBitLsb( "\2#110101;", 6, 2#1, "\2#1110101;", 7) and
         chkPutBitLsb("\2#0110101;", 7, 2#1, "\2#10110101;", 0) and
         chkPutBitLsb("\2#1011001;", 7, 2#1, "\2#11011001;", 0) then
-      writeln("putBit(lsbOutputBitStream) works correctly.");
+      writeln("putBit(lsbOutBitStream) works correctly.");
     end if;
   end func;
 
@@ -3543,7 +3543,7 @@ const func boolean: chkPutBitsLsb (in string: stri, in integer: bitPos,
   result
     var boolean: okay is TRUE;
   local
-    var lsbOutputBitStream: aBitStream is lsbOutputBitStream.value;
+    var lsbOutBitStream: aBitStream is lsbOutBitStream.value;
     var string: bytes is "";
     var string: striVar is "";
     var integer: bitPosVar is 0;
@@ -4266,12 +4266,12 @@ const proc: chkPutBitsLsb is func
         chkPutBitsLsb( "\2#110101;", 6, 2#101000010010111000111, 21, "\2#11110101;\2#01110001;\2#00001001;\2#101;", 3) and
         chkPutBitsLsb("\2#0110101;", 7, 2#101000010010111000111, 21, "\2#10110101;\2#11100011;\2#00010010;\2#1010;", 4) and
         chkPutBitsLsb("\2#1011001;", 7, 2#101000010010111000111, 21, "\2#11011001;\2#11100011;\2#00010010;\2#1010;", 4) then
-      writeln("putBits(lsbOutputBitStream) works correctly.");
+      writeln("putBits(lsbOutBitStream) works correctly.");
     end if;
   end func;
 
 
-const proc: initBitStream (inout msbOutputBitStream: aBitStream,
+const proc: initBitStream (inout msbOutBitStream: aBitStream,
     in string: stri, in integer: bitPos) is func
   begin
     if bitPos = 0 then
@@ -4288,7 +4288,7 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
   result
     var boolean: okay is TRUE;
   local
-    var msbOutputBitStream: aBitStream is msbOutputBitStream.value;
+    var msbOutBitStream: aBitStream is msbOutBitStream.value;
     var string: bytes is "";
     var string: striVar is "";
     var integer: bitPosVar is 0;
@@ -4390,7 +4390,7 @@ const proc: chkPutBitMsb is func
         chkPutBitMsb("\2#11010100;", 6, 2#1, "\2#11010110;", 7) and
         chkPutBitMsb("\2#01101010;", 7, 2#1, "\2#01101011;", 0) and
         chkPutBitMsb("\2#10110010;", 7, 2#1, "\2#10110011;", 0) then
-      writeln("putBit(msbOutputBitStream) works correctly.");
+      writeln("putBit(msbOutBitStream) works correctly.");
     end if;
   end func;
 
@@ -4401,7 +4401,7 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
   result
     var boolean: okay is TRUE;
   local
-    var msbOutputBitStream: aBitStream is msbOutputBitStream.value;
+    var msbOutBitStream: aBitStream is msbOutBitStream.value;
     var string: bytes is "";
     var string: striVar is "";
     var integer: bitPosVar is 0;
@@ -5124,7 +5124,7 @@ const proc: chkPutBitsMsb is func
         chkPutBitsMsb("\2#11010100;", 6, 2#101000010010111000111, 21, "\2#11010110;\2#10000100;\2#10111000;\2#11100000;", 3) and
         chkPutBitsMsb("\2#01101010;", 7, 2#101000010010111000111, 21, "\2#01101011;\2#01000010;\2#01011100;\2#01110000;", 4) and
         chkPutBitsMsb("\2#10110010;", 7, 2#101000010010111000111, 21, "\2#10110011;\2#01000010;\2#01011100;\2#01110000;", 4) then
-      writeln("putBits(msbOutputBitStream) works correctly.");
+      writeln("putBits(msbOutBitStream) works correctly.");
     end if;
   end func;
 
