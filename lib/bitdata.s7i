@@ -811,6 +811,16 @@ const proc: putBits (inout lsbOutBitStream: outBitStream, in integer: bits,
 
 
 (**
+ *  Obtain the length of the given ''outBitStream''.
+ *  The bit stream length is measured in bits.
+ *  @param outBitStream Bit stream from which the length is obtained.
+ *  @return the length of the bit stream.
+ *)
+const func integer: length (in lsbOutBitStream: outBitStream) is
+  return length(outBitStream.byteString) * 8 + outBitStream.bitPos;
+
+
+(**
  *  Complete a partially filled byte and add it to the byte string.
  *  If ''outBitStream'' has a partially filled byte it is filled with zero
  *  bits and added to the byte string. If ''outBitStream'' has not a
@@ -946,6 +956,16 @@ const proc: putBits (inout msbOutBitStream: outBitStream, in integer: bits,
       outBitStream.buffer := outBitStream.buffer mod 2 ** bitShift;
     end if;
   end func;
+
+
+(**
+ *  Obtain the length of the given ''outBitStream''.
+ *  The bit stream length is measured in bits.
+ *  @param outBitStream Bit stream from which the length is obtained.
+ *  @return the length of the bit stream.
+ *)
+const func integer: length (in msbOutBitStream: outBitStream) is
+  return length(outBitStream.byteString) * 8 + outBitStream.bitSize;
 
 
 (**
