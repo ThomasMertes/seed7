@@ -821,6 +821,42 @@ const func integer: length (in lsbOutBitStream: outBitStream) is
 
 
 (**
+ *  Truncate ''outBitStream'' to the given ''length''.
+ *  If the bit stream previously was larger than ''length'', the extra data is lost.
+ *  If the bit stream previously was shorter, it is extended, and the extended
+ *  part is filled with zero bits.
+ *  @param outBitStream Bit stream to be truncated.
+ *  @param length Requested length of ''outBitStream'' in bits.
+ *  @exception RANGE_ERROR The requested length is negative.
+ *)
+const proc: truncate (inout lsbOutBitStream: outBitStream, in integer: length) is func
+  local
+    var integer: bytePos is 0;
+    var integer: bitPos is 0;
+  begin
+    if length < 0 then
+      raise RANGE_ERROR;
+    else
+      bytePos := length mdiv 8;
+      bitPos := length mod 8;
+      if bytePos < length(outBitStream.byteString) then
+        outBitStream.buffer := ord(outBitStream.byteString[succ(bytePos)]) mod 2 ** bitPos;
+        outBitStream.byteString := outBitStream.byteString[.. bytePos];
+      elsif bytePos = length(outBitStream.byteString) then
+        if bitPos < outBitStream.bitPos then
+          outBitStream.buffer := outBitStream.buffer mod 2 ** bitPos;
+        end if;
+      else
+        outBitStream.byteString &:= char(outBitStream.buffer);
+        outBitStream.byteString &:= "\0;" mult bytePos - length(outBitStream.byteString);
+        outBitStream.buffer := 0;
+      end if;
+      outBitStream.bitPos := bitPos;
+    end if;
+  end func;
+
+
+(**
  *  Complete a partially filled byte and add it to the byte string.
  *  If ''outBitStream'' has a partially filled byte it is filled with zero
  *  bits and added to the byte string. If ''outBitStream'' has not a
@@ -966,6 +1002,44 @@ const proc: putBits (inout msbOutBitStream: outBitStream, in integer: bits,
  *)
 const func integer: length (in msbOutBitStream: outBitStream) is
   return length(outBitStream.byteString) * 8 + outBitStream.bitSize;
+
+
+(**
+ *  Truncate ''outBitStream'' to the given ''length''.
+ *  If the bit stream previously was larger than ''length'', the extra data is lost.
+ *  If the bit stream previously was shorter, it is extended, and the extended
+ *  part is filled with zero bits.
+ *  @param outBitStream Bit stream to be truncated.
+ *  @param length Requested length of ''outBitStream'' in bits.
+ *  @exception RANGE_ERROR The requested length is negative.
+ *)
+const proc: truncate (inout msbOutBitStream: outBitStream, in integer: length) is func
+  local
+    var integer: bytePos is 0;
+    var integer: bitSize is 0;
+  begin
+    if length < 0 then
+      raise RANGE_ERROR;
+    else
+      bytePos := length mdiv 8;
+      bitSize := length mod 8;
+      if bytePos < length(outBitStream.byteString) then
+        outBitStream.buffer := ord(outBitStream.byteString[succ(bytePos)]) >> (8 - bitSize);
+        outBitStream.byteString := outBitStream.byteString[.. bytePos];
+      elsif bytePos = length(outBitStream.byteString) then
+        if bitSize < outBitStream.bitSize then
+          outBitStream.buffer >>:= outBitStream.bitSize - bitSize;
+        elsif bitSize > outBitStream.bitSize then
+          outBitStream.buffer <<:= bitSize - outBitStream.bitSize;
+        end if;
+      else
+        outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitSize));
+        outBitStream.byteString &:= "\0;" mult bytePos - length(outBitStream.byteString);
+        outBitStream.buffer := 0;
+      end if;
+      outBitStream.bitSize := bitSize;
+    end if;
+  end func;
 
 
 (**
