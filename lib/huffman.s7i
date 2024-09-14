@@ -117,17 +117,17 @@ const type: lsbHuffmanTable is new struct
     var array integer: codeLengths is 0 times 0;
   end struct;
 
-const type: valuesOfCodeWithLengthType is array array integer;
+const type: symbolsWithCodeLengthType is array array integer;
 
 
 const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths,
     in integer: maximumCodeLength,
-    in valuesOfCodeWithLengthType: valuesOfCodeWithLength) is func
+    in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
   result
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   local
     var integer: codeLength is 0;
-    var integer: huffmanValue is 0;
+    var integer: symbol is 0;
     var integer: currentCode is 0;
     var integer: reversedCode is 0;
     var integer: highBits is 0;
@@ -136,14 +136,52 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths
     table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
     table.codeLengths := codeLengths;
     for codeLength range 1 to maximumCodeLength do
-      for huffmanValue range valuesOfCodeWithLength[codeLength] do
+      for symbol range symbolsWithCodeLength[codeLength] do
         reversedCode := reverseBits(codeLength, currentCode);
         for highBits range 0 to pred(1 << maximumCodeLength) step 1 << codeLength do
-          table.symbols[highBits + reversedCode] := huffmanValue;
+          table.symbols[highBits + reversedCode] := symbol;
         end for;
         incr(currentCode);
       end for;
       currentCode <<:= 1;
+    end for;
+  end func;
+
+
+const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array integer: codeLengths) is func
+  result
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
+  local
+    var integer: codeLength is 0;
+    var integer: maximumCodeLength is 0;
+    var integer: numberOfCodes is 0;
+    var array integer: numberOfCodesWithLength is 0 times 0;
+    var array integer: valueIndex is 0 times 0;
+    var integer: symbol is 0;
+  begin
+    for codeLength range codeLengths do
+      if codeLength > maximumCodeLength then
+        maximumCodeLength := codeLength;
+      end if;
+    end for;
+    numberOfCodesWithLength := [1 .. maximumCodeLength] times 0;
+    for codeLength range codeLengths do
+      if codeLength <> 0 then
+        incr(numberOfCodesWithLength[codeLength]);
+      end if;
+    end for;
+    symbolsWithCodeLength := [1 .. maximumCodeLength] times 0 times 0;
+    for numberOfCodes key codeLength range numberOfCodesWithLength do
+      if numberOfCodes <> 0 then
+        symbolsWithCodeLength[codeLength] := numberOfCodes times 0;
+      end if;
+    end for;
+    valueIndex := [1 .. maximumCodeLength] times 1;
+    for codeLength key symbol range codeLengths do
+      if codeLength <> 0 then
+        symbolsWithCodeLength[codeLength][valueIndex[codeLength]] := symbol;
+        incr(valueIndex[codeLength]);
+      end if;
     end for;
   end func;
 
@@ -186,41 +224,11 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths
   result
     var lsbHuffmanTable: table is lsbHuffmanTable.value;
   local
-    var integer: codeLength is 0;
-    var integer: maximumCodeLength is 0;
-    var integer: numberOfCodes is 0;
-    var array integer: numberOfCodesWithLength is 0 times 0;
-    var valuesOfCodeWithLengthType: valuesOfCodeWithLength is 0 times 0 times 0;
-    var array integer: valueIndex is 0 times 0;
-    var integer: number is 0;
-    var integer: code is 0;
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
   begin
-    for codeLength range codeLengths do
-      if codeLength > maximumCodeLength then
-        maximumCodeLength := codeLength;
-      end if;
-    end for;
-    numberOfCodesWithLength := [1 .. maximumCodeLength] times 0;
-    for codeLength range codeLengths do
-      if codeLength <> 0 then
-        incr(numberOfCodesWithLength[codeLength]);
-      end if;
-    end for;
-    valuesOfCodeWithLength := [1 .. maximumCodeLength] times 0 times 0;
-    for numberOfCodes key codeLength range numberOfCodesWithLength do
-      if numberOfCodes <> 0 then
-        valuesOfCodeWithLength[codeLength] := numberOfCodes times 0;
-      end if;
-    end for;
-    valueIndex := [1 .. maximumCodeLength] times 1;
-    for codeLength key code range codeLengths do
-      if codeLength <> 0 then
-        valuesOfCodeWithLength[codeLength][valueIndex[codeLength]] := code;
-        incr(valueIndex[codeLength]);
-      end if;
-    end for;
-    table := createHuffmanTableLsb(codeLengths, maximumCodeLength,
-                                   valuesOfCodeWithLength);
+    symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+    table := createHuffmanTableLsb(codeLengths, maxIdx(symbolsWithCodeLength),
+                                   symbolsWithCodeLength);
   end func;
 
 
