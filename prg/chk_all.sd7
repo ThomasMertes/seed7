@@ -386,8 +386,10 @@ const string:chkbitdata_output is "\n\
   \close(msbBitStream) works correctly.\n\
   \putBit(lsbOutBitStream) works correctly.\n\
   \putBits(lsbOutBitStream) works correctly.\n\
+  \length(lsbOutBitStream) and truncate(lsbOutBitStream) work correctly.\n\
   \putBit(msbOutBitStream) works correctly.\n\
-  \putBits(msbOutBitStream) works correctly.\n";
+  \putBits(msbOutBitStream) works correctly.\n\
+  \length(msbOutBitStream) and truncate(msbOutBitStream) work correctly.\n";
 
 const string: chkset_output is "\n\
   \Bitset literals work correctly.\n\
