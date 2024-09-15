@@ -553,6 +553,40 @@ const proc: chkBooleanHash is func
       writeln(" ***** Elements with wrong value in hash[boolean] table");
       okay := FALSE;
     end if;
+    if  update(booleanBooleanHashVar,     TRUE, FALSE)                    <> TRUE                     or
+        update(booleanIntegerHashVar,     TRUE, 12345)                    <> 1234                     or
+        update(booleanBigIntegerHashVar,  TRUE, 8888888888_)              <> 9999999999_              or
+        update(booleanBigRationalHashVar, TRUE, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(booleanFloatHashVar,       TRUE, 2.7182818284)             <> 3.1415926535             or
+        update(booleanComplexHashVar,     TRUE, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(booleanCharHashVar,        TRUE, 'R')                      <> 'Q'                      or
+        update(booleanStringHashVar,      TRUE, "big success")            <> "success"                or
+        update(booleanBstringHashVar,     TRUE, bstring("correct"))       <> bstring("okay")          or
+        update(booleanBitsetHashVar,      TRUE, {246})                    <> {123}                    or
+        update(booleanTimeHashVar,        TRUE, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(booleanEnumTypeHashVar,    TRUE, YELLOW)                   <> GREEN                    or
+        update(booleanTypeHashVar,        TRUE, integer)                  <> char                     or
+        update(booleanReferenceHashVar,   TRUE, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[boolean]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  booleanBooleanHashVar     [TRUE] <> FALSE                    or
+        booleanIntegerHashVar     [TRUE] <> 12345                    or
+        booleanBigIntegerHashVar  [TRUE] <> 8888888888_              or
+        booleanBigRationalHashVar [TRUE] <> 8888888888_ / 12345678_  or
+        booleanFloatHashVar       [TRUE] <> 2.7182818284             or
+        booleanComplexHashVar     [TRUE] <> complex(2.3, 4.5)        or
+        booleanCharHashVar        [TRUE] <> 'R'                      or
+        booleanStringHashVar      [TRUE] <> "big success"            or
+        booleanBstringHashVar     [TRUE] <> bstring("correct")       or
+        booleanBitsetHashVar      [TRUE] <> {246}                    or
+        booleanTimeHashVar        [TRUE] <> time("2009-10-11 12:13") or
+        booleanEnumTypeHashVar    [TRUE] <> YELLOW                   or
+        booleanTypeHashVar        [TRUE] <> integer                  or
+        booleanReferenceHashVar   [TRUE] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[boolean] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with boolean keys work correctly.");
     else
@@ -802,6 +836,40 @@ const proc: chkIntegerHash is func
         integerTimeHashVar        [87654321] <> time("2011-12-13 14:15") or
         integerEnumTypeHashVar    [87654321] <> GREEN                    or
         integerTypeHashVar        [87654321] <> char                     or
+        integerReferenceHashVar   [87654321] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[integer] table");
+      okay := FALSE;
+    end if;
+    if  update(integerBooleanHashVar,     87654321, FALSE)                    <> TRUE                     or
+        update(integerIntegerHashVar,     87654321, 12345)                    <> 1234                     or
+        update(integerBigIntegerHashVar,  87654321, 8888888888_)              <> 9999999999_              or
+        update(integerBigRationalHashVar, 87654321, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(integerFloatHashVar,       87654321, 2.7182818284)             <> 3.1415926535             or
+        update(integerComplexHashVar,     87654321, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(integerCharHashVar,        87654321, 'R')                      <> 'Q'                      or
+        update(integerStringHashVar,      87654321, "big success")            <> "success"                or
+        update(integerBstringHashVar,     87654321, bstring("correct"))       <> bstring("okay")          or
+        update(integerBitsetHashVar,      87654321, {246})                    <> {123}                    or
+        update(integerTimeHashVar,        87654321, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(integerEnumTypeHashVar,    87654321, YELLOW)                   <> GREEN                    or
+        update(integerTypeHashVar,        87654321, integer)                  <> char                     or
+        update(integerReferenceHashVar,   87654321, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[integer]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  integerBooleanHashVar     [87654321] <> FALSE                    or
+        integerIntegerHashVar     [87654321] <> 12345                    or
+        integerBigIntegerHashVar  [87654321] <> 8888888888_              or
+        integerBigRationalHashVar [87654321] <> 8888888888_ / 12345678_  or
+        integerFloatHashVar       [87654321] <> 2.7182818284             or
+        integerComplexHashVar     [87654321] <> complex(2.3, 4.5)        or
+        integerCharHashVar        [87654321] <> 'R'                      or
+        integerStringHashVar      [87654321] <> "big success"            or
+        integerBstringHashVar     [87654321] <> bstring("correct")       or
+        integerBitsetHashVar      [87654321] <> {246}                    or
+        integerTimeHashVar        [87654321] <> time("2009-10-11 12:13") or
+        integerEnumTypeHashVar    [87654321] <> YELLOW                   or
+        integerTypeHashVar        [87654321] <> integer                  or
         integerReferenceHashVar   [87654321] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[integer] table");
       okay := FALSE;
@@ -1060,6 +1128,40 @@ const proc: chkBigIntegerHash is func
       writeln(" ***** Elements with wrong value in hash[bigInteger] table");
       okay := FALSE;
     end if;
+    if  update(bigIntegerBooleanHashVar,     9223372036854775808_, FALSE)                    <> TRUE                     or
+        update(bigIntegerIntegerHashVar,     9223372036854775808_, 12345)                    <> 1234                     or
+        update(bigIntegerBigIntegerHashVar,  9223372036854775808_, 8888888888_)              <> 9999999999_              or
+        update(bigIntegerBigRationalHashVar, 9223372036854775808_, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(bigIntegerFloatHashVar,       9223372036854775808_, 2.7182818284)             <> 3.1415926535             or
+        update(bigIntegerComplexHashVar,     9223372036854775808_, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(bigIntegerCharHashVar,        9223372036854775808_, 'R')                      <> 'Q'                      or
+        update(bigIntegerStringHashVar,      9223372036854775808_, "big success")            <> "success"                or
+        update(bigIntegerBstringHashVar,     9223372036854775808_, bstring("correct"))       <> bstring("okay")          or
+        update(bigIntegerBitsetHashVar,      9223372036854775808_, {246})                    <> {123}                    or
+        update(bigIntegerTimeHashVar,        9223372036854775808_, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(bigIntegerEnumTypeHashVar,    9223372036854775808_, YELLOW)                   <> GREEN                    or
+        update(bigIntegerTypeHashVar,        9223372036854775808_, integer)                  <> char                     or
+        update(bigIntegerReferenceHashVar,   9223372036854775808_, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[bigInteger]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  bigIntegerBooleanHashVar     [9223372036854775808_] <> FALSE                    or
+        bigIntegerIntegerHashVar     [9223372036854775808_] <> 12345                    or
+        bigIntegerBigIntegerHashVar  [9223372036854775808_] <> 8888888888_              or
+        bigIntegerBigRationalHashVar [9223372036854775808_] <> 8888888888_ / 12345678_  or
+        bigIntegerFloatHashVar       [9223372036854775808_] <> 2.7182818284             or
+        bigIntegerComplexHashVar     [9223372036854775808_] <> complex(2.3, 4.5)        or
+        bigIntegerCharHashVar        [9223372036854775808_] <> 'R'                      or
+        bigIntegerStringHashVar      [9223372036854775808_] <> "big success"            or
+        bigIntegerBstringHashVar     [9223372036854775808_] <> bstring("correct")       or
+        bigIntegerBitsetHashVar      [9223372036854775808_] <> {246}                    or
+        bigIntegerTimeHashVar        [9223372036854775808_] <> time("2009-10-11 12:13") or
+        bigIntegerEnumTypeHashVar    [9223372036854775808_] <> YELLOW                   or
+        bigIntegerTypeHashVar        [9223372036854775808_] <> integer                  or
+        bigIntegerReferenceHashVar   [9223372036854775808_] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[bigInteger] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with bigInteger keys work correctly.");
     else
@@ -1310,6 +1412,40 @@ const proc: chkRationalHash is func
         rationalTimeHashVar        [9876543212 / 1234567890] <> time("2011-12-13 14:15") or
         rationalEnumTypeHashVar    [9876543212 / 1234567890] <> GREEN                    or
         rationalTypeHashVar        [9876543212 / 1234567890] <> char                     or
+        rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[rational] table");
+      okay := FALSE;
+    end if;
+    if  update(rationalBooleanHashVar,     9876543212 / 1234567890, FALSE)                    <> TRUE                     or
+        update(rationalIntegerHashVar,     9876543212 / 1234567890, 12345)                    <> 1234                     or
+        update(rationalBigIntegerHashVar,  9876543212 / 1234567890, 8888888888_)              <> 9999999999_              or
+        update(rationalBigRationalHashVar, 9876543212 / 1234567890, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(rationalFloatHashVar,       9876543212 / 1234567890, 2.7182818284)             <> 3.1415926535             or
+        update(rationalComplexHashVar,     9876543212 / 1234567890, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(rationalCharHashVar,        9876543212 / 1234567890, 'R')                      <> 'Q'                      or
+        update(rationalStringHashVar,      9876543212 / 1234567890, "big success")            <> "success"                or
+        update(rationalBstringHashVar,     9876543212 / 1234567890, bstring("correct"))       <> bstring("okay")          or
+        update(rationalBitsetHashVar,      9876543212 / 1234567890, {246})                    <> {123}                    or
+        update(rationalTimeHashVar,        9876543212 / 1234567890, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(rationalEnumTypeHashVar,    9876543212 / 1234567890, YELLOW)                   <> GREEN                    or
+        update(rationalTypeHashVar,        9876543212 / 1234567890, integer)                  <> char                     or
+        update(rationalReferenceHashVar,   9876543212 / 1234567890, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[rational]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  rationalBooleanHashVar     [9876543212 / 1234567890] <> FALSE                    or
+        rationalIntegerHashVar     [9876543212 / 1234567890] <> 12345                    or
+        rationalBigIntegerHashVar  [9876543212 / 1234567890] <> 8888888888_              or
+        rationalBigRationalHashVar [9876543212 / 1234567890] <> 8888888888_ / 12345678_  or
+        rationalFloatHashVar       [9876543212 / 1234567890] <> 2.7182818284             or
+        rationalComplexHashVar     [9876543212 / 1234567890] <> complex(2.3, 4.5)        or
+        rationalCharHashVar        [9876543212 / 1234567890] <> 'R'                      or
+        rationalStringHashVar      [9876543212 / 1234567890] <> "big success"            or
+        rationalBstringHashVar     [9876543212 / 1234567890] <> bstring("correct")       or
+        rationalBitsetHashVar      [9876543212 / 1234567890] <> {246}                    or
+        rationalTimeHashVar        [9876543212 / 1234567890] <> time("2009-10-11 12:13") or
+        rationalEnumTypeHashVar    [9876543212 / 1234567890] <> YELLOW                   or
+        rationalTypeHashVar        [9876543212 / 1234567890] <> integer                  or
         rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[rational] table");
       okay := FALSE;
@@ -1568,6 +1704,40 @@ const proc: chkBigRationalHash is func
       writeln(" ***** Elements with wrong value in hash[bigRational] table");
       okay := FALSE;
     end if;
+    if  update(bigRationalBooleanHashVar,     9876543212_ / 1234567890_, FALSE)                    <> TRUE                     or
+        update(bigRationalIntegerHashVar,     9876543212_ / 1234567890_, 12345)                    <> 1234                     or
+        update(bigRationalBigIntegerHashVar,  9876543212_ / 1234567890_, 8888888888_)              <> 9999999999_              or
+        update(bigRationalBigRationalHashVar, 9876543212_ / 1234567890_, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(bigRationalFloatHashVar,       9876543212_ / 1234567890_, 2.7182818284)             <> 3.1415926535             or
+        update(bigRationalComplexHashVar,     9876543212_ / 1234567890_, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(bigRationalCharHashVar,        9876543212_ / 1234567890_, 'R')                      <> 'Q'                      or
+        update(bigRationalStringHashVar,      9876543212_ / 1234567890_, "big success")            <> "success"                or
+        update(bigRationalBstringHashVar,     9876543212_ / 1234567890_, bstring("correct"))       <> bstring("okay")          or
+        update(bigRationalBitsetHashVar,      9876543212_ / 1234567890_, {246})                    <> {123}                    or
+        update(bigRationalTimeHashVar,        9876543212_ / 1234567890_, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(bigRationalEnumTypeHashVar,    9876543212_ / 1234567890_, YELLOW)                   <> GREEN                    or
+        update(bigRationalTypeHashVar,        9876543212_ / 1234567890_, integer)                  <> char                     or
+        update(bigRationalReferenceHashVar,   9876543212_ / 1234567890_, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[bigRational]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  bigRationalBooleanHashVar     [9876543212_ / 1234567890_] <> FALSE                    or
+        bigRationalIntegerHashVar     [9876543212_ / 1234567890_] <> 12345                    or
+        bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_] <> 8888888888_              or
+        bigRationalBigRationalHashVar [9876543212_ / 1234567890_] <> 8888888888_ / 12345678_  or
+        bigRationalFloatHashVar       [9876543212_ / 1234567890_] <> 2.7182818284             or
+        bigRationalComplexHashVar     [9876543212_ / 1234567890_] <> complex(2.3, 4.5)        or
+        bigRationalCharHashVar        [9876543212_ / 1234567890_] <> 'R'                      or
+        bigRationalStringHashVar      [9876543212_ / 1234567890_] <> "big success"            or
+        bigRationalBstringHashVar     [9876543212_ / 1234567890_] <> bstring("correct")       or
+        bigRationalBitsetHashVar      [9876543212_ / 1234567890_] <> {246}                    or
+        bigRationalTimeHashVar        [9876543212_ / 1234567890_] <> time("2009-10-11 12:13") or
+        bigRationalEnumTypeHashVar    [9876543212_ / 1234567890_] <> YELLOW                   or
+        bigRationalTypeHashVar        [9876543212_ / 1234567890_] <> integer                  or
+        bigRationalReferenceHashVar   [9876543212_ / 1234567890_] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[bigRational] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with bigRational keys work correctly.");
     else
@@ -1818,6 +1988,40 @@ const proc: chkFloatHash is func
         floatTimeHashVar        [3.1415926535] <> time("2011-12-13 14:15") or
         floatEnumTypeHashVar    [3.1415926535] <> GREEN                    or
         floatTypeHashVar        [3.1415926535] <> char                     or
+        floatReferenceHashVar   [3.1415926535] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[float] table");
+      okay := FALSE;
+    end if;
+    if  update(floatBooleanHashVar,     3.1415926535, FALSE)                    <> TRUE                     or
+        update(floatIntegerHashVar,     3.1415926535, 12345)                    <> 1234                     or
+        update(floatBigIntegerHashVar,  3.1415926535, 8888888888_)              <> 9999999999_              or
+        update(floatBigRationalHashVar, 3.1415926535, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(floatFloatHashVar,       3.1415926535, 2.7182818284)             <> 3.1415926535             or
+        update(floatComplexHashVar,     3.1415926535, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(floatCharHashVar,        3.1415926535, 'R')                      <> 'Q'                      or
+        update(floatStringHashVar,      3.1415926535, "big success")            <> "success"                or
+        update(floatBstringHashVar,     3.1415926535, bstring("correct"))       <> bstring("okay")          or
+        update(floatBitsetHashVar,      3.1415926535, {246})                    <> {123}                    or
+        update(floatTimeHashVar,        3.1415926535, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(floatEnumTypeHashVar,    3.1415926535, YELLOW)                   <> GREEN                    or
+        update(floatTypeHashVar,        3.1415926535, integer)                  <> char                     or
+        update(floatReferenceHashVar,   3.1415926535, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[float]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  floatBooleanHashVar     [3.1415926535] <> FALSE                    or
+        floatIntegerHashVar     [3.1415926535] <> 12345                    or
+        floatBigIntegerHashVar  [3.1415926535] <> 8888888888_              or
+        floatBigRationalHashVar [3.1415926535] <> 8888888888_ / 12345678_  or
+        floatFloatHashVar       [3.1415926535] <> 2.7182818284             or
+        floatComplexHashVar     [3.1415926535] <> complex(2.3, 4.5)        or
+        floatCharHashVar        [3.1415926535] <> 'R'                      or
+        floatStringHashVar      [3.1415926535] <> "big success"            or
+        floatBstringHashVar     [3.1415926535] <> bstring("correct")       or
+        floatBitsetHashVar      [3.1415926535] <> {246}                    or
+        floatTimeHashVar        [3.1415926535] <> time("2009-10-11 12:13") or
+        floatEnumTypeHashVar    [3.1415926535] <> YELLOW                   or
+        floatTypeHashVar        [3.1415926535] <> integer                  or
         floatReferenceHashVar   [3.1415926535] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[float] table");
       okay := FALSE;
@@ -2076,6 +2280,40 @@ const proc: chkComplexHash is func
       writeln(" ***** Elements with wrong value in hash[complex] table");
       okay := FALSE;
     end if;
+    if  update(complexBooleanHashVar,     complex(5.6, 7.8), FALSE)                    <> TRUE                     or
+        update(complexIntegerHashVar,     complex(5.6, 7.8), 12345)                    <> 1234                     or
+        update(complexBigIntegerHashVar,  complex(5.6, 7.8), 8888888888_)              <> 9999999999_              or
+        update(complexBigRationalHashVar, complex(5.6, 7.8), 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(complexFloatHashVar,       complex(5.6, 7.8), 2.7182818284)             <> 3.1415926535             or
+        update(complexComplexHashVar,     complex(5.6, 7.8), complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(complexCharHashVar,        complex(5.6, 7.8), 'R')                      <> 'Q'                      or
+        update(complexStringHashVar,      complex(5.6, 7.8), "big success")            <> "success"                or
+        update(complexBstringHashVar,     complex(5.6, 7.8), bstring("correct"))       <> bstring("okay")          or
+        update(complexBitsetHashVar,      complex(5.6, 7.8), {246})                    <> {123}                    or
+        update(complexTimeHashVar,        complex(5.6, 7.8), time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(complexEnumTypeHashVar,    complex(5.6, 7.8), YELLOW)                   <> GREEN                    or
+        update(complexTypeHashVar,        complex(5.6, 7.8), integer)                  <> char                     or
+        update(complexReferenceHashVar,   complex(5.6, 7.8), NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[complex]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  complexBooleanHashVar     [complex(5.6, 7.8)] <> FALSE                    or
+        complexIntegerHashVar     [complex(5.6, 7.8)] <> 12345                    or
+        complexBigIntegerHashVar  [complex(5.6, 7.8)] <> 8888888888_              or
+        complexBigRationalHashVar [complex(5.6, 7.8)] <> 8888888888_ / 12345678_  or
+        complexFloatHashVar       [complex(5.6, 7.8)] <> 2.7182818284             or
+        complexComplexHashVar     [complex(5.6, 7.8)] <> complex(2.3, 4.5)        or
+        complexCharHashVar        [complex(5.6, 7.8)] <> 'R'                      or
+        complexStringHashVar      [complex(5.6, 7.8)] <> "big success"            or
+        complexBstringHashVar     [complex(5.6, 7.8)] <> bstring("correct")       or
+        complexBitsetHashVar      [complex(5.6, 7.8)] <> {246}                    or
+        complexTimeHashVar        [complex(5.6, 7.8)] <> time("2009-10-11 12:13") or
+        complexEnumTypeHashVar    [complex(5.6, 7.8)] <> YELLOW                   or
+        complexTypeHashVar        [complex(5.6, 7.8)] <> integer                  or
+        complexReferenceHashVar   [complex(5.6, 7.8)] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[complex] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with complex keys work correctly.");
     else
@@ -2326,6 +2564,40 @@ const proc: chkCharHash is func
         charTimeHashVar        ['k'] <> time("2011-12-13 14:15") or
         charEnumTypeHashVar    ['k'] <> GREEN                    or
         charTypeHashVar        ['k'] <> char                     or
+        charReferenceHashVar   ['k'] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[char] table");
+      okay := FALSE;
+    end if;
+    if  update(charBooleanHashVar,     'k', FALSE)                    <> TRUE                     or
+        update(charIntegerHashVar,     'k', 12345)                    <> 1234                     or
+        update(charBigIntegerHashVar,  'k', 8888888888_)              <> 9999999999_              or
+        update(charBigRationalHashVar, 'k', 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(charFloatHashVar,       'k', 2.7182818284)             <> 3.1415926535             or
+        update(charComplexHashVar,     'k', complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(charCharHashVar,        'k', 'R')                      <> 'Q'                      or
+        update(charStringHashVar,      'k', "big success")            <> "success"                or
+        update(charBstringHashVar,     'k', bstring("correct"))       <> bstring("okay")          or
+        update(charBitsetHashVar,      'k', {246})                    <> {123}                    or
+        update(charTimeHashVar,        'k', time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(charEnumTypeHashVar,    'k', YELLOW)                   <> GREEN                    or
+        update(charTypeHashVar,        'k', integer)                  <> char                     or
+        update(charReferenceHashVar,   'k', NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[char]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  charBooleanHashVar     ['k'] <> FALSE                    or
+        charIntegerHashVar     ['k'] <> 12345                    or
+        charBigIntegerHashVar  ['k'] <> 8888888888_              or
+        charBigRationalHashVar ['k'] <> 8888888888_ / 12345678_  or
+        charFloatHashVar       ['k'] <> 2.7182818284             or
+        charComplexHashVar     ['k'] <> complex(2.3, 4.5)        or
+        charCharHashVar        ['k'] <> 'R'                      or
+        charStringHashVar      ['k'] <> "big success"            or
+        charBstringHashVar     ['k'] <> bstring("correct")       or
+        charBitsetHashVar      ['k'] <> {246}                    or
+        charTimeHashVar        ['k'] <> time("2009-10-11 12:13") or
+        charEnumTypeHashVar    ['k'] <> YELLOW                   or
+        charTypeHashVar        ['k'] <> integer                  or
         charReferenceHashVar   ['k'] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[char] table");
       okay := FALSE;
@@ -2584,6 +2856,40 @@ const proc: chkStringHash is func
       writeln(" ***** Elements with wrong value in hash[string] table");
       okay := FALSE;
     end if;
+    if  update(stringBooleanHashVar,     "asdfghjkl", FALSE)                    <> TRUE                     or
+        update(stringIntegerHashVar,     "asdfghjkl", 12345)                    <> 1234                     or
+        update(stringBigIntegerHashVar,  "asdfghjkl", 8888888888_)              <> 9999999999_              or
+        update(stringBigRationalHashVar, "asdfghjkl", 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(stringFloatHashVar,       "asdfghjkl", 2.7182818284)             <> 3.1415926535             or
+        update(stringComplexHashVar,     "asdfghjkl", complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(stringCharHashVar,        "asdfghjkl", 'R')                      <> 'Q'                      or
+        update(stringStringHashVar,      "asdfghjkl", "big success")            <> "success"                or
+        update(stringBstringHashVar,     "asdfghjkl", bstring("correct"))       <> bstring("okay")          or
+        update(stringBitsetHashVar,      "asdfghjkl", {246})                    <> {123}                    or
+        update(stringTimeHashVar,        "asdfghjkl", time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(stringEnumTypeHashVar,    "asdfghjkl", YELLOW)                   <> GREEN                    or
+        update(stringTypeHashVar,        "asdfghjkl", integer)                  <> char                     or
+        update(stringReferenceHashVar,   "asdfghjkl", NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[string]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  stringBooleanHashVar     ["asdfghjkl"] <> FALSE                    or
+        stringIntegerHashVar     ["asdfghjkl"] <> 12345                    or
+        stringBigIntegerHashVar  ["asdfghjkl"] <> 8888888888_              or
+        stringBigRationalHashVar ["asdfghjkl"] <> 8888888888_ / 12345678_  or
+        stringFloatHashVar       ["asdfghjkl"] <> 2.7182818284             or
+        stringComplexHashVar     ["asdfghjkl"] <> complex(2.3, 4.5)        or
+        stringCharHashVar        ["asdfghjkl"] <> 'R'                      or
+        stringStringHashVar      ["asdfghjkl"] <> "big success"            or
+        stringBstringHashVar     ["asdfghjkl"] <> bstring("correct")       or
+        stringBitsetHashVar      ["asdfghjkl"] <> {246}                    or
+        stringTimeHashVar        ["asdfghjkl"] <> time("2009-10-11 12:13") or
+        stringEnumTypeHashVar    ["asdfghjkl"] <> YELLOW                   or
+        stringTypeHashVar        ["asdfghjkl"] <> integer                  or
+        stringReferenceHashVar   ["asdfghjkl"] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[string] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with string keys work correctly.");
     else
@@ -2834,6 +3140,40 @@ const proc: chkBstringHash is func
         bstringTimeHashVar        [bstring("qwert")] <> time("2011-12-13 14:15") or
         bstringEnumTypeHashVar    [bstring("qwert")] <> GREEN                    or
         bstringTypeHashVar        [bstring("qwert")] <> char                     or
+        bstringReferenceHashVar   [bstring("qwert")] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[bstring] table");
+      okay := FALSE;
+    end if;
+    if  update(bstringBooleanHashVar,     bstring("qwert"), FALSE)                    <> TRUE                     or
+        update(bstringIntegerHashVar,     bstring("qwert"), 12345)                    <> 1234                     or
+        update(bstringBigIntegerHashVar,  bstring("qwert"), 8888888888_)              <> 9999999999_              or
+        update(bstringBigRationalHashVar, bstring("qwert"), 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(bstringFloatHashVar,       bstring("qwert"), 2.7182818284)             <> 3.1415926535             or
+        update(bstringComplexHashVar,     bstring("qwert"), complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(bstringCharHashVar,        bstring("qwert"), 'R')                      <> 'Q'                      or
+        update(bstringStringHashVar,      bstring("qwert"), "big success")            <> "success"                or
+        update(bstringBstringHashVar,     bstring("qwert"), bstring("correct"))       <> bstring("okay")          or
+        update(bstringBitsetHashVar,      bstring("qwert"), {246})                    <> {123}                    or
+        update(bstringTimeHashVar,        bstring("qwert"), time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(bstringEnumTypeHashVar,    bstring("qwert"), YELLOW)                   <> GREEN                    or
+        update(bstringTypeHashVar,        bstring("qwert"), integer)                  <> char                     or
+        update(bstringReferenceHashVar,   bstring("qwert"), NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[bstring]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  bstringBooleanHashVar     [bstring("qwert")] <> FALSE                    or
+        bstringIntegerHashVar     [bstring("qwert")] <> 12345                    or
+        bstringBigIntegerHashVar  [bstring("qwert")] <> 8888888888_              or
+        bstringBigRationalHashVar [bstring("qwert")] <> 8888888888_ / 12345678_  or
+        bstringFloatHashVar       [bstring("qwert")] <> 2.7182818284             or
+        bstringComplexHashVar     [bstring("qwert")] <> complex(2.3, 4.5)        or
+        bstringCharHashVar        [bstring("qwert")] <> 'R'                      or
+        bstringStringHashVar      [bstring("qwert")] <> "big success"            or
+        bstringBstringHashVar     [bstring("qwert")] <> bstring("correct")       or
+        bstringBitsetHashVar      [bstring("qwert")] <> {246}                    or
+        bstringTimeHashVar        [bstring("qwert")] <> time("2009-10-11 12:13") or
+        bstringEnumTypeHashVar    [bstring("qwert")] <> YELLOW                   or
+        bstringTypeHashVar        [bstring("qwert")] <> integer                  or
         bstringReferenceHashVar   [bstring("qwert")] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[bstring] table");
       okay := FALSE;
@@ -3092,6 +3432,40 @@ const proc: chkBitsetHash is func
       writeln(" ***** Elements with wrong value in hash[bitset] table");
       okay := FALSE;
     end if;
+    if  update(bitsetBooleanHashVar,     {234}, FALSE)                    <> TRUE                     or
+        update(bitsetIntegerHashVar,     {234}, 12345)                    <> 1234                     or
+        update(bitsetBigIntegerHashVar,  {234}, 8888888888_)              <> 9999999999_              or
+        update(bitsetBigRationalHashVar, {234}, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(bitsetFloatHashVar,       {234}, 2.7182818284)             <> 3.1415926535             or
+        update(bitsetComplexHashVar,     {234}, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(bitsetCharHashVar,        {234}, 'R')                      <> 'Q'                      or
+        update(bitsetStringHashVar,      {234}, "big success")            <> "success"                or
+        update(bitsetBstringHashVar,     {234}, bstring("correct"))       <> bstring("okay")          or
+        update(bitsetBitsetHashVar,      {234}, {246})                    <> {123}                    or
+        update(bitsetTimeHashVar,        {234}, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(bitsetEnumTypeHashVar,    {234}, YELLOW)                   <> GREEN                    or
+        update(bitsetTypeHashVar,        {234}, integer)                  <> char                     or
+        update(bitsetReferenceHashVar,   {234}, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[bitset]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  bitsetBooleanHashVar     [{234}] <> FALSE                    or
+        bitsetIntegerHashVar     [{234}] <> 12345                    or
+        bitsetBigIntegerHashVar  [{234}] <> 8888888888_              or
+        bitsetBigRationalHashVar [{234}] <> 8888888888_ / 12345678_  or
+        bitsetFloatHashVar       [{234}] <> 2.7182818284             or
+        bitsetComplexHashVar     [{234}] <> complex(2.3, 4.5)        or
+        bitsetCharHashVar        [{234}] <> 'R'                      or
+        bitsetStringHashVar      [{234}] <> "big success"            or
+        bitsetBstringHashVar     [{234}] <> bstring("correct")       or
+        bitsetBitsetHashVar      [{234}] <> {246}                    or
+        bitsetTimeHashVar        [{234}] <> time("2009-10-11 12:13") or
+        bitsetEnumTypeHashVar    [{234}] <> YELLOW                   or
+        bitsetTypeHashVar        [{234}] <> integer                  or
+        bitsetReferenceHashVar   [{234}] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[bitset] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with bitset keys work correctly.");
     else
@@ -3346,6 +3720,40 @@ const proc: chkTimeHash is func
       writeln(" ***** Elements with wrong value in hash[time] table");
       okay := FALSE;
     end if;
+    if  update(timeBooleanHashVar,     time("2010-11-12 13:14"), FALSE)                    <> TRUE                     or
+        update(timeIntegerHashVar,     time("2010-11-12 13:14"), 12345)                    <> 1234                     or
+        update(timeBigIntegerHashVar,  time("2010-11-12 13:14"), 8888888888_)              <> 9999999999_              or
+        update(timeBigRationalHashVar, time("2010-11-12 13:14"), 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(timeFloatHashVar,       time("2010-11-12 13:14"), 2.7182818284)             <> 3.1415926535             or
+        update(timeComplexHashVar,     time("2010-11-12 13:14"), complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(timeCharHashVar,        time("2010-11-12 13:14"), 'R')                      <> 'Q'                      or
+        update(timeStringHashVar,      time("2010-11-12 13:14"), "big success")            <> "success"                or
+        update(timeBstringHashVar,     time("2010-11-12 13:14"), bstring("correct"))       <> bstring("okay")          or
+        update(timeBitsetHashVar,      time("2010-11-12 13:14"), {246})                    <> {123}                    or
+        update(timeTimeHashVar,        time("2010-11-12 13:14"), time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(timeEnumTypeHashVar,    time("2010-11-12 13:14"), YELLOW)                   <> GREEN                    or
+        update(timeTypeHashVar,        time("2010-11-12 13:14"), integer)                  <> char                     or
+        update(timeReferenceHashVar,   time("2010-11-12 13:14"), NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[time]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  timeBooleanHashVar     [time("2010-11-12 13:14")] <> FALSE                    or
+        timeIntegerHashVar     [time("2010-11-12 13:14")] <> 12345                    or
+        timeBigIntegerHashVar  [time("2010-11-12 13:14")] <> 8888888888_              or
+        timeBigRationalHashVar [time("2010-11-12 13:14")] <> 8888888888_ / 12345678_  or
+        timeFloatHashVar       [time("2010-11-12 13:14")] <> 2.7182818284             or
+        timeComplexHashVar     [time("2010-11-12 13:14")] <> complex(2.3, 4.5)        or
+        timeCharHashVar        [time("2010-11-12 13:14")] <> 'R'                      or
+        timeStringHashVar      [time("2010-11-12 13:14")] <> "big success"            or
+        timeBstringHashVar     [time("2010-11-12 13:14")] <> bstring("correct")       or
+        timeBitsetHashVar      [time("2010-11-12 13:14")] <> {246}                    or
+        timeTimeHashVar        [time("2010-11-12 13:14")] <> time("2009-10-11 12:13") or
+        timeEnumTypeHashVar    [time("2010-11-12 13:14")] <> YELLOW                   or
+        timeTypeHashVar        [time("2010-11-12 13:14")] <> integer                  or
+        timeReferenceHashVar   [time("2010-11-12 13:14")] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[time] table");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("Hash tables with time keys work correctly.");
     else
@@ -3596,6 +4004,40 @@ const proc: chkEnumerationTypeHash is func
         enumTypeTimeHashVar        [YELLOW] <> time("2011-12-13 14:15") or
         enumTypeEnumTypeHashVar    [YELLOW] <> GREEN                    or
         enumTypeTypeHashVar        [YELLOW] <> char                     or
+        enumTypeReferenceHashVar   [YELLOW] <> NIL                      then
+      writeln(" ***** Elements with wrong value in hash[enumerationType] table");
+      okay := FALSE;
+    end if;
+    if  update(enumTypeBooleanHashVar,     YELLOW, FALSE)                    <> TRUE                     or
+        update(enumTypeIntegerHashVar,     YELLOW, 12345)                    <> 1234                     or
+        update(enumTypeBigIntegerHashVar,  YELLOW, 8888888888_)              <> 9999999999_              or
+        update(enumTypeBigRationalHashVar, YELLOW, 8888888888_ / 12345678_)  <> 9999999999_ / 12345678_  or
+        update(enumTypeFloatHashVar,       YELLOW, 2.7182818284)             <> 3.1415926535             or
+        update(enumTypeComplexHashVar,     YELLOW, complex(2.3, 4.5))        <> complex(1.2, 3.4)        or
+        update(enumTypeCharHashVar,        YELLOW, 'R')                      <> 'Q'                      or
+        update(enumTypeStringHashVar,      YELLOW, "big success")            <> "success"                or
+        update(enumTypeBstringHashVar,     YELLOW, bstring("correct"))       <> bstring("okay")          or
+        update(enumTypeBitsetHashVar,      YELLOW, {246})                    <> {123}                    or
+        update(enumTypeTimeHashVar,        YELLOW, time("2009-10-11 12:13")) <> time("2011-12-13 14:15") or
+        update(enumTypeEnumTypeHashVar,    YELLOW, YELLOW)                   <> GREEN                    or
+        update(enumTypeTypeHashVar,        YELLOW, integer)                  <> char                     or
+        update(enumTypeReferenceHashVar,   YELLOW, NIL)                      <> NIL                      then
+      writeln(" ***** update(hash[enumerationType]) does not work correctly");
+      okay := FALSE;
+    end if;
+    if  enumTypeBooleanHashVar     [YELLOW] <> FALSE                    or
+        enumTypeIntegerHashVar     [YELLOW] <> 12345                    or
+        enumTypeBigIntegerHashVar  [YELLOW] <> 8888888888_              or
+        enumTypeBigRationalHashVar [YELLOW] <> 8888888888_ / 12345678_  or
+        enumTypeFloatHashVar       [YELLOW] <> 2.7182818284             or
+        enumTypeComplexHashVar     [YELLOW] <> complex(2.3, 4.5)        or
+        enumTypeCharHashVar        [YELLOW] <> 'R'                      or
+        enumTypeStringHashVar      [YELLOW] <> "big success"            or
+        enumTypeBstringHashVar     [YELLOW] <> bstring("correct")       or
+        enumTypeBitsetHashVar      [YELLOW] <> {246}                    or
+        enumTypeTimeHashVar        [YELLOW] <> time("2009-10-11 12:13") or
+        enumTypeEnumTypeHashVar    [YELLOW] <> YELLOW                   or
+        enumTypeTypeHashVar        [YELLOW] <> integer                  or
         enumTypeReferenceHashVar   [YELLOW] <> NIL                      then
       writeln(" ***** Elements with wrong value in hash[enumerationType] table");
       okay := FALSE;
