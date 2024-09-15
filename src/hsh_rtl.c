@@ -1246,6 +1246,8 @@ const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
  *  Add 'data' with the key 'aKey' to the hash map 'aHashMap'.
  *  If an element with the key 'aKey' already exists,
  *  it is overwritten with 'data'.
+ *  @param aHashMap Hash map to be updated.
+ *  @param aKey Key of the value to be updated.
  *  @param data New value, a temporary value which is used or returned.
  *  @return the old element with the key 'aKey' or
  *          the new data value if no old element existed.

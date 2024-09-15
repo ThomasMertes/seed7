@@ -1543,9 +1543,14 @@ objectType hsh_refidx (listType arguments)
 
 
 /**
- *  Add 'data' with the key 'aKey/arg_2' to the hash map 'aHashMap/arg_1'.
+ *  Add 'data/arg_3' with the key 'aKey/arg_2' to the hash map 'aHashMap/arg_1'.
  *  If an element with the key 'aKey/arg_2' already exists,
- *  it is overwritten with 'data'.
+ *  it is overwritten with 'data/arg_3'.
+ *  @param aHashMap/arg_1 Hash map to be updated.
+ *  @param aKey/arg_2 Key of the value to be updated.
+ *  @param data/arg_3 Data value to be added to the hash map.
+ *  @return the old element with the key 'aKey/arg_2' or
+ *          the new data value if no old element existed.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType hsh_update (listType arguments)
