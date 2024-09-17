@@ -437,17 +437,17 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
   begin
 
     const func integer: getWhiteBits (inout bitStream: ccittFaxStream,
-        in huffmanDecoder: whiteHuffmanDecoder) is func
+        in huffmanDecoder: whiteDecoder) is func
       result
         var integer: whiteBits is 0;
       local
         var integer: additionalWhiteBits is 0;
       begin
-        whiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanDecoder);
+        whiteBits := getHuffmanSymbol(ccittFaxStream, whiteDecoder);
         # writeln("W" <& whiteBits <& " ");
         if whiteBits >= 64 then
           repeat
-            additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanDecoder);
+            additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteDecoder);
             # writeln("W+" <& additionalWhiteBits <& " ");
             whiteBits +:= additionalWhiteBits;
           until additionalWhiteBits < 64;
@@ -457,17 +457,17 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
 
 
     const func integer: getBlackBits (inout bitStream: ccittFaxStream,
-        in huffmanDecoder: blackHuffmanDecoder) is func
+        in huffmanDecoder: blackDecoder) is func
       result
         var integer: blackBits is 0;
       local
         var integer: additionalBlackBits is 0;
       begin
-        blackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanDecoder);
+        blackBits := getHuffmanSymbol(ccittFaxStream, blackDecoder);
         # writeln("B" <& blackBits <& " ");
         if blackBits >= 64 then
           repeat
-            additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanDecoder);
+            additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackDecoder);
             # writeln("B+" <& additionalBlackBits <& " ");
             blackBits +:= additionalBlackBits;
           until additionalBlackBits < 64;
@@ -493,7 +493,7 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
 
 
     const proc: processCcittFaxRow (inout bitStream: faxDataStream,
-        in huffmanDecoder: whiteHuffmanDecoder, in huffmanDecoder: blackHuffmanDecoder,
+        in huffmanDecoder: whiteDecoder, in huffmanDecoder: blackDecoder,
         in pixel: whitePixel, in pixel: blackPixel, in integer: width,
         inout pixelArray: imageLine) is func
       local
@@ -502,13 +502,13 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
         var integer: currentColumn is 1;
       begin
         repeat
-          numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanDecoder);
+          numWhitePixels := getWhiteBits(faxDataStream, whiteDecoder);
           if numWhitePixels >= 0 then
             setPixels(imageLine, currentColumn,
                       currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             if currentColumn <= width then
-              numBlackPixels := getBlackBits(faxDataStream, blackHuffmanDecoder);
+              numBlackPixels := getBlackBits(faxDataStream, blackDecoder);
               if numBlackPixels >= 0 then
                 setPixels(imageLine, currentColumn,
                           currentColumn + pred(numBlackPixels), blackPixel);
@@ -609,8 +609,8 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
   begin
 
     const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
-        in huffmanDecoder: t4HuffmanDecoder, in huffmanDecoder: whiteHuffmanDecoder,
-        in huffmanDecoder: blackHuffmanDecoder, in colorLookupTable: blackOrWhite,
+        in huffmanDecoder: t4HuffmanDecoder, in huffmanDecoder: whiteDecoder,
+        in huffmanDecoder: blackDecoder, in colorLookupTable: blackOrWhite,
         in integer: width, inout ccittFaxValues: bValues,
         inout pixelArray: imageLine) is func
       local
@@ -645,11 +645,11 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
               incr(bIndex);
             when {CCITT_T4_HORIZONTAL}:
               if odd(bIndex) then
-                numBits1 := getWhiteBits(faxDataStream, whiteHuffmanDecoder);
-                numBits2 := getBlackBits(faxDataStream, blackHuffmanDecoder);
+                numBits1 := getWhiteBits(faxDataStream, whiteDecoder);
+                numBits2 := getBlackBits(faxDataStream, blackDecoder);
               else
-                numBits1 := getBlackBits(faxDataStream, blackHuffmanDecoder);
-                numBits2 := getWhiteBits(faxDataStream, whiteHuffmanDecoder);
+                numBits1 := getBlackBits(faxDataStream, blackDecoder);
+                numBits2 := getWhiteBits(faxDataStream, whiteDecoder);
               end if;
               # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
               currentPixel := blackOrWhite[bIndex mod 2];
@@ -882,7 +882,7 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
   begin
 
     const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
-        in huffmanDecoder: whiteHuffmanDecoder, in huffmanDecoder: blackHuffmanDecoder,
+        in huffmanDecoder: whiteDecoder, in huffmanDecoder: blackDecoder,
         in pixel: whitePixel, in pixel: blackPixel, in integer: width,
 	inout ccittFaxValues: aValues, inout pixelArray: imageLine) is func
       local
@@ -892,14 +892,14 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
       begin
         aValues := ccittFaxValues.value;
         repeat
-          numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanDecoder);
+          numWhitePixels := getWhiteBits(faxDataStream, whiteDecoder);
           if numWhitePixels >= 0 then
             setPixels(imageLine, currentColumn,
                       currentColumn + pred(numWhitePixels), whitePixel);
             currentColumn +:= numWhitePixels;
             aValues &:= currentColumn;
             if currentColumn <= width then
-              numBlackPixels := getBlackBits(faxDataStream, blackHuffmanDecoder);
+              numBlackPixels := getBlackBits(faxDataStream, blackDecoder);
               if numBlackPixels >= 0 then
                 setPixels(imageLine, currentColumn,
                           currentColumn + pred(numBlackPixels), blackPixel);
