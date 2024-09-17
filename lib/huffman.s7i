@@ -33,7 +33,11 @@ const type: huffmanSymbolArray is array [0 ..] integer;
 const type: msbHuffmanCodeLengthArray is array [0 ..] integer;
 
 
-const type: msbHuffmanTable is new struct
+(**
+ *  Type do describe huffman decoding from a [[bitdata#msbBitStream|msbBitStream]].
+ *  This Huffman decoding is used by [[jpeg|JPEG]] files.
+ *)
+const type: msbHuffmanDecoder is new struct
     var integer: maxBitWidth is 0;
     var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
     var msbHuffmanCodeLengthArray: codeLengths is msbHuffmanCodeLengthArray.value;
@@ -41,20 +45,20 @@ const type: msbHuffmanTable is new struct
 
 
 (**
- *  Create a Huffman table for reading in MSB-First order.
- *  This Huffman encoding is used by [[jpeg|JPEG]] files. It can happen that
+ *  Create a Huffman decoder for reading in MSB-First order.
+ *  This Huffman decoding is used by [[jpeg|JPEG]] files. It can happen that
  *  ''huffmanValues'' contains the same value twice. In that case
  *  the same symbol is encoded in two ways. This makes absolutely no
  *  sense but it can happen. For that reason it is necessary to use
- *  table.codeLengths with the same index as table.symbols.
+ *  decoder.codeLengths with the same index as decoder.symbols.
  *  @param numberOfCodesWithLength Array to map bit width to number
  *                                 of symbols that use this bit width.
  *  @param huffmanValues String with symbols ordered by the bit width.
  *)
-const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength,
+const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLength,
     in array integer: numberOfCodesWithLength, in string: huffmanValues) is func
   result
-    var msbHuffmanTable: table is msbHuffmanTable.value;
+    var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   local
     var integer: currentCode is 0;
     var integer: codeLength is 0;
@@ -64,17 +68,17 @@ const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength
     var integer: huffmanValue is 0;
     var integer: tableIndex is 0;
   begin
-    table.maxBitWidth := maximumCodeLength;
-    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
-    table.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
+    decoder.maxBitWidth := maximumCodeLength;
+    decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
+    decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
     for codeLength range 1 to maximumCodeLength do
       valueIndexStart := succ(valueIndexEnd);
       valueIndexEnd +:= numberOfCodesWithLength[codeLength];
       for valueIndex range valueIndexStart to valueIndexEnd do
         huffmanValue := ord(huffmanValues[valueIndex]);
         while currentCode = tableIndex >> (maximumCodeLength - codeLength) do
-          table.symbols[tableIndex] := huffmanValue;
-          table.codeLengths[tableIndex] := codeLength;
+          decoder.symbols[tableIndex] := huffmanValue;
+          decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
         end while;
         incr(currentCode);
@@ -83,35 +87,39 @@ const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength
     end for;
     huffmanValue := ord(huffmanValues[length(huffmanValues)]);
     while tableIndex <= pred(1 << maximumCodeLength) do
-      table.symbols[tableIndex] := ord(huffmanValues[length(huffmanValues)]);
-      table.codeLengths[tableIndex] := maximumCodeLength;
+      decoder.symbols[tableIndex] := ord(huffmanValues[length(huffmanValues)]);
+      decoder.codeLengths[tableIndex] := maximumCodeLength;
       incr(tableIndex);
     end while;
   end func;
 
 
 (**
- *  Get a huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the huffman ''table''.
+ *  Get a huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the huffman ''decoder''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
  *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
- *  @param table Huffman table defining the bit sequences that encode the symbols.
+ *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
 const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
-    in msbHuffmanTable: table) is func
+    in msbHuffmanDecoder: decoder) is func
   result
     var integer: symbol is 0;
   local
     var integer: index is 0;
   begin
-    index := peekBits(inBitStream, table.maxBitWidth);
-    symbol := table.symbols[index];
-    skipBits(inBitStream, table.codeLengths[index]);
+    index := peekBits(inBitStream, decoder.maxBitWidth);
+    symbol := decoder.symbols[index];
+    skipBits(inBitStream, decoder.codeLengths[index]);
   end func;
 
 
-const type: lsbHuffmanTable is new struct
+(**
+ *  Type do describe huffman decoding from a [[bitdata#lsbBitStream|lsbBitStream]].
+ *  This Huffman decoding is used by the inflate (deflate) algorithm.
+ *)
+const type: lsbHuffmanDecoder is new struct
     var integer: maxBitWidth is 0;
     var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
     var array integer: codeLengths is 0 times 0;
@@ -120,11 +128,11 @@ const type: lsbHuffmanTable is new struct
 const type: symbolsWithCodeLengthType is array array integer;
 
 
-const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths,
+const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengths,
     in integer: maximumCodeLength,
     in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
   result
-    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+    var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
   local
     var integer: codeLength is 0;
     var integer: symbol is 0;
@@ -132,14 +140,14 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths
     var integer: reversedCode is 0;
     var integer: highBits is 0;
   begin
-    table.maxBitWidth := maximumCodeLength;
-    table.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
-    table.codeLengths := codeLengths;
+    decoder.maxBitWidth := maximumCodeLength;
+    decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
+    decoder.codeLengths := codeLengths;
     for codeLength range 1 to maximumCodeLength do
       for symbol range symbolsWithCodeLength[codeLength] do
         reversedCode := reverseBits(codeLength, currentCode);
         for highBits range 0 to pred(1 << maximumCodeLength) step 1 << codeLength do
-          table.symbols[highBits + reversedCode] := symbol;
+          decoder.symbols[highBits + reversedCode] := symbol;
         end for;
         incr(currentCode);
       end for;
@@ -187,8 +195,8 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
 
 
 (**
- *  Create a Huffman table for reading in LSB-First order.
- *  This Huffman encoding is used by the deflate algorithm.
+ *  Create a Huffman decoder for reading in LSB-First order.
+ *  This Huffman decoding is used by the inflate (deflate) algorithm.
  *  E.g.: The code lengths (in bits) of
  *   4 0 0 6 5 3 3 3 3 3 4 3 0 0 0 0 5 5 6
  *  describe that 0 is encoded with 4 bits, 3 with 6 bits, etc.
@@ -220,34 +228,34 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
  *  @param codeLengths Array to map the codes to the number of bits used
  *                     to encode this code. Zero means: This code is not used.
  *)
-const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths) is func
+const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengths) is func
   result
-    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+    var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
   local
     var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
   begin
     symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
-    table := createHuffmanTableLsb(codeLengths, maxIdx(symbolsWithCodeLength),
+    decoder := createHuffmanTableLsb(codeLengths, maxIdx(symbolsWithCodeLength),
                                    symbolsWithCodeLength);
   end func;
 
 
 (**
- *  Get a huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the huffman ''table''.
+ *  Get a huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the huffman ''decoder''.
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
  *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
- *  @param table Huffman table defining the bit sequences that encode the symbols.
+ *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
 const func integer: getHuffmanSymbol (inout lsbBitStream: inBitStream,
-    in lsbHuffmanTable: table) is func
+    in lsbHuffmanDecoder: decoder) is func
   result
     var integer: symbol is 0;
   local
     var integer: index is 0;
   begin
-    index := peekBits(inBitStream, table.maxBitWidth);
-    symbol := table.symbols[index];
-    skipBits(inBitStream, table.codeLengths[symbol]);
+    index := peekBits(inBitStream, decoder.maxBitWidth);
+    symbol := decoder.symbols[index];
+    skipBits(inBitStream, decoder.codeLengths[symbol]);
   end func;

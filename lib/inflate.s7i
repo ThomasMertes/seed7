@@ -184,13 +184,13 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     var integer: literalOrLengthTableSize is 0;  # hlit + 257
     var integer: distanceTableSize is 0;         # hdist + 1
     var integer: combinedDataTableSize is 0;     # hclen + 4
-    var array integer:   combinedDataCodeLengths is [0 .. 18] times 0;
-    var lsbHuffmanTable: combinedDataHuffmanTable is lsbHuffmanTable.value;
-    var array integer:   combinedData is [0 .. -1] times 0;
-    var array integer:   literalOrLengthCodeLengths is [0 .. -1] times 0;
-    var lsbHuffmanTable: literalOrLengthHuffmanTable is lsbHuffmanTable.value;
-    var array integer:   distanceCodeLengths is [0 .. -1] times 0;
-    var lsbHuffmanTable: distanceHuffmanTable is lsbHuffmanTable.value;
+    var array integer:     combinedDataCodeLengths is [0 .. 18] times 0;
+    var lsbHuffmanDecoder: combinedDataHuffmanDecoder is lsbHuffmanDecoder.value;
+    var array integer:     combinedData is [0 .. -1] times 0;
+    var array integer:     literalOrLengthCodeLengths is [0 .. -1] times 0;
+    var lsbHuffmanDecoder: literalOrLengthHuffmanDecoder is lsbHuffmanDecoder.value;
+    var array integer:     distanceCodeLengths is [0 .. -1] times 0;
+    var lsbHuffmanDecoder: distanceHuffmanDecoder is lsbHuffmanDecoder.value;
     var integer: number is 0;
     var integer: combinedDataElement is 0;
     var integer: factor is 0;
@@ -205,10 +205,10 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     for number range 1 to combinedDataTableSize do
       combinedDataCodeLengths[mapToOrderedLengths[number]] := getBits(compressedStream, 3);
     end for;
-    combinedDataHuffmanTable := createHuffmanTableLsb(combinedDataCodeLengths);
+    combinedDataHuffmanDecoder := createHuffmanTableLsb(combinedDataCodeLengths);
     number := 1;
     while number <= literalOrLengthTableSize + distanceTableSize do
-      combinedDataElement := getHuffmanSymbol(compressedStream, combinedDataHuffmanTable);
+      combinedDataElement := getHuffmanSymbol(compressedStream, combinedDataHuffmanDecoder);
       if combinedDataElement <= 15 then
         combinedData &:= combinedDataElement;
         incr(number);
@@ -229,15 +229,15 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     end while;
     literalOrLengthCodeLengths := combinedData[.. pred(literalOrLengthTableSize)];
     distanceCodeLengths        := combinedData[literalOrLengthTableSize .. ];
-    literalOrLengthHuffmanTable := createHuffmanTableLsb(literalOrLengthCodeLengths);
-    distanceHuffmanTable        := createHuffmanTableLsb(distanceCodeLengths);
-    literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthHuffmanTable);
+    literalOrLengthHuffmanDecoder := createHuffmanTableLsb(literalOrLengthCodeLengths);
+    distanceHuffmanDecoder        := createHuffmanTableLsb(distanceCodeLengths);
+    literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthHuffmanDecoder);
     while literalOrLength <> INFLATE_END_OF_BLOCK do
       if literalOrLength < INFLATE_END_OF_BLOCK then
         uncompressed &:= chr(literalOrLength);
       else
         length := decodeLength(compressedStream, literalOrLength);
-        distance := getHuffmanSymbol(compressedStream, distanceHuffmanTable);
+        distance := getHuffmanSymbol(compressedStream, distanceHuffmanDecoder);
         distance := decodeDistance(compressedStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
@@ -249,7 +249,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
         end if;
       end if;
-      literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthHuffmanTable);
+      literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthHuffmanDecoder);
     end while;
   end func;
 
