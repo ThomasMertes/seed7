@@ -55,7 +55,7 @@ const type: msbHuffmanDecoder is new struct
  *                                 of symbols that use this bit width.
  *  @param huffmanValues String with symbols ordered by the bit width.
  *)
-const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLength,
+const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLength,
     in array integer: numberOfCodesWithLength, in string: huffmanValues) is func
   result
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
@@ -94,6 +94,12 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
   end func;
 
 
+# The function createHuffmanTableMsb() is deprecated. Use createMsbHuffmanDecoder() instead.
+const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLength,
+    in array integer: numberOfCodesWithLength, in string: huffmanValues) is
+  return createMsbHuffmanDecoder(maximumCodeLength, numberOfCodesWithLength, huffmanValues);
+
+
 (**
  *  Get a huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the huffman ''decoder''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
@@ -128,7 +134,7 @@ const type: lsbHuffmanDecoder is new struct
 const type: symbolsWithCodeLengthType is array array integer;
 
 
-const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengths,
+const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in array integer: codeLengths,
     in integer: maximumCodeLength,
     in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
   result
@@ -228,16 +234,21 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
  *  @param codeLengths Array to map the codes to the number of bits used
  *                     to encode this code. Zero means: This code is not used.
  *)
-const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengths) is func
+const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in array integer: codeLengths) is func
   result
     var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
   local
     var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
   begin
     symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
-    decoder := createHuffmanTableLsb(codeLengths, maxIdx(symbolsWithCodeLength),
-                                   symbolsWithCodeLength);
+    decoder := createLsbHuffmanDecoder(codeLengths, maxIdx(symbolsWithCodeLength),
+                                       symbolsWithCodeLength);
   end func;
+
+
+# The function createHuffmanTableLsb() is deprecated. use createLsbHuffmanDecoder() instead.
+const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengths) is
+  return createLsbHuffmanDecoder(codeLengths);
 
 
 (**

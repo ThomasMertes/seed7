@@ -205,7 +205,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     for number range 1 to combinedDataTableSize do
       combinedDataCodeLengths[mapToOrderedLengths[number]] := getBits(compressedStream, 3);
     end for;
-    combinedDataHuffmanDecoder := createHuffmanTableLsb(combinedDataCodeLengths);
+    combinedDataHuffmanDecoder := createLsbHuffmanDecoder(combinedDataCodeLengths);
     number := 1;
     while number <= literalOrLengthTableSize + distanceTableSize do
       combinedDataElement := getHuffmanSymbol(compressedStream, combinedDataHuffmanDecoder);
@@ -229,8 +229,8 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     end while;
     literalOrLengthCodeLengths := combinedData[.. pred(literalOrLengthTableSize)];
     distanceCodeLengths        := combinedData[literalOrLengthTableSize .. ];
-    literalOrLengthHuffmanDecoder := createHuffmanTableLsb(literalOrLengthCodeLengths);
-    distanceHuffmanDecoder        := createHuffmanTableLsb(distanceCodeLengths);
+    literalOrLengthHuffmanDecoder := createLsbHuffmanDecoder(literalOrLengthCodeLengths);
+    distanceHuffmanDecoder        := createLsbHuffmanDecoder(distanceCodeLengths);
     literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthHuffmanDecoder);
     while literalOrLength <> INFLATE_END_OF_BLOCK do
       if literalOrLength < INFLATE_END_OF_BLOCK then

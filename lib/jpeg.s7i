@@ -209,10 +209,10 @@ const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: head
           huffmanValues := stri[pos fixLen numberOfCodes];
           pos +:= numberOfCodes;
           if tableClass = 0 then
-            header.dcDecoder[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+            header.dcDecoder[tableNumber] := createMsbHuffmanDecoder(maximumCodeLength,
                 numberOfCodesWithLength, huffmanValues);
           elsif tableClass = 1 then
-            header.acDecoder[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+            header.acDecoder[tableNumber] := createMsbHuffmanDecoder(maximumCodeLength,
                 numberOfCodesWithLength, huffmanValues);
           else
             raise RANGE_ERROR;
