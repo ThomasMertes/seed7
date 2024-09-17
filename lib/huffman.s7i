@@ -47,37 +47,38 @@ const type: msbHuffmanDecoder is new struct
 (**
  *  Create a Huffman decoder for reading in MSB-First order.
  *  This Huffman decoding is used by [[jpeg|JPEG]] files. It can happen that
- *  ''huffmanValues'' contains the same value twice. In that case
+ *  ''symbols'' contains the same value twice. In that case
  *  the same symbol is encoded in two ways. This makes absolutely no
  *  sense but it can happen. For that reason it is necessary to use
  *  decoder.codeLengths with the same index as decoder.symbols.
- *  @param numberOfCodesWithLength Array to map bit width to number
- *                                 of symbols that use this bit width.
- *  @param huffmanValues String with symbols ordered by the bit width.
+ *  @param maximumCodeLength Maximum huffman code length used.
+ *  @param numberOfCodesWithLength Array to map bit width (index) to the number
+ *                                 of symbols encoded with this bit width.
+ *  @param huffmanSymbols String with symbols ordered by the bit width.
  *)
 const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLength,
-    in array integer: numberOfCodesWithLength, in string: huffmanValues) is func
+    in array integer: numberOfCodesWithLength, in string: huffmanSymbols) is func
   result
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   local
     var integer: currentCode is 0;
     var integer: codeLength is 0;
-    var integer: valueIndexStart is 0;
-    var integer: valueIndexEnd is 0;
-    var integer: valueIndex is 0;
-    var integer: huffmanValue is 0;
+    var integer: symbolIndexStart is 0;
+    var integer: symbolIndexEnd is 0;
+    var integer: symbolIndex is 0;
+    var integer: symbol is 0;
     var integer: tableIndex is 0;
   begin
     decoder.maxBitWidth := maximumCodeLength;
     decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
     decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
     for codeLength range 1 to maximumCodeLength do
-      valueIndexStart := succ(valueIndexEnd);
-      valueIndexEnd +:= numberOfCodesWithLength[codeLength];
-      for valueIndex range valueIndexStart to valueIndexEnd do
-        huffmanValue := ord(huffmanValues[valueIndex]);
+      symbolIndexStart := succ(symbolIndexEnd);
+      symbolIndexEnd +:= numberOfCodesWithLength[codeLength];
+      for symbolIndex range symbolIndexStart to symbolIndexEnd do
+        symbol := ord(huffmanSymbols[symbolIndex]);
         while currentCode = tableIndex >> (maximumCodeLength - codeLength) do
-          decoder.symbols[tableIndex] := huffmanValue;
+          decoder.symbols[tableIndex] := symbol;
           decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
         end while;
@@ -85,9 +86,9 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
       end for;
       currentCode <<:= 1;
     end for;
-    huffmanValue := ord(huffmanValues[length(huffmanValues)]);
+    symbol := ord(huffmanSymbols[length(huffmanSymbols)]);
     while tableIndex <= pred(1 << maximumCodeLength) do
-      decoder.symbols[tableIndex] := ord(huffmanValues[length(huffmanValues)]);
+      decoder.symbols[tableIndex] := symbol;
       decoder.codeLengths[tableIndex] := maximumCodeLength;
       incr(tableIndex);
     end while;
@@ -96,8 +97,8 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
 
 # The function createHuffmanTableMsb() is deprecated. Use createMsbHuffmanDecoder() instead.
 const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLength,
-    in array integer: numberOfCodesWithLength, in string: huffmanValues) is
-  return createMsbHuffmanDecoder(maximumCodeLength, numberOfCodesWithLength, huffmanValues);
+    in array integer: numberOfCodesWithLength, in string: orderedSymbols) is
+  return createMsbHuffmanDecoder(maximumCodeLength, numberOfCodesWithLength, orderedSymbols);
 
 
 (**
@@ -231,8 +232,8 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
  *   001001 encodes 9
  *   001010 encodes 7
  *   ...
- *  @param codeLengths Array to map the codes to the number of bits used
- *                     to encode this code. Zero means: This code is not used.
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
  *)
 const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in array integer: codeLengths) is func
   result
