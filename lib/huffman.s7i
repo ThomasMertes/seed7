@@ -34,7 +34,7 @@ const type: msbHuffmanCodeLengthArray is array [0 ..] integer;
 
 
 (**
- *  Type do describe huffman decoding from a [[bitdata#msbBitStream|msbBitStream]].
+ *  Type to describe Huffman decoding from a [[bitdata#msbBitStream|msbBitStream]].
  *  This Huffman decoding is used by [[jpeg|JPEG]] files.
  *)
 const type: msbHuffmanDecoder is new struct
@@ -51,7 +51,7 @@ const type: msbHuffmanDecoder is new struct
  *  the same symbol is encoded in two ways. This makes absolutely no
  *  sense but it can happen. For that reason it is necessary to use
  *  decoder.codeLengths with the same index as decoder.symbols.
- *  @param maximumCodeLength Maximum huffman code length used.
+ *  @param maximumCodeLength Maximum Huffman code length used.
  *  @param numberOfCodesWithLength Array to map bit width (index) to the number
  *                                 of symbols encoded with this bit width.
  *  @param huffmanSymbols String with symbols ordered by the bit width.
@@ -102,7 +102,7 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
 
 
 (**
- *  Get a huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the huffman ''decoder''.
+ *  Get a Huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the Huffman ''decoder''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
@@ -122,45 +122,7 @@ const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
   end func;
 
 
-(**
- *  Type do describe huffman decoding from a [[bitdata#lsbBitStream|lsbBitStream]].
- *  This Huffman decoding is used by the inflate (deflate) algorithm.
- *)
-const type: lsbHuffmanDecoder is new struct
-    var integer: maxBitWidth is 0;
-    var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
-    var array integer: codeLengths is 0 times 0;
-  end struct;
-
 const type: symbolsWithCodeLengthType is array array integer;
-
-
-const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in array integer: codeLengths,
-    in integer: maximumCodeLength,
-    in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
-  result
-    var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
-  local
-    var integer: codeLength is 0;
-    var integer: symbol is 0;
-    var integer: currentCode is 0;
-    var integer: reversedCode is 0;
-    var integer: highBits is 0;
-  begin
-    decoder.maxBitWidth := maximumCodeLength;
-    decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
-    decoder.codeLengths := codeLengths;
-    for codeLength range 1 to maximumCodeLength do
-      for symbol range symbolsWithCodeLength[codeLength] do
-        reversedCode := reverseBits(codeLength, currentCode);
-        for highBits range 0 to pred(1 << maximumCodeLength) step 1 << codeLength do
-          decoder.symbols[highBits + reversedCode] := symbol;
-        end for;
-        incr(currentCode);
-      end for;
-      currentCode <<:= 1;
-    end for;
-  end func;
 
 
 const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array integer: codeLengths) is func
@@ -202,8 +164,50 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
 
 
 (**
+ *  Type do describe Huffman decoding from a [[bitdata#lsbBitStream|lsbBitStream]].
+ *  This Huffman decoding is used by the inflate (deflate) algorithm.
+ *)
+const type: lsbHuffmanDecoder is new struct
+    var integer: maxBitWidth is 0;
+    var huffmanSymbolArray: symbols is huffmanSymbolArray.value;
+    var array integer: codeLengths is 0 times 0;
+  end struct;
+
+
+const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in array integer: codeLengths,
+    in integer: maximumCodeLength,
+    in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
+  result
+    var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
+  local
+    var integer: codeLength is 0;
+    var integer: symbol is 0;
+    var integer: currentCode is 0;
+    var integer: reversedCode is 0;
+    var integer: highBits is 0;
+  begin
+    decoder.maxBitWidth := maximumCodeLength;
+    decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
+    decoder.codeLengths := codeLengths;
+    for codeLength range 1 to maximumCodeLength do
+      for symbol range symbolsWithCodeLength[codeLength] do
+        reversedCode := reverseBits(codeLength, currentCode);
+        for highBits range 0 to pred(1 << maximumCodeLength) step 1 << codeLength do
+          decoder.symbols[highBits + reversedCode] := symbol;
+        end for;
+        incr(currentCode);
+      end for;
+      currentCode <<:= 1;
+    end for;
+  end func;
+
+
+(**
  *  Create a Huffman decoder for reading in LSB-First order.
  *  This Huffman decoding is used by the inflate (deflate) algorithm.
+ *  Non-optimal Huffman encodings, where symbols are encoded with more
+ *  bits than necessary, are accepted as well. The decoder is created
+ *  as follows:
  *  E.g.: The code lengths (in bits) of
  *   4 0 0 6 5 3 3 3 3 3 4 3 0 0 0 0 5 5 6
  *  describe that 0 is encoded with 4 bits, 3 with 6 bits, etc.
@@ -219,7 +223,7 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
  *   101: 11
  *  For the next length (4 instead of 3) the value is incremented and shifted:
  *   1100: 0
- *  The encoder should be able fetch the maximum length of bits and to
+ *  The decoder should be able fetch the maximum length of bits and to
  *  use it as index. In order to allow that the data must be transformed.
  *  The bits must be flipped and all variants of higher bits must be added:
  *   000000 encodes 5
@@ -253,7 +257,7 @@ const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengt
 
 
 (**
- *  Get a huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the huffman ''decoder''.
+ *  Get a Huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the Huffman ''decoder''.
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
