@@ -37,7 +37,7 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
   result
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   begin
-    decoder.maxBitWidth := maximumCodeLength;
+    decoder.maximumCodeLength := maximumCodeLength;
     decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times -2;
     decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
   end func;
@@ -51,8 +51,8 @@ const proc: addCode (inout msbHuffmanDecoder: decoder, in integer: symbol, in st
   begin
     codeLength := length(bits);
     currentCode := integer(bits, 2);
-    tableIndex := currentCode << (decoder.maxBitWidth - codeLength);
-    while currentCode = tableIndex >> (decoder.maxBitWidth - codeLength) do
+    tableIndex := currentCode << (decoder.maximumCodeLength - codeLength);
+    while currentCode = tableIndex >> (decoder.maximumCodeLength - codeLength) do
       decoder.symbols[tableIndex] := symbol;
       decoder.codeLengths[tableIndex] := codeLength;
       incr(tableIndex);
@@ -65,7 +65,7 @@ const func lsbHuffmanDecoder: createLsbHuffmanDecoder (in integer: maximumCodeLe
   result
     var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
   begin
-    decoder.maxBitWidth := maximumCodeLength;
+    decoder.maximumCodeLength := maximumCodeLength;
     decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times -2;
     decoder.codeLengths := [minSymbol .. maxSymbol] times 0;
   end func;
@@ -81,7 +81,7 @@ const proc: addCode (inout lsbHuffmanDecoder: decoder, in integer: symbol, in st
     codeLength := length(bits);
     currentCode := integer(bits, 2);
     reversedCode := reverseBits(codeLength, currentCode);
-    for highBits range 0 to pred(1 << decoder.maxBitWidth) step 1 << codeLength do
+    for highBits range 0 to pred(1 << decoder.maximumCodeLength) step 1 << codeLength do
       decoder.symbols[highBits + reversedCode] := symbol;
     end for;
     decoder.codeLengths[symbol] := codeLength;
