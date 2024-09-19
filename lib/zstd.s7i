@@ -348,17 +348,17 @@ const func array integer: decodeInterleavedFseStreams (in fseDecodingType: fseDe
   end func;
 
 
-const type: zstdHuffmanDecodingTable is new struct
+const type: zstdHuffmanDecoder is new struct
     var integer: maxBits is 0;
     var array integer: numberOfBits is 0 times 0;
     var array integer: symbols is 0 times 0;
   end struct;
 
 
-const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in integer: maxBits,
+const func zstdHuffmanDecoder: createZstdHuffmanDecoder (in integer: maxBits,
     in array integer: numBits, in array integer: rankCount) is func
   result
-    var zstdHuffmanDecodingTable: table is zstdHuffmanDecodingTable.value;
+    var zstdHuffmanDecoder: decoder is zstdHuffmanDecoder.value;
   local
     var integer: index is 0;
     var integer: index2 is 0;
@@ -367,20 +367,20 @@ const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in integer: 
     var integer: length is 0;
     var array integer: rankIdx is 0 times 0;
   begin
-    table.maxBits := maxBits;
-    table.symbols := [0 .. pred(1 << maxBits)] times 0;
-    table.numberOfBits := [0 .. pred(1 << maxBits)] times 0;
+    decoder.maxBits := maxBits;
+    decoder.symbols := [0 .. pred(1 << maxBits)] times 0;
+    decoder.numberOfBits := [0 .. pred(1 << maxBits)] times 0;
 
     rankIdx := [0 .. maxBits] times 0;
     for index range maxBits downto 1 do
       rankIdx[index - 1] := rankIdx[index] + rankCount[index] * (1 << (maxBits - index));
       base := rankIdx[index];
       for index2 range 0 to pred(rankIdx[pred(index)] - rankIdx[index]) do
-        table.numberOfBits[base + index2] := index;
+        decoder.numberOfBits[base + index2] := index;
       end for;
     end for;
 
-    if rankIdx[0] <> length(table.numberOfBits) then
+    if rankIdx[0] <> length(decoder.numberOfBits) then
       raise RANGE_ERROR;
     else
       for index range 0 to pred(length(numBits)) do
@@ -388,7 +388,7 @@ const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in integer: 
           code := rankIdx[numBits[index]];
           length := 1 << (maxBits - numBits[index]);
           for index2 range 0 to pred(length) do
-            table.symbols[code + index2] := index;
+            decoder.symbols[code + index2] := index;
           end for;
           rankIdx[numBits[index]] +:= length;
         end if;
@@ -397,9 +397,9 @@ const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in integer: 
   end func;
 
 
-const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in array integer: weights) is func
+const func zstdHuffmanDecoder: createZstdHuffmanDecoder (in array integer: weights) is func
   result
-    var zstdHuffmanDecodingTable: table is zstdHuffmanDecodingTable.value;
+    var zstdHuffmanDecoder: decoder is zstdHuffmanDecoder.value;
   local
     var integer: sum is 0;
     var integer: weight is 0;
@@ -446,7 +446,7 @@ const func zstdHuffmanDecodingTable: buildZstdHuffmanDecodingTable (in array int
       numBits[maxIdx(numBits)] := numberOfBits;
       incr(rankCount[numberOfBits]);
 
-      table := buildZstdHuffmanDecodingTable(maxBits, numBits, rankCount);
+      decoder := createZstdHuffmanDecoder(maxBits, numBits, rankCount);
     end if;
   end func;
 
@@ -489,7 +489,7 @@ const func array integer: readZstdHuffmanTreeWeights (inout file: compressed) is
   end func;
 
 
-const func char: decodeSymbol (in zstdHuffmanDecodingTable: huffmanDecoding,
+const func char: decodeSymbol (in zstdHuffmanDecoder: huffmanDecoder,
     inout integer: state, inout reverseBitStream: compressedStream) is func
   result
     var char: symbol is ' ';
@@ -497,14 +497,14 @@ const func char: decodeSymbol (in zstdHuffmanDecodingTable: huffmanDecoding,
     var integer: bitsNeeded is 0;
     var integer: rest is 0;
   begin
-    symbol := char(huffmanDecoding.symbols[state]);
-    bitsNeeded := huffmanDecoding.numberOfBits[state];
+    symbol := char(huffmanDecoder.symbols[state]);
+    bitsNeeded := huffmanDecoder.numberOfBits[state];
     rest := getBits(compressedStream, bitsNeeded);
-    state := ((state << bitsNeeded) + rest) mod (1 << huffmanDecoding.maxBits);
+    state := ((state << bitsNeeded) + rest) mod (1 << huffmanDecoder.maxBits);
   end func;
 
 
-const func string: decodeStream (in zstdHuffmanDecodingTable: huffmanDecoding,
+const func string: decodeStream (in zstdHuffmanDecoder: huffmanDecoder,
     inout reverseBitStream: compressedStream) is func
   result
     var string: uncompressed is "";
@@ -518,11 +518,11 @@ const func string: decodeStream (in zstdHuffmanDecodingTable: huffmanDecoding,
     if bitsRead(compressedStream) > 8 then
       raise RANGE_ERROR;
     else
-      state := getBits(compressedStream, huffmanDecoding.maxBits);
-      while bitsStillInStream(compressedStream) > -huffmanDecoding.maxBits do
-        uncompressed &:= decodeSymbol(huffmanDecoding, state, compressedStream);
+      state := getBits(compressedStream, huffmanDecoder.maxBits);
+      while bitsStillInStream(compressedStream) > -huffmanDecoder.maxBits do
+        uncompressed &:= decodeSymbol(huffmanDecoder, state, compressedStream);
       end while;
-      if bitsStillInStream(compressedStream) <> -huffmanDecoding.maxBits then
+      if bitsStillInStream(compressedStream) <> -huffmanDecoder.maxBits then
         raise RANGE_ERROR;
       end if;
     end if;
@@ -609,7 +609,7 @@ const type: zstdSequencesSectionType is new struct
 
 const type: zstdBlockStateType is new struct
     var array integer: offsetHistory is [] (1, 4, 8);
-    var zstdHuffmanDecodingTable: table is zstdHuffmanDecodingTable.value;
+    var zstdHuffmanDecoder: decoder is zstdHuffmanDecoder.value;
     var zstdSequencesSectionType: sequencesSection is zstdSequencesSectionType.value;
   end struct;
 
@@ -631,11 +631,11 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
       posBefore := tell(compressed);
       weights := readZstdHuffmanTreeWeights(compressed);
       compressedSize -:= tell(compressed) - posBefore;
-      blockState.table := buildZstdHuffmanDecodingTable(weights);
+      blockState.decoder := createZstdHuffmanDecoder(weights);
     end if;
     if header.numStreams = 1 then
       compressedStream[1] := reverseBitStream(compressed, compressedSize);
-      literals := decodeStream(blockState.table, compressedStream[1]);
+      literals := decodeStream(blockState.decoder, compressedStream[1]);
     elsif header.numStreams = 4 then
       stri := gets(compressed, 6);
       if length(stri) = 6 then
@@ -648,10 +648,10 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
         compressedStream[2] := reverseBitStream(compressed, streamSize[2]);
         compressedStream[3] := reverseBitStream(compressed, streamSize[3]);
         compressedStream[4] := reverseBitStream(compressed, streamSize[4]);
-        literals := decodeStream(blockState.table, compressedStream[1]) &
-                    decodeStream(blockState.table, compressedStream[2]) &
-                    decodeStream(blockState.table, compressedStream[3]) &
-                    decodeStream(blockState.table, compressedStream[4]);
+        literals := decodeStream(blockState.decoder, compressedStream[1]) &
+                    decodeStream(blockState.decoder, compressedStream[2]) &
+                    decodeStream(blockState.decoder, compressedStream[3]) &
+                    decodeStream(blockState.decoder, compressedStream[4]);
       else
         raise RANGE_ERROR;
       end if;
