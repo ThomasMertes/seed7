@@ -286,3 +286,277 @@ const func integer: getHuffmanSymbol (inout lsbBitStream: inBitStream,
     symbol := decoder.symbols[index];
     skipBits(inBitStream, decoder.codeLengths[symbol]);
   end func;
+
+
+(**
+ *  Type to describe the Huffman encoding of one symbol.
+ *)
+const type: huffmanEncoding is new struct
+    var integer: huffmanCode is 0;
+    var integer: codeLength is 0;
+  end struct;
+
+(**
+ *  Type to describe a Huffman encoder.
+ *  The Huffman encoder can be used for writing in MSB-First or LSB-First order.
+ *  This Huffman encoding is used by [[jpeg|JPEG]] files and by the
+ *  deflate compression algorithm.
+ *)
+const type: huffmanEncoder is array huffmanEncoding;
+
+
+(**
+ *  Write a huffman symbol to a [[bitdata#lsbOutBitStream|lsbOutBitStream]] using the huffman ''outNode''.
+ *  The write direction is from LSB (least significant bit) to MSB (most significant bit).
+ *   putHuffmanSymbol(compressedStream, encoder[huffmanSymbol]);
+ *  @param outBitStream LSB orderd bit stream to which the bits are written.
+ *  @param encoding Huffman encoding which defines the actual huffmanCode and the codeLength.
+ *)
+const proc: putHuffmanSymbol (inout lsbOutBitStream: outBitStream, in huffmanEncoding: encoding) is func
+  begin
+    putBits(outBitStream, encoding.huffmanCode, encoding.codeLength);
+  end func;
+
+
+(**
+ *  Write a huffman symbol to a [[bitdata#msbOutBitStream|msbOutBitStream]] using the huffman ''encoding''.
+ *  The write direction is from MSB (most significant bit) to LSB (least significant bit).
+ *   putHuffmanSymbol(compressedStream, encoder[huffmanSymbol]);
+ *  @param outBitStream MSB orderd bit stream to which the bits are written.
+ *  @param encoding Huffman encoding which defines the actual huffmanCode and the codeLength.
+ *)
+const proc: putHuffmanSymbol (inout msbOutBitStream: outBitStream, in huffmanEncoding: encoding) is func
+  begin
+    putBits(outBitStream, encoding.huffmanCode, encoding.codeLength);
+  end func;
+
+
+const type: huffmanSymbolNode is new struct
+    var integer: count is 0;
+    var integer: symbol is 0;
+    var integer: fictiveNode is 0;
+  end struct;
+
+const func integer: compare (in huffmanSymbolNode: node1, in huffmanSymbolNode: node2) is
+  return -compare(node1.count, node2.count);
+
+const type: huffmanSymbolNodeArray is array huffmanSymbolNode;
+
+
+const type: huffmanTreeNode is new struct
+    var integer: leftTreeNode is 0;
+    var integer: rightTreeNode is 0;
+    var integer: leftSymbol is 0;
+    var integer: rightSymbol is 0;
+  end struct;
+
+const type: huffmanTreeNodeArray is array huffmanTreeNode;
+
+
+const func huffmanSymbolNodeArray: getHuffmanSymbolNodes (in array integer: symbolCount) is func
+  result
+    var huffmanSymbolNodeArray: symbolNodes is huffmanSymbolNodeArray.value;
+  local
+    var integer: count is 0;
+    var integer: symbol is 0;
+    var integer: index is 1;
+  begin
+    symbolNodes := length(symbolCount) times huffmanSymbolNode.value;
+    for count key symbol range symbolCount do
+      symbolNodes[index].count := count;
+      symbolNodes[index].symbol := symbol;
+      incr(index);
+    end for;
+    symbolNodes := sort(symbolNodes);
+  end func;
+
+
+const proc: getLengthsFromTree (inout array integer: codeLengths,
+    in huffmanTreeNode: treeNode, in huffmanTreeNodeArray: treeNodes,
+    in integer: codeLength) is func
+  begin
+    if treeNode.leftTreeNode <> 0 then
+      getLengthsFromTree(codeLengths, treeNodes[treeNode.leftTreeNode],
+                         treeNodes, succ(codeLength));
+    else
+      codeLengths[treeNode.leftSymbol] := succ(codeLength);
+    end if;
+    if treeNode.rightTreeNode <> 0 then
+      getLengthsFromTree(codeLengths, treeNodes[treeNode.rightTreeNode],
+                         treeNodes, succ(codeLength));
+    else
+      codeLengths[treeNode.rightSymbol] := succ(codeLength);
+    end if;
+  end func;
+
+
+const proc: getLengthsFromTree (inout array integer: codeLengths,
+    in huffmanSymbolNode: symbolNode, in huffmanTreeNodeArray: treeNodes,
+    in integer: codeLength) is func
+  begin
+    if symbolNode.fictiveNode <> 0 then
+      getLengthsFromTree(codeLengths, treeNodes[symbolNode.fictiveNode],
+                         treeNodes, codeLength);
+    else
+      codeLengths[symbolNode.symbol] := succ(codeLength);
+    end if;
+  end func;
+
+
+(**
+ *  Create an array of code lengths from the array ''symbolCount''.
+ *  The indices of the ''symbolCount'' array are the symbols to be huffman encoded.
+ *  The indices of the returned code lengths array are the symbols to be huffman encoded.
+ *  @param symbolCount Array of occurances of the corresponding symbol (index).
+ *  @return an array of code lengths of the corresponding symbol (index).
+ *)
+const func array integer: getHuffmanCodeLengths (in array integer: symbolCount) is func
+  result
+    var array integer: codeLengths is 0 times 0;
+  local
+    var huffmanSymbolNodeArray: symbolNodes is huffmanSymbolNodeArray.value;
+    var huffmanTreeNodeArray: treeNodes is huffmanTreeNodeArray.value;
+    var huffmanTreeNode: treeNode is huffmanTreeNode.value;
+    var integer: index is 0;
+  begin
+    symbolNodes := getHuffmanSymbolNodes(symbolCount);
+    index := length(symbolNodes);
+    while symbolNodes[index].count = 0 and
+        index > minIdx(symbolNodes) do
+      decr(index);
+    end while;
+    while index > 1 do
+      treeNode := huffmanTreeNode.value;
+      if symbolNodes[pred(index)].fictiveNode <> 0 then
+        treeNode.leftTreeNode :=
+            symbolNodes[pred(index)].fictiveNode;
+      else
+        treeNode.leftSymbol := symbolNodes[pred(index)].symbol;
+      end if;
+      if symbolNodes[index].fictiveNode <> 0 then
+        treeNode.rightTreeNode :=
+            symbolNodes[index].fictiveNode;
+      else
+        treeNode.rightSymbol := symbolNodes[index].symbol;
+      end if;
+      treeNodes &:= treeNode;
+      symbolNodes[pred(index)].count +:= symbolNodes[index].count;
+      symbolNodes[pred(index)].fictiveNode := length(treeNodes);
+      symbolNodes[index].count := 0;
+      symbolNodes := sort(symbolNodes);
+      decr(index);
+    end while;
+    codeLengths := [minIdx(symbolCount) .. maxIdx(symbolCount)] times 0;
+    getLengthsFromTree(codeLengths, symbolNodes[1], treeNodes, 0);
+  end func;
+
+
+(**
+ *  Reduce the maximum code length of an Huffman encoding to ''allowedMaximum''.
+ *  The given ''codeLengths'' array is changed to fit to the ''allowedMaximum''.
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
+ *  @param allowedMaximum Target maximum code length of the Huffman encoding.
+ *)
+const proc: reduceMaximumHuffmanCodeLength (inout array integer: codeLengths,
+    in integer: allowedMaximum) is func
+  local
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
+    var integer: maximumCodeLength is 0;
+    var integer: shorterCodeLength is 0;
+    var integer: longerCodeLength is 0;
+    var integer: symbolsMovingUp is 0;
+    var boolean: moveDone is FALSE;
+    var integer: index is 0;
+    var integer: symbol is 0;
+  begin
+    symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+    maximumCodeLength := maxIdx(symbolsWithCodeLength);
+    repeat
+      shorterCodeLength := maximumCodeLength - 2;
+      moveDone := FALSE;
+      repeat
+        while length(symbolsWithCodeLength[shorterCodeLength]) = 0 do
+          decr(shorterCodeLength);
+        end while;
+        longerCodeLength := shorterCodeLength + 2;
+        symbolsMovingUp := 2;
+        while longerCodeLength <= maximumCodeLength and
+            length(symbolsWithCodeLength[longerCodeLength]) < symbolsMovingUp do
+          incr(longerCodeLength);
+          symbolsMovingUp *:= 2;
+        end while;
+        if longerCodeLength <= maximumCodeLength then
+          # Move one symbol with shorterCodeLength down (code length + 1).
+          # This creates a free place at the level below.
+          # Because of fictive nodes two symbols can move up to this free place.
+	  # Alternatively at lower levels 4, 8, 16 etc. symbols can move up.
+          symbol := symbolsWithCodeLength[shorterCodeLength][1];
+          symbolsWithCodeLength[succ(shorterCodeLength)] &:= symbol;
+          codeLengths[symbol] := succ(shorterCodeLength);
+          # Remove the moved symbol from the shorterCodeLength level.
+          symbolsWithCodeLength[shorterCodeLength] :=
+              symbolsWithCodeLength[shorterCodeLength][2 ..];
+          # Move symbols with a longerCodeLength up (code length - 1).
+          # Depending on the difference between shorterCodeLength and
+          # longerCodeLength symbolsMovingUp (2, 4, 8, etc.) symbols can move up.
+          for index range 1 to symbolsMovingUp do
+            symbol := symbolsWithCodeLength[longerCodeLength][index];
+            symbolsWithCodeLength[pred(longerCodeLength)] &:= symbol;
+            codeLengths[symbol] := pred(longerCodeLength);
+          end for;
+          # Remove the moved symbols from the longerCodeLength level.
+          symbolsWithCodeLength[longerCodeLength] :=
+              symbolsWithCodeLength[longerCodeLength][succ(symbolsMovingUp) ..];
+          moveDone := TRUE;
+        else
+          decr(shorterCodeLength);
+        end if;
+      until moveDone;
+      if length(symbolsWithCodeLength[maximumCodeLength]) = 0 then
+        decr(maximumCodeLength);
+      end if;
+    until maximumCodeLength <= allowedMaximum;
+  end func;
+
+
+const func huffmanEncoder: createHuffmanEncoder (in array integer: codeLengths,
+    in integer: maximumCodeLength,
+    in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
+  result
+    var huffmanEncoder: encoder is huffmanEncoder.value;
+  local
+    var integer: codeLength is 0;
+    var integer: symbol is 0;
+    var integer: currentCode is 0;
+  begin
+    encoder := [minIdx(codeLengths) .. maxIdx(codeLengths)] times huffmanEncoding.value;
+    for codeLength range 1 to maximumCodeLength do
+      for symbol range symbolsWithCodeLength[codeLength] do
+        encoder[symbol].huffmanCode := reverseBits(codeLength, currentCode);
+        encoder[symbol].codeLength := codeLength;
+        incr(currentCode);
+      end for;
+      currentCode <<:= 1;
+    end for;
+  end func;
+
+
+(**
+ *  Create a ''huffmanEncoder'' from the given ''codeLengths'' array.
+ *  The Huffman encoder can be used for writing in MSB-First or LSB-First order.
+ *  This Huffman encoding is used by [[jpeg|JPEG]] files and by the
+ *  deflate compression algorithm.
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
+ *)
+const func huffmanEncoder: createHuffmanEncoder (in array integer: codeLengths) is func
+  result
+    var huffmanEncoder: encoder is huffmanEncoder.value;
+  local
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
+  begin
+    symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+    encoder := createHuffmanEncoder(codeLengths, maxIdx(symbolsWithCodeLength),
+                                    symbolsWithCodeLength);
+  end func;
