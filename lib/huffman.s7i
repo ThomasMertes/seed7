@@ -106,6 +106,7 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
+ *   aSymbol := getHuffmanSymbol(compressedStream, huffmanDecoder);
  *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
  *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
@@ -125,6 +126,15 @@ const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
 const type: symbolsWithCodeLengthType is array array integer;
 
 
+(**
+ *  Compute lists of symbols (index of codeLength) ordered by code langth.
+ *  The result is a two-dimensional array where the first index is a code length.
+ *   symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+ *   # Now symbolsWithCodeLength[2] is an array of symbols with length 2.
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
+ *  @return an array of symbol arrays with the code length as first index.
+ *)
 const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array integer: codeLengths) is func
   result
     var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
@@ -261,6 +271,7 @@ const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengt
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
+ *   aSymbol := getHuffmanSymbol(compressedStream, huffmanDecoder);
  *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
  *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
