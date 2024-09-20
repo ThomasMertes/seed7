@@ -27,6 +27,10 @@
 
 
 include "bitdata.s7i";
+include "huffman.s7i";
+
+
+const integer: DEFLATE_END_OF_BLOCK is 256;
 
 
 const proc: putLiteralOrLength (inout lsbOutBitStream: compressedStream,
@@ -126,24 +130,26 @@ const type: lookupDict is hash [string] integer;
 const type: slidingWindowType is array [0 .. 32767] integer;
 
 const type: deflateData is new struct
-    var integer: uPos is 1;
+    var integer: uncompressedPos is 1;
     var lookupDict: dictionary is lookupDict.value;
     var slidingWindowType: slidingWindow is slidingWindowType times -32768;
+    var array integer: literalOrLengthSymbolCount is [0 .. 285] times 0;
+    var array integer: distanceSymbolCount is [0 .. 29] times 0;
   end struct;
 
 
-const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
+const proc: deflateFixed (inout deflateData: deflateState, in string: uncompressed,
     in integer: limit, inout lsbOutBitStream: compressedStream) is func
   local
     var integer: pos is 0;
-    var string: threeChars is "";
     var integer: posFound is 0;
     var integer: dictionaryPosFound is 0;
     var integer: length is 0;
     var integer: maxLength is 0;
     var integer: nextPos is 0;
   begin
-    pos := deflateState.uPos;
+    putBits(compressedStream, 1, 2);       # btype:  Fixed Huffman codes
+    pos := deflateState.uncompressedPos;
     while pos <= limit do
       if pos < pred(length(uncompressed)) then
         posFound := update(deflateState.dictionary, uncompressed[pos fixLen 3], pos);
@@ -199,30 +205,493 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
         incr(pos);
       end if;
     end while;
-    deflateState.uPos := pos;
+    putLiteralOrLength(compressedStream, DEFLATE_END_OF_BLOCK);
+    deflateState.uncompressedPos := pos;
   end func;
 
 
-const proc: beginDeflateBlock (inout deflateData: deflateState,
+const func integer: encodeLz77Length (in integer: length, inout integer: bits,
+    inout integer: bitWidth) is func
+  result
+    var integer: symbol is 0;
+  local
+    var integer: rawSymbol is 0;
+  begin
+    if length <= 10 then
+      bitWidth := 0;
+      bits := 0;
+      symbol := length + 254;
+    elsif length <= 18 then
+      bitWidth := 1;
+      rawSymbol := length + 519;
+      bits := rawSymbol mod 2;
+      symbol := rawSymbol >> 1;
+    elsif length <= 34 then
+      bitWidth := 2;
+      rawSymbol := length + 1057;
+      bits := rawSymbol mod 4;
+      symbol := rawSymbol >> 2;
+    elsif length <= 66 then
+      bitWidth := 3;
+      rawSymbol := length + 2149;
+      bits := rawSymbol mod 8;
+      symbol := rawSymbol >> 3;
+    elsif length <= 130 then
+      bitWidth := 4;
+      rawSymbol := length + 4365;
+      bits := rawSymbol mod 16;
+      symbol := rawSymbol >> 4;
+    elsif length <= 257 then
+      bitWidth := 5;
+      rawSymbol := length + 8861;
+      bits := rawSymbol mod 32;
+      symbol := rawSymbol >> 5;
+    else
+      bitWidth := 0;
+      bits := 0;
+      symbol := 285;
+    end if;
+  end func;
+
+
+const proc: addLz77Length (inout string: lz77, in integer: length,
+    inout array integer: symbolCount) is func
+  local
+    var integer: symbol is 0;
+    var integer: bits is 0;
+    var integer: bitWidth is 0;
+  begin
+    symbol := encodeLz77Length(length, bits, bitWidth);
+    incr(symbolCount[symbol]);
+    lz77 &:= char(symbol);
+    lz77 &:= char(bits);
+    lz77 &:= char(bitWidth);
+  end func;
+
+
+const func integer: encodeLz77Distance (in integer: distance, inout integer: bits,
+    inout integer: bitWidth) is func
+  result
+    var integer: symbol is 0;
+  local
+    var integer: rawSymbol is 0;
+  begin
+    if distance <= 4 then
+      bitWidth := 0;
+      bits := 0;
+      symbol := pred(distance);
+    elsif distance <= 8 then
+      bitWidth := 1;
+      rawSymbol := distance + 3;
+      bits := rawSymbol mod 2;
+      symbol := rawSymbol >> 1;
+    elsif distance <= 16 then
+      bitWidth := 2;
+      rawSymbol := distance + 15;
+      bits := rawSymbol mod 4;
+      symbol := rawSymbol >> 2;
+    elsif distance <= 32 then
+      bitWidth := 3;
+      rawSymbol := distance + 47;
+      bits := rawSymbol mod 8;
+      symbol := rawSymbol >> 3;
+    elsif distance <= 64 then
+      bitWidth := 4;
+      rawSymbol := distance + 127;
+      bits := rawSymbol mod 16;
+      symbol := rawSymbol >> 4;
+    elsif distance <= 128 then
+      bitWidth := 5;
+      rawSymbol := distance + 319;
+      bits := rawSymbol mod 32;
+      symbol := rawSymbol >> 5;
+    elsif distance <= 256 then
+      bitWidth := 6;
+      rawSymbol := distance + 767;
+      bits := rawSymbol mod 64;
+      symbol := rawSymbol >> 6;
+    elsif distance <= 512 then
+      bitWidth := 7;
+      rawSymbol := distance + 1791;
+      bits := rawSymbol mod 128;
+      symbol := rawSymbol >> 7;
+    elsif distance <= 1024 then
+      bitWidth := 8;
+      rawSymbol := distance + 4095;
+      bits := rawSymbol mod 256;
+      symbol := rawSymbol >> 8;
+    elsif distance <= 2048 then
+      bitWidth := 9;
+      rawSymbol := distance + 9215;
+      bits := rawSymbol mod 512;
+      symbol := rawSymbol >> 9;
+    elsif distance <= 4096 then
+      bitWidth := 10;
+      rawSymbol := distance + 20479;
+      bits := rawSymbol mod 1024;
+      symbol := rawSymbol >> 10;
+    elsif distance <= 8192 then
+      bitWidth := 11;
+      rawSymbol := distance + 45055;
+      bits := rawSymbol mod 2048;
+      symbol := rawSymbol >> 11;
+    elsif distance <= 16384 then
+      bitWidth := 12;
+      rawSymbol := distance + 98303;
+      bits := rawSymbol mod 4096;
+      symbol := rawSymbol >> 12;
+    elsif distance <= 32768 then
+      bitWidth := 13;
+      rawSymbol := distance + 212991;
+      bits := rawSymbol mod 8192;
+      symbol := rawSymbol >> 13;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: addLz77Distance (inout string: lz77, in integer: distance,
+    inout array integer: symbolCount) is func
+  local
+    var integer: symbol is 0;
+    var integer: bits is 0;
+    var integer: bitWidth is 0;
+  begin
+    symbol := encodeLz77Distance(distance, bits, bitWidth);
+    incr(symbolCount[symbol]);
+    lz77 &:= char(symbol);
+    lz77 &:= char(bits);
+    lz77 &:= char(bitWidth);
+  end func;
+
+
+const func string: compressWithLz77 (inout deflateData: deflateState,
+    in string: uncompressed, in integer: limit) is func
+  result
+    var string: lz77 is "";
+  local
+    var integer: pos is 0;
+    var integer: posFound is 0;
+    var integer: dictionaryPosFound is 0;
+    var integer: length is 0;
+    var integer: maxLength is 0;
+    var integer: nextPos is 0;
+  begin
+    deflateState.literalOrLengthSymbolCount := [0 .. 285] times 0;
+    deflateState.distanceSymbolCount := [0 .. 29] times 0;
+    pos := deflateState.uncompressedPos;
+    while pos <= limit do
+      if pos < pred(length(uncompressed)) then
+        posFound := update(deflateState.dictionary, uncompressed[pos fixLen 3], pos);
+        if posFound <> pos and posFound >= pos - 32768 then
+          maxLength := 258;
+          if length(uncompressed) - pos < maxLength then
+            maxLength := length(uncompressed) - pos;
+          end if;
+          length := 3;
+          while length < maxLength and
+                uncompressed[pos + length] = uncompressed[posFound + length] do
+            incr(length);
+          end while;
+          dictionaryPosFound := posFound;
+          nextPos := deflateState.slidingWindow[posFound mod 32768];
+          while nextPos >= pos - 32768 and length < maxLength do
+            if uncompressed[nextPos + 3 fixLen length - 2] = uncompressed[pos + 3 fixLen length - 2] then
+              incr(length);
+              posFound := nextPos;
+              while length < maxLength and
+                    uncompressed[pos + length] = uncompressed[posFound + length] do
+                incr(length);
+              end while;
+            end if;
+            nextPos := deflateState.slidingWindow[nextPos mod 32768];
+          end while;
+          deflateState.slidingWindow[pos mod 32768] := dictionaryPosFound;
+          if length > 3 or pos - posFound <= 4096 then
+            addLz77Length(lz77, length, deflateState.literalOrLengthSymbolCount);
+            addLz77Distance(lz77, pos - posFound, deflateState.distanceSymbolCount);
+            nextPos := pos + length;
+            incr(pos);
+            while pos < nextPos do
+              if pos < pred(length(uncompressed)) then
+                posFound := update(deflateState.dictionary, uncompressed[pos fixLen 3], pos);
+                if posFound <> pos then
+                  deflateState.slidingWindow[pos mod 32768] := posFound;
+                end if;
+              end if;
+              incr(pos);
+            end while;
+          else
+            incr(deflateState.literalOrLengthSymbolCount[ord(uncompressed[pos])]);
+            lz77 &:= uncompressed[pos];
+            incr(pos);
+          end if;
+        else
+          # Not necessary to update slidingWindow, since it is already outdated.
+          incr(deflateState.literalOrLengthSymbolCount[ord(uncompressed[pos])]);
+          lz77 &:= uncompressed[pos];
+          incr(pos);
+        end if;
+      else
+        incr(deflateState.literalOrLengthSymbolCount[ord(uncompressed[pos])]);
+        lz77 &:= uncompressed[pos];
+        incr(pos);
+      end if;
+    end while;
+    incr(deflateState.literalOrLengthSymbolCount[DEFLATE_END_OF_BLOCK]);
+    deflateState.uncompressedPos := pos;
+  end func;
+
+
+const proc: huffmanEncodeLz77 (inout lsbOutBitStream: outStream,
+    in string: lz77,  in huffmanEncoder: literalOrLengthEncoder,
+    in huffmanEncoder: distanceEncoder) is func
+  local
+    var integer: index is 1;
+    var integer: literalOrLength is 0;
+    var integer: distance is 0;
+  begin
+    while index <= length(lz77) do
+      literalOrLength := ord(lz77[index]);
+      putHuffmanSymbol(outStream, literalOrLengthEncoder[literalOrLength]);
+      incr(index);
+      if literalOrLength > DEFLATE_END_OF_BLOCK then
+        putBits(outStream, ord(lz77[index]), ord(lz77[succ(index)]));
+        index +:= 2;
+        distance := ord(lz77[index]);
+        putHuffmanSymbol(outStream, distanceEncoder[distance]);
+        putBits(outStream, ord(lz77[succ(index)]), ord(lz77[index + 2]));
+        index +:= 3;
+      end if;
+    end while;
+    putHuffmanSymbol(outStream, literalOrLengthEncoder[DEFLATE_END_OF_BLOCK]);
+  end func;
+
+
+const proc: checkMaximumCodeLength (inout array integer: codeLengths,
+    in integer: allowedMaximum) is func
+  local
+    var boolean: aboveAllowedMaximum is FALSE;
+    var integer: codeLength is 0;
+  begin
+    for codeLength range codeLengths until aboveAllowedMaximum do
+      aboveAllowedMaximum := codeLength > allowedMaximum;
+    end for;
+    if aboveAllowedMaximum then
+      reduceMaximumHuffmanCodeLength(codeLengths, allowedMaximum);
+    end if;
+  end func;
+
+
+const func string: processCombinedData (in array integer: combinedData,
+    inout array integer: symbolCount) is func
+  result
+    var string: dataString is "";
+  local
+    var integer: index is 1;
+    var integer: combinedDataElement is 0;
+    var integer: subIndex is 0;
+    var integer: count is 0;
+    var integer: factor is 0;
+  begin
+    index := minIdx(combinedData);
+    while index <= maxIdx(combinedData) do
+      combinedDataElement := combinedData[index];
+      subIndex := succ(index);
+      while subIndex <= maxIdx(combinedData) and
+          combinedData[subIndex] = combinedDataElement do
+        incr(subIndex);
+      end while;
+      count := subIndex - index;
+      if count >= 3 then
+        if combinedDataElement = 0 then
+          if count <= 10 then
+            incr(symbolCount[17]);
+            dataString &:= '\17;';
+            dataString &:= char(count - 3);
+          else
+            count := min(count, 138);
+            incr(symbolCount[18]);
+            dataString &:= '\18;';
+            dataString &:= char(count - 11);
+          end if;
+          index +:= count;
+        else
+          incr(symbolCount[combinedDataElement]);
+          dataString &:= char(combinedDataElement);
+          decr(count);
+          incr(index);
+          while count >= 3 do
+            factor := min(count, 6);
+            incr(symbolCount[16]);
+            dataString &:= '\16;';
+            dataString &:= char(factor - 3);
+            count -:= factor;
+            index +:= factor;
+          end while;
+          while count >= 1 do
+            incr(symbolCount[combinedDataElement]);
+            dataString &:= char(combinedDataElement);
+            decr(count);
+            incr(index);
+          end while;
+        end if;
+      else
+        while count >= 1 do
+          incr(symbolCount[combinedDataElement]);
+          dataString &:= char(combinedDataElement);
+          decr(count);
+          incr(index);
+        end while;
+      end if;
+    end while;
+  end func;
+
+
+const proc: huffmanEncodeCombinedData (inout lsbOutBitStream: compressedStream,
+    in string: combinedDataString, in huffmanEncoder: combinedDataEncoder) is func
+  local
+    var integer: index is 1;
+    var integer: combinedDataElement is 0;
+  begin
+    while index <= length(combinedDataString) do
+      combinedDataElement := ord(combinedDataString[index]);
+      if combinedDataElement <= 15 then
+        putHuffmanSymbol(compressedStream, combinedDataEncoder[combinedDataElement]);
+        incr(index);
+      elsif combinedDataElement = 16 then
+        putHuffmanSymbol(compressedStream, combinedDataEncoder[16]);
+        putBits(compressedStream, ord(combinedDataString[succ(index)]), 2);
+        index +:= 2;
+      elsif combinedDataElement = 17 then
+        putHuffmanSymbol(compressedStream, combinedDataEncoder[17]);
+        putBits(compressedStream, ord(combinedDataString[succ(index)]), 3);
+        index +:= 2;
+      else # combinedDataElement = 18
+        putHuffmanSymbol(compressedStream, combinedDataEncoder[18]);
+        putBits(compressedStream, ord(combinedDataString[succ(index)]), 7);
+        index +:= 2;
+      end if;
+    end while;
+  end func;
+
+
+const func array integer: mapCombinedDataCodeLengths (in array integer: codeLengths) is func
+  result
+    var array integer: mappedCodeLengths is 19 times 0;
+  local
+    const array integer: mapFromOrderedLengths is [0]
+        (4, 18, 16, 14, 12, 10, 8, 6, 5, 7, 9, 11, 13, 15, 17, 19, 1, 2, 3);
+    var integer: index is 0;
+  begin
+    for key index range codeLengths do
+       mappedCodeLengths[mapFromOrderedLengths[index]] := codeLengths[index];
+    end for;
+    index := length(mappedCodeLengths);
+    while index >= 1 and mappedCodeLengths[index] = 0 do
+      decr(index);
+    end while;
+    mappedCodeLengths := mappedCodeLengths[.. index];
+  end func;
+
+
+const proc: deflateDynamic (inout deflateData: deflateState, in string: uncompressed,
+    in integer: limit, inout lsbOutBitStream: compressedStream) is func
+  local
+    var string: lz77 is "";
+    var array integer:  literalOrLengthCodeLengths is 0 times 0;
+    var huffmanEncoder: literalOrLengthEncoder is huffmanEncoder.value;
+    var array integer:  distanceCodeLengths is 0 times 0;
+    var huffmanEncoder: distanceEncoder is huffmanEncoder.value;
+    var array integer:  combinedData is 0 times 0;
+    var string:         combinedDataString is "";
+    var array integer:  combinedDataSymbolCount is [0 .. 18] times 0;
+    var array integer:  combinedDataCodeLengths is 0 times 0;
+    var huffmanEncoder: combinedDataEncoder is huffmanEncoder.value;
+    var array integer: mappedCodeLengths is 0 times 0;
+    var integer: number is 0;
+  begin
+    putBits(compressedStream, 2, 2);       # btype:  Dynamic Huffman codes
+    lz77 := compressWithLz77(deflateState, uncompressed, limit);
+    literalOrLengthCodeLengths := getHuffmanCodeLengths(deflateState.literalOrLengthSymbolCount);
+    checkMaximumCodeLength(literalOrLengthCodeLengths, 15);
+    distanceCodeLengths := getHuffmanCodeLengths(deflateState.distanceSymbolCount);
+    checkMaximumCodeLength(distanceCodeLengths, 15);
+    combinedData := literalOrLengthCodeLengths & distanceCodeLengths;
+    combinedDataString := processCombinedData(combinedData, combinedDataSymbolCount);
+    combinedDataCodeLengths := getHuffmanCodeLengths(combinedDataSymbolCount);
+    checkMaximumCodeLength(combinedDataCodeLengths, 7);
+    mappedCodeLengths := mapCombinedDataCodeLengths(combinedDataCodeLengths);
+    putBits(compressedStream, length(literalOrLengthCodeLengths) - 257, 5);  # hlit
+    putBits(compressedStream, length(distanceCodeLengths) - 1, 5);           # hdist
+    putBits(compressedStream, length(mappedCodeLengths) - 4, 4);             # hclen
+    for number range mappedCodeLengths do
+      putBits(compressedStream, number, 3);
+    end for;
+    combinedDataEncoder := createHuffmanEncoder(combinedDataCodeLengths);
+    huffmanEncodeCombinedData(compressedStream, combinedDataString,
+                              combinedDataEncoder);
+    literalOrLengthEncoder := createHuffmanEncoder(literalOrLengthCodeLengths);
+    distanceEncoder := createHuffmanEncoder(distanceCodeLengths);
+    huffmanEncodeLz77(compressedStream, lz77, literalOrLengthEncoder,
+                      distanceEncoder);
+  end func;
+
+
+const proc: uncompressedBlock (inout deflateData: deflateState,
+    in string: uncompressed, in var integer: uncompressedSize,
     inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
+  local
+    const integer: uncompressedBlockMaxSize is pred(2 ** 16);
   begin
+    while uncompressedSize > uncompressedBlockMaxSize do
+      putBit(compressedStream, 0);
+      putBits(compressedStream, 0, 2);
+      write(compressedStream, "\255;\255;\255;\255;");
+      write(compressedStream, uncompressed[deflateState.uncompressedPos fixLen uncompressedBlockMaxSize]);
+      deflateState.uncompressedPos +:= uncompressedBlockMaxSize;
+      uncompressedSize -:= uncompressedBlockMaxSize;
+    end while;
     putBit(compressedStream, ord(bfinal));
-    putBits(compressedStream, 1, 2);       # btype:  Fixed Huffman codes
+    putBits(compressedStream, 0, 2);
+    write(compressedStream, bytes(uncompressedSize, UNSIGNED, LE, 2) &
+                            bytes(uncompressedSize, UNSIGNED, LE, 2));
+    if uncompressedSize <> 0 then
+      write(compressedStream, uncompressed[deflateState.uncompressedPos fixLen uncompressedSize]);
+      deflateState.uncompressedPos +:= uncompressedSize;
+    end if;
   end func;
 
 
-const proc: endDeflateBlock (inout deflateData: deflateState,
-    inout lsbOutBitStream: compressedStream) is func
+const proc: deflateBlock (inout deflateData: deflateState,
+    in string: uncompressed, in integer: limit,
+    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
+  local
+    var integer: uncompressedStart is 0;
+    var integer: uncompressedSize is 0;
+    var integer: compressedStart is 0;
+    var integer: compressedSize is 0;
   begin
-    putLiteralOrLength(compressedStream, 256);
-  end func;
-
-
-const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncompressed,
-    inout lsbOutBitStream: compressedStream) is func
-  begin
-    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
-    endDeflateBlock(deflateState, compressedStream);
+    uncompressedStart := deflateState.uncompressedPos;
+    uncompressedSize := succ(limit - uncompressedStart);
+    compressedStart := length(compressedStream);
+    if uncompressedSize <= 66 then
+      # For this cases deflateFixed compresses better than deflateDynamic.
+      putBit(compressedStream, ord(bfinal));
+      deflateFixed(deflateState, uncompressed, length(uncompressed), compressedStream);
+    else
+      # For uncompressedSize >= 5555 deflateDynamic compresses better than deflateFixed.
+      # For around 92% of the cases getween 67 and 5554 deflateDynamic compresses better.
+      putBit(compressedStream, ord(bfinal));
+      deflateDynamic(deflateState, uncompressed, length(uncompressed), compressedStream);
+    end if;
+    compressedSize := succ(pred(length(compressedStream) - compressedStart) mdiv 8);
+    if compressedSize >= uncompressedSize + 4 then
+      deflateState.uncompressedPos := uncompressedStart;
+      truncate(compressedStream, compressedStart);
+      uncompressedBlock(deflateState, uncompressed, uncompressedSize, compressedStream, bfinal);
+    end if;
   end func;
 
 
@@ -236,26 +705,8 @@ const proc: deflateBlock (in string: uncompressed,
   local
     var deflateData: deflateState is deflateData.value;
   begin
-    beginDeflateBlock(deflateState, compressedStream, bfinal);
-    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
-    endDeflateBlock(deflateState, compressedStream);
-  end func;
-
-
-const proc: deflateBlock (inout file: inFile,
-    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
-  local
-    var deflateData: deflateState is deflateData.value;
-    var string: uncompressed is "";
-  begin
-    beginDeflateBlock(deflateState, compressedStream, bfinal);
-    uncompressed := gets(inFile, 4096);
-    while hasNext(inFile) do
-      deflate(deflateState, uncompressed, length(uncompressed) - 258, compressedStream);
-      uncompressed &:= gets(inFile, 4096);
-    end while;
-    deflate(deflateState, uncompressed, length(uncompressed), compressedStream);
-    endDeflateBlock(deflateState, compressedStream);
+    deflateBlock(deflateState, uncompressed, length(uncompressed),
+                 compressedStream, bfinal);
   end func;
 
 

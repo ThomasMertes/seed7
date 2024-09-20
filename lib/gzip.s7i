@@ -56,6 +56,25 @@ const type: gzipHeader is new struct
   end struct;
 
 
+const proc: showHeader (in gzipHeader: header) is func
+  begin
+    writeln("magic: " <& literal(header.magic));
+    writeln("compressionMethod: " <& header.compressionMethod);
+    writeln("flagFtext: " <& header.flagFtext);
+    writeln("flagFhcrc: " <& header.flagFhcrc);
+    writeln("flagFextra: " <& header.flagFextra);
+    writeln("flagFname: " <& header.flagFname);
+    writeln("flagFcomment: " <& header.flagFcomment);
+    writeln("mtime: " <& header.mtime);
+    writeln("extraFlags: " <& header.extraFlags);
+    writeln("operatingSystem: " <& header.operatingSystem);
+    writeln("extraData: " <& literal(header.extraData));
+    writeln("originalFileName: " <& literal(header.originalFileName));
+    writeln("fileComment: " <& literal(header.fileComment));
+    writeln("crc16: " <& header.crc16);
+  end func;
+
+
 const func gzipHeader: readGzipHeader (in string: stri, inout integer: bytePos) is func
   result
     var gzipHeader: header is gzipHeader.value;
@@ -157,6 +176,7 @@ const func gzipHeader: readGzipHeader (inout file: compressed) is func
         end if;
       end if;
     end if;
+    # showHeader(header);
   end func;
 
 
@@ -498,14 +518,15 @@ const func file: openGzipFile (inout file: destFile, WRITE) is func
  *)
 const proc: close (inout gzipWriteFile: aFile) is func
   begin
-    beginDeflateBlock(aFile.deflateState, aFile.compressedStream, TRUE);
-    closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressedStream);
+    deflateBlock(aFile.deflateState, aFile.uncompressed,
+                 length(aFile.uncompressed), aFile.compressedStream, TRUE);
     flush(aFile.compressedStream);
     write(aFile.destFile,
           getBytes(aFile.compressedStream) &
-          bytes(ord(crc32(aFile.uncompressed, aFile.crc32)), UNSIGNED, LE, 4) &
+          bytes(crc32(aFile.uncompressed, aFile.crc32), LE, 4) &
           bytes((length(aFile.uncompressed) +
                  aFile.uncompressedLength) mod 2 ** 32, UNSIGNED, LE, 4));
+    flush(aFile.destFile);
   end func;
 
 
@@ -517,11 +538,11 @@ const proc: write (inout gzipWriteFile: outFile, in string: stri) is func
     const integer: blockSize is 1000000;
   begin
     if length(outFile.uncompressed) > blockSize and length(stri) <> 0 then
-      beginDeflateBlock(outFile.deflateState, outFile.compressedStream, FALSE);
-      closeDeflateBlock(outFile.deflateState, outFile.uncompressed, outFile.compressedStream);
+      deflateBlock(outFile.deflateState, outFile.uncompressed,
+                   length(outFile.uncompressed), outFile.compressedStream, FALSE);
       # Do not flush. A partially filled byte is kept in outFile.compressedStream.
       write(outFile.destFile, getBytes(outFile.compressedStream));
-      outFile.deflateState.uPos := 1;
+      outFile.deflateState.uncompressedPos := 1;
       outFile.deflateState.dictionary := lookupDict.value;
       outFile.deflateState.slidingWindow := slidingWindowType times -32768;
       outFile.crc32 := crc32(outFile.uncompressed, outFile.crc32);
