@@ -168,12 +168,6 @@ const func string: readPngChunk (inout file: pngFile, inout string: chunkType) i
   end func;
 
 
-const func string: genPngChunk (in string: chunkType, in string: chunkData) is
-  return bytes(length(chunkData), UNSIGNED, BE, 4) &
-         chunkType & chunkData &
-         bytes(integer(crc32(chunkType & chunkData)), UNSIGNED, BE, 4);
-
-
 const func integer: paethPredictor (in integer: a, in integer: b, in integer: c) is func
   result
     var integer: predicted is 0;
@@ -756,6 +750,310 @@ const func PRIMITIVE_WINDOW: readPng (in string: pngFileName) is func
     pngFile := open(pngFileName, "r");
     if pngFile <> STD_NULL then
       pixmap := readPng(pngFile);
+      close(pngFile);
+    end if;
+  end func;
+
+
+const func string: imageToPixelData (in pixelImage: image) is func
+  result
+    var string: pixelData is "";
+  local
+    var integer: line is 0;
+    var pixel: pix is pixel.value;
+    var color: col is color.value;
+  begin
+    for line range 1 to length(image) do
+      pixelData &:= '\0;';  # Set filterType to none
+      for pix range image[line] do
+        col := pixelToColor(pix);
+        pixelData &:= chr(col.redLight   mdiv 256);
+        pixelData &:= chr(col.greenLight mdiv 256);
+        pixelData &:= chr(col.blueLight  mdiv 256);
+      end for;
+    end for;
+  end func;
+
+
+const proc: doFilter0 (in pngHeader: header, inout string: scanline0,
+    inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range 1 to pred(header.bytesPerScanline) do
+      delta := ord(scanline0[column]);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter1 (in pngHeader: header, inout string: scanline1,
+    inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
+      delta := (ord(scanline1[column]) -
+                ord(scanline1[column - header.bytesPerPixel])) mod 256;
+      scanline1 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter2 (in pngHeader: header, in string: upperScanline,
+    inout string: scanline2, inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range 1 to pred(header.bytesPerScanline) do
+      delta := (ord(scanline2[column]) -
+                ord(upperScanline[column])) mod 256;
+      scanline2 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter3 (in pngHeader: header, inout string: scanline3,
+    inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
+      delta := (ord(scanline3[column]) -
+                ord(scanline3[column - header.bytesPerPixel]) mdiv 2) mod 256;
+      scanline3 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter3 (in pngHeader: header, in string: upperScanline,
+    inout string: scanline3, inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
+      delta := (ord(scanline3[column]) -
+                (ord(scanline3[column - header.bytesPerPixel]) +
+                 ord(upperScanline[column])) mdiv 2) mod 256;
+      scanline3 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+    for column range header.bytesPerPixel downto 1 do
+      delta := (ord(scanline3[column]) -
+                ord(upperScanline[column]) mdiv 2) mod 256;
+      scanline3 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter4 (in pngHeader: header, inout string: scanline4,
+    inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
+      delta := (ord(scanline4[column]) -
+                paethPredictor(ord(scanline4[column - header.bytesPerPixel]),
+                               0, 0)) mod 256;
+      scanline4 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doFilter4 (in pngHeader: header, in string: upperScanline,
+    inout string: scanline4, inout integer: sumOfDifferences) is func
+  local
+    var integer: column is 0;
+    var integer: delta is 0;
+  begin
+    for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
+      delta := (ord(scanline4[column]) -
+                paethPredictor(ord(scanline4[column - header.bytesPerPixel]),
+                               ord(upperScanline[column]),
+                               ord(upperScanline[column - header.bytesPerPixel]))) mod 256;
+      scanline4 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+    for column range header.bytesPerPixel downto 1 do
+      delta := (ord(scanline4[column]) -
+                paethPredictor(0,
+                               ord(upperScanline[column]),
+                               0)) mod 256;
+      scanline4 @:= [column] chr(delta);
+      if delta >= 128 then
+        sumOfDifferences +:= 256 - delta;
+      else
+        sumOfDifferences +:= delta;
+      end if;
+    end for;
+  end func;
+
+
+const proc: setPngFilter (in pngHeader: header, inout string: pixelData,
+    in integer: line) is func
+  local
+    var integer: byteIndex is 1;
+    var string: scanline1 is "";
+    var string: scanline2 is "";
+    var string: scanline3 is "";
+    var string: scanline4 is "";
+    var integer: sumOfDifferences0 is 0;
+    var integer: sumOfDifferences1 is 0;
+    var integer: sumOfDifferences2 is 0;
+    var integer: sumOfDifferences3 is 0;
+    var integer: sumOfDifferences4 is 0;
+    var integer: filterZeroMin is 0;
+  begin
+    byteIndex := line * header.bytesPerScanline + 2;
+    scanline1 := pixelData[byteIndex len pred(header.bytesPerScanline)];
+    doFilter0(header, scanline1, sumOfDifferences0);
+    doFilter1(header, scanline1, sumOfDifferences1);
+    if line <> 0 then
+      scanline2 := pixelData[byteIndex len pred(header.bytesPerScanline)];
+      doFilter2(header,
+                pixelData[byteIndex - header.bytesPerScanline
+                          len pred(header.bytesPerScanline)],
+                scanline2, sumOfDifferences2);
+    else
+      sumOfDifferences2 := integer.last;
+    end if;
+    scanline3 := pixelData[byteIndex len pred(header.bytesPerScanline)];
+    if line = 0 then
+      doFilter3(header, scanline3, sumOfDifferences3);
+    else
+      doFilter3(header,
+                pixelData[byteIndex - header.bytesPerScanline
+                          len pred(header.bytesPerScanline)],
+                scanline3, sumOfDifferences3);
+    end if;
+    scanline4 := pixelData[byteIndex len pred(header.bytesPerScanline)];
+    if line = 0 then
+      doFilter4(header, scanline4, sumOfDifferences4);
+    else
+      doFilter4(header,
+                pixelData[byteIndex - header.bytesPerScanline
+                          len pred(header.bytesPerScanline)],
+                scanline4, sumOfDifferences4);
+    end if;
+    filterZeroMin := min(min(sumOfDifferences0, sumOfDifferences1),
+                         min(sumOfDifferences2, min(sumOfDifferences3, sumOfDifferences4)));
+    if sumOfDifferences0 = filterZeroMin then
+      noop;
+    elsif sumOfDifferences1 = filterZeroMin then
+      pixelData @:= [pred(byteIndex)] '\1;';
+      pixelData @:= [byteIndex] scanline1;
+    elsif sumOfDifferences2 = filterZeroMin then
+      pixelData @:= [pred(byteIndex)] '\2;';
+      pixelData @:= [byteIndex] scanline2;
+    elsif sumOfDifferences3 = filterZeroMin then
+      pixelData @:= [pred(byteIndex)] '\3;';
+      pixelData @:= [byteIndex] scanline3;
+    else
+      pixelData @:= [pred(byteIndex)] '\4;';
+      pixelData @:= [byteIndex] scanline4;
+    end if;
+    # writeln(sumOfDifferences0 <& " " <& sumOfDifferences1 <& " " <& sumOfDifferences2 <& " " <&
+    #     sumOfDifferences3 <& " " <& sumOfDifferences4 <& " " <& ord(pixelData[pred(byteIndex)]));
+  end func;
+
+
+const proc: setPngFilter (in pngHeader: header, inout string: pixelData) is func
+  local
+    var integer: line is 0;
+  begin
+    for line range pred(header.height) downto 0 do
+      setPngFilter(header, pixelData, line);
+    end for;
+  end func;
+
+
+const func string: genPngChunk (in string: chunkType, in string: chunkData) is
+  return bytes(length(chunkData), UNSIGNED, BE, 4) &
+         chunkType & chunkData &
+         bytes(integer(crc32(chunkType & chunkData)), UNSIGNED, BE, 4);
+
+
+(**
+ *  Converts a pixmap into a string in PNG format.
+ *  @param pixmap Pixmap to be converted.
+ *  @return a string with data in PNG format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: pixmap, PNG) is func
+  result
+    var string: stri is PNG_MAGIC;
+  local
+    var pngHeader: header is pngHeader.value;
+    var pixelImage: image is pixelImage.value;
+    var string: pixelData is "";
+  begin
+    header.width  := width(pixmap);
+    header.height := height(pixmap);
+    header.bitDepth          := 8;
+    header.colorType         := PNG_COLOR_TYPE_RGB;
+    header.compressionMethod := 0;
+    header.filterMethod      := 0;
+    header.interlaceMethod   := 0;
+    header.bytesPerPixel     := 3;  # RGB
+    header.bytesPerScanline  := succ(header.width * header.bytesPerPixel);
+    image := getPixelImage(pixmap);
+    pixelData := imageToPixelData(image);
+    setPngFilter(header, pixelData);
+    stri &:= genPngChunk("IHDR", str(header)) &
+             genPngChunk("IDAT", gzcompress(pixelData)) &
+             genPngChunk("IEND", "");
+  end func;
+
+
+const proc: writePng (in string: pngFileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: pngFile is STD_NULL;
+  begin
+    pngFile := open(pngFileName, "w");
+    if pngFile <> STD_NULL then
+      write(pngFile, str(pixmap, PNG));
       close(pngFile);
     end if;
   end func;
