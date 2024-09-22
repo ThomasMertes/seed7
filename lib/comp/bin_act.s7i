@@ -29,6 +29,8 @@ const ACTION: BIN_AND_ASSIGN          is action "BIN_AND_ASSIGN";
 const ACTION: BIN_BIG                 is action "BIN_BIG";
 const ACTION: BIN_BINARY              is action "BIN_BINARY";
 const ACTION: BIN_BIT_LENGTH          is action "BIN_BIT_LENGTH";
+const ACTION: BIN_BYTES_BE_2_UINT     is action "BIN_BYTES_BE_2_UINT";
+const ACTION: BIN_BYTES_LE_2_UINT     is action "BIN_BYTES_LE_2_UINT";
 const ACTION: BIN_CARD                is action "BIN_CARD";
 const ACTION: BIN_CMP                 is action "BIN_CMP";
 const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
@@ -52,6 +54,8 @@ const proc: bin_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "uintType    setToUInt (const const_setType, const intType);");
+    declareExtern(c_prog, "uintType    uintBytesBe2UInt (const const_striType);");
+    declareExtern(c_prog, "uintType    uintBytesLe2UInt (const const_striType);");
     declareExtern(c_prog, "intType     uintCard (uintType);");
     declareExtern(c_prog, "intType     uintCmp (uintType, uintType);");
     declareExtern(c_prog, "intType     uintCmpGeneric (const genericType, const genericType);");
@@ -65,6 +69,12 @@ const proc: bin_prototypes (inout file: c_prog) is func
   end func;
 
 
+const proc: process_str_substr_slice (in reference: stri,
+    in reference: start, in reference: length, in string: slice_name,
+    inout expr_type: c_expr) is forward;
+const proc: process_str_substr_fixlen_slice (in reference: stri,
+    in reference: start, in reference: length, in string: slice_name,
+    inout expr_type: c_expr) is forward;
 const proc: optimize_mod_dividend (in reference: dividend, inout expr_type: c_expr) is forward;
 
 
@@ -198,6 +208,443 @@ const proc: process (BIN_BIT_LENGTH, in reference: function,
     c_expr.expr &:= "(intType) uint64MostSignificantBit(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ") + 1";
+  end func;
+
+
+const proc: optimize_bin_bytes_2_uint_length_0 (in reference: stri,
+    in reference: start, in boolean: fixedLengthSubstring,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var boolean: stri_is_variable is TRUE;
+    var string: stri_name is "";
+    var integer: stri_length is 0;
+    var string: stri_size is "";
+    var intRange: start_range is intRange.value;
+    var string: start_name is "";
+    var boolean: raisesException is FALSE;
+    var string: logicalOr is "";
+  begin
+    incr(countOptimizations);
+    incr(countInlinedFunctions);
+    start_range := getIntRange(start);
+    c_expr.expr &:= "(";
+    if start_range.maxValue < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      raisesException := TRUE;
+    elsif getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_is_variable := FALSE;
+      stri_length := length(getValue(evaluatedParam, string));
+      stri_size := memSizeLiteral(stri_length);
+      if start_range.minValue > stri_length then
+        if fixedLengthSubstring then
+          warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        else
+          warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        end if;
+        raisesException := TRUE;
+      end if;
+    else
+      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+      stri_size := stri_name & "->size";
+    end if;
+    if not raisesException then
+      if getConstant(start, INTOBJECT, evaluatedParam) then
+        start_name := integerLiteral(getValue(evaluatedParam, integer));
+      else
+        start_name := getTempVariable("intType", "start_", start, c_expr);
+      end if;
+      if string_index_check then
+        if start_range.minValue < 1 or (fixedLengthSubstring and
+            (stri_is_variable or start_range.maxValue > stri_length)) then
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk(";
+          if start_range.minValue < 1 then
+            c_expr.expr &:= start_name;
+            c_expr.expr &:= "<1";
+            logicalOr := "||";
+          end if;
+          if fixedLengthSubstring and
+              (stri_is_variable or start_range.maxValue > stri_length) then
+            c_expr.expr &:= logicalOr;
+            c_expr.expr &:= start_name;
+            c_expr.expr &:= ">";
+            c_expr.expr &:= stri_size;
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countIndexOptimizations(c_expr);
+        end if;
+      else
+        incr(countSuppressedIndexChecks);
+      end if;
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: optimize_bin_bytes_2_uint_length_1 (in reference: stri,
+    in reference: start, in boolean: fixedLengthSubstring,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var boolean: stri_is_variable is TRUE;
+    var string: stri_name is "";
+    var string: stri_value is "";
+    var integer: stri_length is 0;
+    var string: stri_size is "";
+    var string: start_name is "";
+    var integer: start_value is 0;
+    var intRange: start_range is intRange.value;
+    var boolean: raisesException is FALSE;
+    var string: logicalOr is "";
+  begin
+    incr(countOptimizations);
+    incr(countInlinedFunctions);
+    c_expr.expr &:= "(";
+    if getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_is_variable := FALSE;
+      stri_value := getValue(evaluatedParam, string);
+      stri_name := "(" & stringLiteral(stri_value) & ")";
+      stri_length := length(stri_value);
+      stri_size := memSizeLiteral(stri_length);
+    else
+      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+      stri_size := stri_name & "->size";
+    end if;
+    start_range := getIntRange(start);
+    if start_range.maxValue < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      raisesException := TRUE;
+    elsif not stri_is_variable and start_range.minValue > stri_length then
+      if fixedLengthSubstring then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      else
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      end if;
+      raisesException := TRUE;
+    elsif getConstant(start, INTOBJECT, evaluatedParam) then
+      start_value := getValue(evaluatedParam, integer);
+      start_name := integerLiteral(start_value);
+    else
+      start_name := getTempVariable("intType", "start_", start, c_expr);
+    end if;
+    if not raisesException then
+      if string_index_check then
+        if start_range.minValue < 1 or (fixedLengthSubstring and
+            (stri_is_variable or start_range.maxValue > stri_length)) then
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk(";
+          if start_range.minValue < 1 then
+            c_expr.expr &:= start_name;
+            c_expr.expr &:= "<1";
+            logicalOr := "||";
+          end if;
+          if fixedLengthSubstring and
+              (stri_is_variable or start_range.maxValue > stri_length) then
+            c_expr.expr &:= logicalOr;
+            c_expr.expr &:= start_name;
+            c_expr.expr &:= ">";
+            c_expr.expr &:= stri_size;
+          end if;
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countIndexOptimizations(c_expr);
+        end if;
+      else
+        incr(countSuppressedIndexChecks);
+      end if;
+      c_expr.expr &:= "(";
+      if function_range_check then
+        incr(countRangeChecks);
+        c_expr.expr &:= "rngChk(";
+        if not fixedLengthSubstring then
+          c_expr.expr &:= start_name;
+          c_expr.expr &:= ">";
+          c_expr.expr &:= stri_size;
+          c_expr.expr &:= "||";
+        end if;
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1]>255)?";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":";
+      else
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= "(uintType)";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "-1])";
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: optimize_bin_bytes_be_2_uint (in string: slice_name, in integer: length,
+    in string: or_name, in string: result_name, inout expr_type: c_expr) is func
+
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to length do
+      if function_range_check then
+        incr(countRangeChecks);
+        c_expr.expr &:= or_name;
+        if index <> 1 then
+          c_expr.expr &:= "|";
+        end if;
+        c_expr.expr &:= "=(uintType)";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem[";
+        c_expr.expr &:= integerLiteral(pred(index));
+        c_expr.expr &:= "],";
+      else
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= result_name;
+      if index <> 1 then
+        c_expr.expr &:= "|";
+      end if;
+      c_expr.expr &:= "=(uintType)";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".mem[";
+      c_expr.expr &:= integerLiteral(pred(index));
+      c_expr.expr &:= "]";
+      if index < length then
+        c_expr.expr &:= "<<";
+        c_expr.expr &:= integerLiteral((length - index) * 8);
+      end if;
+      c_expr.expr &:= ",";
+    end for;
+    if function_range_check then
+      c_expr.expr &:= "rngChk(";
+      c_expr.expr &:= or_name;
+      c_expr.expr &:= ">255)?";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= ":";
+    end if;
+    c_expr.expr &:= result_name;
+  end func;
+
+
+const proc: optimize_bin_bytes_be_2_uint (in reference: stri,
+    in reference: start, in reference: lengthRef, in integer: length,
+    in boolean: fixedLengthSubstring, inout expr_type: c_expr) is func
+
+  local
+    var string: or_name is "";
+    var string: result_name is "";
+    var string: slice_name is "";
+  begin
+    if length < 0 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif length = 0 then
+      optimize_bin_bytes_2_uint_length_0(getActionParameter(stri, 1),
+          start, fixedLengthSubstring, c_expr);
+    elsif length = 1 then
+      optimize_bin_bytes_2_uint_length_1(getActionParameter(stri, 1),
+          start, fixedLengthSubstring, c_expr);
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length >= 2 and length <= 8 then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
+      c_expr.expr &:= "(";
+      if function_range_check then
+        or_name := defineTempVariable("uintType", "or_", c_expr);
+      end if;
+      result_name := defineTempVariable("uintType", "result_", c_expr);
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      if fixedLengthSubstring then
+        process_str_substr_fixlen_slice(getActionParameter(stri, 1), start,
+                                        lengthRef, slice_name, c_expr);
+        c_expr.expr &:= ", ";
+        optimize_bin_bytes_be_2_uint(slice_name, length, or_name, result_name, c_expr);
+      else
+        process_str_substr_slice(getActionParameter(stri, 1), start,
+                                 lengthRef, slice_name, c_expr);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size==";
+        c_expr.expr &:= integerLiteral(length);
+        c_expr.expr &:= "?(";
+        optimize_bin_bytes_be_2_uint(slice_name, length, or_name, result_name, c_expr);
+        c_expr.expr &:= "):uintBytesBe2UInt(&";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "uintBytesBe2UInt(";
+      getAnyParamToExpr(stri, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_BYTES_BE_2_UINT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if inlineFunctions and
+        isActionExpression(params[1], "STR_SUBSTR") and
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+      optimize_bin_bytes_be_2_uint(params[1], getActionParameter(params[1], 3),
+          getActionParameter(params[1], 5), getValue(evaluatedParam, integer), FALSE, c_expr);
+    elsif inlineFunctions and
+        isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+      optimize_bin_bytes_be_2_uint(params[1], getActionParameter(params[1], 3),
+          getActionParameter(params[1], 5), getValue(evaluatedParam, integer), TRUE, c_expr);
+    else
+      c_expr.expr &:= "uintBytesBe2UInt(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: optimize_bin_bytes_le_2_uint (in string: slice_name, in integer: length,
+    in string: or_name, in string: result_name, inout expr_type: c_expr) is func
+
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to length do
+      if function_range_check then
+        incr(countRangeChecks);
+        c_expr.expr &:= or_name;
+        if index <> 1 then
+          c_expr.expr &:= "|";
+        end if;
+        c_expr.expr &:= "=(uintType)";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem[";
+        c_expr.expr &:= integerLiteral(pred(index));
+        c_expr.expr &:= "],";
+      else
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= result_name;
+      if index <> 1 then
+        c_expr.expr &:= "|";
+      end if;
+      c_expr.expr &:= "=(uintType)";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".mem[";
+      c_expr.expr &:= integerLiteral(pred(index));
+      c_expr.expr &:= "]";
+      if index <> 1 then
+        c_expr.expr &:= "<<";
+        c_expr.expr &:= integerLiteral(pred(index) * 8);
+      end if;
+      c_expr.expr &:= ",";
+    end for;
+    if function_range_check then
+      c_expr.expr &:= "rngChk(";
+      c_expr.expr &:= or_name;
+      c_expr.expr &:= ">255)?";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= ":";
+    end if;
+    c_expr.expr &:= result_name;
+  end func;
+
+
+const proc: optimize_bin_bytes_le_2_uint (in reference: stri,
+    in reference: start, in reference: lengthRef, in integer: length,
+    in boolean: fixedLengthSubstring, inout expr_type: c_expr) is func
+
+  local
+    var string: or_name is "";
+    var string: result_name is "";
+    var string: slice_name is "";
+  begin
+    if length < 0 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif length = 0 then
+      optimize_bin_bytes_2_uint_length_0(getActionParameter(stri, 1),
+          start, fixedLengthSubstring, c_expr);
+    elsif length = 1 then
+      optimize_bin_bytes_2_uint_length_1(getActionParameter(stri, 1),
+          start, fixedLengthSubstring, c_expr);
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length >= 2 and length <= 8 then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
+      c_expr.expr &:= "(";
+      if function_range_check then
+        or_name := defineTempVariable("uintType", "or_", c_expr);
+      end if;
+      result_name := defineTempVariable("uintType", "result_", c_expr);
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      if fixedLengthSubstring then
+        process_str_substr_fixlen_slice(getActionParameter(stri, 1), start,
+                                        lengthRef, slice_name, c_expr);
+        c_expr.expr &:= ", ";
+        optimize_bin_bytes_le_2_uint(slice_name, length, or_name, result_name, c_expr);
+      else
+        process_str_substr_slice(getActionParameter(stri, 1), start,
+                                 lengthRef, slice_name, c_expr);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size==";
+        c_expr.expr &:= integerLiteral(length);
+        c_expr.expr &:= "?(";
+        optimize_bin_bytes_le_2_uint(slice_name, length, or_name, result_name, c_expr);
+        c_expr.expr &:= "):uintBytesLe2UInt(&";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "uintBytesLe2UInt(";
+      getAnyParamToExpr(stri, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_BYTES_LE_2_UINT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if inlineFunctions and
+        isActionExpression(params[1], "STR_SUBSTR") and
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+      optimize_bin_bytes_le_2_uint(params[1], getActionParameter(params[1], 3),
+          getActionParameter(params[1], 5), getValue(evaluatedParam, integer), FALSE, c_expr);
+    elsif inlineFunctions and
+        isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
+      optimize_bin_bytes_le_2_uint(params[1], getActionParameter(params[1], 3),
+          getActionParameter(params[1], 5), getValue(evaluatedParam, integer), TRUE, c_expr);
+    else
+      c_expr.expr &:= "uintBytesLe2UInt(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

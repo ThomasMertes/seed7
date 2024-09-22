@@ -340,6 +340,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_BINARY, function, params, c_expr);
       when {"BIN_BIT_LENGTH"}:
         process(BIN_BIT_LENGTH, function, params, c_expr);
+      when {"BIN_BYTES_BE_2_UINT"}:
+        process(BIN_BYTES_BE_2_UINT, function, params, c_expr);
+      when {"BIN_BYTES_LE_2_UINT"}:
+        process(BIN_BYTES_LE_2_UINT, function, params, c_expr);
       when {"BIN_CARD"}:
         process(BIN_CARD, function, params, c_expr);
       when {"BIN_CMP"}:
