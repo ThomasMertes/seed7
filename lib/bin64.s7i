@@ -484,33 +484,29 @@ const func float: mbfBits2Float (in bin64: bits) is func
 
 
 (**
- *  Convert a string of eight little-endian bytes to a bin64 value.
- *  @return the bin64 value.
+ *  Convert a string of bytes (interpreted as big-endian) to a bin64.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @return a bin64 created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with a bin64.
  *)
-const func bin64: bin64 (in string: eightBytes, LE) is
-  return bin64(eightBytes[1])       |
-         bin64(eightBytes[2]) <<  8 |
-         bin64(eightBytes[3]) << 16 |
-         bin64(eightBytes[4]) << 24 |
-         bin64(eightBytes[5]) << 32 |
-         bin64(eightBytes[6]) << 40 |
-         bin64(eightBytes[7]) << 48 |
-         bin64(eightBytes[8]) << 56;
+const func bin64: bin64 (in string: byteStri, BE)              is action "BIN_BYTES_BE_2_UINT";
 
 
 (**
- *  Convert a string of eight big-endian bytes to a bin64 value.
- *  @return the bin64 value.
+ *  Convert a string of bytes (interpreted as little-endian) to a bin64.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @return a bin64 created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with a bin64.
  *)
-const func bin64: bin64 (in string: eightBytes, BE) is
-  return bin64(eightBytes[1]) << 56 |
-         bin64(eightBytes[2]) << 48 |
-         bin64(eightBytes[3]) << 40 |
-         bin64(eightBytes[4]) << 32 |
-         bin64(eightBytes[5]) << 24 |
-         bin64(eightBytes[6]) << 16 |
-         bin64(eightBytes[7]) <<  8 |
-         bin64(eightBytes[8]);
+const func bin64: bin64 (in string: byteStri, LE)              is action "BIN_BYTES_LE_2_UINT";
 
 
 # Allows 'array bin64' everywhere without extra type definition.
