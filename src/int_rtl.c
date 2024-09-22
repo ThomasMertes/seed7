@@ -683,6 +683,115 @@ int uint64LeastSignificantBit (uint64Type number)
 
 
 /**
+ *  Convert a string of bytes (interpreted as big-endian) to an unsigned integer.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @return an unsigned integer created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an unsigned integer.
+ */
+uintType uintBytesBe2UInt (const const_striType byteStri)
+
+  {
+    memSizeType pos = 0;
+    uintType result = 0;
+
+  /* uintBytesBe2UInt */
+    logFunction(printf("uintBytesBe2UInt(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("uintBytesBe2UInt(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (byteStri->size >= sizeof(intType)) {
+      while (pos < byteStri->size && byteStri->mem[pos] == 0) {
+        pos++;
+      } /* if */
+      if (unlikely(byteStri->size - pos > sizeof(intType))) {
+        logError(printf("uintBytesBe2UInt(\"%s\"): "
+                        "Number too big.\n",
+                        striAsUnquotedCStri(byteStri)););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+    } /* if */
+    for (; pos < byteStri->size; pos++) {
+      if (unlikely(byteStri->mem[pos] > UBYTE_MAX)) {
+        logError(printf("uintBytesBe2UInt(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos]););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= CHAR_BIT;
+      result += byteStri->mem[pos];
+    } /* for */
+    logFunction(printf("uintBytesBe2UInt --> " FMT_U "\n", result););
+    return result;
+  } /* uintBytesBe2UInt */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an unsigned integer.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @return an unsigned integer created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an unsigned integer.
+ */
+uintType uintBytesLe2UInt (const const_striType byteStri)
+
+  {
+    memSizeType pos;
+    uintType result = 0;
+
+  /* uintBytesLe2UInt */
+    logFunction(printf("uintBytesLe2UInt(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
+    pos = byteStri->size;
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("uintBytesLe2UInt(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (unlikely(byteStri->size >= sizeof(intType))) {
+      while (pos > 0 && byteStri->mem[pos - 1] == 0) {
+        pos--;
+      } /* if */
+      if (unlikely(pos > sizeof(intType))) {
+        logError(printf("uintBytesLe2UInt(\"%s\"): "
+                        "Number too big.\n",
+                        striAsUnquotedCStri(byteStri)););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+    } /* if */
+    for (; pos > 0; pos--) {
+      if (unlikely(byteStri->mem[pos - 1] > UBYTE_MAX)) {
+        logError(printf("uintBytesLe2UInt(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos - 1]););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= CHAR_BIT;
+      result += byteStri->mem[pos - 1];
+    } /* for */
+    logFunction(printf("uintBytesLe2UInt --> " FMT_U "\n", result););
+    return result;
+  } /* uintBytesLe2UInt */
+
+
+
+/**
  *  Determine the number of one bits in an unsigned number.
  *  The function uses a combination of sideways additions and
  *  a multiplication to count the bits set in a number element.

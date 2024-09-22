@@ -122,6 +122,46 @@ objectType bin_bit_length (listType arguments)
 
 
 /**
+ *  Convert a string of bytes (interpreted as big-endian) to an unsigned integer.
+ *  @param byteStri/arg_1 String of bytes to be converted. The bytes are
+ *         interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @return an unsigned integer created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an unsigned integer.
+ */
+objectType bin_bytes_be_2_uint (listType arguments)
+
+  { /* bin_bytes_be_2_uint */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp((intType)
+        uintBytesBe2UInt(take_stri(arg_1(arguments))));
+  } /* bin_bytes_be_2_uint */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an unsigned integer.
+ *  @param byteStri/arg_1 String of bytes to be converted. The bytes are
+ *         interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @return an unsigned integer created from 'byteStri'.
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an unsigned integer.
+ */
+objectType bin_bytes_le_2_uint (listType arguments)
+
+  { /* bin_bytes_le_2_uint */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp((intType)
+        uintBytesLe2UInt(take_stri(arg_1(arguments))));
+  } /* bin_bytes_le_2_uint */
+
+
+
+/**
  *  Determine the number of one bits in a binary value.
  *  @return the number of one bits.
  */

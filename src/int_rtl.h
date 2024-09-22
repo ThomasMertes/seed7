@@ -59,6 +59,8 @@ int uint32LeastSignificantBit (uint32Type number);
 #ifdef INT64TYPE
 int uint64LeastSignificantBit (uint64Type number);
 #endif
+uintType uintBytesBe2UInt (const const_striType byteStri);
+uintType uintBytesLe2UInt (const const_striType byteStri);
 intType uintCard (uintType number);
 striType uintRadix (uintType number, intType base, boolType upperCase);
 striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase);
