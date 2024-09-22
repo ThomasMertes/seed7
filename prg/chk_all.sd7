@@ -149,6 +149,8 @@ const string: chkbin_output is "\n\
   \Bin64 xor operator works correctly.\n\
   \Conversion of bin64 to big endian byte string with length works correctly.\n\
   \Conversion of bin64 to little endian byte string with length works correctly.\n\
+  \Conversion of big endian byte string to bin64 works correctly.\n\
+  \Conversion of little endian byte string to bin64 works correctly.\n\
   \Converting float to bin32 and bin64 values works correctly.\n\
   \Converting bin32 and bin64 values to float works correctly.\n\
   \float2MbfBits works correctly for bin32 and bin64 values.\n\
