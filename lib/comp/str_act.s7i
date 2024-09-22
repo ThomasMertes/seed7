@@ -4360,6 +4360,31 @@ const proc: process_inline_str_substr (in reference: stri,
   end func;
 
 
+const proc: process_str_substr_slice (in reference: stri,
+    in reference: start, in reference: length, in string: slice_name,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.temp_decls &:= "struct striStruct ";
+    c_expr.temp_decls &:= slice_name;
+    c_expr.temp_decls &:= ";\n";
+    if inlineFunctions then
+      incr(countInlinedFunctions);
+      process_inline_str_substr(stri, start, length, slice_name, c_expr);
+    else
+      c_expr.expr &:= "strSubstrSlice(";
+      getAnyParamToExpr(stri, c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(start, c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(length, c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_SUBSTR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -4406,24 +4431,8 @@ const proc: process (STR_SUBSTR, in reference: function,
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "struct striStruct ";
-      c_expr.temp_decls &:= slice_name;
-      c_expr.temp_decls &:= ";\n";
-      if inlineFunctions then
-        incr(countInlinedFunctions);
-        process_inline_str_substr(params[1], params[3], params[5],
-                                  slice_name, c_expr);
-      else
-        c_expr.expr &:= "strSubstrSlice(";
-        getAnyParamToExpr(params[1], c_expr);
-        c_expr.expr &:= ", ";
-        process_expr(params[3], c_expr);
-        c_expr.expr &:= ", ";
-        process_expr(params[5], c_expr);
-        c_expr.expr &:= ", &";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ")";
-      end if;
+      process_str_substr_slice(params[1], params[3], params[5],
+                               slice_name, c_expr);
       c_expr.expr &:= ", &";
       c_expr.expr &:= slice_name;
       c_expr.expr &:= ")";
@@ -4914,6 +4923,40 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
   end func;
 
 
+const proc: process_str_substr_fixlen_slice (in reference: stri,
+    in reference: start, in reference: length, in string: slice_name,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    c_expr.temp_decls &:= "struct striStruct ";
+    c_expr.temp_decls &:= slice_name;
+    c_expr.temp_decls &:= ";\n";
+    if inlineFunctions then
+      incr(countInlinedFunctions);
+      if getConstant(stri, STRIOBJECT, evaluatedParam) then
+        process_inline_str_substr_fixlen(getValue(evaluatedParam, string),
+                                         start, length,
+                                         slice_name, c_expr);
+      else
+        process_inline_str_substr_fixlen(stri, start, length,
+                                         slice_name, c_expr);
+      end if;
+    else
+      c_expr.expr &:= "strSubstrFixLenSlice(";
+      getAnyParamToExpr(stri, c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(start, c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(length, c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_SUBSTR_FIXLEN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -4942,30 +4985,8 @@ const proc: process (STR_SUBSTR_FIXLEN, in reference: function,
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "struct striStruct ";
-      c_expr.temp_decls &:= slice_name;
-      c_expr.temp_decls &:= ";\n";
-      if inlineFunctions then
-        incr(countInlinedFunctions);
-        if getConstant(params[1], STRIOBJECT, evaluatedParam) then
-          process_inline_str_substr_fixlen(getValue(evaluatedParam, string),
-                                           params[3], params[5],
-                                           slice_name, c_expr);
-        else
-          process_inline_str_substr_fixlen(params[1], params[3], params[5],
-                                           slice_name, c_expr);
-        end if;
-      else
-        c_expr.expr &:= "strSubstrFixLenSlice(";
-        getAnyParamToExpr(params[1], c_expr);
-        c_expr.expr &:= ", ";
-        process_expr(params[3], c_expr);
-        c_expr.expr &:= ", ";
-        process_expr(params[5], c_expr);
-        c_expr.expr &:= ", &";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ")";
-      end if;
+      process_str_substr_fixlen_slice(params[1], params[3], params[5],
+                                      slice_name, c_expr);
       c_expr.expr &:= ", &";
       c_expr.expr &:= slice_name;
       c_expr.expr &:= ")";
