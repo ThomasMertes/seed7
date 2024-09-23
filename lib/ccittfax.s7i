@@ -589,7 +589,7 @@ const proc: processCcittModifiedGroup3FaxLsb (in string: faxData,
     var lsbInBitStream: faxDataStream is lsbInBitStream.value;
     var integer: line is 0;
   begin
-    faxDataStream := openLsbBitStream(faxData);
+    faxDataStream := openLsbInBitStream(faxData);
     for line range startLine to startLine + height - 1 do
       processCcittFaxRow(faxDataStream, whiteLsbHuffmanDecoder,
                          blackLsbHuffmanDecoder, whitePixel, blackPixel,
@@ -803,7 +803,7 @@ const proc: processCcittT6FaxLsb (in string: faxData,
     var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
-    faxDataStream := openLsbBitStream(faxData);
+    faxDataStream := openLsbInBitStream(faxData);
     for line range startLine to startLine + height - 1 do
       processCcittT4Fax2dRow(faxDataStream, t4LsbHuffmanDecoder,
                              whiteLsbHuffmanDecoder, blackLsbHuffmanDecoder,
@@ -866,7 +866,7 @@ const proc: processCcittT4Fax1dLsb (in string: faxData,
     var lsbInBitStream: faxDataStream is lsbInBitStream.value;
     var integer: line is 0;
   begin
-    faxDataStream := openLsbBitStream(faxData);
+    faxDataStream := openLsbInBitStream(faxData);
     for line range startLine to startLine + height - 1 do
       skipEol(faxDataStream, 2#100000000000);
       processCcittFaxRow(faxDataStream, whiteLsbHuffmanDecoder,
@@ -984,7 +984,7 @@ const proc: processCcittT4Fax2dLsb (in string: faxData,
     var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
-    faxDataStream := openLsbBitStream(faxData);
+    faxDataStream := openLsbInBitStream(faxData);
     for line range startLine to startLine + height - 1 do
       skipEol(faxDataStream, 2#100000000000);
       if getBit(faxDataStream) = 1 then

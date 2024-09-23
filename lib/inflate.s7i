@@ -288,7 +288,7 @@ const func string: inflate (inout file: compressed) is func
     var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
   begin
-    compressedStream := openLsbBitStream(compressed);
+    compressedStream := openLsbInBitStream(compressed);
     repeat
       processCompressedBlock(compressedStream, uncompressed, bfinal);
     until bfinal;
@@ -310,7 +310,7 @@ const func string: inflate (in string: compressed) is func
     var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
   begin
-    compressedStream := openLsbBitStream(compressed);
+    compressedStream := openLsbInBitStream(compressed);
     repeat
       processCompressedBlock(compressedStream, uncompressed, bfinal);
     until bfinal;

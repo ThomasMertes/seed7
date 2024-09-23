@@ -152,7 +152,7 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
     var integer: skip is 0;
     var integer: index is 0;
   begin
-    huffmanWeightsBitStream := openLsbBitStream(compressed);
+    huffmanWeightsBitStream := openLsbInBitStream(compressed);
     fseWeights.accuracyLog := getBits(huffmanWeightsBitStream, 4) + 5;
     remainingProbabilities := 1 << fseWeights.accuracyLog;
     while remainingProbabilities > 0 do

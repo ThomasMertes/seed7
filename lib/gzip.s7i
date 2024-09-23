@@ -203,7 +203,7 @@ const func string: gzuncompress (in string: compressed) is func
       cinfo := (ord(compressed[1]) >> 4) mod 16;
       flags := ord(compressed[2]);
       if compressionMethod = 8 then
-        compressedStream := openLsbBitStream(compressed);
+        compressedStream := openLsbInBitStream(compressed);
         if odd(flags >> 5) then
           skipBits(compressedStream, 48);
         else
@@ -251,7 +251,7 @@ const func string: gunzip (in string: compressed) is func
   begin
     header := readGzipHeader(compressed, bytePos);
     if header.magic = GZIP_MAGIC then
-      compressedStream := openLsbBitStream(compressed);
+      compressedStream := openLsbInBitStream(compressed);
       skipBits(compressedStream, pred(bytePos) * 8);
       repeat
         processCompressedBlock(compressedStream, uncompressed, bfinal);
@@ -299,7 +299,7 @@ const func file: openGzipFile (inout file: compressed, READ) is func
   begin
     header := readGzipHeader(compressed);
     if header.magic = GZIP_MAGIC then
-      new_gzipFile.compressedStream := openLsbBitStream(compressed);
+      new_gzipFile.compressedStream := openLsbInBitStream(compressed);
       newFile := toInterface(new_gzipFile);
     end if;
   end func;

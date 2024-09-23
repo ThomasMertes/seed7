@@ -206,7 +206,7 @@ const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize
   local
     var lsbInBitStream: compressedStream is lsbInBitStream.value;
   begin
-    compressedStream := openLsbBitStream(compressed);
+    compressedStream := openLsbInBitStream(compressed);
     decompressed := lzwDecompress(compressedStream, codeSize);
   end func;
 

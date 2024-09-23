@@ -41,7 +41,7 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
     var lsbInBitStream: aBitStream is lsbInBitStream.value;
   begin
     # Test lsbInBitStream with string:
-    aBitStream := openLsbBitStream(stri);
+    aBitStream := openLsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBit(aBitStream);
     if bits <> bitsExpected then
@@ -56,7 +56,7 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
 
     # Test lsbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openLsbBitStream(testFile);
+    aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBit(aBitStream);
     if bits <> bitsExpected then
@@ -149,7 +149,7 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
     var lsbInBitStream: aBitStream is lsbInBitStream.value;
   begin
     # Test lsbInBitStream with string:
-    aBitStream := openLsbBitStream(stri);
+    aBitStream := openLsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -164,7 +164,7 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
 
     # Test lsbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openLsbBitStream(testFile);
+    aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -854,7 +854,7 @@ const func boolean: chkPeekBitsLsb (in string: stri, in integer: bytePos,
     var lsbInBitStream: aBitStream is lsbInBitStream.value;
   begin
     # Test lsbInBitStream with string:
-    aBitStream := openLsbBitStream(stri);
+    aBitStream := openLsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := peekBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -869,7 +869,7 @@ const func boolean: chkPeekBitsLsb (in string: stri, in integer: bytePos,
 
     # Test lsbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openLsbBitStream(testFile);
+    aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := peekBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -1532,7 +1532,7 @@ const func boolean: chkGetsLsb (in string: stri, in integer: bytePos,
     var lsbInBitStream: aBitStream is lsbInBitStream.value;
   begin
     # Test lsbInBitStream with string:
-    aBitStream := openLsbBitStream(stri);
+    aBitStream := openLsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
@@ -1551,7 +1551,7 @@ const func boolean: chkGetsLsb (in string: stri, in integer: bytePos,
 
     # Test lsbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openLsbBitStream(testFile);
+    aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
@@ -1641,7 +1641,7 @@ const func boolean: chkCloseLsb (in string: stri, in integer: bytePos,
   begin
     # Test lsbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openLsbBitStream(testFile);
+    aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     close(aBitStream);
     bytes := gets(testFile, bytesNeeded);

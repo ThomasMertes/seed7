@@ -173,7 +173,7 @@ const proc: fillBuffer (inout lsbInBitStream: inBitStream) is func
  *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
-const func lsbInBitStream: openLsbBitStream (in file: inFile) is func
+const func lsbInBitStream: openLsbInBitStream (in file: inFile) is func
   result
     var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
@@ -182,12 +182,17 @@ const func lsbInBitStream: openLsbBitStream (in file: inFile) is func
   end func;
 
 
+# The function openLsbBitStream(file) is deprecated. Use openLsbInBitStream(file) instead.
+const func lsbInBitStream: openLsbBitStream (in file: inFile) is
+  return openLsbInBitStream(inFile);
+
+
 (**
  *  Open an LSB bit stream from the string ''stri'' for reading.
  *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
-const func lsbInBitStream: openLsbBitStream (in string: stri) is func
+const func lsbInBitStream: openLsbInBitStream (in string: stri) is func
   result
     var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
@@ -197,6 +202,11 @@ const func lsbInBitStream: openLsbBitStream (in string: stri) is func
     inBitStream.limit := length(inBitStream.striBuffer);
     fillBuffer(inBitStream);
   end func;
+
+
+# The function openLsbBitStream(string) is deprecated. Use openLsbInBitStream(string) instead.
+const func lsbInBitStream: openLsbBitStream (in string: stri) is
+  return openLsbInBitStream(stri);
 
 
 (**
@@ -220,7 +230,7 @@ const proc: close (inout lsbInBitStream: inBitStream) is func
  *  The bit is read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by one bit. The read
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   aBitStream := openLsbInBitStream("\2#01101011;\2#11001110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#11001110;"
  *   #                       ^
@@ -264,7 +274,7 @@ const func integer: getBit (inout lsbInBitStream: inBitStream) is func
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
  *  If bits from the next byte(s) are read a byte order of little-endian
  *  is used.
- *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   aBitStream := openLsbInBitStream("\2#01101011;\2#11001110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#11001110;"
  *   #                       ^
@@ -319,7 +329,7 @@ const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitW
  *  LSB (least significant bit) to MSB (most significant bit).
  *  If bits from the next byte(s) are read a byte order of little-endian
  *  is used.
- *   aBitStream := openLsbBitStream("\2#01101011;\2#10101101;");
+ *   aBitStream := openLsbInBitStream("\2#01101011;\2#10101101;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#10101101;"
  *   #                       ^
@@ -341,7 +351,7 @@ const func integer: peekBits (inout lsbInBitStream: inBitStream, in integer: bit
 
 (**
  *  Advance the bit position of ''inBitStream'' by ''bitWidth'' bits.
- *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   aBitStream := openLsbInBitStream("\2#01101011;\2#11001110;");
  *   # Now aBitStream has bytePos=1 and bitPos=0 of the original data.
  *   # Original data:  "\2#01101011;\2#11001110;"
  *   #                            ^
@@ -389,7 +399,7 @@ const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) i
  *  read, the position of ''inBitStream'' is advanced to the beginning of the
  *  next byte. A ''maxLength'' of 0 sets the position to the beginning of the
  *  next byte and returns an empty string.
- *   aBitStream := openLsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
+ *   aBitStream := openLsbInBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
  *   #                       ^
