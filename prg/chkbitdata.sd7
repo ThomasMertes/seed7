@@ -1734,7 +1734,7 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
     var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
     # Test msbInBitStream with string:
-    aBitStream := openMsbBitStream(stri);
+    aBitStream := openMsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBit(aBitStream);
     if bits <> bitsExpected then
@@ -1749,7 +1749,7 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
 
     # Test msbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openMsbBitStream(testFile);
+    aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBit(aBitStream);
     if bits <> bitsExpected then
@@ -1842,7 +1842,7 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
     var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
     # Test msbInBitStream with string:
-    aBitStream := openMsbBitStream(stri);
+    aBitStream := openMsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -1857,7 +1857,7 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
 
     # Test msbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openMsbBitStream(testFile);
+    aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -2547,7 +2547,7 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
     var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
     # Test msbInBitStream with string:
-    aBitStream := openMsbBitStream(stri);
+    aBitStream := openMsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := peekBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -2562,7 +2562,7 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
 
     # Test msbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openMsbBitStream(testFile);
+    aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := peekBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
@@ -3225,7 +3225,7 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
     var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
     # Test msbInBitStream with string:
-    aBitStream := openMsbBitStream(stri);
+    aBitStream := openMsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
@@ -3244,7 +3244,7 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
 
     # Test msbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openMsbBitStream(testFile);
+    aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
@@ -3334,7 +3334,7 @@ const func boolean: chkCloseMsb (in string: stri, in integer: bytePos,
   begin
     # Test msbInBitStream with file:
     testFile := openStriFile(stri);
-    aBitStream := openMsbBitStream(testFile);
+    aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     close(aBitStream);
     bytes := gets(testFile, bytesNeeded);

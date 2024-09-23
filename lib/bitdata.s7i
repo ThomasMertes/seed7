@@ -492,7 +492,7 @@ const proc: fillBuffer (inout msbInBitStream: inBitStream) is func
  *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
-const func msbInBitStream: openMsbBitStream (in file: inFile) is func
+const func msbInBitStream: openMsbInBitStream (in file: inFile) is func
   result
     var msbInBitStream: inBitStream is msbInBitStream.value;
   begin
@@ -501,12 +501,17 @@ const func msbInBitStream: openMsbBitStream (in file: inFile) is func
   end func;
 
 
+# The function openMsbBitStream(file) is deprecated. Use openMsbInBitStream(file) instead.
+const func msbInBitStream: openMsbBitStream (in file: inFile) is
+  return openMsbInBitStream(inFile);
+
+
 (**
  *  Open an MSB bit stream from the string ''stri'' for reading.
  *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
-const func msbInBitStream: openMsbBitStream (in string: stri) is func
+const func msbInBitStream: openMsbInBitStream (in string: stri) is func
   result
     var msbInBitStream: inBitStream is msbInBitStream.value;
   begin
@@ -516,6 +521,11 @@ const func msbInBitStream: openMsbBitStream (in string: stri) is func
     inBitStream.limit := length(inBitStream.striBuffer);
     fillBuffer(inBitStream);
   end func;
+
+
+# The function openMsbBitStream(string) is deprecated. Use openMsbInBitStream(string) instead.
+const func msbInBitStream: openMsbBitStream (in string: stri) is
+  return openMsbInBitStream(stri);
 
 
 (**
@@ -541,7 +551,7 @@ const proc: close (inout msbInBitStream: inBitStream) is func
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
  *  If bits from the next byte(s) are read a byte order of big-endian
  *  is used.
- *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01011100;\2#11010110;";
  *   #                          ^
@@ -585,7 +595,7 @@ const func integer: getBit (inout msbInBitStream: inBitStream) is func
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
  *  If bits from the next byte(s) are read a byte order of big-endian
  *  is used.
- *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01011100;\2#11010110;";
  *   #                          ^
@@ -637,7 +647,7 @@ const func integer: getBits (inout msbInBitStream: inBitStream, in integer: bitW
  *  MSB (most significant bit) to LSB (least significant bit).
  *  If bits from the next byte(s) are read a byte order of big-endian
  *  is used.
- *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01011100;\2#11010110;";
  *   #                          ^
@@ -659,7 +669,7 @@ const func integer: peekBits (inout msbInBitStream: inBitStream, in integer: bit
 
 (**
  *  Advance the bit position of ''inBitStream'' by ''bitWidth'' bits.
- *   aBitStream := openMsbBitStream("\2#01101011;\2#11001110;");
+ *   aBitStream := openMsbInBitStream("\2#01101011;\2#11001110;");
  *   # Now aBitStream has bytePos=1 and bitPos=0 of the original data.
  *   # Original data:  "\2#01101011;\2#11001110;"
  *   #                     ^
@@ -704,7 +714,7 @@ const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) i
  *  read, the position of ''inBitStream'' is advanced to the beginning of the
  *  next byte. A ''maxLength'' of 0 sets the position to the beginning of the
  *  next byte and returns an empty string.
- *   aBitStream := openMsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
+ *   aBitStream := openMsbInBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
  *   #                       ^

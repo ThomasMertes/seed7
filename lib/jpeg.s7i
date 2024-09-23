@@ -847,7 +847,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     var integer: grayIntensity is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -859,7 +859,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             diffLuminance := 0;
             mcuCount := header.restartInterval;
           end if;
@@ -901,7 +901,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     var dataBlockType: chromaRed is dataBlockType.value;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -912,7 +912,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             diffLuminance := 0;
             diffChromaBlue := 0;
             diffChromaRed := 0;
@@ -1036,7 +1036,7 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     var integer: mcuCount is -1;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1045,7 +1045,7 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             diffLuminance := 0;
             mcuCount := header.restartInterval;
           end if;
@@ -1075,7 +1075,7 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     var integer: mcuCount is -1;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1084,7 +1084,7 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             diffLuminance := 0;
             diffChromaBlue := 0;
             diffChromaRed := 0;
@@ -1126,7 +1126,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     var integer: mcuCount is -1;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1135,7 +1135,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             mcuCount := header.restartInterval;
           end if;
           decr(mcuCount);
@@ -1219,7 +1219,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1228,7 +1228,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             mcuCount := header.restartInterval;
           end if;
           decr(mcuCount);
@@ -1259,7 +1259,7 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1268,7 +1268,7 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             mcuCount := header.restartInterval;
           end if;
           decr(mcuCount);
@@ -1386,7 +1386,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1395,7 +1395,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             mcuCount := header.restartInterval;
           end if;
           decr(mcuCount);
@@ -1423,7 +1423,7 @@ const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-    entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+    entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
     if header.restartInterval <> 0 then
       mcuCount := header.restartInterval;
     end if;
@@ -1432,7 +1432,7 @@ const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: head
         if header.restartInterval <> 0 then
           if mcuCount = 0 then
             entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-            entropyCodedStream := openMsbBitStream(entropyCodedSegment);
+            entropyCodedStream := openMsbInBitStream(entropyCodedSegment);
             mcuCount := header.restartInterval;
           end if;
           decr(mcuCount);

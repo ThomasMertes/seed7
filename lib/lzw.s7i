@@ -391,7 +391,7 @@ const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize
   local
     var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
-    compressedStream := openMsbBitStream(compressed);
+    compressedStream := openMsbInBitStream(compressed);
     decompressed := lzwDecompress(compressedStream, codeSize);
   end func;
 
@@ -579,7 +579,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
   local
     var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
-    compressedStream := openMsbBitStream(compressed);
+    compressedStream := openMsbInBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize);
   end func;
 
@@ -690,6 +690,6 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
   local
     var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
-    compressedStream := openMsbBitStream(compressed);
+    compressedStream := openMsbInBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize, requestedLength);
   end func;

@@ -1408,7 +1408,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
                 TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
             processDataStrip(header, stripData, rowsInCurrentStrip);
             if header.bitsPerSample[1] mod 8 <> 0 then
-              stripDataStream := openMsbBitStream(stripData);
+              stripDataStream := openMsbInBitStream(stripData);
               for rowIndex range 1 to rowsInCurrentStrip do
                 processRow(header, stripDataStream, currentRow, image);
                 ignore(gets(stripDataStream, 0));
