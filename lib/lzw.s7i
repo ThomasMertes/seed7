@@ -291,7 +291,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbBitStream|msbBitStream]].
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in PDF files.
  *  Decompressing starts with succ(''codeSize'') bits per coding point and
@@ -304,7 +304,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompress (inout msbBitStream: compressedStream,
+const func string: lzwDecompress (inout msbInBitStream: compressedStream,
     in integer: codeSize) is func
   result
     var string: decompressed is "";
@@ -389,7 +389,7 @@ const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize
   result
     var string: decompressed is "";
   local
-    var msbBitStream: compressedStream is msbBitStream.value;
+    var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
     compressedStream := openMsbBitStream(compressed);
     decompressed := lzwDecompress(compressedStream, codeSize);
@@ -477,7 +477,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbBitStream|msbBitStream]].
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -491,7 +491,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompressEarlyChange (inout msbBitStream: compressedStream,
+const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStream,
     in integer: codeSize) is func
   result
     var string: decompressed is "";
@@ -577,7 +577,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
   result
     var string: decompressed is "";
   local
-    var msbBitStream: compressedStream is msbBitStream.value;
+    var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
     compressedStream := openMsbBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize);
@@ -585,7 +585,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbBitStream|msbBitStream]].
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -600,7 +600,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
  *  @param requestedLength Number of decompressed bytes to be read.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompressEarlyChange (inout msbBitStream: compressedStream,
+const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStream,
     in integer: codeSize, in integer: requestedLength) is func
   result
     var string: decompressed is "";
@@ -688,7 +688,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
   result
     var string: decompressed is "";
   local
-    var msbBitStream: compressedStream is msbBitStream.value;
+    var msbInBitStream: compressedStream is msbInBitStream.value;
   begin
     compressedStream := openMsbBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize, requestedLength);

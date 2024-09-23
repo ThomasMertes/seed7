@@ -408,7 +408,7 @@ const proc: readComment (inout file: jpegFile) is func
 #  Get a symbol with ''bitWidth'' bits from the ''stri'' bitstream.
 #  Negative values are encoded with the highest bit set to zero.
 #
-const func integer: getSymbol (inout msbBitStream: entropyCodedStream,
+const func integer: getSymbol (inout msbInBitStream: entropyCodedStream,
     in integer: bitWidth) is func
   result
     var integer: symbol is 0;
@@ -430,7 +430,7 @@ const func integer: getSymbol (inout msbBitStream: entropyCodedStream,
 #  @param acDecoder Huffman decoder for the 63 AC coefficients.
 #
 const proc: readBlock (inout dataBlockType: dataBlock,
-    inout msbBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
+    inout msbInBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
     in msbHuffmanDecoder: acDecoder) is func
   local
     var integer: bitWidth is 0;
@@ -607,7 +607,7 @@ const proc: idct8x8 (inout dataBlockType: dataBlock) is func
 #  lower than the limit.
 #
 const proc: processBlock (inout dataBlockType: dataBlock,
-    inout msbBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
+    inout msbInBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
     in msbHuffmanDecoder: acDecoder, in dataBlockType: quantizationTable,
     inout integer: diff) is func
   local
@@ -833,7 +833,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     inout pixelImage: image) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: mcuTopLine is 0;
     var integer: mcuLeftColumn is 0;
     var integer: line is 0;
@@ -888,7 +888,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     inout pixelImage: image) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is -1;
@@ -1007,7 +1007,7 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
 #  Read the DC coefficient of a block.
 #
 const proc: readDcValue (inout integer: dcCoefficient,
-    inout msbBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
+    inout msbInBitStream: entropyCodedStream, in msbHuffmanDecoder: dcDecoder,
     inout integer: diff, in integer: approximationLow) is func
 
   local
@@ -1028,7 +1028,7 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     in msbHuffmanDecoder: dcDecoder, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1065,7 +1065,7 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1119,7 +1119,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1166,7 +1166,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
 #  Read the AC coefficients of a block.
 #
 const proc: readBlockAc (inout dataBlockType: dataBlock,
-    inout msbBitStream: entropyCodedStream, in msbHuffmanDecoder: acDecoder,
+    inout msbInBitStream: entropyCodedStream, in msbHuffmanDecoder: acDecoder,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: approximationLow) is func
   local
@@ -1211,7 +1211,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     in msbHuffmanDecoder: acDecoder, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1252,7 +1252,7 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is -1;
@@ -1287,7 +1287,7 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
 
 
 const proc: refineNonZeroes (inout dataBlockType: dataBlock,
-    inout msbBitStream: entropyCodedStream, inout integer: spectral,
+    inout msbInBitStream: entropyCodedStream, inout integer: spectral,
     in integer: endOfSpectral, in var integer: numberOfZeros,
     in integer: delta) is func
   local
@@ -1321,7 +1321,7 @@ const proc: refineNonZeroes (inout dataBlockType: dataBlock,
 #  Refine the AC coefficients of a block.
 #
 const proc: refineBlockAc (inout dataBlockType: dataBlock,
-    inout msbBitStream: entropyCodedStream, in msbHuffmanDecoder: acDecoder,
+    inout msbInBitStream: entropyCodedStream, in msbHuffmanDecoder: acDecoder,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: delta) is func
   local
@@ -1378,7 +1378,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     in msbHuffmanDecoder: acDecoder, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1416,7 +1416,7 @@ const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";
-    var msbBitStream: entropyCodedStream is msbBitStream.value;
+    var msbInBitStream: entropyCodedStream is msbInBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is -1;

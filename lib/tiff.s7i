@@ -828,7 +828,7 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
   end func;
 
 
-const proc: processRow (in tiffHeader: header, inout msbBitStream: stripDataStream,
+const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataStream,
     in integer: line, inout pixelImage: image) is func
   local
     var integer: bitsPerSample1 is 0;
@@ -1379,7 +1379,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     var integer: rowIndex is 0;
     var integer: currPosition is 1;
     var integer: currentRow is 1;
-    var msbBitStream: stripDataStream is msbBitStream.value;
+    var msbInBitStream: stripDataStream is msbInBitStream.value;
     var pixelImage: image is pixelImage.value;
   begin
     image := pixelImage[.. header.height] times

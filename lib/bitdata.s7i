@@ -433,11 +433,11 @@ const func string: gets (inout lsbInBitStream: inBitStream, in integer: maxLengt
 (**
  *  Type to read bitwise data starting with the most significant bit.
  *  This is used by the Huffman compression used for JPEG files.
- *  In a ''msbBitStream'' the read direction is from
+ *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *  For the bit position in a byte holds: 0 = MSB, 7 = LSB.
  *)
-const type: msbBitStream is new struct
+const type: msbInBitStream is new struct
     var file: inFile is STD_NULL;
     var integer: buffer is 0;
     var integer: bitPos is 40;
@@ -449,7 +449,11 @@ const type: msbBitStream is new struct
   end struct;
 
 
-const proc: fillStriBuffer (inout msbBitStream: inBitStream) is func
+# The type msbBitStream is deprecated. Use msbInBitStream instead.
+const type: msbBitStream is msbInBitStream;
+
+
+const proc: fillStriBuffer (inout msbInBitStream: inBitStream) is func
   begin
     inBitStream.striBuffer := inBitStream.striBuffer[inBitStream.bytePos ..] &
                             gets(inBitStream.inFile, inBitStream.striBufferIncrease);
@@ -464,7 +468,7 @@ const proc: fillStriBuffer (inout msbBitStream: inBitStream) is func
   end func;
 
 
-const proc: fillBuffer (inout msbBitStream: inBitStream) is func
+const proc: fillBuffer (inout msbInBitStream: inBitStream) is func
   begin
     if inBitStream.bytePos > inBitStream.limit then
       fillStriBuffer(inBitStream);
@@ -475,12 +479,12 @@ const proc: fillBuffer (inout msbBitStream: inBitStream) is func
 
 (**
  *  Open an MSB bit stream from the file ''inFile'' for reading.
- *  In a ''msbBitStream'' the read direction is from
+ *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
-const func msbBitStream: openMsbBitStream (in file: inFile) is func
+const func msbInBitStream: openMsbBitStream (in file: inFile) is func
   result
-    var msbBitStream: inBitStream is msbBitStream.value;
+    var msbInBitStream: inBitStream is msbInBitStream.value;
   begin
     inBitStream.inFile := inFile;
     fillBuffer(inBitStream);
@@ -489,12 +493,12 @@ const func msbBitStream: openMsbBitStream (in file: inFile) is func
 
 (**
  *  Open an MSB bit stream from the string ''stri'' for reading.
- *  In a ''msbBitStream'' the read direction is from
+ *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
-const func msbBitStream: openMsbBitStream (in string: stri) is func
+const func msbInBitStream: openMsbBitStream (in string: stri) is func
   result
-    var msbBitStream: inBitStream is msbBitStream.value;
+    var msbInBitStream: inBitStream is msbInBitStream.value;
   begin
     # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
     # This allows a peek of 32 bits also at the end of the data.
@@ -507,7 +511,7 @@ const func msbBitStream: openMsbBitStream (in string: stri) is func
 (**
  *  Close an MSB bit stream and position the underlying file at the next byte.
  *)
-const proc: close (inout msbBitStream: inBitStream) is func
+const proc: close (inout msbInBitStream: inBitStream) is func
   begin
     if inBitStream.inFile <> STD_NULL then
       if inBitStream.bitPos <> 40 then
@@ -546,7 +550,7 @@ const proc: close (inout msbBitStream: inBitStream) is func
  *  @param inBitStream MSB orderd bit stream from which the bits are peeked.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: getBit (inout msbBitStream: inBitStream) is func
+const func integer: getBit (inout msbInBitStream: inBitStream) is func
   result
     var integer: resultBit is 0;
   begin
@@ -591,7 +595,7 @@ const func integer: getBit (inout msbBitStream: inBitStream) is func
  *  @param bitWidth Number of bits requested.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: getBits (inout msbBitStream: inBitStream, in integer: bitWidth) is func
+const func integer: getBits (inout msbInBitStream: inBitStream, in integer: bitWidth) is func
   result
     var integer: resultBits is 0;
   local
@@ -639,7 +643,7 @@ const func integer: getBits (inout msbBitStream: inBitStream, in integer: bitWid
  *  @param bitWidth Number of bits requested.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: peekBits (inout msbBitStream: inBitStream, in integer: bitWidth) is
+const func integer: peekBits (inout msbInBitStream: inBitStream, in integer: bitWidth) is
   return (inBitStream.buffer >> (inBitStream.bitPos - bitWidth)) mod (1 << bitWidth);
 
 
@@ -660,7 +664,7 @@ const func integer: peekBits (inout msbBitStream: inBitStream, in integer: bitWi
  *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
  *  @param bitWidth Number of bits to be skipped.
  *)
-const proc: skipBits (inout msbBitStream: inBitStream, in integer: bitWidth) is func
+const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) is func
   local
     var integer: bytePosDelta is 0;
   begin
@@ -701,7 +705,7 @@ const proc: skipBits (inout msbBitStream: inBitStream, in integer: bitWidth) is 
  *  @param maxLength The maximum number of bytes to be read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout msbBitStream: inBitStream, in integer: maxLength) is func
+const func string: gets (inout msbInBitStream: inBitStream, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
@@ -1296,7 +1300,7 @@ const proc: putBitsLsb (inout file: outFile, inout integer: bitPos, in var integ
   end func;
 
 
-# The function getBitMsb(file) is deprecated. Use getBit(msbBitStream) instead.
+# The function getBitMsb(file) is deprecated. Use getBit(msbInBitStream) instead.
 const func integer: getBitMsb (inout file: inFile, inout integer: bitPos) is func
   result
     var integer: resultBit is 0;
@@ -1312,7 +1316,7 @@ const func integer: getBitMsb (inout file: inFile, inout integer: bitPos) is fun
   end func;
 
 
-# The function getBitsMsb(file) is deprecated. Use getBits(msbBitStream) instead.
+# The function getBitsMsb(file) is deprecated. Use getBits(msbInBitStream) instead.
 const func integer: getBitsMsb (inout file: inFile, inout integer: bitPos,
     in var integer: bitWidth) is func
   result

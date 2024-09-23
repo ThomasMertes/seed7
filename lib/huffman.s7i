@@ -34,7 +34,7 @@ const type: msbHuffmanCodeLengthArray is array [0 ..] integer;
 
 
 (**
- *  Type to describe Huffman decoding from a [[bitdata#msbBitStream|msbBitStream]].
+ *  Type to describe Huffman decoding from a [[bitdata#msbInBitStream|msbInBitStream]].
  *  This Huffman encoding is used by [[jpeg|JPEG]] files.
  *)
 const type: msbHuffmanDecoder is new struct
@@ -102,7 +102,7 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
 
 
 (**
- *  Get a Huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the Huffman ''decoder''.
+ *  Get a Huffman symbol from a [[bitdata#msbInBitStream|msbInBitStream]] using the Huffman ''decoder''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
@@ -110,7 +110,7 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
  *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
  *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
-const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
+const func integer: getHuffmanSymbol (inout msbInBitStream: inBitStream,
     in msbHuffmanDecoder: decoder) is func
   result
     var integer: symbol is 0;

@@ -528,7 +528,7 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
   end func;
 
 
-DECLARE_CcittModifiedGroup3Fax_FUNCTIONS(msbBitStream, msbHuffmanDecoder);
+DECLARE_CcittModifiedGroup3Fax_FUNCTIONS(msbInBitStream, msbHuffmanDecoder);
 DECLARE_CcittModifiedGroup3Fax_FUNCTIONS(lsbInBitStream, lsbHuffmanDecoder);
 
 
@@ -552,7 +552,7 @@ const proc: processCcittModifiedGroup3FaxMsb (in string: faxData,
     in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
     in integer: height, in integer: width, inout pixelImage: image) is func
   local
-    var msbBitStream: faxDataStream is msbBitStream.value;
+    var msbInBitStream: faxDataStream is msbInBitStream.value;
     var integer: line is 0;
   begin
     faxDataStream := openMsbBitStream(faxData);
@@ -746,7 +746,7 @@ const proc: DECLARE_CcittT6Fax_FUNCTIONS (in type: bitStream,
   end func;
 
 
-DECLARE_CcittT6Fax_FUNCTIONS(msbBitStream, msbHuffmanDecoder);
+DECLARE_CcittT6Fax_FUNCTIONS(msbInBitStream, msbHuffmanDecoder);
 DECLARE_CcittT6Fax_FUNCTIONS(lsbInBitStream, lsbHuffmanDecoder);
 
 
@@ -768,7 +768,7 @@ const proc: processCcittT6FaxMsb (in string: faxData,
     in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
-    var msbBitStream: faxDataStream is msbBitStream.value;
+    var msbInBitStream: faxDataStream is msbInBitStream.value;
     var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin
@@ -831,7 +831,7 @@ const proc: processCcittT4Fax1dMsb (in string: faxData,
     in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
     in integer: height, in integer: width, inout pixelImage: image) is func
   local
-    var msbBitStream: faxDataStream is msbBitStream.value;
+    var msbInBitStream: faxDataStream is msbInBitStream.value;
     var integer: line is 0;
   begin
     faxDataStream := openMsbBitStream(faxData);
@@ -920,7 +920,7 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
   end func;
 
 
-DECLARE_CcittT4Fax2d_FUNCTIONS(msbBitStream, msbHuffmanDecoder);
+DECLARE_CcittT4Fax2d_FUNCTIONS(msbInBitStream, msbHuffmanDecoder);
 DECLARE_CcittT4Fax2d_FUNCTIONS(lsbInBitStream, lsbHuffmanDecoder);
 
 
@@ -942,7 +942,7 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
     in colorLookupTable: blackOrWhite, in integer: startLine, in integer: height,
     in integer: width, inout pixelImage: image) is func
   local
-    var msbBitStream: faxDataStream is msbBitStream.value;
+    var msbInBitStream: faxDataStream is msbInBitStream.value;
     var ccittFaxValues: bValues is ccittFaxValues.value;
     var integer: line is 0;
   begin

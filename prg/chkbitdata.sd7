@@ -1731,9 +1731,9 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
-    var msbBitStream: aBitStream is msbBitStream.value;
+    var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
-    # Test msbBitStream with string:
+    # Test msbInBitStream with string:
     aBitStream := openMsbBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBit(aBitStream);
@@ -1743,11 +1743,11 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBit(msbBitStream)");
+      writeln("\": getBit(msbInBitStream)");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test msbBitStream with file:
+    # Test msbInBitStream with file:
     testFile := openStriFile(stri);
     aBitStream := openMsbBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
@@ -1758,7 +1758,7 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBit(msbBitStream)");
+      writeln("\": getBit(msbInBitStream)");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
@@ -1823,7 +1823,7 @@ const proc: chkGetBitMsb is func
         chkGetBitMsb("\2#11010111;\2#10101000;", 1, 6, 2#1, 1, 7) and
         chkGetBitMsb("\2#01101011;\2#01101010;", 1, 7, 2#1, 2, 0) and
         chkGetBitMsb("\2#10110011;\2#10110010;", 1, 7, 2#1, 2, 0) then
-      writeln("getBit(msbBitStream) works correctly.");
+      writeln("getBit(msbInBitStream) works correctly.");
     end if;
   end func;
 
@@ -1839,9 +1839,9 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
-    var msbBitStream: aBitStream is msbBitStream.value;
+    var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
-    # Test msbBitStream with string:
+    # Test msbInBitStream with string:
     aBitStream := openMsbBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := getBits(aBitStream, bitsNeeded);
@@ -1851,11 +1851,11 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbBitStream, " <& bitsNeeded <& ")");
+      writeln("\": getBits(msbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test msbBitStream with file:
+    # Test msbInBitStream with file:
     testFile := openStriFile(stri);
     aBitStream := openMsbBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
@@ -1866,7 +1866,7 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbBitStream, " <& bitsNeeded <& ")");
+      writeln("\": getBits(msbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
@@ -2531,7 +2531,7 @@ const proc: chkGetBitsMsb is func
         chkGetBitsMsb("\2#11010110;\2#10000100;\2#10111000;\2#11111010;\2#10000000;", 1, 6, 21, 2#101000010010111000111, 4, 3) and
         chkGetBitsMsb("\2#01101011;\2#01000010;\2#01011100;\2#01110110;\2#10100000;", 1, 7, 21, 2#101000010010111000111, 4, 4) and
         chkGetBitsMsb("\2#10110011;\2#01000010;\2#01011100;\2#01111011;\2#00100000;", 1, 7, 21, 2#101000010010111000111, 4, 4) then
-      writeln("getBits(msbBitStream) works correctly.");
+      writeln("getBits(msbInBitStream) works correctly.");
     end if;
   end func;
 
@@ -2544,9 +2544,9 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
-    var msbBitStream: aBitStream is msbBitStream.value;
+    var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
-    # Test msbBitStream with string:
+    # Test msbInBitStream with string:
     aBitStream := openMsbBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bits := peekBits(aBitStream, bitsNeeded);
@@ -2556,11 +2556,11 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": peekBits(msbBitStream, " <& bitsNeeded <& ")");
+      writeln("\": peekBits(msbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
 
-    # Test msbBitStream with file:
+    # Test msbInBitStream with file:
     testFile := openStriFile(stri);
     aBitStream := openMsbBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
@@ -2571,7 +2571,7 @@ const func boolean: chkPeekBitsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": peekBits(msbBitStream, " <& bitsNeeded <& ")");
+      writeln("\": peekBits(msbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     end if;
   end func;
@@ -3209,7 +3209,7 @@ const proc: chkPeekBitsMsb is func
         chkPeekBitsMsb("\2#11010110;\2#10000100;\2#10111000;\2#11111010;\2#10000000;", 1, 6, 21, 2#101000010010111000111) and
         chkPeekBitsMsb("\2#01101011;\2#01000010;\2#01011100;\2#01110110;\2#10100000;", 1, 7, 21, 2#101000010010111000111) and
         chkPeekBitsMsb("\2#10110011;\2#01000010;\2#01011100;\2#01111011;\2#00100000;", 1, 7, 21, 2#101000010010111000111) then
-      writeln("peekBits(msbBitStream) works correctly.");
+      writeln("peekBits(msbInBitStream) works correctly.");
     end if;
   end func;
 
@@ -3222,9 +3222,9 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
     var string: bytes is "";
     var char: ch is ' ';
     var file: testFile is STD_NULL;
-    var msbBitStream: aBitStream is msbBitStream.value;
+    var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
-    # Test msbBitStream with string:
+    # Test msbInBitStream with string:
     aBitStream := openMsbBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
     bytes := gets(aBitStream, bytesNeeded);
@@ -3234,7 +3234,7 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": gets(msbBitStream, " <& bytesNeeded <& ")");
+      writeln("\": gets(msbInBitStream, " <& bytesNeeded <& ")");
       if bytes <> bytesExpected then
         writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
       else
@@ -3242,7 +3242,7 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
       end if;
     end if;
 
-    # Test msbBitStream with file:
+    # Test msbInBitStream with file:
     testFile := openStriFile(stri);
     aBitStream := openMsbBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
@@ -3253,7 +3253,7 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": gets(msbBitStream, " <& bytesNeeded <& ")");
+      writeln("\": gets(msbInBitStream, " <& bytesNeeded <& ")");
       if bytes <> bytesExpected then
         writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
       else
@@ -3317,7 +3317,7 @@ const proc: chkGetsMsb is func
         chkGetsMsb("\2#01101011;a" & "b" mult   10000 & "c\2#11010000;",   1, 5,   10002, "a" & "b" mult   10000 & "c") and
         chkGetsMsb("\2#01101011;a" & "b" mult  100000 & "c\2#11010000;",   1, 5,  100002, "a" & "b" mult  100000 & "c") and
         chkGetsMsb("\2#01101011;a" & "b" mult 1000000 & "c\2#11010000;",   1, 5, 1000002, "a" & "b" mult 1000000 & "c") then
-      writeln("gets(msbBitStream) works correctly.");
+      writeln("gets(msbInBitStream) works correctly.");
     end if;
   end func;
 
@@ -3330,9 +3330,9 @@ const func boolean: chkCloseMsb (in string: stri, in integer: bytePos,
     var string: bytes is "";
     var char: ch is ' ';
     var file: testFile is STD_NULL;
-    var msbBitStream: aBitStream is msbBitStream.value;
+    var msbInBitStream: aBitStream is msbInBitStream.value;
   begin
-    # Test msbBitStream with file:
+    # Test msbInBitStream with file:
     testFile := openStriFile(stri);
     aBitStream := openMsbBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
@@ -3408,7 +3408,7 @@ const proc: chkCloseMsb is func
         chkCloseMsb("\2#01101011;a" & "b" mult   10000 & "c\2#11010000;",   1, 5,   10002, "a" & "b" mult   10000 & "c") and
         chkCloseMsb("\2#01101011;a" & "b" mult  100000 & "c\2#11010000;",   1, 5,  100002, "a" & "b" mult  100000 & "c") and
         chkCloseMsb("\2#01101011;a" & "b" mult 1000000 & "c\2#11010000;",   1, 5, 1000002, "a" & "b" mult 1000000 & "c") then
-      writeln("close(msbBitStream) works correctly.");
+      writeln("close(msbInBitStream) works correctly.");
     end if;
   end func;
 
