@@ -108,7 +108,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#lsbBitStream|lsbBitStream]].
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#lsbInBitStream|lsbInBitStream]].
  *  The packing order of bits in bytes is LSB-First (Least Significant
  *  Bit First). This compression method is used for [[gif|GIF]] files. Decompressing
  *  starts with succ(''codeSize'') bits per coding point and goes up to
@@ -120,7 +120,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompress (inout lsbBitStream: compressedStream,
+const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
     in integer: codeSize) is func
   result
     var string: decompressed is "";
@@ -204,7 +204,7 @@ const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize
   result
     var string: decompressed is "";
   local
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
   begin
     compressedStream := openLsbBitStream(compressed);
     decompressed := lzwDecompress(compressedStream, codeSize);

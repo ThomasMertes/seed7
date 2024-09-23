@@ -142,7 +142,7 @@ const func fseWeightsType: getFseCompressedHuffmanWeights (inout file: compresse
   result
     var fseWeightsType: fseWeights is fseWeightsType.value;
   local
-    var lsbBitStream: huffmanWeightsBitStream is lsbBitStream.value;
+    var lsbInBitStream: huffmanWeightsBitStream is lsbInBitStream.value;
     var integer: remainingProbabilities is 0;
     var integer: currentSymbol is 0;
     var integer: bitsNeeded is 0;

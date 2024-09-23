@@ -34,7 +34,7 @@ include "huffman.s7i";
 const integer: INFLATE_END_OF_BLOCK is 256;
 
 
-const proc: getNonCompressedBlock (inout lsbBitStream: compressedStream,
+const proc: getNonCompressedBlock (inout lsbInBitStream: compressedStream,
     inout string: uncompressed) is func
   local
     var integer: length is 0;
@@ -52,7 +52,7 @@ const proc: getNonCompressedBlock (inout lsbBitStream: compressedStream,
   end func;
 
 
-const func integer: getLiteralOrLength (inout lsbBitStream: compressedStream) is func
+const func integer: getLiteralOrLength (inout lsbInBitStream: compressedStream) is func
   result
     var integer: literalOrLength is 0;
   begin
@@ -75,11 +75,11 @@ const func integer: getLiteralOrLength (inout lsbBitStream: compressedStream) is
   end func;
 
 
-const func integer: getDistance (inout lsbBitStream: compressedStream) is
+const func integer: getDistance (inout lsbInBitStream: compressedStream) is
   return reverseBits[5][getBits(compressedStream, 5)];
 
 
-const func integer: decodeLength (inout lsbBitStream: compressedStream,
+const func integer: decodeLength (inout lsbInBitStream: compressedStream,
     in integer: code) is func
   result
     var integer: length is 0;
@@ -104,7 +104,7 @@ const func integer: decodeLength (inout lsbBitStream: compressedStream,
   end func;
 
 
-const func integer: decodeDistance (inout lsbBitStream: compressedStream,
+const func integer: decodeDistance (inout lsbInBitStream: compressedStream,
     in integer: code) is func
   result
     var integer: distance is 0;
@@ -144,7 +144,7 @@ const func integer: decodeDistance (inout lsbBitStream: compressedStream,
   end func;
 
 
-const proc: decodeFixedHuffmanCodes (inout lsbBitStream: compressedStream,
+const proc: decodeFixedHuffmanCodes (inout lsbInBitStream: compressedStream,
     inout string: uncompressed) is func
   local
     var integer: literalOrLength is 0;
@@ -176,7 +176,7 @@ const proc: decodeFixedHuffmanCodes (inout lsbBitStream: compressedStream,
   end func;
 
 
-const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
+const proc: decodeDynamicHuffmanCodes (inout lsbInBitStream: compressedStream,
     inout string: uncompressed) is func
   local
     const array integer: mapToOrderedLengths is []
@@ -254,7 +254,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
   end func;
 
 
-const proc: processCompressedBlock (inout lsbBitStream: compressedStream,
+const proc: processCompressedBlock (inout lsbInBitStream: compressedStream,
     inout string: uncompressed, inout boolean: bfinal) is func
   local
     var integer: btype is 0;
@@ -285,7 +285,7 @@ const func string: inflate (inout file: compressed) is func
   result
     var string: uncompressed is "";
   local
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
   begin
     compressedStream := openLsbBitStream(compressed);
@@ -307,7 +307,7 @@ const func string: inflate (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
   begin
     compressedStream := openLsbBitStream(compressed);

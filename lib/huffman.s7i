@@ -174,7 +174,7 @@ const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array int
 
 
 (**
- *  Type to describe Huffman decoding from a [[bitdata#lsbBitStream|lsbBitStream]].
+ *  Type to describe Huffman decoding from a [[bitdata#lsbInBitStream|lsbInBitStream]].
  *  This Huffman decoding is used by the inflate (deflate) algorithm.
  *)
 const type: lsbHuffmanDecoder is new struct
@@ -267,7 +267,7 @@ const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengt
 
 
 (**
- *  Get a Huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the Huffman ''decoder''.
+ *  Get a Huffman symbol from a [[bitdata#lsbInBitStream|lsbInBitStream]] using the Huffman ''decoder''.
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
@@ -275,7 +275,7 @@ const func lsbHuffmanDecoder: createHuffmanTableLsb (in array integer: codeLengt
  *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
  *  @param decoder Huffman decoder defining the bit sequences that encode the symbols.
  *)
-const func integer: getHuffmanSymbol (inout lsbBitStream: inBitStream,
+const func integer: getHuffmanSymbol (inout lsbInBitStream: inBitStream,
     in lsbHuffmanDecoder: decoder) is func
   result
     var integer: symbol is 0;

@@ -376,11 +376,11 @@ const string: chkjson_output is "\n\
   \JSON DOM functions work correctly.\n";
 
 const string:chkbitdata_output is "\n\
-  \getBit(lsbBitStream) works correctly.\n\
-  \getBits(lsbBitStream) works correctly.\n\
-  \peekBits(lsbBitStream) works correctly.\n\
-  \gets(lsbBitStream) works correctly.\n\
-  \close(lsbBitStream) works correctly.\n\
+  \getBit(lsbInBitStream) works correctly.\n\
+  \getBits(lsbInBitStream) works correctly.\n\
+  \peekBits(lsbInBitStream) works correctly.\n\
+  \gets(lsbInBitStream) works correctly.\n\
+  \close(lsbInBitStream) works correctly.\n\
   \getBit(msbBitStream) works correctly.\n\
   \getBits(msbBitStream) works correctly.\n\
   \peekBits(msbBitStream) works correctly.\n\

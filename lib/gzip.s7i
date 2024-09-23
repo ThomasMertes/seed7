@@ -195,7 +195,7 @@ const func string: gzuncompress (in string: compressed) is func
     var integer: compressionMethod is 0;
     var integer: cinfo is 0;
     var integer: flags is 0;
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
   begin
     if (ord(compressed[1]) * 256 + ord(compressed[2])) mod 31 = 0 then
@@ -244,7 +244,7 @@ const func string: gunzip (in string: compressed) is func
     var string: uncompressed is "";
   local
     var gzipHeader: header is gzipHeader.value;
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var integer: bytePos is 0;
     var boolean: bfinal is FALSE;
     var string: trailer is "";
@@ -271,7 +271,7 @@ const func string: gunzip (in string: compressed) is func
  *  GZIP is a file format used for compression.
  *)
 const type: gzipFile is sub null_file struct
-    var lsbBitStream: compressedStream is lsbBitStream.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
     var string: uncompressed is "";
     var integer: position is 1;

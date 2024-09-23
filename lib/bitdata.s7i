@@ -124,11 +124,11 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
  *  This is used by the Huffman compression (as part of the deflate
  *  compression) used for ZIP and GZIP files. It is also used by the
  *  Lempel-Ziv-Welch compression used for GIF files.
- *  In a ''lsbBitStream'' the read direction is from
+ *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *  For the bit position in a byte holds: 0 = LSB, 7 = MSB.
  *)
-const type: lsbBitStream is new struct
+const type: lsbInBitStream is new struct
     var file: inFile is STD_NULL;
     var integer: buffer is 0;
     var integer: bitPos is 0;
@@ -140,7 +140,11 @@ const type: lsbBitStream is new struct
   end struct;
 
 
-const proc: fillStriBuffer (inout lsbBitStream: inBitStream) is func
+# The type lsbBitStream is deprecated. Use lsbInBitStream instead.
+const type: lsbBitStream is lsbInBitStream;
+
+
+const proc: fillStriBuffer (inout lsbInBitStream: inBitStream) is func
   begin
     inBitStream.striBuffer := inBitStream.striBuffer[inBitStream.bytePos ..] &
                             gets(inBitStream.inFile, inBitStream.striBufferIncrease);
@@ -155,7 +159,7 @@ const proc: fillStriBuffer (inout lsbBitStream: inBitStream) is func
   end func;
 
 
-const proc: fillBuffer (inout lsbBitStream: inBitStream) is func
+const proc: fillBuffer (inout lsbInBitStream: inBitStream) is func
   begin
     if inBitStream.bytePos > inBitStream.limit then
       fillStriBuffer(inBitStream);
@@ -166,12 +170,12 @@ const proc: fillBuffer (inout lsbBitStream: inBitStream) is func
 
 (**
  *  Open an LSB bit stream from the file ''inFile'' for reading.
- *  In a ''lsbBitStream'' the read direction is from
+ *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
-const func lsbBitStream: openLsbBitStream (in file: inFile) is func
+const func lsbInBitStream: openLsbBitStream (in file: inFile) is func
   result
-    var lsbBitStream: inBitStream is lsbBitStream.value;
+    var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
     inBitStream.inFile := inFile;
     fillBuffer(inBitStream);
@@ -180,12 +184,12 @@ const func lsbBitStream: openLsbBitStream (in file: inFile) is func
 
 (**
  *  Open an LSB bit stream from the string ''stri'' for reading.
- *  In a ''lsbBitStream'' the read direction is from
+ *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
-const func lsbBitStream: openLsbBitStream (in string: stri) is func
+const func lsbInBitStream: openLsbBitStream (in string: stri) is func
   result
-    var lsbBitStream: inBitStream is lsbBitStream.value;
+    var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
     # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
     # This allows a peek of 32 bits also at the end of the data.
@@ -198,7 +202,7 @@ const func lsbBitStream: openLsbBitStream (in string: stri) is func
 (**
  *  Close an LSB bit stream and position the underlying file at the next byte.
  *)
-const proc: close (inout lsbBitStream: inBitStream) is func
+const proc: close (inout lsbInBitStream: inBitStream) is func
   begin
     if inBitStream.inFile <> STD_NULL then
       if inBitStream.bitPos <> 0 then
@@ -235,7 +239,7 @@ const proc: close (inout lsbBitStream: inBitStream) is func
  *  @param inBitStream LSB orderd bit stream from which the bit is read.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: getBit (inout lsbBitStream: inBitStream) is func
+const func integer: getBit (inout lsbInBitStream: inBitStream) is func
   result
     var integer: resultBit is 0;
   begin
@@ -280,7 +284,7 @@ const func integer: getBit (inout lsbBitStream: inBitStream) is func
  *  @param bitWidth Number of bits requested.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: getBits (inout lsbBitStream: inBitStream, in integer: bitWidth) is func
+const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) is func
   result
     var integer: resultBits is 0;
   local
@@ -331,7 +335,7 @@ const func integer: getBits (inout lsbBitStream: inBitStream, in integer: bitWid
  *  @param bitWidth Number of bits requested.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
-const func integer: peekBits (inout lsbBitStream: inBitStream, in integer: bitWidth) is
+const func integer: peekBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) is
   return (inBitStream.buffer >> inBitStream.bitPos) mod (1 << bitWidth);
 
 
@@ -352,7 +356,7 @@ const func integer: peekBits (inout lsbBitStream: inBitStream, in integer: bitWi
  *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
  *  @param bitWidth Number of bits to be skipped.
  *)
-const proc: skipBits (inout lsbBitStream: inBitStream, in integer: bitWidth) is func
+const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) is func
   local
     var integer: bytePosDelta is 0;
   begin
@@ -396,7 +400,7 @@ const proc: skipBits (inout lsbBitStream: inBitStream, in integer: bitWidth) is 
  *  @param maxLength The maximum number of bytes to be read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout lsbBitStream: inBitStream, in integer: maxLength) is func
+const func string: gets (inout lsbInBitStream: inBitStream, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
@@ -1198,7 +1202,7 @@ const proc: putBitsMsb (inout string: stri, inout integer: bitPos, in var intege
   end func;
 
 
-# The function getBitLsb(file) is deprecated. Use getBit(lsbBitStream) instead.
+# The function getBitLsb(file) is deprecated. Use getBit(lsbInBitStream) instead.
 const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is func
   result
     var integer: resultBit is 0;
@@ -1214,7 +1218,7 @@ const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is fun
   end func;
 
 
-# The function getBitsLsb(file) is deprecated. Use getBits(lsbBitStream) instead.
+# The function getBitsLsb(file) is deprecated. Use getBits(lsbInBitStream) instead.
 const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
     in var integer: bitWidth) is func
   result
