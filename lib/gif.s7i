@@ -205,27 +205,54 @@ const proc: readExtensionBlock (inout file: gifFile, inout gifExtensions: extens
   end func;
 
 
+const proc: fillGifImageLine8Bit (inout pixelArray: imageLine,
+    in integer: leftPosition, in integer: width, in string: pixelData,
+    in var integer: pixelIndex, in colorLookupTable: palette) is func
+  local
+    var char: colorIndex is '\0;';
+    var integer: column is 0;
+  begin
+    for column range succ(leftPosition) to leftPosition + width do
+      colorIndex := pixelData[pixelIndex];
+      incr(pixelIndex);
+      imageLine[column] := palette[ord(colorIndex)];
+    end for;
+  end func;
+
+
 const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
     in colorLookupTable: palette, in gifImageHeader: imageHeader) is func
   local
-    var char: colorIndex is '\0;';
     var integer: line is 0;
-    var integer: column is 0;
-    var integer: columnBeyond is 0;
+    var integer: pixelIndex is 1;
   begin
     # writeln("length(pixelData): " <& length(pixelData));
     # writeln("height: " <& imageHeader.height);
     # writeln("width: " <& imageHeader.width);
     # writeln("no transparent color");
-    line := succ(imageHeader.topPosition);
-    column := succ(imageHeader.leftPosition);
-    columnBeyond := succ(imageHeader.leftPosition + imageHeader.width);
-    for colorIndex range pixelData do
-      image[line][column] := palette[ord(colorIndex)];
-      incr(column);
-      if column = columnBeyond then
-        incr(line);
-        column := succ(imageHeader.leftPosition);
+    for line range succ(imageHeader.topPosition) to
+        imageHeader.topPosition + imageHeader.height do
+      fillGifImageLine8Bit(image[line], imageHeader.leftPosition,
+                           imageHeader.width, pixelData, pixelIndex,
+                           palette);
+      pixelIndex +:= imageHeader.width;
+    end for;
+  end func;
+
+
+const proc: fillGifImageLine8Bit (inout pixelArray: imageLine,
+    in integer: leftPosition, in integer: width, in string: pixelData,
+    in var integer: pixelIndex, in colorLookupTable: palette,
+    in integer: transparentColorIndex) is func
+  local
+    var char: colorIndex is '\0;';
+    var integer: column is 0;
+  begin
+    for column range succ(leftPosition) to leftPosition + width do
+      colorIndex := pixelData[pixelIndex];
+      incr(pixelIndex);
+      if ord(colorIndex) <> transparentColorIndex then
+        imageLine[column] := palette[ord(colorIndex)];
       end if;
     end for;
   end func;
@@ -235,27 +262,19 @@ const proc: fillGifImage8Bit (inout pixelImage: image, in string: pixelData,
     in colorLookupTable: palette, in integer: transparentColorIndex,
     in gifImageHeader: imageHeader) is func
   local
-    var char: colorIndex is '\0;';
     var integer: line is 0;
-    var integer: column is 0;
-    var integer: columnBeyond is 0;
+    var integer: pixelIndex is 1;
   begin
     # writeln("length(pixelData): " <& length(pixelData));
     # writeln("height: " <& imageHeader.height);
     # writeln("width: " <& imageHeader.width);
     # writeln("transparentColorIndex: " <& ord(transparentColorIndex));
-    line := succ(imageHeader.topPosition);
-    column := succ(imageHeader.leftPosition);
-    columnBeyond := succ(imageHeader.leftPosition + imageHeader.width);
-    for colorIndex range pixelData do
-      if ord(colorIndex) <> transparentColorIndex then
-        image[line][column] := palette[ord(colorIndex)];
-      end if;
-      incr(column);
-      if column = columnBeyond then
-        incr(line);
-        column := succ(imageHeader.leftPosition);
-      end if;
+    for line range succ(imageHeader.topPosition) to
+        imageHeader.topPosition + imageHeader.height do
+      fillGifImageLine8Bit(image[line], imageHeader.leftPosition,
+                           imageHeader.width, pixelData, pixelIndex,
+                           palette, transparentColorIndex);
+      pixelIndex +:= imageHeader.width;
     end for;
   end func;
 
