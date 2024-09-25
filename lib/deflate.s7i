@@ -276,78 +276,79 @@ const func integer: encodeLz77Distance (in integer: distance, inout integer: bit
   local
     var integer: rawSymbol is 0;
   begin
-    if distance <= 4 then
-      bitWidth := 0;
-      bits := 0;
-      symbol := pred(distance);
-    elsif distance <= 8 then
-      bitWidth := 1;
-      rawSymbol := distance + 3;
-      bits := rawSymbol mod 2;
-      symbol := rawSymbol >> 1;
-    elsif distance <= 16 then
-      bitWidth := 2;
-      rawSymbol := distance + 15;
-      bits := rawSymbol mod 4;
-      symbol := rawSymbol >> 2;
-    elsif distance <= 32 then
-      bitWidth := 3;
-      rawSymbol := distance + 47;
-      bits := rawSymbol mod 8;
-      symbol := rawSymbol >> 3;
-    elsif distance <= 64 then
-      bitWidth := 4;
-      rawSymbol := distance + 127;
-      bits := rawSymbol mod 16;
-      symbol := rawSymbol >> 4;
-    elsif distance <= 128 then
-      bitWidth := 5;
-      rawSymbol := distance + 319;
-      bits := rawSymbol mod 32;
-      symbol := rawSymbol >> 5;
-    elsif distance <= 256 then
-      bitWidth := 6;
-      rawSymbol := distance + 767;
-      bits := rawSymbol mod 64;
-      symbol := rawSymbol >> 6;
-    elsif distance <= 512 then
-      bitWidth := 7;
-      rawSymbol := distance + 1791;
-      bits := rawSymbol mod 128;
-      symbol := rawSymbol >> 7;
-    elsif distance <= 1024 then
-      bitWidth := 8;
-      rawSymbol := distance + 4095;
-      bits := rawSymbol mod 256;
-      symbol := rawSymbol >> 8;
-    elsif distance <= 2048 then
-      bitWidth := 9;
-      rawSymbol := distance + 9215;
-      bits := rawSymbol mod 512;
-      symbol := rawSymbol >> 9;
-    elsif distance <= 4096 then
-      bitWidth := 10;
-      rawSymbol := distance + 20479;
-      bits := rawSymbol mod 1024;
-      symbol := rawSymbol >> 10;
-    elsif distance <= 8192 then
-      bitWidth := 11;
-      rawSymbol := distance + 45055;
-      bits := rawSymbol mod 2048;
-      symbol := rawSymbol >> 11;
-    elsif distance <= 16384 then
-      bitWidth := 12;
-      rawSymbol := distance + 98303;
-      bits := rawSymbol mod 4096;
-      symbol := rawSymbol >> 12;
-    elsif distance <= 32768 then
-      bitWidth := 13;
-      rawSymbol := distance + 212991;
-      bits := rawSymbol mod 8192;
-      symbol := rawSymbol >> 13;
-    else
-      raise RANGE_ERROR;
-    end if;
+    case pred(distance) >> 2 of
+      when {0}:
+        bitWidth := 0;
+        bits := 0;
+        symbol := pred(distance);
+      when {1}:
+        bitWidth := 1;
+        rawSymbol := distance + 3;
+        bits := rawSymbol mod 2;
+        symbol := rawSymbol >> 1;
+      when {2 .. 3}:
+        bitWidth := 2;
+        rawSymbol := distance + 15;
+        bits := rawSymbol mod 4;
+        symbol := rawSymbol >> 2;
+      when {4 .. 7}:
+        bitWidth := 3;
+        rawSymbol := distance + 47;
+        bits := rawSymbol mod 8;
+        symbol := rawSymbol >> 3;
+      when {8 .. 15}:
+        bitWidth := 4;
+        rawSymbol := distance + 127;
+        bits := rawSymbol mod 16;
+        symbol := rawSymbol >> 4;
+      when {16 .. 31}:
+        bitWidth := 5;
+        rawSymbol := distance + 319;
+        bits := rawSymbol mod 32;
+        symbol := rawSymbol >> 5;
+      when {32 .. 63}:
+        bitWidth := 6;
+        rawSymbol := distance + 767;
+        bits := rawSymbol mod 64;
+        symbol := rawSymbol >> 6;
+      when {64 .. 127}:
+        bitWidth := 7;
+        rawSymbol := distance + 1791;
+        bits := rawSymbol mod 128;
+        symbol := rawSymbol >> 7;
+      when {128 .. 255}:
+        bitWidth := 8;
+        rawSymbol := distance + 4095;
+        bits := rawSymbol mod 256;
+        symbol := rawSymbol >> 8;
+      when {256 .. 511}:
+        bitWidth := 9;
+        rawSymbol := distance + 9215;
+        bits := rawSymbol mod 512;
+        symbol := rawSymbol >> 9;
+      when {512 .. 1023}:
+        bitWidth := 10;
+        rawSymbol := distance + 20479;
+        bits := rawSymbol mod 1024;
+        symbol := rawSymbol >> 10;
+      when {1024 .. 2047}:
+        bitWidth := 11;
+        rawSymbol := distance + 45055;
+        bits := rawSymbol mod 2048;
+        symbol := rawSymbol >> 11;
+      when {2048 .. 4095}:
+        bitWidth := 12;
+        rawSymbol := distance + 98303;
+        bits := rawSymbol mod 4096;
+        symbol := rawSymbol >> 12;
+      when {4096 .. 8191}:
+        bitWidth := 13;
+        rawSymbol := distance + 212991;
+        bits := rawSymbol mod 8192;
+        symbol := rawSymbol >> 13;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
   end func;
 
 
