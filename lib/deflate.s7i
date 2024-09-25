@@ -79,50 +79,51 @@ const proc: putLength (inout lsbOutBitStream: compressedStream,
 const proc: putDistance (inout lsbOutBitStream: compressedStream,
     in integer: distance) is func
   begin
-    if distance <= 4 then
-      putBits(compressedStream, reverseBits[5][pred(distance)], 5);
-    elsif distance <= 8 then
-      putBits(compressedStream, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
-      putBit(compressedStream, (distance - 5) mod 2);
-    elsif distance <= 16 then
-      putBits(compressedStream, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
-      putBits(compressedStream, (distance - 9) mod 4, 2);
-    elsif distance <= 32 then
-      putBits(compressedStream, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
-      putBits(compressedStream, (distance - 17) mod 8, 3);
-    elsif distance <= 64 then
-      putBits(compressedStream, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
-      putBits(compressedStream, (distance - 33) mod 16, 4);
-    elsif distance <= 128 then
-      putBits(compressedStream, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
-      putBits(compressedStream, (distance - 65) mod 32, 5);
-    elsif distance <= 256 then
-      putBits(compressedStream, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
-      putBits(compressedStream, (distance - 129) mod 64, 6);
-    elsif distance <= 512 then
-      putBits(compressedStream, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
-      putBits(compressedStream, (distance - 257) mod 128, 7);
-    elsif distance <= 1024 then
-      putBits(compressedStream, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
-      putBits(compressedStream, (distance - 513) mod 256, 8);
-    elsif distance <= 2048 then
-      putBits(compressedStream, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
-      putBits(compressedStream, (distance - 1025) mod 512, 9);
-    elsif distance <= 4096 then
-      putBits(compressedStream, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
-      putBits(compressedStream, (distance - 2049) mod 1024, 10);
-    elsif distance <= 8192 then
-      putBits(compressedStream, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
-      putBits(compressedStream, (distance - 4097) mod 2048, 11);
-    elsif distance <= 16384 then
-      putBits(compressedStream, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
-      putBits(compressedStream, (distance - 8193) mod 4096, 12);
-    elsif distance <= 32768 then
-      putBits(compressedStream, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
-      putBits(compressedStream, (distance - 16385) mod 8192, 13);
-    else
-      raise RANGE_ERROR;
-    end if;
+    case pred(distance) >> 2 of
+      when {0}:
+        putBits(compressedStream, reverseBits[5][pred(distance)], 5);
+      when {1}:
+        putBits(compressedStream, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
+        putBit(compressedStream, (distance - 5) mod 2);
+      when {2 .. 3}:
+        putBits(compressedStream, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
+        putBits(compressedStream, (distance - 9) mod 4, 2);
+      when {4 .. 7}:
+        putBits(compressedStream, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
+        putBits(compressedStream, (distance - 17) mod 8, 3);
+      when {8 .. 15}:
+        putBits(compressedStream, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
+        putBits(compressedStream, (distance - 33) mod 16, 4);
+      when {16 .. 31}:
+        putBits(compressedStream, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
+        putBits(compressedStream, (distance - 65) mod 32, 5);
+      when {32 .. 63}:
+        putBits(compressedStream, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
+        putBits(compressedStream, (distance - 129) mod 64, 6);
+      when {64 .. 127}:
+        putBits(compressedStream, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
+        putBits(compressedStream, (distance - 257) mod 128, 7);
+      when {128 .. 255}:
+        putBits(compressedStream, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
+        putBits(compressedStream, (distance - 513) mod 256, 8);
+      when {256 .. 511}:
+        putBits(compressedStream, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
+        putBits(compressedStream, (distance - 1025) mod 512, 9);
+      when {512 .. 1023}:
+        putBits(compressedStream, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
+        putBits(compressedStream, (distance - 2049) mod 1024, 10);
+      when {1024 .. 2047}:
+        putBits(compressedStream, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
+        putBits(compressedStream, (distance - 4097) mod 2048, 11);
+      when {2048 .. 4095}:
+        putBits(compressedStream, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
+        putBits(compressedStream, (distance - 8193) mod 4096, 12);
+      when {4096 .. 8191}:
+        putBits(compressedStream, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
+        putBits(compressedStream, (distance - 16385) mod 8192, 13);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
   end func;
 
 
