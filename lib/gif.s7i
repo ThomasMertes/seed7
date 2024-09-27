@@ -83,6 +83,26 @@ const type: gifApplicationExtension is new struct
   end struct;
 
 
+const proc: readGifColorMap (in integer: bitsPerPixel,
+    inout colorLookupTable: colorMap) is func
+  local
+    var integer: maxColorMapIndex is 0;
+    var integer: colorMapIndex is 0;
+    var string: rgbData is "";
+    var integer: byteIndex is 1;
+  begin
+    maxColorMapIndex := pred(2 ** bitsPerPixel);
+    colorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
+    rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
+    for colorMapIndex range 0 to maxColorMapIndex do
+      colorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
+                                          ord(rgbData[succ(byteIndex)]) * 256,
+                                          ord(rgbData[byteIndex + 2]) * 256);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
 const proc: showHeader (in gifHeader: header) is func
   begin
     writeln("screenWidth: " <& header.screenWidth);
@@ -97,10 +117,6 @@ const proc: showHeader (in gifHeader: header) is func
 const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
   local
     var string: screenDescriptor is "";
-    var integer: maxColorMapIndex is 0;
-    var integer: colorMapIndex is 0;
-    var string: rgbData is "";
-    var integer: byteIndex is 1;
   begin
     screenDescriptor := gets(gifFile, GIF_SCREEN_DESCRIPTOR_SIZE);
     if length(screenDescriptor) = GIF_SCREEN_DESCRIPTOR_SIZE then
@@ -112,15 +128,7 @@ const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
       header.bitsPerPixel          :=  succ(ord(screenDescriptor[5]) mod 8);
       # showHeader(header);
       if header.hasGlobalColorMap then
-        maxColorMapIndex := pred(2 ** header.bitsPerPixel);
-        header.globalColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
-        rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
-        for colorMapIndex range 0 to maxColorMapIndex do
-          header.globalColorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
-                                                           ord(rgbData[succ(byteIndex)]) * 256,
-                                                           ord(rgbData[byteIndex + 2]) * 256);
-          byteIndex +:= 3;
-        end for;
+        readGifColorMap(header.bitsPerPixel, header.globalColorMap);
       end if;
     else
       raise RANGE_ERROR;
@@ -144,10 +152,6 @@ const proc: showImageHeader (in gifImageHeader: header) is func
 const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) is func
   local
     var string: imageDescriptor is "";
-    var integer: maxColorMapIndex is 0;
-    var integer: colorMapIndex is 0;
-    var string: rgbData is "";
-    var integer: byteIndex is 1;
   begin
     imageDescriptor := gets(gifFile, GIF_IMAGE_DESCRIPTOR_SIZE);
     if length(imageDescriptor) = GIF_IMAGE_DESCRIPTOR_SIZE then
@@ -161,15 +165,7 @@ const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) 
       header.bitsPerPixel     := succ(ord(imageDescriptor[9]) mod 8);
       # showImageHeader(header);
       if header.hasLocalColorMap then
-        maxColorMapIndex := pred(2 ** header.bitsPerPixel);
-        header.localColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
-        rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
-        for colorMapIndex range 0 to maxColorMapIndex do
-          header.localColorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
-                                                          ord(rgbData[succ(byteIndex)]) * 256,
-                                                          ord(rgbData[byteIndex + 2]) * 256);
-          byteIndex +:= 3;
-        end for;
+        readGifColorMap(header.bitsPerPixel, header.localColorMap);
       end if;
     else
       raise RANGE_ERROR;
@@ -210,7 +206,6 @@ const proc: readGraphicControlExtension (inout file: gifFile,
     dataSize := succ(ord(getc(gifFile)));
     extensionData := gets(gifFile, dataSize);
     if dataSize = 5 and length(extensionData) = 5 then
-      # writeln("extensionData: " <& literal(extensionData));
       extension.disposalMethod       :=    (ord(extensionData[1]) >> 2) mod 8;
       extension.userInputFlag        := odd(ord(extensionData[1]) >> 1);
       extension.transparentColorFlag := odd(ord(extensionData[1]));
@@ -241,7 +236,6 @@ const proc: readApplicationExtension (inout file: gifFile,
     var string: extensionData is "";
   begin
     extensionData := readSubBlockSeries(gifFile);
-    # writeln("extensionData: " <& literal(extensionData));
     if startsWith(extensionData, "NETSCAPE2.0\1;") or
         startsWith(extensionData, "ANIMEXTS1.0\1;") then
       # Looping Application Extension
@@ -486,18 +480,14 @@ const proc: getImage (inout gifData: gif) is func
     gif.delayTime := 0;
     while gif.delayTime = 0 and not fullImage and
         gif.sentinel <> GIF_TRAILER_SENTINEL do
-      # writeln(gif.sentinel);
       if gif.sentinel = GIF_EXTENSION_SENTINEL then
         typeOfExtension := getc(gif.gifFile);
-        # writeln("typeOfExtension: " <& ord(typeOfExtension));
         case ord(typeOfExtension) of
           when {GIF_GRAPHIC_CONTROL_EXTENSION}:
             readGraphicControlExtension(gif.gifFile, graphicsExtension);
           when {GIF_APPLICATION_EXTENSION}:
             readApplicationExtension(gif.gifFile, gif.applicationExtension);
           when {GIF_COMMENT_EXTENSION, GIF_PLAIN_TEXT_EXTENSION}:
-            # writeln("extension " <& ord(typeOfExtension) <& ": " <&
-            #     literal(readSubBlockSeries(gif.gifFile)));
             ignore(readSubBlockSeries(gif.gifFile));
           otherwise: # Unknown extension
             raise RANGE_ERROR;
