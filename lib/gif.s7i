@@ -36,13 +36,24 @@ const string: GIF_MAGIC_87 is "GIF87a";
 const string: GIF_MAGIC_89 is "GIF89a";
 
 const integer: GIF_SCREEN_DESCRIPTOR_SIZE is 7;
-const integer: GIF_IMAGE_DESCRIPTOR_SIZE is 9;
+const integer: GIF_IMAGE_DESCRIPTOR_SIZE  is 9;
+
+const char: GIF_IMAGE_SENTINEL     is ',';
+const char: GIF_EXTENSION_SENTINEL is '!';
+const char: GIF_TRAILER_SENTINEL   is ';';
+
+const integer: GIF_PLAIN_TEXT_EXTENSION      is 16#01;
+const integer: GIF_GRAPHIC_CONTROL_EXTENSION is 16#f9;
+const integer: GIF_COMMENT_EXTENSION         is 16#fe;
+const integer: GIF_APPLICATION_EXTENSION     is 16#ff;
 
 const type: gifHeader is new struct
     var integer: screenWidth is 0;
     var integer: screenHeight is 0;
+    var boolean: hasGlobalColorMap is FALSE;
     var integer: bitsOfColorResolution is 0;
-    var integer: globalBitsPerPixel is 0;
+    var boolean: paletteIsSorted is FALSE;
+    var integer: bitsPerPixel is 0;
     var colorLookupTable: globalColorMap is colorLookupTable.value;
   end struct;
 
@@ -51,27 +62,41 @@ const type: gifImageHeader is new struct
     var integer: topPosition is 0;
     var integer: width is 0;
     var integer: height is 0;
-    var boolean: interlacedOrder is FALSE;
-    var integer: bitsPerPixel is 0;
     var boolean: hasLocalColorMap is FALSE;
+    var boolean: interlacedOrder is FALSE;
+    var boolean: paletteIsSorted is FALSE;
+    var integer: bitsPerPixel is 0;
     var colorLookupTable: localColorMap is colorLookupTable.value;
   end struct;
 
-const type: gifExtensions is new struct
+const type: gifGraphicControlExtension is new struct
     var integer: disposalMethod is 0;
     var boolean: userInputFlag is FALSE;
     var boolean: transparentColorFlag is FALSE;
     var integer: delayTime is 0;
     var integer: transparentColorIndex is 0;
+  end struct;
+
+const type: gifApplicationExtension is new struct
     var boolean: loopCountPresent is FALSE;
     var integer: loopCount is 0;
   end struct;
 
 
+const proc: showHeader (in gifHeader: header) is func
+  begin
+    writeln("screenWidth: " <& header.screenWidth);
+    writeln("screenHeight: " <& header.screenHeight);
+    writeln("hasGlobalColorMap: " <& header.hasGlobalColorMap);
+    writeln("bitsOfColorResolution: " <& header.bitsOfColorResolution);
+    writeln("paletteIsSorted: " <& header.paletteIsSorted);
+    writeln("bitsPerPixel: " <& header.bitsPerPixel);
+  end func;
+
+
 const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
   local
     var string: screenDescriptor is "";
-    var boolean: globalColorMapFollows is FALSE;
     var integer: maxColorMapIndex is 0;
     var integer: colorMapIndex is 0;
     var string: rgbData is "";
@@ -79,18 +104,15 @@ const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
   begin
     screenDescriptor := gets(gifFile, GIF_SCREEN_DESCRIPTOR_SIZE);
     if length(screenDescriptor) = GIF_SCREEN_DESCRIPTOR_SIZE then
-      header.screenWidth := bytes2Int(screenDescriptor[1 fixLen 2], UNSIGNED, LE);
+      header.screenWidth  := bytes2Int(screenDescriptor[1 fixLen 2], UNSIGNED, LE);
       header.screenHeight := bytes2Int(screenDescriptor[3 fixLen 2], UNSIGNED, LE);
-      globalColorMapFollows := ord(screenDescriptor[5]) >= 128;
+      header.hasGlobalColorMap     :=       ord(screenDescriptor[5]) >= 128;
       header.bitsOfColorResolution := succ((ord(screenDescriptor[5]) >> 4) mod 8);
-      header.globalBitsPerPixel := succ(ord(screenDescriptor[5]) mod 8);
-      # writeln("screenWidth: " <& header.screenWidth);
-      # writeln("screenHeight: " <& header.screenHeight);
-      # writeln("globalColorMapFollows: " <& globalColorMapFollows);
-      # writeln("bitsOfColorResolution: " <& header.bitsOfColorResolution);
-      # writeln("globalBitsPerPixel: " <& header.globalBitsPerPixel);
-      if globalColorMapFollows then
-        maxColorMapIndex := pred(2 ** header.globalBitsPerPixel);
+      header.paletteIsSorted       :=   odd(ord(screenDescriptor[5]) >> 3);
+      header.bitsPerPixel          :=  succ(ord(screenDescriptor[5]) mod 8);
+      # showHeader(header);
+      if header.hasGlobalColorMap then
+        maxColorMapIndex := pred(2 ** header.bitsPerPixel);
         header.globalColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
         rgbData := gets(gifFile, succ(maxColorMapIndex) * 3);
         for colorMapIndex range 0 to maxColorMapIndex do
@@ -106,6 +128,19 @@ const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
   end func;
 
 
+const proc: showImageHeader (in gifImageHeader: header) is func
+  begin
+    writeln("leftPosition: " <& header.leftPosition);
+    writeln("topPosition: " <& header.topPosition);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("hasLocalColorMap: " <& header.hasLocalColorMap);
+    writeln("interlacedOrder: " <& header.interlacedOrder);
+    writeln("paletteIsSorted: " <& header.paletteIsSorted);
+    writeln("bitsPerPixel: " <& header.bitsPerPixel);
+  end func;
+
+
 const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) is func
   local
     var string: imageDescriptor is "";
@@ -117,19 +152,14 @@ const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) 
     imageDescriptor := gets(gifFile, GIF_IMAGE_DESCRIPTOR_SIZE);
     if length(imageDescriptor) = GIF_IMAGE_DESCRIPTOR_SIZE then
       header.leftPosition := bytes2Int(imageDescriptor[1 fixLen 2], UNSIGNED, LE);
-      header.topPosition := bytes2Int(imageDescriptor[3 fixLen 2], UNSIGNED, LE);
-      header.width := bytes2Int(imageDescriptor[5 fixLen 2], UNSIGNED, LE);
-      header.height := bytes2Int(imageDescriptor[7 fixLen 2], UNSIGNED, LE);
-      header.hasLocalColorMap := ord(imageDescriptor[9]) >= 128;
-      header.interlacedOrder := (ord(imageDescriptor[9]) >> 6) mod 2 <> 0;
-      header.bitsPerPixel := succ(ord(imageDescriptor[9]) mod 8);
-      # writeln("leftPosition: " <& header.leftPosition);
-      # writeln("topPosition: " <& header.topPosition);
-      # writeln("width: " <& header.width);
-      # writeln("height: " <& header.height);
-      # writeln("hasLocalColorMap: " <& header.hasLocalColorMap);
-      # writeln("interlacedOrder: " <& header.interlacedOrder);
-      # writeln("bitsPerPixel: " <& header.bitsPerPixel);
+      header.topPosition  := bytes2Int(imageDescriptor[3 fixLen 2], UNSIGNED, LE);
+      header.width        := bytes2Int(imageDescriptor[5 fixLen 2], UNSIGNED, LE);
+      header.height       := bytes2Int(imageDescriptor[7 fixLen 2], UNSIGNED, LE);
+      header.hasLocalColorMap :=      ord(imageDescriptor[9]) >= 128;
+      header.interlacedOrder  :=  odd(ord(imageDescriptor[9]) >> 6);
+      header.paletteIsSorted  :=  odd(ord(imageDescriptor[9]) >> 5);
+      header.bitsPerPixel     := succ(ord(imageDescriptor[9]) mod 8);
+      # showImageHeader(header);
       if header.hasLocalColorMap then
         maxColorMapIndex := pred(2 ** header.bitsPerPixel);
         header.localColorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
@@ -161,47 +191,67 @@ const func string: readSubBlockSeries (inout file: gifFile) is func
   end func;
 
 
-const proc: readExtensionBlock (inout file: gifFile, inout gifExtensions: extensions) is func
+const proc: showExtension (in gifGraphicControlExtension: extension) is func
+  begin
+    writeln("disposalMethod: " <& extension.disposalMethod);
+    writeln("userInputFlag: " <& extension.userInputFlag);
+    writeln("transparentColorFlag: " <& extension.transparentColorFlag);
+    writeln("delayTime: " <& extension.delayTime);
+    writeln("transparentColorIndex: " <& extension.transparentColorIndex);
+  end func;
+
+
+const proc: readGraphicControlExtension (inout file: gifFile,
+    inout gifGraphicControlExtension: extension) is func
   local
-    var char: typeOfExtension is ' ';
     var integer: dataSize is 0;
     var string: extensionData is "";
   begin
-    typeOfExtension := getc(gifFile);
-    # writeln("typeOfExtension: " <& ord(typeOfExtension));
+    dataSize := succ(ord(getc(gifFile)));
+    extensionData := gets(gifFile, dataSize);
+    if dataSize = 5 and length(extensionData) = 5 then
+      # writeln("extensionData: " <& literal(extensionData));
+      extension.disposalMethod       :=    (ord(extensionData[1]) >> 2) mod 8;
+      extension.userInputFlag        := odd(ord(extensionData[1]) >> 1);
+      extension.transparentColorFlag := odd(ord(extensionData[1]));
+      extension.delayTime := bytes2Int(extensionData[2 fixLen 2], UNSIGNED, LE);
+      if extension.transparentColorFlag then
+        extension.transparentColorIndex := ord(extensionData[4]);
+      end if;
+      if extensionData[dataSize] <> '\0;' then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    # showExtension(extension);
+  end func;
+
+
+const proc: showExtension (in gifApplicationExtension: extension) is func
+  begin
+    writeln("loopCountPresent: " <& extension.loopCountPresent);
+    writeln("loopCount: " <& extension.loopCount);
+  end func;
+
+
+const proc: readApplicationExtension (inout file: gifFile,
+    inout gifApplicationExtension: extension) is func
+  local
+    var string: extensionData is "";
+  begin
     extensionData := readSubBlockSeries(gifFile);
     # writeln("extensionData: " <& literal(extensionData));
-    case ord(typeOfExtension) of
-      when {16#f9}: # Graphic Control Extension
-        extensions.disposalMethod := (ord(extensionData[1]) >> 2) mod 8;
-        extensions.userInputFlag := odd(ord(extensionData[1]) >> 1);
-        extensions.transparentColorFlag := odd(ord(extensionData[1]));
-        extensions.delayTime := bytes2Int(extensionData[2 fixLen 2], UNSIGNED, LE);
-        if extensions.transparentColorFlag then
-          extensions.transparentColorIndex := ord(extensionData[4]);
-        end if;
-        # writeln("disposalMethod: " <& extensions.disposalMethod);
-        # writeln("userInputFlag: " <& extensions.userInputFlag);
-        # writeln("transparentColorFlag: " <& extensions.transparentColorFlag);
-        # writeln("delayTime: " <& extensions.delayTime);
-        # writeln("transparentColorIndex: " <& extensions.transparentColorIndex);
-      when {16#ff}: # Application Extension
-        if startsWith(extensionData, "NETSCAPE2.0\1;") or
-            startsWith(extensionData, "ANIMEXTS1.0\1;") then
-          # Looping Application Extension
-          extensions.loopCountPresent := TRUE;
-          extensions.loopCount := bytes2Int(extensionData[13 fixLen 2], UNSIGNED, LE);
-        elsif startsWith(extensionData, "NETSCAPE2.0\2;") then
-          # Buffering Application Extension
-          noop;
-        end if;
-      when {16#fe}: # Comment Extension
-        noop;
-      when {16#01}: # Plain Text Extension
-        noop;
-      otherwise: # Unknown extension
-        raise RANGE_ERROR;
-    end case;
+    if startsWith(extensionData, "NETSCAPE2.0\1;") or
+        startsWith(extensionData, "ANIMEXTS1.0\1;") then
+      # Looping Application Extension
+      extension.loopCountPresent := TRUE;
+      extension.loopCount := bytes2Int(extensionData[13 fixLen 2], UNSIGNED, LE);
+    elsif startsWith(extensionData, "NETSCAPE2.0\2;") then
+      # Buffering Application Extension
+      noop;
+    end if;
+    # showExtension(extension);
   end func;
 
 
@@ -365,6 +415,111 @@ const proc: fillGifImage8BitInterlaced (inout pixelImage: image,
   end func;
 
 
+const proc: readImage (inout file: gifFile, in gifHeader: header,
+    in gifImageHeader: imageHeader, in gifGraphicControlExtension: extension,
+    inout pixelImage: image) is func
+  local
+    var integer: initialNumberOfLzwBits is 0;
+    var string: uncompressed is "";
+  begin
+    initialNumberOfLzwBits := ord(getc(gifFile));
+    uncompressed := lzwDecompressLsb(readSubBlockSeries(gifFile),
+                                     initialNumberOfLzwBits);
+    if imageHeader.hasLocalColorMap then
+      if extension.transparentColorFlag then
+        if imageHeader.interlacedOrder then
+          fillGifImage8BitInterlaced(image, uncompressed, imageHeader.localColorMap,
+                           extension.transparentColorIndex, imageHeader);
+        else
+          fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
+                           extension.transparentColorIndex, imageHeader);
+        end if;
+      else
+        if imageHeader.interlacedOrder then
+          fillGifImage8BitInterlaced(image, uncompressed,
+                                     imageHeader.localColorMap, imageHeader);
+        else
+          fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
+                           imageHeader);
+        end if;
+      end if;
+    else
+      if extension.transparentColorFlag then
+        if imageHeader.interlacedOrder then
+          fillGifImage8BitInterlaced(image, uncompressed, header.globalColorMap,
+                           extension.transparentColorIndex, imageHeader);
+        else
+          fillGifImage8Bit(image, uncompressed, header.globalColorMap,
+                           extension.transparentColorIndex, imageHeader);
+        end if;
+      else
+        if imageHeader.interlacedOrder then
+          fillGifImage8BitInterlaced(image, uncompressed,
+                                     header.globalColorMap, imageHeader);
+        else
+          fillGifImage8Bit(image, uncompressed, header.globalColorMap,
+                           imageHeader);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const type: gifData is new struct
+    var file: gifFile is STD_NULL;
+    var gifHeader: header is gifHeader.value;
+    var pixelImage: image is pixelImage.value;
+    var gifApplicationExtension: applicationExtension is gifApplicationExtension.value;
+    var integer: startPos is 0;
+    var char: sentinel is ' ';
+    var integer: delayTime is 0;
+  end struct;
+
+
+const proc: getImage (inout gifData: gif) is func
+  local
+    var char: typeOfExtension is ' ';
+    var gifImageHeader: imageHeader is gifImageHeader.value;
+    var gifGraphicControlExtension: graphicsExtension is gifGraphicControlExtension.value;
+    var boolean: fullImage is FALSE;
+  begin
+    gif.delayTime := 0;
+    while gif.delayTime = 0 and not fullImage and
+        gif.sentinel <> GIF_TRAILER_SENTINEL do
+      # writeln(gif.sentinel);
+      if gif.sentinel = GIF_EXTENSION_SENTINEL then
+        typeOfExtension := getc(gif.gifFile);
+        # writeln("typeOfExtension: " <& ord(typeOfExtension));
+        case ord(typeOfExtension) of
+          when {GIF_GRAPHIC_CONTROL_EXTENSION}:
+            readGraphicControlExtension(gif.gifFile, graphicsExtension);
+          when {GIF_APPLICATION_EXTENSION}:
+            readApplicationExtension(gif.gifFile, gif.applicationExtension);
+          when {GIF_COMMENT_EXTENSION, GIF_PLAIN_TEXT_EXTENSION}:
+            # writeln("extension " <& ord(typeOfExtension) <& ": " <&
+            #     literal(readSubBlockSeries(gif.gifFile)));
+            ignore(readSubBlockSeries(gif.gifFile));
+          otherwise: # Unknown extension
+            raise RANGE_ERROR;
+        end case;
+      elsif gif.sentinel = GIF_IMAGE_SENTINEL then
+        gif.delayTime := graphicsExtension.delayTime;
+        readImageHeader(gif.gifFile, imageHeader);
+        readImage(gif.gifFile, gif.header, imageHeader, graphicsExtension, gif.image);
+        graphicsExtension := gifGraphicControlExtension.value;
+        if imageHeader.leftPosition = 0 and imageHeader.topPosition = 0 and
+            imageHeader.width = gif.header.screenWidth and
+            imageHeader.height = gif.header.screenHeight then
+          fullImage := TRUE;
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+      gif.sentinel := getc(gif.gifFile);
+    end while;
+  end func;
+
+
 (**
  *  Reads a GIF file into a pixmap.
  *  @param gifFile File that contains a GIF image.
@@ -378,72 +533,17 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var string: magic is "";
-    var gifHeader: header is gifHeader.value;
-    var gifImageHeader: imageHeader is gifImageHeader.value;
-    var gifExtensions: extensions is gifExtensions.value;
-    var char: sentinel is ' ';
-    var integer: initialNumberOfLzwBits is 0;
-    var string: uncompressed is "";
-    var pixelImage: image is pixelImage.value;
+    var gifData: gif is gifData.value;
   begin
     magic := gets(gifFile, length(GIF_MAGIC_87));
     if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
-      readHeader(gifFile, header);
-      image := pixelImage[.. header.screenHeight] times
-               pixelArray[.. header.screenWidth] times pixel.value;
-      sentinel := getc(gifFile);
-      while sentinel <> ';' do
-        if sentinel = '!' then
-          readExtensionBlock(gifFile, extensions);
-        elsif sentinel = ',' then
-          readImageHeader(gifFile, imageHeader);
-          initialNumberOfLzwBits := ord(getc(gifFile));
-          uncompressed := lzwDecompressLsb(readSubBlockSeries(gifFile),
-                                           initialNumberOfLzwBits);
-          if imageHeader.hasLocalColorMap then
-            if extensions.transparentColorFlag then
-              if imageHeader.interlacedOrder then
-                fillGifImage8BitInterlaced(image, uncompressed, imageHeader.localColorMap,
-                                 extensions.transparentColorIndex, imageHeader);
-              else
-                fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
-                                 extensions.transparentColorIndex, imageHeader);
-              end if;
-            else
-              if imageHeader.interlacedOrder then
-                fillGifImage8BitInterlaced(image, uncompressed,
-                                           imageHeader.localColorMap, imageHeader);
-              else
-                fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,
-                                 imageHeader);
-              end if;
-            end if;
-          else
-            if extensions.transparentColorFlag then
-              if imageHeader.interlacedOrder then
-                fillGifImage8BitInterlaced(image, uncompressed, header.globalColorMap,
-                                 extensions.transparentColorIndex, imageHeader);
-              else
-                fillGifImage8Bit(image, uncompressed, header.globalColorMap,
-                                 extensions.transparentColorIndex, imageHeader);
-              end if;
-            else
-              if imageHeader.interlacedOrder then
-                fillGifImage8BitInterlaced(image, uncompressed,
-                                           header.globalColorMap, imageHeader);
-              else
-                fillGifImage8Bit(image, uncompressed, header.globalColorMap,
-                                 imageHeader);
-              end if;
-            end if;
-          end if;
-          extensions.transparentColorFlag := FALSE;
-        else
-          raise RANGE_ERROR;
-        end if;
-        sentinel := getc(gifFile);
-      end while;
-      pixmap := getPixmap(image);
+      gif.gifFile := gifFile;
+      readHeader(gifFile, gif.header);
+      gif.image := pixelImage[.. gif.header.screenHeight] times
+                   pixelArray[.. gif.header.screenWidth] times pixel.value;
+      gif.sentinel := getc(gifFile);
+      getImage(gif);
+      pixmap := getPixmap(gif.image);
     end if;
   end func;
 
@@ -461,7 +561,7 @@ const func PRIMITIVE_WINDOW: readGif (in string: gifFileName) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var file: gifFile is STD_NULL;
-   begin
+  begin
     gifFile := open(gifFileName, "r");
     if gifFile <> STD_NULL then
       pixmap := readGif(gifFile);
