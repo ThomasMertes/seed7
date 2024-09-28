@@ -31,6 +31,9 @@ $ include "seed7_05.s7i";
   include "pic32.s7i";
   include "time.s7i";
   include "duration.s7i";
+  include "bstring.s7i";
+  include "getf.s7i";
+  include "strifile.s7i";
 
 
 const integer: ROOM_LINES        is  18;
@@ -995,6 +998,9 @@ const func PRIMITIVE_WINDOW: createPixmap (in array string: pattern) is
   return createPixmap(pattern, PIXMAP_SIZE div length(pattern), black);
 
 
+const bstring: castleData is bstring(getf(dir(PROGRAM) & "/castle.dat"));
+
+
 const proc: initRoomData is func
   local
     var file: dat_file is STD_NULL;
@@ -1002,7 +1008,7 @@ const proc: initRoomData is func
     var integer: line is 0;
     var directionType: direction is NORTH;
   begin
-    dat_file := open(dir(PROGRAM) & "/castle.dat", "r");
+    dat_file := openStriFile(str(castleData));
     for number range 1 to MAX_ROOM do
       for line range 1 to ROOM_LINES do
         room[number].data[line] := getln(dat_file);
