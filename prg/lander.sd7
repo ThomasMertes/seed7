@@ -1128,6 +1128,7 @@ const proc: setupAdvancedLander is func
     rocket.tilt := NO_TILT;
     rocket.old_tilt := rocket.tilt;
     rocket.y_speed := 13.0;
+    rocket.background := PRIMITIVE_WINDOW.value;
     advancedLander := TRUE;
     init_display;
 (*  doBeep; *)
