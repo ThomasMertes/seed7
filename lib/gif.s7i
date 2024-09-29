@@ -83,7 +83,7 @@ const type: gifApplicationExtension is new struct
   end struct;
 
 
-const proc: readGifColorMap (in integer: bitsPerPixel,
+const proc: readGifColorMap (inout file: gifFile, in integer: bitsPerPixel,
     inout colorLookupTable: colorMap) is func
   local
     var integer: maxColorMapIndex is 0;
@@ -128,7 +128,7 @@ const proc: readHeader (inout file: gifFile, inout gifHeader: header) is func
       header.bitsPerPixel          :=  succ(ord(screenDescriptor[5]) mod 8);
       # showHeader(header);
       if header.hasGlobalColorMap then
-        readGifColorMap(header.bitsPerPixel, header.globalColorMap);
+        readGifColorMap(gifFile, header.bitsPerPixel, header.globalColorMap);
       end if;
     else
       raise RANGE_ERROR;
@@ -165,7 +165,7 @@ const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) 
       header.bitsPerPixel     := succ(ord(imageDescriptor[9]) mod 8);
       # showImageHeader(header);
       if header.hasLocalColorMap then
-        readGifColorMap(header.bitsPerPixel, header.localColorMap);
+        readGifColorMap(gifFile, header.bitsPerPixel, header.localColorMap);
       end if;
     else
       raise RANGE_ERROR;
