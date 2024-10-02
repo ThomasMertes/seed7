@@ -43,6 +43,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "os_decls.h"
+#include "int_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "tim_drv.h"
@@ -1242,11 +1243,12 @@ int copyWindow (int windowId)
           let width = $1;
           let height = $2;
           // The new window name must differ from the original window name.
-          let windowName = sourceWindow.document.title;
-          if (windowName.endsWith("\0\0")) {
+          let sourceWindowName = sourceWindow.name;
+          let windowName = sourceWindowName;
+          if (windowName.endsWith("++")) {
             windowName = windowName.substring(0, windowName.length - 2);
           } else {
-            windowName = windowName + "\0";
+            windowName = windowName + "+";
           }
           let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
                                ",left=" + left + ",top=" + top +
@@ -1256,7 +1258,7 @@ int copyWindow (int windowId)
             return 0;
           } else {
             const title = windowObject.document.createElement("title");
-            const titleText = windowObject.document.createTextNode(windowName);
+            const titleText = windowObject.document.createTextNode(sourceWindow.document.title);
             title.appendChild(titleText);
             windowObject.document.head.appendChild(title);
             windowObject.document.body.style.margin = 0;
@@ -1291,6 +1293,9 @@ int copyWindow (int windowId)
             if (typeof windowObject.opener.registerWindow !== "undefined") {
               windowObject.opener.registerWindow(windowObject);
             }
+            if (typeof windowObject.opener.deregisterWindow !== "undefined") {
+              windowObject.opener.deregisterWindow(sourceWindow, sourceWindowName);
+            }
             return (currentWindowId << 2) | ignoreFirstResize;
           }
         } else {
@@ -1314,9 +1319,9 @@ int copyWindow (int windowId)
       } /* if */
     } /* if */
     logFunction(printf("copyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
-                   (memSizeType) aWindow,
-                   aWindow != NULL ? aWindow->window : 0,
-                   aWindow != NULL ? aWindow->usage_count : (uintType) 0););
+                       (memSizeType) aWindow,
+                       aWindow != NULL ? aWindow->window : 0,
+                       aWindow != NULL ? aWindow->usage_count : (uintType) 0););
     return aWindow != NULL ? aWindow->window : 0;
   } /* copyWindow */
 
@@ -1372,11 +1377,46 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
 
 
 
+ static char *getNameFromTitle (const char *winTitle, memSizeType *winNameSize)
+
+  {
+    const char *startPos;
+    memSizeType nameSize;
+    char *winName;
+
+  /* getNameFromTitle */
+    logFunction(printf("getNameFromTitle(\"%s\", *)\n", winTitle););
+    while (*winTitle == '_') {
+      winTitle++;
+    } /* while */
+    startPos = winTitle;
+    while (*winTitle != ' ' && *winTitle != '\0') {
+      winTitle++;
+    } /* while */
+    nameSize = (memSizeType) (winTitle - startPos) + 16;
+    *winNameSize = nameSize;
+    if (unlikely(!ALLOC_CSTRI(winName, nameSize))) {
+      logError(printf("getNameFromTitle(\"%s\"): malloc(" FMT_U_MEM ") failed\n",
+                      winTitle, nameSize););
+    } else {
+      memcpy(winName, startPos, nameSize - 16);
+      sprintf(&winName[nameSize - 16], FMT_X64, uintRand());
+    } /* if */
+    logFunction(printf("getNameFromTitle(\"%s\", " FMT_U_MEM ") --> \"%s\"\n",
+                        winTitle, *winNameSize,
+                        winName == NULL ? "\\ *NULL* \\" : winName););
+    return winName;
+  } /* getNameFromTitle */
+
+
+
 winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType windowName)
 
   {
+    char *winTitle8;
     char *winName8;
+    memSizeType winNameSize;
     int windowIdAndFlags;
     errInfoType err_info = OKAY_NO_ERROR;
     emc_winType result = NULL;
@@ -1394,100 +1434,110 @@ winType drwOpen (intType xPos, intType yPos,
                       striAsUnquotedCStri(windowName)););
       raise_error(RANGE_ERROR);
     } else {
-      winName8 = stri_to_cstri8(windowName, &err_info);
-      if (unlikely(winName8 == NULL)) {
+      winTitle8 = stri_to_cstri8(windowName, &err_info);
+      if (unlikely(winTitle8 == NULL)) {
         logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
                         "err_info=%d\n",
                         striAsUnquotedCStri(windowName), err_info););
         raise_error(err_info);
       } else {
-
-        windowIdAndFlags = EM_ASM_INT({
-          if (typeof window !== "undefined") {
-            let left = $0;
-            let top = $1;
-            let width = $2;
-            let height = $3;
-            let windowName = Module.UTF8ToString($4);
-            let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
-                                 ",left=" + left + ",top=" + top +
-                                 ",width=" + width + ",height=" + height;
-            let windowObject = window.open("", windowName, windowFeatures);
-            if (windowObject === null) {
-              return 0;
-            } else {
-              const title = windowObject.document.createElement("title");
-              const titleText = windowObject.document.createTextNode(windowName);
-              title.appendChild(titleText);
-              windowObject.document.head.appendChild(title);
-              windowObject.document.body.style.margin = 0;
-              windowObject.document.body.style.overflowX = "hidden";
-              windowObject.document.body.style.overflowY = "hidden";
-              currentWindowId++;
-              mapIdToWindow[currentWindowId] = windowObject;
-              mapWindowToId.set(windowObject, currentWindowId);
-              let canvas = windowObject.document.createElement("canvas");
-              let ignoreFirstResize = 0;
-              if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
-                canvas.width  = width ;
-                canvas.height = height;
-                ignoreFirstResize = 1;
-              } else {
-                windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
-                                      height + (windowObject.outerHeight - windowObject.innerHeight));
-                if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
-                  ignoreFirstResize = 2;
-                }
-                windowObject.moveTo(left, top);
-                canvas.width  = windowObject.innerWidth;
-                canvas.height = windowObject.innerHeight;
-              }
-              let context = canvas.getContext("2d");
-              context.fillStyle = "#000000";
-              context.fillRect(0, 0, width, height);
-              windowObject.document.body.appendChild(canvas);
-              mapIdToCanvas[currentWindowId] = canvas;
-              mapCanvasToId.set(canvas, currentWindowId);
-              mapIdToContext[currentWindowId] = context;
-              if (reloadPageFunction === null) {
-                if (typeof windowObject.opener.reloadPage !== "undefined") {
-                  reloadPageFunction = windowObject.opener.reloadPage;
-                }
-              }
-              if (typeof windowObject.opener.registerWindow !== "undefined") {
-                windowObject.opener.registerWindow(windowObject);
-              }
-              return (currentWindowId << 2) | ignoreFirstResize;
-            }
-          } else {
-            return 0;
-          }
-        }, (int) xPos, (int) yPos, (int) width, (int) height, winName8);
-
-        free_cstri8(winName8, windowName);
-        if (unlikely(windowIdAndFlags == 0)) {
-          /* This might be triggered by the error: */
-          /* Opening multiple popups was blocked due to lack of user activation. */
-          result = (emc_winType) openSubstituteWindow(xPos, yPos, width, height);
-        } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
-                                           count.win_bytes))) {
+        winName8 = getNameFromTitle(winTitle8, &winNameSize);
+        if (unlikely(winName8 == NULL)) {
+          logError(printf("drwOpen: getNameFromTitle(\"%s\", *): failed\n",
+                          winTitle8););
+          free_cstri8(winTitle8, windowName);
           raise_error(MEMORY_ERROR);
         } else {
-          memset(result, 0, sizeof(emc_winRecord));
-          result->usage_count = 1;
-          result->window = windowIdAndFlags >> 2;
-          result->is_pixmap = FALSE;
-          result->is_subwindow = FALSE;
-          result->is_substitute = FALSE;
-          result->parentWindow = NULL;
-          result->ignoreFirstResize = windowIdAndFlags & 3;
-          result->creationTimestamp = timMicroSec() / 1000000;
-          result->width = (int) width;
-          result->height = (int) height;
-          maxWindowId = result->window;
-          setupEventCallbacksForWindow(result->window);
-          enter_window((winType) result, result->window);
-          synchronizeTimAwaitWithGraphicKeyboard();
+
+          windowIdAndFlags = EM_ASM_INT({
+            if (typeof window !== "undefined") {
+              let left = $0;
+              let top = $1;
+              let width = $2;
+              let height = $3;
+              let windowName = Module.UTF8ToString($4);
+              let windowTitle = Module.UTF8ToString($5);
+              let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
+                                   ",left=" + left + ",top=" + top +
+                                   ",width=" + width + ",height=" + height;
+              let windowObject = window.open("", windowName, windowFeatures);
+              if (windowObject === null) {
+                return 0;
+              } else {
+                const title = windowObject.document.createElement("title");
+                const titleText = windowObject.document.createTextNode(windowTitle);
+                title.appendChild(titleText);
+                windowObject.document.head.appendChild(title);
+                windowObject.document.body.style.margin = 0;
+                windowObject.document.body.style.overflowX = "hidden";
+                windowObject.document.body.style.overflowY = "hidden";
+                currentWindowId++;
+                mapIdToWindow[currentWindowId] = windowObject;
+                mapWindowToId.set(windowObject, currentWindowId);
+                let canvas = windowObject.document.createElement("canvas");
+                let ignoreFirstResize = 0;
+                if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
+                  canvas.width  = width ;
+                  canvas.height = height;
+                  ignoreFirstResize = 1;
+                } else {
+                  windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
+                                        height + (windowObject.outerHeight - windowObject.innerHeight));
+                  if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
+                    ignoreFirstResize = 2;
+                  }
+                  windowObject.moveTo(left, top);
+                  canvas.width  = windowObject.innerWidth;
+                  canvas.height = windowObject.innerHeight;
+                }
+                let context = canvas.getContext("2d");
+                context.fillStyle = "#000000";
+                context.fillRect(0, 0, width, height);
+                windowObject.document.body.appendChild(canvas);
+                mapIdToCanvas[currentWindowId] = canvas;
+                mapCanvasToId.set(canvas, currentWindowId);
+                mapIdToContext[currentWindowId] = context;
+                if (reloadPageFunction === null) {
+                  if (typeof windowObject.opener.reloadPage !== "undefined") {
+                    reloadPageFunction = windowObject.opener.reloadPage;
+                  }
+                }
+                if (typeof windowObject.opener.registerWindow !== "undefined") {
+                  windowObject.opener.registerWindow(windowObject);
+                }
+                return (currentWindowId << 2) | ignoreFirstResize;
+              }
+            } else {
+              return 0;
+            }
+          }, (int) xPos, (int) yPos, (int) width, (int) height, winName8, winTitle8);
+
+          free_cstri8(winTitle8, windowName);
+          UNALLOC_CSTRI(winName8, winNameSize);
+          if (unlikely(windowIdAndFlags == 0)) {
+            /* This might be triggered by the error: */
+            /* Opening multiple popups was blocked due to lack of user activation. */
+            result = (emc_winType) openSubstituteWindow(xPos, yPos, width, height);
+          } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
+                                             count.win_bytes))) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            memset(result, 0, sizeof(emc_winRecord));
+            result->usage_count = 1;
+            result->window = windowIdAndFlags >> 2;
+            result->is_pixmap = FALSE;
+            result->is_subwindow = FALSE;
+            result->is_substitute = FALSE;
+            result->parentWindow = NULL;
+            result->ignoreFirstResize = windowIdAndFlags & 3;
+            result->creationTimestamp = timMicroSec() / 1000000;
+            result->width = (int) width;
+            result->height = (int) height;
+            maxWindowId = result->window;
+            setupEventCallbacksForWindow(result->window);
+            enter_window((winType) result, result->window);
+            synchronizeTimAwaitWithGraphicKeyboard();
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
