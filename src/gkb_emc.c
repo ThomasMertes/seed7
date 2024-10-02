@@ -1123,7 +1123,6 @@ EMSCRIPTEN_KEEPALIVE int decodeUnloadEvent (int windowId)
   { /* decodeUnloadEvent */
     logFunction(printf("decodeUnloadEvent(%d (closePopupState=%d))\n",
                        windowId, getClosePopupState(windowId)););
-    printf("closePopupState: %d\n", getClosePopupState(windowId));
     if (closePopupActive) {
       switch (getClosePopupState(windowId)) {
         case CLOSE_POPUP_ACTIVE:
