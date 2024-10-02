@@ -1242,8 +1242,9 @@ int copyWindow (int windowId)
           let top = sourceWindow.screenY; // - topBorder;
           let width = $1;
           let height = $2;
-          // The new window name must differ from the original window name.
           let sourceWindowName = sourceWindow.name;
+          let sourceWindowTitle = sourceWindow.document.title;
+          // The new window name must differ from the original window name.
           let windowName = sourceWindowName;
           if (windowName.endsWith("++")) {
             windowName = windowName.substring(0, windowName.length - 2);
@@ -1258,7 +1259,7 @@ int copyWindow (int windowId)
             return 0;
           } else {
             const title = windowObject.document.createElement("title");
-            const titleText = windowObject.document.createTextNode(sourceWindow.document.title);
+            const titleText = windowObject.document.createTextNode(sourceWindowTitle);
             title.appendChild(titleText);
             windowObject.document.head.appendChild(title);
             windowObject.document.body.style.margin = 0;
