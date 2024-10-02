@@ -490,7 +490,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
 (**
  *  Encode a string with the Ascii85 encoding.
  *  Ascii85 encodes a byte string as ASCII string. This is done by
- *  encoded every four bytes with five printable ASCII characters.
+ *  encoding every four bytes with five printable ASCII characters.
  *  Five radix 85 digits provide enough possible values to encode
  *  the possible values of four bytes. The radix 85 digits are encoded
  *  with the characters '!' (encodes 0) through 'u' (encodes 84).
@@ -546,7 +546,7 @@ const func string: toAscii85 (in string: byteStri) is func
  *  Radix 85 characters are between '!' (encodes 0) and 'u' (encodes 84).
  *  The character 'z' is used to encode a block of four zero bytes.
  *  White space in the Ascii85 encoded string is ignored.
- *  The last block is padded to 5 bytes with the Ascii85 character "u",
+ *  The last block is padded to 5 bytes with the Ascii85 character 'u',
  *  and as many bytes as were added as padding are omitted from the
  *  end of the output.
  *  @return the decoded string.
@@ -605,6 +605,7 @@ const func string: toAsciiHex (in string: byteStri) is func
   begin
     while index <= length(byteStri) do
       asciiHex &:= hex(byteStri[index len encodingsPerLine]);
+      asciiHex &:= "\n";
       index +:= encodingsPerLine;
     end while;
     asciiHex &:= endOfData;
