@@ -866,9 +866,13 @@ void drwFree (winType old_window)
           }
           if (typeof mapIdToWindow[$0] !== "undefined") {
             let windowObject = mapIdToWindow[$0];
+            let windowName = windowObject.name;
             mapWindowToId.delete(windowObject);
             mapIdToWindow[$0] = undefined;
             windowObject.close();
+            if (typeof windowObject.opener.deregisterWindow !== "undefined") {
+              windowObject.opener.deregisterWindow(windowObject, windowName);
+            }
           }
         }
       }, to_window(old_window));
