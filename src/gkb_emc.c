@@ -97,11 +97,16 @@
 /* switches the window state from CLOSE_POPUP_DECISION_MADE to         */
 /* NO_CLOSE_POPUP_ACTIVE.                                              */
 /* If the choice was "Leave page" the program is terminated with       */
-/* os_exit().                                                          */
+/* os_exit(). This is done with the exitOrException flag since calling */
+/* os_exit() from an async function triggers an error.                 */
 
-/* This is set if copyWindow() fails. This happens if just one popup */
-/* is allowed. For closedWindowId != 0 a GRAPHIC_ERROR is raised. */
-static int closedWindowId = 0;
+static boolType exitOrException = FALSE;
+
+/* If copyWindow() fails GRAPHIC_ERROR is raised. This happens if just */
+/* one popup is allowed. The exception is raised with the              */
+/* exitOrException flag and emc_err_info since raising an exception    */
+/* from an async function triggers an error.                           */
+errInfoType emc_err_info = OKAY_NO_ERROR;
 
 static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
 static keyQueueType keyQueue = {NULL, NULL};
@@ -1036,7 +1041,8 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId, int eventPhase)
       logMessage(printf("close action: %d\n", getCloseAction(window)););
       switch (getCloseAction(window)) {
         case CLOSE_BUTTON_CLOSES_PROGRAM:
-          os_exit(0);
+          exitOrException = TRUE;
+          emc_err_info = OKAY_NO_ERROR;
           break;
         case CLOSE_BUTTON_RETURNS_KEY:
           closePopupActive = TRUE;
@@ -1049,7 +1055,8 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId, int eventPhase)
         case CLOSE_BUTTON_RAISES_EXCEPTION:
           closePopupActive = TRUE;
           setClosePopupState(windowId, CLOSE_POPUP_ACTIVE);
-          raise_error(GRAPHIC_ERROR);
+          exitOrException = TRUE;
+          emc_err_info = GRAPHIC_ERROR;
 #if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
           result = K_CLOSE;
 #endif
@@ -1073,7 +1080,8 @@ EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
                        windowId, getClosePopupState(windowId)););
     if (closePopupActive) {
       if (leavePageWasPressed()) {
-        os_exit(0);
+        exitOrException = TRUE;
+        emc_err_info = OKAY_NO_ERROR;
       } /* if */
       if (getClosePopupState(windowId) == CLOSE_POPUP_ACTIVE) {
         setClosePopupState(windowId, CLOSE_POPUP_DECISION_MADE);
@@ -1105,7 +1113,8 @@ EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
           /* In this case a copied window replaces the closing window. */
           newWindowId = copyWindow(windowId);
           if (newWindowId == 0) {
-            closedWindowId = windowId;
+            exitOrException = TRUE;
+            emc_err_info = GRAPHIC_ERROR;
           } else {
             lastKey.buttonWindow = newWindowId;
             windowId = newWindowId;
@@ -1115,7 +1124,8 @@ EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
 #endif
           break;
         case CLOSE_POPUP_DECISION_MADE:
-          os_exit(0);
+          exitOrException = TRUE;
+          emc_err_info = OKAY_NO_ERROR;
           break;
       } /* switch */
     } /* if */
@@ -1137,7 +1147,8 @@ EMSCRIPTEN_KEEPALIVE int decodeUnloadEvent (int windowId)
           /* There is no popup and the window is closed directly. */
           break;
         case CLOSE_POPUP_DECISION_MADE:
-          os_exit(0);
+          exitOrException = TRUE;
+          emc_err_info = OKAY_NO_ERROR;
           break;
       } /* switch */
     } /* if */
@@ -1290,11 +1301,15 @@ charType gkbGetc (void)
         setupEventPromises();
         result = (charType) asyncGkbdGetc();
         freeEventPromises();
-      } while (result == K_NONE);
+      } while (result == K_NONE && !exitOrException);
     } /* if */
-    if (unlikely(closedWindowId != 0)) {
-      closedWindowId = 0;
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(exitOrException)) {
+      if (emc_err_info == OKAY_NO_ERROR) {
+        os_exit(0);
+      } else {
+        exitOrException = FALSE;
+        raise_error(emc_err_info);
+      } /* if */
     } /* if */
     logFunction(printf("gkbGetc --> %d\n", result););
     return result;
@@ -1317,9 +1332,13 @@ static charType waitOrGetc (int milliSec)
     }, K_NONE,  milliSec);
     result = (charType) asyncGkbdGetc();
     freeEventPromises();
-    if (unlikely(closedWindowId != 0)) {
-      closedWindowId = 0;
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(exitOrException)) {
+      if (emc_err_info == OKAY_NO_ERROR) {
+        os_exit(0);
+      } else {
+        exitOrException = FALSE;
+        raise_error(emc_err_info);
+      } /* if */
     } /* if */
     logFunction(printf("waitOrGetc --> %d\n", result););
     return result;
