@@ -34,6 +34,7 @@ var mapIdToCanvas = {};
 var mapIdToContext = {};
 var currentWindowId = 0;
 var reloadPageFunction = null;
+var deregisterWindowFunction = null;
 var callbackList = [];
 function registerCallback (callback) {
     // console.log("register callback " + callbackList.length.toString());

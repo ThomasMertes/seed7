@@ -868,10 +868,8 @@ void drwFree (winType old_window)
             let windowObject = mapIdToWindow[$0];
             mapWindowToId.delete(windowObject);
             mapIdToWindow[$0] = undefined;
-            if (typeof windowObject.opener !== "undefined" &&
-                windowObject.opener !== null &&
-                typeof windowObject.opener.deregisterWindow !== "undefined") {
-              windowObject.opener.deregisterWindow(windowObject);
+            if (deregisterWindowFunction !== null) {
+              deregisterWindowFunction(windowObject);
             }
             windowObject.close();
           }
@@ -1248,10 +1246,8 @@ int copyWindow (int windowId)
           let height = $2;
           let sourceWindowTitle = sourceWindow.document.title;
           // The source window will be closed and nothing can stop this.
-          if (typeof sourceWindow.opener !== "undefined" &&
-              sourceWindow.opener !== null &&
-              typeof sourceWindow.opener.deregisterWindow !== "undefined") {
-            sourceWindow.opener.deregisterWindow(sourceWindow);
+          if (deregisterWindowFunction !== null) {
+            deregisterWindowFunction(sourceWindow);
           }
           // The new window name must differ from the original window name.
           let windowName = sourceWindow.name;
@@ -1506,6 +1502,11 @@ winType drwOpen (intType xPos, intType yPos,
                 if (reloadPageFunction === null) {
                   if (typeof windowObject.opener.reloadPage !== "undefined") {
                     reloadPageFunction = windowObject.opener.reloadPage;
+                  }
+                }
+                if (deregisterWindowFunction === null) {
+                  if (typeof windowObject.opener.deregisterWindow !== "undefined") {
+                    deregisterWindowFunction = windowObject.opener.deregisterWindow;
                   }
                 }
                 if (typeof windowObject.opener.registerWindow !== "undefined") {
