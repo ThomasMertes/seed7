@@ -99,6 +99,10 @@
 /* If the choice was "Leave page" the program is terminated with       */
 /* os_exit().                                                          */
 
+/* This is set if copyWindow() fails. This happens if just one popup */
+/* is allowed. For closedWindowId != 0 a GRAPHIC_ERROR is raised. */
+static int closedWindowId = 0;
+
 static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
 static keyQueueType keyQueue = {NULL, NULL};
 
@@ -1088,6 +1092,7 @@ EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
 EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
 
   {
+    int newWindowId;
     int result = K_NONE;
 
   /* decodeVisibilitychange */
@@ -1098,9 +1103,12 @@ EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
         case CLOSE_POPUP_ACTIVE:
           /* There is no popup and the window is closed directly.      */
           /* In this case a copied window replaces the closing window. */
-          windowId = copyWindow(windowId);
-          if (windowId != 0) {
-            lastKey.buttonWindow = windowId;
+          newWindowId = copyWindow(windowId);
+          if (newWindowId == 0) {
+            closedWindowId = windowId;
+          } else {
+            lastKey.buttonWindow = newWindowId;
+            windowId = newWindowId;
           } /* if */
 #if MOMENT_TO_SEND_KEY_CLOSE == AFTER_CONFIRMATION
           result = K_CLOSE;
@@ -1284,6 +1292,10 @@ charType gkbGetc (void)
         freeEventPromises();
       } while (result == K_NONE);
     } /* if */
+    if (unlikely(closedWindowId != 0)) {
+      closedWindowId = 0;
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
     logFunction(printf("gkbGetc --> %d\n", result););
     return result;
   } /* gkbGetc */
@@ -1305,6 +1317,10 @@ static charType waitOrGetc (int milliSec)
     }, K_NONE,  milliSec);
     result = (charType) asyncGkbdGetc();
     freeEventPromises();
+    if (unlikely(closedWindowId != 0)) {
+      closedWindowId = 0;
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
     logFunction(printf("waitOrGetc --> %d\n", result););
     return result;
   } /* waitOrGetc */

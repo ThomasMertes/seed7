@@ -866,13 +866,12 @@ void drwFree (winType old_window)
           }
           if (typeof mapIdToWindow[$0] !== "undefined") {
             let windowObject = mapIdToWindow[$0];
-            let windowName = windowObject.name;
             mapWindowToId.delete(windowObject);
             mapIdToWindow[$0] = undefined;
-            windowObject.close();
             if (typeof windowObject.opener.deregisterWindow !== "undefined") {
-              windowObject.opener.deregisterWindow(windowObject, windowName);
+              windowObject.opener.deregisterWindow(windowObject);
             }
+            windowObject.close();
           }
         }
       }, to_window(old_window));
@@ -1233,7 +1232,6 @@ int copyWindow (int windowId)
     if (unlikely(aWindow == NULL)) {
       logError(printf("copyWindow(%d): Cannot find old window.\n",
                       windowId););
-      raise_error(GRAPHIC_ERROR);
     } else {
       windowIdAndFlags = EM_ASM_INT({
         if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined" &&
@@ -1246,10 +1244,13 @@ int copyWindow (int windowId)
           let top = sourceWindow.screenY; // - topBorder;
           let width = $1;
           let height = $2;
-          let sourceWindowName = sourceWindow.name;
           let sourceWindowTitle = sourceWindow.document.title;
+          // The source window will be closed and nothing can stop this.
+          if (typeof sourceWindow.opener.deregisterWindow !== "undefined") {
+            sourceWindow.opener.deregisterWindow(sourceWindow);
+          }
           // The new window name must differ from the original window name.
-          let windowName = sourceWindowName;
+          let windowName = sourceWindow.name;
           if (windowName.endsWith("++")) {
             windowName = windowName.substring(0, windowName.length - 2);
           } else {
@@ -1298,9 +1299,6 @@ int copyWindow (int windowId)
             if (typeof windowObject.opener.registerWindow !== "undefined") {
               windowObject.opener.registerWindow(windowObject);
             }
-            if (typeof windowObject.opener.deregisterWindow !== "undefined") {
-              windowObject.opener.deregisterWindow(sourceWindow, sourceWindowName);
-            }
             return (currentWindowId << 2) | ignoreFirstResize;
           }
         } else {
@@ -1310,7 +1308,6 @@ int copyWindow (int windowId)
       if (unlikely(windowIdAndFlags == 0)) {
         logError(printf("copyWindow(%d): Failed to open window.\n",
                         windowId););
-        raise_error(GRAPHIC_ERROR);
         aWindow = NULL;
       } else {
         aWindow->window = windowIdAndFlags >> 2;
