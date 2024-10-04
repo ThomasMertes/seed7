@@ -104,6 +104,7 @@ typedef const emc_winRecord *const_emc_winType;
 
 int maxWindowId = 0;
 static winType emptyWindow;
+static boolType openSubstitute = FALSE;
 
 
 winType find_window (int windowId);
@@ -1416,8 +1417,8 @@ winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType windowName)
 
   {
-    char *winTitle8;
-    char *winName8;
+    char *winTitle8 = NULL;
+    char *winName8 = NULL;
     memSizeType winNameSize;
     int windowIdAndFlags;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1434,119 +1435,163 @@ winType drwOpen (intType xPos, intType yPos,
                       ", \"%s\"): Illegal window dimensions\n",
                       xPos, yPos, width, height,
                       striAsUnquotedCStri(windowName)););
-      raise_error(RANGE_ERROR);
+      err_info = RANGE_ERROR;
     } else {
       winTitle8 = stri_to_cstri8(windowName, &err_info);
       if (unlikely(winTitle8 == NULL)) {
         logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
                         "err_info=%d\n",
                         striAsUnquotedCStri(windowName), err_info););
-        raise_error(err_info);
       } else {
         winName8 = getNameFromTitle(winTitle8, &winNameSize);
         if (unlikely(winName8 == NULL)) {
           logError(printf("drwOpen: getNameFromTitle(\"%s\", *): failed\n",
                           winTitle8););
-          free_cstri8(winTitle8, windowName);
-          raise_error(MEMORY_ERROR);
-        } else {
-
-          windowIdAndFlags = EM_ASM_INT({
-            if (typeof window !== "undefined") {
-              let left = $0;
-              let top = $1;
-              let width = $2;
-              let height = $3;
-              let windowName = Module.UTF8ToString($4);
-              let windowTitle = Module.UTF8ToString($5);
-              let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
-                                   ",left=" + left + ",top=" + top +
-                                   ",width=" + width + ",height=" + height;
-              let windowObject = window.open("", windowName, windowFeatures);
-              if (windowObject === null) {
-                return 0;
-              } else {
-                const title = windowObject.document.createElement("title");
-                const titleText = windowObject.document.createTextNode(windowTitle);
-                title.appendChild(titleText);
-                windowObject.document.head.appendChild(title);
-                windowObject.document.body.style.margin = 0;
-                windowObject.document.body.style.overflowX = "hidden";
-                windowObject.document.body.style.overflowY = "hidden";
-                currentWindowId++;
-                mapIdToWindow[currentWindowId] = windowObject;
-                mapWindowToId.set(windowObject, currentWindowId);
-                let canvas = windowObject.document.createElement("canvas");
-                let ignoreFirstResize = 0;
-                if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
-                  canvas.width  = width ;
-                  canvas.height = height;
-                  ignoreFirstResize = 1;
-                } else {
-                  windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
-                                        height + (windowObject.outerHeight - windowObject.innerHeight));
-                  if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
-                    ignoreFirstResize = 2;
-                  }
-                  windowObject.moveTo(left, top);
-                  canvas.width  = windowObject.innerWidth;
-                  canvas.height = windowObject.innerHeight;
-                }
-                let context = canvas.getContext("2d");
-                context.fillStyle = "#000000";
-                context.fillRect(0, 0, width, height);
-                windowObject.document.body.appendChild(canvas);
-                mapIdToCanvas[currentWindowId] = canvas;
-                mapCanvasToId.set(canvas, currentWindowId);
-                mapIdToContext[currentWindowId] = context;
-                if (reloadPageFunction === null) {
-                  if (typeof windowObject.opener.reloadPage !== "undefined") {
-                    reloadPageFunction = windowObject.opener.reloadPage;
-                  }
-                }
-                if (deregisterWindowFunction === null) {
-                  if (typeof windowObject.opener.deregisterWindow !== "undefined") {
-                    deregisterWindowFunction = windowObject.opener.deregisterWindow;
-                  }
-                }
-                if (typeof windowObject.opener.registerWindow !== "undefined") {
-                  windowObject.opener.registerWindow(windowObject);
-                }
-                return (currentWindowId << 2) | ignoreFirstResize;
-              }
-            } else {
-              return 0;
-            }
-          }, (int) xPos, (int) yPos, (int) width, (int) height, winName8, winTitle8);
-
-          free_cstri8(winTitle8, windowName);
-          UNALLOC_CSTRI(winName8, winNameSize);
-          if (unlikely(windowIdAndFlags == 0)) {
-            /* This might be triggered by the error: */
-            /* Opening multiple popups was blocked due to lack of user activation. */
-            result = (emc_winType) openSubstituteWindow(xPos, yPos, width, height);
-          } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
-                                             count.win_bytes))) {
-            raise_error(MEMORY_ERROR);
-          } else {
-            memset(result, 0, sizeof(emc_winRecord));
-            result->usage_count = 1;
-            result->window = windowIdAndFlags >> 2;
-            result->is_pixmap = FALSE;
-            result->is_subwindow = FALSE;
-            result->is_substitute = FALSE;
-            result->parentWindow = NULL;
-            result->ignoreFirstResize = windowIdAndFlags & 3;
-            result->creationTimestamp = timMicroSec() / 1000000;
-            result->width = (int) width;
-            result->height = (int) height;
-            maxWindowId = result->window;
-            setupEventCallbacksForWindow(result->window);
-            enter_window((winType) result, result->window);
-            synchronizeTimAwaitWithGraphicKeyboard();
-          } /* if */
+          err_info = MEMORY_ERROR;
         } /* if */
       } /* if */
+    } /* if */
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      if (openSubstitute) {
+        windowIdAndFlags = 0;
+      } else {
+
+        windowIdAndFlags = EM_ASM_INT({
+          if (typeof window !== "undefined") {
+            let left = $0;
+            let top = $1;
+            let width = $2;
+            let height = $3;
+            let windowName = Module.UTF8ToString($4);
+            let windowTitle = Module.UTF8ToString($5);
+            let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
+                                 ",left=" + left + ",top=" + top +
+                                 ",width=" + width + ",height=" + height;
+            let windowObject = window.open("", windowName, windowFeatures);
+            if (windowObject !== null) {
+              if (windowObject.toolbar.visible || windowObject.menubar.visible ||
+                  windowObject.statusbar.visible) {
+                windowObject.close();
+                windowObject = null;
+              }
+            }
+            if (windowObject === null) {
+              currentWindowId++;
+              mapIdToWindow[currentWindowId] = document;
+              mapWindowToId.set(null, currentWindowId);
+              let canvas = document.createElement("canvas");
+              let ignoreFirstResize = 0;
+              canvas.width  = width ;
+              canvas.height = height;
+              let context = canvas.getContext("2d");
+              context.fillStyle = "#000000";
+              context.fillRect(0, 0, width, height);
+              document.getElementsByTagName('body')[0].innerHTML = "";
+              document.body.appendChild(canvas);
+              mapIdToCanvas[currentWindowId] = canvas;
+              mapCanvasToId.set(canvas, currentWindowId);
+              mapIdToContext[currentWindowId] = context;
+              let script = document.createElement("script");
+              script.setAttribute("type", "text/javascript");
+              script.text = "function reloadPage() {\n" +
+                            "    setTimeout(function() {\n" +
+                            "        location.reload();\n" +
+                            "    }, 1000);\n" +
+                            "}\n";
+              document.body.appendChild(script);
+              if (reloadPageFunction === null) {
+                  reloadPageFunction = reloadPage;
+              }
+              return (currentWindowId << 3) | ignoreFirstResize | 4;
+            } else {
+              const title = windowObject.document.createElement("title");
+              const titleText = windowObject.document.createTextNode(windowTitle);
+              title.appendChild(titleText);
+              windowObject.document.head.appendChild(title);
+              windowObject.document.body.style.margin = 0;
+              windowObject.document.body.style.overflowX = "hidden";
+              windowObject.document.body.style.overflowY = "hidden";
+              currentWindowId++;
+              mapIdToWindow[currentWindowId] = windowObject;
+              mapWindowToId.set(windowObject, currentWindowId);
+              let canvas = windowObject.document.createElement("canvas");
+              let ignoreFirstResize = 0;
+              if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
+                canvas.width  = width ;
+                canvas.height = height;
+                ignoreFirstResize = 1;
+              } else {
+                windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
+                                      height + (windowObject.outerHeight - windowObject.innerHeight));
+                if (windowObject.screenLeft === 0 && windowObject.screenTop === 0) {
+                  ignoreFirstResize = 2;
+                }
+                windowObject.moveTo(left, top);
+                canvas.width  = windowObject.innerWidth;
+                canvas.height = windowObject.innerHeight;
+              }
+              let context = canvas.getContext("2d");
+              context.fillStyle = "#000000";
+              context.fillRect(0, 0, width, height);
+              windowObject.document.body.appendChild(canvas);
+              mapIdToCanvas[currentWindowId] = canvas;
+              mapCanvasToId.set(canvas, currentWindowId);
+              mapIdToContext[currentWindowId] = context;
+              if (reloadPageFunction === null) {
+                if (typeof windowObject.opener.reloadPage !== "undefined") {
+                  reloadPageFunction = windowObject.opener.reloadPage;
+                }
+              }
+              if (deregisterWindowFunction === null) {
+                if (typeof windowObject.opener.deregisterWindow !== "undefined") {
+                  deregisterWindowFunction = windowObject.opener.deregisterWindow;
+                }
+              }
+              if (typeof windowObject.opener.registerWindow !== "undefined") {
+                windowObject.opener.registerWindow(windowObject);
+              }
+              return (currentWindowId << 3) | ignoreFirstResize;
+            }
+          } else {
+            return 0;
+          }
+        }, (int) xPos, (int) yPos, (int) width, (int) height, winName8, winTitle8);
+
+      } /* if */
+      if (unlikely(windowIdAndFlags == 0)) {
+        /* This might be triggered by the error: */
+        /* Opening multiple popups was blocked due to lack of user activation. */
+        result = (emc_winType) openSubstituteWindow(xPos, yPos, width, height);
+      } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
+                                         count.win_bytes))) {
+        err_info = MEMORY_ERROR;
+      } else {
+        memset(result, 0, sizeof(emc_winRecord));
+        result->usage_count = 1;
+        result->window = windowIdAndFlags >> 3;
+        result->is_pixmap = FALSE;
+        result->is_subwindow = FALSE;
+        result->is_substitute = FALSE;
+        result->parentWindow = NULL;
+        result->ignoreFirstResize = windowIdAndFlags & 3;
+        result->creationTimestamp = timMicroSec() / 1000000;
+        result->width = (int) width;
+        result->height = (int) height;
+        openSubstitute = (windowIdAndFlags & 4) != 0;
+        maxWindowId = result->window;
+        setupEventCallbacksForWindow(result->window);
+        enter_window((winType) result, result->window);
+        synchronizeTimAwaitWithGraphicKeyboard();
+      } /* if */
+    } /* if */
+    if (winTitle8 != NULL) {
+      free_cstri8(winTitle8, windowName);
+    } /* if */
+    if (winName8 != NULL) {
+      UNALLOC_CSTRI(winName8, winNameSize);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunction(printf("drwOpen --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) result,
@@ -1606,14 +1651,23 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           let top = $2;
           let width = $3;
           let height = $4;
-          let canvas = windowObject.document.createElement("canvas");
+          let canvas = null;
+          if (typeof windowObject.document !== "undefined") {
+            canvas = windowObject.document.createElement("canvas");
+          } else {
+            canvas = windowObject.createElement("canvas");
+          }
           canvas.width = width;
           canvas.height = height;
-          canvas.style.left = left;
-          canvas.style.top = top;
           canvas.style.position = "absolute";
+          canvas.style.left = left + "px";
+          canvas.style.top = top + "px";
           let context = canvas.getContext("2d");
-          windowObject.document.body.appendChild(canvas);
+          if (typeof windowObject.document !== "undefined") {
+            windowObject.document.body.appendChild(canvas);
+          } else {
+            windowObject.body.appendChild(canvas);
+          }
           currentWindowId++;
           mapIdToCanvas[currentWindowId] = canvas;
           mapCanvasToId.set(canvas, currentWindowId);
@@ -2156,8 +2210,8 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
         successInfo = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
             let canvas = mapIdToCanvas[$0];
-            canvas.style.left = $1;
-            canvas.style.top = $2;
+            canvas.style.left = $1 + "px";
+            canvas.style.top = $2 + "px";
             return 0;
           } else {
             return 1;
