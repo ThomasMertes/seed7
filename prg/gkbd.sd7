@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "keydescr.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "pic32.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "console.s7i";
@@ -36,6 +37,11 @@ $ include "seed7_05.s7i";
 
 
 const integer: xSpeed is 1;
+
+const integer: EXIT_BUTTON_XPOS is 598;
+const integer: EXIT_BUTTON_YPOS is 10;
+
+const PRIMITIVE_WINDOW: exitPixmap is createPixmap(exit_pic, 1, black);
 
 const array [boolean] color: buttonColor is [boolean] (light_blue, light_red);
 
@@ -67,9 +73,9 @@ const proc: displayKey (in char: ch, in boolean: keyActive) is func
       when {KEY_CONTROL}:        rect( 30, 250, 10, 10, keyColor);
       when {KEY_SUPER}:          rect( 50, 250, 10, 10, keyColor);
       when {KEY_ALT}:            rect( 70, 250, 10, 10, keyColor);
-      when {KEY_NUM_LOCK_ON}:    rect(580,  30, 10, 10, keyColor);
-      when {KEY_SHIFT_LOCK_ON}:  rect(600,  30, 10, 10, keyColor);
-      when {KEY_SCROLL_LOCK_ON}: rect(620,  30, 10, 10, keyColor);
+      when {KEY_NUM_LOCK_ON}:    rect(580,  60, 10, 10, keyColor);
+      when {KEY_SHIFT_LOCK_ON}:  rect(600,  60, 10, 10, keyColor);
+      when {KEY_SCROLL_LOCK_ON}: rect(620,  60, 10, 10, keyColor);
 
       when {KEY_ESC}:            rect( 10,  50, 20, 20, keyColor);
       when {KEY_F1}:             rect( 70,  50, 20, 20, keyColor);
@@ -200,6 +206,7 @@ const proc: main is func
     logFile := STD_CONSOLE;
     OUT := openTee(OUT, logFile);
     KEYBOARD := GRAPH_KEYBOARD;
+    put(curr_win, EXIT_BUTTON_XPOS, EXIT_BUTTON_YPOS, exitPixmap);
     flushGraphic;
     repeat
       waitTime := time(NOW) + 30000 . MICRO_SECONDS;
@@ -319,7 +326,7 @@ const proc: main is func
       checkKey(keyActive, KEY_MOUSE2);
       checkKey(keyActive, KEY_MOUSE3);
 
-      if xPos > 620 then
+      if xPos > 578 then
         xIncr := -xSpeed;
       elsif xPos < 10 then
         xIncr := xSpeed;
@@ -332,6 +339,14 @@ const proc: main is func
       xPos +:= xIncr;
       rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, ch)]);
       flushGraphic;
-      await(waitTime);
+      if ch = KEY_MOUSE1 and
+          clickedXPos(KEYBOARD) >= EXIT_BUTTON_XPOS and
+          clickedXPos(KEYBOARD) <= EXIT_BUTTON_XPOS + width(exitPixmap) and
+          clickedYPos(KEYBOARD) >= EXIT_BUTTON_YPOS and
+          clickedYPos(KEYBOARD) <= EXIT_BUTTON_YPOS + height(exitPixmap) then
+        ch := '!';
+      else
+        await(waitTime);
+      end if;
     until ch = '!';
   end func;
