@@ -1470,8 +1470,9 @@ winType drwOpen (intType xPos, intType yPos,
                                  ",left=" + left + ",top=" + top +
                                  ",width=" + width + ",height=" + height;
             let windowObject = window.open("", windowName, windowFeatures);
-            if (windowObject !== null) {
-              if (windowObject.toolbar.visible ||
+            if (windowObject !== null && firstWindowOpen) {
+              if (!document.hasFocus() ||
+                  windowObject.toolbar.visible ||
                   windowObject.menubar.visible ||
                   windowObject.statusbar.visible ||
                   (windowObject.innerWidth !== 0 && windowObject.innerWidth !== width) ||
@@ -2390,6 +2391,11 @@ void drwToTop (const_winType actual_window)
           let windowObject = mapIdToWindow[$0];
           if (typeof windowObject.focus !== "undefined") {
             windowObject.focus();
+          } else {
+            let canvas = mapIdToCanvas[$0];
+            if (typeof canvas.focus !== "undefined") {
+              canvas.focus();
+            }
           }
         }
       }, to_window(actual_window));
