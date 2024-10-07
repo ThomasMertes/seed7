@@ -339,12 +339,16 @@ const proc: main is func
       xPos +:= xIncr;
       rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, ch)]);
       flushGraphic;
-      if ch = KEY_MOUSE1 and
-          clickedXPos(KEYBOARD) >= EXIT_BUTTON_XPOS and
-          clickedXPos(KEYBOARD) <= EXIT_BUTTON_XPOS + width(exitPixmap) and
-          clickedYPos(KEYBOARD) >= EXIT_BUTTON_YPOS and
-          clickedYPos(KEYBOARD) <= EXIT_BUTTON_YPOS + height(exitPixmap) then
-        ch := '!';
+      if ch = KEY_MOUSE1 then
+        if  clickedXPos(KEYBOARD) >= EXIT_BUTTON_XPOS and
+            clickedXPos(KEYBOARD) <= EXIT_BUTTON_XPOS + width(exitPixmap) and
+            clickedYPos(KEYBOARD) >= EXIT_BUTTON_YPOS and
+            clickedYPos(KEYBOARD) <= EXIT_BUTTON_YPOS + height(exitPixmap) then
+          ch := '!';
+        else
+          ch := KEY_NONE;
+          await(waitTime);
+        end if;
       else
         await(waitTime);
       end if;
