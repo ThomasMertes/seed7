@@ -64,6 +64,7 @@ typedef struct {
     boolType is_pixmap;
     boolType is_subwindow;
     boolType is_substitute;
+    boolType is_tab;
     const_winType parentWindow;
     int ignoreFirstResize;
     intType creationTimestamp;
@@ -80,6 +81,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define is_pixmap(win)            (((const_emc_winType) (win))->is_pixmap)
 #define is_subwindow(win)         (((const_emc_winType) (win))->is_subwindow)
 #define is_substitute(win)        (((const_emc_winType) (win))->is_substitute)
+#define is_tab(win)               (((const_emc_winType) (win))->is_tab)
 #define to_parentWindow(win)      (((const_emc_winType) (win))->parentWindow)
 #define to_ignoreFirstResize(win) (((const_emc_winType) (win))->ignoreFirstResize)
 #define to_creationTimestamp(win) (((const_emc_winType) (win))->creationTimestamp)
@@ -93,6 +95,7 @@ typedef const emc_winRecord *const_emc_winType;
 #define is_var_pixmap(win)            (((emc_winType) (win))->is_pixmap)
 #define is_var_subwindow(win)         (((emc_winType) (win))->is_subwindow)
 #define is_var_substitute(win)        (((emc_winType) (win))->is_substitute)
+#define is_var_tab(win)               (((emc_winType) (win))->is_tab)
 #define to_var_parentWindow(win)      (((emc_winType) (win))->parentWindow)
 #define to_var_ignoreFirstResize(win) (((emc_winType) (win))->ignoreFirstResize)
 #define to_var_creationTimestamp(win) (((emc_winType) (win))->creationTimestamp)
@@ -274,6 +277,7 @@ winType generateEmptyWindow (void)
       newWindow->is_pixmap = TRUE;
       newWindow->is_subwindow = FALSE;
       newWindow->is_substitute = FALSE;
+      newWindow->is_tab = FALSE;
       newWindow->parentWindow = NULL;
       newWindow->ignoreFirstResize = 0;
       newWindow->creationTimestamp = 0;
@@ -1002,6 +1006,7 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
         pixmap->is_substitute = FALSE;
+        pixmap->is_tab = FALSE;
         pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
@@ -1102,6 +1107,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
         pixmap->is_substitute = FALSE;
+        pixmap->is_tab = FALSE;
         pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
@@ -1206,6 +1212,7 @@ winType drwNewPixmap (intType width, intType height)
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
         pixmap->is_substitute = FALSE;
+        pixmap->is_tab = FALSE;
         pixmap->parentWindow = NULL;
         pixmap->ignoreFirstResize = 0;
         pixmap->creationTimestamp = 0;
@@ -1584,12 +1591,13 @@ winType drwOpen (intType xPos, intType yPos,
         result->is_pixmap = FALSE;
         result->is_subwindow = FALSE;
         result->is_substitute = FALSE;
+        result->is_tab = (windowIdAndFlags & 4) != 0;
         result->parentWindow = NULL;
         result->ignoreFirstResize = windowIdAndFlags & 3;
         result->creationTimestamp = timMicroSec() / 1000000;
         result->width = (int) width;
         result->height = (int) height;
-        openSubstitute = (windowIdAndFlags & 4) != 0;
+        openSubstitute = result->is_tab;
         maxWindowId = result->window;
         setupEventCallbacksForWindow(result->window);
         enter_window((winType) result, result->window);
@@ -1702,6 +1710,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         result->is_pixmap = FALSE;
         result->is_subwindow = TRUE;
         result->is_substitute = FALSE;
+        result->is_tab = FALSE;
         result->parentWindow = parent_window;
         result->ignoreFirstResize = 0;
         result->creationTimestamp = 0;
@@ -2544,7 +2553,7 @@ intType drwYPos (const_winType actual_window)
 
 
 
-intType clickedWindowLeftPos (winType aWindow)
+intType clickedWindowLeftPos (const const_winType aWindow)
 
   {
     int xPos;
@@ -2555,6 +2564,14 @@ intType clickedWindowLeftPos (winType aWindow)
     if (is_pixmap(aWindow)) {
       raise_error(RANGE_ERROR);
       xPos = 0;
+    } else if (is_tab(aWindow)) {
+      xPos = EM_ASM_INT({
+        if (typeof document.scrollingElement != "undefined") {
+          return -document.scrollingElement.scrollLeft;
+        } else {
+          return 0;
+        }
+      });
     } else if (is_subwindow(aWindow)) {
       xPos = EM_ASM_INT({
         if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
@@ -2573,6 +2590,8 @@ intType clickedWindowLeftPos (winType aWindow)
                         (memSizeType) aWindow, to_window(aWindow)););
         raise_error(GRAPHIC_ERROR);
         xPos = 0;
+      } else  {
+        xPos += clickedWindowLeftPos(to_parentWindow(aWindow));
       } /* if */
     } else {
       xPos = 0;
@@ -2584,7 +2603,7 @@ intType clickedWindowLeftPos (winType aWindow)
 
 
 
-intType clickedWindowTopPos (winType aWindow)
+intType clickedWindowTopPos (const const_winType aWindow)
 
   {
     int yPos;
@@ -2595,6 +2614,14 @@ intType clickedWindowTopPos (winType aWindow)
     if (is_pixmap(aWindow)) {
       raise_error(RANGE_ERROR);
       yPos = 0;
+    } else if (is_tab(aWindow)) {
+      yPos = EM_ASM_INT({
+        if (typeof document.scrollingElement != "undefined") {
+          return -document.scrollingElement.scrollTop;
+        } else {
+          return 0;
+        }
+      });
     } else if (is_subwindow(aWindow)) {
       yPos = EM_ASM_INT({
         if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
@@ -2613,6 +2640,8 @@ intType clickedWindowTopPos (winType aWindow)
                         (memSizeType) aWindow, to_window(aWindow)););
         raise_error(GRAPHIC_ERROR);
         yPos = 0;
+      } else  {
+        yPos += clickedWindowTopPos(to_parentWindow(aWindow));
       } /* if */
     } else {
       yPos = 0;

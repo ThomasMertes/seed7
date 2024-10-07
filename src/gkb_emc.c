@@ -162,8 +162,8 @@ extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern boolType windowExists (int windowId);
 extern int copyWindow (int windowId);
-extern intType clickedWindowLeftPos (winType aWindow);
-extern intType clickedWindowTopPos (winType aWindow);
+extern intType clickedWindowLeftPos (const const_winType aWindow);
+extern intType clickedWindowTopPos (const const_winType aWindow);
 extern int maxWindowId;
 
 
