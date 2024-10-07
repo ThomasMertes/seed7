@@ -329,22 +329,134 @@ void drawInit (void)
 
 
 
+intType getWindowLeftPos (const const_winType aWindow)
+
+  {
+    int xPos;
+
+  /* getWindowLeftPos */
+    logFunction(printf("getWindowLeftPos(" FMT_U_MEM ")\n",
+                       (memSizeType) aWindow););
+    if (is_pixmap(aWindow)) {
+      raise_error(RANGE_ERROR);
+      xPos = 0;
+    } else if (is_tab(aWindow)) {
+      xPos = EM_ASM_INT({
+        if (typeof document.scrollingElement != "undefined") {
+          return -document.scrollingElement.scrollLeft;
+        } else {
+          return 0;
+        }
+      });
+    } else if (is_subwindow(aWindow)) {
+      xPos = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+          let left = mapIdToCanvas[$0].style.left;
+          if (left.endsWith("px")) {
+            return left.substring(0, left.length - 2);
+          } else {
+            return left;
+          }
+        } else {
+          return -2147483648;
+        }
+      }, to_window(aWindow));
+      if (unlikely(xPos == -2147483648)) {
+        logError(printf("getWindowLeftPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) aWindow, to_window(aWindow)););
+        raise_error(GRAPHIC_ERROR);
+        xPos = 0;
+      } else  {
+        xPos += getWindowLeftPos(to_parentWindow(aWindow));
+      } /* if */
+    } else {
+      xPos = 0;
+    } /* if */
+    logFunction(printf("getWindowLeftPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) aWindow, xPos););
+    return (intType) xPos;
+  } /* getWindowLeftPos */
+
+
+
+intType getWindowTopPos (const const_winType aWindow)
+
+  {
+    int yPos;
+
+  /* getWindowTopPos */
+    logFunction(printf("getWindowTopPos(" FMT_U_MEM ")\n",
+                       (memSizeType) aWindow););
+    if (is_pixmap(aWindow)) {
+      raise_error(RANGE_ERROR);
+      yPos = 0;
+    } else if (is_tab(aWindow)) {
+      yPos = EM_ASM_INT({
+        if (typeof document.scrollingElement != "undefined") {
+          return -document.scrollingElement.scrollTop;
+        } else {
+          return 0;
+        }
+      });
+    } else if (is_subwindow(aWindow)) {
+      yPos = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+          let top = mapIdToCanvas[$0].style.top;
+          if (top.endsWith("px")) {
+            return top.substring(0, top.length - 2);
+          } else {
+            return top;
+          }
+        } else {
+          return -2147483648;
+        }
+      }, to_window(aWindow));
+      if (unlikely(yPos == -2147483648)) {
+        logError(printf("getWindowTopPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) aWindow, to_window(aWindow)););
+        raise_error(GRAPHIC_ERROR);
+        yPos = 0;
+      } else  {
+        yPos += getWindowTopPos(to_parentWindow(aWindow));
+      } /* if */
+    } else {
+      yPos = 0;
+    } /* if */
+    logFunction(printf("getWindowTopPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) aWindow, yPos););
+    return (intType) yPos;
+  } /* getWindowTopPos */
+
+
+
 intType drwPointerXpos (const_winType actual_window)
 
-  { /* drwPointerXpos */
+  {
+    intType xPos;
+
+  /* drwPointerXpos */
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    xPos = pointerX - getWindowLeftPos(actual_window);
     logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> " FMT_D "\n",
-                       (memSizeType) actual_window, pointerX););
-    return pointerX;
+                       (memSizeType) actual_window, xPos););
+    return xPos;
   } /* drwPointerXpos */
 
 
 
 intType drwPointerYpos (const_winType actual_window)
 
-  { /* drwPointerYpos */
+  {
+    intType yPos;
+
+  /* drwPointerYpos */
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    yPos = pointerY - getWindowTopPos(actual_window);
     logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> " FMT_D "\n",
-                       (memSizeType) actual_window, pointerY););
-    return pointerY;
+                       (memSizeType) actual_window, yPos););
+    return yPos;
   } /* drwPointerYpos */
 
 
@@ -2550,103 +2662,3 @@ intType drwYPos (const_winType actual_window)
                        (memSizeType) actual_window, yPos););
     return (intType) yPos;
   } /* drwYPos */
-
-
-
-intType clickedWindowLeftPos (const const_winType aWindow)
-
-  {
-    int xPos;
-
-  /* clickedWindowLeftPos */
-    logFunction(printf("clickedWindowLeftPos(" FMT_U_MEM ")\n",
-                       (memSizeType) aWindow););
-    if (is_pixmap(aWindow)) {
-      raise_error(RANGE_ERROR);
-      xPos = 0;
-    } else if (is_tab(aWindow)) {
-      xPos = EM_ASM_INT({
-        if (typeof document.scrollingElement != "undefined") {
-          return -document.scrollingElement.scrollLeft;
-        } else {
-          return 0;
-        }
-      });
-    } else if (is_subwindow(aWindow)) {
-      xPos = EM_ASM_INT({
-        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
-          let left = mapIdToCanvas[$0].style.left;
-          if (left.endsWith("px")) {
-            return left.substring(0, left.length - 2);
-          } else {
-            return left;
-          }
-        } else {
-          return -2147483648;
-        }
-      }, to_window(aWindow));
-      if (unlikely(xPos == -2147483648)) {
-        logError(printf("clickedWindowLeftPos(" FMT_U_MEM "): windowId not found: %d\n",
-                        (memSizeType) aWindow, to_window(aWindow)););
-        raise_error(GRAPHIC_ERROR);
-        xPos = 0;
-      } else  {
-        xPos += clickedWindowLeftPos(to_parentWindow(aWindow));
-      } /* if */
-    } else {
-      xPos = 0;
-    } /* if */
-    logFunction(printf("clickedWindowLeftPos(" FMT_U_MEM ") --> %d\n",
-                       (memSizeType) aWindow, xPos););
-    return (intType) xPos;
-  } /* clickedWindowLeftPos */
-
-
-
-intType clickedWindowTopPos (const const_winType aWindow)
-
-  {
-    int yPos;
-
-  /* clickedWindowTopPos */
-    logFunction(printf("clickedWindowTopPos(" FMT_U_MEM ")\n",
-                       (memSizeType) aWindow););
-    if (is_pixmap(aWindow)) {
-      raise_error(RANGE_ERROR);
-      yPos = 0;
-    } else if (is_tab(aWindow)) {
-      yPos = EM_ASM_INT({
-        if (typeof document.scrollingElement != "undefined") {
-          return -document.scrollingElement.scrollTop;
-        } else {
-          return 0;
-        }
-      });
-    } else if (is_subwindow(aWindow)) {
-      yPos = EM_ASM_INT({
-        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
-          let top = mapIdToCanvas[$0].style.top;
-          if (top.endsWith("px")) {
-            return top.substring(0, top.length - 2);
-          } else {
-            return top;
-          }
-        } else {
-          return -2147483648;
-        }
-      }, to_window(aWindow));
-      if (unlikely(yPos == -2147483648)) {
-        logError(printf("clickedWindowTopPos(" FMT_U_MEM "): windowId not found: %d\n",
-                        (memSizeType) aWindow, to_window(aWindow)););
-        raise_error(GRAPHIC_ERROR);
-        yPos = 0;
-      } else  {
-        yPos += clickedWindowTopPos(to_parentWindow(aWindow));
-      } /* if */
-    } else {
-      yPos = 0;
-    } /* if */
-    logFunction(printf("clickedWindowTopPos(" FMT_U_MEM ") --> %d\n",
-                       (memSizeType) aWindow, yPos););
-    return (intType) yPos;
-  } /* clickedWindowTopPos */

@@ -162,8 +162,8 @@ extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern boolType windowExists (int windowId);
 extern int copyWindow (int windowId);
-extern intType clickedWindowLeftPos (const const_winType aWindow);
-extern intType clickedWindowTopPos (const const_winType aWindow);
+extern intType getWindowLeftPos (const const_winType aWindow);
+extern intType getWindowTopPos (const const_winType aWindow);
 extern int maxWindowId;
 
 
@@ -1668,7 +1668,7 @@ intType gkbClickedXpos (void)
     xPos = lastKey.clickedX;
     window = find_window(lastKey.buttonWindow);
     if (window != NULL) {
-      xPos -= clickedWindowLeftPos(window);
+      xPos -= getWindowLeftPos(window);
     } /* if */
     logFunction(printf("gkbClickedXpos -> " FMT_D "\n", xPos););
     return xPos;
@@ -1687,7 +1687,7 @@ intType gkbClickedYpos (void)
     yPos = lastKey.clickedY;
     window = find_window(lastKey.buttonWindow);
     if (window != NULL) {
-      yPos -= clickedWindowTopPos(window);
+      yPos -= getWindowTopPos(window);
     } /* if */
     logFunction(printf("gkbClickedYpos -> " FMT_D "\n", yPos););
     return yPos;
