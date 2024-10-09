@@ -1591,6 +1591,8 @@ winType drwOpen (intType xPos, intType yPos,
             let windowObject = window.open("", windowName, windowFeatures);
             if (windowObject !== null && firstWindowOpen) {
               if (!document.hasFocus() ||
+                  (windowObject.visualViewport !== null &&
+                   windowObject.visualViewport.scale !== 1) ||
                   windowObject.toolbar.visible ||
                   windowObject.menubar.visible ||
                   windowObject.statusbar.visible ||
