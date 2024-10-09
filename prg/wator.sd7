@@ -219,52 +219,53 @@ const proc: initInfo is func
   end func;
 
 
+const proc: readNumber (in integer: line, in string: name,
+    in string: variableName, inout integer: number, in integer: maximum) is func
+  local
+    var string: inputLine is "";
+  begin
+    repeat
+      setPos(info, line, 1);
+      write(info, variableName <& "= ");
+      readln(inputLine);
+      if succeeds(number := integer(inputLine)) then
+        if number > maximum then
+          writeln(info, "*** Too many " <& name <& " (" <& number <& ")" <& " " mult 40);
+          write(info, "Maximum is " <& maximum <& " " mult 40);
+          setPos(info, line, 1);
+          write(info, " " mult 40);
+        else
+          writeln(info, " " mult 40);
+          write(info, " " mult 40);
+        end if;
+      else
+        writeln(info, "*** This is not a number (" <& inputLine <& ")" <& " " mult 40);
+        writeln(info, "*** Please enter a number" <& " " mult 40);
+        setPos(info, line, 1);
+        write(info, " " mult 40);
+        number := succ(maximum);
+      end if;
+    until number <= maximum;
+  end func;
+
+
 const proc: initialize is func
   (* Initialize arrays, get starting parameters, set up the screen *)
   local
     var integer: line is 0;
     var integer: column is 0;
     var integer: number is 0;
+    var string: input is "";
   begin
     cycle := 0;
     clear(info);
     setPos(info, 1, 1);
     writeln(info, "W A T O R");
-    repeat
-      setPos(info, 3, 1);
-      write(info, "nfish= ");
-      readln(nfish);
-      if nfish > MAX_LINE * MAX_COLUMN then
-        writeln(info, "*** Too many fish (" <& nfish <& ")");
-        write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN);
-        setPos(info, 3, 1);
-        write(info, " " mult 30);
-      else
-        writeln(info, " " mult 30);
-        write(info, " " mult 30);
-      end if;
-    until nfish <= MAX_LINE * MAX_COLUMN;
-    repeat
-      setPos(info, 4, 1);
-      write(info, "nsharks= ");
-      readln(nsharks);
-      if nfish + nsharks > MAX_LINE * MAX_COLUMN then
-        writeln(info, "*** Too many sharks (" <& nsharks <& ")");
-        write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN - nfish);
-        setPos(info, 4, 1);
-        write(info, " " mult 30);
-      else
-        writeln(info, " " mult 30);
-        write(info, " " mult 30);
-      end if;
-    until nfish + nsharks <= MAX_LINE * MAX_COLUMN;
-    setPos(info, 5, 1);
-    write(info, "fbreed= ");
-    readln(fbreed);
-    write(info, "sbreed= ");
-    readln(sbreed);
-    write(info, "slife= ");
-    readln(slife);
+    readNumber(3, "fish", "nfish", nfish, MAX_LINE * MAX_COLUMN);
+    readNumber(4, "sharks", "nsharks", nsharks, MAX_LINE * MAX_COLUMN - nfish);
+    readNumber(5, "fish breed time", "fbreed", fbreed, 100);
+    readNumber(6, "shark breed time", "sbreed", sbreed, 100);
+    readNumber(7, "shark hunger life time", "slife", slife, 100);
     for line range 1 to MAX_LINE do
       for column range 1 to MAX_COLUMN do
         field[line][column].content := EMPTY;
