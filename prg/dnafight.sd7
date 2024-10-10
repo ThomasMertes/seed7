@@ -818,6 +818,8 @@ const proc: InitAnimates is func
     var integer: line is 1;
     var integer: column is 1;
     var char: command is ' ';
+    var boolean: callReadCommand is TRUE;
+    var integer: index is 0;
     var bactColor: species is CLEAR;
 
   begin (* InitAnimates *)
@@ -825,6 +827,7 @@ const proc: InitAnimates is func
     animates:= 0 times microbe.value;
     command := readCommand(line, column);
     while upper(command) <> 'Q' and command <> KEY_CLOSE and command <> KEY_F1 do
+      callReadCommand := TRUE;
       case command of
         when {'2', KEY_DOWN}:
           if line < MAX_LINE then
@@ -868,12 +871,42 @@ const proc: InitAnimates is func
         when {KEY_MOUSE1}:
           x := clickedXPos(KEYBOARD);
           y := clickedYPos(KEYBOARD);
-          if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
+          if  x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
               x <= X_SHIFT + STRETCH_FACTOR * XMAX and
               y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
               y <= Y_SHIFT + STRETCH_FACTOR * YMAX then
             line := pred(y - Y_SHIFT) div STRETCH_FACTOR - 1;
             column := pred(x - X_SHIFT) div STRETCH_FACTOR - 1;
+          elsif x >= 6 * 2 - 6 and
+                x <= 6 * 31 - 6 and
+                y >= 13 * 24 + 1 and
+                y <= 13 * 25 then
+            command := KEY_F1;
+            callReadCommand := FALSE;
+          elsif x >= 6 * 2 - 6 and
+                x <= 6 * 45 - 6 and
+                y >= 13 * 26 + 1 and
+                y <= 13 * 30 then
+            index := pred(x - 6) div 66 + 1;
+            if  y >= 13 * 26 + 1 and
+                y <= 13 * 27 then
+              species := [] (WHITE, VIOLET, INDIGO, BLUE)[index];
+            elsif y >= 13 * 27 + 1 and
+                  y <= 13 * 28 then
+              species := [] (CYAN, GREEN, YELLOW, AMBER)[index];
+            elsif y >= 13 * 28 + 1 and
+                  y <= 13 * 29 then
+              species := [] (ORANGE, RED, SCARLET, TAN)[index];
+            elsif y >= 13 * 29 + 1 and
+                  y <= 13 * 30 then
+              species := [] (LILIAC, PINK, EDGE, EDGE)[index];
+            end if;
+            if species <> EDGE then
+              area[succ(column)][succ(line)].content := species;
+              fcircle(X_SHIFT + STRETCH_FACTOR * succ(column) + HALF_FACTOR,
+                  Y_SHIFT + STRETCH_FACTOR * succ(line) + HALF_FACTOR,
+                  4, display_color(species));
+            end if;
           end if;
         when {KEY_ESC}:
           readLimits;
@@ -899,7 +932,9 @@ const proc: InitAnimates is func
             end if;
           end if;
       end case;
-      command := readCommand(line, column);
+      if callReadCommand then
+        command := readCommand(line, column);
+      end if;
     end while;
     if command = KEY_F1 then
       setAllBacterials;
