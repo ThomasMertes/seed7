@@ -794,14 +794,19 @@ const proc: writeInfo (in integer: line, in integer: column) is func
 const func char: readCommand (in integer: line, in integer: column) is func
   result
     var char: command is ' ';
+  local
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
 
   begin (* readCommand *)
     writeInfo(line, column);
+    pixmap := getPixmap(pred(X_SHIFT + STRETCH_FACTOR * succ(column)),
+                        pred(Y_SHIFT + STRETCH_FACTOR * succ(line)),
+                        STRETCH_FACTOR + 3, STRETCH_FACTOR + 3);
     box(X_SHIFT + STRETCH_FACTOR * succ(column), Y_SHIFT + STRETCH_FACTOR * succ(line),
         succ(STRETCH_FACTOR), succ(STRETCH_FACTOR), white);
     command := getc(KEYBOARD);
-    box(X_SHIFT + STRETCH_FACTOR * succ(column), Y_SHIFT + STRETCH_FACTOR * succ(line),
-        succ(STRETCH_FACTOR), succ(STRETCH_FACTOR), plateBackground);
+    put(pred(X_SHIFT + STRETCH_FACTOR * succ(column)),
+        pred(Y_SHIFT + STRETCH_FACTOR * succ(line)), pixmap);
   end func; (* readCommand *)
 
 
