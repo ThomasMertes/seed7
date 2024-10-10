@@ -68,6 +68,9 @@ const integer: Y_SHIFT        is PLATE_YPOS + PLATE_BORDER - STRETCH_FACTOR * 2;
 const integer: XMAX           is MAX_COLUMN + 2;
 const integer: YMAX           is MAX_LINE + 2;
 
+const integer: LINE_DELTA   is 13;
+const integer: COLUMN_DELTA is  6;
+
 const type: xcoordinate is subtype integer; (* 1 .. XMAX *)
 const type: ycoordinate is subtype integer; (* 1 .. YMAX *)
 
@@ -877,28 +880,28 @@ const proc: InitAnimates is func
               y <= Y_SHIFT + STRETCH_FACTOR * YMAX then
             line := pred(y - Y_SHIFT) div STRETCH_FACTOR - 1;
             column := pred(x - X_SHIFT) div STRETCH_FACTOR - 1;
-          elsif x >= 6 * 2 - 6 and
-                x <= 6 * 31 - 6 and
-                y >= 13 * 24 + 1 and
-                y <= 13 * 25 then
+          elsif x >= COLUMN_DELTA * 1 and
+                x <= COLUMN_DELTA * 30 and
+                y >= LINE_DELTA * 24 + 1 and
+                y <= LINE_DELTA * 25 then
             command := KEY_F1;
             callReadCommand := FALSE;
-          elsif x >= 6 * 2 - 6 and
-                x <= 6 * 45 - 6 and
-                y >= 13 * 26 + 1 and
-                y <= 13 * 30 then
+          elsif x >= COLUMN_DELTA * 1 and
+                x <= COLUMN_DELTA * 44 and
+                y >= LINE_DELTA * 26 + 1 and
+                y <= LINE_DELTA * 30 then
             index := pred(x - 6) div 66 + 1;
-            if  y >= 13 * 26 + 1 and
-                y <= 13 * 27 then
+            if  y >= LINE_DELTA * 26 + 1 and
+                y <= LINE_DELTA * 27 then
               species := [] (WHITE, VIOLET, INDIGO, BLUE)[index];
-            elsif y >= 13 * 27 + 1 and
-                  y <= 13 * 28 then
+            elsif y >= LINE_DELTA * 27 + 1 and
+                  y <= LINE_DELTA * 28 then
               species := [] (CYAN, GREEN, YELLOW, AMBER)[index];
-            elsif y >= 13 * 28 + 1 and
-                  y <= 13 * 29 then
+            elsif y >= LINE_DELTA * 28 + 1 and
+                  y <= LINE_DELTA * 29 then
               species := [] (ORANGE, RED, SCARLET, TAN)[index];
-            elsif y >= 13 * 29 + 1 and
-                  y <= 13 * 30 then
+            elsif y >= LINE_DELTA * 29 + 1 and
+                  y <= LINE_DELTA * 30 then
               species := [] (LILIAC, PINK, EDGE, EDGE)[index];
             end if;
             if species <> EDGE then
