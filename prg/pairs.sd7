@@ -1818,7 +1818,7 @@ const proc: playerMove (inout boolean: hit) is func
         elsif openCards = 1 then
           mouseCommand(line2, column2, openCards);
         end if;
-      else
+      elsif command not in {KEY_MOUSE2, KEY_MOUSE3, KEY_MOUSE4, KEY_MOUSE5} then
         hideAll;
         moveFinished := TRUE;
       end if;
