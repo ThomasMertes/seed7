@@ -34,6 +34,8 @@ $ include "seed7_05.s7i";
   include "echo.s7i";
   include "line.s7i";
   include "dialog.s7i";
+  include "time.s7i";
+  include "duration.s7i";
   include "sokoban1.s7i";
 
 
@@ -653,10 +655,88 @@ const proc: redoMove is func
   end func;
 
 
+const func boolean: doMove (inout moveType: move, in moveDirection: direction,
+    in integer: dx, in integer: dy) is func
+  result
+    var boolean: didMove is FALSE;
+  begin
+    move.direction := direction;
+    case levelMap[yPos + dy][xPos + dx].fieldCategory of
+      when {GROUND}:
+        moveDxDy(dx, dy,
+            levelMap[yPos][xPos],
+            levelMap[yPos + dy][xPos + dx]);
+        incr(numberOfMoves);
+        move.mode := MOVE;
+        if length(playerMoves) > moveNumber then
+          playerMoves := playerMoves[.. moveNumber];
+        end if;
+        playerMoves &:= [] (move);
+        incr(moveNumber);
+        didMove := TRUE;
+      when {PACKET}:
+        if levelMap[yPos + 2 * dy][xPos + 2 * dx].fieldCategory = GROUND then
+          pushDxDy(dx, dy,
+              levelMap[yPos][xPos],
+              levelMap[yPos + dy][xPos + dx],
+              levelMap[yPos + 2 * dy][xPos + 2 * dx]);
+          move.mode := PUSH;
+          if length(playerMoves) > moveNumber then
+            playerMoves := playerMoves[.. moveNumber];
+          end if;
+          playerMoves &:= [] (move);
+          incr(moveNumber);
+          didMove := TRUE;
+        end if;
+    end case;
+  end func;
+
+
+const proc: doMove (inout moveType: move) is func
+  local
+    var integer: clickedX is 0;
+    var integer: clickedY is 0;
+    var integer: playerX is 0;
+    var integer: playerY is 0;
+    var boolean: didMove is FALSE;
+    var time: curr_time is time.value;
+  begin
+    clickedX := clickedXPos(KEYBOARD);
+    clickedY := clickedYPos(KEYBOARD);
+    repeat
+      curr_time := time(NOW);
+      playerX := pred(xPos) * TILE_SIZE + width(player_pixmap) div 2;
+      playerY := pred(yPos) * TILE_SIZE + height(player_pixmap) div 2;
+      if abs(clickedX - playerX) > width(player_pixmap) div 2 or
+          abs(clickedY - playerY) > height(player_pixmap) div 2 then
+        if abs(clickedX - playerX) > abs(clickedY - playerY) then
+          if clickedX > playerX then
+            didMove := doMove(move, RIGHT, 1, 0);
+          else
+            didMove := doMove(move, LEFT, -1, 0);
+          end if;
+        else
+          if clickedY > playerY then
+            didMove := doMove(move, DOWN, 0, 1);
+          else
+            didMove := doMove(move, UP, 0, -1);
+          end if;
+        end if;
+        writeStatus;
+        drawMap;
+        if didMove then
+          flushGraphic;
+          await(curr_time + 100000 . MICRO_SECONDS);
+        end if;
+      else
+        didMove := FALSE;
+      end if;
+    until not didMove;
+  end func;
+
+
 const proc: playLevel is func
   local
-    var integer: dx is 0;
-    var integer: dy is 0;
     var integer: line is 0;
     var integer: column is 0;
     var boolean: levelFinished is FALSE;
@@ -669,50 +749,23 @@ const proc: playLevel is func
     writeStatus;
     drawMap;
     repeat
-      dx := 0;
-      dy := 0;
       keyChar := getc(KEYBOARD);
       case keyChar of
         when {KEY_UP}:
-          move.direction := UP;
-          dy := -1;
+          ignore(doMove(move, UP, 0, -1));
+          writeStatus;
         when {KEY_DOWN}:
-          move.direction := DOWN;
-          dy :=  1;
+          ignore(doMove(move, DOWN, 0, 1));
+          writeStatus;
         when {KEY_LEFT}:
-          move.direction := LEFT;
-          dx := -1;
+          ignore(doMove(move, LEFT, -1, 0));
+          writeStatus;
         when {KEY_RIGHT}:
-          move.direction := RIGHT;
-          dx :=  1;
+          ignore(doMove(move, RIGHT, 1, 0));
+          writeStatus;
+        when {KEY_MOUSE1}:
+          doMove(move);
       end case;
-      case levelMap[yPos + dy][xPos + dx].fieldCategory of
-        when {GROUND}:
-          moveDxDy(dx, dy,
-              levelMap[yPos][xPos],
-              levelMap[yPos + dy][xPos + dx]);
-          incr(numberOfMoves);
-          move.mode := MOVE;
-          if length(playerMoves) > moveNumber then
-            playerMoves := playerMoves[.. moveNumber];
-          end if;
-          playerMoves &:= [] (move);
-          incr(moveNumber);
-        when {PACKET}:
-          if levelMap[yPos + 2 * dy][xPos + 2 * dx].fieldCategory = GROUND then
-            pushDxDy(dx, dy,
-                levelMap[yPos][xPos],
-                levelMap[yPos + dy][xPos + dx],
-                levelMap[yPos + 2 * dy][xPos + 2 * dx]);
-            move.mode := PUSH;
-            if length(playerMoves) > moveNumber then
-              playerMoves := playerMoves[.. moveNumber];
-            end if;
-            playerMoves &:= [] (move);
-            incr(moveNumber);
-          end if;
-      end case;
-      writeStatus;
       drawMap;
       if keyChar = 'q' or keyChar = KEY_CLOSE then
         levelFinished := TRUE;
