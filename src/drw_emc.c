@@ -1533,6 +1533,28 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
 
 
 
+/**
+ *  Open a graphic window with the given parameters.
+ *  Depending on the settings a browser may open a popup or a new tab.
+ *  A browser might be configured to block all popups. There are also
+ *  settings which allow popups only for specific sites. Even if all
+ *  popups are blocked some browsers allow opening one popup but not a
+ *  second one. There is a problem if a browser opens a tab instead of
+ *  a popup: The script runs in the old tab and the new tab gets the
+ *  focus. Without focus the script is slowed down and therefore time
+ *  related functionality will not work. The function drwOpen() tries
+ *  to discover if a tab has been opened instead of a popup. It uses
+ *  heuristics for this purpose. If a tab has been opened the new opened
+ *  tab is closed and the content of the current tab is used as window.
+ *  To do that the current tab document is overwritten with a canvas.
+ *  When the program exits this tab is reloaded and this way it gets the
+ *  original content. When opening a second window the creation of a
+ *  popup might be blocked by the browser. In this case a canvas is put
+ *  on top of the first window. This is only possible if the second
+ *  window is within the bounds of the first window. This canvas will
+ *  hold the contents of the second window. When the second window is
+ *  closed the canvas is removed.
+ */
 winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType windowName)
 
