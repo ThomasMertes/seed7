@@ -1595,9 +1595,7 @@ winType drwOpen (intType xPos, intType yPos,
                    windowObject.visualViewport.scale !== 1) ||
                   windowObject.toolbar.visible ||
                   windowObject.menubar.visible ||
-                  windowObject.statusbar.visible ||
-                  (windowObject.innerWidth !== 0 && windowObject.innerWidth !== width) ||
-                  (windowObject.innerHeight !== 0 && windowObject.innerHeight !== height)) {
+                  windowObject.statusbar.visible) {
                 windowObject.close();
                 windowObject = null;
               }
