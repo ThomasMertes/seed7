@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
+  include "pic32.s7i";
   include "pic_util.s7i";
   include "stdfont9.s7i";
   include "pixmap_file.s7i";
@@ -72,6 +73,12 @@ var PRIMITIVE_WINDOW: wall_pixmap is PRIMITIVE_WINDOW.value;
 var PRIMITIVE_WINDOW: packet_pixmap is PRIMITIVE_WINDOW.value;
 var PRIMITIVE_WINDOW: player_at_goal_pixmap is PRIMITIVE_WINDOW.value;
 var PRIMITIVE_WINDOW: packet_at_goal_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: undo_button is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: redo_button is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: quit_button is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: next_button is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: previous_button is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: restart_button is PRIMITIVE_WINDOW.value;
 
 
 const type: moveMode is new enum
@@ -328,6 +335,23 @@ const proc: introduction is func
   end func;
 
 
+const func PRIMITIVE_WINDOW: createButton (in array string: picture,
+    in string: name, in integer: xPos, in integer: yPos) is func
+  result
+    var PRIMITIVE_WINDOW: button is PRIMITIVE_WINDOW.value;
+  local
+    var text: fontFile is STD_NULL;
+  begin
+    button := openSubWindow(curr_win, xPos, yPos, 96, 32);
+    drawPattern(button, 0, 0, picture, 1, black);
+    fontFile := openPixmapFontFile(button);
+    setFont(fontFile, stdFont9);
+    color(fontFile, white, black);
+    setPosXY(fontFile, 45, 18);
+    write(fontFile, name);
+  end func;
+
+
 const proc: loadPixmaps is func
   begin
     player_pixmap := createPixmap(player_pic, 1, black);
@@ -336,6 +360,12 @@ const proc: loadPixmaps is func
     packet_pixmap := createPixmap(packet_pic, 1, black);
     player_at_goal_pixmap := createPixmap(player_at_goal_pic, 1, black);
     packet_at_goal_pixmap := createPixmap(packet_at_goal_pic, 1, black);
+    undo_button := createButton(undo_pic, "undo", 650, 412);
+    redo_button := createButton(redo_pic, "redo", 650, 448);
+    quit_button := createButton(exit_pic, "quit", 650, 484);
+    next_button := createButton(next_pic, "next", 750, 412);
+    previous_button := createButton(previous_pic, "previous", 750, 448);
+    restart_button := createButton(reset_pic, "restart", 750, 484);
   end func;
 
 
@@ -764,7 +794,21 @@ const proc: playLevel is func
           ignore(doMove(move, RIGHT, 1, 0));
           writeStatus;
         when {KEY_MOUSE1}:
-          doMove(move);
+          if buttonWindow(KEYBOARD) = curr_win then
+            doMove(move);
+          elsif buttonWindow(KEYBOARD) = undo_button then
+            keyChar := 'u';
+          elsif buttonWindow(KEYBOARD) = redo_button then
+            keyChar := 'r';
+          elsif buttonWindow(KEYBOARD) = quit_button then
+            keyChar := 'q';
+          elsif buttonWindow(KEYBOARD) = next_button then
+            keyChar := 'n';
+          elsif buttonWindow(KEYBOARD) = previous_button then
+            keyChar := 'p';
+          elsif buttonWindow(KEYBOARD) = restart_button then
+            keyChar := 's';
+          end if;
       end case;
       drawMap;
       if keyChar = 'q' or keyChar = KEY_CLOSE then
