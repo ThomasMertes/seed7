@@ -1079,6 +1079,41 @@ const array string: lamp_pic is [](
   " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB ");
 
 
+const array string: left_arrow_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "        BBB                     ",
+  "       BBBB                     ",
+  "      BBBBB                     ",
+  "     BBBBBB                     ",
+  "    BBBBBBB                     ",
+  "   BBBBBBBBBBBBBBBBBBBBBBBBBBB  ",
+  "  BBBBBBBBBBBBBBBBBBBBBBBBBBBB  ",
+  "  BBBBBBBBBBBBBBBBBBBBBBBBBBBB  ",
+  "   BBBBBBBBBBBBBBBBBBBBBBBBBBB  ",
+  "    BBBBBBB                     ",
+  "     BBBBBB                     ",
+  "      BBBBB                     ",
+  "       BBBB                     ",
+  "        BBB                     ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
 const array string: load_pic is [](
   "     xxxxxxxxxxxxxxxxxxxxx      ",
   "    xBBWBBWWWWWWWWWWWWWBBBx     ",
@@ -1219,6 +1254,41 @@ const array string: necklace_pic is [](
   "                RR              ");
 
 
+const array string: next_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "          XXXXXXXXXXXX          ",
+  "        XXWWWWWWWWWWWWXX        ",
+  "       XWWccccccccccccWWX       ",
+  "      XWccccccccccccccccWX      ",
+  "     XWccccccccccccccccccWX     ",
+  "    XWccccccccccccccccccccWX    ",
+  "    XWccBBcccccccBBcccccccWX    ",
+  "   XWcccBBBccccccBBBcccccccWX   ",
+  "   XWcccBBBBcccccBBBBccccccWX   ",
+  "   XWcccBBBBBccccBBBBBcccccWX   ",
+  "   XWcccBBBBBBcccBBBBBBccccWX   ",
+  "   XWcccBBBBBBBccBBBBBBBcccWX   ",
+  "   XWcccBBBBBBBBcBBBBBBBBccWX   ",
+  "   XWcccBBBBBBBBcBBBBBBBBccWX   ",
+  "   XWcccBBBBBBBccBBBBBBBcccWX   ",
+  "   XWcccBBBBBBcccBBBBBBccccWX   ",
+  "   XWcccBBBBBccccBBBBBcccccWX   ",
+  "   XWcccBBBBcccccBBBBccccccWX   ",
+  "   XWcccBBBccccccBBBcccccccWX   ",
+  "    XWccBBcccccccBBcccccccWX    ",
+  "    XWccccccccccccccccccccWX    ",
+  "     XWccccccccccccccccccWX     ",
+  "      XWccccccccccccccccWX      ",
+  "       XWWccccccccccccWWX       ",
+  "        XXWWWWWWWWWWWWXX        ",
+  "          XXXXXXXXXXXX          ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
 const array string: ogre_pic is [](
   "            GGGGGGGGGG          ",
   "          GGGGGGGGGGGGGG        ",
@@ -1289,6 +1359,41 @@ const array string: on_off_pic is [](
   "           BBBBBBBBBB           ");
 
 
+const array string: previous_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "          XXXXXXXXXXXX          ",
+  "        XXWWWWWWWWWWWWXX        ",
+  "       XWWccccccccccccWWX       ",
+  "      XWccccccccccccccccWX      ",
+  "     XWccccccccccccccccccWX     ",
+  "    XWccccccccccccccccccccWX    ",
+  "    XWcccccccBBcccccccBBccWX    ",
+  "   XWcccccccBBBccccccBBBcccWX   ",
+  "   XWccccccBBBBcccccBBBBcccWX   ",
+  "   XWcccccBBBBBccccBBBcBcccWX   ",
+  "   XWccccBBBBBBcccBBBBBBcccWX   ",
+  "   XWcccBBBBBBBccBBBBBBBcccWX   ",
+  "   XWccBBBBBBBBcBBBBBBBBcccWX   ",
+  "   XWccBBBBBBBBcBBBBBBBBcccWX   ",
+  "   XWcccBBBBBBBccBBBBBBBcccWX   ",
+  "   XWccccBBBBBBcccBBBBBBcccWX   ",
+  "   XWcccccBBBBBccccBBBBBcccWX   ",
+  "   XWccccccBBBBcccccBBBBcccWX   ",
+  "   XWcccccccBBBccccccBBBcccWX   ",
+  "    XWcccccccBBcccccccBBccWX    ",
+  "    XWccccccccccccccccccccWX    ",
+  "     XWccccccccccccccccccWX     ",
+  "      XWccccccccccccccccWX      ",
+  "       XWWccccccccccccWWX       ",
+  "        XXWWWWWWWWWWWWXX        ",
+  "          XXXXXXXXXXXX          ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
 const array string: reset_pic is [](
   "                                ",
   "                                ",
@@ -1320,6 +1425,41 @@ const array string: reset_pic is [](
   "        XXWWWWWWWWWWWWXX        ",
   "          XXXXXXXXXXXX          ",
   "                                ",
+  "                                ",
+  "                                ");
+
+
+const array string: redo_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "           BBBBBBBBBB        B  ",
+  "         BBBBBBBBBBBBBB     BB  ",
+  "       BBBBBBBBBBBBBBBBBB  BBB  ",
+  "      BBBBBBBBBBBBBBBBBBBBBBBB  ",
+  "     BBBBBB          BBBBBBBBB  ",
+  "    BBBBB              BBBBBBB  ",
+  "    BBBB               BBBBBBB  ",
+  "   BBBB               BBBBBBBB  ",
+  "   BBBB              BBBBBBBBB  ",
+  "  BBBB              BBBBBBBBBB  ",
+  "  BBBB                          ",
+  "  BBBB                          ",
+  "  BBBB                          ",
+  "  BBBB                          ",
+  "  BBBB                          ",
+  "   BBBB                         ",
+  "   BBBB                         ",
+  "    BBBB                        ",
+  "    BBBBB                       ",
+  "     BBBBBB                     ",
+  "      BBBBBBBBBBB               ",
+  "       BBBBBBBBBB               ",
+  "         BBBBBBBB               ",
+  "           BBBBBB               ",
   "                                ",
   "                                ");
 
@@ -1847,6 +1987,41 @@ const array string: tree_pic is [](
   "              bbbb              ",
   "              bbbb              ",
   "              bbbb              ");
+
+
+const array string: undo_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "  B        BBBBBBBBBB           ",
+  "  BB     BBBBBBBBBBBBBB         ",
+  "  BBB  BBBBBBBBBBBBBBBBBB       ",
+  "  BBBBBBBBBBBBBBBBBBBBBBBB      ",
+  "  BBBBBBBBB          BBBBBB     ",
+  "  BBBBBBB              BBBBB    ",
+  "  BBBBBBB               BBBB    ",
+  "  BBBBBBBB               BBBB   ",
+  "  BBBBBBBBB              BBBB   ",
+  "  BBBBBBBBBB              BBBB  ",
+  "                          BBBB  ",
+  "                          BBBB  ",
+  "                          BBBB  ",
+  "                          BBBB  ",
+  "                          BBBB  ",
+  "                         BBBB   ",
+  "                         BBBB   ",
+  "                        BBBB    ",
+  "                       BBBBB    ",
+  "                     BBBBBB     ",
+  "               BBBBBBBBBBB      ",
+  "               BBBBBBBBBB       ",
+  "               BBBBBBBB         ",
+  "               BBBBBB           ",
+  "                                ",
+  "                                ");
 
 
 const array string: vampire_pic is [](
