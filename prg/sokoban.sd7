@@ -821,14 +821,11 @@ const proc: playLevel is func
         levelFinished := TRUE;
       elsif keyChar = 'u' then
         if savedPackets = numberOfPackets then
-          setPos(win, 31, 1);
-          erase(win, "C O N G R A T U L A T I O N");
+          setPos(win, 13, 1);
+          erase(win, "*****  C O N G R A T U L A T I O N  *****");
           writeln(win);
           writeln(win);
-          erase(win, "    The level is solved");
-          writeln(win);
-          writeln(win);
-          erase(win,   "Press n for the next level ");
+          erase(win, "    The level " <& levelNumber <& " is solved");
         end if;
         undoMove;
         writeStatus;
@@ -861,12 +858,11 @@ const proc: playLevel is func
         end if;
       end if;
       if savedPackets = numberOfPackets then
-        setPos(win, 31, 1);
-        writeln(win, "C O N G R A T U L A T I O N");
-        writeln(win);
-        writeln(win, "    The level is solved");
-        writeln(win);
-        write(win,   "Press n for the next level ");
+        setPos(win, 13, 1);
+        writeln(win, "*****  C O N G R A T U L A T I O N  *****");
+        writeln(win, " " mult 64);
+        writeln(win, "    The level " <& levelNumber <& " is solved");
+        write(win, " " mult 64);
       end if;
     until levelFinished;
     while inputReady(KEYBOARD) do
