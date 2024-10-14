@@ -376,10 +376,14 @@ const proc: readLevel (inout char: keyChar) is func
     var boolean: okay is FALSE;
     var integer: tries is 0;
   begin
-    setPos(win, 30, 1);
+    setPos(win, 13, 1);
     write(win, "Indicate which level to play (1-" <& length(levels) <& ") ");
     repeat
       incr(tries);
+      setPos(win, 14, 1);
+      write(win, " " mult 64);
+      setPos(win, 14, 1);
+      write(win, "Level = ");
       readln(numberStri);
       if IN.bufferChar = KEY_CLOSE then
         keyChar := KEY_CLOSE;
@@ -394,7 +398,9 @@ const proc: readLevel (inout char: keyChar) is func
           end if;
         exception
           catch RANGE_ERROR:
-            write(win, "This is not a correct level. Try again ");
+            setPos(win, 13, 1);
+            write(win, "This is not a correct level. Try again (1-" <&
+                  length(levels) <& ") ");
         end block;
       end if;
     until okay or numberStri = "" or tries >= 2 or keyChar = KEY_CLOSE;
