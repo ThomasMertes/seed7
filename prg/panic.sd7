@@ -1082,20 +1082,20 @@ const proc: draw_ladder (in integer: line1, in integer: line2, in integer: colum
   local
     var integer: number is 0;
   begin
-    rect((1 + column)        * FIELD_ELEM_STEP,
-         (7 + line1)         * FIELD_ELEM_STEP,
-         13                  * FIELD_ELEM_STEP,
-         (line2- line1 + 10) * FIELD_ELEM_STEP,
+    rect((1 + column)         * FIELD_ELEM_STEP,
+         (7 + line1)          * FIELD_ELEM_STEP,
+         13                   * FIELD_ELEM_STEP,
+         (line2 - line1 + 10) * FIELD_ELEM_STEP,
          black);
-    rect((1 + column)        * FIELD_ELEM_STEP,
-         (7 + line1)         * FIELD_ELEM_STEP,
-         1                   * FIELD_ELEM_STEP,
-         (line2- line1 + 10) * FIELD_ELEM_STEP,
+    rect((1 + column)         * FIELD_ELEM_STEP,
+         (7 + line1)          * FIELD_ELEM_STEP,
+         1                    * FIELD_ELEM_STEP,
+         (line2 - line1 + 10) * FIELD_ELEM_STEP,
          light_magenta);
-    rect((13 + column)       * FIELD_ELEM_STEP,
-         (7 + line1)         * FIELD_ELEM_STEP,
-         1                   * FIELD_ELEM_STEP,
-         (line2- line1 + 10) * FIELD_ELEM_STEP,
+    rect((13 + column)        * FIELD_ELEM_STEP,
+         (7 + line1)          * FIELD_ELEM_STEP,
+         1                    * FIELD_ELEM_STEP,
+         (line2 - line1 + 10) * FIELD_ELEM_STEP,
          light_magenta);
     for number range line1 - 8 to line2 - 4 step 4 do
       rect((2 + column)  * FIELD_ELEM_STEP,
@@ -2280,7 +2280,7 @@ const proc: stop_at_hole (inout playerObj: playerObject) is func
           end if;
         elsif player.width > 13 and
             playerObject.column +  player.width <= length(hole_status[playerObject.line]) and
-            hole_status[playerObject.line][playerObject.column +  player.width] not in
+            hole_status[playerObject.line][playerObject.column + player.width] not in
             {no_hole, hole_finished} then
           playerObject.moving := FALSE;
           playerObject.column_direction := 0;
@@ -2315,9 +2315,103 @@ const proc: process (inout playerObj: playerObject) is func
   end func;
 
 
+const func integer: getLevel (in integer: clickedYPos) is func
+  result
+    var integer: level is 1;
+  local
+    var integer: yPos is 0;
+  begin
+    yPos := min(max(FIELD_BORDER + clickedYPos div PICTURE_SCALE, 1), FIELD_LINES);
+    while level <= maxIdx(level_line) and yPos > level_line[level] do
+      incr(level);
+    end while;
+    if level > 1 then
+      decr(level);
+    end if;
+    if yPos > level_line[level] + player.height then
+      level := 0;
+    end if;
+  end func;
+
+
+const func integer: getLevel (in playerObj: playerObject) is func
+  result
+    var integer: level is 1;
+  begin
+    while level <= maxIdx(level_line) and level_line[level] <> pred(playerObject.line) do
+      incr(level);
+    end while;
+    if level = 7 then
+      level := 0;
+    end if;
+  end func;
+
+
+const func boolean: clickedAtLadder (in integer: clickedXPos, in integer: clickedYPos) is func
+  result
+    var boolean: clicked is FALSE;
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: column is 0;
+    var integer: level is 1;
+  begin
+    xPos := min(max(FIELD_BORDER + clickedXPos div PICTURE_SCALE, 1), FIELD_COLUMNS);
+    yPos := min(max(FIELD_BORDER + clickedYPos div PICTURE_SCALE - player.height, 1), FIELD_LINES);
+    for column range xPos downto max(xPos - 14, 1) until clicked do
+      clicked := field[yPos][column];
+    end for;
+    if not clicked then
+      while level <= maxIdx(level_line) and yPos > level_line[level] do
+        incr(level);
+      end while;
+      if level <= maxIdx(level_line) and level_line[level] - yPos <= 9 then
+        yPos := min(level_line[level] + 2, FIELD_LINES);
+        for column range xPos downto max(xPos - 14, 1) until clicked do
+          clicked := field[yPos][column];
+        end for;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: clickedAboveHole (in integer: clickedXPos) is func
+  result
+    var boolean: clicked is FALSE;
+  local
+    var integer: xPos is 0;
+    var integer: column is 0;
+  begin
+    xPos := min(max(FIELD_BORDER + clickedXPos div PICTURE_SCALE, 1), FIELD_COLUMNS);
+    for column range xPos downto max(xPos - 14, 1) until clicked do
+      clicked := hole_status[player.line][column] <> no_hole;
+    end for;
+  end func;
+
+
+const func boolean: clickedAtMonsterInHole (in integer: clickedXPos) is func
+  result
+    var boolean: clicked is FALSE;
+  local
+    var integer: xPos is 0;
+    var integer: column is 0;
+  begin
+    xPos := min(max(FIELD_BORDER + clickedXPos div PICTURE_SCALE, 1), FIELD_COLUMNS);
+    for column range xPos downto max(xPos - 14, 1) until clicked do
+      clicked := hole_status[player.line][column] in {hole_filled, hole_pound1, hole_pound2, hole_pound3, hole_pound4};
+    end for;
+  end func;
+
+
 const proc: get_command (inout playerObj: playerObject) is func
   local
     var char: cmd is ' ';
+    var integer: clickedXPos is 0;
+    var integer: clickedYPos is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: clickedLevel is 0;
+    var integer: playerLevel is 0;
   begin
     cmd := getc(KEYBOARD, NO_WAIT);
     if playerObject.living then
@@ -2336,6 +2430,57 @@ const proc: get_command (inout playerObj: playerObject) is func
           playerObject.command := 'S';
         when {' '}:
           playerObject.command := ' ';
+        when {KEY_MOUSE1}:
+          clickedXPos := clickedXPos(KEYBOARD);
+          clickedYPos := clickedYPos(KEYBOARD);
+          xPos := playerObject.column * PICTURE_SCALE;
+          yPos := playerObject.line * PICTURE_SCALE;
+          clickedLevel := getLevel(clickedYPos);
+          playerLevel := getLevel(playerObject);
+          if clickedXPos >= xPos and clickedXPos < xPos + playerObject.width * PICTURE_SCALE and
+              clickedYPos >= yPos and clickedYPos < yPos + playerObject.height * PICTURE_SCALE then
+            playerObject.command := ' ';
+          elsif playerLevel <> 0 and
+              clickedYPos >= yPos and clickedYPos < yPos + playerObject.height * PICTURE_SCALE then
+            if xPos > clickedXPos then
+              if playerObject.face_direction < 0 and clickedAboveHole(clickedXPos) then
+                playerObject.command := 'S';
+              else
+                playerObject.command := KEY_LEFT;
+              end if;
+            else
+              if playerObject.face_direction > 0 and clickedAboveHole(clickedXPos) then
+                playerObject.command := 'S';
+              else
+                playerObject.command := KEY_RIGHT;
+              end if;
+            end if;
+          elsif playerLevel <> 0 and
+              clickedYPos >= yPos + playerObject.height * PICTURE_SCALE and
+              clickedYPos < yPos + (playerObject.height + 8) * PICTURE_SCALE then
+            if ((xPos > clickedXPos and playerObject.face_direction < 0) or
+                (xPos < clickedXPos and playerObject.face_direction > 0)) and
+                clickedAtMonsterInHole(clickedXPos) then
+              playerObject.command := 'S';
+            else
+              playerObject.command := 'A';
+            end if;
+          elsif clickedAtLadder(clickedXPos, clickedYPos) then
+            yPos := playerObject.line * PICTURE_SCALE + playerObject.height div 2;
+            if abs(yPos - clickedYPos) >= playerObject.height then
+              if yPos > clickedYPos then
+                playerObject.command := KEY_UP;
+              else
+                playerObject.command := KEY_DOWN;
+              end if;
+            end if;
+          elsif clickedLevel <> 0 then
+            if xPos > clickedXPos then
+              playerObject.command := KEY_LEFT;
+            else
+              playerObject.command := KEY_RIGHT;
+            end if;
+          end if;
       end case;
     elsif cmd in {'S', 's'} then
       game.round_finished := TRUE;
