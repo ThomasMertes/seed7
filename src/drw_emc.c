@@ -1092,8 +1092,7 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
           canvas.width = $3;
           canvas.height = $4;
           let context = canvas.getContext("2d");
-          let imageData = sourceContext.getImageData($1, $2, $3, $4);
-          context.putImageData(imageData, 0, 0);
+          context.putImageData(sourceContext.getImageData($1, $2, $3, $4), 0, 0);
           currentWindowId++;
           mapIdToCanvas[currentWindowId] = canvas;
           mapIdToContext[currentWindowId] = context;
