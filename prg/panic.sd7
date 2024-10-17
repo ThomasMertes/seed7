@@ -2457,7 +2457,7 @@ const proc: get_command (inout playerObj: playerObject) is func
             end if;
           elsif playerLevel <> 0 and
               clickedYPos >= yPos + playerObject.height * PICTURE_SCALE and
-              clickedYPos < yPos + (playerObject.height + 8) * PICTURE_SCALE then
+              clickedYPos < yPos + (playerObject.height + 10) * PICTURE_SCALE then
             if ((xPos > clickedXPos and playerObject.face_direction < 0) or
                 (xPos < clickedXPos and playerObject.face_direction > 0)) and
                 clickedAtMonsterInHole(clickedXPos) then
