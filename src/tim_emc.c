@@ -63,7 +63,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     time_t await_second;
     struct timeval time_val;
     time_t wait_sec;
-    intType wait_micro_sec;
+    intType wait_milli_sec;
     boolType timeReached = FALSE;
 
   /* timAwait */
@@ -90,12 +90,17 @@ void timAwait (intType year, intType month, intType day, intType hour,
         } else {
           wait_sec = await_second - time_val.tv_sec;
           if (micro_sec >= time_val.tv_usec) {
-            wait_micro_sec = micro_sec - time_val.tv_usec;
+            wait_milli_sec = (micro_sec - time_val.tv_usec) / 1000;
           } else {
-            wait_micro_sec = 1000000 - time_val.tv_usec + micro_sec;
+            wait_milli_sec = (1000000 - time_val.tv_usec + micro_sec) / 1000;
             wait_sec--;
           } /* if */
-          doWaitOrPushKey(wait_sec * 1000 + wait_micro_sec / 1000);
+          wait_milli_sec += wait_sec * 1000;
+          if (wait_milli_sec != 0) {
+            doWaitOrPushKey(wait_milli_sec);
+          } else {
+            timeReached = TRUE;
+          } /* if */
         } /* if */
       } while (!timeReached);
     } /* if */
