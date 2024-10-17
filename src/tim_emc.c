@@ -104,7 +104,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
         } /* if */
       } while (!timeReached);
     } /* if */
-    logFunction(printf("timAwait -->\n"););
+    logFunction(printf("timAwait --> (" FMT_T "." F_D(06) ")\n",
+                       time_val.tv_sec, (intType) time_val.tv_usec););
   } /* timAwait */
 
 
