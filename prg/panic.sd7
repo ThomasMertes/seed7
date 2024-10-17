@@ -2497,6 +2497,7 @@ const proc: game_round is func
     var integer: blackBarLength is -1;
     var integer: new_bonus is 0;
     var integer: bonus is 0;
+    var time: currentTime is time.value;
   begin
     clear(curr_win, black);
     flushGraphic;
@@ -2504,6 +2505,11 @@ const proc: game_round is func
     bonus := game.round_bonus;
     game.turn_time := time(NOW);
     while not game.round_finished and not game.quit do
+      game.turn_time +:= 30000 . MICRO_SECONDS;
+      currentTime := time(NOW);
+      if currentTime > game.turn_time then
+        game.turn_time := currentTime + 30000 . MICRO_SECONDS;
+      end if;
       for number range 1 to length(monster) do
         check_direction(monster[number]);
         move(monster[number]);
@@ -2534,7 +2540,6 @@ const proc: game_round is func
           game.round_finished := TRUE;
         end if;
         incr(progress);
-        game.turn_time +:= 30000 . MICRO_SECONDS;
         flushGraphic;
         await(game.turn_time);
       end if;
