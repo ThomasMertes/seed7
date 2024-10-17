@@ -2205,57 +2205,58 @@ const proc: player_falling (inout playerObj: playerObject) is func
 
 const proc: process_command (inout playerObj: playerObject) is func
   begin
-    if playerObject.command = KEY_UP then
-      if field[pred(playerObject.line)][playerObject.column] then
-        up(playerObject);
-      elsif playerObject.column_direction = 0 then
-        go_horizontally(playerObject, ladder_up_direction(playerObject));
-      end if
-    elsif playerObject.command = KEY_DOWN then
-      if field[succ(playerObject.line)][playerObject.column] then
-        down(playerObject);
-      elsif playerObject.column_direction = 0 then
-        go_horizontally(playerObject, ladder_down_direction(playerObject));
-      end if;
-    elsif playerObject.command = KEY_LEFT then
-      if field[playerObject.line][pred(playerObject.column)] then
-        left(playerObject);
-      elsif playerObject.line_direction = 0 then
-        go_vertically(playerObject, level_direction(playerObject));
-      end if;
-    elsif playerObject.command = KEY_RIGHT then
-      if field[playerObject.line][succ(playerObject.column)] then
-        right(playerObject);
-      elsif playerObject.line_direction = 0 then
-        go_vertically(playerObject, level_direction(playerObject));
-      end if;
-    elsif playerObject.command = 'A' then
-      if playerObject.face_direction < 0 and
-          hole_position_ok(playerObject.line, playerObject.column - 13) then
-        dig_left(playerObject);
-      elsif playerObject.face_direction > 0 and
-          hole_position_ok(playerObject.line, playerObject.column + 13) then
-        dig_right(playerObject);
-      elsif playerObject.column_direction = 0 and
-          playerObject.line <> FIELD_BORDER + level_line[NUM_LEVELS] then
-        go_horizontally(playerObject, playerObject.face_direction);
-      end if;
-    elsif playerObject.command = 'S' then
-      if playerObject.face_direction < 0 and
-          playerObject.column > 13 and
-          hole_status[playerObject.line][playerObject.column - 13] <> no_hole then
-        shut_left(playerObject);
-      elsif playerObject.face_direction > 0 and
-          playerObject.column + 13 <= length(hole_status[playerObject.line]) and
-          hole_status[playerObject.line][playerObject.column + 13] <> no_hole then
-        shut_right(playerObject);
-      elsif playerObject.column_direction = 0 and
-          playerObject.face_direction = hole_direction(playerObject) then
-        go_horizontally(playerObject, playerObject.face_direction);
-      end if;
-    elsif playerObject.command = ' ' then
-      stop(playerObject);
-    end if;
+    case playerObject.command of
+      when {KEY_UP}:
+        if field[pred(playerObject.line)][playerObject.column] then
+          up(playerObject);
+        elsif playerObject.column_direction = 0 then
+          go_horizontally(playerObject, ladder_up_direction(playerObject));
+        end if
+      when {KEY_DOWN}:
+        if field[succ(playerObject.line)][playerObject.column] then
+          down(playerObject);
+        elsif playerObject.column_direction = 0 then
+          go_horizontally(playerObject, ladder_down_direction(playerObject));
+        end if;
+      when {KEY_LEFT}:
+        if field[playerObject.line][pred(playerObject.column)] then
+          left(playerObject);
+        elsif playerObject.line_direction = 0 then
+          go_vertically(playerObject, level_direction(playerObject));
+        end if;
+      when {KEY_RIGHT}:
+        if field[playerObject.line][succ(playerObject.column)] then
+          right(playerObject);
+        elsif playerObject.line_direction = 0 then
+          go_vertically(playerObject, level_direction(playerObject));
+        end if;
+      when {'A'}:
+        if playerObject.face_direction < 0 and
+            hole_position_ok(playerObject.line, playerObject.column - 13) then
+          dig_left(playerObject);
+        elsif playerObject.face_direction > 0 and
+            hole_position_ok(playerObject.line, playerObject.column + 13) then
+          dig_right(playerObject);
+        elsif playerObject.column_direction = 0 and
+            playerObject.line <> FIELD_BORDER + level_line[NUM_LEVELS] then
+          go_horizontally(playerObject, playerObject.face_direction);
+        end if;
+      when {'S'}:
+        if playerObject.face_direction < 0 and
+            playerObject.column > 13 and
+            hole_status[playerObject.line][playerObject.column - 13] <> no_hole then
+          shut_left(playerObject);
+        elsif playerObject.face_direction > 0 and
+            playerObject.column + 13 <= length(hole_status[playerObject.line]) and
+            hole_status[playerObject.line][playerObject.column + 13] <> no_hole then
+          shut_right(playerObject);
+        elsif playerObject.column_direction = 0 and
+            playerObject.face_direction = hole_direction(playerObject) then
+          go_horizontally(playerObject, playerObject.face_direction);
+        end if;
+      when {' '}:
+        stop(playerObject);
+    end case;
   end func;
 
 
