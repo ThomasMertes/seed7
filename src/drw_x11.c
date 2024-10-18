@@ -2774,6 +2774,25 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
+void drwSetSize (const_winType actual_window, intType width, intType height)
+
+  { /* drwSetSize */
+    logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, width, height););
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
+      logError(printf("drwSetSize(" FMT_D ", " FMT_D "): "
+                      "Illegal window dimensions\n",
+                      width, height););
+      raise_error(RANGE_ERROR);
+    } else {
+      XResizeWindow(mydisplay, to_window(actual_window),
+                    (unsigned int) width, (unsigned int) height);
+    } /* if */
+  } /* drwSetSize */
+
+
+
 void drwSetTransparentColor (winType pixmap, intType col)
 
   {

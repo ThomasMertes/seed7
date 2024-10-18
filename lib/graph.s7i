@@ -318,6 +318,12 @@ const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
     in integer: xPos, in integer: yPos)                     is action "DRW_SET_POS";
 
 (**
+ *  Set the size of the window ''aWindow'' to ''width'' and ''height''.
+ *)
+const proc: setSize (in PRIMITIVE_WINDOW: aWindow,
+    in integer: width, in integer: height)                  is action "DRW_SET_SIZE";
+
+(**
  *  Lower a window to the bottom so that it does not obscure any other window.
  *)
 const proc: toBottom (in PRIMITIVE_WINDOW: aWindow) is action "DRW_TO_BOTTOM";

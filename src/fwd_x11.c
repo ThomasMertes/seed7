@@ -143,6 +143,7 @@ FPTR_DECL tp_XQueryPointer           ptr_XQueryPointer = NULL;
 FPTR_DECL tp_XQueryTree              ptr_XQueryTree = NULL;
 FPTR_DECL tp_XRaiseWindow            ptr_XRaiseWindow = NULL;
 FPTR_DECL tp_XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping = NULL;
+FPTR_DECL tp_XResizeWindow           ptr_XResizeWindow = NULL;
 FPTR_DECL tp_XScreenOfDisplay        ptr_XScreenOfDisplay = NULL;
 FPTR_DECL tp_XSelectInput            ptr_XSelectInput = NULL;
 FPTR_DECL tp_XSetArcMode             ptr_XSetArcMode = NULL;
@@ -241,6 +242,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XQueryTree              = (tp_XQueryTree)              dllFunc(x11Dll, "XQueryTree"))              == NULL ||
             (ptr_XRaiseWindow            = (tp_XRaiseWindow)            dllFunc(x11Dll, "XRaiseWindow"))            == NULL ||
             (ptr_XRefreshKeyboardMapping = (tp_XRefreshKeyboardMapping) dllFunc(x11Dll, "XRefreshKeyboardMapping")) == NULL ||
+            (ptr_XResizeWindow           = (tp_XResizeWindow)           dllFunc(x11Dll, "XResizeWindow"))           == NULL ||
             (ptr_XScreenOfDisplay        = (tp_XScreenOfDisplay)        dllFunc(x11Dll, "XScreenOfDisplay"))        == NULL ||
             (ptr_XSelectInput            = (tp_XSelectInput)            dllFunc(x11Dll, "XSelectInput"))            == NULL ||
             (ptr_XSetArcMode             = (tp_XSetArcMode)             dllFunc(x11Dll, "XSetArcMode"))             == NULL ||
@@ -1395,6 +1397,22 @@ int XRefreshKeyboardMapping (XMappingEvent *event_map)
     logFunction(printf("XRefreshKeyboardMapping -> %d\n", funcResult););
     return funcResult;
   } /* XRefreshKeyboardMapping */
+
+
+
+int XResizeWindow (Display *display, Window window,
+                   unsigned int width, unsigned int height)
+
+  {
+    int funcResult;
+
+  /* XResizeWindow */
+    logFunction(printf("XResizeWindow(" FMT_U_MEM ", " FMT_U_XID ", %u, %u)\n",
+                       (memSizeType) display, window, width, height););
+    funcResult = ptr_XResizeWindow(display, window, width, height);
+    logFunction(printf("XResizeWindow --> %d\n", funcResult););
+    return funcResult;
+  } /* XResizeWindow */
 
 
 

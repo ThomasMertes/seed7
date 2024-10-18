@@ -2395,6 +2395,61 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
+void drwSetSize (const_winType actual_window, intType width, intType height)
+
+  {
+    int successInfo;
+
+  /* drwSetSize */
+    logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, width, height););
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
+      logError(printf("drwSetSize(" FMT_D ", " FMT_D "): "
+                      "Illegal window dimensions\n",
+                      width, height););
+      raise_error(RANGE_ERROR);
+    } else if (is_pixmap(actual_window)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (is_subwindow(actual_window)) {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+            let canvas = mapIdToCanvas[$0];
+            canvas.width = $1;
+            canvas.height = $2;
+            return 0;
+          } else {
+            return 1;
+          }
+        }, to_window(actual_window), (int) width, (int) height);
+      } else {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
+            let windowObject = mapIdToWindow[$0];
+            let canvas = mapIdToCanvas[$0];
+            windowObject.innerWidth = $1;
+            windowObject.innerHeight = $2;
+            canvas.width = $1;
+            canvas.height = $2;
+            return 0;
+          } else {
+            return 1;
+          }
+        }, to_window(actual_window), (int) width, (int) height);
+      } /* if */
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, width, height,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
+    } /* if */
+  } /* drwSetSize */
+
+
+
 void drwSetTransparentColor (winType pixmap, intType col)
 
   { /* drwSetTransparentColor */

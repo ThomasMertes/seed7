@@ -84,6 +84,7 @@ const ACTION: DRW_SET_CONTENT               is action "DRW_SET_CONTENT";
 const ACTION: DRW_SET_CURSOR_VISIBLE        is action "DRW_SET_CURSOR_VISIBLE";
 const ACTION: DRW_SET_POINTER_POS           is action "DRW_SET_POINTER_POS";
 const ACTION: DRW_SET_POS                   is action "DRW_SET_POS";
+const ACTION: DRW_SET_SIZE                  is action "DRW_SET_SIZE";
 const ACTION: DRW_SET_TRANSPARENT_COLOR     is action "DRW_SET_TRANSPARENT_COLOR";
 const ACTION: DRW_SET_WINDOW_NAME           is action "DRW_SET_WINDOW_NAME";
 const ACTION: DRW_TEXT                      is action "DRW_TEXT";
@@ -227,6 +228,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwSetCursorVisible (winType, boolType);");
     declareExtern(c_prog, "void        drwSetPointerPos (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwSetSize (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
     declareExtern(c_prog, "void        drwSetWindowName (winType, const const_striType);");
     declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");
@@ -1296,6 +1298,21 @@ const proc: process (DRW_SET_POS, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwSetPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_SET_SIZE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetSize(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);

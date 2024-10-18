@@ -124,6 +124,7 @@ intType drwScreenHeight (void);
 intType drwScreenWidth (void);
 void drwSetContent (const_winType actual_window, const_winType pixmap);
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos);
+void drwSetSize (const_winType actual_window, intType width, intType height);
 void drwSetTransparentColor (winType pixmap, intType col);
 void drwSetWindowName (winType aWindow, const const_striType windowName);
 void drwText (const_winType actual_window, intType x, intType y,

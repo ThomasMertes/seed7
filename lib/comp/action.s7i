@@ -798,6 +798,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SET_POS"}:
         drawLibraryUsed := TRUE;
         process(DRW_SET_POS, function, params, c_expr);
+      when {"DRW_SET_SIZE"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SET_SIZE, function, params, c_expr);
       when {"DRW_SET_TRANSPARENT_COLOR"}:
         drawLibraryUsed := TRUE;
         process(DRW_SET_TRANSPARENT_COLOR, function, params, c_expr);

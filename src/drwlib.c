@@ -1716,6 +1716,19 @@ objectType drw_set_pos (listType arguments)
 
 
 
+objectType drw_set_size (listType arguments)
+
+  { /* drw_set_size */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    drwSetSize(take_win(arg_1(arguments)),
+        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* drw_set_size */
+
+
+
 objectType drw_set_transparent_color (listType arguments)
 
   { /* drw_set_transparent_color */

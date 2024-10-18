@@ -161,6 +161,8 @@ typedef Status (*tp_XQueryTree) (Display *display, Window window,
                                  unsigned int *nchildren_return);
 typedef int (*tp_XRaiseWindow) (Display *display, Window window);
 typedef int (*tp_XRefreshKeyboardMapping) (XMappingEvent *event_map);
+typedef int (*tp_XResizeWindow) (Display *display, Window window,
+                                 unsigned int width, unsigned int height);
 typedef Screen *(*tp_XScreenOfDisplay) (Display *display, int screen_number);
 typedef int (*tp_XSelectInput) (Display *display, Window window,
                                 long event_mask);
@@ -272,6 +274,7 @@ extern tp_XQueryPointer           ptr_XQueryPointer;
 extern tp_XQueryTree              ptr_XQueryTree;
 extern tp_XRaiseWindow            ptr_XRaiseWindow;
 extern tp_XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping;
+extern tp_XResizeWindow           ptr_XResizeWindow;
 extern tp_XScreenOfDisplay        ptr_XScreenOfDisplay;
 extern tp_XSelectInput            ptr_XSelectInput;
 extern tp_XSetArcMode             ptr_XSetArcMode;
@@ -358,6 +361,7 @@ extern tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
 #define XQueryTree              ptr_XQueryTree
 #define XRaiseWindow            ptr_XRaiseWindow
 #define XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping
+#define XResizeWindow           ptr_XResizeWindow
 #define XScreenOfDisplay        ptr_XScreenOfDisplay
 #define XSelectInput            ptr_XSelectInput
 #define XSetArcMode             ptr_XSetArcMode
