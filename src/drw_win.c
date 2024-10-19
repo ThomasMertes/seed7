@@ -117,6 +117,8 @@ typedef const win_winRecord *const_win_winType;
 #define to_var_hasTransparentPixel(win)  (((win_winType) (win))->hasTransparentPixel)
 #define to_var_transparentPixel(win)     (((win_winType) (win))->transparentPixel)
 #define to_var_maskBitmap(win)           (((win_winType) (win))->maskBitmap)
+#define to_var_width(win)                (((win_winType) (win))->width)
+#define to_var_height(win)               (((win_winType) (win))->height)
 #define to_var_clear_col(win)            (((win_winType) (win))->clear_col)
 #define to_var_close_action(win)         (((win_winType) (win))->close_action)
 #define to_var_resizeReturnsKey(win)     (((win_winType) (win))->resizeReturnsKey)
@@ -2283,7 +2285,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
-void drwSetSize (const_winType actual_window, intType width, intType height)
+void drwSetSize (winType actual_window, intType width, intType height)
 
   { /* drwSetSize */
     logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
@@ -2297,6 +2299,8 @@ void drwSetSize (const_winType actual_window, intType width, intType height)
     } else {
       SetWindowPos(to_hwnd(actual_window), 0, 0, 0, (int) width, (int) height,
           /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOMOVE);
+      to_var_width(actual_window) = (unsigned int) width;
+      to_var_height(actual_window) = (unsigned int) height;
     } /* if */
   } /* drwSetSize */
 

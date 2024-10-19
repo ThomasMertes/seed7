@@ -228,7 +228,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwSetCursorVisible (winType, boolType);");
     declareExtern(c_prog, "void        drwSetPointerPos (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
-    declareExtern(c_prog, "void        drwSetSize (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwSetSize (winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
     declareExtern(c_prog, "void        drwSetWindowName (winType, const const_striType);");
     declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");

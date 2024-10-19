@@ -2774,7 +2774,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
-void drwSetSize (const_winType actual_window, intType width, intType height)
+void drwSetSize (winType actual_window, intType width, intType height)
 
   { /* drwSetSize */
     logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
@@ -2788,6 +2788,8 @@ void drwSetSize (const_winType actual_window, intType width, intType height)
     } else {
       XResizeWindow(mydisplay, to_window(actual_window),
                     (unsigned int) width, (unsigned int) height);
+      to_var_width(actual_window) = (unsigned int) width;
+      to_var_height(actual_window) = (unsigned int) height;
     } /* if */
   } /* drwSetSize */
 

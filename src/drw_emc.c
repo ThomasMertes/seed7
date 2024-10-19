@@ -1705,7 +1705,7 @@ winType drwOpen (intType xPos, intType yPos,
           } else {
             return 0;
           }
-	  }, (int) xPos, (int) yPos, (int) width, (int) height,
+        }, (int) xPos, (int) yPos, (int) width, (int) height,
               winName8, winTitle8, firstWindowOpen);
 
       } /* if */
@@ -2395,7 +2395,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
-void drwSetSize (const_winType actual_window, intType width, intType height)
+void drwSetSize (winType actual_window, intType width, intType height)
 
   {
     int successInfo;
@@ -2409,34 +2409,45 @@ void drwSetSize (const_winType actual_window, intType width, intType height)
                       "Illegal window dimensions\n",
                       width, height););
       raise_error(RANGE_ERROR);
-    } else if (is_pixmap(actual_window)) {
-      raise_error(RANGE_ERROR);
-    } else {
-      if (is_subwindow(actual_window)) {
+    } else if (to_width(actual_window) != (int) width ||
+               to_height(actual_window) != (int) height) {
+      if (is_pixmap(actual_window) || is_subwindow(actual_window)) {
         successInfo = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
             let canvas = mapIdToCanvas[$0];
+            let context = mapIdToContext[$0];
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             canvas.width = $1;
             canvas.height = $2;
+            context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+            context.putImageData(imageData, 0, 0);
             return 0;
           } else {
             return 1;
           }
-        }, to_window(actual_window), (int) width, (int) height);
+        }, to_window(actual_window), (int) width, (int) height,
+              (int) (to_clear_col(actual_window) & 0xffffff));
       } else {
         successInfo = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
             let windowObject = mapIdToWindow[$0];
             let canvas = mapIdToCanvas[$0];
+            let context = mapIdToContext[$0];
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             windowObject.innerWidth = $1;
             windowObject.innerHeight = $2;
             canvas.width = $1;
             canvas.height = $2;
+            context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+            context.putImageData(imageData, 0, 0);
             return 0;
           } else {
             return 1;
           }
-        }, to_window(actual_window), (int) width, (int) height);
+        }, to_window(actual_window), (int) width, (int) height,
+              (int) (to_clear_col(actual_window) & 0xffffff));
       } /* if */
       if (unlikely(successInfo != 0)) {
         logError(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
@@ -2444,6 +2455,9 @@ void drwSetSize (const_winType actual_window, intType width, intType height)
                         (memSizeType) actual_window, width, height,
                         to_window(actual_window)););
         raise_error(GRAPHIC_ERROR);
+      } else {
+        to_var_width(actual_window) = (int) width;
+        to_var_height(actual_window) = (int) height;
       } /* if */
     } /* if */
   } /* drwSetSize */
