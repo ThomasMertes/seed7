@@ -745,10 +745,12 @@ const proc: createSolution (inout stateType: state) is func
   end func;
 
 
-const proc: jumpingCard (inout cardImage: card) is DYNAMIC;
+const func char: jumpingCard (inout cardImage: card) is DYNAMIC;
 
 
-const proc: jumpingCard (inout cardType: card) is func
+const func char: jumpingCard (inout cardType: card) is func
+  result
+    var char: command is KEY_NONE;
   local
     const integer: SPEED_REDUCTION is 2;
     var integer: xPos is 0;
@@ -767,7 +769,7 @@ const proc: jumpingCard (inout cardType: card) is func
     # card.window := PRIMITIVE_WINDOW.value;
     startTime := time(NOW);
     while xPos > -width(card.frontside) and xPos < width(curr_win) and
-        not inputReady(KEYBOARD) do
+        command = KEY_NONE do
       put(xPos, yPos, card.frontside);
       setPos(card, xPos, yPos);
       xPos +:= xSpeed;
@@ -780,6 +782,10 @@ const proc: jumpingCard (inout cardType: card) is func
       flushGraphic;
       startTime +:= 5000 . MICRO_SECONDS;
       await(startTime);
+      command := getc(KEYBOARD, NO_WAIT);
+      if command in {KEY_MOUSE4, KEY_MOUSE5} then
+        command := KEY_NONE;
+      end if;
     end while;
     setPos(card, -width(card.frontside), yPos);
   end func;
@@ -790,20 +796,19 @@ const proc: victoryAnimation (inout stateType: state) is func
     var boolean: allDestPilesEmpty is FALSE;
     var integer: destNumber is 0;
     var integer: topIndex is 0;
-    var boolean: inputReady is FALSE;
+    var char: command is KEY_NONE;
   begin
     repeat
       allDestPilesEmpty := TRUE;
-      for key destNumber range state.dest until inputReady do
+      for key destNumber range state.dest until command <> KEY_NONE do
         topIndex := length(state.dest[destNumber]);
         if topIndex <> 0 then
           allDestPilesEmpty := FALSE;
-          jumpingCard(state.dest[destNumber][topIndex]);
+          command := jumpingCard(state.dest[destNumber][topIndex]);
           removeFromDest(state, destNumber);
         end if;
-        inputReady := inputReady(KEYBOARD);
       end for;
-    until allDestPilesEmpty or inputReady;
+    until allDestPilesEmpty or command <> KEY_NONE;
   end func;
 
 
