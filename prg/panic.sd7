@@ -157,7 +157,7 @@ const type: screenObj is new struct
     var integer: motionSpeed is FULL_MOTION;
     var integer: actual_pixmap_index is 1;
     var pixmap_array: pixmap is 0 times PRIMITIVE_WINDOW.value;
-    var PRIMITIVE_WINDOW: saved_pixmap is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: objectWindow is PRIMITIVE_WINDOW.value;
   end struct;
 
 const type: playerObj is sub screenObj struct
@@ -798,6 +798,50 @@ const proc: init_pictures is func
   end func;
 
 
+const proc: visible (inout screenObj: screenObject) is func
+  begin
+    setPos(screenObject.objectWindow,
+          FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+          FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE);
+  end func;
+
+
+const proc: allObjectsVisible is func
+  local
+    var integer: number is 0;
+  begin
+    if player.objectWindow <> PRIMITIVE_WINDOW.value then
+      visible(player);
+    end if;
+    for number range 1 to length(monster) do
+      if monster[number].objectWindow <> PRIMITIVE_WINDOW.value then
+        visible(monster[number]);
+      end if;
+    end for;
+  end func;
+
+
+const proc: invisible (inout screenObj: screenObject) is func
+  begin
+    setPos(screenObject.objectWindow, -100, -100);
+  end func;
+
+
+const proc: allObjectsInvisible is func
+  local
+    var integer: number is 0;
+  begin
+    if player.objectWindow <> PRIMITIVE_WINDOW.value then
+      invisible(player);
+    end if;
+    for number range 1 to length(monster) do
+      if monster[number].objectWindow <> PRIMITIVE_WINDOW.value then
+        invisible(monster[number]);
+      end if;
+    end for;
+  end func;
+
+
 const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is func
   local
     var boolean: exitPause is FALSE;
@@ -808,14 +852,18 @@ const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is 
   begin
     pause_time := time(NOW);
     if blankWindow then
+      allObjectsInvisible;
       bossMode(game.quit);
+      allObjectsVisible;
     end if;
     while not (exitPause or game.quit) do
       cmd := getc(KEYBOARD);
       if cmd in {'Q', 'q', KEY_CLOSE} then
         game.quit := TRUE;
       elsif cmd = KEY_ESC then
+        allObjectsInvisible;
         bossMode(game.quit);
+        allObjectsVisible;
       else
         exitPause := exitWithAnyKey or cmd in {'P', 'p'};
       end if;
@@ -1276,47 +1324,16 @@ const proc: move (inout screenObj: screenObject) is func
       if screenObject.actual_pixmap_index > length(screenObject.pixmap) then
         screenObject.actual_pixmap_index := 1;
       end if;
-      if screenObject.line_direction <> 0 or screenObject.column_direction <> 0 or
-          width(screenObject.saved_pixmap) <> screenObject.width * PICTURE_SCALE then
-        put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-            FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-            screenObject.saved_pixmap);
-        screenObject.line +:= screenObject.line_direction;
-        screenObject.column +:= screenObject.column_direction;
-        screenObject.saved_pixmap := getPixmap(
-            FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-            FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-            screenObject.width * PICTURE_SCALE,
-            screenObject.height * PICTURE_SCALE);
-      end if;
-      put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-          FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-          screenObject.pixmap[screenObject.actual_pixmap_index]);
+      screenObject.line +:= screenObject.line_direction;
+      screenObject.column +:= screenObject.column_direction;
+      setPos(screenObject.objectWindow,
+             FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+             FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE);
+      put(screenObject.objectWindow, 0, 0, screenObject.pixmap[screenObject.actual_pixmap_index]);
       screenObject.motionIndex := screenObject.motionSpeed;
     elsif screenObject.motionIndex > 0 then
       decr(screenObject.motionIndex);
     end if;
-  end func;
-
-
-const proc: visible (inout screenObj: screenObject) is func
-  begin
-    screenObject.saved_pixmap := getPixmap(
-        FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-        screenObject.width * PICTURE_SCALE,
-        screenObject.height * PICTURE_SCALE);
-    put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-        screenObject.pixmap[screenObject.actual_pixmap_index]);
-  end func;
-
-
-const proc: invisible (inout screenObj: screenObject) is func
-  begin
-    put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
-        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-        screenObject.saved_pixmap);
   end func;
 
 
@@ -1325,17 +1342,12 @@ const proc: place (inout screenObj: screenObject,
   begin
     screenObject.line := line;
     screenObject.column := column;
-    visible(screenObject);
-  end func;
-
-
-const proc: jump (inout screenObj: screenObject,
-    in integer: line, in integer: column) is func
-  begin
-    invisible(screenObject);
-    screenObject.line := line;
-    screenObject.column := column;
-    visible(screenObject);
+    screenObject.objectWindow := openSubWindow(curr_win,
+        FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+        screenObject.width * PICTURE_SCALE,
+        screenObject.height * PICTURE_SCALE);
+    put(screenObject.objectWindow, 0, 0, screenObject.pixmap[screenObject.actual_pixmap_index]);
   end func;
 
 
@@ -1348,48 +1360,6 @@ const proc: die (inout screenObj: screenObject) is func
     if game.num_monsters = 0 then
       game.round_finished := TRUE;
     end if;
-  end func;
-
-
-const proc: save_overlapping (inout screenObj: screenObject) is func
-  local
-    var integer: number is 0;
-  begin
-    for number range 1 to length(monster) do
-      if (screenObject.line <> monster[number].line or
-          screenObject.column <> monster[number].column) and
-          collision(screenObject, monster[number]) then
-        invisible(monster[number]);
-      end if;
-    end for;
-    if collision(screenObject, player) then
-      invisible(player);
-    end if;
-  end func;
-
-
-const proc: restore_overlapping (inout screenObj: screenObject) is func
-  local
-    var integer: number is 0;
-  begin
-    for number range 1 to length(monster) do
-      if (screenObject.line <> monster[number].line or
-          screenObject.column <> monster[number].column) and
-          collision(screenObject, monster[number]) then
-        visible(monster[number]);
-      end if;
-    end for;
-    if collision(screenObject, player) then
-      visible(player);
-    end if;
-  end func;
-
-
-const proc: redraw_hole (in integer: line, in integer: column, inout monsterObj: currObject) is func
-  begin
-    invisible(currObject);
-    draw_hole(line, column, no_hole);
-    visible(currObject);
   end func;
 
 
@@ -1487,9 +1457,11 @@ const proc: check_falling (inout monsterObj: currObject, in holeType: curr_hole_
           currObject.width := width(currObject.pixmap[1]) div PICTURE_SCALE;
           currObject.line -:= 10;
           currObject.column -:= 6;
-          save_overlapping(currObject);
-          visible(currObject);
-          restore_overlapping(currObject);
+          currObject.objectWindow := openSubWindow(curr_win,
+              FIELD_X_START + currObject.column * FIELD_ELEM_STEP,
+              FIELD_Y_START + currObject.line * FIELD_ELEM_STEP - currObject.height * PICTURE_SCALE,
+              currObject.width * PICTURE_SCALE,
+              currObject.height * PICTURE_SCALE);
           currObject.action_time := time(NOW) + 1 . SECONDS;
         else
           currObject.falling := FALSE;
@@ -1510,15 +1482,13 @@ const proc: check_falling (inout monsterObj: currObject, in holeType: curr_hole_
               hole_status[currObject.line - number][currObject.column] = hole_entering or
               hole_status[currObject.line - number][currObject.column] >= hole_filled then
             mark_hole(currObject.line - number, currObject.column, no_hole);
-            redraw_hole(currObject.line - number, currObject.column, currObject);
+            draw_hole(currObject.line - number, currObject.column, no_hole);
             incr(currObject.holes_passed);
             currObject.points +:= currObject.basePoints;
           end if;
         end for;
       elsif time(NOW) >= currObject.action_time then
-        save_overlapping(currObject);
         invisible(currObject);
-        restore_overlapping(currObject);
         die(currObject);
       end if;
     end if;
@@ -1565,6 +1535,7 @@ const proc: player_collision (inout monsterObj: currObject) is func
       player.command := ' ';
       currObject.catching := TRUE;
       set_direction(currObject, player.line - 6, player.column);
+      toTop(currObject.objectWindow);
     elsif currObject.catching then
       if currObject.line_direction <> 0 or currObject.column_direction <> 0 then
         if currObject.line <> player.line - 6 or currObject.column <> player.column then
@@ -1630,7 +1601,7 @@ const proc: check_hole (inout monsterObj: currObject, in holeType: curr_hole_sta
             hole_status[currObject.line - number][currObject.column] in
             {hole_depth1, hole_depth2, hole_depth3, hole_depth4} then
           hole_status[currObject.line - number][currObject.column] := hole_leaving;
-          redraw_hole(currObject.line - number, currObject.column, currObject);
+          draw_hole(currObject.line - number, currObject.column, no_hole);
         end if;
       end for;
       currObject.line_direction := -SPEED;
@@ -1643,7 +1614,7 @@ const proc: check_hole (inout monsterObj: currObject, in holeType: curr_hole_sta
         hole_status[currObject.line - TRAP_DEPTH][currObject.column] := hole_filled;
       elsif hole_status[currObject.line - TRAP_DEPTH][currObject.column] = hole_pounded then
         mark_hole(currObject.line - TRAP_DEPTH, currObject.column, no_hole);
-        redraw_hole(currObject.line - TRAP_DEPTH, currObject.column, currObject);
+        draw_hole(currObject.line - TRAP_DEPTH, currObject.column, no_hole);
         currObject.line_direction := FALL_SPEED;
         currObject.falling := TRUE;
         currObject.holes_passed := 1;
@@ -1652,7 +1623,7 @@ const proc: check_hole (inout monsterObj: currObject, in holeType: curr_hole_sta
       else
         if time(NOW) >= currObject.action_time then
           hole_status[currObject.line - TRAP_DEPTH][currObject.column] := hole_leaving;
-          redraw_hole(currObject.line - TRAP_DEPTH, currObject.column, currObject);
+          draw_hole(currObject.line - TRAP_DEPTH, currObject.column, no_hole);
           currObject.line_direction := -SPEED;
           currObject.motionSpeed := LEAVE_MOTION;
           if player.falling and collision2(currObject, player) then
@@ -1757,6 +1728,8 @@ const proc: init_round (in integer: num_round) is func
   begin
     start_time := time(NOW);
     game.round_finished := FALSE;
+    allObjectsInvisible;
+    flushGraphic;
     field := FIELD_LINES times FIELD_COLUMNS times FALSE;
     hole_status := FIELD_LINES times FIELD_COLUMNS times no_hole;
     for number range 1 to pred(NUM_LEVELS) do
@@ -2037,6 +2010,9 @@ const proc: left (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_left_pixmap;
       playerObject.width := 14;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2052,6 +2028,9 @@ const proc: right (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_right_pixmap;
       playerObject.width := 14;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2067,6 +2046,9 @@ const proc: up (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_up_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2082,6 +2064,9 @@ const proc: down (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_down_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2097,6 +2082,9 @@ const proc: dig_left (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_dig_left_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2112,6 +2100,9 @@ const proc: dig_right (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_dig_right_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2127,6 +2118,9 @@ const proc: shut_left (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_dig_left_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2142,6 +2136,9 @@ const proc: shut_right (inout playerObj: playerObject) is func
       playerObject.actual_pixmap_index := 1;
       playerObject.pixmap := player_dig_right_pixmap;
       playerObject.width := 13;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     end if;
   end func;
 
@@ -2301,6 +2298,10 @@ const proc: process (inout playerObj: playerObject) is func
       playerObject.falling := TRUE;
       playerObject.face_direction := 0;
       playerObject.pixmap := player_falling_pixmap;
+      playerObject.width := 12;
+      setSize(playerObject.objectWindow,
+              playerObject.width * PICTURE_SCALE,
+              height(playerObject.objectWindow));
     else
       process_command(playerObject);
       stop_at_hole(playerObject);
@@ -2409,6 +2410,7 @@ const proc: get_command (inout playerObj: playerObject) is func
     var char: cmd is ' ';
     var integer: clickedXPos is 0;
     var integer: clickedYPos is 0;
+    var PRIMITIVE_WINDOW: clickedWindow is PRIMITIVE_WINDOW.value;
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: clickedLevel is 0;
@@ -2434,6 +2436,11 @@ const proc: get_command (inout playerObj: playerObject) is func
         when {KEY_MOUSE1}:
           clickedXPos := clickedXPos(KEYBOARD);
           clickedYPos := clickedYPos(KEYBOARD);
+          clickedWindow := buttonWindow(KEYBOARD);
+          if clickedWindow <> curr_win then
+            clickedXPos +:= xPos(clickedWindow);
+            clickedYPos +:= yPos(clickedWindow);
+          end if;
           xPos := playerObject.column * PICTURE_SCALE;
           yPos := playerObject.line * PICTURE_SCALE;
           clickedLevel := getLevel(clickedYPos);
