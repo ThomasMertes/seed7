@@ -816,11 +816,18 @@ const func boolean: playGame is func
   result
     var boolean: quit is FALSE;
   local
+    var integer: destNum is 0;
     var char: command is ' ';
     var boolean: playing is TRUE;
     var stateType: state is stateType.value;
   begin
     clear(curr_win, dark_green);
+    for destNum range 1 to 4 do
+      rect(succ(LEFT_MARGIN + (destNum + 2) * DELTA_X), succ(TOP_MARGIN),
+           CARD_WIDTH - 2, CARD_HEIGHT - 2, forestgreen);
+      box(succ(LEFT_MARGIN + (destNum + 2) * DELTA_X), succ(TOP_MARGIN),
+           CARD_WIDTH - 2, CARD_HEIGHT - 2, black);
+    end for;
     shuffle(state.deck);
     dealCards(state);
     command := getc(KEYBOARD);
