@@ -114,6 +114,7 @@ static keyQueueType keyQueue = {NULL, NULL};
 static rtlHashType window_hash = NULL;
 intType pointerX = 0;
 intType pointerY = 0;
+boolType touchInSubWindow = FALSE;
 
 /* The state of a modifier key is TRUE, if the key is currently pressed. */
 /* The keyboard state is in capsLockOn, numLockOn and scrollLockOn. */
@@ -164,6 +165,7 @@ extern boolType windowExists (int windowId);
 extern int copyWindow (int windowId);
 extern intType getWindowLeftPos (const const_winType aWindow);
 extern intType getWindowTopPos (const const_winType aWindow);
+extern boolType isSubWindow (winType aWindow);
 extern int maxWindowId;
 
 
@@ -392,6 +394,10 @@ static void addEventPromiseForWindowId (int windowId)
           currentWindow.removeEventListener("focus", handler);
           currentWindow.removeEventListener("visibilitychange", handler);
           currentWindow.removeEventListener("unload", handler);
+          currentWindow.removeEventListener("touchstart", handler);
+          currentWindow.removeEventListener("touchend", handler);
+          currentWindow.removeEventListener("touchcancel", handler);
+          currentWindow.removeEventListener("touchmove", handler);
           resolve(event);
         }
         currentWindow.addEventListener("keydown", handler);
@@ -405,6 +411,10 @@ static void addEventPromiseForWindowId (int windowId)
         currentWindow.addEventListener("focus", handler);
         currentWindow.addEventListener("visibilitychange", handler);
         currentWindow.addEventListener("unload", handler);
+        currentWindow.addEventListener("touchstart", handler, {passive: false});
+        currentWindow.addEventListener("touchend", handler);
+        currentWindow.addEventListener("touchcancel", handler);
+        currentWindow.addEventListener("touchmove", handler, {passive: false});
         registerCallback(handler);
       }));
     }, windowId);
@@ -1157,6 +1167,82 @@ EMSCRIPTEN_KEEPALIVE int decodeUnloadEvent (int windowId)
 
 
 
+EMSCRIPTEN_KEEPALIVE int decodeTouchstartEvent (int windowId,
+    int clientX, int clientY, boolType shiftKey, boolType ctrlKey, boolType altKey)
+
+  {
+    winType window;
+    int result = K_NONE;
+
+  /* decodeTouchstartEvent */
+    logFunction(printf("decodeTouchstartEvent(%d, %d, %d, %d, %d, %d)\n",
+                       windowId, clientX, clientY, shiftKey, ctrlKey, altKey););
+    window = find_window(windowId);
+    if (isSubWindow(window)) {
+      lastKey.clickedX = clientX;
+      lastKey.clickedY = clientY;
+      pointerX = clientX;
+      pointerY = clientY;
+      lastKey.buttonWindow = windowId;
+      if (shiftKey) {
+        result = K_SFT_MOUSE1;
+      } else if (ctrlKey) {
+        result = K_CTL_MOUSE1;
+      } else if (altKey) {
+        result = K_ALT_MOUSE1;
+      } else {
+        result = K_MOUSE1;
+      } /* if */
+      touchInSubWindow = TRUE;
+    } /* if */
+    mouseKeyPressed[0] = TRUE;
+    logFunction(printf("decodeTouchstartEvent(%d, %d, %d, %d, %d, %d) --> %d\n",
+			windowId, clientX, clientY, shiftKey, ctrlKey, altKey, result););
+    return result;
+  } /* decodeTouchstartEvent */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeTouchendEvent (int windowId)
+
+  { /* decodeTouchendEvent */
+    logFunction(printf("decodeTouchendEvent(%d)\n",
+                       windowId););
+    mouseKeyPressed[0] = FALSE;
+    touchInSubWindow = FALSE;
+    return K_NONE;
+  } /* decodeTouchendEvent */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeTouchcancelEvent (int windowId)
+
+  { /* decodeTouchcancelEvent */
+    logFunction(printf("decodeTouchcancelEvent(%d)\n",
+                       windowId););
+    mouseKeyPressed[0] = FALSE;
+    touchInSubWindow = FALSE;
+    return K_NONE;
+  } /* decodeTouchcancelEvent */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeTouchmoveEvent (int clientX, int clientY)
+
+  { /* decodeTouchmoveEvent */
+    logFunction(printf("decodeTouchmoveEvent(%d, %d)\n",
+                       clientX, clientY););
+    if (touchInSubWindow) {
+      pointerX = clientX;
+      pointerY = clientY;
+    } /* if */
+    logFunction(printf("decodeTouchmoveEvent(%d, %d, %d) --> %d\n",
+			clientX, clientY, touchInSubWindow););
+    return touchInSubWindow;
+  } /* decodeTouchmoveEvent */
+
+
+
 EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
     // console.log("asyncGkbdGetc");
     const event = await Promise.any(eventPromises);
@@ -1164,7 +1250,19 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
     //   console.log("after await");
     //   console.log(event);
     // }
-    if (event.type === "mousemove") {
+    if (event.type === "touchmove") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      if (event.touches.length === 1) {
+        if (Module.ccall("decodeTouchmoveEvent", "number",
+                         ["number", "number"],
+                         [event.touches[0].clientX, event.touches[0].clientY])) {
+          event.preventDefault();
+        }
+      }
+      return 1114511;
+    } else if (event.type === "mousemove") {
 #if TRACE_EVENTS
       console.log(event);
 #endif
@@ -1275,6 +1373,37 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
 #endif
       return Module.ccall("decodeUnloadEvent", "number", ["number"],
                           [mapCanvasToId.get(event.target.activeElement.firstChild)]);
+    } else if (event.type === "touchstart") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      if (event.touches.length === 1) {
+        let aKey = Module.ccall("decodeTouchstartEvent", "number",
+                                ["number", "number", "number", "boolean", "boolean", "boolean"],
+                                [mapCanvasToId.get(event.target),
+                                 event.touches[0].clientX, event.touches[0].clientY,
+                                 event.shiftKey, event.ctrlKey, event.altKey]);
+        if (aKey !== 1114511) {
+          event.preventDefault();
+        }
+        return aKey;
+      } else {
+        return 1114511;
+      }
+    } else if (event.type === "touchend") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      return Module.ccall("decodeTouchendEvent", "number",
+                          ["number"],
+                          [mapCanvasToId.get(event.target)]);
+    } else if (event.type === "touchcancel") {
+#if TRACE_EVENTS
+      console.log(event);
+#endif
+      return Module.ccall("decodeTouchcancelEvent", "number",
+                          ["number"],
+                          [mapCanvasToId.get(event.target)]);
     } else {
       return event;
     }

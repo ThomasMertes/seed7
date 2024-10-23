@@ -123,6 +123,14 @@ extern intType pointerY;
 
 
 
+boolType isSubWindow (winType aWindow)
+
+  {
+    return is_subwindow(aWindow);
+  }
+
+
+
 int getCloseAction (winType aWindow)
 
   {
@@ -2353,8 +2361,9 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
     int successInfo;
 
   /* drwSetPos */
-    logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, xPos, yPos););
+    logFunction(printf("drwSetPos(" FMT_U_MEM " (%d), " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, to_window(actual_window),
+                       xPos, yPos););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
       raise_error(RANGE_ERROR);
     } else if (is_pixmap(actual_window)) {
@@ -2401,8 +2410,9 @@ void drwSetSize (winType actual_window, intType width, intType height)
     int successInfo;
 
   /* drwSetSize */
-    logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, width, height););
+    logFunction(printf("drwSetSize(" FMT_U_MEM " (%d), " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, to_window(actual_window),
+                       width, height););
     if (unlikely(width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
       logError(printf("drwSetSize(" FMT_D ", " FMT_D "): "
