@@ -822,6 +822,14 @@ const func boolean: playGame is func
     var stateType: state is stateType.value;
   begin
     clear(curr_win, dark_green);
+    rect(succ(LEFT_MARGIN), succ(TOP_MARGIN),
+         CARD_WIDTH - 2, CARD_HEIGHT - 2, forestgreen);
+    box(succ(LEFT_MARGIN), succ(TOP_MARGIN),
+         CARD_WIDTH - 2, CARD_HEIGHT - 2, black);
+    fcircle(LEFT_MARGIN + CARD_WIDTH div 2, TOP_MARGIN + CARD_HEIGHT div 2,
+            CARD_WIDTH div 2 - 8 * PICTURE_SCALE, light_green);
+    fcircle(LEFT_MARGIN + CARD_WIDTH div 2, TOP_MARGIN + CARD_HEIGHT div 2,
+            CARD_WIDTH div 2 - 16 * PICTURE_SCALE, forestgreen);
     for destNum range 1 to 4 do
       rect(succ(LEFT_MARGIN + (destNum + 2) * DELTA_X), succ(TOP_MARGIN),
            CARD_WIDTH - 2, CARD_HEIGHT - 2, forestgreen);
