@@ -1614,6 +1614,12 @@ winType drwOpen (intType xPos, intType yPos,
             let windowName = Module.UTF8ToString($4);
             let windowTitle = Module.UTF8ToString($5);
             let firstWindowOpen = $6;
+            let leftTopZero = 0;
+            if (left === 0 && top === 0) {
+              left = 1;
+              top = 1;
+              leftTopZero = 1;
+            }
             let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
                                  ",left=" + left + ",top=" + top +
                                  ",width=" + width + ",height=" + height;
@@ -1624,7 +1630,9 @@ winType drwOpen (intType xPos, intType yPos,
                    windowObject.visualViewport.scale !== 1) ||
                   windowObject.toolbar.visible ||
                   windowObject.menubar.visible ||
-                  windowObject.statusbar.visible) {
+                  windowObject.statusbar.visible ||
+                  windowObject.screenX !== left ||
+                  windowObject.screenY !== top) {
                 windowObject.close();
                 windowObject = null;
               }
@@ -1662,6 +1670,10 @@ winType drwOpen (intType xPos, intType yPos,
                 return 0;
               }
             } else {
+              if (leftTopZero) {
+                windowObject.screenX = 0;
+                windowObject.screenY = 0;
+              }
               const title = windowObject.document.createElement("title");
               const titleText = windowObject.document.createTextNode(windowTitle);
               title.appendChild(titleText);

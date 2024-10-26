@@ -1101,7 +1101,7 @@ EMSCRIPTEN_KEEPALIVE int decodeFocusEvent (int windowId)
       } /* if */
     } /* if */
     logFunction(printf("decodeFocusEvent(%d (closePopupState=%d)) --> %d\n",
-                        windowId, getClosePopupState(windowId), result););
+                       windowId, getClosePopupState(windowId), result););
     return result;
   } /* decodeFocusEvent */
 
@@ -1197,7 +1197,7 @@ EMSCRIPTEN_KEEPALIVE int decodeTouchstartEvent (int windowId,
     } /* if */
     mouseKeyPressed[0] = TRUE;
     logFunction(printf("decodeTouchstartEvent(%d, %d, %d, %d, %d, %d) --> %d\n",
-			windowId, clientX, clientY, shiftKey, ctrlKey, altKey, result););
+                       windowId, clientX, clientY, shiftKey, ctrlKey, altKey, result););
     return result;
   } /* decodeTouchstartEvent */
 
@@ -1237,7 +1237,7 @@ EMSCRIPTEN_KEEPALIVE int decodeTouchmoveEvent (int clientX, int clientY)
       pointerY = clientY;
     } /* if */
     logFunction(printf("decodeTouchmoveEvent(%d, %d, %d) --> %d\n",
-			clientX, clientY, touchInSubWindow););
+                       clientX, clientY, touchInSubWindow););
     return touchInSubWindow;
   } /* decodeTouchmoveEvent */
 
