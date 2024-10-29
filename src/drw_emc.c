@@ -1540,6 +1540,72 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
 
 
 
+static int openCurrentTabAsWindow (int windowId, intType width, intType height)
+
+  {
+    int windowIdAndFlags;
+
+  /* openCurrentTabAsWindow */
+    logFunction(printf("openCurrentTabAsWindow(%d, " FMT_D ", " FMT_D ")\n",
+                       windowId, width, height););
+    windowIdAndFlags = EM_ASM_INT({
+      let windowId = $0;
+      let width = $1;
+      let height = $2;
+      if (windowId !== 0) {
+        if (typeof mapIdToCanvas[windowId] !== "undefined") {
+          let canvas = mapIdToCanvas[windowId];
+          mapCanvasToId.delete(canvas);
+          mapIdToCanvas[windowId] = undefined;
+          mapIdToContext[windowId] = undefined;
+          let parent = canvas.parentNode;
+          parent.removeChild(canvas);
+        }
+        if (typeof mapIdToWindow[windowId] !== "undefined") {
+          let windowObject = mapIdToWindow[windowId];
+          mapWindowToId.delete(windowObject);
+          mapIdToWindow[windowId] = undefined;
+          if (deregisterWindowFunction !== null) {
+            deregisterWindowFunction(windowObject);
+          }
+          windowObject.close();
+        }
+      }
+      currentWindowId++;
+      mapIdToWindow[currentWindowId] = document;
+      mapWindowToId.set(null, currentWindowId);
+      let canvas = document.createElement("canvas");
+      let ignoreFirstResize = 0;
+      canvas.width  = width;
+      canvas.height = height;
+      let context = canvas.getContext("2d");
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, width, height);
+      document.getElementsByTagName("body")[0].innerHTML = "";
+      document.body.appendChild(canvas);
+      mapIdToCanvas[currentWindowId] = canvas;
+      mapCanvasToId.set(canvas, currentWindowId);
+      mapIdToContext[currentWindowId] = context;
+      let script = document.createElement("script");
+      script.setAttribute("type", "text/javascript");
+      script.text = "function reloadPage() {\n" +
+                    "    setTimeout(function() {\n" +
+                    "        location.reload();\n" +
+                    "    }, 1000);\n" +
+                    "}\n";
+      document.body.appendChild(script);
+      if (reloadPageFunction === null) {
+          reloadPageFunction = reloadPage;
+      }
+      return (currentWindowId << 3) | ignoreFirstResize | 4;
+    }, windowId, (int) width, (int) height);
+    logFunction(printf("openCurrentTabAsWindow(%d, " FMT_D ", " FMT_D ") --> %d\n",
+                       windowId, width, height, windowIdAndFlags););
+    return windowIdAndFlags;
+  } /* openCurrentTabAsWindow */
+
+
+
 /**
  *  Open a graphic window with the given parameters.
  *  Depending on the settings a browser may open a popup or a new tab.
@@ -1620,55 +1686,23 @@ winType drwOpen (intType xPos, intType yPos,
               top = 1;
               leftTopZero = 1;
             }
-            let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
-                                 ",left=" + left + ",top=" + top +
+            let windowFeatures = "popup=true,left=" + left + ",top=" + top +
                                  ",width=" + width + ",height=" + height;
             let windowObject = window.open("", windowName, windowFeatures);
             if (windowObject !== null && firstWindowOpen) {
-              if (!document.hasFocus() ||
-                  (windowObject.visualViewport !== null &&
+              if ((windowObject.visualViewport !== null &&
                    windowObject.visualViewport.scale !== 1) ||
                   windowObject.toolbar.visible ||
                   windowObject.menubar.visible ||
                   windowObject.statusbar.visible ||
-                  windowObject.screenX !== left ||
-                  windowObject.screenY !== top) {
+                  (windowObject.screenX === 0 &&
+                   windowObject.screenY === 0)) {
                 windowObject.close();
-                windowObject = null;
+                return 4;
               }
             }
             if (windowObject === null) {
-              if (firstWindowOpen) {
-                currentWindowId++;
-                mapIdToWindow[currentWindowId] = document;
-                mapWindowToId.set(null, currentWindowId);
-                let canvas = document.createElement("canvas");
-                let ignoreFirstResize = 0;
-                canvas.width  = width ;
-                canvas.height = height;
-                let context = canvas.getContext("2d");
-                context.fillStyle = "#000000";
-                context.fillRect(0, 0, width, height);
-                document.getElementsByTagName('body')[0].innerHTML = "";
-                document.body.appendChild(canvas);
-                mapIdToCanvas[currentWindowId] = canvas;
-                mapCanvasToId.set(canvas, currentWindowId);
-                mapIdToContext[currentWindowId] = context;
-                let script = document.createElement("script");
-                script.setAttribute("type", "text/javascript");
-                script.text = "function reloadPage() {\n" +
-                              "    setTimeout(function() {\n" +
-                              "        location.reload();\n" +
-                              "    }, 1000);\n" +
-                              "}\n";
-                document.body.appendChild(script);
-                if (reloadPageFunction === null) {
-                    reloadPageFunction = reloadPage;
-                }
-                return (currentWindowId << 3) | ignoreFirstResize | 4;
-              } else {
-                return 0;
-              }
+              return 0;
             } else {
               if (leftTopZero) {
                 windowObject.screenX = 0;
@@ -1728,6 +1762,9 @@ winType drwOpen (intType xPos, intType yPos,
         }, (int) xPos, (int) yPos, (int) width, (int) height,
               winName8, winTitle8, firstWindowOpen);
 
+      } /* if */
+      if (windowIdAndFlags == 4) {
+        windowIdAndFlags = openCurrentTabAsWindow(0, width, height);
       } /* if */
       if (unlikely(windowIdAndFlags == 0)) {
         /* This might be triggered by the error: */
