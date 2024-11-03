@@ -38,6 +38,8 @@
 #include "stdio.h"
 #include "string.h"
 #include "emscripten.h"
+#include <emscripten/console.h>
+#include <emscripten/wasm_worker.h>
 
 #include "common.h"
 #include "data_rtl.h"
@@ -100,6 +102,8 @@
 /* os_exit(). This is done with the exitOrException flag since calling */
 /* os_exit() from an async function triggers an error.                 */
 
+#define USE_WASM_WORKERS 0
+
 static boolType exitOrException = FALSE;
 
 /* If copyWindow() fails GRAPHIC_ERROR is raised. This happens if just */
@@ -115,6 +119,12 @@ static rtlHashType window_hash = NULL;
 intType pointerX = 0;
 intType pointerY = 0;
 boolType touchInSubWindow = FALSE;
+#if USE_WASM_WORKERS
+emscripten_wasm_worker_t worker = 0;
+em_promise_t timeoutPromise;
+uint32Type timeoutPromiseNumber = 0;
+uint32Type timeoutPromiseCounter = 0;
+#endif
 
 /* The state of a modifier key is TRUE, if the key is currently pressed. */
 /* The keyboard state is in capsLockOn, numLockOn and scrollLockOn. */
@@ -1446,6 +1456,65 @@ charType gkbGetc (void)
 
 
 
+#if USE_WASM_WORKERS
+static void timeOver (int workerPromiseNumber)
+
+  { /* timeOver */
+    logMessage(emscripten_console_log("timeOver()"););
+    if (timeoutPromiseNumber == (uint32Type) workerPromiseNumber) {
+      logMessage(emscripten_console_log("timeoutPromiseNumber okay"););
+      emscripten_promise_resolve(timeoutPromise, EM_PROMISE_FULFILL,
+                                 /* value: */ (void*) K_NONE);
+    } /* if */
+    logMessage(emscripten_console_log("timeOver() -->"););
+  } /* timeOver */
+
+
+
+/**
+ *  Timeout worker function to be executed in a worker thread.
+ */
+static void timeoutWorker (int workerPromiseNumber, int microseconds)
+
+  { /* timeoutWorker */
+    logMessage(emscripten_console_log("timeoutWorker()"););
+    emscripten_wasm_worker_sleep((int64_t) microseconds * 1000);
+    emscripten_wasm_worker_post_function_vi(EMSCRIPTEN_WASM_WORKER_ID_PARENT,
+                                            timeOver, workerPromiseNumber);
+    logMessage(emscripten_console_log("timeoutWorker() -->"););
+  } /* timeoutWorker */
+
+
+
+static void setupTimeoutPromise (int microseconds)
+
+  { /* setupTimeoutPromise */
+    logFunction(printf("setupTimeoutPromise(%d)\n", microseconds););
+    timeoutPromise = emscripten_promise_create();
+    EM_ASM({
+      eventPromises.push(getPromise($0));
+    }, (int) (void *) timeoutPromise);
+    timeoutPromiseCounter++;
+    timeoutPromiseNumber = timeoutPromiseCounter;
+    emscripten_wasm_worker_post_function_vii(worker, timeoutWorker,
+                                             (int) timeoutPromiseNumber,
+                                             microseconds);
+    logFunction(printf("setupTimeoutPromise(%d) -->\n", microseconds););
+  } /* setupTimeoutPromise */
+
+
+
+static void freeTimeoutPromise (void)
+
+  { /* freeTimeoutPromise */
+    logFunction(printf("freeTimeoutPromise()\n"););
+    emscripten_promise_destroy(timeoutPromise);
+    timeoutPromiseNumber = 0;
+  } /* freeTimeoutPromise */
+#endif
+
+
+
 static charType waitOrGetc (int milliSec)
 
   {
@@ -1454,13 +1523,20 @@ static charType waitOrGetc (int milliSec)
   /* waitOrGetc */
     logFunction(printf("waitOrGetc(%d)\n", milliSec););
     setupEventPromises();
+#if USE_WASM_WORKERS
+    setupTimeoutPromise(milliSec * 1000);
+#else
     EM_ASM({
       eventPromises.push(new Promise(resolve =>
         setTimeout(() => resolve($0), $1)
       ));
-    }, K_NONE,  milliSec);
+    }, K_NONE, milliSec);
+#endif
     result = (charType) asyncGkbdGetc();
     freeEventPromises();
+#if USE_WASM_WORKERS
+    freeTimeoutPromise();
+#endif
     if (unlikely(exitOrException)) {
       if (emc_err_info == OKAY_NO_ERROR) {
         os_exit(0);
@@ -1515,6 +1591,33 @@ void synchronizeTimAwaitWithGraphicKeyboard (void)
   { /* synchronizeTimAwaitWithGraphicKeyboard */
     doWaitOrPushKey = &gkbDoWaitOrPushKey;
   } /* synchronizeTimAwaitWithGraphicKeyboard */
+
+
+
+#if USE_WASM_WORKERS
+static void terminateWorker (void)
+
+  { /* terminateWorker */
+    logFunction(printf("terminateWorker()\n"););
+    emscripten_terminate_wasm_worker(worker);
+    logFunction(printf("terminateWorker() -->\n"););
+  } /* terminateWorker */
+
+
+
+static void startWorker (void)
+
+  { /* startWorker */
+    logFunction(printf("startWorker()\n"););
+    worker = emscripten_malloc_wasm_worker(/*stackSize: */1024);
+    if (unlikely(worker == 0)) {
+      printf("Not able to create worker\n");
+    } else {
+      os_atexit(terminateWorker);
+    } /* if */
+    logFunction(printf("startWorker() -->\n"););
+  } /* startWorker */
+#endif
 
 
 
@@ -1584,6 +1687,9 @@ void gkbInitKeyboard (void)
         ["ScrollLock",    53]
       ]);
     });
+#if USE_WASM_WORKERS
+    startWorker();
+#endif
   } /* gkbInitKeyboard */
 
 
