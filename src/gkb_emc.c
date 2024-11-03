@@ -122,8 +122,8 @@ boolType touchInSubWindow = FALSE;
 #if USE_WASM_WORKERS
 emscripten_wasm_worker_t worker = 0;
 em_promise_t timeoutPromise;
-uint32Type timeoutPromiseNumber = 0;
-uint32Type timeoutPromiseCounter = 0;
+unsigned int timeoutPromiseNumber = 0;
+unsigned int timeoutPromiseCounter = 0;
 #endif
 
 /* The state of a modifier key is TRUE, if the key is currently pressed. */
@@ -1461,7 +1461,7 @@ static void timeOver (int workerPromiseNumber)
 
   { /* timeOver */
     logMessage(emscripten_console_log("timeOver()"););
-    if (timeoutPromiseNumber == (uint32Type) workerPromiseNumber) {
+    if (timeoutPromiseNumber == (unsigned int) workerPromiseNumber) {
       logMessage(emscripten_console_log("timeoutPromiseNumber okay"););
       emscripten_promise_resolve(timeoutPromise, EM_PROMISE_FULFILL,
                                  /* value: */ (void*) K_NONE);
@@ -1490,15 +1490,23 @@ static void setupTimeoutPromise (int microseconds)
 
   { /* setupTimeoutPromise */
     logFunction(printf("setupTimeoutPromise(%d)\n", microseconds););
-    timeoutPromise = emscripten_promise_create();
-    EM_ASM({
-      eventPromises.push(getPromise($0));
-    }, (int) (void *) timeoutPromise);
-    timeoutPromiseCounter++;
-    timeoutPromiseNumber = timeoutPromiseCounter;
-    emscripten_wasm_worker_post_function_vii(worker, timeoutWorker,
-                                             (int) timeoutPromiseNumber,
-                                             microseconds);
+    if (worker == 0) {
+      EM_ASM({
+        eventPromises.push(new Promise(resolve =>
+          setTimeout(() => resolve($0), $1)
+        ));
+      }, K_NONE, microseconds / 1000);
+    } else {
+      timeoutPromise = emscripten_promise_create();
+      EM_ASM({
+        eventPromises.push(getPromise($0));
+      }, (int) (void *) timeoutPromise);
+      timeoutPromiseCounter++;
+      timeoutPromiseNumber = timeoutPromiseCounter;
+      emscripten_wasm_worker_post_function_vii(worker, timeoutWorker,
+                                               (int) timeoutPromiseNumber,
+                                               microseconds);
+    } /* if */
     logFunction(printf("setupTimeoutPromise(%d) -->\n", microseconds););
   } /* setupTimeoutPromise */
 
@@ -1508,8 +1516,10 @@ static void freeTimeoutPromise (void)
 
   { /* freeTimeoutPromise */
     logFunction(printf("freeTimeoutPromise()\n"););
-    emscripten_promise_destroy(timeoutPromise);
-    timeoutPromiseNumber = 0;
+    if (worker != 0) {
+      emscripten_promise_destroy(timeoutPromise);
+      timeoutPromiseNumber = 0;
+    } /* if */
   } /* freeTimeoutPromise */
 #endif
 
@@ -1607,13 +1617,23 @@ static void terminateWorker (void)
 
 static void startWorker (void)
 
-  { /* startWorker */
+  {
+    int crossOriginIsolated;
+
+  /* startWorker */
     logFunction(printf("startWorker()\n"););
-    worker = emscripten_malloc_wasm_worker(/*stackSize: */1024);
-    if (unlikely(worker == 0)) {
-      printf("Not able to create worker\n");
-    } else {
-      os_atexit(terminateWorker);
+    crossOriginIsolated = EM_ASM_INT({
+      if (typeof window !== "undefined") {
+        return window.crossOriginIsolated;
+      } else {
+        return 0;
+      }
+    });
+    if (crossOriginIsolated) {
+      worker = emscripten_malloc_wasm_worker(/*stackSize: */1024);
+      if (likely(worker != 0)) {
+        os_atexit(terminateWorker);
+      } /* if */
     } /* if */
     logFunction(printf("startWorker() -->\n"););
   } /* startWorker */
