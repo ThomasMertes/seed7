@@ -178,7 +178,7 @@ const integer: EXTENDED_MASTER_SECRET                 is    23;  # RFC7627
 const integer: TOKEN_BINDING                          is    24;  # RFC8472
 const integer: CACHED_INFO                            is    25;  # RFC7924
 const integer: TLS_LTS                                is    26;
-const integer: COMPRESS_CERTIFICATE                   is    27;
+const integer: COMPRESS_CERTIFICATE                   is    27;  # RFC8879
 const integer: RECORD_SIZE_LIMIT                      is    28;  # RFC8449
 const integer: PWD_PROTECT                            is    29;  # RFC8492
 const integer: PWD_CLEAR                              is    30;  # RFC8492
@@ -197,11 +197,16 @@ const integer: OID_FILTERS                            is    48;  # RFC8446
 const integer: POST_HANDSHAKE_AUTH                    is    49;  # RFC8446
 const integer: SIGNATURE_ALGORITHMS_CERT              is    50;  # RFC8446
 const integer: KEY_SHARE                              is    51;  # RFC8446
-const integer: TRANSPARENCY_INFO                      is    52;
-const integer: CONNECTION_ID                          is    53;
-const integer: EXTERNAL_ID_HASH                       is    55;
-const integer: EXTERNAL_SESSION_ID                    is    56;
+const integer: TRANSPARENCY_INFO                      is    52;  # RFC9162
+const integer: CONNECTION_ID_DEPRECATED               is    53;  # RFC9146
+const integer: CONNECTION_ID                          is    54;  # RFC9146
+const integer: EXTERNAL_ID_HASH                       is    55;  # RFC8844
+const integer: EXTERNAL_SESSION_ID                    is    56;  # RFC8844
+const integer: QUIC_TRANSPORT_PARAMETERS              is    57;  # RFC9001
+const integer: TICKET_REQUEST                         is    58;  # RFC9149
+const integer: DNSSEC_CHAIN                           is    59;  # RFC9102
 const integer: NEXT_PROTOCOL_NEGOTIATION              is 13172;
+const integer: ENCRYPTED_CLIENT_HELLO                 is 65037;
 const integer: RENEGOTIATION_INFO                     is 65281;  # RFC5746
 
 # Elliptic curves:

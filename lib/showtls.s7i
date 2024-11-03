@@ -171,10 +171,15 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {SIGNATURE_ALGORITHMS_CERT}:              writeln("signature_algorithms_cert");
         when {KEY_SHARE}:                              writeln("key_share");
         when {TRANSPARENCY_INFO}:                      writeln("transparency_info");
+        when {CONNECTION_ID_DEPRECATED}:               writeln("connection_id_deprecated");
         when {CONNECTION_ID}:                          writeln("connection_id");
         when {EXTERNAL_ID_HASH}:                       writeln("external_id_hash");
         when {EXTERNAL_SESSION_ID}:                    writeln("external_session_id");
+        when {QUIC_TRANSPORT_PARAMETERS}:              writeln("quic_transport_parameters");
+        when {TICKET_REQUEST}:                         writeln("ticket_request");
+        when {DNSSEC_CHAIN}:                           writeln("dnssec_chain");
         when {NEXT_PROTOCOL_NEGOTIATION}:              writeln("next_protocol_negotiation");
+        when {ENCRYPTED_CLIENT_HELLO}:                 writeln("encrypted_client_hello");
         when {RENEGOTIATION_INFO}:                     writeln("renegotiation_info");
         when {16#0a0a, 16#1a1a, 16#2a2a, 16#3a3a,
               16#4a4a, 16#5a5a, 16#6a6a, 16#7a7a,
