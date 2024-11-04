@@ -38,6 +38,7 @@ include "cgi.s7i";
 
 
 const type: propertyType is hash [string] string;
+const type: setOfFile is hashset(file);
 
 
 (**
@@ -80,6 +81,7 @@ const type: httpServer is new struct
     var integer: port is 1080;
     var certAndKey: certificate is certAndKey.value;
     var listener: httpListener is listener.value;
+    var setOfFile: newConnections is setOfFile.value;
     var httpConnectionHash: sessions is httpConnectionHash.value;
     var duration: keepAliveTime is 15 . SECONDS;
   end struct;
@@ -281,10 +283,15 @@ const func httpRequest: getHttpRequest (inout httpServer: server) is func
     repeat
       waitForRequest(server.httpListener, existingConnection, newConnection);
       if existingConnection <> STD_NULL then
-        request := getHttpRequest(server, existingConnection);
+        if existingConnection in server.newConnections then
+          excl(server.newConnections, existingConnection);
+          openHttpSession(server, existingConnection);
+        else
+          request := getHttpRequest(server, existingConnection);
+        end if;
       end if;
       if newConnection <> STD_NULL then
-        openHttpSession(server, newConnection);
+        incl(server.newConnections, newConnection);
       end if;
       cleanSessions(server);
     until request.method <> "";
