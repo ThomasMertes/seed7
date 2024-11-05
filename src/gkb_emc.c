@@ -102,6 +102,11 @@
 /* os_exit(). This is done with the exitOrException flag since calling */
 /* os_exit() from an async function triggers an error.                 */
 
+/* Wasm workers require that the HTTP header from the server contains: */
+/*   Cross-Origin-Opener-Policy: same-origin                           */
+/*   Cross-Origin-Embedder-Policy: require-corp                        */
+/* Without these headers window.crossOriginIsolated is false and the   */
+/* function setTimeout() will be used as fallback.                     */
 #define USE_WASM_WORKERS 0
 
 static boolType exitOrException = FALSE;
