@@ -11057,7 +11057,10 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "jmp_buf env; int ret_code = 4; int count = 2;\n"
                          "if ((ret_code=setjmp(env)) == 0) {\n"
-                         "count--; longjmp(env, count); printf(\"3\\n\");\n"
+                         "  count--;\n"
+                         "  if (count != 0) {\n"
+                         "    longjmp(env, count); printf(\"3\\n\");\n"
+                         "  } else printf(\"5\\n\");\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SIGSETJMP %d\n",
@@ -11065,7 +11068,10 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "sigjmp_buf env; int ret_code = 4; int count = 2;\n"
                          "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
-                         "count--; siglongjmp(env, count); printf(\"3\\n\");\n"
+                         "  count--;\n"
+                         "  if (count != 0) {\n"
+                         "    siglongjmp(env, count); printf(\"3\\n\");\n"
+                         "  } else printf(\"5\\n\");\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SYMBOLIC_LINKS %d\n",

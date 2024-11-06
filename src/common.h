@@ -560,7 +560,7 @@ typedef int errInfoType;
 #define do_setjmp(env)        sigsetjmp(env, 1)
 #define do_longjmp(env, val)  siglongjmp(env, val);
 #define longjmpPosition sigjmp_buf
-#else
+#elif HAS_SETJMP
 #define do_setjmp(env)        setjmp(env)
 #define do_longjmp(env, val)  longjmp(env, val);
 #define longjmpPosition jmp_buf
