@@ -1589,6 +1589,107 @@ static int openDocumentTabAsWindow (intType width, intType height)
 
 
 
+static void moveSubWindowsToDocumentTab (winType sourceWindow,
+    int destWindowId)
+
+  {
+    int windowId;
+    winType window;
+
+  /* moveSubWindowsToDocumentTab */
+    logFunction(printf("moveSubWindowsToDocumentTab(" FMT_U_MEM
+                       " (windowId=%d), %d)\n",
+                       (memSizeType) sourceWindow,
+                       to_window(sourceWindow), destWindowId););
+    EM_ASM({
+      let sourceWindow = mapIdToWindow[$0];
+      let sourceCanvas = mapIdToCanvas[$0];
+      let destWindow = mapIdToWindow[$1];
+      let destCanvas = mapIdToCanvas[$1];
+      let addAfterMainCanvas = 0;
+      let children = sourceWindow.document.body.children;
+      for (let i = children.length; i > 0; i--) {
+        let canvas = children[addAfterMainCanvas];
+        if (canvas === sourceCanvas) {
+          addAfterMainCanvas = 1;
+        } else {
+          if (mapCanvasToId.has(canvas)) {
+            if (addAfterMainCanvas) {
+              destWindow.body.appendChild(canvas);
+            } else {
+              destWindow.body.insertBefore(canvas, destCanvas);
+            }
+          }
+        }
+      }
+    }, to_window(sourceWindow), destWindowId);
+    logFunction(printf("moveSubWindowsToDocumentTab(" FMT_U_MEM
+                       " (windowId=%d), %d) -->\n",
+                       (memSizeType) sourceWindow,
+                       to_window(sourceWindow), destWindowId););
+  } /* moveSubWindowsToDocumentTab */
+
+
+
+void moveWindowToDocumentTab (winType currentWindow)
+
+  {
+    int windowIdAndFlags;
+    int windowId;
+
+  /* moveWindowToDocumentTab */
+    logFunction(printf("moveWindowToDocumentTab(" FMT_U_MEM " (windowId=%d))\n",
+                       (memSizeType) currentWindow,
+                       to_window(currentWindow)););
+    windowIdAndFlags = openDocumentTabAsWindow(
+        (intType) to_width(currentWindow),
+        (intType) to_height(currentWindow));
+    if (unlikely(windowIdAndFlags == 0)) {
+      raise_error(GRAPHIC_ERROR);
+    } else {
+      EM_ASM({
+        let sourceWindow = mapIdToWindow[$0];
+        let sourceCanvas = mapIdToCanvas[$0];
+        let destContext = mapIdToContext[$1];
+        destContext.drawImage(sourceCanvas, 0, 0);
+      }, to_window(currentWindow), windowIdAndFlags >> 3);
+      windowId = windowIdAndFlags >> 3;
+      moveSubWindowsToDocumentTab(currentWindow, windowId);
+      is_var_tab(currentWindow) = TRUE;
+      openSubstitute = TRUE;
+      maxWindowId = windowId;
+      setupEventCallbacksForWindow(windowId);
+      remove_window(to_window(currentWindow));
+      setClosePopupState(to_window(currentWindow), 0);
+      enter_window(currentWindow, windowId);
+      EM_ASM({
+        if (typeof mapIdToCanvas[$0] !== "undefined") {
+          let canvas = mapIdToCanvas[$0];
+          mapCanvasToId.delete(canvas);
+          mapIdToCanvas[$0] = undefined;
+          mapIdToContext[$0] = undefined;
+          let parent = canvas.parentNode;
+          parent.removeChild(canvas);
+        }
+        if (typeof mapIdToWindow[$0] !== "undefined") {
+          let windowObject = mapIdToWindow[$0];
+          mapWindowToId.delete(windowObject);
+          mapIdToWindow[$0] = undefined;
+          if (deregisterWindowFunction !== null) {
+            deregisterWindowFunction(windowObject);
+          }
+          windowObject.close();
+        }
+      }, to_window(currentWindow));
+      to_var_window(currentWindow) = windowId;
+    } /* if */
+    logFunction(printf("moveWindowToDocumentTab(" FMT_U_MEM " (windowId=%d)) -->\n",
+                       (memSizeType) currentWindow,
+                       to_window(currentWindow)););
+  } /* moveWindowToDocumentTab */
+
+
+
 /**
  *  Open a graphic window with the given parameters.
  *  Depending on the settings a browser may open a popup or a new tab.
