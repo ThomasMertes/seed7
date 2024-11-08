@@ -1507,7 +1507,7 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
 
 
 
- static char *getNameFromTitle (const char *winTitle, memSizeType *winNameSize)
+static char *getNameFromTitle (const char *winTitle, memSizeType *winNameSize)
 
   {
     const char *startPos;
@@ -1540,37 +1540,17 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
 
 
 
-static int openCurrentTabAsWindow (int windowId, intType width, intType height)
+static int openDocumentTabAsWindow (intType width, intType height)
 
   {
     int windowIdAndFlags;
 
-  /* openCurrentTabAsWindow */
-    logFunction(printf("openCurrentTabAsWindow(%d, " FMT_D ", " FMT_D ")\n",
-                       windowId, width, height););
+  /* openDocumentTabAsWindow */
+    logFunction(printf("openDocumentTabAsWindow(" FMT_D ", " FMT_D ")\n",
+                       width, height););
     windowIdAndFlags = EM_ASM_INT({
-      let windowId = $0;
-      let width = $1;
-      let height = $2;
-      if (windowId !== 0) {
-        if (typeof mapIdToCanvas[windowId] !== "undefined") {
-          let canvas = mapIdToCanvas[windowId];
-          mapCanvasToId.delete(canvas);
-          mapIdToCanvas[windowId] = undefined;
-          mapIdToContext[windowId] = undefined;
-          let parent = canvas.parentNode;
-          parent.removeChild(canvas);
-        }
-        if (typeof mapIdToWindow[windowId] !== "undefined") {
-          let windowObject = mapIdToWindow[windowId];
-          mapWindowToId.delete(windowObject);
-          mapIdToWindow[windowId] = undefined;
-          if (deregisterWindowFunction !== null) {
-            deregisterWindowFunction(windowObject);
-          }
-          windowObject.close();
-        }
-      }
+      let width = $0;
+      let height = $1;
       currentWindowId++;
       mapIdToWindow[currentWindowId] = document;
       mapWindowToId.set(null, currentWindowId);
@@ -1578,6 +1558,9 @@ static int openCurrentTabAsWindow (int windowId, intType width, intType height)
       let ignoreFirstResize = 0;
       canvas.width  = width;
       canvas.height = height;
+      canvas.style.position = "absolute";
+      canvas.style.left = "0px";
+      canvas.style.top = "0px";
       let context = canvas.getContext("2d");
       context.fillStyle = "#000000";
       context.fillRect(0, 0, width, height);
@@ -1598,11 +1581,11 @@ static int openCurrentTabAsWindow (int windowId, intType width, intType height)
           reloadPageFunction = reloadPage;
       }
       return (currentWindowId << 3) | ignoreFirstResize | 4;
-    }, windowId, (int) width, (int) height);
-    logFunction(printf("openCurrentTabAsWindow(%d, " FMT_D ", " FMT_D ") --> %d\n",
-                       windowId, width, height, windowIdAndFlags););
+    }, (int) width, (int) height);
+    logFunction(printf("openDocumentTabAsWindow(" FMT_D ", " FMT_D ") --> %d\n",
+                       width, height, windowIdAndFlags););
     return windowIdAndFlags;
-  } /* openCurrentTabAsWindow */
+  } /* openDocumentTabAsWindow */
 
 
 
@@ -1764,7 +1747,7 @@ winType drwOpen (intType xPos, intType yPos,
 
       } /* if */
       if (windowIdAndFlags == 4) {
-        windowIdAndFlags = openCurrentTabAsWindow(0, width, height);
+        windowIdAndFlags = openDocumentTabAsWindow(width, height);
       } /* if */
       if (unlikely(windowIdAndFlags == 0)) {
         /* This might be triggered by the error: */
@@ -2002,7 +1985,7 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
       xyArray->min_position = 1;
       xyArray->max_position = (intType) numCoords;
       coords = (int *) pointList->mem;
-      for (pos = 0; pos < numCoords; pos ++) {
+      for (pos = 0; pos < numCoords; pos++) {
         xyArray->arr[pos].value.intValue = (intType) coords[pos];
       } /* for */
     } /* if */
