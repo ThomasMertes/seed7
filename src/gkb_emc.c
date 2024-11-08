@@ -101,6 +101,13 @@
 /* If the choice was "Leave page" the program is terminated with       */
 /* os_exit(). This is done with the exitOrException flag since calling */
 /* os_exit() from an async function triggers an error.                 */
+static boolType exitOrException = FALSE;
+
+/* If copyWindow() fails GRAPHIC_ERROR is raised. This happens if just */
+/* one popup is allowed. The exception is raised with the              */
+/* exitOrException flag and emc_err_info since raising an exception    */
+/* from an async function triggers an error.                           */
+static errInfoType emc_err_info = OKAY_NO_ERROR;
 
 /* Wasm workers require that the HTTP header from the server contains: */
 /*   Cross-Origin-Opener-Policy: same-origin                           */
@@ -108,14 +115,6 @@
 /* Without these headers window.crossOriginIsolated is false and the   */
 /* function setTimeout() will be used as fallback.                     */
 #define USE_WASM_WORKERS 0
-
-static boolType exitOrException = FALSE;
-
-/* If copyWindow() fails GRAPHIC_ERROR is raised. This happens if just */
-/* one popup is allowed. The exception is raised with the              */
-/* exitOrException flag and emc_err_info since raising an exception    */
-/* from an async function triggers an error.                           */
-errInfoType emc_err_info = OKAY_NO_ERROR;
 
 static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
 static keyQueueType keyQueue = {NULL, NULL};
