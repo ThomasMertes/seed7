@@ -131,6 +131,14 @@ boolType isSubWindow (winType aWindow)
 
 
 
+boolType isTab (winType aWindow)
+
+  {
+    return is_tab(aWindow);
+  }
+
+
+
 int getCloseAction (winType aWindow)
 
   {
@@ -1592,11 +1600,7 @@ static int openDocumentTabAsWindow (intType width, intType height)
 static void moveSubWindowsToDocumentTab (winType sourceWindow,
     int destWindowId)
 
-  {
-    int windowId;
-    winType window;
-
-  /* moveSubWindowsToDocumentTab */
+  { /* moveSubWindowsToDocumentTab */
     logFunction(printf("moveSubWindowsToDocumentTab(" FMT_U_MEM
                        " (windowId=%d), %d)\n",
                        (memSizeType) sourceWindow,
@@ -1687,6 +1691,35 @@ void moveWindowToDocumentTab (winType currentWindow)
                        (memSizeType) currentWindow,
                        to_window(currentWindow)););
   } /* moveWindowToDocumentTab */
+
+
+
+boolType windowIsInNewTab (winType currentWindow)
+
+  {
+    boolType isInNewTab;
+
+  /* windowIsInNewTab */
+    logFunction(printf("windowIsInNewTab(" FMT_U_MEM " (windowId=%d))\n",
+                       (memSizeType) currentWindow,
+                       to_window(currentWindow)););
+    isInNewTab = EM_ASM_INT({
+      let windowObject = mapIdToWindow[$0];
+      if ((windowObject.visualViewport !== null &&
+           windowObject.visualViewport.scale !== 1) ||
+          windowObject.toolbar.visible ||
+          windowObject.menubar.visible ||
+          windowObject.statusbar.visible) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }, to_window(currentWindow));
+    logFunction(printf("windowIsInNewTab(" FMT_U_MEM " (windowId=%d)) --> %d\n",
+                       (memSizeType) currentWindow,
+                       to_window(currentWindow), isInNewTab););
+    return isInNewTab;
+  } /* windowIsInNewTab */
 
 
 
