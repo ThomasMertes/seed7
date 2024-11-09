@@ -109,6 +109,8 @@ static boolType exitOrException = FALSE;
 /* from an async function triggers an error.                           */
 static errInfoType emc_err_info = OKAY_NO_ERROR;
 
+static winType windowForNewTabCheck = NULL;
+
 /* Wasm workers require that the HTTP header from the server contains: */
 /*   Cross-Origin-Opener-Policy: same-origin                           */
 /*   Cross-Origin-Embedder-Policy: require-corp                        */
@@ -177,9 +179,13 @@ extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern boolType windowExists (int windowId);
 extern int copyWindow (int windowId);
+extern boolType windowIsInNewTab (winType currentWindow);
+extern void moveWindowToDocumentTab (winType currentWindow);
 extern intType getWindowLeftPos (const const_winType aWindow);
 extern intType getWindowTopPos (const const_winType aWindow);
 extern boolType isSubWindow (winType aWindow);
+extern boolType isTab (winType aWindow);
+extern intType timMicroSec (void);
 extern int maxWindowId;
 
 
@@ -1036,6 +1042,7 @@ EMSCRIPTEN_KEEPALIVE int decodeResizeEvent (int windowId, int width, int height)
     window = find_window(windowId);
     if (ignoreResize(window, width, height)) {
       result = K_NONE;
+      windowForNewTabCheck = window;
     } else {
       if (resize(window, width, height)) {
         result = K_RESIZE;
@@ -1425,6 +1432,54 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
 
 
 
+static boolType timerIsThrottled (winType currentWindow)
+
+  {
+    intType timeBefore;
+    intType timeAfter;
+    boolType isThrottled;
+
+  /* timerIsThrottled */
+    logFunction(printf("timerIsThrottled()\n"););
+    timeBefore = timMicroSec();
+    EM_ASM({
+      eventPromises = [];
+      eventPromises.push(new Promise(resolve =>
+        setTimeout(() => resolve($0), $1)
+      ));
+    }, K_NONE, 1);
+    asyncGkbdGetc();
+    freeEventPromises();
+    timeAfter = timMicroSec();
+    /* printf("time diff: " FMT_U "\n", timeAfter - timeBefore); */
+    isThrottled = timeAfter - timeBefore >= 20000;
+    logFunction(printf("timerIsThrottled() --> %d\n", isThrottled););
+    return isThrottled;
+  } /* timerIsThrottled */
+
+
+
+static void checkIfWindowIsInNewTab (winType currentWindow)
+
+  { /* checkIfWindowIsInNewTab */
+    logFunction(printf("checkIfWindowIsInNewTab(" FMT_U_MEM ")\n",
+                        (memSizeType) currentWindow););
+    if (!isTab(currentWindow)
+#if USE_WASM_WORKERS
+        && worker == 0
+#endif
+    ) {
+      if (windowIsInNewTab(currentWindow) ||
+          timerIsThrottled(currentWindow)) {
+        moveWindowToDocumentTab(currentWindow);
+      } /* if */
+    } /* if */
+    logFunction(printf("checkIfWindowIsInNewTab(" FMT_U_MEM ") -->\n",
+                        (memSizeType) currentWindow););
+  } /* checkIfWindowIsInNewTab */
+
+
+
 charType gkbGetc (void)
 
   {
@@ -1444,6 +1499,10 @@ charType gkbGetc (void)
         setupEventPromises();
         result = (charType) asyncGkbdGetc();
         freeEventPromises();
+        if (windowForNewTabCheck != NULL) {
+          checkIfWindowIsInNewTab(windowForNewTabCheck);
+          windowForNewTabCheck = NULL;
+        } /* if */
       } while (result == K_NONE && !exitOrException);
     } /* if */
     if (unlikely(exitOrException)) {
@@ -1551,6 +1610,10 @@ static charType waitOrGetc (int milliSec)
 #if USE_WASM_WORKERS
     freeTimeoutPromise();
 #endif
+    if (windowForNewTabCheck != NULL) {
+      checkIfWindowIsInNewTab(windowForNewTabCheck);
+      windowForNewTabCheck = NULL;
+    } /* if */
     if (unlikely(exitOrException)) {
       if (emc_err_info == OKAY_NO_ERROR) {
         os_exit(0);
