@@ -31,9 +31,17 @@ include "keybd.s7i";
 include "graph_file.s7i";
 
 
+const func PRIMITIVE_WINDOW: clickedWindow (ref keyboard_file: keybd) is DYNAMIC;
+
+
+# The function buttonWindow() is deprecated. Use clickedWindow() instead.
 const func PRIMITIVE_WINDOW: buttonWindow (ref keyboard_file: keybd) is DYNAMIC;
 
 
+const func PRIMITIVE_WINDOW: clickedWindow (ref graph_keybd_file: keybd) is action "GKB_WINDOW";
+
+
+# The function buttonWindow() is deprecated. Use clickedWindow() instead.
 const func PRIMITIVE_WINDOW: buttonWindow (ref graph_keybd_file: keybd) is action "GKB_WINDOW";
 
 
@@ -125,7 +133,7 @@ const func boolean: isOkay (in array string: messageText) is func
     end if;
     ch := upper(getc(GRAPH_KEYBOARD));
     while not finished do
-      if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+      if ch = KEY_MOUSE1 and clickedWindow(GRAPH_KEYBOARD) = popupWindow then
         xPos := clickedXPos(GRAPH_KEYBOARD);
         yPos := clickedYPos(GRAPH_KEYBOARD);
         if yPos >= buttonYPos  and yPos <= buttonYPos + 20 then
@@ -149,7 +157,7 @@ const func boolean: isOkay (in array string: messageText) is func
         okay := yesButtonActive;
         finished := TRUE;
       elsif ch = 'Y' or ch = 'N' or
-          ch = KEY_CLOSE and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+          ch = KEY_CLOSE and clickedWindow(GRAPH_KEYBOARD) = popupWindow then
         okay := ch = 'Y';
         finished := TRUE;
       end if;
@@ -233,7 +241,7 @@ const proc: messageWindow (in array string: messageText) is func
     box(popupWindow, pred(okButtonXPos), pred(okButtonYPos), 43, 23, black);
     ch := upper(getc(GRAPH_KEYBOARD));
     while not finished do
-      if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+      if ch = KEY_MOUSE1 and clickedWindow(GRAPH_KEYBOARD) = popupWindow then
         xPos := clickedXPos(GRAPH_KEYBOARD);
         yPos := clickedYPos(GRAPH_KEYBOARD);
         if yPos >= okButtonYPos  and yPos <= okButtonYPos + 20 then
@@ -242,7 +250,7 @@ const proc: messageWindow (in array string: messageText) is func
           end if;
         end if;
       elsif ch = KEY_NL or ch = ' ' or
-          ch = KEY_CLOSE and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+          ch = KEY_CLOSE and clickedWindow(GRAPH_KEYBOARD) = popupWindow then
         finished := TRUE;
       end if;
       if not finished then

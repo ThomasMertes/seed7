@@ -2436,7 +2436,7 @@ const proc: get_command (inout playerObj: playerObject) is func
         when {KEY_MOUSE1}:
           clickedXPos := clickedXPos(KEYBOARD);
           clickedYPos := clickedYPos(KEYBOARD);
-          clickedWindow := buttonWindow(KEYBOARD);
+          clickedWindow := clickedWindow(KEYBOARD);
           if clickedWindow <> curr_win then
             clickedXPos +:= xPos(clickedWindow);
             clickedYPos +:= yPos(clickedWindow);

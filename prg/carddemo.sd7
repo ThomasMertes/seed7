@@ -100,7 +100,7 @@ const func image: select_card is func
   begin
     xPos := clickedXPos(KEYBOARD);
     yPos := clickedYPos(KEYBOARD);
-    win := buttonWindow(KEYBOARD);
+    win := clickedWindow(KEYBOARD);
     if win in imageHash then
       anImage := imageHash[win];
       # writeln(str(anImage));

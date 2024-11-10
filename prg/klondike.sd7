@@ -616,7 +616,7 @@ const func cardImage: selectCard (in stateType: state) is func
   local
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
   begin
-    win := buttonWindow(KEYBOARD);
+    win := clickedWindow(KEYBOARD);
     cardImage := selectCard(state.deck, win);
   end func;
 

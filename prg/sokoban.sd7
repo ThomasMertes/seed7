@@ -800,19 +800,19 @@ const proc: playLevel is func
           ignore(doMove(move, RIGHT, 1, 0));
           writeStatus;
         when {KEY_MOUSE1}:
-          if buttonWindow(KEYBOARD) = curr_win then
+          if clickedWindow(KEYBOARD) = curr_win then
             doMove(move);
-          elsif buttonWindow(KEYBOARD) = undo_button then
+          elsif clickedWindow(KEYBOARD) = undo_button then
             keyChar := 'u';
-          elsif buttonWindow(KEYBOARD) = redo_button then
+          elsif clickedWindow(KEYBOARD) = redo_button then
             keyChar := 'r';
-          elsif buttonWindow(KEYBOARD) = quit_button then
+          elsif clickedWindow(KEYBOARD) = quit_button then
             keyChar := 'q';
-          elsif buttonWindow(KEYBOARD) = next_button then
+          elsif clickedWindow(KEYBOARD) = next_button then
             keyChar := 'n';
-          elsif buttonWindow(KEYBOARD) = previous_button then
+          elsif clickedWindow(KEYBOARD) = previous_button then
             keyChar := 'p';
-          elsif buttonWindow(KEYBOARD) = restart_button then
+          elsif clickedWindow(KEYBOARD) = restart_button then
             keyChar := 's';
           end if;
       end case;

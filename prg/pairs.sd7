@@ -1814,7 +1814,7 @@ const proc: playerMove (inout boolean: hit) is func
         checkHit(line1, column1, line2, column2, hit);
         moveFinished := TRUE;
       elsif command = KEY_MOUSE1 then
-        if buttonWindow(KEYBOARD) = exit then
+        if clickedWindow(KEYBOARD) = exit then
           moveFinished := TRUE;
           game.quit := TRUE;
         else
@@ -1885,7 +1885,7 @@ const proc: selectSize is func
           selected := TRUE;
         end if;
       elsif command = KEY_MOUSE1 then
-        if buttonWindow(KEYBOARD) = exit then
+        if clickedWindow(KEYBOARD) = exit then
           selected := TRUE;
           game.quit := TRUE;
         else
