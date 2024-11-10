@@ -65,7 +65,7 @@
 
 static intType clicked_x = 0;
 static intType clicked_y = 0;
-static HWND button_window = 0;
+static HWND clickedWindow = 0;
 static rtlHashType window_hash = NULL;
 static WPARAM resizeMode = 0;
 static int resizeLeft;
@@ -1075,7 +1075,7 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
             clicked_x = GET_X_LPARAM(msg.lParam);
             clicked_y = GET_Y_LPARAM(msg.lParam);
-            button_window = msg.hwnd;
+            clickedWindow = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE1;
             } else if (((msg.wParam & 0x08) != 0 &&
@@ -1098,7 +1098,7 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
             clicked_x = GET_X_LPARAM(msg.lParam);
             clicked_y = GET_Y_LPARAM(msg.lParam);
-            button_window = msg.hwnd;
+            clickedWindow = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE2;
             } else if (((msg.wParam & 0x08) != 0 &&
@@ -1121,7 +1121,7 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
             clicked_x = GET_X_LPARAM(msg.lParam);
             clicked_y = GET_Y_LPARAM(msg.lParam);
-            button_window = msg.hwnd;
+            clickedWindow = msg.hwnd;
             if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE3;
             } else if (((msg.wParam & 0x08) != 0 &&
@@ -1144,7 +1144,7 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
             clicked_x = GET_X_LPARAM(msg.lParam);
             clicked_y = GET_Y_LPARAM(msg.lParam);
-            button_window = msg.hwnd;
+            clickedWindow = msg.hwnd;
             if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
               if (msg.wParam & 0x04) {
                 result = K_SFT_MOUSE_FWD;
@@ -1197,7 +1197,7 @@ charType gkbGetc (void)
                   point.y >= 0 && point.y < drwHeight(win)) {
                 clicked_x = point.x;
                 clicked_y = point.y;
-                button_window = msg.hwnd;
+                clickedWindow = msg.hwnd;
                 if (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) {
                   if (msg.wParam & 0x04) {
                     result = K_SFT_MOUSE4;
@@ -1444,7 +1444,7 @@ charType gkbGetc (void)
                   break;
                 case CLOSE_BUTTON_RETURNS_KEY:
                   result = K_CLOSE;
-                  button_window = msg.hwnd;
+                  clickedWindow = msg.hwnd;
                   break;
                 case CLOSE_BUTTON_RAISES_EXCEPTION:
                   raise_error(GRAPHIC_ERROR);
@@ -1478,7 +1478,7 @@ charType gkbGetc (void)
                   break;
                 case CLOSE_BUTTON_RETURNS_KEY:
                   result = K_CLOSE;
-                  button_window = msg.hwnd;
+                  clickedWindow = msg.hwnd;
                   break;
                 case CLOSE_BUTTON_RAISES_EXCEPTION:
                   raise_error(GRAPHIC_ERROR);
@@ -1541,7 +1541,7 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
                               (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
             result = K_RESIZE;
-            button_window = msg.hwnd;
+            clickedWindow = msg.hwnd;
             break;
           default:
             traceEvent(printf("gkbGetc: message=%d, hwnd=" FMT_U_MEM
@@ -2209,7 +2209,7 @@ winType gkbWindow (void)
 
   /* gkbWindow */
     logFunction(printf("gkbWindow\n"););
-    result = find_window(button_window);
+    result = find_window(clickedWindow);
     if (result != NULL && result->usage_count != 0) {
       result->usage_count++;
     } /* if */

@@ -76,7 +76,7 @@ static boolType eventPresent = FALSE;
 static XEvent currentEvent;
 static intType clicked_x = 0;
 static intType clicked_y = 0;
-static Window button_window = 0;
+static Window clickedWindow = 0;
 static rtlHashType window_hash = NULL;
 static boolType hasFocus = FALSE;
 
@@ -1276,7 +1276,7 @@ charType gkbGetc (void)
           traceEvent(printf("gkbGetc: ConfigureNotify"););
           if (handleConfigure(&currentEvent.xconfigure)) {
             result = K_RESIZE;
-            button_window = currentEvent.xconfigure.window;
+            clickedWindow = currentEvent.xconfigure.window;
           } else {
             getNextChar = TRUE;
           } /* if */
@@ -1338,7 +1338,7 @@ charType gkbGetc (void)
                 break;
               case CLOSE_BUTTON_RETURNS_KEY:
                 result = K_CLOSE;
-                button_window = currentEvent.xclient.window;
+                clickedWindow = currentEvent.xclient.window;
                 break;
               case CLOSE_BUTTON_RAISES_EXCEPTION:
                 raise_error(GRAPHIC_ERROR);
@@ -1355,7 +1355,7 @@ charType gkbGetc (void)
                             (unsigned long) currentEvent.xbutton.window););
           clicked_x = currentEvent.xbutton.x;
           clicked_y = currentEvent.xbutton.y;
-          button_window = currentEvent.xbutton.window;
+          clickedWindow = currentEvent.xbutton.window;
           if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
             result = currentEvent.xbutton.button + K_MOUSE1 - 1;
           } else if (currentEvent.xbutton.button == 6) {
@@ -2908,7 +2908,7 @@ winType gkbWindow (void)
 
   /* gkbWindow */
     logFunction(printf("gkbWindow\n"););
-    result = find_window(button_window);
+    result = find_window(clickedWindow);
     if (result != NULL && result->usage_count != 0) {
       result->usage_count++;
     } /* if */

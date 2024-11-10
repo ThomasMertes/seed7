@@ -251,7 +251,7 @@ void dequeue (keyQueueType *queue, keyDataType *key)
     key->key = queue->queueOut->key;
     key->clickedX = queue->queueOut->clickedX;
     key->clickedY = queue->queueOut->clickedY;
-    key->buttonWindow = queue->queueOut->buttonWindow;
+    key->clickedWindow = queue->queueOut->clickedWindow;
     nextElement = queue->queueOut->next;
     free(queue->queueOut);
     queue->queueOut = nextElement;

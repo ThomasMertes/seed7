@@ -893,7 +893,7 @@ EMSCRIPTEN_KEEPALIVE int decodeMousedownEvent (int windowId, int button,
                        shiftKey, ctrlKey, altKey););
     lastKey.clickedX = clientX;
     lastKey.clickedY = clientY;
-    lastKey.buttonWindow = windowId;
+    lastKey.clickedWindow = windowId;
     if (button < 5) {
       mouseKeyPressed[button] = TRUE;
     } /* if */
@@ -995,7 +995,7 @@ EMSCRIPTEN_KEEPALIVE int decodeWheelEvent (int windowId, int deltaY,
                        shiftKey, ctrlKey, altKey););
     lastKey.clickedX = clientX;
     lastKey.clickedY = clientY;
-    lastKey.buttonWindow = windowId;
+    lastKey.clickedWindow = windowId;
     if (deltaY < 0) {
       if (shiftKey) {
         result = K_SFT_MOUSE4;
@@ -1046,7 +1046,7 @@ EMSCRIPTEN_KEEPALIVE int decodeResizeEvent (int windowId, int width, int height)
     } else {
       if (resize(window, width, height)) {
         result = K_RESIZE;
-        lastKey.buttonWindow = windowId;
+        lastKey.clickedWindow = windowId;
       } else {
         result = K_NONE;
       } /* if */
@@ -1081,7 +1081,7 @@ EMSCRIPTEN_KEEPALIVE int decodeBeforeunloadEvent (int windowId, int eventPhase)
 #if MOMENT_TO_SEND_KEY_CLOSE == AT_X_BUTTON_PRESS
           result = K_CLOSE;
 #endif
-          lastKey.buttonWindow = windowId;
+          lastKey.clickedWindow = windowId;
           break;
         case CLOSE_BUTTON_RAISES_EXCEPTION:
           closePopupActive = TRUE;
@@ -1147,7 +1147,7 @@ EMSCRIPTEN_KEEPALIVE int decodeVisibilitychange (int windowId)
             exitOrException = TRUE;
             emc_err_info = GRAPHIC_ERROR;
           } else {
-            lastKey.buttonWindow = newWindowId;
+            lastKey.clickedWindow = newWindowId;
             windowId = newWindowId;
           } /* if */
 #if MOMENT_TO_SEND_KEY_CLOSE == AFTER_CONFIRMATION
@@ -1204,7 +1204,7 @@ EMSCRIPTEN_KEEPALIVE int decodeTouchstartEvent (int windowId,
       lastKey.clickedY = clientY;
       pointerX = clientX;
       pointerY = clientY;
-      lastKey.buttonWindow = windowId;
+      lastKey.clickedWindow = windowId;
       if (shiftKey) {
         result = K_SFT_MOUSE1;
       } else if (ctrlKey) {
@@ -1432,7 +1432,7 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
 
 
 
-static boolType timerIsThrottled (winType currentWindow)
+static boolType timerIsThrottled (void)
 
   {
     intType timeBefore;
@@ -1469,8 +1469,7 @@ static void checkIfWindowIsInNewTab (winType currentWindow)
         && worker == 0
 #endif
     ) {
-      if (windowIsInNewTab(currentWindow) ||
-          timerIsThrottled(currentWindow)) {
+      if (windowIsInNewTab(currentWindow) || timerIsThrottled()) {
         moveWindowToDocumentTab(currentWindow);
       } /* if */
     } /* if */
@@ -1988,7 +1987,7 @@ intType gkbClickedXpos (void)
   /* gkbClickedXpos */
     logFunction(printf("gkbClickedXpos\n"););
     xPos = lastKey.clickedX;
-    window = find_window(lastKey.buttonWindow);
+    window = find_window(lastKey.clickedWindow);
     if (window != NULL) {
       xPos -= getWindowLeftPos(window);
     } /* if */
@@ -2007,7 +2006,7 @@ intType gkbClickedYpos (void)
   /* gkbClickedYpos */
     logFunction(printf("gkbClickedYpos\n"););
     yPos = lastKey.clickedY;
-    window = find_window(lastKey.buttonWindow);
+    window = find_window(lastKey.clickedWindow);
     if (window != NULL) {
       yPos -= getWindowTopPos(window);
     } /* if */
@@ -2024,7 +2023,7 @@ winType gkbWindow (void)
 
   /* gkbWindow */
     logFunction(printf("gkbWindow\n"););
-    result = find_window(lastKey.buttonWindow);
+    result = find_window(lastKey.clickedWindow);
     if (result != NULL && result->usage_count != 0) {
       result->usage_count++;
     } /* if */

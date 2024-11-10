@@ -33,7 +33,7 @@ typedef struct keyData {
     charType key;
     intType clickedX;
     intType clickedY;
-    int buttonWindow;
+    int clickedWindow;
     struct keyData *next;
   } keyDataType;
 
