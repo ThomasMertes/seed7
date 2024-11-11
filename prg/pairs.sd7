@@ -70,7 +70,8 @@ const type: fieldType is new struct
   end struct;
 
 const type: gameObj is new struct
-    var integer: currLevel is 2;
+    var integer: level is 1;
+    var integer: opponentStrength is 2;
     var integer: playerHits is 0;
     var integer: computerHits is 0;
     var integer: player_hit_ypos is 0;
@@ -1712,7 +1713,7 @@ const proc: computerTurn is func
     var boolean: onTurn is TRUE;
   begin
     while countCardBacks > 0 and onTurn do
-      case game.currLevel of
+      case game.opponentStrength of
         when {0}: computerLevel0(line1, column1, line2, column2);
         when {1}: computerLevel1(line1, column1, line2, column2);
         when {2}: computerLevel2(line1, column1, line2, column2);
@@ -1798,21 +1799,18 @@ const proc: playerMove (inout boolean: hit) is func
           moveFinished := TRUE;
         end if;
       elsif command in digit_char then
-        game.currLevel := ord(command) - ord('0');
-        put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
+        game.opponentStrength := ord(command) - ord('0');
+        put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.opponentStrength]);
       elsif command in {KEY_RIGHT, KEY_UP} then
-        if game.currLevel < 9 then
-          incr(game.currLevel);
-          put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
+        if game.opponentStrength < 9 then
+          incr(game.opponentStrength);
+          put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.opponentStrength]);
         end if;
       elsif command in {KEY_LEFT, KEY_DOWN} then
-        if game.currLevel > 0 then
-          decr(game.currLevel);
-          put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
+        if game.opponentStrength > 0 then
+          decr(game.opponentStrength);
+          put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.opponentStrength]);
         end if;
-      elsif openCards = 2 then
-        checkHit(line1, column1, line2, column2, hit);
-        moveFinished := TRUE;
       elsif command = KEY_MOUSE1 then
         if clickedWindow(KEYBOARD) = exit then
           moveFinished := TRUE;
@@ -1822,10 +1820,16 @@ const proc: playerMove (inout boolean: hit) is func
             mouseCommand(line1, column1, openCards);
           elsif openCards = 1 then
             mouseCommand(line2, column2, openCards);
+          elsif openCards = 2 then
+            checkHit(line1, column1, line2, column2, hit);
+            moveFinished := TRUE;
           end if;
         end if;
       elsif command not in {KEY_MOUSE2, KEY_MOUSE3, KEY_MOUSE4, KEY_MOUSE5} then
         hideAll;
+        moveFinished := TRUE;
+      elsif openCards = 2 then
+        checkHit(line1, column1, line2, column2, hit);
         moveFinished := TRUE;
       end if;
     until moveFinished;
@@ -1849,6 +1853,9 @@ const proc: dealCards (in integer: field_lines, in integer: field_columns) is fu
     var integer: cardNumber is 0;
   begin
     field := field_lines times field_columns times fieldType.value;
+    for key cardNumber range cards do
+      cards[cardNumber].number := 0;
+    end for;
     for line range 1 to field_lines do
       for column range 1 to field_columns do
         put(back, line, column);
@@ -1860,6 +1867,18 @@ const proc: dealCards (in integer: field_lines, in integer: field_columns) is fu
       end for;
     end for;
     game.player_hit_ypos := UPPER_BORDER + field_lines * FIELD_SIZE - CARD_BORDER + COMPUTER_HIT_YPOS;
+  end func;
+
+
+const proc: initializeGame (in integer: level) is func
+  begin
+    game.level := level;
+    game.playerHits := 0;
+    game.computerHits := 0;
+    clear(curr_win, white);
+    put(OPPONENT_XPOS, OPPONENT_YPOS, opponent);
+    put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.opponentStrength]);
+    dealCards(size_list[level][1], size_list[level][2]);
   end func;
 
 
@@ -1895,9 +1914,7 @@ const proc: selectSize is func
             line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
             column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
             if line = 1 and column >= 1 and column <= length(size_descr) then
-              clear(curr_win, white);
-              put(OPPONENT_XPOS, OPPONENT_YPOS, opponent);
-              dealCards(size_list[column][1], size_list[column][2]);
+              initializeGame(column);
               selected := TRUE;
             end if;
           end if;
@@ -1960,23 +1977,33 @@ const proc: main is func
 
     selectSize;
 
-    put(OPPONENT_XPOS - 37, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
-
-    index := 1;
-    while countCardBacks > 0 and not game.quit do
-      while index <= length(cards) and not inputReady(KEYBOARD) do
-        prepare(cards[index]);
-        if not inputReady(KEYBOARD) then
-          (* writeln(index); *)
-          incr(index);
+    while not game.quit do
+      index := 1;
+      while countCardBacks > 0 and not game.quit do
+        while index <= length(cards) and not inputReady(KEYBOARD) do
+          prepare(cards[index]);
+          if not inputReady(KEYBOARD) then
+            (* writeln(index); *)
+            incr(index);
+          end if;
+        end while;
+        playerTurn;
+        if not game.quit then
+          computerTurn;
         end if;
       end while;
-      playerTurn;
       if not game.quit then
-        computerTurn;
+        command := getc(KEYBOARD);
+        if upper(command) = 'Q' or command = KEY_CLOSE or
+            (command = KEY_MOUSE1 and clickedWindow(KEYBOARD) = exit) then
+          game.quit := TRUE;
+        else
+          if game.playerHits > game.computerHits and
+              game.level < length(size_descr) then
+            incr(game.level);
+          end if;
+          initializeGame(game.level);
+        end if;
       end if;
     end while;
-    if not game.quit then
-      command := getc(KEYBOARD);
-    end if;
   end func;
