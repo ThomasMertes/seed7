@@ -47,6 +47,7 @@ const integer: PIXMAP_HEIGHT is 64;
 const integer: TILE_BORDER is 8;
 const integer: TILE_WIDTH is PIXMAP_WIDTH + 2 * TILE_BORDER;
 const integer: TILE_HEIGHT is PIXMAP_HEIGHT + 2 * TILE_BORDER;
+const integer: NUMBER_OF_TILE_PAIRS is 72;
 const integer: FIELD_X_STEP is TILE_WIDTH div 2;
 const integer: FIELD_Y_STEP is TILE_HEIGHT div 2;
 const integer: HALF_FIELD is FIELD_Y_STEP div 2;
@@ -172,6 +173,41 @@ var layoutType: welcomeLayout is [](
     "        X   X           X   X",
     "X   X           X  X         ",
     "  X      X X             X X "));
+
+
+var layoutType: victoryLayout is [](
+
+ []("   X     X   X X    X   X    ",
+    "                             ",
+    "     X X    X   X   X   X    ",
+    "                             ",
+    "            X   X   X   X    ",
+    "      X       X       X      ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "   X     X    X X    X   X   ",
+    "                             ",
+    "             X   X   X       ",
+    "   X X X X             X X   ",
+    "             X   X           ",
+    "   X     X     X     X   X   "),
+
+ []("              X              ",
+    "    X   X   X   X   X   X    ",
+    "                             ",
+    "      X     X   X   X   X    ",
+    "      X                      ",
+    "             X X     X X     ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "               X             ",
+    "   X     X   X   X           ",
+    "      X               X  X   ",
+    "             X   X           ",
+    "    X   X            X  X    ",
+    "              X X            "));
 
 
 var layoutType: turtleLayout is [](
@@ -1165,7 +1201,7 @@ const proc: showPossibleMatches (in positionType: pos1, in boolean: marked) is f
 
 const proc: updateNumbers is func
   begin
-    draw_number(WINDOW_WIDTH - 104, 30, 2 * (72 - moveNumber) lpad 3);
+    draw_number(WINDOW_WIDTH - 104, 30, 2 * (NUMBER_OF_TILE_PAIRS - moveNumber) lpad 3);
     draw_number(WINDOW_WIDTH - 104, 70, countPossibleMoves lpad 3);
   end func;
 
@@ -1350,7 +1386,7 @@ const proc: playerTurn (inout char: command) is func
     var boolean: onTurn is TRUE;
     var integer: number is 0;
   begin
-    while onTurn do
+    while onTurn and moveNumber <> NUMBER_OF_TILE_PAIRS do
       playerMove(move, command);
       if upper(command) = 'U' then
         unmarkAll;
@@ -1754,7 +1790,7 @@ const proc: dealTiles (inout char: command) is func
       initLayout(turtleLayout);
       number := 1;
       demoMoves := 0 times moveType.value;
-      while okay and number <= 72 do
+      while okay and number <= NUMBER_OF_TILE_PAIRS do
         dealTilePair(okay);
         if inputReady(KEYBOARD) then
           command := upper(getc(KEYBOARD));
@@ -1763,7 +1799,7 @@ const proc: dealTiles (inout char: command) is func
           bossMode(doQuit);
           if doQuit then
             command := 'Q';
-            number := 72;
+            number := NUMBER_OF_TILE_PAIRS;
           else
             command := ' ';
           end if;
@@ -1780,13 +1816,13 @@ const proc: dealTiles (inout char: command) is func
  *  filled. It would be pure coincidence if the resulting game is
  *  solvable.
  *)
-const proc: dealTiles2 is func
+const proc: dealTiles2 (in layoutType: layout) is func
   local
     var positionType: pos is positionType.value;
     var integer: tileNumber is 0;
   begin
     initTiles;
-    initLayout(welcomeLayout);
+    initLayout(layout);
     for pos.level range 1 to length(field) do
       for pos.line range 1 to FIELD_LINES do
         for pos.column range 1 to FIELD_COLUMNS do
@@ -1799,6 +1835,27 @@ const proc: dealTiles2 is func
         end for;
       end for;
     end for;
+  end func;
+
+
+const proc: startNewGame (inout char: command) is func
+  begin
+    dealTiles2(welcomeLayout);
+    clear(curr_win, BACKGROUND);
+    drawBoard;
+    flushGraphic;
+    dealTiles(command);
+    if not doQuit then
+      clear(curr_win, BACKGROUND);
+      drawBoard;
+      writeButtons;
+      moveNumber := 0;
+      playerMoves := 0 times moveType.value;
+      updateNumbers;
+      while command <> 'Q' and inputReady(KEYBOARD) do
+        command := getCommand;
+      end while;
+    end if;
   end func;
 
 
@@ -1837,7 +1894,7 @@ const proc: main is func
       createPixmap(seven, 2, white),
       createPixmap(eight, 2, white),
       createPixmap(nine,  2, white));
-    dealTiles2;
+    dealTiles2(welcomeLayout);
     drawBoardWithFlush;
     writeCentered(screen, 700, "Press any key to start game");
     dealTiles(command);
@@ -1855,30 +1912,29 @@ const proc: main is func
       while command <> 'Q' do
         repeat
           playerTurn(command);
-        until command = 'N' or command = 'Q';
+        until command = 'N' or command = 'Q' or moveNumber = NUMBER_OF_TILE_PAIRS;
         if command <> 'N' and command <> 'Q' then
-          command := getCommand;
-        end if;
-        if command = 'N' and isOkay([] ("Discard old board?")) then
-          dealTiles2;
-          clear(curr_win, BACKGROUND);
+          dealTiles2(victoryLayout);
           drawBoard;
-          flushGraphic;
-          dealTiles(command);
-          if not doQuit then
-            clear(curr_win, BACKGROUND);
-            drawBoard;
-            writeButtons;
-            moveNumber := 0;
-            playerMoves := 0 times moveType.value;
-            updateNumbers;
-            while command <> 'Q' and inputReady(KEYBOARD) do
+          writeButtons;
+          repeat
+            repeat
               command := getCommand;
-            end while;
+            until command <> KEY_ESC;
+            if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
+              command := ' ';
+            end if;
+          until command <> ' ';
+          if command <> 'Q' then
+            startNewGame(command);
           end if;
-        end if;
-        if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
-          command := ' ';
+        else
+          if command = 'N' and isOkay([] ("Discard old board?")) then
+            startNewGame(command);
+          end if;
+          if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
+            command := ' ';
+          end if;
         end if;
       end while;
     end if;
