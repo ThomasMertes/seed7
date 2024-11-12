@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "text.s7i";
   include "draw.s7i";
   include "stdfont9.s7i";
+  include "cronos27.s7i";
   include "pixmap_file.s7i";
   include "keybd.s7i";
   include "dialog.s7i";
@@ -1993,6 +1994,19 @@ const proc: main is func
         end if;
       end while;
       if not game.quit then
+        setFont(scr, cronos27);
+        if game.playerHits > game.computerHits then
+          setPos(scr, 5, 1);
+          writeln(scr, "Congratulation");
+          writeln(scr, "You won");
+        elsif game.playerHits = game.computerHits then
+          setPos(scr, 6, 1);
+          writeln(scr, "Draw");
+        else
+          setPos(scr, 5, 1);
+          writeln(scr, "Sorry");
+          writeln(scr, "You lost");
+        end if;
         command := getc(KEYBOARD);
         if upper(command) = 'Q' or command = KEY_CLOSE or
             (command = KEY_MOUSE1 and clickedWindow(KEYBOARD) = exit) then
