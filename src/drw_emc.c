@@ -2748,12 +2748,23 @@ void drwToBottom (const_winType actual_window)
   { /* drwToBottom */
     logFunction(printf("drwToBottom(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-      EM_ASM({
-        let canvas = mapIdToCanvas[$0];
-        let parent = canvas.parentNode;
-        parent.removeChild(canvas);
-        parent.insertBefore(canvas, parent.firstChild);
-      }, to_window(actual_window));
+    if (is_subwindow(actual_window)) {
+      if (is_tab(to_parentWindow(actual_window))) {
+        EM_ASM({
+          let canvas = mapIdToCanvas[$0];
+          let parent = canvas.parentNode;
+          parent.removeChild(canvas);
+          parent.insertBefore(canvas, parent.firstChild.nextSibling);
+        }, to_window(actual_window));
+      } else {
+        EM_ASM({
+          let canvas = mapIdToCanvas[$0];
+          let parent = canvas.parentNode;
+          parent.removeChild(canvas);
+          parent.insertBefore(canvas, parent.firstChild);
+        }, to_window(actual_window));
+      } /* if */
+    } /* if */
     logFunction(printf("drwToBottom(" FMT_U_MEM ") -->\n",
                        (memSizeType) actual_window););
   } /* drwToBottom */
