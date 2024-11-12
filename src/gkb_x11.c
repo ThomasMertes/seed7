@@ -2352,8 +2352,11 @@ static boolType processEvents (void)
           default:
             traceEvent(printf("processEvents: Other Event %d\n",
                               currentEvent.type););
-            num_events = 0;
-            eventPresent = TRUE;
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
             break;
         } /* switch */
       } /* while */
