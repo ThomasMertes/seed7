@@ -275,14 +275,14 @@ const proc: messageWindow (in string: messageText) is func
 
 const proc: bossMode (inout boolean: doQuit) is func
   local
-    var PRIMITIVE_WINDOW: savedWindow is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: subWindow is PRIMITIVE_WINDOW.value;
     var text: txt is STD_NULL;
     var boolean: restored is FALSE;
     var char: cmd is ' ';
   begin
-    savedWindow := getPixmap(curr_win);
-    clear(white);
-    txt := open(curr_win, 20, 20);
+    subWindow := openSubWindow(curr_win, 0, 0, width(curr_win), height(curr_win));
+    clear(subWindow, white);
+    txt := open(subWindow, 20, 20);
     setPos(txt, 3, 1);
     color(txt, black, white);
     writeln(txt, "MODES OF OPERATION IN PROGRAMS");
@@ -304,8 +304,6 @@ const proc: bossMode (inout boolean: doQuit) is func
       if cmd in {'Q', 'q', KEY_CLOSE} then
         doQuit := TRUE;
       elsif cmd in {'P', 'p'} then
-        put(0, 0, savedWindow);
-        flushGraphic;
         restored := TRUE;
       end if;
     until restored or doQuit;
