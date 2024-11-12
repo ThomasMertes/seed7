@@ -806,21 +806,6 @@ const proc: visible (inout screenObj: screenObject) is func
   end func;
 
 
-const proc: allObjectsVisible is func
-  local
-    var integer: number is 0;
-  begin
-    if player.objectWindow <> PRIMITIVE_WINDOW.value then
-      visible(player);
-    end if;
-    for number range 1 to length(monster) do
-      if monster[number].objectWindow <> PRIMITIVE_WINDOW.value then
-        visible(monster[number]);
-      end if;
-    end for;
-  end func;
-
-
 const proc: invisible (inout screenObj: screenObject) is func
   begin
     setPos(screenObject.objectWindow, -100, -100);
@@ -852,18 +837,14 @@ const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is 
   begin
     pause_time := time(NOW);
     if blankWindow then
-      allObjectsInvisible;
       bossMode(game.quit);
-      allObjectsVisible;
     end if;
     while not (exitPause or game.quit) do
       cmd := getc(KEYBOARD);
       if cmd in {'Q', 'q', KEY_CLOSE} then
         game.quit := TRUE;
       elsif cmd = KEY_ESC then
-        allObjectsInvisible;
         bossMode(game.quit);
-        allObjectsVisible;
       else
         exitPause := exitWithAnyKey or cmd in {'P', 'p'};
       end if;
