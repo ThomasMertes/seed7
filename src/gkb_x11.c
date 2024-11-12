@@ -2334,6 +2334,15 @@ static boolType processEvents (void)
             } /* if */
             break;
 
+          case ButtonPress:
+            traceEvent(printf("processEvents: ButtonPress (%d, %d, %u %lu)\n",
+                              currentEvent.xbutton.x, currentEvent.xbutton.y,
+                              currentEvent.xbutton.button,
+                              (unsigned long) currentEvent.xbutton.window););
+            num_events = 0;
+            eventPresent = TRUE;
+            break;
+
           case ButtonRelease:
             traceEvent(printf("processEvents: ButtonRelease: %u\n",
                               currentEvent.xbutton.button););
