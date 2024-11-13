@@ -1356,6 +1356,39 @@ winType drwNewPixmap (intType width, intType height)
 
 
 
+static void moveSubWindows (int sourceWindowId, int destWindowId)
+
+  { /* moveSubWindows */
+    logFunction(printf("moveSubWindows(%d, %d)\n",
+                       sourceWindowId, destWindowId););
+    EM_ASM({
+      let sourceWindow = mapIdToWindow[$0];
+      let sourceCanvas = mapIdToCanvas[$0];
+      let destWindow = mapIdToWindow[$1];
+      let destCanvas = mapIdToCanvas[$1];
+      let addAfterMainCanvas = 0;
+      let children = sourceWindow.document.body.children;
+      for (let i = children.length; i > 0; i--) {
+        let canvas = children[addAfterMainCanvas];
+        if (canvas === sourceCanvas) {
+          addAfterMainCanvas = 1;
+        } else {
+          if (mapCanvasToId.has(canvas)) {
+            if (addAfterMainCanvas) {
+              destWindow.document.body.appendChild(canvas);
+            } else {
+              destWindow.document.body.insertBefore(canvas, destCanvas);
+            }
+          }
+        }
+      }
+    }, sourceWindowId, destWindowId);
+    logFunction(printf("moveSubWindows(%d, %d) -->\n",
+                       sourceWindowId, destWindowId););
+  } /* moveSubWindows */
+
+
+
 int copyWindow (int windowId)
 
   {
@@ -1450,6 +1483,7 @@ int copyWindow (int windowId)
         aWindow->ignoreFirstResize = windowIdAndFlags & 3;
         aWindow->creationTimestamp = timMicroSec() / 1000000;
         maxWindowId = aWindow->window;
+        moveSubWindows(windowId, aWindow->window);
         setupEventCallbacksForWindow(aWindow->window);
         remove_window(windowId);
         setClosePopupState(windowId, 0);
