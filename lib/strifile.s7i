@@ -179,8 +179,9 @@ const func string: getTerminatedString (inout striFile: inStriFile,
 (**
  *  Read a word from ''inStriFile''.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", or [[char#EOF|EOF]].
+ *  accepts words ending with ' ', '\t', '\n', "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
+ *  The '\r' of a "\r\n" sequence is silently removed.
  *  When the function is left inStriFile.bufferChar contains ' ',
  *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
@@ -209,7 +210,12 @@ const func string: getwd (inout striFile: inStriFile) is func
         incr(wordEndPos);
       end while;
       if wordEndPos <= length(inStriFile.content) then
-        stri := inStriFile.content[wordStartPos .. pred(wordEndPos)];
+        if inStriFile.content[wordEndPos] = '\n' and
+            inStriFile.content[pred(wordEndPos)] = '\r' then
+          stri := inStriFile.content[wordStartPos .. wordEndPos - 2];
+        else
+          stri := inStriFile.content[wordStartPos .. pred(wordEndPos)];
+        end if;
         inStriFile.position := succ(wordEndPos);
         inStriFile.bufferChar := inStriFile.content[wordEndPos];
       else
@@ -223,10 +229,11 @@ const func string: getwd (inout striFile: inStriFile) is func
 
 (**
  *  Read a line from ''inStriFile''.
- *  A striFile works as if all lines end with '\n'.
- *  The line ending character is not copied into the string. When
- *  the function is left inStriFile.bufferChar contains '\n' or
- *  [[char#EOF|EOF]].
+ *  The function accepts lines ending with '\n', "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  The '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left inStriFile.bufferChar contains '\n'
+ *  or [[char#EOF|EOF]].
  *  @return the line read.
  *)
 const func string: getln (inout striFile: inStriFile) is func
@@ -237,7 +244,12 @@ const func string: getln (inout striFile: inStriFile) is func
   begin
     newlinePos := pos(inStriFile.content, '\n', inStriFile.position);
     if newlinePos <> 0 then
-      stri := inStriFile.content[inStriFile.position .. pred(newlinePos)];
+      if newlinePos >= 2 and
+          inStriFile.content[pred(newlinePos)] = '\r' then
+        stri := inStriFile.content[inStriFile.position .. newlinePos - 2];
+      else
+        stri := inStriFile.content[inStriFile.position .. pred(newlinePos)];
+      end if;
       inStriFile.position := succ(newlinePos);
       inStriFile.bufferChar := '\n';
     else
