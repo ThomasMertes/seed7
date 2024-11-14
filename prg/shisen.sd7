@@ -33,6 +33,7 @@ $ include "seed7_05.s7i";
   include "duration.s7i";
   include "pic32.s7i";
   include "vecfont10.s7i";
+  include "cronos27.s7i";
   include "pixmap_file.s7i";
 
 
@@ -1407,6 +1408,9 @@ const proc: main is func
           playerTurn(command);
         until countCards = 0 or command = 'N' or command = 'Q' or command = KEY_CLOSE;
         if command <> 'N' and command <> 'Q' and command <> KEY_CLOSE then
+          setFont(screen, cronos27);
+          setPos(screen, 9, 9);
+          writeln(screen, "Congratulation");
           command := upper(getc(KEYBOARD));
         end if;
         if command <> 'Q' and command <> KEY_CLOSE then
