@@ -1450,6 +1450,9 @@ int copyWindow (int windowId)
             mapIdToWindow[currentWindowId] = windowObject;
             mapWindowToId.set(windowObject, currentWindowId);
             let canvas = windowObject.document.createElement("canvas");
+            canvas.style.position = "absolute";
+            canvas.style.left = "0px";
+            canvas.style.top = "0px";
             let ignoreFirstResize = 0;
             if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
               canvas.width  = width ;
@@ -1605,12 +1608,12 @@ static int openDocumentTabAsWindow (intType width, intType height)
       mapIdToWindow[currentWindowId] = document;
       mapWindowToId.set(null, currentWindowId);
       let canvas = document.createElement("canvas");
-      let ignoreFirstResize = 0;
-      canvas.width  = width;
-      canvas.height = height;
       canvas.style.position = "absolute";
       canvas.style.left = "0px";
       canvas.style.top = "0px";
+      let ignoreFirstResize = 0;
+      canvas.width  = width;
+      canvas.height = height;
       let context = canvas.getContext("2d");
       context.fillStyle = "#000000";
       context.fillRect(0, 0, width, height);
@@ -1860,6 +1863,9 @@ winType drwOpen (intType xPos, intType yPos,
               mapIdToWindow[currentWindowId] = windowObject;
               mapWindowToId.set(windowObject, currentWindowId);
               let canvas = windowObject.document.createElement("canvas");
+              canvas.style.position = "absolute";
+              canvas.style.left = "0px";
+              canvas.style.top = "0px";
               let ignoreFirstResize = 0;
               if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
                 canvas.width  = width ;
