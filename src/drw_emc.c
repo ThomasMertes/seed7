@@ -1377,9 +1377,8 @@ static void moveCanvas (int sourceWindowId, int destWindowId)
       let sourceWindow = mapIdToWindow[$0];
       let destWindow = mapIdToWindow[$1];
       let children = sourceWindow.document.body.children;
-      for (let i = children.length; i > 0; i--) {
-        let canvas = children[0];
-        destWindow.document.body.appendChild(canvas);
+      while (children.length > 0) {
+        destWindow.document.body.appendChild(children[0]);
       }
     }, sourceWindowId, destWindowId);
     logFunction(printf("moveCanvas(%d, %d) -->\n",
