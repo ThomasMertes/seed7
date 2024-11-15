@@ -148,8 +148,10 @@ int getCloseAction (winType aWindow)
     closeAction = aWindow != NULL ?
         to_close_action(aWindow) :
         CLOSE_BUTTON_RAISES_EXCEPTION;
-    logFunction(printf("getCloseAction(" FMT_U_MEM ") --> %d\n",
-                       (memSizeType) aWindow, closeAction););
+    logFunction(printf("getCloseAction(" FMT_U_MEM " (window=%d)) --> %d\n",
+                       (memSizeType) aWindow,
+                       aWindow != NULL ? to_window(aWindow) : 0,
+                       closeAction););
     return closeAction;
   } /* getCloseAction */
 
@@ -978,6 +980,7 @@ winType drwEmpty (void)
 static void closeWindow (int windowId)
 
   { /* closeWindow */
+    logFunction(printf("closeWindow(%d)\n", windowId););
     EM_ASM({
       if (typeof window !== "undefined") {
         if (typeof mapIdToCanvas[$0] !== "undefined") {
@@ -999,6 +1002,7 @@ static void closeWindow (int windowId)
         }
       }
     }, windowId);
+    logFunction(printf("closeWindow(%d) -->\n", windowId););
   } /* closeWindow */
 
 
@@ -1364,36 +1368,39 @@ winType drwNewPixmap (intType width, intType height)
 
 
 
-static void moveSubWindows (int sourceWindowId, int destWindowId)
+static void moveCanvas (int sourceWindowId, int destWindowId)
 
-  { /* moveSubWindows */
-    logFunction(printf("moveSubWindows(%d, %d)\n",
+  { /* moveCanvas */
+    logFunction(printf("moveCanvas(%d, %d)\n",
                        sourceWindowId, destWindowId););
     EM_ASM({
       let sourceWindow = mapIdToWindow[$0];
-      let sourceCanvas = mapIdToCanvas[$0];
       let destWindow = mapIdToWindow[$1];
-      let destCanvas = mapIdToCanvas[$1];
-      let addAfterMainCanvas = 0;
       let children = sourceWindow.document.body.children;
       for (let i = children.length; i > 0; i--) {
-        let canvas = children[addAfterMainCanvas];
-        if (canvas === sourceCanvas) {
-          addAfterMainCanvas = 1;
-        } else {
-          if (mapCanvasToId.has(canvas)) {
-            if (addAfterMainCanvas) {
-              destWindow.document.body.appendChild(canvas);
-            } else {
-              destWindow.document.body.insertBefore(canvas, destCanvas);
-            }
-          }
-        }
+        let canvas = children[0];
+        destWindow.document.body.appendChild(canvas);
       }
     }, sourceWindowId, destWindowId);
-    logFunction(printf("moveSubWindows(%d, %d) -->\n",
+    logFunction(printf("moveCanvas(%d, %d) -->\n",
                        sourceWindowId, destWindowId););
-  } /* moveSubWindows */
+  } /* moveCanvas */
+
+
+
+static void removeWindowMapping (int windowId)
+
+  { /* removeWindowMapping */
+    logFunction(printf("removeWindowMapping(%d)\n", windowId););
+    EM_ASM({
+      if (typeof window !== "undefined") {
+        mapIdToCanvas[$0] = undefined;
+        mapIdToContext[$0] = undefined;
+        mapIdToWindow[$0] = undefined;
+      }
+    }, windowId);
+    logFunction(printf("removeWindowMapping(%d) -->\n", windowId););
+  } /* removeWindowMapping */
 
 
 
@@ -1415,6 +1422,7 @@ int copyWindow (int windowId)
                                              typeof mapIdToCanvas[$0] !== "undefined") {
           let sourceWindow = mapIdToWindow[$0];
           let sourceCanvas = mapIdToCanvas[$0];
+          let sourceContext = mapIdToContext[$0];
           let rightBottomLeftBorder = sourceWindow.outerWidth - sourceWindow.innerWidth;
           let topBorder = sourceWindow.outerHeight - sourceWindow.innerHeight - rightBottomLeftBorder;
           let left = sourceWindow.screenX;
@@ -1449,14 +1457,8 @@ int copyWindow (int windowId)
             currentWindowId++;
             mapIdToWindow[currentWindowId] = windowObject;
             mapWindowToId.set(windowObject, currentWindowId);
-            let canvas = windowObject.document.createElement("canvas");
-            canvas.style.position = "absolute";
-            canvas.style.left = "0px";
-            canvas.style.top = "0px";
             let ignoreFirstResize = 0;
             if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
-              canvas.width  = width ;
-              canvas.height = height;
               ignoreFirstResize = 1;
             } else {
               windowObject.resizeTo(width + (windowObject.outerWidth - windowObject.innerWidth),
@@ -1465,16 +1467,10 @@ int copyWindow (int windowId)
                 ignoreFirstResize = 2;
               }
               windowObject.moveTo(left, top);
-              canvas.width  = windowObject.innerWidth;
-              canvas.height = windowObject.innerHeight;
             }
-            let context = canvas.getContext("2d");
-            // Copy the content of the old window:
-            context.drawImage(sourceCanvas, 0, 0);
-            windowObject.document.body.appendChild(canvas);
-            mapIdToCanvas[currentWindowId] = canvas;
-            mapCanvasToId.set(canvas, currentWindowId);
-            mapIdToContext[currentWindowId] = context;
+            mapIdToCanvas[currentWindowId] = sourceCanvas;
+            mapCanvasToId.set(sourceCanvas, currentWindowId);
+            mapIdToContext[currentWindowId] = sourceContext;
             if (typeof windowObject.opener.registerWindow !== "undefined") {
               windowObject.opener.registerWindow(windowObject);
             }
@@ -1493,12 +1489,12 @@ int copyWindow (int windowId)
         aWindow->ignoreFirstResize = windowIdAndFlags & 3;
         aWindow->creationTimestamp = timMicroSec() / 1000000;
         maxWindowId = aWindow->window;
-        moveSubWindows(windowId, aWindow->window);
+        moveCanvas(windowId, aWindow->window);
         setupEventCallbacksForWindow(aWindow->window);
         remove_window(windowId);
         setClosePopupState(windowId, 0);
         enter_window((winType) aWindow, aWindow->window);
-        closeWindow(windowId);
+        removeWindowMapping(windowId);
       } /* if */
     } /* if */
     logFunction(printf("copyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
