@@ -975,6 +975,34 @@ winType drwEmpty (void)
 
 
 
+static void closeWindow (int windowId)
+
+  { /* closeWindow */
+    EM_ASM({
+      if (typeof window !== "undefined") {
+        if (typeof mapIdToCanvas[$0] !== "undefined") {
+          let canvas = mapIdToCanvas[$0];
+          mapCanvasToId.delete(canvas);
+          mapIdToCanvas[$0] = undefined;
+          mapIdToContext[$0] = undefined;
+          let parent = canvas.parentNode;
+          parent.removeChild(canvas);
+        }
+        if (typeof mapIdToWindow[$0] !== "undefined") {
+          let windowObject = mapIdToWindow[$0];
+          mapWindowToId.delete(windowObject);
+          mapIdToWindow[$0] = undefined;
+          if (deregisterWindowFunction !== null) {
+            deregisterWindowFunction(windowObject);
+          }
+          windowObject.close();
+        }
+      }
+    }, windowId);
+  } /* closeWindow */
+
+
+
 void drwFree (winType old_window)
 
   { /* drwFree */
@@ -988,27 +1016,7 @@ void drwFree (winType old_window)
         mapIdToContext[$0] = undefined;
       }, to_window(old_window));
     } else {
-      EM_ASM({
-        if (typeof window !== "undefined") {
-          if (typeof mapIdToCanvas[$0] !== "undefined") {
-            let canvas = mapIdToCanvas[$0];
-            mapCanvasToId.delete(canvas);
-            mapIdToCanvas[$0] = undefined;
-            mapIdToContext[$0] = undefined;
-            let parent = canvas.parentNode;
-            parent.removeChild(canvas);
-          }
-          if (typeof mapIdToWindow[$0] !== "undefined") {
-            let windowObject = mapIdToWindow[$0];
-            mapWindowToId.delete(windowObject);
-            mapIdToWindow[$0] = undefined;
-            if (deregisterWindowFunction !== null) {
-              deregisterWindowFunction(windowObject);
-            }
-            windowObject.close();
-          }
-        }
-      }, to_window(old_window));
+      closeWindow(to_window(old_window));
       remove_window(to_window(old_window));
       setClosePopupState(to_window(old_window), 0);
     } /* if */
@@ -1409,8 +1417,8 @@ int copyWindow (int windowId)
           let sourceCanvas = mapIdToCanvas[$0];
           let rightBottomLeftBorder = sourceWindow.outerWidth - sourceWindow.innerWidth;
           let topBorder = sourceWindow.outerHeight - sourceWindow.innerHeight - rightBottomLeftBorder;
-          let left = sourceWindow.screenX; // - rightBottomLeftBorder;
-          let top = sourceWindow.screenY; // - topBorder;
+          let left = sourceWindow.screenX;
+          let top = sourceWindow.screenY;
           let width = $1;
           let height = $2;
           let sourceWindowTitle = sourceWindow.document.title;
@@ -1425,8 +1433,7 @@ int copyWindow (int windowId)
           } else {
             windowName = windowName + "+";
           }
-          let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
-                               ",left=" + left + ",top=" + top +
+          let windowFeatures = "popup=true,left=" + left + ",top=" + top +
                                ",width=" + width + ",height=" + height;
           let windowObject = window.open("", windowName, windowFeatures);
           if (windowObject === null) {
@@ -1488,6 +1495,7 @@ int copyWindow (int windowId)
         remove_window(windowId);
         setClosePopupState(windowId, 0);
         enter_window((winType) aWindow, aWindow->window);
+        closeWindow(windowId);
       } /* if */
     } /* if */
     logFunction(printf("copyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
@@ -1700,25 +1708,7 @@ void moveWindowToDocumentTab (winType currentWindow)
       remove_window(to_window(currentWindow));
       setClosePopupState(to_window(currentWindow), 0);
       enter_window(currentWindow, windowId);
-      EM_ASM({
-        if (typeof mapIdToCanvas[$0] !== "undefined") {
-          let canvas = mapIdToCanvas[$0];
-          mapCanvasToId.delete(canvas);
-          mapIdToCanvas[$0] = undefined;
-          mapIdToContext[$0] = undefined;
-          let parent = canvas.parentNode;
-          parent.removeChild(canvas);
-        }
-        if (typeof mapIdToWindow[$0] !== "undefined") {
-          let windowObject = mapIdToWindow[$0];
-          mapWindowToId.delete(windowObject);
-          mapIdToWindow[$0] = undefined;
-          if (deregisterWindowFunction !== null) {
-            deregisterWindowFunction(windowObject);
-          }
-          windowObject.close();
-        }
-      }, to_window(currentWindow));
+      closeWindow(to_window(currentWindow));
       to_var_window(currentWindow) = windowId;
     } /* if */
     logFunction(printf("moveWindowToDocumentTab(" FMT_U_MEM " (windowId=%d)) -->\n",
