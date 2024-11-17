@@ -905,6 +905,10 @@ extern Status XQueryTree (Display *display,
 extern int XRaiseWindow (Display *display,
                          Window window);
 extern int XRefreshKeyboardMapping (XMappingEvent *event_map);
+extern int XResizeWindow (Display *display,
+                          Window window,
+                          unsigned int width,
+                          unsigned int height);
 extern Screen *XScreenOfDisplay (Display *display,
                                  int screen_number);
 extern int XSelectInput (Display *display,
