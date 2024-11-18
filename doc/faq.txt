@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-08-12 the number of lines is:
+than 400000 lines of Seed7. For version 2024-11-18 the number of lines is:
 
-  183664  C source files (*.c)
-   13770  C header files (*.h)
-  259238  Seed7 source files (*.sd7)
-  190664  Seed7 library/include files (*.s7i)
+  184755  C source files (*.c)
+   13784  C header files (*.h)
+  262947  Seed7 source files (*.sd7)
+  193729  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1383,11 +1383,11 @@ Are there automatic casts to the right type?
 ============================================
 
 Seed7 cannot read the mind of the programmer. It is hard to find out what the
-programmer considers as "right type". A conversion can lose information.
+programmer considers as the "right type". A conversion can lose information.
 Seemingly safe conversions may also lose information. E.g. Not all 64-bit
 integer values can be represented as 64-bit float values. It can also lead to
 unplanned behavior if the programmer is not aware of an automatic conversion.
-Readability is improved if conversions are done explicitly. Seed7 is strong
+Readability is improved if conversions are done explicitly. Seed7 is strongly
 typed and uses explicit conversions. E.g.: The conversion from 'integer'
 to 'float' is done with the functions 'flt' and 'float'. Conversions from
 'float' to 'integer' are done with 'round' or 'trunc'. Explicit conversions
@@ -1396,7 +1396,7 @@ have more advantages than disadvantages:
  1. The overloading rules are much simpler.
  2. An expression can be understood without its calling context.
  3. Errors caused by unplanned automatic type conversions cannot happen.
- 4. Since you have to do type conversions explicit you are more aware of the
+ 4. Since you have to do type conversions explicitly you are more aware of the
     run time overhead.
 
 

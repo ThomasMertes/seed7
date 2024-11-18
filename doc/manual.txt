@@ -334,9 +334,9 @@ CONTENTS
   language definition and cannot be changed by the user. It is
   only possible to declare new procedures, functions and in
   some languages also new operators. However the syntax of
-  procedure-, function and operator calls cannot be changed.
+  procedure, function and operator calls cannot be changed.
   Although this rigid pattern is favorable for the portability
-  of programs, the improvement of a programming language is
+  of programs, the improvement of the programming language is
   almost impossible. Extensions are however desirable, in order
   to repair existing weaknesses, to introduce new more obvious
   constructs and to adapt the programming language to different
@@ -743,7 +743,7 @@ CONTENTS
       local
         var integer: count is 1;
       begin
-        while count <= 10 do do
+        while count <= 10 do
           writeln(count);
           count := count + 1;
         end while;

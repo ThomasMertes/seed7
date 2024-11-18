@@ -166,7 +166,7 @@ a.menu, a.head {
 
 .tt { font-family: monospace; font-size: 10pt; }
 
-body  { font-size: 12pt; }
+body  { font-family: "Segoe UI","Noto Sans",Verdana,sans-serif; font-size: 12pt; }
 table { font-size: 12pt; }
 tt    { font-size: 10pt; }
 
@@ -889,12 +889,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-08-12 the number of lines is:
+than 400000 lines of Seed7. For version 2024-11-18 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">183664</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13770</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">259238</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">190664</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">184755</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13784</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">262947</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">193729</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1925,11 +1925,11 @@ const func array array string: test (in string: value) is func
 </h3></a><hr />
 <p>
 Seed7 cannot read the mind of the programmer. It is hard to find out what the
-programmer considers as "right type". A conversion can lose information.
+programmer considers as the "right type". A conversion can lose information.
 Seemingly safe conversions may also lose information. E.g. Not all 64-bit
 integer values can be represented as 64-bit float values. It can also lead to
 unplanned behavior if the programmer is not aware of an automatic conversion.
-Readability is improved if conversions are done explicitly. Seed7 is strong
+Readability is improved if conversions are done explicitly. Seed7 is strongly
 typed and uses explicit conversions. E.g.: The conversion from <tt><span class="type">integer</span></tt>
 to <tt><span class="type">float</span></tt> is done with the functions <tt><span class="func">flt</span></tt> and <tt><span class="func">float</span></tt>. Conversions from
 <tt><span class="type">float</span></tt> to <tt><span class="type">integer</span></tt> are done with <tt><span class="func">round</span></tt> or <tt><span class="func">trunc</span></tt>. Explicit conversions
@@ -1938,7 +1938,7 @@ have more advantages than disadvantages:
 <li>The overloading rules are much simpler.</li>
 <li>An expression can be understood without its calling context.</li>
 <li>Errors caused by unplanned automatic type conversions cannot happen.</li>
-<li>Since you have to do type conversions explicit you are more aware of the
+<li>Since you have to do type conversions explicitly you are more aware of the
     run time overhead.</li>
 </ol></div>
 

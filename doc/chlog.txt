@@ -1,3 +1,385 @@
+20241118:
+- A new Seed7 installer for Windows (seed7_05_20240812_win.exe) has
+  been released. This installer correctly identifies if the Windows
+  operating system is 32- or 64-bit. Many thanks to Bruce Axtens
+  and Simon Dash for reporting errors caused by 32-bit Seed7
+  installations (running out of memory with bigfiles.sd7 and a
+  failing test with chkarr.sd7).
+- In idxarray.s7i the type 'array [integer] baseType' has been
+  mapped to 'array baseType'. Many thanks to Simon Dash for
+  reporting that the use of 'array [integer] baseType' triggered
+  errors.
+- In httpserv.s7i the function getHttpRequest() has been improved to
+  assure that something can be read from the socket without waiting.
+- In fixarray.s7i fixed size arrays have been improved to support
+  for-each-loops.
+- In bitdata.s7i, the types lsbOutBitStream and msbOutBitStream have
+  been introduced. These types support the functions putBit(),
+  putBits(), length(), truncate(), flush() and getBytes().
+- The function putBits(lsbOutBitStream) is 22% faster than the
+  deprecated function putBitsLsb().
+- The function putBits(msbOutBitStream) is 24% faster than the
+  deprecated function putBitsMsb().
+- Tests for lsbOutBitStream and msbOutBitStream have been added to
+  chkbitdata.sd7. The tests check putBit(), putBits(), length() and
+  truncate().
+- Tests have been added to chkbitdata.sd7. The tests check the
+  addition of zero bit sequences to a bit stream.
+- The library lzw.s7i has been improved to use a lsbOutBitStream or
+  a msbOutBitStream for the LZW compression.
+- In bitdata.s7i the types lsbBitStream and msbBitStream and the
+  functions openLsbBitStream and openMsbBitStream are deprecated.
+  The types lsbInBitStream and msbInBitStream and the
+  functions openLsbInBitStream and openMsbInBitStream should be
+  used instead.
+- Support for Huffman encoding has been added to the huffman.s7i
+  library.
+- The libraries ccittfax.s7i, gzip.s7i, huffman.s7i, inflate.s7i,
+  lzw.s7i and zstd.s7i have been changed to replace the deprecated
+  type lsbBitStream with lsbInBitStream. The deprecated function
+  openLsbBitStrea has been replaced with openLsbInBitStream as
+  well.
+- The libraries ccittfax.s7i, huffman.s7i, jpeg.s7i, lzw.s7i and
+  tiff.s7i have been changed to replace the deprecated type
+  msbBitStream with msbInBitStream. The deprecated function
+  openMsbBitStream has been replaced with openMsbInBitStream as
+  well.
+- Support for the dynamic deflate compression has been added to
+  the library deflate.s7i.
+- In deflate.s7i the functions putDistance and encodeLz77Distance
+  have been refactored to use a case statement instead of an
+  if-elsif-chain. This improves the performance of
+  encodeLz77Distance by 30%.
+- The libraries deflate.s7i and gzip.s7i have been improved to use
+  a lsbOutBitStream for the DEFLATE compression.
+- In inflate.s7i the function decodeDynamicHuffmanCodes() has been
+  refactored.
+- In inflate.s7i and ccittfax.s7i the decoder names have been
+  refactored.
+- In huffman.s7i, inflate.s7i and jpeg.s7i the functions
+  createHuffmanTableMsb and createHuffmanTableLsb have been renamed
+  to createMsbHuffmanDecoder respectively createLsbHuffmanDecoder.
+- In huffman.s7i, ccittfax.s7i, inflate.s7i and jpeg.s7i the
+  undocumented types msbHuffmanTable and lsbHuffmanTable have been
+  renamed to msbHuffmanDecoder respectively lsbHuffmanDecoder.
+- In ccittfax.s7i type, variable, parameter and function names have
+  been refactored.
+- In bitdata.s7i the functions putBitLsb(), putBitsLsb(),
+  putBitMsb() and putBitsMsb() with a string or file as parameter
+  are deprecated. The functions with the types lsbOutBitStream
+  and msbOutBitStream should be used instead.
+- The new library compress.s7i has been added. This library supports
+  compression and decompression with PackBits (Tiff version and PDF
+  version).
+- The library tiff.s7i has been improved to use the new function
+  fromPackBits() instead of unpackBits(). The declaration of
+  unpackBits() in tiff.s7i has been removed.
+- The declaration of the unused type tiffIDFEntry has been removed
+  from tiff.s7i.
+- The functions toAsciiHex() and fromAsciiHex() have been added to
+  the library encoding.s7i.
+- In encoding.s7i the function toAscii85() has been fixed to
+  handle the last partial group correctly.
+- In encoding.s7i the function fromPercentEncoded() has been
+  improved to scale better with the string length.
+- In encoding.s7i the function fromUrlEncoded has been changed to
+  avoid a change of pos in a for-key-loop.
+- In lzw.s7i the LZW compressions have been fixed to write the end
+  code with the correct number of bits. If necessary the clear code
+  is written before the end code.
+- In gzip.s7i the function gzcompress() has been fixed to use the
+  correct header.
+- The library deflate.s7i has been improved to use 'fixLen' instead
+  of 'len' for the Lz77 compression in the function deflate().
+- In charsets.s7i support for PostScript Standard Encoding has been
+  added.
+- In charsets.s7i the code page mac_os_roman has been fixed.
+- The library ico.s7i has been improved to support ICO files with
+  a PNG image.
+- In pbm.s7i the reading of a PBM (portable bitmap) image files
+  has been fixed to avoid an INDEX_ERROR if the image width is a
+  multiple of 8.
+- In pbm.s7i, pgm.s7i and ppm.s7i functions to read image lines
+  have been introduced. These functions use a 1D pixelArray instead
+  of a 2D pixelImage array. This avoids array index checks in the
+  innermost loop.
+- The function setPixels() has been added to the library
+  pixelimage.s7i. This function uses a 1D pixelArray parameter.
+- The library ccittfax.s7i has been improved to use the function
+  setPixels().
+- In ccittfax.s7i the functions processCcittFaxRow(),
+  processCcittT4Fax2dRow() and processCcittT4Fax1dRow() have been
+  improved to use the 1D array pixelArray instead of the 2D array
+  pixelImage.
+- In ccittfax.s7i the fixed base array type ccittFaxValues has been
+  introduced for A and B values.
+- The unused functions putBits0Msb, putBits1Msb and ccittFaxDecode
+  have been removed from ccittfax.s7i.
+- In huffman.s7i and ccittfax.s7i the element maxBitWidth has been
+  renamed to maximumCodeLength.
+- In huffman.s7i the function computeSymbolsWithCodeLength() has
+  been introduced. This function is used by
+  createLsbHuffmanDecoder(), reduceMaximumHuffmanCodeLength() and
+  createHuffmanEncoder().
+- In huffman.s7i parameter and variable names have been refactored.
+- In zstd.s7i the type zstdHuffmanDecodingTable() has been renamed
+  to zstdHuffmanDecoder(). Variables of this type have been renamed
+  from 'table' to 'decoder'.
+- In hash.s7i documentation for the hash update function has been
+  added.
+- Tests for the hash update function have been added to chkhsh.sd7.
+- In exif.s7i The function readExifData has been changed to be
+  usable from png.s7i. The call of readExifData in jpeg.s7i has
+  been adjusted.
+- The library png.s7i has been improved:
+  - The Exif orientation is considered in PNG images.
+  - Support for writing PNG images has been added.
+  - The function computeBytesPerPixel uses a case-statement instead
+    of an if-elsif-chain.
+  - Constants for the PNG color type (PNG_COLOR_TYPE_GRAYSCALE,
+    PNG_COLOR_TYPE_RGB, PNG_COLOR_TYPE_PALETTE,
+    PNG_COLOR_TYPE_GRAYSCALE_ALPHA and PNG_COLOR_TYPE_RGB_ALPHA)
+    have been introduced.
+  - The functions fillPngImageLine1Bit(), fillPngImageLine2Bit(),
+    fillPngImageLine4Bit(), fillPngImageLine8Bit(),
+    fillPngImageLine16Bit(), fillPngImageLine24Bit() and
+    fillPngImageLine48Bit() have been introduced. The line by line
+    processing of images improves the performance by up to 3%.
+- The library gif.s7i has been refactored. The functions showHeader,
+  showImageHeader, showExtension, readGraphicControlExtension and
+  readApplicationExtension have been introduced. The type gifData
+  has been introduced as well.
+- The library gif.s7i has been changed to process images line by
+  line. This improves the performance by 2% to 4%.
+- The function readGifColorMap has been introduced in gif.s7i. This
+  function is used in readHeader() and readImageHeader().
+- The library tar_cmds.s7i has been fixed to write the TAR EOF
+  marker just once.
+- In crc32.s7i a fixed size array is used for the crc32Table.
+- Some icon pictures have been added to pic32.s7i.
+- In strifile.s7i the functions getwd() and getln() have been
+  improved to ignore the '\r' of a "\r\n" sequence.
+- Definitions of TLS extensions have been added to tls.s7i and
+  showtls.s7i.
+- In dialog.s7i the function bossMode() has been improved to use a
+  sub-window.
+- In dialog.s7i the undocumented function buttonWindow() has been
+  deprecated. The function clickedWindow() should be used
+  instead. The programs carddemo.sd7, klondike.sd7, pairs.sd7,
+  panic.sd7 and sokoban.sd7 have been changed to use
+  clickedWindow() instead of the deprecated function.
+- Support for the PackBits compression has been added to calc7.sd7.
+- The program castle.sd7 has been improved to store castle.dat as
+  a bstring named castleData in the program.
+- Several improvements have been made in the program panic.sd7:
+  - Mouse clicks can be used as commands in addition to keyboard
+    commands.
+  - Sub-windows are used for player and monster images.
+  - The await time is recomputed if it has already passed.
+  - Unnecessary calls of allObjectsInvisible() and
+    allObjectsVisible() have been removed.
+  - The function process_command uses a case-statement instead of
+    an if-elsif chain.
+- Several improvements have been made in the program dnafight.sd7:
+  - Selecting bacteria and starting the simulation can be done
+    with the mouse.
+  - Constants for line and column delta have been introduced.
+  - A glitch when positioning bacteria has been fixed.
+- In the program lander.sd7 a glitch in advanced lander has been
+  fixed.
+- Several improvements have been made in the program sokoban.sd7:
+  - Mouse clicks can be used to trigger a movement.
+  - Clickable buttons for commands have been introduced. This
+    allows Sokoban to be played without a keyboard.
+  - The congratulations have been moved from line 31 to line 13.
+  - The position where a level number can be entered has been
+    changed.
+- In klondike.sd7 the destination places are now marked with a
+  rectangle, and the bottom of the card pile is marked with a
+  ring.
+- In klondike.sd7 mouse wheel keys are now allowed during the
+  victory animation.
+- Several improvements have been made in the program pairs.sd7:
+  - An exit button has been added.
+  - The mouse buttons 2 to 5 are ignored.
+  - A congratulation is displayed when the board is cleared.
+  - Several games can be played in succession.
+- A congratulation screen has been added to mahjong.sd7.
+- A congratulation has been added to shisen.sd7.
+- The program wator.sd7 has been improved to check if the value
+  entered is a number.
+- An exit button has been added to keyboard test program gkbd.sd7.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - The function handleOverlappingStrings() has been added to
+    s7c.sd7. This function determines if the head of a new string
+    is the same as the tail of the existing striChars. The old code
+    searched for one character from the end of striChars. The new
+    function searches for up to 8 character from the end of
+    striChars. This improves the performance of this functionality
+    considerably.
+  - The functions write_striChars() and write_bstriChars() have
+    been improved to directly write to the file c_prog (instead of
+    appending the data to a string variable). This avoids a
+    MEMORY_ERROR for huge string and bstring constant tables.
+  - Now functions are inlined if they are undeclared and calling a
+    special action.
+  - In comp/arr_act.s7i the prototype declaration for the ARR_TIMES
+    operator has been fixed to use the parameter elementType.
+  - In comp/intrange.s7i the function getIntRange() has been
+    improved to avoid a potential endless recursion with compiler
+    option -oc3.
+  - In comp/const.s7i the constant constantExpressionCategories
+    has been renamed to basicExpressionCategories.
+  - The functions isPureExpression() and equalExpressions() have
+    been added to comp/const.s7i.
+  - In comp/str_act.s7i the functions process_str_substr_slice,
+    process_str_substr_fixlen_slice and
+    optimize_str_eq_of_substr_fixlen have been introduced.
+  - The index checks for the action STR_SUBSTR_FIXLEN have been
+    improved.
+  - In comp/bin_act.s7i and comp/int_act.s7i a slice is used for the
+    optimization of BIN_BYTES_BE_2_UINT, BIN_BYTES_LE_2_UINT,
+    INT_BYTES_BE_2_UINT and INT_BYTES_LE_2_UINT.
+  - An optimization for the comparison of two fixLen sub-strings has
+    been added.
+  - In comp/drw_act.s7i the support for the action DRW_SET_SIZE has
+    been added.
+  - In comp/ref_act.s7i a REF_ADDR pointer is cast to void *.
+- The function check_bstring_constants, which tests the compiler
+  behavior if two bstrings overlap, has been added to chkbst.sd7.
+- Tests for the comparison of two fixLen sub-strings have been added
+  to chkstr.sd7 and chkidx.sd7.
+- Interpreter and compiler have been improved to support the actions
+  BIN_BYTES_BE_2_UINT, BIN_BYTES_LE_2_UINT and DRW_SET_SIZE.
+- The library bin64.s7i has been improved to use the actions
+  BIN_BYTES_BE_2_UINT and BIN_BYTES_LE_2_UINT.
+- The function setSize() has been added to the graph.s7i library.
+- Tests for the conversion from string to bin64 have been added to
+  chkbin.sd7. The program chk_all.sd7 has has been adjusted to
+  consider the changes in chkbin.sd7.
+- In chkarr.sd7 the functions testFixArrayIndex() and
+  testBaseArrayIndex() have been fixed to work correctly if
+  POINTER_SIZE is 32.
+- The function getHexDigits() has been added to scanstri.s7i and
+  scanfile.s7i.
+- Tests for getHexDigits() have been added to chkscan.sd7.
+- In chkccomp.c the tests for setjmp and sigsetjmp have been
+  improved to recognize if they always return 0.
+- A mechanism to recognize timer throttling in the browser has been
+  added to drw_emc.c and gkb_emc.c. A throttled program probably
+  displays graphics in a newly opened tab instead of a popup.
+  In this case, the old tab (where the program is running) is
+  repurposed to display the graphics. To do that, the graphic
+  content is moved from the newly opened tab to the old tab, and the
+  newly opened tab is closed. This moves the focus from the newly
+  opened tab to the tab where the program runs. This stops the
+  throttling.
+- Several improvements have been done in drw_emc.c:
+  - The functions pointerXPos() and pointerYPos() have been improved
+    to work correctly for all browser windows. To do that, they use
+    getWindowLeftPos() and getWindowTopPos().
+  - In the function drwOpen a heuristic has been introduced to
+    decide if a popup or a tab has been opened by window.open().
+    The heuristic assumes that a tab has been opened if the viewport
+    scale is not 1. If the screenX and screenY position of the
+    window is not at the requested place, it is also assumed that a
+    tab has been opened.
+  - The new function openDocumentTabAsWindow() has been introduced.
+    It puts a canvas in the current browser tab and uses the canvas
+    as a graphic window. When the program terminates, the current
+    browser tab is reloaded.
+  - The browser window property is_tab has been added. It is set by
+    openDocumentTabAsWindow().
+  - The function drwOpen has been improved to call
+    openDocumentTabAsWindow() if window.open() opens a tab instead
+    of a popup. Only the first call of drwOpen might invoke
+    openDocumentTabAsWindow().
+  - The function drwToTop has been improved to use canvas.focus() if
+    windowObject.focus() is not available.
+  - The function drwToBottom has been improved to insert the
+    sub-window canvas after the main canvas. This way, it also works
+    in tabs (if is_tab(parent) is TRUE). 
+  - The function closeWindow has been introduced. This function is
+    used by drwFree() and moveWindowToDocumentTab().
+  - The function closeWindow has been improved to deregister browser
+    windows when they are freed with deregisterWindowFunction().
+  - The function copyWindow() has been improved to save the window
+    title before the window is removed.
+  - The function copyWindow() has been improved to move sub-windows
+    as well. This is done with the new function moveCanvas().
+  - The function removeWindowMapping() has been introduced. This
+    function is used by copyWindow().
+  - The function getNameFromTitle has been introduced. It gets the
+    JavaScript window name from the window title.
+  - The function copyWindow() has been changed to return NULL if
+    it fails. The functions gkbGetc() and waitOrGetc() will raise
+    the exception GRAPHIC_ERROR if copyWindow() fails.
+  - The function drwGetPixmap has been refactored to work without
+    local imageData variable.
+  - The style position of the main canvas of a window has has been
+    changed to absolute. The main canvas has been changed to be
+    the first child in the document.body of the window.
+  - The functions clickedWindowLeftPos and clickedWindowTopPos have
+    been renamed to getWindowLeftPos respectively getWindowTopPos.
+  - The functions isSubWindow(), isTab(), closeWindow(),
+    moveCanvas(), removeWindowMapping(), getNameFromTitle(),
+    openDocumentTabAsWindow(), moveSubWindowsToDocumentTab(),
+    moveWindowToDocumentTab(), windowIsInNewTab() and drwSetSize()
+    have been added.
+- Several improvements have been made in gkb_emc.c:
+  - Support for WebAssembly Web Worker threads of has been added.
+    The macro USE_WASM_WORKERS decides if a worker thread is used.
+    Due to some errors in Emscripten USE_WASM_WORKERS is currently
+    set to 0. For web workers, the HTTP server needs to set some
+    values in the HTTP header:
+      Cross-Origin-Opener-Policy: same-origin
+      Cross-Origin-Embedder-Policy: require-corp and
+      Access-Control-Allow-Origin: *
+    If window.crossOriginIsolated is FALSE (no web worker threads
+    are available) the old code (without a worker thread) is used.
+  - Touch movements are now considered as movements with a pressed
+    mouse key. This is needed to support mobile phones.
+  - Calls of os_exit() have been removed from the async functions
+    decodeBeforeunloadEvent(), decodeFocusEvent(),
+    decodeVisibilitychange() and decodeUnloadEvent(). The functions
+    gkbGetc() and waitOrGetc() call os_exit() instead.
+  - In gkb_emc.c the functions gkbGetc() and waitOrGetc() have been
+    improved to call os_exit() or raise an exception depending on
+    the variables exitOrException and emc_err_info.
+  - The functions decodeTouchstartEvent(), decodeTouchendEvent(),
+    decodeTouchcancelEvent(), decodeTouchmoveEvent(),
+    timerIsThrottled(), checkIfWindowIsInNewTab(), timeOver(),
+    timeoutWorker(), setupTimeoutPromise(), freeTimeoutPromise(),
+    terminateWorker() and startWorker() have been introduced.
+  - A printf() has been removed from decodeUnloadEvent().
+- In pre_js.js a definition of deregisterWindowFunction has been
+  added.
+- In tim_emc.c the function timAwait() has been improved to
+  avoid waiting for 0 milliseconds.
+- In emc_utl.c, emc_utl.h, gkb_emc.c, gkb_win.c and gkb_x11.c the
+  elements buttonWindow and button_window have been renamed to
+  clickedWindow.
+- The function drwSetSize() has been added to drw_x11.c, drw_win.c
+  drw_emc.c and drw_drv.h.
+- The function drw_set_size() has been added to drwlib.c and
+  drwlib.h.
+- In gkb_x11.c in processEvents() a case for the buttonPress event
+  has been added. This case triggers that inputReady() returns TRUE
+  for a buttonPress event. The default case in processEvents() has
+  been changed to ignore unspecified events (e.g. DestroyNotify).
+- Support for XResizeWindow has been added to fwd_x11.c, fwd_x11.h
+  and x11_x.h.
+- In int_rtl.c and int_rtl.h the functions uintBytesBe2UInt() and
+  uintBytesLe2UInt() have been added.
+- In str_rtl.c the function strCLit() has been improved to write
+  octal character representations with a minimum of digits. The
+  tests in chkstr.sd7 have been adjusted to the new behavior.
+- The actions BIN_BYTES_BE_2_UINT, BIN_BYTES_LE_2_UINT and
+  DRW_SET_SIZE have been added to primitiv.c.
+- Documentation comments have been improved in bin64.s7i,
+  bitdata.s7i, encoding.s7i, hash.s7i, huffman.s7i, lzw.s7i,
+  strifile.s7i, drw_emc.c, hshlib.c and hsh_rtl.c.
+
 20240812:
 - A new Seed7 installer for Windows (seed7_05_20240630_win.exe) has
   been released. This installer works without a previously

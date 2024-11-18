@@ -161,6 +161,7 @@ cli_cmds.s7i Emulate CLI commands from Unix and Dos.
 clib_file.s7i Type for FILE * files from the C runtime library
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
+compress.s7i Compression and decompression functions
 console.s7i  Text implementation type for text console/window.
 cpio.s7i     Cpio archive library
 crc32.s7i    CRC-32 cyclic redundancy check support library

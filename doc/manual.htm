@@ -166,7 +166,7 @@ a.menu, a.head {
 
 .tt { font-family: monospace; font-size: 10pt; }
 
-body  { font-size: 12pt; }
+body  { font-family: "Segoe UI","Noto Sans",Verdana,sans-serif; font-size: 12pt; }
 table { font-size: 12pt; }
 tt    { font-size: 10pt; }
 
@@ -545,9 +545,9 @@ pre.indent {
   language definition and cannot be changed by the user. It is
   only possible to declare new procedures, functions and in
   some languages also new operators. However the syntax of
-  procedure-, function and operator calls cannot be changed.
+  procedure, function and operator calls cannot be changed.
   Although this rigid pattern is favorable for the portability
-  of programs, the improvement of a programming language is
+  of programs, the improvement of the programming language is
   almost impossible. Extensions are however desirable, in order
   to repair existing weaknesses, to introduce new more obvious
   constructs and to adapt the programming language to different
@@ -954,7 +954,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
-    <a class="keywd_no_ul" href="#stats_while-statement">while</a> count <span class="op_no_ul">&lt;=</span> 10 do <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+    <a class="keywd_no_ul" href="#stats_while-statement">while</a> count <span class="op_no_ul">&lt;=</span> 10 <a class="keywd_no_ul" href="#stats_while-statement">do</a>
       <span class="func_no_ul">writeln</span>(count);
       count <a class="op_no_ul" href="#stats_Assignment">:=</a> count <span class="op_no_ul">+</span> 1;
     <a class="keywd_no_ul" href="#stats_while-statement">end while</a>;
