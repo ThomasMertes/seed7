@@ -563,7 +563,7 @@ const proc: check_bstring_index is func
 
 const proc: check_bstring_constants is func
   local
-    # The conents of the two bstrings overlap.
+    # The contents of the two bstrings overlap.
     # The compiler recognizes the overlap and saves memory.
     const bstring: bstri1 is bstring("1234567890abcdefghijklmnop");
     const bstring: bstri2 is bstring("abcdefghijklmnopqrstuvwxyz");
