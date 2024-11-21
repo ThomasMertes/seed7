@@ -1622,7 +1622,7 @@ static int openDocumentTabAsWindow (intType width, intType height)
       script.text = "function reloadPage() {\n" +
                     "    setTimeout(function() {\n" +
                     "        location.reload();\n" +
-                    "    }, 1000);\n" +
+                    "    }, 250);\n" +
                     "}\n";
       document.body.appendChild(script);
       if (reloadPageFunction === null) {
