@@ -1455,6 +1455,67 @@ void strAppendN (striType *const destination,
 
 
 
+void strAppendChMult (striType *const destination, const charType ch,
+    const intType factor)
+
+  {
+    striType stri_dest;
+    memSizeType new_size;
+
+  /* strAppendChMult */
+    logFunction(printf("strAppendChMult(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                printf("'\\" FMT_U32 ";', " FMT_D ")\n",
+                       ch, factor););
+    stri_dest = *destination;
+    if (unlikely(factor < 0)) {
+      logError(printf("strAppendChMult(\"%s\", ",
+                      striAsUnquotedCStri(*destination));
+               printf("'\\" FMT_U32 ";', " FMT_D "): "
+                      "Negative factor.\n",
+                      ch, factor););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(stri_dest->size > MAX_STRI_LEN - (memSizeType) factor)) {
+      /* number of bytes does not fit into memSizeType */
+      raise_error(MEMORY_ERROR);
+    } else if (factor != 0) {
+      new_size = stri_dest->size + (memSizeType) factor;
+#if WITH_STRI_CAPACITY
+      if (new_size <= stri_dest->capacity) {
+        COUNT_GROW2_STRI(stri_dest->size, new_size);
+        memset_to_strelem(&stri_dest->mem[stri_dest->size], ch, (memSizeType) factor);
+        stri_dest->size = new_size;
+      } else {
+        stri_dest = growStri(stri_dest, new_size);
+        if (unlikely(stri_dest == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          *destination = stri_dest;
+          COUNT_GROW_STRI(stri_dest->size, new_size);
+          memset_to_strelem(&stri_dest->mem[stri_dest->size], ch, (memSizeType) factor);
+          stri_dest->size = new_size;
+        } /* if */
+      } /* if */
+#else
+      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+      if (unlikely(stri_dest == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        *destination = stri_dest;
+        COUNT_GROW_STRI(stri_dest->size, new_size);
+        memset_to_strelem(&stri_dest->mem[stri_dest->size], ch, (memSizeType) factor);
+        stri_dest->size = new_size;
+      } /* if */
+#endif
+    } /* if */
+    logFunction(printf("strAppendChMult(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                printf("'\\" FMT_U32 ";', " FMT_D ") -->\n",
+                       ch, factor););
+  } /* strAppendChMult */
+
+
+
 /**
  *  Append the string 'extension' to 'destination'.
  *  StrAppendTemp is used by the compiler if 'extension' is temporary
@@ -1465,8 +1526,8 @@ void strAppendN (striType *const destination,
 void strAppendTemp (striType *const destination, const striType extension)
 
   {
-    memSizeType new_size;
     striType stri_dest;
+    memSizeType new_size;
 
   /* strAppendTemp */
     logFunction(printf("strAppendTemp(\"%s\", ", striAsUnquotedCStri(*destination));
