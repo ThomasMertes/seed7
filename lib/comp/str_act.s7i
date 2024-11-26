@@ -82,6 +82,7 @@ const proc: str_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "void        strAppend (striType *const, const_striType);");
     declareExtern(c_prog, "void        strAppendN (striType *const, const const_striType[], memSizeType);");
+    declareExtern(c_prog, "void        strAppendChMult (striType *const, const charType, const intType);");
     declareExtern(c_prog, "void        strAppendTemp (striType *const, const striType);");
     declareExtern(c_prog, "striType    strChChRepl (const const_striType, const charType, const charType);");
     declareExtern(c_prog, "intType     strChIPos (const const_striType, const charType, const intType);");
@@ -456,6 +457,19 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
     elsif length(appendExtensions) = 1 then
       if getConstant(appendExtensions[1], STRIOBJECT, evaluatedParam) then
         process_const_str_append(dest, getValue(evaluatedParam, string), c_expr);
+      elsif useSpecialCaseFunctions and
+          isActionExpression(appendExtensions[1], "STR_MULT") and
+          isActionExpression(getActionParameter(appendExtensions[1], 1), "CHR_STR") then
+        incr(countOptimizations);
+        statement.temp_num := c_expr.temp_num;
+        statement.expr &:= "strAppendChMult(&(";
+        process_expr(dest, statement);
+        statement.expr &:= "), ";
+        process_expr(getActionParameter(getActionParameter(appendExtensions[1], 1), 1),
+                     statement);
+        statement.expr &:= ", ";
+        process_expr(getActionParameter(appendExtensions[1], 3), statement);
+        statement.expr &:= ");";
       else
         if isActionExpression(appendExtensions[1], "CHR_STR") then
           incr(countOptimizations);
