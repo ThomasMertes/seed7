@@ -83,6 +83,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        strAppend (striType *const, const_striType);");
     declareExtern(c_prog, "void        strAppendN (striType *const, const const_striType[], memSizeType);");
     declareExtern(c_prog, "void        strAppendChMult (striType *const, const charType, const intType);");
+    declareExtern(c_prog, "void        strAppendZeroMult (striType *const, const intType);");
     declareExtern(c_prog, "void        strAppendTemp (striType *const, const striType);");
     declareExtern(c_prog, "striType    strChChRepl (const const_striType, const charType, const charType);");
     declareExtern(c_prog, "intType     strChIPos (const const_striType, const charType, const intType);");
@@ -412,6 +413,41 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
   end func;
 
 
+const proc: optimize_append_mult (in reference: dest, in string: stri,
+    in reference: factor, inout expr_type: c_expr) is func
+
+  begin
+    if stri = "" then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* Append empty string */\n";
+    elsif stri = "\0;" then
+      incr(countOptimizations);
+      c_expr.expr &:= "strAppendZeroMult(&(";
+      process_expr(dest, c_expr);
+      c_expr.expr &:= "), ";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= ");";
+    elsif length(stri) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "strAppendChMult(&(";
+      process_expr(dest, c_expr);
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= charLiteral(stri[1]);
+      c_expr.expr &:= ", ";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= ");";
+    else
+      c_expr.expr &:= "strAppendTemp(&(";
+      process_expr(dest, c_expr);
+      c_expr.expr &:= "), strMult(";
+      c_expr.expr &:= stringLiteral(stri);
+      c_expr.expr &:= ", ";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= "));";
+    end if;
+  end func;
+
+
 (**
  *  Produces code for the string append operator.
  *  If two or more strings are appended the function
@@ -459,9 +495,13 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
         process_const_str_append(dest, getValue(evaluatedParam, string), c_expr);
       elsif useSpecialCaseFunctions and
           isActionExpression(appendExtensions[1], "STR_MULT") and
+          getConstant(getActionParameter(appendExtensions[1], 1), STRIOBJECT, evaluatedParam) then
+        optimize_append_mult(dest, getValue(evaluatedParam, string),
+                             getActionParameter(appendExtensions[1], 3), statement);
+      elsif useSpecialCaseFunctions and
+          isActionExpression(appendExtensions[1], "STR_MULT") and
           isActionExpression(getActionParameter(appendExtensions[1], 1), "CHR_STR") then
         incr(countOptimizations);
-        statement.temp_num := c_expr.temp_num;
         statement.expr &:= "strAppendChMult(&(";
         process_expr(dest, statement);
         statement.expr &:= "), ";
