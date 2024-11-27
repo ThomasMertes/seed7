@@ -24860,6 +24860,58 @@ const func boolean: check_string_append_to_empty is func
   end func;
 
 
+const func boolean: check_string_append_mult is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := "";  stri &:= ""    mult         5;  ok := ok and stri = "";
+    stri := "";  stri &:= ""    mult intExpr(5); ok := ok and stri = "";
+    stri := "";  stri &:= "\0;" mult         5;  ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= "\0;" mult intExpr(5); ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= "x"   mult         5;  ok := ok and stri = "xxxxx";
+    stri := "";  stri &:= "x"   mult intExpr(5); ok := ok and stri = "xxxxx";
+    stri := "";  stri &:= "ab"  mult         5;  ok := ok and stri = "ababababab";
+    stri := "";  stri &:= "ab"  mult intExpr(5); ok := ok and stri = "ababababab";
+    stri := "a"; stri &:= ""    mult         5;  ok := ok and stri = "a";
+    stri := "a"; stri &:= ""    mult intExpr(5); ok := ok and stri = "a";
+    stri := "a"; stri &:= "\0;" mult         5;  ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= "\0;" mult intExpr(5); ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= "x"   mult         5;  ok := ok and stri = "axxxxx";
+    stri := "a"; stri &:= "x"   mult intExpr(5); ok := ok and stri = "axxxxx";
+    stri := "a"; stri &:= "ab"  mult         5;  ok := ok and stri = "aababababab";
+    stri := "a"; stri &:= "ab"  mult intExpr(5); ok := ok and stri = "aababababab";
+    if not ok then
+      writeln(" ***** String append with mult operation does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";  stri &:= str(         '\0;' ) mult         5;  ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= str(         '\0;' ) mult intExpr(5); ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= str(charExpr('\0;')) mult         5;  ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= str(charExpr('\0;')) mult intExpr(5); ok := ok and stri = "\0;\0;\0;\0;\0;";
+    stri := "";  stri &:= str(         'x' )   mult         5;  ok := ok and stri = "xxxxx";
+    stri := "";  stri &:= str(         'x' )   mult intExpr(5); ok := ok and stri = "xxxxx";
+    stri := "";  stri &:= str(charExpr('x'))   mult         5;  ok := ok and stri = "xxxxx";
+    stri := "";  stri &:= str(charExpr('x'))   mult intExpr(5); ok := ok and stri = "xxxxx";
+    stri := "a"; stri &:= str(         '\0;' ) mult         5;  ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= str(         '\0;' ) mult intExpr(5); ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= str(charExpr('\0;')) mult         5;  ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= str(charExpr('\0;')) mult intExpr(5); ok := ok and stri = "a\0;\0;\0;\0;\0;";
+    stri := "a"; stri &:= str(         'x' )   mult         5;  ok := ok and stri = "axxxxx";
+    stri := "a"; stri &:= str(         'x' )   mult intExpr(5); ok := ok and stri = "axxxxx";
+    stri := "a"; stri &:= str(charExpr('x'))   mult         5;  ok := ok and stri = "axxxxx";
+    stri := "a"; stri &:= str(charExpr('x'))   mult intExpr(5); ok := ok and stri = "axxxxx";
+    if not ok then
+      writeln(" ***** String append with mult operation does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_string_append_1 is func
   result
     var boolean: okay is TRUE;
@@ -25362,6 +25414,10 @@ const proc: check_string_append is func
     end if;
 
     if not check_string_append_to_empty then
+      okay := FALSE;
+    end if;
+
+    if not check_string_append_mult then
       okay := FALSE;
     end if;
 
