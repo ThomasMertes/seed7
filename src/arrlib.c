@@ -231,8 +231,7 @@ objectType arr_append (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = arr_to_size + extension_size;
-        new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
-        if (unlikely(new_arr == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(new_arr, arr_to, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_ARRAY(arr_to_size, new_size);
@@ -252,8 +251,7 @@ objectType arr_append (listType arguments)
             } /* if */
             if (unlikely(!crea_array(&new_arr->arr[arr_to_size], extension->arr,
                                      extension_size))) {
-              arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
-              if (unlikely(arr_to == NULL)) {
+              if (unlikely(!REALLOC_ARRAY(arr_to, new_arr, arr_to_size))) {
                 return raise_exception(SYS_MEM_EXCEPTION);
               } /* if */
               COUNT3_ARRAY(new_size, arr_to_size);
@@ -477,8 +475,7 @@ objectType arr_cat (listType arguments)
     } else {
       result_size = arr1_size + arr2_size;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
-        if (unlikely(result == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(result, arr1, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
@@ -726,8 +723,7 @@ objectType arr_extend (listType arguments)
     } else {
       result_size = arr1_size + 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
-        if (unlikely(result == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(result, arr1, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
@@ -851,8 +847,7 @@ objectType arr_head (listType arguments)
       if (TEMP_OBJECT(arg_1(arguments))) {
         arg_1(arguments)->value.arrayValue = NULL;
         destr_array(&arr1->arr[result_size], arr1_size - result_size);
-        result = REALLOC_ARRAY(arr1, arr1_size, result_size);
-        if (unlikely(result == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(result, arr1, result_size))) {
           destr_array(arr1->arr, result_size);
           FREE_ARRAY(arr1, arr1_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -993,12 +988,11 @@ objectType arr_insert (listType arguments)
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
         arr1_size = arraySize(arr1);
-        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size + 1);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, arr1_size + 1))) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
           arr1 = resized_arr1;
-          COUNT3_ARRAY(arr1_size, arr1_size - 1);
+          COUNT3_ARRAY(arr1_size, arr1_size + 1);
           array_pointer = arr1->arr;
           memmove(&array_pointer[position - arr1->min_position + 1],
                   &array_pointer[position - arr1->min_position],
@@ -1060,8 +1054,7 @@ objectType arr_insert_array (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = arr1_size + elements_size;
-        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, new_size);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_ARRAY(arr1_size, new_size);
@@ -1101,8 +1094,7 @@ objectType arr_insert_array (listType arguments)
               memmove(&array_pointer[arrayIndex(resized_arr1, position)],
                       &array_pointer[arrayIndex(resized_arr1, position) + elements_size],
                       arraySize2(position, resized_arr1->max_position) * sizeof(objectRecord));
-              arr1 = REALLOC_ARRAY(resized_arr1, new_size, arr1_size);
-              if (unlikely(arr1 == NULL)) {
+              if (unlikely(!REALLOC_ARRAY(arr1, resized_arr1, arr1_size))) {
                 return raise_exception(SYS_MEM_EXCEPTION);
               } /* if */
               COUNT3_ARRAY(new_size, arr1_size);
@@ -1201,8 +1193,7 @@ objectType arr_push (listType arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       new_size = dest_size + 1;
-      new_arr = REALLOC_ARRAY(dest, dest_size, new_size);
-      if (unlikely(new_arr == NULL)) {
+      if (unlikely(!REALLOC_ARRAY(new_arr, dest, new_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         COUNT3_ARRAY(dest_size, new_size);
@@ -1220,8 +1211,7 @@ objectType arr_push (listType arguments)
         } else {
           if (unlikely(!arr_elem_initialisation(result_element_type,
                                                 &new_arr->arr[dest_size], element))) {
-            dest = REALLOC_ARRAY(new_arr, new_size, dest_size);
-            if (unlikely(dest == NULL)) {
+            if (unlikely(!REALLOC_ARRAY(dest, new_arr, dest_size))) {
               return raise_exception(SYS_MEM_EXCEPTION);
             } /* if */
             COUNT3_ARRAY(new_size, dest_size);
@@ -1352,8 +1342,7 @@ objectType arr_remove (listType arguments)
                 &array_pointer[position - arr1->min_position + 1],
                 (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
         arr1_size = arraySize(arr1);
-        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - 1);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, arr1_size - 1))) {
           /* A realloc, which shrinks memory, usually succeeds. */
           /* The probability that this code path is executed is */
           /* probably zero. The code below restores the old     */
@@ -1439,8 +1428,7 @@ objectType arr_remove_array (listType arguments)
                 &array_pointer[arrayIndex(arr1, position) + result_size],
                 (arraySize2(position, arr1->max_position) - result_size) * sizeof(objectRecord));
         arr1_size = arraySize(arr1);
-        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - result_size);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
           /* A realloc, which shrinks memory, usually succeeds. */
           /* The probability that this code path is executed is */
           /* probably zero. The code below restores the old     */

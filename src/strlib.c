@@ -102,6 +102,7 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
 
   {
     striType new_stri;
+    intType max_position;
     arrayType resized_work_array;
 
   /* addCopiedStriToArray */
@@ -109,17 +110,17 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position > (intType) (MAX_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
-            (resized_work_array = REALLOC_ARRAY(work_array,
-                (uintType) work_array->max_position,
-                (uintType) work_array->max_position * ARRAY_SIZE_FACTOR)) == NULL)) {
+        max_position = work_array->max_position;
+        if (unlikely(max_position > (intType) (MAX_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
+	    !REALLOC_ARRAY(resized_work_array, work_array,
+                (uintType) max_position * ARRAY_SIZE_FACTOR))) {
           FREE_STRI(new_stri, new_stri->size);
           freeStriArray(work_array, used_max_position);
           work_array = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_ARRAY((uintType) work_array->max_position,
-                       (uintType) work_array->max_position * ARRAY_SIZE_FACTOR);
+          COUNT3_ARRAY((uintType) max_position,
+                       (uintType) max_position * ARRAY_SIZE_FACTOR);
           work_array->max_position *= ARRAY_SIZE_FACTOR;
         } /* if */
       } /* if */
@@ -146,10 +147,8 @@ static inline arrayType completeStriArray (arrayType work_array,
 
   /* completeStriArray */
     if (work_array != NULL) {
-      resized_work_array = REALLOC_ARRAY(work_array,
-          (uintType) work_array->max_position,
-          (uintType) used_max_position);
-      if (resized_work_array == NULL) {
+      if (unlikely(!REALLOC_ARRAY(resized_work_array, work_array,
+          (uintType) used_max_position))) {
         freeStriArray(work_array, used_max_position);
         work_array = NULL;
       } else {

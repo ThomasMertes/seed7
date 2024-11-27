@@ -502,15 +502,17 @@ EXTERN unsigned int sflist_allowed;
 
 
 #if WITH_ARRAY_CAPACITY
-#define HEAP_ALLOC_ARRAY(var,cap)  (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?((var)->capacity=(cap),CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE):FALSE)
+#define HEAP_ALLOC_ARRAY(var,cap)       (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?((var)->capacity=(cap),CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)?((var)->capacity=(cap), TRUE):FALSE)
 #else
-#define HEAP_ALLOC_ARRAY(var,cap)  (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE:FALSE)
+#define HEAP_ALLOC_ARRAY(var,cap)       (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE:FALSE)
+#define HEAP_REALLOC_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)?TRUE:FALSE)
 #endif
 
 #define ALLOC_ARRAY(var,cap)       HEAP_ALLOC_ARRAY(var, cap)
-#define FREE_ARRAY(var,len)        (CNT(CNT2_ARR(len, SIZ_ARR(len))) FREE_HEAP(var, SIZ_ARR(len)))
-#define REALLOC_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, arrayType, SIZ_ARR(ln2))
-#define COUNT3_ARRAY(len1,len2)    CNT3(CNT2_ARR(len1, SIZ_ARR(len1)), CNT1_ARR(len2, SIZ_ARR(len2)))
+#define FREE_ARRAY(var,cap)        (CNT(CNT2_ARR(cap, SIZ_ARR(cap))) FREE_HEAP(var, SIZ_ARR(cap)))
+#define REALLOC_ARRAY(var,old,cap) HEAP_REALLOC_ARRAY(var, old, cap)
+#define COUNT3_ARRAY(cap1,cap2)    CNT3(CNT2_ARR(cap1, SIZ_ARR(cap1)), CNT1_ARR(cap2, SIZ_ARR(cap2)))
 
 
 #if WITH_RTL_ARRAY_CAPACITY
