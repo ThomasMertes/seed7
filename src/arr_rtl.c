@@ -711,8 +711,7 @@ void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
         raise_error(MEMORY_ERROR);
       } else {
         new_size = arr_to_size + extension_size;
-        arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
-        if (unlikely(arr_to == NULL)) {
+        if (unlikely(!REALLOC_RTL_ARRAY(arr_to, arr_to, new_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_RTL_ARRAY(arr_to_size, new_size);
@@ -819,8 +818,7 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
       result = NULL;
     } else {
       result_size = arr1_size + arr2_size;
-      result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
-      if (unlikely(result == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(result, arr1, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
@@ -855,8 +853,7 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
       result = NULL;
     } else {
       result_size = arr1_size + 1;
-      result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
-      if (unlikely(result == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(result, arr1, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
@@ -1003,8 +1000,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
           new_arr1->max_position = arr1->max_position;
           memcpy(new_arr1->arr, &arr1->arr[result_size],
                  (size_t) ((arr1_size - result_size) * sizeof(rtlObjectType)));
-          result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
-          if (unlikely(result == NULL)) {
+          if (unlikely(!REALLOC_RTL_ARRAY(result, arr1, result_size))) {
             FREE_RTL_ARRAY(new_arr1, arr1_size - result_size);
             raise_error(MEMORY_ERROR);
           } else {
@@ -1076,8 +1072,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
         arr1->arr[position - arr1->min_position].value.genericValue =
             arr1->arr[arr1_size - 1].value.genericValue;
       } /* if */
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
-      if (unlikely(resized_arr1 == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, arr1_size - 1);
@@ -1117,8 +1112,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
       raise_error(INDEX_ERROR);
     } else {
       arr1_size = arraySize(arr1);
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size + 1);
-      if (unlikely(resized_arr1 == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size + 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         arr1 = resized_arr1;
@@ -1173,8 +1167,7 @@ void arrInsertArray (rtlArrayType *arr_to, intType position,
           raise_error(MEMORY_ERROR);
         } else {
           new_size = arr1_size + elements_size;
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, new_size);
-          if (unlikely(resized_arr1 == NULL)) {
+          if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, new_size))) {
             raise_error(MEMORY_ERROR);
           } else {
             COUNT3_RTL_ARRAY(arr1_size, new_size);
@@ -1243,8 +1236,7 @@ void arrInsertArrayTemp (rtlArrayType *arr_to, intType position,
           raise_error(MEMORY_ERROR);
         } else {
           new_size = arr1_size + elements_size;
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, new_size);
-          if (unlikely(resized_arr1 == NULL)) {
+          if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, new_size))) {
             raise_error(MEMORY_ERROR);
           } else {
             COUNT3_RTL_ARRAY(arr1_size, new_size);
@@ -1329,8 +1321,7 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
       raise_error(MEMORY_ERROR);
     } else {
       new_size = arr_to_size + 1;
-      arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
-      if (unlikely(arr_to == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(arr_to, arr_to, new_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
@@ -1446,8 +1437,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
                  (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
                   (size_t) ((arr1_size - stop_idx - 1) * sizeof(rtlObjectType)));
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
-          if (unlikely(resized_arr1 == NULL)) {
+          if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
             memcpy(&arr1->arr[arr1_size - result_size], result->arr,
                    (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
@@ -1497,8 +1487,7 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
     rtlArrayType resized_arr;
 
   /* arrRealloc */
-    resized_arr = REALLOC_RTL_ARRAY(arr, oldSize, newSize);
-    if (unlikely(resized_arr == NULL)) {
+    if (unlikely(!REALLOC_RTL_ARRAY(resized_arr, arr, newSize))) {
       if (oldSize >= newSize) {
         resized_arr = arr;
       } /* if */
@@ -1544,8 +1533,7 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
           &array_pointer[position - arr1->min_position + 1],
           (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
       arr1_size = arraySize(arr1);
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
-      if (unlikely(resized_arr1 == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - 1))) {
         /* A realloc, which shrinks memory, usually succeeds. */
         /* The probability that this code path is executed is */
         /* probably zero. The code below restores the old     */
@@ -1623,8 +1611,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
                 &array_pointer[arrayIndex(arr1, position) + result_size],
                 (arraySize2(position, arr1->max_position) - result_size) * sizeof(rtlObjectType));
         arr1_size = arraySize(arr1);
-        resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
           /* A realloc, which shrinks memory, usually succeeds. */
           /* The probability that this code path is executed is */
           /* probably zero. The code below restores the old     */
@@ -1772,8 +1759,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType lengt
                    (size_t) (result_size * sizeof(rtlObjectType)));
             memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
                     (size_t) ((arr1_size - stop_idx - 1) * sizeof(rtlObjectType)));
-            resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
-            if (unlikely(resized_arr1 == NULL)) {
+            if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
               memcpy(&arr1->arr[arr1_size - result_size], result->arr,
                      (size_t) (result_size * sizeof(rtlObjectType)));
               FREE_RTL_ARRAY(result, result_size);
@@ -1901,8 +1887,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
                (size_t) (result_size * sizeof(rtlObjectType)));
-        resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
-        if (unlikely(resized_arr1 == NULL)) {
+        if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
           FREE_RTL_ARRAY(result, result_size);
           raise_error(MEMORY_ERROR);
           result = NULL;

@@ -226,6 +226,7 @@ void appendToLibPath (const_striType path, errInfoType *err_info)
   {
     memSizeType stri_len;
     striType stri;
+    intType max_position;
     rtlArrayType resized_lib_path;
     memSizeType position;
 
@@ -239,16 +240,15 @@ void appendToLibPath (const_striType path, errInfoType *err_info)
     if (!ALLOC_STRI_CHECK_SIZE(stri, stri_len)) {
       *err_info = MEMORY_ERROR;
     } else {
-      resized_lib_path = REALLOC_RTL_ARRAY(lib_path,
-          (memSizeType) lib_path->max_position,
-          (memSizeType) (lib_path->max_position + 1));
-      if (resized_lib_path == NULL) {
+      max_position = lib_path->max_position;
+      if (unlikely(!REALLOC_RTL_ARRAY(resized_lib_path, lib_path,
+          (memSizeType) (max_position + 1)))) {
         FREE_STRI(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
         lib_path = resized_lib_path;
-        COUNT3_RTL_ARRAY((memSizeType) lib_path->max_position,
-            (memSizeType) (lib_path->max_position + 1));
+        COUNT3_RTL_ARRAY((memSizeType) max_position,
+                         (memSizeType) (max_position + 1));
         stri->size = stri_len;
         for (position = 0; position < path->size; position++) {
           if (path->mem[position] == '\\') {
@@ -260,7 +260,7 @@ void appendToLibPath (const_striType path, errInfoType *err_info)
         if (stri_len != path->size) {
           stri->mem[stri_len - 1] = '/';
         } /* if */
-        lib_path->arr[lib_path->max_position].value.striValue = stri;
+        lib_path->arr[max_position].value.striValue = stri;
         lib_path->max_position++;
       } /* if */
     } /* if */

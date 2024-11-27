@@ -894,23 +894,24 @@ static rtlArrayType addStriToRtlArray (const striType stri,
     rtlArrayType work_array, intType used_max_position)
 
   {
+    intType max_position;
     rtlArrayType resized_work_array;
 
   /* addStriToRtlArray */
     logFunction(printf("addStriToRtlArray(\"%s\", *, " FMT_D ")\n",
                        striAsUnquotedCStri(stri), used_max_position););
     if (used_max_position >= work_array->max_position) {
-      if (unlikely(work_array->max_position > (intType) (MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA) ||
-          (resized_work_array = REALLOC_RTL_ARRAY(work_array,
-              (uintType) work_array->max_position,
-              (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
+      max_position = work_array->max_position;
+      if (unlikely(max_position > (intType) (MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA) ||
+	  !REALLOC_RTL_ARRAY(resized_work_array, work_array,
+              (uintType) max_position + ARRAY_SIZE_DELTA))) {
         FREE_STRI(stri, stri->size);
         freeRtlStriArray(work_array, used_max_position);
         work_array = NULL;
       } else {
         work_array = resized_work_array;
-        COUNT3_RTL_ARRAY((uintType) work_array->max_position,
-            (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
+        COUNT3_RTL_ARRAY((uintType) max_position,
+                         (uintType) max_position + ARRAY_SIZE_DELTA);
         work_array->max_position += ARRAY_SIZE_DELTA;
         work_array->arr[used_max_position].value.striValue = stri;
       } /* if */
@@ -930,9 +931,8 @@ static rtlArrayType completeRtlStriArray (rtlArrayType work_array,
 
   /* completeRtlStriArray */
     if (likely(work_array != NULL)) {
-      resized_work_array = REALLOC_RTL_ARRAY(work_array,
-          (uintType) work_array->max_position, (uintType) used_max_position);
-      if (unlikely(resized_work_array == NULL)) {
+      if (unlikely(!REALLOC_RTL_ARRAY(resized_work_array, work_array,
+          (uintType) used_max_position))) {
         freeRtlStriArray(work_array, used_max_position);
         work_array = NULL;
       } else {

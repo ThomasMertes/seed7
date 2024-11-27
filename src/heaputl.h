@@ -501,16 +501,30 @@ EXTERN unsigned int sflist_allowed;
 #define FREE_RTL_L_ELEM(var)       (CNT(CNT2_RTL_L_ELEM(SIZ_RTL_L_ELEM)) FREE_HEAP(var, SIZ_RTL_L_ELEM))
 
 
-#define ALLOC_ARRAY(var,len)       (ALLOC_HEAP(var, arrayType, SIZ_ARR(len))?CNT(CNT1_ARR(len, SIZ_ARR(len))) TRUE:FALSE)
+#if WITH_ARRAY_CAPACITY
+#define HEAP_ALLOC_ARRAY(var,cap)  (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?((var)->capacity=(cap),CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE):FALSE)
+#else
+#define HEAP_ALLOC_ARRAY(var,cap)  (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE:FALSE)
+#endif
+
+#define ALLOC_ARRAY(var,cap)       HEAP_ALLOC_ARRAY(var, cap)
 #define FREE_ARRAY(var,len)        (CNT(CNT2_ARR(len, SIZ_ARR(len))) FREE_HEAP(var, SIZ_ARR(len)))
 #define REALLOC_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, arrayType, SIZ_ARR(ln2))
 #define COUNT3_ARRAY(len1,len2)    CNT3(CNT2_ARR(len1, SIZ_ARR(len1)), CNT1_ARR(len2, SIZ_ARR(len2)))
 
 
-#define ALLOC_RTL_ARRAY(var,len)       (ALLOC_HEAP(var, rtlArrayType, SIZ_RTL_ARR(len))?CNT(CNT1_RTL_ARR(len, SIZ_RTL_ARR(len))) TRUE:FALSE)
-#define FREE_RTL_ARRAY(var,len)        (CNT(CNT2_RTL_ARR(len, SIZ_RTL_ARR(len))) FREE_HEAP(var, SIZ_RTL_ARR(len)))
-#define REALLOC_RTL_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, rtlArrayType, SIZ_RTL_ARR(ln2))
-#define COUNT3_RTL_ARRAY(len1,len2)    CNT3(CNT2_RTL_ARR(len1, SIZ_RTL_ARR(len1)), CNT1_RTL_ARR(len2, SIZ_RTL_ARR(len2)))
+#if WITH_RTL_ARRAY_CAPACITY
+#define HEAP_ALLOC_RTL_ARRAY(var,cap)       (ALLOC_HEAP(var,rtlArrayType,SIZ_RTL_ARR(cap))?((var)->capacity=(cap),CNT(CNT1_RTL_ARR(cap,SIZ_RTL_ARR(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_RTL_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,rtlArrayType,SIZ_RTL_ARR(cap)))!=NULL)?((var)->capacity=(cap), TRUE):FALSE)
+#else
+#define HEAP_ALLOC_RTL_ARRAY(var,cap)       (ALLOC_HEAP(var,rtlArrayType,SIZ_RTL_ARR(cap))?CNT(CNT1_RTL_ARR(cap,SIZ_RTL_ARR(cap))) TRUE:FALSE)
+#define HEAP_REALLOC_RTL_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,rtlArrayType,SIZ_RTL_ARR(cap)))!=NULL)?TRUE:FALSE)
+#endif
+
+#define ALLOC_RTL_ARRAY(var,cap)       HEAP_ALLOC_RTL_ARRAY(var, cap)
+#define FREE_RTL_ARRAY(var,cap)        (CNT(CNT2_RTL_ARR(cap, SIZ_RTL_ARR(cap))) FREE_HEAP(var, SIZ_RTL_ARR(cap)))
+#define REALLOC_RTL_ARRAY(var,old,cap) HEAP_REALLOC_RTL_ARRAY(var, old, cap)
+#define COUNT3_RTL_ARRAY(cap1,cap2)    CNT3(CNT2_RTL_ARR(cap1, SIZ_RTL_ARR(cap1)), CNT1_RTL_ARR(cap2, SIZ_RTL_ARR(cap2)))
 
 
 #define ALLOC_HASH(var,len)        (ALLOC_HEAP(var, hashType, SIZ_HSH(len))?CNT(CNT1_HSH(len, SIZ_HSH(len))) TRUE:FALSE)
