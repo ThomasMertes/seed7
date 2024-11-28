@@ -506,7 +506,7 @@ EXTERN unsigned int sflist_allowed;
 #define HEAP_REALLOC_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)?((var)->capacity=(cap), TRUE):FALSE)
 #else
 #define HEAP_ALLOC_ARRAY(var,cap)       (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE:FALSE)
-#define HEAP_REALLOC_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)?TRUE:FALSE)
+#define HEAP_REALLOC_ARRAY(var,old,cap) ((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)
 #endif
 
 #define ALLOC_ARRAY(var,cap)       HEAP_ALLOC_ARRAY(var, cap)
@@ -520,7 +520,7 @@ EXTERN unsigned int sflist_allowed;
 #define HEAP_REALLOC_RTL_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,rtlArrayType,SIZ_RTL_ARR(cap)))!=NULL)?((var)->capacity=(cap), TRUE):FALSE)
 #else
 #define HEAP_ALLOC_RTL_ARRAY(var,cap)       (ALLOC_HEAP(var,rtlArrayType,SIZ_RTL_ARR(cap))?CNT(CNT1_RTL_ARR(cap,SIZ_RTL_ARR(cap))) TRUE:FALSE)
-#define HEAP_REALLOC_RTL_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,rtlArrayType,SIZ_RTL_ARR(cap)))!=NULL)?TRUE:FALSE)
+#define HEAP_REALLOC_RTL_ARRAY(var,old,cap) ((var=REALLOC_HEAP(old,rtlArrayType,SIZ_RTL_ARR(cap)))!=NULL)
 #endif
 
 #define ALLOC_RTL_ARRAY(var,cap)       HEAP_ALLOC_RTL_ARRAY(var, cap)
