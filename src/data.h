@@ -319,6 +319,9 @@ typedef struct blockStruct {
 typedef struct arrayStruct {
     intType min_position;
     intType max_position;
+#if WITH_ARRAY_CAPACITY
+    memSizeType capacity;
+#endif
     objectRecord arr[1];
   } arrayRecord;
 

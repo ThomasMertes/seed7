@@ -44,6 +44,13 @@ const type: ccConfigType is new struct
     var boolean: WITH_STRI_CAPACITY           is FALSE;
 
     (**
+     *  TRUE if the Seed7 runtime library uses arrays with capacity.
+     *  The capacity of an array can be larger than its size.
+     *  Arrayss with capacity can be enlarged without calling realloc().
+     *)
+    var boolean: WITH_RTL_ARRAY_CAPACITY      is FALSE;
+
+    (**
      *  TRUE if the actual characters of a string can be stored elsewhere.
      *  This allows string slices without the need to copy characters.
      *)
@@ -895,6 +902,7 @@ const func ccConfigType: getBuiltInConfig is func
     var ccConfigType: conf is ccConfigType.value;
   begin
     conf.WITH_STRI_CAPACITY            := boolean(configValue("WITH_STRI_CAPACITY"));
+    conf.WITH_RTL_ARRAY_CAPACITY       := boolean(configValue("WITH_RTL_ARRAY_CAPACITY"));
     conf.ALLOW_STRITYPE_SLICES         := boolean(configValue("ALLOW_STRITYPE_SLICES"));
     conf.ALLOW_BSTRITYPE_SLICES        := boolean(configValue("ALLOW_BSTRITYPE_SLICES"));
     conf.RSHIFT_DOES_SIGN_EXTEND       := boolean(configValue("RSHIFT_DOES_SIGN_EXTEND"));
@@ -1053,6 +1061,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
   begin
     case name of
       when {"WITH_STRI_CAPACITY"}:            conf.WITH_STRI_CAPACITY            := boolean(value);
+      when {"WITH_RTL_ARRAY_CAPACITY"}:       conf.WITH_RTL_ARRAY_CAPACITY       := boolean(value);
       when {"ALLOW_STRITYPE_SLICES"}:         conf.ALLOW_STRITYPE_SLICES         := boolean(value);
       when {"ALLOW_BSTRITYPE_SLICES"}:        conf.ALLOW_BSTRITYPE_SLICES        := boolean(value);
       when {"RSHIFT_DOES_SIGN_EXTEND"}:       conf.RSHIFT_DOES_SIGN_EXTEND       := boolean(value);

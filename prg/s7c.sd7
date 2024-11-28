@@ -5577,6 +5577,9 @@ const proc: write_file_head is func
     writeln(c_prog, "struct rtlArrayStruct {");
     writeln(c_prog, "  intType min_position;");
     writeln(c_prog, "  intType max_position;");
+    if ccConf.WITH_RTL_ARRAY_CAPACITY then
+      writeln(c_prog, "  memSizeType capacity;");
+    end if;
     writeln(c_prog, "  rtlObjectType arr[1];");
     writeln(c_prog, "};");
     writeln(c_prog, "struct rtlStructStruct {");

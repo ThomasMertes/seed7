@@ -2343,6 +2343,8 @@ striType cmdConfigValue (const const_striType name)
       opt = FLOAT_COMPARISON_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
       opt = WITH_STRI_CAPACITY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "WITH_RTL_ARRAY_CAPACITY") == 0) {
+      opt = WITH_RTL_ARRAY_CAPACITY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
       opt = ALLOW_STRITYPE_SLICES ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {

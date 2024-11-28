@@ -42,6 +42,7 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     writeln("WITH_STRI_CAPACITY:            " <& ccConf.WITH_STRI_CAPACITY);
+    writeln("WITH_RTL_ARRAY_CAPACITY:       " <& ccConf.WITH_RTL_ARRAY_CAPACITY);
     writeln("ALLOW_STRITYPE_SLICES:         " <& ccConf.ALLOW_STRITYPE_SLICES);
     writeln("ALLOW_BSTRITYPE_SLICES:        " <& ccConf.ALLOW_BSTRITYPE_SLICES);
     writeln("RSHIFT_DOES_SIGN_EXTEND:       " <& ccConf.RSHIFT_DOES_SIGN_EXTEND);

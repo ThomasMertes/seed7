@@ -153,6 +153,9 @@ typedef struct rtlListStruct {
 typedef struct rtlArrayStruct {
     intType min_position;
     intType max_position;
+#if WITH_RTL_ARRAY_CAPACITY
+    memSizeType capacity;
+#endif
     rtlObjectType arr[1];
   } rtlArrayRecord;
 
