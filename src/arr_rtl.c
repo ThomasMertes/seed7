@@ -1966,6 +1966,8 @@ rtlArrayType arrTimes (intType minPosition, intType maxPosition,
     rtlArrayType result;
 
   /* arrTimes */
+    logFunction(printf("arrTimes(" FMT_D ", " FMT_D ", " FMT_D_GEN ")\n",
+                       minPosition, maxPosition, element););
     result = arrMalloc(minPosition, maxPosition);
     if (result != NULL) {
       size = arraySize2(minPosition, maxPosition);
