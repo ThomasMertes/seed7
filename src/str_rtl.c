@@ -1467,16 +1467,18 @@ void strAppendChMult (striType *const destination, const charType ch,
                        FMT_D ")\n",
                        striAsUnquotedCStri(*destination), ch, factor););
     stri_dest = *destination;
-    if (unlikely(factor < 0)) {
-      logError(printf("strAppendChMult(\"%s\", '\\" FMT_U32 ";', "
-                      FMT_D "): Negative factor.\n",
-                      striAsUnquotedCStri(*destination), ch, factor););
-      raise_error(RANGE_ERROR);
+    if (factor <= 0) {
+      if (unlikely(factor < 0)) {
+        logError(printf("strAppendChMult(\"%s\", '\\" FMT_U32 ";', "
+                        FMT_D "): Negative factor.\n",
+                        striAsUnquotedCStri(*destination), ch, factor););
+        raise_error(RANGE_ERROR);
+      } /* if */
     } else if (unlikely(stri_dest->size >
                         MAX_STRI_LEN - (memSizeType) factor)) {
       /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
-    } else if (factor != 0) {
+    } else {
       new_size = stri_dest->size + (memSizeType) factor;
 #if WITH_STRI_CAPACITY
       if (new_size <= stri_dest->capacity) {
