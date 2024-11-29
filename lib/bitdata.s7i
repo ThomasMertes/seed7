@@ -152,7 +152,7 @@ const proc: fillStriBuffer (inout lsbInBitStream: inBitStream) is func
       # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-      inBitStream.tailSize := 5;
+      inBitStream.tailSize +:= 5;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
@@ -471,7 +471,7 @@ const proc: fillStriBuffer (inout msbInBitStream: inBitStream) is func
       # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-      inBitStream.tailSize := 5;
+      inBitStream.tailSize +:= 5;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
