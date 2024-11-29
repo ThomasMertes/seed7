@@ -62,8 +62,9 @@ const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
 const integer: ZIP_HOST_SYSTEM_MS_DOS is 0;
 const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
-const integer: ZIP_STORE   is 0;
-const integer: ZIP_DEFLATE is 8;
+# Supported compression_method values:
+const integer: ZIP_STORE   is 0;  # The file is stored (no compression).
+const integer: ZIP_DEFLATE is 8;  # The file is deflated.
 
 const integer: DOS_EPOCH is 2#100001;  # 1980-01-01 in DOS 2 byte date encoding.
 
@@ -2145,50 +2146,49 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         seek(zip.zipFile, succ(header.relative_offset_of_local_header));
         localHeader := get_local_header(zip.zipFile);
         # write(localHeader);
-        if localHeader.compression_method = ZIP_STORE then
-          # The file is stored (no compression).
-          content := gets(zip.zipFile, localHeader.compressed_size);
-        elsif localHeader.compression_method = ZIP_DEFLATE then
-          # The file is Deflated.
-          if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
-            # The fields crc_32, compressed_size and uncompressed_size are 0.
-            # Instead there is a data descriptor after the compressed data.
-            content := inflate(zip.zipFile);
-            dataDescriptorSize := 16#0001 in header.extraFieldMap ? 20 : 12;
-            stri := gets(zip.zipFile, 4);
-            if stri = ZIP_DATA_DESCRIPTOR_SIGNATURE then
-              stri := gets(zip.zipFile, dataDescriptorSize);
-            else
-              stri &:= gets(zip.zipFile, dataDescriptorSize - 4);
-              if length(stri) = dataDescriptorSize then
-                signaturePos := pos(stri, ZIP_DATA_DESCRIPTOR_SIGNATURE);
-                if signaturePos <> 0 then
-                  stri := stri[signaturePos + 4 .. ] &
-                          gets(zip.zipFile, signaturePos + 3);
+        case localHeader.compression_method of
+          when {ZIP_STORE}:
+            content := gets(zip.zipFile, localHeader.compressed_size);
+          when {ZIP_DEFLATE}:
+            if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
+              # The fields crc_32, compressed_size and uncompressed_size are 0.
+              # Instead there is a data descriptor after the compressed data.
+              content := inflate(zip.zipFile);
+              dataDescriptorSize := 16#0001 in header.extraFieldMap ? 20 : 12;
+              stri := gets(zip.zipFile, 4);
+              if stri = ZIP_DATA_DESCRIPTOR_SIGNATURE then
+                stri := gets(zip.zipFile, dataDescriptorSize);
+              else
+                stri &:= gets(zip.zipFile, dataDescriptorSize - 4);
+                if length(stri) = dataDescriptorSize then
+                  signaturePos := pos(stri, ZIP_DATA_DESCRIPTOR_SIGNATURE);
+                  if signaturePos <> 0 then
+                    stri := stri[signaturePos + 4 .. ] &
+                            gets(zip.zipFile, signaturePos + 3);
+                  end if;
                 end if;
               end if;
-            end if;
-            if length(stri) = dataDescriptorSize then
-              if dataDescriptorSize = 12 then
-                localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
-                localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
-                localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 4], UNSIGNED, LE);
+              if length(stri) = dataDescriptorSize then
+                if dataDescriptorSize = 12 then
+                  localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
+                  localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 4], UNSIGNED, LE);
+                  localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 4], UNSIGNED, LE);
+                else
+                  localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
+                  localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 8], UNSIGNED, LE);
+                  localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 8], UNSIGNED, LE);
+                end if;
               else
-                localHeader.crc_32            := bin32(bytes2Int(stri[1 fixLen 4], UNSIGNED, LE));
-                localHeader.compressed_size   :=       bytes2Int(stri[5 fixLen 8], UNSIGNED, LE);
-                localHeader.uncompressed_size :=       bytes2Int(stri[9 fixLen 8], UNSIGNED, LE);
+                raise RANGE_ERROR;
               end if;
             else
-              raise RANGE_ERROR;
+              content := gets(zip.zipFile, localHeader.compressed_size);
+              content := inflate(content);
             end if;
-          else
-            content := gets(zip.zipFile, localHeader.compressed_size);
-            content := inflate(content);
-          end if;
-        else
-          # writeln("unsupported compression method: " <& localHeader.compression_method);
-          raise FILE_ERROR;
-        end if;
+          otherwise:
+            # writeln("unsupported compression method: " <& localHeader.compression_method);
+            raise FILE_ERROR;
+        end case;
         crc_32 := crc32(content);
         if localHeader.crc_32 <> crc_32 or
             localHeader.uncompressed_size <> length(content) or
