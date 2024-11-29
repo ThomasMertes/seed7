@@ -68,6 +68,15 @@ const integer: ZIP_DEFLATE is 8;  # The file is deflated.
 
 const integer: DOS_EPOCH is 2#100001;  # 1980-01-01 in DOS 2 byte date encoding.
 
+const integer: ZIP_NTFS_EXTRA_FIELD               is 16#000a;  # NTFS Extra Field
+const integer: ZIP_UNIX_EXTRA_FIELD               is 16#000d;  # UNIX Extra Field
+const integer: ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD is 16#5455;  # Extended Timestamp Extra Field
+const integer: ZIP_INFO_ZIP_UNIX_EXTRA_FIELD      is 16#5855;  # Info-ZIP Unix Extra Field (type 1)
+const integer: ZIP_ASI_UNIX_EXTRA_FIELD           is 16#756e;  # ASi Unix Extra Field
+const integer: ZIP_NEW_UNIX_EXTRA_FIELD           is 16#7875;  # New Unix Extra Field
+
+const integer: ZIP64_EXTRA_FIELD is 16#0001;
+
 
 const func integer: rposOfMagic (inout file: inFile, in string: magic,
     in integer: minRecLen, in integer: maxRecLen) is func
@@ -246,8 +255,8 @@ const func local_file_header: get_local_header (inout file: inFile) is func
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
       end if;
-      if 16#0001 in header.extraFieldMap then
-        considerZip64ExtraField(header, header.extraFieldMap[16#0001]);
+      if ZIP64_EXTRA_FIELD in header.extraFieldMap then
+        considerZip64ExtraField(header, header.extraFieldMap[ZIP64_EXTRA_FIELD]);
       end if;
       # write(header);
     end if;
@@ -624,8 +633,8 @@ const func central_file_header: get_central_header (inout file: inFile) is func
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
       end if;
-      if 16#0001 in header.extraFieldMap then
-        considerZip64ExtraField(header, header.extraFieldMap[16#0001]);
+      if ZIP64_EXTRA_FIELD in header.extraFieldMap then
+        considerZip64ExtraField(header, header.extraFieldMap[ZIP64_EXTRA_FIELD]);
       end if;
       # write(header);
       # writeExtraField(header.extra_field);
@@ -742,7 +751,7 @@ const proc: initLastModFileTime (inout central_file_header: header,
     unixExtraField :=
         bytes(timestamp, UNSIGNED, LE, 4) mult 2 &
         bytes(        0, UNSIGNED, LE, 2) mult 2;
-    header.extraFieldMap @:= [16#000d] unixExtraField;
+    header.extraFieldMap @:= [ZIP_UNIX_EXTRA_FIELD] unixExtraField;
     header.extra_field := extraFieldFromMap(header.extraFieldMap);
     header.last_mod_file_time := (modificationTime.hour << 11) +
                                  (modificationTime.minute << 5) +
@@ -758,21 +767,21 @@ const proc: assignLastModFileTime (inout local_file_header: localHeader,
   local
     var integer: timestamp is 0;
   begin
-    if 16#5455 in localHeader.extraFieldMap then
-      # Extended Timestamp Extra Field:
+    if ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD in localHeader.extraFieldMap then
       timestamp := timestamp1970(modificationTime);
-      localHeader.extraFieldMap[16#5455] @:= [2] bytes(timestamp, UNSIGNED, LE, 4);
+      localHeader.extraFieldMap[ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD] @:=
+          [2] bytes(timestamp, UNSIGNED, LE, 4);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#000d in localHeader.extraFieldMap then
-      # UNIX Extra Field
+    elsif ZIP_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
       timestamp := timestamp1970(modificationTime);
       # Update last access time and modification time.
-      localHeader.extraFieldMap[16#000d] @:= [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
+      localHeader.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#000a in localHeader.extraFieldMap then
-      # NTFS Extra Field:
+    elsif ZIP_NTFS_EXTRA_FIELD in localHeader.extraFieldMap then
       timestamp := timestamp1601(modificationTime);
-      localHeader.extraFieldMap[16#000a] @:= [9] bytes(timestamp, UNSIGNED, LE, 8);
+      localHeader.extraFieldMap[ZIP_NTFS_EXTRA_FIELD] @:=
+          [9] bytes(timestamp, UNSIGNED, LE, 8);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     end if;
     localHeader.last_mod_file_time := (modificationTime.hour << 11) +
@@ -789,21 +798,21 @@ const proc: assignLastModFileTime (inout central_file_header: header,
   local
     var integer: timestamp is 0;
   begin
-    if 16#5455 in header.extraFieldMap then
-      # Extended Timestamp Extra Field:
+    if ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD in header.extraFieldMap then
       timestamp := timestamp1970(modificationTime);
-      header.extraFieldMap[16#5455] @:= [2] bytes(timestamp, UNSIGNED, LE, 4);
+      header.extraFieldMap[ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD] @:=
+          [2] bytes(timestamp, UNSIGNED, LE, 4);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#000d in header.extraFieldMap then
-      # UNIX Extra Field
+    elsif ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
       timestamp := timestamp1970(modificationTime);
       # Update last access time and modification time.
-      header.extraFieldMap[16#000d] @:= [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
+      header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [1] bytes(timestamp, UNSIGNED, LE, 4) mult 2;
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#000a in header.extraFieldMap then
-      # NTFS Extra Field:
+    elsif ZIP_NTFS_EXTRA_FIELD in header.extraFieldMap then
       timestamp := timestamp1601(modificationTime);
-      header.extraFieldMap[16#000a] @:= [9] bytes(timestamp, UNSIGNED, LE, 8);
+      header.extraFieldMap[ZIP_NTFS_EXTRA_FIELD] @:=
+          [9] bytes(timestamp, UNSIGNED, LE, 8);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     end if;
     header.last_mod_file_time := (modificationTime.hour << 11) +
@@ -820,18 +829,18 @@ const proc: assignUserId (inout local_file_header: localHeader,
   local
     var integer: size is 0;
   begin
-    if 16#000d in localHeader.extraFieldMap then
-      # UNIX Extra Field
-      localHeader.extraFieldMap[16#000d] @:= [9] bytes(uid, UNSIGNED, LE, 2);
+    if ZIP_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      localHeader.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [9] bytes(uid, UNSIGNED, LE, 2);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#756e in localHeader.extraFieldMap then
-      # ASi Unix Extra Field:
-      localHeader.extraFieldMap[16#756e] @:= [11] bytes(uid, UNSIGNED, LE, 2);
+    elsif ZIP_ASI_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      localHeader.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD] @:=
+          [11] bytes(uid, UNSIGNED, LE, 2);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#7875 in localHeader.extraFieldMap then
-      # New Unix Extra Field:
-      size := ord(localHeader.extraFieldMap[16#7875][2]);
-      localHeader.extraFieldMap[16#7875] @:= [3] bytes(uid, UNSIGNED, LE, size);
+    elsif ZIP_NEW_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      size := ord(localHeader.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+      localHeader.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD] @:=
+          [3] bytes(uid, UNSIGNED, LE, size);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     end if;
   end func;
@@ -842,18 +851,18 @@ const proc: assignUserId (inout central_file_header: header,
   local
     var integer: size is 0;
   begin
-    if 16#000d in header.extraFieldMap then
-      # UNIX Extra Field
-      header.extraFieldMap[16#000d] @:= [9] bytes(uid, UNSIGNED, LE, 2);
+    if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [9] bytes(uid, UNSIGNED, LE, 2);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#756e in header.extraFieldMap then
-      # ASi Unix Extra Field:
-      header.extraFieldMap[16#756e] @:= [11] bytes(uid, UNSIGNED, LE, 2);
+    elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD] @:=
+          [11] bytes(uid, UNSIGNED, LE, 2);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#7875 in header.extraFieldMap then
-      # New Unix Extra Field:
-      size := ord(header.extraFieldMap[16#7875][2]);
-      header.extraFieldMap[16#7875] @:= [3] bytes(uid, UNSIGNED, LE, size);
+    elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+      header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD] @:=
+          [3] bytes(uid, UNSIGNED, LE, size);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     end if;
   end func;
@@ -865,19 +874,19 @@ const proc: assignGroupId (inout local_file_header: localHeader,
     var integer: pos is 0;
     var integer: size is 0;
   begin
-    if 16#000d in localHeader.extraFieldMap then
-      # UNIX Extra Field
-      localHeader.extraFieldMap[16#000d] @:= [11] bytes(gid, UNSIGNED, LE, 2);
+    if ZIP_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      localHeader.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [11] bytes(gid, UNSIGNED, LE, 2);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#756e in localHeader.extraFieldMap then
-      # ASi Unix Extra Field:
-      localHeader.extraFieldMap[16#756e] @:= [13] bytes(gid, UNSIGNED, LE, 2);
+    elsif ZIP_ASI_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      localHeader.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD] @:=
+          [13] bytes(gid, UNSIGNED, LE, 2);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
-    elsif 16#7875 in localHeader.extraFieldMap then
-      # New Unix Extra Field:
-      pos := 3 + ord(localHeader.extraFieldMap[16#7875][2]);
-      size := ord(localHeader.extraFieldMap[16#7875][pos]);
-      localHeader.extraFieldMap[16#7875] @:= [succ(pos)] bytes(gid, UNSIGNED, LE, size);
+    elsif ZIP_NEW_UNIX_EXTRA_FIELD in localHeader.extraFieldMap then
+      pos := 3 + ord(localHeader.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+      size := ord(localHeader.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][pos]);
+      localHeader.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD] @:=
+          [succ(pos)] bytes(gid, UNSIGNED, LE, size);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     end if;
   end func;
@@ -889,19 +898,19 @@ const proc: assignGroupId (inout central_file_header: header,
     var integer: pos is 0;
     var integer: size is 0;
   begin
-    if 16#000d in header.extraFieldMap then
-      # UNIX Extra Field
-      header.extraFieldMap[16#000d] @:= [11] bytes(gid, UNSIGNED, LE, 2);
+    if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD] @:=
+          [11] bytes(gid, UNSIGNED, LE, 2);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#756e in header.extraFieldMap then
-      # ASi Unix Extra Field:
-      header.extraFieldMap[16#756e] @:= [13] bytes(gid, UNSIGNED, LE, 2);
+    elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD] @:=
+          [13] bytes(gid, UNSIGNED, LE, 2);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
-    elsif 16#7875 in header.extraFieldMap then
-      # New Unix Extra Field:
-      pos := 3 + ord(header.extraFieldMap[16#7875][2]);
-      size := ord(header.extraFieldMap[16#7875][pos]);
-      header.extraFieldMap[16#7875] @:= [succ(pos)] bytes(gid, UNSIGNED, LE, size);
+    elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+      pos := 3 + ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+      size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][pos]);
+      header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD] @:=
+          [succ(pos)] bytes(gid, UNSIGNED, LE, size);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     end if;
   end func;
@@ -1413,21 +1422,25 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
       raise RANGE_ERROR;
     else
       header := followSymlink(zip, filePath);
-      if 16#5455 in header.extraFieldMap then
-        # Extended Timestamp Extra Field
-        timestamp := bytes2Int(header.extraFieldMap[16#5455][2 fixLen 4], UNSIGNED, LE);
+      if ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD in header.extraFieldMap then
+        timestamp := bytes2Int(
+            header.extraFieldMap[ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD][2 fixLen 4],
+            UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
-      elsif 16#5855 in header.extraFieldMap then
-        # Info-ZIP Unix Extra Field (type 1)
-        timestamp := bytes2Int(header.extraFieldMap[16#5855][5 fixLen 4], UNSIGNED, LE);
+      elsif ZIP_INFO_ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        timestamp := bytes2Int(
+            header.extraFieldMap[ZIP_INFO_ZIP_UNIX_EXTRA_FIELD][5 fixLen 4],
+            UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
-      elsif 16#000d in header.extraFieldMap then
-        # UNIX Extra Field
-        timestamp := bytes2Int(header.extraFieldMap[16#000d][5 fixLen 4], UNSIGNED, LE);
+      elsif ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        timestamp := bytes2Int(
+            header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][5 fixLen 4],
+            UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
-      elsif 16#000a in header.extraFieldMap then
-        # NTFS Extra Field:
-        timestamp := bytes2Int(header.extraFieldMap[16#000a][9 fixLen 8], UNSIGNED, LE);
+      elsif ZIP_NTFS_EXTRA_FIELD in header.extraFieldMap then
+        timestamp := bytes2Int(
+            header.extraFieldMap[ZIP_NTFS_EXTRA_FIELD][9 fixLen 8],
+            UNSIGNED, LE);
         modificationTime := timestamp1601ToTime(timestamp);
       else
         modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
@@ -1495,18 +1508,21 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath) is func
       raise RANGE_ERROR;
     else
       header := followSymlink(zip, filePath);
-      if 16#000d in header.extraFieldMap then
-        # UNIX Extra Field
-        uid := bytes2Int(header.extraFieldMap[16#000d][9 fixLen 2], UNSIGNED, LE);
+      if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        uid := bytes2Int(
+            header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][9 fixLen 2],
+            UNSIGNED, LE);
         owner := str(uid);
-      elsif 16#756e in header.extraFieldMap then
-        # ASi Unix Extra Field:
-        uid := bytes2Int(header.extraFieldMap[16#756e][11 fixLen 2], UNSIGNED, LE);
+      elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        uid := bytes2Int(
+            header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD][11 fixLen 2],
+            UNSIGNED, LE);
         owner := str(uid);
-      elsif 16#7875 in header.extraFieldMap then
-        # New Unix Extra Field:
-        size := ord(header.extraFieldMap[16#7875][2]);
-        uid := bytes2Int(header.extraFieldMap[16#7875][3 fixLen size], UNSIGNED, LE);
+      elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+        uid := bytes2Int(
+            header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][3 fixLen size],
+            UNSIGNED, LE);
         owner := str(uid);
       end if;
     end if;
@@ -1574,19 +1590,22 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath) is func
       raise RANGE_ERROR;
     else
       header := followSymlink(zip, filePath);
-      if 16#000d in header.extraFieldMap then
-        # UNIX Extra Field
-        gid := bytes2Int(header.extraFieldMap[16#000d][11 fixLen 2], UNSIGNED, LE);
+      if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        gid := bytes2Int(
+            header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][11 fixLen 2],
+            UNSIGNED, LE);
         group := str(gid);
-      elsif 16#756e in header.extraFieldMap then
-        # ASi Unix Extra Field:
-        gid := bytes2Int(header.extraFieldMap[16#756e][13 fixLen 2], UNSIGNED, LE);
+      elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        gid := bytes2Int(
+            header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD][13 fixLen 2],
+            UNSIGNED, LE);
         group := str(gid);
-      elsif 16#7875 in header.extraFieldMap then
-        # New Unix Extra Field:
-        pos := 3 + ord(header.extraFieldMap[16#7875][2]);
-        size := ord(header.extraFieldMap[16#7875][pos]);
-        gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) fixLen size], UNSIGNED, LE);
+      elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+        pos := 3 + ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+        size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][pos]);
+        gid := bytes2Int(
+            header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][succ(pos) fixLen size],
+            UNSIGNED, LE);
         group := str(gid);
       end if;
     end if;
@@ -1701,21 +1720,25 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath, SYMLINK) 
         raise FILE_ERROR;
       end if;
       if isSymlink(header) then
-        if 16#5455 in header.extraFieldMap then
-          # Extended Timestamp Extra Field
-          timestamp := bytes2Int(header.extraFieldMap[16#5455][2 fixLen 4], UNSIGNED, LE);
+        if ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD in header.extraFieldMap then
+          timestamp := bytes2Int(
+              header.extraFieldMap[ZIP_EXTENDED_TIMESTAMP_EXTRA_FIELD][2 fixLen 4],
+              UNSIGNED, LE);
           modificationTime := timestamp1970ToTime(timestamp);
-        elsif 16#5855 in header.extraFieldMap then
-          # Info-ZIP Unix Extra Field (type 1)
-          timestamp := bytes2Int(header.extraFieldMap[16#5855][5 fixLen 4], UNSIGNED, LE);
+        elsif ZIP_INFO_ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          timestamp := bytes2Int(
+              header.extraFieldMap[ZIP_INFO_ZIP_UNIX_EXTRA_FIELD][5 fixLen 4],
+              UNSIGNED, LE);
           modificationTime := timestamp1970ToTime(timestamp);
-        elsif 16#000d in header.extraFieldMap then
-          # UNIX Extra Field
-          timestamp := bytes2Int(header.extraFieldMap[16#000d][5 fixLen 4], UNSIGNED, LE);
+        elsif ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          timestamp := bytes2Int(
+              header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][5 fixLen 4],
+              UNSIGNED, LE);
           modificationTime := timestamp1970ToTime(timestamp);
-        elsif 16#000a in header.extraFieldMap then
-          # NTFS Extra Field:
-          timestamp := bytes2Int(header.extraFieldMap[16#000a][9 fixLen 8], UNSIGNED, LE);
+        elsif ZIP_NTFS_EXTRA_FIELD in header.extraFieldMap then
+          timestamp := bytes2Int(
+              header.extraFieldMap[ZIP_NTFS_EXTRA_FIELD][9 fixLen 8],
+              UNSIGNED, LE);
           modificationTime := timestamp1601ToTime(timestamp);
         else
           modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
@@ -1811,18 +1834,21 @@ const func string: getOwner (inout zipArchive: zip, in string: filePath, SYMLINK
         raise FILE_ERROR;
       end if;
       if isSymlink(header) then
-        if 16#000d in header.extraFieldMap then
-          # UNIX Extra Field
-          uid := bytes2Int(header.extraFieldMap[16#000d][9 fixLen 2], UNSIGNED, LE);
+        if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          uid := bytes2Int(
+              header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][9 fixLen 2],
+              UNSIGNED, LE);
           owner := str(uid);
-        elsif 16#756e in header.extraFieldMap then
-          # ASi Unix Extra Field:
-          uid := bytes2Int(header.extraFieldMap[16#756e][11 fixLen 2], UNSIGNED, LE);
+        elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          uid := bytes2Int(
+              header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD][11 fixLen 2],
+              UNSIGNED, LE);
           owner := str(uid);
-        elsif 16#7875 in header.extraFieldMap then
-          # New Unix Extra Field:
-          size := ord(header.extraFieldMap[16#7875][2]);
-          uid := bytes2Int(header.extraFieldMap[16#7875][3 fixLen size], UNSIGNED, LE);
+        elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+          uid := bytes2Int(
+              header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][3 fixLen size],
+              UNSIGNED, LE);
           owner := str(uid);
         end if;
       else
@@ -1917,19 +1943,22 @@ const func string: getGroup (inout zipArchive: zip, in string: filePath, SYMLINK
         raise FILE_ERROR;
       end if;
       if isSymlink(header) then
-        if 16#000d in header.extraFieldMap then
-          # UNIX Extra Field
-          gid := bytes2Int(header.extraFieldMap[16#000d][11 fixLen 2], UNSIGNED, LE);
+        if ZIP_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          gid := bytes2Int(
+              header.extraFieldMap[ZIP_UNIX_EXTRA_FIELD][11 fixLen 2],
+              UNSIGNED, LE);
           group := str(gid);
-        elsif 16#756e in header.extraFieldMap then
-          # ASi Unix Extra Field:
-          gid := bytes2Int(header.extraFieldMap[16#756e][13 fixLen 2], UNSIGNED, LE);
+        elsif ZIP_ASI_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          gid := bytes2Int(
+              header.extraFieldMap[ZIP_ASI_UNIX_EXTRA_FIELD][13 fixLen 2],
+              UNSIGNED, LE);
           group := str(gid);
-        elsif 16#7875 in header.extraFieldMap then
-          # New Unix Extra Field:
-          pos := 3 + ord(header.extraFieldMap[16#7875][2]);
-          size := ord(header.extraFieldMap[16#7875][pos]);
-          gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) fixLen size], UNSIGNED, LE);
+        elsif ZIP_NEW_UNIX_EXTRA_FIELD in header.extraFieldMap then
+          pos := 3 + ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][2]);
+          size := ord(header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][pos]);
+          gid := bytes2Int(
+              header.extraFieldMap[ZIP_NEW_UNIX_EXTRA_FIELD][succ(pos) fixLen size],
+              UNSIGNED, LE);
           group := str(gid);
         end if;
       else
@@ -2154,7 +2183,7 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
               # The fields crc_32, compressed_size and uncompressed_size are 0.
               # Instead there is a data descriptor after the compressed data.
               content := inflate(zip.zipFile);
-              dataDescriptorSize := 16#0001 in header.extraFieldMap ? 20 : 12;
+              dataDescriptorSize := ZIP64_EXTRA_FIELD in header.extraFieldMap ? 20 : 12;
               stri := gets(zip.zipFile, 4);
               if stri = ZIP_DATA_DESCRIPTOR_SIGNATURE then
                 stri := gets(zip.zipFile, dataDescriptorSize);
