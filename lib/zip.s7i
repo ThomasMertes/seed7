@@ -62,6 +62,9 @@ const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
 const integer: ZIP_HOST_SYSTEM_MS_DOS is 0;
 const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
+const integer: ZIP_STORE   is 0;
+const integer: ZIP_DEFLATE is 8;
+
 const integer: DOS_EPOCH is 2#100001;  # 1980-01-01 in DOS 2 byte date encoding.
 
 
@@ -152,7 +155,7 @@ const type: local_file_header is new struct
     var string:  signature                  is "";        # 4 bytes ("PK\3;\4;")
     var integer: version_needed_to_extract  is 0;         # 2 bytes
     var bin32:   general_purpose_bit_flag   is bin32(0);  # 2 bytes
-    var integer: compression_method         is 0;         # 2 bytes
+    var integer: compression_method         is ZIP_STORE; # 2 bytes
     var integer: last_mod_file_time         is 0;         # 2 bytes
     var integer: last_mod_file_date         is DOS_EPOCH; # 2 bytes
     var bin32:   crc_32                     is bin32(0);  # 4 bytes
@@ -498,7 +501,7 @@ const type: central_file_header is new struct
     var integer: version_made_by                 is 0;         # 2 bytes
     var integer: version_needed_to_extract       is 0;         # 2 bytes
     var bin32:   general_purpose_bit_flag        is bin32(0);  # 2 bytes
-    var integer: compression_method              is 0;         # 2 bytes
+    var integer: compression_method              is ZIP_STORE; # 2 bytes
     var integer: last_mod_file_time              is 0;         # 2 bytes
     var integer: last_mod_file_date              is DOS_EPOCH; # 2 bytes
     var bin32:   crc_32                          is bin32(0);  # 4 bytes
@@ -1065,7 +1068,7 @@ const func string: followSymlink (inout zipArchive: zip, in var string: filePath
           seek(zip.zipFile, succ(header.relative_offset_of_local_header));
           localHeader := get_local_header(zip.zipFile);
           # write(localHeader);
-          if localHeader.compression_method = 0 then
+          if localHeader.compression_method = ZIP_STORE then
             # The link destination is stored (no compression).
             targetPath := gets(zip.zipFile, localHeader.compressed_size);
             filePath := symlinkDestination(filePath, targetPath);
@@ -1207,7 +1210,7 @@ const func fileType: fileType (inout zipArchive: zip, in var string: filePath) i
                   seek(zip.zipFile, succ(header.relative_offset_of_local_header));
                   localHeader := get_local_header(zip.zipFile);
                   # write(localHeader);
-                  if localHeader.compression_method = 0 then
+                  if localHeader.compression_method = ZIP_STORE then
                     # The link destination is stored (no compression).
                     targetPath := gets(zip.zipFile, localHeader.compressed_size);
                     filePath := symlinkDestination(filePath, targetPath);
@@ -2017,7 +2020,7 @@ const func string: readLink (inout zipArchive: zip, in string: filePath) is func
       seek(zip.zipFile, succ(header.relative_offset_of_local_header));
       localHeader := get_local_header(zip.zipFile);
       # write(localHeader);
-      if localHeader.compression_method = 0 then
+      if localHeader.compression_method = ZIP_STORE then
         # The link destination is stored (no compression).
         linkPath8 := gets(zip.zipFile, localHeader.compressed_size);
       else
@@ -2080,7 +2083,7 @@ const proc: makeLink (inout zipArchive: zip, in string: symlinkPath,
       else
         header.general_purpose_bit_flag := bin32(0);
       end if;
-      header.compression_method         := 0;
+      header.compression_method         := ZIP_STORE;
       header.crc_32                     := crc32(targetPath8);
       header.compressed_size            := length(targetPath8);
       header.uncompressed_size          := length(targetPath8);
@@ -2142,10 +2145,10 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         seek(zip.zipFile, succ(header.relative_offset_of_local_header));
         localHeader := get_local_header(zip.zipFile);
         # write(localHeader);
-        if localHeader.compression_method = 0 then
+        if localHeader.compression_method = ZIP_STORE then
           # The file is stored (no compression).
           content := gets(zip.zipFile, localHeader.compressed_size);
-        elsif localHeader.compression_method = 8 then
+        elsif localHeader.compression_method = ZIP_DEFLATE then
           # The file is Deflated.
           if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
             # The fields crc_32, compressed_size and uncompressed_size are 0.
@@ -2236,11 +2239,11 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
     header.crc_32 := crc32(data);
     header.uncompressed_size := length(data);
     if length(compressed) >= length(data) then
-      header.compression_method := 0;
+      header.compression_method := ZIP_STORE;
       header.compressed_size := length(data);
       compressed := data;
     else
-      header.compression_method := 8;
+      header.compression_method := ZIP_DEFLATE;
       header.compressed_size := length(compressed);
     end if;
     if fileExists then
@@ -2359,7 +2362,7 @@ const proc: makeDir (inout zipArchive: zip, in string: dirPath) is func
       else
         header.general_purpose_bit_flag := bin32(0);
       end if;
-      header.compression_method         := 0;
+      header.compression_method         := ZIP_STORE;
       header.compressed_size            := 0;
       header.uncompressed_size          := 0;
       header.disk_number_start          := 0;
