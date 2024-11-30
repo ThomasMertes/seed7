@@ -29,6 +29,7 @@
 include "stdio.s7i";
 include "inflate.s7i";
 include "deflate.s7i";
+include "lzma.s7i";
 include "unicode.s7i";
 include "bytedata.s7i";
 include "bin32.s7i";
@@ -63,8 +64,9 @@ const integer: ZIP_HOST_SYSTEM_MS_DOS is 0;
 const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
 # Supported compression_method values:
-const integer: ZIP_STORE   is 0;  # The file is stored (no compression).
-const integer: ZIP_DEFLATE is 8;  # The file is deflated.
+const integer: ZIP_STORE   is  0;  # The file is stored (no compression).
+const integer: ZIP_DEFLATE is  8;  # The file is deflated.
+const integer: ZIP_LZMA    is 14;  # The file is compressed with LZMA.
 
 const integer: DOS_EPOCH is 2#100001;  # 1980-01-01 in DOS 2 byte date encoding.
 
@@ -2214,6 +2216,8 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
               content := gets(zip.zipFile, localHeader.compressed_size);
               content := inflate(content);
             end if;
+          when {ZIP_LZMA}:
+            content := lzmaDecompress(zip.zipFile, localHeader.uncompressed_size);
           otherwise:
             # writeln("unsupported compression method: " <& localHeader.compression_method);
             raise FILE_ERROR;
