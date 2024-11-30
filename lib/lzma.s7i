@@ -673,8 +673,53 @@ const func integer: decodePacket (inout lzmaDecoder: lzma,
 
 
 (**
+ *  Decompress a file that was compressed with LZMA.
+ *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
+ *  lossless data compression. This LZMA decompression function
+ *  is tailored towards the header format used in [[zip|ZIP]] files.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in LZMA format.
+ *)
+const func string: lzmaDecompress (inout file: compressed,
+    in integer: uncompressedSize) is func
+  result
+    var string: uncompressed is "";
+  local
+    var string: header is "";
+    var integer: majorVersion is 0;
+    var integer: minorVersion is 0;
+    var integer: size is 0;
+    var lzmaDecoder: lzmaDec is lzmaDecoder.value;
+    var integer: decodeResult is LZMA_RES_ONGOING;
+  begin
+    header := gets(compressed, 9);
+    if length(header) = 9 then
+      majorVersion :=       ord(header[1]);
+      minorVersion :=       ord(header[2]);
+      size         := bytes2Int(header[3 fixLen 2], UNSIGNED, LE);
+      if size = 5 and decodeProperties(lzmaDec, header[5 ..]) then
+        lzmaDec.rangeDec.compressed := compressed;
+        resetDictionary(lzmaDec);
+        resetRangeDecoder(lzmaDec.rangeDec);
+        if not lzmaDec.rangeDec.corrupted then
+          resetPropabilities(lzmaDec);
+          decodeResult := decodePacket(lzmaDec, TRUE, uncompressedSize);
+        end if;
+      end if;
+    end if;
+    if decodeResult = LZMA_RES_FINISHED_WITH_MARKER or
+        decodeResult = LZMA_RES_FINISHED_WITHOUT_MARKER then
+      uncompressed := lzmaDec.uncompressed;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
  *  [[file|File]] implementation type to decompress a LZMA file.
- *  LZMA is a file format used for compression.
+ *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
+ *  lossless data compression.
  *)
 const type: lzmaFile is sub null_file struct
     var file: compressed is STD_NULL;
@@ -690,8 +735,9 @@ type_implements_interface(lzmaFile, file);
 
 (**
  *  Open a LZMA file for reading (decompression).
- *  LZMA is a file format used for compression. Reading from
- *  the file delivers decompressed data. Writing is not supported.
+ *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
+ *  lossless data compression. Reading from the file delivers
+ *  decompressed data. Writing is not supported.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if the file is not in LZMA format.
  *)
@@ -703,7 +749,8 @@ const func file: openLzmaFile (inout file: compressed) is func
     var lzmaFile: new_lzmaFile is lzmaFile.value;
   begin
     header := gets(compressed, 13);
-    if decodeProperties(new_lzmaFile.lzmaDec, header) then
+    if length(header) = 13 and
+        decodeProperties(new_lzmaFile.lzmaDec, header) then
       if header[6 fixLen 8] <> "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" then
         new_lzmaFile.unpackSizeDefined := TRUE;
         new_lzmaFile.unpackSize := bytes2Int(header[6 fixLen 8], UNSIGNED, LE);
