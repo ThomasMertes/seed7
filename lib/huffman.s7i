@@ -29,6 +29,56 @@
 include "bitdata.s7i";
 
 
+const type: symbolsWithCodeLengthType is array array integer;
+
+
+(**
+ *  Compute lists of symbols (index of codeLength) ordered by code langth.
+ *  The result is a two-dimensional array where the first index is a code length.
+ *   symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+ *   # Now symbolsWithCodeLength[2] is an array of symbols with length 2.
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
+ *  @return an array of symbol arrays with the code length as first index.
+ *)
+const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array integer: codeLengths) is func
+  result
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
+  local
+    var integer: codeLength is 0;
+    var integer: maximumCodeLength is 0;
+    var integer: numberOfCodes is 0;
+    var array integer: numberOfCodesWithLength is 0 times 0;
+    var array integer: valueIndex is 0 times 0;
+    var integer: symbol is 0;
+  begin
+    for codeLength range codeLengths do
+      if codeLength > maximumCodeLength then
+        maximumCodeLength := codeLength;
+      end if;
+    end for;
+    numberOfCodesWithLength := [1 .. maximumCodeLength] times 0;
+    for codeLength range codeLengths do
+      if codeLength <> 0 then
+        incr(numberOfCodesWithLength[codeLength]);
+      end if;
+    end for;
+    symbolsWithCodeLength := [1 .. maximumCodeLength] times 0 times 0;
+    for numberOfCodes key codeLength range numberOfCodesWithLength do
+      if numberOfCodes <> 0 then
+        symbolsWithCodeLength[codeLength] := numberOfCodes times 0;
+      end if;
+    end for;
+    valueIndex := [1 .. maximumCodeLength] times 1;
+    for codeLength key symbol range codeLengths do
+      if codeLength <> 0 then
+        symbolsWithCodeLength[codeLength][valueIndex[codeLength]] := symbol;
+        incr(valueIndex[codeLength]);
+      end if;
+    end for;
+  end func;
+
+
 const type: huffmanSymbolArray is array [0 ..] integer;
 const type: msbHuffmanCodeLengthArray is array [0 ..] integer;
 
@@ -47,7 +97,7 @@ const type: msbHuffmanDecoder is new struct
 (**
  *  Create a Huffman decoder for reading in MSB-First order.
  *  This Huffman encoding is used by [[jpeg|JPEG]] files. It can happen that
- *  ''symbols'' contains the same value twice. In that case
+ *  ''huffmanSymbols'' contains the same value twice. In that case
  *  the same symbol is encoded in two ways. This makes absolutely no
  *  sense but it can happen. For that reason it is necessary to use
  *  decoder.codeLengths with the same index as decoder.symbols.
@@ -101,6 +151,89 @@ const func msbHuffmanDecoder: createHuffmanTableMsb (in integer: maximumCodeLeng
   return createMsbHuffmanDecoder(maximumCodeLength, numberOfCodesWithLength, orderedSymbols);
 
 
+const func msbHuffmanDecoder: createMsbHuffmanDecoder (in symbolsWithCodeLengthType: symbolsWithCodeLength) is func
+  result
+    var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
+  local
+    var integer: currentCode is 0;
+    var integer: codeLength is 0;
+    var integer: symbol is 0;
+    var integer: tableIndex is 0;
+  begin
+    decoder.maximumCodeLength := maxIdx(symbolsWithCodeLength);
+    decoder.symbols := huffmanSymbolArray[.. pred(1 << decoder.maximumCodeLength)] times 0;
+    decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << decoder.maximumCodeLength)] times 0;
+    for key codeLength range symbolsWithCodeLength do
+      for symbol range symbolsWithCodeLength[codeLength] do
+        while currentCode = tableIndex >> (decoder.maximumCodeLength - codeLength) do
+          decoder.symbols[tableIndex] := symbol;
+          decoder.codeLengths[tableIndex] := codeLength;
+          incr(tableIndex);
+        end while;
+        incr(currentCode);
+      end for;
+      currentCode <<:= 1;
+    end for;
+    symbol := ord(symbolsWithCodeLength[decoder.maximumCodeLength]
+                  [length(symbolsWithCodeLength[decoder.maximumCodeLength])]);
+    while tableIndex <= pred(1 << decoder.maximumCodeLength) do
+      decoder.symbols[tableIndex] := symbol;
+      decoder.codeLengths[tableIndex] := decoder.maximumCodeLength;
+      incr(tableIndex);
+    end while;
+  end func;
+
+
+(**
+ *  Create a Huffman decoder for reading in MSB-First order.
+ *  This Huffman decoding is used by the BZIP2 algorithm.
+ *  Non-optimal Huffman encodings, where symbols are encoded with more
+ *  bits than necessary, are accepted as well. The decoder is created
+ *  as follows:
+ *  E.g.: The code lengths (in bits) of
+ *   4 0 0 6 5 3 3 3 3 3 4 3 0 0 0 0 5 5 6
+ *  describe that 0 is encoded with 4 bits, 3 with 6 bits, etc.
+ *  This leads to the following encoding lengths:
+ *   length 3: (5, 6, 7, 8, 9, 11)
+ *   length 4: (0, 10)
+ *   length 5: (4, 16, 17)
+ *   length 6: (3, 18)
+ *  Beginning with the lowest length the following encodings are generated:
+ *   000: 5
+ *   001: 6
+ *   ...
+ *   101: 11
+ *  For the next length (4 instead of 3) the value is incremented and shifted:
+ *   1100: 0
+ *  The decoder should be able fetch the maximum length of bits and to
+ *  use it as index. In order to allow that the data must be transformed.
+ *  The bits must be left shifted and all variants of lower bits must be added:
+ *   000000 encodes 5
+ *   ...
+ *   000111 encodes 5
+ *   001000 encodes 6
+ *   ...
+ *   101000 encodes 11
+ *   ...
+ *   101111 encodes 11
+ *   110000 encodes 0
+ *   ...
+ *   110011 encodes 0
+ *   ...
+ *  @param codeLengths Array to map the symbols (index) to the number of bits used
+ *                     to encode this symbol. Zero means: This symbol is not used.
+ *)
+const func msbHuffmanDecoder: createMsbHuffmanDecoder (in array integer: codeLengths) is func
+  result
+    var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
+  local
+    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
+  begin
+    symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
+    decoder := createMsbHuffmanDecoder(symbolsWithCodeLength);
+  end func;
+
+
 (**
  *  Get a Huffman symbol from a [[bitdata#msbInBitStream|msbInBitStream]] using the Huffman ''decoder''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
@@ -120,56 +253,6 @@ const func integer: getHuffmanSymbol (inout msbInBitStream: inBitStream,
     index := peekBits(inBitStream, decoder.maximumCodeLength);
     symbol := decoder.symbols[index];
     skipBits(inBitStream, decoder.codeLengths[index]);
-  end func;
-
-
-const type: symbolsWithCodeLengthType is array array integer;
-
-
-(**
- *  Compute lists of symbols (index of codeLength) ordered by code langth.
- *  The result is a two-dimensional array where the first index is a code length.
- *   symbolsWithCodeLength := computeSymbolsWithCodeLength(codeLengths);
- *   # Now symbolsWithCodeLength[2] is an array of symbols with length 2.
- *  @param codeLengths Array to map the symbols (index) to the number of bits used
- *                     to encode this symbol. Zero means: This symbol is not used.
- *  @return an array of symbol arrays with the code length as first index.
- *)
-const func symbolsWithCodeLengthType: computeSymbolsWithCodeLength (in array integer: codeLengths) is func
-  result
-    var symbolsWithCodeLengthType: symbolsWithCodeLength is 0 times 0 times 0;
-  local
-    var integer: codeLength is 0;
-    var integer: maximumCodeLength is 0;
-    var integer: numberOfCodes is 0;
-    var array integer: numberOfCodesWithLength is 0 times 0;
-    var array integer: valueIndex is 0 times 0;
-    var integer: symbol is 0;
-  begin
-    for codeLength range codeLengths do
-      if codeLength > maximumCodeLength then
-        maximumCodeLength := codeLength;
-      end if;
-    end for;
-    numberOfCodesWithLength := [1 .. maximumCodeLength] times 0;
-    for codeLength range codeLengths do
-      if codeLength <> 0 then
-        incr(numberOfCodesWithLength[codeLength]);
-      end if;
-    end for;
-    symbolsWithCodeLength := [1 .. maximumCodeLength] times 0 times 0;
-    for numberOfCodes key codeLength range numberOfCodesWithLength do
-      if numberOfCodes <> 0 then
-        symbolsWithCodeLength[codeLength] := numberOfCodes times 0;
-      end if;
-    end for;
-    valueIndex := [1 .. maximumCodeLength] times 1;
-    for codeLength key symbol range codeLengths do
-      if codeLength <> 0 then
-        symbolsWithCodeLength[codeLength][valueIndex[codeLength]] := symbol;
-        incr(valueIndex[codeLength]);
-      end if;
-    end for;
   end func;
 
 
