@@ -108,7 +108,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#lsbInBitStream|lsbInBitStream]].
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed [[bitdata#lsbInBitStream|lsbInBitStream]].
  *  The packing order of bits in bytes is LSB-First (Least Significant
  *  Bit First). This compression method is used for [[gif|GIF]] files. Decompressing
  *  starts with succ(''codeSize'') bits per coding point and goes up to
@@ -188,7 +188,7 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed string.
  *  The packing order of bits in bytes is LSB-First (Least Significant
  *  Bit First). This compression method is used for [[gif|GIF]] files. Decompressing
  *  starts with succ(''codeSize'') bits per coding point and goes up to
@@ -291,7 +291,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in PDF files.
  *  Decompressing starts with succ(''codeSize'') bits per coding point and
@@ -372,7 +372,7 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed string.
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in PDF files.
  *  Decompressing starts with succ(''codeSize'') bits per coding point and
@@ -477,7 +477,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -559,7 +559,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed string.
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -585,7 +585,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed [[bitdata#msbInBitStream|msbInBitStream]].
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -668,7 +668,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress a Lempel-Ziv-Welch (LZW) compressed string.
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in [[tiff|TIFF]] and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
