@@ -33,7 +33,6 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bytePosVar is 0;
     var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
@@ -100,36 +99,54 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
 
 const proc: chkGetBitLsb is func
   begin
-    if  chkGetBitLsb("\2#0;",                   1, 0, 2#0, 1, 1) and
-        chkGetBitLsb("\2#000;",                 1, 1, 2#0, 1, 2) and
-        chkGetBitLsb("\2#101;",                 1, 1, 2#0, 1, 2) and
-        chkGetBitLsb("\2#01001;",               1, 2, 2#0, 1, 3) and
-        chkGetBitLsb("\2#10010;",               1, 2, 2#0, 1, 3) and
-        chkGetBitLsb("\2#0100010;",             1, 3, 2#0, 1, 4) and
-        chkGetBitLsb("\2#1010101;",             1, 3, 2#0, 1, 4) and
-        chkGetBitLsb("\2#10100101;\2#0;",       1, 4, 2#0, 1, 5) and
-        chkGetBitLsb("\2#01101011;\2#1;",       1, 4, 2#0, 1, 5) and
-        chkGetBitLsb("\2#11001011;\2#010;",     1, 5, 2#0, 1, 6) and
-        chkGetBitLsb("\2#11010011;\2#100;",     1, 5, 2#0, 1, 6) and
-        chkGetBitLsb("\2#10010011;\2#01001;",   1, 6, 2#0, 1, 7) and
-        chkGetBitLsb("\2#10110101;\2#11010;",   1, 6, 2#0, 1, 7) and
-        chkGetBitLsb("\2#00110101;\2#0110101;", 1, 7, 2#0, 2, 0) and
-        chkGetBitLsb("\2#01011001;\2#1011001;", 1, 7, 2#0, 2, 0) and
-        chkGetBitLsb("\2#1;",                   1, 0, 2#1, 1, 1) and
-        chkGetBitLsb("\2#010;",                 1, 1, 2#1, 1, 2) and
-        chkGetBitLsb("\2#111;",                 1, 1, 2#1, 1, 2) and
-        chkGetBitLsb("\2#01101;",               1, 2, 2#1, 1, 3) and
-        chkGetBitLsb("\2#10110;",               1, 2, 2#1, 1, 3) and
-        chkGetBitLsb("\2#0101010;",             1, 3, 2#1, 1, 4) and
-        chkGetBitLsb("\2#1011101;",             1, 3, 2#1, 1, 4) and
-        chkGetBitLsb("\2#10110101;\2#0;",       1, 4, 2#1, 1, 5) and
-        chkGetBitLsb("\2#01111011;\2#1;",       1, 4, 2#1, 1, 5) and
-        chkGetBitLsb("\2#11101011;\2#010;",     1, 5, 2#1, 1, 6) and
-        chkGetBitLsb("\2#11110011;\2#100;",     1, 5, 2#1, 1, 6) and
-        chkGetBitLsb("\2#11010011;\2#01001;",   1, 6, 2#1, 1, 7) and
-        chkGetBitLsb("\2#11110101;\2#11010;",   1, 6, 2#1, 1, 7) and
-        chkGetBitLsb("\2#10110101;\2#0110101;", 1, 7, 2#1, 2, 0) and
-        chkGetBitLsb("\2#11011001;\2#1011001;", 1, 7, 2#1, 2, 0) then
+    if  chkGetBitLsb("\2#11111110;",             1, 0, 2#0, 1, 1) and
+        chkGetBitLsb("\2#11111101;",             1, 1, 2#0, 1, 2) and
+        chkGetBitLsb("\2#11111011;",             1, 2, 2#0, 1, 3) and
+        chkGetBitLsb("\2#11110111;",             1, 3, 2#0, 1, 4) and
+        chkGetBitLsb("\2#11101111;",             1, 4, 2#0, 1, 5) and
+        chkGetBitLsb("\2#11011111;",             1, 5, 2#0, 1, 6) and
+        chkGetBitLsb("\2#10111111;",             1, 6, 2#0, 1, 7) and
+        chkGetBitLsb("\2#01111111;",             1, 7, 2#0, 2, 0) and
+        chkGetBitLsb("\2#01111111;\2#11111111;", 1, 7, 2#0, 2, 0) and
+        chkGetBitLsb("\2#0;",                    1, 0, 2#0, 1, 1) and
+        chkGetBitLsb("\2#000;",                  1, 1, 2#0, 1, 2) and
+        chkGetBitLsb("\2#101;",                  1, 1, 2#0, 1, 2) and
+        chkGetBitLsb("\2#01001;",                1, 2, 2#0, 1, 3) and
+        chkGetBitLsb("\2#10010;",                1, 2, 2#0, 1, 3) and
+        chkGetBitLsb("\2#0100010;",              1, 3, 2#0, 1, 4) and
+        chkGetBitLsb("\2#1010101;",              1, 3, 2#0, 1, 4) and
+        chkGetBitLsb("\2#10100101;\2#0;",        1, 4, 2#0, 1, 5) and
+        chkGetBitLsb("\2#01101011;\2#1;",        1, 4, 2#0, 1, 5) and
+        chkGetBitLsb("\2#11001011;\2#010;",      1, 5, 2#0, 1, 6) and
+        chkGetBitLsb("\2#11010011;\2#100;",      1, 5, 2#0, 1, 6) and
+        chkGetBitLsb("\2#10010011;\2#01001;",    1, 6, 2#0, 1, 7) and
+        chkGetBitLsb("\2#10110101;\2#11010;",    1, 6, 2#0, 1, 7) and
+        chkGetBitLsb("\2#00110101;\2#0110101;",  1, 7, 2#0, 2, 0) and
+        chkGetBitLsb("\2#01011001;\2#1011001;",  1, 7, 2#0, 2, 0) and
+        chkGetBitLsb("\2#00000001;",             1, 0, 2#1, 1, 1) and
+        chkGetBitLsb("\2#00000010;",             1, 1, 2#1, 1, 2) and
+        chkGetBitLsb("\2#00000100;",             1, 2, 2#1, 1, 3) and
+        chkGetBitLsb("\2#00001000;",             1, 3, 2#1, 1, 4) and
+        chkGetBitLsb("\2#00010000;",             1, 4, 2#1, 1, 5) and
+        chkGetBitLsb("\2#00100000;",             1, 5, 2#1, 1, 6) and
+        chkGetBitLsb("\2#01000000;",             1, 6, 2#1, 1, 7) and
+        chkGetBitLsb("\2#10000000;",             1, 7, 2#1, 2, 0) and
+        chkGetBitLsb("\2#10000000;\2#00000000;", 1, 7, 2#1, 2, 0) and
+        chkGetBitLsb("\2#1;",                    1, 0, 2#1, 1, 1) and
+        chkGetBitLsb("\2#010;",                  1, 1, 2#1, 1, 2) and
+        chkGetBitLsb("\2#111;",                  1, 1, 2#1, 1, 2) and
+        chkGetBitLsb("\2#01101;",                1, 2, 2#1, 1, 3) and
+        chkGetBitLsb("\2#10110;",                1, 2, 2#1, 1, 3) and
+        chkGetBitLsb("\2#0101010;",              1, 3, 2#1, 1, 4) and
+        chkGetBitLsb("\2#1011101;",              1, 3, 2#1, 1, 4) and
+        chkGetBitLsb("\2#10110101;\2#0;",        1, 4, 2#1, 1, 5) and
+        chkGetBitLsb("\2#01111011;\2#1;",        1, 4, 2#1, 1, 5) and
+        chkGetBitLsb("\2#11101011;\2#010;",      1, 5, 2#1, 1, 6) and
+        chkGetBitLsb("\2#11110011;\2#100;",      1, 5, 2#1, 1, 6) and
+        chkGetBitLsb("\2#11010011;\2#01001;",    1, 6, 2#1, 1, 7) and
+        chkGetBitLsb("\2#11110101;\2#11010;",    1, 6, 2#1, 1, 7) and
+        chkGetBitLsb("\2#10110101;\2#0110101;",  1, 7, 2#1, 2, 0) and
+        chkGetBitLsb("\2#11011001;\2#1011001;",  1, 7, 2#1, 2, 0) then
       writeln("getBit(lsbInBitStream) works correctly.");
     end if;
   end func;
@@ -141,7 +158,6 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bytePosVar is 0;
     var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
@@ -208,36 +224,24 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
 
 const proc: chkGetBitsLsb is func
   begin
-    if  chkGetBitsLsb("\2#0;",                                                   1, 0,  1,                     2#0, 1, 1) and
-        chkGetBitsLsb("\2#000;",                                                 1, 1,  1,                     2#0, 1, 2) and
-        chkGetBitsLsb("\2#101;",                                                 1, 1,  1,                     2#0, 1, 2) and
-        chkGetBitsLsb("\2#01001;",                                               1, 2,  1,                     2#0, 1, 3) and
-        chkGetBitsLsb("\2#10010;",                                               1, 2,  1,                     2#0, 1, 3) and
-        chkGetBitsLsb("\2#0100010;",                                             1, 3,  1,                     2#0, 1, 4) and
-        chkGetBitsLsb("\2#1010101;",                                             1, 3,  1,                     2#0, 1, 4) and
-        chkGetBitsLsb("\2#10100101;\2#0;",                                       1, 4,  1,                     2#0, 1, 5) and
-        chkGetBitsLsb("\2#01101011;\2#1;",                                       1, 4,  1,                     2#0, 1, 5) and
-        chkGetBitsLsb("\2#11001011;\2#010;",                                     1, 5,  1,                     2#0, 1, 6) and
-        chkGetBitsLsb("\2#11010011;\2#100;",                                     1, 5,  1,                     2#0, 1, 6) and
-        chkGetBitsLsb("\2#10010011;\2#01001;",                                   1, 6,  1,                     2#0, 1, 7) and
-        chkGetBitsLsb("\2#10110101;\2#11010;",                                   1, 6,  1,                     2#0, 1, 7) and
-        chkGetBitsLsb("\2#00110101;\2#0110101;",                                 1, 7,  1,                     2#0, 2, 0) and
-        chkGetBitsLsb("\2#01011001;\2#1011001;",                                 1, 7,  1,                     2#0, 2, 0) and
-        chkGetBitsLsb("\2#1;",                                                   1, 0,  1,                     2#1, 1, 1) and
-        chkGetBitsLsb("\2#010;",                                                 1, 1,  1,                     2#1, 1, 2) and
-        chkGetBitsLsb("\2#111;",                                                 1, 1,  1,                     2#1, 1, 2) and
-        chkGetBitsLsb("\2#01101;",                                               1, 2,  1,                     2#1, 1, 3) and
-        chkGetBitsLsb("\2#10110;",                                               1, 2,  1,                     2#1, 1, 3) and
-        chkGetBitsLsb("\2#0101010;",                                             1, 3,  1,                     2#1, 1, 4) and
-        chkGetBitsLsb("\2#1011101;",                                             1, 3,  1,                     2#1, 1, 4) and
-        chkGetBitsLsb("\2#10110101;\2#0;",                                       1, 4,  1,                     2#1, 1, 5) and
-        chkGetBitsLsb("\2#01111011;\2#1;",                                       1, 4,  1,                     2#1, 1, 5) and
-        chkGetBitsLsb("\2#11101011;\2#010;",                                     1, 5,  1,                     2#1, 1, 6) and
-        chkGetBitsLsb("\2#11110011;\2#100;",                                     1, 5,  1,                     2#1, 1, 6) and
-        chkGetBitsLsb("\2#11010011;\2#01001;",                                   1, 6,  1,                     2#1, 1, 7) and
-        chkGetBitsLsb("\2#11110101;\2#11010;",                                   1, 6,  1,                     2#1, 1, 7) and
-        chkGetBitsLsb("\2#10110101;\2#0110101;",                                 1, 7,  1,                     2#1, 2, 0) and
-        chkGetBitsLsb("\2#11011001;\2#1011001;",                                 1, 7,  1,                     2#1, 2, 0) and
+    if  chkGetBitsLsb("\2#11111110;",                                            1, 0,  1,                     2#0, 1, 1) and
+        chkGetBitsLsb("\2#11111101;",                                            1, 1,  1,                     2#0, 1, 2) and
+        chkGetBitsLsb("\2#11111011;",                                            1, 2,  1,                     2#0, 1, 3) and
+        chkGetBitsLsb("\2#11110111;",                                            1, 3,  1,                     2#0, 1, 4) and
+        chkGetBitsLsb("\2#11101111;",                                            1, 4,  1,                     2#0, 1, 5) and
+        chkGetBitsLsb("\2#11011111;",                                            1, 5,  1,                     2#0, 1, 6) and
+        chkGetBitsLsb("\2#10111111;",                                            1, 6,  1,                     2#0, 1, 7) and
+        chkGetBitsLsb("\2#01111111;",                                            1, 7,  1,                     2#0, 2, 0) and
+        chkGetBitsLsb("\2#01111111;\2#11111111;",                                1, 7,  1,                     2#0, 2, 0) and
+        chkGetBitsLsb("\2#00000001;",                                            1, 0,  1,                     2#1, 1, 1) and
+        chkGetBitsLsb("\2#00000010;",                                            1, 1,  1,                     2#1, 1, 2) and
+        chkGetBitsLsb("\2#00000100;",                                            1, 2,  1,                     2#1, 1, 3) and
+        chkGetBitsLsb("\2#00001000;",                                            1, 3,  1,                     2#1, 1, 4) and
+        chkGetBitsLsb("\2#00010000;",                                            1, 4,  1,                     2#1, 1, 5) and
+        chkGetBitsLsb("\2#00100000;",                                            1, 5,  1,                     2#1, 1, 6) and
+        chkGetBitsLsb("\2#01000000;",                                            1, 6,  1,                     2#1, 1, 7) and
+        chkGetBitsLsb("\2#10000000;",                                            1, 7,  1,                     2#1, 2, 0) and
+        chkGetBitsLsb("\2#10000000;\2#00000000;",                                1, 7,  1,                     2#1, 2, 0) and
         chkGetBitsLsb("\2#01;",                                                  1, 0,  2,                    2#01, 1, 2) and
         chkGetBitsLsb("\2#0010;",                                                1, 1,  2,                    2#01, 1, 3) and
         chkGetBitsLsb("\2#1011;",                                                1, 1,  2,                    2#01, 1, 3) and
@@ -1726,7 +1730,6 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bytePosVar is 0;
     var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
@@ -1834,7 +1837,6 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bytePosVar is 0;
     var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
@@ -1901,36 +1903,24 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
 
 const proc: chkGetBitsMsb is func
   begin
-    if  chkGetBitsMsb("\2#00000000;",                                                 1, 0,  1,                     2#0, 1, 1) and
-        chkGetBitsMsb("\2#00000000;",                                                 1, 1,  1,                     2#0, 1, 2) and
-        chkGetBitsMsb("\2#10100000;",                                                 1, 1,  1,                     2#0, 1, 2) and
-        chkGetBitsMsb("\2#01001000;",                                                 1, 2,  1,                     2#0, 1, 3) and
-        chkGetBitsMsb("\2#10010000;",                                                 1, 2,  1,                     2#0, 1, 3) and
-        chkGetBitsMsb("\2#01000100;",                                                 1, 3,  1,                     2#0, 1, 4) and
-        chkGetBitsMsb("\2#10101010;",                                                 1, 3,  1,                     2#0, 1, 4) and
-        chkGetBitsMsb("\2#01010010;\2#10000000;",                                     1, 4,  1,                     2#0, 1, 5) and
-        chkGetBitsMsb("\2#10110101;\2#10000000;",                                     1, 4,  1,                     2#0, 1, 5) and
-        chkGetBitsMsb("\2#01011001;\2#01100000;",                                     1, 5,  1,                     2#0, 1, 6) and
-        chkGetBitsMsb("\2#10011010;\2#01100000;",                                     1, 5,  1,                     2#0, 1, 6) and
-        chkGetBitsMsb("\2#01001100;\2#10011000;",                                     1, 6,  1,                     2#0, 1, 7) and
-        chkGetBitsMsb("\2#11010101;\2#10101000;",                                     1, 6,  1,                     2#0, 1, 7) and
-        chkGetBitsMsb("\2#01101010;\2#01101010;",                                     1, 7,  1,                     2#0, 2, 0) and
-        chkGetBitsMsb("\2#10110010;\2#10110010;",                                     1, 7,  1,                     2#0, 2, 0) and
+    if  chkGetBitsMsb("\2#01111111;",                                                 1, 0,  1,                     2#0, 1, 1) and
+        chkGetBitsMsb("\2#10111111;",                                                 1, 1,  1,                     2#0, 1, 2) and
+        chkGetBitsMsb("\2#11011111;",                                                 1, 2,  1,                     2#0, 1, 3) and
+        chkGetBitsMsb("\2#11101111;",                                                 1, 3,  1,                     2#0, 1, 4) and
+        chkGetBitsMsb("\2#11110110;",                                                 1, 4,  1,                     2#0, 1, 5) and
+        chkGetBitsMsb("\2#11111011;",                                                 1, 5,  1,                     2#0, 1, 6) and
+        chkGetBitsMsb("\2#11111101;",                                                 1, 6,  1,                     2#0, 1, 7) and
+        chkGetBitsMsb("\2#11111110;",                                                 1, 7,  1,                     2#0, 2, 0) and
+        chkGetBitsMsb("\2#11111110;\2#1111111;",                                      1, 7,  1,                     2#0, 2, 0) and
         chkGetBitsMsb("\2#10000000;",                                                 1, 0,  1,                     2#1, 1, 1) and
         chkGetBitsMsb("\2#01000000;",                                                 1, 1,  1,                     2#1, 1, 2) and
-        chkGetBitsMsb("\2#11100000;",                                                 1, 1,  1,                     2#1, 1, 2) and
-        chkGetBitsMsb("\2#01101000;",                                                 1, 2,  1,                     2#1, 1, 3) and
-        chkGetBitsMsb("\2#10110000;",                                                 1, 2,  1,                     2#1, 1, 3) and
-        chkGetBitsMsb("\2#01010100;",                                                 1, 3,  1,                     2#1, 1, 4) and
-        chkGetBitsMsb("\2#10111010;",                                                 1, 3,  1,                     2#1, 1, 4) and
-        chkGetBitsMsb("\2#01011010;\2#10000000;",                                     1, 4,  1,                     2#1, 1, 5) and
-        chkGetBitsMsb("\2#10111101;\2#10000000;",                                     1, 4,  1,                     2#1, 1, 5) and
-        chkGetBitsMsb("\2#01011101;\2#01100000;",                                     1, 5,  1,                     2#1, 1, 6) and
-        chkGetBitsMsb("\2#10011110;\2#01100000;",                                     1, 5,  1,                     2#1, 1, 6) and
-        chkGetBitsMsb("\2#01001110;\2#10011000;",                                     1, 6,  1,                     2#1, 1, 7) and
-        chkGetBitsMsb("\2#11010111;\2#10101000;",                                     1, 6,  1,                     2#1, 1, 7) and
-        chkGetBitsMsb("\2#01101011;\2#01101010;",                                     1, 7,  1,                     2#1, 2, 0) and
-        chkGetBitsMsb("\2#10110011;\2#10110010;",                                     1, 7,  1,                     2#1, 2, 0) and
+        chkGetBitsMsb("\2#00100000;",                                                 1, 2,  1,                     2#1, 1, 3) and
+        chkGetBitsMsb("\2#00010000;",                                                 1, 3,  1,                     2#1, 1, 4) and
+        chkGetBitsMsb("\2#00001000;",                                                 1, 4,  1,                     2#1, 1, 5) and
+        chkGetBitsMsb("\2#00000100;",                                                 1, 5,  1,                     2#1, 1, 6) and
+        chkGetBitsMsb("\2#00000010;",                                                 1, 6,  1,                     2#1, 1, 7) and
+        chkGetBitsMsb("\2#00000001;",                                                 1, 7,  1,                     2#1, 2, 0) and
+        chkGetBitsMsb("\2#00000001;\2#00000000;",                                     1, 7,  1,                     2#1, 2, 0) and
         chkGetBitsMsb("\2#01000000;",                                                 1, 0,  2,                    2#01, 1, 2) and
         chkGetBitsMsb("\2#00100000;",                                                 1, 1,  2,                    2#01, 1, 3) and
         chkGetBitsMsb("\2#10110000;",                                                 1, 1,  2,                    2#01, 1, 3) and
