@@ -28,6 +28,11 @@
 
 include "bitdata.s7i";
 
+const integer: LZW_MAX_CODE_SIZE is  12;
+const integer: LZW_MAX_CODE      is pred(2 ** LZW_MAX_CODE_SIZE);
+
+const type: lzwTableType is array [0 .. LZW_MAX_CODE] string;
+
 
 (**
  *  Compress a string with the Lempel-Ziv-Welch (LZW) compression method.
@@ -75,7 +80,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
-          if bitsToWrite = 12 then
+          if bitsToWrite = LZW_MAX_CODE_SIZE then
             mydict := (hash [string] integer).value;
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
@@ -93,7 +98,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
     if buffer <> "" then
       putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
-        if bitsToWrite = 12 then
+        if bitsToWrite = LZW_MAX_CODE_SIZE then
           putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
@@ -125,13 +130,12 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
   result
     var string: decompressed is "";
   local
-    const integer: maxTableIndex is 4095;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
     var integer: previousCode is 0;
-    var array string: table is [0 .. maxTableIndex] times "";
+    var lzwTableType: table is lzwTableType.value;
     var integer: nextTableIndex is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -158,13 +162,13 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
         end if;
       else
         if code < nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
           decompressed &:= table[code];
         elsif code = nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
             incr(nextTableIndex);
             decompressed &:= table[code];
@@ -176,7 +180,7 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
         end if;
         if nextTableIndex = moreBitsNeeded then
           incr(bitsToRead);
-          if bitsToRead < 12 then
+          if bitsToRead < LZW_MAX_CODE_SIZE then
             moreBitsNeeded := 1 << bitsToRead;
           end if;
         end if;
@@ -258,7 +262,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
-          if bitsToWrite = 12 then
+          if bitsToWrite = LZW_MAX_CODE_SIZE then
             mydict := (hash [string] integer).value;
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
@@ -276,7 +280,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
     if buffer <> "" then
       putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
-        if bitsToWrite = 12 then
+        if bitsToWrite = LZW_MAX_CODE_SIZE then
           putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
@@ -309,13 +313,12 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
   result
     var string: decompressed is "";
   local
-    const integer: maxTableIndex is 4095;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
     var integer: previousCode is 0;
-    var array string: table is [0 .. maxTableIndex] times "";
+    var lzwTableType: table is lzwTableType.value;
     var integer: nextTableIndex is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -342,13 +345,13 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
         end if;
       else
         if code < nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
           decompressed &:= table[code];
         elsif code = nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
             incr(nextTableIndex);
             decompressed &:= table[code];
@@ -360,7 +363,7 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
         end if;
         if nextTableIndex = moreBitsNeeded then
           incr(bitsToRead);
-          if bitsToRead < 12 then
+          if bitsToRead < LZW_MAX_CODE_SIZE then
             moreBitsNeeded := 1 << bitsToRead;
           end if;
         end if;
@@ -444,7 +447,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
         if code = moreBitsNeeded then
-          if bitsToWrite = 12 then
+          if bitsToWrite = LZW_MAX_CODE_SIZE then
             mydict := (hash [string] integer).value;
             for code range 0 to pred(clearCode) do
               mydict @:= [str(char(code))] code;
@@ -462,7 +465,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
     if buffer <> "" then
       putBits(compressedStream, mydict[buffer], bitsToWrite);
       if length(mydict) + 2 = moreBitsNeeded then
-        if bitsToWrite = 12 then
+        if bitsToWrite = LZW_MAX_CODE_SIZE then
           putBits(compressedStream, clearCode, bitsToWrite);
           bitsToWrite := succ(codeSize);
         else
@@ -496,13 +499,12 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
   result
     var string: decompressed is "";
   local
-    const integer: maxTableIndex is 4095;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
     var integer: previousCode is 0;
-    var array string: table is [0 .. maxTableIndex] times "";
+    var lzwTableType: table is lzwTableType.value;
     var integer: nextTableIndex is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -529,13 +531,13 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
         end if;
       else
         if code < nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
           decompressed &:= table[code];
         elsif code = nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
             incr(nextTableIndex);
             decompressed &:= table[code];
@@ -547,7 +549,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
         end if;
         if nextTableIndex = moreBitsNeeded then
           incr(bitsToRead);
-          if bitsToRead < 12 then
+          if bitsToRead < LZW_MAX_CODE_SIZE then
             moreBitsNeeded := pred(1 << bitsToRead);
           end if;
         end if;
@@ -605,13 +607,12 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
   result
     var string: decompressed is "";
   local
-    const integer: maxTableIndex is 4095;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
     var integer: code is 0;
     var integer: previousCode is 0;
-    var array string: table is [0 .. maxTableIndex] times "";
+    var lzwTableType: table is lzwTableType.value;
     var integer: nextTableIndex is 0;
     var integer: moreBitsNeeded is 0;
   begin
@@ -638,13 +639,13 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
         end if;
       else
         if code < nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
           decompressed &:= table[code];
         elsif code = nextTableIndex then
-          if nextTableIndex <= maxTableIndex then
+          if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
             incr(nextTableIndex);
             decompressed &:= table[code];
@@ -656,7 +657,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
         end if;
         if nextTableIndex = moreBitsNeeded then
           incr(bitsToRead);
-          if bitsToRead < 12 then
+          if bitsToRead < LZW_MAX_CODE_SIZE then
             moreBitsNeeded := pred(1 << bitsToRead);
           end if;
         end if;
@@ -697,12 +698,14 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
 
 const integer: SHRINK_MIN_CODE_SIZE is   9;
 const integer: SHRINK_MAX_CODE_SIZE is  13;
-const integer: SHRINK_MAX_CODE      is pred(1 << SHRINK_MAX_CODE_SIZE);
+const integer: SHRINK_MAX_CODE      is pred(2 ** SHRINK_MAX_CODE_SIZE);
 const integer: SHRINK_CONTROL_CODE  is 256;
 const integer: SHRINK_INVALID_CODE  is pred(2 ** 16);
 
+const type: shrinkTableType is array [0 .. SHRINK_MAX_CODE] string;
 
-const func string: unshrinkPartialClear (in array string: table,
+
+const func string: unshrinkPartialClear (in shrinkTableType: table,
     inout array integer: prefixCode) is func
   result
     var string: availableCodes is "";
@@ -747,7 +750,7 @@ const func string: lzwDecompressShrink (inout lsbInBitStream: compressedStream) 
     var integer: code is 0;
     var integer: previousCode is 0;
     var integer: specialCommand is 0;
-    var array string: table is [0 .. SHRINK_MAX_CODE] times "";
+    var shrinkTableType: table is shrinkTableType.value;
     var array integer: prefixCode is [0 .. SHRINK_MAX_CODE] times SHRINK_INVALID_CODE;
     var integer: nextTableIndex is 0;
     var boolean: dictionaryIsFull is FALSE;
