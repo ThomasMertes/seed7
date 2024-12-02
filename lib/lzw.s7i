@@ -693,3 +693,128 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
     compressedStream := openMsbInBitStream(compressed);
     decompressed := lzwDecompressEarlyChange(compressedStream, codeSize, requestedLength);
   end func;
+
+
+const integer: SHRINK_MIN_CODE_SIZE is   9;
+const integer: SHRINK_MAX_CODE_SIZE is  13;
+const integer: SHRINK_MAX_CODE      is pred(1 << SHRINK_MAX_CODE_SIZE);
+const integer: SHRINK_CONTROL_CODE  is 256;
+const integer: SHRINK_INVALID_CODE  is pred(2 ** 16);
+
+
+const func string: unshrinkPartialClear (in array string: table,
+    inout array integer: prefixCode) is func
+  result
+    var string: availableCodes is "";
+  local
+    var bitset: isPrefix is bitset.value;
+    var integer: code is 0;
+  begin
+    # Find codes that have been used as a prefix.
+    for code range succ(SHRINK_CONTROL_CODE) to SHRINK_MAX_CODE do
+      if prefixCode[code] <> SHRINK_INVALID_CODE then
+        incl(isPrefix, prefixCode[code]);
+      end if;
+    end for;
+    # Clear "non-prefix" codes in the table; populate the code queue.
+    for code range succ(SHRINK_CONTROL_CODE) to SHRINK_MAX_CODE do
+      if code not in isPrefix then
+        prefixCode[code] := SHRINK_INVALID_CODE;
+        availableCodes &:= char(code);
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Decompress a Shrink (=LZW) compressed [[bitdata#lsbInBitStream|lsbInBitStream]].
+ *  The packing order of bits in bytes is LSB-First (Least Significant
+ *  Bit First). This compression method is used for [[zip|ZIP]] files. Decompressing
+ *  starts with 9 bits per coding point and goes up to 13 bits per coding
+ *  point. The code points 0 to 255 correspond to unchanged data. Code 256
+ *  is used as control code. If the contol code is followed by code 1 the
+ *  number of bits per coding point is increased. If the contol code is
+ *  followed by code 2 the coding points without children are put to the
+ *  list of available codes.
+ *  @param compressed Byte string to be decompressed.
+ *  @return the decompressed data created from ''compressedStream''.
+ *)
+const func string: lzwDecompressShrink (inout lsbInBitStream: compressedStream) is func
+  result
+    var string: decompressed is "";
+  local
+    var integer: bitsToRead is SHRINK_MIN_CODE_SIZE;
+    var integer: code is 0;
+    var integer: previousCode is 0;
+    var integer: specialCommand is 0;
+    var array string: table is [0 .. SHRINK_MAX_CODE] times "";
+    var array integer: prefixCode is [0 .. SHRINK_MAX_CODE] times SHRINK_INVALID_CODE;
+    var integer: nextTableIndex is 0;
+    var boolean: dictionaryIsFull is FALSE;
+    var string: availableCodes is "";
+    var integer: availableCodeIndex is 1;
+    var integer: nextAvailableCode is 0;
+  begin
+    for code range 0 to pred(SHRINK_CONTROL_CODE) do
+      table[code] := str(char(code));
+    end for;
+    nextTableIndex := succ(SHRINK_CONTROL_CODE);
+    code := getBits(compressedStream, bitsToRead);
+    if code < nextTableIndex then
+      decompressed &:= table[code];
+    else
+      raise RANGE_ERROR;
+    end if;
+    previousCode := code;
+    code := getBits(compressedStream, bitsToRead);
+    while not eof(compressedStream) do
+      if code = SHRINK_CONTROL_CODE then
+        specialCommand := getBits(compressedStream, bitsToRead);
+        if specialCommand = 1 then
+          incr(bitsToRead);
+        elsif specialCommand = 2 then
+          availableCodes := unshrinkPartialClear(table, prefixCode);
+          availableCodeIndex := 1;
+          dictionaryIsFull := TRUE;
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        if not dictionaryIsFull then
+          if code < nextTableIndex then
+            if nextTableIndex <= SHRINK_MAX_CODE then
+              table[nextTableIndex] := table[previousCode] & str(table[code][1]);
+              prefixCode[nextTableIndex] := previousCode;
+              incr(nextTableIndex);
+            end if;
+            decompressed &:= table[code];
+          elsif code = nextTableIndex then
+            if nextTableIndex <= SHRINK_MAX_CODE then
+              table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
+              prefixCode[nextTableIndex] := previousCode;
+              incr(nextTableIndex);
+              decompressed &:= table[code];
+            else
+              decompressed &:= table[previousCode] & str(table[previousCode][1]);
+            end if;
+          else
+	    raise RANGE_ERROR;
+          end if;
+        else
+          if availableCodeIndex <= length(availableCodes) then
+            nextAvailableCode := ord(availableCodes[availableCodeIndex]);
+            incr(availableCodeIndex);
+            if code <> nextAvailableCode then
+              table[nextAvailableCode] := table[previousCode] & str(table[code][1]);
+            else
+              table[nextAvailableCode] := table[previousCode] & str(table[previousCode][1]);
+            end if;
+            prefixCode[nextAvailableCode] := previousCode;
+          end if;
+          decompressed &:= table[code];
+        end if;
+        previousCode := code;
+      end if;
+      code := getBits(compressedStream, bitsToRead);
+    end while;
+  end func;
