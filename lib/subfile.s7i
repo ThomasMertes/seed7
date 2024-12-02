@@ -27,7 +27,6 @@
 
 
 include "stdio.s7i";
-include "time.s7i";
 
 
 (**
