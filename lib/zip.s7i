@@ -117,16 +117,21 @@ const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
     var integer: length is 0;
     var string: value is "";
   begin
-    while pos <= length(field) - 3 do
+    while pos + 3 <= length(field) do
       id     := bytes2Int(field[pos     fixLen 2], UNSIGNED, LE);
       length := bytes2Int(field[pos + 2 fixLen 2], UNSIGNED, LE);
-      if length <> 0 then
-        value := field[pos + 4 fixLen length];
+      if pos + 3 + length <= length(field) then
+        if length <> 0 then
+          value := field[pos + 4 fixLen length];
+        else
+          value := "";
+        end if;
+        extraFieldMap @:= [id] value;
+        pos +:= 4 + length;
       else
-        value := "";
+        # Omit corrupt extra field and exit loop
+        pos := length(field);
       end if;
-      extraFieldMap @:= [id] value;
-      pos +:= 4 + length;
     end while;
   end func;
 
