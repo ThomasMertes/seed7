@@ -29,6 +29,7 @@
 include "stdio.s7i";
 include "inflate.s7i";
 include "deflate.s7i";
+include "lzw.s7i";
 include "lzma.s7i";
 include "unicode.s7i";
 include "bytedata.s7i";
@@ -39,6 +40,7 @@ include "filesys.s7i";
 include "filebits.s7i";
 include "fileutil.s7i";
 include "archive_base.s7i";
+include "subfile.s7i";
 
 
 const string: ZIP_CENTRAL_HEADER_SIGNATURE               is "PK\1;\2;";
@@ -65,6 +67,7 @@ const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
 # Supported compression_method values:
 const integer: ZIP_STORE   is  0;  # The file is stored (no compression).
+const integer: ZIP_SHRINK  is  1;  # The file is shrunk
 const integer: ZIP_DEFLATE is  8;  # The file is deflated.
 const integer: ZIP_LZMA    is 14;  # The file is compressed with LZMA.
 
@@ -2149,6 +2152,20 @@ const proc: makeLink (inout zipArchive: zip, in string: symlinkPath,
   end func;
 
 
+const func string: lzwDecompressShrink (inout file: inFile,
+    in integer: compressedSize) is func
+  result
+    var string: decompressed is "";
+  local
+    var file: compressedFile is STD_NULL;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
+  begin
+    compressedFile := openSubFile(inFile, tell(inFile), compressedSize);
+    compressedStream := openLsbInBitStream(compressedFile);
+    decompressed := lzwDecompressShrink(compressedStream);
+  end func;
+
+
 (**
  *  Get the contents of a file in a ZIP archive.
  *  The function follows symbolic links.
@@ -2180,6 +2197,8 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         case localHeader.compression_method of
           when {ZIP_STORE}:
             content := gets(zip.zipFile, localHeader.compressed_size);
+          when {ZIP_SHRINK}:
+            content := lzwDecompressShrink(zip.zipFile, localHeader.compressed_size);
           when {ZIP_DEFLATE}:
             if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
               # The fields crc_32, compressed_size and uncompressed_size are 0.
