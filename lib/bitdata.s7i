@@ -129,19 +129,35 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
  *  For the bit position in a byte holds: 0 = LSB, 7 = MSB.
  *)
 const type: lsbInBitStream is new struct
-    var file: inFile is STD_NULL;
     var integer: buffer is 0;
     var integer: bitPos is 0;
+    var integer: bytePos is 1;
+    var integer: eofBitPos is 0;
+    var integer: eofBytePos is integer.last;
     var string: striBuffer is "";
     var integer: striBufferIncrease is 4096;
     var integer: tailSize is 0;
     var integer: limit is 0;
-    var integer: bytePos is 1;
+    var file: inFile is STD_NULL;
   end struct;
 
 
 # The type lsbBitStream is deprecated. Use lsbInBitStream instead.
 const type: lsbBitStream is lsbInBitStream;
+
+
+const proc: show (in lsbInBitStream: inBitStream) is func
+  begin
+    writeln("buffer: " <& inBitStream.buffer radix 2);
+    writeln("bitPos: " <& inBitStream.bitPos);
+    writeln("bytePos: " <& inBitStream.bytePos);
+    writeln("eofBitPos: " <& inBitStream.eofBitPos);
+    writeln("eofBytePos: " <& inBitStream.eofBytePos);
+    writeln("striBuffer: " <& literal(inBitStream.striBuffer));
+    writeln("striBufferIncrease: " <& inBitStream.striBufferIncrease);
+    writeln("tailSize: " <& inBitStream.tailSize);
+    writeln("limit: " <& inBitStream.limit);
+  end func;
 
 
 const proc: fillStriBuffer (inout lsbInBitStream: inBitStream) is func
@@ -153,6 +169,8 @@ const proc: fillStriBuffer (inout lsbInBitStream: inBitStream) is func
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
       inBitStream.tailSize +:= 5;
+      inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
+                                inBitStream.tailSize;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
@@ -179,6 +197,7 @@ const func lsbInBitStream: openLsbInBitStream (in file: inFile) is func
   begin
     inBitStream.inFile := inFile;
     fillBuffer(inBitStream);
+    # show(inBitStream);
   end func;
 
 
@@ -199,8 +218,12 @@ const func lsbInBitStream: openLsbInBitStream (in string: stri) is func
     # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
     # This allows a peek of 32 bits also at the end of the data.
     inBitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-    inBitStream.limit := length(inBitStream.striBuffer);
+    inBitStream.tailSize := 5;
+    inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
+                              inBitStream.tailSize;
+    inBitStream.limit := length(inBitStream.striBuffer) - 4;
     fillBuffer(inBitStream);
+    # show(inBitStream);
   end func;
 
 
@@ -392,6 +415,18 @@ const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) i
 
 
 (**
+ *  Determine if at least one bit beyond the bit stream has been read.
+ *  The EOF condition is also met if skipBits() skips at least one bit
+ *  beyond the bit stream.
+ *  @param inBitStream MSB orderd bit stream which is checked for EOF.
+ *)
+const func boolean: eof (in lsbInBitStream: inBitStream) is
+  return inBitStream.bytePos >= inBitStream.eofBytePos and
+         (inBitStream.bytePos > inBitStream.eofBytePos or
+          inBitStream.bitPos > inBitStream.eofBitPos);
+
+
+(**
  *  Get up to ''maxLength'' bytes from ''inBitStream''.
  *  The function returns bytes from the original data. If the current byte of
  *  ''inBitStream'' is partially used, it is not considered, and the bytes are
@@ -448,19 +483,35 @@ const func string: gets (inout lsbInBitStream: inBitStream, in integer: maxLengt
  *  For the bit position in a byte holds: 0 = MSB, 7 = LSB.
  *)
 const type: msbInBitStream is new struct
-    var file: inFile is STD_NULL;
     var integer: buffer is 0;
     var integer: bitPos is 40;
+    var integer: bytePos is 1;
+    var integer: eofBitPos is 40;
+    var integer: eofBytePos is integer.last;
     var string: striBuffer is "";
     var integer: striBufferIncrease is 4096;
     var integer: tailSize is 0;
     var integer: limit is 0;
-    var integer: bytePos is 1;
+    var file: inFile is STD_NULL;
   end struct;
 
 
 # The type msbBitStream is deprecated. Use msbInBitStream instead.
 const type: msbBitStream is msbInBitStream;
+
+
+const proc: show (in msbInBitStream: inBitStream) is func
+  begin
+    writeln("buffer: " <& inBitStream.buffer radix 2);
+    writeln("bitPos: " <& inBitStream.bitPos);
+    writeln("bytePos: " <& inBitStream.bytePos);
+    writeln("eofBitPos: " <& inBitStream.eofBitPos);
+    writeln("eofBytePos: " <& inBitStream.eofBytePos);
+    writeln("striBuffer: " <& literal(inBitStream.striBuffer));
+    writeln("striBufferIncrease: " <& inBitStream.striBufferIncrease);
+    writeln("tailSize: " <& inBitStream.tailSize);
+    writeln("limit: " <& inBitStream.limit);
+  end func;
 
 
 const proc: fillStriBuffer (inout msbInBitStream: inBitStream) is func
@@ -472,6 +523,8 @@ const proc: fillStriBuffer (inout msbInBitStream: inBitStream) is func
       # This allows a peek of 32 bits also at the end of the data.
       inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
       inBitStream.tailSize +:= 5;
+      inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
+                                inBitStream.tailSize;
     end if;
     inBitStream.limit := max(0, length(inBitStream.striBuffer) - 4);
     inBitStream.bytePos := 1;
@@ -498,6 +551,7 @@ const func msbInBitStream: openMsbInBitStream (in file: inFile) is func
   begin
     inBitStream.inFile := inFile;
     fillBuffer(inBitStream);
+    # show(inBitStream);
   end func;
 
 
@@ -518,8 +572,12 @@ const func msbInBitStream: openMsbInBitStream (in string: stri) is func
     # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
     # This allows a peek of 32 bits also at the end of the data.
     inBitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-    inBitStream.limit := length(inBitStream.striBuffer);
+    inBitStream.tailSize := 5;
+    inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
+                              inBitStream.tailSize;
+    inBitStream.limit := length(inBitStream.striBuffer) - 4;
     fillBuffer(inBitStream);
+    # show(inBitStream);
   end func;
 
 
@@ -704,6 +762,18 @@ const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) i
       end if;
     end if;
   end func;
+
+
+(**
+ *  Determine if at least one bit beyond the bit stream has been read.
+ *  The EOF condition is also met if skipBits() skips at least one bit
+ *  beyond the bit stream.
+ *  @param inBitStream MSB orderd bit stream which is checked for EOF.
+ *)
+const func boolean: eof (in msbInBitStream: inBitStream) is
+  return inBitStream.bytePos >= inBitStream.eofBytePos and
+         (inBitStream.bytePos > inBitStream.eofBytePos or
+          inBitStream.bitPos < inBitStream.eofBitPos);
 
 
 (**
