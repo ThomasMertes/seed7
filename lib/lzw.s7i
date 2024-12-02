@@ -40,7 +40,7 @@ include "bitdata.s7i";
  *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
  *  @param uncompressed Data to be compressed
  *  @param codeSize Number of bits used by the uncompressed data.
- *  @return Compressed byte string of the ''uncompressed'' data.
+ *  @return a compressed byte string created from the ''uncompressed'' data.
  *)
 const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize) is func
   result
@@ -118,7 +118,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
  *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from ''compressedStream''.
  *)
 const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
     in integer: codeSize) is func
@@ -198,7 +198,7 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
  *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from the ''compressed'' string.
  *)
 const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize) is func
   result
@@ -223,7 +223,7 @@ const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize
  *  marks the end of the compressed data.
  *  @param uncompressed Data to be compressed
  *  @param codeSize Number of bits used by the uncompressed data.
- *  @return Compressed byte string of the ''uncompressed'' data.
+ *  @return a compressed byte string created from the ''uncompressed'' data.
  *)
 const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize) is func
   result
@@ -302,7 +302,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
  *  marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from ''compressedStream''.
  *)
 const func string: lzwDecompress (inout msbInBitStream: compressedStream,
     in integer: codeSize) is func
@@ -383,7 +383,7 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
  *  marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from the ''compressed'' string.
  *)
 const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize) is func
   result
@@ -409,7 +409,7 @@ const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize
  *  marks the end of the compressed data.
  *  @param uncompressed Data to be compressed
  *  @param codeSize Number of bits used by the uncompressed data.
- *  @return Compressed byte string of the ''uncompressed'' data.
+ *  @return a compressed byte string created from the ''uncompressed'' data.
  *)
 const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in integer: codeSize) is func
   result
@@ -489,7 +489,7 @@ const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in intege
  *  marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from ''compressedStream''.
  *)
 const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStream,
     in integer: codeSize) is func
@@ -571,7 +571,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
  *  marks the end of the compressed data.
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from the ''compressed'' string.
  *)
 const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize) is func
   result
@@ -598,7 +598,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
  *  @param requestedLength Number of decompressed bytes to be read.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from ''compressedStream''.
  *)
 const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStream,
     in integer: codeSize, in integer: requestedLength) is func
@@ -681,7 +681,7 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
  *  @param compressed Byte string to be decompressed.
  *  @param codeSize Number of bits used by the decompressed data.
  *  @param requestedLength Number of decompressed bytes to be read.
- *  @return Decompressed version of the ''compressed'' data.
+ *  @return the decompressed data created from the ''compressed'' string.
  *)
 const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize,
     in integer: requestedLength) is func
