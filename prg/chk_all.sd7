@@ -379,11 +379,13 @@ const string:chkbitdata_output is "\n\
   \getBit(lsbInBitStream) works correctly.\n\
   \getBits(lsbInBitStream) works correctly.\n\
   \peekBits(lsbInBitStream) works correctly.\n\
+  \eof(lsbInBitStream) works correctly.\n\
   \gets(lsbInBitStream) works correctly.\n\
   \close(lsbInBitStream) works correctly.\n\
   \getBit(msbInBitStream) works correctly.\n\
   \getBits(msbInBitStream) works correctly.\n\
   \peekBits(msbInBitStream) works correctly.\n\
+  \eof(msbInBitStream) works correctly.\n\
   \gets(msbInBitStream) works correctly.\n\
   \close(msbInBitStream) works correctly.\n\
   \putBit(lsbOutBitStream) works correctly.\n\
