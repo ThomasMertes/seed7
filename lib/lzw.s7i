@@ -703,10 +703,11 @@ const integer: SHRINK_CONTROL_CODE  is 256;
 const integer: SHRINK_INVALID_CODE  is pred(2 ** 16);
 
 const type: shrinkTableType is array [0 .. SHRINK_MAX_CODE] string;
+const type: shrinkPrefixType is array [0 .. SHRINK_MAX_CODE] integer;
 
 
 const func string: unshrinkPartialClear (in shrinkTableType: table,
-    inout array integer: prefixCode) is func
+    inout shrinkPrefixType: prefixCode) is func
   result
     var string: availableCodes is "";
   local
@@ -751,7 +752,7 @@ const func string: lzwDecompressShrink (inout lsbInBitStream: compressedStream) 
     var integer: previousCode is 0;
     var integer: specialCommand is 0;
     var shrinkTableType: table is shrinkTableType.value;
-    var array integer: prefixCode is [0 .. SHRINK_MAX_CODE] times SHRINK_INVALID_CODE;
+    var shrinkPrefixType: prefixCode is shrinkPrefixType times SHRINK_INVALID_CODE;
     var integer: nextTableIndex is 0;
     var boolean: dictionaryIsFull is FALSE;
     var string: availableCodes is "";
