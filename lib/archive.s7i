@@ -1,0 +1,90 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  archive.s7i   Archive library                                   *)
+(*  Copyright (C) 2017, 2020  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "filesys.s7i";
+include "gzip.s7i";
+include "xz.s7i";
+include "tar.s7i";
+include "cpio.s7i";
+include "zip.s7i";
+include "rpm.s7i";
+include "ar.s7i";
+
+
+(**
+ *  Open an archive with the given archiveFile.
+ *  @param archiveFile File that contains an archive.
+ *)
+const func fileSys: openArchive (inout file: archiveFile) is func
+  result
+    var fileSys: archive is fileSys.value;
+  local
+    var string: magicBytes is "";
+  begin
+    if archiveFile <> STD_NULL then
+      magicBytes := gets(archiveFile, length(GZIP_MAGIC));
+      if magicBytes = GZIP_MAGIC then
+        seek(archiveFile, 1);
+        archiveFile := openGzipFile(archiveFile, READ);
+      else
+        magicBytes &:= gets(archiveFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
+        seek(archiveFile, 1);
+        if magicBytes = XZ_MAGIC then
+          archiveFile := openXzFile(archiveFile);
+        end if;
+      end if;
+      archive := openTar(archiveFile);
+      if archive = fileSys.value then
+        archive := openCpio(archiveFile);
+        if archive = fileSys.value then
+          archive := openZip(archiveFile);
+          if archive = fileSys.value then
+            archive := openRpm(archiveFile);
+            if archive = fileSys.value then
+              archive := openAr(archiveFile);
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Open an archive with the given archiveFileName.
+ *  @param archiveFileName Name of the TAR archive to be opened.
+ *)
+const func fileSys: openArchive (in string: archiveFileName) is func
+  result
+    var fileSys: archive is fileSys.value;
+  local
+    var file: archiveFile is STD_NULL;
+  begin
+    archiveFile := open(archiveFileName, "r");
+    archive := openArchive(archiveFile);
+  end func;
