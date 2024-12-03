@@ -244,7 +244,7 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
       if archive <> fileSys.value then
         archiveTell(archive, memberList, doView);
       else
-        write("tar7: Cannot open \"" <& inFileName <& "\".");
+        writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
     end if;
   end func;
