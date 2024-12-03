@@ -88,3 +88,105 @@ const func bin32: crc32 (in string: stri, in bin32: oldCrc) is func
     end for;
     crc := crc >< bin32(16#ffffffff);
   end func;
+
+
+const array bin32: bzip2Crc32Table is [0] (
+    bin32(16#00000000), bin32(16#04c11db7), bin32(16#09823b6e), bin32(16#0d4326d9),
+    bin32(16#130476dc), bin32(16#17c56b6b), bin32(16#1a864db2), bin32(16#1e475005),
+    bin32(16#2608edb8), bin32(16#22c9f00f), bin32(16#2f8ad6d6), bin32(16#2b4bcb61),
+    bin32(16#350c9b64), bin32(16#31cd86d3), bin32(16#3c8ea00a), bin32(16#384fbdbd),
+    bin32(16#4c11db70), bin32(16#48d0c6c7), bin32(16#4593e01e), bin32(16#4152fda9),
+    bin32(16#5f15adac), bin32(16#5bd4b01b), bin32(16#569796c2), bin32(16#52568b75),
+    bin32(16#6a1936c8), bin32(16#6ed82b7f), bin32(16#639b0da6), bin32(16#675a1011),
+    bin32(16#791d4014), bin32(16#7ddc5da3), bin32(16#709f7b7a), bin32(16#745e66cd),
+    bin32(16#9823b6e0), bin32(16#9ce2ab57), bin32(16#91a18d8e), bin32(16#95609039),
+    bin32(16#8b27c03c), bin32(16#8fe6dd8b), bin32(16#82a5fb52), bin32(16#8664e6e5),
+    bin32(16#be2b5b58), bin32(16#baea46ef), bin32(16#b7a96036), bin32(16#b3687d81),
+    bin32(16#ad2f2d84), bin32(16#a9ee3033), bin32(16#a4ad16ea), bin32(16#a06c0b5d),
+    bin32(16#d4326d90), bin32(16#d0f37027), bin32(16#ddb056fe), bin32(16#d9714b49),
+    bin32(16#c7361b4c), bin32(16#c3f706fb), bin32(16#ceb42022), bin32(16#ca753d95),
+    bin32(16#f23a8028), bin32(16#f6fb9d9f), bin32(16#fbb8bb46), bin32(16#ff79a6f1),
+    bin32(16#e13ef6f4), bin32(16#e5ffeb43), bin32(16#e8bccd9a), bin32(16#ec7dd02d),
+    bin32(16#34867077), bin32(16#30476dc0), bin32(16#3d044b19), bin32(16#39c556ae),
+    bin32(16#278206ab), bin32(16#23431b1c), bin32(16#2e003dc5), bin32(16#2ac12072),
+    bin32(16#128e9dcf), bin32(16#164f8078), bin32(16#1b0ca6a1), bin32(16#1fcdbb16),
+    bin32(16#018aeb13), bin32(16#054bf6a4), bin32(16#0808d07d), bin32(16#0cc9cdca),
+    bin32(16#7897ab07), bin32(16#7c56b6b0), bin32(16#71159069), bin32(16#75d48dde),
+    bin32(16#6b93dddb), bin32(16#6f52c06c), bin32(16#6211e6b5), bin32(16#66d0fb02),
+    bin32(16#5e9f46bf), bin32(16#5a5e5b08), bin32(16#571d7dd1), bin32(16#53dc6066),
+    bin32(16#4d9b3063), bin32(16#495a2dd4), bin32(16#44190b0d), bin32(16#40d816ba),
+    bin32(16#aca5c697), bin32(16#a864db20), bin32(16#a527fdf9), bin32(16#a1e6e04e),
+    bin32(16#bfa1b04b), bin32(16#bb60adfc), bin32(16#b6238b25), bin32(16#b2e29692),
+    bin32(16#8aad2b2f), bin32(16#8e6c3698), bin32(16#832f1041), bin32(16#87ee0df6),
+    bin32(16#99a95df3), bin32(16#9d684044), bin32(16#902b669d), bin32(16#94ea7b2a),
+    bin32(16#e0b41de7), bin32(16#e4750050), bin32(16#e9362689), bin32(16#edf73b3e),
+    bin32(16#f3b06b3b), bin32(16#f771768c), bin32(16#fa325055), bin32(16#fef34de2),
+    bin32(16#c6bcf05f), bin32(16#c27dede8), bin32(16#cf3ecb31), bin32(16#cbffd686),
+    bin32(16#d5b88683), bin32(16#d1799b34), bin32(16#dc3abded), bin32(16#d8fba05a),
+    bin32(16#690ce0ee), bin32(16#6dcdfd59), bin32(16#608edb80), bin32(16#644fc637),
+    bin32(16#7a089632), bin32(16#7ec98b85), bin32(16#738aad5c), bin32(16#774bb0eb),
+    bin32(16#4f040d56), bin32(16#4bc510e1), bin32(16#46863638), bin32(16#42472b8f),
+    bin32(16#5c007b8a), bin32(16#58c1663d), bin32(16#558240e4), bin32(16#51435d53),
+    bin32(16#251d3b9e), bin32(16#21dc2629), bin32(16#2c9f00f0), bin32(16#285e1d47),
+    bin32(16#36194d42), bin32(16#32d850f5), bin32(16#3f9b762c), bin32(16#3b5a6b9b),
+    bin32(16#0315d626), bin32(16#07d4cb91), bin32(16#0a97ed48), bin32(16#0e56f0ff),
+    bin32(16#1011a0fa), bin32(16#14d0bd4d), bin32(16#19939b94), bin32(16#1d528623),
+    bin32(16#f12f560e), bin32(16#f5ee4bb9), bin32(16#f8ad6d60), bin32(16#fc6c70d7),
+    bin32(16#e22b20d2), bin32(16#e6ea3d65), bin32(16#eba91bbc), bin32(16#ef68060b),
+    bin32(16#d727bbb6), bin32(16#d3e6a601), bin32(16#dea580d8), bin32(16#da649d6f),
+    bin32(16#c423cd6a), bin32(16#c0e2d0dd), bin32(16#cda1f604), bin32(16#c960ebb3),
+    bin32(16#bd3e8d7e), bin32(16#b9ff90c9), bin32(16#b4bcb610), bin32(16#b07daba7),
+    bin32(16#ae3afba2), bin32(16#aafbe615), bin32(16#a7b8c0cc), bin32(16#a379dd7b),
+    bin32(16#9b3660c6), bin32(16#9ff77d71), bin32(16#92b45ba8), bin32(16#9675461f),
+    bin32(16#8832161a), bin32(16#8cf30bad), bin32(16#81b02d74), bin32(16#857130c3),
+    bin32(16#5d8a9099), bin32(16#594b8d2e), bin32(16#5408abf7), bin32(16#50c9b640),
+    bin32(16#4e8ee645), bin32(16#4a4ffbf2), bin32(16#470cdd2b), bin32(16#43cdc09c),
+    bin32(16#7b827d21), bin32(16#7f436096), bin32(16#7200464f), bin32(16#76c15bf8),
+    bin32(16#68860bfd), bin32(16#6c47164a), bin32(16#61043093), bin32(16#65c52d24),
+    bin32(16#119b4be9), bin32(16#155a565e), bin32(16#18197087), bin32(16#1cd86d30),
+    bin32(16#029f3d35), bin32(16#065e2082), bin32(16#0b1d065b), bin32(16#0fdc1bec),
+    bin32(16#3793a651), bin32(16#3352bbe6), bin32(16#3e119d3f), bin32(16#3ad08088),
+    bin32(16#2497d08d), bin32(16#2056cd3a), bin32(16#2d15ebe3), bin32(16#29d4f654),
+    bin32(16#c5a92679), bin32(16#c1683bce), bin32(16#cc2b1d17), bin32(16#c8ea00a0),
+    bin32(16#d6ad50a5), bin32(16#d26c4d12), bin32(16#df2f6bcb), bin32(16#dbee767c),
+    bin32(16#e3a1cbc1), bin32(16#e760d676), bin32(16#ea23f0af), bin32(16#eee2ed18),
+    bin32(16#f0a5bd1d), bin32(16#f464a0aa), bin32(16#f9278673), bin32(16#fde69bc4),
+    bin32(16#89b8fd09), bin32(16#8d79e0be), bin32(16#803ac667), bin32(16#84fbdbd0),
+    bin32(16#9abc8bd5), bin32(16#9e7d9662), bin32(16#933eb0bb), bin32(16#97ffad0c),
+    bin32(16#afb010b1), bin32(16#ab710d06), bin32(16#a6322bdf), bin32(16#a2f33668),
+    bin32(16#bcb4666d), bin32(16#b8757bda), bin32(16#b5365d03), bin32(16#b1f740b4));
+
+
+(**
+ *  Compute the CRC-32 cyclic redundancy check code of BZIP2.
+ *)
+const func bin32: bzip2Crc32 (in string: stri) is func
+  result
+    var bin32: crc is bin32(16#ffffffff);
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      crc := bzip2Crc32Table[ord((crc >> 24) >< bin32(ch)) mod 256] ><
+             ((crc << 8) & bin32(16#ffffffff));
+    end for;
+    crc := crc >< bin32(16#ffffffff);
+  end func;
+
+
+(**
+ *  Compute the CRC-32 cyclic redundancy check code of BZIP2.
+ *)
+const func bin32: bzip2Crc32 (in string: stri, in bin32: oldCrc) is func
+  result
+    var bin32: crc is bin32(0);
+  local
+    var char: ch is ' ';
+  begin
+    crc := oldCrc >< bin32(16#ffffffff);
+    for ch range stri do
+      crc := bzip2Crc32Table[ord((crc >> 24) >< bin32(ch)) mod 256] ><
+             ((crc << 8) & bin32(16#ffffffff));
+    end for;
+    crc := crc >< bin32(16#ffffffff);
+  end func;
