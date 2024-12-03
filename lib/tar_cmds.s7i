@@ -34,6 +34,7 @@ include "gzip.s7i";
 include "lzma.s7i";
 include "xz.s7i";
 include "zstd.s7i";
+include "archive.s7i";
 
 
 const proc: setUpHead (in string: basePath, in string: filePath,
@@ -80,15 +81,25 @@ const func file: openTarFileWithMagic (in string: inFileName,
           inFile := openZstdFile(inFile);
         else
           magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
-          seek(inFile, 1);
           if magicBytes = XZ_MAGIC then
+            seek(inFile, 1);
             inFile := openXzFile(inFile);
           elsif endsWith(inFileName, ".lzma") then
+            seek(inFile, 1);
             inFile := openLzmaFile(inFile);
-          elsif complainIfUncompressed then
-            write("tar7: File \"");
-            write(inFileName);
-            writeln("\" not in gzip, xz, zstd or lzma format.");
+          else
+            magicBytes &:= gets(inFile, 262 - length(XZ_MAGIC));
+            if length(magicBytes) = 262 and
+                endsWith(magicBytes, TAR_MAGIC) then
+              seek(inFile, 1);
+              if complainIfUncompressed then
+                writeln("tar7: File \"" <& inFileName <&
+                        "\" not in gzip, bzip2, xz, zstd or lzma format.");
+              end if;
+            else
+              close(inFile);
+              inFile := STD_NULL;
+            end if;
           end if;
         end if;
       end if;
@@ -150,26 +161,12 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
             when {FIFOTYPE}:          write("f");
             otherwise:                write("?");
           end case;
-          write(fileMode(header.mode mod 8#1000));
-          write(" ");
-          if header.uname <> "" then
-            write(header.uname);
-          else
-            write(header.uid);
-          end if;
-          write("/");
-          if header.gname <> "" then
-            write(header.gname);
-          else
-            write(header.gid);
-          end if;
-          write(header.fileSize lpad 14);
-          write(" ");
+          write(fileMode(header.mode mod 8#1000) <& " ");
+          write(header.uname <> "" ? header.uname : str(header.uid) <& "/");
+          write(header.gname <> "" ? header.gname : str(header.gid));
+          write(header.fileSize lpad 14 <& " ");
           modTime := timestamp1970ToTime(header.mtime);
-          write(strDate(modTime));
-          write(" ");
-          write(str_hh_mm(modTime, ":"));
-          write(" ");
+          write(strDate(modTime) <& " " <& str_hh_mm(modTime, ":") <& " ");
           # write(strTimeZone(modTime) rpad 12);
         end if;
         writeln(header.filePath <& header.filePathSuffix);
@@ -186,6 +183,35 @@ const proc: tarTell (inout file: inFile, in array string: memberList,
         writeln("*** The check-sum of a tar header is not okay");
       end if;
     end if;
+  end func;
+
+
+const proc: archiveTell (inout fileSys: archive, in array string: memberList,
+    in boolean: doView) is func
+  local
+    const string: fileTypeIndicator is " ?-dcbfls";
+    var array string: nameList is 0 times "";
+    var string: filePath is "";
+    var fileType: filType is FILE_ABSENT;
+    var time: modTime is time.value;
+  begin
+    nameList := readDir(archive, RECURSIVE);
+    for filePath range nameList do
+      if filePathIsInTarMemberList(filePath, memberList) then
+        if doView then
+          filType := fileTypeSL(archive, filePath);
+          write(fileTypeIndicator[succ(filType)]);
+          write(getFileMode(archive, filePath) <& " ");
+          write(getOwner(archive, filePath) <& "/");
+          write(getGroup(archive, filePath) <& " ");
+          write(fileSize(archive, filePath) lpad 14 <& " ");
+          modTime := getMTime(archive, filePath);
+          write(strDate(modTime) <& " " <& str_hh_mm(modTime, ":") <& " ");
+          # write(strTimeZone(modTime) rpad 12);
+        end if;
+        writeln(filePath <& filType = FILE_DIR ? "/" : "");
+      end if;
+    end for;
   end func;
 
 
@@ -208,14 +234,18 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
     in boolean: doView, in boolean: complainIfUncompressed) is func
   local
     var file: inFile is STD_NULL;
+    var fileSys: archive is fileSys.value;
   begin
     inFile := openTarFileWithMagic(inFileName, complainIfUncompressed);
     if inFile <> STD_NULL then
       tarTell(inFile, memberList, doView);
     else
-      write("tar7: Cannot open \"");
-      write(inFileName);
-      writeln("\".");
+      archive := openArchive(inFileName);
+      if archive <> fileSys.value then
+        archiveTell(archive, memberList, doView);
+      else
+        write("tar7: Cannot open \"" <& inFileName <& "\".");
+      end if;
     end if;
   end func;
 
