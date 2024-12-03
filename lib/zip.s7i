@@ -67,7 +67,7 @@ const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
 # Supported compression_method values:
 const integer: ZIP_STORE   is  0;  # The file is stored (no compression).
-const integer: ZIP_SHRINK  is  1;  # The file is shrunk
+const integer: ZIP_SHRINK  is  1;  # The file is shrunk.
 const integer: ZIP_DEFLATE is  8;  # The file is deflated.
 const integer: ZIP_LZMA    is 14;  # The file is compressed with LZMA.
 
@@ -157,13 +157,18 @@ const proc: writeExtraField (in string: field) is func
     var integer: length is 0;
     var string: value is "";
   begin
-    while pos <= length(field) - 3 do
+    while pos + 3 <= length(field) do
       id     := bytes2Int(field[pos     fixLen 2], UNSIGNED, LE);
       length := bytes2Int(field[pos + 2 fixLen 2], UNSIGNED, LE);
-      if length <> 0 then
-        value := field[pos + 4 fixLen length];
+      if pos + 3 + length <= length(field) then
+        if length <> 0 then
+          value := field[pos + 4 fixLen length];
+        else
+          value := "";
+        end if;
       else
-        value := "";
+        value := field[pos + 4 ..];
+        write("corrupt ");
       end if;
       writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
       pos +:= 4 + length;
