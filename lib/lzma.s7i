@@ -703,7 +703,9 @@ const func string: lzmaDecompress (inout file: compressed,
         resetRangeDecoder(lzmaDec.rangeDec);
         if not lzmaDec.rangeDec.corrupted then
           resetPropabilities(lzmaDec);
-          decodeResult := decodePacket(lzmaDec, TRUE, uncompressedSize);
+          repeat
+            decodeResult := decodePacket(lzmaDec, TRUE, uncompressedSize);
+          until decodeResult <> LZMA_RES_ONGOING;
         end if;
       end if;
     end if;
