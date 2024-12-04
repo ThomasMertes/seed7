@@ -1063,6 +1063,32 @@ const func boolean: zstdBlock (inout file: compressed, inout zstdBlockStateType:
 
 
 (**
+ *  Decompress a file that was compressed with Zstandard.
+ *  Zstandard is a file format used for compression.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in Zstandard format.
+ *)
+const func string: zstdDecompress (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var string: magic is "";
+    var zstdFrameHeader: frameHeader is zstdFrameHeader.value;
+    var boolean: finished is FALSE;
+    var zstdBlockStateType: blockState is zstdBlockStateType.value;
+  begin
+    magic := gets(compressed, length(ZSTD_MAGIC));
+    # writeln("openZstdFile: " <& literal(magic));
+    if magic = ZSTD_MAGIC then
+      readFrameHeader(compressed, frameHeader);
+      repeat
+        finished := zstdBlock(compressed, blockState, uncompressed);
+      until finished;
+    end if;
+  end func;
+
+
+(**
  *  [[file|File]] implementation type to decompress a Zstandard file.
  *  Zstandard is a file format used for compression.
  *)
