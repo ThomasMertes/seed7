@@ -363,6 +363,84 @@ const proc: tarXtract (inout file: inFile, in array string: memberList,
   end func;
 
 
+const proc: archiveXtract (inout fileSys: archive, in array string: memberList,
+    in boolean: doView) is func
+  local
+    var array string: nameList is 0 times "";
+    var string: filePath is "";
+    var fileType: filType is FILE_ABSENT;
+    var array string: dirPathList is 0 times "";
+    var file: aFile is STD_NULL;
+    var integer: index is 0;
+    var boolean: okay is TRUE;
+  begin
+    nameList := readDir(archive, RECURSIVE);
+    for filePath range nameList until not okay do
+      if filePathIsInTarMemberList(filePath, memberList) then
+        filType := fileTypeSL(archive, filePath);
+        if doView then
+          write("x ");
+          writeln(filePath <& filType = FILE_DIR ? "/" : "");
+        end if;
+        if filType = FILE_DIR then
+          if fileTypeSL(filePath) = FILE_DIR then
+            dirPathList &:= [] (filePath);
+          elsif fileTypeSL(filePath) = FILE_ABSENT then
+            makeParentDirs(filePath);
+            makeDir(filePath);
+            dirPathList &:= [] (filePath);
+          else
+            writeln("*** The file " <& literal(filePath) <& " exists, but is not a directory");
+            okay := FALSE;
+          end if;
+        elsif filType = FILE_REGULAR then
+          if fileTypeSL(filePath) = FILE_REGULAR then
+            removeFile(filePath);
+          end if;
+          if fileTypeSL(filePath) = FILE_ABSENT then
+            makeParentDirs(filePath);
+            aFile  := open(filePath, "w");
+            if aFile <> STD_NULL then
+              write(aFile, getFile(archive, filePath));
+              close(aFile);
+              setFileMode(filePath, getFileMode(archive, filePath));
+              setMTime(filePath, getMTime(archive, filePath));
+            else
+              writeln("*** Cannot create file " <& literal(filePath));
+              okay := FALSE;
+            end if;
+          else
+            writeln("*** The file " <& literal(filePath) <& " exists, but is not a regular file");
+            okay := FALSE;
+          end if;
+        elsif filType = FILE_SYMLINK then
+          if fileTypeSL(filePath) = FILE_SYMLINK then
+            removeFile(filePath);
+          end if;
+          if fileTypeSL(filePath) = FILE_ABSENT then
+            makeParentDirs(filePath);
+            if succeeds(makeLink(filePath, readLink(archive, filePath))) then
+              setMTime(filePath, getMTime(archive, filePath, SYMLINK), SYMLINK);
+            else
+              writeln("*** Cannot create symbolic link " <& literal(filePath));
+              okay := FALSE;
+            end if;
+          else
+            writeln("*** The file " <& literal(filePath) <& " exists, but is not a symbolic link");
+            okay := FALSE;
+          end if;
+        else
+          writeln("*** Cannot create " <& literal(filePath));
+        end if;
+      end if;
+    end for;
+    for index range length(dirPathList) downto 1 do
+      setFileMode(dirPathList[index], getFileMode(archive, filePath));
+      setMTime(dirPathList[index], getMTime(archive, dirPathList[index]));
+    end for;
+  end func;
+
+
 (**
  *  Extract files from the possibly compressed TAR achive named ''inFileName''.
  *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
@@ -384,14 +462,18 @@ const proc: tarXtract (in string: inFileName, in array string: memberList,
     in boolean: doView, in boolean: complainIfUncompressed) is func
   local
     var file: inFile is STD_NULL;
+    var fileSys: archive is fileSys.value;
   begin
     inFile := openTarFileWithMagic(inFileName, complainIfUncompressed);
     if inFile <> STD_NULL then
       tarXtract(inFile, memberList, doView);
     else
-      write("tar7: Cannot open \"");
-      write(inFileName);
-      writeln("\".");
+      archive := openArchive(inFileName);
+      if archive <> fileSys.value then
+        archiveXtract(archive, memberList, doView);
+      else
+        writeln("tar7: Cannot open \"" <& inFileName <& "\".");
+      end if;
     end if;
   end func;
 
