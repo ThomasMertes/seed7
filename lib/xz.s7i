@@ -229,6 +229,40 @@ const proc: readXzBlockHeader (inout lzmaDecoder: lzmaDec) is func
 
 
 (**
+ *  Decompress a file that was compressed with XZ.
+ *  XZ is a file format used for compression.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in XZ format.
+ *)
+const func string: xzDecompress (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var string: streamHeader is "";
+    var integer: flags is 0;
+    var integer: crc32 is 0;
+    var lzmaDecoder: lzmaDec is lzmaDecoder.value;
+    var boolean: finished is FALSE;
+  begin
+    streamHeader := gets(compressed, XZ_STREAM_HEADER_SIZE);
+    if length(streamHeader) = XZ_STREAM_HEADER_SIZE and
+        startsWith(streamHeader, XZ_MAGIC) then
+      # Ignore first byte of stream flags.
+      flags := ord(streamHeader[7]) mod 16;
+      # writeln("flags: " <& flags);
+      crc32 := bytes2Int(streamHeader[8 fixLen 4], UNSIGNED, LE);
+      # writeln("crc32: " <& crc32);
+      lzmaDec.rangeDec.compressed := compressed;
+      readXzBlockHeader(lzmaDec);
+      repeat
+        finished := xzPacket(lzmaDec);
+      until finished;
+      uncompressed := lzmaDec.uncompressed;
+    end if;
+  end func;
+
+
+(**
  *  [[file|File]] implementation type to decompress a XZ file.
  *  XZ is a file format used for compression.
  *)
