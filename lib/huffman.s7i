@@ -118,20 +118,22 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
     var integer: symbolIndex is 0;
     var integer: symbol is 0;
     var integer: tableIndex is 0;
+    var integer: repeatCount is 0;
   begin
     decoder.maximumCodeLength := maximumCodeLength;
     decoder.symbols := huffmanSymbolArray[.. pred(1 << maximumCodeLength)] times 0;
     decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << maximumCodeLength)] times 0;
     for codeLength range 1 to maximumCodeLength do
+      repeatCount := 1 << (maximumCodeLength - codeLength);
       symbolIndexStart := succ(symbolIndexEnd);
       symbolIndexEnd +:= numberOfCodesWithLength[codeLength];
       for symbolIndex range symbolIndexStart to symbolIndexEnd do
         symbol := ord(huffmanSymbols[symbolIndex]);
-        while currentCode = tableIndex >> (maximumCodeLength - codeLength) do
+        for repeatCount do
           decoder.symbols[tableIndex] := symbol;
           decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
-        end while;
+        end for;
         incr(currentCode);
       end for;
       currentCode <<:= 1;
@@ -159,17 +161,19 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in symbolsWithCodeLengthT
     var integer: codeLength is 0;
     var integer: symbol is 0;
     var integer: tableIndex is 0;
+    var integer: repeatCount is 0;
   begin
     decoder.maximumCodeLength := maxIdx(symbolsWithCodeLength);
     decoder.symbols := huffmanSymbolArray[.. pred(1 << decoder.maximumCodeLength)] times 0;
     decoder.codeLengths := msbHuffmanCodeLengthArray[.. pred(1 << decoder.maximumCodeLength)] times 0;
     for key codeLength range symbolsWithCodeLength do
+      repeatCount := 1 << (decoder.maximumCodeLength - codeLength);
       for symbol range symbolsWithCodeLength[codeLength] do
-        while currentCode = tableIndex >> (decoder.maximumCodeLength - codeLength) do
+        for repeatCount do
           decoder.symbols[tableIndex] := symbol;
           decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
-        end while;
+        end for;
         incr(currentCode);
       end for;
       currentCode <<:= 1;
