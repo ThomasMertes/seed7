@@ -48,15 +48,17 @@ const proc: addCode (inout msbHuffmanDecoder: decoder, in integer: symbol, in st
     var integer: codeLength is 0;
     var integer: currentCode is 0;
     var integer: tableIndex is 0;
+    var integer: repeatCount is 0;
   begin
     codeLength := length(bits);
     currentCode := integer(bits, 2);
     tableIndex := currentCode << (decoder.maximumCodeLength - codeLength);
-    while currentCode = tableIndex >> (decoder.maximumCodeLength - codeLength) do
+    repeatCount := 1 << (decoder.maximumCodeLength - codeLength);
+    for repeatCount do
       decoder.symbols[tableIndex] := symbol;
       decoder.codeLengths[tableIndex] := codeLength;
       incr(tableIndex);
-    end while;
+    end for;
   end func;
 
 
@@ -414,7 +416,7 @@ const func msbHuffmanDecoder: genT4MsbHuffmanDecoder is func
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   begin
     decoder := createMsbHuffmanDecoder(12);
-    addHuffmanSymbols(decoder, t4HuffmanSymbolBits)
+    addHuffmanSymbols(decoder, t4HuffmanSymbolBits);
   end func;
 
 
@@ -423,7 +425,7 @@ const func lsbHuffmanDecoder: genT4LsbHuffmanDecoder is func
     var lsbHuffmanDecoder: decoder is lsbHuffmanDecoder.value;
   begin
     decoder := createLsbHuffmanDecoder(12, -2, 10);
-    addHuffmanSymbols(decoder, t4HuffmanSymbolBits)
+    addHuffmanSymbols(decoder, t4HuffmanSymbolBits);
   end func;
 
 
