@@ -142,10 +142,6 @@ const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
 const proc: flushGraphic                            is action "DRW_FLUSH";
 
 
-# The function DRAW_FLUSH is deprecated. Use flushGraphic instead.
-const proc: DRAW_FLUSH                              is action "DRW_FLUSH";
-
-
 (**
  *  Create a sub window inside of ''parent_window''.
  *  The new sub window has no window decorations and is not managed by

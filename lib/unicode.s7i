@@ -43,10 +43,6 @@
 const func string: toUtf8 (in string: stri)                    is action "STR_TO_UTF8";
 
 
-# The function striToUtf8() is deprecated. Use toUtf8() instead.
-const func string: striToUtf8 (in string: stri)                is action "STR_TO_UTF8";
-
-
 (**
  *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
  *   fromUtf8("â\130;¬")                         returns "€"
@@ -63,10 +59,6 @@ const func string: striToUtf8 (in string: stri)                is action "STR_TO
  *                         if ''utf8'' is not encoded with UTF-8.
  *)
 const func string: fromUtf8 (in string: utf8)                  is action "STR_FROM_UTF8";
-
-
-# The function utf8ToStri() is deprecated. Use fromUtf8() instead.
-const func string: utf8ToStri (in string: utf8)                is action "STR_FROM_UTF8";
 
 
 (**
