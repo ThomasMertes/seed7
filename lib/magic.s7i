@@ -31,6 +31,7 @@ include "bytedata.s7i";
 
 const string: MAGIC_AR               is "!<arch>\n";
 const string: MAGIC_BMP              is "BM";
+const string: MAGIC_BZIP2            is "BZh";
 const string: MAGIC_CPIO_BINARY_BE   is "\16#71;\16#c7;";
 const string: MAGIC_CPIO_BINARY_LE   is "\16#c7;\16#71;";
 const string: MAGIC_CPIO_ASCII_OLD   is "070707";
@@ -121,8 +122,9 @@ const func string: getMagic (in string: data) is func
         end if;
       elsif length(data) >= 3 then
         magicBytes := data[.. 3];
-        if  magicBytes = MAGIC_JPEG           or
-            magicBytes = MAGIC_UTF8           then
+        if  magicBytes = MAGIC_BZIP2 or
+            magicBytes = MAGIC_JPEG  or
+            magicBytes = MAGIC_UTF8  then
           magic := magicBytes;
         elsif length(data) >= 4 then
           magicBytes := data[.. 4];
@@ -235,8 +237,9 @@ const func string: getMagic (inout file: inFile) is func
       else
         magicBytes &:= gets(inFile, 1);
         if length(magicBytes) = 3 then
-          if  magicBytes = MAGIC_JPEG           or
-              magicBytes = MAGIC_UTF8           then
+          if  magicBytes = MAGIC_BZIP2 or
+              magicBytes = MAGIC_JPEG  or
+              magicBytes = MAGIC_UTF8  then
             magic := magicBytes;
           else
             magicBytes &:= gets(inFile, 1);
@@ -329,6 +332,7 @@ const func string: magicDescription (in string: magic) is func
     case magic of
       when {MAGIC_AR}:               description := "current ar archive";
       when {MAGIC_BMP}:              description := "PC bitmap";
+      when {MAGIC_BZIP2}:            description := "bzip2 compressed data";
       when {MAGIC_CPIO_BINARY_BE,
             MAGIC_CPIO_BINARY_LE,
             MAGIC_CPIO_ASCII_OLD,
