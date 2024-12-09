@@ -31,6 +31,7 @@ include "tar.s7i";
 include "osfiles.s7i";
 include "fileutil.s7i";
 include "gzip.s7i";
+include "bzip2.s7i";
 include "lzma.s7i";
 include "xz.s7i";
 include "zstd.s7i";
@@ -75,30 +76,36 @@ const func file: openTarFileWithMagic (in string: inFileName,
         seek(inFile, 1);
         inFile := openGzipFile(inFile, READ);
       else
-        magicBytes &:= gets(inFile, length(ZSTD_MAGIC) - length(GZIP_MAGIC));
-        if magicBytes = ZSTD_MAGIC then
+        magicBytes &:= gets(inFile, length(BZIP2_MAGIC) - length(GZIP_MAGIC));
+        if magicBytes = BZIP2_MAGIC then
           seek(inFile, 1);
-          inFile := openZstdFile(inFile);
+          inFile := openBzip2File(inFile, READ);
         else
-          magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
-          if magicBytes = XZ_MAGIC then
+          magicBytes &:= gets(inFile, length(ZSTD_MAGIC) - length(BZIP2_MAGIC));
+          if magicBytes = ZSTD_MAGIC then
             seek(inFile, 1);
-            inFile := openXzFile(inFile);
-          elsif endsWith(inFileName, ".lzma") then
-            seek(inFile, 1);
-            inFile := openLzmaFile(inFile);
+            inFile := openZstdFile(inFile);
           else
-            magicBytes &:= gets(inFile, 262 - length(XZ_MAGIC));
-            if length(magicBytes) = 262 and
-                endsWith(magicBytes, TAR_MAGIC) then
+            magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
+            if magicBytes = XZ_MAGIC then
               seek(inFile, 1);
-              if complainIfUncompressed then
-                writeln("tar7: File \"" <& inFileName <&
-                        "\" not in gzip, bzip2, xz, zstd or lzma format.");
-              end if;
+              inFile := openXzFile(inFile);
+            elsif endsWith(inFileName, ".lzma") then
+              seek(inFile, 1);
+              inFile := openLzmaFile(inFile);
             else
-              close(inFile);
-              inFile := STD_NULL;
+              magicBytes &:= gets(inFile, 262 - length(XZ_MAGIC));
+              if length(magicBytes) = 262 and
+                  endsWith(magicBytes, TAR_MAGIC) then
+                seek(inFile, 1);
+                if complainIfUncompressed then
+                  writeln("tar7: File \"" <& inFileName <&
+                          "\" not in gzip, bzip2, xz, zstd or lzma format.");
+                end if;
+              else
+                close(inFile);
+                inFile := STD_NULL;
+              end if;
             end if;
           end if;
         end if;
@@ -217,7 +224,7 @@ const proc: archiveTell (inout fileSys: archive, in array string: memberList,
 
 (**
  *  List files in the possibly compressed TAR achive named ''inFileName''.
- *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  If the archive is compressed with GZIP, BZIP2, XZ, ZSTD or LZMA it is uncompressed.
  *  This function is used by the ''tar7'' program. In other application areas the
  *  [[tar]] file system might be more convenient.
  *   tarTell("test.tar", 0 times "", FALSE, FALSE);
@@ -443,7 +450,7 @@ const proc: archiveXtract (inout fileSys: archive, in array string: memberList,
 
 (**
  *  Extract files from the possibly compressed TAR achive named ''inFileName''.
- *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  If the archive is compressed with GZIP, BZIP2, XZ, ZSTD or LZMA it is uncompressed.
  *  This function is used by the ''tar7'' program. The function extracts files
  *  directly to the hard-disk respectively solid-state drive of the operating
  *  system. In other application areas the [[tar]] file system might be more
@@ -480,7 +487,7 @@ const proc: tarXtract (in string: inFileName, in array string: memberList,
 
 (**
  *  Extract files from the possibly compressed TAR achive named ''inFileName''.
- *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  If the archive is compressed with GZIP, BZIP2, XZ, ZSTD or LZMA it is uncompressed.
  *  This function extracts files directly to the hard-disk respectively
  *  solid-state drive of the operating system. In other application
  *  areas the [[tar]] file system might be more convenient.
@@ -498,7 +505,7 @@ const proc: tarXtract (in string: inFileName, in boolean: doView) is func
 
 (**
  *  Extract files from the possibly compressed TAR achive named ''inFileName''.
- *  If the archive is compressed with GZIP, XZ, ZSTD or LZMA it is uncompressed.
+ *  If the archive is compressed with GZIP, BZIP2, XZ, ZSTD or LZMA it is uncompressed.
  *  This function extracts files directly to the hard-disk respectively
  *  solid-state drive of the operating system. In other application areas
  *  the [[tar]] file system might be more convenient.

@@ -110,7 +110,7 @@ const proc: main is func
       writeln("  -c   Create a new archive");
       writeln("The commands can be altered with the following modifiers:");
       writeln("   v   Verbosely list files processed");
-      writeln("   z   Zip an archve with gzip or decompress a gzip, xz, zstd or lzma archive");
+      writeln("   z   Zip an archve with gzip or decompress a gzip, bzip2, xz, zstd or lzma archive");
       writeln("   f   Use archive file provided as argument");
       writeln;
       writeln("Example of a tar7 usage:");
