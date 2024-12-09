@@ -28,7 +28,9 @@
 
 include "filesys.s7i";
 include "gzip.s7i";
+include "bzip2.s7i";
 include "xz.s7i";
+include "zstd.s7i";
 include "tar.s7i";
 include "cpio.s7i";
 include "zip.s7i";
@@ -52,10 +54,22 @@ const func fileSys: openArchive (inout file: archiveFile) is func
         seek(archiveFile, 1);
         archiveFile := openGzipFile(archiveFile, READ);
       else
-        magicBytes &:= gets(archiveFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
-        seek(archiveFile, 1);
-        if magicBytes = XZ_MAGIC then
-          archiveFile := openXzFile(archiveFile);
+        magicBytes &:= gets(archiveFile, length(BZIP2_MAGIC) - length(GZIP_MAGIC));
+        if magicBytes = BZIP2_MAGIC then
+          seek(archiveFile, 1);
+          archiveFile := openBzip2File(archiveFile, READ);
+        else
+          magicBytes &:= gets(archiveFile, length(ZSTD_MAGIC) - length(BZIP2_MAGIC));
+          if magicBytes = ZSTD_MAGIC then
+            seek(archiveFile, 1);
+            archiveFile := openZstdFile(archiveFile);
+          else
+            magicBytes &:= gets(archiveFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
+            seek(archiveFile, 1);
+            if magicBytes = XZ_MAGIC then
+              archiveFile := openXzFile(archiveFile);
+            end if;
+          end if;
         end if;
       end if;
       archive := openTar(archiveFile);
