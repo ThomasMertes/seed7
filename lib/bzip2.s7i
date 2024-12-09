@@ -1,0 +1,855 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bzip2.s7i     Bzip2 compression support library                 *)
+(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bitdata.s7i";
+include "huffman.s7i";
+include "crc32.s7i";
+
+
+const string: BZIP2_MAGIC is "BZh";  # Identification for bzip2 format
+
+const integer: BZIP2_HEADER_SIZE is 4;
+
+const integer: BZIP2_BLOCK_HEADER_MAGIC is 16#314159265359;  # PI
+const integer: BZIP2_EOS_MAGIC          is 16#177245385090;  # sqrt(PI)
+
+const integer: BZIP2_MINIMUM_HUFFMAN_GROUPS is 2;
+const integer: BZIP2_MAXIMUM_HUFFMAN_GROUPS is 6;
+
+const integer: BZIP2_HUFFMAN_GROUP_SIZE is 50;
+const integer: BZIP2_MAXIMUM_HUFFMAN_CODE_LENGTH is 20;
+
+# The move-to-front algorithm uses an MTF array which is initialized
+# with the values from 0 to 255. Every decoded value is removed from
+# its place and moved to the beginning of the MTF array. As a
+# consequence the array elements below the former place of the decoded
+# value must be moved upward by one place. These movements cost
+# performance as they happen for every decoded value. To reduce the
+# moving effort a two level approach for the MTF array is used.
+#
+# The variable mtfData is used as MTF array. The 256 elements in
+# mftData are organized in blocks of 16 elements each. The elements
+# of the array mtfBlockStart are used to point to the start index of
+# the 16 blocks in mtfData.
+#
+# The initialization fills 256 places at the end of mtfData with the
+# values of 0 to 255. The rest of the 4096 elements in mtfData are 0
+# and used to speed up the movement. The actual movement is done
+# first in the current block of mtfData. Afterwards whole blocks are
+# moved downward by reducing mtfBlockStart values by one. During the
+# block movement elements are moved from the end of one block to the
+# beginning of the next block. Because of this downward block movement
+# mtfBlockStart will eventually point to the beginning of the mtfData
+# array. In this case the function moveMtfDataToTheEnd() moves all
+# blocks up to the 256 places at the end of mtfData.
+
+const integer: BZIP2_MTF_DATA_SIZE is 4096;
+const integer: BZIP2_MTF_BLOCK_SIZE is 16;
+const type: bzip2MtfBlockStartTable is array [0 .. 15] integer;
+const type: bzip2MtfDataType is array [0 .. pred(BZIP2_MTF_DATA_SIZE)] integer;
+
+# The values BZIP2_RUN_A and BZIP2_RUN_B are used to encode a repeatFactor.
+# The mapping is as follows (read the A/B encoding from left to right):
+#  1: A
+#  2: B
+#  3: AA
+#  4: BA
+#  5: AB
+#  6: BB
+#  7: AAA
+#  ...
+
+const integer: BZIP2_RUN_A is 0;  # Encodes: 1, 2, 4, 8, ...
+const integer: BZIP2_RUN_B is 1;  # Encodes: 2, 4, 8, 16, ...
+
+const type: bzip2DecoderArray      is array [0 ..] msbHuffmanDecoder;
+const type: bzip2SelectorArray     is array [0 ..] integer;
+const type: bzip2MapToUsedByteCode is array [0 .. 255] integer;
+const type: bzip2CodeFrequencies   is array [0 .. 255] integer;
+const type: bzip2NextByteIndex     is array [0 ..] integer;
+
+
+const type: bzip2Header is new struct
+    var string: magic is "";
+    var integer: hundredKBlockSize is 0;
+  end struct;
+
+
+const proc: showHeader (in bzip2Header: header) is func
+  begin
+    writeln("magic: " <& literal(header.magic));
+    writeln("hundredKBlockSize: " <& header.hundredKBlockSize);
+  end func;
+
+
+const func bzip2Header: readBzip2Header (in string: stri) is func
+  result
+    var bzip2Header: header is bzip2Header.value;
+  begin
+    if length(stri) >= BZIP2_HEADER_SIZE and
+        startsWith(stri, BZIP2_MAGIC) and stri[4] in {'0' .. '9'} then
+      header.magic := BZIP2_MAGIC;
+      header.hundredKBlockSize := ord(stri[4]) - ord('0');
+    end if;
+    # showHeader(header);
+  end func;
+
+
+const func bzip2Header: readBzip2Header (inout file: compressed) is func
+  result
+    var bzip2Header: header is bzip2Header.value;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(compressed, BZIP2_HEADER_SIZE);
+    if length(stri) = BZIP2_HEADER_SIZE and
+        startsWith(stri, BZIP2_MAGIC) and stri[4] in {'0' .. '9'} then
+      header.magic := BZIP2_MAGIC;
+      header.hundredKBlockSize := ord(stri[4]) - ord('0');
+    end if;
+    # showHeader(header);
+  end func;
+
+
+const type: bzip2BlockHeader is new struct
+    var integer: storedCrc is 0;       # Checksum for this block
+    var boolean: randomized is FALSE;  # 0=normal, 1=randomized (deprecated)
+    var integer: bwtStartIndex is 0;   # Starting index into BWT after inverse transform
+    var integer: huffmanGroups is 0;   # Number of different Huffman decoders in use
+    var integer: endOfData is 0;       # End of data symbol used by the Huffman decoder
+    var bzip2MapToUsedByteCode: mapToUsedByteCode is bzip2MapToUsedByteCode.value;
+  end struct;
+
+
+const proc: showHeader (in bzip2BlockHeader: blockHeader) is func
+  begin
+    writeln("storedCrc: " <& blockHeader.storedCrc);
+    writeln("randomized: " <& blockHeader.randomized);
+    writeln("bwtStartIndex: " <& blockHeader.bwtStartIndex);
+    writeln("huffmanGroups: " <& blockHeader.huffmanGroups);
+    writeln("endOfData: " <& blockHeader.endOfData);
+  end func;
+
+
+const proc: readMappingTable (inout msbInBitStream: compressedStream,
+    inout bzip2BlockHeader: blockHeader) is func
+  local
+    var integer: mapIndex is 0;
+    var bitset: huffmanUsedMap is bitset.value;
+    var integer: bitIndex is 0;
+    var integer: codesInUse is 0;
+  begin
+    for mapIndex range 0 to 15 do
+      if odd(getBit(compressedStream)) then
+        incl(huffmanUsedMap, mapIndex);
+      end if;
+    end for;
+
+    # Read the mapToUsedByteCode array
+    for mapIndex range 0 to 15 do
+      if mapIndex in huffmanUsedMap then
+        for bitIndex range 0 to 15 do
+          if odd(getBit(compressedStream)) then
+            blockHeader.mapToUsedByteCode[codesInUse] := mapIndex * 16 + bitIndex;
+            incr(codesInUse);
+          end if;
+        end for;
+      end if;
+    end for;
+    blockHeader.endOfData := codesInUse + 1;
+  end func;
+
+
+const proc: readHuffmanGroups (inout msbInBitStream: compressedStream,
+    inout bzip2BlockHeader: blockHeader) is func
+  begin
+    blockHeader.huffmanGroups := getBits(compressedStream, 3);
+    if blockHeader.huffmanGroups < BZIP2_MINIMUM_HUFFMAN_GROUPS or
+        blockHeader.huffmanGroups > BZIP2_MAXIMUM_HUFFMAN_GROUPS then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: bzip2HuffmanDecoder is new struct
+    var bzip2DecoderArray: decoderTable is bzip2DecoderArray.value;
+    var bzip2SelectorArray: selector is bzip2SelectorArray.value;
+  end struct;
+
+
+const type: bzip2DecoderState is new struct
+    var integer: selectorNumber is -1;
+    var integer: decoderTableIndex is 0;
+    var integer: symbolCountdown is 0;
+  end struct;
+
+
+const func integer: getHuffmanSymbol (inout msbInBitStream: compressedStream,
+    in bzip2HuffmanDecoder: decoder, inout bzip2DecoderState: state) is func
+  result
+    var integer: nextSym is 0;
+  begin
+    if state.symbolCountdown = 0 then
+      incr(state.selectorNumber);
+      state.decoderTableIndex := decoder.selector[state.selectorNumber];
+      state.symbolCountdown := BZIP2_HUFFMAN_GROUP_SIZE;
+    end if;
+    decr(state.symbolCountdown);
+    nextSym := getHuffmanSymbol(compressedStream, decoder.decoderTable[state.decoderTableIndex]);
+  end func;
+
+
+const proc: readSelectors (inout msbInBitStream: compressedStream,
+    in bzip2BlockHeader: blockHeader, inout bzip2HuffmanDecoder: decoder) is func
+  local
+    var integer: selectorsUsed is 0;
+    var bzip2SelectorArray: mtfSelectorList is bzip2SelectorArray.value;
+    var integer: index is 0;
+    var integer: selector is 0;
+    var array integer: mtfSelector is 0 times 0;
+    var integer: selectorIndex is 0;
+  begin
+    selectorsUsed := getBits(compressedStream, 15);
+    mtfSelectorList := bzip2SelectorArray[.. pred(selectorsUsed)] times 0;
+
+    for index range 0 to pred(selectorsUsed) do
+      selector := 0;
+      while odd(getBit(compressedStream)) do
+        incr(selector);
+      end while;
+      mtfSelectorList[index] := selector;
+    end for;
+
+    # Move-to-front decoding of mtfSelectorList
+    mtfSelector := [0 .. pred(blockHeader.huffmanGroups)] times 0;
+    for index range 1 to pred(blockHeader.huffmanGroups) do
+      mtfSelector[index] := index;
+    end for;
+    decoder.selector := bzip2SelectorArray[.. pred(selectorsUsed)] times 0;
+    for index range 0 to pred(selectorsUsed) do
+      selectorIndex := mtfSelectorList[index];
+      # Move mtfSelector[selectorIndex] to the front
+      selector := mtfSelector[selectorIndex];
+      while selectorIndex <> 0 do
+        mtfSelector[selectorIndex] := mtfSelector[pred(selectorIndex)];
+        decr(selectorIndex);
+      end while;
+      mtfSelector[0] := selector;
+      decoder.selector[index] := selector;
+    end for;
+  end func;
+
+
+const proc: readHuffmanDecoders (inout msbInBitStream: compressedStream,
+    in bzip2BlockHeader: blockHeader, inout bzip2HuffmanDecoder: decoder) is func
+  local
+    var integer: index is 0;
+    var integer: codeLength is 0;
+    var array integer: codeLengths is [0 .. -1] times 0;
+    var integer: symbol is 0;
+  begin
+    decoder.decoderTable :=
+        bzip2DecoderArray[.. pred(blockHeader.huffmanGroups)] times
+        msbHuffmanDecoder.value;
+    for index range 0 to pred(blockHeader.huffmanGroups) do
+      codeLength := getBits(compressedStream, 5);
+      if codeLength not in {1 .. BZIP2_MAXIMUM_HUFFMAN_CODE_LENGTH} then
+        raise RANGE_ERROR;
+      end if;
+      codeLengths := [0 .. blockHeader.endOfData] times 0;
+      for symbol range 0 to blockHeader.endOfData do
+        while odd(getBit(compressedStream)) do
+          if odd(getBit(compressedStream)) then
+            decr(codeLength);
+          else
+            incr(codeLength);
+          end if;
+        end while;
+        if codeLength not in {1 .. BZIP2_MAXIMUM_HUFFMAN_CODE_LENGTH} then
+          raise RANGE_ERROR;
+        end if;
+        codeLengths[symbol] := codeLength;
+      end for;
+      decoder.decoderTable[index] := createMsbHuffmanDecoder(codeLengths);
+    end for;
+  end func;
+
+
+##
+#  Initialize the MTF array.
+#  The initialization fills 256 places at the end of mtfData with the
+#  values 0 to 255. The rest of the elements in mtfData stays at 0.
+#  The 256 elements in mftData are organized in blocks of 16 elements
+#  each. The array mtfBlockStart is initialized to point to the start
+#  index of the 16 blocks in mtfData.
+#  @param mtfBlockStart Index to the start of a block in mtfData.
+#  @param mtfData Contains the MTF array in blocks of 16 elements.
+#
+const proc: initMoveToFront (inout bzip2MtfBlockStartTable: mtfBlockStart,
+    inout bzip2MtfDataType: mtfData) is func
+  local
+    var integer: blockNumber is 0;
+    var integer: index is 0;
+    var integer: dataIndex is pred(BZIP2_MTF_DATA_SIZE);
+  begin
+    for blockNumber range maxIdx(bzip2MtfBlockStartTable) downto 0 do
+      for index range pred(BZIP2_MTF_BLOCK_SIZE) downto 0 do
+        mtfData[dataIndex] := blockNumber * BZIP2_MTF_BLOCK_SIZE + index;
+        decr(dataIndex);
+      end for;
+      mtfBlockStart[blockNumber] := succ(dataIndex);
+    end for;
+  end func;
+
+
+##
+#  Move all MTF blocks up to 256 places at the end of mtfData.
+#  The rest of the data in mtfData stays unchanged. The 256 elements
+#  in mftData are organized in blocks of 16 elements each. The array
+#  mtfBlockStart is changed to point to the start index of the 16
+#  blocks in mtfData.
+#  @param mtfBlockStart Index to the start of a block in mtfData.
+#  @param mtfData Contains the MTF array in blocks of 16 elements.
+#
+const proc: moveMtfDataToTheEnd (inout bzip2MtfBlockStartTable: mtfBlockStart,
+    inout bzip2MtfDataType: mtfData) is func
+  local
+    var integer: blockNumber is 0;
+    var integer: srcBlockStart is 0;
+    var integer: destBlockStart is 0;
+    var integer: srcIdx is 0;
+    var integer: destIdx is 0;
+  begin
+    destBlockStart := BZIP2_MTF_DATA_SIZE - BZIP2_MTF_BLOCK_SIZE;
+    for blockNumber range maxIdx(bzip2MtfBlockStartTable) downto 0 do
+      srcBlockStart := mtfBlockStart[blockNumber];
+      if srcBlockStart < destBlockStart then
+        destIdx := pred(destBlockStart + BZIP2_MTF_BLOCK_SIZE);
+        for srcIdx range pred(srcBlockStart + BZIP2_MTF_BLOCK_SIZE)
+            downto srcBlockStart do
+          mtfData[destIdx] := mtfData[srcIdx];
+          decr(destIdx);
+        end for;
+      end if;
+      mtfBlockStart[blockNumber] := destBlockStart;
+      destBlockStart -:= BZIP2_MTF_BLOCK_SIZE;
+    end for;
+  end func;
+
+
+##
+#  Get the next code from the MTF encoded sequence.
+#  The element specified with mtfIndex in the MTF array is the result
+#  of the function. Additionally the element specified with mtfIndex
+#  is moved from its current position to the beginning of the MTF
+#  array. Before the value is inserted all elements below mtfIndex
+#  are moved up by one position.
+#  For performance reasons the data in mtfData is organized in 16
+#  blocks of 16 elements each. The array mtfBlockStart is used to
+#  point to the start index of the 16 blocks in mtfData. The actual
+#  movement is done first in the current block of mtfData. Afterwards
+#  whole blocks are moved downward by decrementing mtfBlockStart
+#  values by one. During the block movement elements are moved from
+#  the end of one block to the beginning of the next block.
+#  @param mtfIndex Index into the MTF array (range 1 .. 255).
+#  @param mtfBlockStart Index to the start of a block in mtfData.
+#  @param mtfData Contains the MTF array in blocks of 16 elements.
+#  @return the next code from the MTF encoded sequence.
+#
+const func integer: decodeMoveToFront (in integer: mtfIndex,
+    inout bzip2MtfBlockStartTable: mtfBlockStart,
+    inout bzip2MtfDataType: mtfData) is func
+  result
+    var integer: mtfCode is 0;
+  local
+    var integer: blockStart is 0;
+    var integer: dataIndex is 0;
+    var integer: blockNumber is 0;
+    var integer: blockOffset is 0;
+  begin
+    if mtfIndex < BZIP2_MTF_BLOCK_SIZE then
+      # Simple case where the move happens in block 0
+      blockStart := mtfBlockStart[0];
+      dataIndex := blockStart + mtfIndex;  # dataIndex > blockStart holds
+      mtfCode := mtfData[dataIndex];
+      # Move mtfIndex elements of the MTF block up by one position
+      repeat
+        mtfData[dataIndex] := mtfData[pred(dataIndex)];
+        decr(dataIndex);
+      until dataIndex = blockStart;
+      mtfData[blockStart] := mtfCode;
+    else
+      # General case where blocks need to be moved as well
+      blockNumber := mtfIndex div BZIP2_MTF_BLOCK_SIZE;
+      blockOffset := mtfIndex mod BZIP2_MTF_BLOCK_SIZE;
+      blockStart := mtfBlockStart[blockNumber];
+      dataIndex := blockStart + blockOffset;  # dataIndex >= blockStart holds
+      mtfCode := mtfData[dataIndex];
+      # Move blockOffset elements of the MTF block up by one position
+      while dataIndex <> blockStart do
+        mtfData[dataIndex] := mtfData[pred(dataIndex)];
+        decr(dataIndex);
+      end while;
+      # Move whole blocks
+      repeat
+        mtfData[mtfBlockStart[blockNumber]] := mtfData[
+                mtfBlockStart[pred(blockNumber)] + BZIP2_MTF_BLOCK_SIZE - 1];
+        decr(blockNumber);
+        decr(mtfBlockStart[blockNumber]);
+      until blockNumber = 0;
+      mtfData[mtfBlockStart[0]] := mtfCode;
+      if mtfBlockStart[0] = 0 then
+        moveMtfDataToTheEnd(mtfBlockStart, mtfData);
+      end if;
+    end if;
+  end func;
+
+
+##
+#  Process the input data from the compressed stream.
+#  The following things are done:
+#  - Huffman symbols are read from the compressed stream (->huffmanSymbol).
+#  - The reverse MTF (move-to-front) algorithm is applied (->mtfCode).
+#  - The mtfCode from the reverse MTF algorithm is mapped to a code (->code).
+#  - The RUN_A/RUN_B run-length encoding repeats the last code.
+#  - The code frequencies are computed and stored in codeFrequencies.
+#  @param compressedStream Compressed stream from which data is read.
+#  @param blockHeader BZIP2 block header.
+#  @param decoder The Huffman encoders together with the selector information.
+#  @param byteStri Byte string to be used for the inverse BWT transform.
+#  @param codeFrequencies Number of codes used for each possible byte code.
+#
+const proc: processInputData (inout msbInBitStream: compressedStream,
+    in bzip2BlockHeader: blockHeader, in bzip2HuffmanDecoder: decoder,
+    inout string: byteStri, inout bzip2CodeFrequencies: codeFrequencies) is func
+  local
+    var bzip2DecoderState: state is bzip2DecoderState.value;
+    var bzip2MtfBlockStartTable: mtfBlockStart is bzip2MtfBlockStartTable.value;
+    var bzip2MtfDataType: mtfData is bzip2MtfDataType.value;
+    var integer: huffmanSymbol is 0;
+    var integer: repeatFactor is 0;
+    var integer: bitPos is 0;
+    var integer: mtfCode is 0;
+    var integer: code is 0;
+  begin
+    initMoveToFront(mtfBlockStart, mtfData);
+    huffmanSymbol := getHuffmanSymbol(compressedStream, decoder, state);
+    while huffmanSymbol <> blockHeader.endOfData do
+      if huffmanSymbol <= BZIP2_RUN_B then
+        # Repeat the last code according to the RUN_A/RUN_B repeat factor
+        repeatFactor := 0;
+        bitPos := 0;
+        repeat
+          repeatFactor +:= succ(huffmanSymbol) << bitPos;
+          incr(bitPos);
+          huffmanSymbol := getHuffmanSymbol(compressedStream, decoder, state);
+        until huffmanSymbol > BZIP2_RUN_B;
+        codeFrequencies[code] +:= repeatFactor;
+        byteStri &:= str(char(code)) mult repeatFactor;
+      else  # huffmanSymbol in {2 .. 256} holds
+        # Move-to-front encoded data
+        mtfCode := decodeMoveToFront(pred(huffmanSymbol), mtfBlockStart, mtfData);
+        code := blockHeader.mapToUsedByteCode[mtfCode];
+        incr(codeFrequencies[code]);
+        byteStri &:= char(code);
+        huffmanSymbol := getHuffmanSymbol(compressedStream, decoder, state);
+      end if;
+    end while;
+  end func;
+
+
+##
+#  Create an array with the sum of code frequencies.
+#  Each element in the resulting array contains the sum of all
+#  code frequencies with lower codes.
+#   codeFrequencies:    2, 3, 7,  5,  4, ...
+#   codeFrequenciesSum: 0, 2, 5, 12, 17, ...
+#  The sum of code frequencies is used in the inverse BWT transform.
+#
+const func bzip2CodeFrequencies: computeFrequenciesSum (
+    in bzip2CodeFrequencies: codeFrequencies) is func
+  result
+    var bzip2CodeFrequencies: codeFrequenciesSum is bzip2CodeFrequencies.value;
+  local
+    var integer: index is 0;
+    var integer: codeFrequency is 0;
+    var integer: sumOfFrequencies is 0;
+  begin
+    for codeFrequency key index range codeFrequencies do
+      codeFrequenciesSum[index] := sumOfFrequencies;
+      sumOfFrequencies +:= codeFrequency;
+    end for;
+  end func;
+
+
+const func bzip2NextByteIndex: inverseBurrowsWheelerTransform (in string: byteStri,
+    in bzip2CodeFrequencies: codeFrequencies) is func
+  result
+    var bzip2NextByteIndex: nextByteIndex is bzip2NextByteIndex.value;
+  local
+    var bzip2CodeFrequencies: codeFrequenciesSum is bzip2CodeFrequencies.value;
+    var char: aByte is ' ';
+    var integer: byteIndex is 0;
+    var integer: index is 0;
+  begin
+    codeFrequenciesSum := computeFrequenciesSum(codeFrequencies);
+    nextByteIndex := bzip2NextByteIndex[.. pred(length(byteStri))] times 0;
+    for aByte range byteStri do
+      index := codeFrequenciesSum[ord(aByte)];
+      incr(codeFrequenciesSum[ord(aByte)]);
+      nextByteIndex[index] := byteIndex;
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+##
+#  Get the next byte from the BWT encoded sequence in byteStri.
+#  The currentByteIndex is advanced to the next position.
+#  The BWT encoded data is a closed cycle. The end of the data is
+#  reached if currentByteIndex is advanced to the first position
+#  again.
+#
+const func char: getBwtByte (in string: byteStri,
+    in bzip2NextByteIndex: nextByteIndex, inout integer: currentByteIndex) is func
+  result
+    var char: aByte is ' ';
+  begin
+    aByte := byteStri[succ(currentByteIndex)];
+    currentByteIndex := nextByteIndex[currentByteIndex];
+  end func;
+
+
+##
+#  Decode the run-length encoded data.
+#  A sequence of 4 identical bytes introduces a run-length encoding.
+#  The 4 bytes are followed by a byte with a repeat factor.
+#  The repeat factor determines how often the introducing byte
+#  needs to be repeated additionally to the 4 introducing bytes.
+#
+const func string: runLengthDecoding (in string: byteStri,
+    in bzip2NextByteIndex: nextByteIndex, in integer: bwtStartIndex) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: currentByteIndex is 0;
+    var integer: endByteIndex is 0;
+    var char: aByte is ' ';
+    var char: previousByte is ' ';
+    var integer: runLength is 0;
+  begin
+    currentByteIndex := nextByteIndex[bwtStartIndex];
+    endByteIndex := currentByteIndex;
+    if byteStri <> "" then
+      previousByte := getBwtByte(byteStri, nextByteIndex, currentByteIndex);
+      if currentByteIndex <> endByteIndex then
+        repeat
+          aByte := getBwtByte(byteStri, nextByteIndex, currentByteIndex);
+          while aByte <> previousByte and currentByteIndex <> endByteIndex do
+            uncompressed &:= previousByte;
+            previousByte := aByte;
+            aByte := getBwtByte(byteStri, nextByteIndex, currentByteIndex);
+          end while;
+          if currentByteIndex = endByteIndex then
+            uncompressed &:= previousByte;
+            uncompressed &:= aByte;
+          else
+            runLength := 2;
+            repeat
+              aByte := getBwtByte(byteStri, nextByteIndex, currentByteIndex);
+              incr(runLength);
+            until aByte <> previousByte or runLength = 4 or currentByteIndex = endByteIndex;
+            if aByte <> previousByte then
+              uncompressed &:= str(previousByte) mult pred(runLength);
+              if currentByteIndex = endByteIndex then
+                uncompressed &:= aByte;
+              else
+                previousByte := aByte;
+              end if;
+            elsif currentByteIndex <> endByteIndex then
+              runLength +:= ord(getBwtByte(byteStri, nextByteIndex, currentByteIndex));
+              uncompressed &:= str(previousByte) mult runLength;
+              if currentByteIndex <> endByteIndex then
+                previousByte := getBwtByte(byteStri, nextByteIndex, currentByteIndex);
+              end if;
+            else
+              uncompressed &:= str(previousByte) mult runLength;
+            end if;
+          end if;
+        until currentByteIndex = endByteIndex;
+      else
+        uncompressed &:= previousByte;
+      end if;
+    end if;
+  end func;
+
+
+const func string: decompressBzip2Block (inout msbInBitStream: compressedStream) is func
+  result
+    var string: uncompressed is "";
+  local
+    var bzip2BlockHeader: blockHeader is bzip2BlockHeader.value;
+    var bzip2HuffmanDecoder: decoder is bzip2HuffmanDecoder.value;
+    var string: byteStri is "";
+    var bzip2CodeFrequencies: codeFrequencies is bzip2CodeFrequencies.value;
+    var bzip2NextByteIndex: nextByteIndex is bzip2NextByteIndex.value;
+  begin
+    blockHeader.storedCrc := getBits(compressedStream, 32);
+    blockHeader.randomized := odd(getBit(compressedStream));
+    blockHeader.bwtStartIndex := getBits(compressedStream, 24);
+    readMappingTable(compressedStream, blockHeader);
+    readHuffmanGroups(compressedStream, blockHeader);
+    readSelectors(compressedStream, blockHeader, decoder);
+    readHuffmanDecoders(compressedStream, blockHeader, decoder);
+    processInputData(compressedStream, blockHeader, decoder, byteStri, codeFrequencies);
+    nextByteIndex := inverseBurrowsWheelerTransform(byteStri, codeFrequencies);
+    uncompressed := runLengthDecoding(byteStri, nextByteIndex, blockHeader.bwtStartIndex);
+    if blockHeader.storedCrc <> ord(bzip2Crc32(uncompressed)) then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: bzip2Decompress (in string: stri) is func
+  result
+    var string: uncompressed is "";
+  local
+    var bzip2Header: header is bzip2Header.value;
+    var msbInBitStream: compressedStream is msbInBitStream.value;
+    var integer: blockMagic is 0;
+  begin
+    header := readBzip2Header(stri);
+    if header.magic = BZIP2_MAGIC then
+      compressedStream := openMsbInBitStream(stri);
+      ignore(gets(compressedStream, 4));
+      blockMagic := getBits(compressedStream, 32) << 16 +
+                    getBits(compressedStream, 16);
+      while blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+        uncompressed &:= decompressBzip2Block(compressedStream);
+        blockMagic := getBits(compressedStream, 32) << 16 +
+                      getBits(compressedStream, 16);
+      end while;
+      if blockMagic <> BZIP2_EOS_MAGIC then
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  [[file|File]] implementation type to decompress a BZIP2 file.
+ *  BZIP2 is a file format used for compression.
+ *)
+const type: bzip2File is sub null_file struct
+    var msbInBitStream: compressedStream is msbInBitStream.value;
+    var integer: blockMagic is 0;
+    var string: uncompressed is "";
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(bzip2File, file);
+
+
+(**
+ *  Open a BZIP2 file for reading (decompression).
+ *  BZIP2 is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in BZIP2 format.
+ *)
+const func file: openBzip2File (inout file: compressed, READ) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var bzip2Header: header is bzip2Header.value;
+    var bzip2File: new_bzip2File is bzip2File.value;
+  begin
+    header := readBzip2Header(compressed);
+    if header.magic = BZIP2_MAGIC then
+      new_bzip2File.compressedStream := openMsbInBitStream(compressed);
+      new_bzip2File.blockMagic :=
+          getBits(new_bzip2File.compressedStream, 32) << 16 +
+          getBits(new_bzip2File.compressedStream, 16);
+      newFile := toInterface(new_bzip2File);
+    end if;
+  end func;
+
+
+(**
+ *  Close a ''bzip2File''.
+ *)
+const proc: close (in bzip2File: aFile) is noop;
+
+
+(**
+ *  Read a character from a ''bzip2File''.
+ *  @return the character read.
+ *)
+const func char: getc (inout bzip2File: inFile) is func
+  result
+    var char: charRead is ' ';
+  begin
+    while inFile.position > length(inFile.uncompressed) and
+        inFile.blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+      inFile.uncompressed &:= decompressBzip2Block(inFile.compressedStream);
+      inFile.blockMagic := getBits(inFile.compressedStream, 32) << 16 +
+                           getBits(inFile.compressedStream, 16);
+    end while;
+    if inFile.position <= length(inFile.uncompressed) then
+      charRead := inFile.uncompressed[inFile.position];
+      incr(inFile.position);
+    elsif inFile.blockMagic <> BZIP2_EOS_MAGIC then
+      raise RANGE_ERROR;
+    else
+      charRead := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a string with maximum length from a ''bzip2File''.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout bzip2File: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      while maxLength > succ(length(inFile.uncompressed) - inFile.position) and
+          inFile.blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+        inFile.uncompressed &:= decompressBzip2Block(inFile.compressedStream);
+        inFile.blockMagic := getBits(inFile.compressedStream, 32) << 16 +
+                             getBits(inFile.compressedStream, 16);
+      end while;
+      if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
+        striRead := inFile.uncompressed[inFile.position fixLen maxLength];
+        inFile.position +:= maxLength;
+      elsif inFile.blockMagic <> BZIP2_EOS_MAGIC then
+        raise RANGE_ERROR;
+      else
+        striRead := inFile.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.uncompressed));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in bzip2File: inFile) is
+  return inFile.position > length(inFile.uncompressed) and
+         inFile.blockMagic <> BZIP2_BLOCK_HEADER_MAGIC;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *)
+const func boolean: hasNext (inout bzip2File: inFile) is func
+  result
+    var boolean: hasNext is FALSE;
+  begin
+    while inFile.position > length(inFile.uncompressed) and
+        inFile.blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+      inFile.uncompressed &:= decompressBzip2Block(inFile.compressedStream);
+      inFile.blockMagic := getBits(inFile.compressedStream, 32) << 16 +
+                           getBits(inFile.compressedStream, 16);
+    end while;
+    if inFile.blockMagic <> BZIP2_EOS_MAGIC then
+      raise RANGE_ERROR;
+    else
+      hasNext := inFile.position <= length(inFile.uncompressed);
+    end if;
+  end func;
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *)
+const func integer: length (inout bzip2File: aFile) is func
+  result
+    var integer: length is 0;
+  begin
+    while aFile.blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+      aFile.uncompressed &:= decompressBzip2Block(aFile.compressedStream);
+      aFile.blockMagic := getBits(aFile.compressedStream, 32) << 16 +
+                          getBits(aFile.compressedStream, 16);
+    end while;
+    if aFile.blockMagic <> BZIP2_EOS_MAGIC then
+      raise RANGE_ERROR;
+    else
+      length := length(aFile.uncompressed);
+    end if;
+  end func;
+
+
+(**
+ *  Determine if the file ''aFile'' is seekable.
+ *  If a file is seekable the functions ''seek'' and ''tell''
+ *  can be used to set and and obtain the current file position.
+ *  @return TRUE, since a ''bzip2File'' is seekable.
+ *)
+const boolean: seekable (in bzip2File: aFile) is TRUE;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *)
+const proc: seek (inout bzip2File: aFile, in integer: position) is func
+  begin
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      aFile.position := position;
+    end if;
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in bzip2File: aFile) is
+  return aFile.position;
