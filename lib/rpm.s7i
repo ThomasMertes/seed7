@@ -37,6 +37,7 @@ include "gzip.s7i";
 include "lzma.s7i";
 include "xz.s7i";
 include "zstd.s7i";
+include "bzip2.s7i";
 include "cpio.s7i";
 include "archive_base.s7i";
 include "magic.s7i";
@@ -2008,10 +2009,11 @@ const proc: getArchive (inout rpmArchive: rpm) is func
         compressor := getStriValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADCOMPRESSOR]);
         # writeln("compressor: " <& compressor);
         case compressor of
-          when {"gzip"}: payload := openGzipFile(rpm.rpmFile, READ);
-          when {"lzma"}: payload := openLzmaFile(rpm.rpmFile);
-          when {"xz"}:   payload := openXzFile(rpm.rpmFile);
-          when {"zstd"}: payload := openZstdFile(rpm.rpmFile);
+          when {"gzip"}:  payload := openGzipFile(rpm.rpmFile, READ);
+          when {"lzma"}:  payload := openLzmaFile(rpm.rpmFile);
+          when {"xz"}:    payload := openXzFile(rpm.rpmFile);
+          when {"zstd"}:  payload := openZstdFile(rpm.rpmFile);
+          when {"bzip2"}: payload := openBzip2File(rpm.rpmFile, READ);
         end case;
       end if;
       if payload <> STD_NULL then
