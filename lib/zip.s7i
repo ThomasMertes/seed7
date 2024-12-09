@@ -30,6 +30,7 @@ include "stdio.s7i";
 include "inflate.s7i";
 include "deflate.s7i";
 include "lzw.s7i";
+include "bzip2.s7i";
 include "lzma.s7i";
 include "zstd.s7i";
 include "xz.s7i";
@@ -71,6 +72,7 @@ const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 const integer: ZIP_STORE   is  0;  # The file is stored (no compression).
 const integer: ZIP_SHRINK  is  1;  # The file is shrunk.
 const integer: ZIP_DEFLATE is  8;  # The file is deflated.
+const integer: ZIP_BZIP2   is 12;  # The file is compressed with BZIP2.
 const integer: ZIP_LZMA    is 14;  # The file is compressed with LZMA.
 const integer: ZIP_ZSTD    is 93;  # The file is compressed with Zstandard.
 const integer: ZIP_XZ      is 95;  # The file is compressed with XZ.
@@ -2249,6 +2251,8 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
               content := gets(zip.zipFile, localHeader.compressed_size);
               content := inflate(content);
             end if;
+          when {ZIP_BZIP2}:
+            content := bzip2Decompress(gets(zip.zipFile, localHeader.compressed_size));
           when {ZIP_LZMA}:
             content := lzmaDecompress(zip.zipFile, localHeader.uncompressed_size);
           when {ZIP_ZSTD}:
