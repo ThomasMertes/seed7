@@ -543,6 +543,15 @@ const func integer: lowestSetBit (in integer: number)            is action "INT_
  *  optional + or - sign, followed by a sequence of digits. Other
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
+ *   integer("12345")                returns 12345
+ *   integer("-12345")               returns -12345
+ *   integer("+12345")               returns 12345
+ *   integer(" 12345")               raises RANGE_ERROR
+ *   integer("12345 ")               raises RANGE_ERROR
+ *   integer("-")                    raises RANGE_ERROR
+ *   integer("zero")                 raises RANGE_ERROR
+ *   integer("9223372036854775807")  returns 9223372036854775807
+ *   integer("9223372036854775808")  raises RANGE_ERROR
  *  @return the ''integer'' result of the conversion.
  *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal or if the integer literal is too big
@@ -557,6 +566,15 @@ const func integer: integer (in string: stri)                    is action "INT_
  *  optional + or - sign, followed by a sequence of digits. Other
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
+ *   integer parse "12345"                returns 12345
+ *   integer parse "-12345"               returns -12345
+ *   integer parse "+12345"               returns 12345
+ *   integer parse " 12345"               raises RANGE_ERROR
+ *   integer parse "12345 "               raises RANGE_ERROR
+ *   integer parse "-"                    raises RANGE_ERROR
+ *   integer parse "zero"                 raises RANGE_ERROR
+ *   integer parse "9223372036854775807"  returns 9223372036854775807
+ *   integer parse "9223372036854775808"  raises RANGE_ERROR
  *  @return the ''integer'' result of the conversion.
  *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal or if the integer literal is too big

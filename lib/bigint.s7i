@@ -466,6 +466,15 @@ const func string: (in var bigInteger: number) RADIX (in integer: base)  is acti
  *  optional + or - sign, followed by a sequence of digits. Other
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
+ *   bigInteger("12345")                returns 12345_
+ *   bigInteger("-12345")               returns -12345_
+ *   bigInteger("+12345")               returns 12345_
+ *   bigInteger(" 12345")               raises RANGE_ERROR
+ *   bigInteger("12345 ")               raises RANGE_ERROR
+ *   bigInteger("-")                    raises RANGE_ERROR
+ *   bigInteger("zero")                 raises RANGE_ERROR
+ *   bigInteger("9223372036854775807")  returns 9223372036854775807_
+ *   bigInteger("9223372036854775808")  returns 9223372036854775808_
  *  @return the ''bigInteger'' result of the conversion.
  *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal.
@@ -481,6 +490,15 @@ const func bigInteger: bigInteger (in string: stri)                      is acti
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''bigInteger'' result of the conversion.
+ *   bigInteger parse "12345"                returns 12345_
+ *   bigInteger parse "-12345"               returns -12345_
+ *   bigInteger parse "+12345"               returns 12345_
+ *   bigInteger parse " 12345"               raises RANGE_ERROR
+ *   bigInteger parse "12345 "               raises RANGE_ERROR
+ *   bigInteger parse "-"                    raises RANGE_ERROR
+ *   bigInteger parse "zero"                 raises RANGE_ERROR
+ *   bigInteger parse "9223372036854775807"  returns 9223372036854775807_
+ *   bigInteger parse "9223372036854775808"  returns 9223372036854775808_
  *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
