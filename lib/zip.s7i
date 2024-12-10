@@ -1349,7 +1349,7 @@ const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath) is
         when {ZIP_HOST_SYSTEM_MS_DOS}:
           mode := {READ_USER, READ_GROUP, READ_OTHER};
           if bin32(header.external_file_attributes) & FAT_READ_ONLY = bin32(0) then
-            mode |:= {WRITE_USER, WRITE_GROUP, WRITE_OTHER};
+            mode |:= {WRITE_USER};
           end if;
           if bin32(header.external_file_attributes) & FAT_DIRECTORY <> bin32(0) then
             mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
@@ -1365,7 +1365,7 @@ const func fileMode: getFileMode (inout zipArchive: zip, in string: filePath) is
           mode := fileMode((header.external_file_attributes >> 16) mod 8#1000);
         otherwise:
           mode := {READ_USER, READ_GROUP, READ_OTHER,
-                   WRITE_USER, WRITE_GROUP, WRITE_OTHER};
+                   WRITE_USER};
           if endsWith(header.file_name, "/") then
             mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
           end if;
