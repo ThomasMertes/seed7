@@ -442,7 +442,7 @@ const proc: archiveXtract (inout fileSys: archive, in array string: memberList,
       end if;
     end for;
     for index range length(dirPathList) downto 1 do
-      setFileMode(dirPathList[index], getFileMode(archive, filePath));
+      setFileMode(dirPathList[index], getFileMode(archive, dirPathList[index]));
       setMTime(dirPathList[index], getMTime(archive, dirPathList[index]));
     end for;
   end func;
