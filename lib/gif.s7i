@@ -490,7 +490,7 @@ const proc: getImage (inout gifData: gif) is func
           when {GIF_COMMENT_EXTENSION, GIF_PLAIN_TEXT_EXTENSION}:
             ignore(readSubBlockSeries(gif.gifFile));
           otherwise: # Unknown extension
-            raise RANGE_ERROR;
+            ignore(readSubBlockSeries(gif.gifFile));
         end case;
       elsif gif.sentinel = GIF_IMAGE_SENTINEL then
         gif.delayTime := graphicsExtension.delayTime;
