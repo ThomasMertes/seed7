@@ -54,7 +54,6 @@ const func string: getJsonString (inout string: stri) is func
     var integer: leng is 0;
     var integer: startPos is 2;
     var integer: pos is 2;
-    var integer: charValue is 0;
   begin
     leng := length(stri);
     repeat
@@ -69,24 +68,12 @@ const func string: getJsonString (inout string: stri) is func
         incr(pos);
         if pos <= leng then
           case stri[pos] of
-            when {'"', '\\', '/'}:
-              symbol &:= stri[pos];
-              incr(pos);
-            when {'b'}:
-              symbol &:= "\b";
-              incr(pos);
-            when {'f'}:
-              symbol &:= "\f";
-              incr(pos);
-            when {'n'}:
-              symbol &:= "\n";
-              incr(pos);
-            when {'r'}:
-              symbol &:= "\r";
-              incr(pos);
-            when {'t'}:
-              symbol &:= "\t";
-              incr(pos);
+            when {'"', '\\', '/'}: symbol &:= stri[pos]; incr(pos);
+            when {'b'}: symbol &:= "\b"; incr(pos);
+            when {'f'}: symbol &:= "\f"; incr(pos);
+            when {'n'}: symbol &:= "\n"; incr(pos);
+            when {'r'}: symbol &:= "\r"; incr(pos);
+            when {'t'}: symbol &:= "\t"; incr(pos);
             when {'u'}:
               if pos + 4 <= leng then
                 symbol &:= char(integer(stri[succ(pos) fixLen 4], 16));
@@ -101,7 +88,7 @@ const func string: getJsonString (inout string: stri) is func
           raise RANGE_ERROR;
         end if;
       end if;
-    until pos <= leng and stri[pos] = '\"';
+    until pos <= leng and stri[pos] = '"';
     symbol &:= '"';
     stri := stri[succ(pos) ..];
   end func;
@@ -173,7 +160,7 @@ const func string: getJsonString (inout file: inFile) is func
             raise RANGE_ERROR;
         end case;
       end if;
-    until character = '\"';
+    until character = '"';
     symbol &:= '"';
     inFile.bufferChar := getc(inFile);
   end func;
