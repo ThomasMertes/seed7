@@ -365,18 +365,6 @@ const func integer: pointerYPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_PO
 const proc: setPointerPos (in PRIMITIVE_WINDOW: aWindow,
                            in integer: xPos, in integer: yPos) is action "DRW_SET_POINTER_POS";
 
-const proc: SET_CLOSE_ACTION (in PRIMITIVE_WINDOW: aWindow, in integer: closeAction) is action "DRW_SET_CLOSE_ACTION";
-
-const type: windowCloseAction is new enum
-    CLOSE_PROGRAM, RETURN_KEY, RAISE_EXCEPTION
-  end enum;
-
-# The function setCloseAction() is deprecated. Use selectInput() instead.
-# Replace setCloseAction(aWindow, RETURN_KEY) with selectInput(aWindow, KEY_CLOSE, TRUE).
-# The possibility to raise an exception is not supported by selectInput().
-const proc: setCloseAction (in PRIMITIVE_WINDOW: aWindow, in windowCloseAction: closeAction) is
-  return SET_CLOSE_ACTION(aWindow, ord(closeAction));
-
 
 (**
  *  Select if ''aKey'' is returned as key, or if it triggers a default action.
