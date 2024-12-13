@@ -133,21 +133,11 @@ const func string: getJsonString (inout file: inFile) is func
           when {'"', '\\', '/'}:
             symbol &:= character;
             character := getc(inFile);
-          when {'b'}:
-            symbol &:= "\b";
-            character := getc(inFile);
-          when {'f'}:
-            symbol &:= "\f";
-            character := getc(inFile);
-          when {'n'}:
-            symbol &:= "\n";
-            character := getc(inFile);
-          when {'r'}:
-            symbol &:= "\r";
-            character := getc(inFile);
-          when {'t'}:
-            symbol &:= "\t";
-            character := getc(inFile);
+          when {'b'}: symbol &:= "\b"; character := getc(inFile);
+          when {'f'}: symbol &:= "\f"; character := getc(inFile);
+          when {'n'}: symbol &:= "\n"; character := getc(inFile);
+          when {'r'}: symbol &:= "\r"; character := getc(inFile);
+          when {'t'}: symbol &:= "\t"; character := getc(inFile);
           when {'u'}:
             fourBytes := gets(inFile, 4);
             if length(fourBytes) = 4 then
