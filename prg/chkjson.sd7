@@ -100,8 +100,18 @@ const func boolean: getJsonStringOkay (in string: initialStri,
   begin
     stri := initialStri;
     symbol := getJsonString(stri);
-    okay := symbol = expectedSymbol and stri = finalStri;
-    if okay then
+    if symbol <> expectedSymbol then
+      writeln(" ***** getJsonString(stri) with " <&
+              literal(initialStri) <& " returns "
+              <& literal(symbol) <& " instead of " <&
+              literal(expectedSymbol) <& ".");
+      okay := FALSE;
+    elsif stri <> finalStri then
+      writeln(" ***** After getJsonString(stri) stri is " <&
+              literal(stri) <& " instead of " <& literal(finalStri) <&
+              ".");
+      okay := FALSE;
+    else
       if finalStri = "" then
         expectedBuffer := EOF;
       else
@@ -109,8 +119,20 @@ const func boolean: getJsonStringOkay (in string: initialStri,
       end if;
       aFile := initScan(initialStri);
       symbol := getJsonString(aFile);
-      okay := symbol = expectedSymbol and aFile.bufferChar = expectedBuffer;
-      if okay and expectedBuffer = EOF and not eof(aFile) then
+      if symbol <> expectedSymbol then
+        writeln(" ***** getJsonString(file) with " <&
+                literal(initialStri) <& " returns " <&
+                literal(symbol) <& " instead of " <&
+                literal(expectedSymbol) <& ".");
+        okay := FALSE;
+      elsif aFile.bufferChar <> expectedBuffer then
+        writeln(" ***** After getJsonString(file) bufferChar is " <&
+                literal(aFile.bufferChar) <& " instead of " <&
+                literal(expectedBuffer) <& ".");
+        okay := FALSE;
+      elsif expectedBuffer = EOF and not eof(aFile) then
+        writeln(" ***** After getJsonString(file) bufferChar is \
+                \EOF but eof() returns FALSE.");
         okay := FALSE;
       end if;
     end if;
@@ -125,10 +147,17 @@ const func boolean: getJsonStringRaisesRangeError (in string: initialStri) is fu
     var file: aFile is STD_NULL;
   begin
     stri := initialStri;
-    okay := raisesRangeError(getJsonString(stri));
-    if okay then
+    if not raisesRangeError(getJsonString(stri)) then
+      writeln(" ***** getJsonString(stri) with " <&
+              literal(initialStri) <& " does not raise RANGE_ERROR.");
+      okay := FALSE;
+    else
       aFile := initScan(initialStri);
-      okay := raisesRangeError(getJsonString(aFile));
+      if not raisesRangeError(getJsonString(aFile)) then
+        writeln(" ***** getJsonString(file) with " <&
+                literal(initialStri) <& " does not raise RANGE_ERROR.");
+        okay := FALSE;
+      end if;
     end if;
   end func;
 
@@ -292,719 +321,422 @@ const proc: checkGetJsonString is func
   end func;
 
 
-const func boolean: checkGetJsonNumber1 is func
+const func boolean: getJsonNumberOkay (in string: initialStri,
+    in string: expectedSymbol, in string: finalStri) is func
   result
     var boolean: okay is TRUE;
   local
-    var boolean: ok is TRUE;
     var string: stri is "";
+    var string: symbol is "";
+    var file: aFile is STD_NULL;
+    var char: expectedBuffer is ' ';
   begin
-    stri := "12";     ok := ok and getJsonNumber(stri) = "12"     and stri = "";
-    stri := "123*2";  ok := ok and getJsonNumber(stri) = "123"    and stri = "*2";
-    stri := "-2+3";   ok := ok and getJsonNumber(stri) = "-2"     and stri = "+3";
-    stri := "-01";    ok := ok and getJsonNumber(stri) = "-0"     and stri = "1";
-    stri := "1x";     ok := ok and getJsonNumber(stri) = "1"      and stri = "x";
-    stri := "1.0+";   ok := ok and getJsonNumber(stri) = "1.0"    and stri = "+";
-    stri := "1.0E1-"; ok := ok and getJsonNumber(stri) = "1.0E1"  and stri = "-";
-    stri := "1.0e-1"; ok := ok and getJsonNumber(stri) = "1.0e-1" and stri = "";
-    stri := "1e2y";   ok := ok and getJsonNumber(stri) = "1e2"    and stri = "y";
-    stri := "1E+3z";  ok := ok and getJsonNumber(stri) = "1E+3"   and stri = "z";
-    stri := "1234_/"; ok := ok and getJsonNumber(stri) = "1234"   and stri = "_/";
-    if not ok then
-      writeln(" ***** getJsonNumber(aString) does not work as expected. (1)");
+    stri := initialStri;
+    symbol := getJsonNumber(stri);
+    if symbol <> expectedSymbol then
+      writeln(" ***** getJsonNumber(stri) with " <&
+              literal(initialStri) <& " returns " <&
+              literal(symbol) <& " instead of " <&
+              literal(expectedSymbol) <& ".");
       okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "0";       ok := ok and getJsonNumber(stri) = "0"       and stri = "";
-    stri := "0.0";     ok := ok and getJsonNumber(stri) = "0.0"     and stri = "";
-    stri := "0.0e1";   ok := ok and getJsonNumber(stri) = "0.0e1"   and stri = "";
-    stri := "0.0e+1";  ok := ok and getJsonNumber(stri) = "0.0e+1"  and stri = "";
-    stri := "0.0e-1";  ok := ok and getJsonNumber(stri) = "0.0e-1"  and stri = "";
-    stri := "0.0E1";   ok := ok and getJsonNumber(stri) = "0.0E1"   and stri = "";
-    stri := "0.0E+1";  ok := ok and getJsonNumber(stri) = "0.0E+1"  and stri = "";
-    stri := "0.0E-1";  ok := ok and getJsonNumber(stri) = "0.0E-1"  and stri = "";
-    stri := "0e1";     ok := ok and getJsonNumber(stri) = "0e1"     and stri = "";
-    stri := "0e+1";    ok := ok and getJsonNumber(stri) = "0e+1"    and stri = "";
-    stri := "0e-1";    ok := ok and getJsonNumber(stri) = "0e-1"    and stri = "";
-    stri := "0E1";     ok := ok and getJsonNumber(stri) = "0E1"     and stri = "";
-    stri := "0E+1";    ok := ok and getJsonNumber(stri) = "0E+1"    and stri = "";
-    stri := "0E-1";    ok := ok and getJsonNumber(stri) = "0E-1"    and stri = "";
-    stri := "1";       ok := ok and getJsonNumber(stri) = "1"       and stri = "";
-    stri := "1.0";     ok := ok and getJsonNumber(stri) = "1.0"     and stri = "";
-    stri := "1.0e1";   ok := ok and getJsonNumber(stri) = "1.0e1"   and stri = "";
-    stri := "1.0e+1";  ok := ok and getJsonNumber(stri) = "1.0e+1"  and stri = "";
-    stri := "1.0e-1";  ok := ok and getJsonNumber(stri) = "1.0e-1"  and stri = "";
-    stri := "1.0E1";   ok := ok and getJsonNumber(stri) = "1.0E1"   and stri = "";
-    stri := "1.0E+1";  ok := ok and getJsonNumber(stri) = "1.0E+1"  and stri = "";
-    stri := "1.0E-1";  ok := ok and getJsonNumber(stri) = "1.0E-1"  and stri = "";
-    stri := "1e1";     ok := ok and getJsonNumber(stri) = "1e1"     and stri = "";
-    stri := "1e+1";    ok := ok and getJsonNumber(stri) = "1e+1"    and stri = "";
-    stri := "1e-1";    ok := ok and getJsonNumber(stri) = "1e-1"    and stri = "";
-    stri := "1E1";     ok := ok and getJsonNumber(stri) = "1E1"     and stri = "";
-    stri := "1E+1";    ok := ok and getJsonNumber(stri) = "1E+1"    and stri = "";
-    stri := "1E-1";    ok := ok and getJsonNumber(stri) = "1E-1"    and stri = "";
-    stri := "9";       ok := ok and getJsonNumber(stri) = "9"       and stri = "";
-    stri := "9.0";     ok := ok and getJsonNumber(stri) = "9.0"     and stri = "";
-    stri := "9.0e1";   ok := ok and getJsonNumber(stri) = "9.0e1"   and stri = "";
-    stri := "9.0e+1";  ok := ok and getJsonNumber(stri) = "9.0e+1"  and stri = "";
-    stri := "9.0e-1";  ok := ok and getJsonNumber(stri) = "9.0e-1"  and stri = "";
-    stri := "9.0E1";   ok := ok and getJsonNumber(stri) = "9.0E1"   and stri = "";
-    stri := "9.0E+1";  ok := ok and getJsonNumber(stri) = "9.0E+1"  and stri = "";
-    stri := "9.0E-1";  ok := ok and getJsonNumber(stri) = "9.0E-1"  and stri = "";
-    stri := "9e1";     ok := ok and getJsonNumber(stri) = "9e1"     and stri = "";
-    stri := "9e+1";    ok := ok and getJsonNumber(stri) = "9e+1"    and stri = "";
-    stri := "9e-1";    ok := ok and getJsonNumber(stri) = "9e-1"    and stri = "";
-    stri := "9E1";     ok := ok and getJsonNumber(stri) = "9E1"     and stri = "";
-    stri := "9E+1";    ok := ok and getJsonNumber(stri) = "9E+1"    and stri = "";
-    stri := "9E-1";    ok := ok and getJsonNumber(stri) = "9E-1"    and stri = "";
-    stri := "-0";      ok := ok and getJsonNumber(stri) = "-0"      and stri = "";
-    stri := "-0.0";    ok := ok and getJsonNumber(stri) = "-0.0"    and stri = "";
-    stri := "-0.0e1";  ok := ok and getJsonNumber(stri) = "-0.0e1"  and stri = "";
-    stri := "-0.0e+1"; ok := ok and getJsonNumber(stri) = "-0.0e+1" and stri = "";
-    stri := "-0.0e-1"; ok := ok and getJsonNumber(stri) = "-0.0e-1" and stri = "";
-    stri := "-0.0E1";  ok := ok and getJsonNumber(stri) = "-0.0E1"  and stri = "";
-    stri := "-0.0E+1"; ok := ok and getJsonNumber(stri) = "-0.0E+1" and stri = "";
-    stri := "-0.0E-1"; ok := ok and getJsonNumber(stri) = "-0.0E-1" and stri = "";
-    stri := "-0e1";    ok := ok and getJsonNumber(stri) = "-0e1"    and stri = "";
-    stri := "-0e+1";   ok := ok and getJsonNumber(stri) = "-0e+1"   and stri = "";
-    stri := "-0e-1";   ok := ok and getJsonNumber(stri) = "-0e-1"   and stri = "";
-    stri := "-0E1";    ok := ok and getJsonNumber(stri) = "-0E1"    and stri = "";
-    stri := "-0E+1";   ok := ok and getJsonNumber(stri) = "-0E+1"   and stri = "";
-    stri := "-0E-1";   ok := ok and getJsonNumber(stri) = "-0E-1"   and stri = "";
-    stri := "-1";      ok := ok and getJsonNumber(stri) = "-1"      and stri = "";
-    stri := "-1.0";    ok := ok and getJsonNumber(stri) = "-1.0"    and stri = "";
-    stri := "-1.0e1";  ok := ok and getJsonNumber(stri) = "-1.0e1"  and stri = "";
-    stri := "-1.0e+1"; ok := ok and getJsonNumber(stri) = "-1.0e+1" and stri = "";
-    stri := "-1.0e-1"; ok := ok and getJsonNumber(stri) = "-1.0e-1" and stri = "";
-    stri := "-1.0E1";  ok := ok and getJsonNumber(stri) = "-1.0E1"  and stri = "";
-    stri := "-1.0E+1"; ok := ok and getJsonNumber(stri) = "-1.0E+1" and stri = "";
-    stri := "-1.0E-1"; ok := ok and getJsonNumber(stri) = "-1.0E-1" and stri = "";
-    stri := "-1e1";    ok := ok and getJsonNumber(stri) = "-1e1"    and stri = "";
-    stri := "-1e+1";   ok := ok and getJsonNumber(stri) = "-1e+1"   and stri = "";
-    stri := "-1e-1";   ok := ok and getJsonNumber(stri) = "-1e-1"   and stri = "";
-    stri := "-1E1";    ok := ok and getJsonNumber(stri) = "-1E1"    and stri = "";
-    stri := "-1E+1";   ok := ok and getJsonNumber(stri) = "-1E+1"   and stri = "";
-    stri := "-1E-1";   ok := ok and getJsonNumber(stri) = "-1E-1"   and stri = "";
-    stri := "-9";      ok := ok and getJsonNumber(stri) = "-9"      and stri = "";
-    stri := "-9.0";    ok := ok and getJsonNumber(stri) = "-9.0"    and stri = "";
-    stri := "-9.0e1";  ok := ok and getJsonNumber(stri) = "-9.0e1"  and stri = "";
-    stri := "-9.0e+1"; ok := ok and getJsonNumber(stri) = "-9.0e+1" and stri = "";
-    stri := "-9.0e-1"; ok := ok and getJsonNumber(stri) = "-9.0e-1" and stri = "";
-    stri := "-9.0E1";  ok := ok and getJsonNumber(stri) = "-9.0E1"  and stri = "";
-    stri := "-9.0E+1"; ok := ok and getJsonNumber(stri) = "-9.0E+1" and stri = "";
-    stri := "-9.0E-1"; ok := ok and getJsonNumber(stri) = "-9.0E-1" and stri = "";
-    stri := "-9e1";    ok := ok and getJsonNumber(stri) = "-9e1"    and stri = "";
-    stri := "-9e+1";   ok := ok and getJsonNumber(stri) = "-9e+1"   and stri = "";
-    stri := "-9e-1";   ok := ok and getJsonNumber(stri) = "-9e-1"   and stri = "";
-    stri := "-9E1";    ok := ok and getJsonNumber(stri) = "-9E1"    and stri = "";
-    stri := "-9E+1";   ok := ok and getJsonNumber(stri) = "-9E+1"   and stri = "";
-    stri := "-9E-1";   ok := ok and getJsonNumber(stri) = "-9E-1"   and stri = "";
-    if not ok then
-      writeln(" ***** getJsonNumber(aString) does not work as expected. (2)");
+    elsif stri <> finalStri then
+      writeln(" ***** After getJsonNumber(stri) stri is " <&
+              literal(stri) <& " instead of " <& literal(finalStri) <&
+              ".");
       okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "0 ";       ok := ok and getJsonNumber(stri) = "0"       and stri = " ";
-    stri := "0.0 ";     ok := ok and getJsonNumber(stri) = "0.0"     and stri = " ";
-    stri := "0.0e1 ";   ok := ok and getJsonNumber(stri) = "0.0e1"   and stri = " ";
-    stri := "0.0e+1 ";  ok := ok and getJsonNumber(stri) = "0.0e+1"  and stri = " ";
-    stri := "0.0e-1 ";  ok := ok and getJsonNumber(stri) = "0.0e-1"  and stri = " ";
-    stri := "0.0E1 ";   ok := ok and getJsonNumber(stri) = "0.0E1"   and stri = " ";
-    stri := "0.0E+1 ";  ok := ok and getJsonNumber(stri) = "0.0E+1"  and stri = " ";
-    stri := "0.0E-1 ";  ok := ok and getJsonNumber(stri) = "0.0E-1"  and stri = " ";
-    stri := "0e1 ";     ok := ok and getJsonNumber(stri) = "0e1"     and stri = " ";
-    stri := "0e+1 ";    ok := ok and getJsonNumber(stri) = "0e+1"    and stri = " ";
-    stri := "0e-1 ";    ok := ok and getJsonNumber(stri) = "0e-1"    and stri = " ";
-    stri := "0E1 ";     ok := ok and getJsonNumber(stri) = "0E1"     and stri = " ";
-    stri := "0E+1 ";    ok := ok and getJsonNumber(stri) = "0E+1"    and stri = " ";
-    stri := "0E-1 ";    ok := ok and getJsonNumber(stri) = "0E-1"    and stri = " ";
-    stri := "1 ";       ok := ok and getJsonNumber(stri) = "1"       and stri = " ";
-    stri := "1.0 ";     ok := ok and getJsonNumber(stri) = "1.0"     and stri = " ";
-    stri := "1.0e1 ";   ok := ok and getJsonNumber(stri) = "1.0e1"   and stri = " ";
-    stri := "1.0e+1 ";  ok := ok and getJsonNumber(stri) = "1.0e+1"  and stri = " ";
-    stri := "1.0e-1 ";  ok := ok and getJsonNumber(stri) = "1.0e-1"  and stri = " ";
-    stri := "1.0E1 ";   ok := ok and getJsonNumber(stri) = "1.0E1"   and stri = " ";
-    stri := "1.0E+1 ";  ok := ok and getJsonNumber(stri) = "1.0E+1"  and stri = " ";
-    stri := "1.0E-1 ";  ok := ok and getJsonNumber(stri) = "1.0E-1"  and stri = " ";
-    stri := "1e1 ";     ok := ok and getJsonNumber(stri) = "1e1"     and stri = " ";
-    stri := "1e+1 ";    ok := ok and getJsonNumber(stri) = "1e+1"    and stri = " ";
-    stri := "1e-1 ";    ok := ok and getJsonNumber(stri) = "1e-1"    and stri = " ";
-    stri := "1E1 ";     ok := ok and getJsonNumber(stri) = "1E1"     and stri = " ";
-    stri := "1E+1 ";    ok := ok and getJsonNumber(stri) = "1E+1"    and stri = " ";
-    stri := "1E-1 ";    ok := ok and getJsonNumber(stri) = "1E-1"    and stri = " ";
-    stri := "9 ";       ok := ok and getJsonNumber(stri) = "9"       and stri = " ";
-    stri := "9.0 ";     ok := ok and getJsonNumber(stri) = "9.0"     and stri = " ";
-    stri := "9.0e1 ";   ok := ok and getJsonNumber(stri) = "9.0e1"   and stri = " ";
-    stri := "9.0e+1 ";  ok := ok and getJsonNumber(stri) = "9.0e+1"  and stri = " ";
-    stri := "9.0e-1 ";  ok := ok and getJsonNumber(stri) = "9.0e-1"  and stri = " ";
-    stri := "9.0E1 ";   ok := ok and getJsonNumber(stri) = "9.0E1"   and stri = " ";
-    stri := "9.0E+1 ";  ok := ok and getJsonNumber(stri) = "9.0E+1"  and stri = " ";
-    stri := "9.0E-1 ";  ok := ok and getJsonNumber(stri) = "9.0E-1"  and stri = " ";
-    stri := "9e1 ";     ok := ok and getJsonNumber(stri) = "9e1"     and stri = " ";
-    stri := "9e+1 ";    ok := ok and getJsonNumber(stri) = "9e+1"    and stri = " ";
-    stri := "9e-1 ";    ok := ok and getJsonNumber(stri) = "9e-1"    and stri = " ";
-    stri := "9E1 ";     ok := ok and getJsonNumber(stri) = "9E1"     and stri = " ";
-    stri := "9E+1 ";    ok := ok and getJsonNumber(stri) = "9E+1"    and stri = " ";
-    stri := "9E-1 ";    ok := ok and getJsonNumber(stri) = "9E-1"    and stri = " ";
-    stri := "-0 ";      ok := ok and getJsonNumber(stri) = "-0"      and stri = " ";
-    stri := "-0.0 ";    ok := ok and getJsonNumber(stri) = "-0.0"    and stri = " ";
-    stri := "-0.0e1 ";  ok := ok and getJsonNumber(stri) = "-0.0e1"  and stri = " ";
-    stri := "-0.0e+1 "; ok := ok and getJsonNumber(stri) = "-0.0e+1" and stri = " ";
-    stri := "-0.0e-1 "; ok := ok and getJsonNumber(stri) = "-0.0e-1" and stri = " ";
-    stri := "-0.0E1 ";  ok := ok and getJsonNumber(stri) = "-0.0E1"  and stri = " ";
-    stri := "-0.0E+1 "; ok := ok and getJsonNumber(stri) = "-0.0E+1" and stri = " ";
-    stri := "-0.0E-1 "; ok := ok and getJsonNumber(stri) = "-0.0E-1" and stri = " ";
-    stri := "-0e1 ";    ok := ok and getJsonNumber(stri) = "-0e1"    and stri = " ";
-    stri := "-0e+1 ";   ok := ok and getJsonNumber(stri) = "-0e+1"   and stri = " ";
-    stri := "-0e-1 ";   ok := ok and getJsonNumber(stri) = "-0e-1"   and stri = " ";
-    stri := "-0E1 ";    ok := ok and getJsonNumber(stri) = "-0E1"    and stri = " ";
-    stri := "-0E+1 ";   ok := ok and getJsonNumber(stri) = "-0E+1"   and stri = " ";
-    stri := "-0E-1 ";   ok := ok and getJsonNumber(stri) = "-0E-1"   and stri = " ";
-    stri := "-1 ";      ok := ok and getJsonNumber(stri) = "-1"      and stri = " ";
-    stri := "-1.0 ";    ok := ok and getJsonNumber(stri) = "-1.0"    and stri = " ";
-    stri := "-1.0e1 ";  ok := ok and getJsonNumber(stri) = "-1.0e1"  and stri = " ";
-    stri := "-1.0e+1 "; ok := ok and getJsonNumber(stri) = "-1.0e+1" and stri = " ";
-    stri := "-1.0e-1 "; ok := ok and getJsonNumber(stri) = "-1.0e-1" and stri = " ";
-    stri := "-1.0E1 ";  ok := ok and getJsonNumber(stri) = "-1.0E1"  and stri = " ";
-    stri := "-1.0E+1 "; ok := ok and getJsonNumber(stri) = "-1.0E+1" and stri = " ";
-    stri := "-1.0E-1 "; ok := ok and getJsonNumber(stri) = "-1.0E-1" and stri = " ";
-    stri := "-1e1 ";    ok := ok and getJsonNumber(stri) = "-1e1"    and stri = " ";
-    stri := "-1e+1 ";   ok := ok and getJsonNumber(stri) = "-1e+1"   and stri = " ";
-    stri := "-1e-1 ";   ok := ok and getJsonNumber(stri) = "-1e-1"   and stri = " ";
-    stri := "-1E1 ";    ok := ok and getJsonNumber(stri) = "-1E1"    and stri = " ";
-    stri := "-1E+1 ";   ok := ok and getJsonNumber(stri) = "-1E+1"   and stri = " ";
-    stri := "-1E-1 ";   ok := ok and getJsonNumber(stri) = "-1E-1"   and stri = " ";
-    stri := "-9 ";      ok := ok and getJsonNumber(stri) = "-9"      and stri = " ";
-    stri := "-9.0 ";    ok := ok and getJsonNumber(stri) = "-9.0"    and stri = " ";
-    stri := "-9.0e1 ";  ok := ok and getJsonNumber(stri) = "-9.0e1"  and stri = " ";
-    stri := "-9.0e+1 "; ok := ok and getJsonNumber(stri) = "-9.0e+1" and stri = " ";
-    stri := "-9.0e-1 "; ok := ok and getJsonNumber(stri) = "-9.0e-1" and stri = " ";
-    stri := "-9.0E1 ";  ok := ok and getJsonNumber(stri) = "-9.0E1"  and stri = " ";
-    stri := "-9.0E+1 "; ok := ok and getJsonNumber(stri) = "-9.0E+1" and stri = " ";
-    stri := "-9.0E-1 "; ok := ok and getJsonNumber(stri) = "-9.0E-1" and stri = " ";
-    stri := "-9e1 ";    ok := ok and getJsonNumber(stri) = "-9e1"    and stri = " ";
-    stri := "-9e+1 ";   ok := ok and getJsonNumber(stri) = "-9e+1"   and stri = " ";
-    stri := "-9e-1 ";   ok := ok and getJsonNumber(stri) = "-9e-1"   and stri = " ";
-    stri := "-9E1 ";    ok := ok and getJsonNumber(stri) = "-9E1"    and stri = " ";
-    stri := "-9E+1 ";   ok := ok and getJsonNumber(stri) = "-9E+1"   and stri = " ";
-    stri := "-9E-1 ";   ok := ok and getJsonNumber(stri) = "-9E-1"   and stri = " ";
-    if not ok then
-      writeln(" ***** getJsonNumber(aString) does not work as expected. (3)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "0-";       ok := ok and getJsonNumber(stri) = "0"       and stri = "-";
-    stri := "0.0-";     ok := ok and getJsonNumber(stri) = "0.0"     and stri = "-";
-    stri := "0.0e1-";   ok := ok and getJsonNumber(stri) = "0.0e1"   and stri = "-";
-    stri := "0.0e+1-";  ok := ok and getJsonNumber(stri) = "0.0e+1"  and stri = "-";
-    stri := "0.0e-1-";  ok := ok and getJsonNumber(stri) = "0.0e-1"  and stri = "-";
-    stri := "0.0E1-";   ok := ok and getJsonNumber(stri) = "0.0E1"   and stri = "-";
-    stri := "0.0E+1-";  ok := ok and getJsonNumber(stri) = "0.0E+1"  and stri = "-";
-    stri := "0.0E-1-";  ok := ok and getJsonNumber(stri) = "0.0E-1"  and stri = "-";
-    stri := "0e1-";     ok := ok and getJsonNumber(stri) = "0e1"     and stri = "-";
-    stri := "0e+1-";    ok := ok and getJsonNumber(stri) = "0e+1"    and stri = "-";
-    stri := "0e-1-";    ok := ok and getJsonNumber(stri) = "0e-1"    and stri = "-";
-    stri := "0E1-";     ok := ok and getJsonNumber(stri) = "0E1"     and stri = "-";
-    stri := "0E+1-";    ok := ok and getJsonNumber(stri) = "0E+1"    and stri = "-";
-    stri := "0E-1-";    ok := ok and getJsonNumber(stri) = "0E-1"    and stri = "-";
-    stri := "1-";       ok := ok and getJsonNumber(stri) = "1"       and stri = "-";
-    stri := "1.0-";     ok := ok and getJsonNumber(stri) = "1.0"     and stri = "-";
-    stri := "1.0e1-";   ok := ok and getJsonNumber(stri) = "1.0e1"   and stri = "-";
-    stri := "1.0e+1-";  ok := ok and getJsonNumber(stri) = "1.0e+1"  and stri = "-";
-    stri := "1.0e-1-";  ok := ok and getJsonNumber(stri) = "1.0e-1"  and stri = "-";
-    stri := "1.0E1-";   ok := ok and getJsonNumber(stri) = "1.0E1"   and stri = "-";
-    stri := "1.0E+1-";  ok := ok and getJsonNumber(stri) = "1.0E+1"  and stri = "-";
-    stri := "1.0E-1-";  ok := ok and getJsonNumber(stri) = "1.0E-1"  and stri = "-";
-    stri := "1e1-";     ok := ok and getJsonNumber(stri) = "1e1"     and stri = "-";
-    stri := "1e+1-";    ok := ok and getJsonNumber(stri) = "1e+1"    and stri = "-";
-    stri := "1e-1-";    ok := ok and getJsonNumber(stri) = "1e-1"    and stri = "-";
-    stri := "1E1-";     ok := ok and getJsonNumber(stri) = "1E1"     and stri = "-";
-    stri := "1E+1-";    ok := ok and getJsonNumber(stri) = "1E+1"    and stri = "-";
-    stri := "1E-1-";    ok := ok and getJsonNumber(stri) = "1E-1"    and stri = "-";
-    stri := "9-";       ok := ok and getJsonNumber(stri) = "9"       and stri = "-";
-    stri := "9.0-";     ok := ok and getJsonNumber(stri) = "9.0"     and stri = "-";
-    stri := "9.0e1-";   ok := ok and getJsonNumber(stri) = "9.0e1"   and stri = "-";
-    stri := "9.0e+1-";  ok := ok and getJsonNumber(stri) = "9.0e+1"  and stri = "-";
-    stri := "9.0e-1-";  ok := ok and getJsonNumber(stri) = "9.0e-1"  and stri = "-";
-    stri := "9.0E1-";   ok := ok and getJsonNumber(stri) = "9.0E1"   and stri = "-";
-    stri := "9.0E+1-";  ok := ok and getJsonNumber(stri) = "9.0E+1"  and stri = "-";
-    stri := "9.0E-1-";  ok := ok and getJsonNumber(stri) = "9.0E-1"  and stri = "-";
-    stri := "9e1-";     ok := ok and getJsonNumber(stri) = "9e1"     and stri = "-";
-    stri := "9e+1-";    ok := ok and getJsonNumber(stri) = "9e+1"    and stri = "-";
-    stri := "9e-1-";    ok := ok and getJsonNumber(stri) = "9e-1"    and stri = "-";
-    stri := "9E1-";     ok := ok and getJsonNumber(stri) = "9E1"     and stri = "-";
-    stri := "9E+1-";    ok := ok and getJsonNumber(stri) = "9E+1"    and stri = "-";
-    stri := "9E-1-";    ok := ok and getJsonNumber(stri) = "9E-1"    and stri = "-";
-    stri := "-0-";      ok := ok and getJsonNumber(stri) = "-0"      and stri = "-";
-    stri := "-0.0-";    ok := ok and getJsonNumber(stri) = "-0.0"    and stri = "-";
-    stri := "-0.0e1-";  ok := ok and getJsonNumber(stri) = "-0.0e1"  and stri = "-";
-    stri := "-0.0e+1-"; ok := ok and getJsonNumber(stri) = "-0.0e+1" and stri = "-";
-    stri := "-0.0e-1-"; ok := ok and getJsonNumber(stri) = "-0.0e-1" and stri = "-";
-    stri := "-0.0E1-";  ok := ok and getJsonNumber(stri) = "-0.0E1"  and stri = "-";
-    stri := "-0.0E+1-"; ok := ok and getJsonNumber(stri) = "-0.0E+1" and stri = "-";
-    stri := "-0.0E-1-"; ok := ok and getJsonNumber(stri) = "-0.0E-1" and stri = "-";
-    stri := "-0e1-";    ok := ok and getJsonNumber(stri) = "-0e1"    and stri = "-";
-    stri := "-0e+1-";   ok := ok and getJsonNumber(stri) = "-0e+1"   and stri = "-";
-    stri := "-0e-1-";   ok := ok and getJsonNumber(stri) = "-0e-1"   and stri = "-";
-    stri := "-0E1-";    ok := ok and getJsonNumber(stri) = "-0E1"    and stri = "-";
-    stri := "-0E+1-";   ok := ok and getJsonNumber(stri) = "-0E+1"   and stri = "-";
-    stri := "-0E-1-";   ok := ok and getJsonNumber(stri) = "-0E-1"   and stri = "-";
-    stri := "-1-";      ok := ok and getJsonNumber(stri) = "-1"      and stri = "-";
-    stri := "-1.0-";    ok := ok and getJsonNumber(stri) = "-1.0"    and stri = "-";
-    stri := "-1.0e1-";  ok := ok and getJsonNumber(stri) = "-1.0e1"  and stri = "-";
-    stri := "-1.0e+1-"; ok := ok and getJsonNumber(stri) = "-1.0e+1" and stri = "-";
-    stri := "-1.0e-1-"; ok := ok and getJsonNumber(stri) = "-1.0e-1" and stri = "-";
-    stri := "-1.0E1-";  ok := ok and getJsonNumber(stri) = "-1.0E1"  and stri = "-";
-    stri := "-1.0E+1-"; ok := ok and getJsonNumber(stri) = "-1.0E+1" and stri = "-";
-    stri := "-1.0E-1-"; ok := ok and getJsonNumber(stri) = "-1.0E-1" and stri = "-";
-    stri := "-1e1-";    ok := ok and getJsonNumber(stri) = "-1e1"    and stri = "-";
-    stri := "-1e+1-";   ok := ok and getJsonNumber(stri) = "-1e+1"   and stri = "-";
-    stri := "-1e-1-";   ok := ok and getJsonNumber(stri) = "-1e-1"   and stri = "-";
-    stri := "-1E1-";    ok := ok and getJsonNumber(stri) = "-1E1"    and stri = "-";
-    stri := "-1E+1-";   ok := ok and getJsonNumber(stri) = "-1E+1"   and stri = "-";
-    stri := "-1E-1-";   ok := ok and getJsonNumber(stri) = "-1E-1"   and stri = "-";
-    stri := "-9-";      ok := ok and getJsonNumber(stri) = "-9"      and stri = "-";
-    stri := "-9.0-";    ok := ok and getJsonNumber(stri) = "-9.0"    and stri = "-";
-    stri := "-9.0e1-";  ok := ok and getJsonNumber(stri) = "-9.0e1"  and stri = "-";
-    stri := "-9.0e+1-"; ok := ok and getJsonNumber(stri) = "-9.0e+1" and stri = "-";
-    stri := "-9.0e-1-"; ok := ok and getJsonNumber(stri) = "-9.0e-1" and stri = "-";
-    stri := "-9.0E1-";  ok := ok and getJsonNumber(stri) = "-9.0E1"  and stri = "-";
-    stri := "-9.0E+1-"; ok := ok and getJsonNumber(stri) = "-9.0E+1" and stri = "-";
-    stri := "-9.0E-1-"; ok := ok and getJsonNumber(stri) = "-9.0E-1" and stri = "-";
-    stri := "-9e1-";    ok := ok and getJsonNumber(stri) = "-9e1"    and stri = "-";
-    stri := "-9e+1-";   ok := ok and getJsonNumber(stri) = "-9e+1"   and stri = "-";
-    stri := "-9e-1-";   ok := ok and getJsonNumber(stri) = "-9e-1"   and stri = "-";
-    stri := "-9E1-";    ok := ok and getJsonNumber(stri) = "-9E1"    and stri = "-";
-    stri := "-9E+1-";   ok := ok and getJsonNumber(stri) = "-9E+1"   and stri = "-";
-    stri := "-9E-1-";   ok := ok and getJsonNumber(stri) = "-9E-1"   and stri = "-";
-    if not ok then
-      writeln(" ***** getJsonNumber(aString) does not work as expected. (4)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "";       ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "+";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "x";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "00";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0e";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0e+";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0e-";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0E";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0E+";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0E-";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0e";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0e+";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0e-";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0E";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0E+";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "0.0E-";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1e";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1e+";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1e-";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1E";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1E+";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1E-";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0e";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0e+";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0e-";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0E";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0E+";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "1.0E-";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-00";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0e";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0e+";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0e-";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0E";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0E+";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0E-";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0e";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0e+"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0e-"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0E";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0E+"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-0.0E-"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1e";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1e+";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1e-";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1E";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1E+";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1E-";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0e";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0e+"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0e-"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0E";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0E+"; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "-1.0E-"; ok := ok and raisesRangeError(getJsonString(stri));
-    if not ok then
-      writeln(" ***** getJsonNumber(aString) does not raise RANGE_ERROR.");
-      okay := FALSE;
+    else
+      if finalStri = "" then
+        expectedBuffer := EOF;
+      else
+        expectedBuffer := finalStri[1];
+      end if;
+      aFile := initScan(initialStri);
+      symbol := getJsonNumber(aFile);
+      if symbol <> expectedSymbol then
+        writeln(" ***** getJsonNumber(file) with " <&
+                literal(initialStri) <& " returns " <&
+                literal(symbol) <& " instead of " <&
+                literal(expectedSymbol) <& ".");
+        okay := FALSE;
+      elsif aFile.bufferChar <> expectedBuffer then
+        writeln(" ***** After getJsonNumber(file) bufferChar is " <&
+                literal(aFile.bufferChar) <& " instead of " <&
+                literal(expectedBuffer) <& ".");
+        okay := FALSE;
+      elsif expectedBuffer = EOF and not eof(aFile) then
+        writeln(" ***** After getJsonNumber(file) bufferChar is \
+                \EOF but eof() returns FALSE.");
+        okay := FALSE;
+      end if;
     end if;
   end func;
 
 
-const func boolean: checkGetJsonNumber2 is func
+const func boolean: getJsonNumberRaisesRangeError (in string: initialStri) is func
   result
     var boolean: okay is TRUE;
   local
-    var boolean: ok is TRUE;
+    var string: stri is "";
     var file: aFile is STD_NULL;
   begin
-    aFile := initScan("12");     ok := ok and getJsonNumber(aFile) = "12"     and aFile.bufferChar = EOF;
-    aFile := initScan("123*2");  ok := ok and getJsonNumber(aFile) = "123"    and aFile.bufferChar = '*';
-    aFile := initScan("-2+3");   ok := ok and getJsonNumber(aFile) = "-2"     and aFile.bufferChar = '+';
-    aFile := initScan("-01");    ok := ok and getJsonNumber(aFile) = "-0"     and aFile.bufferChar = '1';
-    aFile := initScan("1x");     ok := ok and getJsonNumber(aFile) = "1"      and aFile.bufferChar = 'x';
-    aFile := initScan("1.0+");   ok := ok and getJsonNumber(aFile) = "1.0"    and aFile.bufferChar = '+';
-    aFile := initScan("1.0E1-"); ok := ok and getJsonNumber(aFile) = "1.0E1"  and aFile.bufferChar = '-';
-    aFile := initScan("1.0e-1"); ok := ok and getJsonNumber(aFile) = "1.0e-1" and aFile.bufferChar = EOF;
-    aFile := initScan("1e2y");   ok := ok and getJsonNumber(aFile) = "1e2"    and aFile.bufferChar = 'y';
-    aFile := initScan("1E+3z");  ok := ok and getJsonNumber(aFile) = "1E+3"   and aFile.bufferChar = 'z';
-    aFile := initScan("1234_/"); ok := ok and getJsonNumber(aFile) = "1234"   and aFile.bufferChar = '_';
-    if not ok then
-      writeln(" ***** getJsonNumber(aFile) does not work as expected. (1)");
+    stri := initialStri;
+    if not raisesRangeError(getJsonNumber(stri)) then
+      writeln(" ***** getJsonNumber(stri) with " <&
+              literal(initialStri) <& " does not raise RANGE_ERROR.");
+      okay := FALSE;
+    else
+      aFile := initScan(initialStri);
+      if not raisesRangeError(getJsonNumber(aFile)) then
+        writeln(" ***** getJsonNumber(file) with " <&
+                literal(initialStri) <& " does not raise RANGE_ERROR.");
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: checkGetJsonNumber1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getJsonNumberOkay("12",     "12",     "") or
+        not getJsonNumberOkay("123*2",  "123",    "*2") or
+        not getJsonNumberOkay("-2+3",   "-2",     "+3") or
+        not getJsonNumberOkay("00",     "0",      "0") or
+        not getJsonNumberOkay("-00",    "-0",     "0") or
+        not getJsonNumberOkay("-01",    "-0",     "1") or
+        not getJsonNumberOkay("1x",     "1",      "x") or
+        not getJsonNumberOkay("1.0+",   "1.0",    "+") or
+        not getJsonNumberOkay("1.0E1-", "1.0E1",  "-") or
+        not getJsonNumberOkay("1.0e-1", "1.0e-1", "") or
+        not getJsonNumberOkay("1e2y",   "1e2",    "y") or
+        not getJsonNumberOkay("1E+3z",  "1E+3",   "z") or
+        not getJsonNumberOkay("1234_/", "1234",   "_/") then
+      writeln(" ***** getJsonNumber() does not work as expected. (1)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("0");       ok := ok and getJsonNumber(aFile) = "0"       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0");     ok := ok and getJsonNumber(aFile) = "0.0"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0e1");   ok := ok and getJsonNumber(aFile) = "0.0e1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0e+1");  ok := ok and getJsonNumber(aFile) = "0.0e+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0e-1");  ok := ok and getJsonNumber(aFile) = "0.0e-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0E1");   ok := ok and getJsonNumber(aFile) = "0.0E1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0E+1");  ok := ok and getJsonNumber(aFile) = "0.0E+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0.0E-1");  ok := ok and getJsonNumber(aFile) = "0.0E-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0e1");     ok := ok and getJsonNumber(aFile) = "0e1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0e+1");    ok := ok and getJsonNumber(aFile) = "0e+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0e-1");    ok := ok and getJsonNumber(aFile) = "0e-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0E1");     ok := ok and getJsonNumber(aFile) = "0E1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0E+1");    ok := ok and getJsonNumber(aFile) = "0E+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("0E-1");    ok := ok and getJsonNumber(aFile) = "0E-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1");       ok := ok and getJsonNumber(aFile) = "1"       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0");     ok := ok and getJsonNumber(aFile) = "1.0"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0e1");   ok := ok and getJsonNumber(aFile) = "1.0e1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0e+1");  ok := ok and getJsonNumber(aFile) = "1.0e+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0e-1");  ok := ok and getJsonNumber(aFile) = "1.0e-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0E1");   ok := ok and getJsonNumber(aFile) = "1.0E1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0E+1");  ok := ok and getJsonNumber(aFile) = "1.0E+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1.0E-1");  ok := ok and getJsonNumber(aFile) = "1.0E-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1e1");     ok := ok and getJsonNumber(aFile) = "1e1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1e+1");    ok := ok and getJsonNumber(aFile) = "1e+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1e-1");    ok := ok and getJsonNumber(aFile) = "1e-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1E1");     ok := ok and getJsonNumber(aFile) = "1E1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1E+1");    ok := ok and getJsonNumber(aFile) = "1E+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("1E-1");    ok := ok and getJsonNumber(aFile) = "1E-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9");       ok := ok and getJsonNumber(aFile) = "9"       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0");     ok := ok and getJsonNumber(aFile) = "9.0"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0e1");   ok := ok and getJsonNumber(aFile) = "9.0e1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0e+1");  ok := ok and getJsonNumber(aFile) = "9.0e+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0e-1");  ok := ok and getJsonNumber(aFile) = "9.0e-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0E1");   ok := ok and getJsonNumber(aFile) = "9.0E1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0E+1");  ok := ok and getJsonNumber(aFile) = "9.0E+1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9.0E-1");  ok := ok and getJsonNumber(aFile) = "9.0E-1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9e1");     ok := ok and getJsonNumber(aFile) = "9e1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9e+1");    ok := ok and getJsonNumber(aFile) = "9e+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9e-1");    ok := ok and getJsonNumber(aFile) = "9e-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9E1");     ok := ok and getJsonNumber(aFile) = "9E1"     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9E+1");    ok := ok and getJsonNumber(aFile) = "9E+1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("9E-1");    ok := ok and getJsonNumber(aFile) = "9E-1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0");      ok := ok and getJsonNumber(aFile) = "-0"      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0");    ok := ok and getJsonNumber(aFile) = "-0.0"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0e1");  ok := ok and getJsonNumber(aFile) = "-0.0e1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0e+1"); ok := ok and getJsonNumber(aFile) = "-0.0e+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0e-1"); ok := ok and getJsonNumber(aFile) = "-0.0e-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0E1");  ok := ok and getJsonNumber(aFile) = "-0.0E1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0E+1"); ok := ok and getJsonNumber(aFile) = "-0.0E+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0.0E-1"); ok := ok and getJsonNumber(aFile) = "-0.0E-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0e1");    ok := ok and getJsonNumber(aFile) = "-0e1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0e+1");   ok := ok and getJsonNumber(aFile) = "-0e+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0e-1");   ok := ok and getJsonNumber(aFile) = "-0e-1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0E1");    ok := ok and getJsonNumber(aFile) = "-0E1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0E+1");   ok := ok and getJsonNumber(aFile) = "-0E+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-0E-1");   ok := ok and getJsonNumber(aFile) = "-0E-1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1");      ok := ok and getJsonNumber(aFile) = "-1"      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0");    ok := ok and getJsonNumber(aFile) = "-1.0"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0e1");  ok := ok and getJsonNumber(aFile) = "-1.0e1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0e+1"); ok := ok and getJsonNumber(aFile) = "-1.0e+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0e-1"); ok := ok and getJsonNumber(aFile) = "-1.0e-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0E1");  ok := ok and getJsonNumber(aFile) = "-1.0E1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0E+1"); ok := ok and getJsonNumber(aFile) = "-1.0E+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1.0E-1"); ok := ok and getJsonNumber(aFile) = "-1.0E-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1e1");    ok := ok and getJsonNumber(aFile) = "-1e1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1e+1");   ok := ok and getJsonNumber(aFile) = "-1e+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1e-1");   ok := ok and getJsonNumber(aFile) = "-1e-1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1E1");    ok := ok and getJsonNumber(aFile) = "-1E1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1E+1");   ok := ok and getJsonNumber(aFile) = "-1E+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-1E-1");   ok := ok and getJsonNumber(aFile) = "-1E-1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9");      ok := ok and getJsonNumber(aFile) = "-9"      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0");    ok := ok and getJsonNumber(aFile) = "-9.0"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0e1");  ok := ok and getJsonNumber(aFile) = "-9.0e1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0e+1"); ok := ok and getJsonNumber(aFile) = "-9.0e+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0e-1"); ok := ok and getJsonNumber(aFile) = "-9.0e-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0E1");  ok := ok and getJsonNumber(aFile) = "-9.0E1"  and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0E+1"); ok := ok and getJsonNumber(aFile) = "-9.0E+1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9.0E-1"); ok := ok and getJsonNumber(aFile) = "-9.0E-1" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9e1");    ok := ok and getJsonNumber(aFile) = "-9e1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9e+1");   ok := ok and getJsonNumber(aFile) = "-9e+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9e-1");   ok := ok and getJsonNumber(aFile) = "-9e-1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9E1");    ok := ok and getJsonNumber(aFile) = "-9E1"    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9E+1");   ok := ok and getJsonNumber(aFile) = "-9E+1"   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("-9E-1");   ok := ok and getJsonNumber(aFile) = "-9E-1"   and aFile.bufferChar = EOF and eof(aFile);
-    if not ok then
-      writeln(" ***** getJsonNumber(aFile) does not work as expected. (2)");
+    if  not getJsonNumberOkay("0",       "0",       "") or
+        not getJsonNumberOkay("0.0",     "0.0",     "") or
+        not getJsonNumberOkay("0.0e1",   "0.0e1",   "") or
+        not getJsonNumberOkay("0.0e+1",  "0.0e+1",  "") or
+        not getJsonNumberOkay("0.0e-1",  "0.0e-1",  "") or
+        not getJsonNumberOkay("0.0E1",   "0.0E1",   "") or
+        not getJsonNumberOkay("0.0E+1",  "0.0E+1",  "") or
+        not getJsonNumberOkay("0.0E-1",  "0.0E-1",  "") or
+        not getJsonNumberOkay("0e1",     "0e1",     "") or
+        not getJsonNumberOkay("0e+1",    "0e+1",    "") or
+        not getJsonNumberOkay("0e-1",    "0e-1",    "") or
+        not getJsonNumberOkay("0E1",     "0E1",     "") or
+        not getJsonNumberOkay("0E+1",    "0E+1",    "") or
+        not getJsonNumberOkay("0E-1",    "0E-1",    "") or
+        not getJsonNumberOkay("1",       "1",       "") or
+        not getJsonNumberOkay("1.0",     "1.0",     "") or
+        not getJsonNumberOkay("1.0e1",   "1.0e1",   "") or
+        not getJsonNumberOkay("1.0e+1",  "1.0e+1",  "") or
+        not getJsonNumberOkay("1.0e-1",  "1.0e-1",  "") or
+        not getJsonNumberOkay("1.0E1",   "1.0E1",   "") or
+        not getJsonNumberOkay("1.0E+1",  "1.0E+1",  "") or
+        not getJsonNumberOkay("1.0E-1",  "1.0E-1",  "") or
+        not getJsonNumberOkay("1e1",     "1e1",     "") or
+        not getJsonNumberOkay("1e+1",    "1e+1",    "") or
+        not getJsonNumberOkay("1e-1",    "1e-1",    "") or
+        not getJsonNumberOkay("1E1",     "1E1",     "") or
+        not getJsonNumberOkay("1E+1",    "1E+1",    "") or
+        not getJsonNumberOkay("1E-1",    "1E-1",    "") or
+        not getJsonNumberOkay("9",       "9",       "") or
+        not getJsonNumberOkay("9.0",     "9.0",     "") or
+        not getJsonNumberOkay("9.0e1",   "9.0e1",   "") or
+        not getJsonNumberOkay("9.0e+1",  "9.0e+1",  "") or
+        not getJsonNumberOkay("9.0e-1",  "9.0e-1",  "") or
+        not getJsonNumberOkay("9.0E1",   "9.0E1",   "") or
+        not getJsonNumberOkay("9.0E+1",  "9.0E+1",  "") or
+        not getJsonNumberOkay("9.0E-1",  "9.0E-1",  "") or
+        not getJsonNumberOkay("9e1",     "9e1",     "") or
+        not getJsonNumberOkay("9e+1",    "9e+1",    "") or
+        not getJsonNumberOkay("9e-1",    "9e-1",    "") or
+        not getJsonNumberOkay("9E1",     "9E1",     "") or
+        not getJsonNumberOkay("9E+1",    "9E+1",    "") or
+        not getJsonNumberOkay("9E-1",    "9E-1",    "") or
+        not getJsonNumberOkay("-0",      "-0",      "") or
+        not getJsonNumberOkay("-0.0",    "-0.0",    "") or
+        not getJsonNumberOkay("-0.0e1",  "-0.0e1",  "") or
+        not getJsonNumberOkay("-0.0e+1", "-0.0e+1", "") or
+        not getJsonNumberOkay("-0.0e-1", "-0.0e-1", "") or
+        not getJsonNumberOkay("-0.0E1",  "-0.0E1",  "") or
+        not getJsonNumberOkay("-0.0E+1", "-0.0E+1", "") or
+        not getJsonNumberOkay("-0.0E-1", "-0.0E-1", "") or
+        not getJsonNumberOkay("-0e1",    "-0e1",    "") or
+        not getJsonNumberOkay("-0e+1",   "-0e+1",   "") or
+        not getJsonNumberOkay("-0e-1",   "-0e-1",   "") or
+        not getJsonNumberOkay("-0E1",    "-0E1",    "") or
+        not getJsonNumberOkay("-0E+1",   "-0E+1",   "") or
+        not getJsonNumberOkay("-0E-1",   "-0E-1",   "") or
+        not getJsonNumberOkay("-1",      "-1",      "") or
+        not getJsonNumberOkay("-1.0",    "-1.0",    "") or
+        not getJsonNumberOkay("-1.0e1",  "-1.0e1",  "") or
+        not getJsonNumberOkay("-1.0e+1", "-1.0e+1", "") or
+        not getJsonNumberOkay("-1.0e-1", "-1.0e-1", "") or
+        not getJsonNumberOkay("-1.0E1",  "-1.0E1",  "") or
+        not getJsonNumberOkay("-1.0E+1", "-1.0E+1", "") or
+        not getJsonNumberOkay("-1.0E-1", "-1.0E-1", "") or
+        not getJsonNumberOkay("-1e1",    "-1e1",    "") or
+        not getJsonNumberOkay("-1e+1",   "-1e+1",   "") or
+        not getJsonNumberOkay("-1e-1",   "-1e-1",   "") or
+        not getJsonNumberOkay("-1E1",    "-1E1",    "") or
+        not getJsonNumberOkay("-1E+1",   "-1E+1",   "") or
+        not getJsonNumberOkay("-1E-1",   "-1E-1",   "") or
+        not getJsonNumberOkay("-9",      "-9",      "") or
+        not getJsonNumberOkay("-9.0",    "-9.0",    "") or
+        not getJsonNumberOkay("-9.0e1",  "-9.0e1",  "") or
+        not getJsonNumberOkay("-9.0e+1", "-9.0e+1", "") or
+        not getJsonNumberOkay("-9.0e-1", "-9.0e-1", "") or
+        not getJsonNumberOkay("-9.0E1",  "-9.0E1",  "") or
+        not getJsonNumberOkay("-9.0E+1", "-9.0E+1", "") or
+        not getJsonNumberOkay("-9.0E-1", "-9.0E-1", "") or
+        not getJsonNumberOkay("-9e1",    "-9e1",    "") or
+        not getJsonNumberOkay("-9e+1",   "-9e+1",   "") or
+        not getJsonNumberOkay("-9e-1",   "-9e-1",   "") or
+        not getJsonNumberOkay("-9E1",    "-9E1",    "") or
+        not getJsonNumberOkay("-9E+1",   "-9E+1",   "") or
+        not getJsonNumberOkay("-9E-1",   "-9E-1",   "") then
+      writeln(" ***** getJsonNumber() does not work as expected. (2)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("0 ");       ok := ok and getJsonNumber(aFile) = "0"       and aFile.bufferChar = ' ';
-    aFile := initScan("0.0 ");     ok := ok and getJsonNumber(aFile) = "0.0"     and aFile.bufferChar = ' ';
-    aFile := initScan("0.0e1 ");   ok := ok and getJsonNumber(aFile) = "0.0e1"   and aFile.bufferChar = ' ';
-    aFile := initScan("0.0e+1 ");  ok := ok and getJsonNumber(aFile) = "0.0e+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("0.0e-1 ");  ok := ok and getJsonNumber(aFile) = "0.0e-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("0.0E1 ");   ok := ok and getJsonNumber(aFile) = "0.0E1"   and aFile.bufferChar = ' ';
-    aFile := initScan("0.0E+1 ");  ok := ok and getJsonNumber(aFile) = "0.0E+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("0.0E-1 ");  ok := ok and getJsonNumber(aFile) = "0.0E-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("0e1 ");     ok := ok and getJsonNumber(aFile) = "0e1"     and aFile.bufferChar = ' ';
-    aFile := initScan("0e+1 ");    ok := ok and getJsonNumber(aFile) = "0e+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("0e-1 ");    ok := ok and getJsonNumber(aFile) = "0e-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("0E1 ");     ok := ok and getJsonNumber(aFile) = "0E1"     and aFile.bufferChar = ' ';
-    aFile := initScan("0E+1 ");    ok := ok and getJsonNumber(aFile) = "0E+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("0E-1 ");    ok := ok and getJsonNumber(aFile) = "0E-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("1 ");       ok := ok and getJsonNumber(aFile) = "1"       and aFile.bufferChar = ' ';
-    aFile := initScan("1.0 ");     ok := ok and getJsonNumber(aFile) = "1.0"     and aFile.bufferChar = ' ';
-    aFile := initScan("1.0e1 ");   ok := ok and getJsonNumber(aFile) = "1.0e1"   and aFile.bufferChar = ' ';
-    aFile := initScan("1.0e+1 ");  ok := ok and getJsonNumber(aFile) = "1.0e+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("1.0e-1 ");  ok := ok and getJsonNumber(aFile) = "1.0e-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("1.0E1 ");   ok := ok and getJsonNumber(aFile) = "1.0E1"   and aFile.bufferChar = ' ';
-    aFile := initScan("1.0E+1 ");  ok := ok and getJsonNumber(aFile) = "1.0E+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("1.0E-1 ");  ok := ok and getJsonNumber(aFile) = "1.0E-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("1e1 ");     ok := ok and getJsonNumber(aFile) = "1e1"     and aFile.bufferChar = ' ';
-    aFile := initScan("1e+1 ");    ok := ok and getJsonNumber(aFile) = "1e+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("1e-1 ");    ok := ok and getJsonNumber(aFile) = "1e-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("1E1 ");     ok := ok and getJsonNumber(aFile) = "1E1"     and aFile.bufferChar = ' ';
-    aFile := initScan("1E+1 ");    ok := ok and getJsonNumber(aFile) = "1E+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("1E-1 ");    ok := ok and getJsonNumber(aFile) = "1E-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("9 ");       ok := ok and getJsonNumber(aFile) = "9"       and aFile.bufferChar = ' ';
-    aFile := initScan("9.0 ");     ok := ok and getJsonNumber(aFile) = "9.0"     and aFile.bufferChar = ' ';
-    aFile := initScan("9.0e1 ");   ok := ok and getJsonNumber(aFile) = "9.0e1"   and aFile.bufferChar = ' ';
-    aFile := initScan("9.0e+1 ");  ok := ok and getJsonNumber(aFile) = "9.0e+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("9.0e-1 ");  ok := ok and getJsonNumber(aFile) = "9.0e-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("9.0E1 ");   ok := ok and getJsonNumber(aFile) = "9.0E1"   and aFile.bufferChar = ' ';
-    aFile := initScan("9.0E+1 ");  ok := ok and getJsonNumber(aFile) = "9.0E+1"  and aFile.bufferChar = ' ';
-    aFile := initScan("9.0E-1 ");  ok := ok and getJsonNumber(aFile) = "9.0E-1"  and aFile.bufferChar = ' ';
-    aFile := initScan("9e1 ");     ok := ok and getJsonNumber(aFile) = "9e1"     and aFile.bufferChar = ' ';
-    aFile := initScan("9e+1 ");    ok := ok and getJsonNumber(aFile) = "9e+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("9e-1 ");    ok := ok and getJsonNumber(aFile) = "9e-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("9E1 ");     ok := ok and getJsonNumber(aFile) = "9E1"     and aFile.bufferChar = ' ';
-    aFile := initScan("9E+1 ");    ok := ok and getJsonNumber(aFile) = "9E+1"    and aFile.bufferChar = ' ';
-    aFile := initScan("9E-1 ");    ok := ok and getJsonNumber(aFile) = "9E-1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-0 ");      ok := ok and getJsonNumber(aFile) = "-0"      and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0 ");    ok := ok and getJsonNumber(aFile) = "-0.0"    and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0e1 ");  ok := ok and getJsonNumber(aFile) = "-0.0e1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0e+1 "); ok := ok and getJsonNumber(aFile) = "-0.0e+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0e-1 "); ok := ok and getJsonNumber(aFile) = "-0.0e-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0E1 ");  ok := ok and getJsonNumber(aFile) = "-0.0E1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0E+1 "); ok := ok and getJsonNumber(aFile) = "-0.0E+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-0.0E-1 "); ok := ok and getJsonNumber(aFile) = "-0.0E-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-0e1 ");    ok := ok and getJsonNumber(aFile) = "-0e1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-0e+1 ");   ok := ok and getJsonNumber(aFile) = "-0e+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-0e-1 ");   ok := ok and getJsonNumber(aFile) = "-0e-1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-0E1 ");    ok := ok and getJsonNumber(aFile) = "-0E1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-0E+1 ");   ok := ok and getJsonNumber(aFile) = "-0E+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-0E-1 ");   ok := ok and getJsonNumber(aFile) = "-0E-1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-1 ");      ok := ok and getJsonNumber(aFile) = "-1"      and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0 ");    ok := ok and getJsonNumber(aFile) = "-1.0"    and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0e1 ");  ok := ok and getJsonNumber(aFile) = "-1.0e1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0e+1 "); ok := ok and getJsonNumber(aFile) = "-1.0e+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0e-1 "); ok := ok and getJsonNumber(aFile) = "-1.0e-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0E1 ");  ok := ok and getJsonNumber(aFile) = "-1.0E1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0E+1 "); ok := ok and getJsonNumber(aFile) = "-1.0E+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-1.0E-1 "); ok := ok and getJsonNumber(aFile) = "-1.0E-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-1e1 ");    ok := ok and getJsonNumber(aFile) = "-1e1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-1e+1 ");   ok := ok and getJsonNumber(aFile) = "-1e+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-1e-1 ");   ok := ok and getJsonNumber(aFile) = "-1e-1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-1E1 ");    ok := ok and getJsonNumber(aFile) = "-1E1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-1E+1 ");   ok := ok and getJsonNumber(aFile) = "-1E+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-1E-1 ");   ok := ok and getJsonNumber(aFile) = "-1E-1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-9 ");      ok := ok and getJsonNumber(aFile) = "-9"      and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0 ");    ok := ok and getJsonNumber(aFile) = "-9.0"    and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0e1 ");  ok := ok and getJsonNumber(aFile) = "-9.0e1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0e+1 "); ok := ok and getJsonNumber(aFile) = "-9.0e+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0e-1 "); ok := ok and getJsonNumber(aFile) = "-9.0e-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0E1 ");  ok := ok and getJsonNumber(aFile) = "-9.0E1"  and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0E+1 "); ok := ok and getJsonNumber(aFile) = "-9.0E+1" and aFile.bufferChar = ' ';
-    aFile := initScan("-9.0E-1 "); ok := ok and getJsonNumber(aFile) = "-9.0E-1" and aFile.bufferChar = ' ';
-    aFile := initScan("-9e1 ");    ok := ok and getJsonNumber(aFile) = "-9e1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-9e+1 ");   ok := ok and getJsonNumber(aFile) = "-9e+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-9e-1 ");   ok := ok and getJsonNumber(aFile) = "-9e-1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-9E1 ");    ok := ok and getJsonNumber(aFile) = "-9E1"    and aFile.bufferChar = ' ';
-    aFile := initScan("-9E+1 ");   ok := ok and getJsonNumber(aFile) = "-9E+1"   and aFile.bufferChar = ' ';
-    aFile := initScan("-9E-1 ");   ok := ok and getJsonNumber(aFile) = "-9E-1"   and aFile.bufferChar = ' ';
-    if not ok then
-      writeln(" ***** getJsonNumber(aFile) does not work as expected. (3)");
+    if  not getJsonNumberOkay("0 ",       "0",       " ") or
+        not getJsonNumberOkay("0.0 ",     "0.0",     " ") or
+        not getJsonNumberOkay("0.0e1 ",   "0.0e1",   " ") or
+        not getJsonNumberOkay("0.0e+1 ",  "0.0e+1",  " ") or
+        not getJsonNumberOkay("0.0e-1 ",  "0.0e-1",  " ") or
+        not getJsonNumberOkay("0.0E1 ",   "0.0E1",   " ") or
+        not getJsonNumberOkay("0.0E+1 ",  "0.0E+1",  " ") or
+        not getJsonNumberOkay("0.0E-1 ",  "0.0E-1",  " ") or
+        not getJsonNumberOkay("0e1 ",     "0e1",     " ") or
+        not getJsonNumberOkay("0e+1 ",    "0e+1",    " ") or
+        not getJsonNumberOkay("0e-1 ",    "0e-1",    " ") or
+        not getJsonNumberOkay("0E1 ",     "0E1",     " ") or
+        not getJsonNumberOkay("0E+1 ",    "0E+1",    " ") or
+        not getJsonNumberOkay("0E-1 ",    "0E-1",    " ") or
+        not getJsonNumberOkay("1 ",       "1",       " ") or
+        not getJsonNumberOkay("1.0 ",     "1.0",     " ") or
+        not getJsonNumberOkay("1.0e1 ",   "1.0e1",   " ") or
+        not getJsonNumberOkay("1.0e+1 ",  "1.0e+1",  " ") or
+        not getJsonNumberOkay("1.0e-1 ",  "1.0e-1",  " ") or
+        not getJsonNumberOkay("1.0E1 ",   "1.0E1",   " ") or
+        not getJsonNumberOkay("1.0E+1 ",  "1.0E+1",  " ") or
+        not getJsonNumberOkay("1.0E-1 ",  "1.0E-1",  " ") or
+        not getJsonNumberOkay("1e1 ",     "1e1",     " ") or
+        not getJsonNumberOkay("1e+1 ",    "1e+1",    " ") or
+        not getJsonNumberOkay("1e-1 ",    "1e-1",    " ") or
+        not getJsonNumberOkay("1E1 ",     "1E1",     " ") or
+        not getJsonNumberOkay("1E+1 ",    "1E+1",    " ") or
+        not getJsonNumberOkay("1E-1 ",    "1E-1",    " ") or
+        not getJsonNumberOkay("9 ",       "9",       " ") or
+        not getJsonNumberOkay("9.0 ",     "9.0",     " ") or
+        not getJsonNumberOkay("9.0e1 ",   "9.0e1",   " ") or
+        not getJsonNumberOkay("9.0e+1 ",  "9.0e+1",  " ") or
+        not getJsonNumberOkay("9.0e-1 ",  "9.0e-1",  " ") or
+        not getJsonNumberOkay("9.0E1 ",   "9.0E1",   " ") or
+        not getJsonNumberOkay("9.0E+1 ",  "9.0E+1",  " ") or
+        not getJsonNumberOkay("9.0E-1 ",  "9.0E-1",  " ") or
+        not getJsonNumberOkay("9e1 ",     "9e1",     " ") or
+        not getJsonNumberOkay("9e+1 ",    "9e+1",    " ") or
+        not getJsonNumberOkay("9e-1 ",    "9e-1",    " ") or
+        not getJsonNumberOkay("9E1 ",     "9E1",     " ") or
+        not getJsonNumberOkay("9E+1 ",    "9E+1",    " ") or
+        not getJsonNumberOkay("9E-1 ",    "9E-1",    " ") or
+        not getJsonNumberOkay("-0 ",      "-0",      " ") or
+        not getJsonNumberOkay("-0.0 ",    "-0.0",    " ") or
+        not getJsonNumberOkay("-0.0e1 ",  "-0.0e1",  " ") or
+        not getJsonNumberOkay("-0.0e+1 ", "-0.0e+1", " ") or
+        not getJsonNumberOkay("-0.0e-1 ", "-0.0e-1", " ") or
+        not getJsonNumberOkay("-0.0E1 ",  "-0.0E1",  " ") or
+        not getJsonNumberOkay("-0.0E+1 ", "-0.0E+1", " ") or
+        not getJsonNumberOkay("-0.0E-1 ", "-0.0E-1", " ") or
+        not getJsonNumberOkay("-0e1 ",    "-0e1",    " ") or
+        not getJsonNumberOkay("-0e+1 ",   "-0e+1",   " ") or
+        not getJsonNumberOkay("-0e-1 ",   "-0e-1",   " ") or
+        not getJsonNumberOkay("-0E1 ",    "-0E1",    " ") or
+        not getJsonNumberOkay("-0E+1 ",   "-0E+1",   " ") or
+        not getJsonNumberOkay("-0E-1 ",   "-0E-1",   " ") or
+        not getJsonNumberOkay("-1 ",      "-1",      " ") or
+        not getJsonNumberOkay("-1.0 ",    "-1.0",    " ") or
+        not getJsonNumberOkay("-1.0e1 ",  "-1.0e1",  " ") or
+        not getJsonNumberOkay("-1.0e+1 ", "-1.0e+1", " ") or
+        not getJsonNumberOkay("-1.0e-1 ", "-1.0e-1", " ") or
+        not getJsonNumberOkay("-1.0E1 ",  "-1.0E1",  " ") or
+        not getJsonNumberOkay("-1.0E+1 ", "-1.0E+1", " ") or
+        not getJsonNumberOkay("-1.0E-1 ", "-1.0E-1", " ") or
+        not getJsonNumberOkay("-1e1 ",    "-1e1",    " ") or
+        not getJsonNumberOkay("-1e+1 ",   "-1e+1",   " ") or
+        not getJsonNumberOkay("-1e-1 ",   "-1e-1",   " ") or
+        not getJsonNumberOkay("-1E1 ",    "-1E1",    " ") or
+        not getJsonNumberOkay("-1E+1 ",   "-1E+1",   " ") or
+        not getJsonNumberOkay("-1E-1 ",   "-1E-1",   " ") or
+        not getJsonNumberOkay("-9 ",      "-9",      " ") or
+        not getJsonNumberOkay("-9.0 ",    "-9.0",    " ") or
+        not getJsonNumberOkay("-9.0e1 ",  "-9.0e1",  " ") or
+        not getJsonNumberOkay("-9.0e+1 ", "-9.0e+1", " ") or
+        not getJsonNumberOkay("-9.0e-1 ", "-9.0e-1", " ") or
+        not getJsonNumberOkay("-9.0E1 ",  "-9.0E1",  " ") or
+        not getJsonNumberOkay("-9.0E+1 ", "-9.0E+1", " ") or
+        not getJsonNumberOkay("-9.0E-1 ", "-9.0E-1", " ") or
+        not getJsonNumberOkay("-9e1 ",    "-9e1",    " ") or
+        not getJsonNumberOkay("-9e+1 ",   "-9e+1",   " ") or
+        not getJsonNumberOkay("-9e-1 ",   "-9e-1",   " ") or
+        not getJsonNumberOkay("-9E1 ",    "-9E1",    " ") or
+        not getJsonNumberOkay("-9E+1 ",   "-9E+1",   " ") or
+        not getJsonNumberOkay("-9E-1 ",   "-9E-1",   " ") then
+      writeln(" ***** getJsonNumber() does not work as expected. (3)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("0-");       ok := ok and getJsonNumber(aFile) = "0"       and aFile.bufferChar = '-';
-    aFile := initScan("0.0-");     ok := ok and getJsonNumber(aFile) = "0.0"     and aFile.bufferChar = '-';
-    aFile := initScan("0.0e1-");   ok := ok and getJsonNumber(aFile) = "0.0e1"   and aFile.bufferChar = '-';
-    aFile := initScan("0.0e+1-");  ok := ok and getJsonNumber(aFile) = "0.0e+1"  and aFile.bufferChar = '-';
-    aFile := initScan("0.0e-1-");  ok := ok and getJsonNumber(aFile) = "0.0e-1"  and aFile.bufferChar = '-';
-    aFile := initScan("0.0E1-");   ok := ok and getJsonNumber(aFile) = "0.0E1"   and aFile.bufferChar = '-';
-    aFile := initScan("0.0E+1-");  ok := ok and getJsonNumber(aFile) = "0.0E+1"  and aFile.bufferChar = '-';
-    aFile := initScan("0.0E-1-");  ok := ok and getJsonNumber(aFile) = "0.0E-1"  and aFile.bufferChar = '-';
-    aFile := initScan("0e1-");     ok := ok and getJsonNumber(aFile) = "0e1"     and aFile.bufferChar = '-';
-    aFile := initScan("0e+1-");    ok := ok and getJsonNumber(aFile) = "0e+1"    and aFile.bufferChar = '-';
-    aFile := initScan("0e-1-");    ok := ok and getJsonNumber(aFile) = "0e-1"    and aFile.bufferChar = '-';
-    aFile := initScan("0E1-");     ok := ok and getJsonNumber(aFile) = "0E1"     and aFile.bufferChar = '-';
-    aFile := initScan("0E+1-");    ok := ok and getJsonNumber(aFile) = "0E+1"    and aFile.bufferChar = '-';
-    aFile := initScan("0E-1-");    ok := ok and getJsonNumber(aFile) = "0E-1"    and aFile.bufferChar = '-';
-    aFile := initScan("1-");       ok := ok and getJsonNumber(aFile) = "1"       and aFile.bufferChar = '-';
-    aFile := initScan("1.0-");     ok := ok and getJsonNumber(aFile) = "1.0"     and aFile.bufferChar = '-';
-    aFile := initScan("1.0e1-");   ok := ok and getJsonNumber(aFile) = "1.0e1"   and aFile.bufferChar = '-';
-    aFile := initScan("1.0e+1-");  ok := ok and getJsonNumber(aFile) = "1.0e+1"  and aFile.bufferChar = '-';
-    aFile := initScan("1.0e-1-");  ok := ok and getJsonNumber(aFile) = "1.0e-1"  and aFile.bufferChar = '-';
-    aFile := initScan("1.0E1-");   ok := ok and getJsonNumber(aFile) = "1.0E1"   and aFile.bufferChar = '-';
-    aFile := initScan("1.0E+1-");  ok := ok and getJsonNumber(aFile) = "1.0E+1"  and aFile.bufferChar = '-';
-    aFile := initScan("1.0E-1-");  ok := ok and getJsonNumber(aFile) = "1.0E-1"  and aFile.bufferChar = '-';
-    aFile := initScan("1e1-");     ok := ok and getJsonNumber(aFile) = "1e1"     and aFile.bufferChar = '-';
-    aFile := initScan("1e+1-");    ok := ok and getJsonNumber(aFile) = "1e+1"    and aFile.bufferChar = '-';
-    aFile := initScan("1e-1-");    ok := ok and getJsonNumber(aFile) = "1e-1"    and aFile.bufferChar = '-';
-    aFile := initScan("1E1-");     ok := ok and getJsonNumber(aFile) = "1E1"     and aFile.bufferChar = '-';
-    aFile := initScan("1E+1-");    ok := ok and getJsonNumber(aFile) = "1E+1"    and aFile.bufferChar = '-';
-    aFile := initScan("1E-1-");    ok := ok and getJsonNumber(aFile) = "1E-1"    and aFile.bufferChar = '-';
-    aFile := initScan("9-");       ok := ok and getJsonNumber(aFile) = "9"       and aFile.bufferChar = '-';
-    aFile := initScan("9.0-");     ok := ok and getJsonNumber(aFile) = "9.0"     and aFile.bufferChar = '-';
-    aFile := initScan("9.0e1-");   ok := ok and getJsonNumber(aFile) = "9.0e1"   and aFile.bufferChar = '-';
-    aFile := initScan("9.0e+1-");  ok := ok and getJsonNumber(aFile) = "9.0e+1"  and aFile.bufferChar = '-';
-    aFile := initScan("9.0e-1-");  ok := ok and getJsonNumber(aFile) = "9.0e-1"  and aFile.bufferChar = '-';
-    aFile := initScan("9.0E1-");   ok := ok and getJsonNumber(aFile) = "9.0E1"   and aFile.bufferChar = '-';
-    aFile := initScan("9.0E+1-");  ok := ok and getJsonNumber(aFile) = "9.0E+1"  and aFile.bufferChar = '-';
-    aFile := initScan("9.0E-1-");  ok := ok and getJsonNumber(aFile) = "9.0E-1"  and aFile.bufferChar = '-';
-    aFile := initScan("9e1-");     ok := ok and getJsonNumber(aFile) = "9e1"     and aFile.bufferChar = '-';
-    aFile := initScan("9e+1-");    ok := ok and getJsonNumber(aFile) = "9e+1"    and aFile.bufferChar = '-';
-    aFile := initScan("9e-1-");    ok := ok and getJsonNumber(aFile) = "9e-1"    and aFile.bufferChar = '-';
-    aFile := initScan("9E1-");     ok := ok and getJsonNumber(aFile) = "9E1"     and aFile.bufferChar = '-';
-    aFile := initScan("9E+1-");    ok := ok and getJsonNumber(aFile) = "9E+1"    and aFile.bufferChar = '-';
-    aFile := initScan("9E-1-");    ok := ok and getJsonNumber(aFile) = "9E-1"    and aFile.bufferChar = '-';
-    aFile := initScan("-0-");      ok := ok and getJsonNumber(aFile) = "-0"      and aFile.bufferChar = '-';
-    aFile := initScan("-0.0-");    ok := ok and getJsonNumber(aFile) = "-0.0"    and aFile.bufferChar = '-';
-    aFile := initScan("-0.0e1-");  ok := ok and getJsonNumber(aFile) = "-0.0e1"  and aFile.bufferChar = '-';
-    aFile := initScan("-0.0e+1-"); ok := ok and getJsonNumber(aFile) = "-0.0e+1" and aFile.bufferChar = '-';
-    aFile := initScan("-0.0e-1-"); ok := ok and getJsonNumber(aFile) = "-0.0e-1" and aFile.bufferChar = '-';
-    aFile := initScan("-0.0E1-");  ok := ok and getJsonNumber(aFile) = "-0.0E1"  and aFile.bufferChar = '-';
-    aFile := initScan("-0.0E+1-"); ok := ok and getJsonNumber(aFile) = "-0.0E+1" and aFile.bufferChar = '-';
-    aFile := initScan("-0.0E-1-"); ok := ok and getJsonNumber(aFile) = "-0.0E-1" and aFile.bufferChar = '-';
-    aFile := initScan("-0e1-");    ok := ok and getJsonNumber(aFile) = "-0e1"    and aFile.bufferChar = '-';
-    aFile := initScan("-0e+1-");   ok := ok and getJsonNumber(aFile) = "-0e+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-0e-1-");   ok := ok and getJsonNumber(aFile) = "-0e-1"   and aFile.bufferChar = '-';
-    aFile := initScan("-0E1-");    ok := ok and getJsonNumber(aFile) = "-0E1"    and aFile.bufferChar = '-';
-    aFile := initScan("-0E+1-");   ok := ok and getJsonNumber(aFile) = "-0E+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-0E-1-");   ok := ok and getJsonNumber(aFile) = "-0E-1"   and aFile.bufferChar = '-';
-    aFile := initScan("-1-");      ok := ok and getJsonNumber(aFile) = "-1"      and aFile.bufferChar = '-';
-    aFile := initScan("-1.0-");    ok := ok and getJsonNumber(aFile) = "-1.0"    and aFile.bufferChar = '-';
-    aFile := initScan("-1.0e1-");  ok := ok and getJsonNumber(aFile) = "-1.0e1"  and aFile.bufferChar = '-';
-    aFile := initScan("-1.0e+1-"); ok := ok and getJsonNumber(aFile) = "-1.0e+1" and aFile.bufferChar = '-';
-    aFile := initScan("-1.0e-1-"); ok := ok and getJsonNumber(aFile) = "-1.0e-1" and aFile.bufferChar = '-';
-    aFile := initScan("-1.0E1-");  ok := ok and getJsonNumber(aFile) = "-1.0E1"  and aFile.bufferChar = '-';
-    aFile := initScan("-1.0E+1-"); ok := ok and getJsonNumber(aFile) = "-1.0E+1" and aFile.bufferChar = '-';
-    aFile := initScan("-1.0E-1-"); ok := ok and getJsonNumber(aFile) = "-1.0E-1" and aFile.bufferChar = '-';
-    aFile := initScan("-1e1-");    ok := ok and getJsonNumber(aFile) = "-1e1"    and aFile.bufferChar = '-';
-    aFile := initScan("-1e+1-");   ok := ok and getJsonNumber(aFile) = "-1e+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-1e-1-");   ok := ok and getJsonNumber(aFile) = "-1e-1"   and aFile.bufferChar = '-';
-    aFile := initScan("-1E1-");    ok := ok and getJsonNumber(aFile) = "-1E1"    and aFile.bufferChar = '-';
-    aFile := initScan("-1E+1-");   ok := ok and getJsonNumber(aFile) = "-1E+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-1E-1-");   ok := ok and getJsonNumber(aFile) = "-1E-1"   and aFile.bufferChar = '-';
-    aFile := initScan("-9-");      ok := ok and getJsonNumber(aFile) = "-9"      and aFile.bufferChar = '-';
-    aFile := initScan("-9.0-");    ok := ok and getJsonNumber(aFile) = "-9.0"    and aFile.bufferChar = '-';
-    aFile := initScan("-9.0e1-");  ok := ok and getJsonNumber(aFile) = "-9.0e1"  and aFile.bufferChar = '-';
-    aFile := initScan("-9.0e+1-"); ok := ok and getJsonNumber(aFile) = "-9.0e+1" and aFile.bufferChar = '-';
-    aFile := initScan("-9.0e-1-"); ok := ok and getJsonNumber(aFile) = "-9.0e-1" and aFile.bufferChar = '-';
-    aFile := initScan("-9.0E1-");  ok := ok and getJsonNumber(aFile) = "-9.0E1"  and aFile.bufferChar = '-';
-    aFile := initScan("-9.0E+1-"); ok := ok and getJsonNumber(aFile) = "-9.0E+1" and aFile.bufferChar = '-';
-    aFile := initScan("-9.0E-1-"); ok := ok and getJsonNumber(aFile) = "-9.0E-1" and aFile.bufferChar = '-';
-    aFile := initScan("-9e1-");    ok := ok and getJsonNumber(aFile) = "-9e1"    and aFile.bufferChar = '-';
-    aFile := initScan("-9e+1-");   ok := ok and getJsonNumber(aFile) = "-9e+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-9e-1-");   ok := ok and getJsonNumber(aFile) = "-9e-1"   and aFile.bufferChar = '-';
-    aFile := initScan("-9E1-");    ok := ok and getJsonNumber(aFile) = "-9E1"    and aFile.bufferChar = '-';
-    aFile := initScan("-9E+1-");   ok := ok and getJsonNumber(aFile) = "-9E+1"   and aFile.bufferChar = '-';
-    aFile := initScan("-9E-1-");   ok := ok and getJsonNumber(aFile) = "-9E-1"   and aFile.bufferChar = '-';
-    if not ok then
-      writeln(" ***** getJsonNumber(aFile) does not work as expected. (4)");
+    if  not getJsonNumberOkay("0-",       "0",       "-") or
+        not getJsonNumberOkay("0.0-",     "0.0",     "-") or
+        not getJsonNumberOkay("0.0e1-",   "0.0e1",   "-") or
+        not getJsonNumberOkay("0.0e+1-",  "0.0e+1",  "-") or
+        not getJsonNumberOkay("0.0e-1-",  "0.0e-1",  "-") or
+        not getJsonNumberOkay("0.0E1-",   "0.0E1",   "-") or
+        not getJsonNumberOkay("0.0E+1-",  "0.0E+1",  "-") or
+        not getJsonNumberOkay("0.0E-1-",  "0.0E-1",  "-") or
+        not getJsonNumberOkay("0e1-",     "0e1",     "-") or
+        not getJsonNumberOkay("0e+1-",    "0e+1",    "-") or
+        not getJsonNumberOkay("0e-1-",    "0e-1",    "-") or
+        not getJsonNumberOkay("0E1-",     "0E1",     "-") or
+        not getJsonNumberOkay("0E+1-",    "0E+1",    "-") or
+        not getJsonNumberOkay("0E-1-",    "0E-1",    "-") or
+        not getJsonNumberOkay("1-",       "1",       "-") or
+        not getJsonNumberOkay("1.0-",     "1.0",     "-") or
+        not getJsonNumberOkay("1.0e1-",   "1.0e1",   "-") or
+        not getJsonNumberOkay("1.0e+1-",  "1.0e+1",  "-") or
+        not getJsonNumberOkay("1.0e-1-",  "1.0e-1",  "-") or
+        not getJsonNumberOkay("1.0E1-",   "1.0E1",   "-") or
+        not getJsonNumberOkay("1.0E+1-",  "1.0E+1",  "-") or
+        not getJsonNumberOkay("1.0E-1-",  "1.0E-1",  "-") or
+        not getJsonNumberOkay("1e1-",     "1e1",     "-") or
+        not getJsonNumberOkay("1e+1-",    "1e+1",    "-") or
+        not getJsonNumberOkay("1e-1-",    "1e-1",    "-") or
+        not getJsonNumberOkay("1E1-",     "1E1",     "-") or
+        not getJsonNumberOkay("1E+1-",    "1E+1",    "-") or
+        not getJsonNumberOkay("1E-1-",    "1E-1",    "-") or
+        not getJsonNumberOkay("9-",       "9",       "-") or
+        not getJsonNumberOkay("9.0-",     "9.0",     "-") or
+        not getJsonNumberOkay("9.0e1-",   "9.0e1",   "-") or
+        not getJsonNumberOkay("9.0e+1-",  "9.0e+1",  "-") or
+        not getJsonNumberOkay("9.0e-1-",  "9.0e-1",  "-") or
+        not getJsonNumberOkay("9.0E1-",   "9.0E1",   "-") or
+        not getJsonNumberOkay("9.0E+1-",  "9.0E+1",  "-") or
+        not getJsonNumberOkay("9.0E-1-",  "9.0E-1",  "-") or
+        not getJsonNumberOkay("9e1-",     "9e1",     "-") or
+        not getJsonNumberOkay("9e+1-",    "9e+1",    "-") or
+        not getJsonNumberOkay("9e-1-",    "9e-1",    "-") or
+        not getJsonNumberOkay("9E1-",     "9E1",     "-") or
+        not getJsonNumberOkay("9E+1-",    "9E+1",    "-") or
+        not getJsonNumberOkay("9E-1-",    "9E-1",    "-") or
+        not getJsonNumberOkay("-0-",      "-0",      "-") or
+        not getJsonNumberOkay("-0.0-",    "-0.0",    "-") or
+        not getJsonNumberOkay("-0.0e1-",  "-0.0e1",  "-") or
+        not getJsonNumberOkay("-0.0e+1-", "-0.0e+1", "-") or
+        not getJsonNumberOkay("-0.0e-1-", "-0.0e-1", "-") or
+        not getJsonNumberOkay("-0.0E1-",  "-0.0E1",  "-") or
+        not getJsonNumberOkay("-0.0E+1-", "-0.0E+1", "-") or
+        not getJsonNumberOkay("-0.0E-1-", "-0.0E-1", "-") or
+        not getJsonNumberOkay("-0e1-",    "-0e1",    "-") or
+        not getJsonNumberOkay("-0e+1-",   "-0e+1",   "-") or
+        not getJsonNumberOkay("-0e-1-",   "-0e-1",   "-") or
+        not getJsonNumberOkay("-0E1-",    "-0E1",    "-") or
+        not getJsonNumberOkay("-0E+1-",   "-0E+1",   "-") or
+        not getJsonNumberOkay("-0E-1-",   "-0E-1",   "-") or
+        not getJsonNumberOkay("-1-",      "-1",      "-") or
+        not getJsonNumberOkay("-1.0-",    "-1.0",    "-") or
+        not getJsonNumberOkay("-1.0e1-",  "-1.0e1",  "-") or
+        not getJsonNumberOkay("-1.0e+1-", "-1.0e+1", "-") or
+        not getJsonNumberOkay("-1.0e-1-", "-1.0e-1", "-") or
+        not getJsonNumberOkay("-1.0E1-",  "-1.0E1",  "-") or
+        not getJsonNumberOkay("-1.0E+1-", "-1.0E+1", "-") or
+        not getJsonNumberOkay("-1.0E-1-", "-1.0E-1", "-") or
+        not getJsonNumberOkay("-1e1-",    "-1e1",    "-") or
+        not getJsonNumberOkay("-1e+1-",   "-1e+1",   "-") or
+        not getJsonNumberOkay("-1e-1-",   "-1e-1",   "-") or
+        not getJsonNumberOkay("-1E1-",    "-1E1",    "-") or
+        not getJsonNumberOkay("-1E+1-",   "-1E+1",   "-") or
+        not getJsonNumberOkay("-1E-1-",   "-1E-1",   "-") or
+        not getJsonNumberOkay("-9-",      "-9",      "-") or
+        not getJsonNumberOkay("-9.0-",    "-9.0",    "-") or
+        not getJsonNumberOkay("-9.0e1-",  "-9.0e1",  "-") or
+        not getJsonNumberOkay("-9.0e+1-", "-9.0e+1", "-") or
+        not getJsonNumberOkay("-9.0e-1-", "-9.0e-1", "-") or
+        not getJsonNumberOkay("-9.0E1-",  "-9.0E1",  "-") or
+        not getJsonNumberOkay("-9.0E+1-", "-9.0E+1", "-") or
+        not getJsonNumberOkay("-9.0E-1-", "-9.0E-1", "-") or
+        not getJsonNumberOkay("-9e1-",    "-9e1",    "-") or
+        not getJsonNumberOkay("-9e+1-",   "-9e+1",   "-") or
+        not getJsonNumberOkay("-9e-1-",   "-9e-1",   "-") or
+        not getJsonNumberOkay("-9E1-",    "-9E1",    "-") or
+        not getJsonNumberOkay("-9E+1-",   "-9E+1",   "-") or
+        not getJsonNumberOkay("-9E-1-",   "-9E-1",   "-") then
+      writeln(" ***** getJsonNumber() does not work as expected. (4)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("");       ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("+");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("x");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("00");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0e");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0e+");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0e-");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0E");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0E+");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0E-");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0e");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0e+");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0e-");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0E");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0E+");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("0.0E-");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1e");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1e+");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1e-");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1E");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1E+");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1E-");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0e");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0e+");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0e-");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0E");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0E+");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("1.0E-");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-00");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0e");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0e+");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0e-");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0E");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0E+");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0E-");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0e");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0e+"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0e-"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0E");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0E+"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-0.0E-"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1e");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1e+");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1e-");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1E");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1E+");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1E-");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0e");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0e+"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0e-"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0E");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0E+"); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("-1.0E-"); ok := ok and raisesRangeError(getJsonString(aFile));
-    if not ok then
-      writeln(" ***** getJsonNumber(aFile) does not raise RANGE_ERROR.");
+    if  not getJsonNumberRaisesRangeError(""      ) or
+        not getJsonNumberRaisesRangeError("+"     ) or
+        not getJsonNumberRaisesRangeError("-"     ) or
+        not getJsonNumberRaisesRangeError("x"     ) or
+        not getJsonNumberRaisesRangeError("0."    ) or
+        not getJsonNumberRaisesRangeError("0e"    ) or
+        not getJsonNumberRaisesRangeError("0e+"   ) or
+        not getJsonNumberRaisesRangeError("0e-"   ) or
+        not getJsonNumberRaisesRangeError("0E"    ) or
+        not getJsonNumberRaisesRangeError("0E+"   ) or
+        not getJsonNumberRaisesRangeError("0E-"   ) or
+        not getJsonNumberRaisesRangeError("0.0e"  ) or
+        not getJsonNumberRaisesRangeError("0.0e+" ) or
+        not getJsonNumberRaisesRangeError("0.0e-" ) or
+        not getJsonNumberRaisesRangeError("0.0E"  ) or
+        not getJsonNumberRaisesRangeError("0.0E+" ) or
+        not getJsonNumberRaisesRangeError("0.0E-" ) or
+        not getJsonNumberRaisesRangeError("1."    ) or
+        not getJsonNumberRaisesRangeError("1e"    ) or
+        not getJsonNumberRaisesRangeError("1e+"   ) or
+        not getJsonNumberRaisesRangeError("1e-"   ) or
+        not getJsonNumberRaisesRangeError("1E"    ) or
+        not getJsonNumberRaisesRangeError("1E+"   ) or
+        not getJsonNumberRaisesRangeError("1E-"   ) or
+        not getJsonNumberRaisesRangeError("1.0e"  ) or
+        not getJsonNumberRaisesRangeError("1.0e+" ) or
+        not getJsonNumberRaisesRangeError("1.0e-" ) or
+        not getJsonNumberRaisesRangeError("1.0E"  ) or
+        not getJsonNumberRaisesRangeError("1.0E+" ) or
+        not getJsonNumberRaisesRangeError("1.0E-" ) or
+        not getJsonNumberRaisesRangeError("-0."   ) or
+        not getJsonNumberRaisesRangeError("-0e"   ) or
+        not getJsonNumberRaisesRangeError("-0e+"  ) or
+        not getJsonNumberRaisesRangeError("-0e-"  ) or
+        not getJsonNumberRaisesRangeError("-0E"   ) or
+        not getJsonNumberRaisesRangeError("-0E+"  ) or
+        not getJsonNumberRaisesRangeError("-0E-"  ) or
+        not getJsonNumberRaisesRangeError("-0.0e" ) or
+        not getJsonNumberRaisesRangeError("-0.0e+") or
+        not getJsonNumberRaisesRangeError("-0.0e-") or
+        not getJsonNumberRaisesRangeError("-0.0E" ) or
+        not getJsonNumberRaisesRangeError("-0.0E+") or
+        not getJsonNumberRaisesRangeError("-0.0E-") or
+        not getJsonNumberRaisesRangeError("-1."   ) or
+        not getJsonNumberRaisesRangeError("-1e"   ) or
+        not getJsonNumberRaisesRangeError("-1e+"  ) or
+        not getJsonNumberRaisesRangeError("-1e-"  ) or
+        not getJsonNumberRaisesRangeError("-1E"   ) or
+        not getJsonNumberRaisesRangeError("-1E+"  ) or
+        not getJsonNumberRaisesRangeError("-1E-"  ) or
+        not getJsonNumberRaisesRangeError("-1.0e" ) or
+        not getJsonNumberRaisesRangeError("-1.0e+") or
+        not getJsonNumberRaisesRangeError("-1.0e-") or
+        not getJsonNumberRaisesRangeError("-1.0E" ) or
+        not getJsonNumberRaisesRangeError("-1.0E+") or
+        not getJsonNumberRaisesRangeError("-1.0E-") then
+      writeln(" ***** getJsonNumber() does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -1015,9 +747,6 @@ const proc: checkGetJsonNumber is func
     var boolean: okay is TRUE;
   begin
     if not checkGetJsonNumber1 then
-      okay := FALSE;
-    end if;
-    if not checkGetJsonNumber2 then
       okay := FALSE;
     end if;
 
