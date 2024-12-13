@@ -454,11 +454,6 @@ const proc: putFile (inout fileSys: fileSystem, in string: filePath, in string: 
 const func string: readLink (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
-# The function readlink() is deprecated. Use readLink() instead.
-const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
-  return readLink(fileSystem, filePath);
-
-
 (**
  *  Create a symbolic link.
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.

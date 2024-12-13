@@ -540,11 +540,6 @@ const proc: setGroup (in string: filePath, in string: group, SYMLINK) is action 
 const func string: readLink (in string: filePath)            is action "CMD_READ_LINK";
 
 
-# The function readlink() is deprecated. Use readLink() instead.
-const func string: readlink (in string: filePath) is
-  return readLink(filePath);
-
-
 (**
  *  Reads the absolute destination path of a symbolic link.
  *  The symbolic links stored in the file system can be relative or
