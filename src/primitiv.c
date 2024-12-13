@@ -401,7 +401,6 @@ static const actEntryRecord actEntryTable[] = {
  /* { "DRW_SCALE",                    drw_scale,                    }, */
     { "DRW_SCREEN_HEIGHT",            drw_screen_height,            },
     { "DRW_SCREEN_WIDTH",             drw_screen_width,             },
-    { "DRW_SET_CLOSE_ACTION",         drw_set_close_action,         },
     { "DRW_SET_CONTENT",              drw_set_content,              },
     { "DRW_SET_CURSOR_VISIBLE",       drw_set_cursor_visible,       },
     { "DRW_SET_POINTER_POS",          drw_set_pointer_pos,          },

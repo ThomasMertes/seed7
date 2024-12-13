@@ -1637,17 +1637,6 @@ objectType drw_screen_width (listType arguments)
 
 
 
-objectType drw_set_close_action (listType arguments)
-
-  { /* drw_set_close_action */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    drwSetCloseAction(take_win(arg_1(arguments)), take_int(arg_2(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* drw_set_close_action */
-
-
-
 objectType drw_set_content (listType arguments)
 
   { /* drw_set_content */

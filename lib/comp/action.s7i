@@ -783,9 +783,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SCREEN_WIDTH"}:
         drawLibraryUsed := TRUE;
         process(DRW_SCREEN_WIDTH, function, params, c_expr);
-      when {"DRW_SET_CLOSE_ACTION"}:
-        drawLibraryUsed := TRUE;
-        process(DRW_SET_CLOSE_ACTION, function, params, c_expr);
       when {"DRW_SET_CONTENT"}:
         drawLibraryUsed := TRUE;
         process(DRW_SET_CONTENT, function, params, c_expr);

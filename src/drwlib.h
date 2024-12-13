@@ -96,7 +96,6 @@ objectType drw_rot                       (listType arguments);
 objectType drw_screen_height             (listType arguments);
 objectType drw_screen_width              (listType arguments);
 objectType drw_scale                     (listType arguments);
-objectType drw_set_close_action          (listType arguments);
 objectType drw_set_content               (listType arguments);
 objectType drw_set_cursor_visible        (listType arguments);
 objectType drw_set_pointer_pos           (listType arguments);
