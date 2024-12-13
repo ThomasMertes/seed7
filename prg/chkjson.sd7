@@ -79,165 +79,6 @@ DECLARE_RAISES_ILLEGAL_ACTION(bigInteger);
 DECLARE_RAISES_ILLEGAL_ACTION(float);
 
 
-const func boolean: checkGetJsonString1 is func
-  result
-    var boolean: okay is TRUE;
-  local
-    var boolean: ok is TRUE;
-    var string: stri is "";
-  begin
-    stri := "\"\"";         ok := ok and getJsonString(stri) = "\"\""     and stri = "";
-    stri := "\"x\"&ab";     ok := ok and getJsonString(stri) = "\"x\""    and stri = "&ab";
-    stri := "\"\\\\\"+";    ok := ok and getJsonString(stri) = "\"\\\""   and stri = "+";
-    stri := "\"\\\"\"/";    ok := ok and getJsonString(stri) = "\"\"\""   and stri = "/";
-    stri := "\"\\/\"*";     ok := ok and getJsonString(stri) = "\"/\""    and stri = "*";
-    stri := "\"\\b\\f\"";   ok := ok and getJsonString(stri) = "\"\b\f\"" and stri = "";
-    stri := "\"\\n\\r\"";   ok := ok and getJsonString(stri) = "\"\n\r\"" and stri = "";
-    stri := "\"\\t$\"-";    ok := ok and getJsonString(stri) = "\"\t$\""  and stri = "-";
-    stri := "\"\\u20ac\"";  ok := ok and getJsonString(stri) = "\"€\""    and stri = "";
-    stri := "\"\\u20ac0\""; ok := ok and getJsonString(stri) = "\"€0\""   and stri = "";
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not work as expected. (1)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "\"\"";        ok := ok and getJsonString(stri) = "\"\""        and stri = "";
-    stri := "\"\\\"\"";    ok := ok and getJsonString(stri) = "\"\"\""      and stri = "";
-    stri := "\"\\\\\"";    ok := ok and getJsonString(stri) = "\"\\\""      and stri = "";
-    stri := "\"\\/\"";     ok := ok and getJsonString(stri) = "\"/\""       and stri = "";
-    stri := "\"\\b\"";     ok := ok and getJsonString(stri) = "\"\b\""      and stri = "";
-    stri := "\"\\f\"";     ok := ok and getJsonString(stri) = "\"\f\""      and stri = "";
-    stri := "\"\\n\"";     ok := ok and getJsonString(stri) = "\"\n\""      and stri = "";
-    stri := "\"\\r\"";     ok := ok and getJsonString(stri) = "\"\r\""      and stri = "";
-    stri := "\"\\t\"";     ok := ok and getJsonString(stri) = "\"\t\""      and stri = "";
-    stri := "\"\\u0000\""; ok := ok and getJsonString(stri) = "\"\0;\""     and stri = "";
-    stri := "\"\\u001f\""; ok := ok and getJsonString(stri) = "\"\31;\""    and stri = "";
-    stri := "\"\\u007f\""; ok := ok and getJsonString(stri) = "\"\127;\""   and stri = "";
-    stri := "\"\\u0080\""; ok := ok and getJsonString(stri) = "\"\128;\""   and stri = "";
-    stri := "\"\\u009f\""; ok := ok and getJsonString(stri) = "\"\159;\""   and stri = "";
-    stri := "\"\\uffff\""; ok := ok and getJsonString(stri) = "\"\65535;\"" and stri = "";
-    stri := "\" \"";       ok := ok and getJsonString(stri) = "\" \""       and stri = "";
-    stri := "\"!\"";       ok := ok and getJsonString(stri) = "\"!\""       and stri = "";
-    stri := "\"0\"";       ok := ok and getJsonString(stri) = "\"0\""       and stri = "";
-    stri := "\"A\"";       ok := ok and getJsonString(stri) = "\"A\""       and stri = "";
-    stri := "\"a\"";       ok := ok and getJsonString(stri) = "\"a\""       and stri = "";
-    stri := "\"~\"";       ok := ok and getJsonString(stri) = "\"~\""       and stri = "";
-    stri := "\"\160;\"";   ok := ok and getJsonString(stri) = "\"\160;\""   and stri = "";
-    stri := "\"ÿ\"";       ok := ok and getJsonString(stri) = "\"ÿ\""       and stri = "";
-    stri := "\"€\"";       ok := ok and getJsonString(stri) = "\"€\""       and stri = "";
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not work as expected. (2)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "\"\" ";        ok := ok and getJsonString(stri) = "\"\""        and stri = " ";
-    stri := "\"\\\"\" ";    ok := ok and getJsonString(stri) = "\"\"\""      and stri = " ";
-    stri := "\"\\\\\" ";    ok := ok and getJsonString(stri) = "\"\\\""      and stri = " ";
-    stri := "\"\\/\" ";     ok := ok and getJsonString(stri) = "\"/\""       and stri = " ";
-    stri := "\"\\b\" ";     ok := ok and getJsonString(stri) = "\"\b\""      and stri = " ";
-    stri := "\"\\f\" ";     ok := ok and getJsonString(stri) = "\"\f\""      and stri = " ";
-    stri := "\"\\n\" ";     ok := ok and getJsonString(stri) = "\"\n\""      and stri = " ";
-    stri := "\"\\r\" ";     ok := ok and getJsonString(stri) = "\"\r\""      and stri = " ";
-    stri := "\"\\t\" ";     ok := ok and getJsonString(stri) = "\"\t\""      and stri = " ";
-    stri := "\"\\u0000\" "; ok := ok and getJsonString(stri) = "\"\0;\""     and stri = " ";
-    stri := "\"\\u001f\" "; ok := ok and getJsonString(stri) = "\"\31;\""    and stri = " ";
-    stri := "\"\\u007f\" "; ok := ok and getJsonString(stri) = "\"\127;\""   and stri = " ";
-    stri := "\"\\u0080\" "; ok := ok and getJsonString(stri) = "\"\128;\""   and stri = " ";
-    stri := "\"\\u009f\" "; ok := ok and getJsonString(stri) = "\"\159;\""   and stri = " ";
-    stri := "\"\\uffff\" "; ok := ok and getJsonString(stri) = "\"\65535;\"" and stri = " ";
-    stri := "\" \" ";       ok := ok and getJsonString(stri) = "\" \""       and stri = " ";
-    stri := "\"!\" ";       ok := ok and getJsonString(stri) = "\"!\""       and stri = " ";
-    stri := "\"0\" ";       ok := ok and getJsonString(stri) = "\"0\""       and stri = " ";
-    stri := "\"A\" ";       ok := ok and getJsonString(stri) = "\"A\""       and stri = " ";
-    stri := "\"a\" ";       ok := ok and getJsonString(stri) = "\"a\""       and stri = " ";
-    stri := "\"~\" ";       ok := ok and getJsonString(stri) = "\"~\""       and stri = " ";
-    stri := "\"\160;\" ";   ok := ok and getJsonString(stri) = "\"\160;\""   and stri = " ";
-    stri := "\"ÿ\" ";       ok := ok and getJsonString(stri) = "\"ÿ\""       and stri = " ";
-    stri := "\"€\" ";       ok := ok and getJsonString(stri) = "\"€\""       and stri = " ";
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not work as expected. (3)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "\"\"\"";        ok := ok and getJsonString(stri) = "\"\""        and stri = "\"";
-    stri := "\"\\\"\"\"";    ok := ok and getJsonString(stri) = "\"\"\""      and stri = "\"";
-    stri := "\"\\\\\"\"";    ok := ok and getJsonString(stri) = "\"\\\""      and stri = "\"";
-    stri := "\"\\/\"\"";     ok := ok and getJsonString(stri) = "\"/\""       and stri = "\"";
-    stri := "\"\\b\"\"";     ok := ok and getJsonString(stri) = "\"\b\""      and stri = "\"";
-    stri := "\"\\f\"\"";     ok := ok and getJsonString(stri) = "\"\f\""      and stri = "\"";
-    stri := "\"\\n\"\"";     ok := ok and getJsonString(stri) = "\"\n\""      and stri = "\"";
-    stri := "\"\\r\"\"";     ok := ok and getJsonString(stri) = "\"\r\""      and stri = "\"";
-    stri := "\"\\t\"\"";     ok := ok and getJsonString(stri) = "\"\t\""      and stri = "\"";
-    stri := "\"\\u0000\"\""; ok := ok and getJsonString(stri) = "\"\0;\""     and stri = "\"";
-    stri := "\"\\u001f\"\""; ok := ok and getJsonString(stri) = "\"\31;\""    and stri = "\"";
-    stri := "\"\\u007f\"\""; ok := ok and getJsonString(stri) = "\"\127;\""   and stri = "\"";
-    stri := "\"\\u0080\"\""; ok := ok and getJsonString(stri) = "\"\128;\""   and stri = "\"";
-    stri := "\"\\u009f\"\""; ok := ok and getJsonString(stri) = "\"\159;\""   and stri = "\"";
-    stri := "\"\\uffff\"\""; ok := ok and getJsonString(stri) = "\"\65535;\"" and stri = "\"";
-    stri := "\" \"\"";       ok := ok and getJsonString(stri) = "\" \""       and stri = "\"";
-    stri := "\"!\"\"";       ok := ok and getJsonString(stri) = "\"!\""       and stri = "\"";
-    stri := "\"0\"\"";       ok := ok and getJsonString(stri) = "\"0\""       and stri = "\"";
-    stri := "\"A\"\"";       ok := ok and getJsonString(stri) = "\"A\""       and stri = "\"";
-    stri := "\"a\"\"";       ok := ok and getJsonString(stri) = "\"a\""       and stri = "\"";
-    stri := "\"~\"\"";       ok := ok and getJsonString(stri) = "\"~\""       and stri = "\"";
-    stri := "\"\160;\"\"";   ok := ok and getJsonString(stri) = "\"\160;\""   and stri = "\"";
-    stri := "\"ÿ\"\"";       ok := ok and getJsonString(stri) = "\"ÿ\""       and stri = "\"";
-    stri := "\"€\"\"";       ok := ok and getJsonString(stri) = "\"€\""       and stri = "\"";
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not work as expected. (4)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"";
-    ok := ok and getJsonString(stri) = "\"\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€\"" and stri = "";
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not work as expected. (5)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := "";            ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"";          ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\0;\"";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\b\"";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\f\"";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\n\"";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\r\"";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\t\"";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\31;\"";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\127;\"";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\128;\"";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\159;\"";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\";        ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\a\"";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u";       ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u1";      ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u12";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u123";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u1234";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\ug234";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u1g34";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u12g4";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u123g";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u\"";     ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u1\"";    ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u12\"";   ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u123\"";  ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\ug234\""; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u1g34\""; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u12g4\""; ok := ok and raisesRangeError(getJsonString(stri));
-    stri := "\"\\u123g\""; ok := ok and raisesRangeError(getJsonString(stri));
-    if not ok then
-      writeln(" ***** getJsonString(aString) does not raise RANGE_ERROR.");
-      okay := FALSE;
-    end if;
-  end func;
-
-
 const func file: initScan (in string: content) is func
   result
     var file: scanFile is STD_NULL;
@@ -247,160 +88,191 @@ const func file: initScan (in string: content) is func
   end func;
 
 
-const func boolean: checkGetJsonString2 is func
+const func boolean: getJsonStringOkay (in string: initialStri,
+    in string: expectedSymbol, in string: finalStri) is func
   result
     var boolean: okay is TRUE;
   local
-    var boolean: ok is TRUE;
+    var string: stri is "";
+    var string: symbol is "";
+    var file: aFile is STD_NULL;
+    var char: expectedBuffer is ' ';
+  begin
+    stri := initialStri;
+    symbol := getJsonString(stri);
+    okay := symbol = expectedSymbol and stri = finalStri;
+    if okay then
+      if finalStri = "" then
+        expectedBuffer := EOF;
+      else
+        expectedBuffer := finalStri[1];
+      end if;
+      aFile := initScan(initialStri);
+      symbol := getJsonString(aFile);
+      okay := symbol = expectedSymbol and aFile.bufferChar = expectedBuffer;
+      if okay and expectedBuffer = EOF and not eof(aFile) then
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: getJsonStringRaisesRangeError (in string: initialStri) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: stri is "";
     var file: aFile is STD_NULL;
   begin
-    aFile := initScan("\"\"");         ok := ok and getJsonString(aFile) = "\"\""     and aFile.bufferChar = EOF;
-    aFile := initScan("\"x\"&ab");     ok := ok and getJsonString(aFile) = "\"x\""    and aFile.bufferChar = '&';
-    aFile := initScan("\"\\\\\"+");    ok := ok and getJsonString(aFile) = "\"\\\""   and aFile.bufferChar = '+';
-    aFile := initScan("\"\\\"\"/");    ok := ok and getJsonString(aFile) = "\"\"\""   and aFile.bufferChar = '/';
-    aFile := initScan("\"\\/\"*");     ok := ok and getJsonString(aFile) = "\"/\""    and aFile.bufferChar = '*';
-    aFile := initScan("\"\\b\\f\"");   ok := ok and getJsonString(aFile) = "\"\b\f\"" and aFile.bufferChar = EOF;
-    aFile := initScan("\"\\n\\r\"");   ok := ok and getJsonString(aFile) = "\"\n\r\"" and aFile.bufferChar = EOF;
-    aFile := initScan("\"\\t$\"-");    ok := ok and getJsonString(aFile) = "\"\t$\""  and aFile.bufferChar = '-';
-    aFile := initScan("\"\\u20ac\"");  ok := ok and getJsonString(aFile) = "\"€\""    and aFile.bufferChar = EOF;
-    aFile := initScan("\"\\u20ac0\""); ok := ok and getJsonString(aFile) = "\"€0\""   and aFile.bufferChar = EOF;
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not work as expected. (1)");
+    stri := initialStri;
+    okay := raisesRangeError(getJsonString(stri));
+    if okay then
+      aFile := initScan(initialStri);
+      okay := raisesRangeError(getJsonString(aFile));
+    end if;
+  end func;
+
+
+const func boolean: checkGetJsonString1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getJsonStringOkay("\"\"",         "\"\"",     "") or
+        not getJsonStringOkay("\"x\"&ab",     "\"x\"",    "&ab") or
+        not getJsonStringOkay("\"\\\\\"+",    "\"\\\"",   "+") or
+        not getJsonStringOkay("\"\\\"\"/",    "\"\"\"",   "/") or
+        not getJsonStringOkay("\"\\/\"*",     "\"/\"",    "*") or
+        not getJsonStringOkay("\"\\b\\f\"",   "\"\b\f\"", "") or
+        not getJsonStringOkay("\"\\n\\r\"",   "\"\n\r\"", "") or
+        not getJsonStringOkay("\"\\t$\"-",    "\"\t$\"",  "-") or
+        not getJsonStringOkay("\"\\u20ac\"",  "\"€\"",    "") or
+        not getJsonStringOkay("\"\\u20ac0\"", "\"€0\"",   "") then
+      writeln(" ***** getJsonString() does not work as expected. (1)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("\"\"");        ok := ok and getJsonString(aFile) = "\"\""        and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\\"\"");    ok := ok and getJsonString(aFile) = "\"\"\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\\\\"");    ok := ok and getJsonString(aFile) = "\"\\\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\/\"");     ok := ok and getJsonString(aFile) = "\"/\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\b\"");     ok := ok and getJsonString(aFile) = "\"\b\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\f\"");     ok := ok and getJsonString(aFile) = "\"\f\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\n\"");     ok := ok and getJsonString(aFile) = "\"\n\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\r\"");     ok := ok and getJsonString(aFile) = "\"\r\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\t\"");     ok := ok and getJsonString(aFile) = "\"\t\""      and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\u0000\""); ok := ok and getJsonString(aFile) = "\"\0;\""     and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\u001f\""); ok := ok and getJsonString(aFile) = "\"\31;\""    and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\u007f\""); ok := ok and getJsonString(aFile) = "\"\127;\""   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\u0080\""); ok := ok and getJsonString(aFile) = "\"\128;\""   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\u009f\""); ok := ok and getJsonString(aFile) = "\"\159;\""   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\\uffff\""); ok := ok and getJsonString(aFile) = "\"\65535;\"" and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\" \"");       ok := ok and getJsonString(aFile) = "\" \""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"!\"");       ok := ok and getJsonString(aFile) = "\"!\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"0\"");       ok := ok and getJsonString(aFile) = "\"0\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"A\"");       ok := ok and getJsonString(aFile) = "\"A\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"a\"");       ok := ok and getJsonString(aFile) = "\"a\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"~\"");       ok := ok and getJsonString(aFile) = "\"~\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"\160;\"");   ok := ok and getJsonString(aFile) = "\"\160;\""   and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"ÿ\"");       ok := ok and getJsonString(aFile) = "\"ÿ\""       and aFile.bufferChar = EOF and eof(aFile);
-    aFile := initScan("\"€\"");       ok := ok and getJsonString(aFile) = "\"€\""       and aFile.bufferChar = EOF and eof(aFile);
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not work as expected. (2)");
+    if  not getJsonStringOkay("\"\"",        "\"\"",        "") or
+        not getJsonStringOkay("\"\\\"\"",    "\"\"\"",      "") or
+        not getJsonStringOkay("\"\\\\\"",    "\"\\\"",      "") or
+        not getJsonStringOkay("\"\\/\"",     "\"/\"",       "") or
+        not getJsonStringOkay("\"\\b\"",     "\"\b\"",      "") or
+        not getJsonStringOkay("\"\\f\"",     "\"\f\"",      "") or
+        not getJsonStringOkay("\"\\n\"",     "\"\n\"",      "") or
+        not getJsonStringOkay("\"\\r\"",     "\"\r\"",      "") or
+        not getJsonStringOkay("\"\\t\"",     "\"\t\"",      "") or
+        not getJsonStringOkay("\"\\u0000\"", "\"\0;\"",     "") or
+        not getJsonStringOkay("\"\\u001f\"", "\"\31;\"",    "") or
+        not getJsonStringOkay("\"\\u007f\"", "\"\127;\"",   "") or
+        not getJsonStringOkay("\"\\u0080\"", "\"\128;\"",   "") or
+        not getJsonStringOkay("\"\\u009f\"", "\"\159;\"",   "") or
+        not getJsonStringOkay("\"\\uffff\"", "\"\65535;\"", "") or
+        not getJsonStringOkay("\" \"",       "\" \"",       "") or
+        not getJsonStringOkay("\"!\"",       "\"!\"",       "") or
+        not getJsonStringOkay("\"0\"",       "\"0\"",       "") or
+        not getJsonStringOkay("\"A\"",       "\"A\"",       "") or
+        not getJsonStringOkay("\"a\"",       "\"a\"",       "") or
+        not getJsonStringOkay("\"~\"",       "\"~\"",       "") or
+        not getJsonStringOkay("\"\160;\"",   "\"\160;\"",   "") or
+        not getJsonStringOkay("\"ÿ\"",       "\"ÿ\"",       "") or
+        not getJsonStringOkay("\"€\"",       "\"€\"",       "") then
+      writeln(" ***** getJsonString() does not work as expected. (2)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("\"\" ");        ok := ok and getJsonString(aFile) = "\"\""        and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\\"\" ");    ok := ok and getJsonString(aFile) = "\"\"\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\\\\" ");    ok := ok and getJsonString(aFile) = "\"\\\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\/\" ");     ok := ok and getJsonString(aFile) = "\"/\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\b\" ");     ok := ok and getJsonString(aFile) = "\"\b\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\f\" ");     ok := ok and getJsonString(aFile) = "\"\f\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\n\" ");     ok := ok and getJsonString(aFile) = "\"\n\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\r\" ");     ok := ok and getJsonString(aFile) = "\"\r\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\t\" ");     ok := ok and getJsonString(aFile) = "\"\t\""      and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\u0000\" "); ok := ok and getJsonString(aFile) = "\"\0;\""     and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\u001f\" "); ok := ok and getJsonString(aFile) = "\"\31;\""    and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\u007f\" "); ok := ok and getJsonString(aFile) = "\"\127;\""   and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\u0080\" "); ok := ok and getJsonString(aFile) = "\"\128;\""   and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\u009f\" "); ok := ok and getJsonString(aFile) = "\"\159;\""   and aFile.bufferChar = ' ';
-    aFile := initScan("\"\\uffff\" "); ok := ok and getJsonString(aFile) = "\"\65535;\"" and aFile.bufferChar = ' ';
-    aFile := initScan("\" \" ");       ok := ok and getJsonString(aFile) = "\" \""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"!\" ");       ok := ok and getJsonString(aFile) = "\"!\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"0\" ");       ok := ok and getJsonString(aFile) = "\"0\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"A\" ");       ok := ok and getJsonString(aFile) = "\"A\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"a\" ");       ok := ok and getJsonString(aFile) = "\"a\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"~\" ");       ok := ok and getJsonString(aFile) = "\"~\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"\160;\" ");   ok := ok and getJsonString(aFile) = "\"\160;\""   and aFile.bufferChar = ' ';
-    aFile := initScan("\"ÿ\" ");       ok := ok and getJsonString(aFile) = "\"ÿ\""       and aFile.bufferChar = ' ';
-    aFile := initScan("\"€\" ");       ok := ok and getJsonString(aFile) = "\"€\""       and aFile.bufferChar = ' ';
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not work as expected. (3)");
+    if  not getJsonStringOkay("\"\" ",        "\"\"",        " ") or
+        not getJsonStringOkay("\"\\\"\" ",    "\"\"\"",      " ") or
+        not getJsonStringOkay("\"\\\\\" ",    "\"\\\"",      " ") or
+        not getJsonStringOkay("\"\\/\" ",     "\"/\"",       " ") or
+        not getJsonStringOkay("\"\\b\" ",     "\"\b\"",      " ") or
+        not getJsonStringOkay("\"\\f\" ",     "\"\f\"",      " ") or
+        not getJsonStringOkay("\"\\n\" ",     "\"\n\"",      " ") or
+        not getJsonStringOkay("\"\\r\" ",     "\"\r\"",      " ") or
+        not getJsonStringOkay("\"\\t\" ",     "\"\t\"",      " ") or
+        not getJsonStringOkay("\"\\u0000\" ", "\"\0;\"",     " ") or
+        not getJsonStringOkay("\"\\u001f\" ", "\"\31;\"",    " ") or
+        not getJsonStringOkay("\"\\u007f\" ", "\"\127;\"",   " ") or
+        not getJsonStringOkay("\"\\u0080\" ", "\"\128;\"",   " ") or
+        not getJsonStringOkay("\"\\u009f\" ", "\"\159;\"",   " ") or
+        not getJsonStringOkay("\"\\uffff\" ", "\"\65535;\"", " ") or
+        not getJsonStringOkay("\" \" ",       "\" \"",       " ") or
+        not getJsonStringOkay("\"!\" ",       "\"!\"",       " ") or
+        not getJsonStringOkay("\"0\" ",       "\"0\"",       " ") or
+        not getJsonStringOkay("\"A\" ",       "\"A\"",       " ") or
+        not getJsonStringOkay("\"a\" ",       "\"a\"",       " ") or
+        not getJsonStringOkay("\"~\" ",       "\"~\"",       " ") or
+        not getJsonStringOkay("\"\160;\" ",   "\"\160;\"",   " ") or
+        not getJsonStringOkay("\"ÿ\" ",       "\"ÿ\"",       " ") or
+        not getJsonStringOkay("\"€\" ",       "\"€\"",       " ") then
+      writeln(" ***** getJsonString() does not work as expected. (3)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("\"\"\"");        ok := ok and getJsonString(aFile) = "\"\""        and aFile.bufferChar = '"';
-    aFile := initScan("\"\\\"\"\"");    ok := ok and getJsonString(aFile) = "\"\"\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\\\\"\"");    ok := ok and getJsonString(aFile) = "\"\\\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\/\"\"");     ok := ok and getJsonString(aFile) = "\"/\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"\\b\"\"");     ok := ok and getJsonString(aFile) = "\"\b\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\f\"\"");     ok := ok and getJsonString(aFile) = "\"\f\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\n\"\"");     ok := ok and getJsonString(aFile) = "\"\n\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\r\"\"");     ok := ok and getJsonString(aFile) = "\"\r\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\t\"\"");     ok := ok and getJsonString(aFile) = "\"\t\""      and aFile.bufferChar = '"';
-    aFile := initScan("\"\\u0000\"\""); ok := ok and getJsonString(aFile) = "\"\0;\""     and aFile.bufferChar = '"';
-    aFile := initScan("\"\\u001f\"\""); ok := ok and getJsonString(aFile) = "\"\31;\""    and aFile.bufferChar = '"';
-    aFile := initScan("\"\\u007f\"\""); ok := ok and getJsonString(aFile) = "\"\127;\""   and aFile.bufferChar = '"';
-    aFile := initScan("\"\\u0080\"\""); ok := ok and getJsonString(aFile) = "\"\128;\""   and aFile.bufferChar = '"';
-    aFile := initScan("\"\\u009f\"\""); ok := ok and getJsonString(aFile) = "\"\159;\""   and aFile.bufferChar = '"';
-    aFile := initScan("\"\\uffff\"\""); ok := ok and getJsonString(aFile) = "\"\65535;\"" and aFile.bufferChar = '"';
-    aFile := initScan("\" \"\"");       ok := ok and getJsonString(aFile) = "\" \""       and aFile.bufferChar = '"';
-    aFile := initScan("\"!\"\"");       ok := ok and getJsonString(aFile) = "\"!\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"0\"\"");       ok := ok and getJsonString(aFile) = "\"0\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"A\"\"");       ok := ok and getJsonString(aFile) = "\"A\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"a\"\"");       ok := ok and getJsonString(aFile) = "\"a\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"~\"\"");       ok := ok and getJsonString(aFile) = "\"~\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"\160;\"\"");   ok := ok and getJsonString(aFile) = "\"\160;\""   and aFile.bufferChar = '"';
-    aFile := initScan("\"ÿ\"\"");       ok := ok and getJsonString(aFile) = "\"ÿ\""       and aFile.bufferChar = '"';
-    aFile := initScan("\"€\"\"");       ok := ok and getJsonString(aFile) = "\"€\""       and aFile.bufferChar = '"';
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not work as expected. (4)");
+    if  not getJsonStringOkay("\"\"\"",        "\"\"",        "\"") or
+        not getJsonStringOkay("\"\\\"\"\"",    "\"\"\"",      "\"") or
+        not getJsonStringOkay("\"\\\\\"\"",    "\"\\\"",      "\"") or
+        not getJsonStringOkay("\"\\/\"\"",     "\"/\"",       "\"") or
+        not getJsonStringOkay("\"\\b\"\"",     "\"\b\"",      "\"") or
+        not getJsonStringOkay("\"\\f\"\"",     "\"\f\"",      "\"") or
+        not getJsonStringOkay("\"\\n\"\"",     "\"\n\"",      "\"") or
+        not getJsonStringOkay("\"\\r\"\"",     "\"\r\"",      "\"") or
+        not getJsonStringOkay("\"\\t\"\"",     "\"\t\"",      "\"") or
+        not getJsonStringOkay("\"\\u0000\"\"", "\"\0;\"",     "\"") or
+        not getJsonStringOkay("\"\\u001f\"\"", "\"\31;\"",    "\"") or
+        not getJsonStringOkay("\"\\u007f\"\"", "\"\127;\"",   "\"") or
+        not getJsonStringOkay("\"\\u0080\"\"", "\"\128;\"",   "\"") or
+        not getJsonStringOkay("\"\\u009f\"\"", "\"\159;\"",   "\"") or
+        not getJsonStringOkay("\"\\uffff\"\"", "\"\65535;\"", "\"") or
+        not getJsonStringOkay("\" \"\"",       "\" \"",       "\"") or
+        not getJsonStringOkay("\"!\"\"",       "\"!\"",       "\"") or
+        not getJsonStringOkay("\"0\"\"",       "\"0\"",       "\"") or
+        not getJsonStringOkay("\"A\"\"",       "\"A\"",       "\"") or
+        not getJsonStringOkay("\"a\"\"",       "\"a\"",       "\"") or
+        not getJsonStringOkay("\"~\"\"",       "\"~\"",       "\"") or
+        not getJsonStringOkay("\"\160;\"\"",   "\"\160;\"",   "\"") or
+        not getJsonStringOkay("\"ÿ\"\"",       "\"ÿ\"",       "\"") or
+        not getJsonStringOkay("\"€\"\"",       "\"€\"",       "\"") then
+      writeln(" ***** getJsonString() does not work as expected. (4)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"");
-    ok := ok and getJsonString(aFile) = "\"\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€\"" and aFile.bufferChar = EOF and eof(aFile);
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not work as expected. (5)");
+    if  not getJsonStringOkay("\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"",
+                              "\"\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€\"", "") then
+      writeln(" ***** getJsonString() does not work as expected. (5)");
       okay := FALSE;
     end if;
 
-    ok := TRUE;
-    aFile := initScan("");            ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"");          ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\0;\"");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\b\"");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\f\"");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\n\"");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\r\"");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\t\"");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\31;\"");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\127;\"");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\128;\"");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\159;\"");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\");        ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\a\"");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u");       ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u1");      ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u12");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u123");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u1234");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\ug234");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u1g34");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u12g4");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u123g");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u\"");     ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u1\"");    ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u12\"");   ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u123\"");  ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\ug234\""); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u1g34\""); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u12g4\""); ok := ok and raisesRangeError(getJsonString(aFile));
-    aFile := initScan("\"\\u123g\""); ok := ok and raisesRangeError(getJsonString(aFile));
-    if not ok then
-      writeln(" ***** getJsonString(aFile) does not raise RANGE_ERROR.");
+    if  not getJsonStringRaisesRangeError(""           ) or
+        not getJsonStringRaisesRangeError("\""         ) or
+        not getJsonStringRaisesRangeError("\"\0;\""    ) or
+        not getJsonStringRaisesRangeError("\"\b\""     ) or
+        not getJsonStringRaisesRangeError("\"\f\""     ) or
+        not getJsonStringRaisesRangeError("\"\n\""     ) or
+        not getJsonStringRaisesRangeError("\"\r\""     ) or
+        not getJsonStringRaisesRangeError("\"\t\""     ) or
+        not getJsonStringRaisesRangeError("\"\31;\""   ) or
+        not getJsonStringRaisesRangeError("\"\127;\""  ) or
+        not getJsonStringRaisesRangeError("\"\128;\""  ) or
+        not getJsonStringRaisesRangeError("\"\159;\""  ) or
+        not getJsonStringRaisesRangeError("\"\\"       ) or
+        not getJsonStringRaisesRangeError("\"\\a\""    ) or
+        not getJsonStringRaisesRangeError("\"\\u"      ) or
+        not getJsonStringRaisesRangeError("\"\\u1"     ) or
+        not getJsonStringRaisesRangeError("\"\\u12"    ) or
+        not getJsonStringRaisesRangeError("\"\\u123"   ) or
+        not getJsonStringRaisesRangeError("\"\\u1234"  ) or
+        not getJsonStringRaisesRangeError("\"\\ug234"  ) or
+        not getJsonStringRaisesRangeError("\"\\u1g34"  ) or
+        not getJsonStringRaisesRangeError("\"\\u12g4"  ) or
+        not getJsonStringRaisesRangeError("\"\\u123g"  ) or
+        not getJsonStringRaisesRangeError("\"\\u\""    ) or
+        not getJsonStringRaisesRangeError("\"\\u1\""   ) or
+        not getJsonStringRaisesRangeError("\"\\u12\""  ) or
+        not getJsonStringRaisesRangeError("\"\\u123\"" ) or
+        not getJsonStringRaisesRangeError("\"\\ug234\"") or
+        not getJsonStringRaisesRangeError("\"\\u1g34\"") or
+        not getJsonStringRaisesRangeError("\"\\u12g4\"") or
+        not getJsonStringRaisesRangeError("\"\\u123g\"") then
+      writeln(" ***** getJsonString() does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -411,9 +283,6 @@ const proc: checkGetJsonString is func
     var boolean: okay is TRUE;
   begin
     if not checkGetJsonString1 then
-      okay := FALSE;
-    end if;
-    if not checkGetJsonString2 then
       okay := FALSE;
     end if;
 
