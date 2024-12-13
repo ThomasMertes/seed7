@@ -581,40 +581,6 @@ const proc: put (in integer: xDest, in integer: yDest,
   end func;
 
 
-# The put() function with PSET as parameter is deprecated. Use the one without PSET.
-const proc: put (inout PRIMITIVE_WINDOW: win,
-    in integer: x, in integer: y,
-    in PRIMITIVE_WINDOW: pixmap, PSET) is func
-  begin
-    put(win, x, y, pixmap);
-  end func;
-
-
-# The put() function with XOR as parameter is deprecated. Use the one without XOR.
-const proc: put (inout PRIMITIVE_WINDOW: win,
-    in integer: x, in integer: y,
-    in PRIMITIVE_WINDOW: pixmap, XOR) is func
-  begin
-    put(win, x, y, pixmap);
-  end func;
-
-
-# The put() function with PSET as parameter is deprecated. Use the one without PSET.
-const proc: put (in integer: x, in integer: y,
-    in PRIMITIVE_WINDOW: pixmap, PSET) is func
-  begin
-    put(curr_win, x, y, pixmap);
-  end func;
-
-
-# The put() function with XOR as parameter is deprecated. Use the one without XOR.
-const proc: put (in integer: x, in integer: y,
-    in PRIMITIVE_WINDOW: pixmap, XOR) is func
-  begin
-    put(curr_win, x, y, pixmap);
-  end func;
-
-
 (**
  *  Put a scaled ''pixmap'' to the given rectangle at ''destWindow''.
  *  The top left edge of the destination rectangle is at (''xDest'', ''yDest'').
