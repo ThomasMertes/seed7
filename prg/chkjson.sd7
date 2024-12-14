@@ -107,7 +107,8 @@ const func boolean: getJsonStringOkay (in string: initialStri,
               literal(expectedSymbol) <& ".");
       okay := FALSE;
     elsif stri <> finalStri then
-      writeln(" ***** After getJsonString(stri) stri is " <&
+      writeln(" ***** After getJsonString(stri) with " <&
+              literal(initialStri) <& " stri is " <&
               literal(stri) <& " instead of " <& literal(finalStri) <&
               ".");
       okay := FALSE;
@@ -126,12 +127,14 @@ const func boolean: getJsonStringOkay (in string: initialStri,
                 literal(expectedSymbol) <& ".");
         okay := FALSE;
       elsif aFile.bufferChar <> expectedBuffer then
-        writeln(" ***** After getJsonString(file) bufferChar is " <&
+        writeln(" ***** After getJsonString(file) with " <&
+                literal(initialStri) <& " bufferChar is " <&
                 literal(aFile.bufferChar) <& " instead of " <&
                 literal(expectedBuffer) <& ".");
         okay := FALSE;
       elsif expectedBuffer = EOF and not eof(aFile) then
-        writeln(" ***** After getJsonString(file) bufferChar is \
+        writeln(" ***** After getJsonString(file) with " <&
+                literal(initialStri) <& " bufferChar is \
                 \EOF but eof() returns FALSE.");
         okay := FALSE;
       end if;
@@ -340,7 +343,8 @@ const func boolean: getJsonNumberOkay (in string: initialStri,
               literal(expectedSymbol) <& ".");
       okay := FALSE;
     elsif stri <> finalStri then
-      writeln(" ***** After getJsonNumber(stri) stri is " <&
+      writeln(" ***** After getJsonNumber(stri) with " <&
+              literal(initialStri) <& " stri is " <&
               literal(stri) <& " instead of " <& literal(finalStri) <&
               ".");
       okay := FALSE;
@@ -359,12 +363,14 @@ const func boolean: getJsonNumberOkay (in string: initialStri,
                 literal(expectedSymbol) <& ".");
         okay := FALSE;
       elsif aFile.bufferChar <> expectedBuffer then
-        writeln(" ***** After getJsonNumber(file) bufferChar is " <&
+        writeln(" ***** After getJsonNumber(file) with " <&
+                literal(initialStri) <& " bufferChar is " <&
                 literal(aFile.bufferChar) <& " instead of " <&
                 literal(expectedBuffer) <& ".");
         okay := FALSE;
       elsif expectedBuffer = EOF and not eof(aFile) then
-        writeln(" ***** After getJsonNumber(file) bufferChar is \
+        writeln(" ***** After getJsonNumber(file) with " <&
+                literal(initialStri) <& " bufferChar is \
                 \EOF but eof() returns FALSE.");
         okay := FALSE;
       end if;
