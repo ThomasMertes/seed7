@@ -688,7 +688,21 @@ const func boolean: checkGetJsonNumber1 is func
 
     if  not getJsonNumberRaisesRangeError(""      ) or
         not getJsonNumberRaisesRangeError("+"     ) or
+        not getJsonNumberRaisesRangeError("++"    ) or
+        not getJsonNumberRaisesRangeError("+-"    ) or
+        not getJsonNumberRaisesRangeError("++0"   ) or
+        not getJsonNumberRaisesRangeError("+-0"   ) or
+        not getJsonNumberRaisesRangeError("++1"   ) or
+        not getJsonNumberRaisesRangeError("+-1"   ) or
+        not getJsonNumberRaisesRangeError("+a"    ) or
         not getJsonNumberRaisesRangeError("-"     ) or
+        not getJsonNumberRaisesRangeError("-+"    ) or
+        not getJsonNumberRaisesRangeError("--"    ) or
+        not getJsonNumberRaisesRangeError("-+0"   ) or
+        not getJsonNumberRaisesRangeError("--0"   ) or
+        not getJsonNumberRaisesRangeError("-+1"   ) or
+        not getJsonNumberRaisesRangeError("--1"   ) or
+        not getJsonNumberRaisesRangeError("-a"    ) or
         not getJsonNumberRaisesRangeError("x"     ) or
         not getJsonNumberRaisesRangeError("0."    ) or
         not getJsonNumberRaisesRangeError("0e"    ) or
