@@ -41,6 +41,8 @@ const char: JPEG_SOF0   is '\16#c0;';  # Start Of Frame (Baseline)
 const char: JPEG_SOF1   is '\16#c1;';  # Start Of Frame (Extended sequential)
 const char: JPEG_SOF2   is '\16#c2;';  # Start Of Frame (Progressive)
 const char: JPEG_DHT    is '\16#c4;';  # Define Huffman Table
+const char: JPEG_RST1   is '\16#d0;';  # Restart Marker 1
+const char: JPEG_RST7   is '\16#d7;';  # Restart Marker 7
 const char: JPEG_SOI    is '\16#d8;';  # Start Of Image
 const char: JPEG_EOI    is '\16#d9;';  # End Of Image
 const char: JPEG_SOS    is '\16#da;';  # Start Of Scan
@@ -806,11 +808,15 @@ const proc: setupQuantization (inout jpegHeader: header) is func
 
 ##
 #  Read an entropy coded segment.
-#  The start of the next segment (e.g. Reset) ends the entropy coded segment.
-#  In the segment the sequence "\16#ff;\0;" is replaced by "\16#ff;".
-#  The segment ends, if a "\16#ff;" is not followed by "\0;" (introducing
-#  the start of the next segment). The char after "\16#ff;" is stored in
-#  bufferChar.
+#  The entropy coded segment (ECS) is terminated with the start of the
+#  next segment. In the ECS segment the sequence "\16#ff;\0;" is replaced
+#  by "\16#ff;". The ECS segment ends, if a "\16#ff;" is not followed by
+#  "\0;" (introducing the start of the next segment). The character after
+#  the "\16#ff;" is the marker of the next segment (saved in bufferChar).
+#  A segment marker in the range JPEG_RST1 .. JPEG_RST7 (restart marker)
+#  indicates that the next segment is also an ECS segment. It can happen
+#  that the last ECS segment is followed by a superfluous restart marker.
+#  In this case the restart marker is ignored.
 #
 const func string: readEntropyCodedSegment (inout file: jpegFile) is func
   result
@@ -1669,6 +1675,9 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: jpegFile) is func
             # Fill byte (16#ff), which is ignored.
             segmentMarker := getc(jpegFile);
             readMarker := FALSE;
+          when {JPEG_RST1 .. JPEG_RST7}:
+            # Ignore superfluous restart marker after the last ECS segment.
+            noop;
           otherwise:
             raise RANGE_ERROR;
         end case;
