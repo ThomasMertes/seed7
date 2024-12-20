@@ -111,7 +111,6 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
   result
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   local
-    var integer: currentCode is 0;
     var integer: codeLength is 0;
     var integer: symbolIndexStart is 0;
     var integer: symbolIndexEnd is 0;
@@ -134,9 +133,7 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in integer: maximumCodeLe
           decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
         end for;
-        incr(currentCode);
       end for;
-      currentCode <<:= 1;
     end for;
     symbol := ord(huffmanSymbols[length(huffmanSymbols)]);
     while tableIndex <= pred(1 << maximumCodeLength) do
@@ -157,7 +154,6 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in symbolsWithCodeLengthT
   result
     var msbHuffmanDecoder: decoder is msbHuffmanDecoder.value;
   local
-    var integer: currentCode is 0;
     var integer: codeLength is 0;
     var integer: symbol is 0;
     var integer: tableIndex is 0;
@@ -174,9 +170,7 @@ const func msbHuffmanDecoder: createMsbHuffmanDecoder (in symbolsWithCodeLengthT
           decoder.codeLengths[tableIndex] := codeLength;
           incr(tableIndex);
         end for;
-        incr(currentCode);
       end for;
-      currentCode <<:= 1;
     end for;
     symbol := ord(symbolsWithCodeLength[decoder.maximumCodeLength]
                   [length(symbolsWithCodeLength[decoder.maximumCodeLength])]);
