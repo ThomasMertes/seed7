@@ -634,7 +634,7 @@ const func integer: getBit (inout msbInBitStream: inBitStream) is func
   begin
     decr(inBitStream.bitPos);
     resultBit := (inBitStream.buffer >> inBitStream.bitPos) mod 2;
-    if pred(inBitStream.bitPos) mdiv 8 <> 4 then
+    if inBitStream.bitPos <= 32 then
       inBitStream.bitPos := inBitStream.bitPos + 8;
       incr(inBitStream.bytePos);
       if inBitStream.bytePos > inBitStream.limit then
@@ -681,8 +681,8 @@ const func integer: getBits (inout msbInBitStream: inBitStream, in integer: bitW
   begin
     inBitStream.bitPos -:= bitWidth;
     resultBits := (inBitStream.buffer >> inBitStream.bitPos) mod (1 << bitWidth);
-    bytePosDelta := 4 - pred(inBitStream.bitPos) mdiv 8;
-    if bytePosDelta <> 0 then
+    if inBitStream.bitPos <= 32 then
+      bytePosDelta := 4 - pred(inBitStream.bitPos) mdiv 8;
       inBitStream.bitPos := inBitStream.bitPos + 8 * bytePosDelta;
       inBitStream.bytePos +:= bytePosDelta;
       if inBitStream.bytePos > inBitStream.limit then
@@ -747,8 +747,8 @@ const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) i
     var integer: bytePosDelta is 0;
   begin
     inBitStream.bitPos -:= bitWidth;
-    bytePosDelta := 4 - pred(inBitStream.bitPos) mdiv 8;
-    if bytePosDelta <> 0 then
+    if inBitStream.bitPos <= 32 then
+      bytePosDelta := 4 - pred(inBitStream.bitPos) mdiv 8;
       inBitStream.bitPos := inBitStream.bitPos + 8 * bytePosDelta;
       inBitStream.bytePos +:= bytePosDelta;
       if inBitStream.bytePos > inBitStream.limit then
