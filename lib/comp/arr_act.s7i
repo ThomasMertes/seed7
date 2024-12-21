@@ -1224,10 +1224,14 @@ const proc: process (ARR_IDX, in reference: function,
           incr(countSuppressedIndexChecks);
           c_expr.expr &:= "(";
           process_expr(params[3], c_expr);
-          c_expr.expr &:= ")- ";
+          c_expr.expr &:= ")";
           if arrayType in array_minIdx then
-            c_expr.expr &:= integerLiteral(array_minIdx[arrayType]);
+            if array_minIdx[arrayType] <> 0 then
+              c_expr.expr &:= "- ";
+              c_expr.expr &:= integerLiteral(array_minIdx[arrayType]);
+            end if;
           else
+            c_expr.expr &:= "- ";
             c_expr.expr &:= array_name;
             c_expr.expr &:= "->min_position";
           end if;
