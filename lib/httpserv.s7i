@@ -123,6 +123,7 @@ const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is fun
             end block;
           end if;
           conn.readingHeader := FALSE;
+          lfPos := 0;
         elsif conn.request.method = "" then
           conn.request.method := getWord(line);
           requestPath := getWord(line);
@@ -145,7 +146,9 @@ const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is fun
             conn.request.properties @:= [trim(line[.. pred(colonPos)])] trim(line[succ(colonPos) ..]);
           end if;
         end if;
-        lfPos := pos(conn.buffer, '\n', conn.readPos);
+        if conn.readingHeader then
+          lfPos := pos(conn.buffer, '\n', conn.readPos);
+        end if;
       end while;
     end if;
     if not conn.readingHeader then
