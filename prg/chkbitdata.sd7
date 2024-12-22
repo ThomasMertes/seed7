@@ -3917,27 +3917,33 @@ const func boolean: chkEofMsb (in string: stri, in integer: bytePos,
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbInBitStream, " <& bitsNeeded <& ")");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("getBits(msbInBitStream, " <& bitsNeeded <& ") from string");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     elsif eof(aBitStream) <> eofExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": eof(msbInBitStream)");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("eof(msbInBitStream) from string");
       writeln(" ***** Expected " <& eofExpected <& " found " <& eof(aBitStream));
     elsif eofExpected and getBits(aBitStream, 32) <> eofBitsExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbInBitStream, 32)");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("getBits(msbInBitStream, 32) from string");
       writeln(" ***** Expected " <& eofBitsExpected <& " found " <& bits);
     end if;
 
@@ -3948,27 +3954,33 @@ const func boolean: chkEofMsb (in string: stri, in integer: bytePos,
     bits := getBits(aBitStream, bitsNeeded);
     if bits <> bitsExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbInBitStream, " <& bitsNeeded <& ")");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("getBits(msbInBitStream, " <& bitsNeeded <& ") from file");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
     elsif eof(aBitStream) <> eofExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": eof(msbInBitStream)");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("eof(msbInBitStream) from file");
       writeln(" ***** Expected " <& eofExpected <& " found " <& eof(aBitStream));
     elsif eofExpected and getBits(aBitStream, 32) <> eofBitsExpected then
       okay := FALSE;
-      write("\"");
+      write("chkEofMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": getBits(msbInBitStream, 32)");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <& bitsNeeded <&
+              ", " <& bitsExpected <& ", " <& eofExpected <& "):");
+      writeln("getBits(msbInBitStream, 32) from file");
       writeln(" ***** Expected " <& eofBitsExpected <& " found " <& bits);
     end if;
   end func;
@@ -4608,11 +4620,13 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
       okay := FALSE;
-      write("\"");
+      write("chkGetsMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": gets(msbInBitStream, " <& bytesNeeded <& ")");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <&
+              bytesNeeded <& ", " <& literal(bytesExpected) <& "):");
+      writeln("gets(msbInBitStream, " <& bytesNeeded <& ") from string");
       if bytes <> bytesExpected then
         writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
       else
@@ -4627,11 +4641,13 @@ const func boolean: chkGetsMsb (in string: stri, in integer: bytePos,
     bytes := gets(aBitStream, bytesNeeded);
     if bytes <> bytesExpected or getBits(aBitStream, 4) <> 2#1101 then
       okay := FALSE;
-      write("\"");
+      write("chkGetsMsb(\"");
       for ch range stri do
         write("\\2#" <& ord(ch) radix 2 <& ";");
       end for;
-      writeln("\": gets(msbInBitStream, " <& bytesNeeded <& ")");
+      writeln("\", " <& bytePos <& ", " <& bitPos <& ", " <&
+              bytesNeeded <& ", " <& literal(bytesExpected) <& "):");
+      writeln("gets(msbInBitStream, " <& bytesNeeded <& ") from file");
       if bytes <> bytesExpected then
         writeln(" ***** Expected " <& literal(bytesExpected) <& " found " <& literal(bytes));
       else
