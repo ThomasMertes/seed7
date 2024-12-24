@@ -464,15 +464,15 @@ const func string: (in float: number) sci (in integer: precision)    is action "
  *  If ''sciNumber'' contains not a string in scientific float
  *  notation it is returned unchanged. The ''exp'' operator is
  *  intended to be used together with the ''sci'' operator
- *   0.012345 sci 4 exp 2   returns "1.2345e-02"
+ *   0.012345  sci 4 exp 2  returns "1.2345e-02"
  *   1.2468e15 sci 2 exp 1  returns "1.25e+15"
- *   3.1415 sci 0 exp 3     returns "3e+000"
- *   0.125 sci 1 exp 2      returns "1.2e-01"
- *   0.375 sci 1 exp 2      returns "3.8e-01"
- *   Infinity sci 5 exp 2   returns "Infinity"
+ *   3.1415    sci 0 exp 3  returns "3e+000"
+ *   0.125     sci 1 exp 2  returns "1.2e-01"
+ *   0.375     sci 1 exp 2  returns "3.8e-01"
+ *   Infinity  sci 5 exp 2  returns "Infinity"
  *   -Infinity sci 6 exp 2  returns "-Infinity"
- *   NaN sci 7 exp 2        returns "NaN"
- *   -0.004 sci 2 exp 2     returns "-4.00e-03"
+ *   NaN       sci 7 exp 2  returns "NaN"
+ *   -0.004    sci 2 exp 2  returns "-4.00e-03"
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
