@@ -616,14 +616,14 @@ const func integer: integer (in string: stri, in integer: base)  is forward;
  *  rounded away from zero. The fractional part is followed by the
  *  letter e and an exponent, which is always signed. The value zero is
  *  never written with a negative sign.
- *   12345 sci 4     returns "1.2345e+4"
- *   12345 sci 3     returns "1.235e+4"
- *   12345 sci 2     returns "1.23e+4"
- *   3141592 sci 0   returns "3e+6"
+ *   12345    sci 4  returns "1.2345e+4"
+ *   12345    sci 3  returns "1.235e+4"
+ *   12345    sci 2  returns "1.23e+4"
+ *   3141592  sci 0  returns "3e+6"
  *   27182818 sci 0  returns "3e+7"
- *   2**62 sci 6     returns "4.611686e+18"
- *   -1 sci 3        returns "-1.000e+0"
- *   -0 sci 2        returns "0.00e+0"
+ *   2**62    sci 6  returns "4.611686e+18"
+ *   -1       sci 3  returns "-1.000e+0"
+ *   -0       sci 2  returns "0.00e+0"
  *  @param number Number to be converted to a string.
  *  @param precision Number of digits after the decimal point.
  *         If the ''precision'' is zero the decimal point is omitted.

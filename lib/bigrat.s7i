@@ -542,15 +542,15 @@ const func string: fraction (in bigRational: number) is
  *  before and after the decimal point. Negative numbers are preceded by
  *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
- *   1_/64_ digits 7     returns "0.0156250"
- *   1_/64_ digits 4     returns "0.0156"
- *   1_/64_ digits 2     returns "0.02"
+ *   1_/64_    digits 7  returns "0.0156250"
+ *   1_/64_    digits 4  returns "0.0156"
+ *   1_/64_    digits 2  returns "0.02"
  *   355_/113_ digits 6  returns "3.141593"
- *   22_/7_ digits 0     returns "3"
- *   -1_/2_ digits 1     returns "-1"
- *   1_/0_ digits 5      returns "Infinity"
- *   -1_/0_ digits 6     returns "-Infinity"
- *   0_/0_ digits 7      returns "NaN"
+ *   22_/7_    digits 0  returns "3"
+ *   -1_/2_    digits 0  returns "-1"
+ *   1_/0_     digits 5  returns "Infinity"
+ *   -1_/0_    digits 6  returns "-Infinity"
+ *   0_/0_     digits 7  returns "NaN"
  *   -1_/2048_ digits 3  returns "0.000"
  *  @param precision Number of digits after the decimal point.
  *         If the ''precision'' is zero the decimal point is omitted.
@@ -612,17 +612,17 @@ const func integer: decimalExponent (in bigRational: number) is func
  *  rounded away from zero. The fractional part is followed by the
  *  letter e and an exponent, which is always signed. The value zero is
  *  never written with a negative sign.
- *   1_/64_ sci 4     returns "1.5625e-2"
- *   1_/64_ sci 3     returns "1.563e-2"
- *   1_/64_ sci 2     returns "1.56e-2"
+ *   1_/64_    sci 4  returns "1.5625e-2"
+ *   1_/64_    sci 3  returns "1.563e-2"
+ *   1_/64_    sci 2  returns "1.56e-2"
  *   355_/113_ sci 6  returns "3.141593e+0"
- *   22_/7_ sci 0     returns "3e+0"
- *   -1_/2_ sci 1     returns "-5.0e-1"
- *   1_/0_ sci 5      returns "Infinity"
- *   -1_/0_ sci 6     returns "-Infinity"
- *   0_/0_ sci 7      returns "NaN"
+ *   22_/7_    sci 0  returns "3e+0"
+ *   -1_/2_    sci 1  returns "-5.0e-1"
+ *   1_/0_     sci 5  returns "Infinity"
+ *   -1_/0_    sci 6  returns "-Infinity"
+ *   0_/0_     sci 7  returns "NaN"
  *   -1_/2048_ sci 3  returns "-4.883e-4"
- *   -0_/1_ sci 2     returns "0.00e+0"
+ *   -0_/1_    sci 2  returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
  *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.

@@ -605,14 +605,14 @@ CASE_DECLS(bigInteger);
  *  rounded away from zero. The fractional part is followed by the
  *  letter e and an exponent, which is always signed. The value zero is
  *  never written with a negative sign.
- *   12345_ sci 4     returns "1.2345e+4"
- *   12345_ sci 3     returns "1.235e+4"
- *   12345_ sci 2     returns "1.23e+4"
- *   3141592_ sci 0   returns "3e+6"
+ *   12345_    sci 4  returns "1.2345e+4"
+ *   12345_    sci 3  returns "1.235e+4"
+ *   12345_    sci 2  returns "1.23e+4"
+ *   3141592_  sci 0  returns "3e+6"
  *   27182818_ sci 0  returns "3e+7"
- *   2_**64 sci 6     returns "1.844674e+19"
- *   -1_ sci 3        returns "-1.000e+0"
- *   -0_ sci 2        returns "0.00e+0"
+ *   2_**64    sci 6  returns "1.844674e+19"
+ *   -1_       sci 3  returns "-1.000e+0"
+ *   -0_       sci 2  returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
  *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
