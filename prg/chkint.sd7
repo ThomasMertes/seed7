@@ -5499,40 +5499,80 @@ const func boolean: check_bytes2IntSignedLe_len_optimization is func
     if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 1], SIGNED, LE) <>                  39 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 2], SIGNED, LE) <>               28711 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 3], SIGNED, LE) <>             2912295 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;"[2 len 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;"[2 len 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;"[2 len 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[2 len 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 1], SIGNED, LE) <>                  39 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 2], SIGNED, LE) <>               28711 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 3], SIGNED, LE) <>             2912295 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;"[intExpr(2) len 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;"[intExpr(2) len 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;"[intExpr(2) len 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[intExpr(2) len 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 1], SIGNED, LE) <>                  39 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 2], SIGNED, LE) <>               28711 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 3], SIGNED, LE) <>             2912295 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;")[2 len 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;")[2 len 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;")[2 len 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[2 len 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 1], SIGNED, LE) <>                  39 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 2], SIGNED, LE) <>               28711 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 3], SIGNED, LE) <>             2912295 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;")[intExpr(2) len 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;")[intExpr(2) len 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;")[intExpr(2) len 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) len 9], SIGNED, LE) <> 3564856149464084519 then
       writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 1], SIGNED, LE) <>                 -117 or
+        bytes2Int("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;"[2 len 2], SIGNED, LE) <>               -11225 or
+        bytes2Int("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;"[2 len 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;"[2 len 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;"[2 len 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;"[2 len 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 1], SIGNED, LE) <>                 -117 or
+        bytes2Int("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 2], SIGNED, LE) <>               -11225 or
+        bytes2Int("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;"[intExpr(2) len 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;"[intExpr(2) len 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;"[intExpr(2) len 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 1], SIGNED, LE) <>                 -117 or
+        bytes2Int(striExpr("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;")[2 len 2], SIGNED, LE) <>               -11225 or
+        bytes2Int(striExpr("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;")[2 len 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;")[2 len 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;")[2 len 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;")[2 len 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 1], SIGNED, LE) <>                 -117 or
+        bytes2Int(striExpr("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 2], SIGNED, LE) <>               -11225 or
+        bytes2Int(striExpr("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;")[intExpr(2) len 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;")[intExpr(2) len 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;")[intExpr(2) len 9], SIGNED, LE) <> -7676128520452673497 then
+      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -5572,7 +5612,7 @@ const func boolean: check_bytes2IntSignedLe_len_optimization is func
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\127;\215;\049;")[intExpr(2) len 7], SIGNED, LE) <>   36028797018963967 or
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\255;\127;\049;")[intExpr(2) len 8], SIGNED, LE) <> 9223372036854775807 or
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\255;\127;\000;")[intExpr(2) len 9], SIGNED, LE) <> 9223372036854775807 then
-      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (2)");
+      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -5612,7 +5652,7 @@ const func boolean: check_bytes2IntSignedLe_len_optimization is func
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\128;\215;\049;")[intExpr(2) len 7], SIGNED, LE) <> -36028797018963968 or
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\000;\128;\049;")[intExpr(2) len 8], SIGNED, LE) <>      integer.first or
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\000;\128;\255;")[intExpr(2) len 9], SIGNED, LE) <>      integer.first then
-      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (3)");
+      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -5648,7 +5688,7 @@ const func boolean: check_bytes2IntSignedLe_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[intExpr(2) len 7], SIGNED, LE) <>     -24430576373721 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[intExpr(2) len 8], SIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;")[intExpr(2) len 9], SIGNED, LE) <> 3564856149464084519 then
-      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (4)");
+      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -5664,7 +5704,7 @@ const func boolean: check_bytes2IntSignedLe_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 7], SIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 8], SIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) len 9], SIGNED, LE) + 5658515887390691288 <> 9223372036854775807 then
-      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (5)");
+      writeln("Conversion of signed little endian byte string to integer with substring does not work correctly. (6)");
       okay := FALSE;
     end if;
 
@@ -5859,40 +5899,80 @@ const func boolean: check_bytes2IntSignedLe_fixLen_optimization is func
     if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 1], SIGNED, LE) <>                  39 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 2], SIGNED, LE) <>               28711 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 3], SIGNED, LE) <>             2912295 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;"[2 fixLen 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;"[2 fixLen 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;"[2 fixLen 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[2 fixLen 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 1], SIGNED, LE) <>                  39 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 2], SIGNED, LE) <>               28711 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 3], SIGNED, LE) <>             2912295 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;"[intExpr(2) fixLen 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;"[intExpr(2) fixLen 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[intExpr(2) fixLen 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 1], SIGNED, LE) <>                  39 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 2], SIGNED, LE) <>               28711 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 3], SIGNED, LE) <>             2912295 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;")[2 fixLen 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;")[2 fixLen 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;")[2 fixLen 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[2 fixLen 9], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 1], SIGNED, LE) <>                  39 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 2], SIGNED, LE) <>               28711 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 3], SIGNED, LE) <>             2912295 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 4], SIGNED, LE) <>          -802394073 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 5], SIGNED, LE) <>       -241320562649 or
-        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 6], SIGNED, LE) <>     -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\108;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 4], SIGNED, LE) <>          1814851623 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\099;\233;\120;\049;\215;")[intExpr(2) fixLen 5], SIGNED, LE) <>        428694335527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\033;\120;\049;\215;")[intExpr(2) fixLen 6], SIGNED, LE) <>      37142074781735 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 7], SIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 8], SIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) fixLen 9], SIGNED, LE) <> 3564856149464084519 then
       writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 1], SIGNED, LE) <>                 -117 or
+        bytes2Int("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 2], SIGNED, LE) <>               -11225 or
+        bytes2Int("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;"[2 fixLen 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;"[2 fixLen 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;"[2 fixLen 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;"[2 fixLen 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 1], SIGNED, LE) <>                 -117 or
+        bytes2Int("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 2], SIGNED, LE) <>               -11225 or
+        bytes2Int("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;"[intExpr(2) fixLen 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;"[intExpr(2) fixLen 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;"[intExpr(2) fixLen 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 1], SIGNED, LE) <>                 -117 or
+        bytes2Int(striExpr("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 2], SIGNED, LE) <>               -11225 or
+        bytes2Int(striExpr("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;")[2 fixLen 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;")[2 fixLen 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;")[2 fixLen 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;")[2 fixLen 9], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\139;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 1], SIGNED, LE) <>                 -117 or
+        bytes2Int(striExpr("\071;\039;\212;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 2], SIGNED, LE) <>               -11225 or
+        bytes2Int(striExpr("\071;\039;\112;\144;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 3], SIGNED, LE) <>             -7311321 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 4], SIGNED, LE) <>           -802394073 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 5], SIGNED, LE) <>        -241320562649 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 6], SIGNED, LE) <>      -24430576373721 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\220;\049;\215;")[intExpr(2) fixLen 7], SIGNED, LE) <>    -9876054761246681 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\215;")[intExpr(2) fixLen 8], SIGNED, LE) <> -7676128520452673497 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\149;\255;")[intExpr(2) fixLen 9], SIGNED, LE) <> -7676128520452673497 then
+      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (2)");
       okay := FALSE;
     end if;
 
@@ -5932,7 +6012,7 @@ const func boolean: check_bytes2IntSignedLe_fixLen_optimization is func
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\127;\215;\049;")[intExpr(2) fixLen 7], SIGNED, LE) <>   36028797018963967 or
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\255;\127;\049;")[intExpr(2) fixLen 8], SIGNED, LE) <> 9223372036854775807 or
         bytes2Int(striExpr("\071;\255;\255;\255;\255;\255;\255;\255;\127;\000;")[intExpr(2) fixLen 9], SIGNED, LE) <> 9223372036854775807 then
-      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (2)");
+      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (3)");
       okay := FALSE;
     end if;
 
@@ -5972,7 +6052,7 @@ const func boolean: check_bytes2IntSignedLe_fixLen_optimization is func
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\128;\215;\049;")[intExpr(2) fixLen 7], SIGNED, LE) <> -36028797018963968 or
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\000;\128;\049;")[intExpr(2) fixLen 8], SIGNED, LE) <>      integer.first or
         bytes2Int(striExpr("\071;\000;\000;\000;\000;\000;\000;\000;\128;\255;")[intExpr(2) fixLen 9], SIGNED, LE) <>      integer.first then
-      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (3)");
+      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -5988,7 +6068,7 @@ const func boolean: check_bytes2IntSignedLe_fixLen_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 7], SIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 8], SIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) fixLen 9], SIGNED, LE) + 5658515887390691288 <> 9223372036854775807 then
-      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (4)");
+      writeln("Conversion of signed little endian byte string to integer with fixed length substring does not work correctly. (5)");
       okay := FALSE;
     end if;
 
