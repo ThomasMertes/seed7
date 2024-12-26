@@ -427,12 +427,12 @@ const func bigInteger: trunc (in bigRational: number) is
  *)
 const func bigInteger: round (in bigRational: number) is func
   result
-    var bigInteger: int_val is 0_;
+    var bigInteger: rounded is 0_;
   begin
     if number.numerator >= 0_ then
-      int_val := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
+      rounded := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
     else
-      int_val := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
+      rounded := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
     end if;
   end func;
 
