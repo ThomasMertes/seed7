@@ -1541,8 +1541,10 @@ const func boolean: chkEofLsb (in string: stri, in integer: bytePos,
     # Test lsbInBitStream with string:
     aBitStream := openLsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
-    bits := getBits(aBitStream, bitsNeeded);
-    if bits <> bitsExpected then
+    if bitsNeeded > 0 then
+      bits := getBits(aBitStream, bitsNeeded);
+    end if;
+    if bitsNeeded > 0 and bits <> bitsExpected then
       okay := FALSE;
       write("\"");
       for ch range stri do
@@ -1572,8 +1574,10 @@ const func boolean: chkEofLsb (in string: stri, in integer: bytePos,
     testFile := openStriFile(stri);
     aBitStream := openLsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
-    bits := getBits(aBitStream, bitsNeeded);
-    if bits <> bitsExpected then
+    if bitsNeeded > 0 then
+      bits := getBits(aBitStream, bitsNeeded);
+    end if;
+    if bitsNeeded > 0 and bits <> bitsExpected then
       okay := FALSE;
       write("\"");
       for ch range stri do
@@ -3914,8 +3918,10 @@ const func boolean: chkEofMsb (in string: stri, in integer: bytePos,
     # Test msbInBitStream with string:
     aBitStream := openMsbInBitStream(stri);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
-    bits := getBits(aBitStream, bitsNeeded);
-    if bits <> bitsExpected then
+    if bitsNeeded > 0 then
+      bits := getBits(aBitStream, bitsNeeded);
+    end if;
+    if bitsNeeded > 0 and bits <> bitsExpected then
       okay := FALSE;
       write("chkEofMsb(\"");
       for ch range stri do
@@ -3951,8 +3957,10 @@ const func boolean: chkEofMsb (in string: stri, in integer: bytePos,
     testFile := openStriFile(stri);
     aBitStream := openMsbInBitStream(testFile);
     skipBits(aBitStream, 8 * pred(bytePos) + bitPos);
-    bits := getBits(aBitStream, bitsNeeded);
-    if bits <> bitsExpected then
+    if bitsNeeded > 0 then
+      bits := getBits(aBitStream, bitsNeeded);
+    end if;
+    if bitsNeeded > 0 and bits <> bitsExpected then
       okay := FALSE;
       write("chkEofMsb(\"");
       for ch range stri do
