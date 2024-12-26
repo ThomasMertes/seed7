@@ -526,21 +526,21 @@ const func float: abs (in float: number)                       is action "FLT_AB
 
 
 (**
- *  Round up towards positive infinity.
- *  Determine the smallest value that is greater than or equal
- *  to the argument and is equal to a mathematical integer.
- *  @return the rounded value.
- *)
-const func float: ceil (in float: x)                           is action "FLT_CEIL";
-
-
-(**
  *  Round down towards negative infinity.
  *  Returns the largest value that is less than or equal to the
  *  argument and is equal to a mathematical integer.
  *  @return the rounded value.
  *)
 const func float: floor (in float: x)                          is action "FLT_FLOOR";
+
+
+(**
+ *  Round up towards positive infinity.
+ *  Determine the smallest value that is greater than or equal
+ *  to the argument and is equal to a mathematical integer.
+ *  @return the rounded value.
+ *)
+const func float: ceil (in float: x)                           is action "FLT_CEIL";
 
 
 (**
