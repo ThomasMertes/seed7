@@ -443,12 +443,12 @@ const func integer: trunc (in rational: number) is
  *)
 const func integer: round (in rational: number) is func
   result
-    var integer: int_val is 0;
+    var integer: rounded is 0;
   begin
     if number.numerator >= 0 then
-      int_val := (2 * number.numerator + number.denominator) div (2 * number.denominator);
+      rounded := (2 * number.numerator + number.denominator) div (2 * number.denominator);
     else
-      int_val := (2 * number.numerator - number.denominator) div (2 * number.denominator);
+      rounded := (2 * number.numerator - number.denominator) div (2 * number.denominator);
     end if;
   end func;
 
