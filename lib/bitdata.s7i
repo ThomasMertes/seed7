@@ -167,16 +167,16 @@ const proc: fillStriBuffer (inout lsbInBitStream: inBitStream) is func
     inBitStream.striBuffer := inBitStream.striBuffer[inBitStream.bytePos ..] &
                             gets(inBitStream.inFile, inBitStream.striBufferIncrease);
     if not hasNext(inBitStream.inFile) then
-      # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+      # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
       # This allows a peek of 32 bits also at the end of the data.
-      inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-      inBitStream.tailSize +:= 7;
+      inBitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+      inBitStream.tailSize +:= 8;
       inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
                                 inBitStream.tailSize;
       inBitStream.eofCheckPos := max(1, length(inBitStream.striBuffer) -
-                                 inBitStream.tailSize - 5);
+                                 inBitStream.tailSize - 6);
     end if;
-    inBitStream.limit := max(0, length(inBitStream.striBuffer) - 6);
+    inBitStream.limit := max(0, length(inBitStream.striBuffer) - 7);
     inBitStream.bytePos := 1;
   end func;
 
@@ -186,7 +186,7 @@ const proc: fillBuffer (inout lsbInBitStream: inBitStream) is func
     if inBitStream.bytePos > inBitStream.limit then
       fillStriBuffer(inBitStream);
     end if;
-    inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 7], UNSIGNED, LE);
+    inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
   end func;
 
 
@@ -219,15 +219,15 @@ const func lsbInBitStream: openLsbInBitStream (in string: stri) is func
   result
     var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
-    # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+    # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
     # This allows a peek of 32 bits also at the end of the data.
-    inBitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
-    inBitStream.tailSize := 7;
+    inBitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+    inBitStream.tailSize := 8;
     inBitStream.eofBytePos := succ(length(inBitStream.striBuffer)) -
                               inBitStream.tailSize;
     inBitStream.eofCheckPos := max(1, length(inBitStream.striBuffer) -
-                               inBitStream.tailSize - 5);
-    inBitStream.limit := length(inBitStream.striBuffer) - 6;
+                               inBitStream.tailSize - 6);
+    inBitStream.limit := length(inBitStream.striBuffer) - 7;
     fillBuffer(inBitStream);
     # show(inBitStream);
   end func;
@@ -284,13 +284,13 @@ const func integer: getBit (inout lsbInBitStream: inBitStream) is func
   begin
     resultBit := (inBitStream.buffer >> inBitStream.bitPos) mod 2;
     incr(inBitStream.bitPos);
-    if inBitStream.bitPos >= 24 then
-      inBitStream.bitPos -:= 24;
-      inBitStream.bytePos +:= 3;
+    if inBitStream.bitPos >= 32 then
+      inBitStream.bitPos -:= 32;
+      inBitStream.bytePos +:= 4;
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 7], UNSIGNED, LE);
+      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
     end if;
   end func;
 
@@ -330,14 +330,14 @@ const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitW
   begin
     resultBits := (inBitStream.buffer >> inBitStream.bitPos) mod (1 << bitWidth);
     inBitStream.bitPos +:= bitWidth;
-    if inBitStream.bitPos >= 24 then
+    if inBitStream.bitPos >= 32 then
       bytePosDelta := inBitStream.bitPos mdiv 8;
       inBitStream.bitPos -:= 8 * bytePosDelta;
       inBitStream.bytePos +:= bytePosDelta;
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 7], UNSIGNED, LE);
+      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
     end if;
   end func;
 
@@ -391,14 +391,14 @@ const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) i
     var integer: bytePosDelta is 0;
   begin
     inBitStream.bitPos +:= bitWidth;
-    if inBitStream.bitPos >= 24 then
+    if inBitStream.bitPos >= 32 then
       bytePosDelta := inBitStream.bitPos mdiv 8;
       inBitStream.bitPos -:= 8 * bytePosDelta;
       inBitStream.bytePos +:= bytePosDelta;
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 7], UNSIGNED, LE);
+      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
     end if;
   end func;
 
