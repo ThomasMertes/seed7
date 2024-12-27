@@ -27,6 +27,7 @@
 
 
 include "bytedata.s7i";
+include "bin64.s7i";
 
 
 (**
@@ -290,7 +291,8 @@ const func integer: getBit (inout lsbInBitStream: inBitStream) is func
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
+      inBitStream.buffer := (inBitStream.buffer >> 32) mod 2 ** 32 +
+          (bytes2Int(inBitStream.striBuffer[inBitStream.bytePos + 4 fixLen 4], SIGNED, LE) << 32);
     end if;
   end func;
 
@@ -337,7 +339,15 @@ const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitW
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
+      if bytePosDelta = 4 then
+        inBitStream.buffer := (inBitStream.buffer >> 32) mod 2 ** 32 +
+            (bytes2Int(inBitStream.striBuffer[inBitStream.bytePos + 4 fixLen 4], SIGNED, LE) << 32);
+      elsif bytePosDelta = 5 then
+        inBitStream.buffer := (inBitStream.buffer >> 40) mod 2 ** 24 +
+            (bytes2Int(inBitStream.striBuffer[inBitStream.bytePos + 3 fixLen 5], SIGNED, LE) << 24);
+      else
+        inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
+      end if;
     end if;
   end func;
 
@@ -398,7 +408,15 @@ const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) i
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
+      if bytePosDelta = 4 then
+        inBitStream.buffer := (inBitStream.buffer >> 32) mod 2 ** 32 +
+            (bytes2Int(inBitStream.striBuffer[inBitStream.bytePos + 4 fixLen 4], SIGNED, LE) << 32);
+      elsif bytePosDelta = 5 then
+        inBitStream.buffer := (inBitStream.buffer >> 40) mod 2 ** 24 +
+            (bytes2Int(inBitStream.striBuffer[inBitStream.bytePos + 3 fixLen 5], SIGNED, LE) << 24);
+      else
+        inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, LE);
+      end if;
     end if;
   end func;
 
@@ -643,7 +661,8 @@ const func integer: getBit (inout msbInBitStream: inBitStream) is func
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, BE);
+      inBitStream.buffer := integer(bin64(inBitStream.buffer mod 2 ** 32) << 32 |
+            bin64(inBitStream.striBuffer[inBitStream.bytePos + 4 fixLen 4], BE));
     end if;
   end func;
 
@@ -751,7 +770,12 @@ const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) i
       if inBitStream.bytePos > inBitStream.limit then
         fillStriBuffer(inBitStream);
       end if;
-      inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, BE);
+      if bytePosDelta = 4 then
+        inBitStream.buffer := integer(bin64(inBitStream.buffer mod 2 ** 32) << 32 |
+            bin64(inBitStream.striBuffer[inBitStream.bytePos + 4 fixLen 4], BE));
+      else
+        inBitStream.buffer := bytes2Int(inBitStream.striBuffer[inBitStream.bytePos fixLen 8], SIGNED, BE);
+      end if;
     end if;
   end func;
 
