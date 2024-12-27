@@ -315,11 +315,11 @@ const func string: str (in jsonValue: aValue)                        is DYNAMIC;
 
 (**
  *  For-loop where ''forVar'' loops over the elements of a JSON array.
- *   var jsonValue: json is jsonValue.value;
+ *   var jsonValue: aJsonArray is jsonValue.value;
  *   var jsonValue: anElement is jsonValue.value;
  *   ...
- *   if "keys" in json and category(json["keys"]) = JSON_ARRAY then
- *     for anElement range json["keys"] do
+ *   if category(aJsonArray) = JSON_ARRAY then
+ *     for anElement range aJsonArray do
  *       ...
  *)
 const proc: for (inout jsonValue: forVar) range (in jsonValue: aValue) do
@@ -327,6 +327,25 @@ const proc: for (inout jsonValue: forVar) range (in jsonValue: aValue) do
             end for is func
   begin
     for forVar range values(aValue) do
+      statements;
+    end for;
+  end func;
+
+
+(**
+ *  For-loop where ''keyVar'' loops over the keys of a JSON object.
+ *   var jsonValue: aJsonObject is jsonValue.value;
+ *   var string: aKey is "";
+ *   ...
+ *   if category(aJsonObject) = JSON_OBJECT then
+ *     for key aKey range aJsonObject do
+ *       ...
+ *)
+const proc: for key (inout string: keyVar) range (in jsonValue: aValue) do
+              (in proc: statements)
+            end for is func
+  begin
+    for keyVar range keys(aValue) do
       statements;
     end for;
   end func;
