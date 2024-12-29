@@ -148,6 +148,9 @@ const func integer: decodeDistance (inout lsbInBitStream: compressedStream,
       when {27}: distance := 12289 + getBits(compressedStream, 12);
       when {28}: distance := 16385 + getBits(compressedStream, 13);
       when {29}: distance := 24577 + getBits(compressedStream, 13);
+      # The codes 30 and 31 are only used by enhanced deflate (deflate64).
+      when {30}: distance := 32769 + getBits(compressedStream, 14);
+      when {31}: distance := 49153 + getBits(compressedStream, 14);
       otherwise: raise RANGE_ERROR;
     end case;
   end func;
