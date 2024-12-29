@@ -110,36 +110,34 @@ const func integer: decodeDistance (inout lsbInBitStream: compressedStream,
     var integer: distance is 0;
   begin
     case code of
-      when {0, 1, 2, 3}:
-        distance := succ(code);
-      when {4, 5}:
-        distance := 5 + ((code - 4) << 1) + getBit(compressedStream);
-      when {6, 7}:
-        distance := 9 + ((code - 6) << 2) + getBits(compressedStream, 2);
-      when {8, 9}:
-        distance := 17 + ((code - 8) << 3) + getBits(compressedStream, 3);
-      when {10, 11}:
-        distance := 33 + ((code - 10) << 4) + getBits(compressedStream, 4);
-      when {12, 13}:
-        distance := 65 + ((code - 12) << 5) + getBits(compressedStream, 5);
-      when {14, 15}:
-        distance := 129 + ((code - 14) << 6) + getBits(compressedStream, 6);
-      when {16, 17}:
-        distance := 257 + ((code - 16) << 7) + getBits(compressedStream, 7);
-      when {18, 19}:
-        distance := 513 + ((code - 18) << 8) + getBits(compressedStream, 8);
-      when {20, 21}:
-        distance := 1025 + ((code - 20) << 9) + getBits(compressedStream, 9);
-      when {22, 23}:
-        distance := 2049 + ((code - 22) << 10) + getBits(compressedStream, 10);
-      when {24, 25}:
-        distance := 4097 + ((code - 24) << 11) + getBits(compressedStream, 11);
-      when {26, 27}:
-        distance := 8193 + ((code - 26) << 12) + getBits(compressedStream, 12);
-      when {28, 29}:
-        distance := 16385 + ((code - 28) << 13) + getBits(compressedStream, 13);
-      otherwise:
-        raise RANGE_ERROR;
+      when {0, 1, 2, 3}: distance := succ(code);
+      when {4}:  distance :=     5 + getBit(compressedStream);
+      when {5}:  distance :=     7 + getBit(compressedStream);
+      when {6}:  distance :=     9 + getBits(compressedStream, 2);
+      when {7}:  distance :=    13 + getBits(compressedStream, 2);
+      when {8}:  distance :=    17 + getBits(compressedStream, 3);
+      when {9}:  distance :=    25 + getBits(compressedStream, 3);
+      when {10}: distance :=    33 + getBits(compressedStream, 4);
+      when {11}: distance :=    49 + getBits(compressedStream, 4);
+      when {12}: distance :=    65 + getBits(compressedStream, 5);
+      when {13}: distance :=    97 + getBits(compressedStream, 5);
+      when {14}: distance :=   129 + getBits(compressedStream, 6);
+      when {15}: distance :=   193 + getBits(compressedStream, 6);
+      when {16}: distance :=   257 + getBits(compressedStream, 7);
+      when {17}: distance :=   385 + getBits(compressedStream, 7);
+      when {18}: distance :=   513 + getBits(compressedStream, 8);
+      when {19}: distance :=   769 + getBits(compressedStream, 8);
+      when {20}: distance :=  1025 + getBits(compressedStream, 9);
+      when {21}: distance :=  1537 + getBits(compressedStream, 9);
+      when {22}: distance :=  2049 + getBits(compressedStream, 10);
+      when {23}: distance :=  3073 + getBits(compressedStream, 10);
+      when {24}: distance :=  4097 + getBits(compressedStream, 11);
+      when {25}: distance :=  6145 + getBits(compressedStream, 11);
+      when {26}: distance :=  8193 + getBits(compressedStream, 12);
+      when {27}: distance := 12289 + getBits(compressedStream, 12);
+      when {28}: distance := 16385 + getBits(compressedStream, 13);
+      when {29}: distance := 24577 + getBits(compressedStream, 13);
+      otherwise: raise RANGE_ERROR;
     end case;
   end func;
 
