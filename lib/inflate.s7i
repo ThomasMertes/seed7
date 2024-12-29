@@ -86,20 +86,31 @@ const func integer: decodeLength (inout lsbInBitStream: compressedStream,
   begin
     if code <= 264 then
       length := code - 254;
-    elsif code <= 268 then
-      length := 11 + ((code - 265) << 1) + getBit(compressedStream);
-    elsif code <= 272 then
-      length := 19 + ((code - 269) << 2) + getBits(compressedStream, 2);
-    elsif code <= 276 then
-      length := 35 + ((code - 273) << 3) + getBits(compressedStream, 3);
-    elsif code <= 280 then
-      length := 67 + ((code - 277) << 4) + getBits(compressedStream, 4);
-    elsif code <= 284 then
-      length := 131 + ((code - 281) << 5) + getBits(compressedStream, 5);
-    elsif code = 285 then
-      length := 258;
     else
-      raise RANGE_ERROR;
+      case code of
+        when {265}: length :=  11 + getBit(compressedStream);
+        when {266}: length :=  13 + getBit(compressedStream);
+        when {267}: length :=  15 + getBit(compressedStream);
+        when {268}: length :=  17 + getBit(compressedStream);
+        when {269}: length :=  19 + getBits(compressedStream, 2);
+        when {270}: length :=  23 + getBits(compressedStream, 2);
+        when {271}: length :=  27 + getBits(compressedStream, 2);
+        when {272}: length :=  31 + getBits(compressedStream, 2);
+        when {273}: length :=  35 + getBits(compressedStream, 3);
+        when {274}: length :=  43 + getBits(compressedStream, 3);
+        when {275}: length :=  51 + getBits(compressedStream, 3);
+        when {276}: length :=  59 + getBits(compressedStream, 3);
+        when {277}: length :=  67 + getBits(compressedStream, 4);
+        when {278}: length :=  83 + getBits(compressedStream, 4);
+        when {279}: length :=  99 + getBits(compressedStream, 4);
+        when {280}: length := 115 + getBits(compressedStream, 4);
+        when {281}: length := 131 + getBits(compressedStream, 5);
+        when {282}: length := 163 + getBits(compressedStream, 5);
+        when {283}: length := 195 + getBits(compressedStream, 5);
+        when {284}: length := 227 + getBits(compressedStream, 5);
+        when {285}: length := 258;
+        otherwise: raise RANGE_ERROR;
+      end case;
     end if;
   end func;
 
