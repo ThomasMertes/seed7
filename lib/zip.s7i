@@ -2257,6 +2257,9 @@ const func string: getReference (inout zipArchive: zip, in central_file_header: 
           end if;
 	end if;
       end for;
+      if not found then
+        raise RANGE_ERROR;
+      end if;
     end if;
   end func;
 
