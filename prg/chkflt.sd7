@@ -17134,21 +17134,6 @@ const proc: check_functions is func
   local
     var boolean: okay is TRUE;
   begin
-    if  ceil(-2.999999999999999)  <> -2.0 or
-        ceil(-2.0)                <> -2.0 or
-        ceil(-1.999999999999999)  <> -1.0 or
-        ceil(-1.0)                <> -1.0 or
-        ceil(-0.9999999999999999) <>  0.0 or
-        ceil(-1.0e-323)           <>  0.0 or
-        ceil( 0.0)                <>  0.0 or
-        ceil( 1.0e-323)           <>  1.0 or
-        ceil( 1.0)                <>  1.0 or
-        ceil( 1.000000000000001)  <>  2.0 or
-        ceil( 2.0)                <>  2.0 then
-      writeln(" ***** ceil() does not work correctly.");
-      okay := FALSE;
-    end if;
-
     if  floor(-2.0)                <> -2.0 or
         floor(-1.000000000000001)  <> -2.0 or
         floor(-1.0)                <> -1.0 or
@@ -17161,6 +17146,21 @@ const proc: check_functions is func
         floor( 2.0)                <>  2.0 or
         floor( 2.999999999999999)  <>  2.0 then
       writeln(" ***** floor() does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  ceil(-2.999999999999999)  <> -2.0 or
+        ceil(-2.0)                <> -2.0 or
+        ceil(-1.999999999999999)  <> -1.0 or
+        ceil(-1.0)                <> -1.0 or
+        ceil(-0.9999999999999999) <>  0.0 or
+        ceil(-1.0e-323)           <>  0.0 or
+        ceil( 0.0)                <>  0.0 or
+        ceil( 1.0e-323)           <>  1.0 or
+        ceil( 1.0)                <>  1.0 or
+        ceil( 1.000000000000001)  <>  2.0 or
+        ceil( 2.0)                <>  2.0 then
+      writeln(" ***** ceil() does not work correctly.");
       okay := FALSE;
     end if;
 
