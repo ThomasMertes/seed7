@@ -44,6 +44,7 @@ include "filebits.s7i";
 include "fileutil.s7i";
 include "archive_base.s7i";
 include "subfile.s7i";
+include "msgdigest.s7i";
 
 
 const string: ZIP_CENTRAL_HEADER_SIGNATURE               is "PK\1;\2;";
@@ -75,6 +76,7 @@ const integer: ZIP_DEFLATE   is  8;  # The file is deflated.
 const integer: ZIP_DEFLATE64 is  9;  # The file is compressed with enhanced deflate.
 const integer: ZIP_BZIP2     is 12;  # The file is compressed with BZIP2.
 const integer: ZIP_LZMA      is 14;  # The file is compressed with LZMA.
+const integer: ZIP_REFERENCE is 92;  # Reference to an existing file
 const integer: ZIP_ZSTD      is 93;  # The file is compressed with Zstandard.
 const integer: ZIP_XZ        is 95;  # The file is compressed with XZ.
 
@@ -939,6 +941,7 @@ const proc: assignGroupId (inout central_file_header: header,
 
 
 const type: zipCatalogType is hash [string] central_file_header;
+const type: zipReferenceMapType is hash [bin32] array integer;
 
 
 (**
@@ -951,6 +954,7 @@ const type: zipArchive is sub emptyFileSys struct
     var file: zipFile is STD_NULL;
     var archiveRegisterType: register is archiveRegisterType.value;
     var zipCatalogType: catalog is zipCatalogType.value;
+    var zipReferenceMapType: fileReferenceMap is zipReferenceMapType.value;
     var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
     var integer: endOfCentralDirPos is 1;
     var integer: startOfCentralDirPos is 1;
@@ -1158,6 +1162,51 @@ const proc: fixRegisterAndCatalog (inout zipArchive: zip, in integer: insertPos,
     end if;
     if zip.endOfCentralDirPos >= insertPos then
       zip.endOfCentralDirPos +:= numChars;
+    end if;
+  end func;
+
+
+const proc: initializeFileReferenceMap (inout zipArchive: zip) is func
+  local
+    var integer: centralHeaderPos is 0;
+    var string: stri is "";
+    var integer: compression_method is ZIP_STORE;
+    var bin32: crc_32 is bin32(0);
+  begin
+    for centralHeaderPos range sort(values(zip.register)) do
+      seek(zip.zipFile, centralHeaderPos);
+      stri := gets(zip.zipFile, ZIP_CENTRAL_HEADER_FIXED_SIZE);
+      if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
+          stri[.. 4] = ZIP_CENTRAL_HEADER_SIGNATURE then
+        compression_method       := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+        crc_32             := bin32(bytes2Int(stri[17 fixLen 4], UNSIGNED, LE));
+        if compression_method <> ZIP_REFERENCE then
+          if crc_32 in zip.fileReferenceMap then
+            zip.fileReferenceMap[crc_32] &:= centralHeaderPos;
+          else
+            zip.fileReferenceMap @:= [crc_32] [] (centralHeaderPos);
+          end if;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const func array string: getReferencePaths (inout zipArchive: zip,
+    in bin32: crc_32) is func
+  result
+    var array string: filePathList is 0 times "";
+  local
+    var integer: centralHeaderPos is 0;
+  begin
+    if length(zip.fileReferenceMap) = 0 then
+      initializeFileReferenceMap(zip);
+    end if;
+    if crc_32 in zip.fileReferenceMap then
+      for centralHeaderPos range zip.fileReferenceMap[crc_32] do
+        seek(zip.zipFile, centralHeaderPos);
+        filePathList &:= getCentralHeaderFilePath(zip.zipFile);
+      end for;
     end if;
   end func;
 
@@ -2183,6 +2232,35 @@ const func string: lzwDecompressShrink (inout file: inFile,
   end func;
 
 
+const func string: getFile (inout zipArchive: zip, in string: filePath) is forward;
+
+
+const func string: getReference (inout zipArchive: zip, in central_file_header: header) is func
+  result
+    var string: content is "";
+  local
+    var string: sha1 is "";
+    var string: filePath is "";
+    var boolean: found is FALSE;
+  begin
+    sha1 := gets(zip.zipFile, header.compressed_size);
+    if length(sha1) <> 20 then
+      raise RANGE_ERROR;
+    else
+      for filePath range getReferencePaths(zip, header.crc_32) do
+        content := getFile(zip, filePath);
+        if sha1(content) = sha1 then
+          if found then
+            raise RANGE_ERROR;
+          else
+            found := TRUE;
+          end if;
+	end if;
+      end for;
+    end if;
+  end func;
+
+
 (**
  *  Get the contents of a file in a ZIP archive.
  *  The function follows symbolic links.
@@ -2256,6 +2334,8 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
             content := bzip2Decompress(gets(zip.zipFile, localHeader.compressed_size));
           when {ZIP_LZMA}:
             content := lzmaDecompress(zip.zipFile, localHeader.uncompressed_size);
+          when {ZIP_REFERENCE}:
+            content := getReference(zip, header);
           when {ZIP_ZSTD}:
             content := zstdDecompress(zip.zipFile);
           when {ZIP_XZ}:
