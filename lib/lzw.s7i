@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lzw.s7i       Lempel-Ziv-Welch compression support library      *)
-(*  Copyright (C) 2015, 2021, 2022  Thomas Mertes                   *)
+(*  Copyright (C) 2015, 2021 - 2024  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
