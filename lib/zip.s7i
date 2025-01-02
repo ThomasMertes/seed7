@@ -2336,15 +2336,25 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
             content := gets(zip.zipFile, localHeader.compressed_size);
           when {ZIP_SHRINK}:
             content := lzwDecompressShrink(zip.zipFile, localHeader.compressed_size);
-          when {ZIP_DEFLATE, ZIP_DEFLATE64}:
+          when {ZIP_DEFLATE}:
             if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
               # The fields crc_32, compressed_size and uncompressed_size are 0.
-              # Instead there is a data descriptor after the compressed data.
+              # There is a data descriptor after the compressed data instead.
               content := inflate(zip.zipFile);
               readDataDescriptor(zip, header, localHeader);
             else
               content := gets(zip.zipFile, localHeader.compressed_size);
               content := inflate(content);
+            end if;
+          when {ZIP_DEFLATE64}:
+            if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
+              # The fields crc_32, compressed_size and uncompressed_size are 0.
+              # There is a data descriptor after the compressed data instead.
+              content := inflate64(zip.zipFile);
+              readDataDescriptor(zip, header, localHeader);
+            else
+              content := gets(zip.zipFile, localHeader.compressed_size);
+              content := inflate64(content);
             end if;
           when {ZIP_BZIP2}:
             content := bzip2Decompress(gets(zip.zipFile, localHeader.compressed_size));

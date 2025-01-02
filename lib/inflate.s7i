@@ -81,7 +81,7 @@ const func integer: getDistance (inout lsbInBitStream: compressedStream) is
 
 
 const func integer: decodeLength (inout lsbInBitStream: compressedStream,
-    in integer: code) is func
+    in integer: code, in boolean: deflate64) is func
   result
     var integer: length is 0;
   begin
@@ -109,7 +109,12 @@ const func integer: decodeLength (inout lsbInBitStream: compressedStream,
         when {282}: length := 163 + getBits(compressedStream, 5);
         when {283}: length := 195 + getBits(compressedStream, 5);
         when {284}: length := 227 + getBits(compressedStream, 5);
-        when {285}: length := 258;
+        when {285}:
+          if deflate64 then
+            length := 3 + getBits(compressedStream, 16);
+          else
+            length := 258;
+          end if;
         otherwise: raise RANGE_ERROR;
       end case;
     end if;
@@ -158,7 +163,7 @@ const func integer: decodeDistance (inout lsbInBitStream: compressedStream,
 
 
 const proc: decodeFixedHuffmanCodes (inout lsbInBitStream: compressedStream,
-    inout string: uncompressed) is func
+    in boolean: deflate64, inout string: uncompressed) is func
   local
     var integer: literalOrLength is 0;
     var integer: length is 0;
@@ -171,7 +176,7 @@ const proc: decodeFixedHuffmanCodes (inout lsbInBitStream: compressedStream,
       if literalOrLength < INFLATE_END_OF_BLOCK then
         uncompressed &:= chr(literalOrLength);
       else
-        length := decodeLength(compressedStream, literalOrLength);
+        length := decodeLength(compressedStream, literalOrLength, deflate64);
         distance := getDistance(compressedStream);
         distance := decodeDistance(compressedStream, distance);
         if length > distance then
@@ -190,7 +195,41 @@ const proc: decodeFixedHuffmanCodes (inout lsbInBitStream: compressedStream,
 
 
 const proc: decodeDynamicHuffmanCodes (inout lsbInBitStream: compressedStream,
+    in lsbHuffmanDecoder: literalOrLengthDecoder,
+    in lsbHuffmanDecoder: distanceDecoder, in boolean: deflate64,
     inout string: uncompressed) is func
+  local
+    var integer: literalOrLength is 0;
+    var integer: length is 0;
+    var integer: distance is 0;
+    var integer: nextPos is 0;
+    var integer: number is 0;
+  begin
+    literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthDecoder);
+    while literalOrLength <> INFLATE_END_OF_BLOCK do
+      if literalOrLength < INFLATE_END_OF_BLOCK then
+        uncompressed &:= chr(literalOrLength);
+      else
+        length := decodeLength(compressedStream, literalOrLength, deflate64);
+        distance := getHuffmanSymbol(compressedStream, distanceDecoder);
+        distance := decodeDistance(compressedStream, distance);
+        if length > distance then
+          nextPos := succ(length(uncompressed));
+          uncompressed &:= "\0;" mult length;
+          for number range nextPos to nextPos + length - 1 do
+            uncompressed @:= [number] uncompressed[number - distance];
+          end for;
+        else # hopefully length(uncompressed) >= distance holds
+          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
+        end if;
+      end if;
+      literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthDecoder);
+    end while;
+  end func;
+
+
+const proc: decodeDynamicHuffmanCodes (inout lsbInBitStream: compressedStream,
+    in boolean: deflate64, inout string: uncompressed) is func
   local
     const array integer: mapToOrderedLengths is []
         (16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15);
@@ -207,10 +246,6 @@ const proc: decodeDynamicHuffmanCodes (inout lsbInBitStream: compressedStream,
     var integer: number is 0;
     var integer: combinedDataElement is 0;
     var integer: factor is 0;
-    var integer: literalOrLength is 0;
-    var integer: length is 0;
-    var integer: distance is 0;
-    var integer: nextPos is 0;
   begin
     literalOrLengthTableSize := getBits(compressedStream, 5) + 257;
     distanceTableSize        := getBits(compressedStream, 5) + 1;
@@ -244,26 +279,8 @@ const proc: decodeDynamicHuffmanCodes (inout lsbInBitStream: compressedStream,
     distanceCodeLengths        := combinedData[literalOrLengthTableSize .. ];
     literalOrLengthDecoder := createLsbHuffmanDecoder(literalOrLengthCodeLengths);
     distanceDecoder        := createLsbHuffmanDecoder(distanceCodeLengths);
-    literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthDecoder);
-    while literalOrLength <> INFLATE_END_OF_BLOCK do
-      if literalOrLength < INFLATE_END_OF_BLOCK then
-        uncompressed &:= chr(literalOrLength);
-      else
-        length := decodeLength(compressedStream, literalOrLength);
-        distance := getHuffmanSymbol(compressedStream, distanceDecoder);
-        distance := decodeDistance(compressedStream, distance);
-        if length > distance then
-          nextPos := succ(length(uncompressed));
-          uncompressed &:= "\0;" mult length;
-          for number range nextPos to nextPos + length - 1 do
-            uncompressed @:= [number] uncompressed[number - distance];
-          end for;
-        else # hopefully length(uncompressed) >= distance holds
-          uncompressed &:= uncompressed[succ(length(uncompressed)) - distance fixLen length];
-        end if;
-      end if;
-      literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthDecoder);
-    end while;
+    decodeDynamicHuffmanCodes(compressedStream, literalOrLengthDecoder,
+                              distanceDecoder, deflate64, uncompressed);
   end func;
 
 
@@ -278,9 +295,9 @@ const proc: processCompressedBlock (inout lsbInBitStream: compressedStream,
       when {0}:
         getNonCompressedBlock(compressedStream, uncompressed);
       when {1}:
-        decodeFixedHuffmanCodes(compressedStream, uncompressed);
+        decodeFixedHuffmanCodes(compressedStream, FALSE, uncompressed);
       when {2}:
-        decodeDynamicHuffmanCodes(compressedStream, uncompressed);
+        decodeDynamicHuffmanCodes(compressedStream, FALSE, uncompressed);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -317,6 +334,69 @@ const func string: inflate (inout file: compressed) is func
  *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE format.
  *)
 const func string: inflate (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
+    var boolean: bfinal is FALSE;
+  begin
+    compressedStream := openLsbInBitStream(compressed);
+    repeat
+      processCompressedBlock(compressedStream, uncompressed, bfinal);
+    until bfinal;
+  end func;
+
+
+const proc: processCompressedBlock64 (inout lsbInBitStream: compressedStream,
+    inout string: uncompressed, inout boolean: bfinal) is func
+  local
+    var integer: btype is 0;
+  begin
+    bfinal := odd(getBit(compressedStream));
+    btype := getBits(compressedStream, 2);
+    case btype of
+      when {0}:
+        getNonCompressedBlock(compressedStream, uncompressed);
+      when {1}:
+        decodeFixedHuffmanCodes(compressedStream, TRUE, uncompressed);
+      when {2}:
+        decodeDynamicHuffmanCodes(compressedStream, TRUE, uncompressed);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+(**
+ *  Decompress a file that was compressed with DEFLATE64.
+ *  DEFLATE64 is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE64 format.
+ *)
+const func string: inflate64 (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
+    var boolean: bfinal is FALSE;
+  begin
+    compressedStream := openLsbInBitStream(compressed);
+    repeat
+      processCompressedBlock(compressedStream, uncompressed, bfinal);
+    until bfinal;
+    close(compressedStream);
+  end func;
+
+
+(**
+ *  Decompress a string that was compressed with DEFLATE64.
+ *  DEFLATE64 is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE64 format.
+ *)
+const func string: inflate64 (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
