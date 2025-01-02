@@ -304,36 +304,38 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       header := readHeadBlock(inFile);
       # showHeader(STD_OUT, header);
     end while;
-    if filePath8 = "" then
-      if header.prefix <> "" then
-        filePath8 := header.prefix & "/" & header.name;
-      else
-        filePath8 := header.name;
+    if header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC then
+      if filePath8 = "" then
+        if header.prefix <> "" then
+          filePath8 := header.prefix & "/" & header.name;
+        else
+          filePath8 := header.name;
+        end if;
       end if;
+      block
+        header.filePath := fromUtf8(filePath8);
+      exception
+        catch RANGE_ERROR:
+          header.filePath := filePath8;
+      end block;
+      if linkPath8 = "" then
+        linkPath8 := header.linkname;
+      end if;
+      block
+        header.linkPath := fromUtf8(linkPath8);
+      exception
+        catch RANGE_ERROR:
+          header.linkPath := linkPath8;
+      end block;
+      if endsWith(header.filePath, "/") and header.filePath <> "/" then
+        header.filePath := header.filePath[.. pred(length(header.filePath))];
+        header.filePathSuffix := "/";
+      end if;
+      if endsWith(header.linkPath, "/") then
+        header.linkPath := header.linkPath[.. pred(length(header.linkPath))];
+      end if;
+      header.dataStartPos := tell(inFile);
     end if;
-    block
-      header.filePath := fromUtf8(filePath8);
-    exception
-      catch RANGE_ERROR:
-        header.filePath := filePath8;
-    end block;
-    if linkPath8 = "" then
-      linkPath8 := header.linkname;
-    end if;
-    block
-      header.linkPath := fromUtf8(linkPath8);
-    exception
-      catch RANGE_ERROR:
-        header.linkPath := linkPath8;
-    end block;
-    if endsWith(header.filePath, "/") and header.filePath <> "/" then
-      header.filePath := header.filePath[.. pred(length(header.filePath))];
-      header.filePathSuffix := "/";
-    end if;
-    if endsWith(header.linkPath, "/") then
-      header.linkPath := header.linkPath[.. pred(length(header.linkPath))];
-    end if;
-    header.dataStartPos := tell(inFile);
   end func;
 
 
