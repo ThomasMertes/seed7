@@ -980,18 +980,24 @@ const proc: initLead (inout rpmLead: lead) is func
 const proc: readLead (inout file: rpmFile, inout rpmLead: lead) is func
   local
     var string: leadStri is "";
+    var integer: packageTypeNumber is 0;
   begin
     leadStri := gets(rpmFile, RPM_LEAD_SIZE);
     if length(leadStri) = RPM_LEAD_SIZE then
-      lead.magic        :=                               leadStri[ 1 fixLen  4];
-      lead.majorVersion :=                     bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
-      lead.minorVersion :=                     bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
-      lead.packageType  := rpmPackageType conv bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
-      lead.arch         :=                     bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
-      lead.name         :=                    fromAsciiz(leadStri[11 fixLen 66], 1);
-      lead.os           :=                     bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
-      lead.sig          :=                     bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
+      lead.magic        :=            leadStri[ 1 fixLen  4];
+      lead.majorVersion :=  bytes2Int(leadStri[ 5 fixLen  1], UNSIGNED, BE);
+      lead.minorVersion :=  bytes2Int(leadStri[ 6 fixLen  1], UNSIGNED, BE);
+      packageTypeNumber :=  bytes2Int(leadStri[ 7 fixLen  2], UNSIGNED, BE);
+      lead.arch         :=  bytes2Int(leadStri[ 9 fixLen  2], UNSIGNED, BE);
+      lead.name         := fromAsciiz(leadStri[11 fixLen 66], 1);
+      lead.os           :=  bytes2Int(leadStri[77 fixLen  2], UNSIGNED, BE);
+      lead.sig          :=  bytes2Int(leadStri[79 fixLen  2], UNSIGNED, BE);
       # 16 reserved bytes are currently unused.
+      if packageTypeNumber <= ord(rpmPackageType.last) then
+        lead.packageType  := rpmPackageType conv packageTypeNumber;
+      else
+        lead.magic := "";
+      end if;
     end if;
   end func;
 
