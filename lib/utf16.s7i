@@ -173,18 +173,18 @@ const type: utf16leFile is sub utf16File struct
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
- *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "w"   Open or create file for writing and truncate to zero length.
+ *  ** "a"   Open or create file for appending (writing at end-of-file).
  *  ** "r+"  Open file for update (reading and writing).
- *  ** "w+"  Truncate to zero length or create file for update.
- *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  ** "w+"  Open or create file for update and truncate to zero length.
+ *  ** "a+"  Open or create file for appending and reading.
  *  *Text modes:
  *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
- *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "wt"  Open or create file for writing and truncate to zero length.
+ *  ** "at"  Open or create file for appending (writing at end-of-file).
  *  ** "rt+" Open file for update (reading and writing).
- *  ** "wt+" Truncate to zero length or create file for update.
- *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  ** "wt+" Open or create file for update and truncate to zero length.
+ *  ** "at+" Open or create file for appending and reading.
  *  Note that this modes differ from the ones used by the C function
  *  fopen().
  *  @param path Path of the file to be opened. The path must
@@ -336,18 +336,18 @@ const type: utf16beFile is sub utf16File struct
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
- *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "w"   Open or create file for writing and truncate to zero length.
+ *  ** "a"   Open or create file for appending (writing at end-of-file).
  *  ** "r+"  Open file for update (reading and writing).
- *  ** "w+"  Truncate to zero length or create file for update.
- *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  ** "w+"  Open or create file for update and truncate to zero length.
+ *  ** "a+"  Open or create file for appending and reading.
  *  *Text modes:
  *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
- *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "wt"  Open or create file for writing and truncate to zero length.
+ *  ** "at"  Open or create file for appending (writing at end-of-file).
  *  ** "rt+" Open file for update (reading and writing).
- *  ** "wt+" Truncate to zero length or create file for update.
- *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  ** "wt+" Open or create file for update and truncate to zero length.
+ *  ** "at+" Open or create file for appending and reading.
  *  Note that this modes differ from the ones used by the C function
  *  fopen().
  *  @param path Path of the file to be opened. The path must
@@ -485,18 +485,18 @@ const func string: gets (in utf16beFile: inFile, in integer: maxLength) is func
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
- *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "w"   Open or create file for writing and truncate to zero length.
+ *  ** "a"   Open or create file for appending (writing at end-of-file).
  *  ** "r+"  Open file for update (reading and writing).
- *  ** "w+"  Truncate to zero length or create file for update.
- *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  ** "w+"  Open or create file for update and truncate to zero length.
+ *  ** "a+"  Open or create file for appending and reading.
  *  *Text modes:
  *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
- *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "wt"  Open or create file for writing and truncate to zero length.
+ *  ** "at"  Open or create file for appending (writing at end-of-file).
  *  ** "rt+" Open file for update (reading and writing).
- *  ** "wt+" Truncate to zero length or create file for update.
- *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  ** "wt+" Open or create file for update and truncate to zero length.
+ *  ** "at+" Open or create file for appending and reading.
  *  Note that this modes differ from the ones used by the C function
  *  fopen().
  *  @param path Path of the file to be opened. The path must

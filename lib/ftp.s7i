@@ -715,10 +715,10 @@ const proc: close (inout ftpDataFile: dataFile) is func
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "w"   Open or create file for writing and truncate to zero length.
  *  *Text modes:
  *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "wt"  Open or create file for writing and truncate to zero length.
  *  No other FTP functions can be used while reading and writing
  *  this file is going on. After this file has been closed other
  *  FTP functions can be used.

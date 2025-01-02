@@ -107,17 +107,17 @@ extern int _chsize (int fd, long size);
  *  The following modes are accepted
  *   Seed7 mode | C mode | Comment
  *   "r"        | "rb"   | Open file for reading.
- *   "w"        | "wb"   | Truncate to zero length or create file for writing.
- *   "a"        | "ab"   | Append; open or create file for writing at end-of-file.
+ *   "w"        | "wb"   | Open or create file for writing and truncate to zero length.
+ *   "a"        | "ab"   | Open or create file for appending (writing at end-of-file).
  *   "r+"       | "rb+"  | Open file for update (reading and writing).
- *   "w+"       | "wb+"  | Truncate to zero length or create file for update.
- *   "a+"       | "ab+"  | Append; open or create file for update, writing at end-of-file.
+ *   "w+"       | "wb+"  | Open or create file for update and truncate to zero length.
+ *   "a+"       | "ab+"  | Open or create file for appending and reading.
  *   "rt"       | "r"    | Open file for reading.
- *   "wt"       | "w"    | Truncate to zero length or create file for writing.
- *   "at"       | "a"    | Append; open or create file for writing at end-of-file.
+ *   "wt"       | "w"    | Open or create file for writing and truncate to zero length.
+ *   "at"       | "a"    | Open or create file for appending (writing at end-of-file).
  *   "rt+"      | "r+"   | Open file for update (reading and writing).
- *   "wt+"      | "w+"   | Truncate to zero length or create file for update.
- *   "at+"      | "a+"   | Append; open or create file for update, writing at end-of-file.
+ *   "wt+"      | "w+"   | Open or create file for update and truncate to zero length.
+ *   "at+"      | "a+"   | Open or create file for appending and reading.
  *  Other Seed7 modes correspond to the C mode "".
  *  The Seed7 modes with t are text modes and the modes
  *  without t are binary modes.
@@ -140,8 +140,8 @@ static void get_mode (const const_striType file_mode, os_charType os_mode[MAX_MO
       if (file_mode->size == 1) {
         /* Binary mode
            r ... Open file for reading.
-           w ... Truncate to zero length or create file for writing.
-           a ... Append; open or create file for writing at end-of-file.
+           w ... Open or create file for writing and truncate to zero length.
+           a ... Open or create file for appending (writing at end-of-file).
         */
         os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
         os_mode[mode_pos++] = 'b';
@@ -151,8 +151,8 @@ static void get_mode (const const_striType file_mode, os_charType os_mode[MAX_MO
         if (file_mode->mem[1] == '+') {
           /* Binary mode
              r+ ... Open file for update (reading and writing).
-             w+ ... Truncate to zero length or create file for update.
-             a+ ... Append; open or create file for update, writing at end-of-file.
+             w+ ... Open or create file for update and truncate to zero length.
+             a+ ... Open or create file for appending and reading.
           */
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           os_mode[mode_pos++] = 'b';
@@ -162,8 +162,8 @@ static void get_mode (const const_striType file_mode, os_charType os_mode[MAX_MO
         } else if (file_mode->mem[1] == 't') {
           /* Text mode
              rt ... Open file for reading.
-             wt ... Truncate to zero length or create file for writing.
-             at ... Append; open or create file for writing at end-of-file.
+             wt ... Open or create file for writing and truncate to zero length.
+             at ... Open or create file for appending (writing at end-of-file).
           */
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           *readingAllowed = file_mode->mem[0] == 'r';
@@ -174,8 +174,8 @@ static void get_mode (const const_striType file_mode, os_charType os_mode[MAX_MO
             file_mode->mem[2] == '+') {
           /* Text mode
              rt+ ... Open file for update (reading and writing).
-             wt+ ... Truncate to zero length or create file for update.
-             at+ ... Append; open or create file for update, writing at end-of-file.
+             wt+ ... Open or create file for update and truncate to zero length.
+             at+ ... Open or create file for appending and reading.
           */
           os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
           os_mode[mode_pos++] = '+';
@@ -1804,18 +1804,18 @@ intType filLng (fileType aFile)
  *  There are text modes and binary modes:
  *  - Binary modes:
  *   - "rb"  Open file for reading.
- *   - "wb"  Truncate to zero length or create file for writing.
- *   - "ab"  Append; open or create file for writing at end-of-file.
+ *   - "wb"  Open or create file for writing and truncate to zero length.
+ *   - "ab"  Open or create file for appending (writing at end-of-file).
  *   - "rb+" Open file for update (reading and writing).
- *   - "wb+" Truncate to zero length or create file for update.
- *   - "ab+" Append; open or create file for update, writing at end-of-file.
+ *   - "wb+" Open or create file for update and truncate to zero length.
+ *   - "ab+" Open or create file for appending and reading.
  *  - Text modes:
  *   - "r"   Open file for reading.
- *   - "w"   Truncate to zero length or create file for writing.
- *   - "a"   Append; open or create file for writing at end-of-file.
+ *   - "w"   Open or create file for writing and truncate to zero length.
+ *   - "a"   Open or create file for appending (writing at end-of-file).
  *   - "r+"  Open file for update (reading and writing).
- *   - "w+"  Truncate to zero length or create file for update.
- *   - "a+"  Append; open or create file for update, writing at end-of-file.
+ *   - "w+"  Open or create file for update and truncate to zero length.
+ *   - "a+"  Open or create file for appending and reading.
  *
  *  Unicode characters in 'path' are converted to the
  *  representation used by the fopen() function of the operating system.
@@ -1920,18 +1920,18 @@ static cFileType cFileOpen (const const_striType path,
  *  There are text modes and binary modes:
  *  - Binary modes:
  *   - "r"   Open file for reading.
- *   - "w"   Truncate to zero length or create file for writing.
- *   - "a"   Append; open or create file for writing at end-of-file.
+ *   - "w"   Open or create file for writing and truncate to zero length.
+ *   - "a"   Open or create file for appending (writing at end-of-file).
  *   - "r+"  Open file for update (reading and writing).
- *   - "w+"  Truncate to zero length or create file for update.
- *   - "a+"  Append; open or create file for update, writing at end-of-file.
+ *   - "w+"  Open or create file for update and truncate to zero length.
+ *   - "a+"  Open or create file for appending and reading.
  *  - Text modes:
  *   - "rt"  Open file for reading.
- *   - "wt"  Truncate to zero length or create file for writing.
- *   - "at"  Append; open or create file for writing at end-of-file.
+ *   - "wt"  Open or create file for writing and truncate to zero length.
+ *   - "at"  Open or create file for appending (writing at end-of-file).
  *   - "rt+" Open file for update (reading and writing).
- *   - "wt+" Truncate to zero length or create file for update.
- *   - "at+" Append; open or create file for update, writing at end-of-file.
+ *   - "wt+" Open or create file for update and truncate to zero length.
+ *   - "at+" Open or create file for appending and reading.
  *
  *  Note that this modes differ from the ones used by the C function
  *  fopen(). Unicode characters in 'path' are converted to the
