@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  inflate.s7i   Inflate uncompression algorithm                   *)
 (*  Copyright (C) 2008, 2013, 2015, 2017  Thomas Mertes             *)
-(*                2022 - 2024  Thomas Mertes                        *)
+(*                2022 - 2025  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
