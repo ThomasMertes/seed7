@@ -39,7 +39,10 @@ include "ar.s7i";
 
 
 (**
- *  Open an archive with the given archiveFile.
+ *  Open an archive for reading with the given ''archiveFile''.
+ *  Depending on the magic number in the file the corresponding
+ *  archive is opened. If necessary a file decompression is
+ *  used as well.
  *  @param archiveFile File that contains an archive.
  *)
 const func fileSys: openArchive (inout file: archiveFile) is func
@@ -90,8 +93,11 @@ const func fileSys: openArchive (inout file: archiveFile) is func
 
 
 (**
- *  Open an archive with the given archiveFileName.
- *  @param archiveFileName Name of the TAR archive to be opened.
+ *  Open an archive for reading with the given ''archiveFileName''.
+ *  Depending on the magic number in the file the corresponding
+ *  archive is opened. If necessary a file decompression is
+ *  used as well.
+ *  @param archiveFileName Name of the archive to be opened.
  *)
 const func fileSys: openArchive (in string: archiveFileName) is func
   result
@@ -101,4 +107,36 @@ const func fileSys: openArchive (in string: archiveFileName) is func
   begin
     archiveFile := open(archiveFileName, "r");
     archive := openArchive(archiveFile);
+  end func;
+
+
+(**
+ *  Open an archive for writing according to the file name extension.
+ *  An archive which uses this file name extension is opened.
+ *  @param archiveFileName Name of the archive to be opened.
+ *)
+const func fileSys: openArchiveByExtension (in string: archiveFileName) is func
+  result
+    var fileSys: archive is fileSys.value;
+  local
+    var file: archiveFile is STD_NULL;
+  begin
+    if endsWith(archiveFileName, ".tar") then
+      archiveFile := open(archiveFileName, "w+");
+      archive := openTar(archiveFile);
+    elsif endsWith(archiveFileName, ".cpio") then
+      archiveFile := open(archiveFileName, "w+");
+      archive := openCpio(archiveFile);
+    elsif endsWith(archiveFileName, ".zip") or
+          endsWith(archiveFileName, ".zipx") then
+      archiveFile := open(archiveFileName, "w+");
+      archive := openZip(archiveFile);
+    elsif endsWith(archiveFileName, ".rpm") then
+      archiveFile := open(archiveFileName, "w+");
+      archive := openRpm(archiveFile);
+    elsif endsWith(archiveFileName, ".a") or
+          endsWith(archiveFileName, ".ar") then
+      archiveFile := open(archiveFileName, "w+");
+      archive := openAr(archiveFile);
+    end if;
   end func;
