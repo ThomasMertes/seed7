@@ -114,6 +114,40 @@ const func file: openTarFileWithMagic (in string: inFileName,
   end func;
 
 
+const func file: openTarFileByExtension (in string: outFileName,
+    in boolean: doZip) is func
+  result
+    var file: outFile is STD_NULL;
+  begin
+    if doZip then
+      if  endsWith(outFileName, ".tgz") or
+          endsWith(outFileName, ".tar.gz") then
+        outFile := open(outFileName, "w");
+      end if;
+    else
+      if endsWith(outFileName, ".tgz") then
+        writeln("tar7: Use the option z to create a .tgz file.");
+      elsif endsWith(outFileName, ".tar.gz") then
+        writeln("tar7: Use the option z to create a .tar.gz file.");
+      elsif endsWith(outFileName, ".zip") or
+            endsWith(outFileName, ".zipx") then
+        writeln("tar7: Use the option z to create a zip archive.");
+      elsif endsWith(outFileName, ".rpm") then
+        writeln("tar7: Use the option z to create an rpm archive.");
+      elsif endsWith(outFileName, ".cpio") then
+        writeln("tar7: Use the option z to create a cpio archive.");
+      elsif endsWith(outFileName, ".a") or
+            endsWith(outFileName, ".ar") then
+        writeln("tar7: Use the option z to create an ar archive.");
+      elsif endsWith(outFileName, ".tar.bz2") then
+        writeln("tar7: creating a .tar.bz2 is not supported.");
+      else
+        outFile := open(outFileName, "w");
+      end if;
+    end if;
+  end func;
+
+
 const func boolean: filePathIsInTarMemberList (in string: filePath,
     in array string: memberList) is func
   result
@@ -250,6 +284,7 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
       archive := openArchive(inFileName);
       if archive <> fileSys.value then
         archiveTell(archive, memberList, doView);
+	close(archive);
       else
         writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
@@ -478,6 +513,7 @@ const proc: tarXtract (in string: inFileName, in array string: memberList,
       archive := openArchive(inFileName);
       if archive <> fileSys.value then
         archiveXtract(archive, memberList, doView);
+	close(archive);
       else
         writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
@@ -537,8 +573,8 @@ const proc: tarXtract (in string: inFileName) is func
  *  @param doView TRUE write the names of the processed files,
  *                FALSE work quietly.
  *)
-const proc: tarCreate (inout file: outFile, in string: basePath, in string: pathFromBase,
-    in array string: fileList, in boolean: doView) is func
+const proc: tarCreate (inout file: outFile, in string: basePath,
+    in string: pathFromBase, in array string: fileList, in boolean: doView) is func
   local
     var string: name is "";
     var array string: dirContent is 0 times "";
@@ -581,6 +617,57 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
   end func;
 
 
+const proc: archiveCreate (inout fileSys: archive, in string: basePath,
+    in string: pathFromBase, in array string: fileList, in boolean: doView) is func
+  local
+    var string: name is "";
+    var array string: dirContent is 0 times "";
+    var boolean: setProperties is FALSE;
+    var file: aFile is STD_NULL;
+  begin
+    for name range fileList do
+      name := pathFromBase & name;
+      if fileType(basePath & name) = FILE_ABSENT then
+        writeln("*** The file " <& literal(basePath & name) <& " does not exist.");
+      else
+        if doView then
+          write("c ");
+          writeln(name);
+        end if;
+        setProperties := TRUE;
+        if fileType(basePath & name) = FILE_DIR then
+          dirContent := readDir(basePath & name);
+          makeDir(archive, name);
+          archiveCreate(archive, basePath, name & "/", dirContent, doView);
+        else
+          aFile := open(basePath & name, "r");
+          if aFile <> STD_NULL then
+            putFile(archive, name, gets(aFile, integer.last));
+            close(aFile);
+          else
+            writeln("*** The file " <& literal(basePath & name) <& " is not a regular file.");
+            setProperties := FALSE;
+          end if;
+        end if;
+        if setProperties then
+          setFileMode(archive, name, getFileMode(basePath & name));
+          setMTime(archive, name, getMTime(basePath & name));
+          block
+            setOwner(archive, name, getOwner(basePath & name));
+          exception
+            catch RANGE_ERROR: noop;
+          end block;
+          block
+            setGroup(archive, name, getGroup(basePath & name));
+          exception
+            catch RANGE_ERROR: noop;
+          end block;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 (**
  *  Create the TAR file ''outFileName'' with the files listed in ''fileList''.
  *  This function is used by the ''tar7'' program. The function copies files
@@ -601,22 +688,32 @@ const proc: tarCreate (in string: outFileName, in array string: fileList,
     var file: outFile is STD_NULL;
     var file: compressedFile is STD_NULL;
     var string: name is "";
-    var string: uncompressed is "";
+    var fileSys: archive is fileSys.value;
   begin
-    outFile := open(outFileName, "w");
-    if outFile <> STD_NULL and doZip then
-      compressedFile := outFile;
-      outFile := openGzipFile(compressedFile, WRITE);
-    end if;
+    outFile := openTarFileByExtension(outFileName, doZip);
     if outFile <> STD_NULL then
+      if doZip then
+        compressedFile := outFile;
+        outFile := openGzipFile(compressedFile, WRITE);
+      end if;
       for name range fileList do
         tarCreate(outFile, "", "", [] name, doView);
       end for;
       write(outFile, END_OF_FILE_MARKER mult 2);
       close(outFile);
-    end if;
-    if compressedFile <> STD_NULL then
-      close(compressedFile);
+      if compressedFile <> STD_NULL then
+        close(compressedFile);
+      end if;
+    elsif doZip then
+      archive := openArchiveByExtension(outFileName);
+      if archive <> fileSys.value then
+        for name range fileList do
+          archiveCreate(archive, "", "", [] name, doView);
+        end for;
+	close(archive);
+      else
+        writeln("tar7: Cannot create a \"" <& outFileName <& "\" file.");
+      end if;
     end if;
   end func;
 
