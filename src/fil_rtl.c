@@ -1907,7 +1907,7 @@ static cFileType cFileOpen (const const_striType path,
       } /* if */
       os_stri_free(os_path);
     } /* if */
-    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", %d) --> %d",
+    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", %d) --> %d\n",
                        striAsUnquotedCStri(path), os_mode,
                        *err_info, safe_fileno(result)););
     return result;
