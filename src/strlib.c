@@ -112,7 +112,7 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
       if (used_max_position >= work_array->max_position) {
         max_position = work_array->max_position;
         if (unlikely(max_position > (intType) (MAX_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
-	    !REALLOC_ARRAY(resized_work_array, work_array,
+            !REALLOC_ARRAY(resized_work_array, work_array,
                 (uintType) max_position * ARRAY_SIZE_FACTOR))) {
           FREE_STRI(new_stri, new_stri->size);
           freeStriArray(work_array, used_max_position);

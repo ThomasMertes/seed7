@@ -802,7 +802,7 @@ const func string: lzwDecompressShrink (inout lsbInBitStream: compressedStream) 
               decompressed &:= table[previousCode] & str(table[previousCode][1]);
             end if;
           else
-	    raise RANGE_ERROR;
+            raise RANGE_ERROR;
           end if;
         else
           if availableCodeIndex <= length(availableCodes) then

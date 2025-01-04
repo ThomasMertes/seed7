@@ -284,7 +284,7 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
       archive := openArchive(inFileName);
       if archive <> fileSys.value then
         archiveTell(archive, memberList, doView);
-	close(archive);
+        close(archive);
       else
         writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
@@ -513,7 +513,7 @@ const proc: tarXtract (in string: inFileName, in array string: memberList,
       archive := openArchive(inFileName);
       if archive <> fileSys.value then
         archiveXtract(archive, memberList, doView);
-	close(archive);
+        close(archive);
       else
         writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
@@ -710,7 +710,7 @@ const proc: tarCreate (in string: outFileName, in array string: fileList,
         for name range fileList do
           archiveCreate(archive, "", "", [] name, doView);
         end for;
-	close(archive);
+        close(archive);
       else
         writeln("tar7: Cannot create a \"" <& outFileName <& "\" file.");
       end if;

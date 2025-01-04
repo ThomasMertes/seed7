@@ -886,7 +886,7 @@ const proc: DECLARE_CcittT4Fax2d_FUNCTIONS (in type: bitStream,
     const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
         in huffmanDecoder: whiteDecoder, in huffmanDecoder: blackDecoder,
         in pixel: whitePixel, in pixel: blackPixel, in integer: width,
-	inout ccittFaxValues: aValues, inout pixelArray: imageLine) is func
+        inout ccittFaxValues: aValues, inout pixelArray: imageLine) is func
       local
         var integer: numWhitePixels is 0;
         var integer: numBlackPixels is 0;

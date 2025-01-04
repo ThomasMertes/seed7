@@ -571,7 +571,7 @@ const proc: reduceMaximumHuffmanCodeLength (inout array integer: codeLengths,
           # Move one symbol with shorterCodeLength down (code length + 1).
           # This creates a free place at the level below.
           # Because of fictive nodes two symbols can move up to this free place.
-	  # Alternatively at lower levels 4, 8, 16 etc. symbols can move up.
+          # Alternatively at lower levels 4, 8, 16 etc. symbols can move up.
           symbol := symbolsWithCodeLength[shorterCodeLength][1];
           symbolsWithCodeLength[succ(shorterCodeLength)] &:= symbol;
           codeLengths[symbol] := succ(shorterCodeLength);
