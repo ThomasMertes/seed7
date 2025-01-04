@@ -698,6 +698,32 @@ const type: jsonObject is sub jsonBase struct
 type_implements_interface(jsonObject, jsonValue);
 
 
+(**
+ *  Assign the [[#jsonValue|jsonValue] ''aValue'' to the element ''name'' of ''anObject''.
+ *   anObject @:= [name] aValue;
+ *)
+const proc: (inout jsonObject: anObject) @:= [ (in string: name) ] (in jsonValue: aValue) is func
+  begin
+    if name not in anObject.elements then
+      anObject.elementNames &:= name;
+    end if;
+    anObject.elements @:= [name] aValue;
+  end func;
+
+
+(**
+ *  Create a [[#jsonValue|jsonValue]] with the given ''anObject''.
+ *   jsonValue(anObject)
+ *  @return a ''jsonObject'' as [[#jsonValue|jsonValue]].
+ *)
+const func jsonValue: jsonValue (in jsonObject: anObject) is func
+  result
+    var jsonValue: aValue is jsonValue.value;
+  begin
+    aValue := toInterface(anObject);
+  end func;
+
+
 const func jsonValue: readJsonObject (inout file: inFile, inout string: symbol) is func
   result
     var jsonValue: aValue is jsonValue.value;
