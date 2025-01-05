@@ -322,11 +322,11 @@ const func string: str (in jsonValue: aValue)                        is DYNAMIC;
  *     for anElement range aJsonArray do
  *       ...
  *)
-const proc: for (inout jsonValue: forVar) range (in jsonValue: aValue) do
+const proc: for (inout jsonValue: forVar) range (in jsonValue: aJsonArray) do
               (in proc: statements)
             end for is func
   begin
-    for forVar range values(aValue) do
+    for forVar range values(aJsonArray) do
       statements;
     end for;
   end func;
@@ -341,11 +341,32 @@ const proc: for (inout jsonValue: forVar) range (in jsonValue: aValue) do
  *     for key aKey range aJsonObject do
  *       ...
  *)
-const proc: for key (inout string: keyVar) range (in jsonValue: aValue) do
+const proc: for key (inout string: keyVar) range (in jsonValue: aJsonObject) do
               (in proc: statements)
             end for is func
   begin
-    for keyVar range keys(aValue) do
+    for keyVar range keys(aJsonObject) do
+      statements;
+    end for;
+  end func;
+
+
+(**
+ *  For-loop which loops over the keys and values of a JSON object.
+ *   var jsonValue: aJsonObject is jsonValue.value;
+ *   var string: aKey is "";
+ *   var jsonValue: aValue is jsonValue.value;
+ *   ...
+ *   if category(aJsonObject) = JSON_OBJECT then
+ *     for aValue key aKey range aJsonObject do
+ *       ...
+ *)
+const proc: for (inout jsonValue: aValue) key (inout string: keyVar) range (in jsonValue: aJsonObject) do
+              (in proc: statements)
+            end for is func
+  begin
+    for keyVar range keys(aJsonObject) do
+      aValue := aJsonObject[keyVar];
       statements;
     end for;
   end func;
