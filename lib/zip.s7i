@@ -2363,7 +2363,7 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
               content := inflate64(content);
             end if;
           when {ZIP_BZIP2}:
-            content := bzip2Decompress(gets(zip.zipFile, localHeader.compressed_size));
+            content := bzip2Decompress(zip.zipFile);
           when {ZIP_LZMA}:
             content := lzmaDecompress(zip.zipFile, localHeader.uncompressed_size);
           when {ZIP_REFERENCE}:
