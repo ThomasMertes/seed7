@@ -3,6 +3,7 @@
 (*                                                                  *)
 (*  msgdigest.s7i  Message digest and secure hash algorithms.       *)
 (*  Copyright (C) 2013, 2014, 2017 - 2021, 2024  Thomas Mertes      *)
+(*                2025  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -1013,6 +1014,7 @@ const func string: sha512 (in var string: message) is func
 
 
 const type: keccakStateType is array [0 .. 24] bin64;
+const type: keccakSubStateType is array [0 .. 4] bin64;
 
 
 const proc: keccakf (inout keccakStateType: state) is func
@@ -1042,7 +1044,7 @@ const proc: keccakf (inout keccakStateType: state) is func
     var integer: i is 0;
     var integer: j is 0;
     var bin64: t is bin64.value;
-    var array bin64: bc is [0 .. 4] times bin64.value;
+    var keccakSubStateType: bc is keccakSubStateType.value;
   begin
     for round range 1 to KECCAK_ROUNDS do
 
