@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bzip2.s7i     Bzip2 compression support library                 *)
-(*  Copyright (C) 2024  Thomas Mertes                               *)
+(*  Copyright (C) 2024, 2025  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -647,6 +647,37 @@ const func string: bzip2Decompress (in string: stri) is func
     if header.magic = BZIP2_MAGIC then
       compressedStream := openMsbInBitStream(stri);
       ignore(gets(compressedStream, 4));
+      blockMagic := getBits(compressedStream, 32) << 16 +
+                    getBits(compressedStream, 16);
+      while blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
+        uncompressed &:= decompressBzip2Block(compressedStream);
+        blockMagic := getBits(compressedStream, 32) << 16 +
+                      getBits(compressedStream, 16);
+      end while;
+      if blockMagic <> BZIP2_EOS_MAGIC then
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Decompress a file that was compressed with BZIP2.
+ *  BZIP2 is a file format used for compression.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in BZIP2 format.
+ *)
+const func string: bzip2Decompress (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var bzip2Header: header is bzip2Header.value;
+    var msbInBitStream: compressedStream is msbInBitStream.value;
+    var integer: blockMagic is 0;
+  begin
+    header := readBzip2Header(compressed);
+    if header.magic = BZIP2_MAGIC then
+      compressedStream := openMsbInBitStream(compressed);
       blockMagic := getBits(compressedStream, 32) << 16 +
                     getBits(compressedStream, 16);
       while blockMagic = BZIP2_BLOCK_HEADER_MAGIC do
