@@ -375,6 +375,14 @@ const string: chkjson_output is "\n\
   \The function getJsonSymbol works correctly.\n\
   \JSON DOM functions work correctly.\n";
 
+const string: chktoml_output is "\n\
+  \The function getTomlSymbol works correctly with strings.\n\
+  \The function getTomlSymbol works correctly with integers.\n\
+  \The function getTomlSymbol works correctly with floats.\n\
+  \The function getTomlSymbol works correctly with dates.\n\
+  \The function getTomlSymbol works correctly.\n\
+  \The function getTomlKey works correctly.\n";
+
 const string:chkbitdata_output is "\n\
   \getBit(lsbInBitStream) works correctly.\n\
   \getBits(lsbInBitStream) works correctly.\n\
@@ -760,6 +768,7 @@ const proc: main is func
     check("chktime", chktime_output);
     check("chkscan", chkscan_output);
     check("chkjson", chkjson_output);
+    check("chktoml", chktoml_output);
     check("chkbitdata", chkbitdata_output);
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);

@@ -1,0 +1,1655 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chktoml.sd7   Checks the TOML scanner and DOM functions         *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "strifile.s7i";
+  include "scantoml.s7i";
+
+
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
+  begin
+
+    const func boolean: raisesRangeError (in func aType: expression) is func
+      result
+        var boolean: raisesRangeError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch RANGE_ERROR:
+            raisesRangeError := TRUE;
+        end block;
+      end func;
+
+  end func;
+
+
+DECLARE_RAISES_RANGE_ERROR(string);
+
+
+const func file: initScan (in string: content) is func
+  result
+    var file: scanFile is STD_NULL;
+  begin
+    scanFile := openStriFile(content);
+    scanFile.bufferChar := getc(scanFile);
+  end func;
+
+
+const func boolean: getTomlSymbolOkay (in string: initialStri,
+    in string: expectedSymbol, in string: finalStri) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: stri is "";
+    var string: symbol is "";
+    var file: aFile is STD_NULL;
+    var char: expectedBuffer is ' ';
+  begin
+    stri := initialStri;
+    symbol := getTomlSymbol(stri);
+    if symbol <> expectedSymbol then
+      writeln(" ***** getTomlSymbol(stri) with " <&
+              literal(initialStri) <& " returns "
+              <& literal(symbol) <& " instead of " <&
+              literal(expectedSymbol) <& ".");
+      okay := FALSE;
+    elsif stri <> finalStri then
+      writeln(" ***** After getTomlSymbol(stri) with " <&
+              literal(initialStri) <& " stri is " <&
+              literal(stri) <& " instead of " <& literal(finalStri) <&
+              ".");
+      okay := FALSE;
+    else
+      if finalStri = "" then
+        expectedBuffer := EOF;
+      else
+        expectedBuffer := finalStri[1];
+      end if;
+      aFile := initScan(initialStri);
+      symbol := getTomlSymbol(aFile);
+      if symbol <> expectedSymbol then
+        writeln(" ***** getTomlSymbol(file) with " <&
+                literal(initialStri) <& " returns " <&
+                literal(symbol) <& " instead of " <&
+                literal(expectedSymbol) <& ".");
+        okay := FALSE;
+      elsif aFile.bufferChar <> expectedBuffer then
+        writeln(" ***** After getTomlSymbol(file) with " <&
+                literal(initialStri) <& " bufferChar is " <&
+                literal(aFile.bufferChar) <& " instead of " <&
+                literal(expectedBuffer) <& ".");
+        okay := FALSE;
+      elsif expectedBuffer = EOF and not eof(aFile) then
+        writeln(" ***** After getTomlSymbol(file) with " <&
+                literal(initialStri) <& " bufferChar is \
+                \EOF but eof() returns FALSE.");
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: getTomlSymbolRaisesRangeError (in string: initialStri) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: stri is "";
+    var file: aFile is STD_NULL;
+  begin
+    stri := initialStri;
+    if not raisesRangeError(getTomlSymbol(stri)) then
+      writeln(" ***** getTomlSymbol(stri) with " <&
+              literal(initialStri) <& " does not raise RANGE_ERROR.");
+      okay := FALSE;
+    else
+      aFile := initScan(initialStri);
+      if not raisesRangeError(getTomlSymbol(aFile)) then
+        writeln(" ***** getTomlSymbol(file) with " <&
+                literal(initialStri) <& " does not raise RANGE_ERROR.");
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: checkGetTomlBasicString is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("\"\"",             "\"\"",            "") or
+        not getTomlSymbolOkay("\"x\"&ab",         "\"x\"",           "&ab") or
+        not getTomlSymbolOkay("\"\\\\\"+",        "\"\\\"",          "+") or
+        not getTomlSymbolOkay("\"\\\"\"/",        "\"\"\"",          "/") or
+        not getTomlSymbolOkay("\"\\b\\f\"",       "\"\b\f\"",        "") or
+        not getTomlSymbolOkay("\"\\n\\r\"",       "\"\n\r\"",        "") or
+        not getTomlSymbolOkay("\"\\t$\"-",        "\"\t$\"",         "-") or
+        not getTomlSymbolOkay("\"\\u20ac\"",      "\"€\"",           "") or
+        not getTomlSymbolOkay("\"\\u20ac0\"",     "\"€0\"",          "") or
+        not getTomlSymbolOkay("\"\\u20AC\"",      "\"€\"",           "") or
+        not getTomlSymbolOkay("\"\\u20AC0\"",     "\"€0\"",          "") or
+        not getTomlSymbolOkay("\"\\u0000\"",      "\"\0;\"",         "") or
+        not getTomlSymbolOkay("\"\\ud7ff\"",      "\"\16#d7ff;\"",   "") or
+        not getTomlSymbolOkay("\"\\ue000\"",      "\"\16#e000;\"",   "") or
+        not getTomlSymbolOkay("\"\\uffff\"",      "\"\16#ffff;\"",   "") or
+        not getTomlSymbolOkay("\"\\U0001d11e\"",  "\"\16#1d11e;\"",  "") or
+        not getTomlSymbolOkay("\"\\U0001d11e0\"", "\"\16#1d11e;0\"", "") or
+        not getTomlSymbolOkay("\"\\U0001D11E\"",  "\"\16#1d11e;\"",  "") or
+        not getTomlSymbolOkay("\"\\U0001D11E0\"", "\"\16#1d11e;0\"", "") or
+        not getTomlSymbolOkay("\"\\U00000000\"",  "\"\0;\"",         "") or
+        not getTomlSymbolOkay("\"\\U0000d7ff\"",  "\"\16#d7ff;\"",   "") or
+        not getTomlSymbolOkay("\"\\U0000e000\"",  "\"\16#e000;\"",   "") or
+        not getTomlSymbolOkay("\"\\U0010ffff\"",  "\"\16#10ffff;\"", "") then
+      writeln(" ***** getTomlSymbol() with basic string does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("\"\"",        "\"\"",        "") or
+        not getTomlSymbolOkay("\"\\\"\"",    "\"\"\"",      "") or
+        not getTomlSymbolOkay("\"\\\\\"",    "\"\\\"",      "") or
+        not getTomlSymbolOkay("\"\\b\"",     "\"\b\"",      "") or
+        not getTomlSymbolOkay("\"\\f\"",     "\"\f\"",      "") or
+        not getTomlSymbolOkay("\"\\n\"",     "\"\n\"",      "") or
+        not getTomlSymbolOkay("\"\\r\"",     "\"\r\"",      "") or
+        not getTomlSymbolOkay("\"\\t\"",     "\"\t\"",      "") or
+        not getTomlSymbolOkay("\"\\u0000\"", "\"\0;\"",     "") or
+        not getTomlSymbolOkay("\"\\u001f\"", "\"\31;\"",    "") or
+        not getTomlSymbolOkay("\"\\u007f\"", "\"\127;\"",   "") or
+        not getTomlSymbolOkay("\"\\u0080\"", "\"\128;\"",   "") or
+        not getTomlSymbolOkay("\"\\u009f\"", "\"\159;\"",   "") or
+        not getTomlSymbolOkay("\"\\uffff\"", "\"\65535;\"", "") or
+        not getTomlSymbolOkay("\"\t\"",      "\"\t\"",      "") or
+        not getTomlSymbolOkay("\" \"",       "\" \"",       "") or
+        not getTomlSymbolOkay("\"!\"",       "\"!\"",       "") or
+        not getTomlSymbolOkay("\"0\"",       "\"0\"",       "") or
+        not getTomlSymbolOkay("\"A\"",       "\"A\"",       "") or
+        not getTomlSymbolOkay("\"a\"",       "\"a\"",       "") or
+        not getTomlSymbolOkay("\"~\"",       "\"~\"",       "") or
+        not getTomlSymbolOkay("\"\128;\"",   "\"\128;\"",   "") or
+        not getTomlSymbolOkay("\"\159;\"",   "\"\159;\"",   "") or
+        not getTomlSymbolOkay("\"\160;\"",   "\"\160;\"",   "") or
+        not getTomlSymbolOkay("\"ÿ\"",       "\"ÿ\"",       "") or
+        not getTomlSymbolOkay("\"€\"",       "\"€\"",       "") then
+      writeln(" ***** getTomlSymbol() with basic string does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("\"\" ",        "\"\"",        " ") or
+        not getTomlSymbolOkay("\"\\\"\" ",    "\"\"\"",      " ") or
+        not getTomlSymbolOkay("\"\\\\\" ",    "\"\\\"",      " ") or
+        not getTomlSymbolOkay("\"\\b\" ",     "\"\b\"",      " ") or
+        not getTomlSymbolOkay("\"\\f\" ",     "\"\f\"",      " ") or
+        not getTomlSymbolOkay("\"\\n\" ",     "\"\n\"",      " ") or
+        not getTomlSymbolOkay("\"\\r\" ",     "\"\r\"",      " ") or
+        not getTomlSymbolOkay("\"\\t\" ",     "\"\t\"",      " ") or
+        not getTomlSymbolOkay("\"\\u0000\" ", "\"\0;\"",     " ") or
+        not getTomlSymbolOkay("\"\\u001f\" ", "\"\31;\"",    " ") or
+        not getTomlSymbolOkay("\"\\u007f\" ", "\"\127;\"",   " ") or
+        not getTomlSymbolOkay("\"\\u0080\" ", "\"\128;\"",   " ") or
+        not getTomlSymbolOkay("\"\\u009f\" ", "\"\159;\"",   " ") or
+        not getTomlSymbolOkay("\"\\uffff\" ", "\"\65535;\"", " ") or
+        not getTomlSymbolOkay("\"\t\" ",      "\"\t\"",      " ") or
+        not getTomlSymbolOkay("\" \" ",       "\" \"",       " ") or
+        not getTomlSymbolOkay("\"!\" ",       "\"!\"",       " ") or
+        not getTomlSymbolOkay("\"0\" ",       "\"0\"",       " ") or
+        not getTomlSymbolOkay("\"A\" ",       "\"A\"",       " ") or
+        not getTomlSymbolOkay("\"a\" ",       "\"a\"",       " ") or
+        not getTomlSymbolOkay("\"~\" ",       "\"~\"",       " ") or
+        not getTomlSymbolOkay("\"\128;\" ",   "\"\128;\"",   " ") or
+        not getTomlSymbolOkay("\"\159;\" ",   "\"\159;\"",   " ") or
+        not getTomlSymbolOkay("\"\160;\" ",   "\"\160;\"",   " ") or
+        not getTomlSymbolOkay("\"ÿ\" ",       "\"ÿ\"",       " ") or
+        not getTomlSymbolOkay("\"€\" ",       "\"€\"",       " ") then
+      writeln(" ***** getTomlSymbol() with basic string does not work as expected. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("\"\\\"\"\"",    "\"\"\"",      "\"") or
+        not getTomlSymbolOkay("\"\\\\\"\"",    "\"\\\"",      "\"") or
+        not getTomlSymbolOkay("\"\\b\"\"",     "\"\b\"",      "\"") or
+        not getTomlSymbolOkay("\"\\f\"\"",     "\"\f\"",      "\"") or
+        not getTomlSymbolOkay("\"\\n\"\"",     "\"\n\"",      "\"") or
+        not getTomlSymbolOkay("\"\\r\"\"",     "\"\r\"",      "\"") or
+        not getTomlSymbolOkay("\"\\t\"\"",     "\"\t\"",      "\"") or
+        not getTomlSymbolOkay("\"\\u0000\"\"", "\"\0;\"",     "\"") or
+        not getTomlSymbolOkay("\"\\u001f\"\"", "\"\31;\"",    "\"") or
+        not getTomlSymbolOkay("\"\\u007f\"\"", "\"\127;\"",   "\"") or
+        not getTomlSymbolOkay("\"\\u0080\"\"", "\"\128;\"",   "\"") or
+        not getTomlSymbolOkay("\"\\u009f\"\"", "\"\159;\"",   "\"") or
+        not getTomlSymbolOkay("\"\\uffff\"\"", "\"\65535;\"", "\"") or
+        not getTomlSymbolOkay("\"\t\"\"",      "\"\t\"",      "\"") or
+        not getTomlSymbolOkay("\" \"\"",       "\" \"",       "\"") or
+        not getTomlSymbolOkay("\"!\"\"",       "\"!\"",       "\"") or
+        not getTomlSymbolOkay("\"0\"\"",       "\"0\"",       "\"") or
+        not getTomlSymbolOkay("\"A\"\"",       "\"A\"",       "\"") or
+        not getTomlSymbolOkay("\"a\"\"",       "\"a\"",       "\"") or
+        not getTomlSymbolOkay("\"~\"\"",       "\"~\"",       "\"") or
+        not getTomlSymbolOkay("\"\128;\"\"",   "\"\128;\"",   "\"") or
+        not getTomlSymbolOkay("\"\159;\"\"",   "\"\159;\"",   "\"") or
+        not getTomlSymbolOkay("\"\160;\"\"",   "\"\160;\"",   "\"") or
+        not getTomlSymbolOkay("\"ÿ\"\"",       "\"ÿ\"",       "\"") or
+        not getTomlSymbolOkay("\"€\"\"",       "\"€\"",       "\"") then
+      writeln(" ***** getTomlSymbol() with basic string does not work as expected. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("\"\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"",
+                              "\"\"\\\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€\"", "") then
+      writeln(" ***** getTomlSymbol() with basic string does not work as expected. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("\""              ) or
+        not getTomlSymbolRaisesRangeError("\"\0;\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\8;\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\10;\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\31;\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\127;\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\a\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\b\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\n\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\v\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\f\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\r\""          ) or
+        not getTomlSymbolRaisesRangeError("\"\\"            ) or
+        not getTomlSymbolRaisesRangeError("\"\\/\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\\a\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\\u"           ) or
+        not getTomlSymbolRaisesRangeError("\"\\u1"          ) or
+        not getTomlSymbolRaisesRangeError("\"\\u12"         ) or
+        not getTomlSymbolRaisesRangeError("\"\\u123"        ) or
+        not getTomlSymbolRaisesRangeError("\"\\u1234"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\ug234"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\u1g34"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\u12g4"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\u123g"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\u\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\\u1\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\\u12\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\\u123\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\\ug234\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\u1g34\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\u12g4\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\u123g\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\ud800\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\udbff\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\udc00\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\udfff\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\uD800\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\uDBFF\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\uDC00\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\uDFFF\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\U"           ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1"          ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12"         ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123"        ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234"       ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12345"      ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123456"     ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234567"    ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12345678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\Ug2345678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1g345678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12g45678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123g5678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234g678"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12345g78"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123456g8"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234567g"   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12345\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123456\""   ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234567\""  ) or
+        not getTomlSymbolRaisesRangeError("\"\\Ug2345678\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1g345678\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12g45678\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123g5678\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234g678\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U12345g78\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U123456g8\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U1234567g\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000d800\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000dbff\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000dc00\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000dfff\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U00110000\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\Uffffffff\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000D800\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000DBFF\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000DC00\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U0000DFFF\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\U00110000\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\\UFFFFFFFF\"" ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\nb\""      ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\n \tb\""   ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\n\r\nb\""  ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\r\nb\""    ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\r\n \tb\"" ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\r\n\r\nb\"") or
+        not getTomlSymbolRaisesRangeError("\"a\\\rb\""      ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\r \tb\""   ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\r\r\nb\""  ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\\\nb\""    ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\\\n \tb\"" ) or
+        not getTomlSymbolRaisesRangeError("\"a\\\\\n\r\nb\"") then
+      writeln(" ***** getTomlSymbol() with basic string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkGetTomlMultiLineBasicString is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("\"\"\"\"\"\"",                 "\"\"",            "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"",               "\"\"\"",          "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"",             "\"\"\"\"",        "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"",           "\"\"\"\"\"",      "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"\"",         "\"\"\"\"\"\"",    "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"\"\"",       "\"\"\"\"\"\"\"",  "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"",                "\"a\"",           "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"",              "\"a\"\"",         "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"",            "\"a\"\"\"",       "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"",          "\"a\"\"\"\"",     "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"\"",        "\"a\"\"\"\"\"",   "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"\"\"",      "\"a\"\"\"\"\"\"", "") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"",              "\"\"a\"",         "") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"",            "\"\"a\"\"",       "") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"",          "\"\"a\"\"\"",     "") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"\"",        "\"\"a\"\"\"\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"\"\"",      "\"\"a\"\"\"\"\"", "") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"",            "\"\"\"a\"",       "") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"",          "\"\"\"a\"\"",     "") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"\"",        "\"\"\"a\"\"\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"\"\"",      "\"\"\"a\"\"\"\"", "") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"z",                "\"\"",            "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"z",              "\"\"\"",          "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"z",            "\"\"\"\"",        "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"z",          "\"\"\"\"\"",      "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"\"z",        "\"\"\"\"\"\"",    "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"\"\"\"\"\"\"z",      "\"\"\"\"\"\"\"",  "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"z",               "\"a\"",           "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"z",             "\"a\"\"",         "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"z",           "\"a\"\"\"",       "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"z",         "\"a\"\"\"\"",     "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"\"z",       "\"a\"\"\"\"\"",   "z") or
+        not getTomlSymbolOkay("\"\"\"a\"\"\"\"\"\"\"\"z",     "\"a\"\"\"\"\"\"", "z") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"z",             "\"\"a\"",         "z") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"z",           "\"\"a\"\"",       "z") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"z",         "\"\"a\"\"\"",     "z") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"\"z",       "\"\"a\"\"\"\"",   "z") or
+        not getTomlSymbolOkay("\"\"\"\"a\"\"\"\"\"\"\"z",     "\"\"a\"\"\"\"\"", "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"z",           "\"\"\"a\"",       "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"z",         "\"\"\"a\"\"",     "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"\"z",       "\"\"\"a\"\"\"",   "z") or
+        not getTomlSymbolOkay("\"\"\"\"\"a\"\"\"\"\"\"z",     "\"\"\"a\"\"\"\"", "z") or
+        not getTomlSymbolOkay("\"\"\"x\"\"\"&ab",             "\"x\"",           "&ab") or
+        not getTomlSymbolOkay("\"\"\"\\\\\"\"\"+",            "\"\\\"",          "+") or
+        not getTomlSymbolOkay("\"\"\"\\\"\"\"\"/",            "\"\"\"",          "/") or
+        not getTomlSymbolOkay("\"\"\"\\b\\f\"\"\"",           "\"\b\f\"",        "") or
+        not getTomlSymbolOkay("\"\"\"\\n\\r\"\"\"",           "\"\n\r\"",        "") or
+        not getTomlSymbolOkay("\"\"\"\\t$\"\"\"-",            "\"\t$\"",         "-") or
+        not getTomlSymbolOkay("\"\"\"\\u20ac\"\"\"",          "\"€\"",           "") or
+        not getTomlSymbolOkay("\"\"\"\\u20ac0\"\"\"",         "\"€0\"",          "") or
+        not getTomlSymbolOkay("\"\"\"\\u20AC\"\"\"",          "\"€\"",           "") or
+        not getTomlSymbolOkay("\"\"\"\\u20AC0\"\"\"",         "\"€0\"",          "") or
+        not getTomlSymbolOkay("\"\"\"\\u0000\"\"\"",          "\"\0;\"",         "") or
+        not getTomlSymbolOkay("\"\"\"\\ud7ff\"\"\"",          "\"\16#d7ff;\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\\ue000\"\"\"",          "\"\16#e000;\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\\uffff\"\"\"",          "\"\16#ffff;\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\\U0001d11e\"\"\"",      "\"\16#1d11e;\"",  "") or
+        not getTomlSymbolOkay("\"\"\"\\U0001d11e0\"\"\"",     "\"\16#1d11e;0\"", "") or
+        not getTomlSymbolOkay("\"\"\"\\U0001D11E\"\"\"",      "\"\16#1d11e;\"",  "") or
+        not getTomlSymbolOkay("\"\"\"\\U0001D11E0\"\"\"",     "\"\16#1d11e;0\"", "") or
+        not getTomlSymbolOkay("\"\"\"\\U00000000\"\"\"",      "\"\0;\"",         "") or
+        not getTomlSymbolOkay("\"\"\"\\U0000d7ff\"\"\"",      "\"\16#d7ff;\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\\U0000e000\"\"\"",      "\"\16#e000;\"",   "") or
+        not getTomlSymbolOkay("\"\"\"\\U0010ffff\"\"\"",      "\"\16#10ffff;\"", "") or
+        not getTomlSymbolOkay("\"\"\"\n\"\"\"",               "\"\"",            "") or
+        not getTomlSymbolOkay("\"\"\"\r\n\"\"\"",             "\"\"",            "") or
+        not getTomlSymbolOkay("\"\"\"\n \"\"\"",              "\" \"",           "") or
+        not getTomlSymbolOkay("\"\"\"\r\n \"\"\"",            "\" \"",           "") or
+        not getTomlSymbolOkay("\"\"\"a\nb\"\"\"",             "\"a\nb\"",        "") or
+        not getTomlSymbolOkay("\"\"\"a\r\nb\"\"\"",           "\"a\nb\"",        "") or
+        not getTomlSymbolOkay("\"\"\"a\"b\"\"\"",             "\"a\"b\"",        "") or
+        not getTomlSymbolOkay("\"\"\"a\"b\"c\"\"\"",          "\"a\"b\"c\"",     "") or
+        not getTomlSymbolOkay("\"\"\"a\"b\"\"c\"\"\"",        "\"a\"b\"\"c\"",   "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"b\"\"\"",           "\"a\"\"b\"",      "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"b\"c\"\"\"",        "\"a\"\"b\"c\"",   "") or
+        not getTomlSymbolOkay("\"\"\"a\"\"b\"\"c\"\"\"",      "\"a\"\"b\"\"c\"", "") or
+        not getTomlSymbolOkay("\"\"\"a'b\"\"\"",              "\"a'b\"",         "") or
+        not getTomlSymbolOkay("\"\"\"a'b'c\"\"\"",            "\"a'b'c\"",       "") or
+        not getTomlSymbolOkay("\"\"\"a'b''c\"\"\"",           "\"a'b''c\"",      "") or
+        not getTomlSymbolOkay("\"\"\"a''b\"\"\"",             "\"a''b\"",        "") or
+        not getTomlSymbolOkay("\"\"\"a''b'c\"\"\"",           "\"a''b'c\"",      "") or
+        not getTomlSymbolOkay("\"\"\"a''b''c\"\"\"",          "\"a''b''c\"",     "") or
+        not getTomlSymbolOkay("\"\"\"a\\\nb\"\"\"",           "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\n \tb\"\"\"",        "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\n\r\nb\"\"\"",       "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\r\nb\"\"\"",         "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\r\n \tb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\r\n\r\nb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\\\nb\"\"\"",         "\"a\\\nb\"",      "") or
+        not getTomlSymbolOkay("\"\"\"a\\\\\n \tb\"\"\"",      "\"a\\\n \tb\"",   "") or
+        not getTomlSymbolOkay("\"\"\"a\\\\\n\r\nb\"\"\"",     "\"a\\\n\nb\"",    "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \nb\"\"\"",          "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \n \tb\"\"\"",       "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \n\r\nb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \r\nb\"\"\"",        "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \r\n \tb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \r\n\r\nb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \nb\"\"\"",         "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \n \tb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \n\r\nb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \r\nb\"\"\"",       "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \r\n \tb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\  \r\n\r\nb\"\"\"",   "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\nb\"\"\"",        "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\n \tb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\n\r\nb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\r\nb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\r\n \tb\"\"\"",   "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\ \t\r\n\r\nb\"\"\"",  "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\nb\"\"\"",         "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\n \tb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\n\r\nb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\r\nb\"\"\"",       "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\r\n \tb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\r\n\r\nb\"\"\"",   "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \nb\"\"\"",        "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \n \tb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \n\r\nb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \r\nb\"\"\"",      "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \r\n \tb\"\"\"",   "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t \r\n\r\nb\"\"\"",  "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\nb\"\"\"",       "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\n \tb\"\"\"",    "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\n\r\nb\"\"\"",   "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\r\nb\"\"\"",     "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\r\n \tb\"\"\"",  "\"ab\"",          "") or
+        not getTomlSymbolOkay("\"\"\"a\\\t\t\r\n\r\nb\"\"\"", "\"ab\"",          "") then
+      writeln(" ***** getTomlSymbol() with multi-line basic string does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("\"\"\""                 ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\""               ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\"\""             ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a"                ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\""              ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\"\""            ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\0;\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\8;\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\11;\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\12;\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\14;\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\31;\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\127;\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\a\"\"\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\b\"\"\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\v\"\"\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\f\"\"\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\"               ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ "              ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\  "             ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ \t"            ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t"             ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t "            ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t\t"           ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\"\"\""         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ \"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\  \"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ \t\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t \"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\t\t\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\ \"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\  \"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\ \t\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\t\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\t \"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\t\t\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\z\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\ z\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\  z\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\ \tz\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\tz\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\t z\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\t\tz\"\"\""   ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\/\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\a\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u"              ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u1"             ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u12"            ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u123"           ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u1234"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ug234"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u1g34"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u12g4"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u123g"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u1\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u12\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u123\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ug234\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u1g34\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u12g4\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\u123g\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\ud800\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\udbff\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\udc00\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\udfff\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\uD800\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\uDBFF\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\uDC00\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\uDFFF\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U"              ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1"             ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12"            ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123"           ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234"          ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12345"         ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123456"        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234567"       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12345678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\Ug2345678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1g345678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12g45678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123g5678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234g678"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12345g78"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123456g8"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234567g"      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U\"\"\""        ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1\"\"\""       ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12\"\"\""      ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234\"\"\""    ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12345\"\"\""   ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123456\"\"\""  ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234567\"\"\"" ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\Ug2345678\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1g345678\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12g45678\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123g5678\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234g678\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U12345g78\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U123456g8\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U1234567g\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000d800\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000dbff\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000dc00\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000dfff\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U00110000\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\Uffffffff\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000D800\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000DBFF\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000DC00\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U0000DFFF\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U00110000\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\UFFFFFFFF\"\"\"") or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\rb\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\r \tb\"\"\""  ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"a\\\r\r\nb\"\"\"" ) then
+      writeln(" ***** getTomlSymbol() with multi-line basic string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkGetTomlLiteralString is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("''",             "''",             "") or
+        not getTomlSymbolOkay("'x'&ab",         "'x'",            "&ab") or
+        not getTomlSymbolOkay("'\\\\'+",        "'\\\\'",         "+") or
+        not getTomlSymbolOkay("'\\\"'/",        "'\\\"'",         "/") or
+        not getTomlSymbolOkay("'\\b\\f'",       "'\\b\\f'",       "") or
+        not getTomlSymbolOkay("'\\n\\r'",       "'\\n\\r'",       "") or
+        not getTomlSymbolOkay("'\\t$'-",        "'\\t$'",         "-") or
+        not getTomlSymbolOkay("'\\u20ac'",      "'\\u20ac'",      "") or
+        not getTomlSymbolOkay("'\\u20ac0'",     "'\\u20ac0'",     "") or
+        not getTomlSymbolOkay("'\\u20AC'",      "'\\u20AC'",      "") or
+        not getTomlSymbolOkay("'\\u20AC0'",     "'\\u20AC0'",     "") or
+        not getTomlSymbolOkay("'\\u0000'",      "'\\u0000'",      "") or
+        not getTomlSymbolOkay("'\\ud7ff'",      "'\\ud7ff'",      "") or
+        not getTomlSymbolOkay("'\\ue000'",      "'\\ue000'",      "") or
+        not getTomlSymbolOkay("'\\uffff'",      "'\\uffff'",      "") or
+        not getTomlSymbolOkay("'\\U0001d11e'",  "'\\U0001d11e'",  "") or
+        not getTomlSymbolOkay("'\\U0001d11e0'", "'\\U0001d11e0'", "") or
+        not getTomlSymbolOkay("'\\U0001D11E'",  "'\\U0001D11E'",  "") or
+        not getTomlSymbolOkay("'\\U0001D11E0'", "'\\U0001D11E0'", "") or
+        not getTomlSymbolOkay("'\\U00000000'",  "'\\U00000000'",  "") or
+        not getTomlSymbolOkay("'\\U0000d7ff'",  "'\\U0000d7ff'",  "") or
+        not getTomlSymbolOkay("'\\U0000e000'",  "'\\U0000e000'",  "") or
+        not getTomlSymbolOkay("'\\U0010ffff'",  "'\\U0010ffff'",  "") or
+        not getTomlSymbolOkay("'\\'",           "'\\'",           "") or
+        not getTomlSymbolOkay("'\\/'",          "'\\/'",          "") or
+        not getTomlSymbolOkay("'\\a'",          "'\\a'",          "") or
+        not getTomlSymbolOkay("'\\u'",          "'\\u'",          "") or
+        not getTomlSymbolOkay("'\\u1'",         "'\\u1'",         "") or
+        not getTomlSymbolOkay("'\\u12'",        "'\\u12'",        "") or
+        not getTomlSymbolOkay("'\\u123'",       "'\\u123'",       "") or
+        not getTomlSymbolOkay("'\\u1234'",      "'\\u1234'",      "") or
+        not getTomlSymbolOkay("'\\ug234'",      "'\\ug234'",      "") or
+        not getTomlSymbolOkay("'\\u1g34'",      "'\\u1g34'",      "") or
+        not getTomlSymbolOkay("'\\u12g4'",      "'\\u12g4'",      "") or
+        not getTomlSymbolOkay("'\\u123g'",      "'\\u123g'",      "") or
+        not getTomlSymbolOkay("'\\U'",          "'\\U'",          "") or
+        not getTomlSymbolOkay("'\\U1'",         "'\\U1'",         "") or
+        not getTomlSymbolOkay("'\\U12'",        "'\\U12'",        "") or
+        not getTomlSymbolOkay("'\\U123'",       "'\\U123'",       "") or
+        not getTomlSymbolOkay("'\\U1234'",      "'\\U1234'",      "") or
+        not getTomlSymbolOkay("'\\U12345'",     "'\\U12345'",     "") or
+        not getTomlSymbolOkay("'\\U123456'",    "'\\U123456'",    "") or
+        not getTomlSymbolOkay("'\\U1234567'",   "'\\U1234567'",   "") or
+        not getTomlSymbolOkay("'\\U12345678'",  "'\\U12345678'",  "") or
+        not getTomlSymbolOkay("'\\Ug2345678'",  "'\\Ug2345678'",  "") or
+        not getTomlSymbolOkay("'\\U1g345678'",  "'\\U1g345678'",  "") or
+        not getTomlSymbolOkay("'\\U12g45678'",  "'\\U12g45678'",  "") or
+        not getTomlSymbolOkay("'\\U123g5678'",  "'\\U123g5678'",  "") or
+        not getTomlSymbolOkay("'\\U1234g678'",  "'\\U1234g678'",  "") or
+        not getTomlSymbolOkay("'\\U12345g78'",  "'\\U12345g78'",  "") or
+        not getTomlSymbolOkay("'\\U123456g8'",  "'\\U123456g8'",  "") or
+        not getTomlSymbolOkay("'\\U1234567g'",  "'\\U1234567g'",  "") then
+      writeln(" ***** getTomlSymbol() with literal string does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("''",        "''",        "") or
+        not getTomlSymbolOkay("'\\\"'",    "'\\\"'",    "") or
+        not getTomlSymbolOkay("'\\\\'",    "'\\\\'",    "") or
+        not getTomlSymbolOkay("'\\b'",     "'\\b'",     "") or
+        not getTomlSymbolOkay("'\\f'",     "'\\f'",     "") or
+        not getTomlSymbolOkay("'\\n'",     "'\\n'",     "") or
+        not getTomlSymbolOkay("'\\r'",     "'\\r'",     "") or
+        not getTomlSymbolOkay("'\\t'",     "'\\t'",     "") or
+        not getTomlSymbolOkay("'\\u0000'", "'\\u0000'", "") or
+        not getTomlSymbolOkay("'\\u001f'", "'\\u001f'", "") or
+        not getTomlSymbolOkay("'\\u007f'", "'\\u007f'", "") or
+        not getTomlSymbolOkay("'\\u0080'", "'\\u0080'", "") or
+        not getTomlSymbolOkay("'\\u009f'", "'\\u009f'", "") or
+        not getTomlSymbolOkay("'\\uffff'", "'\\uffff'", "") or
+        not getTomlSymbolOkay("'\t'",      "'\t'",      "") or
+        not getTomlSymbolOkay("' '",       "' '",       "") or
+        not getTomlSymbolOkay("'!'",       "'!'",       "") or
+        not getTomlSymbolOkay("'0'",       "'0'",       "") or
+        not getTomlSymbolOkay("'A'",       "'A'",       "") or
+        not getTomlSymbolOkay("'a'",       "'a'",       "") or
+        not getTomlSymbolOkay("'~'",       "'~'",       "") or
+        not getTomlSymbolOkay("'\128;'",   "'\128;'",   "") or
+        not getTomlSymbolOkay("'\159;'",   "'\159;'",   "") or
+        not getTomlSymbolOkay("'\160;'",   "'\160;'",   "") or
+        not getTomlSymbolOkay("'ÿ'",       "'ÿ'",       "") or
+        not getTomlSymbolOkay("'€'",       "'€'",       "") then
+      writeln(" ***** getTomlSymbol() with literal string does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("'' ",        "''",        " ") or
+        not getTomlSymbolOkay("'\\\"' ",    "'\\\"'",    " ") or
+        not getTomlSymbolOkay("'\\\\' ",    "'\\\\'",    " ") or
+        not getTomlSymbolOkay("'\\b' ",     "'\\b'",     " ") or
+        not getTomlSymbolOkay("'\\f' ",     "'\\f'",     " ") or
+        not getTomlSymbolOkay("'\\n' ",     "'\\n'",     " ") or
+        not getTomlSymbolOkay("'\\r' ",     "'\\r'",     " ") or
+        not getTomlSymbolOkay("'\\t' ",     "'\\t'",     " ") or
+        not getTomlSymbolOkay("'\\u0000' ", "'\\u0000'", " ") or
+        not getTomlSymbolOkay("'\\u001f' ", "'\\u001f'", " ") or
+        not getTomlSymbolOkay("'\\u007f' ", "'\\u007f'", " ") or
+        not getTomlSymbolOkay("'\\u0080' ", "'\\u0080'", " ") or
+        not getTomlSymbolOkay("'\\u009f' ", "'\\u009f'", " ") or
+        not getTomlSymbolOkay("'\\uffff' ", "'\\uffff'", " ") or
+        not getTomlSymbolOkay("'\t' ",      "'\t'",      " ") or
+        not getTomlSymbolOkay("' ' ",       "' '",       " ") or
+        not getTomlSymbolOkay("'!' ",       "'!'",       " ") or
+        not getTomlSymbolOkay("'0' ",       "'0'",       " ") or
+        not getTomlSymbolOkay("'A' ",       "'A'",       " ") or
+        not getTomlSymbolOkay("'a' ",       "'a'",       " ") or
+        not getTomlSymbolOkay("'~' ",       "'~'",       " ") or
+        not getTomlSymbolOkay("'\128;' ",   "'\128;'",   " ") or
+        not getTomlSymbolOkay("'\159;' ",   "'\159;'",   " ") or
+        not getTomlSymbolOkay("'\160;' ",   "'\160;'",   " ") or
+        not getTomlSymbolOkay("'ÿ' ",       "'ÿ'",       " ") or
+        not getTomlSymbolOkay("'€' ",       "'€'",       " ") then
+      writeln(" ***** getTomlSymbol() with literal string does not work as expected. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("'\\\"''",    "'\\\"'",    "'") or
+        not getTomlSymbolOkay("'\\\\''",    "'\\\\'",    "'") or
+        not getTomlSymbolOkay("'\\b''",     "'\\b'",     "'") or
+        not getTomlSymbolOkay("'\\f''",     "'\\f'",     "'") or
+        not getTomlSymbolOkay("'\\n''",     "'\\n'",     "'") or
+        not getTomlSymbolOkay("'\\r''",     "'\\r'",     "'") or
+        not getTomlSymbolOkay("'\\t''",     "'\\t'",     "'") or
+        not getTomlSymbolOkay("'\\u0000''", "'\\u0000'", "'") or
+        not getTomlSymbolOkay("'\\u001f''", "'\\u001f'", "'") or
+        not getTomlSymbolOkay("'\\u007f''", "'\\u007f'", "'") or
+        not getTomlSymbolOkay("'\\u0080''", "'\\u0080'", "'") or
+        not getTomlSymbolOkay("'\\u009f''", "'\\u009f'", "'") or
+        not getTomlSymbolOkay("'\\uffff''", "'\\uffff'", "'") or
+        not getTomlSymbolOkay("'\t''",      "'\t'",      "'") or
+        not getTomlSymbolOkay("' ''",       "' '",       "'") or
+        not getTomlSymbolOkay("'!''",       "'!'",       "'") or
+        not getTomlSymbolOkay("'0''",       "'0'",       "'") or
+        not getTomlSymbolOkay("'A''",       "'A'",       "'") or
+        not getTomlSymbolOkay("'a''",       "'a'",       "'") or
+        not getTomlSymbolOkay("'~''",       "'~'",       "'") or
+        not getTomlSymbolOkay("'\128;''",   "'\128;'",   "'") or
+        not getTomlSymbolOkay("'\159;''",   "'\159;'",   "'") or
+        not getTomlSymbolOkay("'\160;''",   "'\160;'",   "'") or
+        not getTomlSymbolOkay("'ÿ''",       "'ÿ'",       "'") or
+        not getTomlSymbolOkay("'€''",       "'€'",       "'") then
+      writeln(" ***** getTomlSymbol() with literal string does not work as expected. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("'\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€'",
+                              "'\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€'", "") then
+      writeln(" ***** getTomlSymbol() with literal string does not work as expected. (5)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("'"             ) or
+        not getTomlSymbolRaisesRangeError("'\0;'"         ) or
+        not getTomlSymbolRaisesRangeError("'\8;'"         ) or
+        not getTomlSymbolRaisesRangeError("'\10;'"        ) or
+        not getTomlSymbolRaisesRangeError("'\31;'"        ) or
+        not getTomlSymbolRaisesRangeError("'\127;'"       ) or
+        not getTomlSymbolRaisesRangeError("'\a'"          ) or
+        not getTomlSymbolRaisesRangeError("'\b'"          ) or
+        not getTomlSymbolRaisesRangeError("'\n'"          ) or
+        not getTomlSymbolRaisesRangeError("'\v'"          ) or
+        not getTomlSymbolRaisesRangeError("'\f'"          ) or
+        not getTomlSymbolRaisesRangeError("'\r'"          ) or
+        not getTomlSymbolRaisesRangeError("'\\"           ) or
+        not getTomlSymbolRaisesRangeError("'\\u"          ) or
+        not getTomlSymbolRaisesRangeError("'\\u1"         ) or
+        not getTomlSymbolRaisesRangeError("'\\u12"        ) or
+        not getTomlSymbolRaisesRangeError("'\\u123"       ) or
+        not getTomlSymbolRaisesRangeError("'\\u1234"      ) or
+        not getTomlSymbolRaisesRangeError("'\\ug234"      ) or
+        not getTomlSymbolRaisesRangeError("'\\u1g34"      ) or
+        not getTomlSymbolRaisesRangeError("'\\u12g4"      ) or
+        not getTomlSymbolRaisesRangeError("'\\u123g"      ) or
+        not getTomlSymbolRaisesRangeError("'\\U"          ) or
+        not getTomlSymbolRaisesRangeError("'\\U1"         ) or
+        not getTomlSymbolRaisesRangeError("'\\U12"        ) or
+        not getTomlSymbolRaisesRangeError("'\\U123"       ) or
+        not getTomlSymbolRaisesRangeError("'\\U1234"      ) or
+        not getTomlSymbolRaisesRangeError("'\\U12345"     ) or
+        not getTomlSymbolRaisesRangeError("'\\U123456"    ) or
+        not getTomlSymbolRaisesRangeError("'\\U1234567"   ) or
+        not getTomlSymbolRaisesRangeError("'\\U12345678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\Ug2345678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U1g345678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U12g45678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U123g5678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U1234g678"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U12345g78"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U123456g8"  ) or
+        not getTomlSymbolRaisesRangeError("'\\U1234567g"  ) or
+        not getTomlSymbolRaisesRangeError("'a\\\nb'"      ) or
+        not getTomlSymbolRaisesRangeError("'a\\\n \tb'"   ) or
+        not getTomlSymbolRaisesRangeError("'a\\\n\r\nb'"  ) or
+        not getTomlSymbolRaisesRangeError("'a\\\r\nb'"    ) or
+        not getTomlSymbolRaisesRangeError("'a\\\r\n \tb'" ) or
+        not getTomlSymbolRaisesRangeError("'a\\\r\n\r\nb'") or
+        not getTomlSymbolRaisesRangeError("'a\\\rb'"      ) or
+        not getTomlSymbolRaisesRangeError("'a\\\r \tb'"   ) or
+        not getTomlSymbolRaisesRangeError("'a\\\r\r\nb'"  ) or
+        not getTomlSymbolRaisesRangeError("'a\\\\\nb'"    ) or
+        not getTomlSymbolRaisesRangeError("'a\\\\\n \tb'" ) or
+        not getTomlSymbolRaisesRangeError("'a\\\\\n\r\nb'") then
+      writeln(" ***** getTomlSymbol() with literal string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: checkGetTomlMultiLineLiteralString is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("''''''",             "''",             "") or
+        not getTomlSymbolOkay("'''''''",            "'''",            "") or
+        not getTomlSymbolOkay("''''''''",           "''''",           "") or
+        not getTomlSymbolOkay("'''''''''",          "'''''",          "") or
+        not getTomlSymbolOkay("''''''''''",         "''''''",         "") or
+        not getTomlSymbolOkay("'''''''''''",        "'''''''",        "") or
+        not getTomlSymbolOkay("'''a'''",            "'a'",            "") or
+        not getTomlSymbolOkay("'''a''''",           "'a''",           "") or
+        not getTomlSymbolOkay("'''a'''''",          "'a'''",          "") or
+        not getTomlSymbolOkay("'''a''''''",         "'a''''",         "") or
+        not getTomlSymbolOkay("'''a'''''''",        "'a'''''",        "") or
+        not getTomlSymbolOkay("'''a''''''''",       "'a''''''",       "") or
+        not getTomlSymbolOkay("''''a'''",           "''a'",           "") or
+        not getTomlSymbolOkay("''''a''''",          "''a''",          "") or
+        not getTomlSymbolOkay("''''a'''''",         "''a'''",         "") or
+        not getTomlSymbolOkay("''''a''''''",        "''a''''",        "") or
+        not getTomlSymbolOkay("''''a'''''''",       "''a'''''",       "") or
+        not getTomlSymbolOkay("'''''a'''",          "'''a'",          "") or
+        not getTomlSymbolOkay("'''''a''''",         "'''a''",         "") or
+        not getTomlSymbolOkay("'''''a'''''",        "'''a'''",        "") or
+        not getTomlSymbolOkay("'''''a''''''",       "'''a''''",       "") or
+        not getTomlSymbolOkay("''''''z",            "''",             "z") or
+        not getTomlSymbolOkay("'''''''z",           "'''",            "z") or
+        not getTomlSymbolOkay("''''''''z",          "''''",           "z") or
+        not getTomlSymbolOkay("'''''''''z",         "'''''",          "z") or
+        not getTomlSymbolOkay("''''''''''z",        "''''''",         "z") or
+        not getTomlSymbolOkay("'''''''''''z",       "'''''''",        "z") or
+        not getTomlSymbolOkay("'''a'''z",           "'a'",            "z") or
+        not getTomlSymbolOkay("'''a''''z",          "'a''",           "z") or
+        not getTomlSymbolOkay("'''a'''''z",         "'a'''",          "z") or
+        not getTomlSymbolOkay("'''a''''''z",        "'a''''",         "z") or
+        not getTomlSymbolOkay("'''a'''''''z",       "'a'''''",        "z") or
+        not getTomlSymbolOkay("'''a''''''''z",      "'a''''''",       "z") or
+        not getTomlSymbolOkay("''''a'''z",          "''a'",           "z") or
+        not getTomlSymbolOkay("''''a''''z",         "''a''",          "z") or
+        not getTomlSymbolOkay("''''a'''''z",        "''a'''",         "z") or
+        not getTomlSymbolOkay("''''a''''''z",       "''a''''",        "z") or
+        not getTomlSymbolOkay("''''a'''''''z",      "''a'''''",       "z") or
+        not getTomlSymbolOkay("'''''a'''z",         "'''a'",          "z") or
+        not getTomlSymbolOkay("'''''a''''z",        "'''a''",         "z") or
+        not getTomlSymbolOkay("'''''a'''''z",       "'''a'''",        "z") or
+        not getTomlSymbolOkay("'''''a''''''z",      "'''a''''",       "z") or
+        not getTomlSymbolOkay("'''x'''&ab",         "'x'",            "&ab") or
+        not getTomlSymbolOkay("'''\\\\'''+",        "'\\\\'",         "+") or
+        not getTomlSymbolOkay("'''\\\"'''/",        "'\\\"'",         "/") or
+        not getTomlSymbolOkay("'''\\b\\f'''",       "'\\b\\f'",       "") or
+        not getTomlSymbolOkay("'''\\n\\r'''",       "'\\n\\r'",       "") or
+        not getTomlSymbolOkay("'''\\t$'''-",        "'\\t$'",         "-") or
+        not getTomlSymbolOkay("'''\\u20ac'''",      "'\\u20ac'",      "") or
+        not getTomlSymbolOkay("'''\\u20ac0'''",     "'\\u20ac0'",     "") or
+        not getTomlSymbolOkay("'''\\U0001d11e'''",  "'\\U0001d11e'",  "") or
+        not getTomlSymbolOkay("'''\\U0001d11e0'''", "'\\U0001d11e0'", "") or
+        not getTomlSymbolOkay("'''\n'''",           "''",             "") or
+        not getTomlSymbolOkay("'''\r\n'''",         "''",             "") or
+        not getTomlSymbolOkay("'''\n '''",          "' '",            "") or
+        not getTomlSymbolOkay("'''\r\n '''",        "' '",            "") or
+        not getTomlSymbolOkay("'''a\nb'''",         "'a\nb'",         "") or
+        not getTomlSymbolOkay("'''a\r\nb'''",       "'a\r\nb'",       "") or
+        not getTomlSymbolOkay("'''a'b'''",          "'a'b'",          "") or
+        not getTomlSymbolOkay("'''a'b'c'''",        "'a'b'c'",        "") or
+        not getTomlSymbolOkay("'''a'b''c'''",       "'a'b''c'",       "") or
+        not getTomlSymbolOkay("'''a''b'''",         "'a''b'",         "") or
+        not getTomlSymbolOkay("'''a''b'c'''",       "'a''b'c'",       "") or
+        not getTomlSymbolOkay("'''a''b''c'''",      "'a''b''c'",      "") or
+        not getTomlSymbolOkay("'''a\"b'''",         "'a\"b'",         "") or
+        not getTomlSymbolOkay("'''a\"b\"c'''",      "'a\"b\"c'",      "") or
+        not getTomlSymbolOkay("'''a\"b\"\"c'''",    "'a\"b\"\"c'",    "") or
+        not getTomlSymbolOkay("'''a\"\"b'''",       "'a\"\"b'",       "") or
+        not getTomlSymbolOkay("'''a\"\"b\"c'''",    "'a\"\"b\"c'",    "") or
+        not getTomlSymbolOkay("'''a\"\"b\"\"c'''",  "'a\"\"b\"\"c'",  "") or
+        not getTomlSymbolOkay("'''a\\\nb'''",       "'a\\\nb'",       "") or
+        not getTomlSymbolOkay("'''a\\\n \tb'''",    "'a\\\n \tb'",    "") or
+        not getTomlSymbolOkay("'''a\\\n\r\nb'''",   "'a\\\n\r\nb'",   "") or
+        not getTomlSymbolOkay("'''a\\\r\nb'''",     "'a\\\r\nb'",     "") or
+        not getTomlSymbolOkay("'''a\\\r\n \tb'''",  "'a\\\r\n \tb'",  "") or
+        not getTomlSymbolOkay("'''a\\\r\n\r\nb'''", "'a\\\r\n\r\nb'", "") or
+        not getTomlSymbolOkay("'''a\\\rb'''",       "'a\\\rb'",       "") or
+        not getTomlSymbolOkay("'''a\\\r \tb'''",    "'a\\\r \tb'",    "") or
+        not getTomlSymbolOkay("'''a\\\r\r\nb'''",   "'a\\\r\r\nb'",   "") or
+        not getTomlSymbolOkay("'''a\\\\\nb'''",     "'a\\\\\nb'",     "") or
+        not getTomlSymbolOkay("'''a\\\\\n \tb'''",  "'a\\\\\n \tb'",  "") or
+        not getTomlSymbolOkay("'''a\\\\\n\r\nb'''", "'a\\\\\n\r\nb'", "") then
+      writeln(" ***** getTomlSymbol() with multi-line literal string does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("'''"             ) or
+        not getTomlSymbolRaisesRangeError("''''"            ) or
+        not getTomlSymbolRaisesRangeError("'''''"           ) or
+        not getTomlSymbolRaisesRangeError("'''a"            ) or
+        not getTomlSymbolRaisesRangeError("'''a'"           ) or
+        not getTomlSymbolRaisesRangeError("'''a''"          ) or
+        not getTomlSymbolRaisesRangeError("'''\0;'''"       ) or
+        not getTomlSymbolRaisesRangeError("'''\8;'''"       ) or
+        not getTomlSymbolRaisesRangeError("'''\11;'''"      ) or
+        not getTomlSymbolRaisesRangeError("'''\12;'''"      ) or
+        not getTomlSymbolRaisesRangeError("'''\14;'''"      ) or
+        not getTomlSymbolRaisesRangeError("'''\31;'''"      ) or
+        not getTomlSymbolRaisesRangeError("'''\127;'''"     ) or
+        not getTomlSymbolRaisesRangeError("'''\a'''"        ) or
+        not getTomlSymbolRaisesRangeError("'''\b'''"        ) or
+        not getTomlSymbolRaisesRangeError("'''\v'''"        ) or
+        not getTomlSymbolRaisesRangeError("'''\f'''"        ) then
+      writeln(" ***** getTomlSymbol() with literal string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: checkGetTomlString is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not checkGetTomlBasicString then
+      okay := FALSE;
+    end if;
+    if not checkGetTomlMultiLineBasicString then
+      okay := FALSE;
+    end if;
+    if not checkGetTomlLiteralString then
+      okay := FALSE;
+    end if;
+    if not checkGetTomlMultiLineLiteralString then
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("\"first\" \"second\"",        "\"first\"",               " \"second\"") or
+        not getTomlSymbolOkay("\"\"\"3 \": \"\"\".\"\"\"",   "\"3 \": \"",              ".\"\"\""    ) or
+        not getTomlSymbolOkay("'''6 ': ''''''",              "'6 ': ''''",              ""           ) or
+        not getTomlSymbolOkay("'''15 ': ''''''''''''''''''", "'15 ': ''''''''''''''''", ""           ) or
+        not getTomlSymbolOkay("\"\"\"6 \": \"\"\"\"\"\"",    "\"6 \": \"\"\"\"",        ""           ) or
+        not getTomlSymbolOkay("\"After string\" No.",        "\"After string\"",        " No."       ) then
+      writeln(" ***** getTomlSymbol() does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("\"\\xAg\""     ) or
+        not getTomlSymbolRaisesRangeError("\"This string has a bad \\a escape character.\""     ) or
+        not getTomlSymbolRaisesRangeError("\"This string has a bad \\  escape character.\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\x0g\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\xG0\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\x\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\x 50\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\x 50\""     ) or
+        not getTomlSymbolRaisesRangeError("\"first line\nsecond line\""     ) or
+        not getTomlSymbolRaisesRangeError("\"This string has a bad \\/ escape character.\""     ) or
+        not getTomlSymbolRaisesRangeError("\"val\\ue\""     ) or
+        not getTomlSymbolRaisesRangeError("\"val\\Ux\""     ) or
+        not getTomlSymbolRaisesRangeError("\"val\\U0000000\""     ) or
+        not getTomlSymbolRaisesRangeError("\"val\\U0000\""     ) or
+        not getTomlSymbolRaisesRangeError("\"val\\Ugggggggg\""     ) or
+        not getTomlSymbolRaisesRangeError("\"This string contains a non scalar unicode codepoint \\uD801\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\uabag\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\x33\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\UFFFFFFFF\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\U00D80000\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\@\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\UFFFFFFFF\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\U00D80000\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\\@\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"t\\a\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"t\\ t\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"t\\ \"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\\\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\n  foo \\ \\n\n  bar\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\nhee \\\n\ngee \\   \"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("'''\n    this will fail"     ) or
+        not getTomlSymbolRaisesRangeError("'''"     ) or
+        not getTomlSymbolRaisesRangeError("'''\ndiibaa\nblibae ete\neteta"     ) or
+        not getTomlSymbolRaisesRangeError("'''\nhee\ngee ''"     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\n    this will fail"     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\ndiibaa\nblibae ete\neteta"     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\nhee\ngee \"\""     ) or
+        not getTomlSymbolRaisesRangeError("\"\"\"\nhee\ngee\\"     ) or
+        not getTomlSymbolRaisesRangeError("\"One time, at band camp"     ) or
+        not getTomlSymbolRaisesRangeError("\"closed"     ) or
+        not getTomlSymbolRaisesRangeError("'One time, at band camp"     ) or
+        not getTomlSymbolRaisesRangeError("'closed"     ) or
+        not getTomlSymbolRaisesRangeError("\"double and single'"     ) then
+      writeln(" ***** getTomlSymbol() does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlSymbol works correctly with strings.");
+    end if;
+  end func;
+
+
+const proc: checkGetTomlInteger is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("0",     "0",    "") or
+        not getTomlSymbolOkay("+0",    "+0",   "") or
+        not getTomlSymbolOkay("-0",    "-0",   "") or
+        not getTomlSymbolOkay("12",    "12",   "") or
+        not getTomlSymbolOkay("+12",   "+12",  "") or
+        not getTomlSymbolOkay("-12",   "-12",  "") or
+        not getTomlSymbolOkay("1_2",   "12",   "") or
+        not getTomlSymbolOkay("+1_2",  "+12",  "") or
+        not getTomlSymbolOkay("-1_2",  "-12",  "") or
+        not getTomlSymbolOkay("123*2", "123",  "*2") or
+        not getTomlSymbolOkay("+3-2",  "+3",   "-2") or
+        not getTomlSymbolOkay("-2+3",  "-2",   "+3") or
+        not getTomlSymbolOkay("0x0",   "0x0",  "") or
+        not getTomlSymbolOkay("0x00",  "0x00", "") or
+        not getTomlSymbolOkay("0x12",  "0x12", "") or
+        not getTomlSymbolOkay("0xff",  "0xff", "") or
+        not getTomlSymbolOkay("0xFF",  "0xFF", "") or
+        not getTomlSymbolOkay("0x0_0", "0x00", "") or
+        not getTomlSymbolOkay("0x1_2", "0x12", "") or
+        not getTomlSymbolOkay("0xf_f", "0xff", "") or
+        not getTomlSymbolOkay("0xF_F", "0xFF", "") or
+        not getTomlSymbolOkay("1x",    "1",    "x") or
+        not getTomlSymbolOkay("0o0",   "0o0",  "") or
+        not getTomlSymbolOkay("0o00",  "0o00", "") or
+        not getTomlSymbolOkay("0o12",  "0o12", "") or
+        not getTomlSymbolOkay("0o77",  "0o77", "") or
+        not getTomlSymbolOkay("0b0",   "0b0",  "") or
+        not getTomlSymbolOkay("0b00",  "0b00", "") or
+        not getTomlSymbolOkay("0b01",  "0b01", "") or
+        not getTomlSymbolOkay("0b11",  "0b11", "") then
+      writeln(" ***** getTomlSymbol() with integer does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("9_007_199_254_740_991",  "9007199254740991",     "") or
+        not getTomlSymbolOkay("-9_007_199_254_740_991", "-9007199254740991",    "") or
+        not getTomlSymbolOkay("9223372036854775807",    "9223372036854775807",  "") or
+        not getTomlSymbolOkay("-9223372036854775808",   "-9223372036854775808", "") or
+        not getTomlSymbolOkay("1_000",                  "1000",    "") or
+        not getTomlSymbolOkay("1_1_1_1",                "1111",    "") or
+        not getTomlSymbolOkay("0",                      "0",       "") or
+        not getTomlSymbolOkay("+0",                     "+0",      "") or
+        not getTomlSymbolOkay("-0",                     "-0",      "") or
+        not getTomlSymbolOkay("0x0",                    "0x0",     "") or
+        not getTomlSymbolOkay("0x00",                   "0x00",    "") or
+        not getTomlSymbolOkay("0x00000",                "0x00000", "") or
+        not getTomlSymbolOkay("0o0",                    "0o0",     "") or
+        not getTomlSymbolOkay("0o00",                   "0o00",    "") or
+        not getTomlSymbolOkay("0o00000",                "0o00000", "") or
+        not getTomlSymbolOkay("0b0",                    "0b0",     "") or
+        not getTomlSymbolOkay("0b00",                   "0b00",    "") or
+        not getTomlSymbolOkay("0b00000",                "0b00000", "") then
+      writeln(" ***** getTomlSymbol() with integer does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("+"     ) or
+        not getTomlSymbolRaisesRangeError("++"    ) or
+        not getTomlSymbolRaisesRangeError("+-"    ) or
+        not getTomlSymbolRaisesRangeError("++0"   ) or
+        not getTomlSymbolRaisesRangeError("+-0"   ) or
+        not getTomlSymbolRaisesRangeError("++1"   ) or
+        not getTomlSymbolRaisesRangeError("+-1"   ) or
+        not getTomlSymbolRaisesRangeError("+a"    ) or
+        not getTomlSymbolRaisesRangeError("-"     ) or
+        not getTomlSymbolRaisesRangeError("-+"    ) or
+        not getTomlSymbolRaisesRangeError("--"    ) or
+        not getTomlSymbolRaisesRangeError("-+0"   ) or
+        not getTomlSymbolRaisesRangeError("--0"   ) or
+        not getTomlSymbolRaisesRangeError("-+1"   ) or
+        not getTomlSymbolRaisesRangeError("--1"   ) or
+        not getTomlSymbolRaisesRangeError("-a"    ) or
+        not getTomlSymbolRaisesRangeError("_1"    ) or
+        not getTomlSymbolRaisesRangeError("00"    ) or
+        not getTomlSymbolRaisesRangeError("+00"   ) or
+        not getTomlSymbolRaisesRangeError("-00"   ) or
+        not getTomlSymbolRaisesRangeError("01"    ) or
+        not getTomlSymbolRaisesRangeError("+01"   ) or
+        not getTomlSymbolRaisesRangeError("-01"   ) or
+        not getTomlSymbolRaisesRangeError("0a"    ) or
+        not getTomlSymbolRaisesRangeError("+0a"   ) or
+        not getTomlSymbolRaisesRangeError("-0a"   ) or
+        not getTomlSymbolRaisesRangeError("1_"    ) or
+        not getTomlSymbolRaisesRangeError("1_a"   ) or
+        not getTomlSymbolRaisesRangeError("1_+"   ) or
+        not getTomlSymbolRaisesRangeError("1__1"  ) or
+        not getTomlSymbolRaisesRangeError("+1_"   ) or
+        not getTomlSymbolRaisesRangeError("+1_a"  ) or
+        not getTomlSymbolRaisesRangeError("+1_+"  ) or
+        not getTomlSymbolRaisesRangeError("+1__1" ) or
+        not getTomlSymbolRaisesRangeError("-1_"   ) or
+        not getTomlSymbolRaisesRangeError("-1_a"  ) or
+        not getTomlSymbolRaisesRangeError("-1_+"  ) or
+        not getTomlSymbolRaisesRangeError("-1__1" ) or
+        not getTomlSymbolRaisesRangeError("0x"    ) or
+        not getTomlSymbolRaisesRangeError("0xg"   ) or
+        not getTomlSymbolRaisesRangeError("0xG"   ) or
+        not getTomlSymbolRaisesRangeError("0xz"   ) or
+        not getTomlSymbolRaisesRangeError("0xZ"   ) or
+        not getTomlSymbolRaisesRangeError("0x/"   ) or
+        not getTomlSymbolRaisesRangeError("0x:"   ) or
+        not getTomlSymbolRaisesRangeError("0xfg"  ) or
+        not getTomlSymbolRaisesRangeError("0xfG"  ) or
+        not getTomlSymbolRaisesRangeError("0xFg"  ) or
+        not getTomlSymbolRaisesRangeError("0xFG"  ) or
+        not getTomlSymbolRaisesRangeError("0x_1"  ) or
+        not getTomlSymbolRaisesRangeError("0x1_"  ) or
+        not getTomlSymbolRaisesRangeError("0x1_g" ) or
+        not getTomlSymbolRaisesRangeError("0x1_+" ) or
+        not getTomlSymbolRaisesRangeError("0x1__1") or
+        not getTomlSymbolRaisesRangeError("0o"    ) or
+        not getTomlSymbolRaisesRangeError("0o8"   ) or
+        not getTomlSymbolRaisesRangeError("0o9"   ) or
+        not getTomlSymbolRaisesRangeError("0oa"   ) or
+        not getTomlSymbolRaisesRangeError("0oA"   ) or
+        not getTomlSymbolRaisesRangeError("0oz"   ) or
+        not getTomlSymbolRaisesRangeError("0oZ"   ) or
+        not getTomlSymbolRaisesRangeError("0o/"   ) or
+        not getTomlSymbolRaisesRangeError("0o:"   ) or
+        not getTomlSymbolRaisesRangeError("0o78"  ) or
+        not getTomlSymbolRaisesRangeError("0o_1"  ) or
+        not getTomlSymbolRaisesRangeError("0o1_"  ) or
+        not getTomlSymbolRaisesRangeError("0o1_8" ) or
+        not getTomlSymbolRaisesRangeError("0o1_+" ) or
+        not getTomlSymbolRaisesRangeError("0o1__1") or
+        not getTomlSymbolRaisesRangeError("0b"    ) or
+        not getTomlSymbolRaisesRangeError("0b2"   ) or
+        not getTomlSymbolRaisesRangeError("0b9"   ) or
+        not getTomlSymbolRaisesRangeError("0ba"   ) or
+        not getTomlSymbolRaisesRangeError("0bA"   ) or
+        not getTomlSymbolRaisesRangeError("0bz"   ) or
+        not getTomlSymbolRaisesRangeError("0bZ"   ) or
+        not getTomlSymbolRaisesRangeError("0b/"   ) or
+        not getTomlSymbolRaisesRangeError("0b:"   ) or
+        not getTomlSymbolRaisesRangeError("0b12"  ) or
+        not getTomlSymbolRaisesRangeError("0b_1"  ) or
+        not getTomlSymbolRaisesRangeError("0b1_"  ) or
+        not getTomlSymbolRaisesRangeError("0b1_2" ) or
+        not getTomlSymbolRaisesRangeError("0b1_+" ) or
+        not getTomlSymbolRaisesRangeError("0b1__1") then
+      writeln(" ***** getTomlSymbol() with integer does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("0B0" ) or
+        not getTomlSymbolRaisesRangeError("0X1" ) or
+        not getTomlSymbolRaisesRangeError("0O0" ) or
+        not getTomlSymbolRaisesRangeError("--99" ) or
+        not getTomlSymbolRaisesRangeError("++99" ) or
+        not getTomlSymbolRaisesRangeError("1__23" ) or
+        not getTomlSymbolRaisesRangeError("0b" ) or
+        not getTomlSymbolRaisesRangeError("0x" ) or
+        not getTomlSymbolRaisesRangeError("0o" ) or
+        not getTomlSymbolRaisesRangeError("0b0012" ) or
+        not getTomlSymbolRaisesRangeError("0xaafz" ) or
+        not getTomlSymbolRaisesRangeError("0xgabba00f1" ) or
+        not getTomlSymbolRaisesRangeError("0xaafz" ) or
+        not getTomlSymbolRaisesRangeError("0o778" ) or
+        not getTomlSymbolRaisesRangeError("_0b1" ) or
+        not getTomlSymbolRaisesRangeError("_0x1" ) or
+        not getTomlSymbolRaisesRangeError("_0o1" ) or
+        not getTomlSymbolRaisesRangeError("_123" ) or
+        not getTomlSymbolRaisesRangeError("01" ) or
+        not getTomlSymbolRaisesRangeError("00" ) or
+        not getTomlSymbolRaisesRangeError("0_0" ) or
+        not getTomlSymbolRaisesRangeError("-01" ) or
+        not getTomlSymbolRaisesRangeError("+01" ) or
+        not getTomlSymbolRaisesRangeError("+0_1" ) or
+        not getTomlSymbolRaisesRangeError("-0b11010110" ) or
+        not getTomlSymbolRaisesRangeError("-0xff" ) or
+        not getTomlSymbolRaisesRangeError("-0o755" ) or
+        not getTomlSymbolRaisesRangeError("+0b11010110" ) or
+        not getTomlSymbolRaisesRangeError("+0xff" ) or
+        not getTomlSymbolRaisesRangeError("+0o755" ) or
+        not getTomlSymbolRaisesRangeError("0b1_" ) or
+        not getTomlSymbolRaisesRangeError("0x1_" ) or
+        not getTomlSymbolRaisesRangeError("0o1_" ) or
+        not getTomlSymbolRaisesRangeError("123_" ) or
+        not getTomlSymbolRaisesRangeError("0b_1" ) or
+        not getTomlSymbolRaisesRangeError("0x_1" ) or
+        not getTomlSymbolRaisesRangeError("0o_1" ) then
+      writeln(" ***** getTomlSymbol() with integer does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlSymbol works correctly with integers.");
+    end if;
+  end func;
+
+
+const proc: checkGetTomlFloat is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("+1.0",                "+1.0",             "") or
+        not getTomlSymbolOkay("3.1415",              "3.1415",           "") or
+        not getTomlSymbolOkay("-0.01",               "-0.01",            "") or
+        not getTomlSymbolOkay("5e+22",               "5e+22",            "") or
+        not getTomlSymbolOkay("1e06",                "1e06",             "") or
+        not getTomlSymbolOkay("-2E-2",               "-2E-2",            "") or
+        not getTomlSymbolOkay("6.626e-34",           "6.626e-34",        "") or
+        not getTomlSymbolOkay("224_617.445_991_228", "224617.445991228", "") then
+      writeln(" ***** getTomlSymbol() with float does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("3e2",                      "3e2",                 "") or
+        not getTomlSymbolOkay("3E2",                      "3E2",                 "") or
+        not getTomlSymbolOkay("3e-2",                     "3e-2",                "") or
+        not getTomlSymbolOkay("3E+2",                     "3E+2",                "") or
+        not getTomlSymbolOkay("3e0",                      "3e0",                 "") or
+        not getTomlSymbolOkay("3.1e2",                    "3.1e2",               "") or
+        not getTomlSymbolOkay("3.1E2",                    "3.1E2",               "") or
+        not getTomlSymbolOkay("-1E-1",                    "-1E-1",               "") or
+        not getTomlSymbolOkay("3.14",                     "3.14",                "") or
+        not getTomlSymbolOkay("+3.14",                    "+3.14",               "") or
+        not getTomlSymbolOkay("-3.14",                    "-3.14",               "") or
+        not getTomlSymbolOkay("0.123",                    "0.123",               "") or
+        not getTomlSymbolOkay("3.141592653589793",        "3.141592653589793",   "") or
+        not getTomlSymbolOkay("-3.141592653589793",       "-3.141592653589793",  "") or
+        not getTomlSymbolOkay("9_007_199_254_740_991.0",  "9007199254740991.0",  "") or
+        not getTomlSymbolOkay("-9_007_199_254_740_991.0", "-9007199254740991.0", "") or
+        not getTomlSymbolOkay("3_141.5927",               "3141.5927",           "") or
+        not getTomlSymbolOkay("3141.592_7",               "3141.5927",           "") or
+        not getTomlSymbolOkay("3e1_4",                    "3e14",                "") or
+        not getTomlSymbolOkay("0.0",                      "0.0",                 "") or
+        not getTomlSymbolOkay("+0.0",                     "+0.0",                "") or
+        not getTomlSymbolOkay("-0.0",                     "-0.0",                "") or
+        not getTomlSymbolOkay("0e0",                      "0e0",                 "") or
+        not getTomlSymbolOkay("0e00",                     "0e00",                "") or
+        not getTomlSymbolOkay("+0e0",                     "+0e0",                "") or
+        not getTomlSymbolOkay("-0e0",                     "-0e0",                "") then
+      writeln(" ***** getTomlSymbol() with float does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("0."     ) or
+        not getTomlSymbolRaisesRangeError("0.x"    ) or
+        not getTomlSymbolRaisesRangeError("0.+"    ) or
+        not getTomlSymbolRaisesRangeError("0._"    ) or
+        not getTomlSymbolRaisesRangeError("0._1"   ) or
+        not getTomlSymbolRaisesRangeError("0.1_"   ) or
+        not getTomlSymbolRaisesRangeError("0.1_a"  ) or
+        not getTomlSymbolRaisesRangeError("0.1_+"  ) or
+        not getTomlSymbolRaisesRangeError("0.1__1" ) or
+        not getTomlSymbolRaisesRangeError("0e"     ) or
+        not getTomlSymbolRaisesRangeError("0ex"    ) or
+        not getTomlSymbolRaisesRangeError("0e+"    ) or
+        not getTomlSymbolRaisesRangeError("0e-"    ) or
+        not getTomlSymbolRaisesRangeError("0E"     ) or
+        not getTomlSymbolRaisesRangeError("0EX"    ) or
+        not getTomlSymbolRaisesRangeError("0E+"    ) or
+        not getTomlSymbolRaisesRangeError("0E-"    ) or
+        not getTomlSymbolRaisesRangeError("0.0e"   ) or
+        not getTomlSymbolRaisesRangeError("0.0ex"  ) or
+        not getTomlSymbolRaisesRangeError("0.0e+"  ) or
+        not getTomlSymbolRaisesRangeError("0.0e-"  ) or
+        not getTomlSymbolRaisesRangeError("0.0E"   ) or
+        not getTomlSymbolRaisesRangeError("0.0EX"  ) or
+        not getTomlSymbolRaisesRangeError("0.0E+"  ) or
+        not getTomlSymbolRaisesRangeError("0.0E-"  ) or
+        not getTomlSymbolRaisesRangeError("1."     ) or
+        not getTomlSymbolRaisesRangeError("1.x"    ) or
+        not getTomlSymbolRaisesRangeError("1.+"    ) or
+        not getTomlSymbolRaisesRangeError("1._"    ) or
+        not getTomlSymbolRaisesRangeError("1._1"   ) or
+        not getTomlSymbolRaisesRangeError("1.1_"   ) or
+        not getTomlSymbolRaisesRangeError("1.1_a"  ) or
+        not getTomlSymbolRaisesRangeError("1.1_+"  ) or
+        not getTomlSymbolRaisesRangeError("1.1__1" ) or
+        not getTomlSymbolRaisesRangeError("1e"     ) or
+        not getTomlSymbolRaisesRangeError("1ex"    ) or
+        not getTomlSymbolRaisesRangeError("1e+"    ) or
+        not getTomlSymbolRaisesRangeError("1e-"    ) or
+        not getTomlSymbolRaisesRangeError("1E"     ) or
+        not getTomlSymbolRaisesRangeError("1EX"    ) or
+        not getTomlSymbolRaisesRangeError("1E+"    ) or
+        not getTomlSymbolRaisesRangeError("1E-"    ) or
+        not getTomlSymbolRaisesRangeError("1.0e"   ) or
+        not getTomlSymbolRaisesRangeError("1.0ex"  ) or
+        not getTomlSymbolRaisesRangeError("1.0e+"  ) or
+        not getTomlSymbolRaisesRangeError("1.0e-"  ) or
+        not getTomlSymbolRaisesRangeError("1.0E"   ) or
+        not getTomlSymbolRaisesRangeError("1.0EX"  ) or
+        not getTomlSymbolRaisesRangeError("1.0E+"  ) or
+        not getTomlSymbolRaisesRangeError("1.0E-"  ) then
+      writeln(" ***** getTomlSymbol() with float does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("0..1"  ) or
+        not getTomlSymbolRaisesRangeError("0.1.2"  ) or
+        not getTomlSymbolRaisesRangeError("1ee2"  ) or
+        not getTomlSymbolRaisesRangeError("1e2e3"  ) or
+        not getTomlSymbolRaisesRangeError("1e__23"  ) or
+        not getTomlSymbolRaisesRangeError("1e_23"  ) or
+        not getTomlSymbolRaisesRangeError("1e2.3"  ) or
+        not getTomlSymbolRaisesRangeError("1.e2"  ) or
+        not getTomlSymbolRaisesRangeError("3.e+20"  ) or
+        not getTomlSymbolRaisesRangeError("1_e2"  ) or
+        not getTomlSymbolRaisesRangeError("1.2_e2"  ) or
+        not getTomlSymbolRaisesRangeError("1e23_"  ) or
+        not getTomlSymbolRaisesRangeError("Inf"  ) or
+        not getTomlSymbolRaisesRangeError("in"  ) or
+        not getTomlSymbolRaisesRangeError("+in"  ) or
+        not getTomlSymbolRaisesRangeError("-in"  ) or
+        not getTomlSymbolRaisesRangeError("in_f"  ) or
+        not getTomlSymbolRaisesRangeError("-.12345"  ) or
+        not getTomlSymbolRaisesRangeError("+.12345"  ) or
+        not getTomlSymbolRaisesRangeError(".12345"  ) or
+        not getTomlSymbolRaisesRangeError("_1.2"  ) or
+        not getTomlSymbolRaisesRangeError("-03.14"  ) or
+        not getTomlSymbolRaisesRangeError("+03.14"  ) or
+        not getTomlSymbolRaisesRangeError("03.14"  ) or
+        not getTomlSymbolRaisesRangeError("NaN"  ) or
+        not getTomlSymbolRaisesRangeError("na"  ) or
+        not getTomlSymbolRaisesRangeError("+na"  ) or
+        not getTomlSymbolRaisesRangeError("-na"  ) or
+        not getTomlSymbolRaisesRangeError("na_n"  ) or
+        not getTomlSymbolRaisesRangeError("-1."  ) or
+        not getTomlSymbolRaisesRangeError("+1."  ) or
+        not getTomlSymbolRaisesRangeError("1."  ) or
+        not getTomlSymbolRaisesRangeError("1_e2"  ) or
+        not getTomlSymbolRaisesRangeError("1.2_e2"  ) or
+        not getTomlSymbolRaisesRangeError("1.2_"  ) or
+        not getTomlSymbolRaisesRangeError("1._2"  ) or
+        not getTomlSymbolRaisesRangeError("1_.2"  ) then
+      writeln(" ***** getTomlSymbol() with float does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlSymbol works correctly with floats.");
+    end if;
+  end func;
+
+
+const proc: checkGetTomlDate is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("2000-01-01T00:00:00", "2000-01-01T00:00:00", "") then
+      writeln(" ***** getTomlSymbol() with date does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("1987-07-05 17:45:00Z",             "1987-07-05T17:45:00Z", "") or
+        not getTomlSymbolOkay("1987-07-05t17:45:00z",             "1987-07-05T17:45:00Z", "") or
+        not getTomlSymbolOkay("0001-01-01 00:00:00Z",             "0001-01-01T00:00:00Z", "") or
+        not getTomlSymbolOkay("0001-01-01 00:00:00",              "0001-01-01T00:00:00", "") or
+        not getTomlSymbolOkay("0001-01-01",                       "0001-01-01", "") or
+        not getTomlSymbolOkay("9999-12-31 23:59:59Z",             "9999-12-31T23:59:59Z", "") or
+        not getTomlSymbolOkay("9999-12-31 23:59:59",              "9999-12-31T23:59:59", "") or
+        not getTomlSymbolOkay("9999-12-31",                       "9999-12-31", "") or
+        not getTomlSymbolOkay("2000-02-29 15:15:15Z",             "2000-02-29T15:15:15Z", "") or
+        not getTomlSymbolOkay("2000-02-29 15:15:15",              "2000-02-29T15:15:15", "") or
+        not getTomlSymbolOkay("2000-02-29",                       "2000-02-29", "") or
+        not getTomlSymbolOkay("2024-02-29 15:15:15Z",             "2024-02-29T15:15:15Z", "") or
+        not getTomlSymbolOkay("2024-02-29 15:15:15",              "2024-02-29T15:15:15", "") or
+        not getTomlSymbolOkay("2024-02-29",                       "2024-02-29", "") or
+        not getTomlSymbolOkay("1987-07-05",                       "1987-07-05", "") or
+        not getTomlSymbolOkay("17:45:00",                         "17:45:00", "") or
+        not getTomlSymbolOkay("10:32:00.555",                     "10:32:00.555", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:00",              "1987-07-05T17:45:00", "") or
+        not getTomlSymbolOkay("1977-12-21T10:32:00.555",          "1977-12-21T10:32:00.555", "") or
+        not getTomlSymbolOkay("1987-07-05 17:45:00",              "1987-07-05T17:45:00", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56.123Z",         "1987-07-05T17:45:56.123Z", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56.6Z",           "1987-07-05T17:45:56.6Z", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56.123+08:00",    "1987-07-05T17:45:56.123+08:00", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56.6+08:00",      "1987-07-05T17:45:56.6+08:00", "") or
+        not getTomlSymbolOkay("13:37",                            "13:37", "") or
+        not getTomlSymbolOkay("1979-05-27 07:32Z",                "1979-05-27T07:32Z", "") or
+        not getTomlSymbolOkay("1979-05-27 07:32-07:00",           "1979-05-27T07:32-07:00", "") or
+        not getTomlSymbolOkay("1979-05-27T07:32",                 "1979-05-27T07:32", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56Z",             "1987-07-05T17:45:56Z", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56-05:00",        "1987-07-05T17:45:56-05:00", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56+12:00",        "1987-07-05T17:45:56+12:00", "") or
+        not getTomlSymbolOkay("1987-07-05T17:45:56+13:00  # DST", "1987-07-05T17:45:56+13:00", "  # DST") then
+      writeln(" ***** getTomlSymbol() with date does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolRaisesRangeError("2100-02-29T15:15:15Z") or
+        not getTomlSymbolRaisesRangeError("1988-02-30T15:15:15Z") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T24:00:00-00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-32T00:00:00-00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-00T00:00:00-00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T00:60:00-00:00") or
+        not getTomlSymbolRaisesRangeError("2006-13-01T00:00:00-00:00") or
+        not getTomlSymbolRaisesRangeError("2007-00-01T00:00:00-00:00") or
+        not getTomlSymbolRaisesRangeError("1987-7-05T17:45:00Z") or
+        not getTomlSymbolRaisesRangeError("1987-07-5T17:45:00.12Z") or
+        not getTomlSymbolRaisesRangeError("1987-7-05T17:45:00Z") or
+        not getTomlSymbolRaisesRangeError("1987-07-0517:45:00Z") or
+        not getTomlSymbolRaisesRangeError("1985-06-18 17:04:07+25:00") or
+        not getTomlSymbolRaisesRangeError("1985-06-18 17:04:07+12:61") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T00:00:61-00:00") or
+        not getTomlSymbolRaisesRangeError("2023-10-01T1:32:00Z") or
+        not getTomlSymbolRaisesRangeError("10000-01-01 00:00:00z") or
+        not getTomlSymbolRaisesRangeError("2100-02-29") or
+        not getTomlSymbolRaisesRangeError("1988-02-30") or
+        not getTomlSymbolRaisesRangeError("2006-01-32") or
+        not getTomlSymbolRaisesRangeError("2006-01-00") or
+        not getTomlSymbolRaisesRangeError("2006-13-01") or
+        not getTomlSymbolRaisesRangeError("2007-00-01") or
+        not getTomlSymbolRaisesRangeError("1987-07-5") or
+        not getTomlSymbolRaisesRangeError("1987-7-05") or
+        not getTomlSymbolRaisesRangeError("2006-01-30T") or
+        not getTomlSymbolRaisesRangeError("10000-01-01") or
+        not getTomlSymbolRaisesRangeError("2100-02-29T15:15:15") or
+        not getTomlSymbolRaisesRangeError("1988-02-30T15:15:15") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T24:00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-32T00:00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-00T00:00:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T00:60:00") or
+        not getTomlSymbolRaisesRangeError("2006-13-01T00:00:00") or
+        not getTomlSymbolRaisesRangeError("2007-00-01T00:00:00") or
+        not getTomlSymbolRaisesRangeError("1987-07-5T17:45:00.12") or
+        not getTomlSymbolRaisesRangeError("1987-7-05T17:45:00") or
+        not getTomlSymbolRaisesRangeError("1987-07-0517:45:00") or
+        not getTomlSymbolRaisesRangeError("2006-01-01T00:00:61") or
+        not getTomlSymbolRaisesRangeError("2023-10-01T1:32:00Z") or
+        not getTomlSymbolRaisesRangeError("10000-01-01 00:00:00") or
+        not getTomlSymbolRaisesRangeError("24:00:00") or
+        not getTomlSymbolRaisesRangeError("00:60:00") or
+        not getTomlSymbolRaisesRangeError("00:00:61") or
+        not getTomlSymbolRaisesRangeError("01:32:0") or
+        not getTomlSymbolRaisesRangeError("1:32:00") then
+      writeln(" ***** getTomlSymbol() with date does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlSymbol works correctly with dates.");
+    end if;
+  end func;
+
+
+const proc: checkGetTomlSymbol is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlSymbolOkay("false", "false", "") or
+        not getTomlSymbolOkay("true",  "true",  "") or
+        not getTomlSymbolOkay("nan",   "nan",   "") or
+        not getTomlSymbolOkay("inf",   "inf",   "") then
+      writeln(" ***** getTomlSymbol() does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlSymbolOkay("+nan", "+nan", "") or
+        not getTomlSymbolOkay("-nan", "-nan", "") or
+        not getTomlSymbolOkay("+inf", "+inf", "") or
+        not getTomlSymbolOkay("-inf", "-inf", "") then
+      writeln(" ***** getTomlSymbol() does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlSymbol works correctly.");
+    end if;
+  end func;
+
+
+const func boolean: getTomlKeyOkay (in string: initialStri,
+    in string: expectedSymbol, in string: finalStri) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: stri is "";
+    var string: symbol is "";
+    var file: aFile is STD_NULL;
+    var char: expectedBuffer is ' ';
+  begin
+    stri := initialStri;
+    symbol := getTomlKey(stri);
+    if symbol <> expectedSymbol then
+      writeln(" ***** getTomlKey(stri) with " <&
+              literal(initialStri) <& " returns "
+              <& literal(symbol) <& " instead of " <&
+              literal(expectedSymbol) <& ".");
+      okay := FALSE;
+    elsif stri <> finalStri then
+      writeln(" ***** After getTomlKey(stri) with " <&
+              literal(initialStri) <& " stri is " <&
+              literal(stri) <& " instead of " <& literal(finalStri) <&
+              ".");
+      okay := FALSE;
+    else
+      if finalStri = "" then
+        expectedBuffer := EOF;
+      else
+        expectedBuffer := finalStri[1];
+      end if;
+      aFile := initScan(initialStri);
+      symbol := getTomlKey(aFile);
+      if symbol <> expectedSymbol then
+        writeln(" ***** getTomlKey(file) with " <&
+                literal(initialStri) <& " returns " <&
+                literal(symbol) <& " instead of " <&
+                literal(expectedSymbol) <& ".");
+        okay := FALSE;
+      elsif aFile.bufferChar <> expectedBuffer then
+        writeln(" ***** After getTomlKey(file) with " <&
+                literal(initialStri) <& " bufferChar is " <&
+                literal(aFile.bufferChar) <& " instead of " <&
+                literal(expectedBuffer) <& ".");
+        okay := FALSE;
+      elsif expectedBuffer = EOF and not eof(aFile) then
+        writeln(" ***** After getTomlKey(file) with " <&
+                literal(initialStri) <& " bufferChar is \
+                \EOF but eof() returns FALSE.");
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const proc: checkGetTomlKey is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not getTomlKeyOkay("key",                    "key",                    "") or
+        not getTomlKeyOkay("bare_key",               "bare_key",               "") or
+        not getTomlKeyOkay("bare-key",               "bare-key",               "") or
+        not getTomlKeyOkay("1234",                   "1234",                   "") or
+        not getTomlKeyOkay("\"127.0.0.1\"",          "\"127.0.0.1\"",          "") or
+        not getTomlKeyOkay("\"character encoding\"", "\"character encoding\"", "") or
+        not getTomlKeyOkay("\"ʎǝʞ\"",                "\"ʎǝʞ\"",                 "") or
+        not getTomlKeyOkay("'key2'",                 "'key2'",                 "") or
+        not getTomlKeyOkay("'quoted \"value\"'",     "'quoted \"value\"'",     "") or
+        not getTomlKeyOkay("\"\"",                   "\"\"",                   "") or
+        not getTomlKeyOkay("''",                     "''",                     "") then
+      writeln(" ***** getTomlKey() does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not getTomlKeyOkay("alpha",                  "alpha",                  "") or
+        not getTomlKeyOkay("123",                    "123",                    "") or
+        not getTomlKeyOkay("000111",                 "000111",                 "") or
+        not getTomlKeyOkay("10e3",                   "10e3",                   "") or
+        not getTomlKeyOkay("one1two2",               "one1two2",               "") or
+        not getTomlKeyOkay("with-dash",              "with-dash",              "") or
+        not getTomlKeyOkay("under_score",            "under_score",            "") or
+        not getTomlKeyOkay("34-11",                  "34-11",                  "") or
+        not getTomlKeyOkay("2018_10",                "2018_10",                "") or
+        not getTomlKeyOkay("001",                    "001",                    "") or
+        not getTomlKeyOkay("a-a-a",                  "a-a-a",                  "") or
+        not getTomlKeyOkay("_",                      "_",                      "") or
+        not getTomlKeyOkay("sectioN",                "sectioN",                "") or
+        not getTomlKeyOkay("section",                "section",                "") or
+        not getTomlKeyOkay("name",                   "name",                   "") or
+        not getTomlKeyOkay("NAME",                   "NAME",                   "") or
+        not getTomlKeyOkay("Name",                   "Name",                   "") or
+        not getTomlKeyOkay("Section",                "Section",                "") or
+        not getTomlKeyOkay("name",                   "name",                   "") or
+        not getTomlKeyOkay("\"μ\"",                  "\"μ\"",                  "") or
+        not getTomlKeyOkay("\"Μ\"",                  "\"Μ\"",                  "") or
+        not getTomlKeyOkay("M",                      "M",                      "") or
+        not getTomlKeyOkay("\"\"",                   "\"\"",                   "") or
+        not getTomlKeyOkay("''",                     "''",                     "") or
+        not getTomlKeyOkay("answer",                 "answer",                 "") or
+        not getTomlKeyOkay("\"\\n\"",                "\"\n\"",                 "") or
+        not getTomlKeyOkay("\"\\b\"",                "\"\b\"",                 "") or
+        not getTomlKeyOkay("\"\\u00c0\"",            "\"\192;\"",              "") or
+        not getTomlKeyOkay("\"\\\"\"",               "\"\"\"",                 "") or
+        not getTomlKeyOkay("\"backsp\\b\\b\"",       "\"backsp\b\b\"",         "") or
+        not getTomlKeyOkay("\"\\\"quoted\\\"\"",     "\"\"quoted\"\"",         "") or
+        not getTomlKeyOkay("quote",                  "quote",                  "") or
+        not getTomlKeyOkay("1",                      "1",                      "") or
+        not getTomlKeyOkay("plain",                  "plain",                  "") or
+        not getTomlKeyOkay("\"with.dot\"",           "\"with.dot\"",           "") or
+        not getTomlKeyOkay("plain_table",            "plain_table",            "") or
+        not getTomlKeyOkay("plain",                  "plain",                  "") or
+        not getTomlKeyOkay("\"with.dot\"",           "\"with.dot\"",           "") or
+        not getTomlKeyOkay("plain",                  "plain",                  "") or
+        not getTomlKeyOkay("\"key.with.dots\"",      "\"key.with.dots\"",      "") or
+        not getTomlKeyOkay("\"\\u0000\"",            "\"\0;\"",                "") or
+        not getTomlKeyOkay("'\\u0000'",              "'\\u0000'",              "") or
+        not getTomlKeyOkay("\"\\u0008 \\u000c \\U00000041 \\u007f \\u0080 \\u00ff \\ud7ff \\ue000 \\uffff \\U00010000 \\U0010ffff\"",
+                           "\"\b \f A \127; \128; \255; \16#d7ff; \16#e000; \16#ffff; \16#10000; \16#10ffff;\"",
+                           "") or
+        not getTomlKeyOkay("\"~ \128; ÿ ퟿  ￿ 𐀀 􏿿\"", "\"~ \128; ÿ ퟿  ￿ 𐀀 􏿿\"", "") or
+        not getTomlKeyOkay("'l ~ \128; ÿ ퟿  ￿ 𐀀 􏿿'", "'l ~ \128; ÿ ퟿  ￿ 𐀀 􏿿'", "") or
+        not getTomlKeyOkay("\"a b\"",                "\"a b\"",                "") or
+        not getTomlKeyOkay("\" c d \"",              "\" c d \"",              "") or
+        not getTomlKeyOkay("\" tbl \"",              "\" tbl \"",              "") or
+        not getTomlKeyOkay("\"\\ttab\\ttab\\t\"",    "\"\ttab\ttab\t\"",       "") or
+        not getTomlKeyOkay("\"=~!@$^&*()_+-`1234567890[]|/?><.,;:'=\"",
+                           "\"=~!@$^&*()_+-`1234567890[]|/?><.,;:'=\"", "") or
+        not getTomlKeyOkay("false",                  "false",                  "") or
+        not getTomlKeyOkay("true",                   "true",                   "") or
+        not getTomlKeyOkay("inf",                    "inf",                    "") or
+        not getTomlKeyOkay("nan",                    "nan",                    "") or
+        not getTomlKeyOkay("0",                      "0",                      "") then
+      writeln(" ***** getTomlKey() does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function getTomlKey works correctly.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    writeln;
+    checkGetTomlString;
+    checkGetTomlInteger;
+    checkGetTomlFloat;
+    checkGetTomlDate;
+    checkGetTomlSymbol;
+    checkGetTomlKey;
+  end func;
