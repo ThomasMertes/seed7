@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2024  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2025  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -74,7 +74,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.2.%d  Copyright (c) 1990-2024 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.2.%d  Copyright (c) 1990-2025 Thomas Mertes\n"
 
 
 

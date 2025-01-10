@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  archive.s7i   Archive library                                   *)
-(*  Copyright (C) 2017, 2020  Thomas Mertes                         *)
+(*  Copyright (C) 2017, 2020, 2024  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
