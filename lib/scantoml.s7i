@@ -1,0 +1,1602 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scantoml.s7i  String and file scanner functions for TOML        *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "chartype.s7i";
+include "time.s7i";
+
+
+const set of char: tomlBareKeyChar is alphanum_char | {'_', '-'};
+
+
+const func char: getTomlUnicode4 (in string: hexBytes) is func
+  result
+    var char: codePoint is ' ';
+  begin
+    codePoint := char(integer(hexBytes, 16));
+    if (codePoint >= '\16#d800;' and codePoint <= '\16#dfff;') or
+        codePoint > '\16#10ffff;' then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func char: getTomlUnicode8 (in string: hexBytes) is func
+  result
+    var char: codePoint is ' ';
+  begin
+    if startsWith(hexBytes, "00") then
+      codePoint := char(integer(hexBytes, 16));
+      if (codePoint >= '\16#d800;' and codePoint <= '\16#dfff;') or
+          codePoint > '\16#10ffff;' then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlBasicString (inout string: stri) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\10;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'"', '\\'} |
+        illegalControlChar;
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+    var string: hexBytes is "";
+    var char: codePoint is ' ';
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] not in specialStriChar do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos .. pred(pos)];
+      if pos > leng or stri[pos] in illegalControlChar then
+        raise RANGE_ERROR;
+      elsif stri[pos] = '\\' then
+        incr(pos);
+        if pos <= leng then
+          case stri[pos] of
+            when {'"', '\\'}: symbol &:= stri[pos]; incr(pos);
+            when {'b'}: symbol &:= "\b"; incr(pos);
+            when {'f'}: symbol &:= "\f"; incr(pos);
+            when {'n'}: symbol &:= "\n"; incr(pos);
+            when {'r'}: symbol &:= "\r"; incr(pos);
+            when {'t'}: symbol &:= "\t"; incr(pos);
+            when {'u'}:
+              if pos + 4 <= leng then
+                symbol &:= getTomlUnicode4(stri[succ(pos) fixLen 4]);
+                pos +:= 5;
+              else
+                raise RANGE_ERROR;
+              end if;
+            when {'U'}:
+              if pos + 8 <= leng then
+                symbol &:= getTomlUnicode8(stri[succ(pos) fixLen 8]);
+                pos +:= 9;
+              else
+                raise RANGE_ERROR;
+              end if;
+            otherwise:
+              raise RANGE_ERROR;
+          end case;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    until pos <= leng and stri[pos] = '"';
+    symbol &:= '"';
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+const func string: getTomlMultiLineBasicString (inout string: stri) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\11;' .. '\12;'} | {'\14;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'"', '\\', '\r'} |
+        illegalControlChar;
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] = '\n' then
+      incr(pos);
+    elsif pos < leng and stri[pos fixLen 2] = "\r\n" then
+      pos +:= 2;
+    end if;
+    repeat
+      repeat
+        repeat
+          startPos := pos;
+          while pos <= leng and stri[pos] not in specialStriChar do
+            incr(pos);
+          end while;
+          symbol &:= stri[startPos .. pred(pos)];
+          if pos > leng or stri[pos] in illegalControlChar then
+            raise RANGE_ERROR;
+          else
+            case stri[pos] of
+              when {'\\'}:
+                incr(pos);
+                if pos <= leng then
+                  case stri[pos] of
+                    when {'"', '\\'}: symbol &:= stri[pos]; incr(pos);
+                    when {'b'}: symbol &:= "\b"; incr(pos);
+                    when {'f'}: symbol &:= "\f"; incr(pos);
+                    when {'n'}: symbol &:= "\n"; incr(pos);
+                    when {'r'}: symbol &:= "\r"; incr(pos);
+                    when {'t'}: symbol &:= "\t"; incr(pos);
+                    when {'u'}:
+                      if pos + 4 <= leng then
+                        symbol &:= getTomlUnicode4(stri[succ(pos) fixLen 4]);
+                        pos +:= 5;
+                      else
+                        raise RANGE_ERROR;
+                      end if;
+                    when {'U'}:
+                      if pos + 8 <= leng then
+                        symbol &:= getTomlUnicode8(stri[succ(pos) fixLen 8]);
+                        pos +:= 9;
+                      else
+                        raise RANGE_ERROR;
+                      end if;
+                    when {'\n'}:
+                      repeat
+                        incr(pos);
+                      until pos > leng or stri[pos] not in white_space_char;
+                    when {'\r'}:
+                      if pos < leng and stri[succ(pos)] = '\n' then
+                        repeat
+                          incr(pos);
+                        until pos > leng or stri[pos] not in white_space_char;
+                      else
+                        raise RANGE_ERROR;
+                      end if;
+                    when {' ', '\t'}:
+                      repeat
+                        incr(pos);
+                      until pos > leng or stri[pos] not in space_or_tab;
+                      if pos <= leng and stri[pos] = '\n' then
+                        repeat
+                          incr(pos);
+                        until pos > leng or stri[pos] not in white_space_char;
+                      elsif pos <= leng and stri[pos] = '\r' then
+                        incr(pos);
+                        if pos <= leng and stri[pos] = '\n' then
+                          repeat
+                            incr(pos);
+                          until pos > leng or stri[pos] not in white_space_char;
+                        else
+                          raise RANGE_ERROR;
+                        end if;
+                      else
+                        raise RANGE_ERROR;
+                      end if;
+                    otherwise:
+                      raise RANGE_ERROR;
+                  end case;
+                end if;
+              when {'\r'}:
+                if pos < leng and stri[succ(pos)] = '\n' then
+                  symbol &:= '\n';
+                  pos +:= 2;
+                else
+                  symbol &:= '\r';
+                  incr(pos);
+                end if;
+            end case;
+          end if;
+        until pos <= leng and stri[pos] = '"';
+        incr(pos);
+        if pos <= leng and stri[pos] <> '"' then
+          symbol &:= '"';
+        end if;
+      until pos <= leng and stri[pos] = '"';
+      incr(pos);
+      if pos <= leng and stri[pos] <> '"' then
+        symbol &:= "\"\"";
+      end if;
+    until pos <= leng and stri[pos] = '"';
+    incr(pos);
+    while pos <= leng and stri[pos] = '"' do
+      symbol &:= '"';
+      incr(pos);
+    end while;
+    symbol &:= '"';
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlLiteralString (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\10;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'''} |
+        illegalControlChar;
+    var integer: leng is 0;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] not in specialStriChar do
+      incr(pos);
+    end while;
+    if pos > leng or stri[pos] in illegalControlChar then
+      raise RANGE_ERROR;
+    else
+      symbol &:= stri[.. pos];
+      stri := stri[succ(pos) ..];
+    end if;
+  end func;
+
+
+const func string: getTomlMultiLineLiteralString (inout string: stri) is func
+  result
+    var string: symbol is "'";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\11;' .. '\12;'} | {'\14;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'''} |
+        illegalControlChar;
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] = '\n' then
+      incr(pos);
+    elsif pos < leng and stri[pos fixLen 2] = "\r\n" then
+      pos +:= 2;
+    end if;
+    startPos := pos;
+    repeat
+      repeat
+        while pos <= leng and stri[pos] not in specialStriChar do
+          incr(pos);
+        end while;
+        if pos > leng or stri[pos] in illegalControlChar then
+          raise RANGE_ERROR;
+        else
+          incr(pos);
+        end if;
+      until pos <= leng and stri[pos] = ''';
+      incr(pos);
+    until pos <= leng and stri[pos] = ''';
+    incr(pos);
+    while pos <= leng and stri[pos] = ''' do
+      incr(pos);
+    end while;
+    symbol &:= stri[startPos .. pos - 3];
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlString (inout string: stri) is func
+  result
+    var string: symbol is "";
+  begin
+    if stri <> "" and stri[1] = '"' then
+      symbol := getTomlBasicString(stri);
+      if symbol = "\"\"" and stri <> "" and stri[1] = '"' then
+        symbol := getTomlMultiLineBasicString(stri);
+      end if;
+    elsif stri <> "" and stri[1] = ''' then
+      symbol := getTomlLiteralString(stri);
+      if symbol = "\'\'" and stri <> "" and stri[1] = ''' then
+        symbol := getTomlMultiLineLiteralString(stri);
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlHexInteger (inout string: stri) is func
+  result
+    var string: symbol is "0x";
+  local
+    var integer: leng is 0;
+    var integer: pos is 3;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in hexdigit_char then
+      repeat
+        symbol &:= stri[pos];
+        incr(pos);
+        if pos <= leng and stri[pos] = '_' then
+          incr(pos);
+          if pos > leng or stri[pos] not in hexdigit_char then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until pos > leng or stri[pos] not in hexdigit_char;
+      if pos <= leng and stri[pos] in alphanum_char then
+        raise RANGE_ERROR;
+      else
+        stri := stri[pos ..];
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlOctInteger (inout string: stri) is func
+  result
+    var string: symbol is "0o";
+  local
+    var integer: leng is 0;
+    var integer: pos is 3;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in octdigit_char then
+      repeat
+        symbol &:= stri[pos];
+        incr(pos);
+        if pos <= leng and stri[pos] = '_' then
+          incr(pos);
+          if pos > leng or stri[pos] not in octdigit_char then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until pos > leng or stri[pos] not in octdigit_char;
+      if pos <= leng and stri[pos] in alphanum_char then
+        raise RANGE_ERROR;
+      else
+        stri := stri[pos ..];
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlBinInteger (inout string: stri) is func
+  result
+    var string: symbol is "0b";
+  local
+    var integer: leng is 0;
+    var integer: pos is 3;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in {'0', '1'} then
+      repeat
+        symbol &:= stri[pos];
+        incr(pos);
+        if pos <= leng and stri[pos] = '_' then
+          incr(pos);
+          if pos > leng or stri[pos] not in {'0', '1'} then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until pos > leng or stri[pos] not in {'0', '1'};
+      if pos <= leng and stri[pos] in alphanum_char then
+        raise RANGE_ERROR;
+      else
+        stri := stri[pos ..];
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlDecInteger (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in {'+', '-'} then
+      symbol := str(stri[pos]);
+      incr(pos);
+    end if;
+    if pos <= leng and stri[pos] in digit_char then
+      if stri[pos] = '0' then
+        symbol &:= "0";
+        incr(pos);
+        if pos <= leng and stri[pos] in alphanum_char - {'E', 'e'} | {'_'} then
+          raise RANGE_ERROR;
+        end if;
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+          if pos <= leng and stri[pos] = '_' then
+            incr(pos);
+            if pos > leng or stri[pos] not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        until pos > leng or stri[pos] not in digit_char;
+      end if;
+    elsif pos <= leng and stri[pos] in letter_char then
+      repeat
+        symbol &:= stri[pos];
+        incr(pos);
+      until pos > leng or stri[pos] not in letter_char;
+      if symbol <> "+inf" and symbol <> "-inf" and
+          symbol <> "+nan" and symbol <> "-nan" then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlInteger (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if stri[pos] = '0' then
+      incr(pos);
+      if pos <= leng and stri[pos] = 'x' then
+        symbol := getTomlHexInteger(stri);
+      elsif pos <= leng and stri[pos] = 'o' then
+        symbol := getTomlOctInteger(stri);
+      elsif pos <= leng and stri[pos] = 'b' then
+        symbol := getTomlBinInteger(stri);
+      elsif pos <= leng and stri[pos] in letter_char - {'E', 'e'} | {'_'} then
+        raise RANGE_ERROR
+      else
+        symbol := "0";
+        while pos <= leng and stri[pos] in digit_char do
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+        stri := stri[pos ..];
+      end if;
+    else
+      symbol := getTomlDecInteger(stri);
+    end if;
+  end func;
+
+
+const func string: getTomlFloat (inout string: stri,
+    in string: integerPart) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    symbol := integerPart;
+    leng := length(stri);
+    if pos <= leng and stri[pos] = '.' then
+      symbol &:= '.';
+      incr(pos);
+      if pos > leng or stri[pos] not in digit_char then
+        raise RANGE_ERROR;
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+          if pos <= leng and stri[pos] = '_' then
+            incr(pos);
+            if pos > leng or stri[pos] not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        until pos > leng or stri[pos] not in digit_char;
+        if pos <= leng and stri[pos] = '.' then
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+    if pos <= leng and stri[pos] in {'E', 'e'} then
+      symbol &:= stri[pos];
+      incr(pos);
+      if pos <= leng and stri[pos] in {'+', '-'} then
+        symbol &:= stri[pos];
+        incr(pos);
+      end if;
+      if pos > leng or stri[pos] not in digit_char then
+        raise RANGE_ERROR;
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+          if pos <= leng and stri[pos] = '_' then
+            incr(pos);
+            if pos > leng or stri[pos] not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        until pos > leng or stri[pos] not in digit_char;
+        if pos <= leng and stri[pos] in {'E', 'e', '.', '_'} then
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlName (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in {'a' .. 'z'} do
+      symbol &:= stri[pos];
+      incr(pos);
+    end while;
+    if symbol <> "false" and symbol <> "true" and
+        symbol <> "nan" and symbol <> "inf" then
+      raise RANGE_ERROR;
+    else
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+const func integer: getTomlMonth (in string: stri,
+    inout integer: pos, in integer: leng) is func
+  result
+    var integer: month is 1;
+  begin
+    if pos < leng and stri[pos] in digit_char and
+        stri[succ(pos)] in digit_char then
+      month := integer(stri[pos fixLen 2]);
+      if month >= 1 and month <= 12 then
+        pos +:= 2;
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlTwoDigits (in string: stri,
+    inout integer: pos, in integer: leng, in integer: minimum,
+    in integer: maximum) is func
+  result
+    var string: twoDigits is "";
+  local
+    var integer: number is 0;
+  begin
+    if pos < leng and stri[pos] in digit_char and
+        stri[succ(pos)] in digit_char then
+      twoDigits := stri[pos fixLen 2];
+      number := integer(twoDigits);
+      if number >= minimum and number <= maximum then
+        pos +:= 2;
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlDate (inout string: stri,
+    in string: yearStri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+    var integer: year is 0;
+    var integer: month is 1;
+  begin
+    leng := length(stri);
+    if length(yearStri) = 4 then
+      year := integer(yearStri);
+      symbol := yearStri;
+    else
+      raise RANGE_ERROR;
+    end if;
+    month := getTomlMonth(stri, pos, leng);
+    symbol &:= '-';
+    symbol &:= month lpad0 2;
+    if pos <= leng and stri[pos] = '-' then
+      incr(pos);
+      symbol &:= '-';
+      symbol &:= getTomlTwoDigits(stri, pos, leng, 1,
+                                  daysInMonth(year, month));
+    else
+      raise RANGE_ERROR;
+    end if;
+    if pos <= leng and stri[pos] in {'T', 't'} or
+        (pos < leng and stri[pos] = ' ' and
+         stri[succ(pos)] in digit_char) then
+      incr(pos);
+      symbol &:= 'T';
+      symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 23);
+      if pos <= leng and stri[pos] = ':' then
+        incr(pos);
+        symbol &:= ':';
+        symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 59);
+      else
+        raise RANGE_ERROR;
+      end if;
+      if pos <= leng and stri[pos] = ':' then
+        incr(pos);
+        symbol &:= ':';
+        symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 60);
+        if pos <= leng and stri[pos] = '.' then
+          incr(pos);
+          if pos <= leng and stri[pos] in digit_char then
+            symbol &:= '.';
+            repeat
+              symbol &:= stri[pos];
+              incr(pos);
+            until pos > leng or stri[pos] not in digit_char;
+          else
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      end if;
+      if pos <= leng and stri[pos] in {'Z', 'z'} then
+        symbol &:= 'Z';
+        incr(pos);
+      elsif pos <= leng and stri[pos] in {'+', '-'} then
+        symbol &:= stri[pos];
+        incr(pos);
+        symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 23);
+        if pos <= leng and stri[pos] = ':' then
+          incr(pos);
+          symbol &:= ':';
+          symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 59);
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    elsif pos <= leng and stri[pos] in digit_char then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlTime (inout string: stri,
+    in string: hourStri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+    var integer: hour is 0;
+  begin
+    leng := length(stri);
+    if length(hourStri) = 2 then
+      hour := integer(hourStri);
+      if hour >= 0 and hour <= 23 then
+        symbol := hourStri;
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    symbol &:= ':';
+    symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 59);
+    if pos <= leng and stri[pos] = ':' then
+      incr(pos);
+      symbol &:= ':';
+      symbol &:= getTomlTwoDigits(stri, pos, leng, 0, 60);
+      if pos <= leng and stri[pos] = '.' then
+        incr(pos);
+        if pos <= leng and stri[pos] in digit_char then
+          symbol &:= '.';
+          repeat
+            symbol &:= stri[pos];
+            incr(pos);
+          until pos > leng or stri[pos] not in digit_char;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlNumberOrDate (inout string: stri) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := getTomlInteger(stri);
+    if stri <> "" and stri[1] in {'.', 'e', 'E'} and
+        (symbol = "0" or not startsWith(symbol, "0")) then
+      symbol := getTomlFloat(stri, symbol);
+    elsif stri <> "" and stri[1] = '-' and
+        isDigitString(symbol) then
+      symbol := getTomlDate(stri, symbol);
+    elsif stri <> "" and stri[1] = ':' and
+        isDigitString(symbol) then
+      symbol := getTomlTime(stri, symbol);
+    elsif length(symbol) >= 2 and symbol[1] = '0' and
+        symbol[2] in digit_char then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Read a TOML symbol from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the first char of the TOML symbol. When the function is left ''stri''
+ *  is empty or stri[1] contains the character after the TOML symbol.
+ *  @return the TOML symbol.
+ *)
+const func string: getTomlSymbol (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      case stri[pos] of
+        when {'"', '''}:
+          symbol := getTomlString(stri);
+        when digit_char | {'+', '-'}:
+          symbol := getTomlNumberOrDate(stri);
+        when letter_char:
+          symbol := getTomlName(stri);
+        when {'[', ']', '{', '}', '=', ','}:
+          symbol := str(stri[pos]);
+          stri := stri[2 ..];
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
+  end func;
+
+
+const proc: skipTomlSpaceTabNlAndComments (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    repeat
+      while pos <= leng and stri[pos] in space_or_tab do
+        incr(pos);
+      end while;
+      if pos <= leng then
+        if stri[pos] = '#' then
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = '\n';
+          incr(pos);
+        elsif stri[pos] = '\n' then
+          incr(pos);
+        elsif pos < leng and stri[pos fixLen 2] = "\r\n" then
+          pos +:= 2;
+        end if;
+      end if;
+    until pos > leng or stri[pos] not in white_space_char | {'#'};
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getTomlKey (inout string: stri) is func
+  result
+    var string: tomlKey is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      if stri[pos] in tomlBareKeyChar then
+        repeat
+          tomlKey &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] not in tomlBareKeyChar;
+        stri := stri[pos ..];
+      elsif stri[pos] = '"' then
+        tomlKey := getTomlBasicString(stri);
+      elsif stri[pos] = ''' then
+        tomlKey := getTomlLiteralString(stri);
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlBasicString (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\10;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'"', '\\'} |
+        illegalControlChar | {EOF};
+    var char: character is ' ';
+    var string: hexBytes is "";
+    var char: codePoint is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      while character not in specialStriChar do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character in illegalControlChar or character = EOF then
+        raise RANGE_ERROR;
+      elsif character = '\\' then
+        character := getc(inFile);
+        case character of
+          when {'"', '\\'}:
+            symbol &:= character;
+            character := getc(inFile);
+          when {'b'}: symbol &:= "\b"; character := getc(inFile);
+          when {'f'}: symbol &:= "\f"; character := getc(inFile);
+          when {'n'}: symbol &:= "\n"; character := getc(inFile);
+          when {'r'}: symbol &:= "\r"; character := getc(inFile);
+          when {'t'}: symbol &:= "\t"; character := getc(inFile);
+          when {'u'}:
+            hexBytes := gets(inFile, 4);
+            if length(hexBytes) = 4 then
+              symbol &:= getTomlUnicode4(hexBytes);
+              character := getc(inFile);
+            else
+              raise RANGE_ERROR;
+            end if;
+          when {'U'}:
+            hexBytes := gets(inFile, 8);
+            if length(hexBytes) = 8 then
+              symbol &:= getTomlUnicode8(hexBytes);
+              character := getc(inFile);
+            else
+              raise RANGE_ERROR;
+            end if;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+      end if;
+    until character = '"';
+    symbol &:= '"';
+    inFile.bufferChar := getc(inFile);
+  end func;
+
+
+const func string: getTomlMultiLineBasicString (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\11;' .. '\12;'} | {'\14;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'"', '\\', '\r'} |
+        illegalControlChar | {EOF};
+    var char: character is ' ';
+    var string: hexBytes is "";
+  begin
+    character := getc(inFile);
+    if character = '\n' then
+      character := getc(inFile);
+    elsif character = '\r' then
+      character := getc(inFile);
+      if character = '\n' then
+        character := getc(inFile);
+      else
+        symbol &:= character;
+      end if;
+    end if;
+    repeat
+      repeat
+        repeat
+          while character not in specialStriChar do
+            symbol &:= character;
+            character := getc(inFile);
+          end while;
+          if character in illegalControlChar or character = EOF then
+            raise RANGE_ERROR;
+          else
+            case character of
+              when {'\\'}:
+                character := getc(inFile);
+                case character of
+                  when {'"', '\\'}:
+                    symbol &:= character;
+                    character := getc(inFile);
+                  when {'b'}: symbol &:= "\b"; character := getc(inFile);
+                  when {'f'}: symbol &:= "\f"; character := getc(inFile);
+                  when {'n'}: symbol &:= "\n"; character := getc(inFile);
+                  when {'r'}: symbol &:= "\r"; character := getc(inFile);
+                  when {'t'}: symbol &:= "\t"; character := getc(inFile);
+                  when {'u'}:
+                    hexBytes := gets(inFile, 4);
+                    if length(hexBytes) = 4 then
+                      symbol &:= getTomlUnicode4(hexBytes);
+                      character := getc(inFile);
+                    else
+                      raise RANGE_ERROR;
+                    end if;
+                  when {'U'}:
+                    hexBytes := gets(inFile, 8);
+                    if length(hexBytes) = 8 then
+                      symbol &:= getTomlUnicode8(hexBytes);
+                      character := getc(inFile);
+                    else
+                      raise RANGE_ERROR;
+                    end if;
+                  when {'\n'}:
+                    repeat
+                      character := getc(inFile);
+                    until character not in white_space_char;
+                  when {'\r'}:
+                    character := getc(inFile);
+                    if character = '\n' then
+                      repeat
+                        character := getc(inFile);
+                      until character not in white_space_char;
+                    else
+                      raise RANGE_ERROR;
+                    end if;
+                  when {' ', '\t'}:
+                    repeat
+                      character := getc(inFile);
+                    until character not in space_or_tab;
+                    if character = '\n' then
+                      repeat
+                        character := getc(inFile);
+                      until character not in white_space_char;
+                    elsif character = '\r' then
+                      character := getc(inFile);
+                      if character = '\n' then
+                        repeat
+                          character := getc(inFile);
+                        until character not in white_space_char;
+                      else
+                        raise RANGE_ERROR;
+                      end if;
+                    else
+                      raise RANGE_ERROR;
+                    end if;
+                  otherwise:
+                    raise RANGE_ERROR;
+                end case;
+              when {'\r'}:
+                character := getc(inFile);
+                if character = '\n' then
+                  symbol &:= '\n';
+                  character := getc(inFile);
+                else
+                  symbol &:= '\r';
+                end if;
+            end case;
+          end if;
+        until character = '"';
+        character := getc(inFile);
+        if character <> '"' then
+          symbol &:= '"';
+        end if;
+      until character = '"';
+      character := getc(inFile);
+      if character <> '"' then
+        symbol &:= "\"\"";
+      end if;
+    until character = '"';
+    inFile.bufferChar := getc(inFile);
+    while inFile.bufferChar = '"' do
+      symbol &:= '"';
+      inFile.bufferChar := getc(inFile);
+    end while;
+    symbol &:= '"';
+  end func;
+
+
+const func string: getTomlLiteralString (inout file: inFile) is func
+  result
+    var string: symbol is "'";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\10;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'''} |
+        illegalControlChar | {EOF};
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    while character not in specialStriChar do
+      symbol &:= character;
+      character := getc(inFile);
+    end while;
+    if character in illegalControlChar or character = EOF then
+      raise RANGE_ERROR;
+    else
+      symbol &:= ''';
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func;
+
+
+const func string: getTomlMultiLineLiteralString (inout file: inFile) is func
+  result
+    var string: symbol is "'";
+  local
+    const set of char: illegalControlChar is {'\0;' .. '\8;'} |
+        {'\11;' .. '\12;'} | {'\14;' .. '\31;'} | {'\127;'};
+    const set of char: specialStriChar is {'''} |
+        illegalControlChar | {EOF};
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    if character = '\n' then
+      character := getc(inFile);
+    elsif character = '\r' then
+      character := getc(inFile);
+      if character = '\n' then
+        character := getc(inFile);
+      else
+        symbol &:= character;
+      end if;
+    end if;
+    repeat
+      repeat
+        while character not in specialStriChar do
+          symbol &:= character;
+          character := getc(inFile);
+        end while;
+        if character in illegalControlChar or character = EOF then
+          raise RANGE_ERROR;
+        else
+          character := getc(inFile);
+          if character <> ''' then
+            symbol &:= ''';
+          end if;
+        end if;
+      until character = ''';
+      character := getc(inFile);
+      if character <> ''' then
+        symbol &:= "''";
+      end if;
+    until character = ''';
+    inFile.bufferChar := getc(inFile);
+    while inFile.bufferChar = ''' do
+      symbol &:= ''';
+      inFile.bufferChar := getc(inFile);
+    end while;
+    symbol &:= ''';
+  end func;
+
+
+const func string: getTomlString (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  begin
+    if inFile.bufferChar = '"' then
+      symbol := getTomlBasicString(inFile);
+      if symbol = "\"\"" and inFile.bufferChar = '"' then
+        symbol := getTomlMultiLineBasicString(inFile);
+      end if;
+    elsif inFile.bufferChar = ''' then
+      symbol := getTomlLiteralString(inFile);
+      if symbol = "\'\'" and inFile.bufferChar = ''' then
+        symbol := getTomlMultiLineLiteralString(inFile);
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlHexInteger (inout file: inFile) is func
+  result
+    var string: symbol is "0x";
+  begin
+    inFile.bufferChar := getc(inFile);
+    if inFile.bufferChar in hexdigit_char then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '_' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar not in hexdigit_char then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until inFile.bufferChar not in hexdigit_char;
+      if inFile.bufferChar in alphanum_char then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlOctInteger (inout file: inFile) is func
+  result
+    var string: symbol is "0o";
+  begin
+    inFile.bufferChar := getc(inFile);
+    if inFile.bufferChar in octdigit_char then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '_' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar not in octdigit_char then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until inFile.bufferChar not in octdigit_char;
+      if inFile.bufferChar in alphanum_char then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlBinInteger (inout file: inFile) is func
+  result
+    var string: symbol is "0b";
+  begin
+    inFile.bufferChar := getc(inFile);
+    if inFile.bufferChar in {'0', '1'} then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '_' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar not in {'0', '1'} then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      until inFile.bufferChar not in {'0', '1'};
+      if inFile.bufferChar in alphanum_char then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlDecInteger (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar in {'+', '-'} then
+      symbol := str(inFile.bufferChar);
+      inFile.bufferChar := getc(inFile);
+    end if;
+    if inFile.bufferChar in digit_char then
+      if inFile.bufferChar = '0' then
+        symbol &:= "0";
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar in alphanum_char - {'E', 'e'} | {'_'} then
+          raise RANGE_ERROR;
+        end if;
+      else
+        while inFile.bufferChar in digit_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar = '_' then
+            inFile.bufferChar := getc(inFile);
+            if inFile.bufferChar not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        end while;
+      end if;
+    elsif inFile.bufferChar in letter_char then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar not in letter_char;
+      if symbol <> "+inf" and symbol <> "-inf" and
+          symbol <> "+nan" and symbol <> "-nan" then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlInteger (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar = '0' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar = 'x' then
+        symbol := getTomlHexInteger(inFile);
+      elsif inFile.bufferChar = 'o' then
+        symbol := getTomlOctInteger(inFile);
+      elsif inFile.bufferChar = 'b' then
+        symbol := getTomlBinInteger(inFile);
+      elsif inFile.bufferChar in letter_char - {'E', 'e'} | {'_'} then
+        raise RANGE_ERROR
+      else
+        symbol := "0";
+        while inFile.bufferChar in digit_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      end if;
+    else
+      symbol := getTomlDecInteger(inFile);
+    end if;
+  end func;
+
+
+const func string: getTomlFloat (inout file: inFile,
+    in string: integerPart) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    symbol := integerPart;
+    if inFile.bufferChar = '.' then
+      symbol &:= '.';
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar not in digit_char then
+        raise RANGE_ERROR;
+      else
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar = '_' then
+            inFile.bufferChar := getc(inFile);
+            if inFile.bufferChar not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        until inFile.bufferChar not in digit_char;
+        if inFile.bufferChar = '.' then
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+    if inFile.bufferChar in {'E', 'e'} then
+      symbol &:= inFile.bufferChar;
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar in {'+', '-'} then
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      end if;
+      if inFile.bufferChar not in digit_char then
+        raise RANGE_ERROR;
+      else
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar = '_' then
+            inFile.bufferChar := getc(inFile);
+            if inFile.bufferChar not in digit_char then
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        until inFile.bufferChar not in digit_char;
+        if inFile.bufferChar in {'E', 'e', '.', '_'} then
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlName (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in {'a' .. 'z'} do
+      symbol &:= inFile.bufferChar;
+      inFile.bufferChar := getc(inFile);
+    end while;
+    if symbol <> "false" and symbol <> "true" and
+        symbol <> "nan" and symbol <> "inf" then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func integer: getTomlMonth (inout file: inFile) is func
+  result
+    var integer: month is 1;
+  local
+    var string: twoDigits is "";
+  begin
+    twoDigits := gets(inFile, 2);
+    if length(twoDigits) = 2 and twoDigits[1] in digit_char and
+        twoDigits[2] in digit_char then
+      month := integer(twoDigits);
+      if month >= 1 and month <= 12 then
+        inFile.bufferChar := getc(inFile);
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlTwoDigits (inout file: inFile,
+    in integer: minimum, in integer: maximum) is func
+  result
+    var string: twoDigits is "";
+  local
+    var integer: number is 0;
+  begin
+    twoDigits := gets(inFile, 2);
+    if length(twoDigits) = 2 and twoDigits[1] in digit_char and
+        twoDigits[2] in digit_char then
+      number := integer(twoDigits);
+      if number >= minimum and number <= maximum then
+        inFile.bufferChar := getc(inFile);
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: getTomlDate (inout file: inFile,
+    in string: yearStri) is func
+  result
+    var string: symbol is "";
+  local
+    var string: twoChars is "";
+    var boolean: timeFollows is FALSE;
+    var integer: year is 0;
+    var integer: month is 1;
+    var integer: hour is 1;
+  begin
+    if length(yearStri) = 4 then
+      year := integer(yearStri);
+      symbol := yearStri;
+    else
+      raise RANGE_ERROR;
+    end if;
+    month := getTomlMonth(inFile);
+    symbol &:= '-';
+    symbol &:= month lpad0 2;
+    if inFile.bufferChar = '-' then
+      symbol &:= '-';
+      symbol &:= getTomlTwoDigits(inFile, 1, daysInMonth(year, month));
+    else
+      raise RANGE_ERROR;
+    end if;
+    if inFile.bufferChar in {'T', 't'} then
+      twoChars := gets(inFile, 2);
+      timeFollows := TRUE;
+    elsif inFile.bufferChar = ' ' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar in digit_char then
+        twoChars := str(inFile.bufferChar);
+        twoChars &:= getc(inFile);
+        timeFollows := TRUE;
+      end if;
+    elsif inFile.bufferChar in digit_char then
+      raise RANGE_ERROR;
+    end if;
+    if timeFollows then
+      if length(twoChars) = 2 and twoChars[1] in digit_char and
+          twoChars[2] in digit_char then
+        hour := integer(twoChars);
+        if hour >= 0 and hour <= 23 then
+          symbol &:= 'T';
+          symbol &:= twoChars;
+          inFile.bufferChar := getc(inFile);
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+      if inFile.bufferChar = ':' then
+        symbol &:= ':';
+        symbol &:= getTomlTwoDigits(inFile, 0, 59);
+      else
+        raise RANGE_ERROR;
+      end if;
+      if inFile.bufferChar = ':' then
+        symbol &:= ':';
+        symbol &:= getTomlTwoDigits(inFile, 0, 59);
+        if inFile.bufferChar = '.' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar in digit_char then
+            symbol &:= '.';
+            repeat
+              symbol &:= inFile.bufferChar;
+              inFile.bufferChar := getc(inFile);
+            until inFile.bufferChar not in digit_char;
+          else
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      end if;
+      if inFile.bufferChar in {'Z', 'z'} then
+        symbol &:= 'Z';
+        inFile.bufferChar := getc(inFile);
+      elsif inFile.bufferChar in {'+', '-'} then
+        symbol &:= inFile.bufferChar;
+        symbol &:= getTomlTwoDigits(inFile, 0, 23);
+        if inFile.bufferChar = ':' then
+          symbol &:= ':';
+          symbol &:= getTomlTwoDigits(inFile, 0, 23);
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlTime (inout file: inFile,
+    in string: hourStri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: hour is 0;
+  begin
+    if length(hourStri) = 2 then
+      hour := integer(hourStri);
+      if hour >= 0 and hour <= 23 then
+        symbol := hourStri;
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    symbol &:= ':';
+    symbol &:= getTomlTwoDigits(inFile, 0, 59);
+    if inFile.bufferChar = ':' then
+      symbol &:= ':';
+      symbol &:= getTomlTwoDigits(inFile, 0, 60);
+      if inFile.bufferChar = '.' then
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar in digit_char then
+          symbol &:= '.';
+          repeat
+            symbol &:= inFile.bufferChar;
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar not in digit_char;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: getTomlNumberOrDate (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := getTomlInteger(inFile);
+    if inFile.bufferChar in {'.', 'e', 'E'} and
+        (symbol = "0" or not startsWith(symbol, "0")) then
+      symbol := getTomlFloat(inFile, symbol);
+    elsif inFile.bufferChar = '-' and
+        isDigitString(symbol) then
+      symbol := getTomlDate(inFile, symbol);
+    elsif inFile.bufferChar = ':' and
+        isDigitString(symbol) then
+      symbol := getTomlTime(inFile, symbol);
+    elsif length(symbol) >= 2 and symbol[1] = '0' and
+        symbol[2] in digit_char then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Read a TOML symbol from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first char of the TOML symbol. When the function is left
+ *  inFile.bufferChar contains the character after the TOML symbol.
+ *  @return the TOML symbol.
+ *)
+const func string: getTomlSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    case inFile.bufferChar of
+      when {'"', '''}:
+        symbol := getTomlString(inFile);
+      when digit_char | {'+', '-'}:
+        symbol := getTomlNumberOrDate(inFile);
+      when letter_char:
+        symbol := getTomlName(inFile);
+      when {'[', ']', '{', '}', '=', ','}:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: skipTomlSpaceTabNlAndComments (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    repeat
+      while character in space_or_tab do
+        character := getc(inFile);
+      end while;
+      if character = '#' then
+        repeat
+          character := getc(inFile);
+        until character = '\n';
+        character := getc(inFile);
+      elsif character = '\n' then
+        character := getc(inFile);
+      elsif character = '\r' then
+        character := getc(inFile);
+        if character = '\n' then
+          character := getc(inFile);
+        end if;
+      end if;
+    until character not in white_space_char | {'#'};
+    inFile.bufferChar := character;
+  end func;
+
+
+const func string: getTomlKey (inout file: inFile) is func
+  result
+    var string: tomlKey is "";
+  begin
+    if inFile.bufferChar in tomlBareKeyChar then
+      repeat
+        tomlKey &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar not in tomlBareKeyChar;
+    elsif inFile.bufferChar = '"' then
+      tomlKey := getTomlBasicString(inFile);
+    elsif inFile.bufferChar = ''' then
+      tomlKey := getTomlLiteralString(inFile);
+    end if;
+  end func;
