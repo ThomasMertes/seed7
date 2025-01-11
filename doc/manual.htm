@@ -9228,18 +9228,18 @@ my_out := open(<span class="stri">"my_file"</span>, <span class="stri">"w"</span
 </p><dl><dd><dl>
     <dt>Binary mode:</dt><dd><table border="0" cellspacing="0">
       <tr><td><span class="stri">"r"</span></td>   <td>...&nbsp;</td><td>Open file for reading.</td></tr>
-      <tr><td><span class="stri">"w"</span></td>   <td>...&nbsp;</td><td>Truncate to zero length or create file for writing.</td></tr>
-      <tr><td><span class="stri">"a"</span></td>   <td>...&nbsp;</td><td>Append; open or create file for writing at end-of-file.</td></tr>
+      <tr><td><span class="stri">"w"</span></td>   <td>...&nbsp;</td><td>Open or create file for writing and truncate to zero length.</td></tr>
+      <tr><td><span class="stri">"a"</span></td>   <td>...&nbsp;</td><td>Open or create file for appending (writing at end-of-file).</td></tr>
       <tr><td><span class="stri">"r+"</span></td>  <td>...&nbsp;</td><td>Open file for update (reading and writing).</td></tr>
-      <tr><td><span class="stri">"w+"</span></td>  <td>...&nbsp;</td><td>Truncate to zero length or create file for update.</td></tr>
-      <tr><td><span class="stri">"a+"</span></td>  <td>...&nbsp;</td><td>Append; open or create file for update, writing at end-of-file.</td></tr></table>
+      <tr><td><span class="stri">"w+"</span></td>  <td>...&nbsp;</td><td>Open or create file for update and truncate to zero length.</td></tr>
+      <tr><td><span class="stri">"a+"</span></td>  <td>...&nbsp;</td><td>Open or create file for appending and reading.</td></tr></table>
     <dt>Text mode:</dt><dd><table border="0" cellspacing="0">
       <tr><td><span class="stri">"rt"</span></td>  <td>...&nbsp;</td><td>Open file for reading.</td></tr>
-      <tr><td><span class="stri">"wt"</span></td>  <td>...&nbsp;</td><td>Truncate to zero length or create file for writing.</td></tr>
-      <tr><td><span class="stri">"at"</span></td>  <td>...&nbsp;</td><td>Append; open or create file for writing at end-of-file.</td></tr>
+      <tr><td><span class="stri">"wt"</span></td>  <td>...&nbsp;</td><td>Open or create file for writing and truncate to zero length.</td></tr>
+      <tr><td><span class="stri">"at"</span></td>  <td>...&nbsp;</td><td>Open or create file for appending (writing at end-of-file).</td></tr>
       <tr><td><span class="stri">"rt+"</span></td> <td>...&nbsp;</td><td>Open file for update (reading and writing).</td></tr>
-      <tr><td><span class="stri">"wt+"</span></td> <td>...&nbsp;</td><td>Truncate to zero length or create file for update.</td></tr>
-      <tr><td><span class="stri">"at+"</span></td> <td>...&nbsp;</td><td>Append; open or create file for update, writing at end-of-file.</td></tr></table>
+      <tr><td><span class="stri">"wt+"</span></td> <td>...&nbsp;</td><td>Open or create file for update and truncate to zero length.</td></tr>
+      <tr><td><span class="stri">"at+"</span></td> <td>...&nbsp;</td><td>Open or create file for appending and reading.</td></tr></table>
 </dl></dd></dl><p>
   Note that Seed7 defines the modes <tt><span class="stri">"r"</span></tt>, <tt><span class="stri">"w"</span></tt>, <tt><span class="stri">"a"</span></tt>, <tt><span class="stri">"r+"</span></tt>, <tt><span class="stri">"w+"</span></tt>
   and <tt><span class="stri">"a+"</span></tt> as binary modes. If <tt><span class="func">open</span></tt> is called, with a mode
@@ -15396,8 +15396,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
     <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td>_Bool, bool or int</td></tr>
-    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td>32- or 64-bit signed int</td></tr>
-    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td>float (or double)</td></tr>
+    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td>64-bit signed int</td></tr>
+    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td>64-bit double</td></tr>
     <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_charType">charType</a></td>   <td>32-bit unsigned int</td></tr>
     <tr><td><tt><span class="type">clib_file</span></tt></td>        <td><a name="ffi_fileType">fileType</a></td>   <td>FILE *</td></tr>
     <tr><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt></td> <td><a name="ffi_socketType">socketType</a></td> <td>int or unsigned int</td></tr>

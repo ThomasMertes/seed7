@@ -9017,18 +9017,18 @@ CONTENTS
 
     Binary mode:
       "r"   ... Open file for reading.
-      "w"   ... Truncate to zero length or create file for writing.
-      "a"   ... Append; open or create file for writing at end-of-file.
+      "w"   ... Open or create file for writing and truncate to zero length.
+      "a"   ... Open or create file for appending (writing at end-of-file).
       "r+"  ... Open file for update (reading and writing).
-      "w+"  ... Truncate to zero length or create file for update.
-      "a+"  ... Append; open or create file for update, writing at end-of-file.
+      "w+"  ... Open or create file for update and truncate to zero length.
+      "a+"  ... Open or create file for appending and reading.
     Text mode:
       "rt"  ... Open file for reading.
-      "wt"  ... Truncate to zero length or create file for writing.
-      "at"  ... Append; open or create file for writing at end-of-file.
+      "wt"  ... Open or create file for writing and truncate to zero length.
+      "at"  ... Open or create file for appending (writing at end-of-file).
       "rt+" ... Open file for update (reading and writing).
-      "wt+" ... Truncate to zero length or create file for update.
-      "at+" ... Append; open or create file for update, writing at end-of-file.
+      "wt+" ... Open or create file for update and truncate to zero length.
+      "at+" ... Open or create file for appending and reading.
 
   Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
   and "a+" as binary modes. If 'open' is called, with a mode
@@ -15185,8 +15185,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Seed7 type       C type     Comment
     boolean          boolType   _Bool, bool or int
-    integer          intType    32- or 64-bit signed int
-    float            floatType  float (or double)
+    integer          intType    64-bit signed int
+    float            floatType  64-bit double
     char             charType   32-bit unsigned int
     clib_file        fileType   FILE *
     PRIMITIVE_SOCKET socketType int or unsigned int

@@ -36,6 +36,7 @@ chkscan.sd7  Checks the scanner functions
 chkset.sd7   Checks set literals and operations
 chkstr.sd7   Checks string literals and operations
 chktime.sd7  Checks time functions
+chktoml.sd7  Checks the TOML scanner and DOM functions
 clock.sd7    Displays a digital clock
 clock2.sd7   Displays a digital clock with microseconds
 clock3.sd7   Analog Clock
@@ -128,6 +129,7 @@ aes.s7i      AES (Advanced Encryption Standard) cipher support.
 aes_gcm.s7i  AES cipher with Galois Counter Mode (GCM)
 ar.s7i       Ar archive library
 arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
+archive.s7i  Archive library
 archive_base.s7i Common functions for file archives.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
@@ -147,6 +149,7 @@ boolean.s7i  Boolean support library
 browser.s7i  Open web browser and provide a connection to it.
 bstring.s7i  Byte string support library
 bytedata.s7i Convert byte data to and from strings
+bzip2.s7i    Bzip2 compression support library
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
 cc_conf.s7i  Configuration values for C compiler and runtime.
@@ -270,6 +273,7 @@ rpmext.s7i   Extension library for the RPM archive
 scanfile.s7i File scanner functions
 scanjson.s7i String and file scanner functions for JSON
 scanstri.s7i String scanner functions
+scantoml.s7i String and file scanner functions for TOML
 seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type
 shell.s7i    Support for shell commands

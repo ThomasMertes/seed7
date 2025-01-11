@@ -889,12 +889,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-11-18 the number of lines is:
+than 400000 lines of Seed7. For version 2025-01-11 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">184755</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13784</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">262947</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">193729</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">184871</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13806</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">267373</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">197752</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1231,6 +1231,7 @@ chkenum ........... okay
 chktime ........... okay
 chkscan ........... okay
 chkjson ........... okay
+chktoml ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay
@@ -2493,7 +2494,8 @@ Computing a regular expression usually takes more time than a dedicated
 function for a specific purpose. There are other difficulties too. Regular
 expressions work typeless but Seed7 does not. For this reasons regular
 expressions are currently not supported, but there are alternatives
-(see below). For simple cases the functions <span class="func">startsWith</span> and <span class="func">endsWith</span> can be used. E.g.:
+(see below for <a class="link" href="#faq_scanner_functions">scanner functions</a>). For simple cases the functions
+<span class="func">startsWith</span> and <span class="func">endsWith</span> can be used. E.g.:
 </p><pre class="indent">
 <span class="keywd">if</span> <span class="func">endsWith</span>(fileName, <span class="stri">".sd7"</span>) <span class="keywd">then</span>
   ...
@@ -2511,16 +2513,31 @@ replacement for regular expressions in many situations.
 <div><br /><a name="faq_scanner_functions"><h3>What are scanner functions?
 </h3></a><hr />
 <p>
-Scanner functions read a symbol from a <tt><span class="type">string</span></tt> or <tt><span class="type">file</span></tt>. The symbol read
-is removed from the beginning of the <tt><span class="type">string</span></tt> respectively <tt><span class="type">file</span></tt>. If the
-variable <tt>stri</tt> has the value <span class="stri">"12ab"</span> the function
+Scanner functions work strictly from left to right. They read a symbol
+from a <tt><span class="type">string</span></tt> or <tt><span class="type">file</span></tt>. The symbol read is removed from the beginning of
+the <tt><span class="type">string</span></tt> respectively <tt><span class="type">file</span></tt>. There are scanner functions for different
+kinds of symbols. E.g.: If the variable <tt>stri</tt> has the value <span class="stri">"12ab"</span> the function
 </p><pre class="indent">
 <span class="func">getDigits</span>(stri)
 </pre><p>
-returns <span class="stri">"12"</span> and <tt>stri</tt> has the value <span class="stri">"ab"</span> afterwards. The library
-<span class="lib">scanstri.s7i</span> supports scanning from a <tt><span class="type">string</span></tt>. It defines the following
-functions:
-</p><pre class="indent">
+returns <span class="stri">"12"</span> and <tt>stri</tt> has the value <span class="stri">"ab"</span> afterwards. Other
+scanner functions are:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right"><span class="func">getName</span></td> <td width="20"></td>       <td>Read an alphanumeric name</td></tr>
+  <tr><td align="right"><span class="func">getWord</span></td> <td width="20"></td>       <td>Read a white space delimited word</td></tr>
+  <tr><td align="right"><span class="func">getInteger</span></td> <td width="20"></td>    <td>Read a decimal integer with optional sign</td></tr>
+  <tr><td align="right"><span class="func">getNumber</span></td> <td width="20"></td>     <td>Read a numeric integer or float literal</td></tr>
+  <tr><td align="right"><span class="func">getQuotedText</span></td> <td width="20"></td> <td>Read a text quoted with characters like " and '</td></tr>
+  <tr><td align="right"><span class="func">getLine</span></td> <td width="20"></td>       <td>Read a line</td></tr>
+</table></dd></dl><p>
+There are also scanner functions which just skip symbols without returning them:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right"><span class="func">skipWhiteSpace</span></td> <td width="20"></td> <td>Skip whitespace characters</td></tr>
+  <tr><td align="right"><span class="func">skipClassicComment</span></td> <td width="20"></td> <td>Skip a classic C comment</td></tr>
+</table></dd></dl><p>
+The library <span class="lib">scanstri.s7i</span> supports scanning from a <tt><span class="type">string</span></tt>. It defines
+the following functions:
+</p><dl><dd><p>
 <span class="func">skipComment</span>, <span class="func">getComment</span>, <span class="func">skipClassicComment</span>, <span class="func">skipLineComment</span>,
 <span class="func">getLineComment</span>, <span class="func">getDigits</span>, <span class="func">getInteger</span>, <span class="func">getNumber</span>, <span class="func">getNonDigits</span>,
 <span class="func">getQuotedText</span>, <span class="func">getCommandLineWord</span>, <span class="func">getSimpleStringLiteral</span>,
@@ -2531,7 +2548,7 @@ functions:
 <span class="func">getXmlCdataContent</span>, <span class="func">getXmlTagHeadOrContent</span>, <span class="func">getSymbolInXmlTag</span>,
 <span class="func">skipXmlTag</span>, <span class="func">getNextXmlAttribute</span>, <span class="func">getHtmlAttributeValue</span>,
 <span class="func">getNextHtmlAttribute</span>, <span class="func">getHttpSymbol</span>
-</pre><p>
+</p></dd></dl><p>
 The library <span class="lib">scanfile.s7i</span> supports scanning from a <tt><span class="type">file</span></tt>. It defines
 functions similar to the ones defined by <span class="lib">scanstri.s7i</span>.
 </p><p>

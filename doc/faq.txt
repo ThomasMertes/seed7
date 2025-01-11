@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2024-11-18 the number of lines is:
+than 400000 lines of Seed7. For version 2025-01-11 the number of lines is:
 
-  184755  C source files (*.c)
-   13784  C header files (*.h)
-  262947  Seed7 source files (*.sd7)
-  193729  Seed7 library/include files (*.s7i)
+  184871  C source files (*.c)
+   13806  C header files (*.h)
+  267373  Seed7 source files (*.sd7)
+  197752  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -688,6 +688,7 @@ information from the interpreter):
   chktime ........... okay
   chkscan ........... okay
   chkjson ........... okay
+  chktoml ........... okay
   chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
@@ -1951,7 +1952,8 @@ Computing a regular expression usually takes more time than a dedicated
 function for a specific purpose. There are other difficulties too. Regular
 expressions work typeless but Seed7 does not. For this reasons regular
 expressions are currently not supported, but there are alternatives
-(see below). For simple cases the functions startsWith and endsWith can be used. E.g.:
+(see below for scanner functions). For simple cases the functions
+startsWith and endsWith can be used. E.g.:
 
   if endsWith(fileName, ".sd7") then
     ...
@@ -1969,15 +1971,30 @@ replacement for regular expressions in many situations.
 What are scanner functions?
 ===========================
 
-Scanner functions read a symbol from a string or file. The symbol read
-is removed from the beginning of the string respectively file. If the
-variable 'stri' has the value "12ab" the function
+Scanner functions work strictly from left to right. They read a symbol
+from a string or file. The symbol read is removed from the beginning of
+the string respectively file. There are scanner functions for different
+kinds of symbols. E.g.: If the variable 'stri' has the value "12ab" the function
 
   getDigits(stri)
 
-returns "12" and 'stri' has the value "ab" afterwards. The library
-scanstri.s7i supports scanning from a string. It defines the following
-functions:
+returns "12" and 'stri' has the value "ab" afterwards. Other
+scanner functions are:
+
+  getName        Read an alphanumeric name
+  getWord        Read a white space delimited word
+  getInteger     Read a decimal integer with optional sign
+  getNumber      Read a numeric integer or float literal
+  getQuotedText  Read a text quoted with characters like " and '
+  getLine        Read a line
+
+There are also scanner functions which just skip symbols without returning them:
+
+  skipWhiteSpace  Skip whitespace characters
+  skipClassicComment  Skip a classic C comment
+
+The library scanstri.s7i supports scanning from a string. It defines
+the following functions:
 
   skipComment, getComment, skipClassicComment, skipLineComment,
   getLineComment, getDigits, getInteger, getNumber, getNonDigits,

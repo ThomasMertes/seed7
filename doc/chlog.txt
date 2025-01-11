@@ -1,3 +1,166 @@
+20250111:
+- The answer concerning scanner functions in the FAQ has been
+  improved.
+- The new library scantoml.s7i with string and file scanner
+  functions for TOML symbols has been added.
+- SHA-3 message digest functions have been added to the
+  msgdigest.s7i library.
+- The new library bzip2.s7i has been added. This library supports
+  the decompression of BZIP2 compressed data.
+- The new library archive.s7i has been added. This library supports
+  opening TAR, CPIO, ZIP, RPM and AR archives. Which archive to open
+  is decided either by magic number or by the file extension.
+- The library zip.s7i has been improved:
+  - Support for the compression methods Shrink, Deflate64, bzip2,
+    LZMA, Zstandard and XZ has been added.
+  - Support for references to existing files in the archive
+    (identified with compression method 92) has been added.
+  - When opening a ZIP archive the ZIP magic is checked.
+  - Constants for compression methods and extra field IDs have
+    been introduced.
+  - Corrupt extra fields are ignored now and the function
+    writeExtraField() has been improved.
+  - Now the functions inflate() and inflate64() are invoked with
+    the file as parameter. This saves memory if the comressed data
+    is huge.
+  - The functions initializeFileReferenceMap, getReferencePaths,
+    lzwDecompressShrink, getReference and readDataDescriptor have
+    been added.
+  - The write permission obtained with getFileMode() when the host
+    system is DOS have been changed.
+- The tar7 example program has been improved:
+  - Support to list, extract and create ZIP, RPM, CPIO and AR
+    archives has been added.
+  - Support to list and extract BZIP2 compressed TAR archives has
+    been added.
+- Support for the enhanced deflate (deflate64) compression has been
+  added to the library inflate.s7i.
+- In inflate.s7i the functions decodeLength and decodeDistance have
+  been refactored.
+- In deflate.s7i the function deflateBlock() has been refactored
+  and renamed to deflate(). The function deflate() now creates
+  multiple deflate blocks. Calls of deflateBlock() in gzip.s7i
+  have been adjusted.
+- The function lzwDecompressShrink has been added to the library
+  lzw.s7i.
+- The decompression functions in lzw.s7i have been improved to use
+  fixed size arrays.
+- In bitdata.s7i the function eof() has been added for the types
+  lsbInBitStream and msbInBitStream.
+- In bitdata.s7i the performance of getBits(msbInBitStream) has
+  been improved by 20% and the performance of
+  getBits(lsbInBitStream) has been improved by 15%.
+- In chkbitdata.sd7 tests for getBit() and getBits() have been
+  improved and tests for bit-stream eof() have been added.
+- In chktime.sd7 tests for the string to time conversion have been
+  added.
+- The new test program chktoml.sd7, with tests for the TOML scanner
+  functions, has been added.
+- Support for the CRC-32 cyclic redundancy check of BZIP2 has been
+  added to the library crc32.s7i.
+- In magic.s7i support for MAGIC_BZIP2 has been added to the
+  function getMagic.
+- The library tar.s7i has been improved to process UTF-8 paths
+  only if TAR_MAGIC is okay.
+- The library tar_cmds.s7i has been improved to support listing,
+  extracting and creating ZIP, RPM, CPIO and AR archives.
+- Support to list and extract BZIP2 compressed TAR archives has
+  been added to tar_cmds.s7i.
+- The library rpm.s7i has been improved to support a BZIP2
+  compressed payload.
+- In rpm.s7i the function readLead() has been improved to check if
+  packageType is in the allowed range.
+- The function xzDecompress has been added to the xz.s7i library.
+- The function zstdDecompress has been added to the zstd.s7i
+  library.
+- The function lzmaDecompress has been added to the lzma.s7i
+  library.
+- The library gif.s7i has been improved to read past unknown
+  extension blocks.
+- The library jpeg.s7i has been improved to ignore a superfluous
+  restart marker after the last ECS segment.
+- The library png.s7i has been improved to only raise RANGE_ERROR
+  if the CRC of a critical chunk is incorrect.
+- The json.s7i library has been improved:
+  - A for-each-loop which loops over the keys has been added.
+  - A for-each-loop which loops over keys and values has been
+    added.
+  - Functions to create a JSON object have been added.
+- In scanjson.s7i the function getJsonString has been refactored.
+- In chkjson.sd7 the tests of getJsonString() and getJsonNumber()
+  have been refactored. Tests for getJsonNumber() have been
+  added.
+- Tests for JSON strings with \u parts have been added to
+  chkjson.sd7.
+- The function createMsbHuffmanDecoder with codeLengths parameter
+  has been added to the library huffman.s7i.
+- In huffman.s7i the function createMsbHuffmanDecoder has been
+  refactored to use a for-loop with a repeat count. The unused
+  local variable currentCode has been removed.
+- In ccittfax.s7i the function addCode(msbHuffmanDecoder, ...)
+  has been refactored to use a for-loop with a repeat count.
+- The functions ceil() and floor() have been moved from the
+  math.s7i library to the float.s7i library.
+- The function round10() has been added to the float.s7i library.
+- The library httpserv.s7i has been improved to leave the loop
+  which reads the HTTP header after the double CR LF sequence.
+- The config value WITH_RTL_ARRAY_CAPACITY has been added to the
+  library cc_conf.s7i and to the programs confval.sd7 and
+  s7c.sd7.
+- The documentation of the parse operator hs been improved in
+  bigint.s7i and integer.s7i.
+- The documentation of the digits and sci operators has been
+  improved in bigint.s7i, bigrat.s7i, float.s7i, integer.s7i and
+  rational.s7i.
+- The documentation of the exp operator in float.s7i has been
+  improved.
+- The documentation of the bin64 conversion functions in
+  bin64.s7i has been improved.
+- The documentation of the mode parameter in file open functions
+  has been improved.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - Special cases of string append (&:=) now use the functions
+    strAppendChMult() and strAppendZeroMult().
+  - Optimizations for bytes2Int(aString, SIGNED, BE) and
+    bytes2Int(aString, SIGNED, LE) have been added.
+  - In arr_act.s7i the function process (ARR_IDX, ...) has been
+    improved to avoid subtracting minIdx if it is zero.
+- Tests for string append with the mult operator (e.g.:
+  stri &:= "x" mult n;) have been added to chkstr.sd7.
+- Tests for the bytes2Int(aString, SIGNED, BE) and
+  bytes2Int(aString, SIGNED, LE) optimizations have been added to
+  chkint.sd7.
+- In filesys.s7i and osfiles.s7i the deprecated function readlink()
+  has been removed. The function readLink() should be used instead.
+- In unicode.s7i the deprecated functions striToUtf8() and
+  utf8ToStri(), have been removed. The functions toUtf8() and
+  fromUtf8() should be used instead.
+- In graph.s7i the deprecated function DRAW_FLUSH() has been
+  removed. The function flushGraphic() should be used instead.
+- In graph.s7i the deprecated function setCloseAction() has been
+  removed. Instead of setCloseAction(popupWindow, RETURN_KEY); the
+  statement selectInput(popupWindow, KEY_CLOSE, TRUE); should be
+  used.
+- In draw.s7i the deprecated put() functions with PSET and XOR
+  parameter have been removed. The functions without PSET
+  respectively XOR should be used instead.
+- Support for the action DRW_SET_CLOSE_ACTION has been removed from
+  interpreter and compiler.
+- In arr_rtl.c the logging functions have been improved.
+- The files arrlib.c, arr_rtl.c, cmd_rtl.c, config.h, heaputl.h,
+  libpath.c, strlib.h and str_rtl.c have been prepared for arrays
+  with capacity.
+- The files cmd_rtl.c, data.h and data_rtl.h have been changed to
+  support the config value WITH_RTL_ARRAY_CAPACITY.
+- In drw_emc.c the function reloadPage has been changed to wait for
+  a quarter of a second.
+- The functions strAppendChMult() and strAppendZeroMult() have been
+  added to str_rtl.c.
+- Documentation comments have been improved in bigint.s7i,
+  bigrat.s7i, clib_file.s7i, external_file.s7i, float.s7i, ftp.s7i,
+  huffman.s7i, integer.s7i, json.s7i, lzma.s7i, lzw.s7i,
+  tar_cmds.s7i, fillib.c and fil_rtl.c.
+
 20241118:
 - A new Seed7 installer for Windows (seed7_05_20240812_win.exe) has
   been released. This installer correctly identifies if the Windows

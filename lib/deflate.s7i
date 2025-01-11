@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  deflate.s7i   Deflate compression algorithm                     *)
-(*  Copyright (C) 2013, 2015, 2020, 2023, 2024  Thomas Mertes       *)
+(*  Copyright (C) 2013, 2015, 2020, 2023 - 2025  Thomas Mertes      *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
