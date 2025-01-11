@@ -225,7 +225,7 @@ const func string: gzcompress (in string: uncompressed) is func
     var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   begin
     write(compressedStream, GZ_MAGIC);
-    deflateBlock(uncompressed, compressedStream, TRUE);
+    deflate(uncompressed, compressedStream);
     flush(compressedStream);
     compressed := getBytes(compressedStream);
   end func;
@@ -463,7 +463,7 @@ const func string: gzip (in string: uncompressed) is func
           bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
           "\0;" &  # Extra flags
           "\3;");  # Operating system: Unix
-    deflateBlock(uncompressed, compressedStream, TRUE);
+    deflate(uncompressed, compressedStream);
     flush(compressedStream);
     compressed := getBytes(compressedStream);
     compressed &:= bytes(ord(crc32(uncompressed)),         UNSIGNED, LE, 4) &

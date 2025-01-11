@@ -681,12 +681,12 @@ const proc: deflateBlock (inout deflateData: deflateState,
     if uncompressedSize <= 66 then
       # For this cases deflateFixed compresses better than deflateDynamic.
       putBit(compressedStream, ord(bfinal));
-      deflateFixed(deflateState, uncompressed, length(uncompressed), compressedStream);
+      deflateFixed(deflateState, uncompressed, limit, compressedStream);
     else
       # For uncompressedSize >= 5555 deflateDynamic compresses better than deflateFixed.
       # For around 92% of the cases getween 67 and 5554 deflateDynamic compresses better.
       putBit(compressedStream, ord(bfinal));
-      deflateDynamic(deflateState, uncompressed, length(uncompressed), compressedStream);
+      deflateDynamic(deflateState, uncompressed, limit, compressedStream);
     end if;
     compressedSize := succ(pred(length(compressedStream) - compressedStart) mdiv 8);
     if compressedSize >= uncompressedSize + 4 then
@@ -701,24 +701,39 @@ const proc: deflateBlock (inout deflateData: deflateState,
  *  Compress a string with the DEFLATE algorithm.
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
+ *  @param uncompressed String to be compressed with DEFLATE.
+ *  @param compressedStream LSB orderd bit stream to which the deflated data written.
  *)
-const proc: deflateBlock (in string: uncompressed,
-    inout lsbOutBitStream: compressedStream, in boolean: bfinal) is func
+const proc: deflate (in string: uncompressed,
+    inout lsbOutBitStream: compressedStream) is func
   local
+    const integer: blockSize is 1000000;
     var deflateData: deflateState is deflateData.value;
   begin
+    while deflateState.uncompressedPos + blockSize < length(uncompressed) do
+      deflateBlock(deflateState, uncompressed,
+                   deflateState.uncompressedPos + blockSize,
+                   compressedStream, FALSE);
+    end while;
     deflateBlock(deflateState, uncompressed, length(uncompressed),
-                 compressedStream, bfinal);
+                 compressedStream, TRUE);
   end func;
 
 
+(**
+ *  Compress a string with the DEFLATE algorithm.
+ *  DEFLATE is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *  @param uncompressed String to be compressed with DEFLATE.
+ *  @return a string of bytes with the deflated data.
+ *)
 const func string: deflate (in string: uncompressed) is func
   result
     var string: compressed is "";
   local
     var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
   begin
-    deflateBlock(uncompressed, compressedStream, TRUE);
+    deflate(uncompressed, compressedStream);
     flush(compressedStream);
     compressed := getBytes(compressedStream);
   end func;
