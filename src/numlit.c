@@ -329,6 +329,7 @@ static inline floatType readFloat (void)
         if (char_class(in_file.character) == DIGITCHAR) {
           readDecimal(position);
         } else {
+          symbol.name[position] = '\0';
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } /* if */
@@ -337,44 +338,10 @@ static inline floatType readFloat (void)
 #else
       result = (floatType) strtod((cstriType) symbol.name, NULL);
 #endif
-      if (in_file.character == '\'') {
-        in_file.character = next_character();
-        if (char_class(in_file.character) == DIGITCHAR) {
-          readDecimal(position);
-        } else {
-          err_cchar(DIGITEXPECTED, in_file.character);
-        } /* if */
-      } /* if */
     } else {
-#if ATOF_ACCEPTS_DENORMAL_NUMBERS
-      result = (floatType) atof((cstriType) symbol.name);
-#else
-      result = (floatType) strtod((cstriType) symbol.name, NULL);
-#endif
-      if (in_file.character == '\'') {
-        in_file.character = next_character();
-        if (char_class(in_file.character) == DIGITCHAR) {
-          readDecimal(position);
-        } else {
-          err_cchar(DIGITEXPECTED, in_file.character);
-        } /* if */
-      } else {
-        err_cchar(DIGITEXPECTED, in_file.character);
-      } /* if */
-    } /* if */
-    if (in_file.character == '~') {
-      in_file.character = next_character();
-    } /* if */
-    if (in_file.character == 'E' || in_file.character == 'e') {
-      in_file.character = next_character();
-      if (in_file.character == '+' || in_file.character == '-') {
-        in_file.character = next_character();
-      } /* if */
-      if (char_class(in_file.character) == DIGITCHAR) {
-        readDecimal(position);
-      } else {
-        err_cchar(DIGITEXPECTED, in_file.character);
-      } /* if */
+      symbol.name[position] = '\0';
+      err_cchar(DIGITEXPECTED, in_file.character);
+      result = 0.0;
     } /* if */
     logFunction(printf("readFloat --> " FMT_E "\n", result););
     return result;
