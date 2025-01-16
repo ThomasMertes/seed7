@@ -73,6 +73,33 @@ static const char esc_tab[] = {
 
 
 
+static int skip_lines (register int character)
+
+  { /* skip_lines */
+    do {
+      SKIP_CR_SP(character);
+      if (character == '#') {
+        SKIP_TO_NL(character);
+#if WITH_STATISTIC
+        comment_count++;
+#endif
+      } /* if */
+      INCR_LINE_COUNT(in_file.line);
+    } while (character == '\n');
+    symbol.syNumberInLine = 0;
+    if (character == '\\') {
+      character = next_character();
+    } else {
+      err_cchar(BACKSLASHEXPECTED, character);
+      if (character == '\"') {
+        character = next_character();
+      } /* if */
+    } /* if */
+    return character;
+  } /* skip_lines */
+
+
+
 static unsigned int escape_sequence (unsigned int position)
 
   {
@@ -81,22 +108,7 @@ static unsigned int escape_sequence (unsigned int position)
   /* escape_sequence */
     character = next_character();                               /*  0.05% */
     if (character == '\n') {
-      do {
-        SKIP_CR_SP(character);
-        if (character == '#') {
-          SKIP_TO_NL(character);
-#if WITH_STATISTIC
-          comment_count++;
-#endif
-        } /* if */
-        INCR_LINE_COUNT(in_file.line);
-      } while (character == '\n');
-      symbol.syNumberInLine = 0;
-      if (character == '\\') {
-        character = next_character();
-      } else {
-        err_cchar(BACKSLASHEXPECTED, character);
-      } /* if */
+      character = skip_lines(character);
     } else if (character == ' ' || character == '\t' ||
         character == '\r') {
       SKIP_CR_SP(character);
@@ -106,21 +118,14 @@ static unsigned int escape_sequence (unsigned int position)
         comment_count++;
 #endif
       } /* if */
-      while (character == '\n') {
-        SKIP_CR_SP(character);
-        if (character == '#') {
-          SKIP_TO_NL(character);
-#if WITH_STATISTIC
-          comment_count++;
-#endif
-        } /* if */
-        INCR_LINE_COUNT(in_file.line);
-        symbol.syNumberInLine = 0;
-      } /* while */
-      if (character == '\\') {
-        character = next_character();
+      if (character == '\n') {
+        character = skip_lines(character);
       } else {
-        err_cchar(BACKSLASHEXPECTED, character);
+        if (character == '\\') {
+          character = next_character();
+        } else {
+          err_cchar(BACKSLASHEXPECTED, character);
+        } /* if */
       } /* if */
     } else if (char_class(character) == DIGITCHAR) {
       in_file.character = character;
