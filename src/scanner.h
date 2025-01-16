@@ -27,3 +27,5 @@
 
 void scan_byte_order_mark (void);
 void scan_symbol (void);
+void skip_char (int character);
+void skip_past_char (int character);

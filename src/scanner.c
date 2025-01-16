@@ -423,3 +423,45 @@ void scan_symbol (void)
     } /* switch */
     logFunction(printf("scan_symbol --> %d\n", symbol.sycategory););
   } /* scan_symbol */
+
+
+
+static void skip_whitespace (void)
+
+  {
+    int character;
+
+  /* skip_whitespace */
+    character = in_file.character;
+    if (character == ' ' || character == '\t') {
+      SKIP_SPACE(character);
+    } else if (character == '\n') {
+      SKIP_CR_SP(character);
+      INCR_LINE_COUNT(in_file.line);
+      symbol.syNumberInLine = 0;
+    } /* if */
+    in_file.character = character;
+  } /* skip_whitespace */
+
+
+
+void skip_char (int character)
+
+  { /* skip_char */
+    skip_whitespace();
+    if (in_file.character == character) {
+      scan_symbol();
+    } /* if */
+  } /* skip_char */
+
+
+
+void skip_past_char (int character)
+
+  { /* skip_past_char */
+    skip_whitespace();
+    if (in_file.character == character) {
+      scan_symbol();
+      scan_symbol();
+    } /* if */
+  } /* skip_past_char */

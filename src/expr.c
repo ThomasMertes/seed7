@@ -117,6 +117,7 @@ static objectType read_call_expression (boolType do_match_expr)
           scan_symbol();
         } else {
           err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
+          skip_past_char(')');
         } /* if */
       } /* if */
     } else {
@@ -143,6 +144,7 @@ static objectType read_call_expression (boolType do_match_expr)
             scan_symbol();
           } else {
             err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
+            skip_past_char(')');
           } /* if */
         } /* if */
       } /* if */
@@ -185,6 +187,7 @@ static objectType read_dot_subexpression (boolType do_match_expr)
           scan_symbol();
         } else {
           err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
+          skip_past_char(')');
         } /* if */
       } /* if */
     } else {

@@ -367,6 +367,7 @@ static inline void declAny (nodeType objects)
         } /* if */
         if (current_ident != prog->id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
+          skip_char(';');
         } /* if */
         set_fail_flag(FALSE);
         evaluate(declExpression);
