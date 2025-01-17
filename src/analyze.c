@@ -362,20 +362,22 @@ static inline void declAny (nodeType objects)
         printf("<<<\n");
         fflush(stdout);
 #endif
-        if (CATEGORY_OF_OBJ(declExpression) == EXPROBJECT) {
-          match_expression(declExpression);
-        } /* if */
-        if (current_ident != prog->id_for.semicolon) {
-          err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
-          skip_char(';');
-        } /* if */
-        set_fail_flag(FALSE);
-        evaluate(declExpression);
-        if (unlikely(fail_flag)) {
-          err_object(EXCEPTION_RAISED, fail_value);
+        if (declExpression != NULL) {
+          if (CATEGORY_OF_OBJ(declExpression) == EXPROBJECT) {
+            match_expression(declExpression);
+          } /* if */
+          if (current_ident != prog->id_for.semicolon) {
+            err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
+            skip_char(';');
+          } /* if */
           set_fail_flag(FALSE);
+          evaluate(declExpression);
+          if (unlikely(fail_flag)) {
+            err_object(EXCEPTION_RAISED, fail_value);
+            set_fail_flag(FALSE);
+          } /* if */
+          free_expression(declExpression);
         } /* if */
-        free_expression(declExpression);
         if (current_ident == prog->id_for.semicolon) {
           scan_symbol();
         } /* if */
