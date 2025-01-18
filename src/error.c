@@ -992,6 +992,10 @@ void err_warning (errorType err)
         prot_cstri("\"func\" or \"type\" expected found");
         write_symbol();
         break;
+      case ESSENTIAL_INCLUDE_FAILED:
+        prot_cstri("Failed to include essential file. Parsing terminated.");
+        prot_nl();
+        break;
       case SYSTEM_MAIN_MISSING:
         prot_cstri("System declaration for main missing");
         prot_nl();
