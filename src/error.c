@@ -1165,6 +1165,10 @@ void err_object (errorType err, const_objectType obj_found)
         prot_cstri(" declared twice");
         prot_nl();
         break;
+      case EXPR_EXPECTED:
+        prot_cstri("Expression expected found ");
+        printobject(obj_found);
+        break;
       case DOT_EXPR_EXPECTED:
         prot_cstri("Dot expression expected as syntax description, found ");
         printobject(obj_found);
