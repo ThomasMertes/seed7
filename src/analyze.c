@@ -500,14 +500,12 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         set_protfile_name(protFileName);
         prog = resultProg;
         declAny(resultProg->declaration_root);
-        prog = progBackup;
         if (MAIN_OBJECT(resultProg) == NULL) {
-          resultProg->error_count++;
-          prot_cstri("*** System declaration for main missing");
-          prot_nl();
+          err_warning(SYSTEM_MAIN_MISSING);
         } else {
           resultProg->main_object = MAIN_OBJECT(resultProg);
         } /* if */
+        prog = progBackup;
         /* To get a nice list of files with the option -v closeInfile() */
         /* is executed before write_idents() and show_statistic().      */
         closeInfile();

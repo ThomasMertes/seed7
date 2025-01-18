@@ -992,6 +992,10 @@ void err_warning (errorType err)
         prot_cstri("\"func\" or \"type\" expected found");
         write_symbol();
         break;
+      case SYSTEM_MAIN_MISSING:
+        prot_cstri("System declaration for main missing");
+        prot_nl();
+        break;
       default:
         undef_err();
         break;
@@ -1168,6 +1172,7 @@ void err_object (errorType err, const_objectType obj_found)
       case EXPR_EXPECTED:
         prot_cstri("Expression expected found ");
         printobject(obj_found);
+        prot_nl();
         break;
       case DOT_EXPR_EXPECTED:
         prot_cstri("Dot expression expected as syntax description, found ");
