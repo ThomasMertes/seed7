@@ -321,7 +321,7 @@ void closeInfile (void)
     } /* if */
 #if !USE_ALTERNATE_NEXT_CHARACTER
 #if USE_INFILE_BUFFER
-    if (in_file.BUFFER != NULL) {
+    if (in_file.buffer != NULL) {
       FREE_BYTES(in_file.buffer, SIZE_IN_BUFFER);
     } /* if */
 #endif
@@ -400,6 +400,8 @@ boolType openString (bstriType inputString, boolType write_library_names,
         } /* if */
       } /* if */
     } /* if */
+#else
+    *err_info = MEMORY_ERROR;
 #endif
     logFunction(printf("openString --> %d (err_info=%d)\n", isOpen, *err_info););
     return isOpen;
@@ -455,7 +457,6 @@ void next_file (void)
 
   { /* next_file */
     logFunction(printf("next_file\n"););
-    in_file.line--;
     if (in_file.up_infile != NULL) {
       closeInfile();
     } else {

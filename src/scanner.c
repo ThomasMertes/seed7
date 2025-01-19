@@ -192,8 +192,22 @@ static void scan_illegal (void)
 
 static inline void scan_eof (void)
 
-  { /* scan_eof */
+  {
+    long eof_position;
+
+  /* scan_eof */
     logFunction(printf("scan_eof\n"););
+    eof_position = IN_FILE_TELL();
+    if (eof_position > 0) {
+      IN_FILE_SEEK(eof_position - 1);
+      /* Check if EOF was preceded by a newline. */
+      if (next_character() == '\n') {
+        /* Set in_file.line to the actual lines in the file. */
+        in_file.line--;
+      } /* if */
+      /* Read EOF again. */
+      next_character();
+    } /* if */
     if (symbol.sycategory == STOPSYMBOL) {
       err_warning(EOF_ENCOUNTERED);
     } else {
