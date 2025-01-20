@@ -51,10 +51,8 @@ $ 12345;         (* Name expected found "12345"         *)
 $ syntax expr:   (* Integer literal expected found "x"  *)  l2 is -> x;
 $ include 1;     (* String literal expected found "1"   *)
 const integer:   (* Identifier expected found "asdf"    *)  "asdf" is 1;
-const proc: (ref char param) ::= (ref integer param) is func
-  begin
-    raise NUMERIC_ERROR;
-  end func;
+const proc: (ref char param) ::= (ref integer param) is
+  return raise NUMERIC_ERROR;
 const char:      (* Declaration of "j3" failed          *)  j3 is 1;
                  (* Exception "RANGE_ERROR" raised      *)  raise RANGE_ERROR;
 const integer:   (* Previous declaration of "num1"      *)  num1 is 1;
@@ -62,7 +60,7 @@ const integer:   (* Redeclaration of "num1"             *)  num1 is 1;
 $ syntax expr:   (* Associativity expected found "x"                      *)  .h is x 1;
 $ syntax expr:   (* Statement priority "999999" too big                   *)  .j is -> 999999;
 $ syntax expr:   (* Syntax with two parameters before operator is illegal *)  .().().x is -> 1;
-$ syntax expr:   (* Dot expression requested as syntax description        *)  .() is -> 1;
+$ syntax expr:   (* Dot expression expected as syntax description, found ({}) *)  .() is -> 1;
 $ syntax expr: .().a2 is -> 5;
 $ syntax expr:   (* "a2" redeclared with infix priority 7 not 5           *)  .().a2 is -> 7;
 $ syntax expr: .().inx.() is <-> 12;
