@@ -949,9 +949,15 @@ const type: zipReferenceMapType is hash [bin32] array integer;
 
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access ZIP and JAR archives.
- *  The zip file system does not support the concept of a current
+ *  The ZIP format specification defines several compression methods.
+ *  The ZIP file system supports the decompression of files compressed
+ *  with store, shrink, deflate, deflate64, bzip2, LZMA, Zstandard
+ *  and XZ. References to files in the archive are supported with the
+ *  compression method 92. In accordance with the ISO/IEC 21320-1
+ *  standard files are only written with the methods store and deflate.
+ *  The ZIP file system does not support the concept of a current
  *  working directory. The functions chdir and getcwd are not supported
- *  by the zip file system. The root path of a zip file system is "".
+ *  by the ZIP file system. The root path of a ZIP file system is "".
  *)
 const type: zipArchive is sub emptyFileSys struct
     var file: zipFile is STD_NULL;
