@@ -455,6 +455,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                 printf("\"%s\", %d)\n",
                        striAsUnquotedCStri(protFileName), *err_info););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
+      closeInfile();
       *err_info = MEMORY_ERROR;
     } else {
       memset(resultProg, 0, sizeof(progRecord));

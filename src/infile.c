@@ -350,6 +350,7 @@ boolType openString (bstriType inputString, boolType write_library_names,
     memSizeType name_length;
     ustriType name_ustri;
     striType in_name;
+    FILE *in_fil;
     boolType isOpen = FALSE;
 
   /* openString */
@@ -357,7 +358,6 @@ boolType openString (bstriType inputString, boolType write_library_names,
                        bstriAsUnquotedCStri(inputString),
                        write_library_names, write_line_numbers,
                        *err_info););
-#if USE_ALTERNATE_NEXT_CHARACTER
     if (*err_info == OKAY_NO_ERROR) {
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;
@@ -369,40 +369,72 @@ boolType openString (bstriType inputString, boolType write_library_names,
           UNALLOC_USTRI(name_ustri, name_length);
           *err_info = MEMORY_ERROR;
         } else {
-          COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          memcpy(name_ustri, sourceFileName, name_length);
-          name_ustri[name_length] = '\0';
-          in_name->size = name_length;
-          memcpy_to_strelem(in_name->mem, name_ustri, name_length);
-          if (in_file.curr_infile != NULL) {
-            memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
+#if USE_ALTERNATE_NEXT_CHARACTER
+          in_fil = NULL;
+#else
+          in_fil = tmpfile();
+          if (unlikely(in_fil == NULL)) {
+            logError(printf("openString: tmpfile() failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            errno, strerror(errno)););
+            *err_info = FILE_ERROR;
+          } else {
+            if (fwrite(inputString->mem, 1, inputString->size, in_fil) ==
+                inputString->size) {
+              rewind(in_fil);
+            } else {
+              logError(printf("openString: writing to temporary file failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              errno, strerror(errno)););
+              *err_info = FILE_ERROR;
+              fclose(in_fil);
+              in_fil = NULL;
+            } /* if */
           } /* if */
-          in_file.fil = NULL;
-          in_file.name_ustri = name_ustri;
-          in_file.name = in_name;
-          in_file.start = inputString->mem;
-          in_file.nextch = in_file.start;
-          in_file.beyond = in_file.start + inputString->size;
-          in_file.buffer_size = 0;
-          in_file.character = next_character();
-          in_file.line = 1;
-          file_counter++;
-          in_file.file_number = file_counter;
-          in_file.owningProg = NULL; /* Is set in analyze_prog() */
-          open_compilation_info(write_library_names, write_line_numbers);
-          in_file.end_of_file = FALSE;
-          in_file.up_infile = in_file.curr_infile;
-          in_file.curr_infile = new_file;
-          in_file.next = file_pointer;
-          file_pointer = new_file;
-          memcpy(new_file, &in_file, sizeof(inFileRecord));
-          isOpen = TRUE;
+          if (unlikely(in_fil == NULL)) {
+            UNALLOC_USTRI(name_ustri, name_length);
+            FREE_STRI(in_name, name_length);
+          } else
+#endif
+          {
+            COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
+            memcpy(name_ustri, sourceFileName, name_length);
+            name_ustri[name_length] = '\0';
+            in_name->size = name_length;
+            memcpy_to_strelem(in_name->mem, name_ustri, name_length);
+            if (in_file.curr_infile != NULL) {
+              memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
+            } /* if */
+            in_file.fil = in_fil;
+            in_file.name_ustri = name_ustri;
+            in_file.name = in_name;
+#if USE_ALTERNATE_NEXT_CHARACTER
+            in_file.start = inputString->mem;
+            in_file.nextch = in_file.start;
+            in_file.beyond = in_file.start + inputString->size;
+            in_file.buffer_size = 0;
+#else
+#if USE_INFILE_BUFFER
+            in_file.buffer = NULL;
+#endif
+#endif
+            in_file.character = next_character();
+            in_file.line = 1;
+            file_counter++;
+            in_file.file_number = file_counter;
+            in_file.owningProg = NULL; /* Is set in analyze_prog() */
+            open_compilation_info(write_library_names, write_line_numbers);
+            in_file.end_of_file = FALSE;
+            in_file.up_infile = in_file.curr_infile;
+            in_file.curr_infile = new_file;
+            in_file.next = file_pointer;
+            file_pointer = new_file;
+            memcpy(new_file, &in_file, sizeof(inFileRecord));
+            isOpen = TRUE;
+          }
         } /* if */
       } /* if */
     } /* if */
-#else
-    *err_info = MEMORY_ERROR;
-#endif
     logFunction(printf("openString --> %d (err_info=%d)\n", isOpen, *err_info););
     return isOpen;
   } /* openString */
