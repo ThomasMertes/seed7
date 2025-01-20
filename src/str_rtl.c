@@ -1708,6 +1708,8 @@ intType strChIPos (const const_striType mainStri, const charType searched,
       found_pos = memchr_strelem(&main_mem[startIndex], searched,
           mainStri->size - (memSizeType) startIndex);
       if (found_pos != NULL) {
+        logFunction(printf("strChIPos --> " FMT_D "\n",
+                           ((intType) (found_pos - main_mem)) + 1););
         return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
     } else if (unlikely(fromIndex <= 0)) {
@@ -1716,6 +1718,7 @@ intType strChIPos (const const_striType mainStri, const charType searched,
                       striAsUnquotedCStri(mainStri), searched, fromIndex););
       raise_error(RANGE_ERROR);
     } /* if */
+    logFunction(printf("strChIPos --> 0\n"););
     return 0;
   } /* strChIPos */
 
@@ -1776,9 +1779,12 @@ intType strChPos (const const_striType mainStri, const charType searched)
       main_mem = mainStri->mem;
       found_pos = memchr_strelem(main_mem, searched, mainStri->size);
       if (found_pos != NULL) {
+        logFunction(printf("strChPos --> " FMT_D "\n",
+                           ((intType) (found_pos - main_mem)) + 1););
         return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
+    logFunction(printf("strChPos --> 0\n"););
     return 0;
   } /* strChPos */
 
@@ -3890,11 +3896,14 @@ intType strRChIPos (const const_striType mainStri, const charType searched,
           found_pos = rsearch_strelem(&main_mem[fromIndex - 1], searched,
               (memSizeType) fromIndex);
           if (found_pos != NULL) {
+            logFunction(printf("strRChIPos --> " FMT_D "\n",
+                               ((intType) (found_pos - main_mem)) + 1););
             return ((intType) (found_pos - main_mem)) + 1;
           } /* if */
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("strRChIPos --> 0\n"););
     return 0;
   } /* strRChIPos */
 
@@ -3920,9 +3929,12 @@ intType strRChPos (const const_striType mainStri, const charType searched)
       found_pos = rsearch_strelem(&main_mem[mainStri->size - 1], searched,
           mainStri->size);
       if (found_pos != NULL) {
+        logFunction(printf("strRChPos --> " FMT_D "\n",
+                           ((intType) (found_pos - main_mem)) + 1););
         return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
+    logFunction(printf("strRChPos --> 0\n"););
     return 0;
   } /* strRChPos */
 
