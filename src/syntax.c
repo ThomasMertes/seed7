@@ -482,7 +482,7 @@ void decl_syntax (void)
           } else if (current_ident == prog->id_for.lbrack) {
             scan_symbol();
             if (symbol.sycategory != INTLITERAL) {
-              err_string(CARD_EXPECTED, symbol.name);
+              err_warning(CARD_EXPECTED);
             } else {
               token_list_end->token_category = SELECT_ELEMENT_FROM_LIST_SYNTAX;
               token_list_end->token_value.select = symbol.intValue;
