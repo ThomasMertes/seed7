@@ -48,6 +48,7 @@
 #include "error.h"
 #include "expr.h"
 #include "exec.h"
+#include "runerr.h"
 
 #undef EXTERN
 #define EXTERN
@@ -117,6 +118,7 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
             trace1(type_of_object);
             printf("\n");
             printf("&type_of_object->type_of %lu\n", (long unsigned) type_of_object->type_of); */
+            set_fail_flag(FALSE);
             err_object(TYPE_EXPECTED, type_expression);
           } /* if */
           free_expression(type_expression);

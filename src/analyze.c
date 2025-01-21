@@ -377,8 +377,8 @@ static inline void declAny (nodeType objects)
             set_fail_flag(FALSE);
             evaluate(match_result);
             if (unlikely(fail_flag)) {
-              err_object(EXCEPTION_RAISED, fail_value);
               set_fail_flag(FALSE);
+              err_object(EXCEPTION_RAISED, fail_value);
             } /* if */
           } /* if */
           free_expression(declExpression);
