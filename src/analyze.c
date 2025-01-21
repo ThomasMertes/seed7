@@ -65,6 +65,7 @@
 #include "match.h"
 #include "name.h"
 #include "exec.h"
+#include "dcllib.h"
 #include "primitiv.h"
 #include "doany.h"
 #include "option.h"
@@ -373,7 +374,13 @@ static inline void declAny (nodeType objects)
             err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
             skip_char(';');
           } /* if */
-          if (match_result != NULL) {
+          if (match_result != NULL &&
+              (prog->error_count == 0 ||
+               (CATEGORY_OF_OBJ(match_result) == MATCHOBJECT &&
+                match_result->value.listValue != NULL &&
+                match_result->value.listValue->obj != NULL &&
+                CATEGORY_OF_OBJ(match_result->value.listValue->obj) == ACTOBJECT &&
+                match_result->value.listValue->obj->value.actValue == dcl_const))) {
             set_fail_flag(FALSE);
             evaluate(match_result);
             if (unlikely(fail_flag)) {
