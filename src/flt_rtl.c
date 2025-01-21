@@ -221,7 +221,7 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
 
 
 /**
- *  Write the decimal representation of a double to a buffer.
+ *  Write a double in the range -largeNumber .. largeNumber to a buffer.
  *  The result in buffer uses the style [-]ddd.ddd where there is at least
  *  one digit before and after the decimal point. The number of digits
  *  after the decimal point is determined automatically. Except for the
@@ -230,16 +230,13 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
  *  zero (+0.0) are both converted to "0.0".
  *  @param doubleValue Number to be converted (NaN, Infinity and
  *         -Infinity are not allowed).
- *  @param largeNumber If abs(doubleValue) > largeValue holds
- *         the format %1.1f is used (largeNumber is either
- *         DOUBLE_STR_LARGE_NUMBER or FLOAT_STR_LARGE_NUMBER).
  *  @param format Format to be used if abs(doubleValue) <= largeValue
  *         holds (format is either FMT_E_DBL or FMT_E_FLT).
  *  @param buffer Destination buffer for the decimal representation.
  *  @return the number of characters in the destination buffer.
  */
-memSizeType doubleToCharBuffer (const double doubleValue,
-    const double largeNumber, const char *format, char *buffer)
+memSizeType smallDoubleToCharBuffer (const double doubleValue,
+    const char *format, char *buffer)
 
   {
     int decimalExponent;
@@ -248,10 +245,10 @@ memSizeType doubleToCharBuffer (const double doubleValue,
     memSizeType scale;
     memSizeType len;
 
-  /* doubleToCharBuffer */
-    logFunction(printf("doubleToCharBuffer(" FMT_E_DBL ", " FMT_E_DBL
+  /* smallDoubleToCharBuffer */
+    logFunction(printf("smallDoubleToCharBuffer(" FMT_E_DBL
                        ", \"%s\", *)\n",
-                       doubleValue, largeNumber, format););
+                       doubleValue, format););
 #if FLOAT_ZERO_COMPARISON_OKAY
     if (doubleValue == 0.0) {
 #else
@@ -259,8 +256,6 @@ memSizeType doubleToCharBuffer (const double doubleValue,
 #endif
       memcpy(buffer, "0.0", 3);
       len = 3;
-    } else if (doubleValue < -largeNumber || doubleValue > largeNumber) {
-      len = (memSizeType) sprintf(buffer, "%1.1f", doubleValue);
     } else {
       len = (memSizeType) sprintf(buffer, format, doubleValue);
       /* printf("buffer: \"%s\"\n", buffer); */
@@ -311,9 +306,48 @@ memSizeType doubleToCharBuffer (const double doubleValue,
         /* Make sure that there is one digit after the decimal point */
         len++;
       } /* if */
-      /* printf("len: " FMT_U_MEM "\n", len);
-         buffer[len] = '\0';
-         printf("buffer: \"%s\"\n", buffer); */
+    } /* if */
+    logFunction(printf("smallDoubleToCharBuffer(" FMT_E_DBL
+                       ", \"%s\", \"%.*s\") --> " FMT_U_MEM "\n",
+                       doubleValue, format, (int) len,
+                       buffer, len););
+    return len;
+  } /* smallDoubleToCharBuffer */
+
+
+
+/**
+ *  Write the decimal representation of a double to a buffer.
+ *  The result in buffer uses the style [-]ddd.ddd where there is at least
+ *  one digit before and after the decimal point. The number of digits
+ *  after the decimal point is determined automatically. Except for the
+ *  case if there is only one zero digit after the decimal point,
+ *  the last digit is never zero. Negative zero (-0.0) and positive
+ *  zero (+0.0) are both converted to "0.0".
+ *  @param doubleValue Number to be converted (NaN, Infinity and
+ *         -Infinity are not allowed).
+ *  @param largeNumber If abs(doubleValue) > largeValue holds
+ *         the format %1.1f is used (largeNumber is either
+ *         DOUBLE_STR_LARGE_NUMBER or FLOAT_STR_LARGE_NUMBER).
+ *  @param format Format to be used if abs(doubleValue) <= largeValue
+ *         holds (format is either FMT_E_DBL or FMT_E_FLT).
+ *  @param buffer Destination buffer for the decimal representation.
+ *  @return the number of characters in the destination buffer.
+ */
+memSizeType doubleToCharBuffer (const double doubleValue,
+    const double largeNumber, const char *format, char *buffer)
+
+  {
+    memSizeType len;
+
+  /* doubleToCharBuffer */
+    logFunction(printf("doubleToCharBuffer(" FMT_E_DBL ", " FMT_E_DBL
+                       ", \"%s\", *)\n",
+                       doubleValue, largeNumber, format););
+    if (doubleValue < -largeNumber || doubleValue > largeNumber) {
+      len = (memSizeType) sprintf(buffer, "%1.1f", doubleValue);
+    } else {
+      len = smallDoubleToCharBuffer(doubleValue, format, buffer);
     } /* if */
     logFunction(printf("doubleToCharBuffer(" FMT_E_DBL ", " FMT_E_DBL
                        ", \"%s\", \"%.*s\") --> " FMT_U_MEM "\n",
@@ -1845,13 +1879,8 @@ striType fltStr (floatType number)
       len = STRLEN("-Infinity");
     } else {
       buffer_ptr = buffer;
-#if FLOATTYPE_DOUBLE
-      len = doubleToCharBuffer(number, DOUBLE_STR_LARGE_NUMBER,
-                               FMT_E_DBL, buffer);
-#else
-      len = doubleToCharBuffer(number, FLOAT_STR_LARGE_NUMBER,
-                               FMT_E_FLT, buffer);
-#endif
+      len = doubleToCharBuffer(number, FLOATTYPE_STR_LARGE_NUMBER,
+                               FMT_E, buffer);
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, len))) {
       raise_error(MEMORY_ERROR);
