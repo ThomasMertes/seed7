@@ -4007,6 +4007,443 @@ const func boolean: check_str_1 is func
   end func;
 
 
+const func boolean: check_str_scientific is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  str( 0.012345,  SCIENTIFIC) <> "1.2345e-2" or
+        str( 1246800.0, SCIENTIFIC) <> "1.2468e+6" or
+        str( 3.1415,    SCIENTIFIC) <> "3.1415e+0" or
+        str( 0.375,     SCIENTIFIC) <> "3.75e-1"   or
+        str( Infinity,  SCIENTIFIC) <> "Infinity"  or
+        str(-Infinity,  SCIENTIFIC) <> "-Infinity" or
+        str( NaN,       SCIENTIFIC) <> "NaN"       or
+        str(-0.004,     SCIENTIFIC) <> "-4.0e-3"   or
+        str( 0.0,       SCIENTIFIC) <> "0.0e+0"    or
+        str(-0.0,       SCIENTIFIC) <> "0.0e+0"    then
+      writeln(" ***** Scientific str function does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr( 0.012345),  SCIENTIFIC) <> "1.2345e-2" or
+        str(floatExpr( 1246800.0), SCIENTIFIC) <> "1.2468e+6" or
+        str(floatExpr( 3.1415),    SCIENTIFIC) <> "3.1415e+0" or
+        str(floatExpr( 0.375),     SCIENTIFIC) <> "3.75e-1"   or
+        str(floatExpr( Infinity),  SCIENTIFIC) <> "Infinity"  or
+        str(floatExpr(-Infinity),  SCIENTIFIC) <> "-Infinity" or
+        str(floatExpr( NaN),       SCIENTIFIC) <> "NaN"       or
+        str(floatExpr(-0.004),     SCIENTIFIC) <> "-4.0e-3"   or
+        str(floatExpr( 0.0),       SCIENTIFIC) <> "0.0e+0"    or
+        str(floatExpr(-0.0),       SCIENTIFIC) <> "0.0e+0"    then
+      writeln(" ***** Scientific str function does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  str(-10000000000000000.0, SCIENTIFIC)  <> "-1.0e+16" or
+        str( -9007199254740992.0, SCIENTIFIC)  <> "-9.00719925474099e+15" or
+        str( -4503599627370496.0, SCIENTIFIC)  <> "-4.5035996273705e+15" or
+        str( -2251799813685248.0, SCIENTIFIC)  <> "-2.25179981368525e+15" or
+        str( -1125899906842624.0, SCIENTIFIC)  <> "-1.12589990684262e+15" or
+        str( -1000000000000000.0, SCIENTIFIC)  <> "-1.0e+15" or
+        str(  -999999999999999.0, SCIENTIFIC)  <> "-9.99999999999999e+14" or
+        str(  -234567891234567.0, SCIENTIFIC)  <> "-2.34567891234567e+14" or
+        str(  -100000000000000.0, SCIENTIFIC)  <> "-1.0e+14" or
+        str(   -99999999999999.0, SCIENTIFIC)  <> "-9.9999999999999e+13" or
+        str(   -34567891234567.0, SCIENTIFIC)  <> "-3.4567891234567e+13" or
+        str(   -10000000000000.0, SCIENTIFIC)  <> "-1.0e+13" or
+        str(    -9999999999999.0, SCIENTIFIC)  <> "-9.999999999999e+12" or
+        str(    -4567891234567.0, SCIENTIFIC)  <> "-4.567891234567e+12" or
+        str(    -1000000000000.0, SCIENTIFIC)  <> "-1.0e+12" or
+        str(     -999999999999.0, SCIENTIFIC)  <> "-9.99999999999e+11" or
+        str(     -567891234567.0, SCIENTIFIC)  <> "-5.67891234567e+11" or
+        str(     -100000000000.0, SCIENTIFIC)  <> "-1.0e+11" or
+        str(      -99999999999.0, SCIENTIFIC)  <> "-9.9999999999e+10" or
+        str(      -67891234567.0, SCIENTIFIC)  <> "-6.7891234567e+10" or
+        str(      -10000000000.0, SCIENTIFIC)  <> "-1.0e+10" or
+        str(       -9999999999.0, SCIENTIFIC)  <> "-9.999999999e+9" or
+        str(       -7891234567.0, SCIENTIFIC)  <> "-7.891234567e+9" or
+        str(       -1000000000.0, SCIENTIFIC)  <> "-1.0e+9" or
+        str(        -999999999.0, SCIENTIFIC)  <> "-9.99999999e+8" or
+        str(        -891234567.0, SCIENTIFIC)  <> "-8.91234567e+8" or
+        str(        -100000000.0, SCIENTIFIC)  <> "-1.0e+8" or
+        str(         -99999999.0, SCIENTIFIC)  <> "-9.9999999e+7" or
+        str(         -91234567.0, SCIENTIFIC)  <> "-9.1234567e+7" or
+        str(         -10000000.0, SCIENTIFIC)  <> "-1.0e+7" or
+        str(          -9999999.0, SCIENTIFIC)  <> "-9.999999e+6" or
+        str(          -1234567.0, SCIENTIFIC)  <> "-1.234567e+6" or
+        str(          -1000000.0, SCIENTIFIC)  <> "-1.0e+6" or
+        str(           -999999.0, SCIENTIFIC)  <> "-9.99999e+5" or
+        str(           -234567.0, SCIENTIFIC)  <> "-2.34567e+5" or
+        str(           -100000.0, SCIENTIFIC)  <> "-1.0e+5" or
+        str(            -99999.0, SCIENTIFIC)  <> "-9.9999e+4" or
+        str(            -34567.0, SCIENTIFIC)  <> "-3.4567e+4" or
+        str(            -10000.0, SCIENTIFIC)  <> "-1.0e+4" or
+        str(             -9999.0, SCIENTIFIC)  <> "-9.999e+3" or
+        str(             -4567.0, SCIENTIFIC)  <> "-4.567e+3" or
+        str(             -1000.0, SCIENTIFIC)  <> "-1.0e+3" or
+        str(              -999.0, SCIENTIFIC)  <> "-9.99e+2" or
+        str(              -567.0, SCIENTIFIC)  <> "-5.67e+2" or
+        str(              -100.0, SCIENTIFIC)  <> "-1.0e+2" or
+        str(               -99.0, SCIENTIFIC)  <> "-9.9e+1" or
+        str(               -67.0, SCIENTIFIC)  <> "-6.7e+1" or
+        str(               -10.0, SCIENTIFIC)  <> "-1.0e+1" or
+        str(                -9.0, SCIENTIFIC)  <> "-9.0e+0" or
+        str(                -7.0, SCIENTIFIC)  <> "-7.0e+0" or
+        str(                -1.0, SCIENTIFIC)  <> "-1.0e+0" or
+        str(                -0.0, SCIENTIFIC)  <>  "0.0e+0" or
+        str(                 0.0, SCIENTIFIC)  <>  "0.0e+0" or
+        str(                 1.0, SCIENTIFIC)  <>  "1.0e+0" or
+        str(                 7.0, SCIENTIFIC)  <>  "7.0e+0" or
+        str(                 9.0, SCIENTIFIC)  <>  "9.0e+0" or
+        str(                10.0, SCIENTIFIC)  <>  "1.0e+1" or
+        str(                67.0, SCIENTIFIC)  <>  "6.7e+1" or
+        str(                99.0, SCIENTIFIC)  <>  "9.9e+1" or
+        str(               100.0, SCIENTIFIC)  <>  "1.0e+2" or
+        str(               567.0, SCIENTIFIC)  <>  "5.67e+2" or
+        str(               999.0, SCIENTIFIC)  <>  "9.99e+2" or
+        str(              1000.0, SCIENTIFIC)  <>  "1.0e+3" or
+        str(              4567.0, SCIENTIFIC)  <>  "4.567e+3" or
+        str(              9999.0, SCIENTIFIC)  <>  "9.999e+3" or
+        str(             10000.0, SCIENTIFIC)  <>  "1.0e+4" or
+        str(             34567.0, SCIENTIFIC)  <>  "3.4567e+4" or
+        str(             99999.0, SCIENTIFIC)  <>  "9.9999e+4" or
+        str(            100000.0, SCIENTIFIC)  <>  "1.0e+5" or
+        str(            234567.0, SCIENTIFIC)  <>  "2.34567e+5" or
+        str(            999999.0, SCIENTIFIC)  <>  "9.99999e+5" or
+        str(           1000000.0, SCIENTIFIC)  <>  "1.0e+6" or
+        str(           1234567.0, SCIENTIFIC)  <>  "1.234567e+6" or
+        str(           9999999.0, SCIENTIFIC)  <>  "9.999999e+6" or
+        str(          10000000.0, SCIENTIFIC)  <>  "1.0e+7" or
+        str(          91234567.0, SCIENTIFIC)  <>  "9.1234567e+7" or
+        str(          99999999.0, SCIENTIFIC)  <>  "9.9999999e+7" or
+        str(         100000000.0, SCIENTIFIC)  <>  "1.0e+8" or
+        str(         891234567.0, SCIENTIFIC)  <>  "8.91234567e+8" or
+        str(         999999999.0, SCIENTIFIC)  <>  "9.99999999e+8" or
+        str(        1000000000.0, SCIENTIFIC)  <>  "1.0e+9" or
+        str(        7891234567.0, SCIENTIFIC)  <>  "7.891234567e+9" or
+        str(        9999999999.0, SCIENTIFIC)  <>  "9.999999999e+9" or
+        str(       10000000000.0, SCIENTIFIC)  <>  "1.0e+10" or
+        str(       67891234567.0, SCIENTIFIC)  <>  "6.7891234567e+10" or
+        str(       99999999999.0, SCIENTIFIC)  <>  "9.9999999999e+10" or
+        str(      100000000000.0, SCIENTIFIC)  <>  "1.0e+11" or
+        str(      567891234567.0, SCIENTIFIC)  <>  "5.67891234567e+11" or
+        str(      999999999999.0, SCIENTIFIC)  <>  "9.99999999999e+11" or
+        str(     1000000000000.0, SCIENTIFIC)  <>  "1.0e+12" or
+        str(     4567891234567.0, SCIENTIFIC)  <>  "4.567891234567e+12" or
+        str(     9999999999999.0, SCIENTIFIC)  <>  "9.999999999999e+12" or
+        str(    10000000000000.0, SCIENTIFIC)  <>  "1.0e+13" or
+        str(    34567891234567.0, SCIENTIFIC)  <>  "3.4567891234567e+13" or
+        str(    99999999999999.0, SCIENTIFIC)  <>  "9.9999999999999e+13" or
+        str(   100000000000000.0, SCIENTIFIC)  <>  "1.0e+14" or
+        str(   234567891234567.0, SCIENTIFIC)  <>  "2.34567891234567e+14" or
+        str(   999999999999999.0, SCIENTIFIC)  <>  "9.99999999999999e+14" or
+        str(  1000000000000000.0, SCIENTIFIC)  <>  "1.0e+15" or
+        str(  1125899906842624.0, SCIENTIFIC)  <>  "1.12589990684262e+15" or
+        str(  2251799813685248.0, SCIENTIFIC)  <>  "2.25179981368525e+15" or
+        str(  4503599627370496.0, SCIENTIFIC)  <>  "4.5035996273705e+15" or
+        str(  9007199254740992.0, SCIENTIFIC)  <>  "9.00719925474099e+15" or
+        str( 10000000000000000.0, SCIENTIFIC)  <>  "1.0e+16" then
+      writeln(" ***** Str function for float does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(-10000000000000000.0), SCIENTIFIC)  <> "-1.0e+16" or
+        str(floatExpr( -9007199254740992.0), SCIENTIFIC)  <> "-9.00719925474099e+15" or
+        str(floatExpr( -4503599627370496.0), SCIENTIFIC)  <> "-4.5035996273705e+15" or
+        str(floatExpr( -2251799813685248.0), SCIENTIFIC)  <> "-2.25179981368525e+15" or
+        str(floatExpr( -1125899906842624.0), SCIENTIFIC)  <> "-1.12589990684262e+15" or
+        str(floatExpr( -1000000000000000.0), SCIENTIFIC)  <> "-1.0e+15" or
+        str(floatExpr(  -999999999999999.0), SCIENTIFIC)  <> "-9.99999999999999e+14" or
+        str(floatExpr(  -234567891234567.0), SCIENTIFIC)  <> "-2.34567891234567e+14" or
+        str(floatExpr(  -100000000000000.0), SCIENTIFIC)  <> "-1.0e+14" or
+        str(floatExpr(   -99999999999999.0), SCIENTIFIC)  <> "-9.9999999999999e+13" or
+        str(floatExpr(   -34567891234567.0), SCIENTIFIC)  <> "-3.4567891234567e+13" or
+        str(floatExpr(   -10000000000000.0), SCIENTIFIC)  <> "-1.0e+13" or
+        str(floatExpr(    -9999999999999.0), SCIENTIFIC)  <> "-9.999999999999e+12" or
+        str(floatExpr(    -4567891234567.0), SCIENTIFIC)  <> "-4.567891234567e+12" or
+        str(floatExpr(    -1000000000000.0), SCIENTIFIC)  <> "-1.0e+12" or
+        str(floatExpr(     -999999999999.0), SCIENTIFIC)  <> "-9.99999999999e+11" or
+        str(floatExpr(     -567891234567.0), SCIENTIFIC)  <> "-5.67891234567e+11" or
+        str(floatExpr(     -100000000000.0), SCIENTIFIC)  <> "-1.0e+11" or
+        str(floatExpr(      -99999999999.0), SCIENTIFIC)  <> "-9.9999999999e+10" or
+        str(floatExpr(      -67891234567.0), SCIENTIFIC)  <> "-6.7891234567e+10" or
+        str(floatExpr(      -10000000000.0), SCIENTIFIC)  <> "-1.0e+10" or
+        str(floatExpr(       -9999999999.0), SCIENTIFIC)  <> "-9.999999999e+9" or
+        str(floatExpr(       -7891234567.0), SCIENTIFIC)  <> "-7.891234567e+9" or
+        str(floatExpr(       -1000000000.0), SCIENTIFIC)  <> "-1.0e+9" or
+        str(floatExpr(        -999999999.0), SCIENTIFIC)  <> "-9.99999999e+8" or
+        str(floatExpr(        -891234567.0), SCIENTIFIC)  <> "-8.91234567e+8" or
+        str(floatExpr(        -100000000.0), SCIENTIFIC)  <> "-1.0e+8" or
+        str(floatExpr(         -99999999.0), SCIENTIFIC)  <> "-9.9999999e+7" or
+        str(floatExpr(         -91234567.0), SCIENTIFIC)  <> "-9.1234567e+7" or
+        str(floatExpr(         -10000000.0), SCIENTIFIC)  <> "-1.0e+7" or
+        str(floatExpr(          -9999999.0), SCIENTIFIC)  <> "-9.999999e+6" or
+        str(floatExpr(          -1234567.0), SCIENTIFIC)  <> "-1.234567e+6" or
+        str(floatExpr(          -1000000.0), SCIENTIFIC)  <> "-1.0e+6" or
+        str(floatExpr(           -999999.0), SCIENTIFIC)  <> "-9.99999e+5" or
+        str(floatExpr(           -234567.0), SCIENTIFIC)  <> "-2.34567e+5" or
+        str(floatExpr(           -100000.0), SCIENTIFIC)  <> "-1.0e+5" or
+        str(floatExpr(            -99999.0), SCIENTIFIC)  <> "-9.9999e+4" or
+        str(floatExpr(            -34567.0), SCIENTIFIC)  <> "-3.4567e+4" or
+        str(floatExpr(            -10000.0), SCIENTIFIC)  <> "-1.0e+4" or
+        str(floatExpr(             -9999.0), SCIENTIFIC)  <> "-9.999e+3" or
+        str(floatExpr(             -4567.0), SCIENTIFIC)  <> "-4.567e+3" or
+        str(floatExpr(             -1000.0), SCIENTIFIC)  <> "-1.0e+3" or
+        str(floatExpr(              -999.0), SCIENTIFIC)  <> "-9.99e+2" or
+        str(floatExpr(              -567.0), SCIENTIFIC)  <> "-5.67e+2" or
+        str(floatExpr(              -100.0), SCIENTIFIC)  <> "-1.0e+2" or
+        str(floatExpr(               -99.0), SCIENTIFIC)  <> "-9.9e+1" or
+        str(floatExpr(               -67.0), SCIENTIFIC)  <> "-6.7e+1" or
+        str(floatExpr(               -10.0), SCIENTIFIC)  <> "-1.0e+1" or
+        str(floatExpr(                -9.0), SCIENTIFIC)  <> "-9.0e+0" or
+        str(floatExpr(                -7.0), SCIENTIFIC)  <> "-7.0e+0" or
+        str(floatExpr(                -1.0), SCIENTIFIC)  <> "-1.0e+0" or
+        str(floatExpr(                -0.0), SCIENTIFIC)  <>  "0.0e+0" or
+        str(floatExpr(                 0.0), SCIENTIFIC)  <>  "0.0e+0" or
+        str(floatExpr(                 1.0), SCIENTIFIC)  <>  "1.0e+0" or
+        str(floatExpr(                 7.0), SCIENTIFIC)  <>  "7.0e+0" or
+        str(floatExpr(                 9.0), SCIENTIFIC)  <>  "9.0e+0" or
+        str(floatExpr(                10.0), SCIENTIFIC)  <>  "1.0e+1" or
+        str(floatExpr(                67.0), SCIENTIFIC)  <>  "6.7e+1" or
+        str(floatExpr(                99.0), SCIENTIFIC)  <>  "9.9e+1" or
+        str(floatExpr(               100.0), SCIENTIFIC)  <>  "1.0e+2" or
+        str(floatExpr(               567.0), SCIENTIFIC)  <>  "5.67e+2" or
+        str(floatExpr(               999.0), SCIENTIFIC)  <>  "9.99e+2" or
+        str(floatExpr(              1000.0), SCIENTIFIC)  <>  "1.0e+3" or
+        str(floatExpr(              4567.0), SCIENTIFIC)  <>  "4.567e+3" or
+        str(floatExpr(              9999.0), SCIENTIFIC)  <>  "9.999e+3" or
+        str(floatExpr(             10000.0), SCIENTIFIC)  <>  "1.0e+4" or
+        str(floatExpr(             34567.0), SCIENTIFIC)  <>  "3.4567e+4" or
+        str(floatExpr(             99999.0), SCIENTIFIC)  <>  "9.9999e+4" or
+        str(floatExpr(            100000.0), SCIENTIFIC)  <>  "1.0e+5" or
+        str(floatExpr(            234567.0), SCIENTIFIC)  <>  "2.34567e+5" or
+        str(floatExpr(            999999.0), SCIENTIFIC)  <>  "9.99999e+5" or
+        str(floatExpr(           1000000.0), SCIENTIFIC)  <>  "1.0e+6" or
+        str(floatExpr(           1234567.0), SCIENTIFIC)  <>  "1.234567e+6" or
+        str(floatExpr(           9999999.0), SCIENTIFIC)  <>  "9.999999e+6" or
+        str(floatExpr(          10000000.0), SCIENTIFIC)  <>  "1.0e+7" or
+        str(floatExpr(          91234567.0), SCIENTIFIC)  <>  "9.1234567e+7" or
+        str(floatExpr(          99999999.0), SCIENTIFIC)  <>  "9.9999999e+7" or
+        str(floatExpr(         100000000.0), SCIENTIFIC)  <>  "1.0e+8" or
+        str(floatExpr(         891234567.0), SCIENTIFIC)  <>  "8.91234567e+8" or
+        str(floatExpr(         999999999.0), SCIENTIFIC)  <>  "9.99999999e+8" or
+        str(floatExpr(        1000000000.0), SCIENTIFIC)  <>  "1.0e+9" or
+        str(floatExpr(        7891234567.0), SCIENTIFIC)  <>  "7.891234567e+9" or
+        str(floatExpr(        9999999999.0), SCIENTIFIC)  <>  "9.999999999e+9" or
+        str(floatExpr(       10000000000.0), SCIENTIFIC)  <>  "1.0e+10" or
+        str(floatExpr(       67891234567.0), SCIENTIFIC)  <>  "6.7891234567e+10" or
+        str(floatExpr(       99999999999.0), SCIENTIFIC)  <>  "9.9999999999e+10" or
+        str(floatExpr(      100000000000.0), SCIENTIFIC)  <>  "1.0e+11" or
+        str(floatExpr(      567891234567.0), SCIENTIFIC)  <>  "5.67891234567e+11" or
+        str(floatExpr(      999999999999.0), SCIENTIFIC)  <>  "9.99999999999e+11" or
+        str(floatExpr(     1000000000000.0), SCIENTIFIC)  <>  "1.0e+12" or
+        str(floatExpr(     4567891234567.0), SCIENTIFIC)  <>  "4.567891234567e+12" or
+        str(floatExpr(     9999999999999.0), SCIENTIFIC)  <>  "9.999999999999e+12" or
+        str(floatExpr(    10000000000000.0), SCIENTIFIC)  <>  "1.0e+13" or
+        str(floatExpr(    34567891234567.0), SCIENTIFIC)  <>  "3.4567891234567e+13" or
+        str(floatExpr(    99999999999999.0), SCIENTIFIC)  <>  "9.9999999999999e+13" or
+        str(floatExpr(   100000000000000.0), SCIENTIFIC)  <>  "1.0e+14" or
+        str(floatExpr(   234567891234567.0), SCIENTIFIC)  <>  "2.34567891234567e+14" or
+        str(floatExpr(   999999999999999.0), SCIENTIFIC)  <>  "9.99999999999999e+14" or
+        str(floatExpr(  1000000000000000.0), SCIENTIFIC)  <>  "1.0e+15" or
+        str(floatExpr(  1125899906842624.0), SCIENTIFIC)  <>  "1.12589990684262e+15" or
+        str(floatExpr(  2251799813685248.0), SCIENTIFIC)  <>  "2.25179981368525e+15" or
+        str(floatExpr(  4503599627370496.0), SCIENTIFIC)  <>  "4.5035996273705e+15" or
+        str(floatExpr(  9007199254740992.0), SCIENTIFIC)  <>  "9.00719925474099e+15" or
+        str(floatExpr( 10000000000000000.0), SCIENTIFIC)  <>  "1.0e+16" then
+      writeln(" ***** Str function for float does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if  str(-123456789012345.0, SCIENTIFIC)  <> "-1.23456789012345e+14" or
+        str(-123456789012340.0, SCIENTIFIC)  <> "-1.2345678901234e+14" or
+        str(-123456789012300.0, SCIENTIFIC)  <> "-1.234567890123e+14" or
+        str(-123456789012000.0, SCIENTIFIC)  <> "-1.23456789012e+14" or
+        str(-123456789010000.0, SCIENTIFIC)  <> "-1.2345678901e+14" or
+        str(-123456789100000.0, SCIENTIFIC)  <> "-1.234567891e+14" or
+        str(-123456789000000.0, SCIENTIFIC)  <> "-1.23456789e+14" or
+        str(-123456780000000.0, SCIENTIFIC)  <> "-1.2345678e+14" or
+        str(-123456700000000.0, SCIENTIFIC)  <> "-1.234567e+14" or
+        str(-123456000000000.0, SCIENTIFIC)  <> "-1.23456e+14" or
+        str(-123450000000000.0, SCIENTIFIC)  <> "-1.2345e+14" or
+        str(-123400000000000.0, SCIENTIFIC)  <> "-1.234e+14" or
+        str(-123000000000000.0, SCIENTIFIC)  <> "-1.23e+14" or
+        str(-120000000000000.0, SCIENTIFIC)  <> "-1.2e+14" or
+        str(-100000000000000.0, SCIENTIFIC)  <> "-1.0e+14" or
+        str( 100000000000000.0, SCIENTIFIC)  <>  "1.0e+14" or
+        str( 120000000000000.0, SCIENTIFIC)  <>  "1.2e+14" or
+        str( 123000000000000.0, SCIENTIFIC)  <>  "1.23e+14" or
+        str( 123400000000000.0, SCIENTIFIC)  <>  "1.234e+14" or
+        str( 123450000000000.0, SCIENTIFIC)  <>  "1.2345e+14" or
+        str( 123456000000000.0, SCIENTIFIC)  <>  "1.23456e+14" or
+        str( 123456700000000.0, SCIENTIFIC)  <>  "1.234567e+14" or
+        str( 123456780000000.0, SCIENTIFIC)  <>  "1.2345678e+14" or
+        str( 123456789000000.0, SCIENTIFIC)  <>  "1.23456789e+14" or
+        str( 123456789100000.0, SCIENTIFIC)  <>  "1.234567891e+14" or
+        str( 123456789010000.0, SCIENTIFIC)  <>  "1.2345678901e+14" or
+        str( 123456789012000.0, SCIENTIFIC)  <>  "1.23456789012e+14" or
+        str( 123456789012300.0, SCIENTIFIC)  <>  "1.234567890123e+14" or
+        str( 123456789012340.0, SCIENTIFIC)  <>  "1.2345678901234e+14" or
+        str( 123456789012345.0, SCIENTIFIC)  <>  "1.23456789012345e+14" then
+      writeln(" ***** Str function for float does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(-123456789012345.0), SCIENTIFIC)  <> "-1.23456789012345e+14" or
+        str(floatExpr(-123456789012340.0), SCIENTIFIC)  <> "-1.2345678901234e+14" or
+        str(floatExpr(-123456789012300.0), SCIENTIFIC)  <> "-1.234567890123e+14" or
+        str(floatExpr(-123456789012000.0), SCIENTIFIC)  <> "-1.23456789012e+14" or
+        str(floatExpr(-123456789010000.0), SCIENTIFIC)  <> "-1.2345678901e+14" or
+        str(floatExpr(-123456789100000.0), SCIENTIFIC)  <> "-1.234567891e+14" or
+        str(floatExpr(-123456789000000.0), SCIENTIFIC)  <> "-1.23456789e+14" or
+        str(floatExpr(-123456780000000.0), SCIENTIFIC)  <> "-1.2345678e+14" or
+        str(floatExpr(-123456700000000.0), SCIENTIFIC)  <> "-1.234567e+14" or
+        str(floatExpr(-123456000000000.0), SCIENTIFIC)  <> "-1.23456e+14" or
+        str(floatExpr(-123450000000000.0), SCIENTIFIC)  <> "-1.2345e+14" or
+        str(floatExpr(-123400000000000.0), SCIENTIFIC)  <> "-1.234e+14" or
+        str(floatExpr(-123000000000000.0), SCIENTIFIC)  <> "-1.23e+14" or
+        str(floatExpr(-120000000000000.0), SCIENTIFIC)  <> "-1.2e+14" or
+        str(floatExpr(-100000000000000.0), SCIENTIFIC)  <> "-1.0e+14" or
+        str(floatExpr( 100000000000000.0), SCIENTIFIC)  <>  "1.0e+14" or
+        str(floatExpr( 120000000000000.0), SCIENTIFIC)  <>  "1.2e+14" or
+        str(floatExpr( 123000000000000.0), SCIENTIFIC)  <>  "1.23e+14" or
+        str(floatExpr( 123400000000000.0), SCIENTIFIC)  <>  "1.234e+14" or
+        str(floatExpr( 123450000000000.0), SCIENTIFIC)  <>  "1.2345e+14" or
+        str(floatExpr( 123456000000000.0), SCIENTIFIC)  <>  "1.23456e+14" or
+        str(floatExpr( 123456700000000.0), SCIENTIFIC)  <>  "1.234567e+14" or
+        str(floatExpr( 123456780000000.0), SCIENTIFIC)  <>  "1.2345678e+14" or
+        str(floatExpr( 123456789000000.0), SCIENTIFIC)  <>  "1.23456789e+14" or
+        str(floatExpr( 123456789100000.0), SCIENTIFIC)  <>  "1.234567891e+14" or
+        str(floatExpr( 123456789010000.0), SCIENTIFIC)  <>  "1.2345678901e+14" or
+        str(floatExpr( 123456789012000.0), SCIENTIFIC)  <>  "1.23456789012e+14" or
+        str(floatExpr( 123456789012300.0), SCIENTIFIC)  <>  "1.234567890123e+14" or
+        str(floatExpr( 123456789012340.0), SCIENTIFIC)  <>  "1.2345678901234e+14" or
+        str(floatExpr( 123456789012345.0), SCIENTIFIC)  <>  "1.23456789012345e+14" then
+      writeln(" ***** Str function for float does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  str(12345000000000000000.0,                                             SCIENTIFIC) <> "1.2345e+19" or
+        str( 1234500000000000000.0,                                             SCIENTIFIC) <> "1.2345e+18" or
+        str(  123450000000000000.0,                                             SCIENTIFIC) <> "1.2345e+17" or
+        str(   12345000000000000.0,                                             SCIENTIFIC) <> "1.2345e+16" or
+        str(     123450000000000.0,                                             SCIENTIFIC) <> "1.2345e+14" or
+        str(       1234500000000.0,                                             SCIENTIFIC) <> "1.2345e+12" or
+        str(         12345000000.0,                                             SCIENTIFIC) <> "1.2345e+10" or
+        str(           123450000.0,                                             SCIENTIFIC) <> "1.2345e+8"  or
+        str(             1234500.0,                                             SCIENTIFIC) <> "1.2345e+6"  or
+        str(              123450.0,                                             SCIENTIFIC) <> "1.2345e+5"  or
+        str(               12345.0,                                             SCIENTIFIC) <> "1.2345e+4"  or
+        str(                1234.5,                                             SCIENTIFIC) <> "1.2345e+3"  or
+        str(                 123.45,                                            SCIENTIFIC) <> "1.2345e+2"  or
+        str(                  12.345,                                           SCIENTIFIC) <> "1.2345e+1"  or
+        str(                   1.2345,                                          SCIENTIFIC) <> "1.2345e+0"  or
+        str(                   0.12345,                                         SCIENTIFIC) <> "1.2345e-1"  or
+        str(                   0.012345,                                        SCIENTIFIC) <> "1.2345e-2"  or
+        str(                   0.0012345,                                       SCIENTIFIC) <> "1.2345e-3"  or
+        str(                   0.00012345,                                      SCIENTIFIC) <> "1.2345e-4"  or
+        str(                   0.0000012345,                                    SCIENTIFIC) <> "1.2345e-6"  or
+        str(                   0.000000012345,                                  SCIENTIFIC) <> "1.2345e-8"  or
+        str(                   0.00000000012345,                                SCIENTIFIC) <> "1.2345e-10" or
+        str(                   0.0000000000012345,                              SCIENTIFIC) <> "1.2345e-12" or
+        str(                   0.000000000000012345,                            SCIENTIFIC) <> "1.2345e-14" or
+        str(                   0.00000000000000012345,                          SCIENTIFIC) <> "1.2345e-16" or
+        str(                   0.0000000000000000000012345,                     SCIENTIFIC) <> "1.2345e-21" or
+        str(                   0.000000000000000000000000012345,                SCIENTIFIC) <> "1.2345e-26" or
+        str(                   0.00000000000000000000000000000012345,           SCIENTIFIC) <> "1.2345e-31" or
+        str(                   0.0000000000000000000000000000000000012345,      SCIENTIFIC) <> "1.2345e-36" or
+        str(                   0.000000000000000000000000000000000000000012345, SCIENTIFIC) <> "1.2345e-41" then
+      writeln(" ***** Scientific str function does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(12345000000000000000.0),                                             SCIENTIFIC) <> "1.2345e+19" or
+        str(floatExpr( 1234500000000000000.0),                                             SCIENTIFIC) <> "1.2345e+18" or
+        str(floatExpr(  123450000000000000.0),                                             SCIENTIFIC) <> "1.2345e+17" or
+        str(floatExpr(   12345000000000000.0),                                             SCIENTIFIC) <> "1.2345e+16" or
+        str(floatExpr(     123450000000000.0),                                             SCIENTIFIC) <> "1.2345e+14" or
+        str(floatExpr(       1234500000000.0),                                             SCIENTIFIC) <> "1.2345e+12" or
+        str(floatExpr(         12345000000.0),                                             SCIENTIFIC) <> "1.2345e+10" or
+        str(floatExpr(           123450000.0),                                             SCIENTIFIC) <> "1.2345e+8"  or
+        str(floatExpr(             1234500.0),                                             SCIENTIFIC) <> "1.2345e+6"  or
+        str(floatExpr(              123450.0),                                             SCIENTIFIC) <> "1.2345e+5"  or
+        str(floatExpr(               12345.0),                                             SCIENTIFIC) <> "1.2345e+4"  or
+        str(floatExpr(                1234.5),                                             SCIENTIFIC) <> "1.2345e+3"  or
+        str(floatExpr(                 123.45),                                            SCIENTIFIC) <> "1.2345e+2"  or
+        str(floatExpr(                  12.345),                                           SCIENTIFIC) <> "1.2345e+1"  or
+        str(floatExpr(                   1.2345),                                          SCIENTIFIC) <> "1.2345e+0"  or
+        str(floatExpr(                   0.12345),                                         SCIENTIFIC) <> "1.2345e-1"  or
+        str(floatExpr(                   0.012345),                                        SCIENTIFIC) <> "1.2345e-2"  or
+        str(floatExpr(                   0.0012345),                                       SCIENTIFIC) <> "1.2345e-3"  or
+        str(floatExpr(                   0.00012345),                                      SCIENTIFIC) <> "1.2345e-4"  or
+        str(floatExpr(                   0.0000012345),                                    SCIENTIFIC) <> "1.2345e-6"  or
+        str(floatExpr(                   0.000000012345),                                  SCIENTIFIC) <> "1.2345e-8"  or
+        str(floatExpr(                   0.00000000012345),                                SCIENTIFIC) <> "1.2345e-10" or
+        str(floatExpr(                   0.0000000000012345),                              SCIENTIFIC) <> "1.2345e-12" or
+        str(floatExpr(                   0.000000000000012345),                            SCIENTIFIC) <> "1.2345e-14" or
+        str(floatExpr(                   0.00000000000000012345),                          SCIENTIFIC) <> "1.2345e-16" or
+        str(floatExpr(                   0.0000000000000000000012345),                     SCIENTIFIC) <> "1.2345e-21" or
+        str(floatExpr(                   0.000000000000000000000000012345),                SCIENTIFIC) <> "1.2345e-26" or
+        str(floatExpr(                   0.00000000000000000000000000000012345),           SCIENTIFIC) <> "1.2345e-31" or
+        str(floatExpr(                   0.0000000000000000000000000000000000012345),      SCIENTIFIC) <> "1.2345e-36" or
+        str(floatExpr(                   0.000000000000000000000000000000000000000012345), SCIENTIFIC) <> "1.2345e-41" then
+      writeln(" ***** Scientific str function does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if  str(          1.0e-308, SCIENTIFIC) <> "1.0e-308" or
+        str(          1.0e-307, SCIENTIFIC) <> "1.0e-307" or
+        str(          1.0e-300, SCIENTIFIC) <> "1.0e-300" or
+        str(          1.0e-275, SCIENTIFIC) <> "1.0e-275" or
+        str(          1.0e-250, SCIENTIFIC) <> "1.0e-250" or
+        str(          1.0e-225, SCIENTIFIC) <> "1.0e-225" or
+        str(          1.0e-200, SCIENTIFIC) <> "1.0e-200" or
+        str(          1.0e-175, SCIENTIFIC) <> "1.0e-175" or
+        str(          1.0e-150, SCIENTIFIC) <> "1.0e-150" or
+        str(          1.0e-125, SCIENTIFIC) <> "1.0e-125" or
+        str(          1.0e-101, SCIENTIFIC) <> "1.0e-101" or
+        str(          1.0e-100, SCIENTIFIC) <> "1.0e-100" or
+        str(          1.0e-99,  SCIENTIFIC) <> "1.0e-99"  or
+        str(          1.0e-75,  SCIENTIFIC) <> "1.0e-75"  or
+        str(          1.0e-50,  SCIENTIFIC) <> "1.0e-50"  or
+        str(          1.0e-25,  SCIENTIFIC) <> "1.0e-25"  or
+        str(          1.0e-20,  SCIENTIFIC) <> "1.0e-20"  or
+        str(          1.0e-15,  SCIENTIFIC) <> "1.0e-15"  or
+        str(          1.0e-11,  SCIENTIFIC) <> "1.0e-11"  or
+        str(          1.0e-10,  SCIENTIFIC) <> "1.0e-10"  or
+        str(          1.0e-9,   SCIENTIFIC) <> "1.0e-9"   or
+        str(          1.0e-2,   SCIENTIFIC) <> "1.0e-2"   or
+        str(          1.0e-1,   SCIENTIFIC) <> "1.0e-1"   or
+        str(          1.0e0,    SCIENTIFIC) <> "1.0e+0"   or
+        str(          1.0e1,    SCIENTIFIC) <> "1.0e+1"   or
+        str(          1.0e2,    SCIENTIFIC) <> "1.0e+2"   or
+        str(          1.0e9,    SCIENTIFIC) <> "1.0e+9"   or
+        str(          1.0e10,   SCIENTIFIC) <> "1.0e+10"  or
+        str(          1.0e11,   SCIENTIFIC) <> "1.0e+11"  or
+        str(          1.0e15,   SCIENTIFIC) <> "1.0e+15"  or
+        str(          1.0e20,   SCIENTIFIC) <> "1.0e+20"  or
+        str(          1.0e25,   SCIENTIFIC) <> "1.0e+25"  or
+        str(          1.0e50,   SCIENTIFIC) <> "1.0e+50"  or
+        str(          1.0e75,   SCIENTIFIC) <> "1.0e+75"  or
+        str(          1.0e99,   SCIENTIFIC) <> "1.0e+99"  or
+        str(          1.0e100,  SCIENTIFIC) <> "1.0e+100" or
+        str(          1.0e101,  SCIENTIFIC) <> "1.0e+101" or
+        str(          1.0e125,  SCIENTIFIC) <> "1.0e+125" or
+        str(          1.0e150,  SCIENTIFIC) <> "1.0e+150" or
+        str(          1.0e175,  SCIENTIFIC) <> "1.0e+175" or
+        str(          1.0e200,  SCIENTIFIC) <> "1.0e+200" or
+        str(          1.0e225,  SCIENTIFIC) <> "1.0e+225" or
+        str(          1.0e250,  SCIENTIFIC) <> "1.0e+250" or
+        str(          1.0e275,  SCIENTIFIC) <> "1.0e+275" or
+        str(          1.0e300,  SCIENTIFIC) <> "1.0e+300" or
+        str(          1.0e307,  SCIENTIFIC) <> "1.0e+307" or
+        str(          1.0e308,  SCIENTIFIC) <> "1.0e+308" then
+      writeln(" ***** Scientific str function does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_digits is func
   result
     var boolean: okay is TRUE;
@@ -4362,6 +4799,10 @@ const proc: check_str is func
     var boolean: okay is TRUE;
   begin
     if not check_str_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_str_scientific then
       okay := FALSE;
     end if;
 
