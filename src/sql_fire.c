@@ -1393,8 +1393,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
             *(double *) sqlvar->sqldata = bigIntToDouble(value);
             break;
           case SQL_TEXT:
-            decimalNumber = bigStr(value);
-            if (decimalNumber == NULL) {
+            decimalNumber = bigStrDecimal(value);
+            if (unlikely(decimalNumber == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
               /* setupParameters() has already checked that sqllen > 0 holds */
@@ -1414,8 +1414,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
             } /* if */
             break;
           case SQL_VARYING:
-            decimalNumber = bigStr(value);
-            if (decimalNumber == NULL) {
+            decimalNumber = bigStrDecimal(value);
+            if (unlikely(decimalNumber == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
               /* setupParameters() has already checked that sqllen > 0 holds */

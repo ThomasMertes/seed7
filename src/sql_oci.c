@@ -2336,8 +2336,8 @@ static int setBigInt (void *const buffer, const const_bigIntType bigIntValue,
 
   /* setBigInt */
     logFunction(printf("setBigInt(*, %s, *)\n", bigHexCStri(bigIntValue)););
-    stri = bigStr(bigIntValue);
-    if (stri == NULL) {
+    stri = bigStrDecimal(bigIntValue);
+    if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
       length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, 0, err_info);
@@ -2380,8 +2380,8 @@ static int setBigRat (void *const buffer, const const_bigIntType numerator,
         bigDestr(number);
       } /* if */
       if (mantissaValue != NULL) {
-        stri = bigStr(mantissaValue);
-        if (stri == NULL) {
+        stri = bigStrDecimal(mantissaValue);
+        if (unlikely(stri == NULL)) {
           *err_info = MEMORY_ERROR;
         } else {
           length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, 128, err_info);

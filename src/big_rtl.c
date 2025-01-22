@@ -7045,10 +7045,10 @@ bigIntType bigSquare (const_bigIntType big1)
  *  Convert a 'bigInteger' number to a string.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
- *  @return the string result of the conversion.
- *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *  @return the string result of the conversion, or NULL
+ *          if there is not enough memory to represent the result.
  */
-striType bigStr (const const_bigIntType big1)
+striType bigStrDecimal (const const_bigIntType big1)
 
   {
     bigIntType unsigned_big;
@@ -7058,21 +7058,17 @@ striType bigStr (const const_bigIntType big1)
     striType resized_result;
     striType result;
 
-  /* bigStr */
-    logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
+  /* bigStrDecimal */
+    logFunction(printf("bigStrDecimal(%s)\n", bigHexCStri(big1)););
     if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / OCTAL_DIGIT_BITS + 2 &&
                  big1->size > ((MAX_STRI_LEN - 2) * OCTAL_DIGIT_BITS + 1) / BIGDIGIT_SIZE) ||
                  big1->size > MAX_MEMSIZETYPE / BIGDIGIT_SIZE)) {
-      raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       /* The size of the result is estimated by computing the    */
       /* number of octal digits plus one character for the sign. */
       result_size = (big1->size * BIGDIGIT_SIZE - 1) / OCTAL_DIGIT_BITS + 2;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
+      if (likely(ALLOC_STRI_SIZE_OK(result, result_size))) {
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           unsigned_big = alloc_positive_copy_of_negative_big(big1);
         } else if (likely(ALLOC_BIG_SIZE_OK(unsigned_big, big1->size))) {
@@ -7082,7 +7078,6 @@ striType bigStr (const const_bigIntType big1)
         } /* if */
         if (unlikely(unsigned_big == NULL)) {
           FREE_STRI(result, result_size);
-          raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           /* pos = basicToStri(unsigned_big, result, result_size - 1); */
@@ -7106,7 +7101,6 @@ striType bigStr (const const_bigIntType big1)
             REALLOC_STRI_SIZE_SMALLER(resized_result, result, result_size, final_result_size);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI(result, result_size);
-              raise_error(MEMORY_ERROR);
               result = NULL;
             } else {
               result = resized_result;
@@ -7115,6 +7109,23 @@ striType bigStr (const const_bigIntType big1)
           } /* if */
         } /* if */
       } /* if */
+    } /* if */
+    logFunction(printf("bigStrDecimal --> \"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
+  } /* bigStrDecimal */
+
+
+
+striType bigStr (const const_bigIntType big1)
+
+  {
+    striType result;
+
+  /* bigStr */
+    logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
+    result = bigStrDecimal(big1);
+    if (unlikely(result == NULL)) {
+      raise_error(MEMORY_ERROR);
     } /* if */
     logFunction(printf("bigStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;

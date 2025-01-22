@@ -1701,10 +1701,15 @@ striType bigRadix (const const_bigIntType big1, intType base,
       } else {
         cstri = mpz_get_str(NULL, (int) base, big1);
       } /* if */
-      result = cstri_to_stri(cstri);
-      free(cstri);
-      if (unlikely(result == NULL)) {
+      if (unlikely(cstri == NULL)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = cstri_to_stri(cstri);
+        free(cstri);
+        if (unlikely(result == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("bigRadix --> \"%s\"\n", striAsUnquotedCStri(result)););
@@ -1925,6 +1930,34 @@ bigIntType bigSquare (const_bigIntType big1)
  *  Convert a 'bigInteger' number to a string.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion, or NULL
+ *          if there is not enough memory to represent the result.
+ */
+striType bigStrDecimal (const const_bigIntType big1)
+
+  {
+    char *cstri;
+    striType result;
+
+  /* bigStrDecimal */
+    logFunction(printf("bigStrDecimal(%s)\n", bigHexCStri(big1)););
+    cstri = mpz_get_str(NULL, 10, big1);
+    if (unlikely(cstri == NULL)) {
+      result = NULL;
+    } else {
+      result = cstri_to_stri(cstri);
+      free(cstri);
+    } /* if */
+    logFunction(printf("bigStrDecimal --> \"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
+  } /* bigStrDecimal */
+
+
+
+/**
+ *  Convert a 'bigInteger' number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
@@ -1937,10 +1970,15 @@ striType bigStr (const const_bigIntType big1)
   /* bigStr */
     logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
     cstri = mpz_get_str(NULL, 10, big1);
-    result = cstri_to_stri(cstri);
-    free(cstri);
-    if (unlikely(result == NULL)) {
+    if (unlikely(cstri == NULL)) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result = cstri_to_stri(cstri);
+      free(cstri);
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
     logFunction(printf("bigStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;

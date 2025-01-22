@@ -930,7 +930,7 @@ static cstriType getNumericAsCStri (const_numericType numStruct)
       if (unlikely(mantissa == NULL)) {
         decimal = NULL;
       } else {
-        stri = bigStr(mantissa);
+        stri = bigStrDecimal(mantissa);
         if (unlikely(stri == NULL)) {
           bigDestr(mantissa);
           raise_error(MEMORY_ERROR);

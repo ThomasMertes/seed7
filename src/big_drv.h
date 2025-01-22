@@ -115,6 +115,7 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
 void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta);
 bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend);
 bigIntType bigSquare (const_bigIntType big1);
+striType bigStrDecimal (const const_bigIntType big1);
 striType bigStr (const const_bigIntType big1);
 bigIntType bigSucc (const const_bigIntType big1);
 bigIntType bigSuccTemp (bigIntType big1);

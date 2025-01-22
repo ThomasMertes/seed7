@@ -781,7 +781,7 @@ static unsigned int setBigInt (void *const buffer, const const_bigIntType bigInt
 
   /* setBigInt */
     logFunction(printf("setBigInt(%s)\n", bigHexCStri(bigIntValue)););
-    stri = bigStr(bigIntValue);
+    stri = bigStrDecimal(bigIntValue);
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -850,7 +850,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
       } else if (bigEqSignedDigit(mantissaValue, 0)) {
         memcpy((char *) buffer, "0.0", 3);
       } else {
-        stri = bigStr(mantissaValue);
+        stri = bigStrDecimal(mantissaValue);
         if (unlikely(stri == NULL)) {
           *err_info = MEMORY_ERROR;
         } else if (unlikely(stri->size > UINT_MAX)) {

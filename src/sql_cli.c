@@ -1789,7 +1789,7 @@ static cstriType getNumericAsCStri (SQL_NUMERIC_STRUCT *numStruct)
     if (unlikely(mantissa == NULL)) {
       decimal = NULL;
     } else {
-      stri = bigStr(mantissa);
+      stri = bigStrDecimal(mantissa);
       if (unlikely(stri == NULL)) {
         bigDestr(mantissa);
         raise_error(MEMORY_ERROR);
@@ -2266,7 +2266,7 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
   /* setDecimalBigInt */
     logFunction(printf("setDecimalBigInt(*, *, %s, *)\n",
                        bigHexCStri(bigIntValue)););
-    stri = bigStr(bigIntValue);
+    stri = bigStrDecimal(bigIntValue);
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {

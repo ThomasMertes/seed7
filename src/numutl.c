@@ -572,8 +572,8 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
   /* bigIntToDecimal */
     logFunction(printf("bigIntToDecimal(%s, *, *)\n",
                        striAsUnquotedCStri(bigStr(bigIntValue))););
-    stri = bigStr(bigIntValue);
-    if (stri == NULL) {
+    stri = bigStrDecimal(bigIntValue);
+    if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
       decimal = NULL;
     } else if (unlikely(!ALLOC_USTRI(decimal, stri->size))) {
@@ -645,8 +645,8 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
             *length = 3;
           } /* if */
         } else {
-          stri = bigStr(mantissaValue);
-          if (stri == NULL) {
+          stri = bigStrDecimal(mantissaValue);
+          if (unlikely(stri == NULL)) {
             *err_info = MEMORY_ERROR;
             decimal = NULL;
           } else {
