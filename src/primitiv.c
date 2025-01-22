@@ -526,6 +526,7 @@ static const actEntryRecord actEntryTable[] = {
     { "FLT_SINH",                     flt_sinh,                     },
     { "FLT_SQRT",                     flt_sqrt,                     },
     { "FLT_STR",                      flt_str,                      },
+    { "FLT_STR_SCIENTIFIC",           flt_str_scientific,           },
     { "FLT_TAN",                      flt_tan,                      },
     { "FLT_TANH",                     flt_tanh,                     },
     { "FLT_TRUNC",                    flt_trunc,                    },

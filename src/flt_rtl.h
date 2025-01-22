@@ -41,6 +41,7 @@ extern const rtlValueUnion f_const[];
 #endif
 
 #define DOUBLE_TO_CHAR_BUFFER_SIZE DOUBLE_MAX_EXP10 + 100
+#define FMT_E_BUFFER_SIZE 2 + FMT_E_PRECISION + 2 + MAX_PRINTED_EXPONENT_DIGITS + NULL_TERMINATION_LEN
 
 
 void setupFloat (void);
@@ -48,6 +49,7 @@ int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent);
 double setMantissaAndExponent (int64Type intMantissa, int binaryExponent);
 memSizeType doubleToCharBuffer (const double doubleValue,
     const double largeNumber, const char *format, char *buffer);
+memSizeType doubleToFormatE (const floatType number, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
 
 #if !FREXP_FUNCTION_OKAY
@@ -145,3 +147,4 @@ floatType fltSqrt (floatType number);
 #endif
 
 striType fltStr (floatType number);
+striType fltStrScientific (floatType number);

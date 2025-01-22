@@ -84,6 +84,7 @@ objectType flt_single2bits    (listType arguments);
 objectType flt_sinh           (listType arguments);
 objectType flt_sqrt           (listType arguments);
 objectType flt_str            (listType arguments);
+objectType flt_str_scientific (listType arguments);
 objectType flt_tan            (listType arguments);
 objectType flt_tanh           (listType arguments);
 objectType flt_trunc          (listType arguments);

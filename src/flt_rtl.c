@@ -324,6 +324,56 @@ memSizeType doubleToCharBuffer (const double doubleValue,
 
 
 
+memSizeType doubleToFormatE (const floatType number, char *buffer)
+
+  {
+    char *ePos;
+    char *pos;
+    char *pos2;
+    memSizeType len;
+
+  /* doubleToFormatE */
+    len = (memSizeType) sprintf(buffer, FMT_E, number);
+    ePos = strrchr(buffer, 'e');
+    if (ePos != NULL) {
+      pos = ePos - 1;
+      while (*pos == '0' && pos > buffer) {
+        pos--;
+      } /* while */
+      if (*pos == '.') {
+        pos++;
+      } /* if */
+      if (pos < ePos - 1) {
+        pos++;
+        memmove(pos, ePos, (memSizeType) (&buffer[len] - ePos) + 1);
+        len -= (memSizeType) (ePos - pos);
+        ePos = pos;
+      } /* if */
+      pos = ePos + 1;
+      if (*pos == '+' || *pos == '-') {
+        pos++;
+      } /* if */
+      pos2 = pos;
+      while (*pos2 == '0') {
+        pos2++;
+      } /* while */
+      if (*pos2 == '\0') {
+        pos2--;
+      } /* if */
+      if (pos2 != pos) {
+        memmove(pos, pos2, (memSizeType) (&buffer[len] - pos2) + 1);
+        len -= (memSizeType) (pos2 - pos);
+      } /* if */
+      if (strcmp(buffer, "-0.0e+0") == 0) {
+        memmove(buffer, &buffer[1], len);
+        len--;
+      } /* if */
+    } /* if */
+    return len;
+  } /* doubleToFormatE */
+
+
+
 /**
  *  Compare two float numbers.
  *  Because fltCmp is used to sort float values, a unique
@@ -1858,3 +1908,61 @@ striType fltStr (floatType number)
                        number, striAsUnquotedCStri(result)););
     return result;
   } /* fltStr */
+
+
+
+/**
+ *  Convert a ''float'' to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The decimal point is followed by a fractional part
+ *  with at least one digit. Trailing zeros in the fractional part are
+ *  omitted except for the digit which follows the decimal point.
+ *  The fractional part is followed by the letter e and an exponent,
+ *  which is always signed. The value zero is never written with a
+ *  negative sign.
+ *   str(0.012345,  SCIENTIFIC)  returns "1.2345e-2"
+ *   str(1246800.0, SCIENTIFIC)  returns "1.2468e+6"
+ *   str(3.1415,    SCIENTIFIC)  returns "3.1415e+0"
+ *   str(Infinity,  SCIENTIFIC)  returns "Infinity"
+ *   str(-Infinity, SCIENTIFIC)  returns "-Infinity"
+ *   str(NaN,       SCIENTIFIC)  returns "NaN"
+ *   str(-0.004,    SCIENTIFIC)  returns "-4.0e-3"
+ *   str( 0.0,      SCIENTIFIC)  returns "0.0e+0"
+ *   str(-0.0,      SCIENTIFIC)  returns "0.0e+0"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType fltStrScientific (floatType number)
+
+  {
+    char buffer[FMT_E_BUFFER_SIZE];
+    const_cstriType buffer_ptr;
+    memSizeType len;
+    striType result;
+
+  /* fltStrScientific */
+    logFunction(printf("fltStrScientific(" FMT_E ")\n", number););
+    if (os_isnan(number)) {
+      buffer_ptr = "NaN";
+      len = STRLEN("NaN");
+    } else if (number == POSITIVE_INFINITY) {
+      buffer_ptr = "Infinity";
+      len = STRLEN("Infinity");
+    } else if (number == NEGATIVE_INFINITY) {
+      buffer_ptr = "-Infinity";
+      len = STRLEN("-Infinity");
+    } else {
+      buffer_ptr = buffer;
+      len = doubleToFormatE(number, buffer);
+    } /* if */
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, len))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = len;
+      memcpy_to_strelem(result->mem, (const_ustriType) buffer_ptr, len);
+    } /* if */
+    logFunction(printf("fltStrScientific(" FMT_E ") --> \"%s\"\n",
+                       number, striAsUnquotedCStri(result)););
+    return result;
+  } /* fltStrScientific */

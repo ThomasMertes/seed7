@@ -1363,6 +1363,38 @@ objectType flt_str (listType arguments)
 
 
 /**
+ *  Convert a ''float'' to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The decimal point is followed by a fractional part
+ *  with at least one digit. Trailing zeros in the fractional part are
+ *  omitted except for the digit which follows the decimal point.
+ *  The fractional part is followed by the letter e and an exponent,
+ *  which is always signed. The value zero is never written with a
+ *  negative sign.
+ *   str(0.012345,  SCIENTIFIC)  returns "1.2345e-2"
+ *   str(1246800.0, SCIENTIFIC)  returns "1.2468e+6"
+ *   str(3.1415,    SCIENTIFIC)  returns "3.1415e+0"
+ *   str(Infinity,  SCIENTIFIC)  returns "Infinity"
+ *   str(-Infinity, SCIENTIFIC)  returns "-Infinity"
+ *   str(NaN,       SCIENTIFIC)  returns "NaN"
+ *   str(-0.004,    SCIENTIFIC)  returns "-4.0e-3"
+ *   str( 0.0,      SCIENTIFIC)  returns "0.0e+0"
+ *   str(-0.0,      SCIENTIFIC)  returns "0.0e+0"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType flt_str_scientific (listType arguments)
+
+  { /* flt_str_scientific */
+    isit_float(arg_1(arguments));
+    return bld_stri_temp(
+        fltStrScientific(take_float(arg_1(arguments))));
+  } /* flt_str_scientific */
+
+
+
+/**
  *  Compute the tangent of x, where x is given in radians.
  *  @return the trigonometric tangent of an angle.
  */
