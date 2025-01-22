@@ -3098,7 +3098,6 @@ static void numericProperties (FILE *versionFile)
       testResult = doTest();
       fprintf(versionFile, "#define FMT_E_FLT \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define FMT_E_FLT_PRECISION %d\n", testResult - 1);
-      fprintf(versionFile, "#define FLOAT_STR_SMALL_NUMBER 1.0e-%d\n", testResult);
       fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
@@ -3107,7 +3106,6 @@ static void numericProperties (FILE *versionFile)
       testResult = doTest();
       fprintf(versionFile, "#define FMT_E_DBL \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define FMT_E_DBL_PRECISION %d\n", testResult - 1);
-      fprintf(versionFile, "#define DOUBLE_STR_SMALL_NUMBER 1.0e-%d\n", testResult);
       fprintf(versionFile, "#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
     strcpy(buffer, "#include<stdio.h>\n"
