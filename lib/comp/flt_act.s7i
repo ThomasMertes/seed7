@@ -83,6 +83,7 @@ const ACTION: FLT_SINGLE2BITS     is action "FLT_SINGLE2BITS";
 const ACTION: FLT_SINH            is action "FLT_SINH";
 const ACTION: FLT_SQRT            is action "FLT_SQRT";
 const ACTION: FLT_STR             is action "FLT_STR";
+const ACTION: FLT_STR_SCIENTIFIC  is action "FLT_STR_SCIENTIFIC";
 const ACTION: FLT_TAN             is action "FLT_TAN";
 const ACTION: FLT_TANH            is action "FLT_TANH";
 const ACTION: FLT_TRUNC           is action "FLT_TRUNC";
@@ -174,6 +175,7 @@ const proc: flt_prototypes (inout file: c_prog) is func
       declareExtern(c_prog, "floatType   fltSqrt (floatType);");
     end if;
     declareExtern(c_prog, "striType    fltStr (floatType);");
+    declareExtern(c_prog, "striType    fltStrScientific (floatType);");
     declareExtern(c_prog, "floatType   fltValue (const const_objRefType);");
   end func;
 
@@ -2676,6 +2678,17 @@ const proc: process (FLT_STR, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "fltStr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_STR_SCIENTIFIC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "fltStrScientific(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;

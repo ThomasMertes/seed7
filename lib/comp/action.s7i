@@ -1059,6 +1059,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_STR"}:
         mathLibraryUsed := TRUE;
         process(FLT_STR, function, params, c_expr);
+      when {"FLT_STR_SCIENTIFIC"}:
+        mathLibraryUsed := TRUE;
+        process(FLT_STR_SCIENTIFIC, function, params, c_expr);
       when {"FLT_TAN"}:
         mathLibraryUsed := TRUE;
         process(FLT_TAN, function, params, c_expr);
