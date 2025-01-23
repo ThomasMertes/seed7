@@ -341,7 +341,7 @@ void closeInfile (void)
 
 
 
-boolType openString (bstriType inputString, boolType write_library_names,
+boolType openBString (bstriType inputString, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
@@ -353,8 +353,8 @@ boolType openString (bstriType inputString, boolType write_library_names,
     FILE *in_fil;
     boolType isOpen = FALSE;
 
-  /* openString */
-    logFunction(printf("openString(\"%s\", %d, %d, err_info=%d)\n",
+  /* openBString */
+    logFunction(printf("openBString(\"%s\", %d, %d, err_info=%d)\n",
                        bstriAsUnquotedCStri(inputString),
                        write_library_names, write_line_numbers,
                        *err_info););
@@ -374,7 +374,7 @@ boolType openString (bstriType inputString, boolType write_library_names,
 #else
           in_fil = tmpfile();
           if (unlikely(in_fil == NULL)) {
-            logError(printf("openString: tmpfile() failed:\n"
+            logError(printf("openBString: tmpfile() failed:\n"
                             "errno=%d\nerror: %s\n",
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
@@ -383,7 +383,7 @@ boolType openString (bstriType inputString, boolType write_library_names,
                 inputString->size) {
               rewind(in_fil);
             } else {
-              logError(printf("openString: writing to temporary file failed:\n"
+              logError(printf("openBString: writing to temporary file failed:\n"
                               "errno=%d\nerror: %s\n",
                               errno, strerror(errno)););
               *err_info = FILE_ERROR;
@@ -435,9 +435,9 @@ boolType openString (bstriType inputString, boolType write_library_names,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("openString --> %d (err_info=%d)\n", isOpen, *err_info););
+    logFunction(printf("openBString --> %d (err_info=%d)\n", isOpen, *err_info););
     return isOpen;
-  } /* openString */
+  } /* openBString */
 
 
 

@@ -684,9 +684,9 @@ progType analyzeString (const const_striType input_string, uintType options,
       if (input_bstri == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
-        isOpen = openString(input_bstri,
-                            (options & WRITE_LIBRARY_NAMES) != 0,
-                            (options & WRITE_LINE_NUMBERS) != 0, err_info);
+        isOpen = openBString(input_bstri,
+                             (options & WRITE_LIBRARY_NAMES) != 0,
+                             (options & WRITE_LINE_NUMBERS) != 0, err_info);
         if (isOpen) {
           resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
                                    options, libraryDirs, protFileName, err_info);

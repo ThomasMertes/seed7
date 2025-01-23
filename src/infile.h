@@ -99,7 +99,7 @@ int fill_buf (void);
 boolType openInfile (const_striType sourceFileName, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info);
 void closeInfile (void);
-boolType openString (bstriType inputString, boolType write_library_names,
+boolType openBString (bstriType inputString, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info);
 void removeProgFiles (progType currentProg);
 void next_file (void);
