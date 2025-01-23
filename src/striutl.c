@@ -709,6 +709,100 @@ void heapFreeOsStri (const_os_striType var)
 
 /**
  *  Convert an UTF-8 encoded string to an UTF-32 encoded string.
+ *  The memory for the destination dest_stri is not allocated.
+ *  @param dest_stri Destination of the UTF-32 encoded string.
+ *  @param dest_len Place to return the length of dest_stri.
+ *  @param stri8 UTF-8 encoded string to be converted.
+ *  @param len Number of bytes in stri8.
+ *  @return the number of bytes in stri8 that are left unconverted, or
+ *          0 if stri8 has been successfully converted.
+ */
+memSizeType stri8_to_stri (strElemType *const dest_stri,
+    memSizeType *const dest_len, const strElemType *stri8, memSizeType len)
+
+  {
+    strElemType *stri;
+
+  /* stri8_to_stri */
+    stri = dest_stri;
+    for (; len > 0; len--) {
+      if (*stri8 <= 0x7F) {
+        *stri++ = (strElemType) *stri8++;
+      } else if (stri8[0] >= 0xC0 && stri8[0] <= 0xDF && len >= 2 &&
+                 stri8[1] >= 0x80 && stri8[1] <= 0xBF) {
+        /* stri8[0]   range 192 to 223 (leading bits 110.....) */
+        /* stri8[1]   range 128 to 191 (leading bits 10......) */
+        *stri++ = (strElemType) (stri8[0] & 0x1F) << 6 |
+                  (strElemType) (stri8[1] & 0x3F);
+        stri8 += 2;
+        len--;
+      } else if (stri8[0] >= 0xE0 && stri8[0] <= 0xEF && len >= 3 &&
+                 stri8[1] >= 0x80 && stri8[1] <= 0xBF &&
+                 stri8[2] >= 0x80 && stri8[2] <= 0xBF) {
+        /* stri8[0]   range 224 to 239 (leading bits 1110....) */
+        /* stri8[1..] range 128 to 191 (leading bits 10......) */
+        *stri++ = (strElemType) (stri8[0] & 0x0F) << 12 |
+                  (strElemType) (stri8[1] & 0x3F) <<  6 |
+                  (strElemType) (stri8[2] & 0x3F);
+        stri8 += 3;
+        len -= 2;
+      } else if (stri8[0] >= 0xF0 && stri8[0] <= 0xF7 && len >= 4 &&
+                 stri8[1] >= 0x80 && stri8[1] <= 0xBF &&
+                 stri8[2] >= 0x80 && stri8[2] <= 0xBF &&
+                 stri8[3] >= 0x80 && stri8[3] <= 0xBF) {
+        /* stri8[0]   range 240 to 247 (leading bits 11110...) */
+        /* stri8[1..] range 128 to 191 (leading bits 10......) */
+        *stri++ = (strElemType) (stri8[0] & 0x07) << 18 |
+                  (strElemType) (stri8[1] & 0x3F) << 12 |
+                  (strElemType) (stri8[2] & 0x3F) <<  6 |
+                  (strElemType) (stri8[3] & 0x3F);
+        stri8 += 4;
+        len -= 3;
+      } else if (stri8[0] >= 0xF8 && stri8[0] <= 0xFB && len >= 5 &&
+                 stri8[1] >= 0x80 && stri8[1] <= 0xBF &&
+                 stri8[2] >= 0x80 && stri8[2] <= 0xBF &&
+                 stri8[3] >= 0x80 && stri8[3] <= 0xBF &&
+                 stri8[4] >= 0x80 && stri8[4] <= 0xBF) {
+        /* stri8[0]   range 248 to 251 (leading bits 111110..) */
+        /* stri8[1..] range 128 to 191 (leading bits 10......) */
+        *stri++ = (strElemType) (stri8[0] & 0x03) << 24 |
+                  (strElemType) (stri8[1] & 0x3F) << 18 |
+                  (strElemType) (stri8[2] & 0x3F) << 12 |
+                  (strElemType) (stri8[3] & 0x3F) <<  6 |
+                  (strElemType) (stri8[4] & 0x3F);
+        stri8 += 5;
+        len -= 4;
+      } else if (stri8[0] >= 0xFC && stri8[0] <= 0xFF && len >= 6 &&
+                 stri8[1] >= 0x80 && stri8[1] <= 0xBF &&
+                 stri8[2] >= 0x80 && stri8[2] <= 0xBF &&
+                 stri8[3] >= 0x80 && stri8[3] <= 0xBF &&
+                 stri8[4] >= 0x80 && stri8[4] <= 0xBF &&
+                 stri8[5] >= 0x80 && stri8[5] <= 0xBF) {
+        /* stri8[0]   range 252 to 255 (leading bits 111111..) */
+        /* stri8[1..] range 128 to 191 (leading bits 10......) */
+        *stri++ = (strElemType) (stri8[0] & 0x03) << 30 |
+                  (strElemType) (stri8[1] & 0x3F) << 24 |
+                  (strElemType) (stri8[2] & 0x3F) << 18 |
+                  (strElemType) (stri8[3] & 0x3F) << 12 |
+                  (strElemType) (stri8[4] & 0x3F) <<  6 |
+                  (strElemType) (stri8[5] & 0x3F);
+        stri8 += 6;
+        len -= 5;
+      } else {
+        /* stri8[0] not in range 0xC0 to 0xFF (192 to 255) */
+        /* or not enough continuation bytes found.         */
+        *dest_len = (memSizeType) (stri - dest_stri);
+        return len;
+      } /* if */
+    } /* for */
+    *dest_len = (memSizeType) (stri - dest_stri);
+    return 0;
+  } /* stri8_to_stri */
+
+
+
+/**
+ *  Convert an UTF-8 encoded string to an UTF-32 encoded string.
  *  The source and destination strings are not '\0' terminated.
  *  The memory for the destination dest_stri is not allocated.
  *  @param dest_stri Destination of the UTF-32 encoded string.

@@ -193,6 +193,8 @@ void heapFreeOsStri (const_os_striType var);
 #ifdef OS_STRI_USES_CODE_PAGE
 charType mapFromCodePage (unsigned char key);
 #endif
+memSizeType stri8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,
+                           const strElemType *stri8, memSizeType len);
 memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,
                           const_ustriType ustri, memSizeType len);
 memSizeType utf8_bytes_missing (const const_ustriType ustri, const memSizeType len);

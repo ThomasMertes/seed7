@@ -2557,9 +2557,8 @@ striType strFromUtf8 (const const_striType utf8)
 
   {
     memSizeType utf8Size;
-    memSizeType pos;
-    const strElemType *utf8ptr;
-    boolType okay = TRUE;
+    memSizeType unconverted;
+    memSizeType resultSize;
     striType resized_result;
     striType result;
 
@@ -2570,100 +2569,29 @@ striType strFromUtf8 (const const_striType utf8)
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, utf8Size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      utf8ptr = &utf8->mem[0];
-      pos = 0;
-      for (; utf8Size > 0; pos++, utf8Size--) {
-        if (*utf8ptr <= 0x7F) {
-          result->mem[pos] = *utf8ptr++;
-        } else if (utf8ptr[0] >= 0xC0 && utf8ptr[0] <= 0xDF && utf8Size >= 2 &&
-                   utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF) {
-          /* utf8ptr[0]   range 192 to 223 (leading bits 110.....) */
-          /* utf8ptr[1]   range 128 to 191 (leading bits 10......) */
-          result->mem[pos] = (utf8ptr[0] & 0x1F) << 6 |
-                             (utf8ptr[1] & 0x3F);
-          utf8ptr += 2;
-          utf8Size--;
-        } else if (utf8ptr[0] >= 0xE0 && utf8ptr[0] <= 0xEF && utf8Size >= 3 &&
-                   utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
-                   utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF) {
-          /* utf8ptr[0]   range 224 to 239 (leading bits 1110....) */
-          /* utf8ptr[1..] range 128 to 191 (leading bits 10......) */
-          result->mem[pos] = (utf8ptr[0] & 0x0F) << 12 |
-                             (utf8ptr[1] & 0x3F) <<  6 |
-                             (utf8ptr[2] & 0x3F);
-          utf8ptr += 3;
-          utf8Size -= 2;
-        } else if (utf8ptr[0] >= 0xF0 && utf8ptr[0] <= 0xF7 && utf8Size >= 4 &&
-                   utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
-                   utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
-                   utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF) {
-          /* utf8ptr[0]   range 240 to 247 (leading bits 11110...) */
-          /* utf8ptr[1..] range 128 to 191 (leading bits 10......) */
-          result->mem[pos] = (utf8ptr[0] & 0x07) << 18 |
-                             (utf8ptr[1] & 0x3F) << 12 |
-                             (utf8ptr[2] & 0x3F) <<  6 |
-                             (utf8ptr[3] & 0x3F);
-          utf8ptr += 4;
-          utf8Size -= 3;
-        } else if (utf8ptr[0] >= 0xF8 && utf8ptr[0] <= 0xFB && utf8Size >= 5 &&
-                   utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
-                   utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
-                   utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF &&
-                   utf8ptr[4] >= 0x80 && utf8ptr[4] <= 0xBF) {
-          /* utf8ptr[0]   range 248 to 251 (leading bits 111110..) */
-          /* utf8ptr[1..] range 128 to 191 (leading bits 10......) */
-          result->mem[pos] = (utf8ptr[0] & 0x03) << 24 |
-                             (utf8ptr[1] & 0x3F) << 18 |
-                             (utf8ptr[2] & 0x3F) << 12 |
-                             (utf8ptr[3] & 0x3F) <<  6 |
-                             (utf8ptr[4] & 0x3F);
-          utf8ptr += 5;
-          utf8Size -= 4;
-        } else if (utf8ptr[0] >= 0xFC && utf8ptr[0] <= 0xFF && utf8Size >= 6 &&
-                   utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
-                   utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
-                   utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF &&
-                   utf8ptr[4] >= 0x80 && utf8ptr[4] <= 0xBF &&
-                   utf8ptr[5] >= 0x80 && utf8ptr[5] <= 0xBF) {
-          /* utf8ptr[0]   range 252 to 255 (leading bits 111111..) */
-          /* utf8ptr[1..] range 128 to 191 (leading bits 10......) */
-          result->mem[pos] = (utf8ptr[0] & 0x03) << 30 |
-                             (utf8ptr[1] & 0x3F) << 24 |
-                             (utf8ptr[2] & 0x3F) << 18 |
-                             (utf8ptr[3] & 0x3F) << 12 |
-                             (utf8ptr[4] & 0x3F) <<  6 |
-                             (utf8ptr[5] & 0x3F);
-          utf8ptr += 6;
-          utf8Size -= 5;
-        } else {
-          /* utf8ptr[0] not in range 0xC0 to 0xFF (192 to 255) */
-          /* or not enough continuation bytes found.           */
-          logError(printf("strFromUtf8: "
-                          "Invalid byte sequence starting at position "
-                          FMT_U_MEM ": \"\\" FMT_U32 ";\\ ...\".\n",
-                          (memSizeType) (utf8ptr - &utf8->mem[0]),
-                          utf8ptr[0]););
-          okay = FALSE;
-          utf8Size = 1;
-        } /* if */
-      } /* for */
-      if (likely(okay)) {
-        result->size = pos;
-        if (pos != utf8->size) {
-          REALLOC_STRI_SIZE_SMALLER(resized_result, result, utf8->size, pos);
+      unconverted = stri8_to_stri(result->mem, &resultSize, utf8->mem, utf8Size);
+      if (unlikely(unconverted != 0)) {
+        logError(printf("strFromUtf8: "
+                        "Invalid byte sequence starting at position "
+                        FMT_U_MEM ": \"\\" FMT_U32 ";\\ ...\".\n",
+                        utf8Size + 1 - unconverted,
+                        utf8->mem[utf8Size - unconverted]););
+        FREE_STRI(result, utf8Size);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        result->size = resultSize;
+        if (resultSize != utf8Size) {
+          REALLOC_STRI_SIZE_SMALLER(resized_result, result, utf8Size, resultSize);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, utf8->size);
+            FREE_STRI(result, utf8Size);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(utf8->size, pos);
+            COUNT3_STRI(utf8Size, resultSize);
           } /* if */
         } /* if */
-      } else {
-        FREE_STRI(result, utf8->size);
-        raise_error(RANGE_ERROR);
-        result = NULL;
       } /* if */
     } /* if */
     logFunction(printf("strFromUtf8 --> \"%s\"\n",
