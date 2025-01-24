@@ -147,7 +147,17 @@ static inline void systemVar (void)
         trace1(sysObject);
         printf("\n"); */
     if (indexFound != -1) {
-      prog->sys_var[indexFound] = sysObject;
+      if (indexFound >= FIRST_EXCEPTION_SYS_VAR &&
+          indexFound <= LAST_EXCEPTION_SYS_VAR &&
+          CATEGORY_OF_OBJ(sysObject) != ENUMLITERALOBJECT) {
+        err_object(EXCEPTION_EXPECTED, sysObject);
+      } else if (indexFound >= FIRST_TYPE_SYS_VAR &&
+                 indexFound <= LAST_TYPE_SYS_VAR &&
+                 CATEGORY_OF_OBJ(sysObject) != TYPEOBJECT) {
+        err_object(TYPE_EXPECTED, sysObject);
+      } else {
+        prog->sys_var[indexFound] = sysObject;
+      } /* if */
     } /* if */
     if (current_ident == prog->id_for.semicolon) {
       scan_symbol();

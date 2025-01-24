@@ -1235,6 +1235,10 @@ void err_object (errorType err, const_objectType obj_found)
         prot_cstri(" failed");
         prot_nl();
         break;
+      case EXCEPTION_EXPECTED:
+        prot_cstri("Exception expected found ");
+        printobject(obj_found);
+        break;
       default:
         undef_err();
         break;

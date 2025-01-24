@@ -61,6 +61,11 @@
 #define WRLN_OBJECT(prog)           (prog)->sys_var[30]
 #define MAIN_OBJECT(prog)           (prog)->sys_var[31]
 
+#define FIRST_EXCEPTION_SYS_VAR  1
+#define LAST_EXCEPTION_SYS_VAR   9
+#define FIRST_TYPE_SYS_VAR      12
+#define LAST_TYPE_SYS_VAR       19
+
 #define SYS_EMPTY_OBJECT          EMPTY_OBJECT(prog)
 #define SYS_MEM_EXCEPTION         MEM_EXCEPTION(prog)
 #define SYS_NUM_EXCEPTION         NUM_EXCEPTION(prog)
