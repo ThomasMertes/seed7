@@ -441,6 +441,26 @@ boolType openBString (bstriType inputString, boolType write_library_names,
 
 
 
+static void reduceFileCounter (void)
+
+  {
+    inFileType aFile;
+    fileNumType maximumFileNumber = 0;
+
+  /* reduceFileCounter */
+    aFile = file_pointer;
+    while (aFile != NULL) {
+      if (aFile->file_number > maximumFileNumber) {
+        maximumFileNumber = aFile->file_number;
+      } /* if */
+      aFile = aFile->next;
+    } /* while */
+    /* printf("maximumFileNumber: %u\n", maximumFileNumber); */
+    file_counter = maximumFileNumber;
+  } /* reduceFileCounter */
+
+
+
 static void freeFile (inFileType old_file)
 
   {
@@ -480,6 +500,7 @@ void removeProgFiles (progType currentProg)
         fileAddr = &currFile->next;
       } /* if */
     } /* if */
+    reduceFileCounter();
     logFunction(printf("removeProgFiles -->\n"););
   } /* removeProgFiles */
 
