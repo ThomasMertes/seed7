@@ -346,7 +346,7 @@ typedef struct structStruct {
     objectRecord stru[1];
   } structRecord;
 
-#define NUMBER_OF_SYSVARS 31
+#define NUMBER_OF_SYSVARS 32
 
 typedef objectType sysType[NUMBER_OF_SYSVARS];
 

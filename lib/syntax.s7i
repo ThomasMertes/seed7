@@ -41,6 +41,7 @@ $ const type: f_param  is $ newtype;
 
 $ system "expr"         is expr;
 $ system "string"       is string;
+$ system "f_param"      is f_param;
 $ system "empty"        is empty;
 # $ system "true"         is TRUE;
 # $ system "false"        is FALSE;

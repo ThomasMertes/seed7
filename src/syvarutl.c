@@ -60,6 +60,7 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "false",
     "true",
     "expr",
+    "f_param",
     "integer",
     "bigInteger",
     "char",

@@ -38,6 +38,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "syvarutl.h"
 #include "identutl.h"
 #include "objutl.h"
 #include "entutl.h"
@@ -789,15 +790,20 @@ static listType eval_name_list (listType matched_name_list, errInfoType *err_inf
     list_insert_place = &name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
-        parameter = do_exec_call(name_elem->obj, err_info);
-        if (*err_info != OKAY_NO_ERROR) {
-          err_object(PARAM_DECL_FAILED, name_elem->obj);
-        } else if (CATEGORY_OF_OBJ(parameter) != FORMPARAMOBJECT) {
+        if (name_elem->obj->type_of->result_type != take_type(SYS_F_PARAM_TYPE)) {
           err_object(PARAM_DECL_FAILED, name_elem->obj);
           *err_info = CREATE_ERROR;
         } else {
-          list_insert_place = append_element_to_list(list_insert_place,
-              parameter, err_info);
+          parameter = do_exec_call(name_elem->obj, err_info);
+          if (*err_info != OKAY_NO_ERROR) {
+            err_object(PARAM_DECL_FAILED, name_elem->obj);
+          } else if (CATEGORY_OF_OBJ(parameter) != FORMPARAMOBJECT) {
+            err_object(PARAM_DECL_FAILED, name_elem->obj);
+            *err_info = CREATE_ERROR;
+          } else {
+            list_insert_place = append_element_to_list(list_insert_place,
+                parameter, err_info);
+          } /* if */
         } /* if */
       } else {
         if (HAS_ENTITY(name_elem->obj) &&
