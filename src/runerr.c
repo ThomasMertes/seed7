@@ -431,7 +431,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       prot_nl(); */
     } /* if */
     set_fail_flag(TRUE);
-    return NULL;
+    return exception;
   } /* raise_with_arguments */
 
 
