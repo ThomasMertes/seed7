@@ -228,11 +228,6 @@ objectType dcl_elements (listType arguments)
     local_object_insert_place = get_local_object_insert_place();
     decl_res = evaluate(local_decls);
     if (decl_res != SYS_EMPTY_OBJECT) {
-      printf("eval local decls --> ");
-      trace1(decl_res);
-      printf("\n");
-      trace1(SYS_EMPTY_OBJECT);
-      printf("\n");
       err_object(PROC_EXPECTED, decl_res);
     } /* if */
     if (can_push_stack) {
