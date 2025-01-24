@@ -1238,6 +1238,7 @@ void err_object (errorType err, const_objectType obj_found)
       case EXCEPTION_EXPECTED:
         prot_cstri("Exception expected found ");
         printobject(obj_found);
+        prot_nl();
         break;
       default:
         undef_err();
@@ -1769,6 +1770,11 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
         prot_cstri("Redeclaration of \"");
         write_object_with_parameters(obj_found);
         prot_cstri("\"");
+        prot_nl();
+        break;
+      case PARAM_DECL_OR_SYMBOL_EXPECTED:
+        prot_cstri("Parameter declaration or symbol expected found ");
+        write_object(obj_found);
         prot_nl();
         break;
       default:

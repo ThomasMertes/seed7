@@ -775,7 +775,8 @@ static listType match_name_list (listType original_name_list, errInfoType *err_i
 
 
 
-static listType eval_name_list (listType matched_name_list, errInfoType *err_info)
+static listType eval_name_list (listType matched_name_list,
+    fileNumType file_number, lineNumType line, errInfoType *err_info)
 
   {
     listType name_elem;
@@ -812,8 +813,14 @@ static listType eval_name_list (listType matched_name_list, errInfoType *err_inf
         } else {
           parameter = name_elem->obj;
         } /* if */
-        list_insert_place = append_element_to_list(list_insert_place,
-            parameter, err_info);
+        if (CATEGORY_OF_OBJ(parameter) != SYMBOLOBJECT) {
+          err_at_file_in_line(PARAM_DECL_OR_SYMBOL_EXPECTED, parameter,
+              file_number, line);
+          *err_info = CREATE_ERROR;
+        } else {
+          list_insert_place = append_element_to_list(list_insert_place,
+              parameter, err_info);
+        } /* if */
       } /* if */
       name_elem = name_elem->next;
     } /* while */
@@ -843,7 +850,8 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     matched_name_list = match_name_list(object_name->value.listValue, err_info);
     if (*err_info == OKAY_NO_ERROR) {
       push_stack();
-      name_list = eval_name_list(matched_name_list, err_info);
+      name_list = eval_name_list(matched_name_list,
+          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       down_stack();
       if (*err_info == OKAY_NO_ERROR) {
         defined_object = push_name(prog, declaration_base, name_list,
@@ -903,7 +911,8 @@ static objectType inst_object_expr (const_nodeType declaration_base,
     matched_name_list = match_name_list(object_name->value.listValue, err_info);
     if (*err_info == OKAY_NO_ERROR) {
       push_stack();
-      name_list = eval_name_list(matched_name_list, err_info);
+      name_list = eval_name_list(matched_name_list,
+          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       down_stack();
       if (*err_info == OKAY_NO_ERROR) {
         /* printf("name_list ");
@@ -1002,7 +1011,8 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
           matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
-            name_list = eval_name_list(matched_name_list, err_info);
+            name_list = eval_name_list(matched_name_list,
+                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             down_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = find_entity(declaration_base, name_list);
@@ -1020,7 +1030,8 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
           matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
-            name_list = eval_name_list(matched_name_list, err_info);
+            name_list = eval_name_list(matched_name_list,
+                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             down_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
@@ -1092,7 +1103,8 @@ objectType search_name (const_nodeType declaration_base,
           matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
-            name_list = eval_name_list(matched_name_list, err_info);
+            name_list = eval_name_list(matched_name_list,
+                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             down_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = search_entity(declaration_base, name_list);
@@ -1110,7 +1122,8 @@ objectType search_name (const_nodeType declaration_base,
           matched_name_list = match_name_list(object_name->value.listValue, err_info);
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
-            name_list = eval_name_list(matched_name_list, err_info);
+            name_list = eval_name_list(matched_name_list,
+                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             down_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
