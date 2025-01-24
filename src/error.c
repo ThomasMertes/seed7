@@ -1229,12 +1229,6 @@ void err_object (errorType err, const_objectType obj_found)
         printobject(obj_found);
         prot_nl();
         break;
-      case EVAL_TYPE_FAILED:
-        prot_cstri("Evaluate type expression ");
-        trace1(obj_found);
-        prot_cstri(" failed");
-        prot_nl();
-        break;
       case EXCEPTION_EXPECTED:
         prot_cstri("Exception expected found ");
         printobject(obj_found);
