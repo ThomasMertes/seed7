@@ -1022,10 +1022,12 @@ objectType dcl_var (listType arguments)
               printf("\n");
 #endif
             } /* if */
+#if TRACE_DCL_VAR
           } else {
             printf("*** match value failed ");
             trace1(value);
             printf("\n");
+#endif
           } /* if */
         } else {
           do_create(current_object, value, &err_info);
