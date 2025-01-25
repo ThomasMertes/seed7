@@ -561,8 +561,11 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       leaveExceptionHandling();
       interpreter_exception = backup_interpreter_exception;
     } /* if */
-    logFunction(printf("analyzeProg --> " FMT_U_MEM " (err_info=%d)\n",
-                       (memSizeType) resultProg, *err_info););
+    logFunction(printf("analyzeProg --> " FMT_U_MEM
+                       " (error_count=%u, err_info=%d)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0,
+                       *err_info););
     return resultProg;
   } /* analyzeProg */
 
@@ -635,8 +638,11 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         FREE_STRI(sourceFilePath, nameLen);
       } /* if */
     } /* if */
-    logFunction(printf("analyzeFile --> " FMT_U_MEM " (err_info=%d)\n",
-                       (memSizeType) resultProg, *err_info););
+    logFunction(printf("analyzeFile --> " FMT_U_MEM
+                       " (error_count=%u, err_info=%d)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0,
+                       *err_info););
     return resultProg;
   } /* analyzeFile */
 
@@ -663,10 +669,49 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
       err_message(NO_SOURCEFILE, sourceFileArgument);
     } /* if */
-    logFunction(printf("analyze --> " FMT_U_MEM "\n",
-                       (memSizeType) resultProg););
+    logFunction(printf("analyze --> " FMT_U_MEM " (error_count=%u)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
   } /* analyze */
+
+
+
+progType analyzeBString (const bstriType input_bstri, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    errInfoType *err_info)
+
+  {
+    striType sourceFileArgument;
+    boolType isOpen;
+    progType resultProg = NULL;
+
+  /* analyzeBString */
+    logFunction(printf("analyzeBString(\"%s\", 0x" F_X(016) ", *, ",
+                       bstriAsUnquotedCStri(input_bstri), options);
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(protFileName)););
+    initAnalyze();
+    sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
+    if (sourceFileArgument == NULL) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      isOpen = openBString(input_bstri,
+                           (options & WRITE_LIBRARY_NAMES) != 0,
+                           (options & WRITE_LINE_NUMBERS) != 0, err_info);
+      if (isOpen) {
+        resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
+                                 options, libraryDirs, protFileName, err_info);
+      } /* if */
+      FREE_STRI(sourceFileArgument, sourceFileArgument->size);
+    } /* if */
+    logFunction(printf("analyzeBString --> " FMT_U_MEM
+                       " (error_count=%u, err_info=%d)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0,
+                       *err_info););
+    return resultProg;
+  } /* analyzeBString */
 
 
 
@@ -675,37 +720,27 @@ progType analyzeString (const const_striType input_string, uintType options,
     errInfoType *err_info)
 
   {
-    striType sourceFileArgument;
     bstriType input_bstri;
-    boolType isOpen;
-    progType resultProg = NULL;
+    progType resultProg;
 
   /* analyzeString */
     logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(input_string), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
-    initAnalyze();
-    sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
-    if (sourceFileArgument == NULL) {
+    input_bstri = stri_to_bstri8(input_string);
+    if (input_bstri == NULL) {
       *err_info = MEMORY_ERROR;
+      resultProg = NULL;
     } else {
-      input_bstri = stri_to_bstri8(input_string);
-      if (input_bstri == NULL) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        isOpen = openBString(input_bstri,
-                             (options & WRITE_LIBRARY_NAMES) != 0,
-                             (options & WRITE_LINE_NUMBERS) != 0, err_info);
-        if (isOpen) {
-          resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
-                                   options, libraryDirs, protFileName, err_info);
-        } /* if */
-        FREE_BSTRI(input_bstri, input_bstri->size);
-      } /* if */
-      FREE_STRI(sourceFileArgument, sourceFileArgument->size);
+      resultProg = analyzeBString(input_bstri, options, libraryDirs,
+                                  protFileName, err_info);
+      FREE_BSTRI(input_bstri, input_bstri->size);
     } /* if */
-    logFunction(printf("analyzeString --> " FMT_U_MEM "\n",
-                       (memSizeType) resultProg););
+    logFunction(printf("analyzeString --> " FMT_U_MEM
+                       " (error_count=%u, err_info=%d)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0,
+                       *err_info););
     return resultProg;
   } /* analyzeString */

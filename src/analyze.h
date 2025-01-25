@@ -30,6 +30,9 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     errInfoType *err_info);
 progType analyze (const const_striType sourceFileArgument, uintType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName);
+progType analyzeBString (const bstriType input_bstri, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    errInfoType *err_info);
 progType analyzeString (const const_striType input_string, uintType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName,
     errInfoType *err_info);
