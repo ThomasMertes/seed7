@@ -759,6 +759,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_WHILE",                    prc_while,                    },
     { "PRC_WHILE_NOOP",               prc_while_noop,               },
 
+    { "PRG_BSTRI_PARSE",              prg_bstri_parse,              },
     { "PRG_CPY",                      prg_cpy,                      },
     { "PRG_CREATE",                   prg_create,                   },
     { "PRG_DESTR",                    prg_destr,                    },

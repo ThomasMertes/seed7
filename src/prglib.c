@@ -63,6 +63,41 @@
 
 
 /**
+ *  Parse the given bstring 'bstri/arg_1'.
+ *  @param bstri/arg_1 'BString' to be parsed.
+ *  @param options/arg_2 Options to be used when the file is parsed.
+ *  @param libraryDirs/arg_3 Search path for include/library files.
+ *  @param protFileName/arg_4 Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+objectType prg_bstri_parse (listType arguments)
+
+  {
+    rtlArrayType libraryDirs;
+    progType program;
+
+  /* prg_bstri_parse */
+    isit_bstri(arg_1(arguments));
+    isit_set(arg_2(arguments));
+    isit_array(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
+    if (libraryDirs == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      program = prgBStriParse(take_bstri(arg_1(arguments)),
+                              take_set(arg_2(arguments)),
+                              libraryDirs,
+                              take_stri(arg_4(arguments)));
+      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      return bld_prog_temp(program);
+    } /* if */
+  } /* prg_bstri_parse */
+
+
+
+/**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.
  */

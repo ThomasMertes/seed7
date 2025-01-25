@@ -25,6 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
+objectType prg_bstri_parse    (listType arguments);
 objectType prg_cpy            (listType arguments);
 objectType prg_create         (listType arguments);
 objectType prg_destr          (listType arguments);

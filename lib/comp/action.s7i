@@ -1429,6 +1429,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_WHILE, function, params, c_expr);
       when {"PRC_WHILE_NOOP"}:
         process(PRC_WHILE_NOOP, function, params, c_expr);
+      when {"PRG_BSTRI_PARSE"}:
+        process(PRG_BSTRI_PARSE, function, params, c_expr);
       when {"PRG_CPY"}:
         process(PRG_CPY, function, params, c_expr);
       when {"PRG_EQ"}:

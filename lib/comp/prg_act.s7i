@@ -24,6 +24,7 @@
 (********************************************************************)
 
 
+const ACTION: PRG_BSTRI_PARSE     is action "PRG_BSTRI_PARSE";
 const ACTION: PRG_CPY             is action "PRG_CPY";
 const ACTION: PRG_EQ              is action "PRG_EQ";
 const ACTION: PRG_ERROR_COUNT     is action "PRG_ERROR_COUNT";
@@ -47,22 +48,41 @@ const ACTION: PRG_VALUE           is action "PRG_VALUE";
 const proc: prg_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "progType    prgBStriParse (const bstriType, const const_setType, const const_arrayType, const const_striType);");
     declareExtern(c_prog, "void        prgCpy (progType *const, const progType);");
     declareExtern(c_prog, "progType    prgCreate (const progType);");
     declareExtern(c_prog, "void        prgDestr (progType);");
     declareExtern(c_prog, "intType     prgErrorCount (const const_progType);");
     declareExtern(c_prog, "objRefType  prgEval (progType, objRefType);");
     declareExtern(c_prog, "void        prgExec (const const_progType, const const_arrayType, const const_setType, const const_striType);");
-    declareExtern(c_prog, "progType    prgFilParse (const const_striType, const_setType, const const_arrayType, const_striType);");
+    declareExtern(c_prog, "progType    prgFilParse (const const_striType, const const_setType, const const_arrayType, const const_striType);");
     declareExtern(c_prog, "listType    prgGlobalObjects (const const_progType);");
     declareExtern(c_prog, "objRefType  prgMatch (const const_progType, listType);");
     declareExtern(c_prog, "objRefType  prgMatchExpr (const const_progType, listType);");
     declareExtern(c_prog, "const_striType prgName (const const_progType);");
     declareExtern(c_prog, "const_striType prgPath (const const_progType);");
-    declareExtern(c_prog, "progType    prgStrParse (const const_striType, const_setType, const const_arrayType, const_striType);");
+    declareExtern(c_prog, "progType    prgStrParse (const const_striType, const const_setType, const const_arrayType, const const_striType);");
     declareExtern(c_prog, "objRefType  prgSyobject (const progType, const const_striType);");
     declareExtern(c_prog, "objRefType  prgSysvar (const const_progType, const const_striType);");
     declareExtern(c_prog, "progType    prgValue (const const_objRefType);");
+  end func;
+
+
+const proc: process (PRG_BSTRI_PARSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    prepare_prog_result(c_expr);
+    c_expr.result_expr := "prgBStriParse((const bstriType)(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= "), ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
