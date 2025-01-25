@@ -50,6 +50,25 @@
 
 #define toStri(name) #name
 
+/** Strings longer than the AND_SO_ON_LIMIT are truncated. */
+#define AND_SO_ON_LIMIT     128
+#define AND_SO_ON_TEXT      "\\ *AND_SO_ON* SIZE="
+
+/** The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
+#define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
+
+/**
+ *  The maximum width when an UTF-32 character is displayed
+ *  in a literal is 12 characters (e.g.: \4294967295; ).
+ */
+#define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
+
+/**
+ *  The maximum width when an unsigned char (byte) is displayed
+ *  in a literal is 5 characters (e.g.: \255; ).
+ */
+#define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
+
 extern const const_cstriType stri_escape_sequence[];
 extern const const_cstriType cstri_escape_sequence[];
 
