@@ -215,6 +215,41 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
 
 
 /**
+ *  Parse the given 'bstring'.
+ *  @param bstri 'BString' to be parsed.
+ *  @param options Options to be used when the file is parsed.
+ *  @param libraryDirs Search path for include/library files.
+ *  @param protFileName Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+progType prgBStriParse (const bstriType bstri, const const_setType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName)
+
+  {
+    uintType int_options;
+    errInfoType err_info = OKAY_NO_ERROR;
+    progType resultProg;
+
+  /* prgBStriParse */
+    logFunction(printf("prgBStriParse(\"%s\")\n", bstriAsUnquotedCStri(bstri)););
+    int_options = (uintType) setSConv(options);
+    resultProg = analyzeBString(bstri, int_options, libraryDirs, protFileName, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("prgBStriParse(\"%s\"): analyzeBString() failed:\n"
+                      "int_options=" F_X(03) "\nerr_info=%d\n",
+                      bstriAsUnquotedCStri(bstri), int_options, err_info););
+      raise_error(err_info);
+    } /* if */
+    logFunction(printf("prgBStriParse --> " FMT_U_MEM " (error_count=%u)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0););
+    return resultProg;
+  } /* prgBStriParse */
+
+
+
+/**
  *  Assign source to *dest.
  *  A copy function assumes that *dest contains a legal value.
  *  @exception MEMORY_ERROR Not enough memory to create dest.
@@ -270,7 +305,7 @@ void prgDestr (progType old_prog)
     progType progBackup;
 
   /* prgDestr */
-    logFunction(printf("prgDestr(%lx)\n", (unsigned long) old_prog););
+    logFunction(printf("prgDestr(" FMT_X_MEM ")\n", (memSizeType) old_prog););
     if (old_prog != NULL) {
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
@@ -408,8 +443,9 @@ progType prgFilParse (const const_striType fileName, const const_setType options
                       striAsUnquotedCStri(fileName), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    logFunction(printf("prgFilParse --> " FMT_U_MEM "\n",
-                       (memSizeType) resultProg););
+    logFunction(printf("prgFilParse --> " FMT_U_MEM " (error_count=%u)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
   } /* prgFilParse */
 
@@ -559,19 +595,22 @@ progType prgStrParse (const const_striType stri, const const_setType options,
   {
     uintType int_options;
     errInfoType err_info = OKAY_NO_ERROR;
-    progType result;
+    progType resultProg;
 
   /* prgStrParse */
     logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     int_options = (uintType) setSConv(options);
-    result = analyzeString(stri, int_options, libraryDirs, protFileName, &err_info);
+    resultProg = analyzeString(stri, int_options, libraryDirs, protFileName, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgStrParse(\"%s\"): analyzeString() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
                       striAsUnquotedCStri(stri), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    return result;
+    logFunction(printf("prgStrParse --> " FMT_U_MEM " (error_count=%u)\n",
+                       (memSizeType) resultProg,
+                       resultProg != 0 ? resultProg->error_count : 0););
+    return resultProg;
   } /* prgStrParse */
 
 

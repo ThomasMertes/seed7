@@ -27,6 +27,8 @@
 
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName);
+progType prgBStriParse (const bstriType bstri, const const_setType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName);
 void prgCpy (progType *const dest, const progType source);
 progType prgCreate (const progType source);
 void prgDestr (progType old_prog);
