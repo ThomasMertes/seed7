@@ -134,8 +134,8 @@ void scan_byte_order_mark (void)
 
   /* scan_byte_order_mark */
     logFunction(printf("scan_byte_order_mark\n"););
-    if (in_file.character >= 0xC0 && in_file.character <= 0xFD) {
-      /* character range 192 to 253 (leading bits 11......) */
+    if (in_file.character == 0xEF) {
+      /* Start of UTF-8 BOM */
       unicode_char = utf8_char(in_file.character);
       if (unicode_char != 0xFEFF /* Byte-order mark */) {
         err_char(CHAR_ILLEGAL, unicode_char);
@@ -144,6 +144,7 @@ void scan_byte_order_mark (void)
         } /* while */
       } /* if */
     } else if (in_file.character == 0xFE || in_file.character == 0xFF) {
+      /* Start of UTF-16 BOM */
       unicode_char = (charType) in_file.character << CHAR_BIT;
       in_file.character = next_character();
       unicode_char |= (charType) in_file.character;

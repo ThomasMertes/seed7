@@ -516,6 +516,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         set_trace(resultProg->option_flags);
         set_protfile_name(protFileName);
         prog = resultProg;
+        scan_byte_order_mark();
         declAny(resultProg->declaration_root);
         if (MAIN_OBJECT(resultProg) == NULL) {
           err_warning(SYSTEM_MAIN_MISSING);
@@ -628,7 +629,6 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
       } /* if */
 #endif
       if (isOpen && sourceFilePath != NULL) {
-        scan_byte_order_mark();
         resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
                                  libraryDirs, protFileName, err_info);
       } else if (*err_info == FILE_ERROR) {
