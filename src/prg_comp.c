@@ -241,7 +241,7 @@ progType prgBStriParse (const bstriType bstri, const const_setType options,
                       bstriAsUnquotedCStri(bstri), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    logFunction(printf("prgBStriParse --> " FMT_U_MEM " (error_count=%u)\n",
+    logFunction(printf("prgBStriParse --> " FMT_X_MEM " (error_count=%u)\n",
                        (memSizeType) resultProg,
                        resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
@@ -260,6 +260,12 @@ void prgCpy (progType *const dest, const progType source)
     progType old_prog;
 
   /* prgCpy */
+    logFunction(printf("prgCpy(" FMT_X_MEM " (usage=" FMT_U "), "
+                               FMT_X_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     old_prog = *dest;
     if (old_prog != source) {
       prgDestr(old_prog);
@@ -268,7 +274,12 @@ void prgCpy (progType *const dest, const progType source)
         source->usage_count++;
       } /* if */
     } /* if */
-    /* printf("prgCpy: usage_count=%d\n", (*dest)->usage_count); */
+    logFunction(printf("prgCpy(" FMT_X_MEM " (usage=" FMT_U "), "
+                               FMT_X_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
   } /* prgCpy */
 
 
@@ -285,10 +296,15 @@ progType prgCreate (const progType source)
   {
 
   /* prgCreate */
+    logFunction(printf("prgCreate(" FMT_X_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     if (source != NULL) {
       source->usage_count++;
     } /* if */
-    /* printf("prgCreate: usage_count=%d\n", source->usage_count); */
+    logFunction(printf("prgCreate(" FMT_X_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
     return source;
   } /* prgCreate */
 
@@ -305,7 +321,10 @@ void prgDestr (progType old_prog)
     progType progBackup;
 
   /* prgDestr */
-    logFunction(printf("prgDestr(" FMT_X_MEM ")\n", (memSizeType) old_prog););
+    logFunction(printf("prgDestr(" FMT_X_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) old_prog,
+                       old_prog != NULL ? old_prog->usage_count
+                                        : (uintType) 0););
     if (old_prog != NULL) {
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
@@ -342,7 +361,8 @@ void prgDestr (progType old_prog)
         /* heapStatistic(); */
       } /* if */
     } /* if */
-    logFunction(printf("prgDestr\n"););
+    logFunction(printf("prgDestr(" FMT_X_MEM ") -->\n",
+                       (memSizeType) old_prog););
   } /* prgDestr */
 
 
@@ -357,12 +377,24 @@ intType prgErrorCount (const const_progType aProgram)
     intType result;
 
   /* prgErrorCount */
-    if (unlikely(aProgram->error_count > INTTYPE_MAX)) {
+    logFunction(printf("prgErrorCount(" FMT_X_MEM ")\n",
+                       (memSizeType) aProgram););
+    if (unlikely(aProgram == NULL)) {
+      logError(printf("prgErrorCount(" FMT_X_MEM "): Program empty.\n",
+                      (memSizeType) aProgram););
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else if (unlikely(aProgram->error_count > INTTYPE_MAX)) {
+      logError(printf("prgErrorCount(" FMT_X_MEM "): "
+                      "Error count %u too big.\n",
+                      (memSizeType) aProgram, aProgram->error_count););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
       result = (intType) aProgram->error_count;
     } /* if */
+    logFunction(printf("prgErrorCount(" FMT_X_MEM ") --> " FMT_D "\n",
+                       (memSizeType) aProgram, result););
     return result;
   } /* prgErrorCount */
 
@@ -379,6 +411,8 @@ objectType prgEval (progType aProgram, objectType anExpression)
     objectType result;
 
   /* prgEval */
+    logFunction(printf("prgEval(" FMT_X_MEM ")\n",
+                       (memSizeType) aProgram););
     result = exec_expr(aProgram, anExpression, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -443,7 +477,7 @@ progType prgFilParse (const const_striType fileName, const const_setType options
                       striAsUnquotedCStri(fileName), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    logFunction(printf("prgFilParse --> " FMT_U_MEM " (error_count=%u)\n",
+    logFunction(printf("prgFilParse --> " FMT_X_MEM " (error_count=%u)\n",
                        (memSizeType) resultProg,
                        resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
@@ -465,7 +499,14 @@ listType prgGlobalObjects (const const_progType aProgram)
     listType result;
 
   /* prgGlobalObjects */
-    if (aProgram->stack_current != NULL) {
+    logFunction(printf("prgGlobalObjects(" FMT_X_MEM ")\n",
+                       (memSizeType) aProgram););
+    if (unlikely(aProgram == NULL)) {
+      logError(printf("prgGlobalObjects(" FMT_X_MEM "): Program empty.\n",
+                      (memSizeType) aProgram););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (aProgram->stack_current != NULL) {
       result = copy_list(aProgram->stack_global->local_object_list, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
@@ -486,30 +527,41 @@ objectType prgMatch (const const_progType aProg, listType curr_expr)
     objectType result;
 
   /* prgMatch */
-    /* prot_list(curr_expr);
-    printf("\n"); */
-    expr_object.type_of = NULL;
-    expr_object.descriptor.property = NULL;
-    expr_object.value.listValue = curr_expr;
-    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
+    logFunction(printf("prgMatch(" FMT_X_MEM ", ",
+                       (memSizeType) aProg);
+                prot_list(curr_expr);
+                printf(")\n"););
+    if (unlikely(aProg == NULL)) {
+      logError(printf("prgMatch(" FMT_X_MEM ", ",
+                       (memSizeType) aProg);
+                prot_list(curr_expr);
+                printf("): Program empty.\n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      expr_object.type_of = NULL;
+      expr_object.descriptor.property = NULL;
+      expr_object.value.listValue = curr_expr;
+      INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
-    result = match_prog_expression(aProg->declaration_root, &expr_object);
-    if (result != NULL) {
-      if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
-          CATEGORY_OF_OBJ(result) == CALLOBJECT) {
-        curr_expr = expr_object.value.listValue->next;
-        result = expr_object.value.listValue->obj;
-        expr_object.value.listValue->next = NULL;
-        free_list(expr_object.value.listValue);
-      } else {
-        run_error(MATCHOBJECT, result);
+      result = match_prog_expression(aProg->declaration_root, &expr_object);
+      if (result != NULL) {
+        if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
+            CATEGORY_OF_OBJ(result) == CALLOBJECT) {
+          curr_expr = expr_object.value.listValue->next;
+          result = expr_object.value.listValue->obj;
+          expr_object.value.listValue->next = NULL;
+          free_list(expr_object.value.listValue);
+        } else {
+          run_error(MATCHOBJECT, result);
+        } /* if */
       } /* if */
+      /* printf("result == %lx\n", result);
+      trace1(result);
+      printf("\n");
+      prot_list(curr_expr);
+      printf("\n"); */
     } /* if */
-    /* printf("result == %lx\n", result);
-    trace1(result);
-    printf("\n");
-    prot_list(curr_expr);
-    printf("\n"); */
     return result;
   } /* prgMatch */
 
@@ -522,28 +574,39 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
     objectType result;
 
   /* prgMatchExpr */
-    /* prot_list(curr_expr);
-    printf("\n"); */
-    if (unlikely(!ALLOC_OBJECT(result))) {
-      raise_error(MEMORY_ERROR);
+    logFunction(printf("prgMatchExpr(" FMT_X_MEM ", ",
+                       (memSizeType) aProg);
+                prot_list(curr_expr);
+                printf(")\n"););
+    if (unlikely(aProg == NULL)) {
+      logError(printf("prgMatchExpr(" FMT_X_MEM ", ",
+                       (memSizeType) aProg);
+                prot_list(curr_expr);
+                printf("): Program empty.\n"););
+      raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result->type_of = NULL;
-      result->descriptor.property = NULL;
-      INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
-      result->value.listValue = copy_list(curr_expr, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result = match_prog_expression(aProg->declaration_root, result);
-        /* printf("result == %lx\n", result);
-        trace1(result);
-        printf("\n");
-        prot_list(curr_expr);
-        printf("\n");
-        prot_list(result->value.listValue);
-        printf("\n"); */
+        result->type_of = NULL;
+        result->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
+        result->value.listValue = copy_list(curr_expr, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = match_prog_expression(aProg->declaration_root, result);
+          /* printf("result == %lx\n", result);
+          trace1(result);
+          printf("\n");
+          prot_list(curr_expr);
+          printf("\n");
+          prot_list(result->value.listValue);
+          printf("\n"); */
+        } /* if */
       } /* if */
     } /* if */
     return result;
@@ -561,8 +624,24 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
  */
 const_striType prgName (const const_progType aProg)
 
-  { /* prgName */
-    return aProg->program_name;
+  {
+    const_striType name;
+
+  /* prgName */
+    logFunction(printf("prgName(" FMT_X_MEM ")\n",
+                       (memSizeType) aProg););
+    if (unlikely(aProg == NULL)) {
+      logError(printf("prgName(" FMT_X_MEM "): Program empty.\n",
+                      (memSizeType) aProg););
+      raise_error(RANGE_ERROR);
+      name = NULL;
+    } else {
+      name = aProg->program_name;
+    } /* if */
+    logFunction(printf("prgName(" FMT_X_MEM ") --> \"%s\"\n",
+                       (memSizeType) aProg,
+                       striAsUnquotedCStri(name)););
+    return name;
   } /* prgName */
 
 
@@ -574,8 +653,24 @@ const_striType prgName (const const_progType aProg)
  */
 const_striType prgPath (const const_progType aProg)
 
-  { /* prgPath */
-    return aProg->program_path;
+  {
+    const_striType path;
+
+  /* prgPath */
+    logFunction(printf("prgPath(" FMT_X_MEM ")\n",
+                       (memSizeType) aProg););
+    if (unlikely(aProg == NULL)) {
+      logError(printf("prgPath(" FMT_X_MEM "): Program empty.\n",
+                      (memSizeType) aProg););
+      raise_error(RANGE_ERROR);
+      path = NULL;
+    } else {
+      path = aProg->program_path;
+    } /* if */
+    logFunction(printf("prgName(" FMT_X_MEM ") --> \"%s\"\n",
+                       (memSizeType) aProg,
+                       striAsUnquotedCStri(path)););
+    return path;
   } /* prgPath */
 
 
@@ -607,7 +702,7 @@ progType prgStrParse (const const_striType stri, const const_setType options,
                       striAsUnquotedCStri(stri), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    logFunction(printf("prgStrParse --> " FMT_U_MEM " (error_count=%u)\n",
+    logFunction(printf("prgStrParse --> " FMT_X_MEM " (error_count=%u)\n",
                        (memSizeType) resultProg,
                        resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
@@ -631,19 +726,30 @@ objectType prgSyobject (const progType aProgram, const const_striType syobjectNa
     objectType result;
 
   /* prgSyobject */
-    name = stri_to_cstri8(syobjectName, &err_info);
-    if (unlikely(name == NULL)) {
-      raise_error(err_info);
+    logFunction(printf("prgSyobject(" FMT_X_MEM ", \"%s\")\n",
+                       (memSizeType) aProgram,
+                       striAsUnquotedCStri(syobjectName)););
+    if (unlikely(aProgram == NULL)) {
+      logError(printf("prgSyobject(" FMT_X_MEM ", \"%s\"): "
+                      "Program empty.\n", (memSizeType) aProgram,
+                      striAsUnquotedCStri(syobjectName)););
+      raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      ident_found = get_ident(aProgram, (const_ustriType) name);
-      if (ident_found == NULL ||
-          ident_found->entity == NULL) {
+      name = stri_to_cstri8(syobjectName, &err_info);
+      if (unlikely(name == NULL)) {
+        raise_error(err_info);
         result = NULL;
       } else {
-        result = ident_found->entity->syobject;
+        ident_found = get_ident(aProgram, (const_ustriType) name);
+        if (ident_found == NULL ||
+            ident_found->entity == NULL) {
+          result = NULL;
+        } else {
+          result = ident_found->entity->syobject;
+        } /* if */
+        free_cstri8(name, syobjectName);
       } /* if */
-      free_cstri8(name, syobjectName);
     } /* if */
     return result;
   } /* prgSyobject */
@@ -662,11 +768,22 @@ objectType prgSysvar (const const_progType aProgram, const const_striType name)
     objectType result;
 
   /* prgSysvar */
-    index_found = findSysvar(name);
-    if (index_found != -1) {
-      result = aProgram->sys_var[index_found];
-    } else {
+    logFunction(printf("prgSysvar(" FMT_X_MEM ", \"%s\")\n",
+                       (memSizeType) aProgram,
+                       striAsUnquotedCStri(name)););
+    if (unlikely(aProgram == NULL)) {
+      logError(printf("prgSysvar(" FMT_X_MEM ", \"%s\"): "
+                      "Program empty.\n", (memSizeType) aProgram,
+                      striAsUnquotedCStri(name)););
+      raise_error(RANGE_ERROR);
       result = NULL;
+    } else {
+      index_found = findSysvar(name);
+      if (index_found != -1) {
+        result = aProgram->sys_var[index_found];
+      } else {
+        result = NULL;
+      } /* if */
     } /* if */
     return result;
   } /* prgSysvar */
