@@ -542,7 +542,6 @@ static progType analyzeProg (const const_striType sourceFileArgument,
           } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
-        currentlyAnalyzing = FALSE;
       } else {
         prog = progBackup;
         closeInfile();
@@ -554,6 +553,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         resultProg = NULL;
         *err_info = MEMORY_ERROR;
       } /* if */
+      currentlyAnalyzing = FALSE;
       curr_exec_object = backup_curr_exec_object;
       curr_argument_list = backup_curr_argument_list;
       memcpy(&trace, &traceBackup, sizeof(traceRecord));
