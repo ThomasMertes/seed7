@@ -663,11 +663,13 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
     resultProg = analyzeFile(sourceFileArgument, options,
                              libraryDirs, protFileName, &err_info);
     if (err_info == MEMORY_ERROR) {
-      /* err_warning(OUT_OF_HEAP_SPACE); */
-      prot_cstri("No more memory");
+      prot_cstri("*** No more memory");
       prot_nl();
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
-      err_message(NO_SOURCEFILE, sourceFileArgument);
+      prot_cstri("*** File ");
+      prot_stri(sourceFileArgument);
+      prot_cstri(" not found");
+      prot_nl();
     } /* if */
     logFunction(printf("analyze --> " FMT_U_MEM " (error_count=%u)\n",
                        (memSizeType) resultProg,
