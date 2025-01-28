@@ -198,6 +198,44 @@ const func program: parseStri (in string: stri) is
 
 
 (**
+ *  Parse the given ''bstring'' with ''options', ''libraryDirs'' and ''protFileName''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseStri (in bstring: bstri, in parseOptions: options,
+                               in array string: libraryDirs,
+                               in string: protFileName)                  is action "PRG_BSTRI_PARSE";
+
+
+(**
+ *  Parse the given ''bstring'' with ''options' and ''libraryDirs''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseStri (in bstring: bstri, in parseOptions: options,
+                               in array string: libraryDirs) is
+  return parseStri(bstri, options, libraryDirs, "");
+
+
+(**
+ *  Parse the given ''bstring'' with ''options'.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseStri (in bstring: bstri, in parseOptions: options) is
+  return parseStri(bstri, options, 0 times "", "");
+
+
+(**
+ *  Parse the given ''bstring''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseStri (in bstring: bstri) is
+  return parseStri(bstri, parseOptions.value, 0 times "", "");
+
+
+(**
  *  Evaluate ''anExpression'' which is part of ''aProgram''.
  *  @return the result of the evaluation.
  *)
