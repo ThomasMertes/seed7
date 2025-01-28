@@ -48,7 +48,7 @@ LOBJ = actlib.o arrlib.o biglib.o binlib.o blnlib.o bstlib.o chrlib.o cmdlib.o c
        timlib.o typlib.o ut8lib.o
 EOBJ = exec.o doany.o objutl.o
 AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
-       expr.o atom.o object.o scanner.o literal.o numlit.o findid.o \
+       expr.o atom.o object.o scanner.o literal.o numlit.o findid.o msg_stri.o \
        error.o infile.o libpath.o symbol.o info.o stat.o fatal.o match.o
 GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
@@ -74,7 +74,7 @@ LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c c
        timlib.c typlib.c ut8lib.c
 ESRC = exec.c doany.c objutl.c
 ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
-       expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
+       expr.c atom.c object.c scanner.c literal.c numlit.c findid.c msg_stri.c \
        error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c

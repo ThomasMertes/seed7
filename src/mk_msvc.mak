@@ -45,7 +45,7 @@ LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.
        timlib.obj typlib.obj ut8lib.obj
 EOBJ = exec.obj doany.obj objutl.obj
 AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
-       expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
+       expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj msg_stri.obj \
        error.obj infile.obj libpath.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj arrutl.obj
@@ -71,7 +71,7 @@ LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c c
        timlib.c typlib.c ut8lib.c
 ESRC = exec.c doany.c objutl.c
 ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
-       expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
+       expr.c atom.c object.c scanner.c literal.c numlit.c findid.c msg_stri.c \
        error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
