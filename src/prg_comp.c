@@ -50,6 +50,7 @@
 #include "traceutl.h"
 #include "infile.h"
 #include "analyze.h"
+#include "error.h"
 #include "name.h"
 #include "exec.h"
 #include "option.h"
@@ -356,6 +357,7 @@ void prgDestr (progType old_prog)
         if (old_prog->stack_global != NULL) {
           FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
         } /* if */
+        freeErrorList(old_prog->errorList);
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
@@ -482,6 +484,67 @@ progType prgFilParse (const const_striType fileName, const const_setType options
                        resultProg != 0 ? resultProg->error_count : 0););
     return resultProg;
   } /* prgFilParse */
+
+
+
+void prgGetError (const const_progType aProg, intType errorIndex,
+    intType *errorNumber, striType *fileName, intType *lineNumber,
+    intType *columnNumber, striType *msg, striType *errorLine)
+
+  {
+    parseErrorType error;
+    uintType index;
+
+  /* prgGetError */
+    logFunction(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", ...)\n",
+                       (memSizeType) aProg, errorIndex););
+    if (unlikely(aProg == NULL)) {
+      logError(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", ...): "
+                      "Program empty.\n",
+                      (memSizeType) aProg, errorIndex););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(errorIndex <= 0 ||
+                        errorIndex > aProg->error_count)) {
+      logError(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", ...): "
+                      "Error index not in allowed range (1 .. %u).\n",
+                      (memSizeType) aProg, errorIndex,
+                      aProg->error_count););
+      raise_error(RANGE_ERROR);
+    } else {
+      error = aProg->errorList;
+      index = (uintType) errorIndex;
+      while (--index > 0 && error != NULL) {
+        error = error->next;
+      } /* while */
+      if (unlikely(error == NULL)) {
+        logError(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", ...): "
+                        "Error data is NULL.\n",
+                        (memSizeType) aProg, errorIndex););
+        raise_error(RANGE_ERROR);
+      } else if (unlikely(error->columnNumber > INTTYPE_MAX)) {
+        logError(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", ...): "
+                        "Column number " FMT_U_MEM " too big.\n",
+                        (memSizeType) aProg, errorIndex,
+                        error->columnNumber););
+        raise_error(RANGE_ERROR);
+      } else {
+        *errorNumber = (intType) error->err;
+        strCopy(fileName, error->fileName);
+        *lineNumber = error->lineNumber;
+        *columnNumber = (intType) error->columnNumber;
+        strCopy(msg, error->msg);
+        strCopy(errorLine, error->errorLine);
+      } /* if */
+    } /* if */
+    logFunction(printf("prgGetError(" FMT_X_MEM ", " FMT_D ", " FMT_D
+                                    ", \"%s\", " FMT_D ", " FMT_D,
+                       (memSizeType) aProg, errorIndex, *errorNumber,
+                       striAsUnquotedCStri(*fileName), *lineNumber,
+                       *columnNumber);
+                printf(", \"%s\"", striAsUnquotedCStri(*msg));
+                printf(", \"%s\") -->\n",
+                       striAsUnquotedCStri(*errorLine)););
+  } /* prgGetError */
 
 
 

@@ -38,6 +38,9 @@ void prgExec (const const_progType aProgram, const const_rtlArrayType parameters
     const const_setType options, const const_striType protFileName);
 progType prgFilParse (const const_striType fileName, const const_setType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName);
+void prgGetError (const const_progType aProg, intType errorIndex,
+    intType *errorNumber, striType *fileName, intType *lineNumber,
+    intType *columnNumber, striType *msg, striType *errorLine);
 listType prgGlobalObjects (const const_progType aProg);
 objectType prgMatch (const const_progType aProg, listType curr_expr);
 objectType prgMatchExpr (const const_progType aProg, listType curr_expr);

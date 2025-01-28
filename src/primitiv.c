@@ -769,6 +769,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRG_EVAL",                     prg_eval,                     },
     { "PRG_EXEC",                     prg_exec,                     },
     { "PRG_FIL_PARSE",                prg_fil_parse,                },
+    { "PRG_GET_ERROR",                prg_get_error,                },
     { "PRG_GLOBAL_OBJECTS",           prg_global_objects,           },
     { "PRG_MATCH",                    prg_match,                    },
     { "PRG_MATCH_EXPR",               prg_match_expr,               },

@@ -320,6 +320,36 @@ objectType prg_fil_parse (listType arguments)
 
 
 
+objectType prg_get_error (listType arguments)
+
+  { /* prg_get_error */
+    isit_prog(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_stri(arg_7(arguments));
+    isit_stri(arg_8(arguments));
+    is_variable(arg_3(arguments));
+    is_variable(arg_4(arguments));
+    is_variable(arg_5(arguments));
+    is_variable(arg_6(arguments));
+    is_variable(arg_7(arguments));
+    is_variable(arg_8(arguments));
+    prgGetError(take_prog(arg_1(arguments)),
+                take_int(arg_2(arguments)),
+                &arg_3(arguments)->value.intValue,
+                &arg_4(arguments)->value.striValue,
+                &arg_5(arguments)->value.intValue,
+                &arg_6(arguments)->value.intValue,
+                &arg_7(arguments)->value.striValue,
+                &arg_8(arguments)->value.striValue);
+    return SYS_EMPTY_OBJECT;
+  } /* prg_get_error */
+
+
+
 /**
  *  Determine the list of global defined objects in 'aProgram/arg_1'.
  *  The returned list contains constant and variable objects
