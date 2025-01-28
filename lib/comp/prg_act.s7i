@@ -31,6 +31,7 @@ const ACTION: PRG_ERROR_COUNT     is action "PRG_ERROR_COUNT";
 const ACTION: PRG_EVAL            is action "PRG_EVAL";
 const ACTION: PRG_EXEC            is action "PRG_EXEC";
 const ACTION: PRG_FIL_PARSE       is action "PRG_FIL_PARSE";
+const ACTION: PRG_GET_ERROR       is action "PRG_GET_ERROR";
 const ACTION: PRG_GLOBAL_OBJECTS  is action "PRG_GLOBAL_OBJECTS";
 const ACTION: PRG_MATCH           is action "PRG_MATCH";
 const ACTION: PRG_MATCH_EXPR      is action "PRG_MATCH_EXPR";
@@ -56,6 +57,7 @@ const proc: prg_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "objRefType  prgEval (progType, objRefType);");
     declareExtern(c_prog, "void        prgExec (const const_progType, const const_arrayType, const const_setType, const const_striType);");
     declareExtern(c_prog, "progType    prgFilParse (const const_striType, const const_setType, const const_arrayType, const const_striType);");
+    declareExtern(c_prog, "void        prgGetError (const const_progType, intType, intType *, striType *, intType *, intType *, striType *, striType *);");
     declareExtern(c_prog, "listType    prgGlobalObjects (const const_progType);");
     declareExtern(c_prog, "objRefType  prgMatch (const const_progType, listType);");
     declareExtern(c_prog, "objRefType  prgMatchExpr (const const_progType, listType);");
@@ -196,6 +198,31 @@ const proc: process (PRG_FIL_PARSE, in reference: function,
     c_expr.result_expr &:= ", ";
     getAnyParamToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_GET_ERROR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr := "prgGetError(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 

@@ -1443,6 +1443,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRG_EXEC, function, params, c_expr);
       when {"PRG_FIL_PARSE"}:
         process(PRG_FIL_PARSE, function, params, c_expr);
+      when {"PRG_GET_ERROR"}:
+        process(PRG_GET_ERROR, function, params, c_expr);
       when {"PRG_GLOBAL_OBJECTS"}:
         process(PRG_GLOBAL_OBJECTS, function, params, c_expr);
       when {"PRG_MATCH"}:
