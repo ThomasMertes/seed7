@@ -111,7 +111,12 @@ const type: parseOptions is set of singleParseOption;
 
 (**
  *  Parse the file with the given ''fileName'', ''options'', ''libraryDirs'' and ''protFileName''.
- *  @return the parsed program.
+ *  @param fileName Name of the file to be parsed.
+ *  @param options Pptions to be used for the parsing.
+ *  @param libraryDirs List of directories for the include/library files.
+ *  @param protFileName Name of the file for the protocol.
+ *  @return the parsed program, or ''program.EMPTY'' if the file ''fileName''
+ *          could not be opened.
  *  @exception RANGE_ERROR ''fileName'' does not use the standard path
  *             representation or ''fileName'' is not representable in
  *             the system path type.
@@ -124,7 +129,11 @@ const func program: parseFile (in string: fileName, in parseOptions: options,
 
 (**
  *  Parse the file with the given ''fileName'', ''options'' and ''libraryDirs''.
- *  @return the parsed program.
+ *  @param fileName Name of the file to be parsed.
+ *  @param options Pptions to be used for the parsing.
+ *  @param libraryDirs List of directories for the include/library files.
+ *  @return the parsed program, or ''program.EMPTY'' if the file ''fileName''
+ *          could not be opened.
  *  @exception RANGE_ERROR ''fileName'' does not use the standard path
  *             representation or ''fileName'' is not representable in
  *             the system path type.
@@ -137,7 +146,10 @@ const func program: parseFile (in string: fileName, in parseOptions: options,
 
 (**
  *  Parse the file with the given ''fileName'' and ''options''.
- *  @return the parsed program.
+ *  @param fileName Name of the file to be parsed.
+ *  @param options Pptions to be used for the parsing.
+ *  @return the parsed program, or ''program.EMPTY'' if the file ''fileName''
+ *          could not be opened.
  *  @exception RANGE_ERROR ''fileName'' does not use the standard path
  *             representation or ''fileName'' is not representable in
  *             the system path type.
@@ -149,7 +161,9 @@ const func program: parseFile (in string: fileName, in parseOptions: options) is
 
 (**
  *  Parse the file with the given ''fileName''.
- *  @return the parsed program.
+ *  @param fileName Name of the file to be parsed.
+ *  @return the parsed program, or ''program.EMPTY'' if the file ''fileName''
+ *          could not be opened.
  *  @exception RANGE_ERROR ''fileName'' does not use the standard path
  *             representation or ''fileName'' is not representable in
  *             the system path type.
