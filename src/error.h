@@ -96,8 +96,10 @@ typedef enum {
     SYSTEM_MAIN_MISSING
   } errorType;
 
+#define err_cstri(err, cstri) err_string(err, (const_ustriType)(cstri))
 
-void place_of_error (errorType err);
+
+void freeErrorList (parseErrorType error);
 void err_warning (errorType err);
 void err_num_stri (errorType err, int num_found, int num_expected,
                    const_ustriType stri);
@@ -111,8 +113,8 @@ void err_expr_obj (errorType err, const_objectType expr_object,
 void err_expr_obj_stri (errorType err, const_objectType expr_object,
                         objectType obj_found, const_cstriType stri);
 void err_match (errorType err, objectType obj_found);
-void err_string (errorType err, const_ustriType stri);
-void err_stri (errorType err, const_striType stri);
+void err_string (errorType err, const const_ustriType stri);
+void err_stri (errorType err, const const_striType stri);
 void err_integer (errorType err, intType number);
 void err_cchar (errorType err, int character);
 void err_char (errorType err, charType character);
@@ -120,4 +122,3 @@ void err_at_line (errorType err, lineNumType line);
 void err_at_file_in_line (errorType err, const_objectType obj_found,
                           fileNumType fileNumber, lineNumType errorLine);
 void err_existing_obj (errorType err, const_objectType obj_found);
-void err_message (errorType err, const_striType stri);

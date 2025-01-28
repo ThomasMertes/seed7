@@ -297,7 +297,7 @@ static void processPragma (void)
           in_file.write_library_names = FALSE;
 #endif
         } else {
-          err_warning(ILLEGALPRAGMA);
+          err_cstri(ILLEGALPRAGMA, "info");
         } /* if */
       } else if (strcmp((cstriType) symbol.name, "trace") == 0) {
         scan_symbol();
@@ -316,7 +316,7 @@ static void processPragma (void)
         } else if (strcmp((cstriType) symbol.name, "ascii") == 0) {
           symbol.unicodeNames = FALSE;
         } else {
-          err_warning(ILLEGALPRAGMA);
+          err_cstri(ILLEGALPRAGMA, "names");
         } /* if */
       } else {
         err_warning(ILLEGALPRAGMA);
@@ -493,6 +493,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       init_declaration_root(resultProg, err_info);
       init_stack(resultProg, err_info);
       reset_statistic();
+      resultProg->writeErrors = protFileName == NULL ||
+                                protFileName->size != 0;
       resultProg->error_count = 0;
       resultProg->types = NULL;
       resultProg->literals = NULL;

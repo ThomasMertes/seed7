@@ -100,7 +100,5 @@ void fatal_memory_error (const_cstriType source_file, int source_line)
   { /* fatal_memory_error */
     logFunction(printf("fatal_memory_error(\"%s\", %d)\n",
                        source_file, source_line););
-    place_of_error(OUT_OF_HEAP_SPACE);
-    printf("Fatal Error: Out of heap space");
     no_memory(source_file, source_line);
   } /* fatal_memory_error */
