@@ -936,6 +936,10 @@ void err_warning (errorType err)
         prot_cstri("Character literal exceeds source line");
         prot_nl();
         break;
+      case BACKSLASHEXPECTED:
+        prot_cstri("String continuations should end with \"\\\" not EOF");
+        prot_nl();
+        break;
       case STRINGEXCEEDS:
         prot_cstri("String literal exceeds source line");
         prot_nl();

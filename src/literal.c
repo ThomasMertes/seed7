@@ -90,9 +90,13 @@ static int skip_lines (register int character)
     if (character == '\\') {
       character = next_character();
     } else {
-      err_cchar(BACKSLASHEXPECTED, character);
-      if (character == '\"') {
-        character = next_character();
+      if (character == EOF) {
+        err_warning(BACKSLASHEXPECTED);
+      } else {
+        err_cchar(BACKSLASHEXPECTED, character);
+        if (character == '\"') {
+          character = next_character();
+        } /* if */
       } /* if */
     } /* if */
     return character;
@@ -123,6 +127,8 @@ static unsigned int escape_sequence (unsigned int position)
       } else {
         if (character == '\\') {
           character = next_character();
+        } else if (character == EOF) {
+          err_warning(BACKSLASHEXPECTED);
         } else {
           err_cchar(BACKSLASHEXPECTED, character);
         } /* if */
@@ -165,6 +171,8 @@ static unsigned int escape_sequence (unsigned int position)
       check_stri_length(position);
       symbol.striValue->mem[position++] = (strElemType) symbol.charValue;
       character = next_character();
+    } else {
+      err_warning(BACKSLASHEXPECTED);
     } /* if */
     in_file.character = character;
     return position;
