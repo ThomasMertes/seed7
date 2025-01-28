@@ -308,6 +308,118 @@ const func reference: sysVar (in program: aProgram, in string: name)     is acti
 const func integer: errorCount (in program: aProgram)                    is action "PRG_ERROR_COUNT";
 
 
+const type: errorType is new enum
+    OUT_OF_HEAP_SPACE,
+    NO_SOURCEFILE,
+    FILENOTFOUND,
+    EOF_ENCOUNTERED,
+    CHAR_ILLEGAL,
+    COMMENTOPEN,
+    ILLEGALPRAGMA,
+    WRONGACTION,
+    WRONGSYSTEM,
+    CARD_DECIMAL_TOO_BIG,
+    NEGATIVEEXPONENT,
+    DIGITEXPECTED,
+    CARD_WITH_EXPONENT_TOO_BIG,
+    BASE2TO36ALLOWED,
+    EXTDIGITEXPECTED,
+    ILLEGALBASEDDIGIT,
+    CARD_BASED_TOO_BIG,
+    APOSTROPHEXPECTED,
+    CHAREXCEEDS,
+    WRONG_QUOTATION_REPRESENTATION,
+    STRINGESCAPE,
+    WRONGNUMERICALESCAPE,
+    NUMERICAL_ESCAPE_TOO_BIG,
+    BACKSLASHEXPECTED,
+    STRINGEXCEEDS,
+    NAMEEXPECTED,
+    CARD_EXPECTED,
+    STRI_EXPECTED,
+    IDENT_EXPECTED,
+    EXPR_EXPECTED,
+    PARAM_DECL_FAILED,
+    DECL_FAILED,
+    EXCEPTION_RAISED,
+    OBJTWICEDECLARED,
+    PREVIOUS_DECLARATION,
+    ILLEGAL_ASSOCIATIVITY,
+    ILLEGAL_PRIORITY,
+    TWO_PARAMETER_SYNTAX,
+    EMPTY_SYNTAX,
+    SYNTAX_DECLARED_TWICE,
+    DOT_EXPR_EXPECTED,
+    FALSE_INFIX_PRIORITY,
+    FALSE_PREFIX_PRIORITY,
+    WRONG_EXPR_PARAM_PRIORITY,
+    WRONG_PREFIX_PRIORITY,
+    DOT_EXPR_ILLEGAL,
+    EXPECTED_SYMBOL,
+    LITERAL_TYPE_UNDEFINED,
+    KIND_OF_IN_PARAM_UNDEFINED,
+    DOLLAR_VALUE_WRONG,
+    DOLLAR_TYPE_WRONG,
+    NO_MATCH,
+    WRONGACCESSRIGHT,
+    TYPE_EXPECTED,
+    PROC_EXPECTED,
+    PARAM_SPECIFIER_EXPECTED,
+    PARAM_DECL_OR_SYMBOL_EXPECTED,
+    OVERLONG_UTF8_ENCODING,
+    UTF16_SURROGATE_CHAR_FOUND,
+    CHAR_NOT_UNICODE,
+    UTF8_CONTINUATION_BYTE_EXPECTED,
+    UNEXPECTED_UTF8_CONTINUATION_BYTE,
+    SOLITARY_UTF8_START_BYTE,
+    UTF16_BYTE_ORDER_MARK_FOUND,
+    WRONG_PATH_DELIMITER,
+    EXCEPTION_EXPECTED,
+    ESSENTIAL_INCLUDE_FAILED,
+    SYSTEM_MAIN_MISSING
+  end enum;
+
+const func string: str (in errorType: error) is
+    return literal(error);
+
+enable_output(errorType);
+
+
+const type: parseError is new struct
+    var errorType: error is errorType.value;
+    var string: fileName is "";
+    var integer: lineNumber is 0;
+    var integer: columnNumber is 0;
+    var string: message is "";
+    var string: errorLine is "";
+  end struct;
+
+
+const proc: DO_GET_ERROR (in program: aProgram, in integer: errorIndex,
+    inout integer: errorNumber, inout string: fileName,
+    inout integer: lineNumber, inout integer: columnNumber,
+    inout string: msg, inout string: errorLine)                          is action "PRG_GET_ERROR";
+
+
+(**
+ *  Get the error specified by ''errorIndex'' from ''aProgram''.
+ *  @return the specified error.
+ *  @exception RANGE_ERROR If ''errorIndex'' <= 0 holds, or
+ *                         no error with ''errorIndex'' exists.
+ *)
+const func parseError: getError (in program: aProgram, in integer: errorIndex) is func
+  result
+    var parseError: error is parseError.value;
+  local
+    var integer: errorNumber is 0;
+  begin
+    DO_GET_ERROR(aProgram, errorIndex, errorNumber,
+                 error.fileName, error.lineNumber, error.columnNumber,
+                 error.message, error.errorLine);
+    error.error := errorType conv errorNumber;
+  end func;
+
+
 (**
  *  Determine the list of global defined objects in ''aProgram''.
  *  The returned list contains constant and variable objects
