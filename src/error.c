@@ -1362,12 +1362,12 @@ void err_match (errorType err, objectType obj_found)
 
 
 
-void err_string (errorType err, const const_ustriType stri)
+void err_ustri (errorType err, const const_ustriType stri)
 
   {
     parseErrorType error;
 
-  /* err_string */
+  /* err_ustri */
     error = newError(err);
     setPlaceOfError(error);
     switch (err) {
@@ -1401,7 +1401,7 @@ void err_string (errorType err, const const_ustriType stri)
     storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
-  } /* err_string */
+  } /* err_ustri */
 
 
 
