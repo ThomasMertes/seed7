@@ -134,7 +134,7 @@ static tokenType def_single_token (const_objectType statement_token,
           identifier->prefix_priority = WEAKEST_PRIORITY;
         } else {
           if (identifier->prefix_priority != WEAKEST_PRIORITY) {
-            err_num_stri(FALSE_PREFIX_PRIORITY, (int) WEAKEST_PRIORITY,
+            err_num_stri(REDECLARED_PREFIX_PRIORITY, (int) WEAKEST_PRIORITY,
                 (int) identifier->prefix_priority, identifier->name);
           } /* if */
         } /* if */
@@ -333,7 +333,7 @@ static inline tokenType def_prefix_syntax (const_listType statement_syntax,
       identifier->prefix_priority = statement_priority;
     } else {
       if (identifier->prefix_priority != statement_priority) {
-        err_num_stri(FALSE_PREFIX_PRIORITY, (int) statement_priority,
+        err_num_stri(REDECLARED_PREFIX_PRIORITY, (int) statement_priority,
             (int) identifier->prefix_priority, identifier->name);
       } /* if */
     } /* if */
@@ -404,7 +404,7 @@ tokenType def_statement_syntax (objectType syntax_expression,
         identifier->prefix_priority = statement_priority;
       } else {
         if (identifier->prefix_priority != statement_priority) {
-          err_num_stri(FALSE_PREFIX_PRIORITY, (int) statement_priority,
+          err_num_stri(REDECLARED_PREFIX_PRIORITY, (int) statement_priority,
               (int) identifier->prefix_priority, identifier->name);
         } /* if */
       } /* if */

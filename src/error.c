@@ -892,7 +892,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
         appendCStri(&error->msg, " not ");
         appendInt(&error->msg, (intType) num_expected);
         break;
-      case FALSE_PREFIX_PRIORITY:
+      case REDECLARED_PREFIX_PRIORITY:
         copyCStri(&error->msg, "\"");
         appendUStri(&error->msg, stri);
         appendCStri(&error->msg, "\" redeclared with prefix priority ");
