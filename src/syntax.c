@@ -142,7 +142,7 @@ static tokenType def_single_token (const_objectType statement_token,
           identifier->infix_priority = WEAKEST_PRIORITY;
         } else {
           if (identifier->infix_priority != WEAKEST_PRIORITY) {
-            err_num_stri(FALSE_INFIX_PRIORITY, (int) WEAKEST_PRIORITY,
+            err_num_stri(REDECLARED_INFIX_PRIORITY, (int) WEAKEST_PRIORITY,
                 (int) identifier->infix_priority, identifier->name);
           } /* if */
         } /* if */
@@ -283,7 +283,7 @@ static inline tokenType def_infix_syntax (const_listType statement_syntax,
         identifier->infix_priority = statement_priority;
       } else {
         if (identifier->infix_priority != statement_priority) {
-          err_num_stri(FALSE_INFIX_PRIORITY, (int) statement_priority,
+          err_num_stri(REDECLARED_INFIX_PRIORITY, (int) statement_priority,
               (int) identifier->infix_priority, identifier->name);
         } /* if */
       } /* if */
@@ -370,9 +370,9 @@ tokenType def_statement_syntax (objectType syntax_expression,
                 printf(")\n"););
     /* printcategory(CATEGORY_OF_OBJ(syntax_expression)); */
     if (CATEGORY_OF_OBJ(syntax_expression) == LISTOBJECT) {
-      /* printf("SYNTAX: ");
-      prot_list(syntax_expression->value.listValue);
-      printf("\n"); */
+      logMessage(printf("SYNTAX: ");
+                 prot_list(syntax_expression->value.listValue);
+                 printf("\n"););
       statement_syntax = syntax_expression->value.listValue;
       if (statement_syntax != NULL) {
         check_list_of_syntax_elements(statement_syntax);

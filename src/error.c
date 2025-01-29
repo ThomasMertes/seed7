@@ -884,7 +884,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
     error = newError(err);
     setPlaceOfError(error);
     switch (err) {
-      case FALSE_INFIX_PRIORITY:
+      case REDECLARED_INFIX_PRIORITY:
         copyCStri(&error->msg, "\"");
         appendUStri(&error->msg, stri);
         appendCStri(&error->msg, "\" redeclared with infix priority ");
