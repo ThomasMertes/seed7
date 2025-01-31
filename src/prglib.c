@@ -67,7 +67,7 @@
  *  @param bstri/arg_1 'BString' to be parsed.
  *  @param options/arg_2 Options to be used when the file is parsed.
  *  @param libraryDirs/arg_3 Search path for include/library files.
- *  @param protFileName/arg_4 Name of the protocol file.
+ *  @param errorFile/arg_4 File for the error messages.
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -81,7 +81,7 @@ objectType prg_bstri_parse (listType arguments)
     isit_bstri(arg_1(arguments));
     isit_set(arg_2(arguments));
     isit_array(arg_3(arguments));
-    isit_stri(arg_4(arguments));
+    isit_file(arg_4(arguments));
     libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
     if (libraryDirs == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -89,7 +89,7 @@ objectType prg_bstri_parse (listType arguments)
       program = prgBStriParse(take_bstri(arg_1(arguments)),
                               take_set(arg_2(arguments)),
                               libraryDirs,
-                              take_stri(arg_4(arguments)));
+                              take_file(arg_4(arguments)));
       FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
       return bld_prog_temp(program);
     } /* if */
@@ -287,7 +287,7 @@ objectType prg_exec (listType arguments)
  *  @param fileName/arg_1 File name of the file to be parsed.
  *  @param options/arg_2 Options to be used when the file is parsed.
  *  @param libraryDirs/arg_3 Search path for include/library files.
- *  @param protFileName/arg_4 Name of the protocol file.
+ *  @param errorFile/arg_4 File for the error messages.
  *  @return the parsed program.
  *  @exception RANGE_ERROR 'fileName/arg_1' does not use the standard path
  *             representation or 'fileName/arg_1' is not representable in
@@ -304,7 +304,7 @@ objectType prg_fil_parse (listType arguments)
     isit_stri(arg_1(arguments));
     isit_set(arg_2(arguments));
     isit_array(arg_3(arguments));
-    isit_stri(arg_4(arguments));
+    isit_file(arg_4(arguments));
     libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
     if (libraryDirs == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -312,7 +312,7 @@ objectType prg_fil_parse (listType arguments)
       program = prgFilParse(take_stri(arg_1(arguments)),
                             take_set(arg_2(arguments)),
                             libraryDirs,
-                            take_stri(arg_4(arguments)));
+                            take_file(arg_4(arguments)));
       FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
       return bld_prog_temp(program);
     } /* if */
@@ -474,7 +474,7 @@ objectType prg_path (listType arguments)
  *  @param stri/arg_1 'String' to be parsed.
  *  @param options/arg_2 Options to be used when the file is parsed.
  *  @param libraryDirs/arg_3 Search path for include/library files.
- *  @param protFileName/arg_4 Name of the protocol file.
+ *  @param errorFile/arg_4 File for the error messages.
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -488,7 +488,7 @@ objectType prg_str_parse (listType arguments)
     isit_stri(arg_1(arguments));
     isit_set(arg_2(arguments));
     isit_array(arg_3(arguments));
-    isit_stri(arg_4(arguments));
+    isit_file(arg_4(arguments));
     libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
     if (libraryDirs == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -496,7 +496,7 @@ objectType prg_str_parse (listType arguments)
       program = prgStrParse(take_stri(arg_1(arguments)),
                             take_set(arg_2(arguments)),
                             libraryDirs,
-                            take_stri(arg_4(arguments)));
+                            take_file(arg_4(arguments)));
       FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
       return bld_prog_temp(program);
     } /* if */

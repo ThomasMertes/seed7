@@ -59,6 +59,7 @@
 #include "runerr.h"
 #include "str_rtl.h"
 #include "set_rtl.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -220,12 +221,12 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
  *  @param bstri 'BString' to be parsed.
  *  @param options Options to be used when the file is parsed.
  *  @param libraryDirs Search path for include/library files.
- *  @param protFileName Name of the protocol file.
+ *  @param errorFile File for the error messages.
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 progType prgBStriParse (const bstriType bstri, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName)
+    const const_rtlArrayType libraryDirs, const fileType errorFile)
 
   {
     uintType int_options;
@@ -235,7 +236,7 @@ progType prgBStriParse (const bstriType bstri, const const_setType options,
   /* prgBStriParse */
     logFunction(printf("prgBStriParse(\"%s\")\n", bstriAsUnquotedCStri(bstri)););
     int_options = (uintType) setSConv(options);
-    resultProg = analyzeBString(bstri, int_options, libraryDirs, protFileName, &err_info);
+    resultProg = analyzeBString(bstri, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgBStriParse(\"%s\"): analyzeBString() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
@@ -357,6 +358,7 @@ void prgDestr (progType old_prog)
         if (old_prog->stack_global != NULL) {
           FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
         } /* if */
+        filDestr(old_prog->errorFile);
         freeErrorList(old_prog->errorList);
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
@@ -453,7 +455,7 @@ void prgExec (const const_progType aProgram, const const_rtlArrayType parameters
  *  @param fileName File name of the file to be parsed.
  *  @param options Options to be used when the file is parsed.
  *  @param libraryDirs Search path for include/library files.
- *  @param protFileName Name of the protocol file.
+ *  @param errorFile File for the error messages.
  *  @return the parsed program.
  *  @exception RANGE_ERROR 'fileName' does not use the standard path
  *             representation or 'fileName' is not representable in
@@ -461,7 +463,7 @@ void prgExec (const const_progType aProgram, const const_rtlArrayType parameters
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 progType prgFilParse (const const_striType fileName, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName)
+    const const_rtlArrayType libraryDirs, const fileType errorFile)
 
   {
     uintType int_options;
@@ -472,7 +474,7 @@ progType prgFilParse (const const_striType fileName, const const_setType options
     logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
     int_options = (uintType) setSConv(options);
     /* printf("options: 0x" F_X(016) "\n", int_options); */
-    resultProg = analyzeFile(fileName, int_options, libraryDirs, protFileName, &err_info);
+    resultProg = analyzeFile(fileName, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgFilParse(\"%s\"): analyzeFile() failed:\n"
                       "int_options=0x" F_X(016) "\nerr_info=%d\n",
@@ -743,12 +745,12 @@ const_striType prgPath (const const_progType aProg)
  *  @param stri 'String' to be parsed.
  *  @param options Options to be used when the file is parsed.
  *  @param libraryDirs Search path for include/library files.
- *  @param protFileName Name of the protocol file.
+ *  @param errorFile File for the error messages.
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 progType prgStrParse (const const_striType stri, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName)
+    const const_rtlArrayType libraryDirs, const fileType errorFile)
 
   {
     uintType int_options;
@@ -758,7 +760,7 @@ progType prgStrParse (const const_striType stri, const const_setType options,
   /* prgStrParse */
     logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     int_options = (uintType) setSConv(options);
-    resultProg = analyzeString(stri, int_options, libraryDirs, protFileName, &err_info);
+    resultProg = analyzeString(stri, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgStrParse(\"%s\"): analyzeString() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",

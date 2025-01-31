@@ -7963,7 +7963,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       writeln("Source: " <& source);
       writeln("Compiling the program ...");
       block
-        prog := parseFile(source, parseOptions.value, libraryDirs);
+        prog := parseFile(source, parseOptions.value, libraryDirs, STD_ERR);
         if prog = program.EMPTY then
           writeln("*** File " <& literal(source) <& " not found.");
           okay := FALSE;

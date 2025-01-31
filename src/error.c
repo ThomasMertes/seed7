@@ -43,7 +43,6 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "datautl.h"
-#include "traceutl.h"
 #include "infile.h"
 #include "info.h"
 #include "symbol.h"
@@ -51,6 +50,8 @@
 #include "stat.h"
 #include "str_rtl.h"
 #include "chr_rtl.h"
+#include "fil_rtl.h"
+#include "ut8_rtl.h"
 #include "con_drv.h"
 #include "fatal.h"
 
@@ -346,43 +347,88 @@ static memSizeType computeColumnMarkerPos (const_striType errorLine, memSizeType
 
 
 
-static void writeError (parseErrorType error)
+static void writeString (fileType errorFile, const striType stri)
+
+  { /* writeString */
+    if (errorFile->cFile == stdout) {
+      conWrite(stri);
+    } else {
+      ut8Write(errorFile, stri);
+    } /* if */
+  } /* writeString */
+
+
+
+static void writeChar (fileType errorFile, const charType aChar)
 
   {
+    struct striStruct stri_buffer;
+    striType stri;
+
+  /* writeChar */
+    stri = chrStrMacro(aChar, stri_buffer);
+    writeString(errorFile, stri);
+  } /* writeChar */
+
+
+
+static void writeNewline (fileType errorFile)
+
+  { /* writeNewline */
+    writeChar(errorFile, '\n');
+  } /* writeNewline */
+
+
+
+static void writeError (fileType errorFile, parseErrorType error)
+
+  {
+    striType message;
     striType outputLine;
     striType output;
     memSizeType column;
 
   /* writeError */
     logFunction(printf("writeError()\n"););
-    prot_cstri("*** ");
+    copyCStri(&message, "*** ");
     if (error->fileName != NULL) {
-      prot_string(error->fileName);
-      prot_cstri("(");
-      prot_int(error->lineNumber);
-      prot_cstri("):");
-      prot_int(error->err + 1);
-      prot_cstri(": ");
+      appendString(&message, error->fileName);
+      appendChar(&message, '(');
+      appendInt(&message, error->lineNumber);
+      appendCStri(&message, "):");
+      appendInt(&message, error->err + 1);
+      appendCStri(&message, ": ");
     } /* if */
-    prot_string(error->msg);
-    prot_nl();
-    if (error->errorLine != NULL) {
-      outputLine = stri8_buffer_to_stri(error->errorLine->mem,
-                                        error->errorLine->size);
-      if (outputLine != NULL) {
-        output = toOutputString(outputLine);
-        prot_string(output);
-        FREE_STRI(output, output->size);
-        FREE_STRI(outputLine, outputLine->size);
-        prot_nl();
-        if (error->columnNumber != 0) {
-          column = computeColumnMarkerPos(error->errorLine, error->columnNumber);
-          for (; column > 1; column--) {
-            prot_cstri("-");
-          } /* for */
-          prot_cstri("^");
+    appendString(&message, error->msg);
+    if (unlikely(message == NULL)) {
+      fatal_memory_error(SOURCE_POSITION(2123));
+    } else {
+      writeString(errorFile, message);
+      writeNewline(errorFile);
+      if (error->errorLine != NULL) {
+        outputLine = stri8_buffer_to_stri(error->errorLine->mem,
+                                          error->errorLine->size);
+        if (unlikely(outputLine == NULL)) {
+          fatal_memory_error(SOURCE_POSITION(2124));
+        } else {
+          output = toOutputString(outputLine);
+          FREE_STRI(outputLine, outputLine->size);
+          if (unlikely(outputLine == NULL)) {
+            fatal_memory_error(SOURCE_POSITION(2125));
+          } else {
+            writeString(errorFile, output);
+            FREE_STRI(output, output->size);
+            writeNewline(errorFile);
+            if (error->columnNumber != 0) {
+              column = computeColumnMarkerPos(error->errorLine, error->columnNumber);
+              for (; column > 1; column--) {
+                writeChar(errorFile, '-');
+              } /* for */
+              writeChar(errorFile, '^');
+            } /* if */
+            writeNewline(errorFile);
+          } /* if */
         } /* if */
-        prot_nl();
       } /* if */
     } /* if */
     logFunction(printf("writeError() -->\n"););
@@ -395,11 +441,11 @@ static void finalizeError (parseErrorType error)
   { /* finalizeError */
     logFunction(printf("finalizeError()\n"););
     appendErrorToProg(error);
-    if (prog == NULL || prog->writeErrors) {
-      writeError(error);
-    } /* if */
     if (prog == NULL) {
+      writeError(&stderrFileRecord, error);
       freeError(error);
+    } else if (prog->writeErrors) {
+      writeError(prog->errorFile, error);
     } /* if */
     logFunction(printf("finalizeError() -->\n"););
   } /* finalizeError */

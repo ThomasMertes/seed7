@@ -28,7 +28,7 @@
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName);
 progType prgBStriParse (const bstriType bstri, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName);
+    const const_rtlArrayType libraryDirs, const fileType errorFile);
 void prgCpy (progType *const dest, const progType source);
 progType prgCreate (const progType source);
 void prgDestr (progType old_prog);
@@ -37,7 +37,7 @@ objectType prgEval (progType aProgram, objectType anExpression);
 void prgExec (const const_progType aProgram, const const_rtlArrayType parameters,
     const const_setType options, const const_striType protFileName);
 progType prgFilParse (const const_striType fileName, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName);
+    const const_rtlArrayType libraryDirs, const fileType errorFile);
 void prgGetError (const const_progType aProg, intType errorIndex,
     intType *errorNumber, striType *fileName, intType *lineNumber,
     intType *columnNumber, striType *msg, striType *errorLine);
@@ -47,6 +47,6 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr);
 const_striType prgName (const const_progType aProg);
 const_striType prgPath (const const_progType aProg);
 progType prgStrParse (const const_striType stri, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName);
+    const const_rtlArrayType libraryDirs, const fileType errorFile);
 objectType prgSyobject (const progType aProg, const const_striType syobjectName);
 objectType prgSysvar (const const_progType aProg, const const_striType sysvarName);

@@ -40,6 +40,7 @@
 #include "sigutl.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "syvarutl.h"
@@ -71,6 +72,7 @@
 #include "option.h"
 #include "runerr.h"
 #include "cmd_rtl.h"
+#include "chr_rtl.h"
 #include "str_rtl.h"
 #include "fil_rtl.h"
 #include "ut8_rtl.h"
@@ -453,7 +455,7 @@ static striType getProgramName (const const_striType sourceFileArgument)
  */
 static progType analyzeProg (const const_striType sourceFileArgument,
     const const_striType sourceFilePath, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    const const_rtlArrayType libraryDirs, const fileType errorFile,
     errInfoType *err_info)
 
   {
@@ -467,10 +469,12 @@ static progType analyzeProg (const const_striType sourceFileArgument,
   /* analyzeProg */
     logFunction(printf("analyzeProg(\"%s\", ",
                        striAsUnquotedCStri(sourceFileArgument));
-                printf("\"%s\", 0x" F_X(016) ", *, ",
-                       striAsUnquotedCStri(sourceFilePath), options);
-                printf("\"%s\", %d)\n",
-                       striAsUnquotedCStri(protFileName), *err_info););
+                printf("\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
+                       striAsUnquotedCStri(sourceFilePath), options,
+                       errorFile == NULL ? "NULL " : "",
+                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
+                       *err_info););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       closeInfile();
       *err_info = MEMORY_ERROR;
@@ -493,8 +497,9 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       init_declaration_root(resultProg, err_info);
       init_stack(resultProg, err_info);
       reset_statistic();
-      resultProg->writeErrors = protFileName == NULL ||
-                                protFileName->size != 0;
+      resultProg->writeErrors = errorFile != NULL &&
+                                errorFile != &nullFileRecord;
+      resultProg->errorFile = filCreate(errorFile);
       resultProg->error_count = 0;
       resultProg->types = NULL;
       resultProg->literals = NULL;
@@ -516,7 +521,6 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         currentlyAnalyzing = TRUE;
         resultProg->option_flags = options;
         set_trace(resultProg->option_flags);
-        set_protfile_name(protFileName);
         prog = resultProg;
         scan_byte_order_mark();
         declAny(resultProg->declaration_root);
@@ -575,7 +579,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
 
 
 progType analyzeFile (const const_striType sourceFileArgument, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    const const_rtlArrayType libraryDirs, const fileType errorFile,
     errInfoType *err_info)
 
   {
@@ -586,10 +590,12 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     progType resultProg = NULL;
 
   /* analyzeFile */
-    logFunction(printf("analyzeFile(\"%s\", 0x" F_X(016) ", *, ",
-                       striAsUnquotedCStri(sourceFileArgument), options);
-                printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(protFileName)););
+    logFunction(printf("analyzeFile(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
+                       striAsUnquotedCStri(sourceFileArgument), options,
+                       errorFile == NULL ? "NULL " : "",
+                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
+                       *err_info););
     initAnalyze();
     if (sourceFileArgument->size > STRLEN(".sd7") &&
         sourceFileArgument->mem[sourceFileArgument->size - 4] == '.' &&
@@ -632,7 +638,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
 #endif
       if (isOpen && sourceFilePath != NULL) {
         resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
-                                 libraryDirs, protFileName, err_info);
+                                 libraryDirs, errorFile, err_info);
       } else if (*err_info == FILE_ERROR) {
         *err_info = OKAY_NO_ERROR;
       } /* if */
@@ -654,6 +660,9 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
   {
+    fileType errorFile;
+    struct striStruct mode_buffer;
+    striType mode;
     errInfoType err_info = OKAY_NO_ERROR;
     progType resultProg;
 
@@ -662,16 +671,32 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
                        striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\")\n",
                        striAsUnquotedCStri(protFileName)););
-    resultProg = analyzeFile(sourceFileArgument, options,
-                             libraryDirs, protFileName, &err_info);
-    if (err_info == MEMORY_ERROR) {
-      prot_cstri("*** No more memory");
+    set_protfile_name(protFileName);
+    if (protFileName == NULL) {
+      errorFile = &stderrFileRecord;
+    } else {
+      mode = chrStrMacro('w', mode_buffer);
+      errorFile = filOpen(protFileName, mode);
+    } /* if */
+    if (errorFile == &nullFileRecord) {
+      prot_cstri("*** Could not open error file ");
+      prot_stri(protFileName);
       prot_nl();
-    } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
-      prot_cstri("*** File ");
-      prot_stri(sourceFileArgument);
-      prot_cstri(" not found");
-      prot_nl();
+    } else {
+      resultProg = analyzeFile(sourceFileArgument, options,
+                               libraryDirs, errorFile, &err_info);
+      if (err_info == MEMORY_ERROR) {
+        prot_cstri("*** No more memory");
+        prot_nl();
+      } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
+        prot_cstri("*** File ");
+        prot_stri(sourceFileArgument);
+        prot_cstri(" not found");
+        prot_nl();
+      } /* if */
+      if (protFileName != NULL) {
+        filDestr(errorFile);
+      } /* if */
     } /* if */
     logFunction(printf("analyze --> " FMT_U_MEM " (error_count=%u)\n",
                        (memSizeType) resultProg,
@@ -682,7 +707,7 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
 
 
 progType analyzeBString (const bstriType input_bstri, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    const const_rtlArrayType libraryDirs, const fileType errorFile,
     errInfoType *err_info)
 
   {
@@ -691,10 +716,12 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
     progType resultProg = NULL;
 
   /* analyzeBString */
-    logFunction(printf("analyzeBString(\"%s\", 0x" F_X(016) ", *, ",
-                       bstriAsUnquotedCStri(input_bstri), options);
-                printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(protFileName)););
+    logFunction(printf("analyzeBString(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
+                       bstriAsUnquotedCStri(input_bstri), options,
+                       errorFile == NULL ? "NULL " : "",
+                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
+                       *err_info););
     initAnalyze();
     sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
     if (sourceFileArgument == NULL) {
@@ -705,7 +732,7 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
                            (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (isOpen) {
         resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
-                                 options, libraryDirs, protFileName, err_info);
+                                 options, libraryDirs, errorFile, err_info);
       } /* if */
       FREE_STRI(sourceFileArgument, sourceFileArgument->size);
     } /* if */
@@ -720,7 +747,7 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
 
 
 progType analyzeString (const const_striType input_string, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    const const_rtlArrayType libraryDirs, const fileType errorFile,
     errInfoType *err_info)
 
   {
@@ -728,17 +755,19 @@ progType analyzeString (const const_striType input_string, uintType options,
     progType resultProg;
 
   /* analyzeString */
-    logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, ",
-                       striAsUnquotedCStri(input_string), options);
-                printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(protFileName)););
+    logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
+                       striAsUnquotedCStri(input_string), options,
+                       errorFile == NULL ? "NULL " : "",
+                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
+                       *err_info););
     input_bstri = stri_to_bstri8(input_string);
     if (input_bstri == NULL) {
       *err_info = MEMORY_ERROR;
       resultProg = NULL;
     } else {
       resultProg = analyzeBString(input_bstri, options, libraryDirs,
-                                  protFileName, err_info);
+                                  errorFile, err_info);
       FREE_BSTRI(input_bstri, input_bstri->size);
     } /* if */
     logFunction(printf("analyzeString --> " FMT_U_MEM

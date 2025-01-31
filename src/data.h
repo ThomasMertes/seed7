@@ -420,6 +420,7 @@ typedef struct progStruct {
     objectType arg_v;
     uintType option_flags;
     boolType writeErrors;
+    fileType errorFile;
     unsigned int error_count;
     parseErrorType errorList;
     parseErrorType errorListEnd;
