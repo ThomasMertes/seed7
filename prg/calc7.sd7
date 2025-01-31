@@ -33,7 +33,11 @@ const proc: main is func
 
   local
     var string: command is "";
-    var program: progExpr is program.EMPTY;
+    var program: aProgram is program.EMPTY;
+    var parseError: error is parseError.value;
+    var string: prompt is "calculate? ";
+    var string: writelnLineStart is "      writeln(";
+    var integer: columnNumber is 0;
   begin
     OUT := STD_CONSOLE;
     IN := openEditLine(KEYBOARD, OUT);
@@ -45,11 +49,11 @@ const proc: main is func
     writeln("Homepage: http://seed7.sourceforge.net");
     writeln("Write an expression to be calculated or quit or exit to leave the program.");
     writeln;
-    write("calculate? ");
+    write(prompt);
     readln(command);
     while command not in {"quit", "exit"} do
       if command <> "" then
-        progExpr := parseStri("\
+        aProgram := parseStri("\
           \$ include \"seed7_05.s7i\";\n\
           \include \"console.s7i\";\n\
           \include \"float.s7i\";\n\
@@ -93,11 +97,20 @@ const proc: main is func
           \    end block;\n\
           \  end func;\n\
           \");
-        if progExpr <> program.EMPTY then
-          if errorCount(progExpr) = 0 then
-            execute(progExpr);
+        if aProgram <> program.EMPTY then
+          if errorCount(aProgram) = 0 then
+            execute(aProgram);
           else
-            writeln("*** " <& errorCount(progExpr) <& " errors found");
+            error := getError(aProgram, 1);
+            if startsWith(error.errorLine, writelnLineStart) then
+              if error.columnNumber > length(writelnLineStart) then
+                columnNumber := length(prompt) +
+                    error.columnNumber - length(writelnLineStart) - 1;
+                writeln("-" mult columnNumber <& "^");
+              end if;
+            end if;
+            writeln("*** " <& error.message);
+            writeln("*** " <& errorCount(aProgram) <& " errors found");
           end if;
         end if;
       end if;
