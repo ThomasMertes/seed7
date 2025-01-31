@@ -187,6 +187,10 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
     os_striType os_path;
     inFileType new_file;
     FILE *in_fil;
+#if FOPEN_OPENS_DIRECTORIES
+    int file_no;
+    os_fstat_struct stat_buf;
+#endif
     ustriType name_ustri;
     ustriType resized_name_ustri;
     memSizeType name_length;
@@ -204,12 +208,22 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
       in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
              os_path, (memSizeType) in_fil); */
-      if (in_fil == NULL) {
+      if (unlikely(in_fil == NULL)) {
         logError(printf("openInfile: "
                         "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, os_mode_rb, errno, strerror(errno)););
         *err_info = FILE_ERROR;
+#if FOPEN_OPENS_DIRECTORIES
+      } else if ((file_no = os_fileno(in_fil)) != -1 &&
+                 os_fstat(file_no, &stat_buf) == 0 &&
+                 S_ISDIR(stat_buf.st_mode)) {
+        logError(printf("openInfile: "
+                        "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") "
+                        "opened a directory.\n", os_path, os_mode_rb););
+        fclose(in_fil);
+        *err_info = FILE_ERROR;
+#endif
       } else {
         if (!ALLOC_FILE(new_file)) {
           fclose(in_fil);
