@@ -465,10 +465,10 @@ const func string: (in integer: number) RADIX (in integer: base) is action "INT_
  *  Convert ''integer'' to [[string]] and pad it with zeros at the left side.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
- *   123 lpad0 5   returns "00123"
- *   -123 lpad0 5  returns "-0123"
- *   123 lpad0 2   returns "123"
- *   -123 lpad0 2  returns "-123"
+ *    123 lpad0 5  returns  "00123"
+ *   -123 lpad0 5  returns "-00123"
+ *    123 lpad0 2  returns    "123"
+ *   -123 lpad0 2  returns   "-123"
  *  @param number Number to be converted to a [[string]].
  *  @param length Minimum length of the result.
  *  @return number as decimal [[string]] left padded with zeroes.

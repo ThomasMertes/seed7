@@ -15484,183 +15484,187 @@ const func boolean: check_string_lpad0 is func
         ("+" lpad0            -2) <> "+" or
         ("+" lpad0            -1) <> "+" or
         ("+" lpad0             0) <> "+" or
-        ("+" lpad0             1) <> "+" or
-        ("+" lpad0             2) <> "+0" or
-        ("+" lpad0             3) <> "+00" or
-        ("+" lpad0             4) <> "+000" or
-        ("+" lpad0            10) <> "+000000000" or
+        ("+" lpad0             1) <> "+0" or
+        ("+" lpad0             2) <> "+00" or
+        ("+" lpad0             3) <> "+000" or
+        ("+" lpad0             4) <> "+0000" or
+        ("+" lpad0            10) <> "+0000000000" or
         ("+0" lpad0 integer.first) <> "+0" or
         ("+0" lpad0            -2) <> "+0" or
         ("+0" lpad0            -1) <> "+0" or
         ("+0" lpad0             0) <> "+0" or
         ("+0" lpad0             1) <> "+0" or
-        ("+0" lpad0             2) <> "+0" or
-        ("+0" lpad0             3) <> "+00" or
-        ("+0" lpad0             4) <> "+000" or
-        ("+0" lpad0            10) <> "+000000000" or
+        ("+0" lpad0             2) <> "+00" or
+        ("+0" lpad0             3) <> "+000" or
+        ("+0" lpad0             4) <> "+0000" or
+        ("+0" lpad0            10) <> "+0000000000" or
         ("+1" lpad0 integer.first) <> "+1" or
         ("+1" lpad0            -2) <> "+1" or
         ("+1" lpad0            -1) <> "+1" or
         ("+1" lpad0             0) <> "+1" or
         ("+1" lpad0             1) <> "+1" or
-        ("+1" lpad0             2) <> "+1" or
-        ("+1" lpad0             3) <> "+01" or
-        ("+1" lpad0             4) <> "+001" or
-        ("+1" lpad0            10) <> "+000000001" or
+        ("+1" lpad0             2) <> "+01" or
+        ("+1" lpad0             3) <> "+001" or
+        ("+1" lpad0             4) <> "+0001" or
+        ("+1" lpad0            10) <> "+0000000001" or
         ("+00" lpad0 integer.first) <> "+00" or
         ("+00" lpad0            -2) <> "+00" or
         ("+00" lpad0            -1) <> "+00" or
         ("+00" lpad0             0) <> "+00" or
         ("+00" lpad0             1) <> "+00" or
         ("+00" lpad0             2) <> "+00" or
-        ("+00" lpad0             3) <> "+00" or
-        ("+00" lpad0             4) <> "+000" or
-        ("+00" lpad0            10) <> "+000000000" or
+        ("+00" lpad0             3) <> "+000" or
+        ("+00" lpad0             4) <> "+0000" or
+        ("+00" lpad0            10) <> "+0000000000" or
         ("+10" lpad0 integer.first) <> "+10" or
         ("+10" lpad0            -2) <> "+10" or
         ("+10" lpad0            -1) <> "+10" or
         ("+10" lpad0             0) <> "+10" or
         ("+10" lpad0             1) <> "+10" or
         ("+10" lpad0             2) <> "+10" or
-        ("+10" lpad0             3) <> "+10" or
-        ("+10" lpad0             4) <> "+010" or
-        ("+10" lpad0            10) <> "+000000010" or
+        ("+10" lpad0             3) <> "+010" or
+        ("+10" lpad0             4) <> "+0010" or
+        ("+10" lpad0            10) <> "+0000000010" or
         ("-" lpad0 integer.first) <> "-" or
         ("-" lpad0            -2) <> "-" or
         ("-" lpad0            -1) <> "-" or
         ("-" lpad0             0) <> "-" or
-        ("-" lpad0             1) <> "-" or
-        ("-" lpad0             2) <> "-0" or
-        ("-" lpad0             3) <> "-00" or
-        ("-" lpad0             4) <> "-000" or
-        ("-" lpad0            10) <> "-000000000" or
+        ("-" lpad0             1) <> "-0" or
+        ("-" lpad0             2) <> "-00" or
+        ("-" lpad0             3) <> "-000" or
+        ("-" lpad0             4) <> "-0000" or
+        ("-" lpad0            10) <> "-0000000000" or
         ("-0" lpad0 integer.first) <> "-0" or
         ("-0" lpad0            -2) <> "-0" or
         ("-0" lpad0            -1) <> "-0" or
         ("-0" lpad0             0) <> "-0" or
         ("-0" lpad0             1) <> "-0" or
-        ("-0" lpad0             2) <> "-0" or
-        ("-0" lpad0             3) <> "-00" or
-        ("-0" lpad0             4) <> "-000" or
-        ("-0" lpad0            10) <> "-000000000" or
+        ("-0" lpad0             2) <> "-00" or
+        ("-0" lpad0             3) <> "-000" or
+        ("-0" lpad0             4) <> "-0000" or
+        ("-0" lpad0            10) <> "-0000000000" or
         ("-1" lpad0 integer.first) <> "-1" or
         ("-1" lpad0            -2) <> "-1" or
         ("-1" lpad0            -1) <> "-1" or
         ("-1" lpad0             0) <> "-1" or
         ("-1" lpad0             1) <> "-1" or
-        ("-1" lpad0             2) <> "-1" or
-        ("-1" lpad0             3) <> "-01" or
-        ("-1" lpad0             4) <> "-001" or
-        ("-1" lpad0            10) <> "-000000001" or
+        ("-1" lpad0             2) <> "-01" or
+        ("-1" lpad0             3) <> "-001" or
+        ("-1" lpad0             4) <> "-0001" or
+        ("-1" lpad0            10) <> "-0000000001" or
         ("-00" lpad0 integer.first) <> "-00" or
         ("-00" lpad0            -2) <> "-00" or
         ("-00" lpad0            -1) <> "-00" or
         ("-00" lpad0             0) <> "-00" or
         ("-00" lpad0             1) <> "-00" or
         ("-00" lpad0             2) <> "-00" or
-        ("-00" lpad0             3) <> "-00" or
-        ("-00" lpad0             4) <> "-000" or
-        ("-00" lpad0            10) <> "-000000000" or
+        ("-00" lpad0             3) <> "-000" or
+        ("-00" lpad0             4) <> "-0000" or
+        ("-00" lpad0            10) <> "-0000000000" or
         ("-10" lpad0 integer.first) <> "-10" or
         ("-10" lpad0            -2) <> "-10" or
         ("-10" lpad0            -1) <> "-10" or
         ("-10" lpad0             0) <> "-10" or
         ("-10" lpad0             1) <> "-10" or
         ("-10" lpad0             2) <> "-10" or
-        ("-10" lpad0             3) <> "-10" or
-        ("-10" lpad0             4) <> "-010" or
-        ("-10" lpad0            10) <> "-000000010" or
-        (striExpr("+") lpad0 integer.first) <> "+" or
+        ("-10" lpad0             3) <> "-010" or
+        ("-10" lpad0             4) <> "-0010" or
+        ("-10" lpad0            10) <> "-0000000010" then
+      writeln(" ***** string lpad0 integer with sign does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  (striExpr("+") lpad0 integer.first) <> "+" or
         (striExpr("+") lpad0            -2) <> "+" or
         (striExpr("+") lpad0            -1) <> "+" or
         (striExpr("+") lpad0             0) <> "+" or
-        (striExpr("+") lpad0             1) <> "+" or
-        (striExpr("+") lpad0             2) <> "+0" or
-        (striExpr("+") lpad0             3) <> "+00" or
-        (striExpr("+") lpad0             4) <> "+000" or
-        (striExpr("+") lpad0            10) <> "+000000000" or
+        (striExpr("+") lpad0             1) <> "+0" or
+        (striExpr("+") lpad0             2) <> "+00" or
+        (striExpr("+") lpad0             3) <> "+000" or
+        (striExpr("+") lpad0             4) <> "+0000" or
+        (striExpr("+") lpad0            10) <> "+0000000000" or
         (striExpr("+0") lpad0 integer.first) <> "+0" or
         (striExpr("+0") lpad0            -2) <> "+0" or
         (striExpr("+0") lpad0            -1) <> "+0" or
         (striExpr("+0") lpad0             0) <> "+0" or
         (striExpr("+0") lpad0             1) <> "+0" or
-        (striExpr("+0") lpad0             2) <> "+0" or
-        (striExpr("+0") lpad0             3) <> "+00" or
-        (striExpr("+0") lpad0             4) <> "+000" or
-        (striExpr("+0") lpad0            10) <> "+000000000" or
+        (striExpr("+0") lpad0             2) <> "+00" or
+        (striExpr("+0") lpad0             3) <> "+000" or
+        (striExpr("+0") lpad0             4) <> "+0000" or
+        (striExpr("+0") lpad0            10) <> "+0000000000" or
         (striExpr("+1") lpad0 integer.first) <> "+1" or
         (striExpr("+1") lpad0            -2) <> "+1" or
         (striExpr("+1") lpad0            -1) <> "+1" or
         (striExpr("+1") lpad0             0) <> "+1" or
         (striExpr("+1") lpad0             1) <> "+1" or
-        (striExpr("+1") lpad0             2) <> "+1" or
-        (striExpr("+1") lpad0             3) <> "+01" or
-        (striExpr("+1") lpad0             4) <> "+001" or
-        (striExpr("+1") lpad0            10) <> "+000000001" or
+        (striExpr("+1") lpad0             2) <> "+01" or
+        (striExpr("+1") lpad0             3) <> "+001" or
+        (striExpr("+1") lpad0             4) <> "+0001" or
+        (striExpr("+1") lpad0            10) <> "+0000000001" or
         (striExpr("+00") lpad0 integer.first) <> "+00" or
         (striExpr("+00") lpad0            -2) <> "+00" or
         (striExpr("+00") lpad0            -1) <> "+00" or
         (striExpr("+00") lpad0             0) <> "+00" or
         (striExpr("+00") lpad0             1) <> "+00" or
         (striExpr("+00") lpad0             2) <> "+00" or
-        (striExpr("+00") lpad0             3) <> "+00" or
-        (striExpr("+00") lpad0             4) <> "+000" or
-        (striExpr("+00") lpad0            10) <> "+000000000" or
+        (striExpr("+00") lpad0             3) <> "+000" or
+        (striExpr("+00") lpad0             4) <> "+0000" or
+        (striExpr("+00") lpad0            10) <> "+0000000000" or
         (striExpr("+10") lpad0 integer.first) <> "+10" or
         (striExpr("+10") lpad0            -2) <> "+10" or
         (striExpr("+10") lpad0            -1) <> "+10" or
         (striExpr("+10") lpad0             0) <> "+10" or
         (striExpr("+10") lpad0             1) <> "+10" or
         (striExpr("+10") lpad0             2) <> "+10" or
-        (striExpr("+10") lpad0             3) <> "+10" or
-        (striExpr("+10") lpad0             4) <> "+010" or
-        (striExpr("+10") lpad0            10) <> "+000000010" or
+        (striExpr("+10") lpad0             3) <> "+010" or
+        (striExpr("+10") lpad0             4) <> "+0010" or
+        (striExpr("+10") lpad0            10) <> "+0000000010" or
         (striExpr("-") lpad0 integer.first) <> "-" or
         (striExpr("-") lpad0            -2) <> "-" or
         (striExpr("-") lpad0            -1) <> "-" or
         (striExpr("-") lpad0             0) <> "-" or
-        (striExpr("-") lpad0             1) <> "-" or
-        (striExpr("-") lpad0             2) <> "-0" or
-        (striExpr("-") lpad0             3) <> "-00" or
-        (striExpr("-") lpad0             4) <> "-000" or
-        (striExpr("-") lpad0            10) <> "-000000000" or
+        (striExpr("-") lpad0             1) <> "-0" or
+        (striExpr("-") lpad0             2) <> "-00" or
+        (striExpr("-") lpad0             3) <> "-000" or
+        (striExpr("-") lpad0             4) <> "-0000" or
+        (striExpr("-") lpad0            10) <> "-0000000000" or
         (striExpr("-0") lpad0 integer.first) <> "-0" or
         (striExpr("-0") lpad0            -2) <> "-0" or
         (striExpr("-0") lpad0            -1) <> "-0" or
         (striExpr("-0") lpad0             0) <> "-0" or
         (striExpr("-0") lpad0             1) <> "-0" or
-        (striExpr("-0") lpad0             2) <> "-0" or
-        (striExpr("-0") lpad0             3) <> "-00" or
-        (striExpr("-0") lpad0             4) <> "-000" or
-        (striExpr("-0") lpad0            10) <> "-000000000" or
+        (striExpr("-0") lpad0             2) <> "-00" or
+        (striExpr("-0") lpad0             3) <> "-000" or
+        (striExpr("-0") lpad0             4) <> "-0000" or
+        (striExpr("-0") lpad0            10) <> "-0000000000" or
         (striExpr("-1") lpad0 integer.first) <> "-1" or
         (striExpr("-1") lpad0            -2) <> "-1" or
         (striExpr("-1") lpad0            -1) <> "-1" or
         (striExpr("-1") lpad0             0) <> "-1" or
         (striExpr("-1") lpad0             1) <> "-1" or
-        (striExpr("-1") lpad0             2) <> "-1" or
-        (striExpr("-1") lpad0             3) <> "-01" or
-        (striExpr("-1") lpad0             4) <> "-001" or
-        (striExpr("-1") lpad0            10) <> "-000000001" or
+        (striExpr("-1") lpad0             2) <> "-01" or
+        (striExpr("-1") lpad0             3) <> "-001" or
+        (striExpr("-1") lpad0             4) <> "-0001" or
+        (striExpr("-1") lpad0            10) <> "-0000000001" or
         (striExpr("-00") lpad0 integer.first) <> "-00" or
         (striExpr("-00") lpad0            -2) <> "-00" or
         (striExpr("-00") lpad0            -1) <> "-00" or
         (striExpr("-00") lpad0             0) <> "-00" or
         (striExpr("-00") lpad0             1) <> "-00" or
         (striExpr("-00") lpad0             2) <> "-00" or
-        (striExpr("-00") lpad0             3) <> "-00" or
-        (striExpr("-00") lpad0             4) <> "-000" or
-        (striExpr("-00") lpad0            10) <> "-000000000" or
+        (striExpr("-00") lpad0             3) <> "-000" or
+        (striExpr("-00") lpad0             4) <> "-0000" or
+        (striExpr("-00") lpad0            10) <> "-0000000000" or
         (striExpr("-10") lpad0 integer.first) <> "-10" or
         (striExpr("-10") lpad0            -2) <> "-10" or
         (striExpr("-10") lpad0            -1) <> "-10" or
         (striExpr("-10") lpad0             0) <> "-10" or
         (striExpr("-10") lpad0             1) <> "-10" or
         (striExpr("-10") lpad0             2) <> "-10" or
-        (striExpr("-10") lpad0             3) <> "-10" or
-        (striExpr("-10") lpad0             4) <> "-010" or
-        (striExpr("-10") lpad0            10) <> "-000000010" then
-      writeln(" ***** string lpad0 integer with sign does not work correctly.");
+        (striExpr("-10") lpad0             3) <> "-010" or
+        (striExpr("-10") lpad0             4) <> "-0010" or
+        (striExpr("-10") lpad0            10) <> "-0000000010" then
+      writeln(" ***** string lpad0 integer with sign does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;

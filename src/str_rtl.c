@@ -3313,29 +3313,40 @@ striType strLpad0 (const const_striType stri, const intType padSize)
     const strElemType *sourceElem;
     strElemType *destElem;
     memSizeType len;
+    memSizeType result_size;
     striType result;
 
   /* strLpad0 */
+    logFunction(printf("strLpad0(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), padSize););
     striSize = stri->size;
-    if (padSize > 0 && (uintType) padSize > striSize) {
-      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
+    sourceElem = stri->mem;
+    if (padSize >= (intType) striSize) {
+      if (unlikely((uintType) padSize >= MAX_STRI_LEN)) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        return NULL;
       } else {
-        result->size = (memSizeType) padSize;
-        sourceElem = stri->mem;
-        destElem = result->mem;
-        len = (memSizeType) padSize - striSize;
+        result_size = (memSizeType) padSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
-          *destElem++ = sourceElem[0];
-          sourceElem++;
-          striSize--;
+          result_size++;
         } /* if */
-        while (len--) {
-          *destElem++ = (strElemType) '0';
-        } /* while */
-        memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result->size = (memSizeType) result_size;
+          destElem = result->mem;
+          len = result_size - striSize;
+          if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+            *destElem++ = sourceElem[0];
+            sourceElem++;
+            striSize--;
+          } /* if */
+          while (len--) {
+            *destElem++ = (strElemType) '0';
+          } /* while */
+          memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
+        } /* if */
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
@@ -3345,6 +3356,9 @@ striType strLpad0 (const const_striType stri, const intType padSize)
         memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       } /* if */
     } /* if */
+    logFunction(printf("strLpad0(\"%s\", " FMT_D ") --> ",
+                       striAsUnquotedCStri(stri), padSize);
+                printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpad0 */
 
@@ -3363,35 +3377,53 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     const strElemType *sourceElem;
     strElemType *destElem;
     memSizeType len;
+    memSizeType result_size;
     striType result;
 
   /* strLpad0Temp */
+    logFunction(printf("strLpad0Temp(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), padSize););
     striSize = stri->size;
-    if (padSize > 0 && (uintType) padSize > striSize) {
-      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
+    sourceElem = stri->mem;
+    if (padSize >= (intType) striSize) {
+      if (unlikely((uintType) padSize >= MAX_STRI_LEN)) {
         FREE_STRI(stri, striSize);
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        return NULL;
       } else {
-        result->size = (memSizeType) padSize;
-        sourceElem = stri->mem;
-        destElem = result->mem;
-        len = (memSizeType) padSize - striSize;
+        result_size = (memSizeType) padSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
-          *destElem++ = sourceElem[0];
-          sourceElem++;
-          striSize--;
+          result_size++;
         } /* if */
-        while (len--) {
-          *destElem++ = (strElemType) '0';
-        } /* while */
-        memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
-        FREE_STRI(stri, striSize);
+        if (result_size > striSize) {
+          if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result->size = (memSizeType) result_size;
+            destElem = result->mem;
+            len = result_size - striSize;
+            if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+              *destElem++ = sourceElem[0];
+              sourceElem++;
+              striSize--;
+            } /* if */
+            while (len--) {
+              *destElem++ = (strElemType) '0';
+            } /* while */
+            memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
+            FREE_STRI(stri, striSize);
+          } /* if */
+        } else {
+          result = stri;
+        } /* if */
       } /* if */
     } else {
       result = stri;
     } /* if */
+    logFunction(printf("strLpad0Temp(\"%s\", " FMT_D ") --> ",
+                       striAsUnquotedCStri(stri), padSize);
+                printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpad0Temp */
 

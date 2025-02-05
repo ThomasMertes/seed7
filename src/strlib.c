@@ -1136,51 +1136,18 @@ objectType str_lpad (listType arguments)
 objectType str_lpad0 (listType arguments)
 
   {
-    striType stri;
-    intType pad_size;
-    memSizeType striSize;
-    strElemType *sourceElem;
-    strElemType *destElem;
-    memSizeType len;
     striType result;
 
   /* str_lpad0 */
     isit_stri(arg_1(arguments));
     isit_int(arg_3(arguments));
-    stri = take_stri(arg_1(arguments));
-    pad_size = take_int(arg_3(arguments));
-    striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result->size = (memSizeType) pad_size;
-        sourceElem = stri->mem;
-        destElem = result->mem;
-        len = (memSizeType) pad_size - striSize;
-        if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
-          *destElem++ = sourceElem[0];
-          sourceElem++;
-          striSize--;
-        } /* if */
-        while (len--) {
-          *destElem++ = (strElemType) '0';
-        } /* while */
-        memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
-      } /* if */
+    if (TEMP_OBJECT(arg_1(arguments))) {
+      result = strLpad0Temp(take_stri(arg_1(arguments)),
+                            take_int(arg_3(arguments)));
+      arg_1(arguments)->value.striValue = NULL;
     } else {
-      if (TEMP_OBJECT(arg_1(arguments))) {
-        result = stri;
-        arg_1(arguments)->value.striValue = NULL;
-      } else {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
-          return raise_exception(SYS_MEM_EXCEPTION);
-        } /* if */
-        result->size = striSize;
-        memcpy(result->mem, stri->mem,
-               striSize * sizeof(strElemType));
-      } /* if */
+      result = strLpad0(take_stri(arg_1(arguments)),
+                        take_int(arg_3(arguments)));
     } /* if */
     return bld_stri_temp(result);
   } /* str_lpad0 */

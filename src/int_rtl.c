@@ -2045,11 +2045,8 @@ striType intLpad0 (intType number, const intType padSize)
       unsigned_number = (uintType) number;
     } /* if */
     length = DECIMAL_DIGITS(unsigned_number);
-    if (negative) {
-      length++;
-    } /* if */
     if (padSize > (intType) length) {
-      if (unlikely((uintType) padSize > MAX_STRI_LEN)) {
+      if (unlikely((uintType) padSize >= MAX_STRI_LEN)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -2057,6 +2054,9 @@ striType intLpad0 (intType number, const intType padSize)
       } /* if */
     } else {
       result_size = length;
+    } /* if */
+    if (negative) {
+      result_size++;
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);

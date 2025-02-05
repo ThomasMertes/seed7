@@ -468,11 +468,11 @@ const func boolean: checkTimeToStringConversion_1 is func
   begin
     if  str(date(-4711,  1,  1)) <> "-4711-01-01 00:00:00 UTC" or
         str(date(-4711, 12, 31)) <> "-4711-12-31 00:00:00 UTC" or
-        str(date( -999, 12, 31)) <> "-999-12-31 00:00:00 UTC"  or
-        str(date( -123,  1, 23)) <> "-123-01-23 00:00:00 UTC"  or
-        str(date(  -42,  4,  2)) <> "-042-04-02 00:00:00 UTC"  or
-        str(date(   -1,  1,  1)) <> "-001-01-01 00:00:00 UTC"  or
-        str(date(   -1, 12, 31)) <> "-001-12-31 00:00:00 UTC"  or
+        str(date( -999, 12, 31)) <> "-0999-12-31 00:00:00 UTC" or
+        str(date( -123,  1, 23)) <> "-0123-01-23 00:00:00 UTC" or
+        str(date(  -42,  4,  2)) <> "-0042-04-02 00:00:00 UTC" or
+        str(date(   -1,  1,  1)) <> "-0001-01-01 00:00:00 UTC" or
+        str(date(   -1, 12, 31)) <> "-0001-12-31 00:00:00 UTC" or
         str(date(    0,  1,  1)) <> "0000-01-01 00:00:00 UTC"  or
         str(date(    0, 12, 31)) <> "0000-12-31 00:00:00 UTC"  or
         str(date(    1,  1,  1)) <> "0001-01-01 00:00:00 UTC"  or
@@ -514,11 +514,11 @@ const func boolean: checkTimeToStringConversion_1 is func
 
     if  str(time(-4711,  1,  1,  0,  0,  0)) <> "-4711-01-01 00:00:00 UTC" or
         str(time(-4711, 12, 31, 23, 59, 59)) <> "-4711-12-31 23:59:59 UTC" or
-        str(time( -999, 12, 31, 23, 59, 59)) <> "-999-12-31 23:59:59 UTC"  or
-        str(time( -123,  1, 23, 12, 31, 12)) <> "-123-01-23 12:31:12 UTC"  or
-        str(time(  -42,  4,  2,  4, 42, 42)) <> "-042-04-02 04:42:42 UTC"  or
-        str(time(   -1,  1,  1,  0,  0,  0)) <> "-001-01-01 00:00:00 UTC"  or
-        str(time(   -1, 12, 31, 23, 59, 59)) <> "-001-12-31 23:59:59 UTC"  or
+        str(time( -999, 12, 31, 23, 59, 59)) <> "-0999-12-31 23:59:59 UTC" or
+        str(time( -123,  1, 23, 12, 31, 12)) <> "-0123-01-23 12:31:12 UTC" or
+        str(time(  -42,  4,  2,  4, 42, 42)) <> "-0042-04-02 04:42:42 UTC" or
+        str(time(   -1,  1,  1,  0,  0,  0)) <> "-0001-01-01 00:00:00 UTC" or
+        str(time(   -1, 12, 31, 23, 59, 59)) <> "-0001-12-31 23:59:59 UTC" or
         str(time(    0,  1,  1,  0,  0,  0)) <> "0000-01-01 00:00:00 UTC"  or
         str(time(    0, 12, 31, 23, 59, 59)) <> "0000-12-31 23:59:59 UTC"  or
         str(time(    1,  1,  1,  0,  0,  0)) <> "0001-01-01 00:00:00 UTC"  or
@@ -550,7 +550,7 @@ const func boolean: checkTimeToStringConversion_1 is func
     end if;
 
     if  str(time(-4711, 12, 31, 23, 59, 59, 123456)) <> "-4711-12-31 23:59:59.123456 UTC" or
-        str(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-001-12-31 23:59:59.999999 UTC"  or
+        str(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-0001-12-31 23:59:59.999999 UTC" or
         str(time(    0, 12, 31, 23, 59, 59, 123456)) <> "0000-12-31 23:59:59.123456 UTC"  or
         str(time(    0, 12, 31, 23, 59, 59, 999999)) <> "0000-12-31 23:59:59.999999 UTC"  or
         str(time(    1, 12, 31, 23, 59, 59, 123456)) <> "0001-12-31 23:59:59.123456 UTC"  or
@@ -571,18 +571,18 @@ const func boolean: checkTimeToStringConversion_1 is func
       okay := FALSE;
     end if;
 
-    if  str(date(   -1,  1, 31)) <> "-001-01-31 00:00:00 UTC" or
-        str(date(   -1,  2, 28)) <> "-001-02-28 00:00:00 UTC" or
-        str(date(   -1,  3, 31)) <> "-001-03-31 00:00:00 UTC" or
-        str(date(   -1,  4, 30)) <> "-001-04-30 00:00:00 UTC" or
-        str(date(   -1,  5, 31)) <> "-001-05-31 00:00:00 UTC" or
-        str(date(   -1,  6, 30)) <> "-001-06-30 00:00:00 UTC" or
-        str(date(   -1,  7, 31)) <> "-001-07-31 00:00:00 UTC" or
-        str(date(   -1,  8, 31)) <> "-001-08-31 00:00:00 UTC" or
-        str(date(   -1,  9, 30)) <> "-001-09-30 00:00:00 UTC" or
-        str(date(   -1, 10, 31)) <> "-001-10-31 00:00:00 UTC" or
-        str(date(   -1, 11, 30)) <> "-001-11-30 00:00:00 UTC" or
-        str(date(   -1, 12, 31)) <> "-001-12-31 00:00:00 UTC" or
+    if  str(date(   -1,  1, 31)) <> "-0001-01-31 00:00:00 UTC" or
+        str(date(   -1,  2, 28)) <> "-0001-02-28 00:00:00 UTC" or
+        str(date(   -1,  3, 31)) <> "-0001-03-31 00:00:00 UTC" or
+        str(date(   -1,  4, 30)) <> "-0001-04-30 00:00:00 UTC" or
+        str(date(   -1,  5, 31)) <> "-0001-05-31 00:00:00 UTC" or
+        str(date(   -1,  6, 30)) <> "-0001-06-30 00:00:00 UTC" or
+        str(date(   -1,  7, 31)) <> "-0001-07-31 00:00:00 UTC" or
+        str(date(   -1,  8, 31)) <> "-0001-08-31 00:00:00 UTC" or
+        str(date(   -1,  9, 30)) <> "-0001-09-30 00:00:00 UTC" or
+        str(date(   -1, 10, 31)) <> "-0001-10-31 00:00:00 UTC" or
+        str(date(   -1, 11, 30)) <> "-0001-11-30 00:00:00 UTC" or
+        str(date(   -1, 12, 31)) <> "-0001-12-31 00:00:00 UTC" or
         str(date(    0,  1, 31)) <> "0000-01-31 00:00:00 UTC" or
         str(date(    0,  2, 29)) <> "0000-02-29 00:00:00 UTC" or
         str(date(    0,  3, 31)) <> "0000-03-31 00:00:00 UTC" or
@@ -619,11 +619,11 @@ const func boolean: checkTimeToStringConversion_2 is func
   begin
     if  strDate(date(-4711,  1,  1)) <> "-4711-01-01" or
         strDate(date(-4711, 12, 31)) <> "-4711-12-31" or
-        strDate(date( -999, 12, 31)) <> "-999-12-31"  or
-        strDate(date( -123,  1, 23)) <> "-123-01-23"  or
-        strDate(date(  -42,  4,  2)) <> "-042-04-02"  or
-        strDate(date(   -1,  1,  1)) <> "-001-01-01"  or
-        strDate(date(   -1, 12, 31)) <> "-001-12-31"  or
+        strDate(date( -999, 12, 31)) <> "-0999-12-31" or
+        strDate(date( -123,  1, 23)) <> "-0123-01-23" or
+        strDate(date(  -42,  4,  2)) <> "-0042-04-02" or
+        strDate(date(   -1,  1,  1)) <> "-0001-01-01" or
+        strDate(date(   -1, 12, 31)) <> "-0001-12-31" or
         strDate(date(    0,  1,  1)) <> "0000-01-01"  or
         strDate(date(    0, 12, 31)) <> "0000-12-31"  or
         strDate(date(    1,  1,  1)) <> "0001-01-01"  or
@@ -665,11 +665,11 @@ const func boolean: checkTimeToStringConversion_2 is func
 
     if  strDateTime(time(-4711,  1,  1,  0,  0,  0)) <> "-4711-01-01 00:00:00" or
         strDateTime(time(-4711, 12, 31, 23, 59, 59)) <> "-4711-12-31 23:59:59" or
-        strDateTime(time( -999, 12, 31, 23, 59, 59)) <> "-999-12-31 23:59:59"  or
-        strDateTime(time( -123,  1, 23, 12, 31, 12)) <> "-123-01-23 12:31:12"  or
-        strDateTime(time(  -42,  4,  2,  4, 42, 42)) <> "-042-04-02 04:42:42"  or
-        strDateTime(time(   -1,  1,  1,  0,  0,  0)) <> "-001-01-01 00:00:00"  or
-        strDateTime(time(   -1, 12, 31, 23, 59, 59)) <> "-001-12-31 23:59:59"  or
+        strDateTime(time( -999, 12, 31, 23, 59, 59)) <> "-0999-12-31 23:59:59" or
+        strDateTime(time( -123,  1, 23, 12, 31, 12)) <> "-0123-01-23 12:31:12" or
+        strDateTime(time(  -42,  4,  2,  4, 42, 42)) <> "-0042-04-02 04:42:42" or
+        strDateTime(time(   -1,  1,  1,  0,  0,  0)) <> "-0001-01-01 00:00:00" or
+        strDateTime(time(   -1, 12, 31, 23, 59, 59)) <> "-0001-12-31 23:59:59" or
         strDateTime(time(    0,  1,  1,  0,  0,  0)) <> "0000-01-01 00:00:00"  or
         strDateTime(time(    0, 12, 31, 23, 59, 59)) <> "0000-12-31 23:59:59"  or
         strDateTime(time(    1,  1,  1,  0,  0,  0)) <> "0001-01-01 00:00:00"  or
@@ -701,7 +701,7 @@ const func boolean: checkTimeToStringConversion_2 is func
     end if;
 
     if  strDateTime(time(-4711, 12, 31, 23, 59, 59, 123456)) <> "-4711-12-31 23:59:59" or
-        strDateTime(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-001-12-31 23:59:59"  or
+        strDateTime(time(   -1, 12, 31, 23, 59, 59, 999999)) <> "-0001-12-31 23:59:59" or
         strDateTime(time(    0, 12, 31, 23, 59, 59, 123456)) <> "0000-12-31 23:59:59"  or
         strDateTime(time(    0, 12, 31, 23, 59, 59, 999999)) <> "0000-12-31 23:59:59"  or
         strDateTime(time(    1, 12, 31, 23, 59, 59, 123456)) <> "0001-12-31 23:59:59"  or
@@ -722,18 +722,18 @@ const func boolean: checkTimeToStringConversion_2 is func
       okay := FALSE;
     end if;
 
-    if  strDate(date(   -1,  1, 31)) <> "-001-01-31" or
-        strDate(date(   -1,  2, 28)) <> "-001-02-28" or
-        strDate(date(   -1,  3, 31)) <> "-001-03-31" or
-        strDate(date(   -1,  4, 30)) <> "-001-04-30" or
-        strDate(date(   -1,  5, 31)) <> "-001-05-31" or
-        strDate(date(   -1,  6, 30)) <> "-001-06-30" or
-        strDate(date(   -1,  7, 31)) <> "-001-07-31" or
-        strDate(date(   -1,  8, 31)) <> "-001-08-31" or
-        strDate(date(   -1,  9, 30)) <> "-001-09-30" or
-        strDate(date(   -1, 10, 31)) <> "-001-10-31" or
-        strDate(date(   -1, 11, 30)) <> "-001-11-30" or
-        strDate(date(   -1, 12, 31)) <> "-001-12-31" or
+    if  strDate(date(   -1,  1, 31)) <> "-0001-01-31" or
+        strDate(date(   -1,  2, 28)) <> "-0001-02-28" or
+        strDate(date(   -1,  3, 31)) <> "-0001-03-31" or
+        strDate(date(   -1,  4, 30)) <> "-0001-04-30" or
+        strDate(date(   -1,  5, 31)) <> "-0001-05-31" or
+        strDate(date(   -1,  6, 30)) <> "-0001-06-30" or
+        strDate(date(   -1,  7, 31)) <> "-0001-07-31" or
+        strDate(date(   -1,  8, 31)) <> "-0001-08-31" or
+        strDate(date(   -1,  9, 30)) <> "-0001-09-30" or
+        strDate(date(   -1, 10, 31)) <> "-0001-10-31" or
+        strDate(date(   -1, 11, 30)) <> "-0001-11-30" or
+        strDate(date(   -1, 12, 31)) <> "-0001-12-31" or
         strDate(date(    0,  1, 31)) <> "0000-01-31" or
         strDate(date(    0,  2, 29)) <> "0000-02-29" or
         strDate(date(    0,  3, 31)) <> "0000-03-31" or
@@ -770,11 +770,11 @@ const func boolean: checkTimeToStringConversion_3 is func
   begin
     if  str_yyyy_mm_dd(date(-4711,  1,  1), "/") <> "-4711/01/01" or
         str_yyyy_mm_dd(date(-4711, 12, 31), "/") <> "-4711/12/31" or
-        str_yyyy_mm_dd(date( -999, 12, 31), "/") <> "-999/12/31"  or
-        str_yyyy_mm_dd(date( -123,  1, 23), "/") <> "-123/01/23"  or
-        str_yyyy_mm_dd(date(  -42,  4,  2), "/") <> "-042/04/02"  or
-        str_yyyy_mm_dd(date(   -1,  1,  1), "/") <> "-001/01/01"  or
-        str_yyyy_mm_dd(date(   -1, 12, 31), "/") <> "-001/12/31"  or
+        str_yyyy_mm_dd(date( -999, 12, 31), "/") <> "-0999/12/31" or
+        str_yyyy_mm_dd(date( -123,  1, 23), "/") <> "-0123/01/23" or
+        str_yyyy_mm_dd(date(  -42,  4,  2), "/") <> "-0042/04/02" or
+        str_yyyy_mm_dd(date(   -1,  1,  1), "/") <> "-0001/01/01" or
+        str_yyyy_mm_dd(date(   -1, 12, 31), "/") <> "-0001/12/31" or
         str_yyyy_mm_dd(date(    0,  1,  1), "/") <> "0000/01/01"  or
         str_yyyy_mm_dd(date(    0, 12, 31), "/") <> "0000/12/31"  or
         str_yyyy_mm_dd(date(    1,  1,  1), "/") <> "0001/01/01"  or
@@ -808,8 +808,8 @@ const func boolean: checkTimeToStringConversion_3 is func
         str_yy_mm_dd(date( -999, 12, 31), "/") <> "-99/12/31" or
         str_yy_mm_dd(date( -123,  1, 23), "/") <> "-23/01/23" or
         str_yy_mm_dd(date(  -42,  4,  2), "/") <> "-42/04/02" or
-        str_yy_mm_dd(date(   -1,  1,  1), "/") <> "-1/01/01"  or
-        str_yy_mm_dd(date(   -1, 12, 31), "/") <> "-1/12/31"  or
+        str_yy_mm_dd(date(   -1,  1,  1), "/") <> "-01/01/01" or
+        str_yy_mm_dd(date(   -1, 12, 31), "/") <> "-01/12/31" or
         str_yy_mm_dd(date(    0,  1,  1), "/") <> "00/01/01"  or
         str_yy_mm_dd(date(    0, 12, 31), "/") <> "00/12/31"  or
         str_yy_mm_dd(date(    1,  1,  1), "/") <> "01/01/01"  or
@@ -840,11 +840,11 @@ const func boolean: checkTimeToStringConversion_3 is func
 
     if  str_mm_dd_yyyy(date(-4711,  1,  1), "/") <> "01/01/-4711" or
         str_mm_dd_yyyy(date(-4711, 12, 31), "/") <> "12/31/-4711" or
-        str_mm_dd_yyyy(date( -999, 12, 31), "/") <> "12/31/-999"  or
-        str_mm_dd_yyyy(date( -123,  1, 23), "/") <> "01/23/-123"  or
-        str_mm_dd_yyyy(date(  -42,  4,  2), "/") <> "04/02/-042"  or
-        str_mm_dd_yyyy(date(   -1,  1,  1), "/") <> "01/01/-001"  or
-        str_mm_dd_yyyy(date(   -1, 12, 31), "/") <> "12/31/-001"  or
+        str_mm_dd_yyyy(date( -999, 12, 31), "/") <> "12/31/-0999" or
+        str_mm_dd_yyyy(date( -123,  1, 23), "/") <> "01/23/-0123" or
+        str_mm_dd_yyyy(date(  -42,  4,  2), "/") <> "04/02/-0042" or
+        str_mm_dd_yyyy(date(   -1,  1,  1), "/") <> "01/01/-0001" or
+        str_mm_dd_yyyy(date(   -1, 12, 31), "/") <> "12/31/-0001" or
         str_mm_dd_yyyy(date(    0,  1,  1), "/") <> "01/01/0000"  or
         str_mm_dd_yyyy(date(    0, 12, 31), "/") <> "12/31/0000"  or
         str_mm_dd_yyyy(date(    1,  1,  1), "/") <> "01/01/0001"  or
@@ -878,8 +878,8 @@ const func boolean: checkTimeToStringConversion_3 is func
         str_mm_dd_yy(date( -999, 12, 31), "/") <> "12/31/-99" or
         str_mm_dd_yy(date( -123,  1, 23), "/") <> "01/23/-23" or
         str_mm_dd_yy(date(  -42,  4,  2), "/") <> "04/02/-42" or
-        str_mm_dd_yy(date(   -1,  1,  1), "/") <> "01/01/-1"  or
-        str_mm_dd_yy(date(   -1, 12, 31), "/") <> "12/31/-1"  or
+        str_mm_dd_yy(date(   -1,  1,  1), "/") <> "01/01/-01" or
+        str_mm_dd_yy(date(   -1, 12, 31), "/") <> "12/31/-01" or
         str_mm_dd_yy(date(    0,  1,  1), "/") <> "01/01/00"  or
         str_mm_dd_yy(date(    0, 12, 31), "/") <> "12/31/00"  or
         str_mm_dd_yy(date(    1,  1,  1), "/") <> "01/01/01"  or
@@ -910,11 +910,11 @@ const func boolean: checkTimeToStringConversion_3 is func
 
     if  str_dd_mm_yyyy(date(-4711,  1,  1), "/") <> "01/01/-4711" or
         str_dd_mm_yyyy(date(-4711, 12, 31), "/") <> "31/12/-4711" or
-        str_dd_mm_yyyy(date( -999, 12, 31), "/") <> "31/12/-999"  or
-        str_dd_mm_yyyy(date( -123,  1, 23), "/") <> "23/01/-123"  or
-        str_dd_mm_yyyy(date(  -42,  4,  2), "/") <> "02/04/-042"  or
-        str_dd_mm_yyyy(date(   -1,  1,  1), "/") <> "01/01/-001"  or
-        str_dd_mm_yyyy(date(   -1, 12, 31), "/") <> "31/12/-001"  or
+        str_dd_mm_yyyy(date( -999, 12, 31), "/") <> "31/12/-0999" or
+        str_dd_mm_yyyy(date( -123,  1, 23), "/") <> "23/01/-0123" or
+        str_dd_mm_yyyy(date(  -42,  4,  2), "/") <> "02/04/-0042" or
+        str_dd_mm_yyyy(date(   -1,  1,  1), "/") <> "01/01/-0001" or
+        str_dd_mm_yyyy(date(   -1, 12, 31), "/") <> "31/12/-0001" or
         str_dd_mm_yyyy(date(    0,  1,  1), "/") <> "01/01/0000"  or
         str_dd_mm_yyyy(date(    0, 12, 31), "/") <> "31/12/0000"  or
         str_dd_mm_yyyy(date(    1,  1,  1), "/") <> "01/01/0001"  or
@@ -948,8 +948,8 @@ const func boolean: checkTimeToStringConversion_3 is func
         str_dd_mm_yy(date( -999, 12, 31), "/") <> "31/12/-99" or
         str_dd_mm_yy(date( -123,  1, 23), "/") <> "23/01/-23" or
         str_dd_mm_yy(date(  -42,  4,  2), "/") <> "02/04/-42" or
-        str_dd_mm_yy(date(   -1,  1,  1), "/") <> "01/01/-1"  or
-        str_dd_mm_yy(date(   -1, 12, 31), "/") <> "31/12/-1"  or
+        str_dd_mm_yy(date(   -1,  1,  1), "/") <> "01/01/-01" or
+        str_dd_mm_yy(date(   -1, 12, 31), "/") <> "31/12/-01" or
         str_dd_mm_yy(date(    0,  1,  1), "/") <> "01/01/00"  or
         str_dd_mm_yy(date(    0, 12, 31), "/") <> "31/12/00"  or
         str_dd_mm_yy(date(    1,  1,  1), "/") <> "01/01/01"  or
@@ -980,11 +980,11 @@ const func boolean: checkTimeToStringConversion_3 is func
 
     if  str_d_m_yyyy(date(-4711,  1,  1), "/") <> "1/1/-4711"   or
         str_d_m_yyyy(date(-4711, 12, 31), "/") <> "31/12/-4711" or
-        str_d_m_yyyy(date( -999, 12, 31), "/") <> "31/12/-999"  or
-        str_d_m_yyyy(date( -123,  1, 23), "/") <> "23/1/-123"   or
-        str_d_m_yyyy(date(  -42,  4,  2), "/") <> "2/4/-042"    or
-        str_d_m_yyyy(date(   -1,  1,  1), "/") <> "1/1/-001"    or
-        str_d_m_yyyy(date(   -1, 12, 31), "/") <> "31/12/-001"  or
+        str_d_m_yyyy(date( -999, 12, 31), "/") <> "31/12/-0999" or
+        str_d_m_yyyy(date( -123,  1, 23), "/") <> "23/1/-0123"  or
+        str_d_m_yyyy(date(  -42,  4,  2), "/") <> "2/4/-0042"   or
+        str_d_m_yyyy(date(   -1,  1,  1), "/") <> "1/1/-0001"   or
+        str_d_m_yyyy(date(   -1, 12, 31), "/") <> "31/12/-0001" or
         str_d_m_yyyy(date(    0,  1,  1), "/") <> "1/1/0000"    or
         str_d_m_yyyy(date(    0, 12, 31), "/") <> "31/12/0000"  or
         str_d_m_yyyy(date(    1,  1,  1), "/") <> "1/1/0001"    or
@@ -1018,8 +1018,8 @@ const func boolean: checkTimeToStringConversion_3 is func
         str_d_m_yy(date( -999, 12, 31), "/") <> "31/12/-99" or
         str_d_m_yy(date( -123,  1, 23), "/") <> "23/1/-23"  or
         str_d_m_yy(date(  -42,  4,  2), "/") <> "2/4/-42"   or
-        str_d_m_yy(date(   -1,  1,  1), "/") <> "1/1/-1"    or
-        str_d_m_yy(date(   -1, 12, 31), "/") <> "31/12/-1"  or
+        str_d_m_yy(date(   -1,  1,  1), "/") <> "1/1/-01"   or
+        str_d_m_yy(date(   -1, 12, 31), "/") <> "31/12/-01" or
         str_d_m_yy(date(    0,  1,  1), "/") <> "1/1/00"    or
         str_d_m_yy(date(    0, 12, 31), "/") <> "31/12/00"  or
         str_d_m_yy(date(    1,  1,  1), "/") <> "1/1/01"    or
