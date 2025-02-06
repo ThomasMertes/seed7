@@ -462,6 +462,19 @@ const string: chkfil_output is "\n\
   \File operations with a closed UTF-8 file fail as they should.\n\
   \STD_NULL does work correctly.\n";
 
+const string: chkerr_output is "\n\
+  \Scanner errors are reported correctly.\n\
+  \Include and pragma errors are reported correctly.\n\
+  \Basic declaration errors are reported correctly.\n\
+  \Numeric literal errors are reported correctly.\n\
+  \String and char literal errors are reported correctly.\n\
+  \Errors where something was expected are reported correctly.\n\
+  \Declaration errors are reported correctly.\n\
+  \Syntax declaration errors are reported correctly.\n\
+  \Semantic errors are reported correctly.\n\
+  \Unicode errors are reported correctly.\n\
+  \All errors are reported correctly.\n";
+
 const string: chkexc_output is "\n\
   \Integer exceptions work correctly.\n\
   \BigInteger exceptions work correctly.\n\
@@ -773,6 +786,7 @@ const proc: main is func
     check("chkset",  chkset_output);
     check("chkhsh",  chkhsh_output);
     check("chkfil",  chkfil_output);
+    check("chkerr",  chkerr_output);
     check("chkexc",  chkexc_output);
     if checkAllFailed then
       exit(1);
