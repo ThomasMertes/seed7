@@ -35,6 +35,8 @@ include "lzma.s7i";
 include "zstd.s7i";
 include "xz.s7i";
 include "unicode.s7i";
+include "charsets.s7i";
+include "chartype.s7i";
 include "bytedata.s7i";
 include "bin32.s7i";
 include "time.s7i";
@@ -278,6 +280,7 @@ const func local_file_header: get_local_header (inout file: inFile) is func
         end block;
       else
         header.filePath := header.file_name;
+        conv2unicode(header.filePath, cp_437g);
       end if;
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
@@ -656,6 +659,7 @@ const func central_file_header: get_central_header (inout file: inFile) is func
         end block;
       else
         header.filePath := header.file_name;
+        conv2unicode(header.filePath, cp_437g);
       end if;
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
@@ -728,6 +732,8 @@ const func string: getCentralHeaderFilePath (inout file: inFile) is func
         exception
           catch RANGE_ERROR: noop;
         end block;
+      else
+        conv2unicode(filePath, cp_437g);
       end if;
       if filePath <> "/" and endsWith(filePath, "/") then
         filePath := filePath[.. pred(length(filePath))];
@@ -2194,7 +2200,8 @@ const proc: makeLink (inout zipArchive: zip, in string: symlinkPath,
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
       header.version_needed_to_extract  := 10;
-      if symlinkPath8 <> symlinkPath then
+      if symlinkPath8 <> symlinkPath or
+          pos(symlinkPath8, ascii_control_char) <> 0 then
         header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
       else
         header.general_purpose_bit_flag := bin32(0);
@@ -2472,7 +2479,8 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
       header.version_needed_to_extract  := 10;
-      if filePath8 <> filePath then
+      if filePath8 <> filePath or
+          pos(filePath8, ascii_control_char) <> 0 then
         header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
       else
         header.general_purpose_bit_flag := bin32(0);
@@ -2544,7 +2552,8 @@ const proc: makeDir (inout zipArchive: zip, in string: dirPath) is func
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
       header.version_needed_to_extract  := 10;
-      if dirPath8 <> dirPath then
+      if dirPath8 <> dirPath or
+          pos(dirPath8, ascii_control_char) <> 0 then
         header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
       else
         header.general_purpose_bit_flag := bin32(0);

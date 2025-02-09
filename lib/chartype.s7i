@@ -32,6 +32,7 @@ const set of char: hexdigit_char is digit_char | {'A' .. 'F'} | {'a' .. 'f'};
 const set of char: octdigit_char is {'0' .. '7'};
 const set of char: alphanum_char is letter_char | digit_char;
 const set of char: control_char is {'\0;' .. '\31;'} | {'\127;' .. '\159;'};
+const set of char: ascii_control_char is {'\0;' .. '\31;'} | {'\127;'};
 const set of char: special_char is
     {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
      ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
