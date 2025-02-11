@@ -46,6 +46,7 @@ include "filebits.s7i";
 include "fileutil.s7i";
 include "archive_base.s7i";
 include "subfile.s7i";
+include "strifile.s7i";
 include "msgdigest.s7i";
 
 
@@ -68,6 +69,7 @@ const integer: ZIP_DATA_DESCRIPTOR_SIZE                  is 12;
 const integer: ZIP64_DATA_DESCRIPTOR_SIZE                is 20;
 
 # Bits of the general_purpose_bit_flag:
+const bin32: ZIP_FILE_IS_ENCRYPTED   is bin32(16#0001);
 const bin32: ZIP_HAS_DATA_DESCRIPTOR is bin32(16#0008);
 const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
 
@@ -973,16 +975,18 @@ const type: zipArchive is sub emptyFileSys struct
     var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
     var integer: endOfCentralDirPos is 1;
     var integer: startOfCentralDirPos is 1;
+    var string: password is "";
   end struct;
 
 
 (**
  *  Open a ZIP archive with the given zipFile.
  *  @param zipFile File that contains a ZIP archive.
+ *  @param password Password to be used for decryption.
  *  @return a file system that accesses the ZIP archive, or
  *          fileSys.value if it could not be opened.
  *)
-const func fileSys: openZip (inout file: zipFile) is func
+const func fileSys: openZip (inout file: zipFile, in string: password) is func
   result
     var fileSys: newFileSys is fileSys.value;
   local
@@ -1018,10 +1022,39 @@ const func fileSys: openZip (inout file: zipFile) is func
             centralHeaderPos := tell(zip.zipFile);
             filePath := getCentralHeaderFilePath(zip.zipFile);
           end while;
+          zip.password := password;
           newFileSys := toInterface(zip);
         end if;
       end if;
     end if;
+  end func;
+
+
+(**
+ *  Open a ZIP archive with the given zipFile.
+ *  @param zipFile File that contains a ZIP archive.
+ *  @return a file system that accesses the ZIP archive, or
+ *          fileSys.value if it could not be opened.
+ *)
+const func fileSys: openZip (inout file: zipFile) is
+  return openZip(zipFile, "");
+
+
+(**
+ *  Open a ZIP archive with the given zipFileName.
+ *  @param zipFileName Name of the ZIP archive to be opened.
+ *  @param password Password to be used for decryption.
+ *  @return a file system that accesses the ZIP archive, or
+ *          fileSys.value if it could not be opened.
+ *)
+const func fileSys: openZip (in string: zipFileName, in string: password) is func
+  result
+    var fileSys: zip is fileSys.value;
+  local
+    var file: zipFile is STD_NULL;
+  begin
+    zipFile := open(zipFileName, "r");
+    zip := openZip(zipFile, password);
   end func;
 
 
@@ -1031,15 +1064,8 @@ const func fileSys: openZip (inout file: zipFile) is func
  *  @return a file system that accesses the ZIP archive, or
  *          fileSys.value if it could not be opened.
  *)
-const func fileSys: openZip (in string: zipFileName) is func
-  result
-    var fileSys: zip is fileSys.value;
-  local
-    var file: zipFile is STD_NULL;
-  begin
-    zipFile := open(zipFileName, "r");
-    zip := openZip(zipFile);
-  end func;
+const func fileSys: openZip (in string: zipFileName) is
+  return openZip(zipFileName, "");
 
 
 (**
@@ -2286,6 +2312,87 @@ const func string: getReference (inout zipArchive: zip, in central_file_header: 
   end func;
 
 
+const type: zipEncryptionKey is array [0 .. 2] bin32;
+
+
+const func bin32: crc32 (in bin32: oldCrc, in char: ch) is
+  return crc32Table[ord(oldCrc >< bin32(ch)) mod 256] >< oldCrc >> 8;
+
+
+const proc: updateKeys (inout zipEncryptionKey: aKey, in char: ch) is func
+  begin
+    aKey[0] := crc32(aKey[0], ch);
+    aKey[1] := bin32(ord(aKey[1]) + ord(aKey[0]) mod 256);
+    aKey[1] := bin32((ord(aKey[1]) * 134775813 + 1) mod 2 ** 32);
+    aKey[2] := crc32(aKey[2], char(ord(aKey[1]) >> 24));
+  end func;
+
+
+const proc: initializeEncryptionKeys (inout zipEncryptionKey: aKey, in string: password) is func
+  local
+    var char: ch is ' ';
+  begin
+    aKey[0] := bin32(16#12345678);
+    aKey[1] := bin32(16#23456789);
+    aKey[2] := bin32(16#34567890);
+    for ch range password do
+      updateKeys(aKey, ch);
+    end for;
+  end func;
+
+
+const func char: decryptByte (inout zipEncryptionKey: aKey) is func
+  result
+    var char: decryptByte is ' ';
+  local
+    var integer: temp is 0;
+  begin
+    temp := ord(aKey[2] | bin32(2)) mod 2 ** 16;
+    decryptByte := char(((temp * ord(bin32(temp) >< bin32(1))) >> 8) mod 256);
+  end func;
+
+
+const func string: decrypt (inout zipEncryptionKey: aKey, in string: data) is func
+  result
+    var string: decrypted is "";
+  local
+    var char: ch is ' ';
+    var char: decryptedChar is ' ';
+  begin
+    for ch range data do
+      decryptedChar := char(ord(bin32(ch) >< bin32(decryptByte(aKey))));
+      updateKeys(aKey, decryptedChar);
+      decrypted &:= decryptedChar;
+    end for;
+  end func;
+
+
+const func file: openEncryptFile (inout zipArchive: zip,
+    in local_file_header: header) is func
+  result
+    var file: encryptFile is STD_NULL;
+  local
+    var string: data is "";
+    var string: decrypted is "";
+    var zipEncryptionKey: aKey is zipEncryptionKey.value;
+  begin
+    data := gets(zip.zipFile, header.compressed_size);
+    if length(data) = header.compressed_size then
+      initializeEncryptionKeys(aKey, zip.password);
+      decrypted := decrypt(aKey, data[.. 12]);
+      if decrypted[length(decrypted)] = char(ord(header.crc_32 >> 24) mod 256) or
+          (header.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) and
+	  decrypted[length(decrypted)] = char((header.last_mod_file_time >> 8) mod 256)) then
+        # A byte from crc32 fits or a byte from the modification time fits.
+        decrypted := decrypt(aKey, data[13 ..]);
+        encryptFile := openStriFile(decrypted);
+      else
+        writeln("password not OK");
+      end if;
+    end if;
+  end func;
+
+
 const proc: readDataDescriptor (inout zipArchive: zip, in central_file_header: header,
     inout local_file_header: localHeader) is func
   local
@@ -2340,6 +2447,7 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
   local
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
+    var file: zipFile is STD_NULL;
     var bin32: crc_32 is bin32(0);
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -2350,39 +2458,39 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         seek(zip.zipFile, succ(header.relative_offset_of_local_header));
         localHeader := get_local_header(zip.zipFile);
         # write(localHeader);
+        if localHeader.general_purpose_bit_flag & ZIP_FILE_IS_ENCRYPTED <> bin32(0) then
+          zipFile := openEncryptFile(zip, localHeader);
+        else
+          zipFile := zip.zipFile;
+        end if;
         case localHeader.compression_method of
           when {ZIP_STORE}:
-            content := gets(zip.zipFile, localHeader.compressed_size);
+            content := gets(zipFile, localHeader.compressed_size);
           when {ZIP_SHRINK}:
-            content := lzwDecompressShrink(zip.zipFile, localHeader.compressed_size);
+            content := lzwDecompressShrink(zipFile, localHeader.compressed_size);
           when {ZIP_DEFLATE}:
-            content := inflate(zip.zipFile);
-            if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
-              # The fields crc_32, compressed_size and uncompressed_size are 0.
-              # There is a data descriptor after the compressed data instead.
-              readDataDescriptor(zip, header, localHeader);
-            end if;
+            content := inflate(zipFile);
           when {ZIP_DEFLATE64}:
-            content := inflate64(zip.zipFile);
-            if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
-              # The fields crc_32, compressed_size and uncompressed_size are 0.
-              # There is a data descriptor after the compressed data instead.
-              readDataDescriptor(zip, header, localHeader);
-            end if;
+            content := inflate64(zipFile);
           when {ZIP_BZIP2}:
-            content := bzip2Decompress(zip.zipFile);
+            content := bzip2Decompress(zipFile);
           when {ZIP_LZMA}:
-            content := lzmaDecompress(zip.zipFile, localHeader.uncompressed_size);
+            content := lzmaDecompress(zipFile, localHeader.uncompressed_size);
           when {ZIP_REFERENCE}:
             content := getReference(zip, header);
           when {ZIP_ZSTD}:
-            content := zstdDecompress(zip.zipFile);
+            content := zstdDecompress(zipFile);
           when {ZIP_XZ}:
-            content := xzDecompress(zip.zipFile);
+            content := xzDecompress(zipFile);
           otherwise:
             # writeln("unsupported compression method: " <& localHeader.compression_method);
             raise FILE_ERROR;
         end case;
+        if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
+          # The fields crc_32, compressed_size and uncompressed_size are 0.
+          # There is a data descriptor after the compressed data instead.
+          readDataDescriptor(zip, header, localHeader);
+        end if;
         crc_32 := crc32(content);
         if localHeader.crc_32 <> crc_32 or
             localHeader.uncompressed_size <> length(content) or
