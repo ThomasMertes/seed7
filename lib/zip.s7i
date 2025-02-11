@@ -2386,8 +2386,6 @@ const func file: openEncryptFile (inout zipArchive: zip,
         # A byte from crc32 fits or a byte from the modification time fits.
         decrypted := decrypt(aKey, data[13 ..]);
         encryptFile := openStriFile(decrypted);
-      else
-        writeln("password not OK");
       end if;
     end if;
   end func;
