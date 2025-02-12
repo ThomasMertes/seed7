@@ -907,10 +907,12 @@ const proc: checkJsonDom is func
       okay := FALSE;
     end if;
 
-    if  type(   readJson("{\"fee\": 0.5, \"foo\": true}")["fee"]) <> float   or
-        float(  readJson("{\"fee\": 0.5, \"foo\": true}")["fee"]) <> 0.5     or
-        type(   readJson("{\"fee\": 0.5, \"foo\": true}")["foo"]) <> boolean or
-        boolean(readJson("{\"fee\": 0.5, \"foo\": true}")["foo"]) <> TRUE    then
+    if  category(readJson("{\"fee\": 0.5, \"foo\": true}")["fee"]) <> JSON_NUMBER  or
+        type(    readJson("{\"fee\": 0.5, \"foo\": true}")["fee"]) <> float        or
+        float(   readJson("{\"fee\": 0.5, \"foo\": true}")["fee"]) <> 0.5          or
+        category(readJson("{\"fee\": 0.5, \"foo\": true}")["foo"]) <> JSON_BOOLEAN or
+        type(    readJson("{\"fee\": 0.5, \"foo\": true}")["foo"]) <> boolean      or
+        boolean( readJson("{\"fee\": 0.5, \"foo\": true}")["foo"]) <> TRUE         then
       writeln(" ***** Selecting an element from an jsonObject does not work correctly.");
       okay := FALSE;
     end if;
@@ -938,22 +940,28 @@ const proc: checkJsonDom is func
       okay := FALSE;
     end if;
 
-    if  type(   jsonValue([] (jsonValue(9), jsonValue("x")))[1]) <> integer or
-        integer(jsonValue([] (jsonValue(9), jsonValue("x")))[1]) <> 9       or
-        type(   jsonValue([] (jsonValue(9), jsonValue("x")))[2]) <> string  or
-        string( jsonValue([] (jsonValue(9), jsonValue("x")))[2]) <> "x"     then
+    if  category(jsonValue([] (jsonValue(9), jsonValue("x")))[1]) <> JSON_NUMBER or
+        type(    jsonValue([] (jsonValue(9), jsonValue("x")))[1]) <> integer     or
+        integer( jsonValue([] (jsonValue(9), jsonValue("x")))[1]) <> 9           or
+        category(jsonValue([] (jsonValue(9), jsonValue("x")))[2]) <> JSON_STRING or
+        type(    jsonValue([] (jsonValue(9), jsonValue("x")))[2]) <> string      or
+        string(  jsonValue([] (jsonValue(9), jsonValue("x")))[2]) <> "x"         then
       writeln(" ***** Indexing into a jsonArray does not work correctly. (1)");
       okay := FALSE;
     end if;
 
-    if  type(   readJson("[1, \"foo\", false, 0.125]")[1]) <> integer or
-        integer(readJson("[1, \"foo\", false, 0.125]")[1]) <> 1       or
-        type(   readJson("[1, \"foo\", false, 0.125]")[2]) <> string  or
-        string( readJson("[1, \"foo\", false, 0.125]")[2]) <> "foo"   or
-        type(   readJson("[1, \"foo\", false, 0.125]")[3]) <> boolean or
-        boolean(readJson("[1, \"foo\", false, 0.125]")[3]) <> FALSE   or
-        type(   readJson("[1, \"foo\", false, 0.125]")[4]) <> float   or
-        float(  readJson("[1, \"foo\", false, 0.125]")[4]) <> 0.125   then
+    if  category(readJson("[1, \"foo\", false, 0.125]")[1]) <> JSON_NUMBER  or
+        type(    readJson("[1, \"foo\", false, 0.125]")[1]) <> integer      or
+        integer( readJson("[1, \"foo\", false, 0.125]")[1]) <> 1            or
+        category(readJson("[1, \"foo\", false, 0.125]")[2]) <> JSON_STRING  or
+        type(    readJson("[1, \"foo\", false, 0.125]")[2]) <> string       or
+        string(  readJson("[1, \"foo\", false, 0.125]")[2]) <> "foo"        or
+        category(readJson("[1, \"foo\", false, 0.125]")[3]) <> JSON_BOOLEAN or
+        type(    readJson("[1, \"foo\", false, 0.125]")[3]) <> boolean      or
+        boolean( readJson("[1, \"foo\", false, 0.125]")[3]) <> FALSE        or
+        category(readJson("[1, \"foo\", false, 0.125]")[4]) <> JSON_NUMBER  or
+        type(    readJson("[1, \"foo\", false, 0.125]")[4]) <> float        or
+        float(   readJson("[1, \"foo\", false, 0.125]")[4]) <> 0.125        then
       writeln(" ***** Indexing into a jsonArray does not work correctly. (2)");
       okay := FALSE;
     end if;
