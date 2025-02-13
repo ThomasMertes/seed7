@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2012 - 2016, 2025  Thomas Mertes     */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,6 +21,7 @@
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/numlit.c                                        */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*           2012 - 2016, 2025  Thomas Mertes                       */
 /*  Content: Read the next number from the source file.             */
 /*                                                                  */
 /********************************************************************/

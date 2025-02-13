@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2014, 2015, 2018  Thomas Mertes      */
+/*                2021, 2023, 2025  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Analyzer - Infile                                       */
 /*  File: seed7/src/infile.c                                        */
-/*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
+/*  Changes: 1990 - 1994, 2013, 2014, 2015, 2018  Thomas Mertes     */
+/*           2021, 2023, 2025  Thomas Mertes                        */
 /*  Content: Functions to open, close and read the source file.     */
 /*                                                                  */
 /********************************************************************/

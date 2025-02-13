@@ -2,6 +2,7 @@
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2016, 2018, 2019, 2021  Thomas Mertes      */
+/*                2025  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +22,7 @@
 /*  Module: Analyzer - Main                                         */
 /*  File: seed7/src/analyze.c                                       */
 /*  Changes: 1991 - 1994, 2010, 2012 - 2016, 2018  Thomas Mertes    */
-/*           2019, 2021  Thomas Mertes                              */
+/*           2019, 2021, 2025  Thomas Mertes                        */
 /*  Content: Main function of the analysis phase.                   */
 /*                                                                  */
 /********************************************************************/

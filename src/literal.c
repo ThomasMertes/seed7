@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2012, 2014 - 2016, 2022  Thomas Mertes     */
+/*                2023, 2025  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/literal.c                                       */
-/*  Changes: 1990 - 1994, 2012 - 2014  Thomas Mertes                */
+/*  Changes: 1990 - 1994, 2012, 2014 - 2016, 2022  Thomas Mertes    */
+/*           2023, 2025  Thomas Mertes                              */
 /*  Content: Read next char or string literal from the source file. */
 /*                                                                  */
 /********************************************************************/

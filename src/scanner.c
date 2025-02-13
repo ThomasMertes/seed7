@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014, 2015, 2024, 2025  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,6 +21,7 @@
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/scanner.c                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2014  Thomas Mertes      */
+/*           2015, 2024, 2025  Thomas Mertes                        */
 /*  Content: Read the next symbol from the source file.             */
 /*                                                                  */
 /*  The scan_symbol is tuned for maximum performance.               */
