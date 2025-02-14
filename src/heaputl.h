@@ -65,6 +65,7 @@ typedef struct {
     unsigned long block;
     unsigned long loclist;
     unsigned long infil;
+    unsigned long parseError;
     unsigned long prog;
     unsigned long polldata;
     unsigned long prepared_stmt;
@@ -91,7 +92,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0};
+                   0, 0};
 #else
 EXTERN countType count;
 #endif

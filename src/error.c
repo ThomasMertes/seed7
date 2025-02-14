@@ -82,7 +82,7 @@ static void freeError (parseErrorType oldError)
     strDestr(oldError->fileName);
     strDestr(oldError->msg);
     strDestr(oldError->errorLine);
-    free(oldError);
+    FREE_RECORD(oldError, parseErrorRecord, count.parseError);
   } /* freeError */
 
 
@@ -121,8 +121,7 @@ static parseErrorType newError (errorType err)
     parseErrorType error;
 
   /* newError */
-    error = malloc(sizeof(parseErrorRecord));
-    if (unlikely(error == NULL)) {
+    if (unlikely(!ALLOC_RECORD(error, parseErrorRecord, count.parseError))) {
       fatal_memory_error(SOURCE_POSITION(2121));
     } else {
       memset(error, 0, sizeof(parseErrorRecord));
@@ -340,7 +339,7 @@ static memSizeType computeColumnMarkerPos (const_striType errorLine, memSizeType
       columnMarkerPos = part1_len + 1;
     } /* if */
     logFunction(printf("computeColumnMarkerPos(\"%s\", " FMT_U_MEM ") --> "
-		       FMT_U_MEM "\n", striAsUnquotedCStri(errorLine),
+                       FMT_U_MEM "\n", striAsUnquotedCStri(errorLine),
                        column, columnMarkerPos););
     return columnMarkerPos;
   } /* computeColumnMarkerPos */

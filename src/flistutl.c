@@ -535,6 +535,13 @@ void heapStatistic (void)
           (unsigned int) (count.fetch_data_bytes / count.fetch_data));
       bytes_used += count.fetch_data_bytes;
     } /* if */
+    if (count.parseError != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu parse errors of        %4u bytes\n",
+          count.parseError * SIZ_REC(parseErrorRecord),
+          count.parseError,
+          (unsigned int) SIZ_REC(parseErrorRecord));
+      bytes_used += count.parseError * SIZ_REC(parseErrorRecord);
+    } /* if */
     if (count.prog != 0) {
       printf(F_U_MEM(9) " bytes in %8lu progs of               %4u bytes\n",
           count.prog * SIZ_REC(progRecord),
@@ -675,6 +682,7 @@ static memSizeType compute_hs (void)
     bytes_total += count.database_bytes;
     bytes_total += count.prepared_stmt_bytes;
     bytes_total += count.fetch_data_bytes;
+    bytes_total += count.parseError * SIZ_REC(parseErrorRecord);
     bytes_total += count.prog * SIZ_REC(progRecord);
     bytes_total += count.fnam_bytes + count.fnam +
         count.symb_bytes + count.symb +
