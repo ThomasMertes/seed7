@@ -55,7 +55,6 @@
 #include "numutl.h"
 
 #define MAX_DECIMAL_BUFFER_LENGTH 128
-#define AND_SO_ON_LIMIT           128
 
 /* DECIMAL_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
 #define DECIMAL_WITH_LIMIT(decimal, length) \
