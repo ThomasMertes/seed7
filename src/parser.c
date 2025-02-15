@@ -41,6 +41,7 @@
 #include "syvarutl.h"
 #include "striutl.h"
 #include "identutl.h"
+#include "listutl.h"
 #include "typeutl.h"
 #include "blockutl.h"
 #include "actutl.h"
@@ -289,32 +290,19 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
     if (current_ident == prog->id_for.dollar) {
       scan_symbol();
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
-#ifdef OUT_OF_ORDER
-if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-  printf("$ object_name/list ");
-  prot_list(object_name->value.listValue);
-} else {
-  printf("$ object_name/obj ");
-  trace1(object_name);
-} /* if */
-#endif
-      defined_object = dollar_entername(node_level, object_name, err_info);
+      if (object_name != NULL) {
+        defined_object = dollar_entername(node_level, object_name, err_info);
+        if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
+          object_name->value.listValue = NULL;
+          FREE_OBJECT(object_name);
+        } /* if */
+      } /* if */
     } else {
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
-#ifdef OUT_OF_ORDER
-if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-  printf("n object_name/list ");
-  prot_list(object_name->value.listValue);
-} else {
-  printf("n object_name/obj ");
-  trace1(object_name);
-} /* if */
-#endif
-      defined_object = entername(node_level, object_name, err_info);
-    } /* if */
-    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-      object_name->value.listValue = NULL;
-      FREE_OBJECT(object_name);
+      if (object_name != NULL) {
+        defined_object = entername(node_level, object_name, err_info);
+        free_expression(object_name);
+      } /* if */
     } /* if */
     logFunction(printf("decl_name -->\n"););
     return defined_object;
