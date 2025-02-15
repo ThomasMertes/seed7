@@ -372,7 +372,7 @@ objectType arr_baselit (listType arguments)
 
   {
     objectType element;
-    typeType result_element_type;
+    typeType element_type;
     memSizeType result_size;
     arrayType result;
 
@@ -384,17 +384,17 @@ objectType arr_baselit (listType arguments)
     } /* if */
     result->min_position = 1;
     result->max_position = 1;
-    /* The element type of the result is the type of the 3rd formal parameter */
-    result_element_type = curr_exec_object->value.listValue->obj->
-                          descriptor.property->params->next->next->obj->type_of;
-    if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
+    /* The element type is the type of the 3rd formal parameter */
+    element_type = curr_exec_object->value.listValue->obj->
+                   descriptor.property->params->next->next->obj->type_of;
+    if (TEMP_OBJECT(element) && element->type_of == element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[0], element, sizeof(objectRecord));
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (unlikely(!arr_elem_initialisation(result_element_type,
+      if (unlikely(!arr_elem_initialisation(element_type,
                                             &result->arr[0], element))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -410,7 +410,7 @@ objectType arr_baselit2 (listType arguments)
   {
     intType start_position;
     objectType element;
-    typeType result_element_type;
+    typeType element_type;
     memSizeType result_size;
     arrayType result;
 
@@ -424,17 +424,17 @@ objectType arr_baselit2 (listType arguments)
     } /* if */
     result->min_position = start_position;
     result->max_position = start_position;
-    /* The element type of the result is the type of the 4th formal parameter */
-    result_element_type = curr_exec_object->value.listValue->obj->
-                          descriptor.property->params->next->next->next->obj->type_of;
-    if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
+    /* The element type is the type of the 4th formal parameter */
+    element_type = curr_exec_object->value.listValue->obj->
+                   descriptor.property->params->next->next->next->obj->type_of;
+    if (TEMP_OBJECT(element) && element->type_of == element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[0], element, sizeof(objectRecord));
       FREE_OBJECT(element);
       arg_4(arguments) = NULL;
     } else {
-      if (unlikely(!arr_elem_initialisation(result_element_type,
+      if (unlikely(!arr_elem_initialisation(element_type,
                                             &result->arr[0], element))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -706,7 +706,7 @@ objectType arr_extend (listType arguments)
   {
     arrayType arr1;
     objectType element;
-    typeType result_element_type;
+    typeType element_type;
     memSizeType arr1_size;
     memSizeType result_size;
     arrayType result;
@@ -740,17 +740,17 @@ objectType arr_extend (listType arguments)
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
-      /* The element type of the result is the type of the 3rd formal parameter */
-      result_element_type = curr_exec_object->value.listValue->obj->
-                            descriptor.property->params->next->next->obj->type_of;
-      if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
+      /* The element type is the type of the 3rd formal parameter */
+      element_type = curr_exec_object->value.listValue->obj->
+                     descriptor.property->params->next->next->obj->type_of;
+      if (TEMP_OBJECT(element) && element->type_of == element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
         memcpy(&result->arr[arr1_size], element, sizeof(objectRecord));
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
       } else {
-        if (unlikely(!arr_elem_initialisation(result_element_type,
+        if (unlikely(!arr_elem_initialisation(element_type,
                                               &result->arr[arr1_size], element))) {
           destr_array(result->arr, arr1_size);
           FREE_ARRAY(result, result_size);
@@ -769,7 +769,7 @@ objectType arr_gen (listType arguments)
   {
     objectType element1;
     objectType element2;
-    typeType result_element_type;
+    typeType element_type;
     memSizeType result_size;
     arrayType result;
 
@@ -782,30 +782,30 @@ objectType arr_gen (listType arguments)
     } /* if */
     result->min_position = 1;
     result->max_position = 2;
-    /* The element type of the result is the type of the 1st formal parameter */
-    result_element_type = curr_exec_object->value.listValue->obj->
-                          descriptor.property->params->obj->type_of;
-    if (TEMP_OBJECT(element1) && element1->type_of == result_element_type) {
+    /* The element type is the type of the 1st formal parameter */
+    element_type = curr_exec_object->value.listValue->obj->
+                   descriptor.property->params->obj->type_of;
+    if (TEMP_OBJECT(element1) && element1->type_of == element_type) {
       CLEAR_TEMP_FLAG(element1);
       SET_VAR_FLAG(element1);
       memcpy(&result->arr[0], element1, sizeof(objectRecord));
       FREE_OBJECT(element1);
       arg_1(arguments) = NULL;
     } else {
-      if (unlikely(!arr_elem_initialisation(result_element_type,
+      if (unlikely(!arr_elem_initialisation(element_type,
                                             &result->arr[0], element1))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    if (TEMP_OBJECT(element2) && element2->type_of == result_element_type) {
+    if (TEMP_OBJECT(element2) && element2->type_of == element_type) {
       CLEAR_TEMP_FLAG(element2);
       SET_VAR_FLAG(element2);
       memcpy(&result->arr[1], element2, sizeof(objectRecord));
       FREE_OBJECT(element2);
       arg_3(arguments) = NULL;
     } else {
-      if (unlikely(!arr_elem_initialisation(result_element_type,
+      if (unlikely(!arr_elem_initialisation(element_type,
                                             &result->arr[1], element2))) {
         destr_array(result->arr, (memSizeType) 1);
         FREE_ARRAY(result, result_size);
@@ -1198,7 +1198,7 @@ objectType arr_push (listType arguments)
     objectType arr_variable;
     arrayType dest;
     objectType element;
-    typeType result_element_type;
+    typeType element_type;
     arrayType new_arr;
     memSizeType new_size;
     memSizeType dest_size;
@@ -1221,10 +1221,10 @@ objectType arr_push (listType arguments)
       } else {
         COUNT3_ARRAY(dest_size, new_size);
         arr_variable->value.arrayValue = new_arr;
-        /* The element type of the result is the type of the 3rd formal parameter */
-        result_element_type = curr_exec_object->value.listValue->obj->
-                              descriptor.property->params->next->next->obj->type_of;
-        if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
+        /* The element type is the type of the 3rd formal parameter */
+        element_type = curr_exec_object->value.listValue->obj->
+                       descriptor.property->params->next->next->obj->type_of;
+        if (TEMP_OBJECT(element) && element->type_of == element_type) {
           CLEAR_TEMP_FLAG(element);
           SET_VAR_FLAG(element);
           memcpy(&new_arr->arr[dest_size], element, sizeof(objectRecord));
@@ -1232,7 +1232,7 @@ objectType arr_push (listType arguments)
           FREE_OBJECT(element);
           arg_3(arguments) = NULL;
         } else {
-          if (unlikely(!arr_elem_initialisation(result_element_type,
+          if (unlikely(!arr_elem_initialisation(element_type,
                                                 &new_arr->arr[dest_size], element))) {
             if (unlikely(!REALLOC_ARRAY(dest, new_arr, dest_size))) {
               return raise_exception(SYS_MEM_EXCEPTION);
@@ -1698,7 +1698,7 @@ objectType arr_times (listType arguments)
     objectType element;
     memSizeType position;
     objectType elem_to;
-    typeType result_element_type;
+    typeType element_type;
     memSizeType result_size;
     arrayType result;
 
@@ -1722,17 +1722,17 @@ objectType arr_times (listType arguments)
         result->max_position = factor;
         elem_to = result->arr;
         if (result_size > 0) {
-          /* The element type of the result is the type of the 3rd formal parameter */
-          result_element_type = curr_exec_object->value.listValue->obj->
-                                descriptor.property->params->next->next->obj->type_of;
-          if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
+          /* The element type is the type of the 3rd formal parameter */
+          element_type = curr_exec_object->value.listValue->obj->
+                         descriptor.property->params->next->next->obj->type_of;
+          if (TEMP_OBJECT(element) && element->type_of == element_type) {
             CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);
             memcpy(elem_to, element, sizeof(objectRecord));
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
           } else {
-            if (unlikely(!arr_elem_initialisation(result_element_type,
+            if (unlikely(!arr_elem_initialisation(element_type,
                                                   elem_to, element))) {
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -1740,7 +1740,7 @@ objectType arr_times (listType arguments)
           } /* if */
           position = 1;
           while (position < result_size) {
-            if (unlikely(!arr_elem_initialisation(result_element_type,
+            if (unlikely(!arr_elem_initialisation(element_type,
                                                   &elem_to[position], elem_to))) {
               /* If a create fails (mostly no memory) all elements     */
               /* created up to this point must be destroyed to recycle */
