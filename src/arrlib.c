@@ -983,10 +983,7 @@ objectType arr_insert (listType arguments)
       /* The element type is the type of the 3rd formal parameter */
       element_type = curr_exec_object->value.listValue->obj->
                      descriptor.property->params->next->next->obj->type_of;
-      if (unlikely(!arr_elem_initialisation(element_type,
-                                            &elementStore, element))) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
+      if (TEMP_OBJECT(element) && element->type_of == element_type) {
         arr1_size = arraySize(arr1);
         if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, arr1_size + 1))) {
           result = raise_exception(SYS_MEM_EXCEPTION);
@@ -997,11 +994,37 @@ objectType arr_insert (listType arguments)
           memmove(&array_pointer[position - arr1->min_position + 1],
                   &array_pointer[position - arr1->min_position],
                   arraySize2(position, arr1->max_position) * sizeof(objectRecord));
-          memcpy(&array_pointer[position - arr1->min_position], &elementStore,
+          CLEAR_TEMP_FLAG(element);
+          SET_VAR_FLAG(element);
+          memcpy(&array_pointer[position - arr1->min_position], element,
                  sizeof(objectRecord));
+          FREE_OBJECT(element);
+          arg_3(arguments) = NULL;
           arr1->max_position++;
           arg_1(arguments)->value.arrayValue = arr1;
           result = SYS_EMPTY_OBJECT;
+        } /* if */
+      } else {
+        if (unlikely(!arr_elem_initialisation(element_type,
+                                              &elementStore, element))) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          arr1_size = arraySize(arr1);
+          if (unlikely(!REALLOC_ARRAY(resized_arr1, arr1, arr1_size + 1))) {
+            result = raise_exception(SYS_MEM_EXCEPTION);
+          } else {
+            arr1 = resized_arr1;
+            COUNT3_ARRAY(arr1_size, arr1_size + 1);
+            array_pointer = arr1->arr;
+            memmove(&array_pointer[position - arr1->min_position + 1],
+                    &array_pointer[position - arr1->min_position],
+                    arraySize2(position, arr1->max_position) * sizeof(objectRecord));
+            memcpy(&array_pointer[position - arr1->min_position], &elementStore,
+                   sizeof(objectRecord));
+            arr1->max_position++;
+            arg_1(arguments)->value.arrayValue = arr1;
+            result = SYS_EMPTY_OBJECT;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
