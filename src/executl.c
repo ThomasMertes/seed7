@@ -1318,6 +1318,7 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
 boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectType obj_from)
 
   {
+    boolType objFromIsTemp;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* arr_elem_initialisation */
@@ -1325,7 +1326,12 @@ boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectT
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
+    objFromIsTemp = TEMP_OBJECT(obj_from);
+    CLEAR_TEMP_FLAG(obj_from);
     do_create(obj_to, obj_from, &err_info);
+    if (objFromIsTemp) {
+      SET_TEMP_FLAG(obj_from);
+    } /* if */
     return err_info == OKAY_NO_ERROR;
   } /* arr_elem_initialisation */
 
