@@ -222,41 +222,23 @@ static void decl_value (objectType typeof_object, objectType declared_object,
 #endif
       } else {
         init_expression = pars_infix_expression(SCOL_PRIORITY, TRUE);
-        if (typeof_object != NULL) {
-          if (CATEGORY_OF_OBJ(typeof_object) == TYPEOBJECT) {
-            declared_object->type_of = take_type(typeof_object);
-            do_create(declared_object, init_expression, err_info);
-            if (*err_info != OKAY_NO_ERROR) {
-              if (*err_info != CREATE_ERROR) {
-                err_expr_obj(EXCEPTION_RAISED, curr_exec_object, prog->sys_var[*err_info]);
+        if (init_expression != NULL) {
+          if (typeof_object != NULL) {
+            if (CATEGORY_OF_OBJ(typeof_object) == TYPEOBJECT) {
+              declared_object->type_of = take_type(typeof_object);
+              do_create(declared_object, init_expression, err_info);
+              if (*err_info != OKAY_NO_ERROR) {
+                if (*err_info != CREATE_ERROR) {
+                  err_expr_obj(EXCEPTION_RAISED, curr_exec_object, prog->sys_var[*err_info]);
+                } /* if */
+                err_object(DECL_FAILED, declared_object);
+                *err_info = OKAY_NO_ERROR;
               } /* if */
-              err_object(DECL_FAILED, declared_object);
-              *err_info = OKAY_NO_ERROR;
-            } /* if */
-            if (TEMP_OBJECT(init_expression)) {
-/*            printf("destroy ");
-              printobject(init_expression->type_of);
-              printf(": ");
-              printobject(init_expression);
-              printf(" ");
-              fflush(stdout); */
-              do_destroy(init_expression, err_info);
-              if (*err_info == OKAY_NO_ERROR) {
-                FREE_OBJECT(init_expression);
-/*            } else {
-                printf("destroy failed\n"); */
-              } /* if */
-/*            printf("after destroy\n");
             } else {
-              printf("not obsolete ");
-              printobject(init_expression->type_of);
-              printf(": ");
-              printobject(init_expression);
-              printf("\n"); */
+              err_object(TYPE_EXPECTED, typeof_object);
             } /* if */
-          } else {
-            err_object(TYPE_EXPECTED, typeof_object);
           } /* if */
+          free_expression(init_expression);
         } /* if */
       } /* if */
     } else {
