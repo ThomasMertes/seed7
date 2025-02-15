@@ -802,7 +802,7 @@ static listType eval_name_list (listType matched_name_list,
           } else if (CATEGORY_OF_OBJ(parameter) != FORMPARAMOBJECT) {
             err_object(PARAM_DECL_FAILED, name_elem->obj);
             *err_info = CREATE_ERROR;
-          } else {
+          } else if (likely(parameter->value.objValue != NULL)) {
             list_insert_place = append_element_to_list(list_insert_place,
                 parameter, err_info);
           } /* if */
