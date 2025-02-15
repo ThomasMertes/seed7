@@ -306,16 +306,23 @@ static void free_name_list (listType name_list, boolType freeParamObject)
             /* if (HAS_ENTITY(param_obj)) {
               printf("name: \"%s\"\n", GET_ENTITY(param_obj)->ident == NULL ? "*NULL_IDENT*" : (char *) GET_ENTITY(param_obj)->ident->name);
               printf("owner: " FMT_U_MEM "\n", (memSizeType) GET_ENTITY(param_obj)->data.owner);
+              if (GET_ENTITY(param_obj)->data.owner != NULL) {
+                trace1(GET_ENTITY(param_obj)->data.owner->obj);
+                printf("\n");
+              }
             } else {
               printf("no entity: " FMT_U_MEM "\n", (memSizeType) param_obj);
             } * if */
-#if 0
-            if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
-              /* free_params(prog, param_obj->descriptor.property->params); */
-              FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
+            if (HAS_ENTITY(param_obj) && GET_ENTITY(param_obj)->data.owner == NULL) {
+              /* printf("free ");
+              trace1(param_obj);
+              printf("\n"); */
+              if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
+                /* free_params(prog, param_obj->descriptor.property->params); */
+                FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
+              } /* if */
+              FREE_OBJECT(param_obj);
             } /* if */
-            FREE_OBJECT(param_obj);
-#endif
           } /* if */
         } /* if */
         FREE_OBJECT(name_elem->obj);
@@ -1021,7 +1028,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, entity == NULL);
+            free_name_list(name_list, TRUE);
           } else {
             entity = NULL;
           } /* if */
@@ -1051,7 +1058,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, entity == NULL);
+            free_name_list(name_list, TRUE);
           } else {
             entity = NULL;
           } /* if */
@@ -1113,7 +1120,7 @@ objectType search_name (const_nodeType declaration_base,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, entity == NULL);
+            free_name_list(name_list, TRUE);
           } else {
             entity = NULL;
           } /* if */
@@ -1143,7 +1150,7 @@ objectType search_name (const_nodeType declaration_base,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, entity == NULL);
+            free_name_list(name_list, TRUE);
           } else {
             entity = NULL;
           } /* if */
