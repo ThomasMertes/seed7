@@ -71,7 +71,14 @@ extern boolType interpreter_exception;
 
 
 
-static objectType copy_args (const const_rtlArrayType argv, const memSizeType start)
+/**
+ *  Generate an object with an arrayType array as value.
+ *  The elements of the original argv array are copied with assignments.
+ *  Create functions are not called.
+ *  The returned objectType must be freed with free_args().
+ */
+static objectType copy_args (const const_rtlArrayType argv,
+    const memSizeType start)
 
   {
     memSizeType argc;
@@ -80,14 +87,23 @@ static objectType copy_args (const const_rtlArrayType argv, const memSizeType st
     objectType result;
 
   /* copy_args */
-    /* printf("start = %d\n", start); */
+    logFunction(if (argv == NULL) {
+                  printf("copy_args(NULL, " FMT_U_MEM ")\n",
+                         start);
+                } else {
+                  printf("copy_args(array[" FMT_D " .. " FMT_D "], "
+                         FMT_U_MEM ")\n", argv->min_position,
+                         argv->max_position, start);
+                });
     if (argv == NULL || argv->max_position < 0) {
       argc = 0;
     } else {
       argc = (memSizeType) argv->max_position - start;
     } /* if */
     /* printf("argc = %d\n", argc); */
-    if (ALLOC_ARRAY(arg_array, argc)) {
+    if (unlikely(!ALLOC_ARRAY(arg_array, argc))) {
+      result = NULL;
+    } else {
       arg_idx = 0;
       while (arg_idx < argc) {
         /* printf("arg_idx = %d\n", arg_idx);
@@ -103,19 +119,18 @@ static objectType copy_args (const const_rtlArrayType argv, const memSizeType st
       } /* while */
       arg_array->min_position = 1;
       arg_array->max_position = (intType) arg_idx;
-    } /* if */
-    if (arg_array != NULL) {
-      if (ALLOC_OBJECT(result)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
+        FREE_ARRAY(arg_array, argc);
+      } else {
         result->type_of = NULL;
         result->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
         result->value.arrayValue = arg_array;
-      } else {
-        FREE_ARRAY(arg_array, argc);
       } /* if */
-    } else {
-      result = NULL;
     } /* if */
+    logFunction(printf("copy_args --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* copy_args */
 
@@ -128,6 +143,9 @@ static void free_args (objectType arg_v)
     memSizeType arg_array_size;
 
   /* free_args */
+    logFunction(printf("free_args(");
+                trace1(arg_v);
+                printf("\n"););
     arg_array = take_array(arg_v);
     arg_array_size = arraySize(arg_array);
     FREE_ARRAY(arg_array, arg_array_size);
@@ -185,6 +203,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
           interpreter_exception = TRUE;
           evaluate(prog->main_object);
           interpreter_exception = backup_interpreter_exception;
+          free_args(prog->arg_v);
+          prog->arg_v = NULL;
 #ifdef WITH_PROTOCOL
           if (trace.actions) {
             if (trace.heapsize) {
