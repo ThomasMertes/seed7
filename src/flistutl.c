@@ -886,18 +886,20 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         ((memSizeType) count.loclist)        * SIZ_REC(locListRecord) +
         ((memSizeType) count.infil)          * SIZ_REC(inFileRecord) +
         ((memSizeType) count.polldata)       * sizeof_pollRecord +
+        ((memSizeType) count.files)          * SIZ_REC(fileRecord) +
         ((memSizeType) count.win_bytes) +
         ((memSizeType) count.process)        * sizeof_processRecord +
         ((memSizeType) count.sql_func)       * SIZ_REC(sqlFuncRecord) +
         ((memSizeType) count.database_bytes) +
         ((memSizeType) count.prepared_stmt_bytes) +
         ((memSizeType) count.fetch_data_bytes) +
+        ((memSizeType) count.parseError)     * SIZ_REC(parseErrorRecord) +
         ((memSizeType) count.prog)           * SIZ_REC(progRecord) +
         count.fnam_bytes + ((memSizeType) count.fnam) +
         count.symb_bytes + ((memSizeType) count.symb) +
         count.byte;
     if (bytes_used != hs) {
-      printf("*** %s(%u)\n" FMT_U_MEM " " FMT_U_MEM " " FMT_U_MEM " %ld \n",
+      printf("*** %s(%u)\n" FMT_U_MEM " " FMT_U_MEM " " FMT_D_MEM " %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
 /*    heapStatistic();
       fflush(stdout);
