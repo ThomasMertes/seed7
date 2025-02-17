@@ -286,9 +286,9 @@ static unsigned int flist_allowed[BIG_FREELIST_ARRAY_SIZE] = {
 #define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : \
                                       ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
                                       (var=NULL, FALSE)))
-#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else \
-                           HEAP_FREE_BIG(var, (var)->capacity);
-
+#define FREE_BIG2(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else \
+                            HEAP_FREE_BIG(var, (var)->capacity);
+#define FREE_BIG(var)       FREE_BIG2(var, 0)
 #else
 
 static freeListElemType flist = NULL;
@@ -305,7 +305,8 @@ static unsigned int flist_allowed = 100;
 #define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var) : \
                                       ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
                                       (var=NULL, FALSE)))
-#define FREE_BIG(var,len)  if (PUSH_BIG_OK(len)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
+#define FREE_BIG2(var,len)  if (PUSH_BIG_OK(len)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
+#define FREE_BIG(var)       FREE_BIG2(var, (var)->size)
 
 #endif
 #else
@@ -313,7 +314,13 @@ static unsigned int flist_allowed = 100;
 #define ALLOC_BIG_SIZE_OK(var,len)    HEAP_ALLOC_BIG(var, len)
 #define ALLOC_BIG_CHECK_SIZE(var,len) ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
                                       (var=NULL, FALSE))
-#define FREE_BIG(var,len)             HEAP_FREE_BIG(var, len)
+#define FREE_BIG2(var,len)            HEAP_FREE_BIG(var, len)
+
+#if WITH_BIGINT_CAPACITY
+#define FREE_BIG(var)       FREE_BIG2(var, (var)->capacity)
+#else
+#define FREE_BIG(var)       FREE_BIG2(var, (var)->size)
+#endif
 
 #endif
 
@@ -839,7 +846,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
           } /* if */
         } /* for */
         if (unlikely(!okay)) {
-          FREE_BIG(result, result_size);
+          FREE_BIG2(result, result_size);
           logError(printf("bigParseBasedPow2(\"%s\", %u): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri), shift););
@@ -967,7 +974,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
           } /* if */
           result = normalize(result);
         } else {
-          FREE_BIG(result, result_size);
+          FREE_BIG2(result, result_size);
           logError(printf("bigParseBased2To36(\"%s\", %u): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri), base););
@@ -1091,8 +1098,8 @@ static memSizeType binaryToStri (bigIntType unsignedBig, striType buffer,
           } else {
             pos = binaryToStri(remainder, buffer, exponent, FALSE, pos);
           } /* if */
-          FREE_BIG(remainder, remainder->size);
-          FREE_BIG(quotient, quotient->size);
+          FREE_BIG(remainder);
+          FREE_BIG(quotient);
         } /* if */
       } /* if */
     } else {
@@ -1190,8 +1197,8 @@ static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
             pos = binaryRadix2To36(remainder, buffer, base, digits,
                                   exponent, FALSE, pos);
           } /* if */
-          FREE_BIG(remainder, remainder->size);
-          FREE_BIG(quotient, quotient->size);
+          FREE_BIG(remainder);
+          FREE_BIG(quotient);
         } /* if */
       } /* if */
     } else {
@@ -1269,7 +1276,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
                                 shift + 1) / BIGDIGIT_SIZE) ||
                    unsigned_size > MAX_MEMSIZETYPE / BIGDIGIT_SIZE)) {
         if (unsigned_big != big1) {
-          FREE_BIG(unsigned_big, unsigned_big->size);
+          FREE_BIG(unsigned_big);
         } /* if */
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -1296,7 +1303,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
         /* printf("result_size: " FMT_U_MEM "\n", result_size); */
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           if (unsigned_big != big1) {
-            FREE_BIG(unsigned_big, unsigned_big->size);
+            FREE_BIG(unsigned_big);
           } /* if */
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -1342,7 +1349,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
         } /* if */
       } /* if */
       if (unsigned_big != big1) {
-        FREE_BIG(unsigned_big, unsigned_big->size);
+        FREE_BIG(unsigned_big);
       } /* if */
     } /* if */
     logFunction(printf("bigRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result)););
@@ -1414,7 +1421,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
                                  digitTable[upperCase], (unsigned int)
                                  memSizeMostSignificantBit(result_size) + 1,
                                  FALSE, result_size - 1);
-          FREE_BIG(unsigned_big, big1->size);
+          FREE_BIG2(unsigned_big, big1->size);
           pos++;
           if (negative) {
             final_result_size = result_size - pos + 1;
@@ -1609,7 +1616,7 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
           dividend_help = alloc_positive_copy_of_negative_big(dividend);
           dividend = dividend_help;
           if (unlikely(dividend_help == NULL)) {
-            FREE_BIG(quotient, quotient->size);
+            FREE_BIG(quotient);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -1627,7 +1634,7 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
         } /* if */
         quotient = normalize(quotient);
         if (dividend_help != NULL) {
-          FREE_BIG(dividend_help, dividend_help->size);
+          FREE_BIG(dividend_help);
         } /* if */
         return quotient;
       } /* if */
@@ -1862,7 +1869,7 @@ static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_di
         raise_error(MEMORY_ERROR);
         return NULL;
       } else if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, 1))) {
-        FREE_BIG(quotient, quotient->size);
+        FREE_BIG(quotient);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -1874,8 +1881,8 @@ static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_di
           dividend_help = alloc_positive_copy_of_negative_big(dividend);
           dividend = dividend_help;
           if (unlikely(dividend_help == NULL)) {
-            FREE_BIG(quotient, quotient->size);
-            FREE_BIG(*remainder, (*remainder)->size);
+            FREE_BIG(quotient);
+            FREE_BIG(*remainder);
             *remainder = NULL;
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -1897,7 +1904,7 @@ static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_di
           negate_positive_big(*remainder);
         } /* if */
         if (dividend_help != NULL) {
-          FREE_BIG(dividend_help, dividend_help->size);
+          FREE_BIG(dividend_help);
         } /* if */
         return quotient;
       } /* if */
@@ -1954,7 +1961,7 @@ static bigIntType bigDivRemSizeLess (const const_bigIntType dividend,
       } /* if */
       if (remainderIs0) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, 1))) {
-          FREE_BIG(quotient, 1);
+          FREE_BIG2(quotient, 1);
           raise_error(MEMORY_ERROR);
           quotient = NULL;
         } else {
@@ -1964,7 +1971,7 @@ static bigIntType bigDivRemSizeLess (const const_bigIntType dividend,
         } /* if */
       } else {
         if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, dividend->size))) {
-          FREE_BIG(quotient, 1);
+          FREE_BIG2(quotient, 1);
           raise_error(MEMORY_ERROR);
           quotient = NULL;
         } else {
@@ -2038,7 +2045,7 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
           dividend_help = alloc_positive_copy_of_negative_big(dividend);
           dividend = dividend_help;
           if (unlikely(dividend_help == NULL)) {
-            FREE_BIG(remainder, remainder->size);
+            FREE_BIG(remainder);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -2053,7 +2060,7 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
           negate_positive_big(remainder);
         } /* if */
         if (dividend_help != NULL) {
-          FREE_BIG(dividend_help, dividend_help->size);
+          FREE_BIG(dividend_help);
         } /* if */
         return remainder;
       } /* if */
@@ -2096,7 +2103,7 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
           dividend_help = alloc_positive_copy_of_negative_big(dividend);
           dividend = dividend_help;
           if (unlikely(dividend_help == NULL)) {
-            FREE_BIG(quotient, quotient->size);
+            FREE_BIG(quotient);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -2117,7 +2124,7 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
         } /* if */
         quotient = normalize(quotient);
         if (dividend_help != NULL) {
-          FREE_BIG(dividend_help, dividend_help->size);
+          FREE_BIG(dividend_help);
         } /* if */
         return quotient;
       } /* if */
@@ -2755,11 +2762,11 @@ static void bigMultAssign1 (bigIntType *const big_variable, bigDigitType factor_
         negate_positive_big(product);
       } /* if */
       product = normalize(product);
-      FREE_BIG(*big_variable, (*big_variable)->size);
+      FREE_BIG(*big_variable);
       *big_variable = product;
     } /* if */
     if (big1_help != NULL) {
-      FREE_BIG(big1_help, big1_help->size);
+      FREE_BIG(big1_help);
     } /* if */
   } /* bigMultAssign1 */
 
@@ -2801,7 +2808,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
           if (likely(ALLOC_BIG(product, (factor1->size >> 1) + (factor2->size << 1)))) {
             product->size = (factor1->size >> 1) + (factor2->size << 1);
             if (unlikely(!ALLOC_BIG(temp, factor1->size << 2))) {
-              FREE_BIG(product, (factor1->size >> 1) + (factor2->size << 1));
+              FREE_BIG2(product, (factor1->size >> 1) + (factor2->size << 1));
               product = NULL;
             } else {
               uBigKaratsubaMult(factor1->bigdigits, factor2->bigdigits,
@@ -2818,10 +2825,10 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
                 negate_positive_big(product);
               } /* if */
               product = normalize(product);
-              FREE_BIG(temp, factor1->size << 2);
+              FREE_BIG2(temp, factor1->size << 2);
             } /* if */
           } /* if */
-          FREE_BIG(factor2_help, factor1->size - (factor1->size >> 1));
+          FREE_BIG2(factor2_help, factor1->size - (factor1->size >> 1));
         } /* if */
       } else {
         if (unlikely(!ALLOC_BIG_SIZE_OK(factor2_help, factor1->size))) {
@@ -2835,7 +2842,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
           factor2 = factor2_help;
           if (likely(ALLOC_BIG(product, factor1->size << 1))) {
             if (unlikely(!ALLOC_BIG(temp, factor1->size << 2))) {
-              FREE_BIG(product, factor1->size << 1);
+              FREE_BIG2(product, factor1->size << 1);
               product = NULL;
             } else {
               uBigKaratsubaMult(factor1->bigdigits, factor2->bigdigits,
@@ -2845,10 +2852,10 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
                 negate_positive_big(product);
               } /* if */
               product = normalize(product);
-              FREE_BIG(temp, factor1->size << 2);
+              FREE_BIG2(temp, factor1->size << 2);
             } /* if */
           } /* if */
-          FREE_BIG(factor2_help, factor1->size);
+          FREE_BIG2(factor2_help, factor1->size);
         } /* if */
       } /* if */
     } else {
@@ -2883,14 +2890,14 @@ static bigIntType uBigSquareK (const_bigIntType big1)
     if (big1->size >= KARATSUBA_SQUARE_THRESHOLD) {
       if (likely(ALLOC_BIG(square, big1->size << 1))) {
         if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
-          FREE_BIG(square, big1->size << 1);
+          FREE_BIG2(square, big1->size << 1);
           square = NULL;
         } else {
           uBigKaratsubaSquare(big1->bigdigits, big1->size,
               square->bigdigits, temp->bigdigits);
           square->size = big1->size << 1;
           square = normalize(square);
-          FREE_BIG(temp, big1->size << 2);
+          FREE_BIG2(temp, big1->size << 2);
         } /* if */
       } /* if */
     } else {
@@ -2930,7 +2937,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent)
       raise_error(MEMORY_ERROR);
       power = NULL;
     } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
-      FREE_BIG(square, 1);
+      FREE_BIG2(square, 1);
       raise_error(MEMORY_ERROR);
     } else {
       square->size = 1;
@@ -2945,24 +2952,24 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent)
       while (exponent != 0 && square != NULL && power != NULL) {
         big_help = square;
         square = uBigSquareK(square);
-        FREE_BIG(big_help, big_help->size);
+        FREE_BIG(big_help);
         if (square != NULL) {
           if (exponent & 1) {
             big_help = power;
             power = uBigMultK(power, square, FALSE);
-            FREE_BIG(big_help, big_help->size);
+            FREE_BIG(big_help);
           } /* if */
           exponent >>= 1;
         } /* if */
       } /* while */
       if (unlikely(square == NULL)) {
         if (power != NULL) {
-          FREE_BIG(power, power->size);
+          FREE_BIG(power);
         } /* if */
         raise_error(MEMORY_ERROR);
         power = NULL;
       } else {
-        FREE_BIG(square, square->size);
+        FREE_BIG(square);
         if (unlikely(power == NULL)) {
           raise_error(MEMORY_ERROR);
         } /* if */
@@ -3085,7 +3092,7 @@ bigIntType bigAbs (const const_bigIntType big1)
           REALLOC_BIG_CHECK_SIZE(resized_absoluteValue, absoluteValue,
                                  big1->size, absoluteValue_size);
           if (unlikely(resized_absoluteValue == NULL)) {
-            FREE_BIG(absoluteValue, big1->size);
+            FREE_BIG2(absoluteValue, big1->size);
             raise_error(MEMORY_ERROR);
             absoluteValue = NULL;
           } else {
@@ -3134,7 +3141,7 @@ bigIntType bigAbsTemp (bigIntType big1)
       if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, pos);
+          FREE_BIG(big1);
           raise_error(MEMORY_ERROR);
           big1 = NULL;
         } else {
@@ -3266,7 +3273,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1_size);
+          FREE_BIG(big1);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
@@ -3285,7 +3292,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
     } else {
       REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, delta->size + 1);
       if (unlikely(resized_big1 == NULL)) {
-        FREE_BIG(big1, big1->size);
+        FREE_BIG(big1);
         *big_variable = NULL;
         raise_error(MEMORY_ERROR);
       } else {
@@ -3366,7 +3373,7 @@ void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delt
         (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
       REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
       if (unlikely(resized_big1 == NULL)) {
-        FREE_BIG(big1, big1_size);
+        FREE_BIG(big1);
         *big_variable = NULL;
         raise_error(MEMORY_ERROR);
       } else {
@@ -3589,7 +3596,7 @@ void bigCpy (bigIntType *const dest, const const_bigIntType source)
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        FREE_BIG(*dest, (*dest)->size);
+        FREE_BIG(*dest);
         big_dest->size = new_size;
         *dest = big_dest;
       } /* if */
@@ -3754,7 +3761,7 @@ void bigDestr (const const_bigIntType old_bigint)
 
   { /* bigDestr */
     if (old_bigint != NULL) {
-      FREE_BIG(old_bigint, old_bigint->size);
+      FREE_BIG(old_bigint);
     } /* if */
   } /* bigDestr */
 
@@ -3823,7 +3830,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         dividend_help->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(dividend_help, dividend->size + 2);
+        FREE_BIG2(dividend_help, dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3837,8 +3844,8 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
-        FREE_BIG(dividend_help, dividend->size + 2);
-        FREE_BIG(divisor_help, divisor->size + 1);
+        FREE_BIG2(dividend_help, dividend->size + 2);
+        FREE_BIG2(divisor_help, divisor->size + 1);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3866,8 +3873,8 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         } /* if */
         quotient = normalize(quotient);
       } /* if */
-      FREE_BIG(dividend_help, dividend->size + 2);
-      FREE_BIG(divisor_help, divisor->size + 1);
+      FREE_BIG2(dividend_help, dividend->size + 2);
+      FREE_BIG2(divisor_help, divisor->size + 1);
     } /* if */
     logFunction(printf("bigDiv --> %s\n", bigHexCStri(quotient)););
     return quotient;
@@ -3929,7 +3936,7 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
         remainder->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(remainder, dividend->size + 2);
+        FREE_BIG2(remainder, dividend->size + 2);
         *remainderAddr = NULL;
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3944,8 +3951,8 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, remainder->size - divisor_help->size + 1))) {
-        FREE_BIG(remainder, dividend->size + 2);
-        FREE_BIG(divisor_help, divisor->size + 1);
+        FREE_BIG2(remainder, dividend->size + 2);
+        FREE_BIG2(divisor_help, divisor->size + 1);
         *remainderAddr = NULL;
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3985,7 +3992,7 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
         } /* if */
         remainder = normalize(remainder);
       } /* if */
-      FREE_BIG(divisor_help, divisor->size + 1);
+      FREE_BIG2(divisor_help, divisor->size + 1);
       *remainderAddr = remainder;
     } /* if */
     logFunction(printf("bigDivRem --> %s", bigHexCStri(quotient));
@@ -4713,7 +4720,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
       raise_error(MEMORY_ERROR);
       power = NULL;
     } else if (unlikely(!ALLOC_BIG_CHECK_SIZE(power, base->size + 1))) {
-      FREE_BIG(square, base->size + 1);
+      FREE_BIG2(square, base->size + 1);
       raise_error(MEMORY_ERROR);
     } else {
       if (IS_NEGATIVE(base->bigdigits[base->size - 1])) {
@@ -4737,24 +4744,24 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
       while (exponent != 0 && square != NULL && power != NULL) {
         big_help = square;
         square = uBigSquareK(square);
-        FREE_BIG(big_help, big_help->size);
+        FREE_BIG(big_help);
         if (square != NULL) {
           if (exponent & 1) {
             big_help = power;
             power = uBigMultK(power, square, FALSE);
-            FREE_BIG(big_help, big_help->size);
+            FREE_BIG(big_help);
           } /* if */
           exponent >>= 1;
         } /* if */
       } /* while */
       if (unlikely(square == NULL)) {
         if (power != NULL) {
-          FREE_BIG(power, power->size);
+          FREE_BIG(power);
         } /* if */
         raise_error(MEMORY_ERROR);
         power = NULL;
       } else {
-        FREE_BIG(square, square->size);
+        FREE_BIG(square);
         if (unlikely(power == NULL)) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -4883,7 +4890,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
           decimalBlockCount++;
         } /* while */
         digit = unsigned_big->bigdigits[0];
-        FREE_BIG(unsigned_big, big1->size + 1);
+        FREE_BIG2(unsigned_big, big1->size + 1);
 #if POINTER_SIZE == 32
         logarithm = bigFromUInt32(decimalBlockCount);
 #elif POINTER_SIZE == 64
@@ -5096,7 +5103,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
                        bigHexCStri(big1), bits););
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
-      FREE_BIG(big1, big1_size);
+      FREE_BIG(big1);
       if (unlikely(bits != 0)) {
         logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
                         "Number of bits is negative.\n",
@@ -5141,7 +5148,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
         result = big1;
       } /* if */
       if (unlikely(result == NULL)) {
-        FREE_BIG(big1, big1_size);
+        FREE_BIG(big1);
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_BIG(big1_size, result_size);
@@ -5396,7 +5403,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
           result->size = 1;
           result->bigdigits[0] = 0;
           *big_variable = result;
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1);
         } /* if */
       } else if ((lshift & BIGDIGIT_SIZE_MASK) == 0) {
         if (unlikely((uintType) lshift >> BIGDIGIT_LOG2_SIZE > MAX_BIG_LEN - big1->size)) {
@@ -5412,7 +5419,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
             memset(result->bigdigits, 0,
                    (memSizeType) ((uintType) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigDigitType));
             *big_variable = result;
-            FREE_BIG(big1, big1->size);
+            FREE_BIG(big1);
           } /* if */
         } /* if */
       } else if (unlikely(((uintType) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size)) {
@@ -5467,7 +5474,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
           } /* if */
           if (result != big1) {
             *big_variable = result;
-            FREE_BIG(big1, big1->size);
+            FREE_BIG(big1);
           } /* if */
         } /* if */
       } /* if */
@@ -5619,7 +5626,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         dividend_help->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(dividend_help, dividend->size + 2);
+        FREE_BIG2(dividend_help, dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5633,8 +5640,8 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
-        FREE_BIG(dividend_help, dividend->size + 2);
-        FREE_BIG(divisor_help, divisor->size + 1);
+        FREE_BIG2(dividend_help, dividend->size + 2);
+        FREE_BIG2(divisor_help, divisor->size + 1);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5666,8 +5673,8 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         } /* if */
         quotient = normalize(quotient);
       } /* if */
-      FREE_BIG(dividend_help, dividend->size + 2);
-      FREE_BIG(divisor_help, divisor->size + 1);
+      FREE_BIG2(dividend_help, dividend->size + 2);
+      FREE_BIG2(divisor_help, divisor->size + 1);
     } /* if */
     logFunction(printf("bigMDiv --> %s\n", bigHexCStri(quotient)););
     return quotient;
@@ -5727,7 +5734,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
         modulo->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(modulo,  dividend->size + 2);
+        FREE_BIG2(modulo,  dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5781,7 +5788,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
         } /* if */
       } /* if */
       modulo = normalize(modulo);
-      FREE_BIG(divisor_help, divisor->size + 1);
+      FREE_BIG2(divisor_help, divisor->size + 1);
     } /* if */
     logFunction(printf("bigMod --> %s\n", bigHexCStri(modulo)););
     return modulo;
@@ -5819,7 +5826,7 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
       factor2 = factor2_help;
       if (unlikely(factor2_help == NULL)) {
         if (factor1_help != NULL) {
-          FREE_BIG(factor1_help, factor1_help->size);
+          FREE_BIG(factor1_help);
         } /* if */
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -5829,10 +5836,10 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
         factor1->size, factor2->size); */
     product = uBigMultK(factor1, factor2, negative);
     if (factor1_help != NULL) {
-      FREE_BIG(factor1_help, factor1_help->size);
+      FREE_BIG(factor1_help);
     } /* if */
     if (factor2_help != NULL) {
-      FREE_BIG(factor2_help, factor2_help->size);
+      FREE_BIG(factor2_help);
     } /* if */
     if (unlikely(product == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -5858,7 +5865,7 @@ void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
       bigMultAssign1(big_variable, factor->bigdigits[0]);
     } else {
       product = bigMult(*big_variable, factor);
-      FREE_BIG(*big_variable, (*big_variable)->size);
+      FREE_BIG(*big_variable);
       *big_variable = product;
     } /* if */
     logFunction(printf("bigMultAssign --> %s\n", bigHexCStri(*big_variable)););
@@ -5937,7 +5944,7 @@ bigIntType bigNegate (const const_bigIntType big1)
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_negatedValue, negatedValue, pos, pos + 1);
           if (unlikely(resized_negatedValue == NULL)) {
-            FREE_BIG(negatedValue, pos);
+            FREE_BIG2(negatedValue, pos);
             raise_error(MEMORY_ERROR);
             negatedValue = NULL;
           } else {
@@ -5992,7 +5999,7 @@ bigIntType bigNegateTemp (bigIntType big1)
       if (negative) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, pos);
+          FREE_BIG(big1);
           raise_error(MEMORY_ERROR);
           big1 = NULL;
         } else {
@@ -6143,7 +6150,7 @@ bigIntType bigParse (const const_striType stri)
           } /* if */
           result = normalize(result);
         } else {
-          FREE_BIG(result, result_size);
+          FREE_BIG2(result, result_size);
           logError(printf("bigParse(\"%s\"): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri)););
@@ -6255,7 +6262,7 @@ bigIntType bigPred (const const_bigIntType big1)
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_predecessor, predecessor, pos, pos + 1);
           if (unlikely(resized_predecessor == NULL)) {
-            FREE_BIG(predecessor, pos);
+            FREE_BIG2(predecessor, pos);
             raise_error(MEMORY_ERROR);
             predecessor = NULL;
           } else {
@@ -6316,7 +6323,7 @@ bigIntType bigPredTemp (bigIntType big1)
       if (negative) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1);
           raise_error(MEMORY_ERROR);
           big1 = NULL;
         } else {
@@ -6453,7 +6460,7 @@ bigIntType bigRand (const const_bigIntType low,
         randomNumber->size = randomNumber_size;
         bigAddTo(randomNumber, low);
         randomNumber = normalize(randomNumber);
-        FREE_BIG(scale_limit, scale_limit->size);
+        FREE_BIG(scale_limit);
       } /* if */
     } /* if */
     logFunction(printf("bigRand --> %s\n", bigHexCStri(randomNumber)););
@@ -6509,7 +6516,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
         remainder->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(remainder, dividend->size + 2);
+        FREE_BIG2(remainder, dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -6549,7 +6556,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
         negate_positive_big(remainder);
       } /* if */
       remainder = normalize(remainder);
-      FREE_BIG(divisor_help, divisor->size + 1);
+      FREE_BIG2(divisor_help, divisor->size + 1);
     } /* if */
     logFunction(printf("bigRem --> %s\n", bigHexCStri(remainder)););
     return remainder;
@@ -6703,7 +6710,7 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
           } else {
             (*big_variable)->bigdigits[0] = 0;
           } /* if */
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1);
         } /* if */
       } else {
         size_reduction = (memSizeType) ((uintType) rshift >> BIGDIGIT_LOG2_SIZE);
@@ -6939,7 +6946,7 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1_size);
+          FREE_BIG(big1);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
@@ -6958,7 +6965,7 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
     } else {
       REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, delta->size + 1);
       if (unlikely(resized_big1 == NULL)) {
-        FREE_BIG(big1, big1->size);
+        FREE_BIG(big1);
         *big_variable = NULL;
         raise_error(MEMORY_ERROR);
       } else {
@@ -7030,7 +7037,7 @@ bigIntType bigSquare (const_bigIntType big1)
     /* printf("bigSquare(" FMT_U_MEM ")\n", big1->size); */
     square = uBigSquareK(big1);
     if (big1_help != NULL) {
-      FREE_BIG(big1_help, big1_help->size);
+      FREE_BIG(big1_help);
     } /* if */
     if (unlikely(square == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -7084,7 +7091,7 @@ striType bigStrDecimal (const const_bigIntType big1)
           pos = binaryToStri(unsigned_big, result, (unsigned int)
                              memSizeMostSignificantBit(result_size) + 1,
                              FALSE, result_size - 1);
-          FREE_BIG(unsigned_big, big1->size);
+          FREE_BIG2(unsigned_big, big1->size);
           pos++;
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
             final_result_size = result_size - pos + 1;
@@ -7179,7 +7186,7 @@ bigIntType bigSucc (const const_bigIntType big1)
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_successor, successor, pos, pos + 1);
           if (unlikely(resized_successor == NULL)) {
-            FREE_BIG(successor, pos);
+            FREE_BIG2(successor, pos);
             raise_error(MEMORY_ERROR);
             successor = NULL;
           } else {
@@ -7241,7 +7248,7 @@ bigIntType bigSuccTemp (bigIntType big1)
       if (!negative) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1);
           raise_error(MEMORY_ERROR);
           big1 = NULL;
         } else {
