@@ -97,13 +97,15 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 EXTERN countType count;
 #endif
 
+extern size_t sizeof_pollRecord;
+extern size_t sizeof_processRecord;
+#endif
+
+#if DO_HEAP_STATISTIC || DO_HEAPSIZE_COMPUTATION || DO_HEAP_CHECK
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
 extern const size_t sizeof_bigDigitType;
 extern const size_t sizeof_bigIntRecord;
 #endif
-extern size_t sizeof_pollRecord;
-extern size_t sizeof_processRecord;
-
 #endif
 
 

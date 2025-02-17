@@ -227,7 +227,7 @@ static const unsigned int digit_value[] = {
   };
 
 
-#if DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC || DO_HEAPSIZE_COMPUTATION || DO_HEAP_CHECK
 const size_t sizeof_bigDigitType = sizeof(bigDigitType);
 const size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #endif
