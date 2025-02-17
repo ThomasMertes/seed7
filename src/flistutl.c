@@ -58,6 +58,7 @@
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "big_drv.h"
 #include "sql_drv.h"
 #include "heaputl.h"
 
@@ -244,6 +245,8 @@ void heapStatistic (void)
     unsigned long num_flist_infiles;
     unsigned long num_flist_stris;
     unsigned long num_flist_stri_elems;
+    unsigned long num_flist_bigints;
+    memSizeType num_flist_bigint_elems;
     memSizeType bytes_used;
     memSizeType bytes_in_buffers;
     memSizeType bytes_free;
@@ -256,6 +259,7 @@ void heapStatistic (void)
     num_flist_nodes      = node_flist_count();
     num_flist_infiles    = infile_flist_count();
     num_flist_stris      = stri_flist_count(&num_flist_stri_elems);
+    num_flist_bigints    = bigFListCount(&num_flist_bigint_elems);
     bytes_used = 0;
     if (count.stri > num_flist_stris) {
       printf(F_U_MEM(9) " bytes in %8lu string records of      %4u bytes\n",
@@ -359,17 +363,17 @@ void heapStatistic (void)
       bytes_used += count.sct_elems * SIZ_REC(objectRecord);
     } /* if */
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
-    if (count.big != 0) {
+    if (count.big > num_flist_bigints) {
       printf(F_U_MEM(9) " bytes in %8lu bigIntegers of         %4u bytes\n",
-          count.big * SIZ_BIG(0),
-          count.big,
+          (count.big - num_flist_bigints) * SIZ_BIG(0),
+          count.big - num_flist_bigints,
           (unsigned int) SIZ_BIG(0));
       bytes_used += count.big * SIZ_BIG(0);
     } /* if */
-    if (count.big_elems != 0) {
+    if (count.big_elems > num_flist_bigint_elems) {
       printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " bigdigits of           %4u bytes\n",
-          count.big_elems * sizeof_bigDigitType,
-          count.big_elems,
+          (count.big_elems - num_flist_bigint_elems) * sizeof_bigDigitType,
+          count.big_elems - num_flist_bigint_elems,
           (unsigned int) sizeof_bigDigitType);
       bytes_used += count.big_elems * sizeof_bigDigitType;
     } /* if */
@@ -605,6 +609,20 @@ void heapStatistic (void)
           (unsigned int) sizeof(strElemType));
       bytes_free += num_flist_stri_elems * sizeof(strElemType);
     } /* if */
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+    if (num_flist_bigints != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu free bigIntegers of    %4u bytes\n",
+          num_flist_bigints * SIZ_BIG(0),
+          num_flist_bigints,
+          (unsigned int) SIZ_BIG(0));
+      bytes_free += num_flist_bigints * SIZ_BIG(0);
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " free bigdigits of      %4u bytes\n",
+          num_flist_bigint_elems * sizeof_bigDigitType,
+          num_flist_bigint_elems,
+          (unsigned int) sizeof_bigDigitType);
+      bytes_free += num_flist_bigint_elems * sizeof_bigDigitType;
+    } /* if */
+#endif
     bytes_total = bytes_used + bytes_free;
     printf(F_U_MEM(9) " bytes total (with " FMT_U_MEM " bytes in free lists)\n",
         bytes_total,
@@ -658,7 +676,9 @@ static memSizeType compute_hs (void)
     bytes_total += count.stru * SIZ_SCT(0);
     bytes_total += count.sct_elems * SIZ_REC(objectRecord);
     bytes_total += count.big * SIZ_BIG(0);
-    bytes_total += count.big_elems * SIZ_REC(bigDigitType);
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+    bytes_total += count.big_elems * sizeof_bigDigitType;
+#endif
     bytes_total += count.ident * SIZ_REC(identRecord);
     bytes_total += count.idt_bytes + count.idt;
     bytes_total += count.entity * SIZ_REC(entityRecord);
@@ -700,6 +720,7 @@ memSizeType heapsize (void)
 #if DO_HEAPSIZE_COMPUTATION
     memSizeType flist_bytes;
     unsigned long num_flist_stri_elems;
+    memSizeType num_flist_bigint_elems;
 #endif
     memSizeType result;
 
@@ -711,6 +732,10 @@ memSizeType heapsize (void)
     flist_bytes += infile_flist_count() * sizeof(inFileRecord);
     flist_bytes += stri_flist_count(&num_flist_stri_elems) * SIZ_STRI(0);
     flist_bytes += num_flist_stri_elems * sizeof(strElemType);
+    flist_bytes += bigFListCount(&num_flist_bigint_elems) * SIZ_BIG(0);
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+    flist_bytes += num_flist_bigint_elems * sizeof_bigDigitType;
+#endif
 /*  printf(" %ld ", hs); */
     result = hs - flist_bytes;
 #else
@@ -869,7 +894,9 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         ((memSizeType) count.stru) * SIZ_SCT(0) +
         count.sct_elems * SIZ_REC(objectRecord) +
         ((memSizeType) count.big) * SIZ_BIG(0) +
-        count.big_elems * SIZ_REC(bigDigitType) +
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+        count.big_elems * sizeof_bigDigitType +
+#endif
         ((memSizeType) count.ident) * SIZ_REC(identRecord) +
         count.idt_bytes + ((memSizeType) count.idt) +
         ((memSizeType) count.entity)         * SIZ_REC(entityRecord) +

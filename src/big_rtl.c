@@ -353,6 +353,53 @@ void setupBig (void)
 
 
 
+#if (DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC) && WITH_BIGINT_FREELIST
+#if WITH_BIGINT_CAPACITY
+unsigned long bigFListCount (memSizeType *bigDigitCountAddr)
+
+  {
+    int len;
+    register freeListElemType flistElem;
+    register memSizeType bigDigitCount = 0;
+    register unsigned long numBigInts = 0;
+
+  /* bigFListCount */
+    for (len = 0; len < BIG_FREELIST_ARRAY_SIZE; len++) {
+      flistElem = flist[len];
+      while (flistElem != NULL) {
+        flistElem = flistElem->next;
+        bigDigitCount += len;
+        numBigInts++;
+      } /* while */
+    } /* for */
+    *bigDigitCountAddr = bigDigitCount;
+    return numBigInts;
+  } /* bigFListCount */
+
+#else
+
+
+
+unsigned long bigFListCount (memSizeType *bigDigitCountAddr)
+
+  {
+    register freeListElemType flistElem;
+    register unsigned long numBigInts = 0;
+
+  /* bigFListCount */
+    flistElem = flist;
+    while (flistElem != NULL) {
+      flistElem = flistElem->next;
+      numBigInts++;
+    } /* while */
+    *bigDigitCountAddr = (memSizeType) numBigInts;
+    return numBigInts;
+  } /* bigFListCount */
+#endif
+#endif
+
+
+
 cstriType bigHexCStri (const const_bigIntType big1)
 
   {

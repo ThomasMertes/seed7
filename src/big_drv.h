@@ -44,6 +44,11 @@
 
 
 void setupBig (void);
+#if (DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC) && WITH_BIGINT_FREELIST
+unsigned long bigFListCount (memSizeType *bigDigitCountAddr);
+#else
+#define bigFListCount(bigDigitCountAddr) (*(bigDigitCountAddr) = 0, 0)
+#endif
 cstriType bigHexCStri (const const_bigIntType big1);
 bigIntType bigAbs (const const_bigIntType big1);
 bigIntType bigAbsTemp (bigIntType big1);
