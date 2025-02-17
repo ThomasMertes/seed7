@@ -99,7 +99,7 @@ EXTERN freeListRootType flist;
 /* #define FREE_OBJECT(O)  (printf("FREE_OBJECT(%lu)\n", O), F_LOG2(O) (O)->value.objValue = flist.objects, (O)->objcategory = 0, flist.objects = (O)) */
 /* #define FREE_OBJECT(O)  (F_LOG2(O) check_obj_flist(O) ? ((O)->value.objValue=flist.objects,(O)->objcategory=0,flist.objects=(O)) : NULL) */
 #else
-#define ALLOC_OBJECT(O) HEAP_OBJ(O, objectRecord)
+#define ALLOC_OBJECT(O) ALLOC_RECORD(O, objectRecord, count.object)
 #define FREE_OBJECT(O)  FREE_RECORD(O, objectRecord, count.object)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_OBJECT_FREELIST
@@ -110,7 +110,7 @@ EXTERN freeListRootType flist;
 #define ALLOC_L_ELEM(L) (flist.list_elems != NULL ? POP_L_E(L) : HEAP_L_E(L, listRecord))
 #define FREE_L_ELEM(L)  (F_LOG2(L) (L)->next = flist.list_elems, flist.list_elems = (L))
 #else
-#define ALLOC_L_ELEM(L) HEAP_L_E(L, listRecord)
+#define ALLOC_L_ELEM(L) ALLOC_RECORD(L, listRecord, count.list_elem)
 #define FREE_L_ELEM(L)  FREE_RECORD(L, listRecord, count.list_elem)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_LIST_FREELIST
@@ -121,7 +121,7 @@ EXTERN freeListRootType flist;
 #define ALLOC_NODE(N)   (flist.nodes != NULL ? POP_NODE(N) : HEAP_NODE(N, nodeRecord))
 #define FREE_NODE(N)    (F_LOG2(N) (N)->next1 = flist.nodes, flist.nodes = (N))
 #else
-#define ALLOC_NODE(N)   HEAP_NODE(N, nodeRecord)
+#define ALLOC_NODE(N)   ALLOC_RECORD(N, nodeRecord, count.node)
 #define FREE_NODE(N)    FREE_RECORD(N, nodeRecord, count.node)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_NODE_FREELIST
@@ -132,7 +132,7 @@ EXTERN freeListRootType flist;
 #define ALLOC_FILE(F)   (flist.infiles != NULL ? POP_FILE(F) : HEAP_FILE(F, inFileRecord))
 #define FREE_FILE(F)    (F_LOG2(F) (F)->next = flist.infiles, flist.infiles = (F))
 #else
-#define ALLOC_FILE(F)   HEAP_FILE(F, inFileRecord)
+#define ALLOC_FILE(F)   ALLOC_RECORD(F, inFileRecord, count.infil)
 #define FREE_FILE(F)    FREE_RECORD(F, inFileRecord, count.infil)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_FILE_FREELIST
