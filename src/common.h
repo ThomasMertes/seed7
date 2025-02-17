@@ -700,8 +700,6 @@ typedef struct bufferStruct {
 /*                                     */
 /***************************************/
 
-#define WITH_BIGINT_CAPACITY 1
-
 #ifdef INT64TYPE
 #define BIGDIGIT_SIZE 32
 #else
