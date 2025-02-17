@@ -675,8 +675,8 @@ static memSizeType compute_hs (void)
     bytes_total += count.set_elems * SIZ_REC(bitSetType);
     bytes_total += count.stru * SIZ_SCT(0);
     bytes_total += count.sct_elems * SIZ_REC(objectRecord);
-    bytes_total += count.big * SIZ_BIG(0);
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+    bytes_total += count.big * SIZ_BIG(0);
     bytes_total += count.big_elems * sizeof_bigDigitType;
 #endif
     bytes_total += count.ident * SIZ_REC(identRecord);
@@ -732,8 +732,8 @@ memSizeType heapsize (void)
     flist_bytes += infile_flist_count() * sizeof(inFileRecord);
     flist_bytes += stri_flist_count(&num_flist_stri_elems) * SIZ_STRI(0);
     flist_bytes += num_flist_stri_elems * sizeof(strElemType);
-    flist_bytes += bigFListCount(&num_flist_bigint_elems) * SIZ_BIG(0);
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+    flist_bytes += bigFListCount(&num_flist_bigint_elems) * SIZ_BIG(0);
     flist_bytes += num_flist_bigint_elems * sizeof_bigDigitType;
 #endif
 /*  printf(" %ld ", hs); */
@@ -893,8 +893,8 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         count.set_elems * SIZ_REC(bitSetType) +
         ((memSizeType) count.stru) * SIZ_SCT(0) +
         count.sct_elems * SIZ_REC(objectRecord) +
-        ((memSizeType) count.big) * SIZ_BIG(0) +
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+        ((memSizeType) count.big) * SIZ_BIG(0) +
         count.big_elems * sizeof_bigDigitType +
 #endif
         ((memSizeType) count.ident) * SIZ_REC(identRecord) +
