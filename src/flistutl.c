@@ -299,6 +299,13 @@ void heapStatistic (void)
           (unsigned int) SIZ_REC(objectRecord));
       bytes_used += count.arr_elems * SIZ_REC(objectRecord);
     } /* if */
+    if (count.rtl_array != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu rtl arrays of          %4u bytes\n",
+          count.rtl_array * SIZ_RTL_ARR(0),
+          count.rtl_array,
+          (unsigned int) SIZ_RTL_ARR(0));
+      bytes_used += count.rtl_array * SIZ_RTL_ARR(0);
+    } /* if */
     if (count.rtl_arr_elems != 0) {
       printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " rtl array elems of     %4u bytes\n",
           count.rtl_arr_elems * SIZ_REC(rtlObjectType),
@@ -668,6 +675,8 @@ static memSizeType compute_hs (void)
     bytes_total += count.bstri_elems * sizeof(ucharType);
     bytes_total += count.array * SIZ_ARR(0);
     bytes_total += count.arr_elems * SIZ_REC(objectRecord);
+    bytes_total += count.rtl_array * SIZ_RTL_ARR(0) +
+    bytes_total += count.rtl_arr_elems * SIZ_REC(rtlObjectType) +
     bytes_total += count.hash * SIZ_HSH(0);
     bytes_total += count.hsh_elems * SIZ_REC(hashElemType);
     bytes_total += count.hsh_elems * SIZ_REC(hashElemRecord);
@@ -884,6 +893,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         count.bstri_elems * sizeof(ucharType) +
         ((memSizeType) count.array) * SIZ_ARR(0) +
         count.arr_elems * SIZ_REC(objectRecord) +
+        ((memSizeType) count.rtl_array) * SIZ_RTL_ARR(0) +
         count.rtl_arr_elems * SIZ_REC(rtlObjectType) +
         ((memSizeType) count.hash) * SIZ_HSH(0) +
         count.hsh_elems * SIZ_REC(hashElemType) +
