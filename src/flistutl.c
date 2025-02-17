@@ -368,14 +368,14 @@ void heapStatistic (void)
           (count.big - num_flist_bigints) * SIZ_BIG(0),
           count.big - num_flist_bigints,
           (unsigned int) SIZ_BIG(0));
-      bytes_used += count.big * SIZ_BIG(0);
+      bytes_used += (count.big - num_flist_bigints) * SIZ_BIG(0);
     } /* if */
     if (count.big_elems > num_flist_bigint_elems) {
       printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " bigdigits of           %4u bytes\n",
           (count.big_elems - num_flist_bigint_elems) * sizeof_bigDigitType,
           count.big_elems - num_flist_bigint_elems,
           (unsigned int) sizeof_bigDigitType);
-      bytes_used += count.big_elems * sizeof_bigDigitType;
+      bytes_used += (count.big_elems - num_flist_bigint_elems) * sizeof_bigDigitType;
     } /* if */
 #endif
     if (count.ident != 0) {
