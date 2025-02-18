@@ -181,27 +181,11 @@ static void printOptions (const optionType option)
 
 void freeOptions (optionType option)
 
-  {
-    memSizeType arraySize;
-    memSizeType pos;
-
-  /* freeOptions */
+  { /* freeOptions */
     strDestr(option->sourceFileArgument);
     strDestr(option->protFileName);
-    if (option->libraryDirs != NULL) {
-      arraySize = arraySize(option->libraryDirs);
-      for (pos = 0; pos < arraySize; pos++) {
-        strDestr(option->libraryDirs->arr[pos].value.striValue);
-      } /* for */
-      FREE_RTL_ARRAY(option->libraryDirs, arraySize);
-    } /* if */
-    if (option->argv != NULL) {
-      arraySize = arraySize(option->argv);
-      for (pos = 0; pos < arraySize; pos++) {
-        strDestr(option->argv->arr[pos].value.striValue);
-      } /* for */
-      FREE_RTL_ARRAY(option->argv, arraySize);
-    } /* if */
+    freeStringArray(option->libraryDirs);
+    freeStringArray(option->argv);
   } /* freeOptions */
 
 

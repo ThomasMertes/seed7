@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+void freeStringArray (rtlArrayType anArray);
 #ifdef USE_WMAIN
 rtlArrayType getArgv (const int argc, const utf16striType *const argv,
     striType *arg_0, striType *programName, striType *exePath);

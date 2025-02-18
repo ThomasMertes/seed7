@@ -226,6 +226,24 @@ static void rtl_qsort_array_reverse (rtlObjectType *begin_sort, rtlObjectType *e
 
 
 
+void freeStringArray (rtlArrayType anArray)
+
+  {
+    memSizeType arraySize;
+    memSizeType pos;
+
+  /* freeStringArray */
+    if (anArray != NULL) {
+      arraySize = arraySize(anArray);
+      for (pos = 0; pos < arraySize; pos++) {
+        strDestr(anArray->arr[pos].value.striValue);
+      } /* for */
+      FREE_RTL_ARRAY(anArray, arraySize);
+    } /* if */
+  } /* freeStringArray */
+
+
+
 /**
  *  Get the name of the program without path and extension.
  *  @param arg_0 Parameter argv[0] from the function main() as string.
