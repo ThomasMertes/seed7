@@ -980,6 +980,8 @@ objectType exec_dynamic (listType expr_list)
     listType actual_element;
     listType *list_insert_place;
     objectType element_value;
+    listType temp_values = NULL;
+    listType *temp_insert_place;
     objectType match_result;
     objectType result = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1004,6 +1006,7 @@ objectType exec_dynamic (listType expr_list)
       match_expr->value.listValue = NULL;
       list_insert_place = &match_expr->value.listValue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
+      temp_insert_place = &temp_values;
       actual_element = expr_list;
       while (actual_element != NULL) {
 /* printf("actual_element->obj ");
@@ -1026,18 +1029,15 @@ printf("\n"); */
 /* printf("element_value ");
 trace1(element_value);
 printf("\n"); */
-#if !WITH_OBJECT_FREELIST
-        /* If a freelist is used exec_action examines the     */
-        /* object on the freelist and will not free it, because */
-        /* the TEMP flag is not set for free list objects.      */
         if (TEMP_OBJECT(element_value)) {
           /* Exec_dynamic is called from the action PRC_DYNAMIC. */
           /* PRC_DYNAMIC is called from exec_action. Exec_action */
           /* frees temporary objects. To avoid double frees the  */
           /* TEMP flag must be cleared here.                     */
           CLEAR_TEMP_FLAG(element_value);
+          temp_insert_place = append_element_to_list(temp_insert_place,
+              element_value, &err_info);
         } /* if */
-#endif
         /* err_info is not checked after append! */
         list_insert_place = append_element_to_list(list_insert_place,
             element_value, &err_info);
@@ -1085,6 +1085,11 @@ printf("\n"); */
           free_list(match_expr->value.listValue);
           FREE_OBJECT(match_expr);
         } /* if */
+        actual_element = temp_values;
+        while (actual_element != NULL) {
+          SET_TEMP_FLAG(actual_element->obj);
+          actual_element = actual_element->next;
+        } /* while */
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {
           if (trace.heapsize) {
