@@ -660,7 +660,7 @@ void heapStatistic (void)
 
 
 
-#ifdef OUT_OF_ORDER
+#if !DO_HEAPSIZE_COMPUTATION && DO_HEAP_STATISTIC
 static memSizeType compute_hs (void)
 
   {
@@ -675,8 +675,8 @@ static memSizeType compute_hs (void)
     bytes_total += count.bstri_elems * sizeof(ucharType);
     bytes_total += count.array * SIZ_ARR(0);
     bytes_total += count.arr_elems * SIZ_REC(objectRecord);
-    bytes_total += count.rtl_array * SIZ_RTL_ARR(0) +
-    bytes_total += count.rtl_arr_elems * SIZ_REC(rtlObjectType) +
+    bytes_total += count.rtl_array * SIZ_RTL_ARR(0);
+    bytes_total += count.rtl_arr_elems * SIZ_REC(rtlObjectType);
     bytes_total += count.hash * SIZ_HSH(0);
     bytes_total += count.hsh_elems * SIZ_REC(hashElemType);
     bytes_total += count.hsh_elems * SIZ_REC(hashElemRecord);
@@ -726,15 +726,17 @@ static memSizeType compute_hs (void)
 memSizeType heapsize (void)
 
   {
-#if DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
     memSizeType flist_bytes;
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
     unsigned long num_flist_stri_elems;
     memSizeType num_flist_bigint_elems;
+#endif
 #endif
     memSizeType result;
 
   /* heapsize */
-#if DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
     flist_bytes = object_flist_count() * sizeof(objectRecord);
     flist_bytes += list_elem_flist_count() * sizeof(listRecord);
     flist_bytes += node_flist_count() * sizeof(nodeRecord);
@@ -745,8 +747,11 @@ memSizeType heapsize (void)
     flist_bytes += bigFListCount(&num_flist_bigint_elems) * SIZ_BIG(0);
     flist_bytes += num_flist_bigint_elems * sizeof_bigDigitType;
 #endif
-/*  printf(" %ld ", hs); */
+#if DO_HEAPSIZE_COMPUTATION
     result = hs - flist_bytes;
+#else
+    result = compute_hs() - flist_bytes;
+#endif
 #else
     result = 0;
 #endif
@@ -935,6 +940,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         count.fnam_bytes + ((memSizeType) count.fnam) +
         count.symb_bytes + ((memSizeType) count.symb) +
         count.byte;
+#if DO_HEAPSIZE_COMPUTATION
     if (bytes_used != hs) {
       printf("*** %s(%u)\n" FMT_U_MEM " " FMT_U_MEM " " FMT_D_MEM " %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
@@ -945,6 +951,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 /*  } else {
       printf("\n%lu %ld %d \n", hs, sizediff, in_file.line); */
     } /* if */
+#endif
     /* last_sizediff = sizediff;
        last_line_num = line_num; */
     /* if (sizediff > 0) {

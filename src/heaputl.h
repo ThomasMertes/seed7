@@ -285,9 +285,15 @@ EXTERN memSizeType hs;
 #define CNT(cnt)               cnt,
 #define CNT3(cnt2, cnt1)       (cnt2, cnt1)
 #else
+#if DO_HEAP_STATISTIC
+#define CALC_HS(cnt_hs, cnt)   (cnt)
+#define CNT(cnt)               cnt,
+#define CNT3(cnt2, cnt1)       (cnt2, cnt1)
+#else
 #define CALC_HS(cnt_hs, cnt)
 #define CNT(cnt)
 #define CNT3(cnt2, cnt1)
+#endif
 #endif
 
 #define CNT1_USTRI(L,S,C,B)    CALC_HS(HS_ADD(S),    USTRI_ADD(L,C,B) H_LOG1(S))
