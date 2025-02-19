@@ -660,7 +660,8 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
     arraySize := arrayLength(arrayValue);
     if evaluate_const_expr >= 2 and
         arrayMinIdx(arrayValue) > arrayMaxIdx(arrayValue) then
-      if FALSE and inlineFunctions then
+      if inlineFunctions and
+          arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 then
         incr(c_declaration.temp_num);
         variableName := "new_arr" <& c_declaration.temp_num;
         c_declaration.temp_decls &:= ";\n";
@@ -705,9 +706,13 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
             arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 and
             arraySize <= 100000000 then
           # The indices are okay and the size given to malloc() will not overflow.
-          c_declaration.temp_assigns &:= " = (arrayType) malloc(sizeof(struct rtlArrayStruct) + ";
-          c_declaration.temp_assigns &:= integerLiteral(pred(arraySize));
-          c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)), (unlikely(";
+          c_declaration.temp_assigns &:= " = (arrayType) malloc(sizeof(struct rtlArrayStruct)";
+          if arraySize > 1 then
+            c_declaration.temp_assigns &:= " + ";
+            c_declaration.temp_assigns &:= integerLiteral(pred(arraySize));
+            c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)";
+          end if;
+          c_declaration.temp_assigns &:= "), (unlikely(";
           c_declaration.temp_assigns &:= variableName;
           c_declaration.temp_assigns &:= " == NULL) ? ";
           c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
@@ -730,8 +735,11 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= ", memset(";
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= "->arr, 0, ";
-        c_declaration.temp_assigns &:= integerLiteral(arraySize);
-        c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)), ";
+        if arraySize > 1 then
+          c_declaration.temp_assigns &:= integerLiteral(arraySize);
+          c_declaration.temp_assigns &:= " * ";
+        end if;
+        c_declaration.temp_assigns &:= "sizeof(rtlObjectType)), ";
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= ");\n";
       else
