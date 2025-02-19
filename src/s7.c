@@ -139,7 +139,7 @@ static void printArray (const const_rtlArrayType array)
 
   /* printArray */
     if (array == NULL) {
-      printf("NULL");
+      printf("*NULL*");
     } else if (arraySize(array) != 0) {
       if (array->arr[0].value.striValue == NULL) {
         printf("NULL");
@@ -185,7 +185,6 @@ void freeOptions (optionType option)
     strDestr(option->sourceFileArgument);
     strDestr(option->protFileName);
     freeStringArray(option->libraryDirs);
-    freeStringArray(option->argv);
   } /* freeOptions */
 
 
@@ -466,6 +465,7 @@ int main (int argc, char **argv)
         shutDrivers();
         freeOptions(&option);
       } /* if */
+      freeStringArray(arg_v);
     } /* if */
     /* getchar(); */
     /* heapStatistic(); */
