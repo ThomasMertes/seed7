@@ -780,6 +780,7 @@ rtlArrayType arrBaselit (const genericType element)
     rtlArrayType result;
 
   /* arrBaselit */
+    logFunction(printf("arrBaselit(" FMT_U_GEN ")\n", element););
     result_size = 1;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
@@ -788,6 +789,8 @@ rtlArrayType arrBaselit (const genericType element)
       result->max_position = 1;
       result->arr[0].value.genericValue = element;
     } /* if */
+    logFunction(printf("arrBaselit --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrBaselit */
 
@@ -800,6 +803,8 @@ rtlArrayType arrBaselit2 (intType start_position, const genericType element)
     rtlArrayType result;
 
   /* arrBaselit2 */
+    logFunction(printf("arrBaselit2(" FMT_D ", " FMT_U_GEN ")\n",
+                       start_position, element););
     result_size = 1;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
@@ -808,6 +813,8 @@ rtlArrayType arrBaselit2 (intType start_position, const genericType element)
       result->max_position = start_position;
       result->arr[0].value.genericValue = element;
     } /* if */
+    logFunction(printf("arrBaselit2 --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrBaselit2 */
 
@@ -828,6 +835,8 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
     rtlArrayType result;
 
   /* arrCat */
+    logFunction(printf("arrCat(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) arr1, (memSizeType) arr2););
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
     if (unlikely(arr1_size > MAX_RTL_ARR_LEN - arr2_size ||
@@ -845,6 +854,8 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
         FREE_RTL_ARRAY(arr2, arr2_size);
       } /* if */
     } /* if */
+    logFunction(printf("arrCat --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrCat */
 
@@ -864,6 +875,8 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
     rtlArrayType result;
 
   /* arrExtend */
+    logFunction(printf("arrExtend(" FMT_U_MEM ", " FMT_U_GEN ")\n",
+                       (memSizeType) arr1, element););
     arr1_size = arraySize(arr1);
     if (unlikely(arr1_size > MAX_RTL_ARR_LEN - 1 ||
                  arr1->max_position > (intType) (MAX_MEM_INDEX - 1))) {
@@ -879,6 +892,8 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
         result->arr[arr1_size].value.genericValue = element;
       } /* if */
     } /* if */
+    logFunction(printf("arrExtend --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrExtend */
 
@@ -898,8 +913,11 @@ void arrFree (rtlArrayType oldArray)
     memSizeType size;
 
   /* arrFree */
+    logFunction(printf("arrFree(" FMT_U_MEM ")\n",
+                       (memSizeType) oldArray););
     size = arraySize(oldArray);
     FREE_RTL_ARRAY(oldArray, size);
+    logFunction(printf("arrFree -->\n"););
   } /* arrFree */
 
 
@@ -917,6 +935,8 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
     rtlArrayType result;
 
   /* arrGen */
+    logFunction(printf("arrGen(" FMT_U_GEN ", " FMT_U_GEN ")\n",
+                       element1, element2););
     result_size = 2;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
@@ -926,6 +946,8 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
       result->arr[0].value.genericValue = element1;
       result->arr[1].value.genericValue = element2;
     } /* if */
+    logFunction(printf("arrGen --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrGen */
 
@@ -945,6 +967,8 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
     rtlArrayType result;
 
   /* arrHead */
+    logFunction(printf("arrHead(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) arr1, stop););
     arr1_size = arraySize(arr1);
     if (stop >= arr1->min_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
@@ -979,6 +1003,8 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
+    logFunction(printf("arrHead --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrHead */
 
@@ -1002,6 +1028,10 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
     rtlArrayType result;
 
   /* arrHeadTemp */
+    logFunction(printf("arrHeadTemp(%s" FMT_U_MEM ", " FMT_D ")\n",
+                       arr_temp == NULL ? "NULL " : "",
+                       (memSizeType) (arr_temp != NULL ? *arr_temp : 0),
+                       stop););
     arr1 = *arr_temp;
     arr1_size = arraySize(arr1);
     if (stop >= arr1->min_position && arr1_size >= 1) {
@@ -1048,6 +1078,8 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
+    logFunction(printf("arrHeadTemp --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrHeadTemp */
 
@@ -1071,11 +1103,14 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
     genericType result;
 
   /* arrIdxTemp */
+    logFunction(printf("arrIdxTemp(%s" FMT_U_MEM " (array[" FMT_D
+                                   " .. " FMT_D "]), " FMT_D ")\n",
+                       arr_temp == NULL ? "NULL " : "",
+                       (memSizeType) (arr_temp != NULL ? *arr_temp : 0),
+                       arr_temp != NULL ? (*arr_temp)->min_position : 1,
+                       arr_temp != NULL ? (*arr_temp)->max_position : 0,
+                       position););
     arr1 = *arr_temp;
-    logFunction(printf("arrIdxTemp(" FMT_U_MEM " (min_position=" FMT_D
-                                   ", max_position= " FMT_D "), " FMT_D ")\n",
-                       (memSizeType) arr1, arr1->min_position,
-                       arr1->max_position, position););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position)) {
       logError(printf("arrIdxTemp(arr1, " FMT_D "): "
@@ -1118,10 +1153,15 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
     memSizeType arr1_size;
 
   /* arrInsert */
+    logFunction(printf("arrInsert(%s" FMT_U_MEM " (array[" FMT_D
+                                  " .. " FMT_D "]), " FMT_D ", "
+                                  FMT_U_GEN ")\n",
+                       arr_to == NULL ? "NULL " : "",
+                       (memSizeType) (arr_to != NULL ? *arr_to : 0),
+                       arr_to != NULL ? (*arr_to)->min_position : 1,
+                       arr_to != NULL ? (*arr_to)->max_position : 0,
+                       position, element););
     arr1 = *arr_to;
-    logFunction(printf("arrInsert(" FMT_U_MEM " (size=" FMT_U_MEM "), "
-                       FMT_D ", " FMT_U "))\n",
-                       (memSizeType) arr1, arraySize(arr1), position, element););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position + 1)) {
       logError(printf("arrInsert(arr1, " FMT_D ", *): "
@@ -1144,6 +1184,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
         *arr_to = arr1;
       } /* if */
     } /* if */
+    logFunction(printf("arrInsert -->\n"););
   } /* arrInsert */
 
 
@@ -1168,7 +1209,16 @@ void arrInsertArray (rtlArrayType *arr_to, intType position,
     memSizeType elements_size;
 
   /* arrInsertArray */
-    logFunction(printf("arrInsertArray\n"););
+    logFunction(printf("arrInsertArray(%s" FMT_U_MEM " (array[" FMT_D
+                                       " .. " FMT_D "]), " FMT_D
+                                       ", " FMT_U_MEM " (array[" FMT_D
+                                       " .. " FMT_D "]))\n",
+                       arr_to == NULL ? "NULL " : "",
+                       (memSizeType) (arr_to != NULL ? *arr_to : 0),
+                       arr_to != NULL ? (*arr_to)->min_position : 1,
+                       arr_to != NULL ? (*arr_to)->max_position : 0,
+                       position, (memSizeType) elements,
+                       elements->min_position, elements->max_position););
     arr1 = *arr_to;
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position + 1)) {
@@ -1237,7 +1287,16 @@ void arrInsertArrayTemp (rtlArrayType *arr_to, intType position,
     memSizeType elements_size;
 
   /* arrInsertArrayTemp */
-    logFunction(printf("arrInsertArrayTemp\n"););
+    logFunction(printf("arrInsertArrayTemp(%s" FMT_U_MEM " (array[" FMT_D
+                                           " .. " FMT_D "]), " FMT_D
+                                           ", " FMT_U_MEM " (array[" FMT_D
+                                           " .. " FMT_D "]))\n",
+                       arr_to == NULL ? "NULL " : "",
+                       (memSizeType) (arr_to != NULL ? *arr_to : 0),
+                       arr_to != NULL ? (*arr_to)->min_position : 1,
+                       arr_to != NULL ? (*arr_to)->max_position : 0,
+                       position, (memSizeType) elements,
+                       elements->min_position, elements->max_position););
     arr1 = *arr_to;
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position + 1)) {
@@ -1293,6 +1352,8 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
     rtlArrayType result;
 
   /* arrMalloc */
+    logFunction(printf("arrMalloc(" FMT_D ", " FMT_D ")\n",
+                       minPosition, maxPosition););
     if (unlikely(minPosition < MIN_MEM_INDEX ||
                  maxPosition > MAX_MEM_INDEX ||
                  (minPosition == MIN_MEM_INDEX &&
@@ -1317,6 +1378,8 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
         result->max_position = maxPosition;
       } /* if */
     } /* if */
+    logFunction(printf("arrMalloc --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrMalloc */
 
@@ -1526,6 +1589,8 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
     rtlArrayType resized_arr;
 
   /* arrRealloc */
+    logFunction(printf("arrRealloc(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) arr, oldSize, newSize););
     if (unlikely(!REALLOC_RTL_ARRAY(resized_arr, arr, newSize))) {
       if (oldSize >= newSize) {
         resized_arr = arr;
@@ -1534,6 +1599,8 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
     } else {
       COUNT3_RTL_ARRAY(oldSize, newSize);
     } /* if */
+    logFunction(printf("arrRealloc --> " FMT_U_MEM "\n",
+                       (memSizeType) resized_arr););
     return resized_arr;
   } /* arrRealloc */
 
@@ -1991,5 +2058,7 @@ rtlArrayType arrTimes (intType minPosition, intType maxPosition,
       size = arraySize2(minPosition, maxPosition);
       memsetGeneric(result->arr, element, size);
     } /* if */
+    logFunction(printf("arrTimes --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* arrTimes */
