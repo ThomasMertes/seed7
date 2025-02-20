@@ -122,6 +122,7 @@ static parseErrorType newError (errorType err)
 
   /* newError */
     if (unlikely(!ALLOC_RECORD(error, parseErrorRecord, count.parseError))) {
+      logError(printf("newError(): No more memory.\n"););
       fatal_memory_error(SOURCE_POSITION(2121));
     } else {
       memset(error, 0, sizeof(parseErrorRecord));
@@ -140,6 +141,7 @@ static void appendErrorToProg (parseErrorType error)
         error->errorLine == NULL) {
       /* showError(error); */
       freeError(error);
+      logError(printf("appendErrorToProg(): No more memory.\n"););
       fatal_memory_error(SOURCE_POSITION(2122));
     } else {
       if (prog != NULL) {
@@ -400,6 +402,7 @@ static void writeError (fileType errorFile, parseErrorType error)
     } /* if */
     appendString(&message, error->msg);
     if (unlikely(message == NULL)) {
+      logError(printf("writeError(): No more memory. (1)\n"););
       fatal_memory_error(SOURCE_POSITION(2123));
     } else {
       writeString(errorFile, message);
@@ -408,11 +411,13 @@ static void writeError (fileType errorFile, parseErrorType error)
         outputLine = stri8_buffer_to_stri(error->errorLine->mem,
                                           error->errorLine->size);
         if (unlikely(outputLine == NULL)) {
+          logError(printf("writeError(): No more memory. (2)\n"););
           fatal_memory_error(SOURCE_POSITION(2124));
         } else {
           output = toOutputString(outputLine);
           FREE_STRI(outputLine, outputLine->size);
           if (unlikely(outputLine == NULL)) {
+            logError(printf("writeError(): No more memory. (3)\n"););
             fatal_memory_error(SOURCE_POSITION(2125));
           } else {
             writeString(errorFile, output);
