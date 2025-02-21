@@ -40,6 +40,6 @@ EXTERN identType current_ident;
 
 void find_normal_ident (sySizeType length);
 void check_list_of_syntax_elements (const_listType elem_list);
-void clean_idents (progType currentProg);
-void write_idents (progType currentProg);
+void clean_idents (progType aProg);
+void write_idents (progType aProg);
 void init_findid (progType aProg, errInfoType *err_info);

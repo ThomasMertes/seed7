@@ -87,7 +87,6 @@ inFileRecord in_file = {
     0,          /* incr_message_line */
     LARGE_INCR, /* next_msg_line */
     0,          /* file_number */
-    NULL,       /* owningProg */
     TRUE        /* end_of_file */
   };
 #else
@@ -96,13 +95,17 @@ EXTERN inFileRecord in_file;
 
 
 int fill_buf (void);
-boolType openInfile (const_striType sourceFileName, boolType write_library_names,
-    boolType write_line_numbers, errInfoType *err_info);
+boolType openInfile (const_striType sourceFileName,
+    fileNumType fileNumber, inFileType nextFile,
+    boolType write_library_names, boolType write_line_numbers,
+    errInfoType *err_info);
 void closeInfile (void);
-boolType openBString (bstriType inputString, boolType write_library_names,
-    boolType write_line_numbers, errInfoType *err_info);
+boolType openBString (bstriType inputString,
+    fileNumType fileNumber, inFileType nextFile,
+    boolType write_library_names, boolType write_line_numbers,
+    errInfoType *err_info);
 void removeProgFiles (progType currentProg);
 void next_file (void);
 int next_line (void);
-striType get_file_name (fileNumType file_num);
-const_ustriType get_file_name_ustri (fileNumType file_num);
+striType get_file_name (progType aProg, fileNumType file_num);
+const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num);

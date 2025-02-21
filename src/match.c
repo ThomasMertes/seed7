@@ -204,7 +204,7 @@ void substitute_params (const_objectType expr_object)
         if (current_element->value.objValue != NULL) {
 #if TRACE_SUBSTITUTE_PARAMS
           if (HAS_POSINFO(expr_object)) {
-            prot_string(get_file_name(GET_FILE_NUM(expr_object)));
+            prot_string(get_file_name(prog, GET_FILE_NUM(expr_object)));
             prot_cstri("(");
             prot_int((intType) GET_LINE_NUM(expr_object));
             prot_cstri(")");
@@ -299,6 +299,9 @@ static objectType match_symbol (objectType object)
     objectType result;
 
   /* match_symbol */
+    logFunction(printf("match_symbol(");
+                trace1(object);
+                printf(")\n"););
     if (!HAS_ENTITY(object) ||
         GET_ENTITY(object)->syobject == NULL) {
       err_match(EXPR_EXPECTED, object);

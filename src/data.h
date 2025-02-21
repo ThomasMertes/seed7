@@ -419,6 +419,8 @@ typedef struct progStruct {
     const_striType program_path;
     objectType arg_v;
     uintType option_flags;
+    fileNumType fileCounter;
+    inFileType fileList;
     boolType writeErrors;
     fileType errorFile;
     unsigned int error_count;
@@ -465,7 +467,6 @@ typedef struct inFileStruct {
     lineNumType incr_message_line;
     lineNumType next_msg_line;
     fileNumType file_number;
-    progType owningProg;
     boolType end_of_file;
   } inFileRecord;
 

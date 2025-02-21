@@ -129,14 +129,15 @@ static void write_position_info (objectType currObject, boolType writeNoInfo)
           CATEGORY_OF_OBJ(currObject) == DECLAREDOBJECT) {
         if (HAS_POSINFO(currObject)) {
           prot_cstri("at ");
-          prot_string(get_file_name(GET_FILE_NUM(currObject)));
+          prot_string(get_file_name(prog, GET_FILE_NUM(currObject)));
           prot_cstri("(");
           prot_int((intType) GET_LINE_NUM(currObject));
           prot_cstri(")");
         } else if (HAS_PROPERTY(currObject) &&
             currObject->descriptor.property->line != 0) {
           prot_cstri("at ");
-          prot_string(get_file_name(currObject->descriptor.property->file_number));
+          prot_string(get_file_name(prog,
+              currObject->descriptor.property->file_number));
           prot_cstri("(");
           prot_int((intType) currObject->descriptor.property->line);
           prot_cstri(")");

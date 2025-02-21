@@ -1004,7 +1004,13 @@ void prot_list_limited (const_listType list, int depthLimit)
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_string(get_file_name(GET_FILE_NUM(list->obj)));
+                if (list->obj->type_of != NULL &&
+                    list->obj->type_of->owningProg != NULL) {
+                  prot_string(get_file_name(list->obj->type_of->owningProg,
+                                            GET_FILE_NUM(list->obj)));
+                } else {
+                  prot_cstri("?");
+                } /* if */
                 prot_cstri("(");
                 prot_int((intType) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1487,7 +1493,13 @@ void trace1 (const_objectType traceobject)
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_string(get_file_name(GET_FILE_NUM(traceobject)));
+        if (traceobject->type_of != NULL &&
+            traceobject->type_of->owningProg != NULL) {
+          prot_string(get_file_name(traceobject->type_of->owningProg,
+                                  GET_FILE_NUM(traceobject)));
+        } else {
+          prot_cstri("?");
+        } /* if */
         prot_cstri("(");
         prot_int((intType) GET_LINE_NUM(traceobject));
         prot_cstri(")");

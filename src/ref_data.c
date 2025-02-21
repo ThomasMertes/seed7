@@ -373,9 +373,14 @@ striType refFile (const const_objectType aReference)
       } else {
         file_number = 0;
       } /* if */
-      fileName = get_file_name(file_number);
-      if (unlikely(fileName == NULL)) {
-        raise_error(MEMORY_ERROR);
+      if (aReference->type_of != NULL &&
+          aReference->type_of->owningProg != NULL) {
+        fileName = get_file_name(aReference->type_of->owningProg, file_number);
+        if (unlikely(fileName == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
+      } else {
+        raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
     return fileName;
@@ -545,8 +550,7 @@ intType refLine (const const_objectType aReference)
       lineNumber = (intType) GET_LINE_NUM(aReference);
     } else if (HAS_PROPERTY(aReference)) {
       /* trace1(aReference);
-      printf(" %s %u %u\n",
-          get_file_name_ustri(aReference->descriptor.property->file_number),
+      printf(" %u %u\n",
           aReference->descriptor.property->line,
           aReference->descriptor.property->syNumberInLine); */
       /* Cast to intType: The line is probably in the range 0 to 2147483647 */
@@ -899,7 +903,13 @@ striType refStr (const const_objectType aReference)
     if (aReference == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(aReference)) {
-      stri = (const_cstriType) get_file_name_ustri(GET_FILE_NUM(aReference));
+      if (aReference->type_of != NULL &&
+          aReference->type_of->owningProg != NULL) {
+        stri = (const_cstriType) get_file_name_ustri(
+            aReference->type_of->owningProg, GET_FILE_NUM(aReference));
+      } else {
+        stri = "?";
+      } /* if */
       buffer_len = (memSizeType) strlen(stri) + 32;
       if (unlikely(!ALLOC_CSTRI(buffer, buffer_len))) {
         raise_error(MEMORY_ERROR);

@@ -107,8 +107,11 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
         logMessage(printf("already included: \"%s\"\n",
                           striAsUnquotedCStri(absolutePath)););
         includeResult = INCLUDE_ALREADY;
-      } else if (openInfile(includeFileName, in_file.write_library_names,
+      } else if (openInfile(includeFileName, prog->fileCounter + 1,
+                            prog->fileList, in_file.write_library_names,
                             in_file.write_line_numbers, err_info)) {
+        prog->fileList = in_file.curr_infile;
+        prog->fileCounter++;
         /* add to list of include files */
         hshIncl(includeFileHash, (genericType) (memSizeType) absolutePath,
                 (genericType) 1, strHashCode(absolutePath),

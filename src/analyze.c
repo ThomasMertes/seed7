@@ -488,7 +488,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->main_object = NULL;
       resultProg->types = NULL;
       resultProg->includeFileHash = (void *) initIncludeFileHash();
-      in_file.owningProg = resultProg;
+      resultProg->fileList = in_file.curr_infile;
+      resultProg->fileCounter = 1;
       initLibPath(sourceFileArgument, libraryDirs, err_info);
       init_symbol(err_info);
       init_idents(resultProg, err_info);
@@ -623,12 +624,12 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         memcpy_to_strelem(&sourceFilePath->mem[sourceFileArgument->size],
                           (const_ustriType) ".sd7", STRLEN(".sd7"));
       } /* if */
-      isOpen = openInfile(sourceFilePath,
+      isOpen = openInfile(sourceFilePath, 1, NULL,
                           (options & WRITE_LIBRARY_NAMES) != 0,
                           (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (!isOpen && add_extension) {
         sourceFilePath->size = nameLen - STRLEN(".sd7");
-        isOpen = openInfile(sourceFilePath,
+        isOpen = openInfile(sourceFilePath, 1, NULL,
                             (options & WRITE_LIBRARY_NAMES) != 0,
                             (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
@@ -728,7 +729,7 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
     if (sourceFileArgument == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
-      isOpen = openBString(input_bstri,
+      isOpen = openBString(input_bstri, 1, NULL,
                            (options & WRITE_LIBRARY_NAMES) != 0,
                            (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (isOpen) {

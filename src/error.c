@@ -730,7 +730,7 @@ static void storePositionedErrorLine (parseErrorType error,
       if (fileNumber == in_file.file_number) {
         storeLineOfCurrentFile(error, lineNumber);
       } else {
-        storeLineOfOtherFile(error, get_file_name(fileNumber), lineNumber);
+        storeLineOfOtherFile(error, get_file_name(prog, fileNumber), lineNumber);
       } /* if */
     } /* if */
     logFunction(printf("storePositionedErrorLine -->\n"););
@@ -1048,7 +1048,7 @@ void err_object (errorType err, const_objectType obj_found)
   /* err_object */
     error = newError(err);
     if (obj_found != NULL && HAS_POSINFO(obj_found)){
-      setPlace(error, get_file_name(GET_FILE_NUM(obj_found)),
+      setPlace(error, get_file_name(prog, GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found));
     } else if (in_file.name != NULL) {
       setPlace(error, in_file.name, in_file.line);
@@ -1190,7 +1190,7 @@ void err_expr_type (errorType err, const_objectType expr_object,
     if (hasPosInfo){
       fileNumber = GET_FILE_NUM(expr_object);
       lineNumber = GET_LINE_NUM(expr_object);
-      setPlace(error, get_file_name(fileNumber), lineNumber);
+      setPlace(error, get_file_name(prog, fileNumber), lineNumber);
     } else if (in_file.name != NULL) {
       setPlace(error, in_file.name, in_file.line);
     } /* if */
@@ -1230,7 +1230,7 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     if (hasPosInfo){
       fileNumber = GET_FILE_NUM(expr_object);
       lineNumber = GET_LINE_NUM(expr_object);
-      setPlace(error, get_file_name(fileNumber), lineNumber);
+      setPlace(error, get_file_name(prog, fileNumber), lineNumber);
     } else if (in_file.name != NULL) {
       setPlace(error, in_file.name, in_file.line);
     } /* if */
@@ -1313,7 +1313,7 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
     if (hasPosInfo){
       fileNumber = GET_FILE_NUM(expr_object);
       lineNumber = GET_LINE_NUM(expr_object);
-      setPlace(error, get_file_name(fileNumber), lineNumber);
+      setPlace(error, get_file_name(prog, fileNumber), lineNumber);
     } else if (in_file.name != NULL) {
       setPlace(error, in_file.name, in_file.line);
     } /* if */
@@ -1378,7 +1378,7 @@ void err_match (errorType err, objectType obj_found)
     if (!contains_match_err_flag(obj_found)) {
       error = newError(err);
       if (HAS_POSINFO(obj_found)){
-        setPlace(error, get_file_name(GET_FILE_NUM(obj_found)),
+        setPlace(error, get_file_name(prog, GET_FILE_NUM(obj_found)),
             GET_LINE_NUM(obj_found));
       } else if (in_file.name != NULL) {
         setPlace(error, in_file.name, in_file.line);
@@ -1661,7 +1661,7 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
                        err, (memSizeType) obj_found, fileNumber, lineNumber););
     error = newError(err);
     if (fileNumber != 0 && lineNumber != 0) {
-      setPlace(error, get_file_name(fileNumber), lineNumber);
+      setPlace(error, get_file_name(prog, fileNumber), lineNumber);
     } else {
       setPlace(error, in_file.name, in_file.line);
     } /* if */
@@ -1702,7 +1702,7 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     error = newError(err);
     fileNumber = obj_found->descriptor.property->file_number;
     lineNumber = obj_found->descriptor.property->line;
-    setPlace(error, get_file_name(fileNumber), lineNumber);
+    setPlace(error, get_file_name(prog, fileNumber), lineNumber);
     switch (err) {
       case PREVIOUS_DECLARATION:
         copyCStri(&error->msg, "Previous declaration of \"");

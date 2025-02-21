@@ -189,7 +189,7 @@ static void clean_ident_tree (identType actual_ident)
 
 
 
-void clean_idents (progType currentProg)
+void clean_idents (progType aProg)
 
   {
     int position;
@@ -199,13 +199,13 @@ void clean_idents (progType currentProg)
   /* clean_idents */
     logFunction(printf("clean_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      clean_ident_tree(currentProg->ident.table[position]);
+      clean_ident_tree(aProg->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        actual_ident = currentProg->ident.table1[character];
+        actual_ident = aProg->ident.table1[character];
         if (actual_ident != NULL) {
           free_tokens(actual_ident->prefix_token);
           actual_ident->prefix_token = NULL;
@@ -219,33 +219,35 @@ void clean_idents (progType currentProg)
 
 
 
-static void wri_binary_ident_tree (const_identType actual_ident)
+static void wri_binary_ident_tree (progType aProg,
+    const_identType actual_ident)
 
   { /* wri_binary_ident_tree */
     logFunction(printf("wri_binary_ident_tree\n"););
     if (actual_ident != NULL) {
-      wri_binary_ident_tree(actual_ident->next1);
+      wri_binary_ident_tree(aProg, actual_ident->next1);
       prot_cstri8(id_string(actual_ident));
       prot_cstri(" ");
       if (actual_ident->entity != NULL &&
           actual_ident->entity->syobject != NULL) {
         if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
           prot_cstri(" ");
-          prot_string(get_file_name(GET_POS_FILE_NUM(actual_ident->entity->syobject)));
+          prot_string(get_file_name(aProg,
+              GET_POS_FILE_NUM(actual_ident->entity->syobject)));
           prot_cstri("(");
           prot_int((intType) GET_POS_LINE_NUM(actual_ident->entity->syobject));
           prot_cstri(")");
         } /* if */
       } /* if */
       prot_nl();
-      wri_binary_ident_tree(actual_ident->next2);
+      wri_binary_ident_tree(aProg, actual_ident->next2);
     } /* if */
     logFunction(printf("wri_binary_ident_tree -->\n"););
   } /* wri_binary_ident_tree */
 
 
 
-void write_idents (progType currentProg)
+void write_idents (progType aProg)
 
   {
     int position;
@@ -258,13 +260,13 @@ void write_idents (progType currentProg)
       prot_cstri(" ====== ");
       prot_int((intType) position);
       prot_cstri(" ======\n");
-      wri_binary_ident_tree(currentProg->ident.table[position]);
+      wri_binary_ident_tree(aProg, aProg->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        actual_ident = currentProg->ident.table1[character];
+        actual_ident = aProg->ident.table1[character];
         if (actual_ident != NULL) {
           prot_cstri8(id_string(actual_ident));
           prot_cstri(" ");
@@ -272,7 +274,8 @@ void write_idents (progType currentProg)
               actual_ident->entity->syobject != NULL) {
             if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
               prot_cstri(" ");
-              prot_string(get_file_name(GET_POS_FILE_NUM(actual_ident->entity->syobject)));
+              prot_string(get_file_name(aProg,
+                  GET_POS_FILE_NUM(actual_ident->entity->syobject)));
               prot_cstri("(");
               prot_int((intType) GET_POS_LINE_NUM(actual_ident->entity->syobject));
               prot_cstri(")");

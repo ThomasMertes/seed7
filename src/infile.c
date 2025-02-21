@@ -63,10 +63,6 @@
 #define SIZE_IN_BUFFER 32768
 
 
-static inFileType file_pointer = NULL;
-static fileNumType file_counter = 0;
-
-
 
 #if USE_ALTERNATE_NEXT_CHARACTER
 int fill_buf (void)
@@ -182,8 +178,10 @@ static inline boolType speedup (void)
 
 
 
-boolType openInfile (const_striType sourceFileName, boolType write_library_names,
-    boolType write_line_numbers, errInfoType *err_info)
+boolType openInfile (const_striType sourceFileName,
+    fileNumType fileNumber, inFileType nextFile,
+    boolType write_library_names, boolType write_line_numbers,
+    errInfoType *err_info)
 
   {
     os_striType os_path;
@@ -201,8 +199,10 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
     boolType isOpen = FALSE;
 
   /* openInfile */
-    logFunction(printf("openInfile(\"%s\", %d, %d, err_info=%d)\n",
+    logFunction(printf("openInfile(\"%s\", %u, " FMT_U_MEM
+                                   ", %d, %d, err_info=%d)\n",
                        striAsUnquotedCStri(sourceFileName),
+                       fileNumber, (memSizeType) nextFile,
                        write_library_names, write_line_numbers,
                        *err_info););
     os_path = cp_to_os_path(sourceFileName, &path_info, err_info);
@@ -276,19 +276,12 @@ boolType openInfile (const_striType sourceFileName, boolType write_library_names
               in_file.name = in_name;
               in_file.character = next_character();
               in_file.line = 1;
-              file_counter++;
-              in_file.file_number = file_counter;
-              if (in_file.curr_infile != NULL) {
-                in_file.owningProg = in_file.curr_infile->owningProg;
-              } else {
-                in_file.owningProg = NULL; /* Is set in analyze_prog() */
-              } /* if */
+              in_file.file_number = fileNumber;
               open_compilation_info(write_library_names, write_line_numbers);
               in_file.end_of_file = FALSE;
               in_file.up_infile = in_file.curr_infile;
               in_file.curr_infile = new_file;
-              in_file.next = file_pointer;
-              file_pointer = new_file;
+              in_file.next = nextFile;
               memcpy(new_file, &in_file, sizeof(inFileRecord));
               isOpen = TRUE;
             } /* if */
@@ -357,8 +350,10 @@ void closeInfile (void)
 
 
 
-boolType openBString (bstriType inputString, boolType write_library_names,
-    boolType write_line_numbers, errInfoType *err_info)
+boolType openBString (bstriType inputString,
+    fileNumType fileNumber, inFileType nextFile,
+    boolType write_library_names, boolType write_line_numbers,
+    errInfoType *err_info)
 
   {
     const char sourceFileName[] = "STRING";
@@ -436,15 +431,12 @@ boolType openBString (bstriType inputString, boolType write_library_names,
 #endif
             in_file.character = next_character();
             in_file.line = 1;
-            file_counter++;
-            in_file.file_number = file_counter;
-            in_file.owningProg = NULL; /* Is set in analyze_prog() */
+            in_file.file_number = fileNumber;
             open_compilation_info(write_library_names, write_line_numbers);
             in_file.end_of_file = FALSE;
             in_file.up_infile = in_file.curr_infile;
             in_file.curr_infile = new_file;
-            in_file.next = file_pointer;
-            file_pointer = new_file;
+            in_file.next = nextFile;
             memcpy(new_file, &in_file, sizeof(inFileRecord));
             isOpen = TRUE;
           }
@@ -473,35 +465,20 @@ static void freeFile (inFileType old_file)
 
 
 
-void removeProgFiles (progType currentProg)
+void removeProgFiles (progType aProg)
 
   {
     inFileType aFile;
-    inFileType *fileAddr;
     inFileType currFile;
-    fileNumType maximumFileNumber = 0;
 
   /* removeProgFiles */
     logFunction(printf("removeProgFiles\n"););
-    aFile = file_pointer;
-    fileAddr = &file_pointer;
+    aFile = aProg->fileList;
     while (aFile != NULL) {
       currFile = aFile;
       aFile = aFile->next;
-      /* printf("removeProgFiles: %s %lx %lx\n", currFile->name_ustri,
-         (unsigned long) currFile->owningProg, (unsigned long) currentProg); */
-      if (currFile->owningProg == currentProg) {
-        freeFile(currFile);
-        *fileAddr = aFile;
-      } else {
-        if (currFile->file_number > maximumFileNumber) {
-          maximumFileNumber = currFile->file_number;
-        } /* if */
-        fileAddr = &currFile->next;
-      } /* if */
+      freeFile(currFile);
     } /* if */
-    /* Reduce the file counter: */
-    file_counter = maximumFileNumber;
     logFunction(printf("removeProgFiles -->\n"););
   } /* removeProgFiles */
 
@@ -538,7 +515,7 @@ int next_line (void)
 
 
 
-striType get_file_name (fileNumType file_num)
+striType get_file_name (progType aProg, fileNumType file_num)
 
   {
     static striType question_mark = NULL;
@@ -546,8 +523,9 @@ striType get_file_name (fileNumType file_num)
     striType file_name;
 
   /* get_file_name */
-    logFunction(printf("get_file_name(%u)\n", file_num););
-    help_file = file_pointer;
+    logFunction(printf("get_file_name(" FMT_U_MEM ", %u)\n",
+                       (memSizeType) aProg, file_num););
+    help_file = aProg->fileList;
     while (help_file != NULL && help_file->file_number != file_num) {
       help_file = help_file->next;
     } /* while */
@@ -566,15 +544,16 @@ striType get_file_name (fileNumType file_num)
 
 
 
-const_ustriType get_file_name_ustri (fileNumType file_num)
+const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num)
 
   {
     inFileType help_file;
     const_ustriType file_name;
 
   /* get_file_name_ustri */
-    logFunction(printf("get_file_name_ustri\n"););
-    help_file = file_pointer;
+    logFunction(printf("get_file_name_ustri(" FMT_U_MEM ", %u)\n",
+			(memSizeType) aProg, file_num););
+    help_file = aProg->fileList;
     while (help_file != NULL && help_file->file_number != file_num) {
       help_file = help_file->next;
     } /* while */
@@ -583,6 +562,6 @@ const_ustriType get_file_name_ustri (fileNumType file_num)
     } else {
       file_name = (const_ustriType) "?";
     } /* if */
-    logFunction(printf("get_file_name_ustri -->\n"););
+    logFunction(printf("get_file_name_ustri --> \"%s\"\n", file_name););
     return file_name;
   } /* get_file_name_ustri */
