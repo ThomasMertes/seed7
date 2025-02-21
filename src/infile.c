@@ -62,6 +62,8 @@
 #define GET_INFILE_BUFFER TRUE
 #define SIZE_IN_BUFFER 32768
 
+static striType question_mark = NULL;
+
 
 
 #if USE_ALTERNATE_NEXT_CHARACTER
@@ -518,7 +520,6 @@ int next_line (void)
 striType get_file_name (progType aProg, fileNumType file_num)
 
   {
-    static striType question_mark = NULL;
     register inFileType help_file;
     striType file_name;
 
@@ -544,6 +545,40 @@ striType get_file_name (progType aProg, fileNumType file_num)
 
 
 
+striType objectFileName (const_objectType anObject)
+
+  {
+    fileNumType fileNumber;
+    striType fileName;
+
+  /* objectFileName */
+    logFunction(printf("objectFileName(" FMT_U_MEM ")\n",
+                       (memSizeType) anObject););
+    if (HAS_POSINFO(anObject)) {
+      fileNumber = GET_FILE_NUM(anObject);
+    } else if (HAS_PROPERTY(anObject)) {
+      fileNumber = anObject->descriptor.property->file_number;
+    } else {
+      fileNumber = 0;
+    } /* if */
+    if (fileNumber != 0 &&
+        anObject->type_of != NULL &&
+        anObject->type_of->owningProg != NULL) {
+      fileName = get_file_name(anObject->type_of->owningProg,
+                               fileNumber);
+    } else {
+      if (question_mark == NULL) {
+        question_mark = CSTRI_LITERAL_TO_STRI("?");
+      } /* if */
+      fileName = question_mark;
+    } /* if */
+    logFunction(printf("objectFileName --> \"%s\"\n",
+                       striAsUnquotedCStri(fileName)););
+    return fileName;
+  } /* objectFileName */
+
+
+
 const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num)
 
   {
@@ -552,7 +587,7 @@ const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num)
 
   /* get_file_name_ustri */
     logFunction(printf("get_file_name_ustri(" FMT_U_MEM ", %u)\n",
-			(memSizeType) aProg, file_num););
+                       (memSizeType) aProg, file_num););
     help_file = aProg->fileList;
     while (help_file != NULL && help_file->file_number != file_num) {
       help_file = help_file->next;

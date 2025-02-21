@@ -352,37 +352,21 @@ striType refCatStr (intType aCategory)
 striType refFile (const const_objectType aReference)
 
   {
-    fileNumType file_number;
     striType fileName;
 
   /* refFile */
+    logFunction(printf("refFile(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL)) {
       logError(printf("refFile(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       fileName = NULL;
     } else {
-      if (HAS_POSINFO(aReference)) {
-        file_number = GET_FILE_NUM(aReference);
-      } else if (HAS_PROPERTY(aReference)) {
-        /* trace1(aReference);
-        printf(" %u %u %u\n",
-            aReference->descriptor.property->file_number,
-            aReference->descriptor.property->line,
-            aReference->descriptor.property->syNumberInLine); */
-        file_number = aReference->descriptor.property->file_number;
-      } else {
-        file_number = 0;
-      } /* if */
-      if (aReference->type_of != NULL &&
-          aReference->type_of->owningProg != NULL) {
-        fileName = get_file_name(aReference->type_of->owningProg, file_number);
-        if (unlikely(fileName == NULL)) {
-          raise_error(MEMORY_ERROR);
-        } /* if */
-      } else {
-        raise_error(RANGE_ERROR);
-      } /* if */
+      fileName = objectFileName(aReference);
     } /* if */
+    logFunction(printf("refFile -> \"%s\"\n",
+                       striAsUnquotedCStri(fileName)););
     return fileName;
   } /* refFile */
 
