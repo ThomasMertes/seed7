@@ -446,7 +446,7 @@ int main (int argc, char **argv)
                           option.execOptions, option.protFileName);
               } /* if */
               if (fail_flag) {
-                uncaught_exception();
+                uncaught_exception(currentProg);
                 if (fail_value == DB_EXCEPTION(currentProg)) {
                   striType message;
 

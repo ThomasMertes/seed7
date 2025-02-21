@@ -319,9 +319,13 @@ void write_call_stack (const_listType stack_elem)
 
 
 
-void uncaught_exception (void)
+void uncaught_exception (progType aProg)
 
-  { /* uncaught_exception */
+  {
+    progType progBackup;
+
+  /* uncaught_exception */
+    progBackup = prog;
     if (fail_value != NULL) {
       prot_nl();
       if (catch_exceptions) {
@@ -341,6 +345,7 @@ void uncaught_exception (void)
     prot_nl();
     prot_cstri("Stack:\n");
     write_call_stack(fail_stack);
+    prog = progBackup;
   } /* uncaught_exception */
 
 
