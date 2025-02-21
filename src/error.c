@@ -79,7 +79,7 @@
 static void freeError (parseErrorType oldError)
 
   { /* freeError */
-    strDestr(oldError->fileName);
+    /* Not owned: oldError->fileName */
     strDestr(oldError->msg);
     strDestr(oldError->errorLine);
     FREE_RECORD(oldError, parseErrorRecord, count.parseError);
@@ -796,11 +796,11 @@ static void storeErrorLine (parseErrorType error)
 
 
 
-static void setPlace (parseErrorType error, const striType name,
+static void setPlace (parseErrorType error, const const_striType name,
     const lineNumType lineNumber)
 
   { /* setPlace */
-    error->fileName = strCreate(name);
+    error->fileName = name;
     error->lineNumber = lineNumber;
   } /* setPlace */
 

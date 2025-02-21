@@ -403,7 +403,7 @@ typedef struct {
 
 typedef struct parseErrorStruct {
     int err;
-    striType fileName;
+    const_striType fileName;
     lineNumType lineNumber;
     memSizeType columnNumber;
     striType msg;

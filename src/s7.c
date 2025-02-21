@@ -457,9 +457,8 @@ int main (int argc, char **argv)
                   FREE_STRI(message, message->size);
                 } /* if */
               } /* if */
-              /* heapStatistic(); */
-              /* prgDestr(currentProg); */
             } /* if */
+            /* prgDestr(currentProg); */
           } /* if */
         } /* if */
         shutDrivers();
