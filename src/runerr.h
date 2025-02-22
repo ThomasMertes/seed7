@@ -35,6 +35,12 @@ EXTERN listType fail_expression;
 EXTERN listType fail_stack;
 
 #ifdef DO_INIT
+objectType fail_exec_object = NULL;
+#else
+EXTERN objectType fail_exec_object;
+#endif
+
+#ifdef DO_INIT
 boolType catch_exceptions = TRUE;
 #else
 EXTERN boolType catch_exceptions;
@@ -48,6 +54,7 @@ typedef struct {
     objectType fail_value;
     listType fail_expression;
     listType fail_stack;
+    objectType fail_exec_object;
   } failStateStruct;
 
 

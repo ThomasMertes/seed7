@@ -431,6 +431,7 @@ objectType raise_with_arguments (objectType exception, listType list)
     if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
       fail_expression = copy_list(list, &err_info);
+      fail_exec_object = curr_exec_object;
       /* printf("New fail_expression: ");
       prot_list(fail_expression);
       prot_nl(); */
@@ -479,6 +480,7 @@ void saveFailState (failStateStruct *failState)
     failState->fail_value = fail_value;
     failState->fail_expression = fail_expression;
     failState->fail_stack = fail_stack;
+    failState->fail_exec_object = fail_exec_object;
     set_fail_flag(FALSE);
     fail_value = NULL;
     fail_expression = NULL;
@@ -498,6 +500,7 @@ void restoreFailState (failStateStruct *failState)
     fail_value = failState->fail_value;
     fail_expression = failState->fail_expression;
     fail_stack = failState->fail_stack;
+    fail_exec_object = failState->fail_exec_object;
   } /* restoreFailState */
 
 
