@@ -1187,6 +1187,7 @@ static objectType dollar_parameter (objectType param_object,
   {
     listType param_descr;
     objectType type_of_parameter;
+    objectType evaluated_type;
 
   /* dollar_parameter */
     logFunction(printf("dollar_parameter(");
@@ -1199,7 +1200,10 @@ static objectType dollar_parameter (objectType param_object,
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
           if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
-            type_of_parameter = eval_expression(type_of_parameter);
+            evaluated_type = eval_expression(type_of_parameter);
+            free_list(type_of_parameter->value.listValue);
+            FREE_OBJECT(type_of_parameter);
+            type_of_parameter = evaluated_type;
             if (type_of_parameter != NULL) {
               param_descr->next->obj = type_of_parameter;
             } /* if */
