@@ -62,6 +62,8 @@ const func boolean: checkError (in string: testProgram, in integer: errorNum,
             error.errorLine <> toUtf8(errorLine) then
           show(error);
           writeln(errorCount(aProgram) <& " errors.");
+          writeln("testProgram:");
+          writeln(literal(testProgram));
           okay := FALSE;
         end if;
       else
@@ -2502,7 +2504,12 @@ const func boolean: checkProcExpected is func
                     \const type: aStruct is new struct raise RANGE_ERROR; end struct;",
                     PROC_EXPECTED, 2, 64,
                     "Procedure expected found RANGE_ERROR expression",
-                    "const type: aStruct is new struct raise RANGE_ERROR; end struct;") then
+                    "const type: aStruct is new struct raise RANGE_ERROR; end struct;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \$ const type: aStruct is new struct raise RANGE_ERROR; end struct;",
+                    PROC_EXPECTED, 2, 66,
+                    "Procedure expected found RANGE_ERROR expression",
+                    "$ const type: aStruct is new struct raise RANGE_ERROR; end struct;") then
       okay := TRUE;
     else
       writeln(" *** PROC_EXPECTED not reported correctly.");
