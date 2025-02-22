@@ -439,6 +439,7 @@ typedef struct progStruct {
     stackType stack_data;
     stackType stack_current;
     listType exec_expr_temp_results;
+    listType substituted_objects;
   } progRecord;
 
 typedef struct inFileStruct {

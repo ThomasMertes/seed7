@@ -182,13 +182,11 @@ void substitute_params (const_objectType expr_object)
     listType expr_list;
     objectType current_element;
     objectType created_object;
-    /* listType list_elem; */
+    listType list_elem;
     errInfoType err_info = OKAY_NO_ERROR;
-    /* listType substituted_objects; */
 
   /* substitute_params */
     logFunction(printf("substitute_params\n"););
-    /* substituted_objects = NULL; */
     expr_list = expr_object->value.listValue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
@@ -225,7 +223,7 @@ void substitute_params (const_objectType expr_object)
               printf("*** copy_expression failed ");
               printf("\n");
             } /* if */
-          } else if (/* ALLOC_L_ELEM(list_elem) && */ ALLOC_OBJECT(created_object)) {
+          } else if (ALLOC_L_ELEM(list_elem) && ALLOC_OBJECT(created_object)) {
             created_object->type_of = current_element->type_of;
             created_object->descriptor.property = NULL;
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
@@ -235,9 +233,9 @@ void substitute_params (const_objectType expr_object)
               printf("*** do_create failed ");
               printf("\n");
             } /* if */
-            /* list_elem->obj = created_object;
-            list_elem->next = substituted_objects;
-            substituted_objects = list_elem; */
+            list_elem->obj = created_object;
+            list_elem->next = prog->substituted_objects;
+            prog->substituted_objects = list_elem;
           } /* if */
           expr_list->obj = created_object;
 #if TRACE_SUBSTITUTE_PARAMS
@@ -260,7 +258,6 @@ void substitute_params (const_objectType expr_object)
       expr_list = expr_list->next;
     } /* while */
     logFunction(printf("substitute_params -->\n"););
-    /* return substituted_objects; */
   } /* substitute_params */
 
 

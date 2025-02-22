@@ -380,6 +380,7 @@ void prgDestr (progType old_prog)
         } /* if */
         filDestr(old_prog->errorFile);
         freeErrorList(old_prog->errorList);
+        dump_list(old_prog->substituted_objects);
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
