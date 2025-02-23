@@ -961,9 +961,9 @@ objectType eval_expression (objectType object)
         result = NULL;
       } /* if */
     } else {
-      printf("eval_expression: match expression failed ");
-      trace1(object);
-      printf("\n");
+      logError(printf("eval_expression: match expression failed ");
+               trace1(object);
+               printf("\n"););
       result = NULL;
     } /* if */
     logFunction(printf("eval_expression -->\n"););

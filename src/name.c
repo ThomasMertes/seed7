@@ -1201,15 +1201,17 @@ static objectType dollar_parameter (objectType param_object,
           type_of_parameter = param_descr->next->obj;
           if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
             evaluated_type = eval_expression(type_of_parameter);
-            free_list(type_of_parameter->value.listValue);
-            FREE_OBJECT(type_of_parameter);
-            type_of_parameter = evaluated_type;
-            if (type_of_parameter != NULL) {
+            if (evaluated_type != NULL) {
+              free_list(type_of_parameter->value.listValue);
+              FREE_OBJECT(type_of_parameter);
+              type_of_parameter = evaluated_type;
               param_descr->next->obj = type_of_parameter;
+            } else {
+              err_match(NO_MATCH, type_of_parameter);
             } /* if */
           } /* if */
           if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
-            if (param_descr->next->next != NULL && type_of_parameter != NULL) {
+            if (param_descr->next->next != NULL) {
               FREE_OBJECT(param_object);
               if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
                 param_object = dcl_ref2(param_descr);

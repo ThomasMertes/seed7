@@ -3235,6 +3235,11 @@ const func boolean: checkNoMatch is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("$ include \"syntax.s7i\";\n\
+                    \$ const $ func type: $ asdf (ref func jkl param) is $ action \"TYP_FUNC\";",
+                    NO_MATCH, 2, 0,
+                    "Match for {func jkl } failed",
+                    "$ const $ func type: $ asdf (ref func jkl param) is $ action \"TYP_FUNC\";") and
+        checkError1("$ include \"syntax.s7i\";\n\
                     \$ const type: jkl is $ subtype writeln(asdf);",
                     NO_MATCH, 2, 0,
                     "Match for {asdf writeln } failed",
