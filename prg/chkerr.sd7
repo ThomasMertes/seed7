@@ -2276,7 +2276,12 @@ const func boolean: checkTypeExpected is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("$ include \"seed7_05.s7i\";\n\
+    if  checkError1("$ include \"syntax.s7i\";\n\
+                    \$ const $ func type: $ asdf (ref jkl param) is $ action \"TYP_FUNC\";",
+                    TYPE_EXPECTED, 2, 47,
+                    "Type expected found jkl",
+                    "$ const $ func type: $ asdf (ref jkl param) is $ action \"TYP_FUNC\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
                     \$ system \"string\" is writeln;",
                     TYPE_EXPECTED, 2, 29,
                     "Type expected found constant proc: writeln",

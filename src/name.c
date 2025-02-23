@@ -1208,17 +1208,21 @@ static objectType dollar_parameter (objectType param_object,
               param_descr->next->obj = type_of_parameter;
             } /* if */
           } /* if */
-          if (param_descr->next->next != NULL && type_of_parameter != NULL) {
-            FREE_OBJECT(param_object);
-            if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
-              param_object = dcl_ref2(param_descr);
-            } else {
-              param_object = dcl_ref1(param_descr);
+          if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
+            if (param_descr->next->next != NULL && type_of_parameter != NULL) {
+              FREE_OBJECT(param_object);
+              if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
+                param_object = dcl_ref2(param_descr);
+              } else {
+                param_object = dcl_ref1(param_descr);
+              } /* if */
+              if (param_object == NULL) {
+                *err_info = MEMORY_ERROR;
+              } /* if */
+              free_list(param_descr);
             } /* if */
-            if (param_object == NULL) {
-              *err_info = MEMORY_ERROR;
-            } /* if */
-            free_list(param_descr);
+          } else {
+            err_object(TYPE_EXPECTED, type_of_parameter);
           } /* if */
         } /* if */
       } else {
