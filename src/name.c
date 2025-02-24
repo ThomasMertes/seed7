@@ -1181,13 +1181,57 @@ objectType search_name (const_nodeType declaration_base,
 
 
 
+static objectType eval_type (objectType object)
+
+  {
+    objectType matched_expression;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* eval_type */
+    logFunction(printf("eval_type(");
+                trace1(object);
+                printf(")\n"););
+    if ((matched_expression = match_expression(object)) != NULL) {
+      if (CATEGORY_OF_OBJ(matched_expression) == MATCHOBJECT) {
+        if (!matched_expression->type_of->result_type->is_type_type) {
+          err_object(TYPE_EXPECTED, object);
+          result = NULL;
+        } else {
+          result = do_exec_call(matched_expression, &err_info);
+          if (err_info != OKAY_NO_ERROR) {
+            err_object(EXCEPTION_RAISED, result);
+            result = NULL;
+          } else if (CATEGORY_OF_OBJ(result) != TYPEOBJECT) {
+            err_object(PARAM_DECL_FAILED, result);
+            result = NULL;
+          } else {
+            free_list(object->value.listValue);
+            FREE_OBJECT(object);
+          } /* if */
+        } /* if */
+      } else {
+        err_match(NO_MATCH, object);
+        result = NULL;
+      } /* if */
+    } else {
+      err_match(NO_MATCH, object);
+      result = NULL;
+    } /* if */
+    logFunction(printf("eval_type --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* eval_type */
+
+
+
 static objectType dollar_parameter (objectType param_object,
     errInfoType *err_info)
 
   {
     listType param_descr;
     objectType type_of_parameter;
-    objectType evaluated_type;
 
   /* dollar_parameter */
     logFunction(printf("dollar_parameter(");
@@ -1197,34 +1241,31 @@ static objectType dollar_parameter (objectType param_object,
     if (param_descr != NULL) {
       if (GET_ENTITY(param_descr->obj)->ident == prog->id_for.ref) {
         /* printf("### ref param\n"); */
-        if (param_descr->next != NULL) {
+        if (param_descr->next != NULL && param_descr->next->obj != NULL) {
           type_of_parameter = param_descr->next->obj;
           if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
-            evaluated_type = eval_expression(type_of_parameter);
-            if (evaluated_type != NULL) {
-              free_list(type_of_parameter->value.listValue);
-              FREE_OBJECT(type_of_parameter);
-              type_of_parameter = evaluated_type;
+            type_of_parameter = eval_type(type_of_parameter);
+            if (type_of_parameter != NULL) {
               param_descr->next->obj = type_of_parameter;
-            } else {
-              err_match(NO_MATCH, type_of_parameter);
             } /* if */
           } /* if */
-          if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
-            if (param_descr->next->next != NULL) {
-              FREE_OBJECT(param_object);
-              if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
-                param_object = dcl_ref2(param_descr);
-              } else {
-                param_object = dcl_ref1(param_descr);
+          if (type_of_parameter != NULL) {
+            if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
+              if (param_descr->next->next != NULL) {
+                FREE_OBJECT(param_object);
+                if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
+                  param_object = dcl_ref2(param_descr);
+                } else {
+                  param_object = dcl_ref1(param_descr);
+                } /* if */
+                if (param_object == NULL) {
+                  *err_info = MEMORY_ERROR;
+                } /* if */
+                free_list(param_descr);
               } /* if */
-              if (param_object == NULL) {
-                *err_info = MEMORY_ERROR;
-              } /* if */
-              free_list(param_descr);
+            } else {
+              err_object(TYPE_EXPECTED, type_of_parameter);
             } /* if */
-          } else {
-            err_object(TYPE_EXPECTED, type_of_parameter);
           } /* if */
         } /* if */
       } else {

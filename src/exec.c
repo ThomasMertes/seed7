@@ -852,6 +852,7 @@ objectType do_exec_call (objectType object, errInfoType *err_info)
     if (unlikely(fail_flag || result == NULL)) {
       set_fail_flag(FALSE);
       *err_info = getErrInfoFromFailValue(fail_value);
+      result = fail_value;
     } /* if */
     return result;
   } /* do_exec_call */
@@ -928,47 +929,6 @@ objectType evaluate (objectType object)
                 printf("\n"););
     return result;
   } /* evaluate */
-
-
-
-objectType eval_expression (objectType object)
-
-  {
-    objectType result;
-    objectType matched_expression;
-    objectType matched_object;
-
-  /* eval_expression */
-    logFunction(printf("eval_expression\n"););
-    if ((matched_expression = match_expression(object)) != NULL) {
-      if ((matched_object = match_object(matched_expression)) != NULL) {
-/*
-        printf("eval expression match succeeded ");
-        trace1(matched_object);
-        printf("\n"); */
-        if (CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) {
-          result = exec_call(matched_object);
-        } else {
-          printf("eval_expression: match result not callobject ");
-          trace1(matched_object);
-          printf("\n");
-          result = NULL;
-        } /* if */
-      } else {
-        printf("eval_expression: match object failed ");
-        trace1(matched_expression);
-        printf("\n");
-        result = NULL;
-      } /* if */
-    } else {
-      logError(printf("eval_expression: match expression failed ");
-               trace1(object);
-               printf("\n"););
-      result = NULL;
-    } /* if */
-    logFunction(printf("eval_expression -->\n"););
-    return result;
-  } /* eval_expression */
 
 
 

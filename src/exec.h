@@ -38,7 +38,6 @@ objectType exec_object (register objectType object);
 objectType exec_call (objectType object);
 objectType do_exec_call (objectType object, errInfoType *err_info);
 objectType evaluate (objectType object);
-objectType eval_expression (objectType object);
 objectType exec_dynamic (listType expr_list);
 objectType exec_expr (const progType currentProg, objectType object,
                       errInfoType *err_info);
