@@ -74,6 +74,7 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
           created_type->varfunc_type = NULL;
           created_type->result_type = result_type;
           created_type->is_varfunc_type = FALSE;
+          created_type->is_type_type = FALSE;
           if (meta_type != NULL) {
             created_type->in_param_type = meta_type->in_param_type;
           } else {

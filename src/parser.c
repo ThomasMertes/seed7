@@ -206,9 +206,9 @@ static void decl_value (objectType typeof_object, objectType declared_object,
         if (typeof_object != NULL) {
           if (CATEGORY_OF_OBJ(typeof_object) == TYPEOBJECT) {
             declared_object->type_of = take_type(typeof_object);
-            /* printf("X declared_object->type_of: <%lx> ", declared_object->type_of);
-            trace1(declared_object->type_of);
-            printf("\n"); */
+            if (is_dollar_type) {
+              declared_object->type_of->is_type_type = TRUE;
+            } /* if */
           } else {
             err_object(TYPE_EXPECTED, typeof_object);
           } /* if */

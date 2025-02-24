@@ -279,6 +279,7 @@ typedef struct typeStruct {
     typeType varfunc_type;
     typeType result_type;
     boolType is_varfunc_type;
+    boolType is_type_type;
     parameterType in_param_type;
     typeListType interfaces;
     identType name;
