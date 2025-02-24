@@ -90,7 +90,8 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
             type_of_object = NULL;
           } /* if */
         } else if (current_ident == prog->id_for.type) {
-          type_of_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
+          scan_symbol();
+          type_of_object = NULL;
           *is_dollar_type = 1;
         } else {
           err_warning(DOLLAR_TYPE_WRONG);
