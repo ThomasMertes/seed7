@@ -1021,7 +1021,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
             push_stack();
             name_list = eval_name_list(matched_name_list,
                 GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-            down_stack();
+            pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = find_entity(declaration_base, name_list);
             } else {
@@ -1040,7 +1040,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
             push_stack();
             name_list = eval_name_list(matched_name_list,
                 GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-            down_stack();
+            pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
                 param_obj = name_list->obj->value.objValue;
@@ -1113,7 +1113,7 @@ objectType search_name (const_nodeType declaration_base,
             push_stack();
             name_list = eval_name_list(matched_name_list,
                 GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-            down_stack();
+            pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = search_entity(declaration_base, name_list);
             } else {
@@ -1132,7 +1132,7 @@ objectType search_name (const_nodeType declaration_base,
             push_stack();
             name_list = eval_name_list(matched_name_list,
                 GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-            down_stack();
+            pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
                 param_obj = name_list->obj->value.objValue;
