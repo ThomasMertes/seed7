@@ -142,9 +142,14 @@ objectType dcl_const (listType arguments)
             do_create(current_object, matched_value, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               if (err_info != CREATE_ERROR) {
-                err_expr_obj(EXCEPTION_RAISED, fail_exec_object != NULL ?
-                             fail_exec_object : decl_expr_object,
-                             prog->sys_var[err_info]);
+                if (fail_file_number != 0) {
+                  err_at_file_in_line(EXCEPTION_RAISED,
+                                      prog->sys_var[err_info],
+                                      fail_file_number, fail_line_number);
+                } else {
+                  err_expr_obj(EXCEPTION_RAISED, decl_expr_object,
+                               prog->sys_var[err_info]);
+                } /* if */
               } /* if */
               err_expr_obj(DECL_FAILED, decl_expr_object, current_object);
               err_info = OKAY_NO_ERROR;
@@ -174,9 +179,14 @@ objectType dcl_const (listType arguments)
           do_create(current_object, value, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             if (err_info != CREATE_ERROR) {
-              err_expr_obj(EXCEPTION_RAISED, fail_exec_object != NULL ?
-                           fail_exec_object : decl_expr_object,
-                           prog->sys_var[err_info]);
+              if (fail_file_number != 0) {
+                err_at_file_in_line(EXCEPTION_RAISED,
+                                    prog->sys_var[err_info],
+                                    fail_file_number, fail_line_number);
+              } else {
+                err_expr_obj(EXCEPTION_RAISED, decl_expr_object,
+                             prog->sys_var[err_info]);
+              } /* if */
             } /* if */
             err_expr_obj(DECL_FAILED, decl_expr_object, current_object);
             err_info = OKAY_NO_ERROR;
@@ -1071,9 +1081,14 @@ objectType dcl_var (listType arguments)
             do_create(current_object, matched_value, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               if (err_info != CREATE_ERROR) {
-                err_expr_obj(EXCEPTION_RAISED, fail_exec_object != NULL ?
-                             fail_exec_object : decl_expr_object,
-                             prog->sys_var[err_info]);
+                if (fail_file_number != 0) {
+                  err_at_file_in_line(EXCEPTION_RAISED,
+                                      prog->sys_var[err_info],
+                                      fail_file_number, fail_line_number);
+                } else {
+                  err_expr_obj(EXCEPTION_RAISED, decl_expr_object,
+                               prog->sys_var[err_info]);
+                } /* if */
               } /* if */
               err_expr_obj(DECL_FAILED, decl_expr_object, current_object);
               err_info = OKAY_NO_ERROR;
@@ -1094,9 +1109,14 @@ objectType dcl_var (listType arguments)
           do_create(current_object, value, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             if (err_info != CREATE_ERROR) {
-              err_expr_obj(EXCEPTION_RAISED, fail_exec_object != NULL ?
-                           fail_exec_object : decl_expr_object,
-                           prog->sys_var[err_info]);
+              if (fail_file_number != 0) {
+                err_at_file_in_line(EXCEPTION_RAISED,
+                                    prog->sys_var[err_info],
+                                    fail_file_number, fail_line_number);
+              } else {
+                err_expr_obj(EXCEPTION_RAISED, decl_expr_object,
+                             prog->sys_var[err_info]);
+              } /* if */
             } /* if */
             err_expr_obj(DECL_FAILED, decl_expr_object, current_object);
             err_info = OKAY_NO_ERROR;

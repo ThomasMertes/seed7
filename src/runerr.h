@@ -35,9 +35,11 @@ EXTERN listType fail_expression;
 EXTERN listType fail_stack;
 
 #ifdef DO_INIT
-objectType fail_exec_object = NULL;
+fileNumType fail_file_number = 0;
+lineNumType fail_line_number = 0;
 #else
-EXTERN objectType fail_exec_object;
+EXTERN fileNumType fail_file_number;
+EXTERN lineNumType fail_line_number;
 #endif
 
 #ifdef DO_INIT
@@ -54,7 +56,8 @@ typedef struct {
     objectType fail_value;
     listType fail_expression;
     listType fail_stack;
-    objectType fail_exec_object;
+    fileNumType fail_file_number;
+    lineNumType fail_line_number;
   } failStateStruct;
 
 

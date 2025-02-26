@@ -2276,7 +2276,13 @@ const func boolean: checkTypeExpected is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("$ include \"syntax.s7i\";\n\
+    if  checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: func foo is return 1;\n\
+                    \$ const $ func type: $ fee (ref func foo param) is $ action \"TYP_FUNC\";",
+                    TYPE_EXPECTED, 3, 0,
+                    "Type expected found expression ({func foo }) of type func integer",
+                    "$ const $ func type: $ fee (ref func foo param) is $ action \"TYP_FUNC\";") and
+        checkError1("$ include \"syntax.s7i\";\n\
                     \$ const $ func type: $ asdf (ref jkl param) is $ action \"TYP_FUNC\";",
                     TYPE_EXPECTED, 2, 47,
                     "Type expected found jkl",
@@ -2880,6 +2886,17 @@ const func boolean: checkExceptionRaised is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func type: func foo is func\n\
+                    \  result\n\
+                    \    var type: aType is void;\n\
+                    \  begin\n\
+                    \    raise RANGE_ERROR;\n\
+                    \  end func;\n\
+                    \$ const $ func type: $ fee (ref func foo param) is $ action \"TYP_FUNC\";",
+                    EXCEPTION_RAISED, 8, 51,
+                    "Exception \"RANGE_ERROR\" raised",
+                    "$ const $ func type: $ fee (ref func foo param) is $ action \"TYP_FUNC\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
                     \raise RANGE_ERROR;",
                     EXCEPTION_RAISED, 2, 18,
                     "Exception \"RANGE_ERROR\" raised",
@@ -2893,7 +2910,7 @@ const func boolean: checkExceptionRaised is func
                     "  return raise NUMERIC_ERROR;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const string: a is \"a\" mult integer.last;",
-                    EXCEPTION_RAISED, 2, 0,
+                    EXCEPTION_RAISED, 2, 41,
                     "Exception \"MEMORY_ERROR\" raised",
                     "const string: a is \"a\" mult integer.last;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
@@ -2905,7 +2922,7 @@ const func boolean: checkExceptionRaised is func
                     "  return raise NUMERIC_ERROR;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \var string: a is \"a\" mult integer.last;",
-                    EXCEPTION_RAISED, 2, 0,
+                    EXCEPTION_RAISED, 2, 39,
                     "Exception \"MEMORY_ERROR\" raised",
                     "var string: a is \"a\" mult integer.last;") and
         checkError1("$ include \"seed7_05.s7i\";\n\

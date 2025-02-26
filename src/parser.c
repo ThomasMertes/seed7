@@ -229,10 +229,15 @@ static void decl_value (objectType typeof_object, objectType declared_object,
               do_create(declared_object, init_expression, err_info);
               if (*err_info != OKAY_NO_ERROR) {
                 if (*err_info != CREATE_ERROR) {
-                  err_expr_obj(EXCEPTION_RAISED,
-                               fail_exec_object != NULL ?
-                                   fail_exec_object : declared_object,
-                               prog->sys_var[*err_info]);
+                  if (fail_file_number != 0) {
+                    err_at_file_in_line(EXCEPTION_RAISED,
+                                        prog->sys_var[*err_info],
+                                        fail_file_number,
+                                        fail_line_number);
+                  } else {
+                    err_expr_obj(EXCEPTION_RAISED, declared_object,
+                                 prog->sys_var[*err_info]);
+                  } /* if */
                 } /* if */
                 err_object(DECL_FAILED, declared_object);
                 *err_info = OKAY_NO_ERROR;

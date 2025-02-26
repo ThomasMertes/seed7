@@ -1675,14 +1675,23 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
       setPlace(error, in_file.name, in_file.line);
     } /* if */
     switch (err) {
+      case PARAM_DECL_OR_SYMBOL_EXPECTED:
+        copyCStri(&error->msg, "Parameter declaration or symbol expected found ");
+        appendObject(&error->msg, obj_found);
+        break;
+      case EXCEPTION_RAISED:
+        if (obj_found != NULL && HAS_ENTITY(obj_found)) {
+          copyCStri(&error->msg, "Exception \"");
+          appendUStri(&error->msg, GET_ENTITY(obj_found)->ident->name);
+          appendCStri(&error->msg, "\" raised");
+        } else {
+          copyCStri(&error->msg, "Exception raised");
+        } /* if */
+        break;
       case OBJTWICEDECLARED:
         copyCStri(&error->msg, "Redeclaration of \"");
         appendObjectWithParameters(&error->msg, obj_found);
         appendChar(&error->msg, '"');
-        break;
-      case PARAM_DECL_OR_SYMBOL_EXPECTED:
-        copyCStri(&error->msg, "Parameter declaration or symbol expected found ");
-        appendObject(&error->msg, obj_found);
         break;
       default:
         undefErr(&error->msg);
