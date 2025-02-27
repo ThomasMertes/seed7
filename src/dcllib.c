@@ -214,7 +214,8 @@ objectType dcl_const (listType arguments)
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_const -->\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_const --> err_info=%d\n", err_info););
       return SYS_EMPTY_OBJECT;
@@ -230,12 +231,14 @@ objectType dcl_elements (listType arguments)
     boolType can_push_stack;
     listType *local_object_insert_place;
     objectType decl_res;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     listType element_list;
 
   /* dcl_elements */
     logFunction(printf("dcl_elements\n"););
     local_decls = arg_1(arguments);
+    decl_expr_object = curr_exec_object;
     /* printf("stack upward: " FMT_U_MEM "\n",
            (memSizeType) prog->stack_current->upward); */
     can_push_stack = prog->stack_current->upward != NULL;
@@ -260,7 +263,8 @@ objectType dcl_elements (listType arguments)
     } /* if */
     logFunction(printf("dcl_elements -->\n"););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       return bld_reflist_temp(element_list);
     } /* if */
@@ -274,6 +278,7 @@ objectType dcl_fwd (listType arguments)
     typeType object_type;
     objectType name_expr;
     objectType current_object;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_fwd */
@@ -281,6 +286,7 @@ objectType dcl_fwd (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
 #if TRACE_DCL
     printf("\ndecl const object_type = ");
     trace1(object_type->match_obj);
@@ -306,7 +312,8 @@ objectType dcl_fwd (listType arguments)
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_fwd --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_fwd -->\n"););
       return SYS_EMPTY_OBJECT;
@@ -321,6 +328,7 @@ objectType dcl_fwdvar (listType arguments)
     typeType object_type;
     objectType name_expr;
     objectType current_object;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_fwdvar */
@@ -328,6 +336,7 @@ objectType dcl_fwdvar (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
 #if TRACE_DCL
     printf("\ndecl var object_type = ");
     trace1(object_type->match_obj);
@@ -353,7 +362,8 @@ objectType dcl_fwdvar (listType arguments)
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_fwdvar --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_fwdvar -->\n"););
       return SYS_EMPTY_OBJECT;
@@ -367,11 +377,13 @@ objectType dcl_getfunc (listType arguments)
   {
     objectType name_expr;
     objectType object_found;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_getfunc */
     logFunction(printf("dcl_getfunc\n"););
     name_expr = arg_2(arguments);
+    decl_expr_object = curr_exec_object;
 #if TRACE_DCL
     printf("decl const name_expr = ");
     trace1(name_expr);
@@ -387,7 +399,8 @@ objectType dcl_getfunc (listType arguments)
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_getfunc --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_getfunc -->\n"););
       return bld_reference_temp(object_found);
@@ -401,11 +414,13 @@ objectType dcl_getobj (listType arguments)
   {
     objectType name_expr;
     objectType object_found;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_getobj */
     logFunction(printf("dcl_getobj\n"););
     name_expr = arg_2(arguments);
+    decl_expr_object = curr_exec_object;
 #if TRACE_DCL
     printf("decl const name_expr = ");
     trace1(name_expr);
@@ -421,7 +436,8 @@ objectType dcl_getobj (listType arguments)
 #endif
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_getobj --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_getobj -->\n"););
       return bld_reference_temp(object_found);
@@ -507,6 +523,7 @@ objectType dcl_in2 (listType arguments)
   {
     typeType object_type;
     objectType name_expr;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
@@ -515,6 +532,7 @@ objectType dcl_in2 (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
     if (unlikely(object_type->in_param_type == PARAM_UNDEFINED)) {
       err_expr_type(KIND_OF_IN_PARAM_UNDEFINED, curr_exec_object, object_type);
       created_object = NULL;
@@ -546,7 +564,8 @@ objectType dcl_in2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_in2 --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_in2 --> ");
                   trace1(created_object);
@@ -592,6 +611,7 @@ objectType dcl_in2var (listType arguments)
   {
     typeType object_type;
     objectType name_expr;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
@@ -600,6 +620,7 @@ objectType dcl_in2var (listType arguments)
     isit_type(arg_3(arguments));
     object_type = take_type(arg_3(arguments));
     name_expr = arg_5(arguments);
+    decl_expr_object = curr_exec_object;
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       /* printf("decl in2var ");
@@ -619,7 +640,8 @@ objectType dcl_in2var (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_in2var --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_in2var --> ");
                   trace1(created_object);
@@ -665,6 +687,7 @@ objectType dcl_inout2 (listType arguments)
   {
     typeType object_type;
     objectType name_expr;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
@@ -673,6 +696,7 @@ objectType dcl_inout2 (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       /* printf("decl inout2 ");
@@ -692,7 +716,8 @@ objectType dcl_inout2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_inout2 --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_inout2 --> ");
                   trace1(created_object);
@@ -785,6 +810,7 @@ objectType dcl_ref2 (listType arguments)
   {
     typeType object_type;
     objectType name_expr;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
@@ -793,6 +819,7 @@ objectType dcl_ref2 (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       /* printf("decl ref2 ");
@@ -812,7 +839,8 @@ objectType dcl_ref2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_ref2 --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_ref2 --> ");
                   trace1(created_object);
@@ -982,6 +1010,7 @@ objectType dcl_val2 (listType arguments)
   {
     typeType object_type;
     objectType name_expr;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
@@ -990,6 +1019,7 @@ objectType dcl_val2 (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       /* printf("decl val2 ");
@@ -1009,7 +1039,8 @@ objectType dcl_val2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_val2 --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_val2 --> ");
                   trace1(created_object);
@@ -1133,7 +1164,8 @@ objectType dcl_var (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logFunction(printf("dcl_var --> MEMORY_ERROR\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("dcl_var --> err_info=%d\n", err_info););
       return SYS_EMPTY_OBJECT;

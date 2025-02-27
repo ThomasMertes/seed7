@@ -188,12 +188,14 @@ objectType prc_begin (listType arguments)
   {
     objectType block_body;
     objectType block_body_list = NULL;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
   /* prc_begin */
     logFunction(printf("prc_begin\n"););
     block_body = arg_3(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -218,14 +220,17 @@ objectType prc_begin (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_begin: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_begin: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_begin: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_begin -->\n"););
       return bld_block_temp(block);
@@ -1001,6 +1006,7 @@ objectType prc_local (listType arguments)
     locListType local_vars;
     listType local_consts;
     objectType decl_res;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
@@ -1008,6 +1014,7 @@ objectType prc_local (listType arguments)
     logFunction(printf("prc_local\n"););
     local_decls = arg_3(arguments);
     block_body = arg_5(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1044,14 +1051,17 @@ objectType prc_local (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_local: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_local: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL)) {
       logError(printf("prc_local: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_local -->\n"););
       return bld_block_temp(block);
@@ -1139,6 +1149,7 @@ objectType prc_res_begin (listType arguments)
     objectType result_init;
     objectType block_body;
     objectType block_body_list = NULL;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
@@ -1149,6 +1160,7 @@ objectType prc_res_begin (listType arguments)
     result_var_name = arg_6(arguments);
     result_init = arg_8(arguments);
     block_body = arg_10(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1196,14 +1208,17 @@ objectType prc_res_begin (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_res_begin: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_res_begin: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_res_begin -->\n"););
       return bld_block_temp(block);
@@ -1226,6 +1241,7 @@ objectType prc_res_local (listType arguments)
     locListType local_vars;
     listType local_consts;
     objectType decl_res;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
@@ -1237,6 +1253,7 @@ objectType prc_res_local (listType arguments)
     result_init = arg_8(arguments);
     local_decls = arg_10(arguments);
     block_body = arg_12(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1281,14 +1298,17 @@ objectType prc_res_local (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_res_local: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_res_local: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL)) {
       logError(printf("prc_res_local: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_res_local -->\n"););
       return bld_block_temp(block);
@@ -1304,12 +1324,14 @@ objectType prc_return (listType arguments)
     objectType block_body_list = NULL;
     locObjRecord return_var;
     typeType return_type;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
   /* prc_return */
     logFunction(printf("prc_return\n"););
     block_body = arg_2(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1350,14 +1372,17 @@ objectType prc_return (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_return: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_return: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_return: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_return -->\n"););
       return bld_block_temp(block);
@@ -1373,12 +1398,14 @@ objectType prc_return2 (listType arguments)
     objectType block_body_list = NULL;
     locObjRecord return_var;
     typeType return_type;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
   /* prc_return2 */
     logFunction(printf("prc_return2\n"););
     block_body = arg_3(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1419,14 +1446,17 @@ objectType prc_return2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_return2: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_return2: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_return2: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_return2 -->\n"););
       return bld_block_temp(block);
@@ -1464,12 +1494,14 @@ objectType prc_varfunc (listType arguments)
   {
     objectType block_body;
     objectType block_body_list = NULL;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
   /* prc_varfunc */
     logFunction(printf("prc_varfunc\n"););
     block_body = arg_3(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1491,14 +1523,17 @@ objectType prc_varfunc (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_varfunc: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_varfunc: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_varfunc: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_varfunc -->\n"););
       return bld_block_temp(block);
@@ -1512,12 +1547,14 @@ objectType prc_varfunc2 (listType arguments)
   {
     objectType block_body;
     objectType block_body_list = NULL;
+    objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
     blockType block;
 
   /* prc_varfunc2 */
     logFunction(printf("prc_varfunc2\n"););
     block_body = arg_4(arguments);
+    decl_expr_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
         block_body->value.listValue->next == NULL) {
@@ -1539,14 +1576,17 @@ objectType prc_varfunc2 (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_varfunc2: error - err_info: %d\n", err_info););
-      return raise_with_arguments(prog->sys_var[err_info], arguments);
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     decl_expr_object, arguments);
     } else if (unlikely(block_body == NULL)) {
       logError(printf("prc_varfunc2: Create error\n"););
-      return raise_with_arguments(prog->sys_var[CREATE_ERROR], arguments);
+      return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                     decl_expr_object, arguments);
     } else if (unlikely((block =
         new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       logError(printf("prc_varfunc2: No memory\n"););
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     decl_expr_object, arguments);
     } else {
       logFunction(printf("prc_varfunc2 -->\n"););
       return bld_block_temp(block);

@@ -390,18 +390,19 @@ void write_exception_info (void)
 
 
 
-objectType raise_with_arguments (objectType exception, listType list)
+objectType raise_with_obj_and_args (objectType exception,
+    objectType object, listType list)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* raise_with_arguments */
+  /* raise_with_obj_and_args */
 #ifdef WITH_PROTOCOL
     if (list == curr_argument_list) {
-      if (curr_exec_object != NULL &&
-          CATEGORY_OF_OBJ(curr_exec_object) == CALLOBJECT &&
-          curr_exec_object->value.listValue != NULL) {
-        curr_action_object = curr_exec_object->value.listValue->obj;
+      if (object != NULL &&
+          CATEGORY_OF_OBJ(object) == CALLOBJECT &&
+          object->value.listValue != NULL) {
+        curr_action_object = object->value.listValue->obj;
         incl_list(&fail_stack, curr_action_object, &err_info);
       } /* if */
     } /* if */
@@ -427,13 +428,13 @@ objectType raise_with_arguments (objectType exception, listType list)
         exception->value.intValue = 0;
       } /* if */
     } /* if */
-    incl_list(&fail_stack, curr_exec_object, &err_info);
+    incl_list(&fail_stack, object, &err_info);
     if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
       fail_expression = copy_list(list, &err_info);
-      if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)){
-        fail_file_number = GET_FILE_NUM(curr_exec_object);
-        fail_line_number = GET_LINE_NUM(curr_exec_object);
+      if (object != NULL && HAS_POSINFO(object)){
+        fail_file_number = GET_FILE_NUM(object);
+        fail_line_number = GET_LINE_NUM(object);
       } else {
         fail_file_number = 0;
         fail_line_number = 0;
@@ -444,6 +445,14 @@ objectType raise_with_arguments (objectType exception, listType list)
     } /* if */
     set_fail_flag(TRUE);
     return exception;
+  } /* raise_with_obj_and_args */
+
+
+
+objectType raise_with_arguments (objectType exception, listType list)
+
+  { /* raise_with_arguments */
+    return raise_with_obj_and_args(exception, curr_exec_object, list);
   } /* raise_with_arguments */
 
 
@@ -451,7 +460,8 @@ objectType raise_with_arguments (objectType exception, listType list)
 objectType raise_exception (objectType exception)
 
   { /* raise_exception */
-    return raise_with_arguments(exception, curr_argument_list);
+    return raise_with_obj_and_args(exception, curr_exec_object,
+                                   curr_argument_list);
   } /* raise_exception */
 
 

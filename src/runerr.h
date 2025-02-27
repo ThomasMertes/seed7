@@ -67,6 +67,8 @@ void var_required (objectType argument);
 void write_call_stack (const_listType stack_elem);
 void uncaught_exception (progType aProg);
 void write_exception_info (void);
+objectType raise_with_obj_and_args (objectType exception,
+                                    objectType object, listType list);
 objectType raise_with_arguments (objectType exception, listType list);
 objectType raise_exception (objectType exception);
 void leaveExceptionHandling (void);
