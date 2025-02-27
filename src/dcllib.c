@@ -98,6 +98,7 @@ objectType dcl_const (listType arguments)
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
+    decl_expr_object = curr_exec_object;
     logFunction(printf("dcl_const\n"););
 #if TRACE_DCL_CONST
     printf("decl const object_type = ");
@@ -134,7 +135,6 @@ objectType dcl_const (listType arguments)
         trace1(current_object);
         printf("\n");
 #endif
-        decl_expr_object = curr_exec_object;
         if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
           substitute_params(value);
           if (match_expression(value) != NULL &&
@@ -1037,6 +1037,7 @@ objectType dcl_var (listType arguments)
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
+    decl_expr_object = curr_exec_object;
     logFunction(printf("dcl_var\n"););
 #if TRACE_DCL_VAR
     printf("decl var object_type = ");
@@ -1073,7 +1074,6 @@ objectType dcl_var (listType arguments)
         trace1(current_object);
         printf("\n");
 #endif
-        decl_expr_object = curr_exec_object;
         if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
           substitute_params(value);
           if (match_expression(value) != NULL &&
