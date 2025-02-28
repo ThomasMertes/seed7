@@ -201,6 +201,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
 #endif
           backup_interpreter_exception = interpreter_exception;
           interpreter_exception = TRUE;
+          curr_exec_object = NULL;
           evaluate(prog->main_object);
           interpreter_exception = backup_interpreter_exception;
           free_args(prog->arg_v);
@@ -368,7 +369,6 @@ void prgDestr (progType old_prog)
         if (old_prog->property.literal != NULL) {
           FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
         } /* if */
-        prog = progBackup;
         strDestr(old_prog->arg0);
         strDestr(old_prog->program_name);
         strDestr(old_prog->program_path);
@@ -382,6 +382,7 @@ void prgDestr (progType old_prog)
         freeErrorList(old_prog->errorList);
         dump_list(old_prog->substituted_objects);
         FREE_RECORD(old_prog, progRecord, count.prog);
+        prog = progBackup;
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
       } /* if */

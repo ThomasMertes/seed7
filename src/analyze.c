@@ -395,6 +395,7 @@ static inline void declAny (nodeType objects)
                 CATEGORY_OF_OBJ(match_result->value.listValue->obj) == ACTOBJECT &&
                 match_result->value.listValue->obj->value.actValue == dcl_const))) {
             set_fail_flag(FALSE);
+            curr_exec_object = NULL;
             evaluate(match_result);
             if (unlikely(fail_flag)) {
               set_fail_flag(FALSE);

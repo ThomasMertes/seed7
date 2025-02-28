@@ -102,10 +102,12 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
         } /* if */
       } else {
         type_expression = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
-        /* printf("type_expression=%lu ", (long unsigned) type_expression);
-        trace1(type_expression);
-        printf("\n"); */
+        logMessage(printf("type_expression=" FMT_U_MEM " ",
+                          (memSizeType) type_expression);
+                   trace1(type_expression);
+                   printf("\n"););
         if (CATEGORY_OF_OBJ(type_expression) != TYPEOBJECT) {
+          curr_exec_object = NULL;
           /* printf("before evaluate\n"); */
           if ((type_of_object = evaluate(type_expression)) != NULL &&
               CATEGORY_OF_OBJ(type_of_object) == TYPEOBJECT) {
