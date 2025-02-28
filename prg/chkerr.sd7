@@ -3285,6 +3285,54 @@ const func boolean: checkNoMatch is func
                     "Match for {number := \"asdf\" } failed",
                     "    number := \"asdf\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: doCount is func\n\
+                    \  result\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    number := \"asdf\";\n\
+                    \  end func;",
+                    NO_MATCH, 6, 0,
+                    "Match for {number := \"asdf\" } failed",
+                    "    number := \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func boolean: isOkay is func\n\
+                    \  result\n\
+                    \    var boolean: result is FALSE;\n\
+                    \  local\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    number := \"asdf\";\n\
+                    \  end func;",
+                    NO_MATCH, 8, 0,
+                    "Match for {number := \"asdf\" } failed",
+                    "    number := \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: doCount is func\n\
+                    \  result\n\
+                    \    var integer: number is \"asdf\";\n\
+                    \  begin\n\
+                    \    noop;\n\
+                    \  end func;",
+                    NO_MATCH, 4, 0,
+                    "Match for {number } failed",
+                    "    var integer: number is \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: test (in var integer: number) is func\n\
+                    \  begin\n\
+                    \    number := \"asdf\";\n\
+                    \  end func;",
+                    NO_MATCH, 4, 0,
+                    "Match for {number := \"asdf\" } failed",
+                    "    number := \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: test (inout integer: number) is func\n\
+                    \  begin\n\
+                    \    number := \"asdf\";\n\
+                    \  end func;",
+                    NO_MATCH, 4, 0,
+                    "Match for {number := \"asdf\" } failed",
+                    "    number := \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: main is func\n\
                     \  begin\n\
                     \    writeln(123 div \"12\");\n\
