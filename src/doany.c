@@ -44,9 +44,10 @@
 #include "sigutl.h"
 #include "data.h"
 #include "heaputl.h"
-#include "striutl.h"
 #include "flistutl.h"
+#include "striutl.h"
 #include "syvarutl.h"
+#include "listutl.h"
 #include "traceutl.h"
 #include "objutl.h"
 #include "runerr.h"
@@ -69,6 +70,7 @@ objectType exec1 (listType list)
   {
     objectRecord expr_object;
     objectType object;
+    errInfoType err_info = OKAY_NO_ERROR;
     objectType result;
 
   /* exec1 */
@@ -88,26 +90,29 @@ objectType exec1 (listType list)
     expr_object.descriptor.property = NULL;
     expr_object.value.listValue = list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
-    if ((object = match_expression(&expr_object)) != NULL) {
+    object = copy_expression(&expr_object, &err_info);
+    if (err_info == OKAY_NO_ERROR) {
+      if (match_expression(object) != NULL) {
 #ifdef DEBUG_EXEC
-      printf("before executing\n");
-      trace1(object);
-      printf("\n");
-      trace1(list->obj);
-      printf("\n");
-      trace1(list->next->obj);
-      printf("\n");
-      trace1(list->next->next->obj);
-      printf("\n");
-      if (CATEGORY_OF_OBJ(list->obj) == CALLOBJECT) {
+        printf("before executing\n");
+        trace1(object);
+        printf("\n");
         trace1(list->obj);
         printf("\n");
-      } /* if */
+        trace1(list->next->obj);
+        printf("\n");
+        trace1(list->next->next->obj);
+        printf("\n");
+        if (CATEGORY_OF_OBJ(list->obj) == CALLOBJECT) {
+          trace1(list->obj);
+          printf("\n");
+        } /* if */
 #endif
-      result = exec_call(object);
-      FREE_L_ELEM(object->value.listValue);
-      /* FREE_OBJECT(object) is not necessary, */
-      /* because object == &expr_object holds. */
+        result = exec_call(object);
+        free_expression(object);
+      } else {
+        result = NULL;
+      } /* if */
     } else {
       result = NULL;
     } /* if */

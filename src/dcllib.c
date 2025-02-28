@@ -586,9 +586,9 @@ objectType dcl_in1var (listType arguments)
     logFunction(printf("dcl_in1var\n"););
     isit_type(arg_3(arguments));
     object_type = take_type(arg_3(arguments));
-/*    printf("decl in1var ");
-    trace1(object_type->match_obj);
-    printf(":\n"); */
+    /* printf("decl in1var ");
+       trace1(object_type->match_obj);
+       printf(":\n"); */
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       logFunction(printf("dcl_in1var --> MEMORY_ERROR\n"););
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
