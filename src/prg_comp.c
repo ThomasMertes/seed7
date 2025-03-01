@@ -154,6 +154,27 @@ static void free_args (objectType arg_v)
 
 
 
+static void free_obj_and_prop (listType list)
+
+  {
+    listType list_elem;
+    listType list_end;
+
+  /* free_obj_and_prop */
+    if (list != NULL) {
+      list_elem = list;
+      do {
+        FREE_RECORD(list_elem->obj->descriptor.property, propertyRecord, count.property);
+        FREE_OBJECT(list_elem->obj);
+        list_end = list_elem;
+        list_elem = list_elem->next;
+      } while (list_elem != NULL);
+      free_list2(list, list_end);
+    } /* if */
+  } /* free_obj_and_prop */
+
+
+
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName)
 
@@ -381,6 +402,7 @@ void prgDestr (progType old_prog)
         filDestr(old_prog->errorFile);
         freeErrorList(old_prog->errorList);
         dump_list(old_prog->substituted_objects);
+        free_obj_and_prop(old_prog->struct_objects);
         FREE_RECORD(old_prog, progRecord, count.prog);
         prog = progBackup;
         /* printf("heapsize: %ld\n", heapsize()); */

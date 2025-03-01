@@ -233,6 +233,7 @@ objectType dcl_elements (listType arguments)
     objectType decl_res;
     objectType decl_expr_object;
     errInfoType err_info = OKAY_NO_ERROR;
+    listType list_elem;
     listType element_list;
 
   /* dcl_elements */
@@ -261,6 +262,11 @@ objectType dcl_elements (listType arguments)
       pop_object_list(element_list);
       prog->stack_current->object_list_insert_place = local_object_insert_place;
     } /* if */
+    list_elem = element_list;
+    while (list_elem != NULL) {
+      incl_list(&prog->struct_objects, list_elem->obj, &err_info);
+      list_elem = list_elem->next;
+    } /* while */
     logFunction(printf("dcl_elements -->\n"););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
