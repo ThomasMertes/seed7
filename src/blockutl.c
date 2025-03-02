@@ -126,6 +126,21 @@ static void free_loclist (locListType loclist)
 
 
 
+static void free_properties (listType list)
+
+  { /* free_properties */
+    while (list != NULL) {
+      if (HAS_PROPERTY(list->obj) &&
+         list->obj->descriptor.property != prog->property.literal) {
+        FREE_RECORD(list->obj->descriptor.property, propertyRecord, count.property);
+      } /* if */
+      list->obj->descriptor.property = NULL;
+      list = list->next;
+    } /* while */
+  } /* free_properties */
+
+
+
 void free_block (blockType block)
 
   { /* free_block */
@@ -134,6 +149,7 @@ void free_block (blockType block)
     free_loclist(block->params);
     free_locobj(&block->result);
     free_loclist(block->local_vars);
+    free_properties(block->local_consts);
     dump_list(block->local_consts);
     FREE_RECORD(block, blockRecord, count.block);
   } /* free_block */
