@@ -36,6 +36,8 @@
 
 #include "common.h"
 #include "data.h"
+#include "heaputl.h"
+#include "flistutl.h"
 #include "syvarutl.h"
 #include "exec.h"
 #include "objutl.h"
@@ -59,6 +61,7 @@
 objectType bln_and (listType arguments)
 
   {
+    objectType temp;
     objectType result;
 
   /* bln_and */
@@ -69,7 +72,15 @@ objectType bln_and (listType arguments)
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
-        result = take_bool(result);
+        if (TEMP_OBJECT(result) &&
+            (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
+             CATEGORY_OF_OBJ(result) == VARENUMOBJECT)) {
+          temp = result;
+          result = result->value.objValue;
+          FREE_OBJECT(temp);
+        } else {
+          result = take_bool(result);
+        } /* if */
       } /* if */
       return result;
     } /* if */
@@ -325,6 +336,7 @@ objectType bln_not (listType arguments)
 objectType bln_or (listType arguments)
 
   {
+    objectType temp;
     objectType result;
 
   /* bln_or */
@@ -335,7 +347,15 @@ objectType bln_or (listType arguments)
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
-        result = take_bool(result);
+        if (TEMP_OBJECT(result) &&
+            (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
+             CATEGORY_OF_OBJ(result) == VARENUMOBJECT)) {
+          temp = result;
+          result = result->value.objValue;
+          FREE_OBJECT(temp);
+        } else {
+          result = take_bool(result);
+        } /* if */
       } /* if */
       return result;
     } /* if */
