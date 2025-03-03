@@ -186,16 +186,16 @@ static void type_create_call_obj (objectType destination,
     expr_list[1].obj = SYS_CREA_OBJECT;
     expr_list[2].obj = source;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        destination->type_of->create_call_obj =
-            match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          destination->type_of->create_call_obj =
+              match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
   } /* type_create_call_obj */
 
@@ -232,16 +232,16 @@ static void type_copy_call_obj (objectType destination,
     expr_list[1].obj = SYS_ASSIGN_OBJECT;
     expr_list[2].obj = source;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        destination->type_of->copy_call_obj =
-            match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          destination->type_of->copy_call_obj =
+              match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
   } /* type_copy_call_obj */
 
@@ -273,16 +273,16 @@ static void type_ord_call_obj (objectType any_obj,
     expr_list[0].obj = any_obj;
     expr_list[1].obj = SYS_ORD_OBJECT;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        any_obj->type_of->ord_call_obj =
-            match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          any_obj->type_of->ord_call_obj =
+              match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
   } /* type_ord_call_obj */
 
@@ -319,16 +319,16 @@ static void type_in_call_obj (objectType elem_obj,
     expr_list[1].obj = SYS_IN_OBJECT;
     expr_list[2].obj = set_obj;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        elem_obj->type_of->in_call_obj =
-            match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          elem_obj->type_of->in_call_obj =
+              match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
   } /* type_in_call_obj */
 
@@ -362,15 +362,15 @@ static objectType type_value_call_obj (objectType type_obj, errInfoType *err_inf
     expr_list[1].obj = SYS_DOT_OBJECT;
     expr_list[2].obj = SYS_VALUE_OBJECT;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        value_call_obj = match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          value_call_obj = match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
     logFunction(printf("type_value_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) value_call_obj););
