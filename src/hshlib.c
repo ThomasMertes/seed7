@@ -669,11 +669,13 @@ objectType hsh_cpy (listType arguments)
     objectType key_destr_func;
     objectType data_create_func;
     objectType data_destr_func;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_cpy */
     dest   = arg_1(arguments);
     source = arg_2(arguments);
+    hash_exec_object = curr_exec_object;
     isit_hash(dest);
     isit_hash(source);
     is_variable(dest);
@@ -700,7 +702,8 @@ objectType hsh_cpy (listType arguments)
           free_hash(dest->value.hashValue, key_destr_func,
               data_destr_func);
           dest->value.hashValue = NULL;
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         hash_exec_object, arguments);
         } /* if */
       } /* if */
     } /* if */
@@ -725,6 +728,7 @@ objectType hsh_create (listType arguments)
     objectType key_destr_func;
     objectType data_create_func;
     objectType data_destr_func;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_create */
@@ -736,6 +740,7 @@ objectType hsh_create (listType arguments)
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(key_create_func);
     isit_not_null(key_destr_func);
     isit_not_null(data_create_func);
@@ -754,7 +759,8 @@ objectType hsh_create (listType arguments)
         free_hash(dest->value.hashValue, key_destr_func,
             data_destr_func);
         dest->value.hashValue = NULL;
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                       hash_exec_object, arguments);
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -975,6 +981,7 @@ objectType hsh_gen_hash (listType arguments)
     hashElemType hashElem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
     hashType aHashMap;
 
@@ -987,6 +994,7 @@ objectType hsh_gen_hash (listType arguments)
     cmp_func           = take_reference(arg_3(arguments));
     key_destr_func     = take_reference(arg_4(arguments));
     data_destr_func    = take_reference(arg_5(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(key_hash_code_func);
     isit_not_null(cmp_func);
     isit_not_null(key_destr_func);
@@ -1049,9 +1057,11 @@ objectType hsh_gen_hash (listType arguments)
           } while (hashElem != NULL);
         } /* if */
       } /* while */
+      logFunction(printf("hsh_gen_hash -->\n"););
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_hash(aHashMap, key_destr_func, data_destr_func);
-        return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+        return raise_with_obj_and_args(SYS_RNG_EXCEPTION,
+                                       hash_exec_object, arguments);
       } else {
         return bld_hash_temp(aHashMap);
       } /* if */
@@ -1065,16 +1075,18 @@ objectType hsh_gen_key_value (listType arguments)
   {
     objectType aKey;
     objectType aValue;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
     hashElemType keyValue;
 
   /* hsh_gen_key_value */
     aKey   = arg_2(arguments);
     aValue = arg_4(arguments);
+    hash_exec_object = curr_exec_object;
     logFunction(printf("hsh_gen_key_value(" FMT_X_MEM ", " FMT_X_MEM ")\n",
                        (memSizeType) aKey, (memSizeType) aValue););
     if (unlikely(!ALLOC_RECORD(keyValue, hashElemRecord, count.helem))) {
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       keyValue->next_less = NULL;
       keyValue->next_greater = NULL;
@@ -1088,7 +1100,8 @@ objectType hsh_gen_key_value (listType arguments)
         if (unlikely(!arr_elem_initialisation(aKey->type_of,
                                               &keyValue->key, aKey))) {
           FREE_RECORD(keyValue, hashElemRecord, count.helem);
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         hash_exec_object, arguments);
         } /* if */
       } /* if */
       if (TEMP_OBJECT(aValue)) {
@@ -1102,7 +1115,8 @@ objectType hsh_gen_key_value (listType arguments)
                                               &keyValue->data, aValue))) {
           do_destroy(&keyValue->key, &err_info);
           FREE_RECORD(keyValue, hashElemRecord, count.helem);
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         hash_exec_object, arguments);
         } /* if */
       } /* if */
     } /* if */
@@ -1130,6 +1144,7 @@ objectType hsh_idx (listType arguments)
     hashElemType result_hashelem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     objectType result;
 
   /* hsh_idx */
@@ -1140,6 +1155,7 @@ objectType hsh_idx (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(cmp_func);
     logFunction(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
                        (memSizeType) aHashMap, (memSizeType) aKey, hashcode,
@@ -1165,14 +1181,16 @@ objectType hsh_idx (listType arguments)
       logError(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode););
-      result = raise_with_arguments(SYS_IDX_EXCEPTION, arguments);
+      result = raise_with_obj_and_args(SYS_IDX_EXCEPTION,
+                                       hash_exec_object, arguments);
     } else {
       if (TEMP2_OBJECT(arg_1(arguments))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
         if (unlikely(!ALLOC_OBJECT(result))) {
-          result = raise_exception(SYS_MEM_EXCEPTION);
+          result = raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           hash_exec_object, arguments);
         } else {
           memcpy(result, &result_hashelem->data, sizeof(objectRecord));
           SET_TEMP_FLAG(result);
@@ -1215,6 +1233,7 @@ objectType hsh_idx2 (listType arguments)
     hashElemType result_hashelem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     objectType result;
 
   /* hsh_idx2 */
@@ -1228,6 +1247,7 @@ objectType hsh_idx2 (listType arguments)
     defaultValue     =                arg_4(arguments);
     cmp_func         = take_reference(arg_5(arguments));
     data_create_func = take_reference(arg_6(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(cmp_func);
     isit_not_null(data_create_func);
     logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
@@ -1256,7 +1276,8 @@ objectType hsh_idx2 (listType arguments)
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
         if (unlikely(!ALLOC_OBJECT(result))) {
-          result = raise_exception(SYS_MEM_EXCEPTION);
+          result = raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           hash_exec_object, arguments);
         } else {
           memcpy(result, &result_hashelem->data, sizeof(objectRecord));
           SET_TEMP_FLAG(result);
@@ -1271,7 +1292,8 @@ objectType hsh_idx2 (listType arguments)
       } /* if */
     } else {
       if (unlikely(!ALLOC_OBJECT(result))) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
+        result = raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         hash_exec_object, arguments);
       } else {
         result->type_of = defaultValue->type_of;
         result->descriptor.property = NULL;
@@ -1317,6 +1339,7 @@ objectType hsh_incl (listType arguments)
     hashElemType hashelem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_incl */
@@ -1331,6 +1354,7 @@ objectType hsh_incl (listType arguments)
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(cmp_func);
     isit_not_null(key_create_func);
     isit_not_null(data_create_func);
@@ -1348,7 +1372,7 @@ objectType hsh_incl (listType arguments)
       aHashMap->size++;
     } else if (unlikely(cmp_func == NULL)) {
       logError(printf("hsh_incl: cmp_func == NULL\n"););
-      return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
@@ -1382,7 +1406,8 @@ objectType hsh_incl (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     hash_exec_object, arguments);
     } else {
       return SYS_EMPTY_OBJECT;
     } /* if */
@@ -1498,6 +1523,7 @@ objectType hsh_refidx (listType arguments)
     hashElemType result_hashelem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     objectType result;
 
   /* hsh_refidx */
@@ -1508,6 +1534,7 @@ objectType hsh_refidx (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(cmp_func);
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -1532,7 +1559,8 @@ objectType hsh_refidx (listType arguments)
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                       hash_exec_object, arguments);
       } /* if */
     } else {
       result = NULL;
@@ -1566,6 +1594,7 @@ objectType hsh_update (listType arguments)
     hashElemType hashelem;
     objectType cmp_obj;
     intType cmp;
+    objectType hash_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
     valueUnion value;
 
@@ -1581,6 +1610,7 @@ objectType hsh_update (listType arguments)
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
+    hash_exec_object = curr_exec_object;
     isit_not_null(cmp_func);
     isit_not_null(key_create_func);
     isit_not_null(data_create_func);
@@ -1596,7 +1626,7 @@ objectType hsh_update (listType arguments)
       aHashMap->size++;
     } else if (unlikely(cmp_func == NULL)) {
       logError(printf("hsh_update: cmp_func == NULL\n"););
-      return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
@@ -1632,7 +1662,8 @@ objectType hsh_update (listType arguments)
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     hash_exec_object, arguments);
     } /* if */
     /* printf("hsh_update -> ");
     trace1(data);
