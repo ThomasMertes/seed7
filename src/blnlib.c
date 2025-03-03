@@ -423,6 +423,7 @@ objectType bln_succ (listType arguments)
 objectType bln_ternary (listType arguments)
 
   {
+    objectType temp;
     objectType result;
 
   /* bln_ternary */
@@ -435,7 +436,13 @@ objectType bln_ternary (listType arguments)
     if (result != NULL &&
         (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
          CATEGORY_OF_OBJ(result) == VARENUMOBJECT)) {
-      result = result->value.objValue;
+      if (TEMP_OBJECT(result)) {
+        temp = result;
+        result = result->value.objValue;
+        FREE_OBJECT(temp);
+      } else {
+        result = result->value.objValue;
+      } /* if */
     } /* if */
     return result;
   } /* bln_ternary */
