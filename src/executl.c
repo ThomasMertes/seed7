@@ -67,6 +67,9 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     progType progBackup;
 
   /* get_create_call_obj */
+    logFunction(printf("get_create_call_obj(");
+                trace1(obj);
+                printf(")\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - get_create_call_obj: obj= ");
@@ -102,6 +105,8 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     } /* if */
     prog = progBackup;
 
+    logFunction(printf("get_create_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) create_call_obj););
     return create_call_obj;
   } /* get_create_call_obj */
 
@@ -117,6 +122,9 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     progType progBackup;
 
   /* get_destroy_call_obj */
+    logFunction(printf("get_destroy_call_obj(");
+                trace1(obj);
+                printf(")\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - get_destroy_call_obj: obj= ");
@@ -150,6 +158,8 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     } /* if */
     prog = progBackup;
 
+    logFunction(printf("get_destroy_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) destroy_call_obj););
     return destroy_call_obj;
   } /* get_destroy_call_obj */
 
@@ -164,6 +174,7 @@ static void type_create_call_obj (objectType destination,
     objectType match_result;
 
   /* type_create_call_obj */
+    logFunction(printf("type_create_call_obj\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_create_call_obj: destination= ");
@@ -197,6 +208,9 @@ static void type_create_call_obj (objectType destination,
       } /* if */
       free_expression(match_result);
     } /* if */
+    logFunction(printf("type_create_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) destination->type_of->
+                       create_call_obj););
   } /* type_create_call_obj */
 
 
@@ -210,6 +224,7 @@ static void type_copy_call_obj (objectType destination,
     objectType match_result;
 
   /* type_copy_call_obj */
+    logFunction(printf("type_copy_call_obj\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_copy_call_obj: destination= ");
@@ -243,6 +258,9 @@ static void type_copy_call_obj (objectType destination,
       } /* if */
       free_expression(match_result);
     } /* if */
+    logFunction(printf("type_copy_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) destination->type_of->
+                       copy_call_obj););
   } /* type_copy_call_obj */
 
 
@@ -256,6 +274,7 @@ static void type_ord_call_obj (objectType any_obj,
     objectType match_result;
 
   /* type_ord_call_obj */
+    logFunction(printf("type_ord_call_obj\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_ord_call_obj: any_obj= ");
@@ -284,6 +303,9 @@ static void type_ord_call_obj (objectType any_obj,
       } /* if */
       free_expression(match_result);
     } /* if */
+    logFunction(printf("type_ord_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) any_obj->type_of->
+                       ord_call_obj););
   } /* type_ord_call_obj */
 
 
@@ -297,6 +319,7 @@ static void type_in_call_obj (objectType elem_obj,
     objectType match_result;
 
   /* type_in_call_obj */
+    logFunction(printf("type_in_call_obj\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_in_call_obj: elem_obj= ");
@@ -330,6 +353,9 @@ static void type_in_call_obj (objectType elem_obj,
       } /* if */
       free_expression(match_result);
     } /* if */
+    logFunction(printf("type_in_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) elem_obj->type_of->
+                       in_call_obj););
   } /* type_in_call_obj */
 
 
@@ -343,6 +369,7 @@ static objectType type_value_call_obj (objectType type_obj, errInfoType *err_inf
     objectType value_call_obj = NULL;
 
   /* type_value_call_obj */
+    logFunction(printf("type_value_call_obj\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_value_call_obj: type_obj= ");
