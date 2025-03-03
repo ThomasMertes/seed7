@@ -34,6 +34,14 @@ var boolean: false_var is FALSE;
 var integer: counter is 0;
 
 
+const func boolean: boolExpr (in boolean: aBool) is func
+  result
+    var boolean: boolResult is FALSE;
+  begin
+    boolResult := aBool;
+  end func;
+
+
 const proc: check_not is func
   begin
     if TRUE then
@@ -89,109 +97,263 @@ const proc: check_not is func
 
 
 const proc: check_and is func
+  local
+    var boolean: okay is TRUE;
+    var integer: count is 0;
   begin
     if TRUE and TRUE then
       if TRUE and FALSE then
-        writeln(" ***** TRUE and FALSE evaluates to TRUE");
+        writeln(" ***** TRUE and FALSE evaluates to TRUE. (1)");
+        okay := FALSE;
       else
         if FALSE and TRUE then
-          writeln(" ***** FALSE and TRUE evaluates to TRUE");
+          writeln(" ***** FALSE and TRUE evaluates to TRUE. (1)");
+          okay := FALSE;
         else
           if FALSE and FALSE then
-            writeln(" ***** FALSE and FALSE evaluates to TRUE");
+            writeln(" ***** FALSE and FALSE evaluates to TRUE. (1)");
+            okay := FALSE;
           else
-            if true_var and true_var then
-              if true_var and false_var then
-                writeln(" ***** TRUE and FALSE with variables evaluates to TRUE");
-              else
-                if false_var and true_var then
-                  writeln(" ***** FALSE and TRUE with variables evaluates to TRUE");
-                else
-                  if false_var and false_var then
-                    writeln(" ***** FALSE and FALSE with variables evaluates to TRUE");
-                  else
-                    if (1 = 1) and (1 = 1) then
-                      if (1 = 1) and (1 <> 1) then
-                        writeln(" ***** TRUE and FALSE with expressions evaluates to TRUE");
-                      else
-                        if (1 <> 1) and (1 = 1) then
-                          writeln(" ***** FALSE and TRUE with expressions evaluates to TRUE");
-                        else
-                          if (1 <> 1) and (1 <> 1) then
-                            writeln(" ***** FALSE and FALSE with expressions evaluates to TRUE");
-                          else
-                            writeln("Boolean and works correctly.");
-                          end if;
-                        end if;
-                      end if;
-                    else
-                      writeln(" ***** TRUE and TRUE with expressions evaluates to FALSE");
-                    end if;
-                  end if;
-                end if;
-              end if;
-            else
-              writeln(" ***** TRUE and TRUE with variables evaluates to FALSE");
-            end if;
+            incr(count);
           end if;
         end if;
       end if;
     else
-      writeln(" ***** TRUE and TRUE evaluates to FALSE");
+      writeln(" ***** TRUE and TRUE evaluates to FALSE. (1)");
+      okay := FALSE;
+    end if;
+
+    if boolExpr(TRUE) and TRUE then
+      if boolExpr(TRUE) and FALSE then
+        writeln(" ***** TRUE and FALSE evaluates to TRUE. (2)");
+        okay := FALSE;
+      else
+        if boolExpr(FALSE) and TRUE then
+          writeln(" ***** FALSE and TRUE evaluates to TRUE. (2)");
+          okay := FALSE;
+        else
+          if boolExpr(FALSE) and FALSE then
+            writeln(" ***** FALSE and FALSE evaluates to TRUE. (2)");
+            okay := FALSE;
+          else
+            incr(count);
+          end if;
+        end if;
+      end if;
+    else
+      writeln(" ***** TRUE and TRUE evaluates to FALSE. (2)");
+      okay := FALSE;
+    end if;
+
+    if TRUE and boolExpr(TRUE) then
+      if TRUE and boolExpr(FALSE) then
+        writeln(" ***** TRUE and FALSE evaluates to TRUE. (3)");
+        okay := FALSE;
+      else
+        if FALSE and boolExpr(TRUE) then
+          writeln(" ***** FALSE and TRUE evaluates to TRUE. (3)");
+          okay := FALSE;
+        else
+          if FALSE and boolExpr(FALSE) then
+            writeln(" ***** FALSE and FALSE evaluates to TRUE. (3)");
+            okay := FALSE;
+          else
+            incr(count);
+          end if;
+        end if;
+      end if;
+    else
+      writeln(" ***** TRUE and TRUE evaluates to FALSE. (3)");
+      okay := FALSE;
+    end if;
+
+    if boolExpr(TRUE) and boolExpr(TRUE) then
+      if boolExpr(TRUE) and boolExpr(FALSE) then
+        writeln(" ***** TRUE and FALSE evaluates to TRUE. (4)");
+        okay := FALSE;
+      else
+        if boolExpr(FALSE) and boolExpr(TRUE) then
+          writeln(" ***** FALSE and TRUE evaluates to TRUE. (4)");
+          okay := FALSE;
+        else
+          if boolExpr(FALSE) and boolExpr(FALSE) then
+            writeln(" ***** FALSE and FALSE evaluates to TRUE. (4)");
+            okay := FALSE;
+          else
+            incr(count);
+          end if;
+        end if;
+      end if;
+    else
+      writeln(" ***** TRUE and TRUE evaluates to FALSE. (4)");
+      okay := FALSE;
+    end if;
+
+    if true_var and true_var then
+      if true_var and false_var then
+        writeln(" ***** TRUE and FALSE with variables evaluates to TRUE.");
+        okay := FALSE;
+      else
+        if false_var and true_var then
+          writeln(" ***** FALSE and TRUE with variables evaluates to TRUE.");
+          okay := FALSE;
+        else
+          if false_var and false_var then
+            writeln(" ***** FALSE and FALSE with variables evaluates to TRUE.");
+            okay := FALSE;
+          else
+            incr(count);
+          end if;
+        end if;
+      end if;
+    else
+      writeln(" ***** TRUE and TRUE with variables evaluates to FALSE.");
+      okay := FALSE;
+    end if;
+
+    if (1 = 1) and (1 = 1) then
+      if (1 = 1) and (1 <> 1) then
+        writeln(" ***** TRUE and FALSE with expressions evaluates to TRUE.");
+        okay := FALSE;
+      else
+        if (1 <> 1) and (1 = 1) then
+          writeln(" ***** FALSE and TRUE with expressions evaluates to TRUE.");
+          okay := FALSE;
+        else
+          if (1 <> 1) and (1 <> 1) then
+            writeln(" ***** FALSE and FALSE with expressions evaluates to TRUE.");
+            okay := FALSE;
+          else
+            incr(count);
+          end if;
+        end if;
+      end if;
+    else
+      writeln(" ***** TRUE and TRUE with expressions evaluates to FALSE.");
+      okay := FALSE;
+    end if;
+
+    if okay and count = 6 then
+      writeln("Boolean and works correctly.");
     end if;
   end func;
 
 
 const proc: check_or is func
+  local
+    var boolean: okay is TRUE;
+    var integer: count is 0;
   begin
     if TRUE or TRUE then
       if TRUE or FALSE then
         if FALSE or TRUE then
           if FALSE or FALSE then
-            writeln(" ***** FALSE or FALSE evaluates to TRUE");
+            writeln(" ***** FALSE or FALSE evaluates to TRUE. (1)");
           else
-            if true_var or true_var then
-              if true_var or false_var then
-                if false_var or true_var then
-                  if false_var or false_var then
-                    writeln(" ***** FALSE or FALSE with variables evaluates to TRUE");
-                  else
-                    if (1 = 1) or (1 = 1) then
-                      if (1 = 1) or (1 <> 1) then
-                        if (1 <> 1) or (1 = 1) then
-                          if (1 <> 1) or (1 <> 1) then
-                            writeln(" ***** FALSE or FALSE with expressions evaluates to TRUE");
-                          else
-                            writeln("Boolean or works correctly.");
-                          end if;
-                        else
-                          writeln(" ***** FALSE or TRUE with expressions evaluates to FALSE");
-                        end if;
-                      else
-                        writeln(" ***** TRUE or FALSE with expressions evaluates to FALSE");
-                      end if;
-                    else
-                      writeln(" ***** TRUE or TRUE with expressions evaluates to FALSE");
-                    end if;
-                  end if;
-                else
-                  writeln(" ***** FALSE or TRUE with variables evaluates to FALSE");
-                end if;
-              else
-                writeln(" ***** TRUE or FALSE with variables evaluates to FALSE");
-              end if;
-            else
-              writeln(" ***** TRUE or TRUE with variables evaluates to FALSE");
-            end if;
+            incr(count);
           end if;
         else
-          writeln(" ***** FALSE or TRUE evaluates to FALSE");
+          writeln(" ***** FALSE or TRUE evaluates to FALSE. (1)");
         end if;
       else
-        writeln(" ***** TRUE or FALSE evaluates to FALSE");
+        writeln(" ***** TRUE or FALSE evaluates to FALSE. (1)");
       end if;
     else
-      writeln(" ***** TRUE or TRUE evaluates to FALSE");
+      writeln(" ***** TRUE or TRUE evaluates to FALSE. (1)");
+    end if;
+
+    if boolExpr(TRUE) or TRUE then
+      if boolExpr(TRUE) or FALSE then
+        if boolExpr(FALSE) or TRUE then
+          if boolExpr(FALSE) or FALSE then
+            writeln(" ***** FALSE or FALSE evaluates to TRUE. (2)");
+          else
+            incr(count);
+          end if;
+        else
+          writeln(" ***** FALSE or TRUE evaluates to FALSE. (2)");
+        end if;
+      else
+        writeln(" ***** TRUE or FALSE evaluates to FALSE. (2)");
+      end if;
+    else
+      writeln(" ***** TRUE or TRUE evaluates to FALSE. (2)");
+    end if;
+
+    if TRUE or boolExpr(TRUE) then
+      if TRUE or boolExpr(FALSE) then
+        if FALSE or boolExpr(TRUE) then
+          if FALSE or boolExpr(FALSE) then
+            writeln(" ***** FALSE or FALSE evaluates to TRUE. (3)");
+          else
+            incr(count);
+          end if;
+        else
+          writeln(" ***** FALSE or TRUE evaluates to FALSE. (3)");
+        end if;
+      else
+        writeln(" ***** TRUE or FALSE evaluates to FALSE. (3)");
+      end if;
+    else
+      writeln(" ***** TRUE or TRUE evaluates to FALSE. (3)");
+    end if;
+
+    if boolExpr(TRUE) or boolExpr(TRUE) then
+      if boolExpr(TRUE) or boolExpr(FALSE) then
+        if boolExpr(FALSE) or boolExpr(TRUE) then
+          if boolExpr(FALSE) or boolExpr(FALSE) then
+            writeln(" ***** FALSE or FALSE evaluates to TRUE. (4)");
+          else
+            incr(count);
+          end if;
+        else
+          writeln(" ***** FALSE or TRUE evaluates to FALSE. (4)");
+        end if;
+      else
+        writeln(" ***** TRUE or FALSE evaluates to FALSE. (4)");
+      end if;
+    else
+      writeln(" ***** TRUE or TRUE evaluates to FALSE. (4)");
+    end if;
+
+    if true_var or true_var then
+      if true_var or false_var then
+        if false_var or true_var then
+          if false_var or false_var then
+            writeln(" ***** FALSE or FALSE with variables evaluates to TRUE.");
+          else
+            incr(count);
+          end if;
+        else
+          writeln(" ***** FALSE or TRUE with variables evaluates to FALSE.");
+        end if;
+      else
+        writeln(" ***** TRUE or FALSE with variables evaluates to FALSE.");
+      end if;
+    else
+      writeln(" ***** TRUE or TRUE with variables evaluates to FALSE.");
+    end if;
+
+    if (1 = 1) or (1 = 1) then
+      if (1 = 1) or (1 <> 1) then
+        if (1 <> 1) or (1 = 1) then
+          if (1 <> 1) or (1 <> 1) then
+            writeln(" ***** FALSE or FALSE with expressions evaluates to TRUE.");
+          else
+            incr(count);
+          end if;
+        else
+          writeln(" ***** FALSE or TRUE with expressions evaluates to FALSE.");
+        end if;
+      else
+        writeln(" ***** TRUE or FALSE with expressions evaluates to FALSE.");
+      end if;
+    else
+      writeln(" ***** TRUE or TRUE with expressions evaluates to FALSE.");
+    end if;
+
+    if okay and count = 6 then
+      writeln("Boolean or works correctly.");
     end if;
   end func;
 
@@ -2734,6 +2896,26 @@ const proc: check_ternary is func
             (false_var or false_var ?  true_var and true_var : false_var or false_var) or
         not (false_var or false_var ? false_var or false_var :  true_var and true_var) then
       writeln(" ***** The ternary operator ? : does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    if                FALSE  ?           TRUE  :          FALSE   or
+                      FALSE  ?           TRUE  : boolExpr(FALSE)  or
+                      FALSE  ?  boolExpr(TRUE) :          FALSE   or
+                      FALSE  ?  boolExpr(TRUE) : boolExpr(FALSE)  or
+             boolExpr(FALSE) ?           TRUE  :          FALSE   or
+             boolExpr(FALSE) ?           TRUE  : boolExpr(FALSE)  or
+             boolExpr(FALSE) ?  boolExpr(TRUE) :          FALSE   or
+             boolExpr(FALSE) ?  boolExpr(TRUE) : boolExpr(FALSE)  or
+        not (          TRUE  ?           TRUE  :          FALSE ) or
+        not (          TRUE  ?           TRUE  : boolExpr(FALSE)) or
+        not (          TRUE  ?  boolExpr(TRUE) :          FALSE ) or
+        not (          TRUE  ?  boolExpr(TRUE) : boolExpr(FALSE)) or
+        not (boolExpr( TRUE) ?           TRUE  :          FALSE ) or
+        not (boolExpr( TRUE) ?           TRUE  : boolExpr(FALSE)) or
+        not (boolExpr( TRUE) ?  boolExpr(TRUE) :          FALSE ) or
+        not (boolExpr( TRUE) ?  boolExpr(TRUE) : boolExpr(FALSE)) then
+      writeln(" ***** The ternary operator ? : does not work correctly. (6)");
       okay := FALSE;
     end if;
 
