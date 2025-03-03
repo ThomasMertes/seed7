@@ -4876,6 +4876,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
   {
     bigIntType unsigned_big;
     bigIntType powerOf10;
+    bigIntType dividend;
     bigDigitType digit;
     memSizeType largeDecimalBlockCount;
     memSizeType decimalBlockCount;
@@ -4911,57 +4912,66 @@ bigIntType bigLog10 (const const_bigIntType big1)
             decimalBlockCount = MAX_MEM_INDEX;
           } /* if */
           powerOf10 = bigIPow1(POWER_OF_10_IN_BIGDIGIT, (intType) (decimalBlockCount));
-          unsigned_big = bigMDiv(unsigned_big, powerOf10);
-          bigDestr(powerOf10);
+          if (unlikely(powerOf10 == NULL)) {
+            FREE_BIG2(unsigned_big, big1->size);
+            unsigned_big = NULL;
+          } else {
+            dividend = unsigned_big;
+            unsigned_big = bigMDiv(dividend, powerOf10);
+            FREE_BIG2(dividend, big1->size);
+            bigDestr(powerOf10);
+          } /* if */
         } /* if */
-        largeDecimalBlockCount = 0;
-        while (unsigned_big->size > 2) {
-          uBigRShift(unsigned_big, QUINARY_DIGITS_IN_BIGDIGIT);
-          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
-            unsigned_big->size--;
-          } /* if */
-          uBigDivideByPowerOf5(unsigned_big);
-          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
-            unsigned_big->size--;
-          } /* if */
-          largeDecimalBlockCount++;
-        } /* while */
-        while (unsigned_big->size > 1 ||
-               unsigned_big->bigdigits[0] >= POWER_OF_10_IN_BIGDIGIT) {
-          (void) uBigDivideByPowerOf10(unsigned_big);
-          /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
-             unsigned_big->size, digit); */
-          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
-            unsigned_big->size--;
-          } /* if */
-          decimalBlockCount++;
-        } /* while */
-        digit = unsigned_big->bigdigits[0];
-        FREE_BIG2(unsigned_big, big1->size + 1);
-#if POINTER_SIZE == 32
-        logarithm = bigFromUInt32(decimalBlockCount);
-#elif POINTER_SIZE == 64
-        logarithm = bigFromUInt64(decimalBlockCount);
-#endif
-        if (logarithm != NULL) {
-          bigMultAssign1(&logarithm, DECIMAL_DIGITS_IN_BIGDIGIT);
-#if BIGDIGIT_SIZE < 32
-          {
-            bigIntType numDigits = bigFromUInt32(
-                largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT);
-            bigAddAssign(&logarithm, numDigits);
-            bigDestr(numDigits);
-          }
-#else
-          bigAddAssignSignedDigit(&logarithm,
-              (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
-#endif
-          /* printf("digit: " FMT_U_DIG "\n", digit); */
-          digit /= 10;
-          while (digit != 0) {
-            bigIncr(&logarithm);
-            digit /= 10;
+        if (likely(unsigned_big != NULL)) {
+          largeDecimalBlockCount = 0;
+          while (unsigned_big->size > 2) {
+            uBigRShift(unsigned_big, QUINARY_DIGITS_IN_BIGDIGIT);
+            if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+              unsigned_big->size--;
+            } /* if */
+            uBigDivideByPowerOf5(unsigned_big);
+            if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+              unsigned_big->size--;
+            } /* if */
+            largeDecimalBlockCount++;
           } /* while */
+          while (unsigned_big->size > 1 ||
+                 unsigned_big->bigdigits[0] >= POWER_OF_10_IN_BIGDIGIT) {
+            (void) uBigDivideByPowerOf10(unsigned_big);
+            /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
+               unsigned_big->size, digit); */
+            if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+              unsigned_big->size--;
+            } /* if */
+            decimalBlockCount++;
+          } /* while */
+          digit = unsigned_big->bigdigits[0];
+          FREE_BIG(unsigned_big);
+#if POINTER_SIZE == 32
+          logarithm = bigFromUInt32(decimalBlockCount);
+#elif POINTER_SIZE == 64
+          logarithm = bigFromUInt64(decimalBlockCount);
+#endif
+          if (logarithm != NULL) {
+            bigMultAssign1(&logarithm, DECIMAL_DIGITS_IN_BIGDIGIT);
+#if BIGDIGIT_SIZE < 32
+            {
+              bigIntType numDigits = bigFromUInt32(
+                  largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT);
+              bigAddAssign(&logarithm, numDigits);
+              bigDestr(numDigits);
+            }
+#else
+            bigAddAssignSignedDigit(&logarithm,
+                (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
+#endif
+            /* printf("digit: " FMT_U_DIG "\n", digit); */
+            digit /= 10;
+            while (digit != 0) {
+              bigIncr(&logarithm);
+              digit /= 10;
+            } /* while */
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
