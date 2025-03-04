@@ -282,10 +282,7 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
       if (object_name != NULL) {
         defined_object = dollar_entername(node_level, object_name, err_info);
-        if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-          object_name->value.listValue = NULL;
-          FREE_OBJECT(object_name);
-        } /* if */
+        free_expression(object_name);
       } /* if */
     } else {
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);

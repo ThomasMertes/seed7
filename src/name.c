@@ -1192,30 +1192,36 @@ static objectType eval_type (objectType object)
     logFunction(printf("eval_type(");
                 trace1(object);
                 printf(")\n"););
-    if ((matched_expression = match_expression(object)) != NULL) {
-      if (CATEGORY_OF_OBJ(matched_expression) == MATCHOBJECT) {
-        if (!matched_expression->type_of->result_type->is_type_type) {
-          err_object(TYPE_EXPECTED, object);
-          result = NULL;
-        } else {
-          result = do_exec_call(matched_expression, &err_info);
-          if (err_info != OKAY_NO_ERROR) {
-            err_object(EXCEPTION_RAISED, result);
-            result = NULL;
-          } else if (CATEGORY_OF_OBJ(result) != TYPEOBJECT) {
-            err_object(PARAM_DECL_FAILED, result);
+    matched_expression = copy_expression(object, &err_info);
+    if (err_info == OKAY_NO_ERROR) {
+      if (match_expression(matched_expression) != NULL) {
+        if (CATEGORY_OF_OBJ(matched_expression) == MATCHOBJECT) {
+          if (!matched_expression->type_of->result_type->is_type_type) {
+            err_object(TYPE_EXPECTED, object);
             result = NULL;
           } else {
-            free_list(object->value.listValue);
-            FREE_OBJECT(object);
+            result = do_exec_call(matched_expression, &err_info);
+            if (err_info != OKAY_NO_ERROR) {
+              err_object(EXCEPTION_RAISED, result);
+              result = NULL;
+            } else if (CATEGORY_OF_OBJ(result) != TYPEOBJECT) {
+              err_object(PARAM_DECL_FAILED, result);
+              result = NULL;
+            } else {
+              free_list(object->value.listValue);
+              FREE_OBJECT(object);
+            } /* if */
           } /* if */
+        } else {
+          err_match(NO_MATCH, object);
+          result = NULL;
         } /* if */
       } else {
         err_match(NO_MATCH, object);
         result = NULL;
       } /* if */
+      free_expression(matched_expression);
     } else {
-      err_match(NO_MATCH, object);
       result = NULL;
     } /* if */
     logFunction(printf("eval_type --> ");
@@ -1231,46 +1237,53 @@ static objectType dollar_parameter (objectType param_object,
 
   {
     listType param_descr;
+    objectType param_object_copy = NULL;
     objectType type_of_parameter;
 
   /* dollar_parameter */
     logFunction(printf("dollar_parameter(");
                 trace1(param_object);
                 printf(")\n"););
-    param_descr = param_object->value.listValue;
-    if (param_descr != NULL) {
-      if (GET_ENTITY(param_descr->obj)->ident == prog->id_for.ref) {
-        /* printf("### ref param\n"); */
-        if (param_descr->next != NULL && param_descr->next->obj != NULL) {
-          type_of_parameter = param_descr->next->obj;
-          if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
-            type_of_parameter = eval_type(type_of_parameter);
-            if (type_of_parameter != NULL) {
-              param_descr->next->obj = type_of_parameter;
-            } /* if */
-          } /* if */
-          if (type_of_parameter != NULL) {
-            if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
-              if (param_descr->next->next != NULL) {
-                FREE_OBJECT(param_object);
-                if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
-                  param_object = dcl_ref2(param_descr);
-                } else {
-                  param_object = dcl_ref1(param_descr);
-                } /* if */
-                if (param_object == NULL) {
-                  *err_info = MEMORY_ERROR;
-                } /* if */
-                free_list(param_descr);
+    param_object_copy = copy_expression(param_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      param_descr = param_object_copy->value.listValue;
+      if (param_descr != NULL) {
+        if (GET_ENTITY(param_descr->obj)->ident == prog->id_for.ref) {
+          /* printf("### ref param\n"); */
+          if (param_descr->next != NULL && param_descr->next->obj != NULL) {
+            type_of_parameter = param_descr->next->obj;
+            if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
+              type_of_parameter = eval_type(type_of_parameter);
+              if (unlikely(type_of_parameter == NULL)) {
+                *err_info = ACTION_ERROR;
+              } else {
+                param_descr->next->obj = type_of_parameter;
               } /* if */
-            } else {
-              err_object(TYPE_EXPECTED, type_of_parameter);
+            } /* if */
+            if (type_of_parameter != NULL) {
+              if (CATEGORY_OF_OBJ(type_of_parameter) == TYPEOBJECT) {
+                if (param_descr->next->next != NULL) {
+                  if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
+                    param_object = dcl_ref2(param_descr);
+                  } else {
+                    param_object = dcl_ref1(param_descr);
+                  } /* if */
+                  if (param_object == NULL) {
+                    *err_info = MEMORY_ERROR;
+                  } /* if */
+                } /* if */
+              } else {
+                err_object(TYPE_EXPECTED, type_of_parameter);
+                *err_info = ACTION_ERROR;
+              } /* if */
             } /* if */
           } /* if */
+        } else {
+          err_ident(PARAM_SPECIFIER_EXPECTED, GET_ENTITY(param_descr->obj)->ident);
+          *err_info = ACTION_ERROR;
         } /* if */
-      } else {
-        err_ident(PARAM_SPECIFIER_EXPECTED, GET_ENTITY(param_descr->obj)->ident);
       } /* if */
+      free_expression(param_object_copy);
     } /* if */
     logFunction(printf("dollar_parameter --> ");
                 trace1(param_object);
@@ -1285,6 +1298,9 @@ static objectType dollar_inst_list (nodeType declaration_base,
 
   {
     listType name_elem;
+    listType name_list;
+    listType *list_insert_place;
+    objectType parameter;
     objectType defined_object;
 
   /* dollar_inst_list */
@@ -1293,16 +1309,22 @@ static objectType dollar_inst_list (nodeType declaration_base,
                 trace1(object_name);
                 printf(")\n"););
     name_elem = object_name->value.listValue;
+    name_list = NULL;
+    list_insert_place = &name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
-        name_elem->obj = dollar_parameter(name_elem->obj, err_info);
+        parameter = dollar_parameter(name_elem->obj, err_info);
+      } else {
+        parameter = name_elem->obj;
       } /* if */
+      list_insert_place = append_element_to_list(list_insert_place,
+          parameter, err_info);
       name_elem = name_elem->next;
     } /* while */
     if (*err_info == OKAY_NO_ERROR) {
       defined_object = push_name(prog, declaration_base,
-          object_name->value.listValue,
-          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+          name_list, GET_FILE_NUM(object_name),
+          GET_LINE_NUM(object_name), err_info);
     } else {
       defined_object = NULL;
     } /* if */
