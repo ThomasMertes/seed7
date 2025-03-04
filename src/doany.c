@@ -109,10 +109,10 @@ objectType exec1 (listType list)
         } /* if */
 #endif
         result = exec_call(object);
-        free_expression(object);
       } else {
         result = NULL;
       } /* if */
+      free_expression(object);
     } else {
       result = NULL;
     } /* if */

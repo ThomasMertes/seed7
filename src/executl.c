@@ -414,11 +414,11 @@ static void old_do_create (objectType destination, objectType source,
     objectType call_result;
 
   /* old_do_create */
-    logFunction(printf("old_do_create ");
+    logFunction(printf("old_do_create(");
                 trace1(destination);
-                printf("\nas ");
+                printf(", ");
                 trace1(source);
-                printf("\n"););
+                printf(")\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - old_do_create: destination= ");
@@ -447,12 +447,6 @@ static void old_do_create (objectType destination, objectType source,
         *err_info = CREATE_ERROR;
       } /* if */
     } /* if */
-    /* printf("free callobjects ");
-    trace1(crea_expr[0].obj);
-    printf("\n"); */
-    /* The function match_expression, called from exec1, may */
-    /* allocate CALLOBJECT objects which can be freed now.   */
-    free_expression(crea_expr[0].obj);
     logFunction(printf("old_do_create --> err_info=%d\n", *err_info););
   } /* old_do_create */
 
@@ -625,13 +619,11 @@ void old_do_copy (objectType destination, objectType source,
     listRecord copy_expr[3];
 
   /* old_do_copy */
-    logFunction(printf("old_do_copy\n"););
-/*
-printobject(destination);
-printf(" := ");
-printobject(source);
-printf("\n");
-*/
+    logFunction(printf("old_do_copy(");
+                trace1(destination);
+                printf(", ");
+                trace1(source);
+                printf(")\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - old_do_copy: destination= ");
