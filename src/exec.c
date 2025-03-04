@@ -942,6 +942,7 @@ objectType exec_dynamic (listType expr_list)
     objectType element_value;
     listType temp_values = NULL;
     listType *temp_insert_place;
+    listType temp_list_end;
     objectType match_result;
     objectType result = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1045,11 +1046,15 @@ printf("\n"); */
           free_list(match_expr->value.listValue);
           FREE_OBJECT(match_expr);
         } /* if */
-        actual_element = temp_values;
-        while (actual_element != NULL) {
-          SET_TEMP_FLAG(actual_element->obj);
-          actual_element = actual_element->next;
-        } /* while */
+        if (temp_values != NULL) {
+          actual_element = temp_values;
+          do {
+            SET_TEMP_FLAG(actual_element->obj);
+            temp_list_end = temp_values;
+            actual_element = actual_element->next;
+          } while (actual_element != NULL);
+          free_list2(temp_values, temp_list_end);
+        } /* if */
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {
           if (trace.heapsize) {
