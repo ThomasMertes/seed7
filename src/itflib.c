@@ -393,11 +393,9 @@ objectType itf_destr (listType arguments)
     structType old_struct;
 
   /* itf_destr */
-#ifdef TRACE_ITFLIB
-    printf("itf_destr(");
-    trace1(arg_1(arguments));
-    printf("\n");
-#endif
+    logFunction(printf("itf_destr(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
     just_interface(arg_1(arguments));
     old_value = take_interface(arg_1(arguments));
     if (old_value != NULL) {
@@ -420,9 +418,9 @@ objectType itf_destr (listType arguments)
             /* by close_stack or by other functions.                     */
             if (HAS_PROPERTY(old_value)) {
               old_value->value.structValue = NULL;
-              /* printf("itf_destr: Struct object with property ");
-              trace1(old_value);
-              printf("\n"); */
+              logMessage(printf("itf_destr: Struct object with property ");
+                         trace1(old_value);
+                         printf("\n"););
             } else {
               FREE_OBJECT(old_value);
             } /* if */
@@ -586,11 +584,10 @@ objectType itf_to_interface (listType arguments)
 
   /* itf_to_interface */
     stru_arg = arg_1(arguments);
-#ifdef TRACE_ITFLIB
-    printf("itf_to_interface: ");
-       trace1(stru_arg);
-       printf("\n");
-#endif
+    logFunction(printf("itf_to_interface(" FMT_U_MEM " ",
+                       (memSizeType) stru_arg);
+                trace1(stru_arg);
+                printf(")\n"););
     isit_struct(stru_arg);
     if (!ALLOC_OBJECT(new_value)) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -603,10 +600,8 @@ objectType itf_to_interface (listType arguments)
       } /* if */
     } /* if */
     result = bld_interface_temp(new_value);
-#ifdef TRACE_ITFLIB
-    printf("itf_to_interface --> ");
-       trace1(result);
-       printf("\n");
-#endif
+    logFunction(printf("itf_to_interface --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* itf_to_interface */
