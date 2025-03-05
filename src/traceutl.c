@@ -589,9 +589,11 @@ static void print_real_value (const_objectType anyobject)
                 prot_cstri(">");
               } /* if */
               prot_cstri(" ");
-              prot_ptr(structValue);
-              prot_cstri(" ");
               prot_ptr(anyobject);
+              prot_cstri(" ");
+              prot_ptr(anyobject->value.objValue);
+              prot_cstri(" ");
+              prot_ptr(structValue);
             } else {
               prot_cstri(" *INTERFACE_NULL_STRUCT* ");
             } /* if */
