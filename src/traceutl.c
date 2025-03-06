@@ -527,6 +527,11 @@ static void print_real_value (const_objectType anyobject)
             prot_cstri("file ");
             prot_int((intType) safe_fileno(anyobject->value.fileValue->cFile));
           } /* if */
+          if (anyobject->value.fileValue->usage_count != 0) {
+            prot_cstri("<");
+            prot_int((intType) anyobject->value.fileValue->usage_count);
+            prot_cstri(">");
+          } /* if */
         } /* if */
         break;
       case SOCKETOBJECT:
@@ -688,6 +693,9 @@ void printobject (const_objectType anyobject)
       } /* if */
       if (TEMP2_OBJECT(anyobject)) {
         prot_cstri("[TEMP2] ");
+      } /* if */
+      if (IS_UNUSED(anyobject)) {
+        prot_cstri("[UNUSED] ");
       } /* if */
       switch (CATEGORY_OF_OBJ(anyobject)) {
         case VARENUMOBJECT:
@@ -1483,6 +1491,9 @@ void trace1 (const_objectType traceobject)
       if (TEMP2_OBJECT(traceobject)) {
         prot_cstri(" [TEMP2]");
       } /* if */
+      if (IS_UNUSED(traceobject)) {
+        prot_cstri(" [UNUSED]");
+      } /* if */
       if (traceobject->type_of != NULL) {
         prot_cstri(" ");
         printtype(traceobject->type_of);
@@ -1493,7 +1504,7 @@ void trace1 (const_objectType traceobject)
         prot_cstri("(");
         prot_int((intType) GET_LINE_NUM(traceobject));
         prot_cstri(")");
-      } else {
+      } else if (HAS_PROPERTY(traceobject)) {
         if (HAS_ENTITY(traceobject)) {
           if (GET_ENTITY(traceobject)->ident != NULL) {
             prot_cstri8(id_string(GET_ENTITY(traceobject)->ident));
@@ -1505,8 +1516,13 @@ void trace1 (const_objectType traceobject)
             prot_cstri8(id_string(NULL));
           } /* if */
         } else {
-          prot_cstri("*NULL_ENTITY_OBJECT*");
+          prot_string(objectFileName(traceobject));
+          prot_cstri("(");
+          prot_int((intType) traceobject->descriptor.property->line);
+          prot_cstri(")");
         } /* if */
+      } else {
+        prot_cstri("*NULL_PROPERTY_OBJECT*");
       } /* if */
       prot_cstri(" is <");
       printcategory(CATEGORY_OF_OBJ(traceobject));
