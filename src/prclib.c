@@ -384,6 +384,7 @@ objectType prc_case (listType arguments)
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
           current_when->value.listValue->next->next->obj = when_values;
+          incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
       } else {
         set_value = take_set(when_values);
@@ -453,6 +454,7 @@ objectType prc_case_def (listType arguments)
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
           current_when->value.listValue->next->next->obj = when_values;
+          incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
       } else {
         set_value = take_set(when_values);
@@ -521,6 +523,7 @@ objectType prc_case_hashset (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
           when_values->value.hashValue = hashMap_value;
+          incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
       } /* if */
       if (do_in(switch_object, when_values, &err_info)) {
@@ -584,6 +587,7 @@ objectType prc_case_hashset_def (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
           when_values->value.hashValue = hashMap_value;
+          incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
       } /* if */
       if (do_in(switch_object, when_values, &err_info)) {
