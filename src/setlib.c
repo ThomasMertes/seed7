@@ -60,36 +60,49 @@ objectType set_arrlit (listType arguments)
     intType number;
     intType position;
     unsigned int bit_index;
-    setType result;
+    setType resultSet;
+    objectType result;
 
   /* set_arrlit */
     isit_array(arg_2(arguments));
     arr1 = take_array(arg_2(arguments));
+    logFunction(printf("set_arrlit(" FMT_U_MEM " (array[" FMT_D
+                                   " .. " FMT_D "]))\n",
+                       (memSizeType) arr1,
+                       arr1 != NULL ? arr1->min_position : (intType) 1,
+                       arr1 != NULL ? arr1->max_position : (intType) 0););
     length = arraySize(arr1);
-    if (!ALLOC_SET(result, 1)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
+    if (!ALLOC_SET(resultSet, 1)) {
+      result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
       if (length == 0) {
-        result->min_position = 0;
-        result->max_position = 0;
-        memset(result->bitset, 0, sizeof(bitSetType));
+        resultSet->min_position = 0;
+        resultSet->max_position = 0;
+        memset(resultSet->bitset, 0, sizeof(bitSetType));
       } else {
         number = take_int(&arr1->arr[0]);
         position = bitset_pos(number);
-        result->min_position = position;
-        result->max_position = position;
+        resultSet->min_position = position;
+        resultSet->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
-        result->bitset[0] = (((bitSetType) 1) << bit_index);
+        resultSet->bitset[0] = (((bitSetType) 1) << bit_index);
         for (array_index = 1; array_index < length; array_index++) {
-          setIncl(&result, take_int(&arr1->arr[array_index]));
+          setIncl(&resultSet, take_int(&arr1->arr[array_index]));
           if (fail_flag) {
-            FREE_SET(result, bitsetSize(result));
+            logError(printf("set_arrlit: setIncl(*, " FMT_D
+                            ") failed.\n",
+                            take_int(&arr1->arr[array_index])););
+            FREE_SET(resultSet, bitsetSize(resultSet));
             return fail_value;
           } /* if */
         } /* for */
       } /* if */
-      return bld_set_temp(result);
+      result = bld_set_temp(resultSet);
     } /* if */
+    logFunction(printf("set_arrlit --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
   } /* set_arrlit */
 
 
@@ -100,21 +113,27 @@ objectType set_baselit (listType arguments)
     intType number;
     intType position;
     unsigned int bit_index;
-    setType result;
+    setType resultSet;
+    objectType result;
 
   /* set_baselit */
     isit_int(arg_2(arguments));
     number = take_int(arg_2(arguments));
-    if (!ALLOC_SET(result, 1)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
+    logFunction(printf("set_baselit(" FMT_D ")\n", number););
+    if (!ALLOC_SET(resultSet, 1)) {
+      result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
       position = bitset_pos(number);
-      result->min_position = position;
-      result->max_position = position;
+      resultSet->min_position = position;
+      resultSet->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
-      result->bitset[0] = (((bitSetType) 1) << bit_index);
-      return bld_set_temp(result);
+      resultSet->bitset[0] = (((bitSetType) 1) << bit_index);
+      result = bld_set_temp(resultSet);
     } /* if */
+    logFunction(printf("set_baselit(" FMT_D ") --> ", number);
+                trace1(result);
+                printf("\n"););
+    return result;
   } /* set_baselit */
 
 
@@ -216,6 +235,11 @@ objectType set_cpy (listType arguments)
   /* set_cpy */
     dest = arg_1(arguments);
     source = arg_3(arguments);
+    logFunction(printf("set_cpy(");
+                trace1(dest);
+                printf(", ");
+                trace1(source);
+                printf(")\n"););
     isit_set(dest);
     isit_set(source);
     is_variable(dest);
@@ -249,6 +273,11 @@ objectType set_cpy (listType arguments)
       memmove(set_dest->bitset, set_source->bitset,
               (size_t) set_source_size * sizeof(bitSetType));
     } /* if */
+    logFunction(printf("set_cpy(");
+                trace1(dest);
+                printf(", ");
+                trace1(source);
+                printf(") -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* set_cpy */
 
@@ -272,6 +301,10 @@ objectType set_create (listType arguments)
   /* set_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
+    logFunction(printf("set_create(" FMT_U_MEM ", ",
+                       (memSizeType) dest);
+                trace1(source);
+                printf(")\n"););
     isit_set(source);
     set_source = take_set(source);
     SET_CATEGORY_OF_OBJ(dest, SETOBJECT);
@@ -291,6 +324,11 @@ objectType set_create (listType arguments)
                (size_t) new_size * sizeof(bitSetType));
       } /* if */
     } /* if */
+    logFunction(printf("set_create(");
+                trace1(dest);
+                printf(", ");
+                trace1(source);
+                printf(") -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* set_create */
 
@@ -308,6 +346,9 @@ objectType set_destr (listType arguments)
     setType old_set;
 
   /* set_destr */
+    logFunction(printf("set_destr(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
     isit_set(arg_1(arguments));
     old_set = take_set(arg_1(arguments));
     if (old_set != NULL) {
@@ -315,6 +356,9 @@ objectType set_destr (listType arguments)
       arg_1(arguments)->value.setValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
+    logFunction(printf("set_destr(");
+                trace1(arg_1(arguments));
+                printf(") -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* set_destr */
 
@@ -403,6 +447,7 @@ objectType set_empty (listType arguments)
     setType result;
 
   /* set_empty */
+    logFunction(printf("set_empty()\n"););
     if (!ALLOC_SET(result, 1)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {

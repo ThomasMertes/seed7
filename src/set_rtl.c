@@ -967,8 +967,10 @@ setType setIConv (intType number)
     setType result;
 
   /* setIConv */
+    logFunction(printf("setIConv(" FMT_D ")\n", number););
     if (unlikely(number < 0)) {
-      logError(printf("setIConv(): Number is negative.\n"););
+      logError(printf("setIConv(" FMT_D "): Number is negative.\n",
+                      number););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -991,6 +993,9 @@ setType setIConv (intType number)
 #endif
       } /* if */
     } /* if */
+    logFunction(printf("setIConv(" FMT_D ") --> ", number);
+                printSet(result);
+                printf("\n"););
     return result;
   } /* setIConv */
 
