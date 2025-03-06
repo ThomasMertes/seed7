@@ -378,7 +378,6 @@ void prgDestr (progType old_prog)
         prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
-        dump_list(old_prog->substituted_objects);
         dump_list(old_prog->when_set_objects);
         dump_list(old_prog->exec_expr_temp_results);
         close_stack(old_prog);
@@ -403,6 +402,7 @@ void prgDestr (progType old_prog)
         } /* if */
         filDestr(old_prog->errorFile);
         freeErrorList(old_prog->errorList);
+        dump_list(old_prog->substituted_objects);
         free_obj_and_prop(old_prog->struct_objects);
         FREE_RECORD(old_prog, progRecord, count.prog);
         prog = progBackup;
