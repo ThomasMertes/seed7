@@ -164,7 +164,10 @@ static void free_obj_and_prop (listType list)
     if (list != NULL) {
       list_elem = list;
       do {
-        FREE_RECORD(list_elem->obj->descriptor.property, propertyRecord, count.property);
+        if (list_elem->obj->descriptor.property != NULL) {
+          FREE_RECORD(list_elem->obj->descriptor.property,
+                      propertyRecord, count.property);
+        } /* if */
         FREE_OBJECT(list_elem->obj);
         list_end = list_elem;
         list_elem = list_elem->next;
@@ -403,6 +406,7 @@ void prgDestr (progType old_prog)
         filDestr(old_prog->errorFile);
         freeErrorList(old_prog->errorList);
         dump_list(old_prog->substituted_objects);
+        free_obj_and_prop(old_prog->when_value_objects);
         free_obj_and_prop(old_prog->struct_objects);
         FREE_RECORD(old_prog, progRecord, count.prog);
         prog = progBackup;

@@ -442,6 +442,7 @@ typedef struct progStruct {
     listType exec_expr_temp_results;
     listType substituted_objects;
     listType struct_objects;
+    listType when_value_objects;
     listType when_set_objects;
   } progRecord;
 
