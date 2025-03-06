@@ -1075,7 +1075,8 @@ void create_local_object (const_locObjType local, objectType init_value,
     objectType call_result;
 
   /* create_local_object */
-    logFunction(printf("create_local_object(");
+    logFunction(printf("create_local_object(" FMT_U_MEM " ",
+                        (memSizeType) local);
                 trace1(local->object);
                 printf(", ");
                 trace1(init_value);
@@ -1119,7 +1120,15 @@ void create_local_object (const_locObjType local, objectType init_value,
 
       local->object->value.objValue = new_object;
     } /* if */
-    logFunction(printf("create_local_object -->\n"););
+    logFunction(printf("create_local_object --> " FMT_U_MEM
+                       " " FMT_U_MEM " " FMT_U_MEM " ",
+                       (memSizeType) local,
+                       (memSizeType) local->object,
+                       (memSizeType) local->object->value.objValue);
+                printcategory(CATEGORY_OF_OBJ(local->object));
+                printf(" ");
+                printcategory(CATEGORY_OF_OBJ(local->object->value.objValue));
+                printf("\n"););
   } /* create_local_object */
 
 
@@ -1133,9 +1142,17 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
     boolType okay = TRUE;
 
   /* destroy_local_object */
-    logFunction(printf("destroy_local_object(");
-               /* trace1(local->object); */
-               printf(", %d)\n", ignoreError););
+    logFunction(printf("destroy_local_object(" FMT_U_MEM
+                       " " FMT_U_MEM " " FMT_U_MEM " ",
+                       (memSizeType) local,
+                       (memSizeType) local->object,
+                       (memSizeType) local->object->value.objValue);
+                printcategory(CATEGORY_OF_OBJ(local->object));
+                printf(" ");
+                printcategory(CATEGORY_OF_OBJ(local->object->value.objValue));
+                printf(" ");
+                printobject(local->object->value.objValue);
+                printf(", %d)\n", ignoreError););
     if (local->object->value.objValue != NULL) {
       switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
         case INTOBJECT:
@@ -1188,13 +1205,16 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
       } /* switch */
       if (IS_UNUSED(local->object->value.objValue)) {
         FREE_OBJECT(local->object->value.objValue);
-      } else if (unlikely(okay &&
-          CATEGORY_OF_OBJ(local->object->value.objValue) != STRUCTOBJECT)) {
-        printf("loc not dumped: ");
-        trace1(local->object);
-        printf("\n");
-        trace1(local->object->value.objValue);
-        printf("\n");
+      } else if (okay) {
+        if (CATEGORY_OF_OBJ(local->object->value.objValue) == STRUCTOBJECT) {
+          FREE_OBJECT(local->object->value.objValue);
+        } else {
+          printf("loc not dumped: ");
+          trace1(local->object);
+          printf("\n");
+          trace1(local->object->value.objValue);
+          printf("\n");
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("destroy_local_object -->\n"););

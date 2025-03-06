@@ -322,8 +322,14 @@ objectType sct_destr (listType arguments)
     old_struct = take_struct(arg_1(arguments));
     logFunction(printf("sct_destr(" FMT_U_MEM ")\n", (memSizeType) old_struct););
     if (old_struct != NULL) {
-      /* printf("sct_destr: usage_count=%u %lu %lu\n", old_struct->usage_count,
-         (unsigned long) old_struct, (unsigned long) arg_1(arguments)); */
+      logMessage(printf("sct_destr: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " ",
+                        old_struct->usage_count != 0 ? "Decrease"
+                                                     : "Keep",
+                        old_struct->usage_count,
+                        (memSizeType) arg_1(arguments));
+                 trace1(arg_1(arguments));
+                 printf("\n"););
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {

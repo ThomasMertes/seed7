@@ -402,23 +402,31 @@ objectType itf_destr (listType arguments)
       isit_struct(old_value);
       old_struct = take_struct(old_value);
       if (old_struct != NULL) {
-        /* printf("itf_destr: usage_count=%lu %lu\n",
-            old_struct->usage_count, (unsigned long) old_struct);
-        trace1(old_value);
-        printf("\n"); */
+        logMessage(printf("itf_destr: %s usage_count=" FMT_U_MEM
+                          ", " FMT_U_MEM " ",
+                          old_struct->usage_count != 0 ? "Decrease"
+                                                       : "Keep",
+                          old_struct->usage_count,
+                          (memSizeType) old_value);
+                   trace1(old_value);
+                   printf("\n"););
         if (old_struct->usage_count != 0) {
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
             arg_1(arguments)->value.objValue = NULL;
-            /* The function close_stack leaves HAS_PROPERTY intact to    */
-            /* allow checking for it here. Just objects without property */
-            /* are removed here. Objects with property will be removed   */
-            /* by close_stack or by other functions.                     */
+            /* This function just removes objects without property. */
+            /* Objects with property just lose their struct value.  */
+            /* For these objects the HAS_PROPERTY flag and the      */
+            /* descriptor.property stay unchanged. Objects with     */
+            /* property will be removed later by close_stack() or   */
+            /* by other functions. The descriptor.property will be  */
+            /* freed together with the object.                      */
             if (HAS_PROPERTY(old_value)) {
               old_value->value.structValue = NULL;
-              logMessage(printf("itf_destr: Struct object with property ");
+              logMessage(printf("itf_destr: Struct object with property "
+                                FMT_U_MEM " ", (memSizeType) old_value);
                          trace1(old_value);
                          printf("\n"););
             } else {
