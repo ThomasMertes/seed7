@@ -47,8 +47,11 @@ EXTERN freeListRootType flist;
 #define F_LOG2(X)
 #endif
 
-#if USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS || USE_ID_NAME_CHUNK_ALLOCS
 #define ALIGN(size)              (((((size) - 1) >> MALLOC_ALIGNMENT) + 1) << MALLOC_ALIGNMENT)
+#endif
+
+#if USE_CHUNK_ALLOCS
 #if USE_ALTERNATE_CHUNK_ALLOCS
 #define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), TRUE)
 #define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
@@ -60,11 +63,10 @@ EXTERN freeListRootType flist;
 #define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.size ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
 #define FREE_CHUNK(var,byt)      (chunk.lost_bytes += (byt))
 #endif
-#else
 #endif
 
 
-#if USE_CHUNK_ALLOCS
+#if USE_ID_NAME_CHUNK_ALLOCS
 #define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustriType, ALIGN(SIZ_USTRI(len)))
 #define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_CHUNK(var, ALIGN(SIZ_USTRI(len))))
 #else
