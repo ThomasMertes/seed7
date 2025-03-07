@@ -202,9 +202,9 @@ objectType prc_begin (listType arguments)
       block_body_list = block_body;
       block_body = block_body->value.listValue->obj;
     } /* if */
+    push_stack();
     block_body = copy_expression(block_body, &err_info);
     if (err_info == OKAY_NO_ERROR) {
-      push_stack();
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
         block_body = match_expression(block_body);
@@ -213,11 +213,11 @@ objectType prc_begin (listType arguments)
         block_body = match_object(block_body);
         fix_posinfo(block_body, block_body_list);
       } /* if */
-      pop_stack();
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
     } /* if */
+    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_begin: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
@@ -1043,21 +1043,21 @@ objectType prc_local (listType arguments)
       block_body_list = block_body;
       block_body = block_body->value.listValue->obj;
     } /* if */
+    push_stack();
+    local_object_insert_place = get_local_object_insert_place();
+    decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
+    if (decl_res != SYS_EMPTY_OBJECT) {
+      /* printf("eval local decls --> ");
+      trace1(decl_res);
+      printf("\n");
+      trace1(SYS_EMPTY_OBJECT);
+      printf("\n"); */
+      err_object(PROC_EXPECTED, decl_res);
+    } /* if */
+    local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+    local_consts = get_local_const_list(*local_object_insert_place, &err_info);
     block_body = copy_expression(block_body, &err_info);
     if (err_info == OKAY_NO_ERROR) {
-      push_stack();
-      local_object_insert_place = get_local_object_insert_place();
-      decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
-      if (decl_res != SYS_EMPTY_OBJECT) {
-        /* printf("eval local decls --> ");
-        trace1(decl_res);
-        printf("\n");
-        trace1(SYS_EMPTY_OBJECT);
-        printf("\n"); */
-        err_object(PROC_EXPECTED, decl_res);
-      } /* if */
-      local_vars = get_local_var_list(*local_object_insert_place, &err_info);
-      local_consts = get_local_const_list(*local_object_insert_place, &err_info);
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
         block_body = match_expression(block_body);
@@ -1066,11 +1066,11 @@ objectType prc_local (listType arguments)
         block_body = match_object(block_body);
         fix_posinfo(block_body, block_body_list);
       } /* if */
-      pop_stack();
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
     } /* if */
+    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_local: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
@@ -1189,31 +1189,31 @@ objectType prc_res_begin (listType arguments)
       block_body_list = block_body;
       block_body = block_body->value.listValue->obj;
     } /* if */
-    block_body = copy_expression(block_body, &err_info);
+    push_stack();
+    /* printf("result_type ");
+    trace1(result_type->match_obj);
+    printf("\n");
+    printf("result_var_name ");
+    trace1(result_var_name);
+    printf("\n"); */
+    /* printf("result_init %lu ", (long unsigned) result_init);
+    trace1(result_init);
+    printf("\n"); */
+    grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      push_stack();
-      /* printf("result_type ");
-      trace1(result_type->match_obj);
+      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
+      shrink_stack();
+    } /* if */
+    if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
+      get_result_var(&result_var, result_type, result_init, &err_info);
+      /* printf("result_var.object ");
+      trace1(result_var.object);
       printf("\n");
-      printf("result_var_name ");
-      trace1(result_var_name);
+      printf("result_var.init_value ");
+      trace1(result_var.init_value);
       printf("\n"); */
-      /* printf("result_init %lu ", (long unsigned) result_init);
-      trace1(result_init);
-      printf("\n"); */
-      grow_stack(&err_info);
+      block_body = copy_expression(block_body, &err_info);
       if (err_info == OKAY_NO_ERROR) {
-        result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
-        shrink_stack();
-      } /* if */
-      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
-        get_result_var(&result_var, result_type, result_init, &err_info);
-        /* printf("result_var.object ");
-        trace1(result_var.object);
-        printf("\n");
-        printf("result_var.init_value ");
-        trace1(result_var.init_value);
-        printf("\n"); */
         if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
           update_owner(block_body);
           block_body = match_expression(block_body);
@@ -1226,8 +1226,8 @@ objectType prc_res_begin (listType arguments)
           err_type(PROC_EXPECTED, block_body->type_of);
         } /* if */
       } /* if */
-      pop_stack();
     } /* if */
+    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
@@ -1282,28 +1282,28 @@ objectType prc_res_local (listType arguments)
       block_body_list = block_body;
       block_body = block_body->value.listValue->obj;
     } /* if */
-    block_body = copy_expression(block_body, &err_info);
+    push_stack();
+    grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      push_stack();
-      grow_stack(&err_info);
-      if (err_info == OKAY_NO_ERROR) {
-        result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
-        shrink_stack();
+      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
+      shrink_stack();
+    } /* if */
+    if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
+      get_result_var(&result_var, result_type, result_init, &err_info);
+      local_object_insert_place = get_local_object_insert_place();
+      decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
+      if (decl_res != SYS_EMPTY_OBJECT) {
+        /* printf("eval local decls --> ");
+        trace1(decl_res);
+        printf("\n");
+        trace1(SYS_EMPTY_OBJECT);
+        printf("\n"); */
+        err_object(PROC_EXPECTED, decl_res);
       } /* if */
-      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
-        get_result_var(&result_var, result_type, result_init, &err_info);
-        local_object_insert_place = get_local_object_insert_place();
-        decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
-        if (decl_res != SYS_EMPTY_OBJECT) {
-          /* printf("eval local decls --> ");
-          trace1(decl_res);
-          printf("\n");
-          trace1(SYS_EMPTY_OBJECT);
-          printf("\n"); */
-          err_object(PROC_EXPECTED, decl_res);
-        } /* if */
-        local_vars = get_local_var_list(*local_object_insert_place, &err_info);
-        local_consts = get_local_const_list(*local_object_insert_place, &err_info);
+      local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+      local_consts = get_local_const_list(*local_object_insert_place, &err_info);
+      block_body = copy_expression(block_body, &err_info);
+      if (err_info == OKAY_NO_ERROR) {
         if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
           update_owner(block_body);
           block_body = match_expression(block_body);
@@ -1316,8 +1316,8 @@ objectType prc_res_local (listType arguments)
           err_type(PROC_EXPECTED, block_body->type_of);
         } /* if */
       } /* if */
-      pop_stack();
     } /* if */
+    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_res_local: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
