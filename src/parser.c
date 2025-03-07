@@ -119,6 +119,7 @@ static inline void init_dollar (objectType declared_object,
         init_dollar_type(declared_object, take_type(meta_type), err_info);
       } else {
         err_object(TYPE_EXPECTED, meta_type);
+        free_expression(meta_type);
       } /* if */
     } else if (current_ident == prog->id_for.func) {
       scan_symbol();
