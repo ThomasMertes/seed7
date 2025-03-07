@@ -150,6 +150,7 @@ static objectType get_object (progType currentProg, entityType entity,
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_at_file_in_line(OBJTWICEDECLARED, defined_object, file_number, line);
         err_existing_obj(PREVIOUS_DECLARATION, defined_object);
+        free_list(params);
         defined_object = NULL;
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
@@ -197,19 +198,23 @@ static objectType get_object (progType currentProg, entityType entity,
               pop_owner(&entity->data.owner);
               FREE_RECORD(defined_property, propertyRecord, count.property);
               FREE_OBJECT(defined_object);
+              free_list(params);
               defined_object = NULL;
             } /* if */
           } else {
             FREE_RECORD(defined_property, propertyRecord, count.property);
             FREE_OBJECT(defined_object);
+            free_list(params);
             defined_object = NULL;
           } /* if */
         } else {
           FREE_OBJECT(defined_object);
+          free_list(params);
           *err_info = MEMORY_ERROR;
           defined_object = NULL;
         } /* if */
       } else {
+        free_list(params);
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
@@ -356,6 +361,7 @@ static objectType push_name (progType currentProg, nodeType declaration_base,
     } else {
       entity = get_entity(declaration_base, name_list);
       if (entity == NULL) {
+        free_list(params);
         *err_info = MEMORY_ERROR;
         defined_object = NULL;
       } else {
