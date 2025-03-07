@@ -126,20 +126,58 @@ objectType dcl_const (listType arguments)
       printf("\n");
 #endif
       current_object = entername(prog->declaration_root, name_expr, &err_info);
-      /* printf(":%lu\n", (long unsigned) GET_ENTITY(current_object)); */
-      value = copy_expression(value_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
-        current_object->type_of = object_type;
+      if (current_object != NULL && err_info == OKAY_NO_ERROR) {
+        /* printf(":%lu\n", (long unsigned) GET_ENTITY(current_object)); */
+        value = copy_expression(value_expr, &err_info);
+        if (err_info == OKAY_NO_ERROR) {
+          current_object->type_of = object_type;
 #if TRACE_DCL_CONST
-        printf("decl const current_object = ");
-        trace1(current_object);
-        printf("\n");
+          printf("decl const current_object = ");
+          trace1(current_object);
+          printf("\n");
 #endif
-        if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
-          substitute_params(value);
-          if (match_expression(value) != NULL &&
-              (matched_value = match_object(value)) != NULL) {
-            do_create(current_object, matched_value, &err_info);
+          if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
+            substitute_params(value);
+            if (match_expression(value) != NULL &&
+                (matched_value = match_object(value)) != NULL) {
+              do_create(current_object, matched_value, &err_info);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                if (err_info != CREATE_ERROR) {
+                  if (fail_file_number != 0) {
+                    err_at_file_in_line(EXCEPTION_RAISED,
+                                        prog->sys_var[err_info],
+                                        fail_file_number, fail_line_number);
+                  } else {
+                    err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                                 prog->sys_var[err_info]);
+                  } /* if */
+                } /* if */
+                err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
+                err_info = OKAY_NO_ERROR;
+#if TRACE_DCL_CONST
+                printf("*** do_create failed ");
+                prot_list(arguments);
+                printf("\n");
+#endif
+              } /* if */
+#if TRACE_DCL_CONST
+            } else {
+              printf("match value failed: ");
+              trace1(value);
+              printf("\n");
+              printf("value_expr: ");
+              trace1(value_expr);
+              printf("\n");
+              printf("object: ");
+              trace1(current_object);
+              printf("\n");
+              printf("name_expr: ");
+              trace1(name_expr);
+              printf("\n");
+#endif
+            } /* if */
+          } else {
+            do_create(current_object, value, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               if (err_info != CREATE_ERROR) {
                 if (fail_file_number != 0) {
@@ -159,48 +197,12 @@ objectType dcl_const (listType arguments)
               printf("\n");
 #endif
             } /* if */
-#if TRACE_DCL_CONST
-          } else {
-            printf("match value failed: ");
-            trace1(value);
-            printf("\n");
-            printf("value_expr: ");
-            trace1(value_expr);
-            printf("\n");
-            printf("object: ");
-            trace1(current_object);
-            printf("\n");
-            printf("name_expr: ");
-            trace1(name_expr);
-            printf("\n");
-#endif
           } /* if */
-        } else {
-          do_create(current_object, value, &err_info);
-          if (unlikely(err_info != OKAY_NO_ERROR)) {
-            if (err_info != CREATE_ERROR) {
-              if (fail_file_number != 0) {
-                err_at_file_in_line(EXCEPTION_RAISED,
-                                    prog->sys_var[err_info],
-                                    fail_file_number, fail_line_number);
-              } else {
-                err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
-                             prog->sys_var[err_info]);
-              } /* if */
-            } /* if */
-            err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
-            err_info = OKAY_NO_ERROR;
-#if TRACE_DCL_CONST
-            printf("*** do_create failed ");
-            prot_list(arguments);
-            printf("\n");
-#endif
+          free_expression(value);
+          if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
+            current_object->value.blockValue->params =
+                get_param_list(current_object->descriptor.property->params, &err_info);
           } /* if */
-        } /* if */
-        free_expression(value);
-        if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
-          current_object->value.blockValue->params =
-              get_param_list(current_object->descriptor.property->params, &err_info);
         } /* if */
       } /* if */
       shrink_stack();
@@ -303,7 +305,7 @@ objectType dcl_fwd (listType arguments)
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       current_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (current_object != NULL && err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(current_object, FORWARDOBJECT);
       } /* if */
@@ -353,7 +355,7 @@ objectType dcl_fwdvar (listType arguments)
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       current_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (current_object != NULL && err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(current_object, FORWARDOBJECT);
       } /* if */
@@ -551,7 +553,7 @@ objectType dcl_in2 (listType arguments)
            trace1(name_expr);
            printf(";\n"); */
         created_object = entername(prog->declaration_root, name_expr, &err_info);
-        if (err_info == OKAY_NO_ERROR) {
+        if (created_object != NULL && err_info == OKAY_NO_ERROR) {
           created_object->type_of = object_type;
           switch (object_type->in_param_type) {
             case PARAM_VALUE:
@@ -635,7 +637,7 @@ objectType dcl_in2var (listType arguments)
          trace1(name_expr);
          printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
         /* printf("decl in2var --> %lx ", (unsigned long int) created_object);
@@ -711,7 +713,7 @@ objectType dcl_inout2 (listType arguments)
          trace1(name_expr);
          printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
         /* printf("decl inout2 --> %lx ", (unsigned long int) created_object);
@@ -834,7 +836,7 @@ objectType dcl_ref2 (listType arguments)
          trace1(name_expr);
          printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
         /* printf("decl ref2 --> %lx ", (unsigned long int) created_object);
@@ -1034,7 +1036,7 @@ objectType dcl_val2 (listType arguments)
          trace1(name_expr);
          printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
         /* printf("decl val2 --> %lx ", (unsigned long int) created_object);
@@ -1102,20 +1104,49 @@ objectType dcl_var (listType arguments)
       printf("\n");
 #endif
       current_object = entername(prog->declaration_root, name_expr, &err_info);
-      value = copy_expression(value_expr, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
-        current_object->type_of = object_type;
-        SET_VAR_FLAG(current_object);
+      if (current_object != NULL && err_info == OKAY_NO_ERROR) {
+        value = copy_expression(value_expr, &err_info);
+        if (err_info == OKAY_NO_ERROR) {
+          current_object->type_of = object_type;
+          SET_VAR_FLAG(current_object);
 #if TRACE_DCL_VAR
-        printf("decl var current_object = ");
-        trace1(current_object);
-        printf("\n");
+          printf("decl var current_object = ");
+          trace1(current_object);
+          printf("\n");
 #endif
-        if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
-          substitute_params(value);
-          if (match_expression(value) != NULL &&
-              (matched_value = match_object(value)) != NULL) {
-            do_create(current_object, matched_value, &err_info);
+          if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
+            substitute_params(value);
+            if (match_expression(value) != NULL &&
+                (matched_value = match_object(value)) != NULL) {
+              do_create(current_object, matched_value, &err_info);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                if (err_info != CREATE_ERROR) {
+                  if (fail_file_number != 0) {
+                    err_at_file_in_line(EXCEPTION_RAISED,
+                                        prog->sys_var[err_info],
+                                        fail_file_number, fail_line_number);
+                  } else {
+                    err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                                 prog->sys_var[err_info]);
+                  } /* if */
+                } /* if */
+                err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
+                err_info = OKAY_NO_ERROR;
+#if TRACE_DCL_VAR
+                printf("*** do_create failed ");
+                prot_list(arguments);
+                printf("\n");
+#endif
+              } /* if */
+#if TRACE_DCL_VAR
+            } else {
+              printf("*** match value failed ");
+              trace1(value);
+              printf("\n");
+#endif
+            } /* if */
+          } else {
+            do_create(current_object, value, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               if (err_info != CREATE_ERROR) {
                 if (fail_file_number != 0) {
@@ -1135,36 +1166,9 @@ objectType dcl_var (listType arguments)
               printf("\n");
 #endif
             } /* if */
-#if TRACE_DCL_VAR
-          } else {
-            printf("*** match value failed ");
-            trace1(value);
-            printf("\n");
-#endif
           } /* if */
-        } else {
-          do_create(current_object, value, &err_info);
-          if (unlikely(err_info != OKAY_NO_ERROR)) {
-            if (err_info != CREATE_ERROR) {
-              if (fail_file_number != 0) {
-                err_at_file_in_line(EXCEPTION_RAISED,
-                                    prog->sys_var[err_info],
-                                    fail_file_number, fail_line_number);
-              } else {
-                err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
-                             prog->sys_var[err_info]);
-              } /* if */
-            } /* if */
-            err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
-            err_info = OKAY_NO_ERROR;
-#if TRACE_DCL_VAR
-            printf("*** do_create failed ");
-            prot_list(arguments);
-            printf("\n");
-#endif
-          } /* if */
+          free_expression(value);
         } /* if */
-        free_expression(value);
       } /* if */
       shrink_stack();
     } /* if */

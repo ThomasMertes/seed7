@@ -1206,7 +1206,7 @@ objectType prc_res_begin (listType arguments)
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
       } /* if */
-      if (err_info == OKAY_NO_ERROR) {
+      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
         get_result_var(&result_var, result_type, result_init, &err_info);
         /* printf("result_var.object ");
         trace1(result_var.object);
@@ -1232,7 +1232,7 @@ objectType prc_res_begin (listType arguments)
       logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
                                      proc_exec_object, arguments);
-    } else if (unlikely(block_body == NULL)) {
+    } else if (unlikely(result_var.object == NULL || block_body == NULL)) {
       logError(printf("prc_res_begin: Create error\n"););
       return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                      proc_exec_object, arguments);
@@ -1290,7 +1290,7 @@ objectType prc_res_local (listType arguments)
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
       } /* if */
-      if (err_info == OKAY_NO_ERROR) {
+      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
         get_result_var(&result_var, result_type, result_init, &err_info);
         local_object_insert_place = get_local_object_insert_place();
         decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
@@ -1322,7 +1322,7 @@ objectType prc_res_local (listType arguments)
       logError(printf("prc_res_local: error - err_info: %d\n", err_info););
       return raise_with_obj_and_args(prog->sys_var[err_info],
                                      proc_exec_object, arguments);
-    } else if (unlikely(block_body == NULL)) {
+    } else if (unlikely(result_var.object == NULL || block_body == NULL)) {
       logError(printf("prc_res_local: Create error\n"););
       return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                      proc_exec_object, arguments);

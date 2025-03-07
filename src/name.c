@@ -150,7 +150,7 @@ static objectType get_object (progType currentProg, entityType entity,
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_at_file_in_line(OBJTWICEDECLARED, defined_object, file_number, line);
         err_existing_obj(PREVIOUS_DECLARATION, defined_object);
-        SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
+        defined_object = NULL;
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
         /* The old parameter names could be checked against the new ones. */

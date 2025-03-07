@@ -310,7 +310,7 @@ void decl_const (nodeType node_level, errInfoType *err_info)
     if (*err_info == OKAY_NO_ERROR) {
       typeof_object = decl_type(&is_dollar_type, err_info);
       declared_object = decl_name(node_level, err_info);
-      if (*err_info == OKAY_NO_ERROR) {
+      if (declared_object != NULL && *err_info == OKAY_NO_ERROR) {
 /*        printf("decl_name ");
         trace_entity(GET_ENTITY(declared_object)); */
 #ifdef OUT_OF_ORDER
