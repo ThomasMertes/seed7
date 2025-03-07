@@ -226,6 +226,27 @@ void free_expression (objectType object)
 
 
 
+void free_expression_list (listType list)
+
+  {
+    listType list_elem;
+    listType list_end;
+
+  /* free_expression_list */
+    if (list != NULL) {
+      list_elem = list;
+      list_end = list;
+      do {
+        free_expression(list_elem->obj);
+        list_end = list;
+        list_elem = list_elem->next;
+      } while (list_elem != NULL);
+      free_list2(list, list_end);
+    } /* if */
+  } /* free_expression_list */
+
+
+
 void concat_lists (listType *list1, listType list2)
 
   {

@@ -52,6 +52,7 @@ listType *append_element_to_list (listType *list_insert_place, objectType object
                                   errInfoType *err_info);
 objectType copy_expression (objectType object_from, errInfoType *err_info);
 void free_expression (objectType object);
+void free_expression_list (listType list);
 void concat_lists (listType *list1, listType list2);
 void incl_list (listType *list, objectType element_object,
                 errInfoType *err_info);
