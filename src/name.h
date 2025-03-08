@@ -25,6 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
+void free_name (objectType object);
 void disconnect_param_entities (const const_objectType objWithParams);
 void init_stack (progType currentProg, errInfoType *err_info);
 void close_stack (progType currentProg);

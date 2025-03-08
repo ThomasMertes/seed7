@@ -227,6 +227,21 @@ static objectType get_object (progType currentProg, entityType entity,
 
 
 
+void free_name (objectType object)
+
+  { /* free_name */
+    if (object != NULL) {
+      if (HAS_PROPERTY(object) &&
+          object->descriptor.property != prog->property.literal) {
+        FREE_RECORD(object->descriptor.property,
+                    propertyRecord, count.property);
+      } /* if */
+      FREE_OBJECT(object);
+    } /* if */
+  } /* free_name */
+
+
+
 static listType create_parameter_list (listType name_list, errInfoType *err_info)
 
   {
