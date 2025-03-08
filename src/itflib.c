@@ -398,8 +398,12 @@ objectType itf_destr (listType arguments)
                 printf(")\n"););
     just_interface(arg_1(arguments));
     old_value = take_interface(arg_1(arguments));
-    if (old_value != NULL) {
-      isit_struct(old_value);
+    if (unlikely(CATEGORY_OF_OBJ(old_value) != STRUCTOBJECT)) {
+      logError(printf("itf_destr(");
+               trace1(arg_1(arguments));
+               printf("): Category of value is not STRUCTOBJECT.\n"););
+      run_error(STRUCTOBJECT, old_value);
+    } else {
       old_struct = take_struct(old_value);
       if (old_struct != NULL) {
         logMessage(printf("itf_destr: %s usage_count=" FMT_U_MEM
@@ -415,7 +419,6 @@ objectType itf_destr (listType arguments)
           if (old_struct->usage_count == 0) {
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
-            arg_1(arguments)->value.objValue = NULL;
             /* This function just removes objects without property. */
             /* Objects with property just lose their struct value.  */
             /* For these objects the HAS_PROPERTY flag and the      */
@@ -435,8 +438,8 @@ objectType itf_destr (listType arguments)
           } /* if */
         } /* if */
       } /* if */
-      arg_1(arguments)->value.objValue = NULL;
     } /* if */
+    arg_1(arguments)->value.objValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* itf_destr */
