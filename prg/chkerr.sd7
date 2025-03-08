@@ -3402,7 +3402,77 @@ const func boolean: checkWrongAccessRight is func
                     \arr[1] := \"y\";",
                     WRONGACCESSRIGHT, 3, 0,
                     "Variable expected in {ARR_IDX({arr [ 1 ] }) := \"y\" } found expression ({arr [ 1 ] }) of type func string",
-                    "arr[1] := \"y\";") then
+                    "arr[1] := \"y\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc is func\n\
+                    \  local\n\
+                    \    const integer: x is 0;\n\
+                    \  begin\n\
+                    \    x := 1;\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 6, 0,
+                    "Variable expected in {x := 1 } found constant integer: x",
+                    "    x := 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func boolean: abc is func\n\
+                    \  result\n\
+                    \    var boolean: okay is FALSE;\n\
+                    \  local\n\
+                    \    const integer: x is 0;\n\
+                    \  begin\n\
+                    \    x := 1;\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 8, 0,
+                    "Variable expected in {x := 1 } found constant integer: x",
+                    "    x := 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (val integer: x) is func\n\
+                    \  begin\n\
+                    \    x := 1;\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := 1 } found parameter (val integer: x)",
+                    "    x := 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (ref integer: x) is func\n\
+                    \  begin\n\
+                    \    x := 1;\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := 1 } found parameter (ref integer: x)",
+                    "    x := 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (in integer: x) is func\n\
+                    \  begin\n\
+                    \    x := 1;\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := 1 } found parameter (val integer: x)",
+                    "    x := 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (val string: x) is func\n\
+                    \  begin\n\
+                    \    x := \"A\";\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := \"A\" } found parameter (val string: x)",
+                    "    x := \"A\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (ref string: x) is func\n\
+                    \  begin\n\
+                    \    x := \"A\";\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := \"A\" } found parameter (ref string: x)",
+                    "    x := \"A\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: abc (in string: x) is func\n\
+                    \  begin\n\
+                    \    x := \"A\";\n\
+                    \  end func;",
+                    WRONGACCESSRIGHT, 4, 0,
+                    "Variable expected in {x := \"A\" } found parameter (ref string: x)",
+                    "    x := \"A\";") then
       okay := TRUE;
     else
       writeln(" *** WRONGACCESSRIGHT not reported correctly.");
