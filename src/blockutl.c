@@ -107,7 +107,7 @@ static void free_locobj (const_locObjType locobj)
 
 
 
-static void free_loclist (locListType loclist)
+void free_loclist (locListType loclist)
 
   {
     locListType old_loclist;
