@@ -44,6 +44,7 @@
 
 
 void setupBig (void);
+void closeBig (void);
 #if (DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC) && WITH_BIGINT_FREELIST
 unsigned long bigFListCount (memSizeType *bigDigitCountAddr);
 #else

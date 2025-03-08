@@ -210,7 +210,7 @@ bigIntType *conversionDivisorCache[] = {
 
 unsigned int conversionDivisorCacheSize[] = {
     /*  0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    /* 30 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    /* 20 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
 
 
@@ -330,6 +330,7 @@ static unsigned int flist_allowed = 100;
                                             {HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
 
 
+void bigDestr (const const_bigIntType old_bigint);
 void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
 intType bigLowestSetBit (const const_bigIntType big1);
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift);
@@ -350,6 +351,22 @@ void setupBig (void)
 
   { /* setupBig */
   } /* setupBig */
+
+
+
+void closeBig (void)
+
+  {
+    unsigned int base;
+    unsigned int pos;
+
+  /* closeBig */
+    for (base = 0; base <= 36; base++) {
+      for (pos = 0; pos < conversionDivisorCacheSize[base]; pos++) {
+        bigDestr(conversionDivisorCache[base][pos]);
+      } /* for */
+    } /* for */
+  } /* closeBig */
 
 
 
