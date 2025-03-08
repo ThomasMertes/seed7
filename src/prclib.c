@@ -207,7 +207,10 @@ objectType prc_begin (listType arguments)
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
@@ -1060,7 +1063,10 @@ objectType prc_local (listType arguments)
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
@@ -1216,7 +1222,10 @@ objectType prc_res_begin (listType arguments)
       if (err_info == OKAY_NO_ERROR) {
         if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
           update_owner(block_body);
-          block_body = match_expression(block_body);
+          if (match_expression(block_body) == NULL) {
+            free_expression(block_body);
+            block_body = NULL;
+          } /* if */
         } /* if */
         if (block_body != NULL) {
           block_body = match_object(block_body);
@@ -1306,7 +1315,10 @@ objectType prc_res_local (listType arguments)
       if (err_info == OKAY_NO_ERROR) {
         if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
           update_owner(block_body);
-          block_body = match_expression(block_body);
+          if (match_expression(block_body) == NULL) {
+            free_expression(block_body);
+            block_body = NULL;
+          } /* if */
         } /* if */
         if (block_body != NULL) {
           block_body = match_object(block_body);
@@ -1365,7 +1377,10 @@ objectType prc_return (listType arguments)
       push_stack();
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
@@ -1439,7 +1454,10 @@ objectType prc_return2 (listType arguments)
       push_stack();
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
@@ -1535,7 +1553,10 @@ objectType prc_varfunc (listType arguments)
       push_stack();
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
@@ -1588,7 +1609,10 @@ objectType prc_varfunc2 (listType arguments)
       push_stack();
       if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
-        block_body = match_expression(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
