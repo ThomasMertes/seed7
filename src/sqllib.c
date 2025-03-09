@@ -412,6 +412,7 @@ objectType sql_column_time (listType arguments)
     isit_int(arg_9(arguments));
     isit_int(arg_10(arguments));
     isit_bool(arg_11(arguments));
+    is_dst = take_bool(arg_11(arguments)) == SYS_TRUE_OBJECT;
     sqlColumnTime(take_sqlstmt(arg_1(arguments)),
                   take_int(arg_2(arguments)),
                   &arg_3(arguments)->value.intValue,

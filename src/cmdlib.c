@@ -404,6 +404,7 @@ objectType cmd_get_atime (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     cmdGetATime(take_stri(arg_1(arguments)),
                 &arg_2(arguments)->value.intValue,
                 &arg_3(arguments)->value.intValue,
@@ -467,6 +468,7 @@ objectType cmd_get_atime_of_symlink (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     cmdGetATimeOfSymlink(take_stri(arg_1(arguments)),
                          &arg_2(arguments)->value.intValue,
                          &arg_3(arguments)->value.intValue,
@@ -528,6 +530,7 @@ objectType cmd_get_ctime (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     cmdGetCTime(take_stri(arg_1(arguments)),
                 &arg_2(arguments)->value.intValue,
                 &arg_3(arguments)->value.intValue,
@@ -681,6 +684,7 @@ objectType cmd_get_mtime (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     cmdGetMTime(take_stri(arg_1(arguments)),
                 &arg_2(arguments)->value.intValue,
                 &arg_3(arguments)->value.intValue,
@@ -744,6 +748,7 @@ objectType cmd_get_mtime_of_symlink (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     cmdGetMTimeOfSymlink(take_stri(arg_1(arguments)),
                          &arg_2(arguments)->value.intValue,
                          &arg_3(arguments)->value.intValue,
