@@ -112,6 +112,7 @@ objectType tim_from_timestamp (listType arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
+    is_dst = take_bool(arg_10(arguments)) == SYS_TRUE_OBJECT;
     timFromIntTimestamp(arg_1(arguments)->value.intValue,
                        &arg_2(arguments)->value.intValue,
                        &arg_3(arguments)->value.intValue,
@@ -168,6 +169,7 @@ objectType tim_now (listType arguments)
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
     isit_bool(arg_9(arguments));
+    is_dst = take_bool(arg_9(arguments)) == SYS_TRUE_OBJECT;
     timNow(&arg_1(arguments)->value.intValue,
            &arg_2(arguments)->value.intValue,
            &arg_3(arguments)->value.intValue,
@@ -217,6 +219,7 @@ objectType tim_set_local_tz (listType arguments)
     isit_int(arg_6(arguments));
     isit_int(arg_7(arguments));
     isit_bool(arg_8(arguments));
+    is_dst = take_bool(arg_8(arguments)) == SYS_TRUE_OBJECT;
     timSetLocalTZ(take_int(arg_1(arguments)),
                   take_int(arg_2(arguments)),
                   take_int(arg_3(arguments)),
