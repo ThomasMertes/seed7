@@ -944,8 +944,8 @@ objectType exec_dynamic (listType expr_list)
     listType *temp_insert_place;
     listType temp_list_end;
     objectType match_result;
-    objectType result = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
+    objectType result = NULL;
 
   /* exec_dynamic */
     logFunction(printf("exec_dynamic\n"););
@@ -1018,60 +1018,73 @@ printf("\n"); */
       /* printf("match_expr ");
       trace1(match_expr);
       printf("\n"); */
-      if (match_prog_expression(prog->declaration_root, match_expr) != NULL &&
-          (match_result = match_object(match_expr)) != NULL) {
+      if (match_prog_expression(prog->declaration_root, match_expr) != NULL) {
+        if ((match_result = match_object(match_expr)) != NULL) {
 #ifdef WITH_PROTOCOL
-        if (trace.dynamic) {
-          prot_cstri("matched ==> ");
-          trace1(match_result);
-        } /* if */
+          if (trace.dynamic) {
+            prot_cstri("matched ==> ");
+            trace1(match_result);
+          } /* if */
 #endif
-        result = exec_call(match_result);
-        if (fail_flag) {
-          errInfoType ignored_err_info;
+          result = exec_call(match_result);
+          if (fail_flag) {
+            errInfoType ignored_err_info;
 
-          if (fail_stack->obj == match_result) {
-            pop_list(&fail_stack);
+            if (fail_stack->obj == match_result) {
+              pop_list(&fail_stack);
+            } /* if */
+
+            /* ignored_err_info is not checked since an exception was already raised */
+            incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
           } /* if */
 
-          /* ignored_err_info is not checked since an exception was already raised */
-          incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
-        } /* if */
-
-        if (match_result != match_expr) {
-          FREE_OBJECT(match_result->value.listValue->obj);
-          free_list(match_result->value.listValue);
-          FREE_OBJECT(match_result);
+          if (match_result != match_expr) {
+            FREE_OBJECT(match_result->value.listValue->obj);
+            free_list(match_result->value.listValue);
+            FREE_OBJECT(match_result);
+          } else {
+            free_list(match_expr->value.listValue);
+            FREE_OBJECT(match_expr);
+          } /* if */
+          if (temp_values != NULL) {
+            actual_element = temp_values;
+            do {
+              SET_TEMP_FLAG(actual_element->obj);
+              temp_list_end = temp_values;
+              actual_element = actual_element->next;
+            } while (actual_element != NULL);
+            free_list2(temp_values, temp_list_end);
+          } /* if */
+#ifdef WITH_PROTOCOL
+          if (trace.dynamic) {
+            if (trace.heapsize) {
+              prot_cstri(" ");
+              prot_heapsize();
+            } /* if */
+            prot_nl();
+          } /* if */
+#endif
         } else {
+          logError(printf("exec_dynamic: match_object() failed.\n");
+                   trace1(match_expr);
+                   printf("\n"););
           free_list(match_expr->value.listValue);
           FREE_OBJECT(match_expr);
+          return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         dynamic_call_obj, expr_list);
         } /* if */
-        if (temp_values != NULL) {
-          actual_element = temp_values;
-          do {
-            SET_TEMP_FLAG(actual_element->obj);
-            temp_list_end = temp_values;
-            actual_element = actual_element->next;
-          } while (actual_element != NULL);
-          free_list2(temp_values, temp_list_end);
-        } /* if */
-#ifdef WITH_PROTOCOL
-        if (trace.dynamic) {
-          if (trace.heapsize) {
-            prot_cstri(" ");
-            prot_heapsize();
-          } /* if */
-          prot_nl();
-        } /* if */
-#endif
       } else {
-        logError(printf("exec_dynamic: No match\n");
+        logError(printf("exec_dynamic: match_prog_expression() failed.\n");
                  trace1(match_expr);
                  printf("\n"););
-        return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, expr_list);
+        free_list(match_expr->value.listValue);
+        FREE_OBJECT(match_expr);
+        return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                       dynamic_call_obj, expr_list);
       } /* if */
     } else {
-      return raise_with_arguments(SYS_MEM_EXCEPTION, expr_list);
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     dynamic_call_obj, expr_list);
     } /* if */
     logFunction(printf("exec_dynamic -->\n"););
     return result;
