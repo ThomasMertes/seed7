@@ -961,7 +961,9 @@ objectType exec_dynamic (listType expr_list)
     } /* if */
 #endif
     dynamic_call_obj = curr_exec_object;
-    if (ALLOC_OBJECT(match_expr)) {
+    if (unlikely(!ALLOC_OBJECT(match_expr))) {
+      err_info = MEMORY_ERROR;
+    } else {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
       match_expr->descriptor.property = prog->property.literal;
       match_expr->value.listValue = NULL;
@@ -969,10 +971,10 @@ objectType exec_dynamic (listType expr_list)
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
       temp_insert_place = &temp_values;
       actual_element = expr_list;
-      while (actual_element != NULL) {
-/* printf("actual_element->obj ");
-trace1(actual_element->obj);
-printf("\n"); */
+      while (actual_element != NULL && err_info == OKAY_NO_ERROR) {
+        logMessage(printf("actual_element->obj ");
+                   trace1(actual_element->obj);
+                   printf("\n"););
         switch (CATEGORY_OF_OBJ(actual_element->obj)) {
           case VALUEPARAMOBJECT:
           case REFPARAMOBJECT:
@@ -987,103 +989,99 @@ printf("\n"); */
             element_value = actual_element->obj;
             break;
         } /* switch */
-/* printf("element_value ");
-trace1(element_value);
-printf("\n"); */
+        logMessage(printf("element_value ");
+                   trace1(element_value);
+                   printf("\n"););
         if (TEMP_OBJECT(element_value)) {
-          /* Exec_dynamic is called from the action PRC_DYNAMIC. */
-          /* PRC_DYNAMIC is called from exec_action. Exec_action */
-          /* frees temporary objects. To avoid double frees the  */
-          /* TEMP flag must be cleared here.                     */
+          /* The function exec_dynamic() is called indirectly from  */
+          /* exec_action(). Further below the call of exec_call()   */
+          /* could also lead to a call of exec_action(). At its end */
+          /* exec_action() frees temporary objects. This could lead */
+          /* to double frees of temporary values. To avoid that the */
+          /* TEMP flag must be cleared here.                        */
           CLEAR_TEMP_FLAG(element_value);
           temp_insert_place = append_element_to_list(temp_insert_place,
               element_value, &err_info);
         } /* if */
-        /* err_info is not checked after append! */
-        list_insert_place = append_element_to_list(list_insert_place,
-            element_value, &err_info);
-        actual_element = actual_element->next;
-      } /* while */
-#ifdef WITH_PROTOCOL
-      if (trace.dynamic) {
-        if (trace.heapsize) {
-          prot_heapsize();
-          prot_cstri(" ");
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          list_insert_place = append_element_to_list(list_insert_place,
+              element_value, &err_info);
+          actual_element = actual_element->next;
         } /* if */
-        prot_cstri("DYNAMIC2 ");
-        prot_list(match_expr->value.listValue);
-        prot_nl();
-      } /* if */
-#endif
-      /* printf("match_expr ");
-      trace1(match_expr);
-      printf("\n"); */
-      if (match_prog_expression(prog->declaration_root, match_expr) != NULL) {
-        if ((match_result = match_object(match_expr)) != NULL) {
+      } /* while */
+      if (likely(err_info == OKAY_NO_ERROR)) {
 #ifdef WITH_PROTOCOL
-          if (trace.dynamic) {
-            prot_cstri("matched ==> ");
-            trace1(match_result);
+        if (trace.dynamic) {
+          if (trace.heapsize) {
+            prot_heapsize();
+            prot_cstri(" ");
           } /* if */
+          prot_cstri("DYNAMIC2 ");
+          prot_list(match_expr->value.listValue);
+          prot_nl();
+        } /* if */
 #endif
-          result = exec_call(match_result);
-          if (fail_flag) {
-            errInfoType ignored_err_info;
-
-            if (fail_stack->obj == match_result) {
-              pop_list(&fail_stack);
-            } /* if */
-
-            /* ignored_err_info is not checked since an exception was already raised */
-            incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
-          } /* if */
-
-          if (match_result != match_expr) {
-            FREE_OBJECT(match_result->value.listValue->obj);
-            free_list(match_result->value.listValue);
-            FREE_OBJECT(match_result);
-          } else {
-            free_list(match_expr->value.listValue);
-            FREE_OBJECT(match_expr);
-          } /* if */
-          if (temp_values != NULL) {
-            actual_element = temp_values;
-            do {
-              SET_TEMP_FLAG(actual_element->obj);
-              temp_list_end = temp_values;
-              actual_element = actual_element->next;
-            } while (actual_element != NULL);
-            free_list2(temp_values, temp_list_end);
-          } /* if */
-#ifdef WITH_PROTOCOL
-          if (trace.dynamic) {
-            if (trace.heapsize) {
-              prot_cstri(" ");
-              prot_heapsize();
-            } /* if */
-            prot_nl();
-          } /* if */
-#endif
-        } else {
-          logError(printf("exec_dynamic: match_object() failed.\n");
+        logMessage(printf("match_expr ");
                    trace1(match_expr);
                    printf("\n"););
-          free_list(match_expr->value.listValue);
-          FREE_OBJECT(match_expr);
-          return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
-                                         dynamic_call_obj, expr_list);
+        if (match_prog_expression(prog->declaration_root, match_expr) != NULL) {
+          if ((match_result = match_object(match_expr)) != NULL) {
+#ifdef WITH_PROTOCOL
+            if (trace.dynamic) {
+              prot_cstri("matched ==> ");
+              trace1(match_result);
+            } /* if */
+#endif
+            result = exec_call(match_result);
+            if (fail_flag) {
+              errInfoType ignored_err_info;
+
+              if (fail_stack->obj == match_result) {
+                pop_list(&fail_stack);
+              } /* if */
+              /* Since an exception has already been     */
+              /* raised ignored_err_info is not checked. */
+              incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
+            } /* if */
+
+#ifdef WITH_PROTOCOL
+            if (trace.dynamic) {
+              if (trace.heapsize) {
+                prot_cstri(" ");
+                prot_heapsize();
+              } /* if */
+              prot_nl();
+            } /* if */
+#endif
+          } else {
+            logError(printf("exec_dynamic: match_object() failed.\n");
+                     trace1(match_expr);
+                     printf("\n"););
+            err_info = ACTION_ERROR;
+          } /* if */
+        } else {
+          logError(printf("exec_dynamic: match_prog_expression() failed.\n");
+                   trace1(match_expr);
+                   printf("\n"););
+          err_info = ACTION_ERROR;
         } /* if */
-      } else {
-        logError(printf("exec_dynamic: match_prog_expression() failed.\n");
-                 trace1(match_expr);
-                 printf("\n"););
-        free_list(match_expr->value.listValue);
-        FREE_OBJECT(match_expr);
-        return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
-                                       dynamic_call_obj, expr_list);
       } /* if */
-    } else {
-      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+      free_list(match_expr->value.listValue);
+      FREE_OBJECT(match_expr);
+      if (temp_values != NULL) {
+        /* Restore the TEMP flag such that           */
+        /* exec_action() can free temporary objects. */
+        actual_element = temp_values;
+        do {
+          SET_TEMP_FLAG(actual_element->obj);
+          temp_list_end = temp_values;
+          actual_element = actual_element->next;
+        } while (actual_element != NULL);
+        free_list2(temp_values, temp_list_end);
+      } /* if */
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      return raise_with_obj_and_args(prog->sys_var[err_info],
                                      dynamic_call_obj, expr_list);
     } /* if */
     logFunction(printf("exec_dynamic -->\n"););
