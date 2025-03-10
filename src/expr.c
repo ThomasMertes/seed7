@@ -336,6 +336,7 @@ objectType pars_infix_expression (priorityType priority,
     objectType expression;
     priorityType expr_prior;
     tokenType formal_token;
+    objectType name_obj;
     listType helplist;
 
   /* pars_infix_expression */
@@ -347,14 +348,15 @@ objectType pars_infix_expression (priorityType priority,
     } else {
       if (expr_prior <= priority) {
         formal_token = current_ident->prefix_token;
-        expression = new_expression_object(&helplist);
-        helplist->obj = read_name();
+        name_obj = read_name();
         if (current_ident == prog->id_for.dot) {
           err_num_stri(DOT_EXPR_ILLEGAL,
-              (int) GET_ENTITY(helplist->obj)->ident->prefix_priority,
-              (int) STRONGEST_PRIORITY, GET_ENTITY(helplist->obj)->ident->name);
+              (int) GET_ENTITY(name_obj)->ident->prefix_priority,
+              (int) STRONGEST_PRIORITY, GET_ENTITY(name_obj)->ident->name);
           expression = read_dot_expression(do_match_expr);
         } else {
+          expression = new_expression_object(&helplist);
+          helplist->obj = name_obj;
           expression = pars_token(expression,
               formal_token, helplist);
         } /* if */
