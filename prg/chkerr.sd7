@@ -3267,6 +3267,11 @@ const func boolean: checkNoMatch is func
                     "Match for {123 div \"12\" } failed",
                     "$ const type: jkl is $ subtype 123 div \"12\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
+                    \syntax expr: 123 is -> 5;",
+                    NO_MATCH, 2, 0,
+                    "Match for {syntax expr : 123 is {-> 5 } } failed",
+                    "syntax expr: 123 is -> 5;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: main is func\n\
                     \  begin\n\
                     \    writeln(asdf);\n\
