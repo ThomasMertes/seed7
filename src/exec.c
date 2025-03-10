@@ -850,9 +850,9 @@ objectType do_exec_call (objectType object, errInfoType *err_info)
   /* do_exec_call */
     result = exec_call(object);
     if (unlikely(fail_flag || result == NULL)) {
-      set_fail_flag(FALSE);
       *err_info = getErrInfoFromFailValue(fail_value);
       result = fail_value;
+      leaveExceptionHandling();
     } /* if */
     return result;
   } /* do_exec_call */
