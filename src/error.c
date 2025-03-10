@@ -406,6 +406,7 @@ static void writeError (fileType errorFile, parseErrorType error)
       fatal_memory_error(SOURCE_POSITION(2123));
     } else {
       writeString(errorFile, message);
+      FREE_STRI(message, message->size);
       writeNewline(errorFile);
       if (error->errorLine != NULL) {
         outputLine = stri8_buffer_to_stri(error->errorLine->mem,
@@ -416,7 +417,7 @@ static void writeError (fileType errorFile, parseErrorType error)
         } else {
           output = toOutputString(outputLine);
           FREE_STRI(outputLine, outputLine->size);
-          if (unlikely(outputLine == NULL)) {
+          if (unlikely(output == NULL)) {
             logError(printf("writeError(): No more memory. (3)\n"););
             fatal_memory_error(SOURCE_POSITION(2125));
           } else {
