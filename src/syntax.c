@@ -399,16 +399,18 @@ tokenType def_statement_syntax (objectType syntax_expression,
       identifier = GET_ENTITY(syntax_expression)->ident;
       if (identifier == prog->ident.literal) {
         err_object(IDENT_EXPECTED, syntax_expression);
-      } /* if */
-      if (identifier->prefix_priority == 0) {
-        identifier->prefix_priority = statement_priority;
+        token_list_end = NULL;
       } else {
-        if (identifier->prefix_priority != statement_priority) {
-          err_num_stri(REDECLARED_PREFIX_PRIORITY, (int) statement_priority,
-              (int) identifier->prefix_priority, identifier->name);
+        if (identifier->prefix_priority == 0) {
+          identifier->prefix_priority = statement_priority;
+        } else {
+          if (identifier->prefix_priority != statement_priority) {
+            err_num_stri(REDECLARED_PREFIX_PRIORITY, (int) statement_priority,
+                (int) identifier->prefix_priority, identifier->name);
+          } /* if */
         } /* if */
+        token_list_end = get_syntax_description(&identifier->prefix_token);
       } /* if */
-      token_list_end = get_syntax_description(&identifier->prefix_token);
 /*  printf("%s\n", identifier->name); */
     } /* if */
     logFunction(printf("def_statement_syntax -->\n"););
