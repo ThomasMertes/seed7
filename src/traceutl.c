@@ -1527,108 +1527,112 @@ void trace1 (const_objectType traceobject)
       prot_cstri(" is <");
       printcategory(CATEGORY_OF_OBJ(traceobject));
       prot_cstri("> ");
-      switch (CATEGORY_OF_OBJ(traceobject)) {
-        case REFOBJECT:
-        case ENUMLITERALOBJECT:
-        case CONSTENUMOBJECT:
-        case VARENUMOBJECT:
-        case VALUEPARAMOBJECT:
-        case REFPARAMOBJECT:
-        case RESULTOBJECT:
-        case LOCALVOBJECT:
-          /* prot_ptr(traceobject);
-             prot_cstri(" "); */
-          prot_ptr(traceobject->value.objValue);
-          prot_nl();
-          prot_cstri("  ");
-          trace1(traceobject->value.objValue);
-          break;
-        case FORMPARAMOBJECT:
-          printparam(traceobject);
-          break;
-        case TYPEOBJECT:
-          printobject(traceobject);
-          prot_cstri(" ");
-          if (traceobject->value.typeValue != NULL) {
-            if (traceobject->value.typeValue->meta != NULL) {
-              prot_cstri("^");
-              printtype(traceobject->value.typeValue->meta);
-              prot_cstri("^");
-            } /* if */
-            if (traceobject->value.typeValue->result_type != NULL) {
-              prot_cstri("[");
-              printtype(traceobject->value.typeValue->result_type);
-              prot_cstri("]");
-            } /* if */
-          } else {
-            prot_cstri(" *NULL_TYPE* ");
-          } /* if */
-          break;
-        case INTOBJECT:
-        case BIGINTOBJECT:
-        case CHAROBJECT:
-        case STRIOBJECT:
-        case BSTRIOBJECT:
-        case FILEOBJECT:
-        case SOCKETOBJECT:
-        case FLOATOBJECT:
-        case ARRAYOBJECT:
-        case HASHOBJECT:
-        case STRUCTOBJECT:
-        case INTERFACEOBJECT:
-        case SETOBJECT:
-        case ACTOBJECT:
-        case BLOCKOBJECT:
-        case WINOBJECT:
-        case POINTLISTOBJECT:
-        case PROCESSOBJECT:
-          print_real_value(traceobject);
-          break;
-#ifndef OUT_OF_ORDER
-        case LISTOBJECT:
-        case EXPROBJECT:
-          prot_list(traceobject->value.listValue);
-          break;
-#endif
-        case CALLOBJECT:
-        case MATCHOBJECT:
-          if (traceobject->value.listValue == NULL) {
-            prot_cstri(" *EMPTY_LIST* ");
-          } else if (traceobject->value.listValue->obj == NULL) {
-            prot_cstri(" *NULL_CALLOBJECT* ");
-          } else {
-            prot_cstri("<");
-            printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
-            prot_cstri("> ");
-            if (CATEGORY_OF_OBJ(traceobject->value.listValue->obj) == ACTOBJECT) {
-              prot_cstri(getActEntry(traceobject->value.listValue->obj->value.actValue)->name);
-            } else if (HAS_ENTITY(traceobject->value.listValue->obj) &&
-                GET_ENTITY(traceobject->value.listValue->obj)->ident != NULL) {
-              prot_cstri8(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));
+      if (IS_UNUSED(traceobject)) {
+        prot_cstri("UNUSED");
+      } else {
+        switch (CATEGORY_OF_OBJ(traceobject)) {
+          case REFOBJECT:
+          case ENUMLITERALOBJECT:
+          case CONSTENUMOBJECT:
+          case VARENUMOBJECT:
+          case VALUEPARAMOBJECT:
+          case REFPARAMOBJECT:
+          case RESULTOBJECT:
+          case LOCALVOBJECT:
+            /* prot_ptr(traceobject);
+               prot_cstri(" "); */
+            prot_ptr(traceobject->value.objValue);
+            prot_nl();
+            prot_cstri("  ");
+            trace1(traceobject->value.objValue);
+            break;
+          case FORMPARAMOBJECT:
+            printparam(traceobject);
+            break;
+          case TYPEOBJECT:
+            printobject(traceobject);
+            prot_cstri(" ");
+            if (traceobject->value.typeValue != NULL) {
+              if (traceobject->value.typeValue->meta != NULL) {
+                prot_cstri("^");
+                printtype(traceobject->value.typeValue->meta);
+                prot_cstri("^");
+              } /* if */
+              if (traceobject->value.typeValue->result_type != NULL) {
+                prot_cstri("[");
+                printtype(traceobject->value.typeValue->result_type);
+                prot_cstri("]");
+              } /* if */
             } else {
-              printtype(traceobject->value.listValue->obj->type_of);
-              prot_cstri(": <");
+              prot_cstri(" *NULL_TYPE* ");
+            } /* if */
+            break;
+          case INTOBJECT:
+          case BIGINTOBJECT:
+          case CHAROBJECT:
+          case STRIOBJECT:
+          case BSTRIOBJECT:
+          case FILEOBJECT:
+          case SOCKETOBJECT:
+          case FLOATOBJECT:
+          case ARRAYOBJECT:
+          case HASHOBJECT:
+          case STRUCTOBJECT:
+          case INTERFACEOBJECT:
+          case SETOBJECT:
+          case ACTOBJECT:
+          case BLOCKOBJECT:
+          case WINOBJECT:
+          case POINTLISTOBJECT:
+          case PROCESSOBJECT:
+            print_real_value(traceobject);
+            break;
+#ifndef OUT_OF_ORDER
+          case LISTOBJECT:
+          case EXPROBJECT:
+            prot_list(traceobject->value.listValue);
+            break;
+#endif
+          case CALLOBJECT:
+          case MATCHOBJECT:
+            if (traceobject->value.listValue == NULL) {
+              prot_cstri(" *EMPTY_LIST* ");
+            } else if (traceobject->value.listValue->obj == NULL) {
+              prot_cstri(" *NULL_CALLOBJECT* ");
+            } else {
+              prot_cstri("<");
               printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
               prot_cstri("> ");
+              if (CATEGORY_OF_OBJ(traceobject->value.listValue->obj) == ACTOBJECT) {
+                prot_cstri(getActEntry(traceobject->value.listValue->obj->value.actValue)->name);
+              } else if (HAS_ENTITY(traceobject->value.listValue->obj) &&
+                  GET_ENTITY(traceobject->value.listValue->obj)->ident != NULL) {
+                prot_cstri8(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));
+              } else {
+                printtype(traceobject->value.listValue->obj->type_of);
+                prot_cstri(": <");
+                printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
+                prot_cstri("> ");
+              } /* if */
+              prot_cstri("(");
+              prot_list(traceobject->value.listValue->next);
+              prot_cstri(")");
             } /* if */
-            prot_cstri("(");
-            prot_list(traceobject->value.listValue->next);
-            prot_cstri(")");
-          } /* if */
-          break;
-        case PROGOBJECT:
-          if (traceobject->value.progValue == NULL) {
-            prot_cstri("NULL");
-          } else {
-            prot_stri(traceobject->value.progValue->program_name);
-          } /* if */
-          break;
-        case SYMBOLOBJECT:
-          prot_ptr(traceobject);
-          break;
-        default:
-          break;
-      } /* switch */
+            break;
+          case PROGOBJECT:
+            if (traceobject->value.progValue == NULL) {
+              prot_cstri("NULL");
+            } else {
+              prot_stri(traceobject->value.progValue->program_name);
+            } /* if */
+            break;
+          case SYMBOLOBJECT:
+            prot_ptr(traceobject);
+            break;
+          default:
+            break;
+        } /* switch */
+      } /* if */
     } /* if */
     logFunction(printf("trace1 -->\n"););
   } /* trace1 */
