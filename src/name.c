@@ -1235,7 +1235,7 @@ static objectType eval_type (objectType object)
       if (match_expression(matched_expression) != NULL) {
         if (CATEGORY_OF_OBJ(matched_expression) == MATCHOBJECT) {
           if (!matched_expression->type_of->result_type->is_type_type) {
-            err_object(TYPE_EXPECTED, object);
+            err_object(TYPE_EXPECTED, matched_expression);
             result = NULL;
           } else {
             result = do_exec_call(matched_expression, &err_info);
@@ -1293,7 +1293,7 @@ static objectType dollar_parameter (objectType param_object,
             if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
               type_of_parameter = eval_type(type_of_parameter);
               if (unlikely(type_of_parameter == NULL)) {
-                *err_info = ACTION_ERROR;
+                param_object = NULL;
               } else {
                 param_descr->next->obj = type_of_parameter;
               } /* if */
@@ -1312,13 +1312,13 @@ static objectType dollar_parameter (objectType param_object,
                 } /* if */
               } else {
                 err_object(TYPE_EXPECTED, type_of_parameter);
-                *err_info = ACTION_ERROR;
+                param_object = NULL;
               } /* if */
             } /* if */
           } /* if */
         } else {
           err_ident(PARAM_SPECIFIER_EXPECTED, GET_ENTITY(param_descr->obj)->ident);
-          *err_info = ACTION_ERROR;
+          param_object = NULL;
         } /* if */
       } /* if */
       free_expression(param_object_copy);
@@ -1338,6 +1338,7 @@ static objectType dollar_inst_list (nodeType declaration_base,
     listType name_elem;
     listType name_list;
     listType *list_insert_place;
+    boolType parsing_error = FALSE;
     objectType parameter;
     objectType defined_object;
 
@@ -1355,15 +1356,20 @@ static objectType dollar_inst_list (nodeType declaration_base,
       } else {
         parameter = name_elem->obj;
       } /* if */
-      list_insert_place = append_element_to_list(list_insert_place,
-          parameter, err_info);
+      if (parameter == NULL) {
+        parsing_error = TRUE;
+      } else {
+        list_insert_place = append_element_to_list(list_insert_place,
+            parameter, err_info);
+      } /* if */
       name_elem = name_elem->next;
     } /* while */
-    if (*err_info == OKAY_NO_ERROR) {
+    if (!parsing_error && *err_info == OKAY_NO_ERROR) {
       defined_object = push_name(prog, declaration_base,
           name_list, GET_FILE_NUM(object_name),
           GET_LINE_NUM(object_name), err_info);
     } else {
+      free_list(name_list);
       defined_object = NULL;
     } /* if */
     logFunction(printf("dollar_inst_list(" FMT_U_MEM ", ",
