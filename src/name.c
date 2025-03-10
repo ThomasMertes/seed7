@@ -822,7 +822,9 @@ static listType eval_name_list (listType matched_name_list,
     objectType parameter;
 
   /* eval_name_list */
-    logFunction(printf("eval_name_list\n"););
+    logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d)\n",
+                       (memSizeType) matched_name_list,
+                       file_number, line, *err_info););
     name_elem = matched_name_list;
     name_list = NULL;
     list_insert_place = &name_list;
@@ -865,7 +867,10 @@ static listType eval_name_list (listType matched_name_list,
       free_name_list(name_list, FALSE);
       name_list = NULL;
     } /* if */
-    logFunction(printf("eval_name_list -->\n"););
+    logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d) --> ",
+                       (memSizeType) matched_name_list,
+                       file_number, line, *err_info,
+                       (memSizeType) name_list););
     return name_list;
   } /* eval_name_list */
 
@@ -883,7 +888,7 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     logFunction(printf("inst_list(" FMT_U_MEM ", ",
                        (memSizeType) declaration_base);
                 trace1(object_name);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
     matched_name_list = match_name_list(object_name->value.listValue, err_info);
     if (*err_info == OKAY_NO_ERROR) {
       push_stack();
@@ -900,7 +905,10 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     } else {
       defined_object = NULL;
     } /* if */
-    logFunction(printf("inst_list --> ");
+    logFunction(printf("inst_list(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(", %d) --> ", *err_info);
                 trace1(defined_object);
                 printf("\n"););
     return defined_object;
@@ -997,7 +1005,7 @@ objectType entername (nodeType declaration_base, objectType object_name,
     logFunction(printf("entername(" FMT_U_MEM ", ",
                        (memSizeType) declaration_base);
                 trace1(object_name);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listValue->next != NULL) {
         defined_object = inst_list(declaration_base, object_name, err_info);
@@ -1016,9 +1024,10 @@ objectType entername (nodeType declaration_base, objectType object_name,
       defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
     } /* if */
     /* trace_nodes(); */
-    logFunction(printf("entername(");
+    logFunction(printf("entername(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
                 trace1(object_name);
-                printf(") --> ");
+                printf(", %d) --> ", *err_info);
                 trace1(defined_object);
                 printf("\n"););
     return defined_object;
@@ -1272,7 +1281,7 @@ static objectType dollar_parameter (objectType param_object,
   /* dollar_parameter */
     logFunction(printf("dollar_parameter(");
                 trace1(param_object);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
     param_object_copy = copy_expression(param_object, err_info);
     if (*err_info == OKAY_NO_ERROR) {
       param_descr = param_object_copy->value.listValue;
@@ -1314,7 +1323,7 @@ static objectType dollar_parameter (objectType param_object,
       } /* if */
       free_expression(param_object_copy);
     } /* if */
-    logFunction(printf("dollar_parameter --> ");
+    logFunction(printf("dollar_parameter(*, %d) --> ", *err_info);
                 trace1(param_object);
                 printf("\n"););
     return param_object;
@@ -1336,7 +1345,7 @@ static objectType dollar_inst_list (nodeType declaration_base,
     logFunction(printf("dollar_inst_list(" FMT_U_MEM ", ",
                        (memSizeType) declaration_base);
                 trace1(object_name);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
     name_elem = object_name->value.listValue;
     name_list = NULL;
     list_insert_place = &name_list;
@@ -1357,7 +1366,12 @@ static objectType dollar_inst_list (nodeType declaration_base,
     } else {
       defined_object = NULL;
     } /* if */
-    logFunction(printf("dollar_inst_list -->\n"););
+    logFunction(printf("dollar_inst_list(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(", %d) -->", *err_info);
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* dollar_inst_list */
 
@@ -1373,7 +1387,7 @@ objectType dollar_entername (nodeType declaration_base, objectType object_name,
     logFunction(printf("dollar_entername(" FMT_U_MEM ", ",
                        (memSizeType) declaration_base);
                 trace1(object_name);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       defined_object = dollar_inst_list(declaration_base, object_name, err_info);
     } else {
@@ -1382,7 +1396,7 @@ objectType dollar_entername (nodeType declaration_base, objectType object_name,
     /* trace_nodes(); */
     logFunction(printf("dollar_entername(");
                 trace1(object_name);
-                printf(") --> ");
+                printf(", %d) --> ", *err_info);
                 trace1(defined_object);
                 printf("\n"););
     return defined_object;

@@ -277,7 +277,8 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
     objectType defined_object;
 
   /* decl_name */
-    logFunction(printf("decl_name\n"););
+    logFunction(printf("decl_name(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) node_level, *err_info););
     if (current_ident == prog->id_for.dollar) {
       scan_symbol();
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
@@ -292,7 +293,10 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
         free_expression(object_name);
       } /* if */
     } /* if */
-    logFunction(printf("decl_name -->\n"););
+    logFunction(printf("decl_name(" FMT_U_MEM ", %d) --> ",
+                       (memSizeType) node_level, *err_info);
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* decl_name */
 
@@ -306,7 +310,8 @@ void decl_const (nodeType node_level, errInfoType *err_info)
     objectType declared_object;
 
   /* decl_const */
-    logFunction(printf("decl_const\n"););
+    logFunction(printf("decl_const(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) node_level, *err_info););
     grow_stack(err_info);
     if (*err_info == OKAY_NO_ERROR) {
       typeof_object = decl_type(&is_dollar_type, err_info);
@@ -352,5 +357,6 @@ void decl_const (nodeType node_level, errInfoType *err_info)
       } /* if */
       shrink_stack();
     } /* if */
-    logFunction(printf("decl_const\n"););
+    logFunction(printf("decl_const(" FMT_U_MEM ", %d) -->\n",
+                       (memSizeType) node_level, *err_info););
   } /* decl_const */
