@@ -117,9 +117,10 @@ static void free_params (progType currentProg, listType params)
       param = param_elem->obj;
       if (CATEGORY_OF_OBJ(param) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(param) == REFPARAMOBJECT) {
-        /* printf("free_params %lx: ", (unsigned long int) param);
-        trace1(param);
-        printf("\n"); */
+        logMessage(printf("free_params " FMT_U_MEM ": ",
+                          (memSizeType) param);
+                   trace1(param);
+                   printf("\n"););
         if (HAS_PROPERTY(param) && param->descriptor.property != currentProg->property.literal) {
           FREE_RECORD(param->descriptor.property, propertyRecord, count.property);
         } /* if */
@@ -410,8 +411,14 @@ static objectType push_name (progType currentProg, nodeType declaration_base,
             pop_entity(declaration_base, entity);
             FREE_RECORD(entity, entityRecord, count.entity);
           } /* if */
+        } else if (defined_object == NULL) {
+          /* An object has been declared twice. */
+          push_stack();
+          /* Remove the parameters from the stack: */
+          pop_stack();
+          free_name_list(name_list);
         } else if (entity->fparam_list != name_list) {
-          /* An existing entity is used */
+          /* An existing entity is used. */
           free_form_param_list(name_list);
         } /* if */
       } /* if */
@@ -431,7 +438,8 @@ static void pop_object (progType currentProg, const_objectType obj_to_pop)
     ownerType owner;
 
   /* pop_object */
-    logFunction(printf("pop_object(");
+    logFunction(printf("pop_object(" FMT_U_MEM " ",
+                       (memSizeType) obj_to_pop);
                 trace1(obj_to_pop);
                 printf(")\n");
                 fflush(stdout););
