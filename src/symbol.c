@@ -45,6 +45,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "fatal.h"
+#include "big_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -131,9 +132,11 @@ void close_symbol (void)
     } /* if */
     symbol.name = NULL;
     symbol.name_length = 0;
+    bigDestr(symbol.bigIntValue);
+    symbol.bigIntValue = NULL;
     if (symbol.striValue != NULL) {
       FREE_STRI(symbol.striValue, symbol.stri_max);
+      symbol.striValue = NULL;
     } /* if */
-    symbol.striValue = NULL;
     symbol.stri_max = 0;
   } /* close_symbol */
