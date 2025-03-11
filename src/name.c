@@ -298,7 +298,31 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
 
 
 
-static void free_name_list (listType name_list, boolType freeParamObject)
+static void free_form_param_list (listType name_list)
+
+  {
+    listType name_elem;
+    listType list_end;
+
+  /* free_form_param_list */
+    logFunction(printf("free_form_param_list\n"););
+    if (name_list != NULL) {
+      name_elem = name_list;
+      do {
+        if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+          FREE_OBJECT(name_elem->obj);
+        } /* if */
+        list_end = name_elem;
+        name_elem = name_elem->next;
+      } while (name_elem != NULL);
+      free_list2(name_list, list_end);
+    } /* if */
+    logFunction(printf("free_form_param_list -->\n"););
+  } /* free_form_param_list */
+
+
+
+static void free_name_list (listType name_list)
 
   {
     listType name_elem;
@@ -313,36 +337,34 @@ static void free_name_list (listType name_list, boolType freeParamObject)
         trace1(name_elem->obj);
         printf("\n"); */
         param_obj = name_elem->obj->value.objValue;
-        if (freeParamObject) {
-          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-            /* printf("formparam: ");
-            trace1(name_elem->obj);
-            printf("\n"); */
-            /* printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
-            trace1(param_obj);
-            printf("\n");
-            fflush(stdout); */
-            /* if (HAS_ENTITY(param_obj)) {
-              printf("name: \"%s\"\n", GET_ENTITY(param_obj)->ident == NULL ? "*NULL_IDENT*" : (char *) GET_ENTITY(param_obj)->ident->name);
-              printf("owner: " FMT_U_MEM "\n", (memSizeType) GET_ENTITY(param_obj)->data.owner);
-              if (GET_ENTITY(param_obj)->data.owner != NULL) {
-                trace1(GET_ENTITY(param_obj)->data.owner->obj);
-                printf("\n");
-              }
-            } else {
-              printf("no entity: " FMT_U_MEM "\n", (memSizeType) param_obj);
-            } * if */
-            if (HAS_ENTITY(param_obj) && GET_ENTITY(param_obj)->data.owner == NULL) {
-              /* printf("free ");
-              trace1(param_obj);
-              printf("\n"); */
-              if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
-                /* free_params(prog, param_obj->descriptor.property->params); */
-                FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
-              } /* if */
-              FREE_OBJECT(param_obj);
+        if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          /* printf("formparam: ");
+          trace1(name_elem->obj);
+          printf("\n"); */
+          /* printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
+          trace1(param_obj);
+          printf("\n");
+          fflush(stdout); */
+          /* if (HAS_ENTITY(param_obj)) {
+            printf("name: \"%s\"\n", GET_ENTITY(param_obj)->ident == NULL ? "*NULL_IDENT*" : (char *) GET_ENTITY(param_obj)->ident->name);
+            printf("owner: " FMT_U_MEM "\n", (memSizeType) GET_ENTITY(param_obj)->data.owner);
+            if (GET_ENTITY(param_obj)->data.owner != NULL) {
+              trace1(GET_ENTITY(param_obj)->data.owner->obj);
+              printf("\n");
+            }
+          } else {
+            printf("no entity: " FMT_U_MEM "\n", (memSizeType) param_obj);
+          } * if */
+          if (HAS_ENTITY(param_obj) && GET_ENTITY(param_obj)->data.owner == NULL) {
+            logMessage(printf("free " FMT_U_MEM " ", (memSizeType) param_obj);
+                       trace1(param_obj);
+                       printf("\n"););
+            if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
+              /* free_params(prog, param_obj->descriptor.property->params); */
+              FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
             } /* if */
+            FREE_OBJECT(param_obj);
           } /* if */
         } /* if */
         FREE_OBJECT(name_elem->obj);
@@ -390,7 +412,7 @@ static objectType push_name (progType currentProg, nodeType declaration_base,
           } /* if */
         } else if (entity->fparam_list != name_list) {
           /* An existing entity is used */
-          free_name_list(name_list, FALSE);
+          free_form_param_list(name_list);
         } /* if */
       } /* if */
     } /* if */
@@ -864,7 +886,7 @@ static listType eval_name_list (listType matched_name_list,
       name_elem = name_elem->next;
     } /* while */
     if (*err_info != OKAY_NO_ERROR) {
-      free_name_list(name_list, FALSE);
+      free_form_param_list(name_list);
       name_list = NULL;
     } /* if */
     logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d) --> ",
@@ -983,7 +1005,7 @@ static objectType inst_object_expr (const_nodeType declaration_base,
         } else {
           err_object(IDENT_EXPECTED, object_name);
         } /* if */
-        free_name_list(name_list, FALSE);
+        free_form_param_list(name_list);
       } /* if */
       free_matched_list(matched_name_list);
     } /* if */
@@ -1066,7 +1088,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, TRUE);
+            free_name_list(name_list);
           } else {
             entity = NULL;
           } /* if */
@@ -1096,7 +1118,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, TRUE);
+            free_name_list(name_list);
           } else {
             entity = NULL;
           } /* if */
@@ -1158,7 +1180,7 @@ objectType search_name (const_nodeType declaration_base,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, TRUE);
+            free_name_list(name_list);
           } else {
             entity = NULL;
           } /* if */
@@ -1188,7 +1210,7 @@ objectType search_name (const_nodeType declaration_base,
               entity = NULL;
             } /* if */
             shrink_stack();
-            free_name_list(name_list, TRUE);
+            free_name_list(name_list);
           } else {
             entity = NULL;
           } /* if */
