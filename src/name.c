@@ -819,6 +819,7 @@ static listType match_name_list (listType original_name_list, errInfoType *err_i
         if (*err_info == OKAY_NO_ERROR) {
           if (match_expression(parameter) == NULL) {
             err_match(NO_MATCH, parameter);
+            free_expression(parameter);
           } else {
             list_insert_place = append_element_to_list(list_insert_place,
                 parameter, err_info);
