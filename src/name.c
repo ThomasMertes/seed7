@@ -1090,6 +1090,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
             shrink_stack();
             free_name_list(name_list);
           } else {
+            shrink_stack();
             entity = NULL;
           } /* if */
           free_matched_list(matched_name_list);
@@ -1120,6 +1121,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
             shrink_stack();
             free_name_list(name_list);
           } else {
+            shrink_stack();
             entity = NULL;
           } /* if */
           free_matched_list(matched_name_list);
@@ -1182,6 +1184,7 @@ objectType search_name (const_nodeType declaration_base,
             shrink_stack();
             free_name_list(name_list);
           } else {
+            shrink_stack();
             entity = NULL;
           } /* if */
           free_matched_list(matched_name_list);
@@ -1212,6 +1215,7 @@ objectType search_name (const_nodeType declaration_base,
             shrink_stack();
             free_name_list(name_list);
           } else {
+            shrink_stack();
             entity = NULL;
           } /* if */
           free_matched_list(matched_name_list);
