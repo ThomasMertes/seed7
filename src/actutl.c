@@ -275,6 +275,19 @@ static void genActPtrTable (void)
 
 
 
+void freeActPtrTable (void)
+
+  { /* freeActPtrTable */
+    logFunction(printf("freeActPtrTable\n"););
+    if (actEntryMap.table != NULL) {
+      FREE_TABLE(actEntryMap.table, const_actEntryType, actEntryMap.size);
+      actEntryMap.table = NULL;
+    } /* if */
+    logFunction(printf("freeActPtrTable -->\n"););
+  } /* freeActPtrTable */
+
+
+
 /**
  *  Get an actEntry that corresponds to actionSearched.
  *  @param actionSearched The action to be searched in actTable.

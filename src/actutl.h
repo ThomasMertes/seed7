@@ -47,4 +47,5 @@ EXTERN actTableType actTable;
 
 actType findAction (const const_striType actionName);
 actType getActIllegal (void);
+void freeActPtrTable (void);
 const_actEntryType getActEntry (actType actionSearched);
