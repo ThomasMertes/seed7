@@ -727,8 +727,7 @@ void dump_temp_value (objectType object)
       case SETOBJECT:
         if (object->value.setValue != NULL) {
           FREE_SET(object->value.setValue,
-              (memSizeType) (object->value.setValue->max_position -
-              object->value.setValue->min_position + 1));
+                   bitsetSize(object->value.setValue));
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
