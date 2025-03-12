@@ -42,6 +42,8 @@
 #include "os_decls.h"
 #include "infile.h"
 #include "heaputl.h"
+#include "flistutl.h"
+#include "actutl.h"
 #include "striutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
@@ -458,7 +460,9 @@ int main (int argc, char **argv)
                 } /* if */
               } /* if */
             } /* if */
-            /* prgDestr(currentProg); */
+#if HEAP_STATISTIC_AT_PROGRAM_EXIT
+            prgDestr(currentProg);
+#endif
           } /* if */
         } /* if */
         shutDrivers();
@@ -467,7 +471,12 @@ int main (int argc, char **argv)
       freeStringArray(arg_v);
     } /* if */
     /* getchar(); */
-    /* heapStatistic(); */
+#if HEAP_STATISTIC_AT_PROGRAM_EXIT
+    leaveExceptionHandling();
+    freeActPtrTable();
+    closeBig();
+    heapStatistic();
+#endif
 #if CHECK_STACK
     printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif
