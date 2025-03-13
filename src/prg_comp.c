@@ -59,6 +59,7 @@
 #include "runerr.h"
 #include "str_rtl.h"
 #include "set_rtl.h"
+#include "hsh_rtl.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
 
@@ -388,7 +389,6 @@ void prgDestr (progType old_prog)
         close_entity(old_prog);
         close_idents(old_prog);
         close_type(old_prog);
-        removeProgFiles(old_prog);
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
         if (old_prog->property.literal != NULL) {
@@ -408,6 +408,9 @@ void prgDestr (progType old_prog)
         dump_list(old_prog->substituted_objects);
         free_obj_and_prop(old_prog->when_value_objects);
         free_obj_and_prop(old_prog->struct_objects);
+        freeGenericHash((rtlHashType) old_prog->objectNumberMap);
+        freeGenericHash((rtlHashType) old_prog->typeNumberMap);
+        removeProgFiles(old_prog);
         FREE_RECORD(old_prog, progRecord, count.prog);
         prog = progBackup;
         /* printf("heapsize: %ld\n", heapsize()); */

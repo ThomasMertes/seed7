@@ -75,6 +75,7 @@
 #include "cmd_rtl.h"
 #include "chr_rtl.h"
 #include "str_rtl.h"
+#include "hsh_rtl.h"
 #include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "prg_comp.h"
@@ -488,6 +489,10 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
+      resultProg->objectNumberMap = (void *) hshEmpty();
+      resultProg->nextFreeObjectNumber = 1;
+      resultProg->typeNumberMap = (void *) hshEmpty();
+      resultProg->nextFreeTypeNumber = 1;
       resultProg->includeFileHash = (void *) initIncludeFileHash();
       resultProg->fileList = in_file.curr_infile;
       resultProg->fileCounter = 1;

@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+void freeGenericHash (rtlHashType genericHash);
 rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
                                    rtlHashElemType element2);
 boolType hshContains (const const_rtlHashType hash1,

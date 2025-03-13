@@ -158,28 +158,29 @@ typeType typMeta (typeType any_type)
 intType typNum (typeType actual_type)
 
   {
-    static rtlHashType type_table = NULL;
-    static intType next_free_number = 1;
     intType type_num;
 
   /* typNum */
-    logFunction(printf("typNum(" FMT_X_MEM ")\n", (memSizeType) actual_type););
+    logFunction(printf("typNum(" FMT_X_MEM ")\n",
+                       (memSizeType) actual_type););
     if (unlikely(actual_type == NULL)) {
       type_num = 0;
     } else {
-      if (unlikely(type_table == NULL)) {
-        type_table = hshEmpty();
-      } /* if */
-      if (unlikely(type_table == NULL)) {
-        raise_error(MEMORY_ERROR);
-        type_num = 0;
-      } else {
-        type_num = (intType) hshIdxEnterDefault(type_table, (genericType) (memSizeType) actual_type,
-            (genericType) next_free_number,
+      if (likely(actual_type->owningProg != NULL &&
+                 actual_type->owningProg->typeNumberMap != NULL)) {
+        type_num = (intType) hshIdxEnterDefault(
+            actual_type->owningProg->typeNumberMap,
+            (genericType) (memSizeType) actual_type,
+            (genericType) actual_type->owningProg->nextFreeTypeNumber,
             (intType) (((memSizeType) actual_type) >> 6));
-        if (type_num == next_free_number) {
-          next_free_number++;
+        if (type_num == actual_type->owningProg->nextFreeTypeNumber) {
+          actual_type->owningProg->nextFreeTypeNumber++;
         } /* if */
+      } else {
+        logError(printf("typNum(" FMT_X_MEM ")\n",
+                        (memSizeType) actual_type););
+        raise_error(RANGE_ERROR);
+        type_num = 0;
       } /* if */
     } /* if */
     logFunction(printf("typNum --> " FMT_D "\n", type_num););

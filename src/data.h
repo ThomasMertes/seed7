@@ -439,6 +439,10 @@ typedef struct progStruct {
     stackType stack_global;
     stackType stack_data;
     stackType stack_current;
+    void *objectNumberMap;
+    intType nextFreeObjectNumber;
+    void *typeNumberMap;
+    intType nextFreeTypeNumber;
     listType exec_expr_temp_results;
     listType substituted_objects;
     listType struct_objects;

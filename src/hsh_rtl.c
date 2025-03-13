@@ -67,6 +67,18 @@
 
 
 
+void freeGenericHash (rtlHashType genericHash)
+
+  { /* freeGenericHash */
+    logFunction(printf("freeGenericHash(" FMT_X_MEM ")\n",
+                       (memSizeType) genericHash););
+    hshDestr(genericHash, (destrFuncType) &genericDestr,
+             (destrFuncType) &genericDestr);
+    logFunction(printf("freeGenericHash -->\n"););
+  } /* freeGenericHash */
+
+
+
 static memSizeType free_helem (const const_rtlHashElemType old_helem,
     const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 

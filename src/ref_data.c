@@ -637,8 +637,6 @@ listType refLocalVars (const const_objectType funcRef)
 intType refNum (const const_objectType aReference)
 
   {
-    static rtlHashType obj_table = NULL;
-    static intType next_free_number = 1;
     intType result;
 
   /* refNum */
@@ -646,19 +644,19 @@ intType refNum (const const_objectType aReference)
     if (unlikely(aReference == NULL)) {
       result = 0;
     } else {
-      if (unlikely(obj_table == NULL)) {
-        obj_table = hshEmpty();
-      } /* if */
-      if (unlikely(obj_table == NULL)) {
-        raise_error(MEMORY_ERROR);
-        result = 0;
-      } else {
-        result = (intType) hshIdxEnterDefault(obj_table, (genericType) (memSizeType) aReference,
-            (genericType) next_free_number,
+      if (likely(aReference->type_of != NULL &&
+                 aReference->type_of->owningProg != NULL &&
+                 aReference->type_of->owningProg->objectNumberMap != NULL)) {
+        result = (intType) hshIdxEnterDefault(
+            aReference->type_of->owningProg->objectNumberMap,
+            (genericType) (memSizeType) aReference,
+            (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,
             (intType) (((memSizeType) aReference) >> 6));
-        if (result == next_free_number) {
-          next_free_number++;
+        if (result == aReference->type_of->owningProg->nextFreeObjectNumber) {
+          aReference->type_of->owningProg->nextFreeObjectNumber++;
         } /* if */
+      } else {
+        result = 0;
       } /* if */
     } /* if */
     logFunction(printf("refNum --> " FMT_D "\n", result););
