@@ -93,15 +93,15 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     expr_list[1].obj = SYS_CREA_OBJECT;
     expr_list[2].obj = obj;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        create_call_obj = match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          create_call_obj = match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
     prog = progBackup;
 
@@ -146,15 +146,15 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     expr_list[0].obj = obj;
     expr_list[1].obj = SYS_DESTR_OBJECT;
 
-    match_result = match_expression(&expr_object);
-    if (match_result != NULL) {
-      match_result = match_object(match_result);
-      if (match_result != NULL) {
-        destroy_call_obj = match_result->value.listValue->obj;
-        FREE_L_ELEM(match_result->value.listValue);
-        /* FREE_OBJECT(match_result) is not necessary, */
-        /* because match_result == &expr_object holds. */
+    match_result = copy_expression(&expr_object, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (match_expression(match_result) != NULL) {
+        match_result = match_object(match_result);
+        if (match_result != NULL) {
+          destroy_call_obj = match_result->value.listValue->obj;
+        } /* if */
       } /* if */
+      free_expression(match_result);
     } /* if */
     prog = progBackup;
 
