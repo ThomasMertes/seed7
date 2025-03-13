@@ -7758,8 +7758,9 @@ const proc: process_global_declarations (in program: prog) is func
       writeln(c_prog);
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then
-      declareExtern("striType get_file_name (unsigned int a) {return " <& stringLiteral("") <& ";}");
-      declareExtern("const unsigned char *get_file_name_ustri (unsigned int a) {return (unsigned char *) \"?\";}");
+      declareExtern("striType get_file_name (progType aProg, unsigned int file_num) {return " <& stringLiteral("") <& ";}");
+      declareExtern("striType objectFileName (objRefType anObject) {return " <& stringLiteral("") <& ";}");
+      declareExtern("const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num) {return (ustriType) \"?\";}");
       declareExtern("void *get_param_list (const_listType a, int *b) {printf(\"get_param_list\\n\"); return NULL;}");
       writeln(c_prog);
     end if;
