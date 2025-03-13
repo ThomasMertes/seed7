@@ -477,6 +477,9 @@ int main (int argc, char **argv)
     closeBig();
     heapStatistic();
 #endif
+#if SHOW_OBJECT_MEMORY_LEAKS
+    listAllObjects();
+#endif
 #if CHECK_STACK
     printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif

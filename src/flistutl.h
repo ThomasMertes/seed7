@@ -95,6 +95,10 @@ EXTERN freeListRootType flist;
 #define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
 
 
+#if SHOW_OBJECT_MEMORY_LEAKS
+#define ALLOC_OBJECT(O) ((O = allocObject()) != NULL)
+#define FREE_OBJECT(O)  freeObject(O)
+#else
 #if WITH_OBJECT_FREELIST
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectRecord))
 #define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objValue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
@@ -105,6 +109,7 @@ EXTERN freeListRootType flist;
 #define FREE_OBJECT(O)  FREE_RECORD(O, objectRecord, count.object)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_OBJECT_FREELIST
+#endif
 #endif
 #endif
 
@@ -155,4 +160,9 @@ void reuse_free_lists (void);
 #endif
 #if USE_CHUNK_ALLOCS
 void *heap_chunk (size_t);
+#endif
+#if SHOW_OBJECT_MEMORY_LEAKS
+objectType allocObject (void);
+void freeObject (objectType oldObject);
+void listAllObjects (void);
 #endif

@@ -58,6 +58,7 @@
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "traceutl.h"
 #include "big_drv.h"
 #include "sql_drv.h"
 #include "heaputl.h"
@@ -71,6 +72,10 @@
 #if USE_CHUNK_ALLOCS
 static const unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
     2048, 1024, 512, 256, 128, 64, 0 };
+#endif
+
+#if SHOW_OBJECT_MEMORY_LEAKS
+listType all_objects = NULL;
 #endif
 
 
@@ -962,4 +967,81 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 /*  show_statistic(); */
     logFunction(printf("check_heap -->\n"););
   } /* check_heap */
+#endif
+
+
+
+#if SHOW_OBJECT_MEMORY_LEAKS
+objectType allocObject (void)
+
+  {
+    objectType created_object;
+    listType list_elem;
+
+  /* allocObject */
+    if (ALLOC_RECORD(created_object, objectRecord, count.object)) {
+      if (ALLOC_L_ELEM(list_elem)) {
+        list_elem->obj = created_object;
+        list_elem->next = all_objects;
+        all_objects = list_elem;
+        return created_object;
+      } else {
+	FREE_RECORD(created_object, objectRecord, count.object);
+        return NULL;
+      } /* if */
+    } else {
+      return NULL;
+    } /* if */
+  } /* allocObject */
+
+
+
+void freeObject (objectType oldObject)
+
+  {
+    listType *elem_addr;
+    listType list_elem;
+
+  /* freeObject */
+    elem_addr = &all_objects;
+    list_elem = all_objects;
+    while (list_elem != NULL && list_elem->obj != oldObject) {
+      elem_addr = &list_elem->next;
+      list_elem = list_elem->next;
+    } /* while */
+    if (list_elem != NULL) {
+      *elem_addr = list_elem->next;
+      FREE_L_ELEM(list_elem);
+      FREE_RECORD(oldObject, objectRecord, count.object);
+    } else {
+      printf("Strange things happen.\n");
+      exit(1);
+    } /* if */
+  } /* freeObject */
+
+
+
+void listAllObjects (void)
+
+  {
+    listType list_elem;
+    memSizeType count = 0;
+
+  /* listAllObjects */
+    list_elem = all_objects;
+    while (list_elem != NULL) {
+      list_elem = list_elem->next;
+      count++;
+    } /* if */
+    printf(FMT_U_MEM " objects:\n", count);
+    list_elem = all_objects;
+    while (list_elem != NULL) {
+      printf(FMT_U_MEM " ", (memSizeType) list_elem->obj);
+      trace1(list_elem->obj);
+      /* printobject(list_elem->obj); */
+      printf("\n");
+      list_elem = list_elem->next;
+    } /* while */
+    printf(FMT_U_MEM " objects\n", count);
+  } /* listAllObjects */
 #endif
