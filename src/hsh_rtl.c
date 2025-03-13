@@ -99,6 +99,11 @@ static void free_hash (const const_rtlHashType old_hash,
     const rtlHashElemType *table;
 
   /* free_hash */
+    logFunction(printf("free_hash(" FMT_X_MEM ", " FMT_X_MEM ", "
+                                    FMT_X_MEM ")\n",
+                       (memSizeType) old_hash,
+                       (memSizeType) key_destr_func,
+                       (memSizeType) data_destr_func););
     if (old_hash != NULL) {
       to_free = old_hash->size;
       if (to_free != 0) {
@@ -113,6 +118,7 @@ static void free_hash (const const_rtlHashType old_hash,
       } /* if */
       FREE_RTL_HASH(old_hash, old_hash->table_size);
     } /* if */
+    logFunction(printf("free_hash -->\n"););
   } /* free_hash */
 
 
@@ -148,6 +154,7 @@ static rtlHashType new_hash (unsigned int bits)
     rtlHashType hash;
 
   /* new_hash */
+    logFunction(printf("new_hash(%u)\n", bits););
     if (likely(ALLOC_RTL_HASH(hash, TABLE_SIZE(bits)))) {
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
@@ -155,6 +162,8 @@ static rtlHashType new_hash (unsigned int bits)
       hash->size = 0;
       memset(hash->table, 0, hash->table_size * sizeof(rtlHashElemType));
     } /* if */
+    logFunction(printf("new_hash(%u) --> "FMT_X_MEM "\n",
+                       bits, (memSizeType) hash););
     return hash;
   } /* new_hash */
 
@@ -205,6 +214,11 @@ static rtlHashType create_hash (const const_rtlHashType source_hash,
     rtlHashType dest_hash;
 
   /* create_hash */
+    logFunction(printf("create_hash(" FMT_X_MEM ", " FMT_X_MEM ", "
+                                    FMT_X_MEM ", %d)\n",
+                       (memSizeType) source_hash,
+                       (memSizeType) key_create_func,
+                       (memSizeType) data_create_func, *err_info););
     table_size = source_hash->table_size;
     if (unlikely(!ALLOC_RTL_HASH(dest_hash, table_size))) {
       *err_info = MEMORY_ERROR;
@@ -236,6 +250,8 @@ static rtlHashType create_hash (const const_rtlHashType source_hash,
         } /* while */
       } /* if */
     } /* if */
+    logFunction(printf("create_hash(*, %d) --> " FMT_X_MEM "\n",
+                       *err_info, (memSizeType) dest_hash););
     return dest_hash;
   } /* create_hash */
 
@@ -609,6 +625,8 @@ rtlHashType hshCreate (const const_rtlHashType source,
     rtlHashType result;
 
   /* hshCreate */
+    logFunction(printf("hshCreate(" FMT_X_MEM ")\n",
+                       (memSizeType) source););
     result = create_hash(source,
         key_create_func, data_create_func, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -616,6 +634,8 @@ rtlHashType hshCreate (const const_rtlHashType source,
       result = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("hshCreate --> " FMT_X_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* hshCreate */
 
@@ -648,10 +668,13 @@ rtlHashType hshEmpty (void)
     rtlHashType result;
 
   /* hshEmpty */
+    logFunction(printf("hshEmpty()\n"););
     result = new_hash(TABLE_BITS);
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("hshEmpty --> "FMT_X_MEM "\n",
+                       (memSizeType) result););
     return result;
   } /* hshEmpty */
 
