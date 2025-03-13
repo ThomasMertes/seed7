@@ -43,6 +43,8 @@ typedef struct {
     unsigned long hash;
     memSizeType hsh_elems;
     unsigned long helem;
+    unsigned long rtl_hash;
+    memSizeType rtl_hsh_elems;
     unsigned long rtl_helem;
     unsigned long set;
     memSizeType set_elems;
@@ -93,7 +95,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0};
+                   0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif
@@ -194,8 +196,8 @@ EXTERN memSizeType hs;
 #define RTL_L_ELEM_SUB
 #define RTL_ARR_ADD(len)       count.rtl_array++, count.rtl_arr_elems += (memSizeType) (len)
 #define RTL_ARR_SUB(len)       count.rtl_array--, count.rtl_arr_elems -= (memSizeType) (len)
-#define RTL_HSH_ADD(len)       count.hash++,  count.hsh_elems += (memSizeType) (len)
-#define RTL_HSH_SUB(len)       count.hash--,  count.hsh_elems -= (memSizeType) (len)
+#define RTL_HSH_ADD(len)       count.rtl_hash++,  count.rtl_hsh_elems += (memSizeType) (len)
+#define RTL_HSH_SUB(len)       count.rtl_hash--,  count.rtl_hsh_elems -= (memSizeType) (len)
 #else
 #define USTRI_ADD(len,cnt,byt)
 #define USTRI_SUB(len,cnt,byt)

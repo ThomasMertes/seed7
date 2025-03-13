@@ -339,6 +339,20 @@ void heapStatistic (void)
           (unsigned int) SIZ_REC(hashElemRecord));
       bytes_used += count.helem * SIZ_REC(hashElemRecord);
     } /* if */
+    if (count.rtl_hash != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu rtl hashtables of      %4u bytes\n",
+          count.rtl_hash * SIZ_RTL_HSH(0),
+          count.rtl_hash,
+          (unsigned int) SIZ_RTL_HSH(0));
+      bytes_used += count.rtl_hash * SIZ_RTL_HSH(0);
+    } /* if */
+    if (count.rtl_hsh_elems != 0) {
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " rtl hashtable elems of %4u bytes\n",
+          count.rtl_hsh_elems * SIZ_REC(rtlHashElemType),
+          count.rtl_hsh_elems,
+          (unsigned int) SIZ_REC(rtlHashElemType));
+      bytes_used += count.rtl_hsh_elems * SIZ_REC(rtlHashElemType);
+    } /* if */
     if (count.rtl_helem != 0) {
       printf(F_U_MEM(9) " bytes in %8lu rtl helems of          %4u bytes\n",
           count.rtl_helem * SIZ_REC(rtlHashElemRecord),
@@ -684,7 +698,10 @@ static memSizeType compute_hs (void)
     bytes_total += count.rtl_arr_elems * SIZ_REC(rtlObjectType);
     bytes_total += count.hash * SIZ_HSH(0);
     bytes_total += count.hsh_elems * SIZ_REC(hashElemType);
-    bytes_total += count.hsh_elems * SIZ_REC(hashElemRecord);
+    bytes_total += count.helem * SIZ_REC(hashElemRecord);
+    bytes_total += count.rtl_hash * SIZ_RTL_HSH(0);
+    bytes_total += count.rtl_hsh_elems * SIZ_REC(rtlHashElemType);
+    bytes_total += count.rtl_helem * SIZ_REC(rtlHashElemRecord);
     bytes_total += count.set * SIZ_SET(0);
     bytes_total += count.set_elems * SIZ_REC(bitSetType);
     bytes_total += count.stru * SIZ_SCT(0);
@@ -908,6 +925,8 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         ((memSizeType) count.hash) * SIZ_HSH(0) +
         count.hsh_elems * SIZ_REC(hashElemType) +
         ((memSizeType) count.helem) * SIZ_REC(hashElemRecord) +
+        ((memSizeType) count.rtl_hash) * SIZ_RTL_HSH(0) +
+        count.rtl_hsh_elems * SIZ_REC(rtlHashElemType) +
         ((memSizeType) count.rtl_helem) * SIZ_REC(rtlHashElemRecord) +
         ((memSizeType) count.set) * SIZ_SET(0) +
         count.set_elems * SIZ_REC(bitSetType) +
