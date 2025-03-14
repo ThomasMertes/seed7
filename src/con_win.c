@@ -129,7 +129,7 @@ boolType kbdInputReady (void)
 
   {
     INPUT_RECORD event;
-    DWORD count = 0;
+    DWORD numEventsRead = 0;
     boolType ignoreEvent;
     boolType result;
 
@@ -140,8 +140,8 @@ boolType kbdInputReady (void)
     } /* if */
     do {
       ignoreEvent = FALSE;
-      result = PeekConsoleInputW(hKeyboard, &event, 1, &count) != 0 &&
-               count != 0;
+      result = PeekConsoleInputW(hKeyboard, &event, 1, &numEventsRead) != 0 &&
+               numEventsRead != 0;
       if (result) {
         if (event.EventType == KEY_EVENT) {
           if (event.Event.KeyEvent.bKeyDown) {
@@ -189,7 +189,7 @@ boolType kbdInputReady (void)
         } /* if */
         if (ignoreEvent) {
           /* Skip the event to be ignored. */
-          ignoreEvent = ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0;
+          ignoreEvent = ReadConsoleInputW(hKeyboard, &event, 1, &numEventsRead) != 0;
           /* If reading the event, that already has been */
           /* peeked, fails the loop is terminated. */
         } /* if */
@@ -205,7 +205,7 @@ charType kbdGetc (void)
 
   {
     INPUT_RECORD event;
-    DWORD count;
+    DWORD numEventsRead;
     boolType altNumpadUsed = FALSE;
     charType highSurrogate = 0;
     charType result = K_NONE;
@@ -216,7 +216,7 @@ charType kbdGetc (void)
       kbd_init();
     } /* if */
     while (result == K_NONE &&
-        ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0) {
+        ReadConsoleInputW(hKeyboard, &event, 1, &numEventsRead) != 0) {
       if (event.EventType == KEY_EVENT) {
         if (event.Event.KeyEvent.bKeyDown) {
           traceEvent(printf("kbdGetc: KEY_EVENT KeyDown"
