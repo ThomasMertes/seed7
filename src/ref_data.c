@@ -98,6 +98,10 @@ objectType refAllocInt (boolType isVar, typeType aType,
     objectType created_object;
 
   /* refAllocInt */
+    logFunction(printf("refAllocInt(%s, ",
+                       isVar ? "TRUE" : "FALSE");
+                printtype(aType);
+                printf(", " FMT_D ")\n", number););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -121,6 +125,11 @@ objectType refAllocStri (boolType isVar, typeType aType,
     objectType created_object;
 
   /* refAllocStri */
+    logFunction(printf("refAllocStri(%s, ",
+                       isVar ? "TRUE" : "FALSE");
+                printtype(aType);
+                printf(", \"%s\")\n",
+                       striAsUnquotedCStri(stri)););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -143,6 +152,11 @@ objectType refAllocVar (typeType aType, const intType aCategory)
     objectType created_object;
 
   /* refAllocVar */
+    logFunction(printf("refAllocVar(");
+                printtype(aType);
+                printf(", ");
+                printcategory(aCategory);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {

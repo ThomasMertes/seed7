@@ -82,6 +82,9 @@ objectType ref_alloc (listType arguments)
   /* ref_alloc */
     isit_reference(arg_1(arguments));
     obj1 = take_reference(arg_1(arguments));
+    logFunction(printf("ref_alloc(");
+                trace1(obj1);
+                printf(")\n"););
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj1->type_of;
       memcpy(&created_object->descriptor, &obj1->descriptor,
@@ -103,6 +106,12 @@ objectType ref_alloc_int (listType arguments)
     isit_bool(arg_1(arguments));
     isit_type(arg_2(arguments));
     isit_int(arg_3(arguments));
+    logFunction(printf("ref_alloc_int(%s, ",
+                       take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT ?
+                       "TRUE" : "FALSE");
+                printtype(take_type(arg_2(arguments)));
+                printf(", " FMT_D ")\n",
+                       take_int(arg_3(arguments))););
     return bld_reference_temp(
         refAllocInt(take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT,
                      take_type(arg_2(arguments)),
@@ -117,6 +126,12 @@ objectType ref_alloc_stri (listType arguments)
     isit_bool(arg_1(arguments));
     isit_type(arg_2(arguments));
     isit_stri(arg_3(arguments));
+    logFunction(printf("ref_alloc_stri(%s, ",
+                       take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT ?
+                       "TRUE" : "FALSE");
+                printtype(take_type(arg_2(arguments)));
+                printf(", \"%s\")\n", striAsUnquotedCStri(
+                       take_stri(arg_3(arguments)))););
     return bld_reference_temp(
         refAllocStri(take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT,
                      take_type(arg_2(arguments)),
@@ -130,6 +145,11 @@ objectType ref_alloc_var (listType arguments)
   { /* ref_alloc_var */
     isit_type(arg_1(arguments));
     isit_int(arg_2(arguments));
+    logFunction(printf("ref_alloc_var(");
+                printtype(take_type(arg_1(arguments)));
+                printf(", ");
+                printcategory(take_int(arg_2(arguments)));
+                printf(")\n"););
     return bld_reference_temp(
         refAllocVar(take_type(arg_1(arguments)),
                     take_int(arg_2(arguments))));
