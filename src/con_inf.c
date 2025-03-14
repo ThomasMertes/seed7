@@ -759,12 +759,12 @@ void conClear (intType startlin, intType startcol,
 
 
 /**
- *  Scrolls the given area stopcol upward by count lines.
+ *  Scrolls the given area upward by numLines lines.
  *  The calling function assures that startlin, stoplin, startcol,
- *  stopcol and count are greater or equal 1.
+ *  stopcol and numLines are greater or equal 1.
  */
 static void doUpScroll (int startlin, int startcol,
-    int stoplin, int stopcol, int count)
+    int stoplin, int stopcol, int numLines)
 
   {
     int number;
@@ -776,18 +776,18 @@ static void doUpScroll (int startlin, int startcol,
     unsigned char *new_attr;
 
   /* doUpScroll */
-    if (count > stoplin - startlin + 1) {
-      count = stoplin - startlin + 1;
+    if (numLines > stoplin - startlin + 1) {
+      numLines = stoplin - startlin + 1;
     } /* if */
     if ((insert_line == NULL && parm_insert_line == NULL) ||
         (delete_line == NULL && parm_delete_line == NULL) ||
         startcol != 1 || stopcol != con->width) {
-      for (line = startlin - 1; line < stoplin - count; line++) {
+      for (line = startlin - 1; line < stoplin - numLines; line++) {
         column = stopcol;
         new_line = con->chars[line];
         new_attr = con->attributes[line];
-        old_line = con->chars[line + count];
-        old_attr = con->attributes[line + count];
+        old_line = con->chars[line + numLines];
+        old_attr = con->attributes[line + numLines];
         while (column >= startcol &&
             new_line[column - 1] == old_line[column - 1] &&
             new_attr[column - 1] == old_attr[column - 1]) {
@@ -805,7 +805,7 @@ static void doUpScroll (int startlin, int startcol,
               (unsigned int) (column - startcol + 1), stdout);
         } /* if */
       } /* for */
-      for (line = stoplin - count; line < stoplin; line++) {
+      for (line = stoplin - numLines; line < stoplin; line++) {
         column = stopcol;
         new_line = con->chars[line];
         new_attr = con->attributes[line];
@@ -833,36 +833,36 @@ static void doUpScroll (int startlin, int startcol,
       putgoto(cursor_address, 0, startlin - 1); /* cursor motion */
 #ifdef TPARM_PRESENT
       if (parm_delete_line != NULL) {
-        putctl(tparm(parm_delete_line, count));
+        putctl(tparm(parm_delete_line, numLines));
       } else {
 #endif
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numLines; number++) {
           putctl(delete_line); /* delete line */
         } /* for */
 #ifdef TPARM_PRESENT
       } /* if */
 #endif
-      putgoto(cursor_address, 0, stoplin - count); /* cursor motion */
+      putgoto(cursor_address, 0, stoplin - numLines); /* cursor motion */
 #ifdef TPARM_PRESENT
       if (parm_insert_line != NULL) {
-        putctl(tparm(parm_insert_line, count));
+        putctl(tparm(parm_insert_line, numLines));
       } else {
 #endif
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numLines; number++) {
           putctl(insert_line); /* insert line */
         } /* for */
 #ifdef TPARM_PRESENT
       } /* if */
 #endif
-      for (line = startlin - 1; line < stoplin - count; line++) {
+      for (line = startlin - 1; line < stoplin - numLines; line++) {
         memcpy(&con->chars[line][startcol - 1],
-            &con->chars[line + count][startcol - 1],
+            &con->chars[line + numLines][startcol - 1],
             sizeof(strElemType) * (unsigned int) (stopcol - startcol + 1));
         memcpy(&con->attributes[line][startcol - 1],
-            &con->attributes[line + count][startcol - 1],
+            &con->attributes[line + numLines][startcol - 1],
             (unsigned int) (stopcol - startcol + 1));
       } /* for */
-      for (line = stoplin - count; line < stoplin; line++) {
+      for (line = stoplin - numLines; line < stoplin; line++) {
         memset_to_strelem(&con->chars[line][startcol - 1], ' ',
             (memSizeType) (stopcol - startcol + 1));
         memset(&con->attributes[line][startcol - 1], curr_attr,
@@ -880,13 +880,13 @@ static void doUpScroll (int startlin, int startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol upward by count lines. The upper count lines of the
+ *  stopcol upward by numLines lines. The upper numLines lines of the
  *  area are overwritten. At the lower end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   { /* conUpScroll */
     if (con->size_changed) {
@@ -903,19 +903,19 @@ void conUpScroll (intType startlin, intType startcol,
         stopcol = con->width;
       } /* if */
       doUpScroll((int) startlin, (int) startcol,
-                 (int) stoplin, (int) stopcol, (int) count);
+                 (int) stoplin, (int) stopcol, (int) numLines);
     } /* if */
   } /* conUpScroll */
 
 
 
 /**
- *  Scrolls the given area stopcol downward by count lines.
+ *  Scrolls the given area downward by numLines lines.
  *  The calling function assures that startlin, stoplin, startcol,
- *  stopcol and count are greater or equal 1.
+ *  stopcol and numLines are greater or equal 1.
  */
 static void doDownScroll (int startlin, int startcol,
-    int stoplin, int stopcol, int count)
+    int stoplin, int stopcol, int numLines)
 
   {
     int number;
@@ -927,18 +927,18 @@ static void doDownScroll (int startlin, int startcol,
     unsigned char *new_attr;
 
   /* doDownScroll */
-    if (count > stoplin - startlin + 1) {
-      count = stoplin - startlin + 1;
+    if (numLines > stoplin - startlin + 1) {
+      numLines = stoplin - startlin + 1;
     } /* if */
     if ((insert_line == NULL && parm_insert_line == NULL) ||
         (delete_line == NULL && parm_delete_line == NULL) ||
         startcol != 1 || stopcol != con->width) {
-      for (line = stoplin - 1; line >= startlin + count - 1; line--) {
+      for (line = stoplin - 1; line >= startlin + numLines - 1; line--) {
         column = stopcol;
         new_line = con->chars[line];
         new_attr = con->attributes[line];
-        old_line = con->chars[line - count];
-        old_attr = con->attributes[line - count];
+        old_line = con->chars[line - numLines];
+        old_attr = con->attributes[line - numLines];
         while (column >= startcol &&
             new_line[column - 1] == old_line[column - 1] &&
             new_attr[column - 1] == old_attr[column - 1]) {
@@ -956,7 +956,7 @@ static void doDownScroll (int startlin, int startcol,
               (unsigned int) (column - startcol + 1));
         } /* if */
       } /* for */
-      for (line = startlin + count - 2; line >= startlin - 1; line--) {
+      for (line = startlin + numLines - 2; line >= startlin - 1; line--) {
         column = stopcol;
         new_line = con->chars[line];
         new_attr = con->attributes[line];
@@ -975,15 +975,15 @@ static void doDownScroll (int startlin, int startcol,
         } /* if */
       } /* for */
     } else {
-    /* fprintf(stderr, "scrDownScroll: lin1=%d col1=%d lin*=%d col*=%d count=%d\n",
-           startlin, startcol, stoplin, stopcol, count); */
-      putgoto(cursor_address, 0, stoplin - count); /* cursor motion */
+    /* fprintf(stderr, "scrDownScroll: lin1=%d col1=%d lin*=%d col*=%d numLines=%d\n",
+           startlin, startcol, stoplin, stopcol, numLines); */
+      putgoto(cursor_address, 0, stoplin - numLines); /* cursor motion */
 #ifdef TPARM_PRESENT
       if (parm_delete_line != NULL) {
-        putctl(tparm(parm_delete_line, count));
+        putctl(tparm(parm_delete_line, numLines));
       } else {
 #endif
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numLines; number++) {
           putctl(delete_line); /* delete line */
         } /* for */
 #ifdef TPARM_PRESENT
@@ -992,25 +992,25 @@ static void doDownScroll (int startlin, int startcol,
       putgoto(cursor_address, 0, startlin - 1); /* cursor motion */
 #ifdef TPARM_PRESENT
       if (parm_insert_line != NULL) {
-        putctl(tparm(parm_insert_line, count));
+        putctl(tparm(parm_insert_line, numLines));
       } else {
 #endif
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numLines; number++) {
           putctl(insert_line); /* insert line */
         } /* for */
 #ifdef TPARM_PRESENT
       } /* if */
 #endif
-      for (line = stoplin - 1; line >= startlin + count - 1; line--) {
+      for (line = stoplin - 1; line >= startlin + numLines - 1; line--) {
         memcpy(&con->chars[line][startcol - 1],
-            &con->chars[line - count][startcol - 1],
+            &con->chars[line - numLines][startcol - 1],
             sizeof(strElemType) * (unsigned int) (stopcol - startcol + 1));
         memcpy(&con->attributes[line][startcol - 1],
-            &con->attributes[line - count][startcol - 1],
+            &con->attributes[line - numLines][startcol - 1],
             (unsigned int) (stopcol - startcol + 1));
       } /* for */
-/*    for (line = startlin + count - 2; line >= startlin - 1; line--) { */
-      for (line = startlin - 1; line < startlin + count - 1; line++) {
+/*    for (line = startlin + numLines - 2; line >= startlin - 1; line--) { */
+      for (line = startlin - 1; line < startlin + numLines - 1; line++) {
         memset_to_strelem(&con->chars[line][startcol - 1], ' ',
             (memSizeType) (stopcol - startcol + 1));
         memset(&con->attributes[line][startcol - 1], curr_attr,
@@ -1028,13 +1028,13 @@ static void doDownScroll (int startlin, int startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol downward by count lines. The lower count lines of the
+ *  stopcol downward by numLines lines. The lower numLines lines of the
  *  area are overwritten. At the upper end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   { /* conDownScroll */
     if (con->size_changed) {
@@ -1051,7 +1051,7 @@ void conDownScroll (intType startlin, intType startcol,
         stopcol = con->width;
       } /* if */
       doDownScroll((int) startlin, (int) startcol,
-                   (int) stoplin, (int) stopcol, (int) count);
+                   (int) stoplin, (int) stopcol, (int) numLines);
     } /* if */
   } /* conDownScroll */
 
@@ -1059,12 +1059,12 @@ void conDownScroll (intType startlin, intType startcol,
 
 
 /**
- *  Scrolls the given area stopcol leftward by count columns.
+ *  Scrolls the given area stopcol leftward by numCols columns.
  *  The calling function assures that startlin, stoplin, startcol,
- *  stopcol and count are greater or equal 1.
+ *  stopcol and numCols are greater or equal 1.
  */
 static void doLeftScroll (int startlin, int startcol,
-    int stoplin, int stopcol, int count)
+    int stoplin, int stopcol, int numCols)
 
   {
     int number;
@@ -1080,11 +1080,11 @@ static void doLeftScroll (int startlin, int startcol,
       putgoto(cursor_address, startcol - 1, startlin - 1); /* cursor motion */
       for (line = startlin - 1; line < stoplin; line++) {
         new_line = con->chars[line];
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numCols; number++) {
           putctl(delete_character); /* delete character */
         } /* for */
-        memmove(&new_line[startcol - 1], &new_line[startcol + count - 1],
-            sizeof(strElemType) * (unsigned int) (stopcol - startcol - count + 1));
+        memmove(&new_line[startcol - 1], &new_line[startcol + numCols - 1],
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol - numCols + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
@@ -1094,17 +1094,17 @@ static void doLeftScroll (int startlin, int startcol,
         } /* if */
       } /* for */
       if (insert_character != NULL) {
-        putgoto(cursor_address, stopcol - count, startlin - 1); /* cursor motion */
+        putgoto(cursor_address, stopcol - numCols, startlin - 1); /* cursor motion */
         for (line = startlin - 1; line < stoplin; line++) {
-          for (number = 1; number <= count; number++) {
+          for (number = 1; number <= numCols; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          memset_to_strelem(&con->chars[line][stopcol - count], ' ', (memSizeType) count);
+          memset_to_strelem(&con->chars[line][stopcol - numCols], ' ', (memSizeType) numCols);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
             } else {
-              putgoto(cursor_address, stopcol - count, line + 1); /* cursor motion */
+              putgoto(cursor_address, stopcol - numCols, line + 1); /* cursor motion */
             } /* if */
           } /* if */
         } /* for */
@@ -1112,27 +1112,27 @@ static void doLeftScroll (int startlin, int startcol,
         if (move_insert_mode) { /* safe to move while in insert mode */
           putctl(enter_insert_mode); /* enter insert mode */
           for (line = startlin - 1; line < stoplin; line++) {
-            putgoto(cursor_address, stopcol - count, line); /* cursor motion */
-            strelem_fwrite(con->space, (unsigned int) count, stdout);
-            memset_to_strelem(&con->chars[line][stopcol - count], ' ', (memSizeType) count);
+            putgoto(cursor_address, stopcol - numCols, line); /* cursor motion */
+            strelem_fwrite(con->space, (unsigned int) numCols, stdout);
+            memset_to_strelem(&con->chars[line][stopcol - numCols], ' ', (memSizeType) numCols);
           } /* for */
           putctl(exit_insert_mode); /* end insert mode */
         } else {
           for (line = startlin - 1; line < stoplin; line++) {
-            putgoto(cursor_address, stopcol - count, line); /* cursor motion */
+            putgoto(cursor_address, stopcol - numCols, line); /* cursor motion */
             putctl(enter_insert_mode); /* enter insert mode */
-            strelem_fwrite(con->space, (unsigned int) count, stdout);
+            strelem_fwrite(con->space, (unsigned int) numCols, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            memset_to_strelem(&con->chars[line][stopcol - count], ' ', (memSizeType) count);
+            memset_to_strelem(&con->chars[line][stopcol - numCols], ' ', (memSizeType) numCols);
           } /* for */
         } /* if */
       } /* if */
     } else {
       for (line = startlin - 1; line < stoplin; line++) {
         start_pos = 0;
-        end_pos = stopcol - startcol - count;
+        end_pos = stopcol - startcol - numCols;
         new_line = &con->chars[line][startcol - 1];
-        old_line = &con->chars[line][startcol + count - 1];
+        old_line = &con->chars[line][startcol + numCols - 1];
         while (start_pos <= end_pos && new_line[start_pos] ==
             old_line[start_pos]) {
           start_pos++;
@@ -1148,14 +1148,14 @@ static void doLeftScroll (int startlin, int startcol,
               sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
         } /* if */
         start_pos = 0;
-        new_line = &con->chars[line][stopcol - count];
-        while (start_pos < count && new_line[start_pos] == ' ') {
+        new_line = &con->chars[line][stopcol - numCols];
+        while (start_pos < numCols && new_line[start_pos] == ' ') {
           start_pos++;
         } /* while */
-        if (start_pos < count) {
-          putgoto(cursor_address, stopcol - count + start_pos, line); /* cursor motion */
-          strelem_fwrite(con->space, (unsigned int) (count - start_pos), stdout);
-          memset_to_strelem(&new_line[start_pos], ' ', (memSizeType) (count - start_pos));
+        if (start_pos < numCols) {
+          putgoto(cursor_address, stopcol - numCols + start_pos, line); /* cursor motion */
+          strelem_fwrite(con->space, (unsigned int) (numCols - start_pos), stdout);
+          memset_to_strelem(&new_line[start_pos], ' ', (memSizeType) (numCols - start_pos));
         } /* if */
       } /* for */
     } /* if */
@@ -1170,13 +1170,13 @@ static void doLeftScroll (int startlin, int startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol leftward by count columns. The left count columns of the
+ *  stopcol leftward by numCols columns. The left numCols columns of the
  *  area are overwritten. At the right end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conLeftScroll */
     if (con->size_changed) {
@@ -1193,19 +1193,19 @@ void conLeftScroll (intType startlin, intType startcol,
         stopcol = con->width;
       } /* if */
       doLeftScroll((int) startlin, (int) startcol,
-                   (int) stoplin, (int) stopcol, (int) count);
+                   (int) stoplin, (int) stopcol, (int) numCols);
     } /* if */
   } /* conLeftScroll */
 
 
 
 /**
- *  Scrolls the given area stopcol rightward by count columns.
+ *  Scrolls the given area stopcol rightward by numCols columns.
  *  The calling function assures that startlin, stoplin, startcol,
- *  stopcol and count are greater or equal 1.
+ *  stopcol and numCols are greater or equal 1.
  */
 static void doRightScroll (int startlin, int startcol,
-    int stoplin, int stopcol, int count)
+    int stoplin, int stopcol, int numCols)
 
   {
     int number;
@@ -1218,29 +1218,29 @@ static void doRightScroll (int startlin, int startcol,
   /* doRightScroll */
     if (0 && delete_character != NULL && (insert_character != NULL ||
         (enter_insert_mode != NULL && exit_insert_mode != NULL))) {
-      putgoto(cursor_address, stopcol - count, startlin - 1); /* cursor motion */
+      putgoto(cursor_address, stopcol - numCols, startlin - 1); /* cursor motion */
       for (line = startlin - 1; line < stoplin; line++) {
         new_line = con->chars[line];
-        for (number = 1; number <= count; number++) {
+        for (number = 1; number <= numCols; number++) {
           putctl(delete_character); /* delete character */
         } /* for */
-        memmove(&new_line[startcol + count - 1], &new_line[startcol - 1],
-            sizeof(strElemType) * (unsigned int) (stopcol - startcol - count + 1));
+        memmove(&new_line[startcol + numCols - 1], &new_line[startcol - 1],
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol - numCols + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
           } else {
-            putgoto(cursor_address, stopcol - count, line + 1); /* cursor motion */
+            putgoto(cursor_address, stopcol - numCols, line + 1); /* cursor motion */
           } /* if */
         } /* if */
       } /* for */
       putgoto(cursor_address, startcol - 1, startlin - 1); /* cursor motion */
       if (insert_character != NULL) {
         for (line = startlin - 1; line < stoplin; line++) {
-          for (number = 1; number <= count; number++) {
+          for (number = 1; number <= numCols; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) count);
+          memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) numCols);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
@@ -1253,8 +1253,8 @@ static void doRightScroll (int startlin, int startcol,
         if (move_insert_mode) { /* safe to move while in insert mode */
           putctl(enter_insert_mode); /* enter insert mode */
           for (line = startlin - 1; line < stoplin; line++) {
-            strelem_fwrite(con->space, (unsigned int) count, stdout);
-            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) count);
+            strelem_fwrite(con->space, (unsigned int) numCols, stdout);
+            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) numCols);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1263,9 +1263,9 @@ static void doRightScroll (int startlin, int startcol,
         } else {
           for (line = startlin - 1; line < stoplin; line++) {
             putctl(enter_insert_mode); /* enter insert mode */
-            strelem_fwrite(con->space, (unsigned int) count, stdout);
+            strelem_fwrite(con->space, (unsigned int) numCols, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) count);
+            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (memSizeType) numCols);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1275,8 +1275,8 @@ static void doRightScroll (int startlin, int startcol,
     } else {
       for (line = startlin - 1; line < stoplin; line++) {
         start_pos = 0;
-        end_pos = stopcol - startcol - count;
-        new_line = &con->chars[line][startcol + count - 1];
+        end_pos = stopcol - startcol - numCols;
+        new_line = &con->chars[line][startcol + numCols - 1];
         old_line = &con->chars[line][startcol - 1];
         while (start_pos <= end_pos && new_line[start_pos] ==
             old_line[start_pos]) {
@@ -1287,7 +1287,7 @@ static void doRightScroll (int startlin, int startcol,
             end_pos--;
           } /* while */
           /* cursor motion */
-          putgoto(cursor_address, startcol + count + start_pos - 1, line);
+          putgoto(cursor_address, startcol + numCols + start_pos - 1, line);
           strelem_fwrite(&old_line[start_pos],
               (unsigned int) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],
@@ -1295,13 +1295,13 @@ static void doRightScroll (int startlin, int startcol,
         } /* if */
         start_pos = 0;
         new_line = &con->chars[line][startcol - 1];
-        while (start_pos < count && new_line[start_pos] == ' ') {
+        while (start_pos < numCols && new_line[start_pos] == ' ') {
           start_pos++;
         } /* while */
-        if (start_pos < count) {
+        if (start_pos < numCols) {
           putgoto(cursor_address, startcol + start_pos - 1, line); /* cursor motion */
-          strelem_fwrite(con->space, (unsigned int) (count - start_pos), stdout);
-          memset_to_strelem(&new_line[start_pos], ' ', (memSizeType) (count - start_pos));
+          strelem_fwrite(con->space, (unsigned int) (numCols - start_pos), stdout);
+          memset_to_strelem(&new_line[start_pos], ' ', (memSizeType) (numCols - start_pos));
         } /* if */
       } /* for */
     } /* if */
@@ -1316,13 +1316,13 @@ static void doRightScroll (int startlin, int startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol rightward by count columns. The right count columns of the
+ *  stopcol rightward by numCols columns. The right numCols columns of the
  *  area are overwritten. At the left end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conRightScroll */
     if (con->size_changed) {
@@ -1339,7 +1339,7 @@ void conRightScroll (intType startlin, intType startcol,
         stopcol = con->width;
       } /* if */
       doRightScroll((int) startlin, (int) startcol,
-                    (int) stoplin, (int) stopcol, (int) count);
+                    (int) stoplin, (int) stopcol, (int) numCols);
     } /* if */
   } /* conRightScroll */
 

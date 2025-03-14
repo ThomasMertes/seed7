@@ -457,7 +457,7 @@ void conClear (intType startlin, intType startcol,
 
 
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   { /* conUpScroll */
   } /* conUpScroll */
@@ -465,7 +465,7 @@ void conUpScroll (intType startlin, intType startcol,
 
 
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   { /* conDownScroll */
   } /* conDownScroll */
@@ -473,7 +473,7 @@ void conDownScroll (intType startlin, intType startcol,
 
 
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conLeftScroll */
   } /* conLeftScroll */
@@ -481,7 +481,7 @@ void conLeftScroll (intType startlin, intType startcol,
 
 
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conRightScroll */
   } /* conRightScroll */

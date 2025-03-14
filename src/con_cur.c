@@ -475,13 +475,13 @@ void conClear (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol upward by count lines. The upper count lines of the
+ *  stopcol upward by numLines lines. The upper numLines lines of the
  *  area are overwritten. At the lower end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     int number;
@@ -491,24 +491,24 @@ void conUpScroll (intType startlin, intType startcol,
 
   /* conUpScroll */
     if (startcol != 1 || stopcol != COLS) {
-      for (line = startlin - 1; line < stoplin - count; line++) {
+      for (line = startlin - 1; line < stoplin - numLines; line++) {
         for (column = startcol - 1; column < stopcol; column++) {
-          ch = mvinch(line + count, column);
+          ch = mvinch(line + numLines, column);
           mvaddch(line, column, ch);
         } /* for */
       } /* for */
-      for (line = stoplin - count; line < stoplin; line++) {
+      for (line = stoplin - numLines; line < stoplin; line++) {
         for (column = startcol - 1; column < stopcol; column++) {
           mvaddch(line, column, ' ');
         } /* for */
       } /* for */
     } else {
       move(startlin - 1, 0);
-      for (number = 1; number <= count; number++) {
+      for (number = 1; number <= numLines; number++) {
         deleteln();
       } /* for */
-      move(stoplin - count, 0);
-      for (number = 1; number <= count; number++) {
+      move(stoplin - numLines, 0);
+      for (number = 1; number <= numLines; number++) {
         insertln();
       } /* for */
       scroll_allowed = TRUE;
@@ -523,13 +523,13 @@ void conUpScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol downward by count lines. The lower count lines of the
+ *  stopcol downward by numLines lines. The lower numLines lines of the
  *  area are overwritten. At the upper end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     int number;
@@ -539,24 +539,24 @@ void conDownScroll (intType startlin, intType startcol,
 
   /* conDownScroll */
     if (startcol != 1 || stopcol != COLS) {
-      for (line = stoplin - 1; line >= startlin + count - 1; line--) {
+      for (line = stoplin - 1; line >= startlin + numLines - 1; line--) {
         for (column = startcol - 1; column < stopcol; column++) {
-          ch = mvinch(line - count, column);
+          ch = mvinch(line - numLines, column);
           mvaddch(line, column, ch);
         } /* for */
       } /* for */
-      for (line = startlin + count - 2; line >= startlin - 1; line--) {
+      for (line = startlin + numLines - 2; line >= startlin - 1; line--) {
         for (column = startcol - 1; column < stopcol; column++) {
           mvaddch(line, column, ' ');
         } /* for */
       } /* for */
     } else {
-      move(stoplin - count, 0);
-      for (number = 1; number <= count; number++) {
+      move(stoplin - numLines, 0);
+      for (number = 1; number <= numLines; number++) {
         deleteln();
       } /* for */
       move(startlin - 1, 0);
-      for (number = 1; number <= count; number++) {
+      for (number = 1; number <= numLines; number++) {
         insertln();
       } /* for */
       scroll_allowed = TRUE;
@@ -571,13 +571,13 @@ void conDownScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol leftward by count columns. The left count columns of the
+ *  stopcol leftward by numCols columns. The left numCols columns of the
  *  area are overwritten. At the right end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     int number;
@@ -586,11 +586,11 @@ void conLeftScroll (intType startlin, intType startcol,
   /* conLeftScroll */
     for (line = startlin - 1; line < stoplin; line++) {
       move(line, startcol - 1);
-      for (number = 1; number <= count; number++) {
+      for (number = 1; number <= numCols; number++) {
         delch();
       } /* for */
-      move(line, stopcol - count);
-      for (number = 1; number <= count; number++) {
+      move(line, stopcol - numCols);
+      for (number = 1; number <= numCols; number++) {
         insch(' ');
       } /* for */
     } /* for */
@@ -604,13 +604,13 @@ void conLeftScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol rightward by count columns. The right count columns of the
+ *  stopcol rightward by numCols columns. The right numCols columns of the
  *  area are overwritten. At the left end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     int number;
@@ -618,12 +618,12 @@ void conRightScroll (intType startlin, intType startcol,
 
   /* conRightScroll */
     for (line = startlin - 1; line < stoplin; line++) {
-      move(line, stopcol - count);
-      for (number = 1; number <= count; number++) {
+      move(line, stopcol - numCols);
+      for (number = 1; number <= numCols; number++) {
         delch();
       } /* for */
       move(line, startcol - 1);
-      for (number = 1; number <= count; number++) {
+      for (number = 1; number <= numCols; number++) {
         insch(' ');
       } /* for */
     } /* for */

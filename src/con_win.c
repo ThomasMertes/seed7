@@ -872,13 +872,13 @@ void conClear (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol upward by count lines. The upper count lines of the
+ *  stopcol upward by numLines lines. The upper numLines lines of the
  *  area are overwritten. At the lower end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     HANDLE hConsole;
@@ -891,7 +891,7 @@ void conUpScroll (intType startlin, intType startcol,
                  stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
-      if (count > stoplin - startlin + 1) {
+      if (numLines > stoplin - startlin + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > INT16TYPE_MAX) {
@@ -903,7 +903,7 @@ void conUpScroll (intType startlin, intType startcol,
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
           scrollRect.Left   = (int16Type) (startcol - 1);
-          scrollRect.Top    = (int16Type) (startlin + count - 1);
+          scrollRect.Top    = (int16Type) (startlin + numLines - 1);
           scrollRect.Right  = (int16Type) (stopcol - 1);
           scrollRect.Bottom = (int16Type) (stoplin - 1);
           destOrigin.X = (int16Type) (startcol - 1);
@@ -924,13 +924,13 @@ void conUpScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol downward by count lines. The lower count lines of the
+ *  stopcol downward by numLines lines. The lower numLines lines of the
  *  area are overwritten. At the upper end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     HANDLE hConsole;
@@ -943,7 +943,7 @@ void conDownScroll (intType startlin, intType startcol,
                  stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
-      if (count > stoplin - startlin + 1) {
+      if (numLines > stoplin - startlin + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > INT16TYPE_MAX) {
@@ -957,9 +957,9 @@ void conDownScroll (intType startlin, intType startcol,
           scrollRect.Left   = (int16Type) (startcol - 1);
           scrollRect.Top    = (int16Type) (startlin - 1);
           scrollRect.Right  = (int16Type) (stopcol - 1);
-          scrollRect.Bottom = (int16Type) (stoplin - count - 1);
+          scrollRect.Bottom = (int16Type) (stoplin - numLines - 1);
           destOrigin.X = (int16Type) (startcol - 1);
-          destOrigin.Y = (int16Type) (startlin + count - 1);
+          destOrigin.Y = (int16Type) (startlin + numLines - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
@@ -976,13 +976,13 @@ void conDownScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol leftward by count columns. The left count columns of the
+ *  stopcol leftward by numCols columns. The left numCols columns of the
  *  area are overwritten. At the right end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     HANDLE hConsole;
@@ -995,7 +995,7 @@ void conLeftScroll (intType startlin, intType startcol,
                  stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
-      if (count > stopcol - startcol + 1) {
+      if (numCols > stopcol - startcol + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > INT16TYPE_MAX) {
@@ -1006,7 +1006,7 @@ void conLeftScroll (intType startlin, intType startcol,
         } /* if */
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          scrollRect.Left   = (int16Type) (startcol + count - 1);
+          scrollRect.Left   = (int16Type) (startcol + numCols - 1);
           scrollRect.Top    = (int16Type) (startlin - 1);
           scrollRect.Right  = (int16Type) (stopcol - 1);
           scrollRect.Bottom = (int16Type) (stoplin - 1);
@@ -1028,13 +1028,13 @@ void conLeftScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol rightward by count columns. The right count columns of the
+ *  stopcol rightward by numCols columns. The right numCols columns of the
  *  area are overwritten. At the left end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     HANDLE hConsole;
@@ -1047,7 +1047,7 @@ void conRightScroll (intType startlin, intType startcol,
                  stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
-      if (count > stopcol - startcol + 1) {
+      if (numCols > stopcol - startcol + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > INT16TYPE_MAX) {
@@ -1060,9 +1060,9 @@ void conRightScroll (intType startlin, intType startcol,
         if (hConsole != INVALID_HANDLE_VALUE) {
           scrollRect.Left   = (int16Type) (startcol - 1);
           scrollRect.Top    = (int16Type) (startlin - 1);
-          scrollRect.Right  = (int16Type) (stopcol - count - 1);
+          scrollRect.Right  = (int16Type) (stopcol - numCols - 1);
           scrollRect.Bottom = (int16Type) (stoplin - 1);
-          destOrigin.X = (int16Type) (startcol + count - 1);
+          destOrigin.X = (int16Type) (startcol + numCols - 1);
           destOrigin.Y = (int16Type) (startlin - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';

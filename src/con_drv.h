@@ -60,12 +60,12 @@ void conWrite (const const_striType stri);
 void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol);
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count);
+    intType stoplin, intType stopcol, intType numLines);
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count);
+    intType stoplin, intType stopcol, intType numLines);
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count);
+    intType stoplin, intType stopcol, intType numCols);
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count);
+    intType stoplin, intType stopcol, intType numCols);
 void conShut (void);
 int conOpen (void);

@@ -65,13 +65,13 @@ intType conColumn (void)
 
 
 void conHScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conHScroll */
-    if (count > 0) {
-      conLeftScroll(startlin, startcol, stoplin, stopcol, count);
-    } else if (count < 0) {
-      conRightScroll(startlin, startcol, stoplin, stopcol, -count);
+    if (numCols > 0) {
+      conLeftScroll(startlin, startcol, stoplin, stopcol, numCols);
+    } else if (numCols < 0) {
+      conRightScroll(startlin, startcol, stoplin, stopcol, -numCols);
     } /* if */
   } /* conHScroll */
 
@@ -100,13 +100,13 @@ void conSetpos (intType lin, intType col)
 
 
 void conVScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   { /* conVScroll */
-    if (count > 0) {
-      conUpScroll(startlin, startcol, stoplin, stopcol, count);
-    } else if (count < 0) {
-      conDownScroll(startlin, startcol, stoplin, stopcol, -count);
+    if (numLines > 0) {
+      conUpScroll(startlin, startcol, stoplin, stopcol, numLines);
+    } else if (numLines < 0) {
+      conDownScroll(startlin, startcol, stoplin, stopcol, -numLines);
     } /* if */
   } /* conVScroll */
 

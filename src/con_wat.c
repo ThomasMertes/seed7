@@ -594,13 +594,13 @@ void conClear (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol upward by count lines. The upper count lines of the
+ *  stopcol upward by numLines lines. The upper numLines lines of the
  *  area are overwritten. At the lower end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     union REGS r;
@@ -610,7 +610,7 @@ void conUpScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
-      if (count > stoplin - startlin + 1) {
+      if (numLines > stoplin - startlin + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > UINT8TYPE_MAX) {
@@ -620,7 +620,7 @@ void conUpScroll (intType startlin, intType startcol,
           stopcol = UINT8TYPE_MAX;
         } /* if */
         r.h.ah = (unsigned char) 6; /* scroll up code */
-        r.h.al = (unsigned char) count;
+        r.h.al = (unsigned char) numLines;
         r.h.ch = (unsigned char) (startlin - 1);
         r.h.cl = (unsigned char) (startcol - 1);
         r.h.dh = (unsigned char) (stoplin - 1);
@@ -635,13 +635,13 @@ void conUpScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol downward by count lines. The lower count lines of the
+ *  stopcol downward by numLines lines. The lower numLines lines of the
  *  area are overwritten. At the upper end of the area blank lines
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numLines is greater or equal 1.
  */
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     union REGS r;
@@ -651,7 +651,7 @@ void conDownScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
-      if (count > stoplin - startlin + 1) {
+      if (numLines > stoplin - startlin + 1) {
         conClear(startlin, startcol, stoplin, stopcol);
       } else {
         if (stoplin > UINT8TYPE_MAX) {
@@ -661,7 +661,7 @@ void conDownScroll (intType startlin, intType startcol,
           stopcol = UINT8TYPE_MAX;
         } /* if */
         r.h.ah = (unsigned char) 7; /* scroll down code */
-        r.h.al = (unsigned char) count;
+        r.h.al = (unsigned char) numLines;
         r.h.ch = (unsigned char) (startlin - 1);
         r.h.cl = (unsigned char) (startcol - 1);
         r.h.dh = (unsigned char) (stoplin - 1);
@@ -676,13 +676,13 @@ void conDownScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol leftward by count columns. The left count columns of the
+ *  stopcol leftward by numCols columns. The left numCols columns of the
  *  area are overwritten. At the right end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     int line;
@@ -695,9 +695,9 @@ void conLeftScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
-      num_bytes = 2 * (stopcol - startcol - count + 1);
+      num_bytes = 2 * (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
-          screen[startlin - 1][startcol + count - 1];
+          screen[startlin - 1][startcol + numCols - 1];
       destination = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
       for (line = startlin; line <= stoplin; line++) {
@@ -712,13 +712,13 @@ void conLeftScroll (intType startlin, intType startcol,
 
 /**
  *  Scrolls the area inside startlin, startcol, stoplin and
- *  stopcol rightward by count columns. The right count columns of the
+ *  stopcol rightward by numCols columns. The right numCols columns of the
  *  area are overwritten. At the left end of the area blank columns
  *  are inserted. Nothing is changed outside the area.
- *  The calling function assures that count is greater or equal 1.
+ *  The calling function assures that numCols is greater or equal 1.
  */
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
+    intType stoplin, intType stopcol, intType numCols)
 
   {
     int line;
@@ -731,11 +731,11 @@ void conRightScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
-      num_bytes = 2 * (stopcol - startcol - count + 1);
+      num_bytes = 2 * (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
       destination = (char *) &current_screen->
-          screen[startlin - 1][startcol + count - 1];
+          screen[startlin - 1][startcol + numCols - 1];
       for (line = startlin; line <= stoplin; line++) {
         memmove(destination, source, num_bytes);
         source += 160;
