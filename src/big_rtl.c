@@ -375,7 +375,7 @@ void closeBig (void)
 unsigned long bigFListCount (memSizeType *bigDigitCountAddr)
 
   {
-    int len;
+    unsigned int len;
     register freeListElemType flistElem;
     register memSizeType bigDigitCount = 0;
     register unsigned long numBigInts = 0;
